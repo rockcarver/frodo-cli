@@ -53,7 +53,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { classic_connection as cc } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -67,18 +67,18 @@ describe('frodo server list', () => {
     test('"frodo server list": should list the urls of the servers', async () => {
         const CMD = `frodo server list`;
         const { stdout } = await exec(CMD, classicEnv);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     test('"frodo server list -l": should list the ids, urls, and site names of the servers', async () => {
         const CMD = `frodo server list -l`;
         const { stdout } = await exec(CMD, classicEnv);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     test('"frodo server list --long": should list the ids, urls, and site names of the servers', async () => {
         const CMD = `frodo server list --long`;
         const { stdout } = await exec(CMD, classicEnv);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 });

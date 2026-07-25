@@ -59,7 +59,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -76,54 +76,54 @@ describe('frodo node import', () => {
   test(`"frodo node import -i c605506774a848f7877b4d17a453bd39 -f ${allNodesExport}": should import the custom node with the service name "c605506774a848f7877b4d17a453bd39" from the file "${allNodesExport}"`, async () => {
     const CMD = `frodo node import -i c605506774a848f7877b4d17a453bd39 -f ${allNodesExport}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo node import --node-id c605506774a848f7877b4d17a453bd39-1 --file ${allNodesFileName} --directory ${allDirectory}": should import the custom node with the id "c605506774a848f7877b4d17a453bd39-1" from the file "${allNodesExport}"`, async () => {
     const CMD = `frodo node import --node-id c605506774a848f7877b4d17a453bd39-1 --file ${allNodesFileName} --directory ${allDirectory}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo node import -n 'Display Callback' -f ${allNodesFileName} -D ${allDirectory}": should import the custom node named "Display Callback" from the file ${allNodesExport}`, async () => {
     const CMD = `frodo node import -n 'Display Callback' -f ${allNodesFileName} -D ${allDirectory}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo node import --node-name 'Display Callback' --file ${allNodesExport}": should import the custom node named "Display Callback" from the file "${allNodesExport}"`, async () => {
     const CMD = `frodo node import --node-name 'Display Callback' --file ${allNodesExport}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo node import -f ${allNodesExport}": should import the first custom node from the file "${allNodesExport}"`, async () => {
     const CMD = `frodo node import -f ${allNodesExport}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo node import -af ${allNodesFileName} -D ${allDirectory}": should import all custom nodes from the file "${allNodesExport}"`, async () => {
     const CMD = `frodo node import -af ${allNodesFileName} -D ${allDirectory}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo node import --all --file ${allNodesExport}": should import all custom nodes from the file "${allNodesExport}"`, async () => {
     const CMD = `frodo node import --all --file ${allNodesExport}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo node import -AD ${allSeparateNodesDirectory}": should import all custom nodes from the ${allSeparateNodesDirectory} directory"`, async () => {
     const CMD = `frodo node import -AD ${allSeparateNodesDirectory}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo node import --all-separate --directory ${allSeparateNodesDirectory}": should import all custom nodes from the ${allSeparateNodesDirectory} directory"`, async () => {
     const CMD = `frodo node import --all-separate --directory ${allSeparateNodesDirectory}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 });

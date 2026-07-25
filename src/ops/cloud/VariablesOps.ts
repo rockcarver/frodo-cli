@@ -5,6 +5,7 @@ import {
 } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 import { VariablesExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/VariablesOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import { getFullExportConfig, getIdLocations } from '../../utils/Config';
 import {
@@ -83,14 +84,14 @@ export async function listVariables(
   let fullExport = null;
   const headers = long
     ? [
-        'Id'['brightCyan'],
-        'Value'['brightCyan'],
-        'Status'['brightCyan'],
-        'Description'['brightCyan'],
-        'Modifier'['brightCyan'],
-        'Modified (UTC)'['brightCyan'],
+        c.cyanBright('Id'),
+        c.cyanBright('Value'),
+        c.cyanBright('Status'),
+        c.cyanBright('Description'),
+        c.cyanBright('Modifier'),
+        c.cyanBright('Modified (UTC)'),
       ]
-    : ['Id'['brightCyan']];
+    : [c.cyanBright('Id')];
   if (usage) {
     try {
       fullExport = await getFullExportConfig(file);
@@ -101,7 +102,7 @@ export async function listVariables(
     }
     //Delete variables from full export so they aren't mistakenly used for determining usage
     delete fullExport.global.variable;
-    headers.push('Used'['brightCyan']);
+    headers.push(c.cyanBright('Used'));
   }
   const table = createTable(headers);
   for (const variable of variables) {
@@ -114,7 +115,7 @@ export async function listVariables(
               : variable.value,
             40
           ),
-          variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+          variable.loaded ? c.greenBright('loaded') : c.redBright('unloaded'),
           wordwrap(variable.description, 40),
           state.getUseBearerTokenForAmApis()
             ? variable.lastChangedBy
@@ -126,8 +127,8 @@ export async function listVariables(
       const locations = getIdLocations(fullExport, variable._id, true);
       values.push(
         locations.length > 0
-          ? `${'yes'['brightGreen']} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
-          : 'no'['brightRed']
+          ? `${c.greenBright('yes')} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
+          : c.redBright('no')
       );
     }
     table.push(values);
@@ -343,9 +344,9 @@ export async function describeVariable(
       printMessage(variable, 'data');
     } else {
       const table = createKeyValueTable();
-      table.push(['Name'['brightCyan'], variable._id]);
+      table.push([c.cyanBright('Name'), variable._id]);
       table.push([
-        'Value'['brightCyan'],
+        c.cyanBright('Value'),
         wordwrap(
           variable.valueBase64
             ? decodeBase64(variable.valueBase64)
@@ -353,17 +354,17 @@ export async function describeVariable(
           40
         ),
       ]);
-      table.push(['Type'['brightCyan'], variable.expressionType]);
+      table.push([c.cyanBright('Type'), variable.expressionType]);
       table.push([
-        'Status'['brightCyan'],
-        variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+        c.cyanBright('Status'),
+        variable.loaded ? c.greenBright('loaded') : c.redBright('unloaded'),
       ]);
       table.push([
-        'Description'['brightCyan'],
+        c.cyanBright('Description'),
         wordwrap(variable.description, 60),
       ]);
       table.push([
-        'Modified'['brightCyan'],
+        c.cyanBright('Modified'),
         new Date(variable.lastChangeDate).toLocaleString(),
       ]);
       let modifierName: string;
@@ -373,12 +374,12 @@ export async function describeVariable(
         // ignore
       }
       if (modifierName && modifierName !== variable.lastChangedBy) {
-        table.push(['Modifier'['brightCyan'], modifierName]);
+        table.push([c.cyanBright('Modifier'), modifierName]);
       }
-      table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
+      table.push([c.cyanBright('Modifier UUID'), variable.lastChangedBy]);
       if (usage) {
         table.push([
-          `Usage Locations (${variable.locations.length} total)`['brightCyan'],
+          c.cyanBright(`Usage Locations (${variable.locations.length} total)`),
           variable.locations.length > 0 ? variable.locations[0] : '',
         ]);
         for (let i = 1; i < variable.locations.length; i++) {
@@ -436,13 +437,13 @@ export async function exportVariableToFile(
     updateProgressIndicator(indicatorId, `Exported variable ${variableId}`);
     stopProgressIndicator(
       indicatorId,
-      `Exported ${variableId['brightCyan']} to ${filePath['brightCyan']}.`
+      `Exported ${c.cyanBright(variableId)} to ${c.cyanBright(filePath)}.`
     );
     return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error exporting variable ${variableId['brightCyan']} to ${filePath['brightCyan']}`,
+      `Error exporting variable ${c.cyanBright(variableId)} to ${c.cyanBright(filePath)}`,
       'fail'
     );
     printError(error);
@@ -496,7 +497,7 @@ export async function exportVariablesToFile(
   } catch {
     stopProgressIndicator(
       spinnerId,
-      `Error exporting variables to ${getFilePath(file)['brightCyan']}`,
+      `Error exporting variables to ${c.cyanBright(getFilePath(file))}`,
       'fail'
     );
   }

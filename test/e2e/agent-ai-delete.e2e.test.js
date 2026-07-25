@@ -54,7 +54,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { clearFixture, getEnv, removeAnsiEscapeCodes, stageFixture } from './utils/TestUtils';
+import { clearFixture, getEnv,  stageFixture } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -87,7 +87,7 @@ describe('frodo agent ai delete', () => {
 
   test('"frodo agent ai delete frodo-dev -i testAgent": should delete AI agent testAgent', async () => {
     const { stdout } = await exec(deleteAgent, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test('"frodo agent ai delete frodo-dev --agent-id does-not-exist": should fail deleting does-not-exist', async () => {
@@ -95,12 +95,12 @@ describe('frodo agent ai delete', () => {
       await exec(deleteNonExistantAgent, env);
       fail("Command should've failed");
     } catch (e) {
-      expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+      expect(e.stderr).toMatchSnapshot();
     }
   });
 
   test('"frodo agent ai delete frodo-dev -a": should delete all AI agents', async () => {
     const { stdout } = await exec(deleteAllAgents, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 });

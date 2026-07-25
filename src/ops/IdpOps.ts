@@ -2,6 +2,7 @@ import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/SocialIdentityProvidersApi';
 import { type SocialIdentityProviderImportOptions } from '@rockcarver/frodo-lib/types/ops/IdpOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createProgressIndicator,
@@ -31,7 +32,7 @@ const { getFilePath, getWorkingDirectory } = frodo.utils;
  * @returns {string} a one-line description
  */
 export function getOneLineDescription(socialIdpObj: SocialIdpSkeleton): string {
-  const description = `[${socialIdpObj._id['brightCyan']}] ${socialIdpObj._type._id}`;
+  const description = `[${c.cyanBright(socialIdpObj._id)}] ${socialIdpObj._type._id}`;
   return description;
 }
 
@@ -107,7 +108,7 @@ export async function exportSocialIdentityProviderToFile(
     saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       indicatorId,
-      `Exported ${providerId['brightCyan']} to ${filePath['brightCyan']}.`
+      `Exported ${c.cyanBright(providerId)} to ${c.cyanBright(filePath)}.`
     );
     debugMessage(`cli.IdpOps.exportSocialIdentityProviderToFile: end`);
     return true;

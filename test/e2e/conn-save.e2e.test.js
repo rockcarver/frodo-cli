@@ -48,7 +48,7 @@
 import cp from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
-import { getEnv, removeAnsiEscapeCodes, testif } from './utils/TestUtils';
+import { getEnv,  testif } from './utils/TestUtils';
 import { connection as c, amster_connection as cc } from './utils/TestConfig';
 import { writeFileSync, rmSync } from 'fs';
 
@@ -89,7 +89,7 @@ describe('frodo conn save', () => {
     async () => {
       const CMD = `frodo conn save --no-validate ${c.host} ${c.user} ${c.pass}`;
       const { stderr } = await exec(CMD, { ...env, cwd: process.cwd() });
-      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+      expect(stderr).toMatchSnapshot();
     }
   );
 
@@ -98,7 +98,7 @@ describe('frodo conn save', () => {
     async () => {
       const CMD = `frodo conn save --no-validate --sa-id ${c.saId} --sa-jwk-file ${jwkFile} ${c.host}`;
       const { stderr } = await exec(CMD, { ...env, cwd: process.cwd() });
-      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+      expect(stderr).toMatchSnapshot();
     }
   );
 
@@ -107,7 +107,7 @@ describe('frodo conn save', () => {
     async () => {
       const CMD = `frodo conn save --no-validate ${cc.host} ${cc.user} ${cc.pass}`;
       const { stderr } = await exec(CMD, { ...classicEnv, cwd: process.cwd() });
-      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+      expect(stderr).toMatchSnapshot();
     }
   );
 
@@ -116,7 +116,7 @@ describe('frodo conn save', () => {
     async () => {
       const CMD = `frodo conn save --no-validate --private-key ${pkFile} --authentication-service ${cc.authService} ${cc.host}`;
       const { stderr } = await exec(CMD, { ...classicEnv, cwd: process.cwd() });
-      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+      expect(stderr).toMatchSnapshot();
     }
   );
 });

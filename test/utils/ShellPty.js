@@ -12,10 +12,6 @@ const distAppPath = path.join(repoRoot, 'dist', 'app.cjs');
 const driverPath = path.join(repoRoot, 'test', 'utils', 'shell_pty_driver.py');
 const buildLockPath = path.join(repoRoot, '.shell-pty-build.lock');
 
-const ansiEscapeCodes =
-    // eslint-disable-next-line no-control-regex
-    /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
-
 function sleepSync(ms) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
@@ -64,16 +60,6 @@ export function removeShellTestHome(homeDir) {
     fs.rmSync(homeDir, { recursive: true, force: true });
 }
 
-export function removeAnsiEscapeCodes(text) {
-    return text ? text.replace(ansiEscapeCodes, '') : text;
-}
-
-export function normalizeTerminalOutput(text) {
-    return removeAnsiEscapeCodes(text)
-        .replace(/\r/g, '')
-        .replace(/\u0008/g, '');
-}
-
 export function runShellScenario({ actions, homeDir, env = {}, args = ['shell'] }) {
     ensureCliBuilt();
 
@@ -87,7 +73,6 @@ export function runShellScenario({ actions, homeDir, env = {}, args = ['shell'] 
             FRODO_TEST: '1',
             FRODO_NO_CACHE: 'true',
             TERM: 'xterm-256color',
-            FORCE_COLOR: '1',
         },
         actions,
     };

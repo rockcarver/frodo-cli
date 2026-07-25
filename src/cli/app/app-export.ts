@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import * as s from '../../help/SampleData';
 import {
@@ -60,22 +61,22 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `Important Note:\n`['brightYellow'] +
-        `  The ${'frodo app'['brightCyan']} command to manage OAuth2 clients in v1.x has been renamed to ${'frodo oauth client'['brightCyan']} in v2.x\n` +
-        `  The ${'frodo app'['brightCyan']} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${'frodo oauth client'['brightCyan']} command.\n\n` +
+      c.yellowBright(`Important Note:\n`) +
+        `  The ${c.cyanBright('frodo app')} command to manage OAuth2 clients in v1.x has been renamed to ${c.cyanBright('frodo oauth client')} in v2.x\n` +
+        `  The ${c.cyanBright('frodo app')} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${c.cyanBright('frodo oauth client')} command.\n\n` +
         `Usage Examples:\n` +
         `  Export all applications to a single export file with an auto-generated filename using a connection profile:\n` +
-        `  $ frodo app export -a ${s.connId}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo app export -a ${s.connId}\n`) +
         `  Export the first application to a single export file with a custom filename:\n` +
-        `  $ frodo app export -f ./allMyApplications.application.json ${s.connId}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo app export -f ./allMyApplications.application.json ${s.connId}\n`
+        ) +
         `  Export all applications to separate export files with an auto-generated filenames:\n` +
-        `  $ frodo app export -A ${s.connId}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo app export -A ${s.connId}\n`) +
         `  Export all applications without dependencies to a single export file:\n` +
-        `  $ frodo app export --no-deps -a ${s.connId}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo app export --no-deps -a ${s.connId}\n`) +
         `  Export the application 'myApp' to a file with an auto-generated filename of 'myApp.application.json':\n` +
-        `  $ frodo app export -i myApp ${s.connId}\n`['brightCyan']
+        c.cyanBright(`  $ frodo app export -i myApp ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler

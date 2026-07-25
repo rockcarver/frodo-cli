@@ -1,6 +1,7 @@
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { RealmExportInterface } from '@rockcarver/frodo-lib/types/ops/RealmOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createKeyValueTable,
@@ -39,19 +40,19 @@ export async function listRealms(long = false) {
     const realms = await readRealms();
     if (long) {
       const table = createTable([
-        'Id'['brightCyan'],
-        'Name'['brightCyan'],
-        'Status'['brightCyan'],
-        'Custom Domains'['brightCyan'],
-        'Parent Path'['brightCyan'],
+        c.cyanBright('Id'),
+        c.cyanBright('Name'),
+        c.cyanBright('Status'),
+        c.cyanBright('Custom Domains'),
+        c.cyanBright('Parent Path'),
       ]);
       realms.forEach((realmConfig) => {
         table.push([
           realmConfig._id,
           realmConfig.name,
           realmConfig.active
-            ? 'active'['brightGreen']
-            : 'inactive'['brightRed'],
+            ? c.greenBright('active')
+            : c.redBright('inactive'),
           realmConfig.aliases.join('\n'),
           realmConfig.parentPath,
         ]);
@@ -338,17 +339,17 @@ export async function describeRealm(realm: string) {
   try {
     const realmConfig = await readRealmByName(realm);
     const table = createKeyValueTable();
-    table.push(['Name'['brightCyan'], realmConfig.name]);
+    table.push([c.cyanBright('Name'), realmConfig.name]);
     table.push([
-      'Status'['brightCyan'],
-      realmConfig.active ? 'active'['brightGreen'] : 'inactive'['brightRed'],
+      c.cyanBright('Status'),
+      realmConfig.active ? c.greenBright('active') : c.redBright('inactive'),
     ]);
     table.push([
-      'Custom Domains'['brightCyan'],
+      c.cyanBright('Custom Domains'),
       realmConfig.aliases.join('\n'),
     ]);
-    table.push(['Parent'['brightCyan'], realmConfig.parentPath]);
-    table.push(['Id'['brightCyan'], realmConfig._id]);
+    table.push([c.cyanBright('Parent'), realmConfig.parentPath]);
+    table.push([c.cyanBright('Id'), realmConfig._id]);
     printMessage(table.toString(), 'data');
   } catch {
     printMessage(`Realm ${realm} not found!`, 'error');
@@ -374,19 +375,19 @@ export async function addCustomDomain(realm: string, domain: string) {
         realmConfig.aliases.push(domain.toLowerCase());
         realmConfig = await updateRealm(realmConfig._id, realmConfig);
         const table = createKeyValueTable();
-        table.push(['Name'['brightCyan'], realmConfig.name]);
+        table.push([c.cyanBright('Name'), realmConfig.name]);
         table.push([
-          'Status'['brightCyan'],
+          c.cyanBright('Status'),
           realmConfig.active
-            ? 'active'['brightGreen']
-            : 'inactive'['brightRed'],
+            ? c.greenBright('active')
+            : c.redBright('inactive'),
         ]);
         table.push([
-          'Custom Domains'['brightCyan'],
+          c.cyanBright('Custom Domains'),
           realmConfig.aliases.join('\n'),
         ]);
-        table.push(['Parent'['brightCyan'], realmConfig.parentPath]);
-        table.push(['Id'['brightCyan'], realmConfig._id]);
+        table.push([c.cyanBright('Parent'), realmConfig.parentPath]);
+        table.push([c.cyanBright('Id'), realmConfig._id]);
         printMessage(table.toString());
       } catch (error) {
         printMessage(`Error adding custom domain: ${error.message}`, 'error');
@@ -413,19 +414,19 @@ export async function removeCustomDomain(realm: string, domain: string) {
         realmConfig.aliases = aliases;
         realmConfig = await updateRealm(realmConfig._id, realmConfig);
         const table = createKeyValueTable();
-        table.push(['Name'['brightCyan'], realmConfig.name]);
+        table.push([c.cyanBright('Name'), realmConfig.name]);
         table.push([
-          'Status'['brightCyan'],
+          c.cyanBright('Status'),
           realmConfig.active
-            ? 'active'['brightGreen']
-            : 'inactive'['brightRed'],
+            ? c.greenBright('active')
+            : c.redBright('inactive'),
         ]);
         table.push([
-          'Custom Domains'['brightCyan'],
+          c.cyanBright('Custom Domains'),
           realmConfig.aliases.join('\n'),
         ]);
-        table.push(['Parent'['brightCyan'], realmConfig.parentPath]);
-        table.push(['Id'['brightCyan'], realmConfig._id]);
+        table.push([c.cyanBright('Parent'), realmConfig.parentPath]);
+        table.push([c.cyanBright('Id'), realmConfig._id]);
         printMessage(table.toString());
       } catch (error) {
         printMessage(`Error removing custom domain: ${error.message}`, 'error');

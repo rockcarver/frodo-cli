@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createProgressIndicator,
@@ -70,7 +71,7 @@ export async function exportAdminFederationProviderToFile(
     saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       indicatorId,
-      `Exported ${providerId['brightCyan']} to ${filePath['brightCyan']}.`
+      `Exported ${c.cyanBright(providerId)} to ${c.cyanBright(filePath)}.`
     );
     outcome = true;
   } catch (err) {

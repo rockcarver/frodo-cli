@@ -3,6 +3,7 @@ import repl from 'node:repl';
 
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 import util from 'util';
 import vm from 'vm';
 
@@ -101,7 +102,7 @@ async function startRepl(allowAwait = false, host?: string) {
     const text =
       typeof message === 'object'
         ? util.inspect(message, { depth: 6, colors: true })
-        : String(message)['brightMagenta'];
+        : c.magentaBright(String(message));
     replServer.output.write(text + '\n');
   });
   state.setVerboseHandler((message) => {
@@ -110,7 +111,7 @@ async function startRepl(allowAwait = false, host?: string) {
   });
   state.setCurlirizeHandler((message) => {
     if (!message || !state.getCurlirize()) return;
-    replServer.output.write(String(message)['brightBlue'] + '\n');
+    replServer.output.write(c.blueBright(String(message)) + '\n');
   });
 
   // Inject the help() function, which surfaces type signatures and JSDoc from
@@ -289,13 +290,13 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Launch a frodo shell using explicit login parameters:\n` +
-        `  $ frodo shell ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo shell ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        ) +
         `  Launch a frodo shell using a connection profile (identified by the full AM base URL):\n` +
-        `  $ frodo shell ${s.amBaseUrl}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo shell ${s.amBaseUrl}\n`) +
         `  Launch a frodo shell using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
-        `  $ frodo shell ${s.connId}\n`['brightCyan']
+        c.cyanBright(`  $ frodo shell ${s.connId}\n`)
     )
     .addOption(
       new Option(

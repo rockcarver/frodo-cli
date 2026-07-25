@@ -11,6 +11,7 @@ import {
   type TreeImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/JourneyOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createProgressIndicator,
@@ -116,20 +117,20 @@ export async function listJourneys(long: boolean = false): Promise<boolean> {
           table.push([
             `${treeExport.tree._id}`,
             treeExport.tree.enabled === false
-              ? 'disabled'['brightRed']
-              : 'enabled'['brightGreen'],
+              ? c.redBright('disabled')
+              : c.greenBright('enabled'),
             treeExport.tree.innerTreeOnly
-              ? 'yes'['brightYellow']
-              : 'no'['brightGreen'],
+              ? c.yellowBright('yes')
+              : c.greenBright('no'),
             treeExport.tree.mustRun
-              ? 'yes'['brightYellow']
-              : 'no'['brightGreen'],
+              ? c.yellowBright('yes')
+              : c.greenBright('no'),
             treeExport.tree.noSession
-              ? 'yes'['brightYellow']
-              : 'no'['brightGreen'],
+              ? c.yellowBright('yes')
+              : c.greenBright('no'),
             treeExport.tree.transactionalOnly
-              ? 'yes'['brightYellow']
-              : 'no'['brightGreen'],
+              ? c.yellowBright('yes')
+              : c.greenBright('no'),
             treeExport.tree.identityResource
               ? treeExport.tree.identityResource
               : '',
@@ -196,7 +197,7 @@ export async function exportJourneyToFile(
     saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
-      `Exported ${journeyId['brightCyan']} to ${filePath['brightCyan']}.`,
+      `Exported ${c.cyanBright(journeyId)} to ${c.cyanBright(filePath)}.`,
       'success'
     );
     return true;
@@ -572,7 +573,7 @@ export async function importJourneysFromFiles(
  * @returns {string} a one-line description
  */
 export function getOneLineDescription(treeObj: TreeSkeleton): string {
-  const description = `[${treeObj._id['brightCyan']}]`;
+  const description = `[${c.cyanBright(treeObj._id)}]`;
   return description;
 }
 
@@ -607,7 +608,7 @@ function describeTreeDescendents(
       .fill(' ')
       .join('');
     const [tree] = Object.keys(descendents);
-    printMessage(`${indent}- ${tree['brightCyan']}`, 'data');
+    printMessage(`${indent}- ${c.cyanBright(tree)}`, 'data');
     for (const descendent of descendents[tree]) {
       describeTreeDescendents(descendent, depth + 1);
     }
@@ -700,8 +701,8 @@ export async function describeJourney(
     printMessage(
       `\nStatus\n${
         journeyData.tree.enabled === false
-          ? 'disabled'['brightRed']
-          : 'enabled'['brightGreen']
+          ? c.redBright('disabled')
+          : c.greenBright('enabled')
       }`
     );
 
@@ -709,18 +710,18 @@ export async function describeJourney(
     printMessage(
       `\nFlags\n- Inner Tree Only: ${
         journeyData.tree.innerTreeOnly
-          ? 'true'['brightGreen']
-          : 'false'['brightRed']
+          ? c.greenBright('true')
+          : c.redBright('false')
       }\n- Must Run: ${
-        journeyData.tree.mustRun ? 'true'['brightGreen'] : 'false'['brightRed']
+        journeyData.tree.mustRun ? c.greenBright('true') : c.redBright('false')
       }\n- No Session: ${
         journeyData.tree.noSession
-          ? 'true'['brightGreen']
-          : 'false'['brightRed']
+          ? c.greenBright('true')
+          : c.redBright('false')
       }\n- Transactional Only: ${
         journeyData.tree.transactionalOnly
-          ? 'true'['brightGreen']
-          : 'false'['brightRed']
+          ? c.greenBright('true')
+          : c.redBright('false')
       }`
     );
 
@@ -754,7 +755,7 @@ export async function describeJourney(
         'data'
       );
       for (const [nodeType, count] of Object.entries(nodeTypeMap)) {
-        printMessage(`- ${String(count)} [${nodeType['brightCyan']}]`, 'data');
+        printMessage(`- ${String(count)} [${c.cyanBright(nodeType)}]`, 'data');
       }
     }
 

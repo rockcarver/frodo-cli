@@ -54,7 +54,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-dev.forgeblo
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes, stageFixture, clearFixture } from './utils/TestUtils';
+import { getEnv,  stageFixture, clearFixture } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -74,13 +74,13 @@ describe('frodo agent ai describe', () => {
   test('"frodo agent ai describe -i banking-assistant": should describe AI agent in table format', async () => {
     const CMD = 'frodo agent ai describe -i banking-assistant';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test('"frodo agent ai describe -i banking-assistant --json": should describe AI agent in JSON format', async () => {
     const CMD = 'frodo agent ai describe -i banking-assistant --json';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test('"frodo agent ai describe -i does-not-exist": should fail for non-existing AI agent', async () => {
@@ -89,7 +89,7 @@ describe('frodo agent ai describe', () => {
       await exec(CMD, env);
       fail("Command should've failed");
     } catch (e) {
-      expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+      expect(e.stderr).toMatchSnapshot();
     }
   });
 });

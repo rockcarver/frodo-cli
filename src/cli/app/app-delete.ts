@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import * as s from '../../help/SampleData';
 import {
@@ -46,14 +47,14 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `Important Note:\n`['brightYellow'] +
-        `  The ${'frodo app'['brightCyan']} command to manage OAuth2 clients in v1.x has been renamed to ${'frodo oauth client'['brightCyan']} in v2.x\n` +
-        `  The ${'frodo app'['brightCyan']} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${'frodo oauth client'['brightCyan']} command.\n\n` +
+      c.yellowBright(`Important Note:\n`) +
+        `  The ${c.cyanBright('frodo app')} command to manage OAuth2 clients in v1.x has been renamed to ${c.cyanBright('frodo oauth client')} in v2.x\n` +
+        `  The ${c.cyanBright('frodo app')} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${c.cyanBright('frodo oauth client')} command.\n\n` +
         `Usage Examples:\n` +
         `  Delete application 'myApp':\n` +
-        `  $ frodo app delete -i 'myApp' ${s.amBaseUrl}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo app delete -i 'myApp' ${s.amBaseUrl}\n`) +
         `  Delete all applications:\n` +
-        `  $ frodo app delete -a ${s.connId}\n`['brightCyan']
+        c.cyanBright(`  $ frodo app delete -a ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler

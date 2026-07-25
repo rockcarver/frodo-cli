@@ -5,12 +5,10 @@ import {
   ProgressIndicatorType,
 } from '@rockcarver/frodo-lib/types/utils/Console';
 import Table, { Table as TableType } from 'cli-table3';
-import Color from 'colors';
 import { stderr as logUpdateStderr } from 'log-update';
 import c from 'tinyrainbow';
 import { v4 as uuidv4 } from 'uuid';
 
-Color.enable();
 const arcSpinner = {
   frames: ['◜', '◠', '◝', '◞', '◡', '◟'],
 };
@@ -35,7 +33,11 @@ function data(message: string | object, newline = true) {
     }
     appendTextToFile(message, state.getOutputFile());
   } else if (typeof message === 'object') {
-    console.dir(message, { depth: 10, maxArrayLength: null });
+    console.dir(message, {
+      depth: 10,
+      maxArrayLength: null,
+      colors: process.env.NO_COLOR === undefined,
+    });
   } else if (newline) {
     console.log(message);
   } else {
@@ -59,7 +61,7 @@ function text(message: string | object, newline = true) {
 }
 
 /**
- * Output a message in bright cyan to stderr
+ * Output a message in cyan to stderr
  * @param {Object} message the message
  */
 function info(message: string | object, newline = true) {
@@ -67,9 +69,9 @@ function info(message: string | object, newline = true) {
   if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {
-    console.error(message['brightCyan']);
+    console.error(c.cyanBright(message));
   } else {
-    process.stderr.write(message['brightCyan']);
+    process.stderr.write(c.cyanBright(message));
   }
 }
 
@@ -82,14 +84,14 @@ function warn(message: string | object, newline = true) {
   if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {
-    console.error(message['yellow']);
+    console.error(c.yellowBright(message));
   } else {
-    process.stderr.write(message['yellow']);
+    process.stderr.write(c.yellowBright(message));
   }
 }
 
 /**
- * Output a message in bright red to stderr
+ * Output a message in red to stderr
  * @param {Object} message the message
  */
 function error(message: string | object, newline = true) {
@@ -97,9 +99,9 @@ function error(message: string | object, newline = true) {
   if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {
-    console.error(message['brightRed']);
+    console.error(c.redBright(message));
   } else {
-    process.stderr.write(message['brightRed']);
+    process.stderr.write(c.redBright(message));
   }
 }
 
@@ -112,9 +114,9 @@ function debug(message: string | object, newline = true) {
   if (typeof message === 'object') {
     console.dir(message, { depth: 6 });
   } else if (newline) {
-    console.error(message['brightMagenta']);
+    console.error(c.magentaBright(message));
   } else {
-    process.stderr.write(message['brightMagenta']);
+    process.stderr.write(c.magentaBright(message));
   }
 }
 
@@ -124,7 +126,7 @@ function debug(message: string | object, newline = true) {
  */
 function curlirize(message: string) {
   if (!message) return;
-  printMessage(message['brightBlue']);
+  c.cyanBright(printMessage(message));
 }
 
 /**
@@ -259,14 +261,14 @@ function renderProgressIndicators() {
 
       const filledBar = '█'.repeat(filledWidth);
       const emptyBar = '░'.repeat(emptyWidth);
-      const bar = c.cyan(`[${filledBar}${emptyBar}]`);
+      const bar = c.cyanBright(`[${filledBar}${emptyBar}]`);
 
       const stats = c.dim(`${percent}% | ${ind.current}/${ind.total}`);
       const msg = ind.message ? ` ${ind.message}` : '';
       lines.push(`${bar} ${stats}${msg}`);
     } else {
       const frame = ind.spinner.frames[ind.frame % ind.spinner.frames.length];
-      const spinnerIcon = c.cyan(frame);
+      const spinnerIcon = c.cyanBright(frame);
       const msg = ind.message ? ` ${ind.message}` : '';
 
       lines.push(`${spinnerIcon}${msg}`);
@@ -403,19 +405,19 @@ export function stopProgressIndicator(
     switch (status) {
       case 'success':
         statusIcon = '✔';
-        colorFn = c.green;
+        colorFn = c.greenBright;
         break;
       case 'warn':
         statusIcon = '⚠';
-        colorFn = c.yellow;
+        colorFn = c.yellowBright;
         break;
       case 'fail':
         statusIcon = '✖';
-        colorFn = c.red;
+        colorFn = c.redBright;
         break;
       default:
         statusIcon = '•';
-        colorFn = c.white;
+        colorFn = c.whiteBright;
     }
     const finalMsg = message || ind.message;
     if (finalMsg) {
@@ -452,7 +454,7 @@ export function cleanupProgressIndicators() {
  */
 export function createTable(head) {
   const table = new Table({
-    head,
+    head: head.map((h) => (typeof h === 'string' ? c.cyanBright(h) : h)),
     chars: {
       top: '',
       'top-mid': '',
@@ -468,8 +470,9 @@ export function createTable(head) {
       'mid-mid': '',
       right: '',
       'right-mid': '',
+      middle: c.gray('│'),
     },
-    style: { 'padding-left': 0, 'padding-right': 0, head: ['brightCyan'] },
+    style: { 'padding-left': 0, 'padding-right': 0, head: [], border: [] },
   });
   return table;
 }
@@ -495,8 +498,9 @@ export function createKeyValueTable() {
       'mid-mid': '',
       right: '',
       'right-mid': '',
+      middle: c.gray('│'),
     },
-    style: { 'padding-left': 0, 'padding-right': 0 },
+    style: { 'padding-left': 0, 'padding-right': 0, head: [], border: [] },
     wordWrap: true,
   });
   return table;
@@ -546,14 +550,14 @@ function addRows(object, depth, level, table, keyMap) {
     if (Object(object[key]) !== object[key]) {
       if (level === 1) {
         table.push([
-          keyMap[key] ? keyMap[key].brightCyan : key['brightCyan'],
+          keyMap[key] ? c.cyanBright(keyMap[key]) : c.cyanBright(key),
           object[key],
         ]);
       } else {
         table.push([
           {
             hAlign: 'right',
-            content: keyMap[key] ? keyMap[key].gray : key.gray,
+            content: keyMap[key] ? c.gray(keyMap[key]) : c.gray(key),
           },
           object[key],
         ]);
@@ -568,7 +572,7 @@ function addRows(object, depth, level, table, keyMap) {
         if (level < 3) indention = `\n${indention}`;
         table.push([
           indention.concat(
-            keyMap[key] ? keyMap[key].brightCyan : key['brightCyan']
+            keyMap[key] ? c.cyanBright(keyMap[key]) : c.cyanBright(key)
           ),
           '',
         ]);
@@ -608,8 +612,9 @@ export function createObjectTable(object, keyMap = {}) {
       'mid-mid': '',
       right: '',
       'right-mid': '',
+      middle: c.gray('│'),
     },
-    style: { 'padding-left': 0, 'padding-right': 0, head: ['brightCyan'] },
+    style: { 'padding-left': 0, 'padding-right': 0, head: [], border: [] },
   });
   addRows(object, depth, level + 1, table, keyMap);
   return table;
@@ -626,7 +631,7 @@ export function getTableRowsFromArray(
   rowName: string,
   array: string[]
 ): void {
-  table.push([rowName['brightCyan'], array.length > 0 ? array[0] : '']);
+  table.push([c.cyanBright(rowName), array.length > 0 ? array[0] : '']);
   for (let i = 1; i < array.length; ++i) {
     table.push(['', array[i]]);
   }

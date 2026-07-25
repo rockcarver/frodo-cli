@@ -67,7 +67,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import {getEnv, removeAnsiEscapeCodes} from './utils/TestUtils';
+import {getEnv} from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 import { rmSync, writeFileSync } from 'fs';
 
@@ -91,28 +91,28 @@ describe('frodo info', () => {
       const CMD = `frodo info ${c.host} ${c.user} ${c.pass}`;
       const env = getEnv({ ...c, saId: undefined, saJwk: undefined });
       const { stderr } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+      expect(stderr).toMatchSnapshot()
     });
 
     test(`frodo info <host> <user> <pass> --json`, async () => {
       const CMD = `frodo info ${c.host} ${c.user} ${c.pass} --json`;
       const env = getEnv({ ...c, saId: undefined, saJwk: undefined });
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
 
     test(`frodo info <host> <user> <pass> --scriptFriendly`, async () => {
       const CMD = `frodo info ${c.host} ${c.user} ${c.pass} --scriptFriendly`;
       const env = getEnv({ ...c, saId: undefined, saJwk: undefined });
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
 
     test(`frodo info <host> <user> <pass> -s`, async () => {
       const CMD = `frodo info ${c.host} ${c.user} ${c.pass} -s`;
       const env = getEnv({ ...c, saId: undefined, saJwk: undefined });
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
   });
 
@@ -121,28 +121,28 @@ describe('frodo info', () => {
       const CMD = `frodo info ${c.host} --sa-id ${c.saId} --sa-jwk-file ${jwkFile}`;
       const env = getEnv({ ...c, user: undefined, pass: undefined });
       const { stderr } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+      expect(stderr).toMatchSnapshot()
     });
 
     test(`frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> --json`, async () => {
       const CMD = `frodo info ${c.host} --sa-id ${c.saId} --sa-jwk-file ${jwkFile} --json`;
       const env = getEnv({ ...c, user: undefined, pass: undefined });
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
 
     test(`frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> --scriptFriendly`, async () => {
       const CMD = `frodo info ${c.host} --sa-id ${c.saId} --sa-jwk-file ${jwkFile} --scriptFriendly`;
       const env = getEnv({ ...c, user: undefined, pass: undefined });
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
 
     test(`frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> -s`, async () => {
       const CMD = `frodo info ${c.host} --sa-id ${c.saId} --sa-jwk-file ${jwkFile} -s`;
       const env = getEnv({ ...c, user: undefined, pass: undefined });
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
   });
 
@@ -154,7 +154,7 @@ describe('frodo info', () => {
       env.env.FRODO_SA_ID = c.saId;
       env.env.FRODO_SA_JWK = c.saJwk;
       const { stderr } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+      expect(stderr).toMatchSnapshot()
     });
 
     test(`frodo info --json`, async () => {
@@ -164,7 +164,7 @@ describe('frodo info', () => {
       env.env.FRODO_SA_ID = c.saId;
       env.env.FRODO_SA_JWK = c.saJwk;
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
 
     test(`frodo info --scriptFriendly`, async () => {
@@ -174,7 +174,7 @@ describe('frodo info', () => {
       env.env.FRODO_SA_ID = c.saId;
       env.env.FRODO_SA_JWK = c.saJwk;
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
 
     test(`frodo info -s`, async () => {
@@ -184,7 +184,7 @@ describe('frodo info', () => {
       env.env.FRODO_SA_ID = c.saId;
       env.env.FRODO_SA_JWK = c.saJwk;
       const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+      expect(stdout).toMatchSnapshot()
     });
   });
 });

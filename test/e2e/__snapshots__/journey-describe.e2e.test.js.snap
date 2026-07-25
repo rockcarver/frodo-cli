@@ -831,7 +831,7 @@ Update password using active session
 exports[`frodo journey describe "frodo journey describe --output-file test2.json": should describe all journeys and write output to test2.json file 1`] = `""`;
 
 exports[`frodo journey describe "frodo journey describe --output-file test2.json": should describe all journeys and write output to test2.json file 2`] = `
-"[[96mAgent[39m]
+"[Agent]
 
 CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.
 
@@ -839,19 +839,19 @@ Categories/Tags
 Authentication
 
 Node Types (5):
-- 1 [[96mZeroPageLoginNode[39m]
-- 1 [[96mAgentDataStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [ZeroPageLoginNode]
+- 1 [AgentDataStoreDecisionNode]
+- 1 [PageNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (5):
-- [[96m51e2cd24-cf1f-4313-8af0-35ea9e04d2fe[39m] ZeroPageLoginNode - Zero Page Login Collector
-- [[96m6736a00a-fc65-438e-b4ea-23f66b4a8739[39m] AgentDataStoreDecisionNode - Agent Data Store Decision
-- [[96mcbd1f1af-eb0a-4274-a762-adacf04c7080[39m] PageNode - Page Node
-- [[96m2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018[39m] ValidatedUsernameNode - Platform Username
-- [[96m6072842f-5f7c-4b62-8ae2-4f18a5701ba4[39m] ValidatedPasswordNode - Platform Password
-[[96mForgottenUsername[39m]
+- [51e2cd24-cf1f-4313-8af0-35ea9e04d2fe] ZeroPageLoginNode - Zero Page Login Collector
+- [6736a00a-fc65-438e-b4ea-23f66b4a8739] AgentDataStoreDecisionNode - Agent Data Store Decision
+- [cbd1f1af-eb0a-4274-a762-adacf04c7080] PageNode - Page Node
+- [2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018] ValidatedUsernameNode - Platform Username
+- [6072842f-5f7c-4b62-8ae2-4f18a5701ba4] ValidatedPasswordNode - Platform Password
+[ForgottenUsername]
 
 Forgotten Username Tree
 
@@ -859,27 +859,27 @@ Categories/Tags
 Username Reset
 
 Inner Tree Dependencies (1):
-- [96mForgottenUsername[39m
-  - [96mLogin[39m
-    - [96mProgressiveProfile[39m
+- ForgottenUsername
+  - Login
+    - ProgressiveProfile
 
 Node Types (5):
-- 1 [[96mPageNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 1 [[96mIdentifyExistingUserNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
+- 1 [PageNode]
+- 1 [InnerTreeEvaluatorNode]
+- 1 [IdentifyExistingUserNode]
+- 1 [EmailSuspendNode]
+- 1 [AttributeCollectorNode]
 
 Nodes (5):
-- [[96m5e2a7c95-94af-4b23-8724-deb13853726a[39m] PageNode - Page Node
-- [[96mb93ce36e-1976-4610-b24f-8d6760b5463b[39m] InnerTreeEvaluatorNode - Inner Tree Evaluator
-- [[96mbf9ea8d5-9802-4f26-9664-a21840faac23[39m] IdentifyExistingUserNode - Identify Existing User
-- [[96md9a79f01-2ce3-4be2-a28a-975f35c3c8ca[39m] EmailSuspendNode - Email Suspend Node
-- [[96m9f1e8d94-4922-481b-9e14-212b66548900[39m] AttributeCollectorNode - Attribute Collector
+- [5e2a7c95-94af-4b23-8724-deb13853726a] PageNode - Page Node
+- [b93ce36e-1976-4610-b24f-8d6760b5463b] InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [bf9ea8d5-9802-4f26-9664-a21840faac23] IdentifyExistingUserNode - Identify Existing User
+- [d9a79f01-2ce3-4be2-a28a-975f35c3c8ca] EmailSuspendNode - Email Suspend Node
+- [9f1e8d94-4922-481b-9e14-212b66548900] AttributeCollectorNode - Attribute Collector
 
 Email Templates (1):
-- [[96mforgottenUsername[39m]  - Account Information - username
-[[96mFrodoTest[39m]
+- [forgottenUsername]  - Account Information - username
+[FrodoTest]
 
 Frodo test journey utilizing a variety of nodes and dependencies to test support for complex journeys.
 
@@ -887,65 +887,65 @@ Categories/Tags
 Frodo, Prototype
 
 Node Types (9):
-- 2 [[96mPageNode[39m]
-- 1 [[96mproduct-Saml2Node[39m]
-- 1 [[96mEmailTemplateNode[39m]
-- 1 [[96mSocialProviderHandlerNode[39m]
-- 1 [[96mScriptedDecisionNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 2 [[96mValidatedPasswordNode[39m]
-- 2 [[96mSelectIdPNode[39m]
+- 2 [PageNode]
+- 1 [product-Saml2Node]
+- 1 [EmailTemplateNode]
+- 1 [SocialProviderHandlerNode]
+- 1 [ScriptedDecisionNode]
+- 1 [IdentityStoreDecisionNode]
+- 1 [ValidatedUsernameNode]
+- 2 [ValidatedPasswordNode]
+- 2 [SelectIdPNode]
 
 Nodes (12):
-- [[96m278bf084-9eea-46fe-8ce9-2600dde3b046[39m] PageNode - Login Page
-- [[96m64157fca-bd5b-4405-a4c8-64ffd98a5461[39m] product-Saml2Node - SAML2 Authentication
-- [[96m731c5810-020b-45c8-a7fc-3c21903ae2b3[39m] PageNode - Login Page
-- [[96mbf153f37-83dd-4f39-aa0c-74135430242e[39m] EmailTemplateNode - Email Template Node
-- [[96md5cc2d52-6ce4-452d-85ea-3a5b50218b67[39m] SocialProviderHandlerNode - Social Login
-- [[96me2c39477-847a-4df2-9c5d-b449a752638b[39m] ScriptedDecisionNode - Check Username
-- [[96mfc7e47cd-c679-4211-8e05-a36654f23c67[39m] IdentityStoreDecisionNode - Validate Creds
-- [[96m7a351800-fb7e-4145-903c-388554747556[39m] ValidatedUsernameNode - Username
-- [[96m804e6a68-1720-442b-926a-007e90f02782[39m] ValidatedPasswordNode - Password
-- [[96m228a44d5-fd78-4278-8999-fdd470ea7ebf[39m] SelectIdPNode - Select IDP
-- [[96mdd16c8d4-baca-4ae0-bcd8-fb98b9040524[39m] ValidatedPasswordNode - Password
-- [[96m038f9b2a-36b2-489b-9e03-386c9a62ea21[39m] SelectIdPNode - Select IDP
+- [278bf084-9eea-46fe-8ce9-2600dde3b046] PageNode - Login Page
+- [64157fca-bd5b-4405-a4c8-64ffd98a5461] product-Saml2Node - SAML2 Authentication
+- [731c5810-020b-45c8-a7fc-3c21903ae2b3] PageNode - Login Page
+- [bf153f37-83dd-4f39-aa0c-74135430242e] EmailTemplateNode - Email Template Node
+- [d5cc2d52-6ce4-452d-85ea-3a5b50218b67] SocialProviderHandlerNode - Social Login
+- [e2c39477-847a-4df2-9c5d-b449a752638b] ScriptedDecisionNode - Check Username
+- [fc7e47cd-c679-4211-8e05-a36654f23c67] IdentityStoreDecisionNode - Validate Creds
+- [7a351800-fb7e-4145-903c-388554747556] ValidatedUsernameNode - Username
+- [804e6a68-1720-442b-926a-007e90f02782] ValidatedPasswordNode - Password
+- [228a44d5-fd78-4278-8999-fdd470ea7ebf] SelectIdPNode - Select IDP
+- [dd16c8d4-baca-4ae0-bcd8-fb98b9040524] ValidatedPasswordNode - Password
+- [038f9b2a-36b2-489b-9e03-386c9a62ea21] SelectIdPNode - Select IDP
 
 Themes (1):
-- [[96m63e19668-909f-479e-83d7-be7a01cd8187[39m] NoAccess ([96mFrodoTest, AA-FrodoTest[39m)
+- [63e19668-909f-479e-83d7-be7a01cd8187] NoAccess (FrodoTest, AA-FrodoTest)
 
 Scripts (9):
-- [[96m58c824ae-84ed-4724-82cd-db128fc3f6c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
-- [[96m739bdc48-fd24-4c52-b353-88706d75558a[39m] AUTHENTICATION_TREE_DECISION_NODE - Check Username
-- [[96m58d29080-4563-480b-89bb-1e7719776a21[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
-- [[96m23143919-6b78-40c3-b25e-beca19b229e0[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
-- [[96mbae1d54a-e97d-4997-aa5d-c027f21af82c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
-- [[96m484e6246-dbc6-4288-97e6-54e55431402e[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
-- [[96m6325cf19-a49b-471e-8d26-7e4df76df0e2[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
-- [[96mdbe0bf9a-72aa-49d5-8483-9db147985a47[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
-- [[96m73cecbfc-dad0-4395-be6a-6858ee3a80e5[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
+- [58c824ae-84ed-4724-82cd-db128fc3f6c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
+- [739bdc48-fd24-4c52-b353-88706d75558a] AUTHENTICATION_TREE_DECISION_NODE - Check Username
+- [58d29080-4563-480b-89bb-1e7719776a21] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
+- [23143919-6b78-40c3-b25e-beca19b229e0] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
+- [bae1d54a-e97d-4997-aa5d-c027f21af82c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
+- [484e6246-dbc6-4288-97e6-54e55431402e] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
+- [6325cf19-a49b-471e-8d26-7e4df76df0e2] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
+- [dbe0bf9a-72aa-49d5-8483-9db147985a47] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
+- [73cecbfc-dad0-4395-be6a-6858ee3a80e5] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
 
 Email Templates (1):
-- [[96mwelcome[39m] Welcome - Your account has been created
+- [welcome] Welcome - Your account has been created
 
 Social Identity Providers (8):
-- [[96mgoogle[39m] googleConfig
-- [[96mgithub[39m] oauth2Config
-- [[96mfacebook[39m] oauth2Config
-- [[96mapple-stoyan[39m] appleConfig
-- [[96mapple_web[39m] appleConfig
-- [[96mokta-trial-5735851[39m] oidcConfig
-- [[96madfs[39m] oidcConfig
-- [[96mazure[39m] microsoftConfig
+- [google] googleConfig
+- [github] oauth2Config
+- [facebook] oauth2Config
+- [apple-stoyan] appleConfig
+- [apple_web] appleConfig
+- [okta-trial-5735851] oidcConfig
+- [adfs] oidcConfig
+- [azure] microsoftConfig
 
 SAML2 Entity Providers (2):
-- [[96miSPAzure[39m] (hosted SP)
-- [[96murn:federation:MicrosoftOnline[39m] (remote SP)
+- [iSPAzure] (hosted SP)
+- [urn:federation:MicrosoftOnline] (remote SP)
 
 SAML2 Circles Of Trust (2):
-- [[96m2f04818d-561e-4f8a-82e8-af2426112138[39m]
-- [[96mAzureCOT[39m]
-[[96mFrodoTestJourney13[39m]
+- [2f04818d-561e-4f8a-82e8-af2426112138]
+- [AzureCOT]
+[FrodoTestJourney13]
 
 Frodo test journey using v2.0 nodes
 
@@ -953,300 +953,300 @@ Categories/Tags
 Frodo, Prototype
 
 Node Types (4):
-- 1 [[96mDataStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [DataStoreDecisionNode]
+- 1 [PageNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (4):
-- [[96mbdca20b7-ada8-4906-8b3a-e59c313f6491[39m] DataStoreDecisionNode - Validate Credentials
-- [[96mc847e93b-afa3-4d20-9a15-f75404ec353c[39m] PageNode - Login Page
-- [[96m64dceffc-2db4-468b-96d1-491824e037a2[39m] ValidatedUsernameNode - Username
-- [[96me4c5071f-acc8-47c9-b097-5c4144170742[39m] ValidatedPasswordNode - Password
-[[96mj00[39m]
+- [bdca20b7-ada8-4906-8b3a-e59c313f6491] DataStoreDecisionNode - Validate Credentials
+- [c847e93b-afa3-4d20-9a15-f75404ec353c] PageNode - Login Page
+- [64dceffc-2db4-468b-96d1-491824e037a2] ValidatedUsernameNode - Username
+- [e4c5071f-acc8-47c9-b097-5c4144170742] ValidatedPasswordNode - Password
+[j00]
 
 Node Types (1):
-- 6 [[96mScriptedDecisionNode[39m]
+- 6 [ScriptedDecisionNode]
 
 Nodes (6):
-- [[96m01d3785f-7fb4-44a7-9458-72c380a9818f[39m] ScriptedDecisionNode - shared
-- [[96m39b48197-f4be-42b9-800a-866587b4b9b5[39m] ScriptedDecisionNode - level
-- [[96m3c1e8d61-0c48-44ba-86dc-52e9555b6aeb[39m] ScriptedDecisionNode - level
-- [[96m513a2ab4-f0b8-4f94-b840-6fe14796cc84[39m] ScriptedDecisionNode - mode
-- [[96mba503a1e-633e-4d0d-ba18-c9a9b1105b5b[39m] ScriptedDecisionNode - debug
-- [[96md17ffaa1-2c61-4abd-9bb1-2559160d0a5c[39m] ScriptedDecisionNode - shared
+- [01d3785f-7fb4-44a7-9458-72c380a9818f] ScriptedDecisionNode - shared
+- [39b48197-f4be-42b9-800a-866587b4b9b5] ScriptedDecisionNode - level
+- [3c1e8d61-0c48-44ba-86dc-52e9555b6aeb] ScriptedDecisionNode - level
+- [513a2ab4-f0b8-4f94-b840-6fe14796cc84] ScriptedDecisionNode - mode
+- [ba503a1e-633e-4d0d-ba18-c9a9b1105b5b] ScriptedDecisionNode - debug
+- [d17ffaa1-2c61-4abd-9bb1-2559160d0a5c] ScriptedDecisionNode - shared
 
 Scripts (4):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m3cb43516-ae69-433a-8787-501d45db14e9[39m] AUTHENTICATION_TREE_DECISION_NODE - debug
-[[96mj01[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [3cb43516-ae69-433a-8787-501d45db14e9] AUTHENTICATION_TREE_DECISION_NODE - debug
+[j01]
 
 Inner Tree Dependencies (1):
-- [96mj01[39m
-  - [96mj00[39m
+- j01
+  - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m6674b4ac-dd89-4e13-9440-6f81194e3a22[39m] ScriptedDecisionNode - shared
-- [[96m89ce5d57-82fa-4d58-8d15-0329f7dbd7e7[39m] ScriptedDecisionNode - shared
-- [[96mbb1e96af-f316-4eb0-b1c6-36b3f1af9e35[39m] InnerTreeEvaluatorNode - nest
-- [[96mbdfbe97c-1ff4-4162-85bc-47f6f14b2c66[39m] ScriptedDecisionNode - level
-- [[96me92d5139-b8a6-43dc-9b13-95ba1d0dc53c[39m] ScriptedDecisionNode - level
-- [[96mf129f0df-b49e-453b-97fb-db508e3893ce[39m] ScriptedDecisionNode - mode
+- [6674b4ac-dd89-4e13-9440-6f81194e3a22] ScriptedDecisionNode - shared
+- [89ce5d57-82fa-4d58-8d15-0329f7dbd7e7] ScriptedDecisionNode - shared
+- [bb1e96af-f316-4eb0-b1c6-36b3f1af9e35] InnerTreeEvaluatorNode - nest
+- [bdfbe97c-1ff4-4162-85bc-47f6f14b2c66] ScriptedDecisionNode - level
+- [e92d5139-b8a6-43dc-9b13-95ba1d0dc53c] ScriptedDecisionNode - level
+- [f129f0df-b49e-453b-97fb-db508e3893ce] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj02[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j02]
 
 Inner Tree Dependencies (1):
-- [96mj02[39m
-  - [96mj01[39m
-    - [96mj00[39m
+- j02
+  - j01
+    - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m2dbd2d37-c659-48cf-8357-c9fc1166e3a7[39m] ScriptedDecisionNode - level
-- [[96m4416aff7-3ebd-47e6-9831-c2f6bbe3ae24[39m] ScriptedDecisionNode - level
-- [[96m56899fef-92a1-4f2a-ade3-973c81eb3af1[39m] InnerTreeEvaluatorNode - nest
-- [[96m59b06306-a886-443d-92df-7a27a60c394e[39m] ScriptedDecisionNode - mode
-- [[96mcbb3d506-b267-4b99-9edd-363e90aac997[39m] ScriptedDecisionNode - shared
-- [[96me0983ead-4918-48f6-858d-9aff0f03759c[39m] ScriptedDecisionNode - shared
+- [2dbd2d37-c659-48cf-8357-c9fc1166e3a7] ScriptedDecisionNode - level
+- [4416aff7-3ebd-47e6-9831-c2f6bbe3ae24] ScriptedDecisionNode - level
+- [56899fef-92a1-4f2a-ade3-973c81eb3af1] InnerTreeEvaluatorNode - nest
+- [59b06306-a886-443d-92df-7a27a60c394e] ScriptedDecisionNode - mode
+- [cbb3d506-b267-4b99-9edd-363e90aac997] ScriptedDecisionNode - shared
+- [e0983ead-4918-48f6-858d-9aff0f03759c] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj03[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j03]
 
 Inner Tree Dependencies (1):
-- [96mj03[39m
-  - [96mj02[39m
-    - [96mj01[39m
-      - [96mj00[39m
+- j03
+  - j02
+    - j01
+      - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m35a4f94b-c895-46b9-bc0a-93cf59233759[39m] ScriptedDecisionNode - level
-- [[96m3a92300d-6d64-451d-8156-30cb51781026[39m] ScriptedDecisionNode - level
-- [[96m6f9de973-9ed4-41f5-b43d-4036041e2b96[39m] ScriptedDecisionNode - shared
-- [[96mbcb8c535-5ecd-4d3d-b970-26816de96bf2[39m] InnerTreeEvaluatorNode - nest
-- [[96me0cfbd13-6f1e-4924-9d2d-0f7c23507172[39m] ScriptedDecisionNode - mode
-- [[96mfae7424e-13c9-45bd-b3a2-045773671a3f[39m] ScriptedDecisionNode - shared
+- [35a4f94b-c895-46b9-bc0a-93cf59233759] ScriptedDecisionNode - level
+- [3a92300d-6d64-451d-8156-30cb51781026] ScriptedDecisionNode - level
+- [6f9de973-9ed4-41f5-b43d-4036041e2b96] ScriptedDecisionNode - shared
+- [bcb8c535-5ecd-4d3d-b970-26816de96bf2] InnerTreeEvaluatorNode - nest
+- [e0cfbd13-6f1e-4924-9d2d-0f7c23507172] ScriptedDecisionNode - mode
+- [fae7424e-13c9-45bd-b3a2-045773671a3f] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj04[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j04]
 
 Inner Tree Dependencies (1):
-- [96mj04[39m
-  - [96mj03[39m
-    - [96mj02[39m
-      - [96mj01[39m
-        - [96mj00[39m
+- j04
+  - j03
+    - j02
+      - j01
+        - j00
 
 Node Types (2):
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 5 [[96mScriptedDecisionNode[39m]
+- 1 [InnerTreeEvaluatorNode]
+- 5 [ScriptedDecisionNode]
 
 Nodes (6):
-- [[96m00e75aa0-2f9b-4895-9257-d515286fd64b[39m] InnerTreeEvaluatorNode - nest
-- [[96m040b6c89-313b-4664-92e0-6732017384b8[39m] ScriptedDecisionNode - mode
-- [[96m69ae8ec1-de43-44ac-98e5-733db80ac176[39m] ScriptedDecisionNode - level
-- [[96m9603ef52-30f0-4ddc-b3c0-28dac83c7bdb[39m] ScriptedDecisionNode - shared
-- [[96md10104e9-1f8d-4da6-a110-28d879d13959[39m] ScriptedDecisionNode - level
-- [[96mf5c317ce-fabd-4a10-9907-c71cea037844[39m] ScriptedDecisionNode - shared
+- [00e75aa0-2f9b-4895-9257-d515286fd64b] InnerTreeEvaluatorNode - nest
+- [040b6c89-313b-4664-92e0-6732017384b8] ScriptedDecisionNode - mode
+- [69ae8ec1-de43-44ac-98e5-733db80ac176] ScriptedDecisionNode - level
+- [9603ef52-30f0-4ddc-b3c0-28dac83c7bdb] ScriptedDecisionNode - shared
+- [d10104e9-1f8d-4da6-a110-28d879d13959] ScriptedDecisionNode - level
+- [f5c317ce-fabd-4a10-9907-c71cea037844] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj05[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j05]
 
 Inner Tree Dependencies (1):
-- [96mj05[39m
-  - [96mj04[39m
-    - [96mj03[39m
-      - [96mj02[39m
-        - [96mj01[39m
-          - [96mj00[39m
+- j05
+  - j04
+    - j03
+      - j02
+        - j01
+          - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m11f1c31c-50a9-4717-8213-420f6932481f[39m] ScriptedDecisionNode - shared
-- [[96m3c106772-ace7-4808-8f3a-9840de8f67f0[39m] ScriptedDecisionNode - level
-- [[96m622179cb-98f1-484a-820d-9a0df6e45e95[39m] ScriptedDecisionNode - mode
-- [[96ma0782616-84b7-4bf5-87ed-a01fb3018563[39m] ScriptedDecisionNode - shared
-- [[96me90ae257-c279-46e0-9b43-5ecd89784d77[39m] ScriptedDecisionNode - level
-- [[96mf17ecb7c-abc3-4523-9943-4cbdd90305cb[39m] InnerTreeEvaluatorNode - nest
+- [11f1c31c-50a9-4717-8213-420f6932481f] ScriptedDecisionNode - shared
+- [3c106772-ace7-4808-8f3a-9840de8f67f0] ScriptedDecisionNode - level
+- [622179cb-98f1-484a-820d-9a0df6e45e95] ScriptedDecisionNode - mode
+- [a0782616-84b7-4bf5-87ed-a01fb3018563] ScriptedDecisionNode - shared
+- [e90ae257-c279-46e0-9b43-5ecd89784d77] ScriptedDecisionNode - level
+- [f17ecb7c-abc3-4523-9943-4cbdd90305cb] InnerTreeEvaluatorNode - nest
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj06[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j06]
 
 Inner Tree Dependencies (1):
-- [96mj06[39m
-  - [96mj05[39m
-    - [96mj04[39m
-      - [96mj03[39m
-        - [96mj02[39m
-          - [96mj01[39m
-            - [96mj00[39m
+- j06
+  - j05
+    - j04
+      - j03
+        - j02
+          - j01
+            - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m1d59caff-243c-45bd-b7d0-6dcc563989c5[39m] ScriptedDecisionNode - shared
-- [[96m2de08e9e-bf7b-4fa1-8265-59a8e4a3f7c3[39m] ScriptedDecisionNode - level
-- [[96m409c251f-c23b-411d-9009-d3b3d26d1b90[39m] InnerTreeEvaluatorNode - nest
-- [[96m44b8651c-7c1e-41f1-b9a6-2e441b0ce05a[39m] ScriptedDecisionNode - mode
-- [[96mda878771-421c-463f-aad7-4d5f2ad5e59a[39m] ScriptedDecisionNode - shared
-- [[96mfe8f27df-8a27-4d88-9196-834ce398b2b7[39m] ScriptedDecisionNode - level
+- [1d59caff-243c-45bd-b7d0-6dcc563989c5] ScriptedDecisionNode - shared
+- [2de08e9e-bf7b-4fa1-8265-59a8e4a3f7c3] ScriptedDecisionNode - level
+- [409c251f-c23b-411d-9009-d3b3d26d1b90] InnerTreeEvaluatorNode - nest
+- [44b8651c-7c1e-41f1-b9a6-2e441b0ce05a] ScriptedDecisionNode - mode
+- [da878771-421c-463f-aad7-4d5f2ad5e59a] ScriptedDecisionNode - shared
+- [fe8f27df-8a27-4d88-9196-834ce398b2b7] ScriptedDecisionNode - level
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj07[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j07]
 
 Inner Tree Dependencies (1):
-- [96mj07[39m
-  - [96mj06[39m
-    - [96mj05[39m
-      - [96mj04[39m
-        - [96mj03[39m
-          - [96mj02[39m
-            - [96mj01[39m
-              - [96mj00[39m
+- j07
+  - j06
+    - j05
+      - j04
+        - j03
+          - j02
+            - j01
+              - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m13b12fe6-cf53-46a4-a83d-0a3c1fda814f[39m] ScriptedDecisionNode - mode
-- [[96mac6ee166-73c0-4f73-b8db-4fe8ff6a25c0[39m] ScriptedDecisionNode - shared
-- [[96md90dd9f8-8b12-4e90-abaf-228ecc0174a7[39m] ScriptedDecisionNode - level
-- [[96md9a06d3a-7e3f-4244-9a32-63ffa0d26e00[39m] ScriptedDecisionNode - shared
-- [[96me62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9[39m] InnerTreeEvaluatorNode - nest
-- [[96mf2fe740c-cd75-460a-8baa-fe4b52ecc947[39m] ScriptedDecisionNode - level
+- [13b12fe6-cf53-46a4-a83d-0a3c1fda814f] ScriptedDecisionNode - mode
+- [ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0] ScriptedDecisionNode - shared
+- [d90dd9f8-8b12-4e90-abaf-228ecc0174a7] ScriptedDecisionNode - level
+- [d9a06d3a-7e3f-4244-9a32-63ffa0d26e00] ScriptedDecisionNode - shared
+- [e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9] InnerTreeEvaluatorNode - nest
+- [f2fe740c-cd75-460a-8baa-fe4b52ecc947] ScriptedDecisionNode - level
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-[[96mj08[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+[j08]
 
 Inner Tree Dependencies (1):
-- [96mj08[39m
-  - [96mj07[39m
-    - [96mj06[39m
-      - [96mj05[39m
-        - [96mj04[39m
-          - [96mj03[39m
-            - [96mj02[39m
-              - [96mj01[39m
-                - [96mj00[39m
+- j08
+  - j07
+    - j06
+      - j05
+        - j04
+          - j03
+            - j02
+              - j01
+                - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m042b600b-71cb-45a8-93ae-a6f57b16a6e5[39m] ScriptedDecisionNode - shared
-- [[96m66026170-5088-4fcd-a6c8-ed89d7a5c79d[39m] InnerTreeEvaluatorNode - nest
-- [[96m8096649e-973e-4209-88ce-e1d87ae2bb96[39m] ScriptedDecisionNode - level
-- [[96m87ced99b-bfa5-40d4-ba07-c8fc31f6cc6d[39m] ScriptedDecisionNode - level
-- [[96m948e21f4-c512-450a-9d42-e0d629217834[39m] ScriptedDecisionNode - shared
-- [[96md429b2b5-b215-46a5-b239-4994df65cb8b[39m] ScriptedDecisionNode - mode
+- [042b600b-71cb-45a8-93ae-a6f57b16a6e5] ScriptedDecisionNode - shared
+- [66026170-5088-4fcd-a6c8-ed89d7a5c79d] InnerTreeEvaluatorNode - nest
+- [8096649e-973e-4209-88ce-e1d87ae2bb96] ScriptedDecisionNode - level
+- [87ced99b-bfa5-40d4-ba07-c8fc31f6cc6d] ScriptedDecisionNode - level
+- [948e21f4-c512-450a-9d42-e0d629217834] ScriptedDecisionNode - shared
+- [d429b2b5-b215-46a5-b239-4994df65cb8b] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj09[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j09]
 
 Inner Tree Dependencies (1):
-- [96mj09[39m
-  - [96mj08[39m
-    - [96mj07[39m
-      - [96mj06[39m
-        - [96mj05[39m
-          - [96mj04[39m
-            - [96mj03[39m
-              - [96mj02[39m
-                - [96mj01[39m
-                  - [96mj00[39m
+- j09
+  - j08
+    - j07
+      - j06
+        - j05
+          - j04
+            - j03
+              - j02
+                - j01
+                  - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m251f35c3-1a32-4520-be10-1f4af9600935[39m] ScriptedDecisionNode - mode
-- [[96m56b82371-0c61-4dc3-8d06-c1158415b8f9[39m] ScriptedDecisionNode - level
-- [[96m6df24fdd-0b6c-4def-bf42-77af998f28b8[39m] InnerTreeEvaluatorNode - nest
-- [[96m8c5e9cb5-471b-4dd6-b150-ecaaeda98195[39m] ScriptedDecisionNode - shared
-- [[96mbb294e05-6b6b-4478-b46f-b8d9e7711c66[39m] ScriptedDecisionNode - level
-- [[96mf57cf53c-b4c6-48f7-84e8-91f535a2e8f8[39m] ScriptedDecisionNode - shared
+- [251f35c3-1a32-4520-be10-1f4af9600935] ScriptedDecisionNode - mode
+- [56b82371-0c61-4dc3-8d06-c1158415b8f9] ScriptedDecisionNode - level
+- [6df24fdd-0b6c-4def-bf42-77af998f28b8] InnerTreeEvaluatorNode - nest
+- [8c5e9cb5-471b-4dd6-b150-ecaaeda98195] ScriptedDecisionNode - shared
+- [bb294e05-6b6b-4478-b46f-b8d9e7711c66] ScriptedDecisionNode - level
+- [f57cf53c-b4c6-48f7-84e8-91f535a2e8f8] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj10[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j10]
 
 Inner Tree Dependencies (1):
-- [96mj10[39m
-  - [96mj09[39m
-    - [96mj08[39m
-      - [96mj07[39m
-        - [96mj06[39m
-          - [96mj05[39m
-            - [96mj04[39m
-              - [96mj03[39m
-                - [96mj02[39m
-                  - [96mj01[39m
-                    - [96mj00[39m
+- j10
+  - j09
+    - j08
+      - j07
+        - j06
+          - j05
+            - j04
+              - j03
+                - j02
+                  - j01
+                    - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m300feda0-3248-49a9-b60f-01df802b2229[39m] ScriptedDecisionNode - level
-- [[96m40afb384-e9b6-4dcb-acde-04de109474c8[39m] ScriptedDecisionNode - shared
-- [[96m8d7d64ee-da20-461f-a2ca-206b7479dd67[39m] ScriptedDecisionNode - level
-- [[96m97ef9d96-99e7-4d2d-b6c6-4177b5397ead[39m] ScriptedDecisionNode - shared
-- [[96mc7fcf7ae-1ab5-474b-b5b0-272e10468fbd[39m] InnerTreeEvaluatorNode - nest
-- [[96mc91d626e-1156-41bd-b1fb-d292f640fba6[39m] ScriptedDecisionNode - mode
+- [300feda0-3248-49a9-b60f-01df802b2229] ScriptedDecisionNode - level
+- [40afb384-e9b6-4dcb-acde-04de109474c8] ScriptedDecisionNode - shared
+- [8d7d64ee-da20-461f-a2ca-206b7479dd67] ScriptedDecisionNode - level
+- [97ef9d96-99e7-4d2d-b6c6-4177b5397ead] ScriptedDecisionNode - shared
+- [c7fcf7ae-1ab5-474b-b5b0-272e10468fbd] InnerTreeEvaluatorNode - nest
+- [c91d626e-1156-41bd-b1fb-d292f640fba6] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mLogin[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[Login]
 
 Platform Login Tree
 
@@ -1254,38 +1254,38 @@ Categories/Tags
 Authentication
 
 Inner Tree Dependencies (1):
-- [96mLogin[39m
-  - [96mProgressiveProfile[39m
+- Login
+  - ProgressiveProfile
 
 Node Types (8):
-- 1 [[96mRetryLimitDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 1 [[96mAccountLockoutNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mIncrementLoginCountNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [RetryLimitDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
+- 1 [AccountLockoutNode]
+- 1 [IdentityStoreDecisionNode]
+- 1 [PageNode]
+- 1 [IncrementLoginCountNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (8):
-- [[96m2119f332-0f69-4088-a7a1-6582bf0f2001[39m] RetryLimitDecisionNode - Retry Limit Decision
-- [[96m33b24514-3e50-4180-8f08-ab6f4e51b07e[39m] InnerTreeEvaluatorNode - Inner Tree Evaluator
-- [[96m51e8c4c1-3509-4635-90e6-d2cc31c4a6a5[39m] AccountLockoutNode - Account Lockout
-- [[96m7f0c2aee-8c74-4d02-82a6-9d4ed9d11708[39m] IdentityStoreDecisionNode - Identity Store Decision
-- [[96ma12bc72f-ad97-4f1e-a789-a1fa3dd566c8[39m] PageNode - Page Node
-- [[96mbba3e0d8-8525-4e82-bf48-ac17f7988917[39m] IncrementLoginCountNode - Increment Login Count
-- [[96m7354982f-57b6-4b04-9ddc-f1dd1e1e07d0[39m] ValidatedUsernameNode - Platform Username
-- [[96m0c80c39b-4813-4e67-b4fb-5a0bba85f994[39m] ValidatedPasswordNode - Platform Password
-[[96mOrphanedTest[39m]
+- [2119f332-0f69-4088-a7a1-6582bf0f2001] RetryLimitDecisionNode - Retry Limit Decision
+- [33b24514-3e50-4180-8f08-ab6f4e51b07e] InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [51e8c4c1-3509-4635-90e6-d2cc31c4a6a5] AccountLockoutNode - Account Lockout
+- [7f0c2aee-8c74-4d02-82a6-9d4ed9d11708] IdentityStoreDecisionNode - Identity Store Decision
+- [a12bc72f-ad97-4f1e-a789-a1fa3dd566c8] PageNode - Page Node
+- [bba3e0d8-8525-4e82-bf48-ac17f7988917] IncrementLoginCountNode - Increment Login Count
+- [7354982f-57b6-4b04-9ddc-f1dd1e1e07d0] ValidatedUsernameNode - Platform Username
+- [0c80c39b-4813-4e67-b4fb-5a0bba85f994] ValidatedPasswordNode - Platform Password
+[OrphanedTest]
 
 Test orphaned nodes
 
 Node Types (1):
-- 1 [[96mIdentityStoreDecisionNode[39m]
+- 1 [IdentityStoreDecisionNode]
 
 Nodes (1):
-- [[96m343e745f-923a-43c4-8675-649a490fd0a3[39m] IdentityStoreDecisionNode - Identity Store Decision
-[[96mP1P-Test[39m]
+- [343e745f-923a-43c4-8675-649a490fd0a3] IdentityStoreDecisionNode - Identity Store Decision
+[P1P-Test]
 
 PingOne Protect Login Risk
 
@@ -1293,40 +1293,40 @@ Categories/Tags
 Helper, P1 Protect
 
 Node Types (8):
-- 7 [[96mPageNode[39m]
-- 2 [[96mproduct-PingOneProtectResultNode[39m]
-- 1 [[96mproduct-PingOneProtectInitializeNode[39m]
-- 1 [[96mproduct-PingOneProtectEvaluationNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 6 [[96mdesigner-4b76e2122a0541498f380072cd115683[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 7 [PageNode]
+- 2 [product-PingOneProtectResultNode]
+- 1 [product-PingOneProtectInitializeNode]
+- 1 [product-PingOneProtectEvaluationNode]
+- 1 [IdentityStoreDecisionNode]
+- 6 [designer-4b76e2122a0541498f380072cd115683]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (20):
-- [[96m00a4835b-6e99-4938-9bb8-50d5569a68d4[39m] PageNode - Low
-- [[96m084c3d2d-7d47-4f2e-81d1-57961d496939[39m] PageNode - High
-- [[96m167b87dd-a97c-4e3b-82ba-581090fd7863[39m] product-PingOneProtectResultNode - SUCCESS
-- [[96m37f190ea-fa18-4d44-941b-4e5ac325f394[39m] PageNode - Medium
-- [[96m4fdf4255-0236-4527-ae6d-d10d2c0ee8d5[39m] PageNode - Login Page
-- [[96m6632fe0f-6395-4cc1-88d8-c9ca4a9061b6[39m] product-PingOneProtectInitializeNode - Initialize Signals SDK
-- [[96m8120e613-dee8-42b4-9668-71b8a25c1c92[39m] PageNode - P1P Failure
-- [[96ma0059e3b-de04-4f0f-a5ed-49525d1da576[39m] PageNode - P1P Client Error
-- [[96mdf827cfc-6e2d-4b9f-a8b1-d92c2910eb07[39m] product-PingOneProtectEvaluationNode - P1P Risk Decision
-- [[96me5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece[39m] product-PingOneProtectResultNode - FAILED
-- [[96mef1929b1-255e-446e-a597-7d7a3c4bf63f[39m] IdentityStoreDecisionNode - Identity Store Decision
-- [[96mf1cb199e-9e9a-4761-bacf-bc717ca6c540[39m] PageNode - Exceeds Score Threshold
-- [[96m843dd22b-a890-461b-9a16-33d8bd871396[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96m2c8f0d12-c373-4a25-9a30-b3184888d163[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96m8835fe59-3988-4121-8b15-ad16a7049d7a[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mf74e82e2-72ab-4a1a-9188-655622794a37[39m] ValidatedUsernameNode - Username
-- [[96m6a428d9f-a221-44f6-a5c6-c6981f90f9fc[39m] ValidatedPasswordNode - Password
-- [[96m52ab689c-491b-4117-b729-ff590b5d1f61[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mc1804982-10dc-4668-bd53-909107cc4039[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mde8fa10c-f4cc-44b7-b675-cdc75dcc600f[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-[[96mPrestonTest[39m]
+- [00a4835b-6e99-4938-9bb8-50d5569a68d4] PageNode - Low
+- [084c3d2d-7d47-4f2e-81d1-57961d496939] PageNode - High
+- [167b87dd-a97c-4e3b-82ba-581090fd7863] product-PingOneProtectResultNode - SUCCESS
+- [37f190ea-fa18-4d44-941b-4e5ac325f394] PageNode - Medium
+- [4fdf4255-0236-4527-ae6d-d10d2c0ee8d5] PageNode - Login Page
+- [6632fe0f-6395-4cc1-88d8-c9ca4a9061b6] product-PingOneProtectInitializeNode - Initialize Signals SDK
+- [8120e613-dee8-42b4-9668-71b8a25c1c92] PageNode - P1P Failure
+- [a0059e3b-de04-4f0f-a5ed-49525d1da576] PageNode - P1P Client Error
+- [df827cfc-6e2d-4b9f-a8b1-d92c2910eb07] product-PingOneProtectEvaluationNode - P1P Risk Decision
+- [e5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece] product-PingOneProtectResultNode - FAILED
+- [ef1929b1-255e-446e-a597-7d7a3c4bf63f] IdentityStoreDecisionNode - Identity Store Decision
+- [f1cb199e-9e9a-4761-bacf-bc717ca6c540] PageNode - Exceeds Score Threshold
+- [843dd22b-a890-461b-9a16-33d8bd871396] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [2c8f0d12-c373-4a25-9a30-b3184888d163] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [8835fe59-3988-4121-8b15-ad16a7049d7a] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [f74e82e2-72ab-4a1a-9188-655622794a37] ValidatedUsernameNode - Username
+- [6a428d9f-a221-44f6-a5c6-c6981f90f9fc] ValidatedPasswordNode - Password
+- [52ab689c-491b-4117-b729-ff590b5d1f61] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [c1804982-10dc-4668-bd53-909107cc4039] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [de8fa10c-f4cc-44b7-b675-cdc75dcc600f] designer-4b76e2122a0541498f380072cd115683 - Debug
+[PrestonTest]
 
 Test journey with a script that no longer exists, to fix a journey export issue.
-[[96mProgressiveProfile[39m]
+[ProgressiveProfile]
 
 Prompt for missing preferences on 3rd login
 
@@ -1334,28 +1334,28 @@ Categories/Tags
 Progressive Profile
 
 Node Types (5):
-- 1 [[96mPatchObjectNode[39m]
-- 1 [[96mLoginCountDecisionNode[39m]
-- 1 [[96mQueryFilterDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
+- 1 [PatchObjectNode]
+- 1 [LoginCountDecisionNode]
+- 1 [QueryFilterDecisionNode]
+- 1 [PageNode]
+- 1 [AttributeCollectorNode]
 
 Nodes (5):
-- [[96m423a959a-a1b9-498a-b0f7-596b6b6e775a[39m] PatchObjectNode - Patch Object
-- [[96m8afdaec3-275e-4301-bb53-34f03e6a4b29[39m] LoginCountDecisionNode - Login Count Decision
-- [[96ma1f45b44-5bf7-4c57-aa3f-75c619c7db8e[39m] QueryFilterDecisionNode - Query Filter Decision
-- [[96ma5aecad8-854a-4ed5-b719-ff6c90e858c0[39m] PageNode - Page Node
-- [[96m0a042e10-b22e-4e02-86c4-65e26e775f7a[39m] AttributeCollectorNode - Attribute Collector
-[[96mRadioChoice[39m]
+- [423a959a-a1b9-498a-b0f7-596b6b6e775a] PatchObjectNode - Patch Object
+- [8afdaec3-275e-4301-bb53-34f03e6a4b29] LoginCountDecisionNode - Login Count Decision
+- [a1f45b44-5bf7-4c57-aa3f-75c619c7db8e] QueryFilterDecisionNode - Query Filter Decision
+- [a5aecad8-854a-4ed5-b719-ff6c90e858c0] PageNode - Page Node
+- [0a042e10-b22e-4e02-86c4-65e26e775f7a] AttributeCollectorNode - Attribute Collector
+[RadioChoice]
 
 Node Types (2):
-- 1 [[96mPageNode[39m]
-- 1 [[96mChoiceCollectorNode[39m]
+- 1 [PageNode]
+- 1 [ChoiceCollectorNode]
 
 Nodes (2):
-- [[96m5d6cd20e-5074-43de-8832-fddd95fb078e[39m] PageNode - Page Node
-- [[96ma566e474-99f3-46e4-9e70-682402bfaa84[39m] ChoiceCollectorNode - Choice Collector
-[[96mRegistration[39m]
+- [5d6cd20e-5074-43de-8832-fddd95fb078e] PageNode - Page Node
+- [a566e474-99f3-46e4-9e70-682402bfaa84] ChoiceCollectorNode - Choice Collector
+[Registration]
 
 Platform Registration Tree
 
@@ -1363,30 +1363,30 @@ Categories/Tags
 Registration
 
 Node Types (9):
-- 1 [[96mPageNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mIncrementLoginCountNode[39m]
-- 1 [[96mCreateObjectNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
-- 1 [[96mKbaCreateNode[39m]
-- 1 [[96mAcceptTermsAndConditionsNode[39m]
+- 1 [PageNode]
+- 1 [EmailSuspendNode]
+- 1 [IncrementLoginCountNode]
+- 1 [CreateObjectNode]
+- 1 [ValidatedUsernameNode]
+- 1 [AttributeCollectorNode]
+- 1 [ValidatedPasswordNode]
+- 1 [KbaCreateNode]
+- 1 [AcceptTermsAndConditionsNode]
 
 Nodes (9):
-- [[96m0c091c49-f3af-48fb-ac6f-07fba0499dd6[39m] PageNode - Page Node
-- [[96m466f8b54-07fb-4e31-a11d-a6842618cc37[39m] EmailSuspendNode - Email Suspend Node
-- [[96m97a15eb2-a015-4b6d-81a0-be78c3aa1a3b[39m] IncrementLoginCountNode - Increment Login Count
-- [[96mad5dcbb3-7335-49b7-b3e7-7d850bb88237[39m] CreateObjectNode - Create Object
-- [[96m7fcaf48e-a754-4959-858b-05b2933b825f[39m] ValidatedUsernameNode - Platform Username
-- [[96md3ce2036-1523-4ce8-b1a2-895a2a036667[39m] AttributeCollectorNode - Attribute Collector
-- [[96m3d8709a1-f09f-4d1f-8094-2850e472c1db[39m] ValidatedPasswordNode - Platform Password
-- [[96m120c69d3-90b4-4ad4-b7af-380e8b119340[39m] KbaCreateNode - KBA Definition
-- [[96mb4a0e915-c15d-4b83-9c9d-18347d645976[39m] AcceptTermsAndConditionsNode - Accept Terms and Conditions
+- [0c091c49-f3af-48fb-ac6f-07fba0499dd6] PageNode - Page Node
+- [466f8b54-07fb-4e31-a11d-a6842618cc37] EmailSuspendNode - Email Suspend Node
+- [97a15eb2-a015-4b6d-81a0-be78c3aa1a3b] IncrementLoginCountNode - Increment Login Count
+- [ad5dcbb3-7335-49b7-b3e7-7d850bb88237] CreateObjectNode - Create Object
+- [7fcaf48e-a754-4959-858b-05b2933b825f] ValidatedUsernameNode - Platform Username
+- [d3ce2036-1523-4ce8-b1a2-895a2a036667] AttributeCollectorNode - Attribute Collector
+- [3d8709a1-f09f-4d1f-8094-2850e472c1db] ValidatedPasswordNode - Platform Password
+- [120c69d3-90b4-4ad4-b7af-380e8b119340] KbaCreateNode - KBA Definition
+- [b4a0e915-c15d-4b83-9c9d-18347d645976] AcceptTermsAndConditionsNode - Accept Terms and Conditions
 
 Email Templates (1):
-- [[96mregistration[39m]  - Register new account
-[[96mResetPassword[39m]
+- [registration]  - Register new account
+[ResetPassword]
 
 Reset Password Tree
 
@@ -1394,56 +1394,56 @@ Categories/Tags
 Password Reset
 
 Node Types (6):
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mIdentifyExistingUserNode[39m]
-- 1 [[96mPatchObjectNode[39m]
-- 2 [[96mPageNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [EmailSuspendNode]
+- 1 [IdentifyExistingUserNode]
+- 1 [PatchObjectNode]
+- 2 [PageNode]
+- 1 [AttributeCollectorNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (7):
-- [[96m06c97be5-7fdd-4739-aea1-ecc7fe082865[39m] EmailSuspendNode - Email Suspend Node
-- [[96m21b8ddf3-0203-4ae1-ab05-51cf3a3a707a[39m] IdentifyExistingUserNode - Identify Existing User
-- [[96m989f0bf8-a328-4217-b82b-5275d79ca8bd[39m] PatchObjectNode - Patch Object
-- [[96mcc3e1ed2-25f1-47bf-83c6-17084f8b2b2b[39m] PageNode - Page Node
-- [[96me4c752f9-c625-48c9-9644-a58802fa9e9c[39m] PageNode - Page Node
-- [[96m276afa7c-a680-4cf4-a5f6-d6c78191f5c9[39m] AttributeCollectorNode - Attribute Collector
-- [[96m009c19c8-9572-47bb-adb2-1f092c559a43[39m] ValidatedPasswordNode - Platform Password
+- [06c97be5-7fdd-4739-aea1-ecc7fe082865] EmailSuspendNode - Email Suspend Node
+- [21b8ddf3-0203-4ae1-ab05-51cf3a3a707a] IdentifyExistingUserNode - Identify Existing User
+- [989f0bf8-a328-4217-b82b-5275d79ca8bd] PatchObjectNode - Patch Object
+- [cc3e1ed2-25f1-47bf-83c6-17084f8b2b2b] PageNode - Page Node
+- [e4c752f9-c625-48c9-9644-a58802fa9e9c] PageNode - Page Node
+- [276afa7c-a680-4cf4-a5f6-d6c78191f5c9] AttributeCollectorNode - Attribute Collector
+- [009c19c8-9572-47bb-adb2-1f092c559a43] ValidatedPasswordNode - Platform Password
 
 Email Templates (1):
-- [[96mresetPassword[39m]  - Reset your password
-[[96mSocialProviderHandler[39m]
+- [resetPassword]  - Reset your password
+[SocialProviderHandler]
 
 Node Types (2):
-- 1 [[96mSocialProviderHandlerNode[39m]
-- 1 [[96mSocialProviderHandlerNodeV2[39m]
+- 1 [SocialProviderHandlerNode]
+- 1 [SocialProviderHandlerNodeV2]
 
 Nodes (2):
-- [[96m3af612be-340e-4dc9-80fb-62319a187b74[39m] SocialProviderHandlerNode - Legacy Social Provider Handler Node
-- [[96me15c8efe-b7a7-42bf-845e-861a9419af32[39m] SocialProviderHandlerNodeV2 - Social Provider Handler Node
+- [3af612be-340e-4dc9-80fb-62319a187b74] SocialProviderHandlerNode - Legacy Social Provider Handler Node
+- [e15c8efe-b7a7-42bf-845e-861a9419af32] SocialProviderHandlerNodeV2 - Social Provider Handler Node
 
 Scripts (9):
-- [[96m58c824ae-84ed-4724-82cd-db128fc3f6c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
-- [[96med685f9f-5909-4726-86e8-22bd38b47663[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Identity
-- [[96m58d29080-4563-480b-89bb-1e7719776a21[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
-- [[96m23143919-6b78-40c3-b25e-beca19b229e0[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
-- [[96mbae1d54a-e97d-4997-aa5d-c027f21af82c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
-- [[96m484e6246-dbc6-4288-97e6-54e55431402e[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
-- [[96m6325cf19-a49b-471e-8d26-7e4df76df0e2[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
-- [[96mdbe0bf9a-72aa-49d5-8483-9db147985a47[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
-- [[96m73cecbfc-dad0-4395-be6a-6858ee3a80e5[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
+- [58c824ae-84ed-4724-82cd-db128fc3f6c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
+- [ed685f9f-5909-4726-86e8-22bd38b47663] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Identity
+- [58d29080-4563-480b-89bb-1e7719776a21] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
+- [23143919-6b78-40c3-b25e-beca19b229e0] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
+- [bae1d54a-e97d-4997-aa5d-c027f21af82c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
+- [484e6246-dbc6-4288-97e6-54e55431402e] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
+- [6325cf19-a49b-471e-8d26-7e4df76df0e2] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
+- [dbe0bf9a-72aa-49d5-8483-9db147985a47] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
+- [73cecbfc-dad0-4395-be6a-6858ee3a80e5] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
 
 Social Identity Providers (8):
-- [[96mgoogle[39m] googleConfig
-- [[96mgithub[39m] oauth2Config
-- [[96mfacebook[39m] oauth2Config
-- [[96mapple-stoyan[39m] appleConfig
-- [[96mapple_web[39m] appleConfig
-- [[96mokta-trial-5735851[39m] oidcConfig
-- [[96madfs[39m] oidcConfig
-- [[96mazure[39m] microsoftConfig
-[[96mtest[39m]
-[[96mUpdatePassword[39m]
+- [google] googleConfig
+- [github] oauth2Config
+- [facebook] oauth2Config
+- [apple-stoyan] appleConfig
+- [apple_web] appleConfig
+- [okta-trial-5735851] oidcConfig
+- [adfs] oidcConfig
+- [azure] microsoftConfig
+[test]
+[UpdatePassword]
 
 Update password using active session
 
@@ -1451,27 +1451,27 @@ Categories/Tags
 Password Reset
 
 Node Types (7):
-- 1 [[96mAttributePresentDecisionNode[39m]
-- 2 [[96mPageNode[39m]
-- 1 [[96mPatchObjectNode[39m]
-- 1 [[96mDataStoreDecisionNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mSessionDataNode[39m]
-- 2 [[96mValidatedPasswordNode[39m]
+- 1 [AttributePresentDecisionNode]
+- 2 [PageNode]
+- 1 [PatchObjectNode]
+- 1 [DataStoreDecisionNode]
+- 1 [EmailSuspendNode]
+- 1 [SessionDataNode]
+- 2 [ValidatedPasswordNode]
 
 Nodes (9):
-- [[96m0f0904e6-1da3-4cdb-9abf-0d2545016fab[39m] AttributePresentDecisionNode - Attribute Present Decision
-- [[96m20237b34-26cb-4a0b-958f-abb422290d42[39m] PageNode - Page Node
-- [[96m3990ce1f-cce6-435b-ae1c-f138e89411c1[39m] PatchObjectNode - Patch Object
-- [[96m7d1deabe-cd98-49c8-943f-ca12305775f3[39m] DataStoreDecisionNode - Data Store Decision
-- [[96ma3d97b53-e38a-4b24-aed0-a021050eb744[39m] EmailSuspendNode - Email Suspend Node
-- [[96md018fcd1-4e22-4160-8c41-63bee51c9cb3[39m] PageNode - Page Node
-- [[96md1b79744-493a-44fe-bc26-7d324a8caa4e[39m] SessionDataNode - Get Session Data
-- [[96mfe2962fc-4db3-4066-8624-553649afc438[39m] ValidatedPasswordNode - Platform Password
-- [[96m21a99653-a7a7-47ee-b650-f493a84bba09[39m] ValidatedPasswordNode - Platform Password
+- [0f0904e6-1da3-4cdb-9abf-0d2545016fab] AttributePresentDecisionNode - Attribute Present Decision
+- [20237b34-26cb-4a0b-958f-abb422290d42] PageNode - Page Node
+- [3990ce1f-cce6-435b-ae1c-f138e89411c1] PatchObjectNode - Patch Object
+- [7d1deabe-cd98-49c8-943f-ca12305775f3] DataStoreDecisionNode - Data Store Decision
+- [a3d97b53-e38a-4b24-aed0-a021050eb744] EmailSuspendNode - Email Suspend Node
+- [d018fcd1-4e22-4160-8c41-63bee51c9cb3] PageNode - Page Node
+- [d1b79744-493a-44fe-bc26-7d324a8caa4e] SessionDataNode - Get Session Data
+- [fe2962fc-4db3-4066-8624-553649afc438] ValidatedPasswordNode - Platform Password
+- [21a99653-a7a7-47ee-b650-f493a84bba09] ValidatedPasswordNode - Platform Password
 
 Email Templates (1):
-- [[96mupdatePassword[39m]  - Update your password
+- [updatePassword]  - Update your password
 "
 `;
 
@@ -2123,7 +2123,7 @@ Email Templates (1):
 exports[`frodo journey describe "frodo journey describe -F test1.json": should describe all journeys and write output to test1.json file 1`] = `""`;
 
 exports[`frodo journey describe "frodo journey describe -F test1.json": should describe all journeys and write output to test1.json file 2`] = `
-"[[96mAgent[39m]
+"[Agent]
 
 CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.
 
@@ -2131,19 +2131,19 @@ Categories/Tags
 Authentication
 
 Node Types (5):
-- 1 [[96mZeroPageLoginNode[39m]
-- 1 [[96mAgentDataStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [ZeroPageLoginNode]
+- 1 [AgentDataStoreDecisionNode]
+- 1 [PageNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (5):
-- [[96m51e2cd24-cf1f-4313-8af0-35ea9e04d2fe[39m] ZeroPageLoginNode - Zero Page Login Collector
-- [[96m6736a00a-fc65-438e-b4ea-23f66b4a8739[39m] AgentDataStoreDecisionNode - Agent Data Store Decision
-- [[96mcbd1f1af-eb0a-4274-a762-adacf04c7080[39m] PageNode - Page Node
-- [[96m2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018[39m] ValidatedUsernameNode - Platform Username
-- [[96m6072842f-5f7c-4b62-8ae2-4f18a5701ba4[39m] ValidatedPasswordNode - Platform Password
-[[96mForgottenUsername[39m]
+- [51e2cd24-cf1f-4313-8af0-35ea9e04d2fe] ZeroPageLoginNode - Zero Page Login Collector
+- [6736a00a-fc65-438e-b4ea-23f66b4a8739] AgentDataStoreDecisionNode - Agent Data Store Decision
+- [cbd1f1af-eb0a-4274-a762-adacf04c7080] PageNode - Page Node
+- [2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018] ValidatedUsernameNode - Platform Username
+- [6072842f-5f7c-4b62-8ae2-4f18a5701ba4] ValidatedPasswordNode - Platform Password
+[ForgottenUsername]
 
 Forgotten Username Tree
 
@@ -2151,27 +2151,27 @@ Categories/Tags
 Username Reset
 
 Inner Tree Dependencies (1):
-- [96mForgottenUsername[39m
-  - [96mLogin[39m
-    - [96mProgressiveProfile[39m
+- ForgottenUsername
+  - Login
+    - ProgressiveProfile
 
 Node Types (5):
-- 1 [[96mPageNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 1 [[96mIdentifyExistingUserNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
+- 1 [PageNode]
+- 1 [InnerTreeEvaluatorNode]
+- 1 [IdentifyExistingUserNode]
+- 1 [EmailSuspendNode]
+- 1 [AttributeCollectorNode]
 
 Nodes (5):
-- [[96m5e2a7c95-94af-4b23-8724-deb13853726a[39m] PageNode - Page Node
-- [[96mb93ce36e-1976-4610-b24f-8d6760b5463b[39m] InnerTreeEvaluatorNode - Inner Tree Evaluator
-- [[96mbf9ea8d5-9802-4f26-9664-a21840faac23[39m] IdentifyExistingUserNode - Identify Existing User
-- [[96md9a79f01-2ce3-4be2-a28a-975f35c3c8ca[39m] EmailSuspendNode - Email Suspend Node
-- [[96m9f1e8d94-4922-481b-9e14-212b66548900[39m] AttributeCollectorNode - Attribute Collector
+- [5e2a7c95-94af-4b23-8724-deb13853726a] PageNode - Page Node
+- [b93ce36e-1976-4610-b24f-8d6760b5463b] InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [bf9ea8d5-9802-4f26-9664-a21840faac23] IdentifyExistingUserNode - Identify Existing User
+- [d9a79f01-2ce3-4be2-a28a-975f35c3c8ca] EmailSuspendNode - Email Suspend Node
+- [9f1e8d94-4922-481b-9e14-212b66548900] AttributeCollectorNode - Attribute Collector
 
 Email Templates (1):
-- [[96mforgottenUsername[39m]  - Account Information - username
-[[96mFrodoTest[39m]
+- [forgottenUsername]  - Account Information - username
+[FrodoTest]
 
 Frodo test journey utilizing a variety of nodes and dependencies to test support for complex journeys.
 
@@ -2179,65 +2179,65 @@ Categories/Tags
 Frodo, Prototype
 
 Node Types (9):
-- 2 [[96mPageNode[39m]
-- 1 [[96mproduct-Saml2Node[39m]
-- 1 [[96mEmailTemplateNode[39m]
-- 1 [[96mSocialProviderHandlerNode[39m]
-- 1 [[96mScriptedDecisionNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 2 [[96mValidatedPasswordNode[39m]
-- 2 [[96mSelectIdPNode[39m]
+- 2 [PageNode]
+- 1 [product-Saml2Node]
+- 1 [EmailTemplateNode]
+- 1 [SocialProviderHandlerNode]
+- 1 [ScriptedDecisionNode]
+- 1 [IdentityStoreDecisionNode]
+- 1 [ValidatedUsernameNode]
+- 2 [ValidatedPasswordNode]
+- 2 [SelectIdPNode]
 
 Nodes (12):
-- [[96m278bf084-9eea-46fe-8ce9-2600dde3b046[39m] PageNode - Login Page
-- [[96m64157fca-bd5b-4405-a4c8-64ffd98a5461[39m] product-Saml2Node - SAML2 Authentication
-- [[96m731c5810-020b-45c8-a7fc-3c21903ae2b3[39m] PageNode - Login Page
-- [[96mbf153f37-83dd-4f39-aa0c-74135430242e[39m] EmailTemplateNode - Email Template Node
-- [[96md5cc2d52-6ce4-452d-85ea-3a5b50218b67[39m] SocialProviderHandlerNode - Social Login
-- [[96me2c39477-847a-4df2-9c5d-b449a752638b[39m] ScriptedDecisionNode - Check Username
-- [[96mfc7e47cd-c679-4211-8e05-a36654f23c67[39m] IdentityStoreDecisionNode - Validate Creds
-- [[96m7a351800-fb7e-4145-903c-388554747556[39m] ValidatedUsernameNode - Username
-- [[96m804e6a68-1720-442b-926a-007e90f02782[39m] ValidatedPasswordNode - Password
-- [[96m228a44d5-fd78-4278-8999-fdd470ea7ebf[39m] SelectIdPNode - Select IDP
-- [[96mdd16c8d4-baca-4ae0-bcd8-fb98b9040524[39m] ValidatedPasswordNode - Password
-- [[96m038f9b2a-36b2-489b-9e03-386c9a62ea21[39m] SelectIdPNode - Select IDP
+- [278bf084-9eea-46fe-8ce9-2600dde3b046] PageNode - Login Page
+- [64157fca-bd5b-4405-a4c8-64ffd98a5461] product-Saml2Node - SAML2 Authentication
+- [731c5810-020b-45c8-a7fc-3c21903ae2b3] PageNode - Login Page
+- [bf153f37-83dd-4f39-aa0c-74135430242e] EmailTemplateNode - Email Template Node
+- [d5cc2d52-6ce4-452d-85ea-3a5b50218b67] SocialProviderHandlerNode - Social Login
+- [e2c39477-847a-4df2-9c5d-b449a752638b] ScriptedDecisionNode - Check Username
+- [fc7e47cd-c679-4211-8e05-a36654f23c67] IdentityStoreDecisionNode - Validate Creds
+- [7a351800-fb7e-4145-903c-388554747556] ValidatedUsernameNode - Username
+- [804e6a68-1720-442b-926a-007e90f02782] ValidatedPasswordNode - Password
+- [228a44d5-fd78-4278-8999-fdd470ea7ebf] SelectIdPNode - Select IDP
+- [dd16c8d4-baca-4ae0-bcd8-fb98b9040524] ValidatedPasswordNode - Password
+- [038f9b2a-36b2-489b-9e03-386c9a62ea21] SelectIdPNode - Select IDP
 
 Themes (1):
-- [[96m63e19668-909f-479e-83d7-be7a01cd8187[39m] NoAccess ([96mFrodoTest, AA-FrodoTest[39m)
+- [63e19668-909f-479e-83d7-be7a01cd8187] NoAccess (FrodoTest, AA-FrodoTest)
 
 Scripts (9):
-- [[96m58c824ae-84ed-4724-82cd-db128fc3f6c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
-- [[96m739bdc48-fd24-4c52-b353-88706d75558a[39m] AUTHENTICATION_TREE_DECISION_NODE - Check Username
-- [[96m58d29080-4563-480b-89bb-1e7719776a21[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
-- [[96m23143919-6b78-40c3-b25e-beca19b229e0[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
-- [[96mbae1d54a-e97d-4997-aa5d-c027f21af82c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
-- [[96m484e6246-dbc6-4288-97e6-54e55431402e[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
-- [[96m6325cf19-a49b-471e-8d26-7e4df76df0e2[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
-- [[96mdbe0bf9a-72aa-49d5-8483-9db147985a47[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
-- [[96m73cecbfc-dad0-4395-be6a-6858ee3a80e5[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
+- [58c824ae-84ed-4724-82cd-db128fc3f6c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
+- [739bdc48-fd24-4c52-b353-88706d75558a] AUTHENTICATION_TREE_DECISION_NODE - Check Username
+- [58d29080-4563-480b-89bb-1e7719776a21] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
+- [23143919-6b78-40c3-b25e-beca19b229e0] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
+- [bae1d54a-e97d-4997-aa5d-c027f21af82c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
+- [484e6246-dbc6-4288-97e6-54e55431402e] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
+- [6325cf19-a49b-471e-8d26-7e4df76df0e2] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
+- [dbe0bf9a-72aa-49d5-8483-9db147985a47] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
+- [73cecbfc-dad0-4395-be6a-6858ee3a80e5] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
 
 Email Templates (1):
-- [[96mwelcome[39m] Welcome - Your account has been created
+- [welcome] Welcome - Your account has been created
 
 Social Identity Providers (8):
-- [[96mgoogle[39m] googleConfig
-- [[96mgithub[39m] oauth2Config
-- [[96mfacebook[39m] oauth2Config
-- [[96mapple-stoyan[39m] appleConfig
-- [[96mapple_web[39m] appleConfig
-- [[96mokta-trial-5735851[39m] oidcConfig
-- [[96madfs[39m] oidcConfig
-- [[96mazure[39m] microsoftConfig
+- [google] googleConfig
+- [github] oauth2Config
+- [facebook] oauth2Config
+- [apple-stoyan] appleConfig
+- [apple_web] appleConfig
+- [okta-trial-5735851] oidcConfig
+- [adfs] oidcConfig
+- [azure] microsoftConfig
 
 SAML2 Entity Providers (2):
-- [[96miSPAzure[39m] (hosted SP)
-- [[96murn:federation:MicrosoftOnline[39m] (remote SP)
+- [iSPAzure] (hosted SP)
+- [urn:federation:MicrosoftOnline] (remote SP)
 
 SAML2 Circles Of Trust (2):
-- [[96m2f04818d-561e-4f8a-82e8-af2426112138[39m]
-- [[96mAzureCOT[39m]
-[[96mFrodoTestJourney13[39m]
+- [2f04818d-561e-4f8a-82e8-af2426112138]
+- [AzureCOT]
+[FrodoTestJourney13]
 
 Frodo test journey using v2.0 nodes
 
@@ -2245,300 +2245,300 @@ Categories/Tags
 Frodo, Prototype
 
 Node Types (4):
-- 1 [[96mDataStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [DataStoreDecisionNode]
+- 1 [PageNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (4):
-- [[96mbdca20b7-ada8-4906-8b3a-e59c313f6491[39m] DataStoreDecisionNode - Validate Credentials
-- [[96mc847e93b-afa3-4d20-9a15-f75404ec353c[39m] PageNode - Login Page
-- [[96m64dceffc-2db4-468b-96d1-491824e037a2[39m] ValidatedUsernameNode - Username
-- [[96me4c5071f-acc8-47c9-b097-5c4144170742[39m] ValidatedPasswordNode - Password
-[[96mj00[39m]
+- [bdca20b7-ada8-4906-8b3a-e59c313f6491] DataStoreDecisionNode - Validate Credentials
+- [c847e93b-afa3-4d20-9a15-f75404ec353c] PageNode - Login Page
+- [64dceffc-2db4-468b-96d1-491824e037a2] ValidatedUsernameNode - Username
+- [e4c5071f-acc8-47c9-b097-5c4144170742] ValidatedPasswordNode - Password
+[j00]
 
 Node Types (1):
-- 6 [[96mScriptedDecisionNode[39m]
+- 6 [ScriptedDecisionNode]
 
 Nodes (6):
-- [[96m01d3785f-7fb4-44a7-9458-72c380a9818f[39m] ScriptedDecisionNode - shared
-- [[96m39b48197-f4be-42b9-800a-866587b4b9b5[39m] ScriptedDecisionNode - level
-- [[96m3c1e8d61-0c48-44ba-86dc-52e9555b6aeb[39m] ScriptedDecisionNode - level
-- [[96m513a2ab4-f0b8-4f94-b840-6fe14796cc84[39m] ScriptedDecisionNode - mode
-- [[96mba503a1e-633e-4d0d-ba18-c9a9b1105b5b[39m] ScriptedDecisionNode - debug
-- [[96md17ffaa1-2c61-4abd-9bb1-2559160d0a5c[39m] ScriptedDecisionNode - shared
+- [01d3785f-7fb4-44a7-9458-72c380a9818f] ScriptedDecisionNode - shared
+- [39b48197-f4be-42b9-800a-866587b4b9b5] ScriptedDecisionNode - level
+- [3c1e8d61-0c48-44ba-86dc-52e9555b6aeb] ScriptedDecisionNode - level
+- [513a2ab4-f0b8-4f94-b840-6fe14796cc84] ScriptedDecisionNode - mode
+- [ba503a1e-633e-4d0d-ba18-c9a9b1105b5b] ScriptedDecisionNode - debug
+- [d17ffaa1-2c61-4abd-9bb1-2559160d0a5c] ScriptedDecisionNode - shared
 
 Scripts (4):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m3cb43516-ae69-433a-8787-501d45db14e9[39m] AUTHENTICATION_TREE_DECISION_NODE - debug
-[[96mj01[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [3cb43516-ae69-433a-8787-501d45db14e9] AUTHENTICATION_TREE_DECISION_NODE - debug
+[j01]
 
 Inner Tree Dependencies (1):
-- [96mj01[39m
-  - [96mj00[39m
+- j01
+  - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m6674b4ac-dd89-4e13-9440-6f81194e3a22[39m] ScriptedDecisionNode - shared
-- [[96m89ce5d57-82fa-4d58-8d15-0329f7dbd7e7[39m] ScriptedDecisionNode - shared
-- [[96mbb1e96af-f316-4eb0-b1c6-36b3f1af9e35[39m] InnerTreeEvaluatorNode - nest
-- [[96mbdfbe97c-1ff4-4162-85bc-47f6f14b2c66[39m] ScriptedDecisionNode - level
-- [[96me92d5139-b8a6-43dc-9b13-95ba1d0dc53c[39m] ScriptedDecisionNode - level
-- [[96mf129f0df-b49e-453b-97fb-db508e3893ce[39m] ScriptedDecisionNode - mode
+- [6674b4ac-dd89-4e13-9440-6f81194e3a22] ScriptedDecisionNode - shared
+- [89ce5d57-82fa-4d58-8d15-0329f7dbd7e7] ScriptedDecisionNode - shared
+- [bb1e96af-f316-4eb0-b1c6-36b3f1af9e35] InnerTreeEvaluatorNode - nest
+- [bdfbe97c-1ff4-4162-85bc-47f6f14b2c66] ScriptedDecisionNode - level
+- [e92d5139-b8a6-43dc-9b13-95ba1d0dc53c] ScriptedDecisionNode - level
+- [f129f0df-b49e-453b-97fb-db508e3893ce] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj02[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j02]
 
 Inner Tree Dependencies (1):
-- [96mj02[39m
-  - [96mj01[39m
-    - [96mj00[39m
+- j02
+  - j01
+    - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m2dbd2d37-c659-48cf-8357-c9fc1166e3a7[39m] ScriptedDecisionNode - level
-- [[96m4416aff7-3ebd-47e6-9831-c2f6bbe3ae24[39m] ScriptedDecisionNode - level
-- [[96m56899fef-92a1-4f2a-ade3-973c81eb3af1[39m] InnerTreeEvaluatorNode - nest
-- [[96m59b06306-a886-443d-92df-7a27a60c394e[39m] ScriptedDecisionNode - mode
-- [[96mcbb3d506-b267-4b99-9edd-363e90aac997[39m] ScriptedDecisionNode - shared
-- [[96me0983ead-4918-48f6-858d-9aff0f03759c[39m] ScriptedDecisionNode - shared
+- [2dbd2d37-c659-48cf-8357-c9fc1166e3a7] ScriptedDecisionNode - level
+- [4416aff7-3ebd-47e6-9831-c2f6bbe3ae24] ScriptedDecisionNode - level
+- [56899fef-92a1-4f2a-ade3-973c81eb3af1] InnerTreeEvaluatorNode - nest
+- [59b06306-a886-443d-92df-7a27a60c394e] ScriptedDecisionNode - mode
+- [cbb3d506-b267-4b99-9edd-363e90aac997] ScriptedDecisionNode - shared
+- [e0983ead-4918-48f6-858d-9aff0f03759c] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj03[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j03]
 
 Inner Tree Dependencies (1):
-- [96mj03[39m
-  - [96mj02[39m
-    - [96mj01[39m
-      - [96mj00[39m
+- j03
+  - j02
+    - j01
+      - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m35a4f94b-c895-46b9-bc0a-93cf59233759[39m] ScriptedDecisionNode - level
-- [[96m3a92300d-6d64-451d-8156-30cb51781026[39m] ScriptedDecisionNode - level
-- [[96m6f9de973-9ed4-41f5-b43d-4036041e2b96[39m] ScriptedDecisionNode - shared
-- [[96mbcb8c535-5ecd-4d3d-b970-26816de96bf2[39m] InnerTreeEvaluatorNode - nest
-- [[96me0cfbd13-6f1e-4924-9d2d-0f7c23507172[39m] ScriptedDecisionNode - mode
-- [[96mfae7424e-13c9-45bd-b3a2-045773671a3f[39m] ScriptedDecisionNode - shared
+- [35a4f94b-c895-46b9-bc0a-93cf59233759] ScriptedDecisionNode - level
+- [3a92300d-6d64-451d-8156-30cb51781026] ScriptedDecisionNode - level
+- [6f9de973-9ed4-41f5-b43d-4036041e2b96] ScriptedDecisionNode - shared
+- [bcb8c535-5ecd-4d3d-b970-26816de96bf2] InnerTreeEvaluatorNode - nest
+- [e0cfbd13-6f1e-4924-9d2d-0f7c23507172] ScriptedDecisionNode - mode
+- [fae7424e-13c9-45bd-b3a2-045773671a3f] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj04[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j04]
 
 Inner Tree Dependencies (1):
-- [96mj04[39m
-  - [96mj03[39m
-    - [96mj02[39m
-      - [96mj01[39m
-        - [96mj00[39m
+- j04
+  - j03
+    - j02
+      - j01
+        - j00
 
 Node Types (2):
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 5 [[96mScriptedDecisionNode[39m]
+- 1 [InnerTreeEvaluatorNode]
+- 5 [ScriptedDecisionNode]
 
 Nodes (6):
-- [[96m00e75aa0-2f9b-4895-9257-d515286fd64b[39m] InnerTreeEvaluatorNode - nest
-- [[96m040b6c89-313b-4664-92e0-6732017384b8[39m] ScriptedDecisionNode - mode
-- [[96m69ae8ec1-de43-44ac-98e5-733db80ac176[39m] ScriptedDecisionNode - level
-- [[96m9603ef52-30f0-4ddc-b3c0-28dac83c7bdb[39m] ScriptedDecisionNode - shared
-- [[96md10104e9-1f8d-4da6-a110-28d879d13959[39m] ScriptedDecisionNode - level
-- [[96mf5c317ce-fabd-4a10-9907-c71cea037844[39m] ScriptedDecisionNode - shared
+- [00e75aa0-2f9b-4895-9257-d515286fd64b] InnerTreeEvaluatorNode - nest
+- [040b6c89-313b-4664-92e0-6732017384b8] ScriptedDecisionNode - mode
+- [69ae8ec1-de43-44ac-98e5-733db80ac176] ScriptedDecisionNode - level
+- [9603ef52-30f0-4ddc-b3c0-28dac83c7bdb] ScriptedDecisionNode - shared
+- [d10104e9-1f8d-4da6-a110-28d879d13959] ScriptedDecisionNode - level
+- [f5c317ce-fabd-4a10-9907-c71cea037844] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj05[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j05]
 
 Inner Tree Dependencies (1):
-- [96mj05[39m
-  - [96mj04[39m
-    - [96mj03[39m
-      - [96mj02[39m
-        - [96mj01[39m
-          - [96mj00[39m
+- j05
+  - j04
+    - j03
+      - j02
+        - j01
+          - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m11f1c31c-50a9-4717-8213-420f6932481f[39m] ScriptedDecisionNode - shared
-- [[96m3c106772-ace7-4808-8f3a-9840de8f67f0[39m] ScriptedDecisionNode - level
-- [[96m622179cb-98f1-484a-820d-9a0df6e45e95[39m] ScriptedDecisionNode - mode
-- [[96ma0782616-84b7-4bf5-87ed-a01fb3018563[39m] ScriptedDecisionNode - shared
-- [[96me90ae257-c279-46e0-9b43-5ecd89784d77[39m] ScriptedDecisionNode - level
-- [[96mf17ecb7c-abc3-4523-9943-4cbdd90305cb[39m] InnerTreeEvaluatorNode - nest
+- [11f1c31c-50a9-4717-8213-420f6932481f] ScriptedDecisionNode - shared
+- [3c106772-ace7-4808-8f3a-9840de8f67f0] ScriptedDecisionNode - level
+- [622179cb-98f1-484a-820d-9a0df6e45e95] ScriptedDecisionNode - mode
+- [a0782616-84b7-4bf5-87ed-a01fb3018563] ScriptedDecisionNode - shared
+- [e90ae257-c279-46e0-9b43-5ecd89784d77] ScriptedDecisionNode - level
+- [f17ecb7c-abc3-4523-9943-4cbdd90305cb] InnerTreeEvaluatorNode - nest
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj06[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j06]
 
 Inner Tree Dependencies (1):
-- [96mj06[39m
-  - [96mj05[39m
-    - [96mj04[39m
-      - [96mj03[39m
-        - [96mj02[39m
-          - [96mj01[39m
-            - [96mj00[39m
+- j06
+  - j05
+    - j04
+      - j03
+        - j02
+          - j01
+            - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m1d59caff-243c-45bd-b7d0-6dcc563989c5[39m] ScriptedDecisionNode - shared
-- [[96m2de08e9e-bf7b-4fa1-8265-59a8e4a3f7c3[39m] ScriptedDecisionNode - level
-- [[96m409c251f-c23b-411d-9009-d3b3d26d1b90[39m] InnerTreeEvaluatorNode - nest
-- [[96m44b8651c-7c1e-41f1-b9a6-2e441b0ce05a[39m] ScriptedDecisionNode - mode
-- [[96mda878771-421c-463f-aad7-4d5f2ad5e59a[39m] ScriptedDecisionNode - shared
-- [[96mfe8f27df-8a27-4d88-9196-834ce398b2b7[39m] ScriptedDecisionNode - level
+- [1d59caff-243c-45bd-b7d0-6dcc563989c5] ScriptedDecisionNode - shared
+- [2de08e9e-bf7b-4fa1-8265-59a8e4a3f7c3] ScriptedDecisionNode - level
+- [409c251f-c23b-411d-9009-d3b3d26d1b90] InnerTreeEvaluatorNode - nest
+- [44b8651c-7c1e-41f1-b9a6-2e441b0ce05a] ScriptedDecisionNode - mode
+- [da878771-421c-463f-aad7-4d5f2ad5e59a] ScriptedDecisionNode - shared
+- [fe8f27df-8a27-4d88-9196-834ce398b2b7] ScriptedDecisionNode - level
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj07[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j07]
 
 Inner Tree Dependencies (1):
-- [96mj07[39m
-  - [96mj06[39m
-    - [96mj05[39m
-      - [96mj04[39m
-        - [96mj03[39m
-          - [96mj02[39m
-            - [96mj01[39m
-              - [96mj00[39m
+- j07
+  - j06
+    - j05
+      - j04
+        - j03
+          - j02
+            - j01
+              - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m13b12fe6-cf53-46a4-a83d-0a3c1fda814f[39m] ScriptedDecisionNode - mode
-- [[96mac6ee166-73c0-4f73-b8db-4fe8ff6a25c0[39m] ScriptedDecisionNode - shared
-- [[96md90dd9f8-8b12-4e90-abaf-228ecc0174a7[39m] ScriptedDecisionNode - level
-- [[96md9a06d3a-7e3f-4244-9a32-63ffa0d26e00[39m] ScriptedDecisionNode - shared
-- [[96me62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9[39m] InnerTreeEvaluatorNode - nest
-- [[96mf2fe740c-cd75-460a-8baa-fe4b52ecc947[39m] ScriptedDecisionNode - level
+- [13b12fe6-cf53-46a4-a83d-0a3c1fda814f] ScriptedDecisionNode - mode
+- [ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0] ScriptedDecisionNode - shared
+- [d90dd9f8-8b12-4e90-abaf-228ecc0174a7] ScriptedDecisionNode - level
+- [d9a06d3a-7e3f-4244-9a32-63ffa0d26e00] ScriptedDecisionNode - shared
+- [e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9] InnerTreeEvaluatorNode - nest
+- [f2fe740c-cd75-460a-8baa-fe4b52ecc947] ScriptedDecisionNode - level
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-[[96mj08[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+[j08]
 
 Inner Tree Dependencies (1):
-- [96mj08[39m
-  - [96mj07[39m
-    - [96mj06[39m
-      - [96mj05[39m
-        - [96mj04[39m
-          - [96mj03[39m
-            - [96mj02[39m
-              - [96mj01[39m
-                - [96mj00[39m
+- j08
+  - j07
+    - j06
+      - j05
+        - j04
+          - j03
+            - j02
+              - j01
+                - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m042b600b-71cb-45a8-93ae-a6f57b16a6e5[39m] ScriptedDecisionNode - shared
-- [[96m66026170-5088-4fcd-a6c8-ed89d7a5c79d[39m] InnerTreeEvaluatorNode - nest
-- [[96m8096649e-973e-4209-88ce-e1d87ae2bb96[39m] ScriptedDecisionNode - level
-- [[96m87ced99b-bfa5-40d4-ba07-c8fc31f6cc6d[39m] ScriptedDecisionNode - level
-- [[96m948e21f4-c512-450a-9d42-e0d629217834[39m] ScriptedDecisionNode - shared
-- [[96md429b2b5-b215-46a5-b239-4994df65cb8b[39m] ScriptedDecisionNode - mode
+- [042b600b-71cb-45a8-93ae-a6f57b16a6e5] ScriptedDecisionNode - shared
+- [66026170-5088-4fcd-a6c8-ed89d7a5c79d] InnerTreeEvaluatorNode - nest
+- [8096649e-973e-4209-88ce-e1d87ae2bb96] ScriptedDecisionNode - level
+- [87ced99b-bfa5-40d4-ba07-c8fc31f6cc6d] ScriptedDecisionNode - level
+- [948e21f4-c512-450a-9d42-e0d629217834] ScriptedDecisionNode - shared
+- [d429b2b5-b215-46a5-b239-4994df65cb8b] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj09[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j09]
 
 Inner Tree Dependencies (1):
-- [96mj09[39m
-  - [96mj08[39m
-    - [96mj07[39m
-      - [96mj06[39m
-        - [96mj05[39m
-          - [96mj04[39m
-            - [96mj03[39m
-              - [96mj02[39m
-                - [96mj01[39m
-                  - [96mj00[39m
+- j09
+  - j08
+    - j07
+      - j06
+        - j05
+          - j04
+            - j03
+              - j02
+                - j01
+                  - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m251f35c3-1a32-4520-be10-1f4af9600935[39m] ScriptedDecisionNode - mode
-- [[96m56b82371-0c61-4dc3-8d06-c1158415b8f9[39m] ScriptedDecisionNode - level
-- [[96m6df24fdd-0b6c-4def-bf42-77af998f28b8[39m] InnerTreeEvaluatorNode - nest
-- [[96m8c5e9cb5-471b-4dd6-b150-ecaaeda98195[39m] ScriptedDecisionNode - shared
-- [[96mbb294e05-6b6b-4478-b46f-b8d9e7711c66[39m] ScriptedDecisionNode - level
-- [[96mf57cf53c-b4c6-48f7-84e8-91f535a2e8f8[39m] ScriptedDecisionNode - shared
+- [251f35c3-1a32-4520-be10-1f4af9600935] ScriptedDecisionNode - mode
+- [56b82371-0c61-4dc3-8d06-c1158415b8f9] ScriptedDecisionNode - level
+- [6df24fdd-0b6c-4def-bf42-77af998f28b8] InnerTreeEvaluatorNode - nest
+- [8c5e9cb5-471b-4dd6-b150-ecaaeda98195] ScriptedDecisionNode - shared
+- [bb294e05-6b6b-4478-b46f-b8d9e7711c66] ScriptedDecisionNode - level
+- [f57cf53c-b4c6-48f7-84e8-91f535a2e8f8] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj10[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j10]
 
 Inner Tree Dependencies (1):
-- [96mj10[39m
-  - [96mj09[39m
-    - [96mj08[39m
-      - [96mj07[39m
-        - [96mj06[39m
-          - [96mj05[39m
-            - [96mj04[39m
-              - [96mj03[39m
-                - [96mj02[39m
-                  - [96mj01[39m
-                    - [96mj00[39m
+- j10
+  - j09
+    - j08
+      - j07
+        - j06
+          - j05
+            - j04
+              - j03
+                - j02
+                  - j01
+                    - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m300feda0-3248-49a9-b60f-01df802b2229[39m] ScriptedDecisionNode - level
-- [[96m40afb384-e9b6-4dcb-acde-04de109474c8[39m] ScriptedDecisionNode - shared
-- [[96m8d7d64ee-da20-461f-a2ca-206b7479dd67[39m] ScriptedDecisionNode - level
-- [[96m97ef9d96-99e7-4d2d-b6c6-4177b5397ead[39m] ScriptedDecisionNode - shared
-- [[96mc7fcf7ae-1ab5-474b-b5b0-272e10468fbd[39m] InnerTreeEvaluatorNode - nest
-- [[96mc91d626e-1156-41bd-b1fb-d292f640fba6[39m] ScriptedDecisionNode - mode
+- [300feda0-3248-49a9-b60f-01df802b2229] ScriptedDecisionNode - level
+- [40afb384-e9b6-4dcb-acde-04de109474c8] ScriptedDecisionNode - shared
+- [8d7d64ee-da20-461f-a2ca-206b7479dd67] ScriptedDecisionNode - level
+- [97ef9d96-99e7-4d2d-b6c6-4177b5397ead] ScriptedDecisionNode - shared
+- [c7fcf7ae-1ab5-474b-b5b0-272e10468fbd] InnerTreeEvaluatorNode - nest
+- [c91d626e-1156-41bd-b1fb-d292f640fba6] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mLogin[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[Login]
 
 Platform Login Tree
 
@@ -2546,38 +2546,38 @@ Categories/Tags
 Authentication
 
 Inner Tree Dependencies (1):
-- [96mLogin[39m
-  - [96mProgressiveProfile[39m
+- Login
+  - ProgressiveProfile
 
 Node Types (8):
-- 1 [[96mRetryLimitDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 1 [[96mAccountLockoutNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mIncrementLoginCountNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [RetryLimitDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
+- 1 [AccountLockoutNode]
+- 1 [IdentityStoreDecisionNode]
+- 1 [PageNode]
+- 1 [IncrementLoginCountNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (8):
-- [[96m2119f332-0f69-4088-a7a1-6582bf0f2001[39m] RetryLimitDecisionNode - Retry Limit Decision
-- [[96m33b24514-3e50-4180-8f08-ab6f4e51b07e[39m] InnerTreeEvaluatorNode - Inner Tree Evaluator
-- [[96m51e8c4c1-3509-4635-90e6-d2cc31c4a6a5[39m] AccountLockoutNode - Account Lockout
-- [[96m7f0c2aee-8c74-4d02-82a6-9d4ed9d11708[39m] IdentityStoreDecisionNode - Identity Store Decision
-- [[96ma12bc72f-ad97-4f1e-a789-a1fa3dd566c8[39m] PageNode - Page Node
-- [[96mbba3e0d8-8525-4e82-bf48-ac17f7988917[39m] IncrementLoginCountNode - Increment Login Count
-- [[96m7354982f-57b6-4b04-9ddc-f1dd1e1e07d0[39m] ValidatedUsernameNode - Platform Username
-- [[96m0c80c39b-4813-4e67-b4fb-5a0bba85f994[39m] ValidatedPasswordNode - Platform Password
-[[96mOrphanedTest[39m]
+- [2119f332-0f69-4088-a7a1-6582bf0f2001] RetryLimitDecisionNode - Retry Limit Decision
+- [33b24514-3e50-4180-8f08-ab6f4e51b07e] InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [51e8c4c1-3509-4635-90e6-d2cc31c4a6a5] AccountLockoutNode - Account Lockout
+- [7f0c2aee-8c74-4d02-82a6-9d4ed9d11708] IdentityStoreDecisionNode - Identity Store Decision
+- [a12bc72f-ad97-4f1e-a789-a1fa3dd566c8] PageNode - Page Node
+- [bba3e0d8-8525-4e82-bf48-ac17f7988917] IncrementLoginCountNode - Increment Login Count
+- [7354982f-57b6-4b04-9ddc-f1dd1e1e07d0] ValidatedUsernameNode - Platform Username
+- [0c80c39b-4813-4e67-b4fb-5a0bba85f994] ValidatedPasswordNode - Platform Password
+[OrphanedTest]
 
 Test orphaned nodes
 
 Node Types (1):
-- 1 [[96mIdentityStoreDecisionNode[39m]
+- 1 [IdentityStoreDecisionNode]
 
 Nodes (1):
-- [[96m343e745f-923a-43c4-8675-649a490fd0a3[39m] IdentityStoreDecisionNode - Identity Store Decision
-[[96mP1P-Test[39m]
+- [343e745f-923a-43c4-8675-649a490fd0a3] IdentityStoreDecisionNode - Identity Store Decision
+[P1P-Test]
 
 PingOne Protect Login Risk
 
@@ -2585,40 +2585,40 @@ Categories/Tags
 Helper, P1 Protect
 
 Node Types (8):
-- 7 [[96mPageNode[39m]
-- 2 [[96mproduct-PingOneProtectResultNode[39m]
-- 1 [[96mproduct-PingOneProtectInitializeNode[39m]
-- 1 [[96mproduct-PingOneProtectEvaluationNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 6 [[96mdesigner-4b76e2122a0541498f380072cd115683[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 7 [PageNode]
+- 2 [product-PingOneProtectResultNode]
+- 1 [product-PingOneProtectInitializeNode]
+- 1 [product-PingOneProtectEvaluationNode]
+- 1 [IdentityStoreDecisionNode]
+- 6 [designer-4b76e2122a0541498f380072cd115683]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (20):
-- [[96m00a4835b-6e99-4938-9bb8-50d5569a68d4[39m] PageNode - Low
-- [[96m084c3d2d-7d47-4f2e-81d1-57961d496939[39m] PageNode - High
-- [[96m167b87dd-a97c-4e3b-82ba-581090fd7863[39m] product-PingOneProtectResultNode - SUCCESS
-- [[96m37f190ea-fa18-4d44-941b-4e5ac325f394[39m] PageNode - Medium
-- [[96m4fdf4255-0236-4527-ae6d-d10d2c0ee8d5[39m] PageNode - Login Page
-- [[96m6632fe0f-6395-4cc1-88d8-c9ca4a9061b6[39m] product-PingOneProtectInitializeNode - Initialize Signals SDK
-- [[96m8120e613-dee8-42b4-9668-71b8a25c1c92[39m] PageNode - P1P Failure
-- [[96ma0059e3b-de04-4f0f-a5ed-49525d1da576[39m] PageNode - P1P Client Error
-- [[96mdf827cfc-6e2d-4b9f-a8b1-d92c2910eb07[39m] product-PingOneProtectEvaluationNode - P1P Risk Decision
-- [[96me5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece[39m] product-PingOneProtectResultNode - FAILED
-- [[96mef1929b1-255e-446e-a597-7d7a3c4bf63f[39m] IdentityStoreDecisionNode - Identity Store Decision
-- [[96mf1cb199e-9e9a-4761-bacf-bc717ca6c540[39m] PageNode - Exceeds Score Threshold
-- [[96m843dd22b-a890-461b-9a16-33d8bd871396[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96m2c8f0d12-c373-4a25-9a30-b3184888d163[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96m8835fe59-3988-4121-8b15-ad16a7049d7a[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mf74e82e2-72ab-4a1a-9188-655622794a37[39m] ValidatedUsernameNode - Username
-- [[96m6a428d9f-a221-44f6-a5c6-c6981f90f9fc[39m] ValidatedPasswordNode - Password
-- [[96m52ab689c-491b-4117-b729-ff590b5d1f61[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mc1804982-10dc-4668-bd53-909107cc4039[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mde8fa10c-f4cc-44b7-b675-cdc75dcc600f[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-[[96mPrestonTest[39m]
+- [00a4835b-6e99-4938-9bb8-50d5569a68d4] PageNode - Low
+- [084c3d2d-7d47-4f2e-81d1-57961d496939] PageNode - High
+- [167b87dd-a97c-4e3b-82ba-581090fd7863] product-PingOneProtectResultNode - SUCCESS
+- [37f190ea-fa18-4d44-941b-4e5ac325f394] PageNode - Medium
+- [4fdf4255-0236-4527-ae6d-d10d2c0ee8d5] PageNode - Login Page
+- [6632fe0f-6395-4cc1-88d8-c9ca4a9061b6] product-PingOneProtectInitializeNode - Initialize Signals SDK
+- [8120e613-dee8-42b4-9668-71b8a25c1c92] PageNode - P1P Failure
+- [a0059e3b-de04-4f0f-a5ed-49525d1da576] PageNode - P1P Client Error
+- [df827cfc-6e2d-4b9f-a8b1-d92c2910eb07] product-PingOneProtectEvaluationNode - P1P Risk Decision
+- [e5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece] product-PingOneProtectResultNode - FAILED
+- [ef1929b1-255e-446e-a597-7d7a3c4bf63f] IdentityStoreDecisionNode - Identity Store Decision
+- [f1cb199e-9e9a-4761-bacf-bc717ca6c540] PageNode - Exceeds Score Threshold
+- [843dd22b-a890-461b-9a16-33d8bd871396] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [2c8f0d12-c373-4a25-9a30-b3184888d163] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [8835fe59-3988-4121-8b15-ad16a7049d7a] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [f74e82e2-72ab-4a1a-9188-655622794a37] ValidatedUsernameNode - Username
+- [6a428d9f-a221-44f6-a5c6-c6981f90f9fc] ValidatedPasswordNode - Password
+- [52ab689c-491b-4117-b729-ff590b5d1f61] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [c1804982-10dc-4668-bd53-909107cc4039] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [de8fa10c-f4cc-44b7-b675-cdc75dcc600f] designer-4b76e2122a0541498f380072cd115683 - Debug
+[PrestonTest]
 
 Test journey with a script that no longer exists, to fix a journey export issue.
-[[96mProgressiveProfile[39m]
+[ProgressiveProfile]
 
 Prompt for missing preferences on 3rd login
 
@@ -2626,28 +2626,28 @@ Categories/Tags
 Progressive Profile
 
 Node Types (5):
-- 1 [[96mPatchObjectNode[39m]
-- 1 [[96mLoginCountDecisionNode[39m]
-- 1 [[96mQueryFilterDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
+- 1 [PatchObjectNode]
+- 1 [LoginCountDecisionNode]
+- 1 [QueryFilterDecisionNode]
+- 1 [PageNode]
+- 1 [AttributeCollectorNode]
 
 Nodes (5):
-- [[96m423a959a-a1b9-498a-b0f7-596b6b6e775a[39m] PatchObjectNode - Patch Object
-- [[96m8afdaec3-275e-4301-bb53-34f03e6a4b29[39m] LoginCountDecisionNode - Login Count Decision
-- [[96ma1f45b44-5bf7-4c57-aa3f-75c619c7db8e[39m] QueryFilterDecisionNode - Query Filter Decision
-- [[96ma5aecad8-854a-4ed5-b719-ff6c90e858c0[39m] PageNode - Page Node
-- [[96m0a042e10-b22e-4e02-86c4-65e26e775f7a[39m] AttributeCollectorNode - Attribute Collector
-[[96mRadioChoice[39m]
+- [423a959a-a1b9-498a-b0f7-596b6b6e775a] PatchObjectNode - Patch Object
+- [8afdaec3-275e-4301-bb53-34f03e6a4b29] LoginCountDecisionNode - Login Count Decision
+- [a1f45b44-5bf7-4c57-aa3f-75c619c7db8e] QueryFilterDecisionNode - Query Filter Decision
+- [a5aecad8-854a-4ed5-b719-ff6c90e858c0] PageNode - Page Node
+- [0a042e10-b22e-4e02-86c4-65e26e775f7a] AttributeCollectorNode - Attribute Collector
+[RadioChoice]
 
 Node Types (2):
-- 1 [[96mPageNode[39m]
-- 1 [[96mChoiceCollectorNode[39m]
+- 1 [PageNode]
+- 1 [ChoiceCollectorNode]
 
 Nodes (2):
-- [[96m5d6cd20e-5074-43de-8832-fddd95fb078e[39m] PageNode - Page Node
-- [[96ma566e474-99f3-46e4-9e70-682402bfaa84[39m] ChoiceCollectorNode - Choice Collector
-[[96mRegistration[39m]
+- [5d6cd20e-5074-43de-8832-fddd95fb078e] PageNode - Page Node
+- [a566e474-99f3-46e4-9e70-682402bfaa84] ChoiceCollectorNode - Choice Collector
+[Registration]
 
 Platform Registration Tree
 
@@ -2655,30 +2655,30 @@ Categories/Tags
 Registration
 
 Node Types (9):
-- 1 [[96mPageNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mIncrementLoginCountNode[39m]
-- 1 [[96mCreateObjectNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
-- 1 [[96mKbaCreateNode[39m]
-- 1 [[96mAcceptTermsAndConditionsNode[39m]
+- 1 [PageNode]
+- 1 [EmailSuspendNode]
+- 1 [IncrementLoginCountNode]
+- 1 [CreateObjectNode]
+- 1 [ValidatedUsernameNode]
+- 1 [AttributeCollectorNode]
+- 1 [ValidatedPasswordNode]
+- 1 [KbaCreateNode]
+- 1 [AcceptTermsAndConditionsNode]
 
 Nodes (9):
-- [[96m0c091c49-f3af-48fb-ac6f-07fba0499dd6[39m] PageNode - Page Node
-- [[96m466f8b54-07fb-4e31-a11d-a6842618cc37[39m] EmailSuspendNode - Email Suspend Node
-- [[96m97a15eb2-a015-4b6d-81a0-be78c3aa1a3b[39m] IncrementLoginCountNode - Increment Login Count
-- [[96mad5dcbb3-7335-49b7-b3e7-7d850bb88237[39m] CreateObjectNode - Create Object
-- [[96m7fcaf48e-a754-4959-858b-05b2933b825f[39m] ValidatedUsernameNode - Platform Username
-- [[96md3ce2036-1523-4ce8-b1a2-895a2a036667[39m] AttributeCollectorNode - Attribute Collector
-- [[96m3d8709a1-f09f-4d1f-8094-2850e472c1db[39m] ValidatedPasswordNode - Platform Password
-- [[96m120c69d3-90b4-4ad4-b7af-380e8b119340[39m] KbaCreateNode - KBA Definition
-- [[96mb4a0e915-c15d-4b83-9c9d-18347d645976[39m] AcceptTermsAndConditionsNode - Accept Terms and Conditions
+- [0c091c49-f3af-48fb-ac6f-07fba0499dd6] PageNode - Page Node
+- [466f8b54-07fb-4e31-a11d-a6842618cc37] EmailSuspendNode - Email Suspend Node
+- [97a15eb2-a015-4b6d-81a0-be78c3aa1a3b] IncrementLoginCountNode - Increment Login Count
+- [ad5dcbb3-7335-49b7-b3e7-7d850bb88237] CreateObjectNode - Create Object
+- [7fcaf48e-a754-4959-858b-05b2933b825f] ValidatedUsernameNode - Platform Username
+- [d3ce2036-1523-4ce8-b1a2-895a2a036667] AttributeCollectorNode - Attribute Collector
+- [3d8709a1-f09f-4d1f-8094-2850e472c1db] ValidatedPasswordNode - Platform Password
+- [120c69d3-90b4-4ad4-b7af-380e8b119340] KbaCreateNode - KBA Definition
+- [b4a0e915-c15d-4b83-9c9d-18347d645976] AcceptTermsAndConditionsNode - Accept Terms and Conditions
 
 Email Templates (1):
-- [[96mregistration[39m]  - Register new account
-[[96mResetPassword[39m]
+- [registration]  - Register new account
+[ResetPassword]
 
 Reset Password Tree
 
@@ -2686,56 +2686,56 @@ Categories/Tags
 Password Reset
 
 Node Types (6):
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mIdentifyExistingUserNode[39m]
-- 1 [[96mPatchObjectNode[39m]
-- 2 [[96mPageNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [EmailSuspendNode]
+- 1 [IdentifyExistingUserNode]
+- 1 [PatchObjectNode]
+- 2 [PageNode]
+- 1 [AttributeCollectorNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (7):
-- [[96m06c97be5-7fdd-4739-aea1-ecc7fe082865[39m] EmailSuspendNode - Email Suspend Node
-- [[96m21b8ddf3-0203-4ae1-ab05-51cf3a3a707a[39m] IdentifyExistingUserNode - Identify Existing User
-- [[96m989f0bf8-a328-4217-b82b-5275d79ca8bd[39m] PatchObjectNode - Patch Object
-- [[96mcc3e1ed2-25f1-47bf-83c6-17084f8b2b2b[39m] PageNode - Page Node
-- [[96me4c752f9-c625-48c9-9644-a58802fa9e9c[39m] PageNode - Page Node
-- [[96m276afa7c-a680-4cf4-a5f6-d6c78191f5c9[39m] AttributeCollectorNode - Attribute Collector
-- [[96m009c19c8-9572-47bb-adb2-1f092c559a43[39m] ValidatedPasswordNode - Platform Password
+- [06c97be5-7fdd-4739-aea1-ecc7fe082865] EmailSuspendNode - Email Suspend Node
+- [21b8ddf3-0203-4ae1-ab05-51cf3a3a707a] IdentifyExistingUserNode - Identify Existing User
+- [989f0bf8-a328-4217-b82b-5275d79ca8bd] PatchObjectNode - Patch Object
+- [cc3e1ed2-25f1-47bf-83c6-17084f8b2b2b] PageNode - Page Node
+- [e4c752f9-c625-48c9-9644-a58802fa9e9c] PageNode - Page Node
+- [276afa7c-a680-4cf4-a5f6-d6c78191f5c9] AttributeCollectorNode - Attribute Collector
+- [009c19c8-9572-47bb-adb2-1f092c559a43] ValidatedPasswordNode - Platform Password
 
 Email Templates (1):
-- [[96mresetPassword[39m]  - Reset your password
-[[96mSocialProviderHandler[39m]
+- [resetPassword]  - Reset your password
+[SocialProviderHandler]
 
 Node Types (2):
-- 1 [[96mSocialProviderHandlerNode[39m]
-- 1 [[96mSocialProviderHandlerNodeV2[39m]
+- 1 [SocialProviderHandlerNode]
+- 1 [SocialProviderHandlerNodeV2]
 
 Nodes (2):
-- [[96m3af612be-340e-4dc9-80fb-62319a187b74[39m] SocialProviderHandlerNode - Legacy Social Provider Handler Node
-- [[96me15c8efe-b7a7-42bf-845e-861a9419af32[39m] SocialProviderHandlerNodeV2 - Social Provider Handler Node
+- [3af612be-340e-4dc9-80fb-62319a187b74] SocialProviderHandlerNode - Legacy Social Provider Handler Node
+- [e15c8efe-b7a7-42bf-845e-861a9419af32] SocialProviderHandlerNodeV2 - Social Provider Handler Node
 
 Scripts (9):
-- [[96m58c824ae-84ed-4724-82cd-db128fc3f6c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
-- [[96med685f9f-5909-4726-86e8-22bd38b47663[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Identity
-- [[96m58d29080-4563-480b-89bb-1e7719776a21[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
-- [[96m23143919-6b78-40c3-b25e-beca19b229e0[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
-- [[96mbae1d54a-e97d-4997-aa5d-c027f21af82c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
-- [[96m484e6246-dbc6-4288-97e6-54e55431402e[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
-- [[96m6325cf19-a49b-471e-8d26-7e4df76df0e2[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
-- [[96mdbe0bf9a-72aa-49d5-8483-9db147985a47[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
-- [[96m73cecbfc-dad0-4395-be6a-6858ee3a80e5[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
+- [58c824ae-84ed-4724-82cd-db128fc3f6c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
+- [ed685f9f-5909-4726-86e8-22bd38b47663] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Identity
+- [58d29080-4563-480b-89bb-1e7719776a21] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
+- [23143919-6b78-40c3-b25e-beca19b229e0] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
+- [bae1d54a-e97d-4997-aa5d-c027f21af82c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
+- [484e6246-dbc6-4288-97e6-54e55431402e] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
+- [6325cf19-a49b-471e-8d26-7e4df76df0e2] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
+- [dbe0bf9a-72aa-49d5-8483-9db147985a47] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
+- [73cecbfc-dad0-4395-be6a-6858ee3a80e5] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
 
 Social Identity Providers (8):
-- [[96mgoogle[39m] googleConfig
-- [[96mgithub[39m] oauth2Config
-- [[96mfacebook[39m] oauth2Config
-- [[96mapple-stoyan[39m] appleConfig
-- [[96mapple_web[39m] appleConfig
-- [[96mokta-trial-5735851[39m] oidcConfig
-- [[96madfs[39m] oidcConfig
-- [[96mazure[39m] microsoftConfig
-[[96mtest[39m]
-[[96mUpdatePassword[39m]
+- [google] googleConfig
+- [github] oauth2Config
+- [facebook] oauth2Config
+- [apple-stoyan] appleConfig
+- [apple_web] appleConfig
+- [okta-trial-5735851] oidcConfig
+- [adfs] oidcConfig
+- [azure] microsoftConfig
+[test]
+[UpdatePassword]
 
 Update password using active session
 
@@ -2743,27 +2743,27 @@ Categories/Tags
 Password Reset
 
 Node Types (7):
-- 1 [[96mAttributePresentDecisionNode[39m]
-- 2 [[96mPageNode[39m]
-- 1 [[96mPatchObjectNode[39m]
-- 1 [[96mDataStoreDecisionNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mSessionDataNode[39m]
-- 2 [[96mValidatedPasswordNode[39m]
+- 1 [AttributePresentDecisionNode]
+- 2 [PageNode]
+- 1 [PatchObjectNode]
+- 1 [DataStoreDecisionNode]
+- 1 [EmailSuspendNode]
+- 1 [SessionDataNode]
+- 2 [ValidatedPasswordNode]
 
 Nodes (9):
-- [[96m0f0904e6-1da3-4cdb-9abf-0d2545016fab[39m] AttributePresentDecisionNode - Attribute Present Decision
-- [[96m20237b34-26cb-4a0b-958f-abb422290d42[39m] PageNode - Page Node
-- [[96m3990ce1f-cce6-435b-ae1c-f138e89411c1[39m] PatchObjectNode - Patch Object
-- [[96m7d1deabe-cd98-49c8-943f-ca12305775f3[39m] DataStoreDecisionNode - Data Store Decision
-- [[96ma3d97b53-e38a-4b24-aed0-a021050eb744[39m] EmailSuspendNode - Email Suspend Node
-- [[96md018fcd1-4e22-4160-8c41-63bee51c9cb3[39m] PageNode - Page Node
-- [[96md1b79744-493a-44fe-bc26-7d324a8caa4e[39m] SessionDataNode - Get Session Data
-- [[96mfe2962fc-4db3-4066-8624-553649afc438[39m] ValidatedPasswordNode - Platform Password
-- [[96m21a99653-a7a7-47ee-b650-f493a84bba09[39m] ValidatedPasswordNode - Platform Password
+- [0f0904e6-1da3-4cdb-9abf-0d2545016fab] AttributePresentDecisionNode - Attribute Present Decision
+- [20237b34-26cb-4a0b-958f-abb422290d42] PageNode - Page Node
+- [3990ce1f-cce6-435b-ae1c-f138e89411c1] PatchObjectNode - Patch Object
+- [7d1deabe-cd98-49c8-943f-ca12305775f3] DataStoreDecisionNode - Data Store Decision
+- [a3d97b53-e38a-4b24-aed0-a021050eb744] EmailSuspendNode - Email Suspend Node
+- [d018fcd1-4e22-4160-8c41-63bee51c9cb3] PageNode - Page Node
+- [d1b79744-493a-44fe-bc26-7d324a8caa4e] SessionDataNode - Get Session Data
+- [fe2962fc-4db3-4066-8624-553649afc438] ValidatedPasswordNode - Platform Password
+- [21a99653-a7a7-47ee-b650-f493a84bba09] ValidatedPasswordNode - Platform Password
 
 Email Templates (1):
-- [[96mupdatePassword[39m]  - Update your password
+- [updatePassword]  - Update your password
 "
 `;
 
@@ -2810,7 +2810,7 @@ Update password using active session
 exports[`frodo journey describe "frodo journey describe -F test4.json -o 4.2.0": should describe all journeys and write output to test4.json file and override version to 4.2.0 1`] = `""`;
 
 exports[`frodo journey describe "frodo journey describe -F test4.json -o 4.2.0": should describe all journeys and write output to test4.json file and override version to 4.2.0 2`] = `
-"[[96mAgent[39m]
+"[Agent]
 
 CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.
 
@@ -2818,19 +2818,19 @@ Categories/Tags
 Authentication
 
 Node Types (5):
-- 1 [[96mZeroPageLoginNode[39m]
-- 1 [[96mAgentDataStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [ZeroPageLoginNode]
+- 1 [AgentDataStoreDecisionNode]
+- 1 [PageNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (5):
-- [[96m51e2cd24-cf1f-4313-8af0-35ea9e04d2fe[39m] ZeroPageLoginNode - Zero Page Login Collector
-- [[96m6736a00a-fc65-438e-b4ea-23f66b4a8739[39m] AgentDataStoreDecisionNode - Agent Data Store Decision
-- [[96mcbd1f1af-eb0a-4274-a762-adacf04c7080[39m] PageNode - Page Node
-- [[96m2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018[39m] ValidatedUsernameNode - Platform Username
-- [[96m6072842f-5f7c-4b62-8ae2-4f18a5701ba4[39m] ValidatedPasswordNode - Platform Password
-[[96mForgottenUsername[39m]
+- [51e2cd24-cf1f-4313-8af0-35ea9e04d2fe] ZeroPageLoginNode - Zero Page Login Collector
+- [6736a00a-fc65-438e-b4ea-23f66b4a8739] AgentDataStoreDecisionNode - Agent Data Store Decision
+- [cbd1f1af-eb0a-4274-a762-adacf04c7080] PageNode - Page Node
+- [2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018] ValidatedUsernameNode - Platform Username
+- [6072842f-5f7c-4b62-8ae2-4f18a5701ba4] ValidatedPasswordNode - Platform Password
+[ForgottenUsername]
 
 Forgotten Username Tree
 
@@ -2838,27 +2838,27 @@ Categories/Tags
 Username Reset
 
 Inner Tree Dependencies (1):
-- [96mForgottenUsername[39m
-  - [96mLogin[39m
-    - [96mProgressiveProfile[39m
+- ForgottenUsername
+  - Login
+    - ProgressiveProfile
 
 Node Types (5):
-- 1 [[96mPageNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 1 [[96mIdentifyExistingUserNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
+- 1 [PageNode]
+- 1 [InnerTreeEvaluatorNode]
+- 1 [IdentifyExistingUserNode]
+- 1 [EmailSuspendNode]
+- 1 [AttributeCollectorNode]
 
 Nodes (5):
-- [[96m5e2a7c95-94af-4b23-8724-deb13853726a[39m] PageNode - Page Node
-- [[96mb93ce36e-1976-4610-b24f-8d6760b5463b[39m] InnerTreeEvaluatorNode - Inner Tree Evaluator
-- [[96mbf9ea8d5-9802-4f26-9664-a21840faac23[39m] IdentifyExistingUserNode - Identify Existing User
-- [[96md9a79f01-2ce3-4be2-a28a-975f35c3c8ca[39m] EmailSuspendNode - Email Suspend Node
-- [[96m9f1e8d94-4922-481b-9e14-212b66548900[39m] AttributeCollectorNode - Attribute Collector
+- [5e2a7c95-94af-4b23-8724-deb13853726a] PageNode - Page Node
+- [b93ce36e-1976-4610-b24f-8d6760b5463b] InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [bf9ea8d5-9802-4f26-9664-a21840faac23] IdentifyExistingUserNode - Identify Existing User
+- [d9a79f01-2ce3-4be2-a28a-975f35c3c8ca] EmailSuspendNode - Email Suspend Node
+- [9f1e8d94-4922-481b-9e14-212b66548900] AttributeCollectorNode - Attribute Collector
 
 Email Templates (1):
-- [[96mforgottenUsername[39m]  - Account Information - username
-[[96mFrodoTest[39m]
+- [forgottenUsername]  - Account Information - username
+[FrodoTest]
 
 Frodo test journey utilizing a variety of nodes and dependencies to test support for complex journeys.
 
@@ -2866,65 +2866,65 @@ Categories/Tags
 Frodo, Prototype
 
 Node Types (9):
-- 2 [[96mPageNode[39m]
-- 1 [[96mproduct-Saml2Node[39m]
-- 1 [[96mEmailTemplateNode[39m]
-- 1 [[96mSocialProviderHandlerNode[39m]
-- 1 [[96mScriptedDecisionNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 2 [[96mValidatedPasswordNode[39m]
-- 2 [[96mSelectIdPNode[39m]
+- 2 [PageNode]
+- 1 [product-Saml2Node]
+- 1 [EmailTemplateNode]
+- 1 [SocialProviderHandlerNode]
+- 1 [ScriptedDecisionNode]
+- 1 [IdentityStoreDecisionNode]
+- 1 [ValidatedUsernameNode]
+- 2 [ValidatedPasswordNode]
+- 2 [SelectIdPNode]
 
 Nodes (12):
-- [[96m278bf084-9eea-46fe-8ce9-2600dde3b046[39m] PageNode - Login Page
-- [[96m64157fca-bd5b-4405-a4c8-64ffd98a5461[39m] product-Saml2Node - SAML2 Authentication
-- [[96m731c5810-020b-45c8-a7fc-3c21903ae2b3[39m] PageNode - Login Page
-- [[96mbf153f37-83dd-4f39-aa0c-74135430242e[39m] EmailTemplateNode - Email Template Node
-- [[96md5cc2d52-6ce4-452d-85ea-3a5b50218b67[39m] SocialProviderHandlerNode - Social Login
-- [[96me2c39477-847a-4df2-9c5d-b449a752638b[39m] ScriptedDecisionNode - Check Username
-- [[96mfc7e47cd-c679-4211-8e05-a36654f23c67[39m] IdentityStoreDecisionNode - Validate Creds
-- [[96m7a351800-fb7e-4145-903c-388554747556[39m] ValidatedUsernameNode - Username
-- [[96m804e6a68-1720-442b-926a-007e90f02782[39m] ValidatedPasswordNode - Password
-- [[96m228a44d5-fd78-4278-8999-fdd470ea7ebf[39m] SelectIdPNode - Select IDP
-- [[96mdd16c8d4-baca-4ae0-bcd8-fb98b9040524[39m] ValidatedPasswordNode - Password
-- [[96m038f9b2a-36b2-489b-9e03-386c9a62ea21[39m] SelectIdPNode - Select IDP
+- [278bf084-9eea-46fe-8ce9-2600dde3b046] PageNode - Login Page
+- [64157fca-bd5b-4405-a4c8-64ffd98a5461] product-Saml2Node - SAML2 Authentication
+- [731c5810-020b-45c8-a7fc-3c21903ae2b3] PageNode - Login Page
+- [bf153f37-83dd-4f39-aa0c-74135430242e] EmailTemplateNode - Email Template Node
+- [d5cc2d52-6ce4-452d-85ea-3a5b50218b67] SocialProviderHandlerNode - Social Login
+- [e2c39477-847a-4df2-9c5d-b449a752638b] ScriptedDecisionNode - Check Username
+- [fc7e47cd-c679-4211-8e05-a36654f23c67] IdentityStoreDecisionNode - Validate Creds
+- [7a351800-fb7e-4145-903c-388554747556] ValidatedUsernameNode - Username
+- [804e6a68-1720-442b-926a-007e90f02782] ValidatedPasswordNode - Password
+- [228a44d5-fd78-4278-8999-fdd470ea7ebf] SelectIdPNode - Select IDP
+- [dd16c8d4-baca-4ae0-bcd8-fb98b9040524] ValidatedPasswordNode - Password
+- [038f9b2a-36b2-489b-9e03-386c9a62ea21] SelectIdPNode - Select IDP
 
 Themes (1):
-- [[96m63e19668-909f-479e-83d7-be7a01cd8187[39m] NoAccess ([96mFrodoTest, AA-FrodoTest[39m)
+- [63e19668-909f-479e-83d7-be7a01cd8187] NoAccess (FrodoTest, AA-FrodoTest)
 
 Scripts (9):
-- [[96m58c824ae-84ed-4724-82cd-db128fc3f6c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
-- [[96m739bdc48-fd24-4c52-b353-88706d75558a[39m] AUTHENTICATION_TREE_DECISION_NODE - Check Username
-- [[96m58d29080-4563-480b-89bb-1e7719776a21[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
-- [[96m23143919-6b78-40c3-b25e-beca19b229e0[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
-- [[96mbae1d54a-e97d-4997-aa5d-c027f21af82c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
-- [[96m484e6246-dbc6-4288-97e6-54e55431402e[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
-- [[96m6325cf19-a49b-471e-8d26-7e4df76df0e2[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
-- [[96mdbe0bf9a-72aa-49d5-8483-9db147985a47[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
-- [[96m73cecbfc-dad0-4395-be6a-6858ee3a80e5[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
+- [58c824ae-84ed-4724-82cd-db128fc3f6c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
+- [739bdc48-fd24-4c52-b353-88706d75558a] AUTHENTICATION_TREE_DECISION_NODE - Check Username
+- [58d29080-4563-480b-89bb-1e7719776a21] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
+- [23143919-6b78-40c3-b25e-beca19b229e0] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
+- [bae1d54a-e97d-4997-aa5d-c027f21af82c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
+- [484e6246-dbc6-4288-97e6-54e55431402e] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
+- [6325cf19-a49b-471e-8d26-7e4df76df0e2] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
+- [dbe0bf9a-72aa-49d5-8483-9db147985a47] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
+- [73cecbfc-dad0-4395-be6a-6858ee3a80e5] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
 
 Email Templates (1):
-- [[96mwelcome[39m] Welcome - Your account has been created
+- [welcome] Welcome - Your account has been created
 
 Social Identity Providers (8):
-- [[96mgoogle[39m] googleConfig
-- [[96mgithub[39m] oauth2Config
-- [[96mfacebook[39m] oauth2Config
-- [[96mapple-stoyan[39m] appleConfig
-- [[96mapple_web[39m] appleConfig
-- [[96mokta-trial-5735851[39m] oidcConfig
-- [[96madfs[39m] oidcConfig
-- [[96mazure[39m] microsoftConfig
+- [google] googleConfig
+- [github] oauth2Config
+- [facebook] oauth2Config
+- [apple-stoyan] appleConfig
+- [apple_web] appleConfig
+- [okta-trial-5735851] oidcConfig
+- [adfs] oidcConfig
+- [azure] microsoftConfig
 
 SAML2 Entity Providers (2):
-- [[96miSPAzure[39m] (hosted SP)
-- [[96murn:federation:MicrosoftOnline[39m] (remote SP)
+- [iSPAzure] (hosted SP)
+- [urn:federation:MicrosoftOnline] (remote SP)
 
 SAML2 Circles Of Trust (2):
-- [[96m2f04818d-561e-4f8a-82e8-af2426112138[39m]
-- [[96mAzureCOT[39m]
-[[96mFrodoTestJourney13[39m]
+- [2f04818d-561e-4f8a-82e8-af2426112138]
+- [AzureCOT]
+[FrodoTestJourney13]
 
 Frodo test journey using v2.0 nodes
 
@@ -2932,300 +2932,300 @@ Categories/Tags
 Frodo, Prototype
 
 Node Types (4):
-- 1 [[96mDataStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [DataStoreDecisionNode]
+- 1 [PageNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (4):
-- [[96mbdca20b7-ada8-4906-8b3a-e59c313f6491[39m] DataStoreDecisionNode - Validate Credentials
-- [[96mc847e93b-afa3-4d20-9a15-f75404ec353c[39m] PageNode - Login Page
-- [[96m64dceffc-2db4-468b-96d1-491824e037a2[39m] ValidatedUsernameNode - Username
-- [[96me4c5071f-acc8-47c9-b097-5c4144170742[39m] ValidatedPasswordNode - Password
-[[96mj00[39m]
+- [bdca20b7-ada8-4906-8b3a-e59c313f6491] DataStoreDecisionNode - Validate Credentials
+- [c847e93b-afa3-4d20-9a15-f75404ec353c] PageNode - Login Page
+- [64dceffc-2db4-468b-96d1-491824e037a2] ValidatedUsernameNode - Username
+- [e4c5071f-acc8-47c9-b097-5c4144170742] ValidatedPasswordNode - Password
+[j00]
 
 Node Types (1):
-- 6 [[96mScriptedDecisionNode[39m]
+- 6 [ScriptedDecisionNode]
 
 Nodes (6):
-- [[96m01d3785f-7fb4-44a7-9458-72c380a9818f[39m] ScriptedDecisionNode - shared
-- [[96m39b48197-f4be-42b9-800a-866587b4b9b5[39m] ScriptedDecisionNode - level
-- [[96m3c1e8d61-0c48-44ba-86dc-52e9555b6aeb[39m] ScriptedDecisionNode - level
-- [[96m513a2ab4-f0b8-4f94-b840-6fe14796cc84[39m] ScriptedDecisionNode - mode
-- [[96mba503a1e-633e-4d0d-ba18-c9a9b1105b5b[39m] ScriptedDecisionNode - debug
-- [[96md17ffaa1-2c61-4abd-9bb1-2559160d0a5c[39m] ScriptedDecisionNode - shared
+- [01d3785f-7fb4-44a7-9458-72c380a9818f] ScriptedDecisionNode - shared
+- [39b48197-f4be-42b9-800a-866587b4b9b5] ScriptedDecisionNode - level
+- [3c1e8d61-0c48-44ba-86dc-52e9555b6aeb] ScriptedDecisionNode - level
+- [513a2ab4-f0b8-4f94-b840-6fe14796cc84] ScriptedDecisionNode - mode
+- [ba503a1e-633e-4d0d-ba18-c9a9b1105b5b] ScriptedDecisionNode - debug
+- [d17ffaa1-2c61-4abd-9bb1-2559160d0a5c] ScriptedDecisionNode - shared
 
 Scripts (4):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m3cb43516-ae69-433a-8787-501d45db14e9[39m] AUTHENTICATION_TREE_DECISION_NODE - debug
-[[96mj01[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [3cb43516-ae69-433a-8787-501d45db14e9] AUTHENTICATION_TREE_DECISION_NODE - debug
+[j01]
 
 Inner Tree Dependencies (1):
-- [96mj01[39m
-  - [96mj00[39m
+- j01
+  - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m6674b4ac-dd89-4e13-9440-6f81194e3a22[39m] ScriptedDecisionNode - shared
-- [[96m89ce5d57-82fa-4d58-8d15-0329f7dbd7e7[39m] ScriptedDecisionNode - shared
-- [[96mbb1e96af-f316-4eb0-b1c6-36b3f1af9e35[39m] InnerTreeEvaluatorNode - nest
-- [[96mbdfbe97c-1ff4-4162-85bc-47f6f14b2c66[39m] ScriptedDecisionNode - level
-- [[96me92d5139-b8a6-43dc-9b13-95ba1d0dc53c[39m] ScriptedDecisionNode - level
-- [[96mf129f0df-b49e-453b-97fb-db508e3893ce[39m] ScriptedDecisionNode - mode
+- [6674b4ac-dd89-4e13-9440-6f81194e3a22] ScriptedDecisionNode - shared
+- [89ce5d57-82fa-4d58-8d15-0329f7dbd7e7] ScriptedDecisionNode - shared
+- [bb1e96af-f316-4eb0-b1c6-36b3f1af9e35] InnerTreeEvaluatorNode - nest
+- [bdfbe97c-1ff4-4162-85bc-47f6f14b2c66] ScriptedDecisionNode - level
+- [e92d5139-b8a6-43dc-9b13-95ba1d0dc53c] ScriptedDecisionNode - level
+- [f129f0df-b49e-453b-97fb-db508e3893ce] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj02[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j02]
 
 Inner Tree Dependencies (1):
-- [96mj02[39m
-  - [96mj01[39m
-    - [96mj00[39m
+- j02
+  - j01
+    - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m2dbd2d37-c659-48cf-8357-c9fc1166e3a7[39m] ScriptedDecisionNode - level
-- [[96m4416aff7-3ebd-47e6-9831-c2f6bbe3ae24[39m] ScriptedDecisionNode - level
-- [[96m56899fef-92a1-4f2a-ade3-973c81eb3af1[39m] InnerTreeEvaluatorNode - nest
-- [[96m59b06306-a886-443d-92df-7a27a60c394e[39m] ScriptedDecisionNode - mode
-- [[96mcbb3d506-b267-4b99-9edd-363e90aac997[39m] ScriptedDecisionNode - shared
-- [[96me0983ead-4918-48f6-858d-9aff0f03759c[39m] ScriptedDecisionNode - shared
+- [2dbd2d37-c659-48cf-8357-c9fc1166e3a7] ScriptedDecisionNode - level
+- [4416aff7-3ebd-47e6-9831-c2f6bbe3ae24] ScriptedDecisionNode - level
+- [56899fef-92a1-4f2a-ade3-973c81eb3af1] InnerTreeEvaluatorNode - nest
+- [59b06306-a886-443d-92df-7a27a60c394e] ScriptedDecisionNode - mode
+- [cbb3d506-b267-4b99-9edd-363e90aac997] ScriptedDecisionNode - shared
+- [e0983ead-4918-48f6-858d-9aff0f03759c] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj03[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j03]
 
 Inner Tree Dependencies (1):
-- [96mj03[39m
-  - [96mj02[39m
-    - [96mj01[39m
-      - [96mj00[39m
+- j03
+  - j02
+    - j01
+      - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m35a4f94b-c895-46b9-bc0a-93cf59233759[39m] ScriptedDecisionNode - level
-- [[96m3a92300d-6d64-451d-8156-30cb51781026[39m] ScriptedDecisionNode - level
-- [[96m6f9de973-9ed4-41f5-b43d-4036041e2b96[39m] ScriptedDecisionNode - shared
-- [[96mbcb8c535-5ecd-4d3d-b970-26816de96bf2[39m] InnerTreeEvaluatorNode - nest
-- [[96me0cfbd13-6f1e-4924-9d2d-0f7c23507172[39m] ScriptedDecisionNode - mode
-- [[96mfae7424e-13c9-45bd-b3a2-045773671a3f[39m] ScriptedDecisionNode - shared
+- [35a4f94b-c895-46b9-bc0a-93cf59233759] ScriptedDecisionNode - level
+- [3a92300d-6d64-451d-8156-30cb51781026] ScriptedDecisionNode - level
+- [6f9de973-9ed4-41f5-b43d-4036041e2b96] ScriptedDecisionNode - shared
+- [bcb8c535-5ecd-4d3d-b970-26816de96bf2] InnerTreeEvaluatorNode - nest
+- [e0cfbd13-6f1e-4924-9d2d-0f7c23507172] ScriptedDecisionNode - mode
+- [fae7424e-13c9-45bd-b3a2-045773671a3f] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj04[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j04]
 
 Inner Tree Dependencies (1):
-- [96mj04[39m
-  - [96mj03[39m
-    - [96mj02[39m
-      - [96mj01[39m
-        - [96mj00[39m
+- j04
+  - j03
+    - j02
+      - j01
+        - j00
 
 Node Types (2):
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 5 [[96mScriptedDecisionNode[39m]
+- 1 [InnerTreeEvaluatorNode]
+- 5 [ScriptedDecisionNode]
 
 Nodes (6):
-- [[96m00e75aa0-2f9b-4895-9257-d515286fd64b[39m] InnerTreeEvaluatorNode - nest
-- [[96m040b6c89-313b-4664-92e0-6732017384b8[39m] ScriptedDecisionNode - mode
-- [[96m69ae8ec1-de43-44ac-98e5-733db80ac176[39m] ScriptedDecisionNode - level
-- [[96m9603ef52-30f0-4ddc-b3c0-28dac83c7bdb[39m] ScriptedDecisionNode - shared
-- [[96md10104e9-1f8d-4da6-a110-28d879d13959[39m] ScriptedDecisionNode - level
-- [[96mf5c317ce-fabd-4a10-9907-c71cea037844[39m] ScriptedDecisionNode - shared
+- [00e75aa0-2f9b-4895-9257-d515286fd64b] InnerTreeEvaluatorNode - nest
+- [040b6c89-313b-4664-92e0-6732017384b8] ScriptedDecisionNode - mode
+- [69ae8ec1-de43-44ac-98e5-733db80ac176] ScriptedDecisionNode - level
+- [9603ef52-30f0-4ddc-b3c0-28dac83c7bdb] ScriptedDecisionNode - shared
+- [d10104e9-1f8d-4da6-a110-28d879d13959] ScriptedDecisionNode - level
+- [f5c317ce-fabd-4a10-9907-c71cea037844] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj05[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j05]
 
 Inner Tree Dependencies (1):
-- [96mj05[39m
-  - [96mj04[39m
-    - [96mj03[39m
-      - [96mj02[39m
-        - [96mj01[39m
-          - [96mj00[39m
+- j05
+  - j04
+    - j03
+      - j02
+        - j01
+          - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m11f1c31c-50a9-4717-8213-420f6932481f[39m] ScriptedDecisionNode - shared
-- [[96m3c106772-ace7-4808-8f3a-9840de8f67f0[39m] ScriptedDecisionNode - level
-- [[96m622179cb-98f1-484a-820d-9a0df6e45e95[39m] ScriptedDecisionNode - mode
-- [[96ma0782616-84b7-4bf5-87ed-a01fb3018563[39m] ScriptedDecisionNode - shared
-- [[96me90ae257-c279-46e0-9b43-5ecd89784d77[39m] ScriptedDecisionNode - level
-- [[96mf17ecb7c-abc3-4523-9943-4cbdd90305cb[39m] InnerTreeEvaluatorNode - nest
+- [11f1c31c-50a9-4717-8213-420f6932481f] ScriptedDecisionNode - shared
+- [3c106772-ace7-4808-8f3a-9840de8f67f0] ScriptedDecisionNode - level
+- [622179cb-98f1-484a-820d-9a0df6e45e95] ScriptedDecisionNode - mode
+- [a0782616-84b7-4bf5-87ed-a01fb3018563] ScriptedDecisionNode - shared
+- [e90ae257-c279-46e0-9b43-5ecd89784d77] ScriptedDecisionNode - level
+- [f17ecb7c-abc3-4523-9943-4cbdd90305cb] InnerTreeEvaluatorNode - nest
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj06[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j06]
 
 Inner Tree Dependencies (1):
-- [96mj06[39m
-  - [96mj05[39m
-    - [96mj04[39m
-      - [96mj03[39m
-        - [96mj02[39m
-          - [96mj01[39m
-            - [96mj00[39m
+- j06
+  - j05
+    - j04
+      - j03
+        - j02
+          - j01
+            - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m1d59caff-243c-45bd-b7d0-6dcc563989c5[39m] ScriptedDecisionNode - shared
-- [[96m2de08e9e-bf7b-4fa1-8265-59a8e4a3f7c3[39m] ScriptedDecisionNode - level
-- [[96m409c251f-c23b-411d-9009-d3b3d26d1b90[39m] InnerTreeEvaluatorNode - nest
-- [[96m44b8651c-7c1e-41f1-b9a6-2e441b0ce05a[39m] ScriptedDecisionNode - mode
-- [[96mda878771-421c-463f-aad7-4d5f2ad5e59a[39m] ScriptedDecisionNode - shared
-- [[96mfe8f27df-8a27-4d88-9196-834ce398b2b7[39m] ScriptedDecisionNode - level
+- [1d59caff-243c-45bd-b7d0-6dcc563989c5] ScriptedDecisionNode - shared
+- [2de08e9e-bf7b-4fa1-8265-59a8e4a3f7c3] ScriptedDecisionNode - level
+- [409c251f-c23b-411d-9009-d3b3d26d1b90] InnerTreeEvaluatorNode - nest
+- [44b8651c-7c1e-41f1-b9a6-2e441b0ce05a] ScriptedDecisionNode - mode
+- [da878771-421c-463f-aad7-4d5f2ad5e59a] ScriptedDecisionNode - shared
+- [fe8f27df-8a27-4d88-9196-834ce398b2b7] ScriptedDecisionNode - level
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj07[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j07]
 
 Inner Tree Dependencies (1):
-- [96mj07[39m
-  - [96mj06[39m
-    - [96mj05[39m
-      - [96mj04[39m
-        - [96mj03[39m
-          - [96mj02[39m
-            - [96mj01[39m
-              - [96mj00[39m
+- j07
+  - j06
+    - j05
+      - j04
+        - j03
+          - j02
+            - j01
+              - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m13b12fe6-cf53-46a4-a83d-0a3c1fda814f[39m] ScriptedDecisionNode - mode
-- [[96mac6ee166-73c0-4f73-b8db-4fe8ff6a25c0[39m] ScriptedDecisionNode - shared
-- [[96md90dd9f8-8b12-4e90-abaf-228ecc0174a7[39m] ScriptedDecisionNode - level
-- [[96md9a06d3a-7e3f-4244-9a32-63ffa0d26e00[39m] ScriptedDecisionNode - shared
-- [[96me62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9[39m] InnerTreeEvaluatorNode - nest
-- [[96mf2fe740c-cd75-460a-8baa-fe4b52ecc947[39m] ScriptedDecisionNode - level
+- [13b12fe6-cf53-46a4-a83d-0a3c1fda814f] ScriptedDecisionNode - mode
+- [ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0] ScriptedDecisionNode - shared
+- [d90dd9f8-8b12-4e90-abaf-228ecc0174a7] ScriptedDecisionNode - level
+- [d9a06d3a-7e3f-4244-9a32-63ffa0d26e00] ScriptedDecisionNode - shared
+- [e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9] InnerTreeEvaluatorNode - nest
+- [f2fe740c-cd75-460a-8baa-fe4b52ecc947] ScriptedDecisionNode - level
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-[[96mj08[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+[j08]
 
 Inner Tree Dependencies (1):
-- [96mj08[39m
-  - [96mj07[39m
-    - [96mj06[39m
-      - [96mj05[39m
-        - [96mj04[39m
-          - [96mj03[39m
-            - [96mj02[39m
-              - [96mj01[39m
-                - [96mj00[39m
+- j08
+  - j07
+    - j06
+      - j05
+        - j04
+          - j03
+            - j02
+              - j01
+                - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m042b600b-71cb-45a8-93ae-a6f57b16a6e5[39m] ScriptedDecisionNode - shared
-- [[96m66026170-5088-4fcd-a6c8-ed89d7a5c79d[39m] InnerTreeEvaluatorNode - nest
-- [[96m8096649e-973e-4209-88ce-e1d87ae2bb96[39m] ScriptedDecisionNode - level
-- [[96m87ced99b-bfa5-40d4-ba07-c8fc31f6cc6d[39m] ScriptedDecisionNode - level
-- [[96m948e21f4-c512-450a-9d42-e0d629217834[39m] ScriptedDecisionNode - shared
-- [[96md429b2b5-b215-46a5-b239-4994df65cb8b[39m] ScriptedDecisionNode - mode
+- [042b600b-71cb-45a8-93ae-a6f57b16a6e5] ScriptedDecisionNode - shared
+- [66026170-5088-4fcd-a6c8-ed89d7a5c79d] InnerTreeEvaluatorNode - nest
+- [8096649e-973e-4209-88ce-e1d87ae2bb96] ScriptedDecisionNode - level
+- [87ced99b-bfa5-40d4-ba07-c8fc31f6cc6d] ScriptedDecisionNode - level
+- [948e21f4-c512-450a-9d42-e0d629217834] ScriptedDecisionNode - shared
+- [d429b2b5-b215-46a5-b239-4994df65cb8b] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mj09[39m]
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[j09]
 
 Inner Tree Dependencies (1):
-- [96mj09[39m
-  - [96mj08[39m
-    - [96mj07[39m
-      - [96mj06[39m
-        - [96mj05[39m
-          - [96mj04[39m
-            - [96mj03[39m
-              - [96mj02[39m
-                - [96mj01[39m
-                  - [96mj00[39m
+- j09
+  - j08
+    - j07
+      - j06
+        - j05
+          - j04
+            - j03
+              - j02
+                - j01
+                  - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m251f35c3-1a32-4520-be10-1f4af9600935[39m] ScriptedDecisionNode - mode
-- [[96m56b82371-0c61-4dc3-8d06-c1158415b8f9[39m] ScriptedDecisionNode - level
-- [[96m6df24fdd-0b6c-4def-bf42-77af998f28b8[39m] InnerTreeEvaluatorNode - nest
-- [[96m8c5e9cb5-471b-4dd6-b150-ecaaeda98195[39m] ScriptedDecisionNode - shared
-- [[96mbb294e05-6b6b-4478-b46f-b8d9e7711c66[39m] ScriptedDecisionNode - level
-- [[96mf57cf53c-b4c6-48f7-84e8-91f535a2e8f8[39m] ScriptedDecisionNode - shared
+- [251f35c3-1a32-4520-be10-1f4af9600935] ScriptedDecisionNode - mode
+- [56b82371-0c61-4dc3-8d06-c1158415b8f9] ScriptedDecisionNode - level
+- [6df24fdd-0b6c-4def-bf42-77af998f28b8] InnerTreeEvaluatorNode - nest
+- [8c5e9cb5-471b-4dd6-b150-ecaaeda98195] ScriptedDecisionNode - shared
+- [bb294e05-6b6b-4478-b46f-b8d9e7711c66] ScriptedDecisionNode - level
+- [f57cf53c-b4c6-48f7-84e8-91f535a2e8f8] ScriptedDecisionNode - shared
 
 Scripts (3):
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-[[96mj10[39m]
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+[j10]
 
 Inner Tree Dependencies (1):
-- [96mj10[39m
-  - [96mj09[39m
-    - [96mj08[39m
-      - [96mj07[39m
-        - [96mj06[39m
-          - [96mj05[39m
-            - [96mj04[39m
-              - [96mj03[39m
-                - [96mj02[39m
-                  - [96mj01[39m
-                    - [96mj00[39m
+- j10
+  - j09
+    - j08
+      - j07
+        - j06
+          - j05
+            - j04
+              - j03
+                - j02
+                  - j01
+                    - j00
 
 Node Types (2):
-- 5 [[96mScriptedDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
+- 5 [ScriptedDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
 
 Nodes (6):
-- [[96m300feda0-3248-49a9-b60f-01df802b2229[39m] ScriptedDecisionNode - level
-- [[96m40afb384-e9b6-4dcb-acde-04de109474c8[39m] ScriptedDecisionNode - shared
-- [[96m8d7d64ee-da20-461f-a2ca-206b7479dd67[39m] ScriptedDecisionNode - level
-- [[96m97ef9d96-99e7-4d2d-b6c6-4177b5397ead[39m] ScriptedDecisionNode - shared
-- [[96mc7fcf7ae-1ab5-474b-b5b0-272e10468fbd[39m] InnerTreeEvaluatorNode - nest
-- [[96mc91d626e-1156-41bd-b1fb-d292f640fba6[39m] ScriptedDecisionNode - mode
+- [300feda0-3248-49a9-b60f-01df802b2229] ScriptedDecisionNode - level
+- [40afb384-e9b6-4dcb-acde-04de109474c8] ScriptedDecisionNode - shared
+- [8d7d64ee-da20-461f-a2ca-206b7479dd67] ScriptedDecisionNode - level
+- [97ef9d96-99e7-4d2d-b6c6-4177b5397ead] ScriptedDecisionNode - shared
+- [c7fcf7ae-1ab5-474b-b5b0-272e10468fbd] InnerTreeEvaluatorNode - nest
+- [c91d626e-1156-41bd-b1fb-d292f640fba6] ScriptedDecisionNode - mode
 
 Scripts (3):
-- [[96m41c24257-d7fc-4654-8b46-c2666dc5b56d[39m] AUTHENTICATION_TREE_DECISION_NODE - level
-- [[96m1b52a7e0-4019-40fa-958a-15a49870e901[39m] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [[96m5bbdaeff-ddee-44b9-b608-8d413d7d65a6[39m] AUTHENTICATION_TREE_DECISION_NODE - mode
-[[96mLogin[39m]
+- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
+- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
+- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+[Login]
 
 Platform Login Tree
 
@@ -3233,38 +3233,38 @@ Categories/Tags
 Authentication
 
 Inner Tree Dependencies (1):
-- [96mLogin[39m
-  - [96mProgressiveProfile[39m
+- Login
+  - ProgressiveProfile
 
 Node Types (8):
-- 1 [[96mRetryLimitDecisionNode[39m]
-- 1 [[96mInnerTreeEvaluatorNode[39m]
-- 1 [[96mAccountLockoutNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mIncrementLoginCountNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [RetryLimitDecisionNode]
+- 1 [InnerTreeEvaluatorNode]
+- 1 [AccountLockoutNode]
+- 1 [IdentityStoreDecisionNode]
+- 1 [PageNode]
+- 1 [IncrementLoginCountNode]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (8):
-- [[96m2119f332-0f69-4088-a7a1-6582bf0f2001[39m] RetryLimitDecisionNode - Retry Limit Decision
-- [[96m33b24514-3e50-4180-8f08-ab6f4e51b07e[39m] InnerTreeEvaluatorNode - Inner Tree Evaluator
-- [[96m51e8c4c1-3509-4635-90e6-d2cc31c4a6a5[39m] AccountLockoutNode - Account Lockout
-- [[96m7f0c2aee-8c74-4d02-82a6-9d4ed9d11708[39m] IdentityStoreDecisionNode - Identity Store Decision
-- [[96ma12bc72f-ad97-4f1e-a789-a1fa3dd566c8[39m] PageNode - Page Node
-- [[96mbba3e0d8-8525-4e82-bf48-ac17f7988917[39m] IncrementLoginCountNode - Increment Login Count
-- [[96m7354982f-57b6-4b04-9ddc-f1dd1e1e07d0[39m] ValidatedUsernameNode - Platform Username
-- [[96m0c80c39b-4813-4e67-b4fb-5a0bba85f994[39m] ValidatedPasswordNode - Platform Password
-[[96mOrphanedTest[39m]
+- [2119f332-0f69-4088-a7a1-6582bf0f2001] RetryLimitDecisionNode - Retry Limit Decision
+- [33b24514-3e50-4180-8f08-ab6f4e51b07e] InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [51e8c4c1-3509-4635-90e6-d2cc31c4a6a5] AccountLockoutNode - Account Lockout
+- [7f0c2aee-8c74-4d02-82a6-9d4ed9d11708] IdentityStoreDecisionNode - Identity Store Decision
+- [a12bc72f-ad97-4f1e-a789-a1fa3dd566c8] PageNode - Page Node
+- [bba3e0d8-8525-4e82-bf48-ac17f7988917] IncrementLoginCountNode - Increment Login Count
+- [7354982f-57b6-4b04-9ddc-f1dd1e1e07d0] ValidatedUsernameNode - Platform Username
+- [0c80c39b-4813-4e67-b4fb-5a0bba85f994] ValidatedPasswordNode - Platform Password
+[OrphanedTest]
 
 Test orphaned nodes
 
 Node Types (1):
-- 1 [[96mIdentityStoreDecisionNode[39m]
+- 1 [IdentityStoreDecisionNode]
 
 Nodes (1):
-- [[96m343e745f-923a-43c4-8675-649a490fd0a3[39m] IdentityStoreDecisionNode - Identity Store Decision
-[[96mP1P-Test[39m]
+- [343e745f-923a-43c4-8675-649a490fd0a3] IdentityStoreDecisionNode - Identity Store Decision
+[P1P-Test]
 
 PingOne Protect Login Risk
 
@@ -3272,40 +3272,40 @@ Categories/Tags
 Helper, P1 Protect
 
 Node Types (8):
-- 7 [[96mPageNode[39m]
-- 2 [[96mproduct-PingOneProtectResultNode[39m]
-- 1 [[96mproduct-PingOneProtectInitializeNode[39m]
-- 1 [[96mproduct-PingOneProtectEvaluationNode[39m]
-- 1 [[96mIdentityStoreDecisionNode[39m]
-- 6 [[96mdesigner-4b76e2122a0541498f380072cd115683[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 7 [PageNode]
+- 2 [product-PingOneProtectResultNode]
+- 1 [product-PingOneProtectInitializeNode]
+- 1 [product-PingOneProtectEvaluationNode]
+- 1 [IdentityStoreDecisionNode]
+- 6 [designer-4b76e2122a0541498f380072cd115683]
+- 1 [ValidatedUsernameNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (20):
-- [[96m00a4835b-6e99-4938-9bb8-50d5569a68d4[39m] PageNode - Low
-- [[96m084c3d2d-7d47-4f2e-81d1-57961d496939[39m] PageNode - High
-- [[96m167b87dd-a97c-4e3b-82ba-581090fd7863[39m] product-PingOneProtectResultNode - SUCCESS
-- [[96m37f190ea-fa18-4d44-941b-4e5ac325f394[39m] PageNode - Medium
-- [[96m4fdf4255-0236-4527-ae6d-d10d2c0ee8d5[39m] PageNode - Login Page
-- [[96m6632fe0f-6395-4cc1-88d8-c9ca4a9061b6[39m] product-PingOneProtectInitializeNode - Initialize Signals SDK
-- [[96m8120e613-dee8-42b4-9668-71b8a25c1c92[39m] PageNode - P1P Failure
-- [[96ma0059e3b-de04-4f0f-a5ed-49525d1da576[39m] PageNode - P1P Client Error
-- [[96mdf827cfc-6e2d-4b9f-a8b1-d92c2910eb07[39m] product-PingOneProtectEvaluationNode - P1P Risk Decision
-- [[96me5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece[39m] product-PingOneProtectResultNode - FAILED
-- [[96mef1929b1-255e-446e-a597-7d7a3c4bf63f[39m] IdentityStoreDecisionNode - Identity Store Decision
-- [[96mf1cb199e-9e9a-4761-bacf-bc717ca6c540[39m] PageNode - Exceeds Score Threshold
-- [[96m843dd22b-a890-461b-9a16-33d8bd871396[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96m2c8f0d12-c373-4a25-9a30-b3184888d163[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96m8835fe59-3988-4121-8b15-ad16a7049d7a[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mf74e82e2-72ab-4a1a-9188-655622794a37[39m] ValidatedUsernameNode - Username
-- [[96m6a428d9f-a221-44f6-a5c6-c6981f90f9fc[39m] ValidatedPasswordNode - Password
-- [[96m52ab689c-491b-4117-b729-ff590b5d1f61[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mc1804982-10dc-4668-bd53-909107cc4039[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-- [[96mde8fa10c-f4cc-44b7-b675-cdc75dcc600f[39m] designer-4b76e2122a0541498f380072cd115683 - Debug
-[[96mPrestonTest[39m]
+- [00a4835b-6e99-4938-9bb8-50d5569a68d4] PageNode - Low
+- [084c3d2d-7d47-4f2e-81d1-57961d496939] PageNode - High
+- [167b87dd-a97c-4e3b-82ba-581090fd7863] product-PingOneProtectResultNode - SUCCESS
+- [37f190ea-fa18-4d44-941b-4e5ac325f394] PageNode - Medium
+- [4fdf4255-0236-4527-ae6d-d10d2c0ee8d5] PageNode - Login Page
+- [6632fe0f-6395-4cc1-88d8-c9ca4a9061b6] product-PingOneProtectInitializeNode - Initialize Signals SDK
+- [8120e613-dee8-42b4-9668-71b8a25c1c92] PageNode - P1P Failure
+- [a0059e3b-de04-4f0f-a5ed-49525d1da576] PageNode - P1P Client Error
+- [df827cfc-6e2d-4b9f-a8b1-d92c2910eb07] product-PingOneProtectEvaluationNode - P1P Risk Decision
+- [e5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece] product-PingOneProtectResultNode - FAILED
+- [ef1929b1-255e-446e-a597-7d7a3c4bf63f] IdentityStoreDecisionNode - Identity Store Decision
+- [f1cb199e-9e9a-4761-bacf-bc717ca6c540] PageNode - Exceeds Score Threshold
+- [843dd22b-a890-461b-9a16-33d8bd871396] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [2c8f0d12-c373-4a25-9a30-b3184888d163] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [8835fe59-3988-4121-8b15-ad16a7049d7a] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [f74e82e2-72ab-4a1a-9188-655622794a37] ValidatedUsernameNode - Username
+- [6a428d9f-a221-44f6-a5c6-c6981f90f9fc] ValidatedPasswordNode - Password
+- [52ab689c-491b-4117-b729-ff590b5d1f61] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [c1804982-10dc-4668-bd53-909107cc4039] designer-4b76e2122a0541498f380072cd115683 - Debug
+- [de8fa10c-f4cc-44b7-b675-cdc75dcc600f] designer-4b76e2122a0541498f380072cd115683 - Debug
+[PrestonTest]
 
 Test journey with a script that no longer exists, to fix a journey export issue.
-[[96mProgressiveProfile[39m]
+[ProgressiveProfile]
 
 Prompt for missing preferences on 3rd login
 
@@ -3313,28 +3313,28 @@ Categories/Tags
 Progressive Profile
 
 Node Types (5):
-- 1 [[96mPatchObjectNode[39m]
-- 1 [[96mLoginCountDecisionNode[39m]
-- 1 [[96mQueryFilterDecisionNode[39m]
-- 1 [[96mPageNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
+- 1 [PatchObjectNode]
+- 1 [LoginCountDecisionNode]
+- 1 [QueryFilterDecisionNode]
+- 1 [PageNode]
+- 1 [AttributeCollectorNode]
 
 Nodes (5):
-- [[96m423a959a-a1b9-498a-b0f7-596b6b6e775a[39m] PatchObjectNode - Patch Object
-- [[96m8afdaec3-275e-4301-bb53-34f03e6a4b29[39m] LoginCountDecisionNode - Login Count Decision
-- [[96ma1f45b44-5bf7-4c57-aa3f-75c619c7db8e[39m] QueryFilterDecisionNode - Query Filter Decision
-- [[96ma5aecad8-854a-4ed5-b719-ff6c90e858c0[39m] PageNode - Page Node
-- [[96m0a042e10-b22e-4e02-86c4-65e26e775f7a[39m] AttributeCollectorNode - Attribute Collector
-[[96mRadioChoice[39m]
+- [423a959a-a1b9-498a-b0f7-596b6b6e775a] PatchObjectNode - Patch Object
+- [8afdaec3-275e-4301-bb53-34f03e6a4b29] LoginCountDecisionNode - Login Count Decision
+- [a1f45b44-5bf7-4c57-aa3f-75c619c7db8e] QueryFilterDecisionNode - Query Filter Decision
+- [a5aecad8-854a-4ed5-b719-ff6c90e858c0] PageNode - Page Node
+- [0a042e10-b22e-4e02-86c4-65e26e775f7a] AttributeCollectorNode - Attribute Collector
+[RadioChoice]
 
 Node Types (2):
-- 1 [[96mPageNode[39m]
-- 1 [[96mChoiceCollectorNode[39m]
+- 1 [PageNode]
+- 1 [ChoiceCollectorNode]
 
 Nodes (2):
-- [[96m5d6cd20e-5074-43de-8832-fddd95fb078e[39m] PageNode - Page Node
-- [[96ma566e474-99f3-46e4-9e70-682402bfaa84[39m] ChoiceCollectorNode - Choice Collector
-[[96mRegistration[39m]
+- [5d6cd20e-5074-43de-8832-fddd95fb078e] PageNode - Page Node
+- [a566e474-99f3-46e4-9e70-682402bfaa84] ChoiceCollectorNode - Choice Collector
+[Registration]
 
 Platform Registration Tree
 
@@ -3342,30 +3342,30 @@ Categories/Tags
 Registration
 
 Node Types (9):
-- 1 [[96mPageNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mIncrementLoginCountNode[39m]
-- 1 [[96mCreateObjectNode[39m]
-- 1 [[96mValidatedUsernameNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
-- 1 [[96mKbaCreateNode[39m]
-- 1 [[96mAcceptTermsAndConditionsNode[39m]
+- 1 [PageNode]
+- 1 [EmailSuspendNode]
+- 1 [IncrementLoginCountNode]
+- 1 [CreateObjectNode]
+- 1 [ValidatedUsernameNode]
+- 1 [AttributeCollectorNode]
+- 1 [ValidatedPasswordNode]
+- 1 [KbaCreateNode]
+- 1 [AcceptTermsAndConditionsNode]
 
 Nodes (9):
-- [[96m0c091c49-f3af-48fb-ac6f-07fba0499dd6[39m] PageNode - Page Node
-- [[96m466f8b54-07fb-4e31-a11d-a6842618cc37[39m] EmailSuspendNode - Email Suspend Node
-- [[96m97a15eb2-a015-4b6d-81a0-be78c3aa1a3b[39m] IncrementLoginCountNode - Increment Login Count
-- [[96mad5dcbb3-7335-49b7-b3e7-7d850bb88237[39m] CreateObjectNode - Create Object
-- [[96m7fcaf48e-a754-4959-858b-05b2933b825f[39m] ValidatedUsernameNode - Platform Username
-- [[96md3ce2036-1523-4ce8-b1a2-895a2a036667[39m] AttributeCollectorNode - Attribute Collector
-- [[96m3d8709a1-f09f-4d1f-8094-2850e472c1db[39m] ValidatedPasswordNode - Platform Password
-- [[96m120c69d3-90b4-4ad4-b7af-380e8b119340[39m] KbaCreateNode - KBA Definition
-- [[96mb4a0e915-c15d-4b83-9c9d-18347d645976[39m] AcceptTermsAndConditionsNode - Accept Terms and Conditions
+- [0c091c49-f3af-48fb-ac6f-07fba0499dd6] PageNode - Page Node
+- [466f8b54-07fb-4e31-a11d-a6842618cc37] EmailSuspendNode - Email Suspend Node
+- [97a15eb2-a015-4b6d-81a0-be78c3aa1a3b] IncrementLoginCountNode - Increment Login Count
+- [ad5dcbb3-7335-49b7-b3e7-7d850bb88237] CreateObjectNode - Create Object
+- [7fcaf48e-a754-4959-858b-05b2933b825f] ValidatedUsernameNode - Platform Username
+- [d3ce2036-1523-4ce8-b1a2-895a2a036667] AttributeCollectorNode - Attribute Collector
+- [3d8709a1-f09f-4d1f-8094-2850e472c1db] ValidatedPasswordNode - Platform Password
+- [120c69d3-90b4-4ad4-b7af-380e8b119340] KbaCreateNode - KBA Definition
+- [b4a0e915-c15d-4b83-9c9d-18347d645976] AcceptTermsAndConditionsNode - Accept Terms and Conditions
 
 Email Templates (1):
-- [[96mregistration[39m]  - Register new account
-[[96mResetPassword[39m]
+- [registration]  - Register new account
+[ResetPassword]
 
 Reset Password Tree
 
@@ -3373,56 +3373,56 @@ Categories/Tags
 Password Reset
 
 Node Types (6):
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mIdentifyExistingUserNode[39m]
-- 1 [[96mPatchObjectNode[39m]
-- 2 [[96mPageNode[39m]
-- 1 [[96mAttributeCollectorNode[39m]
-- 1 [[96mValidatedPasswordNode[39m]
+- 1 [EmailSuspendNode]
+- 1 [IdentifyExistingUserNode]
+- 1 [PatchObjectNode]
+- 2 [PageNode]
+- 1 [AttributeCollectorNode]
+- 1 [ValidatedPasswordNode]
 
 Nodes (7):
-- [[96m06c97be5-7fdd-4739-aea1-ecc7fe082865[39m] EmailSuspendNode - Email Suspend Node
-- [[96m21b8ddf3-0203-4ae1-ab05-51cf3a3a707a[39m] IdentifyExistingUserNode - Identify Existing User
-- [[96m989f0bf8-a328-4217-b82b-5275d79ca8bd[39m] PatchObjectNode - Patch Object
-- [[96mcc3e1ed2-25f1-47bf-83c6-17084f8b2b2b[39m] PageNode - Page Node
-- [[96me4c752f9-c625-48c9-9644-a58802fa9e9c[39m] PageNode - Page Node
-- [[96m276afa7c-a680-4cf4-a5f6-d6c78191f5c9[39m] AttributeCollectorNode - Attribute Collector
-- [[96m009c19c8-9572-47bb-adb2-1f092c559a43[39m] ValidatedPasswordNode - Platform Password
+- [06c97be5-7fdd-4739-aea1-ecc7fe082865] EmailSuspendNode - Email Suspend Node
+- [21b8ddf3-0203-4ae1-ab05-51cf3a3a707a] IdentifyExistingUserNode - Identify Existing User
+- [989f0bf8-a328-4217-b82b-5275d79ca8bd] PatchObjectNode - Patch Object
+- [cc3e1ed2-25f1-47bf-83c6-17084f8b2b2b] PageNode - Page Node
+- [e4c752f9-c625-48c9-9644-a58802fa9e9c] PageNode - Page Node
+- [276afa7c-a680-4cf4-a5f6-d6c78191f5c9] AttributeCollectorNode - Attribute Collector
+- [009c19c8-9572-47bb-adb2-1f092c559a43] ValidatedPasswordNode - Platform Password
 
 Email Templates (1):
-- [[96mresetPassword[39m]  - Reset your password
-[[96mSocialProviderHandler[39m]
+- [resetPassword]  - Reset your password
+[SocialProviderHandler]
 
 Node Types (2):
-- 1 [[96mSocialProviderHandlerNode[39m]
-- 1 [[96mSocialProviderHandlerNodeV2[39m]
+- 1 [SocialProviderHandlerNode]
+- 1 [SocialProviderHandlerNodeV2]
 
 Nodes (2):
-- [[96m3af612be-340e-4dc9-80fb-62319a187b74[39m] SocialProviderHandlerNode - Legacy Social Provider Handler Node
-- [[96me15c8efe-b7a7-42bf-845e-861a9419af32[39m] SocialProviderHandlerNodeV2 - Social Provider Handler Node
+- [3af612be-340e-4dc9-80fb-62319a187b74] SocialProviderHandlerNode - Legacy Social Provider Handler Node
+- [e15c8efe-b7a7-42bf-845e-861a9419af32] SocialProviderHandlerNodeV2 - Social Provider Handler Node
 
 Scripts (9):
-- [[96m58c824ae-84ed-4724-82cd-db128fc3f6c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
-- [[96med685f9f-5909-4726-86e8-22bd38b47663[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Identity
-- [[96m58d29080-4563-480b-89bb-1e7719776a21[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
-- [[96m23143919-6b78-40c3-b25e-beca19b229e0[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
-- [[96mbae1d54a-e97d-4997-aa5d-c027f21af82c[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
-- [[96m484e6246-dbc6-4288-97e6-54e55431402e[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
-- [[96m6325cf19-a49b-471e-8d26-7e4df76df0e2[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
-- [[96mdbe0bf9a-72aa-49d5-8483-9db147985a47[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
-- [[96m73cecbfc-dad0-4395-be6a-6858ee3a80e5[39m] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
+- [58c824ae-84ed-4724-82cd-db128fc3f6c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Managed User
+- [ed685f9f-5909-4726-86e8-22bd38b47663] SOCIAL_IDP_PROFILE_TRANSFORMATION - Normalized Profile to Identity
+- [58d29080-4563-480b-89bb-1e7719776a21] SOCIAL_IDP_PROFILE_TRANSFORMATION - Google Profile Normalization
+- [23143919-6b78-40c3-b25e-beca19b229e0] SOCIAL_IDP_PROFILE_TRANSFORMATION - GitHub Profile Normalization (VS)
+- [bae1d54a-e97d-4997-aa5d-c027f21af82c] SOCIAL_IDP_PROFILE_TRANSFORMATION - Facebook Profile Normalization
+- [484e6246-dbc6-4288-97e6-54e55431402e] SOCIAL_IDP_PROFILE_TRANSFORMATION - Apple Profile Normalization
+- [6325cf19-a49b-471e-8d26-7e4df76df0e2] SOCIAL_IDP_PROFILE_TRANSFORMATION - Okta Profile Normalization
+- [dbe0bf9a-72aa-49d5-8483-9db147985a47] SOCIAL_IDP_PROFILE_TRANSFORMATION - ADFS Profile Normalization (JS)
+- [73cecbfc-dad0-4395-be6a-6858ee3a80e5] SOCIAL_IDP_PROFILE_TRANSFORMATION - Microsoft Profile Normalization
 
 Social Identity Providers (8):
-- [[96mgoogle[39m] googleConfig
-- [[96mgithub[39m] oauth2Config
-- [[96mfacebook[39m] oauth2Config
-- [[96mapple-stoyan[39m] appleConfig
-- [[96mapple_web[39m] appleConfig
-- [[96mokta-trial-5735851[39m] oidcConfig
-- [[96madfs[39m] oidcConfig
-- [[96mazure[39m] microsoftConfig
-[[96mtest[39m]
-[[96mUpdatePassword[39m]
+- [google] googleConfig
+- [github] oauth2Config
+- [facebook] oauth2Config
+- [apple-stoyan] appleConfig
+- [apple_web] appleConfig
+- [okta-trial-5735851] oidcConfig
+- [adfs] oidcConfig
+- [azure] microsoftConfig
+[test]
+[UpdatePassword]
 
 Update password using active session
 
@@ -3430,27 +3430,27 @@ Categories/Tags
 Password Reset
 
 Node Types (7):
-- 1 [[96mAttributePresentDecisionNode[39m]
-- 2 [[96mPageNode[39m]
-- 1 [[96mPatchObjectNode[39m]
-- 1 [[96mDataStoreDecisionNode[39m]
-- 1 [[96mEmailSuspendNode[39m]
-- 1 [[96mSessionDataNode[39m]
-- 2 [[96mValidatedPasswordNode[39m]
+- 1 [AttributePresentDecisionNode]
+- 2 [PageNode]
+- 1 [PatchObjectNode]
+- 1 [DataStoreDecisionNode]
+- 1 [EmailSuspendNode]
+- 1 [SessionDataNode]
+- 2 [ValidatedPasswordNode]
 
 Nodes (9):
-- [[96m0f0904e6-1da3-4cdb-9abf-0d2545016fab[39m] AttributePresentDecisionNode - Attribute Present Decision
-- [[96m20237b34-26cb-4a0b-958f-abb422290d42[39m] PageNode - Page Node
-- [[96m3990ce1f-cce6-435b-ae1c-f138e89411c1[39m] PatchObjectNode - Patch Object
-- [[96m7d1deabe-cd98-49c8-943f-ca12305775f3[39m] DataStoreDecisionNode - Data Store Decision
-- [[96ma3d97b53-e38a-4b24-aed0-a021050eb744[39m] EmailSuspendNode - Email Suspend Node
-- [[96md018fcd1-4e22-4160-8c41-63bee51c9cb3[39m] PageNode - Page Node
-- [[96md1b79744-493a-44fe-bc26-7d324a8caa4e[39m] SessionDataNode - Get Session Data
-- [[96mfe2962fc-4db3-4066-8624-553649afc438[39m] ValidatedPasswordNode - Platform Password
-- [[96m21a99653-a7a7-47ee-b650-f493a84bba09[39m] ValidatedPasswordNode - Platform Password
+- [0f0904e6-1da3-4cdb-9abf-0d2545016fab] AttributePresentDecisionNode - Attribute Present Decision
+- [20237b34-26cb-4a0b-958f-abb422290d42] PageNode - Page Node
+- [3990ce1f-cce6-435b-ae1c-f138e89411c1] PatchObjectNode - Patch Object
+- [7d1deabe-cd98-49c8-943f-ca12305775f3] DataStoreDecisionNode - Data Store Decision
+- [a3d97b53-e38a-4b24-aed0-a021050eb744] EmailSuspendNode - Email Suspend Node
+- [d018fcd1-4e22-4160-8c41-63bee51c9cb3] PageNode - Page Node
+- [d1b79744-493a-44fe-bc26-7d324a8caa4e] SessionDataNode - Get Session Data
+- [fe2962fc-4db3-4066-8624-553649afc438] ValidatedPasswordNode - Platform Password
+- [21a99653-a7a7-47ee-b650-f493a84bba09] ValidatedPasswordNode - Platform Password
 
 Email Templates (1):
-- [[96mupdatePassword[39m]  - Update your password
+- [updatePassword]  - Update your password
 "
 `;
 

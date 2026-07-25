@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -24,15 +25,15 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Abort a direct configuration session with full tenant URL, username, and password:\n` +
-        `  $ frodo direct-config-session abort ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo direct-config-session abort ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+        ) +
         `  Abort a direct configuration session with connection ID:\n` +
-        `  $ frodo direct-config-session abort ${s.connId}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo direct-config-session abort ${s.connId}\n`) +
         `  Abort a direct configuration session in JSON format with connection ID:\n` +
-        `  $ frodo direct-config-session abort --json ${s.connId}\n`[
-          'brightCyan'
-        ]
+        c.cyanBright(
+          `  $ frodo direct-config-session abort --json ${s.connId}\n`
+        )
     )
     .action(
       // implement command logic inside action handler

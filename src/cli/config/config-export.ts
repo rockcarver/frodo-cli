@@ -1,5 +1,6 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -107,34 +108,34 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `How Frodo handles secrets:\n`['brightGreen'] +
-        `  Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment (--target parameter). Frodo never exports secrets in the clear.\n\n`[
-          'brightGreen'
-        ] +
+      c.greenBright(`How Frodo handles secrets:\n`) +
+        c.greenBright(
+          `  Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment (--target parameter). Frodo never exports secrets in the clear.\n\n`
+        ) +
         `Usage Examples:\n` +
         `  Export global and realm configuration for version control (e.g. Git) into the current directory.\n` +
         `  Note that -x and -s separates script and mapping config to better track changes made to them, and -N removes metadata since it changes every export (you may consider using --no-coords as well if you don't care to track node positions in journeys):\n` +
-        `  $ frodo config export -sxAND . ${s.connId}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo config export -sxAND . ${s.connId}\n`) +
         `  Export global and realm configuration from cloud to be later imported into a classic, on-prem deployment.\n` +
         `  Note -dR is used for exporting all read-only config from cloud since certain cloud read-only config (like the realm config) can be imported into a classic on-prem deployment:\n` +
-        `  $ frodo config export -adR ${s.connId}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo config export -adR ${s.connId}\n`) +
         `  Export only the bravo realm configuration:\n` +
-        `  $ frodo config export -ar ${s.connId} bravo\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo config export -ar ${s.connId} bravo\n`) +
         `  Backup global and realm configuration including active secret values to a single file (Note: only values of active and loaded secrets can be exported):\n` +
-        `  $ frodo config export -a --include-active-values ${s.connId}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo config export -a --include-active-values ${s.connId}\n`
+        ) +
         `  Backup global and realm configuration including active secret values to individual files in a directory structure (Note: only values of active and loaded secrets can be exported):\n` +
-        `  $ frodo config export -A -D ${s.connId}-backup --include-active-values ${s.connId}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo config export -A -D ${s.connId}-backup --include-active-values ${s.connId}\n`
+        ) +
         `  Export global and realm configuration including active secret values for import into another environment.\n` +
         `  The --target parameter instructs frodo to encrypt the exported secret values using the target environment so they can be imported into that target environment without requiring the source environment they were exported from.\n` +
         `  Using the --target parameter, the target environment must be available at the time of export and the person performing the export must have a connection profile for the target environment.\n` +
         `  Without the --target parameter, the source environment must be available at the time of import and the person performing the import must have a connection profile for the source environment.\n` +
-        `  $ frodo config export -a --include-active-values --target ${s.connId2} ${s.connId}\n`[
-          'brightCyan'
-        ]
+        c.cyanBright(
+          `  $ frodo config export -a --include-active-values --target ${s.connId2} ${s.connId}\n`
+        )
     )
     .action(
       // implement command logic inside action handler

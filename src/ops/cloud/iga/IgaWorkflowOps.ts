@@ -11,6 +11,7 @@ import {
   WorkflowImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/cloud/iga/IgaWorkflowOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import { extractDataToFile, getExtractedData } from '../../../utils/Config';
 import {
@@ -68,9 +69,9 @@ export async function listWorkflows(long: boolean = false): Promise<boolean> {
       table.push([
         `${workflow.id}`,
         workflow.name,
-        workflowGroup.draft ? 'true'['brightGreen'] : 'false'['brightRed'],
-        workflowGroup.published ? 'true'['brightGreen'] : 'false'['brightRed'],
-        workflow.mutable ? 'true'['brightGreen'] : 'false'['brightRed'],
+        workflowGroup.draft ? c.greenBright('true') : c.redBright('false'),
+        workflowGroup.published ? c.greenBright('true') : c.redBright('false'),
+        workflow.mutable ? c.greenBright('true') : c.redBright('false'),
       ]);
     }
     printMessage(table.toString(), 'data');
@@ -116,19 +117,19 @@ export async function describeWorkflow(
         'data'
       );
       const table = createKeyValueTable();
-      table.push(['Id'['brightCyan'], workflow.id]);
-      table.push(['Name'['brightCyan'], workflow.name]);
-      table.push(['Display Name'['brightCyan'], workflow.displayName]);
-      table.push(['Description'['brightCyan'], workflow.description]);
-      if (workflow.type) table.push(['Type'['brightCyan'], workflow.type]);
-      table.push(['Status'['brightCyan'], workflow.status]);
+      table.push([c.cyanBright('Id'), workflow.id]);
+      table.push([c.cyanBright('Name'), workflow.name]);
+      table.push([c.cyanBright('Display Name'), workflow.displayName]);
+      table.push([c.cyanBright('Description'), workflow.description]);
+      if (workflow.type) table.push([c.cyanBright('Type'), workflow.type]);
+      table.push([c.cyanBright('Status'), workflow.status]);
       table.push([
-        'Mutable'['brightCyan'],
-        workflow.mutable ? 'true'['brightGreen'] : 'false'['brightRed'],
+        c.cyanBright('Mutable'),
+        workflow.mutable ? c.greenBright('true') : c.redBright('false'),
       ]);
       table.push([
-        'ChildType'['brightCyan'],
-        workflow.childType ? 'true'['brightGreen'] : 'false'['brightRed'],
+        c.cyanBright('ChildType'),
+        workflow.childType ? c.greenBright('true') : c.redBright('false'),
       ]);
       getTableRowsFromArray(
         table,
@@ -159,10 +160,7 @@ export async function describeWorkflow(
         'data'
       );
       for (const eventData of Object.values(workflowExport.event)) {
-        printMessage(
-          `- [${eventData.id['brightCyan']}] ${eventData.name}`,
-          'data'
-        );
+        printMessage(`- [${eventData.id}] ${eventData.name}`, 'data');
       }
     }
     // Request Forms
@@ -174,10 +172,7 @@ export async function describeWorkflow(
         'data'
       );
       for (const formData of Object.values(workflowExport.requestForm)) {
-        printMessage(
-          `- [${formData.id['brightCyan']}] ${formData.name}`,
-          'data'
-        );
+        printMessage(`- [${formData.id}] ${formData.name}`, 'data');
       }
     }
     // Request Types
@@ -189,10 +184,7 @@ export async function describeWorkflow(
         'data'
       );
       for (const typeData of Object.values(workflowExport.requestType)) {
-        printMessage(
-          `- [${typeData.id['brightCyan']}] ${typeData.displayName}`,
-          'data'
-        );
+        printMessage(`- [${typeData.id}] ${typeData.displayName}`, 'data');
       }
     }
     return true;

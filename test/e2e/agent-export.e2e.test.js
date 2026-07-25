@@ -62,7 +62,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, testExport, removeAnsiEscapeCodes, stageFixture, clearFixture } from './utils/TestUtils';
+import { getEnv, testExport,  stageFixture, clearFixture } from './utils/TestUtils';
 import { connection as c, classic_connection as cc } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);

@@ -6,6 +6,7 @@ import { OAuth2TrustedJwtIssuerSkeleton } from '@rockcarver/frodo-lib/types/api/
 import { JwkRsa, JwksInterface } from '@rockcarver/frodo-lib/types/ops/JoseOps';
 import { AccessTokenMetaType } from '@rockcarver/frodo-lib/types/ops/OAuth2OidcOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   cleanupProgressIndicators,
@@ -1177,21 +1178,21 @@ export async function generateRfc7523AuthZGrantArtefacts(
           : `\nIn AM, create an OAuth2 client in the ${state.getRealm()} realm with the following information:`
       );
       const client = createKeyValueTable();
-      client.push(['Client ID'['brightCyan'], clientId]);
-      client.push(['Client Name'['brightCyan'], clientId]);
+      client.push([c.cyanBright('Client ID'), clientId]);
+      client.push([c.cyanBright('Client Name'), clientId]);
       client.push([
-        'Scopes'['brightCyan'],
+        c.cyanBright('Scopes'),
         (
           artefacts.client.coreOAuth2ClientConfig.scopes as Writable<string[]>
         ).value.join(', '),
       ]);
       client.push([
-        'Client Type'['brightCyan'],
+        c.cyanBright('Client Type'),
         (artefacts.client.coreOAuth2ClientConfig.clientType as Writable<string>)
           .value,
       ]);
       client.push([
-        'Grant Types'['brightCyan'],
+        c.cyanBright('Grant Types'),
         (
           artefacts.client.advancedOAuth2ClientConfig.grantTypes as Writable<
             string[]
@@ -1199,28 +1200,28 @@ export async function generateRfc7523AuthZGrantArtefacts(
         ).value.join(', '),
       ]);
       client.push([
-        'Implied Consent'['brightCyan'],
+        c.cyanBright('Implied Consent'),
         (
           artefacts.client.advancedOAuth2ClientConfig
             .isConsentImplied as Writable<boolean>
         ).value,
       ]);
       client.push([
-        'Token Endpoint Authentication '['brightCyan'],
+        c.cyanBright('Token Endpoint Authentication '),
         (
           artefacts.client.advancedOAuth2ClientConfig
             .tokenEndpointAuthMethod as Writable<string>
         ).value,
       ]);
       client.push([
-        'Public Key Selector'['brightCyan'],
+        c.cyanBright('Public Key Selector'),
         (
           artefacts.client.signEncOAuth2ClientConfig
             .publicKeyLocation as Writable<string>
         ).value,
       ]);
       client.push([
-        'JWKS (Public Key)'['brightCyan'],
+        c.cyanBright('JWKS (Public Key)'),
         options.save ? `${jwksFile}` : 'See below',
       ]);
       printMessage(`\n${client.toString()}`);
@@ -1231,13 +1232,13 @@ export async function generateRfc7523AuthZGrantArtefacts(
           : `\nIn AM, create a trusted issuer in the ${state.getRealm()} realm with the following information:`
       );
       const issuer = createKeyValueTable();
-      issuer.push(['Name'['brightCyan'], artefacts.issuer._id]);
+      issuer.push([c.cyanBright('Name'), artefacts.issuer._id]);
       issuer.push([
-        'JWT Issuer'['brightCyan'],
+        c.cyanBright('JWT Issuer'),
         (artefacts.issuer.issuer as Writable<string>).value,
       ]);
       issuer.push([
-        'Allowed Subjects              '['brightCyan'],
+        c.cyanBright('Allowed Subjects              '),
         (artefacts.issuer.allowedSubjects as Writable<string[]>)?.value.length
           ? (
               artefacts.issuer.allowedSubjects as Writable<string[]>
@@ -1245,14 +1246,14 @@ export async function generateRfc7523AuthZGrantArtefacts(
           : `Any ${state.getRealm()} realm user`,
       ]);
       issuer.push([
-        'JWKS (Public Key)'['brightCyan'],
+        c.cyanBright('JWKS (Public Key)'),
         options.save ? `${jwksFile}` : 'See below',
       ]);
       printMessage(`\n${issuer.toString()}`);
       if (!options.save) {
-        printMessage('\nJWK (Private Key)'['brightCyan']);
+        printMessage(c.cyanBright('\nJWK (Private Key)'));
         printMessage(stringify(artefacts.jwk));
-        printMessage('\nJWKS (Public Key)'['brightCyan']);
+        printMessage(c.cyanBright('\nJWKS (Public Key)'));
         printMessage(stringify(artefacts.jwks));
       }
     }
@@ -1395,10 +1396,10 @@ export async function executeRfc7523AuthZGrantFlow(
   if (json) {
     printMessage(tokenResponse, 'data');
   } else {
-    printMessage('\nAccess Token'['brightCyan']);
+    printMessage(c.cyanBright('\nAccess Token'));
     printMessage(tokenResponse.access_token);
     if (tokenResponse.id_token) {
-      printMessage('\nIdentity Token'['brightCyan']);
+      printMessage(c.cyanBright('\nIdentity Token'));
       printMessage(tokenResponse.id_token);
     }
   }

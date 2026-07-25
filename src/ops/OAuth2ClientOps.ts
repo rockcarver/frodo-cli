@@ -6,6 +6,7 @@ import {
   type OAuth2ClientImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createProgressIndicator,
@@ -73,8 +74,8 @@ export async function listOAuth2Clients(long = false) {
         table.push([
           client._id,
           client.coreOAuth2ClientConfig.status === 'Active'
-            ? 'Active'['brightGreen']
-            : (client.coreOAuth2ClientConfig.status as string)['brightRed'],
+            ? c.greenBright('Active')
+            : (c.cyanBright(client.coreOAuth2ClientConfig.status) as string),
           client.coreOAuth2ClientConfig.clientType,
           (client.advancedOAuth2ClientConfig.grantTypes as Readable<string[]>)
             .map((type) => grantTypesMap[type])
@@ -84,7 +85,7 @@ export async function listOAuth2Clients(long = false) {
           ),
           (client.coreOAuth2ClientConfig.redirectionUris as string[]).join(
             '\n'
-          ),
+          ) as any,
           // wordwrap(client.description, 30),
         ]);
       });

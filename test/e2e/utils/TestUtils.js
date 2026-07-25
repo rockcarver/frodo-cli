@@ -7,19 +7,6 @@ import tmp from 'tmp'
 const exec = promisify(cp.exec);
 const fspromise = fs.promises
 
-const ansiEscapeCodes =
-  // eslint-disable-next-line no-control-regex
-  /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
-
-/**
- * Remove ANSI escape codes
- * @param {string} text Text containing ANSI escape codes
- * @returns {string} Text without ANSI escape codes
- */
-export function removeAnsiEscapeCodes(text) {
-  return text ? text.replace(ansiEscapeCodes, '') : text;
-}
-
 /**
  * Mask random ForgeRock transaction IDs that make snapshots non-deterministic.
  * @param {string} text
@@ -66,7 +53,7 @@ export function normalizeStackPaths(text) {
  */
 export function normalizeSnapshotText(text) {
   return normalizeStackPaths(
-    maskUserAgentVersions(maskTransactionIds(removeAnsiEscapeCodes(text)))
+    maskUserAgentVersions(maskTransactionIds(text))
   );
 }
 

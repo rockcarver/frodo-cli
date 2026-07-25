@@ -56,7 +56,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -68,7 +68,7 @@ describe('frodo script delete', () => {
     test("\"frodo script delete -n 'hashdeviceProfile'\": should delete the script named 'hashdeviceProfile'", async () => {
         const CMD = `frodo script delete -n 'hashdeviceProfile'`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     test("\"frodo script delete --script-name 'hashdeviceProfile'\": should display error when the script named 'hashdeviceProfile' cannot be deleted since it does not exist", async () => {
@@ -77,14 +77,14 @@ describe('frodo script delete', () => {
           await exec(CMD, env);
           fail("Command should've failed");
         } catch (e) {
-          expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+          expect(e.stderr).toMatchSnapshot();
         }
     });
 
     test('"frodo script delete -i e15a13ee-9168-40cf-934f-656a5f568a6a": should delete the script with id \'e15a13ee-9168-40cf-934f-656a5f568a6a\'', async () => {
         const CMD = `frodo script delete -i e15a13ee-9168-40cf-934f-656a5f568a6a`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     test('"frodo script delete --script-id e15a13ee-9168-40cf-934f-656a5f568a6a": should display error when the script with id \'e15a13ee-9168-40cf-934f-656a5f568a6a\' cannot be deleted since it does not exist', async () => {
@@ -93,7 +93,7 @@ describe('frodo script delete', () => {
             await exec(CMD, env);
             fail("Command should've failed");
           } catch (e) {
-            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+            expect(e.stderr).toMatchSnapshot();
           }
     });
 
@@ -101,13 +101,13 @@ describe('frodo script delete', () => {
     test.skip('"frodo script delete -a": should delete all scripts', async () => {
         const CMD = `frodo script delete -a`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     //TODO: Generate mock for this test (skip for meantime)
     test.skip('"frodo script delete --all": should do nothing when no scripts can be deleted', async () => {
         const CMD = `frodo script delete --all`;
         const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        expect(stderr).toMatchSnapshot()
     });
 });

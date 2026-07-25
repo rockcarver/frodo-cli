@@ -8,7 +8,6 @@ This shows how to update `test/e2e/agent-delete.e2e.test.js` to use the global `
 import {
   clearFixture,
   getEnv,
-  removeAnsiEscapeCodes,
   stageFixture,
 } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -39,7 +38,6 @@ describe('frodo agent delete', () => {
 import {
   clearFixture,
   getEnv,
-  removeAnsiEscapeCodes,
   stageFixture,
 } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';

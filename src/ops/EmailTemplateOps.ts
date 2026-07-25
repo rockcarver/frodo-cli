@@ -2,6 +2,7 @@ import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
 import fs from 'fs';
 import path from 'path';
+import c from 'tinyrainbow';
 
 import {
   createProgressIndicator,
@@ -55,7 +56,7 @@ function getFileDataTemplate() {
 export function getOneLineDescription(
   templateObj: EmailTemplateSkeleton
 ): string {
-  const description = `[${templateObj._id.split('/')[1]['brightCyan']}] ${
+  const description = `[${c.cyanBright(templateObj._id.split('/')[1])}] ${
     templateObj.displayName ? templateObj.displayName : ''
   } - ${
     templateObj.defaultLocale
@@ -123,12 +124,12 @@ export async function listEmailTemplates(
     }
   } else {
     const table = createTable([
-      'Id'['brightCyan'],
-      'Name'['brightCyan'],
-      'Status'['brightCyan'],
-      'Locale(s)'['brightCyan'],
-      'From'['brightCyan'],
-      'Subject'['brightCyan'],
+      c.cyanBright('Id'),
+      c.cyanBright('Name'),
+      c.cyanBright('Status'),
+      c.cyanBright('Locale(s)'),
+      c.cyanBright('From'),
+      c.cyanBright('Subject'),
     ]);
     for (const emailTemplate of emailTemplates) {
       table.push([
@@ -138,8 +139,8 @@ export async function listEmailTemplates(
         `${emailTemplate.displayName ? emailTemplate.displayName : ''}`,
         // Status
         emailTemplate.enabled === false
-          ? 'disabled'['brightRed']
-          : 'enabled'['brightGreen'],
+          ? c.redBright('disabled')
+          : c.greenBright('enabled'),
         // Locale(s)
         `${emailTemplate.defaultLocale}${
           Object.keys(emailTemplate.subject).length > 1
@@ -190,7 +191,7 @@ export async function exportEmailTemplateToFile(
     saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       indicatorId,
-      `Exported ${templateId['brightCyan']} to ${filePath['brightCyan']}.`
+      `Exported ${c.cyanBright(templateId)} to ${c.cyanBright(filePath)}.`
     );
     return true;
   } catch (error) {

@@ -58,7 +58,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { forgeops_connection as fc, connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -75,13 +75,13 @@ describe('frodo config-manager push password-policy', () => {
         test(`"frodo config-manager push password-policy -D ${cloudAllDirectory} -m cloud": should import the password policy into AIC"`, async () => {
             const CMD = `frodo config-manager push password-policy -D ${cloudAllDirectory} -m cloud`;
             const { stdout } = await exec(CMD, cloudEnv);
-            expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+            expect(stdout).toMatchSnapshot();
         });
 
         test(`"frodo config-manager push password-policy -r alpha -D ${cloudAllDirectory} -m cloud": should import a specific password policy by name into AIC"`, async () => {
             const CMD = `frodo config-manager push password-policy -r alpha -D ${cloudAllDirectory} -m cloud`;
             const { stdout } = await exec(CMD, cloudEnv);
-            expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+            expect(stdout).toMatchSnapshot();
         });
     });
 
@@ -89,13 +89,13 @@ describe('frodo config-manager push password-policy', () => {
         test(`"frodo config-manager push password-policy -D ${forgeopsAllDirectory} -m forgeops": should import the password policy into forgeops"`, async () => {
             const CMD = `frodo config-manager push password-policy -D ${forgeopsAllDirectory} -m forgeops`;
             const { stdout } = await exec(CMD, forgeopsEnv);
-            expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+            expect(stdout).toMatchSnapshot();
         });
 
         test(`"frodo config-manager push password-policy -r alpha -D ${forgeopsAllDirectory} -m forgeops": should import a specific password policy by name into forgeops"`, async () => {
             const CMD = `frodo config-manager push password-policy -r alpha -D ${forgeopsAllDirectory} -m forgeops`;
             const { stdout } = await exec(CMD, forgeopsEnv);
-            expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+            expect(stdout).toMatchSnapshot();
         });
     });
 });

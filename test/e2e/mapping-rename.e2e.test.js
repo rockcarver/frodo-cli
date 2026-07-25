@@ -54,7 +54,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -66,24 +66,24 @@ describe('frodo mapping rename', () => {
     test(`"frodo mapping rename -i sync/managedAlpha_application_managedBravo_application": should rename the mapping with id sync/managedAlpha_application_managedBravo_application to new"`, async () => {
         const CMD = `frodo mapping rename -i sync/managedAlpha_application_managedBravo_application`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     test(`"frodo mapping rename --legacy --mapping-id mapping/managedBravo_group_managedBravo_group": should rename the mapping with id mapping/managedBravo_group_managedBravo_group to legacy"`, async () => {
         const CMD = `frodo mapping rename --legacy --mapping-id mapping/managedBravo_group_managedBravo_group`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     test(`"frodo mapping rename --all": should rename all mappings to new"`, async () => {
         const CMD = `frodo mapping rename --all`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     test(`"frodo mapping rename -al": should rename all mappings to legacy"`, async () => {
         const CMD = `frodo mapping rename -al`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 });
