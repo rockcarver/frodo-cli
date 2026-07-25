@@ -660,8 +660,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          # runner currently only supports 16 due to GLIBC_2.28 dependency in node 18
-          node-version: 16
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
