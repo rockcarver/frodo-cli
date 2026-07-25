@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `frodo config-manager pull iga-workflows` for exporting IGA workflow definitions from cloud IGA tenants.
+- Added `frodo config-manager push restart` to restart the environment when pending ESV updates need to be applied.
+
+### Changed
+
+- Updated CLI color handling to use `tinyrainbow`.
+
+### Fixed
+
+- Fixed `frodo journey prune` failing in environments with v2 nodes after the frodo-lib journey prune fix.
+- Updated workflow export handling for `frodo config-manager pull iga-workflows` to match the latest frodo-lib workflow export fixes.
+- Fixed the linux-arm64 binary release build by updating the Node.js version used for packaging.
+
 ## [4.2.1-2] - 2026-07-25
 
 ## [4.2.1-1] - 2026-07-25
