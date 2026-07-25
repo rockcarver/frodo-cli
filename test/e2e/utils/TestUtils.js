@@ -477,13 +477,42 @@ export function getRecordingEnv(profileName = 'default', mockConnection = undefi
  * Method that runs a command and verifies that the command succeeds when run
  * @param {string} command The command to run
  * @param {{env: Record<string, string>}} env The environment variables
+ * @param {number | undefined} runningTimeout Optional timeout that, when specified, will expect a command to run for the specified amount of milliseconds before terminating early.
+ *                                            This is used when we need to verify a command is running as intended, but we don't want to wait for it to fully finish.
  * @returns {Promise<void>}
  */
 export async function testSuccess(
   command,
   env,
+  runningTimeout
 ) {
-  const { stdout, stderr } = await exec(command, env);
+  let stdout = '';
+  let stderr = '';
+  const proc = runningTimeout ? cp.exec(command, env) : await exec(command, env);
+  if (runningTimeout) {
+    let finished = false;
+    proc.stdout?.on('data', chunk => {
+        stdout += chunk;
+    });
+    proc.stderr?.on('data', chunk => {
+        stderr += chunk;
+    });
+    proc.on('exit', () => {
+        finished = true;
+    });
+    // Wait for timeout
+    await new Promise(resolve => setTimeout(resolve, runningTimeout));
+    // Assert that command is still running
+    expect(finished).toBe(false);
+    // Kill running command
+    proc.kill();
+    proc.stdout?.destroy();
+    proc.stderr?.destroy();
+    await new Promise(resolve => proc.once('close', resolve));
+  } else {
+    stdout = proc.stdout;
+    stderr = proc.stderr;
+  }
   assertNoPollyReplayError(stdout, command);
   assertNoPollyReplayError(stderr, command);
   expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
