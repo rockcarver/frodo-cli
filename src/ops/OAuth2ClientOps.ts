@@ -20,6 +20,7 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
+import { formatOptionalStringArray } from './utils/ArrayFormat.js';
 
 const {
   getTypedFilename,
@@ -80,11 +81,11 @@ export async function listOAuth2Clients(long = false) {
           (client.advancedOAuth2ClientConfig.grantTypes as Readable<string[]>)
             .map((type) => grantTypesMap[type])
             .join('\n'),
-          (client.coreOAuth2ClientConfig.scopes as Readable<string[]>).join(
-            '\n'
+          formatOptionalStringArray(
+            client.coreOAuth2ClientConfig.scopes as Readable<string[]>
           ),
-          (client.coreOAuth2ClientConfig.redirectionUris as string[]).join(
-            '\n'
+          formatOptionalStringArray(
+            client.coreOAuth2ClientConfig.redirectionUris as string[]
           ) as any,
           // wordwrap(client.description, 30),
         ]);
