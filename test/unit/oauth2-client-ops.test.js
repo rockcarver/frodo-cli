@@ -18,4 +18,8 @@ describe('OAuth2ClientOps - formatOptionalStringArray()', () => {
       'https://a\nhttps://b'
     );
   });
+
+  test('joins values with a custom delimiter', () => {
+    expect(formatOptionalStringArray(['a', 'b', 'c'], ', ')).toBe('a, b, c');
+  });
 });
