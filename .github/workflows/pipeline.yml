@@ -24,6 +24,7 @@ env:
 
 permissions:
   contents: write
+  pull-requests: read
   id-token: write
 
 jobs:
@@ -324,6 +325,18 @@ jobs:
       - name: 'Github SHA'
         id: github-sha
         run: echo ${{ github.sha }} > Release.txt
+
+      - name: Generate AI Changelog (Unreleased)
+        uses: vscheuber/ai-changelog-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          llm-api-key: ${{ secrets.OPENAI_API_KEY }}
+          changelog-path: CHANGELOG.md
+          since: last-release
+          target-user-type: user
+          release-type: auto
+          version: ${{ needs.build.outputs.newVersion }}
+          commit: false
 
       - name: Update Changelog
         uses: thomaseizinger/keep-a-changelog-new-release@v3
