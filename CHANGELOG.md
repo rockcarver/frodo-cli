@@ -1,5 +1,33 @@
 # Changelog
 
+## Unreleased
+
+## [v4.3.2-0] - 2026-08-02
+
+### Added
+- Introduced `frodo config-manager push restart` command to restart Ping AIC tenant and apply pending ESV updates. (#643)
+- Added `frodo config-manager pull iga-workflows` command to pull IGA workflow configurations. (#645)
+- Implemented `frodo config-manager push connector-mappings` command for importing connector mapping configurations. (#615)
+- Added `frodo config-manager push connector-definitions` command for importing connector definition configurations. (#590)
+- Introduced `frodo config-manager push authentication` command for importing authentication configurations. (#589)
+- Added `frodo config-manager push ui-config` command for importing UI configurations. (#585)
+- Implemented `frodo config-manager push service-objects` command for importing service object configurations. (#584)
+- Added `frodo config-manager push cookie-domains` command for importing cookie domain configurations. (#583)
+- Introduced `frodo config-manager push audit` command for importing audit configurations. (#582)
+- Added `frodo config-manager push access-config` command for importing access configurations. (#581)
+- Introduced `frodo config-manager push managed-objects` command for importing managed objects configuration. (#579)
+
+### Changed
+- Updated `frodo-lib` to version 4.1.6, enhancing release pipeline inputs. (#652)
+- Enhanced CLI formatting by adding `formatOptionalStringArray()` helper to handle optional OAuth client URI arrays in `frodo oauth client list --long`. (#650)
+- Made extraction the default behavior for exports, updating `-x, --extract` flags to `-x, --no-extract`. (#588)
+- Updated `-M, --modified-properties` flag descriptions to remove creation timestamps. (#587)
+
+### Fixed
+- Resolved crash in `frodo oauth client list --long` when an OAuth client omits `redirectionUris`, improving CLI robustness. (#650)
+- Fixed `frodo shell` REPL to correctly route debug and curlirize output to the REPL output stream. (#611)
+- Allowed Forgeops deployments to export/import full AM configuration. (#612)
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
