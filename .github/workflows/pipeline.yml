@@ -152,6 +152,7 @@ jobs:
       newTag: ${{ steps.version-bump.outputs.newTag }}
       newVersion: ${{ steps.version-bump.outputs.newVersion }}
       preRelease: ${{ steps.version-bump.outputs.preRelease }}
+      releaseType: ${{ steps.release-type.outputs.value }}
       actionReleaseType: ${{ steps.version-bump.outputs.action_release_type }}
 
   test:
@@ -374,7 +375,7 @@ jobs:
         id: npm-publish
         uses: vscheuber/npm-trusted-publish-action@v1
         with:
-          release-type: ${{ needs.build.outputs.actionReleaseType || github.event.inputs.release-type }}
+          release-type: ${{ needs.build.outputs.releaseType || 'prerelease' }}
           package-name: '@rockcarver/frodo-cli'
           version: ${{ needs.build.outputs.newVersion }}
           dual-release-on-stable: 'true'
