@@ -50,6 +50,8 @@ jobs:
           # Use PR head repo/ref for forked PRs; default to current repo/ref for push/workflow_dispatch.
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: actions/setup-node@v6
         with:
@@ -86,92 +88,41 @@ jobs:
             fi
           fi
 
-      - name: 'Determine Release Bump Type'
-        id: release-bump
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ github.sha }}
+      - name: Resolve release type
+        id: release-type
         run: |
-          if [ "${{ github.event_name }}" != "push" ] || [ "${{ github.ref }}" != "refs/heads/main" ]; then
-            echo "bumpType=prerelease" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          prs="$(gh api -H "Accept: application/vnd.github+json" "/repos/$REPO/commits/$SHA/pulls")"
-          pr_count="$(echo "$prs" | jq 'length')"
-          if [ "$pr_count" -ne 1 ]; then
-            echo "::error::Expected exactly one associated PR for commit $SHA on main, found $pr_count."
-            exit 1
-          fi
-
-          release_labels="$(echo "$prs" | jq -r '.[0].labels[].name | select(. == "release:patch" or . == "release:minor" or . == "release:major")')"
-          label_count="$(echo "$release_labels" | sed '/^$/d' | wc -l | tr -d ' ')"
-          if [ "$label_count" -gt 1 ]; then
-            echo "::error::PR has multiple release labels. Use exactly one of release:patch, release:minor, release:major."
-            exit 1
-          fi
-          if [ "$label_count" -eq 0 ]; then
-            echo "bumpType=prerelease" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          label="$(echo "$release_labels" | head -n 1)"
-          case "$label" in
-            "release:patch") echo "bumpType=patch" >> "$GITHUB_OUTPUT" ;;
-            "release:minor") echo "bumpType=minor" >> "$GITHUB_OUTPUT" ;;
-            "release:major") echo "bumpType=major" >> "$GITHUB_OUTPUT" ;;
-            *) echo "::error::Unsupported release label: $label"; exit 1 ;;
-          esac
-
-      - name: 'Apply Version Bump'
-        id: version-bump
-        run: |
-          current_version="$(node -p "require('./package.json').version")"
-          bump_type="${{ steps.release-bump.outputs.bumpType }}"
-          if [ -z "$bump_type" ]; then
-            echo "::error::Missing bump type."
-            exit 1
-          fi
-
-          case "$bump_type" in
-            prerelease)
-              new_version="$(node -p "require('semver').inc('$current_version','prerelease')")"
-              ;;
-            patch|minor|major)
-              new_version="$(node -p "require('semver').inc('$current_version','$bump_type')")"
-              ;;
-            *)
-              echo "::error::Unsupported bump type: $bump_type"
-              exit 1
-              ;;
-          esac
-
-          if [ -z "$new_version" ] || [ "$new_version" = "null" ]; then
-            echo "::error::Failed to compute new version from $current_version using bump type $bump_type."
-            exit 1
-          fi
-
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            if git ls-remote --tags --refs origin "refs/tags/v$new_version" | grep -q "refs/tags/v$new_version"; then
-              echo "::error::Tag v$new_version already exists in origin. Refusing to continue."
-              exit 1
-            fi
-
-            if npm view "@rockcarver/frodo-cli@$new_version" version >/dev/null 2>&1; then
-              echo "::error::Version $new_version is already published on npm. Refusing to continue."
-              exit 1
-            fi
-          fi
-
-          npm version "$new_version" --no-git-tag-version --allow-same-version
-          echo "newTag=v$new_version" >> "$GITHUB_OUTPUT"
-          echo "newVersion=$new_version" >> "$GITHUB_OUTPUT"
-          if echo "$new_version" | grep -q '-'; then
-            echo "preRelease=true" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "value=${{ github.event.inputs.release-type }}" >> "$GITHUB_OUTPUT"
           else
-            echo "preRelease=false" >> "$GITHUB_OUTPUT"
+            echo "value=prerelease" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: 'Compute Version Bump'
+        id: version-bump
+        uses: vscheuber/version-bump-action@v1
+        with:
+          release-type: ${{ steps.release-type.outputs.value }}
+
+      - name: Guard against duplicate version/tag
+        if: github.event_name != 'pull_request'
+        run: |
+          new_version='${{ steps.version-bump.outputs.newVersion }}'
+          new_tag='${{ steps.version-bump.outputs.newTag }}'
+
+          if git ls-remote --tags --refs origin "refs/tags/${new_tag}" | grep -q "refs/tags/${new_tag}"; then
+            echo "::error::Tag ${new_tag} already exists in origin. Refusing to continue."
+            exit 1
+          fi
+
+          if npm view "@rockcarver/frodo-cli@${new_version}" version >/dev/null 2>&1; then
+            echo "::error::Version ${new_version} is already published on npm. Refusing to continue."
+            exit 1
+          fi
+
+      - name: Update package.json and package-lock.json
+        uses: vscheuber/manifest-version-update-action@v1
+        with:
+          version: ${{ steps.version-bump.outputs.newVersion }}
 
       - name: Update package-lock.json after version bump
         run: npm i --package-lock-only
@@ -201,6 +152,7 @@ jobs:
       newTag: ${{ steps.version-bump.outputs.newTag }}
       newVersion: ${{ steps.version-bump.outputs.newVersion }}
       preRelease: ${{ steps.version-bump.outputs.preRelease }}
+      actionReleaseType: ${{ steps.version-bump.outputs.action_release_type }}
 
   test:
     name: 'Test'
@@ -228,6 +180,8 @@ jobs:
           # Use PR head repo/ref for forked PRs; default to current repo/ref for push/workflow_dispatch.
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
@@ -303,6 +257,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: actions/download-artifact@v7
         with:
@@ -397,6 +354,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: actions/setup-node@v6
         with:
@@ -414,7 +374,7 @@ jobs:
         id: npm-publish
         uses: vscheuber/npm-trusted-publish-action@v1
         with:
-          release-type: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release-type || (fromJSON(needs.build.outputs.preRelease) && 'prerelease' || 'patch') }}
+          release-type: ${{ needs.build.outputs.actionReleaseType || github.event.inputs.release-type }}
           package-name: '@rockcarver/frodo-cli'
           version: ${{ needs.build.outputs.newVersion }}
           dual-release-on-stable: 'true'
