@@ -195,9 +195,7 @@ export default function setup() {
  * Infers runtime auth mode from currently configured global state.
  */
 function inferAuthModeFromState():
-  | 'service-account'
-  | 'admin-account'
-  | 'state-config' {
+  'service-account' | 'admin-account' | 'state-config' {
   const serviceAccountId = state.getServiceAccountId();
   const serviceAccountJwk = state.getServiceAccountJwk();
   if (serviceAccountId && serviceAccountJwk) {

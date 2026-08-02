@@ -17,6 +17,17 @@ on:
       - '**/pipeline.yml'
       - 'docs/**'
   workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Release kind: prerelease | patch | minor | major'
+        type: choice
+        options:
+          - prerelease
+          - patch
+          - minor
+          - major
+        default: 'prerelease'
+        required: true
 
 env:
   NODE_VERSION: 24
@@ -326,7 +337,8 @@ jobs:
         id: github-sha
         run: echo ${{ github.sha }} > Release.txt
 
-      - name: Generate AI Changelog (Unreleased)
+      - name: Generate and promote AI changelog
+        id: changelog
         uses: vscheuber/ai-changelog-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -336,29 +348,10 @@ jobs:
           target-user-type: user
           release-type: auto
           version: ${{ needs.build.outputs.newVersion }}
+          promote-release: true
+          release-tag: ${{ needs.build.outputs.newTag }}
+          release-notes-path: RELEASE_NOTES.md
           commit: false
-
-      - name: Update Changelog
-        uses: thomaseizinger/keep-a-changelog-new-release@v3
-        with:
-          tag: ${{ needs.build.outputs.newTag }}
-
-      - name: 'Output Changelog'
-        run: cat CHANGELOG.md
-
-      - name: 'Release Header'
-        id: release-header
-        run: echo "header=$(echo `grep '## \\[${{ needs.build.outputs.newVersion }}] -' CHANGELOG.md | sed 's/## //' | sed 's/\\[//' | sed 's/]//'`)" >> "$GITHUB_OUTPUT"
-
-      - name: 'Extract Release Notes'
-        id: extract-release-notes
-        uses: 'dahlia/submark@main'
-        with:
-          input-file: 'CHANGELOG.md'
-          heading-level: 2
-          heading-title-text: '${{ steps.release-header.outputs.header }}'
-          ignore-case: true
-          omit-heading: true
 
       - name: Commit updated changelog and version
         id: commit-changelog
@@ -374,7 +367,7 @@ jobs:
         with:
           name: Frodo CLI ${{ needs.build.outputs.newVersion }}
           tag_name: ${{ needs.build.outputs.newTag }}
-          body: ${{ steps.extract-release-notes.outputs.output-text }}
+          body: ${{ steps.changelog.outputs.release-notes }}
           prerelease: ${{ needs.build.outputs.preRelease }}
           generate_release_notes: ${{ contains(needs.build.outputs.newTag, '-') }}
           files: |
@@ -417,27 +410,56 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Pre-Release
-        if: ${{ fromJSON(needs.build.outputs.preRelease) }}
-        uses: JS-DevTools/npm-publish@v4
+      - name: Publish package
+        id: npm-publish
+        uses: vscheuber/npm-trusted-publish-action@v1
         with:
-          access: public
-          tag: 'next'
-          token: ${{ secrets.NPM_ACCESS_TOKEN }}
+          release-type: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release-type || (fromJSON(needs.build.outputs.preRelease) && 'prerelease' || 'patch') }}
+          package-name: '@rockcarver/frodo-cli'
+          version: ${{ needs.build.outputs.newVersion }}
+          dual-release-on-stable: 'true'
 
-      - name: Release
-        if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
-        uses: JS-DevTools/npm-publish@v4
-        with:
-          access: public
-          token: ${{ secrets.NPM_ACCESS_TOKEN }}
-
-      - name: Add next tag
-        if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
+      - name: Publish summary
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> ~/.npmrc
-          npm whoami
-          npm dist-tag add @rockcarver/frodo-cli@${{ needs.build.outputs.newVersion }} next
+          stable_version='${{ needs.build.outputs.newVersion }}'
+          publish_tag='${{ steps.npm-publish.outputs.tag }}'
+          is_prerelease='${{ steps.npm-publish.outputs.is-prerelease }}'
+          stable_published='${{ steps.npm-publish.outputs.stable_published }}'
+          stable_already='${{ steps.npm-publish.outputs.stable_already_published }}'
+          companion_published='${{ steps.npm-publish.outputs.companion_prerelease_published }}'
+          companion_already='${{ steps.npm-publish.outputs.companion_prerelease_already_published }}'
+          companion_version='${{ steps.npm-publish.outputs.companion_prerelease_version }}'
+
+          echo "is_prerelease=${is_prerelease}"
+          echo "stable_version=${stable_version}"
+          echo "publish_tag=${publish_tag}"
+
+          if [[ "$is_prerelease" == 'true' ]]; then
+            if [[ "$stable_published" == 'true' ]]; then
+              echo "result=published prerelease to next"
+            elif [[ '${{ steps.npm-publish.outputs.already_published }}' == 'true' ]]; then
+              echo "result=prerelease already published, skipped"
+            else
+              echo "result=no publish performed"
+            fi
+          else
+            echo "companion_prerelease_version=${companion_version}"
+            if [[ "$companion_published" == 'true' ]]; then
+              echo "companion_result=published ${companion_version} to next"
+            elif [[ "$companion_already" == 'true' ]]; then
+              echo "companion_result=already published (${companion_version})"
+            else
+              echo "companion_result=not attempted"
+            fi
+
+            if [[ "$stable_published" == 'true' ]]; then
+              echo "stable_result=published ${stable_version} to ${publish_tag}"
+            elif [[ "$stable_already" == 'true' ]]; then
+              echo "stable_result=already published (${stable_version})"
+            else
+              echo "stable_result=not attempted"
+            fi
+          fi
 
   homebrew-formula-update:
     if: github.event_name != 'pull_request'
