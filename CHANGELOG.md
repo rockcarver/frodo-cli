@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## [v4.3.2] - 2026-08-02
+
+### Changed
+- Updated `frodo-lib` to version 4.1.6, enhancing release pipeline inputs. (#652)
+
 ## [v4.3.2-0] - 2026-08-02
 
 ### Added
