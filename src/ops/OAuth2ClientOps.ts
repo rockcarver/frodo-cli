@@ -73,7 +73,8 @@ export async function listOAuth2Clients(long = false) {
       };
       clients.forEach((client) => {
         const grantTypes = (
-          client.advancedOAuth2ClientConfig.grantTypes as Readable<string[]> | undefined
+          client.advancedOAuth2ClientConfig.grantTypes as
+            Readable<string[]> | undefined
         )?.map((type) => grantTypesMap[type] ?? type);
         table.push([
           client._id,

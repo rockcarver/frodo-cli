@@ -73,10 +73,7 @@ const ENVIRONMENT_VARIABLE_DESCRIPTION_PADDING = 2;
 const STABILITY_METADATA_KEY = '__frodoStabilityMetadata' as const;
 
 export type StabilityIndicator =
-  | 'stable'
-  | 'preview'
-  | 'experimental'
-  | 'deprecated';
+  'stable' | 'preview' | 'experimental' | 'deprecated';
 
 export type StabilityGateMode = 'option-or-env' | 'option-only' | 'env-only';
 
