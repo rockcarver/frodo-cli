@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## [v4.3.3] - 2026-08-03
+
+### Changed
+- Updated `frodo-lib` to version 4.1.7, which includes refinements to release pipeline checks, improving the stability and accuracy of the release process. (#655)
+
+### Fixed
+- Corrected syntax for reading package version in the release pipeline, ensuring accurate versioning during deployment. (#656)
+
 ## [v4.3.2] - 2026-08-02
 
 ### Changed
