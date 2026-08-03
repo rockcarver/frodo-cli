@@ -67,7 +67,7 @@ jobs:
       - name: Read current manifest version
         id: current-manifest
         run: |
-          echo "value=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+          echo "value=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
 
       - name: Resolve release type
         id: release-type
