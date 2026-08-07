@@ -1,0 +1,16 @@
+{
+  "_id": "bd027bdf-002d-42e2-a549-d5fdb0d6605a",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1784906961100,
+  "default": false,
+  "description": "Test",
+  "evaluatorVersion": "1.0",
+  "language": "GROOVY",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1784906961100,
+  "name": "Test Groovy Script",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Test Groovy Script.js"
+  }
+}

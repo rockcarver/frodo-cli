@@ -1,0 +1,16 @@
+{
+  "_id": "0575fa2f-12cf-42e3-8fe3-0b45d99d3aa8",
+  "context": "SCRIPTED_DECISION_NODE",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1784302526002,
+  "default": false,
+  "description": "null",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1784302526002,
+  "name": "PaseUsername",
+  "script": {
+    "file": "scripts-content/SCRIPTED_DECISION_NODE/PaseUsername.js"
+  }
+}

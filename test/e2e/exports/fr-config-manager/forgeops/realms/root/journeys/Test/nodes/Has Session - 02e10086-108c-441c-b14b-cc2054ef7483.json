@@ -1,0 +1,19 @@
+{
+  "_id": "02e10086-108c-441c-b14b-cc2054ef7483",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "True"
+    },
+    {
+      "displayName": "False",
+      "id": "False"
+    }
+  ],
+  "_rev": "1815890486",
+  "_type": {
+    "_id": "designer-c605506774a848f7877b4d17a453bd39",
+    "collection": true,
+    "name": "Has Session"
+  }
+}

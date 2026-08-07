@@ -1,9 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import fs from 'fs';
 import sanitize from 'sanitize-filename';
 
 const { readRealms } = frodo.realm;
 
-const { getFilePath, findFilesByName, getWorkingDirectory } = frodo.utils;
+const { findFilesByName } = frodo.utils;
 
 export async function realmList(): Promise<string[]> {
   const realms = await readRealms();
@@ -45,20 +46,9 @@ export function replaceAllInJson(
   return JSON.parse(contentString);
 }
 
-export async function existScript(
-  fileName: string,
-  realm: string
-): Promise<boolean> {
-  await getFilePath(`realms/${realm}/scripts/scripts-config/`, true);
-  const result = await findFilesByName(
-    `${fileName}.json`,
-    true,
-    `${getWorkingDirectory()}/realms/${realm}/scripts/scripts-config`
-  );
-
-  if (result.length) {
-    return true;
-  } else {
-    return false;
-  }
+export function existScript(fileName: string, realmDir: string): boolean {
+  const scriptDir = `realms/${realmDir}/scripts/scripts-config`;
+  if (!fs.existsSync(scriptDir)) return false;
+  const result = findFilesByName(`${fileName}.json`, true, scriptDir);
+  return result.length > 0;
 }

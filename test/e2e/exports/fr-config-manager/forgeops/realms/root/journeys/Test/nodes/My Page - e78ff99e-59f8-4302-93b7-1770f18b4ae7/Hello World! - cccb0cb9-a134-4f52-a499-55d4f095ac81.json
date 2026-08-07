@@ -1,0 +1,20 @@
+{
+  "_id": "cccb0cb9-a134-4f52-a499-55d4f095ac81",
+  "_outcomes": [
+    {
+      "displayName": "outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "-248191681",
+  "_type": {
+    "_id": "designer-ef81b1a52c914710b3388caebfe7233a",
+    "collection": true,
+    "name": "Display Callback"
+  },
+  "callback": "TEXT_OUTPUT_CALLBACK",
+  "options": {
+    "message": "Hello World!",
+    "messageType": "0"
+  }
+}

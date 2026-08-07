@@ -2,7 +2,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { AuthenticationSettingsExportInterface } from '@rockcarver/frodo-lib/types/ops/AuthenticationSettingsOps';
 import fs from 'fs';
 
-import { printError } from '../utils/Console';
+import { printError, verboseMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 
 const {
@@ -65,6 +65,12 @@ export async function configManagerImportAuthentication(
       const filePath = getFilePath(
         `realms/${realm}/realm-config/authentication.json`
       );
+
+      if (!fs.existsSync(filePath)) {
+        verboseMessage('No authentication file found to import.');
+        return false;
+      }
+
       const fileContent = fs.readFileSync(filePath, 'utf-8');
       const authData = JSON.parse(fileContent);
       delete authData._rev;
@@ -76,6 +82,7 @@ export async function configManagerImportAuthentication(
     } else {
       const realmsPath = getFilePath(`realms/`);
       const realmDirs = fs.readdirSync(realmsPath);
+
       for (const realmName of realmDirs) {
         await state.setRealm(realmName);
         let realmPath;
@@ -88,6 +95,10 @@ export async function configManagerImportAuthentication(
           realmPath = getFilePath(
             `realms/${realmName}/realm-config/authentication.json`
           );
+        }
+
+        if (!fs.existsSync(realmPath)) {
+          continue;
         }
 
         const fileContent = fs.readFileSync(realmPath, 'utf-8');

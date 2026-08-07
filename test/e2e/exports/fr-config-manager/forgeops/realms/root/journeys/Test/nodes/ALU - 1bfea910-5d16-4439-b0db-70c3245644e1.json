@@ -1,0 +1,20 @@
+{
+  "_id": "1bfea910-5d16-4439-b0db-70c3245644e1",
+  "_outcomes": [
+    {
+      "displayName": "Success",
+      "id": "Success"
+    },
+    {
+      "displayName": "Script Error",
+      "id": "Script Error"
+    }
+  ],
+  "_rev": "71843373",
+  "_type": {
+    "_id": "designer-c6063fb2f5dc42dd9772bedc93898bd8",
+    "collection": true,
+    "name": "ALU"
+  },
+  "operator": "ADD"
+}

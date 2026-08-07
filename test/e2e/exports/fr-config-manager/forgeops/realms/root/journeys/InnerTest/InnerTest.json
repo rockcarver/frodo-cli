@@ -1,0 +1,59 @@
+{
+  "_id": "InnerTest",
+  "_rev": "-1762283053",
+  "description": "Inner Test Journey",
+  "enabled": true,
+  "entryNodeId": "5d969de4-98c8-44ab-9df1-4de9170205eb",
+  "identityResource": "managed/user",
+  "innerTreeOnly": true,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "5d969de4-98c8-44ab-9df1-4de9170205eb": {
+      "connections": {
+        "outcome": "fd51424b-2a28-41a9-bc3e-44c2adc61a62"
+      },
+      "displayName": "Debug",
+      "nodeType": "ScriptedDecisionNode",
+      "x": 210,
+      "y": 154.5
+    },
+    "af596d89-e0ae-41c9-b1f5-e7318f517e2d": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Test Next Gen",
+      "nodeType": "ScriptedDecisionNode",
+      "x": 726,
+      "y": 128
+    },
+    "fd51424b-2a28-41a9-bc3e-44c2adc61a62": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "af596d89-e0ae-41c9-b1f5-e7318f517e2d"
+      },
+      "displayName": "Test Groovy",
+      "nodeType": "ScriptedDecisionNode",
+      "x": 468,
+      "y": 128
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 984,
+      "y": 80
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 984,
+      "y": 230
+    },
+    "startNode": {
+      "x": 70,
+      "y": 155
+    }
+  },
+  "uiConfig": {
+    "categories": "[\"Test\",\"Inner\"]"
+  }
+}
