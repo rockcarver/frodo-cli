@@ -32,7 +32,6 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import {
-  type McpGenericExecutionArguments,
   type McpRuntimeRequestContext,
   type McpService,
   state,
@@ -45,22 +44,71 @@ import { printMessage } from '../utils/Console.js';
 // Internal constants
 // ---------------------------------------------------------------------------
 
-// Zod v4 schema shapes reused for generic and special tools.
+// Zod v4 schema shapes reused for canonical hybrid and special tools.
 const MAX_INLINE_RESULT_BYTES = 256 * 1024;
 const MAX_INLINE_DISCOVERY_RESULT_BYTES = 2 * 1024 * 1024;
 
-const GENERIC_SHAPE = {
-  domain: z.string().describe('Top-level capability domain key (e.g. "authn")'),
+const FIND_CAPABILITIES_SHAPE = {
+  query: z
+    .string()
+    .optional()
+    .describe('Free-text query across capability id, domain, object type, method, and notes.'),
+  domain: z.string().optional().describe('Optional domain filter.'),
+  objectType: z.string().optional().describe('Optional object type filter.'),
+  capabilityIdPrefix: z
+    .string()
+    .optional()
+    .describe('Optional capability id prefix filter.'),
+  operationTypes: z
+    .array(z.string())
+    .optional()
+    .describe('Optional operation-type filter list.'),
+  riskClasses: z
+    .array(z.enum(['low', 'medium', 'high', 'critical']))
+    .optional()
+    .describe('Optional risk-class filter list.'),
+  kind: z
+    .enum(['generic', 'special'])
+    .optional()
+    .describe('Optional capability-kind filter.'),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('Optional maximum number of returned capabilities.'),
+} as const;
+
+const DESCRIBE_CAPABILITY_SHAPE = {
+  capabilityId: z
+    .string()
+    .describe('Capability id returned by frodo_find_capabilities.'),
+} as const;
+
+const DISPATCH_SHAPE = {
+  capabilityId: z
+    .string()
+    .optional()
+    .describe('Direct capability id selector (preferred).'),
+  operationType: z
+    .string()
+    .optional()
+    .describe('Operation type when selecting by tuple.'),
+  domain: z
+    .string()
+    .optional()
+    .describe('Top-level capability domain key (e.g. "authn") when selecting by tuple.'),
   objectType: z
     .string()
+    .optional()
     .describe(
-      'Object type within the domain (e.g. "Journey"). Use frodo_discover to enumerate available types.'
+      'Object type within the domain (e.g. "Journey") when selecting by tuple.'
     ),
   scope: z
     .string()
     .optional()
     .describe(
-      'Optional scope selector for ambiguous generic operations (for example "single" or "bulk"). Use frodo_discover for supported values.'
+      'Optional scope selector for ambiguous tuple selections (for example "single" or "bulk").'
     ),
   realm: z
     .string()
@@ -128,13 +176,14 @@ const SPECIAL_SHAPE = {
  */
 function buildMcpServer(service: McpService): McpServer {
   const server = new McpServer({ name: 'frodo-mcp', version: '1.0.0' });
-  const { manifest } = service;
 
   for (const tool of service.listTools()) {
-    const isDiscovery = tool.name === manifest.discoveryTool.toolName;
-    const isGeneric = manifest.genericTools.some(
-      (t) => t.toolName === tool.name
-    );
+    const isDiscovery = tool.name === 'frodo_discover';
+    const isFindCapabilities = tool.name === 'frodo_find_capabilities';
+    const isDescribeCapability = tool.name === 'frodo_describe_capability';
+    const isDispatchTool =
+      tool.name === 'frodo_dispatch' ||
+      tool.name === 'frodo_dispatch_read_only';
     const annotations: ToolAnnotations | undefined = tool.annotations
       ? { ...tool.annotations }
       : undefined;
@@ -155,21 +204,66 @@ function buildMcpServer(service: McpService): McpServer {
           }
         }
       );
-    } else if (isGeneric) {
+    } else if (isFindCapabilities) {
       server.registerTool(
         tool.name,
         {
           description: tool.description,
-          inputSchema: GENERIC_SHAPE,
+          inputSchema: FIND_CAPABILITIES_SHAPE,
           annotations,
         },
         async (args) => {
           try {
-            const genericArgs = args as McpGenericExecutionArguments;
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(genericArgs.realm),
+              context: buildRequestContext(),
+            });
+            return buildSuccessResult(result);
+          } catch (err) {
+            return buildErrorResult(err);
+          }
+        }
+      );
+    } else if (isDescribeCapability) {
+      server.registerTool(
+        tool.name,
+        {
+          description: tool.description,
+          inputSchema: DESCRIBE_CAPABILITY_SHAPE,
+          annotations,
+        },
+        async (args) => {
+          try {
+            const result = await service.executeTool({
+              toolName: tool.name,
+              arguments: args,
+              context: buildRequestContext(),
+            });
+            return buildSuccessResult(result);
+          } catch (err) {
+            return buildErrorResult(err);
+          }
+        }
+      );
+    } else if (isDispatchTool) {
+      server.registerTool(
+        tool.name,
+        {
+          description: tool.description,
+          inputSchema: DISPATCH_SHAPE,
+          annotations,
+        },
+        async (args) => {
+          try {
+            const realm =
+              args && typeof args === 'object'
+                ? ((args as { realm?: unknown }).realm as string | undefined)
+                : undefined;
+            const result = await service.executeTool({
+              toolName: tool.name,
+              arguments: args,
+              context: buildRequestContext(realm),
             });
             return buildSuccessResult(result);
           } catch (err) {

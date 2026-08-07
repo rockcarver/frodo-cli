@@ -164,8 +164,9 @@ export default function setup() {
         authMode: inferAuthModeFromState(),
         toolCounts: {
           total: service.manifest.totalToolCount,
-          generic: service.manifest.genericTools.length,
+          canonical: service.manifest.canonicalTools?.length ?? 0,
           special: service.manifest.specialTools.length,
+          discovery: 1,
         },
         descriptorCount: service.manifest.backingDescriptorCount,
         importExportExposed: {
@@ -187,7 +188,7 @@ export default function setup() {
         printMessage(`  Transport: ${startupSummary.transport}`);
         printMessage(`  Auth mode: ${startupSummary.authMode}`);
         printMessage(
-          `  Tools: ${startupSummary.toolCounts.total} total (${startupSummary.toolCounts.generic} generic, ${startupSummary.toolCounts.special} special)`
+          `  Tools: ${startupSummary.toolCounts.total} total (${startupSummary.toolCounts.canonical} canonical, ${startupSummary.toolCounts.special} special, ${startupSummary.toolCounts.discovery} discovery)`
         );
         printMessage(
           `  Backing descriptors: ${startupSummary.descriptorCount}`
