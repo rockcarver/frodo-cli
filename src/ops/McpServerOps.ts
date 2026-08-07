@@ -2,8 +2,8 @@
  * MCP transport wiring for `frodo mcp server start`.
  *
  * This module is transport-specific: it bridges the transport-agnostic
- * {@link McpService} from frodo-lib with the `@modelcontextprotocol/sdk`
- * transports (stdio and HTTP).
+ * {@link McpService} from frodo-lib with the MCP v2 server and node
+ * transport packages.
  *
  * stdio transport  — single-session, process lifetime, reads JSON-RPC from
  *                    stdin and writes responses to stdout.
@@ -26,11 +26,13 @@ import {
   type ServerResponse,
 } from 'node:http';
 
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
-import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
+import {
+  isInitializeRequest,
+  McpServer,
+  ToolAnnotations,
+} from '@modelcontextprotocol/server';
+import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
+import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import {
   type McpRuntimeRequestContext,
   type McpService,
@@ -338,7 +340,7 @@ export async function startHttpTransport(
   port: number
 ): Promise<void> {
   const mcpServer = buildMcpServer(service);
-  const sessions = new Map<string, StreamableHTTPServerTransport>();
+  const sessions = new Map<string, NodeStreamableHTTPServerTransport>();
 
   const httpServer = createServer(
     async (req: IncomingMessage, res: ServerResponse) => {
@@ -388,7 +390,7 @@ async function handleHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
   mcpServer: McpServer,
-  sessions: Map<string, StreamableHTTPServerTransport>
+  sessions: Map<string, NodeStreamableHTTPServerTransport>
 ): Promise<void> {
   // Health probe
   if (req.method === 'GET' && req.url === '/health') {
@@ -442,12 +444,12 @@ async function handleHttpRequest(
     return;
   }
 
-  let transport: StreamableHTTPServerTransport;
+  let transport: NodeStreamableHTTPServerTransport;
 
   if (sessionId && sessions.has(sessionId)) {
     transport = sessions.get(sessionId)!;
   } else if (!sessionId && isInitializeRequest(body)) {
-    transport = new StreamableHTTPServerTransport({
+    transport = new NodeStreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
       onsessioninitialized: (sid) => {
         sessions.set(sid, transport);

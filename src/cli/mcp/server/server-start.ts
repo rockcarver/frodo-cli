@@ -1,5 +1,6 @@
 import { createMcpService, frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/server';
 
 import {
   startHttpTransport,
@@ -50,6 +51,8 @@ type McpServicePolicySelection = {
     denyOperationTypes?: Array<'delete' | 'import' | 'export'>;
   };
 };
+
+const TARGET_MCP_SPEC_VERSION = '2026-07-28';
 
 /**
  * MCP server start command.
@@ -201,6 +204,11 @@ export default function setup() {
             `  HTTP endpoint (planned): http://${startupSummary.http.bindHost}:${startupSummary.http.port}/mcp`
           );
         }
+
+        const protocolSupportWarning = buildProtocolSupportWarning();
+        if (protocolSupportWarning) {
+          printMessage(protocolSupportWarning, 'warning');
+        }
       }
 
       if (opts.dryRun) {
@@ -221,6 +229,18 @@ export default function setup() {
     });
 
   return program;
+}
+
+function buildProtocolSupportWarning(): string | null {
+  if (SUPPORTED_PROTOCOL_VERSIONS.includes(TARGET_MCP_SPEC_VERSION)) {
+    return null;
+  }
+
+  return (
+    `  Warning: Legacy @modelcontextprotocol/sdk (v1 monolith) does not advertise MCP ${TARGET_MCP_SPEC_VERSION} support ` +
+    `(supported: ${SUPPORTED_PROTOCOL_VERSIONS.join(', ')}). ` +
+    'The server can still run, but full MCP 2026-07-28 conformance requires migration to the v2 SDK packages (@modelcontextprotocol/server and @modelcontextprotocol/client, plus optional adapters).'
+  );
 }
 
 /**
