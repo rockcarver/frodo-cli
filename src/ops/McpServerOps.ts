@@ -8,10 +8,9 @@
  * stdio transport  — single-session, process lifetime, reads JSON-RPC from
  *                    stdin and writes responses to stdout.
  *
- * HTTP transport   — multi-session stateful server using StreamableHTTP.
- *                    Each initialize request creates a new MCP session.
- *                    Sessions are cleaned up when the client disconnects.
- *                    The same McpServer instance is reused across sessions.
+ * HTTP transport   — stateless StreamableHTTP endpoint at POST /mcp.
+ *                    A single transport instance is reused per process.
+ *                    Host and origin are validated for localhost safety.
  *
  * @remarks
  * Both transports derive request-scoped auth context from the active shared
@@ -19,16 +18,18 @@
  * calls may additionally override realm per request.
  */
 
-import { randomUUID } from 'node:crypto';
 import {
   createServer,
   type IncomingMessage,
   type ServerResponse,
 } from 'node:http';
 
-import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import {
-  isInitializeRequest,
+  localhostHostValidation,
+  localhostOriginValidation,
+  NodeStreamableHTTPServerTransport,
+} from '@modelcontextprotocol/node';
+import {
   McpServer,
   PROTOCOL_VERSION_META_KEY,
   ToolAnnotations,
@@ -333,11 +334,10 @@ export async function startStdioTransport(service: McpService): Promise<void> {
 }
 
 /**
- * Starts a stateful MCP HTTP server using the Streamable HTTP transport.
+ * Starts a stateless MCP HTTP server using the Streamable HTTP transport.
  *
- * Each `POST /mcp` initialize request creates a new session.
- * Sessions are removed when the client sends `DELETE /mcp` or disconnects.
- * A `GET /health` endpoint is provided for liveness probing.
+ * The MCP endpoint is `POST /mcp`. A `GET /health` endpoint is provided for
+ * liveness probing. Host and origin are validated for localhost safety.
  *
  * The function resolves when the server is stopped via SIGTERM or SIGINT.
  *
@@ -351,12 +351,23 @@ export async function startHttpTransport(
   port: number
 ): Promise<void> {
   const mcpServer = buildMcpServer(service);
-  const sessions = new Map<string, NodeStreamableHTTPServerTransport>();
+  const transport = new NodeStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+  });
+  await mcpServer.connect(transport);
+  const validateHost = localhostHostValidation();
+  const validateOrigin = localhostOriginValidation();
 
   const httpServer = createServer(
     async (req: IncomingMessage, res: ServerResponse) => {
       try {
-        await handleHttpRequest(req, res, mcpServer, sessions);
+        await handleHttpRequest(
+          req,
+          res,
+          transport,
+          validateHost,
+          validateOrigin
+        );
       } catch (err) {
         printMessage(
           `MCP HTTP handler error: ${err instanceof Error ? err.message : String(err)}`,
@@ -400,8 +411,9 @@ export async function startHttpTransport(
 async function handleHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
-  mcpServer: McpServer,
-  sessions: Map<string, NodeStreamableHTTPServerTransport>
+  transport: NodeStreamableHTTPServerTransport,
+  validateHost: (req: IncomingMessage, res: ServerResponse) => boolean,
+  validateOrigin: (req: IncomingMessage, res: ServerResponse) => boolean
 ): Promise<void> {
   // Health probe
   if (req.method === 'GET' && req.url === '/health') {
@@ -415,15 +427,7 @@ async function handleHttpRequest(
     return;
   }
 
-  const sessionId = req.headers['mcp-session-id'] as string | undefined;
-
-  // Retrieve existing session for GET / DELETE
-  if (req.method === 'GET' || req.method === 'DELETE') {
-    if (!sessionId || !sessions.has(sessionId)) {
-      res.writeHead(400).end('Invalid or missing session ID');
-      return;
-    }
-    await sessions.get(sessionId)!.handleRequest(req, res);
+  if (!validateHost(req, res) || !validateOrigin(req, res)) {
     return;
   }
 
@@ -455,6 +459,20 @@ async function handleHttpRequest(
     return;
   }
 
+  const metadataValidationError = validateHttpRequestMetadata(req, body);
+  if (metadataValidationError) {
+    writeJsonRpcErrorResponse(res, metadataValidationError.statusCode, {
+      jsonrpc: '2.0',
+      id: metadataValidationError.requestId,
+      error: {
+        code: metadataValidationError.error.code,
+        message: metadataValidationError.error.message,
+        data: metadataValidationError.error.data,
+      },
+    });
+    return;
+  }
+
   const protocolVersionError = getUnsupportedProtocolVersionError(req, body);
   if (protocolVersionError) {
     writeJsonRpcErrorResponse(res, protocolVersionError.statusCode, {
@@ -466,29 +484,6 @@ async function handleHttpRequest(
         data: protocolVersionError.error.data,
       },
     });
-    return;
-  }
-
-  let transport: NodeStreamableHTTPServerTransport;
-
-  if (sessionId && sessions.has(sessionId)) {
-    transport = sessions.get(sessionId)!;
-  } else if (!sessionId && isInitializeRequest(body)) {
-    transport = new NodeStreamableHTTPServerTransport({
-      sessionIdGenerator: () => randomUUID(),
-      onsessioninitialized: (sid) => {
-        sessions.set(sid, transport);
-      },
-      enableDnsRebindingProtection: false,
-    });
-    transport.onclose = () => {
-      if (transport.sessionId) {
-        sessions.delete(transport.sessionId);
-      }
-    };
-    await mcpServer.connect(transport);
-  } else {
-    res.writeHead(400).end('Bad Request: No valid session ID provided');
     return;
   }
 
@@ -513,6 +508,108 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
   });
 }
 
+/**
+ * Validates required MCP request metadata headers against request-body values.
+ *
+ * Returns a spec-aligned HeaderMismatch (-32020) error when required headers
+ * are missing or disagree with body metadata.
+ */
+export function validateHttpRequestMetadata(
+  req: IncomingMessage,
+  body: unknown
+): HeaderMismatchHttpError | null {
+  const requestId = extractRequestId(body);
+  const headerProtocolVersion = getSingleHeaderValue(
+    req,
+    'mcp-protocol-version'
+  );
+  const bodyProtocolVersion = extractBodyProtocolVersion(body);
+
+  if (!headerProtocolVersion) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Missing required MCP-Protocol-Version header.',
+      { header: 'mcp-protocol-version' }
+    );
+  }
+  if (!bodyProtocolVersion) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Missing required _meta protocol version in request body.',
+      { field: '_meta.protocolVersion' }
+    );
+  }
+  if (headerProtocolVersion !== bodyProtocolVersion) {
+    return buildHeaderMismatchError(
+      requestId,
+      'MCP-Protocol-Version header does not match request body metadata.',
+      {
+        headerProtocolVersion,
+        bodyProtocolVersion,
+      }
+    );
+  }
+
+  const headerMethod = getSingleHeaderValue(req, 'mcp-method');
+  const bodyMethod = extractBodyMethod(body);
+  if (!headerMethod) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Missing required Mcp-Method header.',
+      { header: 'mcp-method' }
+    );
+  }
+  if (!bodyMethod) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Missing request method in JSON-RPC body.',
+      { field: 'method' }
+    );
+  }
+  if (headerMethod !== bodyMethod) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Mcp-Method header does not match JSON-RPC method.',
+      {
+        headerMethod,
+        bodyMethod,
+      }
+    );
+  }
+
+  if (methodRequiresMcpName(bodyMethod)) {
+    const headerName = getSingleHeaderValue(req, 'mcp-name');
+    const bodyName = extractBodyName(body);
+    if (!headerName) {
+      return buildHeaderMismatchError(
+        requestId,
+        `Missing required Mcp-Name header for method '${bodyMethod}'.`,
+        { header: 'mcp-name', method: bodyMethod }
+      );
+    }
+    if (!bodyName) {
+      return buildHeaderMismatchError(
+        requestId,
+        `Missing request name in JSON-RPC params for method '${bodyMethod}'.`,
+        { field: 'params.name', method: bodyMethod }
+      );
+    }
+    if (headerName !== bodyName) {
+      return buildHeaderMismatchError(
+        requestId,
+        'Mcp-Name header does not match request params.name.',
+        {
+          headerName,
+          bodyName,
+          method: bodyMethod,
+        }
+      );
+    }
+  }
+
+  return null;
+}
+
 type UnsupportedVersionHttpError = {
   statusCode: 400;
   requestId: string | number | null;
@@ -522,6 +619,18 @@ type UnsupportedVersionHttpError = {
     data?: unknown;
   };
 };
+
+type HeaderMismatchHttpError = {
+  statusCode: 400;
+  requestId: string | number | null;
+  error: {
+    code: -32020;
+    message: string;
+    data?: unknown;
+  };
+};
+
+const HEADER_MISMATCH_ERROR_CODE = -32020 as const;
 
 function getUnsupportedProtocolVersionError(
   req: IncomingMessage,
@@ -555,6 +664,64 @@ function getUnsupportedProtocolVersionError(
       data: error.data,
     },
   };
+}
+
+function buildHeaderMismatchError(
+  requestId: string | number | null,
+  message: string,
+  data?: unknown
+): HeaderMismatchHttpError {
+  return {
+    statusCode: 400,
+    requestId,
+    error: {
+      code: HEADER_MISMATCH_ERROR_CODE,
+      message,
+      data,
+    },
+  };
+}
+
+function getSingleHeaderValue(
+  req: IncomingMessage,
+  headerName: string
+): string | undefined {
+  const raw = req.headers[headerName];
+  if (typeof raw === 'string') {
+    return raw;
+  }
+  if (Array.isArray(raw) && raw.length > 0) {
+    return raw[0];
+  }
+  return undefined;
+}
+
+function extractBodyMethod(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') {
+    return undefined;
+  }
+  const method = (body as Record<string, unknown>).method;
+  return typeof method === 'string' ? method : undefined;
+}
+
+function extractBodyName(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') {
+    return undefined;
+  }
+  const params = (body as Record<string, unknown>).params;
+  if (!params || typeof params !== 'object') {
+    return undefined;
+  }
+  const name = (params as Record<string, unknown>).name;
+  return typeof name === 'string' ? name : undefined;
+}
+
+function methodRequiresMcpName(method: string): boolean {
+  return (
+    method === 'tools/call' ||
+    method === 'resources/read' ||
+    method === 'prompts/get'
+  );
 }
 
 function extractBodyProtocolVersion(body: unknown): string | undefined {
