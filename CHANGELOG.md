@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## [v4.4.0] - 2026-08-07
+
+### Added
+- Introduced the `config-manager push journeys` command, allowing users to import journey configurations efficiently. This enhancement streamlines the process of managing journey configurations within the Frodo CLI. (#657)
+
+### Changed
+- Modified the `config-manager pull journeys` command to extract journeys to the root realm directory instead of the journey directory, improving the organization and accessibility of journey files. (#657)
+
+### Fixed
+- Updated tests for `config-manager-pull-authentication` to accommodate the new root realm behavior, ensuring consistent and reliable test results. (#657)
+
 ## [v4.3.3] - 2026-08-03
 
 ### Changed
