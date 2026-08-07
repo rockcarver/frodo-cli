@@ -9,11 +9,22 @@ import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 type McpPolicyPreset = 'read-only' | 'agentic' | 'standard' | 'admin';
+type McpProfileName =
+  | 'all'
+  | 'authentication'
+  | 'journey-dev'
+  | 'authorization'
+  | 'federation'
+  | 'iga'
+  | 'apps'
+  | 'managed-objects';
 
 /** Parsed options for `frodo mcp server start`. */
 type McpStartOptions = {
   /** Policy preset controlling capability exposure. */
   policy: McpPolicyPreset;
+  /** Active surface profile controlling capability scope. */
+  profile: McpProfileName;
   /** Optional allow-list of top-level capability domains. */
   includeDomains?: string[];
   /** Optional deny-list of top-level capability domains. */
@@ -54,6 +65,23 @@ export default function setup() {
       )
         .choices(['read-only', 'agentic', 'standard', 'admin'])
         .default('agentic')
+    )
+    .addOption(
+      new Option(
+        '--profile <profile>',
+        'Subject profile controlling the capability surface.'
+      )
+        .choices([
+          'all',
+          'authentication',
+          'journey-dev',
+          'authorization',
+          'federation',
+          'iga',
+          'apps',
+          'managed-objects',
+        ])
+        .default('all')
     )
     .addOption(
       new Option(
@@ -110,6 +138,7 @@ export default function setup() {
       const opts = options as McpStartOptions;
       const policySelection = resolvePolicySelection(opts.policy);
       const service = createMcpService({
+        profileName: opts.profile,
         policyPreset: policySelection.policyPreset,
         policyOverride: policySelection.policyOverride,
         inventoryOptions: {
@@ -126,6 +155,7 @@ export default function setup() {
 
       const startupSummary = {
         policy: service.policy.name,
+        profile: opts.profile,
         transport: opts.transport,
         http: {
           bindHost: opts.bindHost,
@@ -153,6 +183,7 @@ export default function setup() {
       } else {
         printMessage('MCP server startup summary:', 'info');
         printMessage(`  Policy: ${startupSummary.policy}`);
+        printMessage(`  Profile: ${startupSummary.profile}`);
         printMessage(`  Transport: ${startupSummary.transport}`);
         printMessage(`  Auth mode: ${startupSummary.authMode}`);
         printMessage(

@@ -5,11 +5,22 @@ import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 type McpPolicyPreset = 'read-only' | 'agentic' | 'standard' | 'admin';
+type McpProfileName =
+  | 'all'
+  | 'authentication'
+  | 'journey-dev'
+  | 'authorization'
+  | 'federation'
+  | 'iga'
+  | 'apps'
+  | 'managed-objects';
 
 /** Parsed options for `frodo mcp server tools`. */
 type McpToolsOptions = {
   /** Policy preset controlling capability exposure. */
   policy: McpPolicyPreset;
+  /** Active surface profile controlling capability scope. */
+  profile: McpProfileName;
   /** Optional allow-list of top-level capability domains. */
   includeDomains?: string[];
   /** Optional deny-list of top-level capability domains. */
@@ -45,6 +56,23 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '--profile <profile>',
+        'Subject profile controlling the capability surface.'
+      )
+        .choices([
+          'all',
+          'authentication',
+          'journey-dev',
+          'authorization',
+          'federation',
+          'iga',
+          'apps',
+          'managed-objects',
+        ])
+        .default('all')
+    )
+    .addOption(
+      new Option(
         '--include-domains <domain...>',
         'Only include the listed top-level domains in capability discovery.'
       )
@@ -74,6 +102,7 @@ export default function setup() {
       const opts = options as McpToolsOptions;
       const policySelection = resolvePolicySelection(opts.policy);
       const service = createMcpService({
+        profileName: opts.profile,
         policyPreset: policySelection.policyPreset,
         policyOverride: policySelection.policyOverride,
         inventoryOptions: {
@@ -101,7 +130,7 @@ export default function setup() {
       }
 
       printMessage(
-        `MCP tools (${tools.length}) for policy '${service.policy.name}':`,
+        `MCP tools (${tools.length}) for profile '${opts.profile}' and policy '${service.policy.name}':`,
         'info'
       );
       for (const tool of tools) {

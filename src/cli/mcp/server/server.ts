@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
 import startCmd from './server-start.js';
+import profilesCmd from './server-profiles.js';
 import toolsCmd from './server-tools.js';
 
 /**
@@ -11,6 +12,7 @@ export default function setup() {
     .withStability('experimental');
 
   program.addCommand(startCmd().name('start'));
+  program.addCommand(profilesCmd().name('profiles'));
   program.addCommand(toolsCmd().name('tools'));
 
   return program;
