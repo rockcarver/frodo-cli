@@ -3,8 +3,8 @@ import { Option } from 'commander';
 
 import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
 
-type McpPolicyPreset = 'read-only' | 'agentic' | 'standard' | 'admin';
 type McpProfileName =
   | 'all'
   | 'authentication'
@@ -29,14 +29,6 @@ type McpToolsOptions = {
   includeUtils?: boolean;
   /** Print tool definitions as JSON. */
   json?: boolean;
-};
-
-type McpServicePolicySelection = {
-  policyPreset: 'read-only' | 'standard' | 'admin';
-  policyOverride?: {
-    name?: string;
-    denyOperationTypes?: Array<'delete' | 'import' | 'export'>;
-  };
 };
 
 /**
@@ -139,25 +131,4 @@ export default function setup() {
     });
 
   return program;
-}
-
-/**
- * Maps user-facing policy choices to a compatible createMcpService input.
- */
-function resolvePolicySelection(
-  policy: McpPolicyPreset
-): McpServicePolicySelection {
-  if (policy === 'agentic') {
-    return {
-      policyPreset: 'standard',
-      policyOverride: {
-        name: 'agentic',
-        denyOperationTypes: ['delete', 'import', 'export'],
-      },
-    };
-  }
-
-  return {
-    policyPreset: policy,
-  };
 }

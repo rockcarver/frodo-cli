@@ -8,8 +8,8 @@ import {
 } from '../../../ops/McpServerOps.js';
 import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
 
-type McpPolicyPreset = 'read-only' | 'agentic' | 'standard' | 'admin';
 type McpProfileName =
   | 'all'
   | 'authentication'
@@ -42,14 +42,6 @@ type McpStartOptions = {
   dryRun?: boolean;
   /** Print startup summary as JSON. */
   json?: boolean;
-};
-
-type McpServicePolicySelection = {
-  policyPreset: 'read-only' | 'standard' | 'admin';
-  policyOverride?: {
-    name?: string;
-    denyOperationTypes?: Array<'delete' | 'import' | 'export'>;
-  };
 };
 
 const TARGET_MCP_SPEC_VERSION = '2026-07-28';
@@ -261,25 +253,4 @@ function inferAuthModeFromState():
   }
 
   return 'state-config';
-}
-
-/**
- * Maps user-facing policy choices to a compatible createMcpService input.
- */
-function resolvePolicySelection(
-  policy: McpPolicyPreset
-): McpServicePolicySelection {
-  if (policy === 'agentic') {
-    return {
-      policyPreset: 'standard',
-      policyOverride: {
-        name: 'agentic',
-        denyOperationTypes: ['delete', 'import', 'export'],
-      },
-    };
-  }
-
-  return {
-    policyPreset: policy,
-  };
 }

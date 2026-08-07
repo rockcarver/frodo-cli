@@ -2,6 +2,8 @@ import { FrodoStubCommand } from '../../FrodoCommand';
 import startCmd from './server-start.js';
 import profilesCmd from './server-profiles.js';
 import toolsCmd from './server-tools.js';
+import infoCmd from './server-info.js';
+import capabilitiesCmd from './server-capabilities.js';
 
 /**
  * MCP server command group.
@@ -13,7 +15,10 @@ export default function setup() {
 
   program.addCommand(startCmd().name('start'));
   program.addCommand(profilesCmd().name('profiles'));
+  program.addCommand(infoCmd().name('info'));
   program.addCommand(toolsCmd().name('tools'));
+  program.addCommand(capabilitiesCmd().name('capabilities'));
+  program.addCommand(capabilitiesCmd().name('skills'));
 
   return program;
 }
