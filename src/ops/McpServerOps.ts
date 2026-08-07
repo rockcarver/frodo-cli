@@ -29,7 +29,10 @@ import {
 import {
   isInitializeRequest,
   McpServer,
+  PROTOCOL_VERSION_META_KEY,
+  SUPPORTED_PROTOCOL_VERSIONS,
   ToolAnnotations,
+  UnsupportedProtocolVersionError,
 } from '@modelcontextprotocol/server';
 import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
 import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
@@ -449,6 +452,20 @@ async function handleHttpRequest(
     return;
   }
 
+  const protocolVersionError = getUnsupportedProtocolVersionError(req, body);
+  if (protocolVersionError) {
+    writeJsonRpcErrorResponse(res, protocolVersionError.statusCode, {
+      jsonrpc: '2.0',
+      id: protocolVersionError.requestId,
+      error: {
+        code: protocolVersionError.error.code,
+        message: protocolVersionError.error.message,
+        data: protocolVersionError.error.data,
+      },
+    });
+    return;
+  }
+
   let transport: NodeStreamableHTTPServerTransport;
 
   if (sessionId && sessions.has(sessionId)) {
@@ -491,6 +508,106 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
     });
     req.on('error', reject);
   });
+}
+
+type UnsupportedVersionHttpError = {
+  statusCode: 400;
+  requestId: string | number | null;
+  error: {
+    code: number;
+    message: string;
+    data?: unknown;
+  };
+};
+
+function getUnsupportedProtocolVersionError(
+  req: IncomingMessage,
+  body: unknown
+): UnsupportedVersionHttpError | null {
+  const headerProtocolVersion =
+    typeof req.headers['mcp-protocol-version'] === 'string'
+      ? req.headers['mcp-protocol-version']
+      : undefined;
+  const bodyProtocolVersion = extractBodyProtocolVersion(body);
+  const requestedProtocolVersion =
+    headerProtocolVersion ?? bodyProtocolVersion;
+
+  if (!requestedProtocolVersion) {
+    return null;
+  }
+  if (SUPPORTED_PROTOCOL_VERSIONS.includes(requestedProtocolVersion)) {
+    return null;
+  }
+
+  const error = new UnsupportedProtocolVersionError({
+    requested: requestedProtocolVersion,
+    supported: [...SUPPORTED_PROTOCOL_VERSIONS],
+  });
+
+  return {
+    statusCode: 400,
+    requestId: extractRequestId(body),
+    error: {
+      code: error.code,
+      message: error.message,
+      data: error.data,
+    },
+  };
+}
+
+function extractBodyProtocolVersion(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') {
+    return undefined;
+  }
+
+  const bodyObject = body as Record<string, unknown>;
+  const params =
+    bodyObject.params && typeof bodyObject.params === 'object'
+      ? (bodyObject.params as Record<string, unknown>)
+      : undefined;
+  const meta =
+    params?._meta && typeof params._meta === 'object'
+      ? (params._meta as Record<string, unknown>)
+      : undefined;
+  if (!meta) {
+    return undefined;
+  }
+
+  const protocolVersion = meta[PROTOCOL_VERSION_META_KEY];
+  return typeof protocolVersion === 'string' ? protocolVersion : undefined;
+}
+
+function extractRequestId(body: unknown): string | number | null {
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+
+  const requestId = (body as Record<string, unknown>).id;
+  if (typeof requestId === 'string' || typeof requestId === 'number') {
+    return requestId;
+  }
+  if (requestId === null) {
+    return null;
+  }
+
+  return null;
+}
+
+function writeJsonRpcErrorResponse(
+  res: ServerResponse,
+  statusCode: number,
+  payload: {
+    jsonrpc: '2.0';
+    id: string | number | null;
+    error: {
+      code: number;
+      message: string;
+      data?: unknown;
+    };
+  }
+): void {
+  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  res.end(safeJsonStringify(payload));
 }
 
 /**
