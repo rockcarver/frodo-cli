@@ -1,5 +1,6 @@
 import { createMcpService } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -17,13 +18,13 @@ type McpProfileName =
 
 /** Parsed options for `frodo mcp server tools`. */
 type McpToolsOptions = {
-  /** Policy preset controlling capability exposure. */
+  /** Policy preset controlling skill exposure. */
   policy: McpPolicyPreset;
-  /** Active surface profile controlling capability scope. */
+  /** Active surface profile controlling skill scope. */
   profile: McpProfileName;
-  /** Optional allow-list of top-level capability domains. */
+  /** Optional allow-list of top-level skill domains. */
   includeDomains?: string[];
-  /** Optional deny-list of top-level capability domains. */
+  /** Optional deny-list of top-level skill domains. */
   excludeDomains?: string[];
   /** Whether to include the `utils` top-level domain. */
   includeUtils?: boolean;
@@ -32,16 +33,16 @@ type McpToolsOptions = {
 };
 
 /**
- * Lists the current MCP tool surface derived from frodo-lib descriptors.
+ * Lists the canonical MCP tool surface for the active policy/profile.
  */
 export default function setup() {
   const program = new FrodoCommand('frodo mcp server tools', ['realm'])
-    .description('List MCP tools exposed under the current policy/profile.')
+    .description('List canonical MCP tools for the current policy/profile.')
     .withStability('experimental')
     .addOption(
       new Option(
         '--policy <preset>',
-        'Capability policy preset (agentic excludes import/export by default).'
+        'Skill policy preset (agentic excludes import/export by default).'
       )
         .choices(['read-only', 'agentic', 'standard', 'admin'])
         .default('agentic')
@@ -49,7 +50,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--profile <profile>',
-        'Subject profile controlling the capability surface.'
+        'Subject profile controlling the skill surface.'
       )
         .choices([
           'all',
@@ -66,13 +67,13 @@ export default function setup() {
     .addOption(
       new Option(
         '--include-domains <domain...>',
-        'Only include the listed top-level domains in capability discovery.'
+        'Only include the listed top-level domains in skill discovery.'
       )
     )
     .addOption(
       new Option(
         '--exclude-domains <domain...>',
-        'Exclude listed top-level domains from capability discovery.'
+        'Exclude listed top-level domains from skill discovery.'
       )
     )
     .addOption(
@@ -82,6 +83,20 @@ export default function setup() {
       ).default(false)
     )
     .addOption(new Option('--json', 'Print tool list as JSON.').default(false))
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Show canonical MCP tools for the default policy/profile:\n` +
+        c.cyanBright(`  $ frodo mcp server tools\n`) +
+        `  Show canonical tools under read-only policy:\n` +
+        c.cyanBright(`  $ frodo mcp server tools --policy read-only\n`) +
+        `  Show canonical tools for selected domains:\n` +
+        c.cyanBright(
+          `  $ frodo mcp server tools --include-domains authn idm\n`
+        ) +
+        `  Export canonical tool metadata as JSON:\n` +
+        c.cyanBright(`  $ frodo mcp server tools --json\n`)
+    )
     .action(async (host, username, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -122,7 +137,7 @@ export default function setup() {
       }
 
       printMessage(
-        `MCP tools (${tools.length}) for profile '${opts.profile}' and policy '${service.policy.name}':`,
+        `Canonical MCP tools (${tools.length}) for profile '${opts.profile}' and policy '${service.policy.name}':`,
         'info'
       );
       for (const tool of tools) {

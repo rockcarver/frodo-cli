@@ -1,5 +1,6 @@
 import { createMcpService } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import { printMessage } from '../../../utils/Console';
 import { FrodoStubCommand } from '../../FrodoCommand';
@@ -15,7 +16,7 @@ type McpProfileName =
   | 'apps'
   | 'managed-objects';
 
-type McpCapabilitiesOptions = {
+type McpSkillsOptions = {
   policy: McpPolicyPreset;
   profile: McpProfileName;
   includeDomains?: string[];
@@ -39,23 +40,23 @@ type McpCapabilitiesOptions = {
 };
 
 /**
- * Shows the policy-filtered capability inventory in CLI-native form.
+ * Shows the policy-filtered skill inventory in CLI-native form.
  */
 export default function setup() {
-  const program = new FrodoStubCommand('capabilities')
+  const program = new FrodoStubCommand('skills')
     .description(
-      'Explore MCP capabilities using CLI-native filters (without MCP transport).'
+      'Explore MCP skills using CLI-native filters (without MCP transport).'
     )
     .withStability('experimental')
     .addOption(
-      new Option('--policy <preset>', 'Capability policy preset.')
+      new Option('--policy <preset>', 'Skill policy preset.')
         .choices(['read-only', 'agentic', 'standard', 'admin'])
         .default('agentic')
     )
     .addOption(
       new Option(
         '--profile <profile>',
-        'Subject profile controlling the capability surface.'
+        'Subject profile controlling the skill surface.'
       )
         .choices([
           'all',
@@ -72,13 +73,13 @@ export default function setup() {
     .addOption(
       new Option(
         '--include-domains <domain...>',
-        'Only include listed top-level domains in capability discovery.'
+        'Only include listed top-level domains in skill discovery.'
       )
     )
     .addOption(
       new Option(
         '--exclude-domains <domain...>',
-        'Exclude listed top-level domains from capability discovery.'
+        'Exclude listed top-level domains from skill discovery.'
       )
     )
     .addOption(
@@ -109,17 +110,32 @@ export default function setup() {
       new Option('--object-type <type>', 'Filter by object type label.')
     )
     .addOption(
-      new Option(
-        '--limit <n>',
-        'Maximum number of capabilities to display.'
-      ).default('50')
+      new Option('--limit <n>', 'Maximum number of skills to display.').default(
+        '50'
+      )
     )
-    .addOption(
-      new Option('--json', 'Print capabilities as JSON.').default(false)
+    .addOption(new Option('--json', 'Print skills as JSON.').default(false))
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Show skills for default policy/profile:\n` +
+        c.cyanBright(`  $ frodo mcp server skills\n`) +
+        `  Show read-only skills for authentication profile:\n` +
+        c.cyanBright(
+          `  $ frodo mcp server skills --policy read-only --profile authentication\n`
+        ) +
+        `  Show mutating authn.journey skills only:\n` +
+        c.cyanBright(
+          `  $ frodo mcp server skills --domain authn --object-type Journey --operation-type update\n`
+        ) +
+        `  Export filtered skills as JSON:\n` +
+        c.cyanBright(
+          `  $ frodo mcp server skills --policy admin --include-domains authn idm --limit 200 --json\n`
+        )
     );
 
   program.action((options) => {
-    const opts = options as McpCapabilitiesOptions;
+    const opts = options as McpSkillsOptions;
     const policySelection = resolvePolicySelection(opts.policy);
     const service = createMcpService({
       profileName: opts.profile,
@@ -132,28 +148,24 @@ export default function setup() {
       },
     });
 
-    let capabilities = service.capabilities;
+    let skills = service.capabilities;
 
     if (opts.operationType) {
-      capabilities = capabilities.filter(
+      skills = skills.filter(
         (entry) => entry.operationType === opts.operationType
       );
     }
     if (opts.domain) {
-      capabilities = capabilities.filter(
-        (entry) => entry.domain === opts.domain
-      );
+      skills = skills.filter((entry) => entry.domain === opts.domain);
     }
     if (opts.objectType) {
-      capabilities = capabilities.filter(
-        (entry) => entry.objectType === opts.objectType
-      );
+      skills = skills.filter((entry) => entry.objectType === opts.objectType);
     }
 
     const parsedLimit = Number.parseInt(opts.limit || '50', 10);
     const effectiveLimit =
       Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 50;
-    const limitedCapabilities = capabilities.slice(0, effectiveLimit);
+    const limitedSkills = skills.slice(0, effectiveLimit);
 
     if (opts.json) {
       printMessage(
@@ -161,9 +173,9 @@ export default function setup() {
           {
             profile: opts.profile,
             policy: service.policy.name,
-            totalFiltered: capabilities.length,
+            totalFiltered: skills.length,
             limit: effectiveLimit,
-            capabilities: limitedCapabilities,
+            skills: limitedSkills,
           },
           null,
           2
@@ -173,13 +185,13 @@ export default function setup() {
       return;
     }
 
-    printMessage('MCP capability inventory:', 'info');
+    printMessage('MCP skills inventory:', 'info');
     printMessage(`  Profile: ${opts.profile}`);
     printMessage(`  Policy: ${service.policy.name}`);
-    printMessage(`  Filtered matches: ${capabilities.length}`);
-    printMessage(`  Showing: ${limitedCapabilities.length}`);
+    printMessage(`  Filtered matches: ${skills.length}`);
+    printMessage(`  Showing: ${limitedSkills.length}`);
 
-    for (const entry of limitedCapabilities) {
+    for (const entry of limitedSkills) {
       printMessage(
         `- ${entry.id} | ${entry.operationType} | ${entry.domain}.${entry.objectType}`
       );

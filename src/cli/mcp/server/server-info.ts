@@ -1,7 +1,21 @@
-import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/server';
-import { createMcpService, listMcpProfiles } from '@rockcarver/frodo-lib';
+import {
+  buildCapabilityInventory,
+  createMcpService,
+  frodo,
+  listMcpProfiles,
+  MCP_POLICY_PRESETS,
+  resolveMcpProfileSelection,
+} from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
+import {
+  MCP_PROTOCOL_LEGACY_VERSION,
+  MCP_PROTOCOL_TARGET_VERSION,
+  MCP_SERVER_NAME,
+  MCP_SERVER_VERSION,
+  MCP_SUPPORTED_PROTOCOL_VERSIONS,
+} from '../../../ops/McpServerMetadata.js';
 import { printMessage } from '../../../utils/Console';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
@@ -25,13 +39,22 @@ type McpInfoOptions = {
   json?: boolean;
 };
 
-const TARGET_MCP_SPEC_VERSION = '2026-07-28';
-const LEGACY_PROTOCOL_VERSION = '2025-11-25';
-const SERVER_NAME = 'frodo-mcp';
-const SERVER_VERSION = '1.0.0';
+function buildEffectiveInventoryOptions(opts: McpInfoOptions) {
+  const profileSelection = resolveMcpProfileSelection(opts.profile);
+  return {
+    ...profileSelection.inventoryOptions,
+    includeTopLevelDomains:
+      opts.includeDomains ??
+      profileSelection.inventoryOptions?.includeTopLevelDomains,
+    excludeTopLevelDomains:
+      opts.excludeDomains ??
+      profileSelection.inventoryOptions?.excludeTopLevelDomains,
+    includeUtils: !!opts.includeUtils,
+  };
+}
 
 /**
- * Shows MCP server identity, protocol support, and capability-surface summary.
+ * Shows MCP server identity, protocol support, and skill-surface summary.
  */
 export default function setup() {
   const program = new FrodoStubCommand('info')
@@ -40,14 +63,14 @@ export default function setup() {
     )
     .withStability('experimental')
     .addOption(
-      new Option('--policy <preset>', 'Capability policy preset.')
+      new Option('--policy <preset>', 'Skill policy preset.')
         .choices(['read-only', 'agentic', 'standard', 'admin'])
         .default('agentic')
     )
     .addOption(
       new Option(
         '--profile <profile>',
-        'Subject profile controlling the capability surface.'
+        'Subject profile controlling the skill surface.'
       )
         .choices([
           'all',
@@ -64,13 +87,13 @@ export default function setup() {
     .addOption(
       new Option(
         '--include-domains <domain...>',
-        'Only include listed top-level domains in capability discovery.'
+        'Only include listed top-level domains in skill discovery.'
       )
     )
     .addOption(
       new Option(
         '--exclude-domains <domain...>',
-        'Exclude listed top-level domains from capability discovery.'
+        'Exclude listed top-level domains from skill discovery.'
       )
     )
     .addOption(
@@ -81,37 +104,54 @@ export default function setup() {
     )
     .addOption(
       new Option('--json', 'Print server info payload as JSON.').default(false)
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Show default MCP server info:\n` +
+        c.cyanBright(`  $ frodo mcp server info\n`) +
+        `  Show info for read-only authentication scope:\n` +
+        c.cyanBright(
+          `  $ frodo mcp server info --policy read-only --profile authentication\n`
+        ) +
+        `  Show info for selected domains only:\n` +
+        c.cyanBright(
+          `  $ frodo mcp server info --include-domains authn idm\n`
+        ) +
+        `  Export info payload as JSON:\n` +
+        c.cyanBright(`  $ frodo mcp server info --json\n`)
     );
 
   program.action((options) => {
     const opts = options as McpInfoOptions;
     const policySelection = resolvePolicySelection(opts.policy);
+    const inventoryOptions = buildEffectiveInventoryOptions(opts);
     const service = createMcpService({
       profileName: opts.profile,
       policyPreset: policySelection.policyPreset,
       policyOverride: policySelection.policyOverride,
-      inventoryOptions: {
-        includeTopLevelDomains: opts.includeDomains,
-        excludeTopLevelDomains: opts.excludeDomains,
-        includeUtils: !!opts.includeUtils,
-      },
+      inventoryOptions,
     });
+    const inventoryCapabilityCount = buildCapabilityInventory(
+      frodo,
+      inventoryOptions
+    ).length;
 
-    const supportedProtocolVersions = [...SUPPORTED_PROTOCOL_VERSIONS];
+    const supportedProtocolVersions = [...MCP_SUPPORTED_PROTOCOL_VERSIONS];
     const supportsTargetSpec = supportedProtocolVersions.includes(
-      TARGET_MCP_SPEC_VERSION
+      MCP_PROTOCOL_TARGET_VERSION
     );
     const supportsLegacySpec = supportedProtocolVersions.includes(
-      LEGACY_PROTOCOL_VERSION
+      MCP_PROTOCOL_LEGACY_VERSION
     );
 
     const info = {
       server: {
-        name: SERVER_NAME,
-        version: SERVER_VERSION,
+        name: MCP_SERVER_NAME,
+        version: MCP_SERVER_VERSION,
       },
       protocol: {
-        targetSpecVersion: TARGET_MCP_SPEC_VERSION,
+        targetSpecVersion: MCP_PROTOCOL_TARGET_VERSION,
         supportedVersions: supportedProtocolVersions,
         supportsTargetSpec,
         supportsLegacySpec,
@@ -120,17 +160,22 @@ export default function setup() {
       service: {
         policy: service.policy.name,
         profile: opts.profile,
-        descriptorCount: service.capabilities.length,
+        skillCounts: {
+          inventory: inventoryCapabilityCount,
+          active: service.capabilities.length,
+        },
         toolCounts: {
           total: service.manifest.totalToolCount,
           canonical: service.manifest.canonicalTools?.length ?? 0,
-          special: service.manifest.specialTools.length,
           discovery: 1,
         },
         domainCount: service.manifest.discoveryTool.domains.length,
       },
       profileRegistry: {
         count: listMcpProfiles().length,
+      },
+      policyRegistry: {
+        count: Object.keys(MCP_POLICY_PRESETS).length,
       },
     };
 
@@ -142,22 +187,19 @@ export default function setup() {
     printMessage('MCP server info:', 'info');
     printMessage(`  Server: ${info.server.name}@${info.server.version}`);
     printMessage(
-      `  Target spec: ${info.protocol.targetSpecVersion} (supported: ${info.protocol.supportsTargetSpec})`
-    );
-    printMessage(
-      `  Legacy spec ${LEGACY_PROTOCOL_VERSION} supported: ${info.protocol.supportsLegacySpec}`
-    );
-    printMessage(`  Dual-era readiness: ${info.protocol.dualEra}`);
-    printMessage(
       `  Supported protocol versions: ${info.protocol.supportedVersions.join(', ')}`
     );
     printMessage(
       `  Service: profile=${info.service.profile}, policy=${info.service.policy}`
     );
     printMessage(
-      `  Descriptor count: ${info.service.descriptorCount}, tool count: ${info.service.toolCounts.total}`
+      `  Skills: inventory=${info.service.skillCounts.inventory}, active=${info.service.skillCounts.active}`
+    );
+    printMessage(
+      `  Tool count: ${info.service.toolCounts.total} (${info.service.toolCounts.canonical} canonical, ${info.service.toolCounts.discovery} discovery)`
     );
     printMessage(`  Profiles registered: ${info.profileRegistry.count}`);
+    printMessage(`  Policies registered: ${info.policyRegistry.count}`);
   });
 
   return program;

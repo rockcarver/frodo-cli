@@ -1,7 +1,11 @@
-import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/server';
 import { createMcpService, frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
+import {
+  MCP_PROTOCOL_TARGET_VERSION,
+  MCP_SUPPORTED_PROTOCOL_VERSIONS,
+} from '../../../ops/McpServerMetadata.js';
 import {
   startHttpTransport,
   startStdioTransport,
@@ -22,13 +26,13 @@ type McpProfileName =
 
 /** Parsed options for `frodo mcp server start`. */
 type McpStartOptions = {
-  /** Policy preset controlling capability exposure. */
+  /** Policy preset controlling skill exposure. */
   policy: McpPolicyPreset;
-  /** Active surface profile controlling capability scope. */
+  /** Active surface profile controlling skill scope. */
   profile: McpProfileName;
-  /** Optional allow-list of top-level capability domains. */
+  /** Optional allow-list of top-level skill domains. */
   includeDomains?: string[];
-  /** Optional deny-list of top-level capability domains. */
+  /** Optional deny-list of top-level skill domains. */
   excludeDomains?: string[];
   /** Whether to include the `utils` top-level domain. */
   includeUtils?: boolean;
@@ -44,19 +48,17 @@ type McpStartOptions = {
   json?: boolean;
 };
 
-const TARGET_MCP_SPEC_VERSION = '2026-07-28';
-
 /**
  * MCP server start command.
  */
 export default function setup() {
   const program = new FrodoCommand('frodo mcp server start', [])
-    .description('Start an MCP server session from frodo-lib capabilities.')
+    .description('Start an MCP server session from frodo-lib skills.')
     .withStability('experimental')
     .addOption(
       new Option(
         '--policy <preset>',
-        'Capability policy preset (agentic excludes import/export by default).'
+        'Skill policy preset (agentic excludes import/export by default). See `frodo mcp server policies` for guidance.'
       )
         .choices(['read-only', 'agentic', 'standard', 'admin'])
         .default('agentic')
@@ -64,7 +66,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--profile <profile>',
-        'Subject profile controlling the capability surface.'
+        'Subject profile controlling the skill surface.'
       )
         .choices([
           'all',
@@ -81,13 +83,13 @@ export default function setup() {
     .addOption(
       new Option(
         '--include-domains <domain...>',
-        'Only include the listed top-level domains in capability discovery.'
+        'Only include the listed top-level domains in skill discovery.'
       )
     )
     .addOption(
       new Option(
         '--exclude-domains <domain...>',
-        'Exclude listed top-level domains from capability discovery.'
+        'Exclude listed top-level domains from skill discovery.'
       )
     )
     .addOption(
@@ -119,6 +121,24 @@ export default function setup() {
     )
     .addOption(
       new Option('--json', 'Print startup summary as JSON.').default(false)
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Start MCP server over stdio with default profile and policy:\n` +
+        c.cyanBright(`  $ frodo mcp server start\n`) +
+        `  Validate composition only (no transport start):\n` +
+        c.cyanBright(`  $ frodo mcp server start --dry-run\n`) +
+        `  Start HTTP transport with explicit bind host/port:\n` +
+        c.cyanBright(
+          `  $ frodo mcp server start --transport http --bind-host 127.0.0.1 --port 6277\n`
+        ) +
+        `  Start read-only skills surface for authentication scope:\n` +
+        c.cyanBright(
+          `  $ frodo mcp server start --policy read-only --profile authentication\n`
+        ) +
+        `  Start with selected domains only:\n` +
+        c.cyanBright(`  $ frodo mcp server start --include-domains authn idm\n`)
     )
     .action(async (host, realm, username, password, options, command) => {
       command.handleDefaultArgsAndOpts(
@@ -160,10 +180,9 @@ export default function setup() {
         toolCounts: {
           total: service.manifest.totalToolCount,
           canonical: service.manifest.canonicalTools?.length ?? 0,
-          special: service.manifest.specialTools.length,
           discovery: 1,
         },
-        descriptorCount: service.manifest.backingDescriptorCount,
+        skillCount: service.manifest.backingDescriptorCount,
         importExportExposed: {
           export: service.capabilities.some(
             (descriptor) => descriptor.operationType === 'export'
@@ -183,11 +202,9 @@ export default function setup() {
         printMessage(`  Transport: ${startupSummary.transport}`);
         printMessage(`  Auth mode: ${startupSummary.authMode}`);
         printMessage(
-          `  Tools: ${startupSummary.toolCounts.total} total (${startupSummary.toolCounts.canonical} canonical, ${startupSummary.toolCounts.special} special, ${startupSummary.toolCounts.discovery} discovery)`
+          `  Tools: ${startupSummary.toolCounts.total} total (${startupSummary.toolCounts.canonical} canonical, ${startupSummary.toolCounts.discovery} discovery)`
         );
-        printMessage(
-          `  Backing descriptors: ${startupSummary.descriptorCount}`
-        );
+        printMessage(`  Backing skills: ${startupSummary.skillCount}`);
         printMessage(
           `  Import/export exposed: export=${startupSummary.importExportExposed.export}, import=${startupSummary.importExportExposed.import}`
         );
@@ -224,14 +241,13 @@ export default function setup() {
 }
 
 function buildProtocolSupportWarning(): string | null {
-  if (SUPPORTED_PROTOCOL_VERSIONS.includes(TARGET_MCP_SPEC_VERSION)) {
+  if (MCP_SUPPORTED_PROTOCOL_VERSIONS.includes(MCP_PROTOCOL_TARGET_VERSION)) {
     return null;
   }
 
   return (
-    `  Warning: Legacy @modelcontextprotocol/sdk (v1 monolith) does not advertise MCP ${TARGET_MCP_SPEC_VERSION} support ` +
-    `(supported: ${SUPPORTED_PROTOCOL_VERSIONS.join(', ')}). ` +
-    'The server can still run, but full MCP 2026-07-28 conformance requires migration to the v2 SDK packages (@modelcontextprotocol/server and @modelcontextprotocol/client, plus optional adapters).'
+    `  Warning: MCP ${MCP_PROTOCOL_TARGET_VERSION} is not enabled in the configured supported-version list ` +
+    `(supported: ${MCP_SUPPORTED_PROTOCOL_VERSIONS.join(', ')}).`
   );
 }
 

@@ -31,7 +31,6 @@ import {
   isInitializeRequest,
   McpServer,
   PROTOCOL_VERSION_META_KEY,
-  SUPPORTED_PROTOCOL_VERSIONS,
   ToolAnnotations,
   UnsupportedProtocolVersionError,
 } from '@modelcontextprotocol/server';
@@ -44,6 +43,12 @@ import {
 import { z } from 'zod';
 
 import { printMessage } from '../utils/Console.js';
+import {
+  MCP_SERVER_DISCOVERY_INSTRUCTIONS,
+  MCP_SERVER_NAME,
+  MCP_SERVER_VERSION,
+  MCP_SUPPORTED_PROTOCOL_VERSIONS,
+} from './McpServerMetadata.js';
 
 // ---------------------------------------------------------------------------
 // Internal constants
@@ -52,10 +57,7 @@ import { printMessage } from '../utils/Console.js';
 // Zod v4 schema shapes reused for canonical hybrid and special tools.
 const MAX_INLINE_RESULT_BYTES = 256 * 1024;
 const MAX_INLINE_DISCOVERY_RESULT_BYTES = 2 * 1024 * 1024;
-const MCP_SERVER_DISCOVERY_INSTRUCTIONS =
-  'Frodo MCP server exposes a tools-first capability surface. Call frodo_discover for detailed domain/object operation contracts before invoking mutating tools.';
-
-const FIND_CAPABILITIES_SHAPE = {
+const FIND_SKILLS_SHAPE = {
   query: z
     .string()
     .optional()
@@ -64,10 +66,10 @@ const FIND_CAPABILITIES_SHAPE = {
     ),
   domain: z.string().optional().describe('Optional domain filter.'),
   objectType: z.string().optional().describe('Optional object type filter.'),
-  capabilityIdPrefix: z
+  skillIdPrefix: z
     .string()
     .optional()
-    .describe('Optional capability id prefix filter.'),
+    .describe('Optional skill id prefix filter.'),
   operationTypes: z
     .array(z.string())
     .optional()
@@ -88,17 +90,15 @@ const FIND_CAPABILITIES_SHAPE = {
     .describe('Optional maximum number of returned capabilities.'),
 } as const;
 
-const DESCRIBE_CAPABILITY_SHAPE = {
-  capabilityId: z
-    .string()
-    .describe('Capability id returned by frodo_find_capabilities.'),
+const DESCRIBE_SKILL_SHAPE = {
+  skillId: z.string().describe('Skill id returned by frodo_find_skills.'),
 } as const;
 
 const DISPATCH_SHAPE = {
-  capabilityId: z
+  skillId: z
     .string()
     .optional()
-    .describe('Direct capability id selector (preferred).'),
+    .describe('Direct skill id selector (preferred).'),
   operationType: z
     .string()
     .optional()
@@ -187,14 +187,17 @@ const SPECIAL_SHAPE = {
  */
 export function buildMcpServer(service: McpService): McpServer {
   const server = new McpServer(
-    { name: 'frodo-mcp', version: '1.0.0' },
-    { instructions: MCP_SERVER_DISCOVERY_INSTRUCTIONS }
+    { name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION },
+    {
+      instructions: MCP_SERVER_DISCOVERY_INSTRUCTIONS,
+      supportedProtocolVersions: MCP_SUPPORTED_PROTOCOL_VERSIONS,
+    }
   );
 
   for (const tool of service.listTools()) {
     const isDiscovery = tool.name === 'frodo_discover';
-    const isFindCapabilities = tool.name === 'frodo_find_capabilities';
-    const isDescribeCapability = tool.name === 'frodo_describe_capability';
+    const isFindSkills = tool.name === 'frodo_find_skills';
+    const isDescribeSkill = tool.name === 'frodo_describe_skill';
     const isDispatchTool =
       tool.name === 'frodo_dispatch' ||
       tool.name === 'frodo_dispatch_read_only';
@@ -218,12 +221,12 @@ export function buildMcpServer(service: McpService): McpServer {
           }
         }
       );
-    } else if (isFindCapabilities) {
+    } else if (isFindSkills) {
       server.registerTool(
         tool.name,
         {
           description: tool.description,
-          inputSchema: FIND_CAPABILITIES_SHAPE,
+          inputSchema: FIND_SKILLS_SHAPE,
           annotations,
         },
         async (args) => {
@@ -239,12 +242,12 @@ export function buildMcpServer(service: McpService): McpServer {
           }
         }
       );
-    } else if (isDescribeCapability) {
+    } else if (isDescribeSkill) {
       server.registerTool(
         tool.name,
         {
           description: tool.description,
-          inputSchema: DESCRIBE_CAPABILITY_SHAPE,
+          inputSchema: DESCRIBE_SKILL_SHAPE,
           annotations,
         },
         async (args) => {
@@ -534,13 +537,13 @@ function getUnsupportedProtocolVersionError(
   if (!requestedProtocolVersion) {
     return null;
   }
-  if (SUPPORTED_PROTOCOL_VERSIONS.includes(requestedProtocolVersion)) {
+  if (MCP_SUPPORTED_PROTOCOL_VERSIONS.includes(requestedProtocolVersion)) {
     return null;
   }
 
   const error = new UnsupportedProtocolVersionError({
     requested: requestedProtocolVersion,
-    supported: [...SUPPORTED_PROTOCOL_VERSIONS],
+    supported: [...MCP_SUPPORTED_PROTOCOL_VERSIONS],
   });
 
   return {
