@@ -18,8 +18,9 @@ export default function setup() {
     async (host, options, command) => {
       command.handleDefaultArgsAndOpts(host, options, command);
       try {
+        const profile = await frodo.conn.getConnectionProfileByHost(host);
         frodo.conn.deleteConnectionProfile(host);
-        printMessage(`Deleted connection profile ${host}`);
+        printMessage(`Deleted connection profile ${profile.tenant}`);
       } catch (error) {
         printError(error);
       }
