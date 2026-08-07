@@ -49,6 +49,8 @@ import { printMessage } from '../utils/Console.js';
 // Zod v4 schema shapes reused for canonical hybrid and special tools.
 const MAX_INLINE_RESULT_BYTES = 256 * 1024;
 const MAX_INLINE_DISCOVERY_RESULT_BYTES = 2 * 1024 * 1024;
+const MCP_SERVER_DISCOVERY_INSTRUCTIONS =
+  'Frodo MCP server exposes a tools-first capability surface. Call frodo_discover for detailed domain/object operation contracts before invoking mutating tools.';
 
 const FIND_CAPABILITIES_SHAPE = {
   query: z
@@ -180,8 +182,11 @@ const SPECIAL_SHAPE = {
  * @param service Fully composed MCP service from `createMcpService`.
  * @returns Configured `McpServer` ready to connect to a transport.
  */
-function buildMcpServer(service: McpService): McpServer {
-  const server = new McpServer({ name: 'frodo-mcp', version: '1.0.0' });
+export function buildMcpServer(service: McpService): McpServer {
+  const server = new McpServer(
+    { name: 'frodo-mcp', version: '1.0.0' },
+    { instructions: MCP_SERVER_DISCOVERY_INSTRUCTIONS }
+  );
 
   for (const tool of service.listTools()) {
     const isDiscovery = tool.name === 'frodo_discover';
