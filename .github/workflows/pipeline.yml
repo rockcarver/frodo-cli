@@ -104,6 +104,9 @@ jobs:
       - name: Update package-lock.json after version bump
         run: npm i --package-lock-only
 
+      - name: Validate MCP SDK track
+        run: npm run check:mcp-sdk-track
+
       - name: Build frodo-cli
         run: |
           npm run build

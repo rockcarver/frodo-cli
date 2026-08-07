@@ -45,6 +45,7 @@
     "mcp:assess": "node tools/mcp-agentic-assess.mjs",
     "mcp:test-aiagents": "node tools/mcp-aiagent-introspection-test.mjs",
     "mcp:test-oauth2-mayact": "node tools/mcp-oauth2-mayact-update-test.mjs",
+    "check:mcp-sdk-track": "node tools/check-mcp-sdk-track.mjs",
     "lint": "eslint --cache --cache-location .eslintcache \"src/**/*.ts\"",
     "lint:fix": "eslint --cache --cache-location .eslintcache --fix \"src/**/*.ts\"",
     "lint:fix:ci": "eslint --no-cache --fix \"src/**/*.ts\"",
