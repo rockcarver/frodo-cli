@@ -1,6 +1,6 @@
+import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/server';
 import { createMcpService, listMcpProfiles } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/server';
 
 import { printMessage } from '../../../utils/Console';
 import { FrodoStubCommand } from '../../FrodoCommand';

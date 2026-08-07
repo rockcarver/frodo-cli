@@ -26,6 +26,7 @@ import {
   type ServerResponse,
 } from 'node:http';
 
+import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import {
   isInitializeRequest,
   McpServer,
@@ -35,7 +36,6 @@ import {
   UnsupportedProtocolVersionError,
 } from '@modelcontextprotocol/server';
 import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
-import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import {
   type McpRuntimeRequestContext,
   type McpService,
@@ -529,8 +529,7 @@ function getUnsupportedProtocolVersionError(
       ? req.headers['mcp-protocol-version']
       : undefined;
   const bodyProtocolVersion = extractBodyProtocolVersion(body);
-  const requestedProtocolVersion =
-    headerProtocolVersion ?? bodyProtocolVersion;
+  const requestedProtocolVersion = headerProtocolVersion ?? bodyProtocolVersion;
 
   if (!requestedProtocolVersion) {
     return null;

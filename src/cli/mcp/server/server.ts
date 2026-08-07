@@ -1,9 +1,9 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
-import startCmd from './server-start.js';
-import profilesCmd from './server-profiles.js';
-import toolsCmd from './server-tools.js';
-import infoCmd from './server-info.js';
 import capabilitiesCmd from './server-capabilities.js';
+import infoCmd from './server-info.js';
+import profilesCmd from './server-profiles.js';
+import startCmd from './server-start.js';
+import toolsCmd from './server-tools.js';
 
 /**
  * MCP server command group.
