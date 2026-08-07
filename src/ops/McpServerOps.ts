@@ -52,7 +52,9 @@ const FIND_CAPABILITIES_SHAPE = {
   query: z
     .string()
     .optional()
-    .describe('Free-text query across capability id, domain, object type, method, and notes.'),
+    .describe(
+      'Free-text query across capability id, domain, object type, method, and notes.'
+    ),
   domain: z.string().optional().describe('Optional domain filter.'),
   objectType: z.string().optional().describe('Optional object type filter.'),
   capabilityIdPrefix: z
@@ -97,7 +99,9 @@ const DISPATCH_SHAPE = {
   domain: z
     .string()
     .optional()
-    .describe('Top-level capability domain key (e.g. "authn") when selecting by tuple.'),
+    .describe(
+      'Top-level capability domain key (e.g. "authn") when selecting by tuple.'
+    ),
   objectType: z
     .string()
     .optional()
