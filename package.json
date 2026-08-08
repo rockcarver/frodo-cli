@@ -61,6 +61,17 @@
     "testMatch": [
       "**/?(*.)(test).js"
     ],
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    },
     "globalSetup": "./global-jest-setup.js"
   },
   "contributors": [
@@ -150,6 +161,7 @@
     "tsup": "^8.1.0",
     "typescript": "^5.2.2",
     "uuid": "^11.1.0",
+    "winston": "^3.19.0",
     "yesno": "^0.4.0",
     "zod": "^4.3.6"
   },

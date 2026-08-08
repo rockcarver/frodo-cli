@@ -3,6 +3,11 @@ import { Option } from 'commander';
 import c from 'tinyrainbow';
 
 import {
+  MCP_LOG_LEVELS,
+  McpLogger,
+  type McpLogLevel,
+} from '../../../ops/McpLogger.js';
+import {
   McpServerStartupInfo,
   startHttpTransport,
   startStdioTransport,
@@ -43,6 +48,8 @@ type McpStartOptions = {
   dryRun?: boolean;
   /** Print startup summary as JSON. */
   json?: boolean;
+  /** MCP protocol logging threshold. */
+  mcpLogLevel: McpLogLevel;
 };
 
 /**
@@ -120,6 +127,11 @@ export default function setup() {
     .addOption(
       new Option('--json', 'Print startup summary as JSON.').default(false)
     )
+    .addOption(
+      new Option('--mcp-log-level <level>', 'MCP protocol log level.')
+        .choices([...MCP_LOG_LEVELS])
+        .default('info')
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -152,9 +164,12 @@ export default function setup() {
       if (opts.json && !opts.dryRun) {
         throw new Error('--json is only supported with --dry-run.');
       }
+      const logger = new McpLogger(opts.mcpLogLevel);
       if (state.getHost()) {
         await frodo.login.getTokens();
       }
+      const managedObjectTypes = await hydrateManagedObjectTypes(logger);
+      const activeHost = sanitizeHost(state.getHost());
       const policySelection = resolvePolicySelection(opts.policy);
       const service = createMcpService({
         profileName: opts.profile,
@@ -164,6 +179,13 @@ export default function setup() {
           includeTopLevelDomains: opts.includeDomains,
           excludeTopLevelDomains: opts.excludeDomains,
           includeUtils: !!opts.includeUtils,
+        },
+        discoveryContext: {
+          managedObjectTypes,
+          activeTarget: {
+            host: activeHost,
+            profile: opts.profile,
+          },
         },
         // Reuse the preconfigured frodo singleton; the CLI has already
         // applied connection credentials via handleDefaultArgsAndOpts.
@@ -181,7 +203,7 @@ export default function setup() {
           port: Number(opts.port),
         },
         authMode: inferAuthModeFromState(),
-        host: sanitizeHost(state.getHost()),
+        host: activeHost,
         deploymentType: state.getDeploymentType() ?? 'unknown',
         toolCounts: {
           total: service.manifest.totalToolCount,
@@ -209,9 +231,8 @@ export default function setup() {
         return;
       }
 
-      const startupInfo: McpServerStartupInfo = {
-        messages: formatStartupMessages(startupSummary, state.getVerbose()),
-      };
+      logStartupSummary(logger, startupSummary);
+      const startupInfo: McpServerStartupInfo = { logger };
       const transport = opts.transport ?? 'stdio';
       if (transport === 'stdio') {
         await startStdioTransport(service, startupInfo);
@@ -241,19 +262,10 @@ type StartupSummary = {
   importExportExposed: { export: boolean; import: boolean };
 };
 
-function formatStartupMessages(
-  summary: StartupSummary,
-  verbose: boolean
-): string[] {
-  const messages = [
+function formatStartupMessages(summary: StartupSummary): string[] {
+  return [
     "Experimental feature in use: 'frodo mcp server start'. This feature may change without notice.",
     `MCP server connected to ${summary.host ?? 'an unresolved host'} (${summary.deploymentType}).`,
-  ];
-  if (!verbose) {
-    return messages;
-  }
-  return [
-    ...messages,
     `Policy: ${summary.policy}`,
     `Profile: ${summary.profile}`,
     `Transport: ${summary.transport}`,
@@ -264,9 +276,23 @@ function formatStartupMessages(
   ];
 }
 
+function logStartupSummary(logger: McpLogger, summary: StartupSummary): void {
+  logger.info(
+    'startup',
+    "Experimental feature in use: 'frodo mcp server start'. This feature may change without notice."
+  );
+  logger.info(
+    'startup',
+    `Connected to ${summary.host ?? 'an unresolved host'} (${summary.deploymentType}).`
+  );
+  for (const message of formatStartupMessages(summary).slice(2)) {
+    logger.debug('startup.configuration', message);
+  }
+}
+
 function printStartupSummary(summary: StartupSummary): void {
   printMessage('MCP server startup summary:', 'info');
-  for (const message of formatStartupMessages(summary, true).slice(1)) {
+  for (const message of formatStartupMessages(summary).slice(1)) {
     printMessage(`  ${message}`);
   }
 }
@@ -283,7 +309,40 @@ function sanitizeHost(host?: string): string | undefined {
     url.hash = '';
     return url.toString().replace(/\/$/, '');
   } catch {
-    return host;
+    return undefined;
+  }
+}
+
+const MANAGED_OBJECT_HYDRATION_TIMEOUT_MS = 3000;
+
+async function hydrateManagedObjectTypes(logger: McpLogger): Promise<string[]> {
+  const deploymentType = state.getDeploymentType();
+  if (deploymentType !== 'cloud' && deploymentType !== 'forgeops') return [];
+
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const types = await Promise.race([
+      frodo.idm.config.readManagedObjectTypes(),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error('Managed-object hydration timed out.')),
+          MANAGED_OBJECT_HYDRATION_TIMEOUT_MS
+        );
+      }),
+    ]);
+    logger.info(
+      'startup.discovery',
+      `Hydrated ${types.length} managed-object types for discovery.`
+    );
+    return types;
+  } catch {
+    logger.warn(
+      'startup.discovery',
+      'Managed-object discovery hydration failed; continuing with static skill metadata.'
+    );
+    return [];
+  } finally {
+    if (timeout) clearTimeout(timeout);
   }
 }
 

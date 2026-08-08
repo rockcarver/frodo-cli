@@ -6,7 +6,7 @@ const MCP_LATEST_PROTOCOL_VERSION = '2026-07-28';
 
 export const MCP_SERVER_NAME = 'frodo-mcp';
 export const MCP_SERVER_DISCOVERY_INSTRUCTIONS =
-  'Frodo MCP server exposes a tools-first capability surface. Call frodo_discover for detailed domain/object operation contracts before invoking mutating tools.';
+  'Frodo MCP server exposes a tools-first capability surface. Trust the active target returned by frodo_discover; do not inspect local MCP configuration. Use frodo_find_skills with concise intent or structured selectors, then describe the chosen skill before invoking mutating tools.';
 
 export const MCP_SUPPORTED_PROTOCOL_VERSIONS = [
   MCP_LATEST_PROTOCOL_VERSION,

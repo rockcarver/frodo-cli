@@ -61,6 +61,7 @@ async function connectMcpClient(options, testOptions = {}) {
             ...(testOptions.extraArgs ?? []),
         ],
         env: commandEnvironment,
+        cwd: testDirectory,
         stderr: 'pipe',
     });
     if (testOptions.stderr) {
@@ -199,6 +200,9 @@ test("'mcp server start' negotiates the 2026-07-28 protocol", async () => {
     try {
         expect(client.getNegotiatedProtocolVersion()).toBe('2026-07-28');
         expect((await client.listTools()).tools).toHaveLength(5);
+        expect(
+            fs.existsSync(path.join(testDirectory, 'frodo-lib-debug.log'))
+        ).toBe(false);
     } finally {
         await client.close();
     }
@@ -217,12 +221,12 @@ test("'mcp server start' remains compatible with legacy clients", async () => {
     }
 });
 
-test("'mcp server start --verbose' emits info logs without routine stderr", async () => {
+test("'mcp server start' emits info logs without routine stderr", async () => {
     const logs = [];
     const stderr = [];
     const client = await connectMcpClient(
         { supportedProtocolVersions: ['2025-11-25'] },
-        { logs, stderr, extraArgs: ['--verbose'] }
+        { logs, stderr }
     );
 
     try {
@@ -232,6 +236,19 @@ test("'mcp server start --verbose' emits info logs without routine stderr", asyn
             arguments: { query: 'journey' },
         });
 
+        const findSkillsLogs = logs.filter((entry) =>
+            entry.data.includes('discovery: tool=frodo_find_skills')
+        );
+        expect(findSkillsLogs).toHaveLength(1);
+        expect(findSkillsLogs[0]).toEqual(
+            expect.objectContaining({
+                level: 'info',
+                logger: 'frodo-cli',
+                data: expect.stringMatching(
+                    /criteria=\[query="journey"\] candidates=\d+ results=\d+ topCandidates=\[authn\..+\((preferred|compatible|unknown|incompatible)\)/
+                ),
+            })
+        );
         expect(logs).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
@@ -239,15 +256,127 @@ test("'mcp server start --verbose' emits info logs without routine stderr", asyn
                     logger: 'frodo-cli',
                     data: expect.stringContaining('Experimental feature'),
                 }),
-                expect.objectContaining({
-                    level: 'info',
-                    logger: 'frodo-cli',
-                    data: expect.stringContaining('discovery: tool=frodo_find_skills'),
-                }),
             ])
         );
         expect(stderr.join('')).not.toContain('Experimental feature in use');
         expect(stderr.join('')).not.toContain('MCP server startup summary');
+    } finally {
+        await client.close();
+    }
+});
+
+test("'mcp server start --mcp-log-level debug' logs structured find-skills criteria at info level", async () => {
+    const logs = [];
+    const stderr = [];
+    const client = await connectMcpClient(
+        { supportedProtocolVersions: ['2025-11-25'] },
+        { logs, stderr, extraArgs: ['--mcp-log-level', 'debug'] }
+    );
+
+    try {
+        await client.callTool({
+            name: 'frodo_find_skills',
+            arguments: {
+                domain: 'authn',
+                objectType: 'Journey',
+                operationTypes: ['read'],
+                limit: 5,
+            },
+        });
+
+        expect(logs).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    level: 'info',
+                    logger: 'frodo-cli',
+                    data: expect.stringMatching(
+                        /criteria=\[domain=authn objectType=Journey operations=read limit=5\] candidates=\d+ results=\d+ topCandidates=\[authn\..+\((preferred|compatible|unknown|incompatible)\)/
+                    ),
+                }),
+            ])
+        );
+        expect(stderr.join('')).not.toContain('AuthenticateOps.');
+        expect(stderr.join('')).not.toContain('ServiceAccountOps.');
+    } finally {
+        await client.close();
+    }
+});
+
+test.each(['--debug', '--verbose'])(
+    'legacy %s does not override --mcp-log-level off',
+    async (legacyOption) => {
+        const logs = [];
+        const client = await connectMcpClient(
+            { supportedProtocolVersions: ['2025-11-25'] },
+            {
+                logs,
+                extraArgs: [legacyOption, '--mcp-log-level', 'off'],
+            }
+        );
+
+        try {
+            await client.setLoggingLevel('debug');
+            await client.callTool({
+                name: 'frodo_find_skills',
+                arguments: { query: 'journey' },
+            });
+
+            expect(logs).toEqual([]);
+        } finally {
+            await client.close();
+        }
+    }
+);
+
+test.each(['error', 'warn'])(
+    "'mcp server start --mcp-log-level %s' suppresses info logs",
+    async (level) => {
+        const logs = [];
+        const client = await connectMcpClient(
+            { supportedProtocolVersions: ['2025-11-25'] },
+            {
+                logs,
+                extraArgs: ['--mcp-log-level', level],
+            }
+        );
+
+        try {
+            await client.setLoggingLevel('debug');
+            await client.callTool({
+                name: 'frodo_find_skills',
+                arguments: { query: 'journey' },
+            });
+            expect(logs).toEqual([]);
+        } finally {
+            await client.close();
+        }
+    }
+);
+
+test('client info level receives find-skills candidate details', async () => {
+    const logs = [];
+    const client = await connectMcpClient(
+        { supportedProtocolVersions: ['2025-11-25'] },
+        { logs, extraArgs: ['--mcp-log-level', 'debug'] }
+    );
+
+    try {
+        await client.setLoggingLevel('info');
+        logs.length = 0;
+        await client.callTool({
+            name: 'frodo_find_skills',
+            arguments: { query: 'journey' },
+        });
+
+        expect(logs.some((entry) => entry.level === 'info')).toBe(true);
+        expect(
+            logs.some(
+                (entry) =>
+                    entry.level === 'info' &&
+                    entry.data.includes('topCandidates=')
+            )
+        ).toBe(true);
+        expect(logs.some((entry) => entry.level === 'debug')).toBe(false);
     } finally {
         await client.close();
     }
