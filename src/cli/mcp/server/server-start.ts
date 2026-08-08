@@ -3,10 +3,6 @@ import { Option } from 'commander';
 import c from 'tinyrainbow';
 
 import {
-  MCP_PROTOCOL_TARGET_VERSION,
-  MCP_SUPPORTED_PROTOCOL_VERSIONS,
-} from '../../../ops/McpServerMetadata.js';
-import {
   startHttpTransport,
   startStdioTransport,
 } from '../../../ops/McpServerOps.js';
@@ -213,11 +209,6 @@ export default function setup() {
             `  HTTP endpoint (planned): http://${startupSummary.http.bindHost}:${startupSummary.http.port}/mcp`
           );
         }
-
-        const protocolSupportWarning = buildProtocolSupportWarning();
-        if (protocolSupportWarning) {
-          printMessage(protocolSupportWarning, 'warning');
-        }
       }
 
       if (opts.dryRun) {
@@ -238,17 +229,6 @@ export default function setup() {
     });
 
   return program;
-}
-
-function buildProtocolSupportWarning(): string | null {
-  if (MCP_SUPPORTED_PROTOCOL_VERSIONS.includes(MCP_PROTOCOL_TARGET_VERSION)) {
-    return null;
-  }
-
-  return (
-    `  Warning: MCP ${MCP_PROTOCOL_TARGET_VERSION} is not enabled in the configured supported-version list ` +
-    `(supported: ${MCP_SUPPORTED_PROTOCOL_VERSIONS.join(', ')}).`
-  );
 }
 
 /**

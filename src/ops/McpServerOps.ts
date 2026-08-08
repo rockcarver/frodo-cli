@@ -35,7 +35,7 @@ import {
   ToolAnnotations,
   UnsupportedProtocolVersionError,
 } from '@modelcontextprotocol/server';
-import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
+import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import {
   type McpRuntimeRequestContext,
   type McpService,
@@ -327,10 +327,7 @@ export function buildMcpServer(service: McpService): McpServer {
  * @param service Fully composed MCP service.
  */
 export async function startStdioTransport(service: McpService): Promise<void> {
-  const server = buildMcpServer(service);
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  // server.connect() resolves once stdin closes
+  serveStdio(() => buildMcpServer(service));
 }
 
 /**

@@ -10,9 +10,6 @@ import { Option } from 'commander';
 import c from 'tinyrainbow';
 
 import {
-  MCP_PROTOCOL_LEGACY_VERSION,
-  MCP_PROTOCOL_TARGET_VERSION,
-  MCP_SERVER_NAME,
   MCP_SERVER_VERSION,
   MCP_SUPPORTED_PROTOCOL_VERSIONS,
 } from '../../../ops/McpServerMetadata.js';
@@ -137,25 +134,13 @@ export default function setup() {
       inventoryOptions
     ).length;
 
-    const supportedProtocolVersions = [...MCP_SUPPORTED_PROTOCOL_VERSIONS];
-    const supportsTargetSpec = supportedProtocolVersions.includes(
-      MCP_PROTOCOL_TARGET_VERSION
-    );
-    const supportsLegacySpec = supportedProtocolVersions.includes(
-      MCP_PROTOCOL_LEGACY_VERSION
-    );
-
     const info = {
       server: {
-        name: MCP_SERVER_NAME,
+        name: 'Frodo MCP Server',
         version: MCP_SERVER_VERSION,
       },
       protocol: {
-        targetSpecVersion: MCP_PROTOCOL_TARGET_VERSION,
-        supportedVersions: supportedProtocolVersions,
-        supportsTargetSpec,
-        supportsLegacySpec,
-        dualEra: supportsTargetSpec && supportsLegacySpec,
+        supportedVersions: [...MCP_SUPPORTED_PROTOCOL_VERSIONS],
       },
       service: {
         policy: service.policy.name,
@@ -185,21 +170,18 @@ export default function setup() {
     }
 
     printMessage('MCP server info:', 'info');
-    printMessage(`  Server: ${info.server.name}@${info.server.version}`);
+    printMessage(`  ${info.server.name} v${info.server.version}`);
     printMessage(
       `  Supported protocol versions: ${info.protocol.supportedVersions.join(', ')}`
     );
+    printMessage(`  Active profile: ${info.service.profile}`);
+    printMessage(`  Active policy: ${info.service.policy}`);
     printMessage(
-      `  Service: profile=${info.service.profile}, policy=${info.service.policy}`
+      `  Active skills: ${info.service.skillCounts.active} (total: ${info.service.skillCounts.inventory})`
     );
     printMessage(
-      `  Skills: inventory=${info.service.skillCounts.inventory}, active=${info.service.skillCounts.active}`
+      `  Active tools: ${info.service.toolCounts.total} (${info.service.toolCounts.canonical} canonical, ${info.service.toolCounts.discovery} discovery)`
     );
-    printMessage(
-      `  Tool count: ${info.service.toolCounts.total} (${info.service.toolCounts.canonical} canonical, ${info.service.toolCounts.discovery} discovery)`
-    );
-    printMessage(`  Profiles registered: ${info.profileRegistry.count}`);
-    printMessage(`  Policies registered: ${info.policyRegistry.count}`);
   });
 
   return program;
