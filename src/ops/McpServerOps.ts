@@ -60,6 +60,14 @@ import {
 // Zod v4 schema shapes reused for canonical hybrid and special tools.
 const MAX_INLINE_RESULT_BYTES = 256 * 1024;
 const MAX_INLINE_DISCOVERY_RESULT_BYTES = 2 * 1024 * 1024;
+const DISCOVERY_SHAPE = {
+  detail: z
+    .enum(['summary', 'catalog'])
+    .optional()
+    .describe(
+      'Discovery detail level. Summary is the default; catalog returns the legacy operation matrix for diagnostics.'
+    ),
+} as const;
 const FIND_SKILLS_SHAPE = {
   query: z
     .string()
@@ -67,8 +75,26 @@ const FIND_SKILLS_SHAPE = {
     .describe(
       'Concise intent query across skills, operations, parameters, and native managed-object types, for example "count users" or "search alpha_user".'
     ),
-  domain: z.string().optional().describe('Optional domain filter.'),
-  objectType: z.string().optional().describe('Optional object type filter.'),
+  objectFamily: z
+    .string()
+    .trim()
+    .min(1)
+    .optional()
+    .describe(
+      'Optional logical object-family filter resolved against live managed-object types using inflection, normalization, unique prefixes, and conservative typo matching.'
+    ),
+  domain: z
+    .string()
+    .optional()
+    .describe(
+      'Optional capability-domain filter. The logical user.User identity coordinates map to idm.ManagedObject on Cloud/ForgeOps and remain user.User on classic.'
+    ),
+  objectType: z
+    .string()
+    .optional()
+    .describe(
+      'Optional capability object-type filter. Use User with domain user for deployment-aware identity discovery; tenant types such as alpha_user belong in query.'
+    ),
   skillIdPrefix: z
     .string()
     .optional()
@@ -103,7 +129,9 @@ const FIND_SKILLS_SHAPE = {
     .int()
     .positive()
     .optional()
-    .describe('Optional maximum number of returned capabilities.'),
+    .describe(
+      'Optional maximum number of returned skills. Prefer 5 for concise agent-readable results.'
+    ),
   includeIncompatible: z
     .boolean()
     .optional()
@@ -169,6 +197,15 @@ const DISPATCH_SHAPE = {
     .boolean()
     .optional()
     .describe('Optional request for exact total counts when supported.'),
+  semanticTarget: z
+    .object({
+      family: z.string().trim().min(1),
+      realm: z.string().optional(),
+    })
+    .optional()
+    .describe(
+      'Logical object-family target resolved against the live tenant catalog. For IDM count skills, omitting realm aggregates every matching realm-qualified type and returns a breakdown.'
+    ),
   positionalArgs: z
     .array(z.unknown())
     .optional()
@@ -254,11 +291,12 @@ export function buildMcpServer(
     if (isDiscovery) {
       server.registerTool(
         tool.name,
-        { description: tool.description },
-        async (ctx) => {
+        { description: tool.description, inputSchema: DISCOVERY_SHAPE },
+        async (args, ctx) => {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
+              arguments: args,
               context: buildRequestContext(
                 undefined,
                 buildTraceHandler(ctx, startupInfo?.logger)
@@ -881,10 +919,17 @@ function buildSuccessResult(result: unknown): {
  * inspect full operation contracts without losing fields to transport truncation.
  */
 function getInlineResultLimitBytes(result: unknown): number {
+  const data =
+    result && typeof result === 'object'
+      ? (result as { data?: unknown }).data
+      : undefined;
   if (
     result &&
     typeof result === 'object' &&
-    (result as Record<string, unknown>).toolName === 'frodo_discover'
+    (result as Record<string, unknown>).toolName === 'frodo_discover' &&
+    data &&
+    typeof data === 'object' &&
+    'operationDetailsByType' in data
   ) {
     return MAX_INLINE_DISCOVERY_RESULT_BYTES;
   }

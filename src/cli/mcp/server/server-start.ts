@@ -168,7 +168,7 @@ export default function setup() {
       if (state.getHost()) {
         await frodo.login.getTokens();
       }
-      const managedObjectTypes = await hydrateManagedObjectTypes(logger);
+      const managedObjectHydration = await hydrateManagedObjectTypes(logger);
       const activeHost = sanitizeHost(state.getHost());
       const policySelection = resolvePolicySelection(opts.policy);
       const service = createMcpService({
@@ -181,7 +181,8 @@ export default function setup() {
           includeUtils: !!opts.includeUtils,
         },
         discoveryContext: {
-          managedObjectTypes,
+          managedObjectTypes: managedObjectHydration.types,
+          managedObjectHydrationStatus: managedObjectHydration.status,
           activeTarget: {
             host: activeHost,
             profile: opts.profile,
@@ -315,9 +316,14 @@ function sanitizeHost(host?: string): string | undefined {
 
 const MANAGED_OBJECT_HYDRATION_TIMEOUT_MS = 3000;
 
-async function hydrateManagedObjectTypes(logger: McpLogger): Promise<string[]> {
+async function hydrateManagedObjectTypes(logger: McpLogger): Promise<{
+  types: string[];
+  status: 'available' | 'not-applicable' | 'failed' | 'timed-out';
+}> {
   const deploymentType = state.getDeploymentType();
-  if (deploymentType !== 'cloud' && deploymentType !== 'forgeops') return [];
+  if (deploymentType !== 'cloud' && deploymentType !== 'forgeops') {
+    return { types: [], status: 'not-applicable' };
+  }
 
   let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -334,13 +340,16 @@ async function hydrateManagedObjectTypes(logger: McpLogger): Promise<string[]> {
       'startup.discovery',
       `Hydrated ${types.length} managed-object types for discovery.`
     );
-    return types;
-  } catch {
+    return { types, status: 'available' };
+  } catch (error) {
+    const timedOut =
+      error instanceof Error &&
+      error.message === 'Managed-object hydration timed out.';
     logger.warn(
       'startup.discovery',
       'Managed-object discovery hydration failed; continuing with static skill metadata.'
     );
-    return [];
+    return { types: [], status: timedOut ? 'timed-out' : 'failed' };
   } finally {
     if (timeout) clearTimeout(timeout);
   }
