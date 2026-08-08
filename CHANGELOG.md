@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## [v4.5.1] - 2026-08-08
+
+### Changed
+- Updated the `conn delete` command to display the URL of the tenant being deleted. This change reduces ambiguity by providing clear feedback when users input a substring. (#659)
+
 ## [v4.5.0] - 2026-08-08
 
 ### Added
