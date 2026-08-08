@@ -71,6 +71,8 @@ const ENVIRONMENT_VARIABLE_DESCRIPTION_PADDING = 2;
 // namespace. Typed `as const` so TypeScript treats it as a literal type for type-safe
 // indexed access via the `StabilityAnnotated` interface.
 const STABILITY_METADATA_KEY = '__frodoStabilityMetadata' as const;
+const SUPPRESS_STABILITY_WARNING_KEY =
+  '__frodoSuppressStabilityWarning' as const;
 
 export type StabilityIndicator =
   'stable' | 'preview' | 'experimental' | 'deprecated';
@@ -99,6 +101,7 @@ const stabilityLevelPriority: Record<StabilityIndicator, number> = {
 
 type StabilityAnnotated = {
   [STABILITY_METADATA_KEY]?: StabilityMetadata;
+  [SUPPRESS_STABILITY_WARNING_KEY]?: boolean;
 };
 
 /**
@@ -1769,10 +1772,16 @@ function enforceStabilityAndWarn(actionCommand: Command): void {
       : metadata.level === 'deprecated'
         ? ' This command is deprecated and may be removed in a future release.'
         : ' This feature may change without notice.';
-    printMessage(
-      `${formatStabilityLevel(metadata.level)} feature in use: '${commandPath}'.${gateSuffix}`,
-      'warn'
-    );
+    if (
+      !(actionCommand as Command & StabilityAnnotated)[
+        SUPPRESS_STABILITY_WARNING_KEY
+      ]
+    ) {
+      printMessage(
+        `${formatStabilityLevel(metadata.level)} feature in use: '${commandPath}'.${gateSuffix}`,
+        'warn'
+      );
+    }
     warnedStabilityCommands.add(commandPath);
   }
 
@@ -1917,6 +1926,15 @@ export class FrodoStubCommand extends Command {
       }
     }
 
+    return this;
+  }
+
+  /**
+   * Suppresses the process-level stability warning for commands that report
+   * the same notice through their own protocol-aware output channel.
+   */
+  suppressStabilityWarning(): this {
+    this[SUPPRESS_STABILITY_WARNING_KEY] = true;
     return this;
   }
 

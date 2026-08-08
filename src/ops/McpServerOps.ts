@@ -39,6 +39,8 @@ import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import {
   type McpRuntimeRequestContext,
   type McpService,
+  type McpToolRuntimeTraceEvent,
+  type McpToolRuntimeTraceHandler,
   state,
 } from '@rockcarver/frodo-lib';
 import { z } from 'zod';
@@ -173,6 +175,11 @@ const SPECIAL_SHAPE = {
     ),
 } as const;
 
+export type McpServerStartupInfo = {
+  /** Routine startup messages emitted at MCP info level after initialization. */
+  messages: string[];
+};
+
 // ---------------------------------------------------------------------------
 // Server builder
 // ---------------------------------------------------------------------------
@@ -186,14 +193,32 @@ const SPECIAL_SHAPE = {
  * @param service Fully composed MCP service from `createMcpService`.
  * @returns Configured `McpServer` ready to connect to a transport.
  */
-export function buildMcpServer(service: McpService): McpServer {
+export function buildMcpServer(
+  service: McpService,
+  startupInfo?: McpServerStartupInfo
+): McpServer {
   const server = new McpServer(
     { name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION },
     {
+      capabilities: { logging: {} },
       instructions: MCP_SERVER_DISCOVERY_INSTRUCTIONS,
       supportedProtocolVersions: MCP_SUPPORTED_PROTOCOL_VERSIONS,
     }
   );
+
+  server.server.oninitialized = () => {
+    for (const message of startupInfo?.messages ?? []) {
+      void server
+        // Legacy clients use MCP logging; modern clients safely suppress it.
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
+        .sendLoggingMessage({
+          level: 'info',
+          logger: 'frodo-cli',
+          data: message,
+        })
+        .catch(() => undefined);
+    }
+  };
 
   for (const tool of service.listTools()) {
     const isDiscovery = tool.name === 'frodo_discover';
@@ -210,11 +235,11 @@ export function buildMcpServer(service: McpService): McpServer {
       server.registerTool(
         tool.name,
         { description: tool.description },
-        async () => {
+        async (ctx) => {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
-              context: buildRequestContext(),
+              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -230,12 +255,12 @@ export function buildMcpServer(service: McpService): McpServer {
           inputSchema: FIND_SKILLS_SHAPE,
           annotations,
         },
-        async (args) => {
+        async (args, ctx) => {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(),
+              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -251,12 +276,12 @@ export function buildMcpServer(service: McpService): McpServer {
           inputSchema: DESCRIBE_SKILL_SHAPE,
           annotations,
         },
-        async (args) => {
+        async (args, ctx) => {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(),
+              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -272,7 +297,7 @@ export function buildMcpServer(service: McpService): McpServer {
           inputSchema: DISPATCH_SHAPE,
           annotations,
         },
-        async (args) => {
+        async (args, ctx) => {
           try {
             const realm =
               args && typeof args === 'object'
@@ -281,7 +306,7 @@ export function buildMcpServer(service: McpService): McpServer {
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(realm),
+              context: buildRequestContext(realm, buildTraceHandler(ctx)),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -297,12 +322,12 @@ export function buildMcpServer(service: McpService): McpServer {
           inputSchema: SPECIAL_SHAPE,
           annotations,
         },
-        async (args) => {
+        async (args, ctx) => {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(),
+              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -326,8 +351,11 @@ export function buildMcpServer(service: McpService): McpServer {
  *
  * @param service Fully composed MCP service.
  */
-export async function startStdioTransport(service: McpService): Promise<void> {
-  serveStdio(() => buildMcpServer(service));
+export async function startStdioTransport(
+  service: McpService,
+  startupInfo?: McpServerStartupInfo
+): Promise<void> {
+  serveStdio(() => buildMcpServer(service, startupInfo));
 }
 
 /**
@@ -345,9 +373,10 @@ export async function startStdioTransport(service: McpService): Promise<void> {
 export async function startHttpTransport(
   service: McpService,
   bindHost: string,
-  port: number
+  port: number,
+  startupInfo?: McpServerStartupInfo
 ): Promise<void> {
-  const mcpServer = buildMcpServer(service);
+  const mcpServer = buildMcpServer(service, startupInfo);
   const transport = new NodeStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
   });
@@ -934,14 +963,22 @@ function buildErrorResult(err: unknown): {
 /**
  * Builds request-scoped runtime auth context from active frodo state.
  */
-function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
+function buildRequestContext(
+  realmOverride?: string,
+  trace?: McpToolRuntimeTraceHandler
+): McpRuntimeRequestContext {
   const host = state.getHost();
   const realm = realmOverride ?? state.getRealm();
+  const sharedContext = {
+    requestId: crypto.randomUUID(),
+    ...(trace && { trace }),
+  };
 
   const serviceAccountId = state.getServiceAccountId();
   const serviceAccountJwk = state.getServiceAccountJwk();
   if (host && serviceAccountId && serviceAccountJwk) {
     return {
+      ...sharedContext,
       auth: {
         mode: 'service-account',
         host,
@@ -960,6 +997,7 @@ function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
   const password = state.getPassword();
   if (host && username && password) {
     return {
+      ...sharedContext,
       auth: {
         mode: 'admin-account',
         host,
@@ -975,6 +1013,7 @@ function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
   }
 
   return {
+    ...sharedContext,
     auth: {
       mode: 'state-config',
       config: {
@@ -983,4 +1022,47 @@ function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
       },
     },
   };
+}
+
+function buildTraceHandler(
+  ctx: unknown
+): McpToolRuntimeTraceHandler | undefined {
+  if (
+    !state.getVerbose() ||
+    !ctx ||
+    typeof ctx !== 'object' ||
+    !('mcpReq' in ctx) ||
+    !ctx.mcpReq ||
+    typeof ctx.mcpReq !== 'object' ||
+    !('log' in ctx.mcpReq) ||
+    typeof ctx.mcpReq.log !== 'function'
+  ) {
+    return undefined;
+  }
+
+  const log = ctx.mcpReq.log.bind(ctx.mcpReq) as (
+    level: 'info',
+    data: unknown,
+    logger?: string
+  ) => Promise<void>;
+
+  return async (event) => {
+    await log('info', formatTraceEvent(event), 'frodo-cli').catch(
+      () => undefined
+    );
+  };
+}
+
+function formatTraceEvent(event: McpToolRuntimeTraceEvent): string {
+  const fields = [
+    event.descriptorId && `skill=${event.descriptorId}`,
+    event.deploymentType && `deployment=${event.deploymentType}`,
+    event.candidateCount !== undefined && `candidates=${event.candidateCount}`,
+    event.resultCount !== undefined && `results=${event.resultCount}`,
+    event.routingReason && `reason=${event.routingReason}`,
+    event.elapsedMs !== undefined && `elapsedMs=${event.elapsedMs}`,
+    event.error && `error=${event.error}`,
+    event.requestId && `requestId=${event.requestId}`,
+  ].filter(Boolean);
+  return `${event.event}: tool=${event.toolName}${fields.length ? ` ${fields.join(' ')}` : ''}`;
 }

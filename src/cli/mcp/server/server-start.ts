@@ -3,6 +3,7 @@ import { Option } from 'commander';
 import c from 'tinyrainbow';
 
 import {
+  McpServerStartupInfo,
   startHttpTransport,
   startStdioTransport,
 } from '../../../ops/McpServerOps.js';
@@ -51,6 +52,7 @@ export default function setup() {
   const program = new FrodoCommand('frodo mcp server start', [])
     .description('Start an MCP server session from frodo-lib skills.')
     .withStability('experimental')
+    .suppressStabilityWarning()
     .addOption(
       new Option(
         '--policy <preset>',
@@ -147,6 +149,12 @@ export default function setup() {
       );
 
       const opts = options as McpStartOptions;
+      if (opts.json && !opts.dryRun) {
+        throw new Error('--json is only supported with --dry-run.');
+      }
+      if (state.getHost()) {
+        await frodo.login.getTokens();
+      }
       const policySelection = resolvePolicySelection(opts.policy);
       const service = createMcpService({
         profileName: opts.profile,
@@ -173,6 +181,8 @@ export default function setup() {
           port: Number(opts.port),
         },
         authMode: inferAuthModeFromState(),
+        host: sanitizeHost(state.getHost()),
+        deploymentType: state.getDeploymentType() ?? 'unknown',
         toolCounts: {
           total: service.manifest.totalToolCount,
           canonical: service.manifest.canonicalTools?.length ?? 0,
@@ -189,46 +199,92 @@ export default function setup() {
         },
       };
 
-      if (opts.json) {
-        printMessage(JSON.stringify(startupSummary, null, 2), 'data');
-      } else {
-        printMessage('MCP server startup summary:', 'info');
-        printMessage(`  Policy: ${startupSummary.policy}`);
-        printMessage(`  Profile: ${startupSummary.profile}`);
-        printMessage(`  Transport: ${startupSummary.transport}`);
-        printMessage(`  Auth mode: ${startupSummary.authMode}`);
-        printMessage(
-          `  Tools: ${startupSummary.toolCounts.total} total (${startupSummary.toolCounts.canonical} canonical, ${startupSummary.toolCounts.discovery} discovery)`
-        );
-        printMessage(`  Backing skills: ${startupSummary.skillCount}`);
-        printMessage(
-          `  Import/export exposed: export=${startupSummary.importExportExposed.export}, import=${startupSummary.importExportExposed.import}`
-        );
-        if (opts.transport === 'http') {
-          printMessage(
-            `  HTTP endpoint (planned): http://${startupSummary.http.bindHost}:${startupSummary.http.port}/mcp`
-          );
-        }
-      }
-
       if (opts.dryRun) {
+        if (opts.json) {
+          printMessage(JSON.stringify(startupSummary, null, 2), 'data');
+        } else {
+          printStartupSummary(startupSummary);
+        }
         printMessage('Dry run completed successfully.', 'info');
         return;
       }
 
+      const startupInfo: McpServerStartupInfo = {
+        messages: formatStartupMessages(startupSummary, state.getVerbose()),
+      };
       const transport = opts.transport ?? 'stdio';
       if (transport === 'stdio') {
-        await startStdioTransport(service);
+        await startStdioTransport(service, startupInfo);
       } else {
         await startHttpTransport(
           service,
           opts.bindHost ?? '127.0.0.1',
-          Number(opts.port ?? '6277')
+          Number(opts.port ?? '6277'),
+          startupInfo
         );
       }
     });
 
   return program;
+}
+
+type StartupSummary = {
+  policy: string;
+  profile: McpProfileName;
+  transport?: 'stdio' | 'http';
+  http: { bindHost?: string; port: number };
+  authMode: 'service-account' | 'admin-account' | 'state-config';
+  host?: string;
+  deploymentType: string;
+  toolCounts: { total: number; canonical: number; discovery: number };
+  skillCount: number;
+  importExportExposed: { export: boolean; import: boolean };
+};
+
+function formatStartupMessages(
+  summary: StartupSummary,
+  verbose: boolean
+): string[] {
+  const messages = [
+    "Experimental feature in use: 'frodo mcp server start'. This feature may change without notice.",
+    `MCP server connected to ${summary.host ?? 'an unresolved host'} (${summary.deploymentType}).`,
+  ];
+  if (!verbose) {
+    return messages;
+  }
+  return [
+    ...messages,
+    `Policy: ${summary.policy}`,
+    `Profile: ${summary.profile}`,
+    `Transport: ${summary.transport}`,
+    `Auth mode: ${summary.authMode}`,
+    `Tools: ${summary.toolCounts.total} total (${summary.toolCounts.canonical} canonical, ${summary.toolCounts.discovery} discovery)`,
+    `Backing skills: ${summary.skillCount}`,
+    `Import/export exposed: export=${summary.importExportExposed.export}, import=${summary.importExportExposed.import}`,
+  ];
+}
+
+function printStartupSummary(summary: StartupSummary): void {
+  printMessage('MCP server startup summary:', 'info');
+  for (const message of formatStartupMessages(summary, true).slice(1)) {
+    printMessage(`  ${message}`);
+  }
+}
+
+function sanitizeHost(host?: string): string | undefined {
+  if (!host) {
+    return undefined;
+  }
+  try {
+    const url = new URL(host);
+    url.username = '';
+    url.password = '';
+    url.search = '';
+    url.hash = '';
+    return url.toString().replace(/\/$/, '');
+  } catch {
+    return host;
+  }
 }
 
 /**

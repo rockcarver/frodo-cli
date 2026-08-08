@@ -34,11 +34,19 @@ function parseJsonOutput(stdout) {
     return JSON.parse(stdout.slice(stdout.indexOf('{')));
 }
 
-async function connectMcpClient(options) {
+async function connectMcpClient(options, testOptions = {}) {
     const client = new Client(
         { name: 'frodo-cli-test', version: '1.0.0' },
         options
     );
+    if (testOptions.logs) {
+        client.setNotificationHandler(
+            'notifications/message',
+            async (notification) => {
+                testOptions.logs.push(notification.params);
+            }
+        );
+    }
     const transport = new StdioClientTransport({
         command: process.execPath,
         args: [
@@ -50,10 +58,16 @@ async function connectMcpClient(options) {
             'read-only',
             '--profile',
             'authentication',
+            ...(testOptions.extraArgs ?? []),
         ],
         env: commandEnvironment,
         stderr: 'pipe',
     });
+    if (testOptions.stderr) {
+        transport.stderr?.on('data', (chunk) => {
+            testOptions.stderr.push(chunk.toString());
+        });
+    }
     await client.connect(transport);
     return client;
 }
@@ -198,6 +212,42 @@ test("'mcp server start' remains compatible with legacy clients", async () => {
     try {
         expect(client.getNegotiatedProtocolVersion()).toBe('2025-11-25');
         expect((await client.listTools()).tools).toHaveLength(5);
+    } finally {
+        await client.close();
+    }
+});
+
+test("'mcp server start --verbose' emits info logs without routine stderr", async () => {
+    const logs = [];
+    const stderr = [];
+    const client = await connectMcpClient(
+        { supportedProtocolVersions: ['2025-11-25'] },
+        { logs, stderr, extraArgs: ['--verbose'] }
+    );
+
+    try {
+        await client.setLoggingLevel('info');
+        await client.callTool({
+            name: 'frodo_find_skills',
+            arguments: { query: 'journey' },
+        });
+
+        expect(logs).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    level: 'info',
+                    logger: 'frodo-cli',
+                    data: expect.stringContaining('Experimental feature'),
+                }),
+                expect.objectContaining({
+                    level: 'info',
+                    logger: 'frodo-cli',
+                    data: expect.stringContaining('discovery: tool=frodo_find_skills'),
+                }),
+            ])
+        );
+        expect(stderr.join('')).not.toContain('Experimental feature in use');
+        expect(stderr.join('')).not.toContain('MCP server startup summary');
     } finally {
         await client.close();
     }
