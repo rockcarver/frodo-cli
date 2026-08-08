@@ -1,4 +1,8 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
+import skillsCmd from './server-capabilities.js';
+import infoCmd from './server-info.js';
+import policiesCmd from './server-policies.js';
+import profilesCmd from './server-profiles.js';
 import startCmd from './server-start.js';
 import toolsCmd from './server-tools.js';
 
@@ -11,7 +15,11 @@ export default function setup() {
     .withStability('experimental');
 
   program.addCommand(startCmd().name('start'));
+  program.addCommand(profilesCmd().name('profiles'));
+  program.addCommand(policiesCmd().name('policies'));
+  program.addCommand(infoCmd().name('info'));
   program.addCommand(toolsCmd().name('tools'));
+  program.addCommand(skillsCmd().name('skills'));
 
   return program;
 }

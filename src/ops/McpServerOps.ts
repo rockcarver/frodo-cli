@@ -2,16 +2,15 @@
  * MCP transport wiring for `frodo mcp server start`.
  *
  * This module is transport-specific: it bridges the transport-agnostic
- * {@link McpService} from frodo-lib with the `@modelcontextprotocol/sdk`
- * transports (stdio and HTTP).
+ * {@link McpService} from frodo-lib with the MCP v2 server and node
+ * transport packages.
  *
  * stdio transport  — single-session, process lifetime, reads JSON-RPC from
  *                    stdin and writes responses to stdout.
  *
- * HTTP transport   — multi-session stateful server using StreamableHTTP.
- *                    Each initialize request creates a new MCP session.
- *                    Sessions are cleaned up when the client disconnects.
- *                    The same McpServer instance is reused across sessions.
+ * HTTP transport   — stateless StreamableHTTP endpoint at POST /mcp.
+ *                    A single transport instance is reused per process.
+ *                    Host and origin are validated for localhost safety.
  *
  * @remarks
  * Both transports derive request-scoped auth context from the active shared
@@ -19,48 +18,111 @@
  * calls may additionally override realm per request.
  */
 
-import { randomUUID } from 'node:crypto';
 import {
   createServer,
   type IncomingMessage,
   type ServerResponse,
 } from 'node:http';
 
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
-import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import {
-  type McpGenericExecutionArguments,
+  localhostHostValidation,
+  localhostOriginValidation,
+  NodeStreamableHTTPServerTransport,
+} from '@modelcontextprotocol/node';
+import {
+  McpServer,
+  PROTOCOL_VERSION_META_KEY,
+  ToolAnnotations,
+  UnsupportedProtocolVersionError,
+} from '@modelcontextprotocol/server';
+import { serveStdio } from '@modelcontextprotocol/server/stdio';
+import {
   type McpRuntimeRequestContext,
   type McpService,
+  type McpToolRuntimeTraceEvent,
+  type McpToolRuntimeTraceHandler,
   state,
 } from '@rockcarver/frodo-lib';
 import { z } from 'zod';
 
 import { printMessage } from '../utils/Console.js';
+import {
+  MCP_SERVER_DISCOVERY_INSTRUCTIONS,
+  MCP_SERVER_NAME,
+  MCP_SERVER_VERSION,
+  MCP_SUPPORTED_PROTOCOL_VERSIONS,
+} from './McpServerMetadata.js';
 
 // ---------------------------------------------------------------------------
 // Internal constants
 // ---------------------------------------------------------------------------
 
-// Zod v4 schema shapes reused for generic and special tools.
+// Zod v4 schema shapes reused for canonical hybrid and special tools.
 const MAX_INLINE_RESULT_BYTES = 256 * 1024;
 const MAX_INLINE_DISCOVERY_RESULT_BYTES = 2 * 1024 * 1024;
+const FIND_SKILLS_SHAPE = {
+  query: z
+    .string()
+    .optional()
+    .describe(
+      'Free-text query across capability id, domain, object type, method, and notes.'
+    ),
+  domain: z.string().optional().describe('Optional domain filter.'),
+  objectType: z.string().optional().describe('Optional object type filter.'),
+  skillIdPrefix: z
+    .string()
+    .optional()
+    .describe('Optional skill id prefix filter.'),
+  operationTypes: z
+    .array(z.string())
+    .optional()
+    .describe('Optional operation-type filter list.'),
+  riskClasses: z
+    .array(z.enum(['low', 'medium', 'high', 'critical']))
+    .optional()
+    .describe('Optional risk-class filter list.'),
+  kind: z
+    .enum(['generic', 'special'])
+    .optional()
+    .describe('Optional capability-kind filter.'),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('Optional maximum number of returned capabilities.'),
+} as const;
 
-const GENERIC_SHAPE = {
-  domain: z.string().describe('Top-level capability domain key (e.g. "authn")'),
+const DESCRIBE_SKILL_SHAPE = {
+  skillId: z.string().describe('Skill id returned by frodo_find_skills.'),
+} as const;
+
+const DISPATCH_SHAPE = {
+  skillId: z
+    .string()
+    .optional()
+    .describe('Direct skill id selector (preferred).'),
+  operationType: z
+    .string()
+    .optional()
+    .describe('Operation type when selecting by tuple.'),
+  domain: z
+    .string()
+    .optional()
+    .describe(
+      'Top-level capability domain key (e.g. "authn") when selecting by tuple.'
+    ),
   objectType: z
     .string()
+    .optional()
     .describe(
-      'Object type within the domain (e.g. "Journey"). Use frodo_discover to enumerate available types.'
+      'Object type within the domain (e.g. "Journey") when selecting by tuple.'
     ),
   scope: z
     .string()
     .optional()
     .describe(
-      'Optional scope selector for ambiguous generic operations (for example "single" or "bulk"). Use frodo_discover for supported values.'
+      'Optional scope selector for ambiguous tuple selections (for example "single" or "bulk").'
     ),
   realm: z
     .string()
@@ -113,6 +175,11 @@ const SPECIAL_SHAPE = {
     ),
 } as const;
 
+export type McpServerStartupInfo = {
+  /** Routine startup messages emitted at MCP info level after initialization. */
+  messages: string[];
+};
+
 // ---------------------------------------------------------------------------
 // Server builder
 // ---------------------------------------------------------------------------
@@ -126,15 +193,40 @@ const SPECIAL_SHAPE = {
  * @param service Fully composed MCP service from `createMcpService`.
  * @returns Configured `McpServer` ready to connect to a transport.
  */
-function buildMcpServer(service: McpService): McpServer {
-  const server = new McpServer({ name: 'frodo-mcp', version: '1.0.0' });
-  const { manifest } = service;
+export function buildMcpServer(
+  service: McpService,
+  startupInfo?: McpServerStartupInfo
+): McpServer {
+  const server = new McpServer(
+    { name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION },
+    {
+      capabilities: { logging: {} },
+      instructions: MCP_SERVER_DISCOVERY_INSTRUCTIONS,
+      supportedProtocolVersions: MCP_SUPPORTED_PROTOCOL_VERSIONS,
+    }
+  );
+
+  server.server.oninitialized = () => {
+    for (const message of startupInfo?.messages ?? []) {
+      void server
+        // Legacy clients use MCP logging; modern clients safely suppress it.
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
+        .sendLoggingMessage({
+          level: 'info',
+          logger: 'frodo-cli',
+          data: message,
+        })
+        .catch(() => undefined);
+    }
+  };
 
   for (const tool of service.listTools()) {
-    const isDiscovery = tool.name === manifest.discoveryTool.toolName;
-    const isGeneric = manifest.genericTools.some(
-      (t) => t.toolName === tool.name
-    );
+    const isDiscovery = tool.name === 'frodo_discover';
+    const isFindSkills = tool.name === 'frodo_find_skills';
+    const isDescribeSkill = tool.name === 'frodo_describe_skill';
+    const isDispatchTool =
+      tool.name === 'frodo_dispatch' ||
+      tool.name === 'frodo_dispatch_read_only';
     const annotations: ToolAnnotations | undefined = tool.annotations
       ? { ...tool.annotations }
       : undefined;
@@ -143,11 +235,11 @@ function buildMcpServer(service: McpService): McpServer {
       server.registerTool(
         tool.name,
         { description: tool.description },
-        async () => {
+        async (ctx) => {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
-              context: buildRequestContext(),
+              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -155,21 +247,66 @@ function buildMcpServer(service: McpService): McpServer {
           }
         }
       );
-    } else if (isGeneric) {
+    } else if (isFindSkills) {
       server.registerTool(
         tool.name,
         {
           description: tool.description,
-          inputSchema: GENERIC_SHAPE,
+          inputSchema: FIND_SKILLS_SHAPE,
           annotations,
         },
-        async (args) => {
+        async (args, ctx) => {
           try {
-            const genericArgs = args as McpGenericExecutionArguments;
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(genericArgs.realm),
+              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
+            });
+            return buildSuccessResult(result);
+          } catch (err) {
+            return buildErrorResult(err);
+          }
+        }
+      );
+    } else if (isDescribeSkill) {
+      server.registerTool(
+        tool.name,
+        {
+          description: tool.description,
+          inputSchema: DESCRIBE_SKILL_SHAPE,
+          annotations,
+        },
+        async (args, ctx) => {
+          try {
+            const result = await service.executeTool({
+              toolName: tool.name,
+              arguments: args,
+              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
+            });
+            return buildSuccessResult(result);
+          } catch (err) {
+            return buildErrorResult(err);
+          }
+        }
+      );
+    } else if (isDispatchTool) {
+      server.registerTool(
+        tool.name,
+        {
+          description: tool.description,
+          inputSchema: DISPATCH_SHAPE,
+          annotations,
+        },
+        async (args, ctx) => {
+          try {
+            const realm =
+              args && typeof args === 'object'
+                ? ((args as { realm?: unknown }).realm as string | undefined)
+                : undefined;
+            const result = await service.executeTool({
+              toolName: tool.name,
+              arguments: args,
+              context: buildRequestContext(realm, buildTraceHandler(ctx)),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -185,12 +322,12 @@ function buildMcpServer(service: McpService): McpServer {
           inputSchema: SPECIAL_SHAPE,
           annotations,
         },
-        async (args) => {
+        async (args, ctx) => {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(),
+              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -214,19 +351,18 @@ function buildMcpServer(service: McpService): McpServer {
  *
  * @param service Fully composed MCP service.
  */
-export async function startStdioTransport(service: McpService): Promise<void> {
-  const server = buildMcpServer(service);
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  // server.connect() resolves once stdin closes
+export async function startStdioTransport(
+  service: McpService,
+  startupInfo?: McpServerStartupInfo
+): Promise<void> {
+  serveStdio(() => buildMcpServer(service, startupInfo));
 }
 
 /**
- * Starts a stateful MCP HTTP server using the Streamable HTTP transport.
+ * Starts a stateless MCP HTTP server using the Streamable HTTP transport.
  *
- * Each `POST /mcp` initialize request creates a new session.
- * Sessions are removed when the client sends `DELETE /mcp` or disconnects.
- * A `GET /health` endpoint is provided for liveness probing.
+ * The MCP endpoint is `POST /mcp`. A `GET /health` endpoint is provided for
+ * liveness probing. Host and origin are validated for localhost safety.
  *
  * The function resolves when the server is stopped via SIGTERM or SIGINT.
  *
@@ -237,15 +373,27 @@ export async function startStdioTransport(service: McpService): Promise<void> {
 export async function startHttpTransport(
   service: McpService,
   bindHost: string,
-  port: number
+  port: number,
+  startupInfo?: McpServerStartupInfo
 ): Promise<void> {
-  const mcpServer = buildMcpServer(service);
-  const sessions = new Map<string, StreamableHTTPServerTransport>();
+  const mcpServer = buildMcpServer(service, startupInfo);
+  const transport = new NodeStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+  });
+  await mcpServer.connect(transport);
+  const validateHost = localhostHostValidation();
+  const validateOrigin = localhostOriginValidation();
 
   const httpServer = createServer(
     async (req: IncomingMessage, res: ServerResponse) => {
       try {
-        await handleHttpRequest(req, res, mcpServer, sessions);
+        await handleHttpRequest(
+          req,
+          res,
+          transport,
+          validateHost,
+          validateOrigin
+        );
       } catch (err) {
         printMessage(
           `MCP HTTP handler error: ${err instanceof Error ? err.message : String(err)}`,
@@ -289,8 +437,9 @@ export async function startHttpTransport(
 async function handleHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
-  mcpServer: McpServer,
-  sessions: Map<string, StreamableHTTPServerTransport>
+  transport: NodeStreamableHTTPServerTransport,
+  validateHost: (req: IncomingMessage, res: ServerResponse) => boolean,
+  validateOrigin: (req: IncomingMessage, res: ServerResponse) => boolean
 ): Promise<void> {
   // Health probe
   if (req.method === 'GET' && req.url === '/health') {
@@ -304,15 +453,7 @@ async function handleHttpRequest(
     return;
   }
 
-  const sessionId = req.headers['mcp-session-id'] as string | undefined;
-
-  // Retrieve existing session for GET / DELETE
-  if (req.method === 'GET' || req.method === 'DELETE') {
-    if (!sessionId || !sessions.has(sessionId)) {
-      res.writeHead(400).end('Invalid or missing session ID');
-      return;
-    }
-    await sessions.get(sessionId)!.handleRequest(req, res);
+  if (!validateHost(req, res) || !validateOrigin(req, res)) {
     return;
   }
 
@@ -344,26 +485,31 @@ async function handleHttpRequest(
     return;
   }
 
-  let transport: StreamableHTTPServerTransport;
-
-  if (sessionId && sessions.has(sessionId)) {
-    transport = sessions.get(sessionId)!;
-  } else if (!sessionId && isInitializeRequest(body)) {
-    transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: () => randomUUID(),
-      onsessioninitialized: (sid) => {
-        sessions.set(sid, transport);
+  const metadataValidationError = validateHttpRequestMetadata(req, body);
+  if (metadataValidationError) {
+    writeJsonRpcErrorResponse(res, metadataValidationError.statusCode, {
+      jsonrpc: '2.0',
+      id: metadataValidationError.requestId,
+      error: {
+        code: metadataValidationError.error.code,
+        message: metadataValidationError.error.message,
+        data: metadataValidationError.error.data,
       },
-      enableDnsRebindingProtection: false,
     });
-    transport.onclose = () => {
-      if (transport.sessionId) {
-        sessions.delete(transport.sessionId);
-      }
-    };
-    await mcpServer.connect(transport);
-  } else {
-    res.writeHead(400).end('Bad Request: No valid session ID provided');
+    return;
+  }
+
+  const protocolVersionError = getUnsupportedProtocolVersionError(req, body);
+  if (protocolVersionError) {
+    writeJsonRpcErrorResponse(res, protocolVersionError.statusCode, {
+      jsonrpc: '2.0',
+      id: protocolVersionError.requestId,
+      error: {
+        code: protocolVersionError.error.code,
+        message: protocolVersionError.error.message,
+        data: protocolVersionError.error.data,
+      },
+    });
     return;
   }
 
@@ -386,6 +532,277 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
     });
     req.on('error', reject);
   });
+}
+
+/**
+ * Validates required MCP request metadata headers against request-body values.
+ *
+ * Returns a spec-aligned HeaderMismatch (-32020) error when required headers
+ * are missing or disagree with body metadata.
+ */
+export function validateHttpRequestMetadata(
+  req: IncomingMessage,
+  body: unknown
+): HeaderMismatchHttpError | null {
+  const requestId = extractRequestId(body);
+  const headerProtocolVersion = getSingleHeaderValue(
+    req,
+    'mcp-protocol-version'
+  );
+  const bodyProtocolVersion = extractBodyProtocolVersion(body);
+
+  if (!headerProtocolVersion) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Missing required MCP-Protocol-Version header.',
+      { header: 'mcp-protocol-version' }
+    );
+  }
+  if (!bodyProtocolVersion) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Missing required _meta protocol version in request body.',
+      { field: '_meta.protocolVersion' }
+    );
+  }
+  if (headerProtocolVersion !== bodyProtocolVersion) {
+    return buildHeaderMismatchError(
+      requestId,
+      'MCP-Protocol-Version header does not match request body metadata.',
+      {
+        headerProtocolVersion,
+        bodyProtocolVersion,
+      }
+    );
+  }
+
+  const headerMethod = getSingleHeaderValue(req, 'mcp-method');
+  const bodyMethod = extractBodyMethod(body);
+  if (!headerMethod) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Missing required Mcp-Method header.',
+      { header: 'mcp-method' }
+    );
+  }
+  if (!bodyMethod) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Missing request method in JSON-RPC body.',
+      { field: 'method' }
+    );
+  }
+  if (headerMethod !== bodyMethod) {
+    return buildHeaderMismatchError(
+      requestId,
+      'Mcp-Method header does not match JSON-RPC method.',
+      {
+        headerMethod,
+        bodyMethod,
+      }
+    );
+  }
+
+  if (methodRequiresMcpName(bodyMethod)) {
+    const headerName = getSingleHeaderValue(req, 'mcp-name');
+    const bodyName = extractBodyName(body);
+    if (!headerName) {
+      return buildHeaderMismatchError(
+        requestId,
+        `Missing required Mcp-Name header for method '${bodyMethod}'.`,
+        { header: 'mcp-name', method: bodyMethod }
+      );
+    }
+    if (!bodyName) {
+      return buildHeaderMismatchError(
+        requestId,
+        `Missing request name in JSON-RPC params for method '${bodyMethod}'.`,
+        { field: 'params.name', method: bodyMethod }
+      );
+    }
+    if (headerName !== bodyName) {
+      return buildHeaderMismatchError(
+        requestId,
+        'Mcp-Name header does not match request params.name.',
+        {
+          headerName,
+          bodyName,
+          method: bodyMethod,
+        }
+      );
+    }
+  }
+
+  return null;
+}
+
+type UnsupportedVersionHttpError = {
+  statusCode: 400;
+  requestId: string | number | null;
+  error: {
+    code: number;
+    message: string;
+    data?: unknown;
+  };
+};
+
+type HeaderMismatchHttpError = {
+  statusCode: 400;
+  requestId: string | number | null;
+  error: {
+    code: -32020;
+    message: string;
+    data?: unknown;
+  };
+};
+
+const HEADER_MISMATCH_ERROR_CODE = -32020 as const;
+
+function getUnsupportedProtocolVersionError(
+  req: IncomingMessage,
+  body: unknown
+): UnsupportedVersionHttpError | null {
+  const headerProtocolVersion =
+    typeof req.headers['mcp-protocol-version'] === 'string'
+      ? req.headers['mcp-protocol-version']
+      : undefined;
+  const bodyProtocolVersion = extractBodyProtocolVersion(body);
+  const requestedProtocolVersion = headerProtocolVersion ?? bodyProtocolVersion;
+
+  if (!requestedProtocolVersion) {
+    return null;
+  }
+  if (MCP_SUPPORTED_PROTOCOL_VERSIONS.includes(requestedProtocolVersion)) {
+    return null;
+  }
+
+  const error = new UnsupportedProtocolVersionError({
+    requested: requestedProtocolVersion,
+    supported: [...MCP_SUPPORTED_PROTOCOL_VERSIONS],
+  });
+
+  return {
+    statusCode: 400,
+    requestId: extractRequestId(body),
+    error: {
+      code: error.code,
+      message: error.message,
+      data: error.data,
+    },
+  };
+}
+
+function buildHeaderMismatchError(
+  requestId: string | number | null,
+  message: string,
+  data?: unknown
+): HeaderMismatchHttpError {
+  return {
+    statusCode: 400,
+    requestId,
+    error: {
+      code: HEADER_MISMATCH_ERROR_CODE,
+      message,
+      data,
+    },
+  };
+}
+
+function getSingleHeaderValue(
+  req: IncomingMessage,
+  headerName: string
+): string | undefined {
+  const raw = req.headers[headerName];
+  if (typeof raw === 'string') {
+    return raw;
+  }
+  if (Array.isArray(raw) && raw.length > 0) {
+    return raw[0];
+  }
+  return undefined;
+}
+
+function extractBodyMethod(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') {
+    return undefined;
+  }
+  const method = (body as Record<string, unknown>).method;
+  return typeof method === 'string' ? method : undefined;
+}
+
+function extractBodyName(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') {
+    return undefined;
+  }
+  const params = (body as Record<string, unknown>).params;
+  if (!params || typeof params !== 'object') {
+    return undefined;
+  }
+  const name = (params as Record<string, unknown>).name;
+  return typeof name === 'string' ? name : undefined;
+}
+
+function methodRequiresMcpName(method: string): boolean {
+  return (
+    method === 'tools/call' ||
+    method === 'resources/read' ||
+    method === 'prompts/get'
+  );
+}
+
+function extractBodyProtocolVersion(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') {
+    return undefined;
+  }
+
+  const bodyObject = body as Record<string, unknown>;
+  const params =
+    bodyObject.params && typeof bodyObject.params === 'object'
+      ? (bodyObject.params as Record<string, unknown>)
+      : undefined;
+  const meta =
+    params?._meta && typeof params._meta === 'object'
+      ? (params._meta as Record<string, unknown>)
+      : undefined;
+  if (!meta) {
+    return undefined;
+  }
+
+  const protocolVersion = meta[PROTOCOL_VERSION_META_KEY];
+  return typeof protocolVersion === 'string' ? protocolVersion : undefined;
+}
+
+function extractRequestId(body: unknown): string | number | null {
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+
+  const requestId = (body as Record<string, unknown>).id;
+  if (typeof requestId === 'string' || typeof requestId === 'number') {
+    return requestId;
+  }
+  if (requestId === null) {
+    return null;
+  }
+
+  return null;
+}
+
+function writeJsonRpcErrorResponse(
+  res: ServerResponse,
+  statusCode: number,
+  payload: {
+    jsonrpc: '2.0';
+    id: string | number | null;
+    error: {
+      code: number;
+      message: string;
+      data?: unknown;
+    };
+  }
+): void {
+  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  res.end(safeJsonStringify(payload));
 }
 
 /**
@@ -546,14 +963,22 @@ function buildErrorResult(err: unknown): {
 /**
  * Builds request-scoped runtime auth context from active frodo state.
  */
-function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
+function buildRequestContext(
+  realmOverride?: string,
+  trace?: McpToolRuntimeTraceHandler
+): McpRuntimeRequestContext {
   const host = state.getHost();
   const realm = realmOverride ?? state.getRealm();
+  const sharedContext = {
+    requestId: crypto.randomUUID(),
+    ...(trace && { trace }),
+  };
 
   const serviceAccountId = state.getServiceAccountId();
   const serviceAccountJwk = state.getServiceAccountJwk();
   if (host && serviceAccountId && serviceAccountJwk) {
     return {
+      ...sharedContext,
       auth: {
         mode: 'service-account',
         host,
@@ -572,6 +997,7 @@ function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
   const password = state.getPassword();
   if (host && username && password) {
     return {
+      ...sharedContext,
       auth: {
         mode: 'admin-account',
         host,
@@ -587,6 +1013,7 @@ function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
   }
 
   return {
+    ...sharedContext,
     auth: {
       mode: 'state-config',
       config: {
@@ -595,4 +1022,47 @@ function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
       },
     },
   };
+}
+
+function buildTraceHandler(
+  ctx: unknown
+): McpToolRuntimeTraceHandler | undefined {
+  if (
+    !state.getVerbose() ||
+    !ctx ||
+    typeof ctx !== 'object' ||
+    !('mcpReq' in ctx) ||
+    !ctx.mcpReq ||
+    typeof ctx.mcpReq !== 'object' ||
+    !('log' in ctx.mcpReq) ||
+    typeof ctx.mcpReq.log !== 'function'
+  ) {
+    return undefined;
+  }
+
+  const log = ctx.mcpReq.log.bind(ctx.mcpReq) as (
+    level: 'info',
+    data: unknown,
+    logger?: string
+  ) => Promise<void>;
+
+  return async (event) => {
+    await log('info', formatTraceEvent(event), 'frodo-cli').catch(
+      () => undefined
+    );
+  };
+}
+
+function formatTraceEvent(event: McpToolRuntimeTraceEvent): string {
+  const fields = [
+    event.descriptorId && `skill=${event.descriptorId}`,
+    event.deploymentType && `deployment=${event.deploymentType}`,
+    event.candidateCount !== undefined && `candidates=${event.candidateCount}`,
+    event.resultCount !== undefined && `results=${event.resultCount}`,
+    event.routingReason && `reason=${event.routingReason}`,
+    event.elapsedMs !== undefined && `elapsedMs=${event.elapsedMs}`,
+    event.error && `error=${event.error}`,
+    event.requestId && `requestId=${event.requestId}`,
+  ].filter(Boolean);
+  return `${event.event}: tool=${event.toolName}${fields.length ? ` ${fields.join(' ')}` : ''}`;
 }

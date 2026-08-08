@@ -490,6 +490,18 @@ If you are a node developer and want to use frodo as a cli tool or as a library 
 
 ## Usage
 
+### MCP Server
+
+Start the MCP server with a saved connection profile:
+
+```console
+frodo mcp server start my-tenant
+```
+
+The server authenticates before accepting MCP requests and uses Frodo's detected or explicitly overridden deployment type when ranking skills. Cloud and ForgeOps deployments prefer `frodo.idm.managed` for user management, while classic deployments prefer `frodo.user`. Incompatible skills remain discoverable with routing metadata, but direct incompatible dispatch is rejected before invocation.
+
+Routine startup information is sent to compatible MCP clients as `info` logging messages rather than process stderr. Add `--verbose` to include discovery, selection, and dispatch lifecycle details. Credentials, tool arguments, and result payloads are not included in these messages. Use `--dry-run --json` for a structured startup summary without starting a transport; live stdio sessions reserve stdout for JSON-RPC.
+
 ### Connection Profiles
 
 A connection profile is a set of ForgeRock environment URL (Access Management base URL) and login credentials. For PingOne Advanced Identity Cloud connections, the profile also contains log API key and secret and service account id and jwk. Connection profiless are stored in `~/.frodo/.frodorc`. Passwords, secrets, and keys are encrypted.
