@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## [v4.5.0] - 2026-08-08
+
+### Added
+- Introduced enhancements to the Managed Configuration Protocol (MCP) with new profiles, schemas, and CLI improvements. These enhancements provide users with more robust tools for managing server configurations and policies. (#660)
+- Added new server capabilities, info, policies, profiles, and tools to the MCP CLI, offering expanded functionality and improved user experience when interacting with server configurations. (#660)
+
+### Changed
+- Improved the `server-start` command within the MCP CLI to enhance startup processes and provide more detailed feedback during server initialization. (#660)
+
 ## [v4.4.0] - 2026-08-07
 
 ### Added
