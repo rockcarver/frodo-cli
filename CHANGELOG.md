@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## [v4.5.2] - 2026-08-09
+
+### Added
+- Introduced dynamic object family resolution for the MCP module, enhancing flexibility in object handling. (#661)
+- Added managed discovery and protocol logging features to the MCP module, improving observability and troubleshooting capabilities. (#661)
+
+### Fixed
+- Minor improvements and bug fixes in the MCP server operations to enhance stability and performance. (#661)
+
 ## [v4.5.1] - 2026-08-08
 
 ### Changed
