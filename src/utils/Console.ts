@@ -1,4 +1,6 @@
 /* eslint-disable no-console */
+import { inspect } from 'node:util';
+
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   ProgressIndicatorStatusType,
@@ -17,6 +19,14 @@ const { appendTextToFile } = frodo.utils;
 
 const indicators = new Map<string, any>();
 let renderInterval: NodeJS.Timeout | null = null;
+
+function writeObjectToStderr(
+  message: object,
+  depth: number,
+  color: (value: string) => string = (value) => value
+): void {
+  console.error(color(inspect(message, { depth, colors: false })));
+}
 
 /**
  * Output a message in default color to stdout or append to `state.getOutputFile()`
@@ -52,7 +62,7 @@ function data(message: string | object, newline = true) {
 function text(message: string | object, newline = true) {
   if (!message) return;
   if (typeof message === 'object') {
-    console.dir(message, { depth: 3 });
+    writeObjectToStderr(message, 3);
   } else if (newline) {
     console.error(message);
   } else {
@@ -67,7 +77,7 @@ function text(message: string | object, newline = true) {
 function info(message: string | object, newline = true) {
   if (!message) return;
   if (typeof message === 'object') {
-    console.dir(message, { depth: 3 });
+    writeObjectToStderr(message, 3, c.cyanBright);
   } else if (newline) {
     console.error(c.cyanBright(message));
   } else {
@@ -82,7 +92,7 @@ function info(message: string | object, newline = true) {
 function warn(message: string | object, newline = true) {
   if (!message) return;
   if (typeof message === 'object') {
-    console.dir(message, { depth: 3 });
+    writeObjectToStderr(message, 3, c.yellowBright);
   } else if (newline) {
     console.error(c.yellowBright(message));
   } else {
@@ -97,7 +107,7 @@ function warn(message: string | object, newline = true) {
 function error(message: string | object, newline = true) {
   if (!message) return;
   if (typeof message === 'object') {
-    console.dir(message, { depth: 3 });
+    writeObjectToStderr(message, 3, c.redBright);
   } else if (newline) {
     console.error(c.redBright(message));
   } else {
@@ -112,7 +122,7 @@ function error(message: string | object, newline = true) {
 function debug(message: string | object, newline = true) {
   if (!message) return;
   if (typeof message === 'object') {
-    console.dir(message, { depth: 6 });
+    writeObjectToStderr(message, 6, c.magentaBright);
   } else if (newline) {
     console.error(c.magentaBright(message));
   } else {

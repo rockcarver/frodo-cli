@@ -39,13 +39,13 @@ import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import {
   type McpRuntimeRequestContext,
   type McpService,
-  type McpToolRuntimeTraceEvent,
   type McpToolRuntimeTraceHandler,
   state,
 } from '@rockcarver/frodo-lib';
 import { z } from 'zod';
 
 import { printMessage } from '../utils/Console.js';
+import { McpLogger, type McpProtocolLogLevel } from './McpLogger.js';
 import {
   MCP_SERVER_DISCOVERY_INSTRUCTIONS,
   MCP_SERVER_NAME,
@@ -60,21 +60,60 @@ import {
 // Zod v4 schema shapes reused for canonical hybrid and special tools.
 const MAX_INLINE_RESULT_BYTES = 256 * 1024;
 const MAX_INLINE_DISCOVERY_RESULT_BYTES = 2 * 1024 * 1024;
+const DISCOVERY_SHAPE = {
+  detail: z
+    .enum(['summary', 'catalog'])
+    .optional()
+    .describe(
+      'Discovery detail level. Summary is the default; catalog returns the legacy operation matrix for diagnostics.'
+    ),
+} as const;
 const FIND_SKILLS_SHAPE = {
   query: z
     .string()
     .optional()
     .describe(
-      'Free-text query across capability id, domain, object type, method, and notes.'
+      'Concise intent query across skills, operations, parameters, and native managed-object types, for example "count users" or "search alpha_user".'
     ),
-  domain: z.string().optional().describe('Optional domain filter.'),
-  objectType: z.string().optional().describe('Optional object type filter.'),
+  objectFamily: z
+    .string()
+    .trim()
+    .min(1)
+    .optional()
+    .describe(
+      'Optional logical object-family filter resolved against live managed-object types using inflection, normalization, unique prefixes, and conservative typo matching.'
+    ),
+  domain: z
+    .string()
+    .optional()
+    .describe(
+      'Optional capability-domain filter. The logical user.User identity coordinates map to idm.ManagedObject on Cloud/ForgeOps and remain user.User on classic.'
+    ),
+  objectType: z
+    .string()
+    .optional()
+    .describe(
+      'Optional capability object-type filter. Use User with domain user for deployment-aware identity discovery; tenant types such as alpha_user belong in query.'
+    ),
   skillIdPrefix: z
     .string()
     .optional()
     .describe('Optional skill id prefix filter.'),
   operationTypes: z
-    .array(z.string())
+    .array(
+      z.enum([
+        'create',
+        'count',
+        'read',
+        'update',
+        'delete',
+        'list',
+        'search',
+        'export',
+        'import',
+        'special',
+      ])
+    )
     .optional()
     .describe('Optional operation-type filter list.'),
   riskClasses: z
@@ -90,7 +129,15 @@ const FIND_SKILLS_SHAPE = {
     .int()
     .positive()
     .optional()
-    .describe('Optional maximum number of returned capabilities.'),
+    .describe(
+      'Optional maximum number of returned skills. Prefer 5 for concise agent-readable results.'
+    ),
+  includeIncompatible: z
+    .boolean()
+    .optional()
+    .describe(
+      'Include skills incompatible with the resolved deployment. Defaults to false when deployment is known; use only for diagnostics.'
+    ),
 } as const;
 
 const DESCRIBE_SKILL_SHAPE = {
@@ -150,6 +197,15 @@ const DISPATCH_SHAPE = {
     .boolean()
     .optional()
     .describe('Optional request for exact total counts when supported.'),
+  semanticTarget: z
+    .object({
+      family: z.string().trim().min(1),
+      realm: z.string().optional(),
+    })
+    .optional()
+    .describe(
+      'Logical object-family target resolved against the live tenant catalog. For IDM count skills, omitting realm aggregates every matching realm-qualified type and returns a breakdown.'
+    ),
   positionalArgs: z
     .array(z.unknown())
     .optional()
@@ -176,8 +232,8 @@ const SPECIAL_SHAPE = {
 } as const;
 
 export type McpServerStartupInfo = {
-  /** Routine startup messages emitted at MCP info level after initialization. */
-  messages: string[];
+  /** Dedicated logger containing buffered startup records. */
+  logger: McpLogger;
 };
 
 // ---------------------------------------------------------------------------
@@ -207,17 +263,18 @@ export function buildMcpServer(
   );
 
   server.server.oninitialized = () => {
-    for (const message of startupInfo?.messages ?? []) {
-      void server
-        // Legacy clients use MCP logging; modern clients safely suppress it.
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
-        .sendLoggingMessage({
-          level: 'info',
-          logger: 'frodo-cli',
-          data: message,
+    startupInfo?.logger.attachSink(async ({ level, data }) => {
+      await server.server
+        .notification({
+          method: 'notifications/message',
+          params: {
+            level,
+            logger: 'frodo-cli',
+            data,
+          },
         })
         .catch(() => undefined);
-    }
+    });
   };
 
   for (const tool of service.listTools()) {
@@ -234,12 +291,16 @@ export function buildMcpServer(
     if (isDiscovery) {
       server.registerTool(
         tool.name,
-        { description: tool.description },
-        async (ctx) => {
+        { description: tool.description, inputSchema: DISCOVERY_SHAPE },
+        async (args, ctx) => {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
-              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
+              arguments: args,
+              context: buildRequestContext(
+                undefined,
+                buildTraceHandler(ctx, startupInfo?.logger)
+              ),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -260,7 +321,10 @@ export function buildMcpServer(
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
+              context: buildRequestContext(
+                undefined,
+                buildTraceHandler(ctx, startupInfo?.logger)
+              ),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -281,7 +345,10 @@ export function buildMcpServer(
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
+              context: buildRequestContext(
+                undefined,
+                buildTraceHandler(ctx, startupInfo?.logger)
+              ),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -306,7 +373,10 @@ export function buildMcpServer(
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(realm, buildTraceHandler(ctx)),
+              context: buildRequestContext(
+                realm,
+                buildTraceHandler(ctx, startupInfo?.logger)
+              ),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -327,7 +397,10 @@ export function buildMcpServer(
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(undefined, buildTraceHandler(ctx)),
+              context: buildRequestContext(
+                undefined,
+                buildTraceHandler(ctx, startupInfo?.logger)
+              ),
             });
             return buildSuccessResult(result);
           } catch (err) {
@@ -846,10 +919,17 @@ function buildSuccessResult(result: unknown): {
  * inspect full operation contracts without losing fields to transport truncation.
  */
 function getInlineResultLimitBytes(result: unknown): number {
+  const data =
+    result && typeof result === 'object'
+      ? (result as { data?: unknown }).data
+      : undefined;
   if (
     result &&
     typeof result === 'object' &&
-    (result as Record<string, unknown>).toolName === 'frodo_discover'
+    (result as Record<string, unknown>).toolName === 'frodo_discover' &&
+    data &&
+    typeof data === 'object' &&
+    'operationDetailsByType' in data
   ) {
     return MAX_INLINE_DISCOVERY_RESULT_BYTES;
   }
@@ -1025,44 +1105,38 @@ function buildRequestContext(
 }
 
 function buildTraceHandler(
-  ctx: unknown
+  ctx: unknown,
+  logger?: McpLogger
 ): McpToolRuntimeTraceHandler | undefined {
   if (
-    !state.getVerbose() ||
+    !logger ||
+    logger.level === 'off' ||
     !ctx ||
     typeof ctx !== 'object' ||
     !('mcpReq' in ctx) ||
     !ctx.mcpReq ||
     typeof ctx.mcpReq !== 'object' ||
-    !('log' in ctx.mcpReq) ||
-    typeof ctx.mcpReq.log !== 'function'
+    !('notify' in ctx.mcpReq) ||
+    typeof ctx.mcpReq.notify !== 'function'
   ) {
     return undefined;
   }
 
-  const log = ctx.mcpReq.log.bind(ctx.mcpReq) as (
-    level: 'info',
-    data: unknown,
-    logger?: string
-  ) => Promise<void>;
+  const notify = ctx.mcpReq.notify.bind(ctx.mcpReq) as (notification: {
+    method: 'notifications/message';
+    params: {
+      level: McpProtocolLogLevel;
+      data: unknown;
+      logger: string;
+    };
+  }) => Promise<void>;
 
-  return async (event) => {
-    await log('info', formatTraceEvent(event), 'frodo-cli').catch(
-      () => undefined
-    );
+  return (event) => {
+    logger.trace(event, ({ level, data }) => {
+      return notify({
+        method: 'notifications/message',
+        params: { level, data, logger: 'frodo-cli' },
+      }).catch(() => undefined);
+    });
   };
-}
-
-function formatTraceEvent(event: McpToolRuntimeTraceEvent): string {
-  const fields = [
-    event.descriptorId && `skill=${event.descriptorId}`,
-    event.deploymentType && `deployment=${event.deploymentType}`,
-    event.candidateCount !== undefined && `candidates=${event.candidateCount}`,
-    event.resultCount !== undefined && `results=${event.resultCount}`,
-    event.routingReason && `reason=${event.routingReason}`,
-    event.elapsedMs !== undefined && `elapsedMs=${event.elapsedMs}`,
-    event.error && `error=${event.error}`,
-    event.requestId && `requestId=${event.requestId}`,
-  ].filter(Boolean);
-  return `${event.event}: tool=${event.toolName}${fields.length ? ` ${fields.join(' ')}` : ''}`;
 }
