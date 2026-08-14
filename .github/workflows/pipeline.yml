@@ -221,7 +221,7 @@ jobs:
           frodo info "$FIDC_TENANT_URL"
 
   release:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     needs:
       [
         build,
@@ -320,7 +320,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   npm-release:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     # npm-release only needs the build job but since it is inconvenient to unpublish an npm we want this job to run last
     needs:
       [
@@ -403,7 +403,7 @@ jobs:
           fi
 
   homebrew-formula-update:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     name: Bump Homebrew formula
     needs: [release, build, npm-release]
     runs-on: ubuntu-latest
@@ -433,7 +433,7 @@ jobs:
 
   macos-intel-binary-release:
     # don't run on PRs, since secrets are not available
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     needs: [build, test]
     runs-on: macos-15-intel
     timeout-minutes: 15
@@ -511,7 +511,7 @@ jobs:
 
   macos-arm64-binary-release:
     # don't run on PRs, since secrets are not available
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     needs: [build, test]
     runs-on: macos-15
     timeout-minutes: 15
@@ -626,7 +626,7 @@ jobs:
 
   linux-arm64-binary-release:
     # don't run on PRs to speed up the checks
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     needs: [build, test]
     runs-on: ubuntu-24.04-arm
     steps:
@@ -664,7 +664,7 @@ jobs:
 
   windows-x64-binary-release:
     # don't run on PRs to speed up the checks
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     needs: [build, test]
     runs-on: windows-2022
     steps:

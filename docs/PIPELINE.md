@@ -11,15 +11,16 @@ The Frodo CLI project uses an automated release pipeline defined in [../.github/
 The workflow runs on:
 
 - Pull requests to `main` (build/test/packaging validation)
-- Pushes to `main` (automated prerelease flow)
-- Manual `workflow_dispatch` (explicit release type selection)
+- Pushes to `main` (build/test validation only — no release)
+- Manual `workflow_dispatch` (release — explicit release type selection)
 
 ### Release Type Selection
 
-Release type resolution is:
+All releases are manual. Release type is selected via `workflow_dispatch` input:
 
-- `workflow_dispatch` on `main`: use selected input (`prerelease`, `patch`, `minor`, `major`)
-- all other runs: `prerelease`
+- `prerelease`, `patch`, `minor`, `major`
+
+Pushes to `main` run build and test validation but do not publish or create a release.
 
 There is no PR-label-based release-type logic.
 
