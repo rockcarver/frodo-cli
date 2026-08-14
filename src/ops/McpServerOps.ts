@@ -138,6 +138,12 @@ const FIND_SKILLS_SHAPE = {
     .describe(
       'Include skills incompatible with the resolved deployment. Defaults to false when deployment is known; use only for diagnostics.'
     ),
+  executeRecommended: z
+    .boolean()
+    .optional()
+    .describe(
+      'Execute a unique deterministic read-only recommendation and return its result. Defaults to true; set false only for discovery diagnostics.'
+    ),
 } as const;
 
 const DESCRIBE_SKILL_SHAPE = {
