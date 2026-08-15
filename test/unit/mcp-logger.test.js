@@ -1,6 +1,18 @@
+import { jest } from '@jest/globals';
+
 import { McpLogger } from '../../src/ops/McpLogger.ts';
 
 describe('McpLogger', () => {
+  // Suppress stderr output from dispatch() during tests that don't explicitly
+  // test stderr behaviour; restored after each test via jest.restoreAllMocks().
+  beforeEach(() => {
+    jest.spyOn(process.stderr, 'write').mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test('applies the default info threshold', () => {
     const records = [];
     const logger = new McpLogger();
@@ -98,6 +110,20 @@ describe('McpLogger', () => {
     logger.attachSink(() => Promise.reject(new Error('async failure')));
     logger.info('async', 'message');
     await new Promise((resolve) => setImmediate(resolve));
+  });
+
+  test('writes [frodo-mcp] <level>: <data> line to process.stderr for every dispatched record', () => {
+    const captured = [];
+    // Replace the suppressing spy set up by beforeEach with a capturing one.
+    jest.spyOn(process.stderr, 'write').mockImplementation((s) => {
+      captured.push(String(s));
+      return true;
+    });
+
+    const logger = new McpLogger('info');
+    logger.info('startup', 'hello world');
+
+    expect(captured).toContain('[frodo-mcp] info: startup: hello world\n');
   });
 
   test('formats discovery summaries and ranked candidate details', () => {

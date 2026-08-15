@@ -275,7 +275,12 @@ test("'mcp server start' emits info logs without routine stderr", async () => {
                 }),
             ])
         );
-        expect(stderr.join('')).not.toContain('Experimental feature in use');
+        expect(stderr.join('')).toContain(
+            '[frodo-mcp] info: startup: Experimental feature in use'
+        );
+        expect(stderr.join('')).toContain(
+            '[frodo-mcp] info: discovery: tool=frodo_find_skills'
+        );
         expect(stderr.join('')).not.toContain('MCP server startup summary');
     } finally {
         await client.close();
