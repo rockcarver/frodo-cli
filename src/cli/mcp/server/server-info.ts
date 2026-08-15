@@ -129,10 +129,17 @@ export default function setup() {
       policyOverride: policySelection.policyOverride,
       inventoryOptions,
     });
-    const inventoryCapabilityCount = buildCapabilityInventory(
-      frodo,
-      inventoryOptions
-    ).length;
+    const inventory = buildCapabilityInventory(frodo, inventoryOptions);
+    const inventoryCapabilityCount = inventory.length;
+    const specialInInventory = inventory.filter((c) => c.kind === 'special');
+    const specialActive = service.capabilities.filter(
+      (c) => c.kind === 'special'
+    );
+    const activeByRiskClass: Record<string, number> = {};
+    for (const capability of specialActive) {
+      activeByRiskClass[capability.riskClass] =
+        (activeByRiskClass[capability.riskClass] ?? 0) + 1;
+    }
 
     const info = {
       server: {
@@ -148,6 +155,15 @@ export default function setup() {
         skillCounts: {
           inventory: inventoryCapabilityCount,
           active: service.capabilities.length,
+          special: {
+            // 'special' capabilities (non-CRUD, e.g. tail/evaluateScript/getTokens)
+            // are governed by includeSpecial rather than allowOperationTypes/
+            // denyOperationTypes — surfaced explicitly here since that gate is easy
+            // to get wrong silently. See CapabilityPolicy.ts.
+            inventory: specialInInventory.length,
+            active: specialActive.length,
+            activeByRiskClass,
+          },
         },
         toolCounts: {
           total: service.manifest.totalToolCount,
@@ -178,6 +194,15 @@ export default function setup() {
     printMessage(`  Active policy: ${info.service.policy}`);
     printMessage(
       `  Active skills: ${info.service.skillCounts.active} (total: ${info.service.skillCounts.inventory})`
+    );
+    const special = info.service.skillCounts.special;
+    const riskBreakdown = Object.entries(special.activeByRiskClass)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([riskClass, count]) => `${count} ${riskClass}`)
+      .join(', ');
+    printMessage(
+      `  Active special-kind skills: ${special.active} (available: ${special.inventory})` +
+        (riskBreakdown ? ` — by risk: ${riskBreakdown}` : '')
     );
     printMessage(
       `  Active tools: ${info.service.toolCounts.total} (${info.service.toolCounts.canonical} canonical, ${info.service.toolCounts.discovery} discovery)`
