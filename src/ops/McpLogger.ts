@@ -27,6 +27,7 @@ type InternalMcpLogRecord = McpLogRecord & {
 const DEFAULT_BUFFER_SIZE = 100;
 const DEFAULT_MESSAGE_LENGTH = 2048;
 const MAX_CRITERIA_LIST_VALUES = 5;
+const MCP_STDERR_PREFIX = '[frodo-mcp]';
 
 class McpProtocolTransport extends Transport {
   constructor(
@@ -109,6 +110,9 @@ export class McpLogger {
       level: record.level,
       data: record.data.slice(0, this.maxMessageLength),
     };
+    process.stderr.write(
+      `${MCP_STDERR_PREFIX} ${boundedRecord.level}: ${boundedRecord.data}\n`
+    );
     const sink = record.mcpSink ?? this.sink;
     if (sink) {
       this.emit(boundedRecord, sink);
