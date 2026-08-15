@@ -269,6 +269,17 @@ export function buildMcpServer(
   );
 
   server.server.oninitialized = () => {
+    // `oninitialized` fires only when the client sends `notifications/initialized`,
+    // which is a legacy-era-only message. Modern 2026-07-28 clients use the
+    // `server/discover` handshake and never send `notifications/initialized`, so
+    // this callback never fires for them. The era check below is therefore
+    // defensive: if for any reason a modern-era client does trigger this callback,
+    // skip `attachSink` to avoid sending unsolicited `notifications/message`
+    // notifications, which are non-compliant under MCP 2026-07-28 (SEP-2577).
+    const negotiatedVersion = server.server.getNegotiatedProtocolVersion();
+    if (negotiatedVersion !== undefined && negotiatedVersion >= '2026-07-28') {
+      return;
+    }
     startupInfo?.logger.attachSink(async ({ level, data }) => {
       await server.server
         .notification({

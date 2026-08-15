@@ -238,6 +238,41 @@ test("'mcp server start' advertises experimental claude/channel capability", asy
     }
 });
 
+test("'mcp server start' does not emit unsolicited notifications/message for 2026-07-28 clients", async () => {
+    const logs = [];
+    const stderr = [];
+    const client = await connectMcpClient(
+        {
+            supportedProtocolVersions: ['2026-07-28'],
+            versionNegotiation: { mode: { pin: '2026-07-28' } },
+        },
+        { logs, stderr }
+    );
+
+    try {
+        await client.callTool({
+            name: 'frodo_find_skills',
+            arguments: { query: 'journey' },
+        });
+
+        // Modern 2026-07-28 clients never send notifications/initialized, so
+        // oninitialized never fires and attachSink is never called. Startup
+        // (unsolicited) logs must not appear in notifications/message.
+        // Per-request trace notifications (solicited, from the tool call above)
+        // may still be present — those are out of scope for this assertion (AD-5).
+        const startupLogs = logs.filter((entry) =>
+            String(entry.data).startsWith('startup:')
+        );
+        expect(startupLogs).toEqual([]);
+        // Startup log visibility is preserved via process.stderr (Task 2).
+        expect(stderr.join('')).toContain(
+            '[frodo-mcp] info: startup: Experimental feature in use'
+        );
+    } finally {
+        await client.close();
+    }
+});
+
 test("'mcp server start' emits info logs without routine stderr", async () => {
     const logs = [];
     const stderr = [];
