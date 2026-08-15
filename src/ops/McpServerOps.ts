@@ -262,7 +262,7 @@ export function buildMcpServer(
   const server = new McpServer(
     { name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION },
     {
-      capabilities: { logging: {} },
+      capabilities: { logging: {}, experimental: { 'claude/channel': {} } },
       instructions: MCP_SERVER_DISCOVERY_INSTRUCTIONS,
       supportedProtocolVersions: MCP_SUPPORTED_PROTOCOL_VERSIONS,
     }

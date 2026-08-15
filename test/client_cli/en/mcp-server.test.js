@@ -221,6 +221,23 @@ test("'mcp server start' remains compatible with legacy clients", async () => {
     }
 });
 
+test("'mcp server start' advertises experimental claude/channel capability", async () => {
+    const client = await connectMcpClient({
+        supportedProtocolVersions: ['2026-07-28'],
+        versionNegotiation: { mode: { pin: '2026-07-28' } },
+    });
+
+    try {
+        const capabilities = client.getServerCapabilities();
+        expect(capabilities).toBeDefined();
+        expect(capabilities?.experimental).toBeDefined();
+        expect(capabilities?.experimental?.['claude/channel']).toBeDefined();
+        expect(typeof capabilities?.experimental?.['claude/channel']).toBe('object');
+    } finally {
+        await client.close();
+    }
+});
+
 test("'mcp server start' emits info logs without routine stderr", async () => {
     const logs = [];
     const stderr = [];
