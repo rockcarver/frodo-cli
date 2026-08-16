@@ -8,6 +8,7 @@ import {
 import { Option } from 'commander';
 import c from 'tinyrainbow';
 
+import * as s from '../../../help/SampleData';
 import {
   MCP_LOG_LEVELS,
   McpLogger,
@@ -62,7 +63,7 @@ type McpStartOptions = {
  * MCP server start command.
  */
 export default function setup() {
-  const program = new FrodoCommand('frodo mcp server start', [])
+  const program = new FrodoCommand('frodo mcp server start', ['realm'])
     .description('Start an MCP server session from frodo-lib skills.')
     .withStability('experimental')
     .suppressStabilityWarning()
@@ -154,12 +155,17 @@ export default function setup() {
           `  $ frodo mcp server start --policy read-only --profile authentication\n`
         ) +
         `  Start with selected domains only:\n` +
-        c.cyanBright(`  $ frodo mcp server start --include-domains authn idm\n`)
+        c.cyanBright(
+          `  $ frodo mcp server start --include-domains authn idm\n`
+        ) +
+        `  Start authenticated as a username whose password is already saved in a connection profile for this host (no password on the command line):\n` +
+        c.cyanBright(
+          `  $ frodo mcp server start ${s.amBaseUrl} ${s.username}\n`
+        )
     )
-    .action(async (host, realm, username, password, options, command) => {
+    .action(async (host, username, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
-        realm,
         username,
         password,
         options,
