@@ -4,6 +4,7 @@ import {
   VariableSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 import { VariablesExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/VariablesOps';
+import { ResolvedIdentity } from '@rockcarver/frodo-lib/types/ops/ManagedObjectOps';
 import fs from 'fs';
 import c from 'tinyrainbow';
 
@@ -30,7 +31,7 @@ const {
   getWorkingDirectory,
   saveJsonToFile,
 } = frodo.utils;
-const { resolvePerpetratorUuid } = frodo.idm.managed;
+const { resolveIdentity } = frodo.idm.managed;
 const {
   readVariables,
   readVariable,
@@ -42,6 +43,26 @@ const {
   importVariable,
   importVariables,
 } = frodo.cloud.variable;
+
+/**
+ * Formats a resolved identity the way callers of the old
+ * resolvePerpetratorUuid string helper expect: a human-readable label, or the
+ * raw id unchanged when nothing could be resolved.
+ */
+function formatResolvedIdentity(identity: ResolvedIdentity): string {
+  switch (identity.kind) {
+    case 'admin':
+      return `Admin user: ${identity.displayName} (${identity.username})`;
+    case 'service':
+      return `Service account: ${identity.username} (${identity.displayName})`;
+    case 'user':
+      return `${identity.realm} user: ${identity.displayName} (${identity.username})`;
+    case 'admin-unconfirmed':
+      return `Tenant admin (unconfirmed): ${identity.id}`;
+    default:
+      return identity.id;
+  }
+}
 
 /**
  * List variables
@@ -119,7 +140,9 @@ export async function listVariables(
           wordwrap(variable.description, 40),
           state.getUseBearerTokenForAmApis()
             ? variable.lastChangedBy
-            : await resolvePerpetratorUuid(variable.lastChangedBy),
+            : formatResolvedIdentity(
+                await resolveIdentity(variable.lastChangedBy)
+              ),
           new Date(variable.lastChangeDate).toUTCString(),
         ]
       : [variable._id];
@@ -369,7 +392,9 @@ export async function describeVariable(
       ]);
       let modifierName: string;
       try {
-        modifierName = await resolvePerpetratorUuid(variable.lastChangedBy);
+        modifierName = formatResolvedIdentity(
+          await resolveIdentity(variable.lastChangedBy)
+        );
       } catch {
         // ignore
       }
