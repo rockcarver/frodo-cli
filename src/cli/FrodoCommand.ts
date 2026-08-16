@@ -443,7 +443,7 @@ const realmArgument = new Argument(
 
 const usernameArgument = new Argument(
   '[username]',
-  'Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.'
+  "Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees. If given without a password, and it matches the username already stored in the connection profile for the target host, frodo uses that profile's stored password instead of requiring it on the command line."
 );
 
 const passwordArgument = new Argument('[password]', 'Password.');
