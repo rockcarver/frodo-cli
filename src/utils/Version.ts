@@ -159,9 +159,9 @@ export async function getVersions(checkOnly: boolean) {
       : 'NPM package'
   }.`;
 
-  versionString += `\ncli: v${getCliVersion()}\nlib: v${getLibVersion()}\nnode: ${
+  versionString += `\ncli: v${getCliVersion()} (${getCliBuildTimestamp()})\nlib: v${getLibVersion()} (${getBuildTimestamp()})\nnode: ${
     process.version
-  }\ncli-build: ${getCliBuildTimestamp()}\nlib-build: ${getBuildTimestamp()}`;
+  }`;
   let newVersionString = '';
   if (
     (usingBinary &&

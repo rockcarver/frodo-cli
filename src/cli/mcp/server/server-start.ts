@@ -171,6 +171,18 @@ export default function setup() {
         options,
         command
       );
+      // The token cache exists to let successive short-lived CLI invocations
+      // reuse tokens instead of re-authenticating every time — not relevant
+      // to a long-running MCP server, which logs in once and relies on
+      // frodo-lib's own auto-refresh for the rest of its lifetime. Worse,
+      // it's actively unsafe here: multiple `mcp server start` processes
+      // (one per policy/profile) commonly run concurrently against the same
+      // host, all reading and writing the same on-disk token cache file —
+      // a real corruption/collision risk this command should never
+      // participate in. Hard-coded off, not exposed as a configurable
+      // default, until that on-disk cache is made safe for concurrent
+      // writers (tracked separately).
+      state.setUseTokenCache(false);
 
       const opts = options as McpStartOptions;
       if (opts.json && !opts.dryRun) {
