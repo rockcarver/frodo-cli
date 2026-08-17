@@ -6,7 +6,7 @@ const MCP_LATEST_PROTOCOL_VERSION = '2026-07-28';
 
 export const MCP_SERVER_NAME = 'frodo-mcp';
 export const MCP_SERVER_DISCOVERY_INSTRUCTIONS =
-  'Frodo MCP server exposes a tools-first skill surface. Trust the active target in the default frodo_discover summary; request catalog detail only for diagnostics. Use frodo_find_skills with concise intent, operationTypes, objectFamily when applicable, and limit 5. On Cloud and ForgeOps, object families are resolved dynamically against live managed-object types; semantic count dispatch aggregates matching realm-qualified types and returns a per-type breakdown. Ambiguous concepts return candidates and must not be guessed. Describe the chosen skill before invoking mutating tools.';
+  'Frodo MCP server exposes a tools-first skill surface. Call frodo_discover at most once per task and trust its active target; catalog detail is only for diagnostics. Call frodo_find_skills once with concise intent, operationTypes, objectFamily when applicable, and limit 5. Unique deterministic read-only recommendations execute automatically; when execution is returned, answer from execution.data and make no further discovery calls. On Cloud and ForgeOps, semantic count execution aggregates matching realm-qualified types and returns a per-type breakdown. Ambiguous concepts return candidates and must not be guessed. Describe the chosen skill only before mutating tools.';
 
 export const MCP_SUPPORTED_PROTOCOL_VERSIONS = [
   MCP_LATEST_PROTOCOL_VERSION,

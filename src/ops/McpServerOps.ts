@@ -138,6 +138,12 @@ const FIND_SKILLS_SHAPE = {
     .describe(
       'Include skills incompatible with the resolved deployment. Defaults to false when deployment is known; use only for diagnostics.'
     ),
+  executeRecommended: z
+    .boolean()
+    .optional()
+    .describe(
+      'Execute a unique deterministic read-only recommendation and return its result. Defaults to true; set false only for discovery diagnostics.'
+    ),
 } as const;
 
 const DESCRIBE_SKILL_SHAPE = {
@@ -256,13 +262,24 @@ export function buildMcpServer(
   const server = new McpServer(
     { name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION },
     {
-      capabilities: { logging: {} },
+      capabilities: { logging: {}, experimental: { 'claude/channel': {} } },
       instructions: MCP_SERVER_DISCOVERY_INSTRUCTIONS,
       supportedProtocolVersions: MCP_SUPPORTED_PROTOCOL_VERSIONS,
     }
   );
 
   server.server.oninitialized = () => {
+    // `oninitialized` fires only when the client sends `notifications/initialized`,
+    // which is a legacy-era-only message. Modern 2026-07-28 clients use the
+    // `server/discover` handshake and never send `notifications/initialized`, so
+    // this callback never fires for them. The era check below is therefore
+    // defensive: if for any reason a modern-era client does trigger this callback,
+    // skip `attachSink` to avoid sending unsolicited `notifications/message`
+    // notifications, which are non-compliant under MCP 2026-07-28 (SEP-2577).
+    const negotiatedVersion = server.server.getNegotiatedProtocolVersion();
+    if (negotiatedVersion !== undefined && negotiatedVersion >= '2026-07-28') {
+      return;
+    }
     startupInfo?.logger.attachSink(async ({ level, data }) => {
       await server.server
         .notification({

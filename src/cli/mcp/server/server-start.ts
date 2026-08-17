@@ -1,4 +1,10 @@
-import { createMcpService, frodo, state } from '@rockcarver/frodo-lib';
+import {
+  createMcpService,
+  frodo,
+  hydrateMcpDiscoveryContext,
+  type McpDiscoveryHydrationEvent,
+  state,
+} from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import c from 'tinyrainbow';
 
@@ -168,8 +174,15 @@ export default function setup() {
       if (state.getHost()) {
         await frodo.login.getTokens();
       }
-      const managedObjectHydration = await hydrateManagedObjectTypes(logger);
       const activeHost = sanitizeHost(state.getHost());
+      const discoveryContext = await hydrateMcpDiscoveryContext({
+        frodoInstance: frodo,
+        activeTarget: {
+          host: activeHost,
+          profile: opts.profile,
+        },
+        onEvent: (event) => logDiscoveryHydrationEvent(logger, event),
+      });
       const policySelection = resolvePolicySelection(opts.policy);
       const service = createMcpService({
         profileName: opts.profile,
@@ -180,18 +193,12 @@ export default function setup() {
           excludeTopLevelDomains: opts.excludeDomains,
           includeUtils: !!opts.includeUtils,
         },
-        discoveryContext: {
-          managedObjectTypes: managedObjectHydration.types,
-          managedObjectHydrationStatus: managedObjectHydration.status,
-          activeTarget: {
-            host: activeHost,
-            profile: opts.profile,
-          },
-        },
+        discoveryContext,
         // Reuse the preconfigured frodo singleton; the CLI has already
         // applied connection credentials via handleDefaultArgsAndOpts.
         runtimeOptions: {
           resolveFrodoForRequest: async () => frodo,
+          executeRecommendedByDefault: true,
         },
       });
 
@@ -314,44 +321,26 @@ function sanitizeHost(host?: string): string | undefined {
   }
 }
 
-const MANAGED_OBJECT_HYDRATION_TIMEOUT_MS = 3000;
-
-async function hydrateManagedObjectTypes(logger: McpLogger): Promise<{
-  types: string[];
-  status: 'available' | 'not-applicable' | 'failed' | 'timed-out';
-}> {
-  const deploymentType = state.getDeploymentType();
-  if (deploymentType !== 'cloud' && deploymentType !== 'forgeops') {
-    return { types: [], status: 'not-applicable' };
-  }
-
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-  try {
-    const types = await Promise.race([
-      frodo.idm.config.readManagedObjectTypes(),
-      new Promise<never>((_, reject) => {
-        timeout = setTimeout(
-          () => reject(new Error('Managed-object hydration timed out.')),
-          MANAGED_OBJECT_HYDRATION_TIMEOUT_MS
-        );
-      }),
-    ]);
+function logDiscoveryHydrationEvent(
+  logger: McpLogger,
+  event: McpDiscoveryHydrationEvent
+): void {
+  const catalogLabel =
+    event.catalog === 'managed-object-types'
+      ? 'managed-object types'
+      : 'config entity IDs';
+  if (event.status === 'available') {
     logger.info(
       'startup.discovery',
-      `Hydrated ${types.length} managed-object types for discovery.`
+      `Hydrated ${event.count} ${catalogLabel} for discovery.`
     );
-    return { types, status: 'available' };
-  } catch (error) {
-    const timedOut =
-      error instanceof Error &&
-      error.message === 'Managed-object hydration timed out.';
+    return;
+  }
+  if (event.status === 'failed' || event.status === 'timed-out') {
     logger.warn(
       'startup.discovery',
-      'Managed-object discovery hydration failed; continuing with static skill metadata.'
+      `${catalogLabel} discovery hydration ${event.status}; continuing with static skill metadata.`
     );
-    return { types: [], status: timedOut ? 'timed-out' : 'failed' };
-  } finally {
-    if (timeout) clearTimeout(timeout);
   }
 }
 
