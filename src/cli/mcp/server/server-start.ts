@@ -63,7 +63,14 @@ type McpStartOptions = {
  * MCP server start command.
  */
 export default function setup() {
-  const program = new FrodoCommand('frodo mcp server start', ['realm'])
+  // 'no-cache'/'flush-cache': the token cache is hard-coded off for this
+  // command (see below) — showing these flags in --help would suggest a
+  // choice that doesn't actually exist here.
+  const program = new FrodoCommand('frodo mcp server start', [
+    'realm',
+    'no-cache',
+    'flush-cache',
+  ])
     .description('Start an MCP server session from frodo-lib skills.')
     .withStability('experimental')
     .suppressStabilityWarning()
