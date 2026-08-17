@@ -14,6 +14,7 @@ import {
   MCP_SUPPORTED_PROTOCOL_VERSIONS,
 } from '../../../ops/McpServerMetadata.js';
 import { printMessage } from '../../../utils/Console';
+import { getCliBuildTimestamp } from '../../../utils/Version.js';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
 
@@ -145,6 +146,12 @@ export default function setup() {
       server: {
         name: 'Frodo MCP Server',
         version: MCP_SERVER_VERSION,
+        // Same build info baked into MCP_SERVER_VERSION's build metadata,
+        // spelled out as real ISO 8601 timestamps for readability — verify
+        // a running process actually reflects a given source change without
+        // needing shell access to the host it's running on.
+        cliBuildTimestamp: getCliBuildTimestamp(),
+        libBuildTimestamp: frodo.utils.version.getBuildTimestamp(),
       },
       protocol: {
         supportedVersions: [...MCP_SUPPORTED_PROTOCOL_VERSIONS],
@@ -187,6 +194,8 @@ export default function setup() {
 
     printMessage('MCP server info:', 'info');
     printMessage(`  ${info.server.name} v${info.server.version}`);
+    printMessage(`  CLI build: ${info.server.cliBuildTimestamp}`);
+    printMessage(`  Lib build: ${info.server.libBuildTimestamp}`);
     printMessage(
       `  Supported protocol versions: ${info.protocol.supportedVersions.join(', ')}`
     );

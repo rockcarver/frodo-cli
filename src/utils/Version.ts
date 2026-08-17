@@ -7,7 +7,21 @@ import path from 'path';
 
 import pkg from '../../package.json';
 
-const { getVersion, getAllVersions } = frodo.utils.version;
+const { getVersion, getBuildTimestamp, getAllVersions } = frodo.utils.version;
+
+declare const __CLI_BUILD_TIMESTAMP__: string;
+
+/**
+ * ISO 8601 timestamp of when this frodo-cli bundle was built, substituted as
+ * a literal by tsup's `define` at bundle time (see tsup.config.ts). Falls
+ * back to an explicit placeholder when running from raw TypeScript source
+ * rather than a tsup build, since no bundler ever substitutes the
+ * identifier there.
+ */
+export const getCliBuildTimestamp = (): string =>
+  typeof __CLI_BUILD_TIMESTAMP__ !== 'undefined'
+    ? __CLI_BUILD_TIMESTAMP__
+    : 'unknown (running from source, not a tsup build)';
 
 const VERSION_CACHE_FILE = `${os.homedir()}/.frodo/Versions.json`;
 const VERSION_CHECK_INTERVAL = 86400;
@@ -147,7 +161,7 @@ export async function getVersions(checkOnly: boolean) {
 
   versionString += `\ncli: v${getCliVersion()}\nlib: v${getLibVersion()}\nnode: ${
     process.version
-  }`;
+  }\ncli-build: ${getCliBuildTimestamp()}\nlib-build: ${getBuildTimestamp()}`;
   let newVersionString = '';
   if (
     (usingBinary &&

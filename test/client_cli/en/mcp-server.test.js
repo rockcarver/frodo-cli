@@ -81,8 +81,13 @@ test("'mcp server info' prints the active server summary", async () => {
     const stdout = await runMcpCommand('info', '--policy', 'admin');
 
     expect(stdout).toContain(
-        `MCP server info:\n  Frodo MCP Server v${cliVersion}\n`
+        `MCP server info:\n  Frodo MCP Server v${cliVersion}+`
     );
+    // Build metadata (+cli.<timestamp>.lib.<timestamp>) is real and changes
+    // every build, so the version line above only checks the stable prefix;
+    // these check the human-readable ISO timestamps carrying the same info.
+    expect(stdout).toMatch(/ {2}CLI build: \d{4}-\d{2}-\d{2}T[\d:.]+Z\n/);
+    expect(stdout).toMatch(/ {2}Lib build: \d{4}-\d{2}-\d{2}T[\d:.]+Z\n/);
     expect(stdout).toContain(
         '  Supported protocol versions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05, 2024-10-07\n'
     );

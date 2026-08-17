@@ -1,8 +1,20 @@
 import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/server';
+import { frodo } from '@rockcarver/frodo-lib';
 
 import packageJson from '../../package.json';
+import { getCliBuildTimestamp } from '../utils/Version';
 
 const MCP_LATEST_PROTOCOL_VERSION = '2026-07-28';
+
+/**
+ * Compacts an ISO 8601 timestamp into a semver build-metadata-safe
+ * identifier (only [0-9A-Za-z-] and dot-separated segments are valid there;
+ * colons and the ISO string's own dots/dashes are not).
+ */
+function toBuildId(timestamp: string): string {
+  const compact = timestamp.replace(/[^0-9A-Za-z]/g, '');
+  return compact || 'unknown';
+}
 
 export const MCP_SERVER_NAME = 'frodo-mcp';
 export const MCP_SERVER_DISCOVERY_INSTRUCTIONS =
@@ -15,4 +27,13 @@ export const MCP_SUPPORTED_PROTOCOL_VERSIONS = [
   ),
 ];
 
-export const MCP_SERVER_VERSION = packageJson.version;
+/**
+ * Reported to every MCP client at protocol handshake ({name, version} — see
+ * McpServerOps.ts) and by `frodo mcp server info`. Carries both build
+ * timestamps as semver build metadata so a client (or an agent debugging a
+ * "why doesn't this behave like the source I just changed" problem) can
+ * verify which actual builds are running without needing shell access to
+ * grep or introspect the binary — standard MCP protocol introspection is
+ * enough.
+ */
+export const MCP_SERVER_VERSION = `${packageJson.version}+cli.${toBuildId(getCliBuildTimestamp())}.lib.${toBuildId(frodo.utils.version.getBuildTimestamp())}`;
