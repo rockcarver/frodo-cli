@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## [v4.5.3] - 2026-08-17
+
+### Added
+- Introduced an experimental `claude/channel` capability in `buildMcpServer`, enhancing compatibility and reducing warnings related to Claude Code's channel notifications. (#664)
+- Added `process.stderr` as a parallel output path in `McpLogger`, improving logging capabilities. (commit 038455ac)
+
+### Changed
+- Updated to `frodo-lib` v4.3.1, incorporating the latest library improvements. (commit 2595fe4e)
+- Replaced inline `hydrateManagedObjectTypes` call with the unified `hydrateMcpDiscoveryContext()` from `frodo-lib`, enabling `executeRecommendedByDefault` for the MCP server startup path. (#664)
+
+### Fixed
+- Notifications and message startup delivery are now gated on the negotiated protocol era, ensuring compatibility and stability during server operations. (commit de89498a)
+
 ## [v4.5.2] - 2026-08-09
 
 ### Added
