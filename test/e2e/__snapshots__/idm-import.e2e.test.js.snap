@@ -13,14 +13,14 @@ exports[`frodo idm import "frodo idm import --file test/e2e/exports/all-separate
 
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 1`] = `""`;
 
-exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 2`] = `
-"✔ Imported script from test/e2e/exports/all-separate/cloud/global/idm/script.idm.json.
-"
-`;
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 2`] = `""`;
 
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 3`] = `""`;
 
-exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 4`] = `""`;
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 4`] = `
+"✔ Imported script from test/e2e/exports/all-separate/cloud/global/idm/script.idm.json.
+"
+`;
 
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 5`] = `""`;
 
@@ -31,27 +31,34 @@ exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/fo
 
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 7`] = `""`;
 
-exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 8`] = `
-"✔ Imported config entities
-"
-`;
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 8`] = `""`;
 
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 9`] = `""`;
 
-exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 10`] = `""`;
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 10`] = `
+"✔ Imported config entities
+"
+`;
 
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 11`] = `""`;
 
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 12`] = `""`;
 
-exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 13`] = `""`;
-
-exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 14`] = `
-"✔ Imported config entities
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 13`] = `
+"Error updating config entity bravoOrgPrivileges
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/bravoOrgPrivileges
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: Access denied
+✔ Imported config entities
 "
 `;
 
-exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 1`] = `
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 14`] = `1`;
+
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 15`] = `
 "Error updating config entity endpoint/Test
   Network error:
     URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/endpoint/Test
@@ -70,25 +77,18 @@ Error updating config entity endpoint/testEndpoint2
 "
 `;
 
-exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 2`] = `1`;
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 16`] = `1`;
 
-exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 3`] = `
-"Error updating config entity bravoOrgPrivileges
-  Network error:
-    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/bravoOrgPrivileges
-    Status: 403
-    Code: ERR_BAD_REQUEST
-    Reason: Forbidden
-    Message: Access denied
-✔ Imported config entities
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 17`] = `""`;
+
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 18`] = `
+"✔ Imported config entities
 "
 `;
 
-exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 4`] = `1`;
+exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 1`] = `""`;
 
-exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 5`] = `""`;
-
-exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 6`] = `
+exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 2`] = `
 "✔ Imported endpoint/Groovy from test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json.
 "
 `;
