@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [v4.6.0] - 2026-08-18
+
+### Added
+- Introduced `config-manager pull iga-workflows` command, allowing users to pull IGA workflow configurations easily. This enhances the flexibility and control over IGA workflows. (#662, #662)
+- Added `config-manager push iga-workflows` command, enabling users to push IGA workflow configurations. This facilitates streamlined management of workflow configurations. (#662)
+
 ## [v4.5.4] - 2026-08-18
 
 ### Added
