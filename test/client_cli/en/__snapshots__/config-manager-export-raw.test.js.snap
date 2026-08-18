@@ -14,7 +14,11 @@ Arguments:
                             "alpha" for Identity Cloud tenants, "/" otherwise.)
   username                  Username to login with. Must be an admin user with
                             appropriate rights to manage authentication
-                            journeys/trees.
+                            journeys/trees. If given without a password, and it
+                            matches the username already stored in the
+                            connection profile for the target host, frodo uses
+                            that profile's stored password instead of requiring
+                            it on the command line.
   password                  Password.
 
 Options:

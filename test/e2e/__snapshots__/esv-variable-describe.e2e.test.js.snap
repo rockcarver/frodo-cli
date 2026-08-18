@@ -34,13 +34,14 @@ exports[`frodo esv variable describe "frodo esv variable describe --json --usage
 `;
 
 exports[`frodo esv variable describe "frodo esv variable describe -i esv-neo-age": should describe the esv variable "esv-neo-age" 1`] = `
-"Name         │esv-neo-age             
-Value        │28                      
-Type         │int                     
-Status       │loaded                  
-Description  │Neo's age in the matrix.
-Modified     │7/7/2026, 1:42:42 PM    
-Modifier UUID│Frodo-SA-1782747461119  
+"Name         │esv-neo-age                                       
+Value        │28                                                
+Type         │int                                               
+Status       │loaded                                            
+Description  │Neo's age in the matrix.                          
+Modified     │7/7/2026, 1:42:42 PM                              
+Modifier     │Tenant admin (unconfirmed): Frodo-SA-1782747461119
+Modifier UUID│Frodo-SA-1782747461119                            
 "
 `;
 
@@ -51,6 +52,7 @@ Type                     │number
 Status                   │loaded                                                                                                               
 Description              │This is another test variable.                                                                                       
 Modified                 │7/7/2026, 1:42:44 PM                                                                                                 
+Modifier                 │Tenant admin (unconfirmed): Frodo-SA-1782747461119                                                                   
 Modifier UUID            │Frodo-SA-1782747461119                                                                                               
 Usage Locations (2 total)│realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0
                          │realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.4
@@ -64,19 +66,21 @@ Type                     │number
 Status                   │loaded                                                                                                             
 Description              │This is another test variable.                                                                                     
 Modified                 │7/7/2026, 1:42:44 PM                                                                                               
+Modifier                 │Tenant admin (unconfirmed): Frodo-SA-1782747461119                                                                 
 Modifier UUID            │Frodo-SA-1782747461119                                                                                             
 Usage Locations (1 total)│realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script
 "
 `;
 
 exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-var-pi": should describe the esv variable "esv-test-var-pi" with usage 1`] = `
-"Name                     │esv-test-var-pi               
-Value                    │3.1415926                     
-Type                     │number                        
-Status                   │loaded                        
-Description              │This is another test variable.
-Modified                 │7/7/2026, 1:42:44 PM          
-Modifier UUID            │Frodo-SA-1782747461119        
-Usage Locations (0 total)│                              
+"Name                     │esv-test-var-pi                                   
+Value                    │3.1415926                                         
+Type                     │number                                            
+Status                   │loaded                                            
+Description              │This is another test variable.                    
+Modified                 │7/7/2026, 1:42:44 PM                              
+Modifier                 │Tenant admin (unconfirmed): Frodo-SA-1782747461119
+Modifier UUID            │Frodo-SA-1782747461119                            
+Usage Locations (0 total)│                                                  
 "
 `;
