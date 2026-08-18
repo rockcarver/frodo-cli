@@ -8,6 +8,7 @@ import {
 import { Option } from 'commander';
 import c from 'tinyrainbow';
 
+import * as s from '../../../help/SampleData';
 import {
   MCP_LOG_LEVELS,
   McpLogger,
@@ -62,7 +63,14 @@ type McpStartOptions = {
  * MCP server start command.
  */
 export default function setup() {
-  const program = new FrodoCommand('frodo mcp server start', [])
+  // 'no-cache'/'flush-cache': the token cache is hard-coded off for this
+  // command (see below) — showing these flags in --help would suggest a
+  // choice that doesn't actually exist here.
+  const program = new FrodoCommand('frodo mcp server start', [
+    'realm',
+    'no-cache',
+    'flush-cache',
+  ])
     .description('Start an MCP server session from frodo-lib skills.')
     .withStability('experimental')
     .suppressStabilityWarning()
@@ -154,17 +162,34 @@ export default function setup() {
           `  $ frodo mcp server start --policy read-only --profile authentication\n`
         ) +
         `  Start with selected domains only:\n` +
-        c.cyanBright(`  $ frodo mcp server start --include-domains authn idm\n`)
+        c.cyanBright(
+          `  $ frodo mcp server start --include-domains authn idm\n`
+        ) +
+        `  Start authenticated as a username whose password is already saved in a connection profile for this host (no password on the command line):\n` +
+        c.cyanBright(
+          `  $ frodo mcp server start ${s.amBaseUrl} ${s.username}\n`
+        )
     )
-    .action(async (host, realm, username, password, options, command) => {
+    .action(async (host, username, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
-        realm,
         username,
         password,
         options,
         command
       );
+      // The token cache exists to let successive short-lived CLI invocations
+      // reuse tokens instead of re-authenticating every time — not relevant
+      // to a long-running MCP server, which logs in once and relies on
+      // frodo-lib's own auto-refresh for the rest of its lifetime. Worse,
+      // it's actively unsafe here: multiple `mcp server start` processes
+      // (one per policy/profile) commonly run concurrently against the same
+      // host, all reading and writing the same on-disk token cache file —
+      // a real corruption/collision risk this command should never
+      // participate in. Hard-coded off, not exposed as a configurable
+      // default, until that on-disk cache is made safe for concurrent
+      // writers (tracked separately).
+      state.setUseTokenCache(false);
 
       const opts = options as McpStartOptions;
       if (opts.json && !opts.dryRun) {

@@ -9,11 +9,13 @@ import {
 import { Option } from 'commander';
 import c from 'tinyrainbow';
 
+import packageJson from '../../../../package.json';
 import {
   MCP_SERVER_VERSION,
   MCP_SUPPORTED_PROTOCOL_VERSIONS,
 } from '../../../ops/McpServerMetadata.js';
 import { printMessage } from '../../../utils/Console';
+import { getCliBuildTimestamp } from '../../../utils/Version.js';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
 
@@ -129,15 +131,35 @@ export default function setup() {
       policyOverride: policySelection.policyOverride,
       inventoryOptions,
     });
-    const inventoryCapabilityCount = buildCapabilityInventory(
-      frodo,
-      inventoryOptions
-    ).length;
+    const inventory = buildCapabilityInventory(frodo, inventoryOptions);
+    const inventoryCapabilityCount = inventory.length;
+    const specialInInventory = inventory.filter((c) => c.kind === 'special');
+    const specialActive = service.capabilities.filter(
+      (c) => c.kind === 'special'
+    );
+    const activeByRiskClass: Record<string, number> = {};
+    for (const capability of specialActive) {
+      activeByRiskClass[capability.riskClass] =
+        (activeByRiskClass[capability.riskClass] ?? 0) + 1;
+    }
 
     const info = {
       server: {
         name: 'Frodo MCP Server',
+        // MCP_SERVER_VERSION already carries the cli build timestamp (the
+        // format handshake/introspecting MCP clients see); cli/lib below
+        // spell out both build timestamps in the same `frodo -v` format —
+        // verify a running process actually reflects a given source change
+        // without needing shell access to the host it's running on.
         version: MCP_SERVER_VERSION,
+        cli: {
+          version: packageJson.version,
+          buildTimestamp: getCliBuildTimestamp(),
+        },
+        lib: {
+          version: frodo.utils.version.getVersion(),
+          buildTimestamp: frodo.utils.version.getBuildTimestamp(),
+        },
       },
       protocol: {
         supportedVersions: [...MCP_SUPPORTED_PROTOCOL_VERSIONS],
@@ -148,6 +170,15 @@ export default function setup() {
         skillCounts: {
           inventory: inventoryCapabilityCount,
           active: service.capabilities.length,
+          special: {
+            // 'special' capabilities (non-CRUD, e.g. tail/evaluateScript/getTokens)
+            // are governed by includeSpecial rather than allowOperationTypes/
+            // denyOperationTypes — surfaced explicitly here since that gate is easy
+            // to get wrong silently. See CapabilityPolicy.ts.
+            inventory: specialInInventory.length,
+            active: specialActive.length,
+            activeByRiskClass,
+          },
         },
         toolCounts: {
           total: service.manifest.totalToolCount,
@@ -170,7 +201,13 @@ export default function setup() {
     }
 
     printMessage('MCP server info:', 'info');
-    printMessage(`  ${info.server.name} v${info.server.version}`);
+    printMessage(`  ${info.server.name}`);
+    printMessage(
+      `  cli: v${info.server.cli.version} (${info.server.cli.buildTimestamp})`
+    );
+    printMessage(
+      `  lib: v${info.server.lib.version} (${info.server.lib.buildTimestamp})`
+    );
     printMessage(
       `  Supported protocol versions: ${info.protocol.supportedVersions.join(', ')}`
     );
@@ -178,6 +215,15 @@ export default function setup() {
     printMessage(`  Active policy: ${info.service.policy}`);
     printMessage(
       `  Active skills: ${info.service.skillCounts.active} (total: ${info.service.skillCounts.inventory})`
+    );
+    const special = info.service.skillCounts.special;
+    const riskBreakdown = Object.entries(special.activeByRiskClass)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([riskClass, count]) => `${count} ${riskClass}`)
+      .join(', ');
+    printMessage(
+      `  Active special-kind skills: ${special.active} (available: ${special.inventory})` +
+        (riskBreakdown ? ` — by risk: ${riskBreakdown}` : '')
     );
     printMessage(
       `  Active tools: ${info.service.toolCounts.total} (${info.service.toolCounts.canonical} canonical, ${info.service.toolCounts.discovery} discovery)`

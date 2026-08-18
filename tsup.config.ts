@@ -9,6 +9,14 @@ export default defineConfig({
   clean: true,
   bundle: true,
   shims: true, // this will properly transpile 'import.meta.url'
+  // Injected as a literal at bundle time so a running process's build can
+  // be verified directly, rather than trusting file mtimes or a packaging
+  // step (tsup here, but especially the later pkg binary-packaging step)
+  // that can silently produce a stale artifact despite every file on disk
+  // looking current. See getCliBuildTimestamp in src/utils/Version.ts.
+  define: {
+    __CLI_BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
+  },
   external: [
     // list all the dev dependencies, which do NOT need to be bundled.
     '@types/colors',

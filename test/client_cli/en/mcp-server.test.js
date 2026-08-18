@@ -80,9 +80,14 @@ afterAll(() => {
 test("'mcp server info' prints the active server summary", async () => {
     const stdout = await runMcpCommand('info', '--policy', 'admin');
 
-    expect(stdout).toContain(
-        `MCP server info:\n  Frodo MCP Server v${cliVersion}\n`
+    expect(stdout).toContain('MCP server info:\n  Frodo MCP Server\n');
+    // Build timestamps are real and change every build, so these check the
+    // stable `cli: vX (` / `lib: vY (` prefix plus a real ISO 8601 value
+    // rather than an exact match.
+    expect(stdout).toMatch(
+        new RegExp(` {2}cli: v${cliVersion} \\(\\d{4}-\\d{2}-\\d{2}T[\\d:.]+Z\\)\\n`)
     );
+    expect(stdout).toMatch(/ {2}lib: v[\d.]+ \(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)\n/);
     expect(stdout).toContain(
         '  Supported protocol versions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05, 2024-10-07\n'
     );
