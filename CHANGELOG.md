@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## [v4.5.4] - 2026-08-18
+
+### Added
+- Surface build timestamps via `frodo -v` and the MCP server manifest, providing users with build information for better traceability. (#665)
+- Report special-kind skill counts in `mcp server info`, offering more detailed server insights. (#665)
+
+### Changed
+- Updated to `frodo-lib` v4.3.3, incorporating the latest enhancements and bug fixes. (037822ce)
+- Adapted to `frodo-lib`'s `resolveIdentity` replacing `resolvePerpetratorUuid`, ensuring smoother identity resolution processes. (03d21c3b)
+
+### Fixed
+- Disabled token cache for `mcp server start`, improving startup reliability and performance. (#665)
+- Reformatted build-timestamp display for clarity and consistency. (#665)
+- Removed unused realm positional from `mcp server start`, simplifying command usage. (#665)
+- Hidden `--no-cache`/`--flush-cache` options from `mcp server start` help, reducing confusion over unsupported options. (#665)
+
 ## [v4.5.3] - 2026-08-17
 
 ### Added
