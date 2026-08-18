@@ -40,6 +40,7 @@ Commands:
   service-objects        [Experimental] Import service objects.
   services               [Experimental] Import AM authentication services.
   terms-and-conditions   [Experimental] Import terms and conditions.
+  test                   [Experimental] Test connection and authentication.
   themes                 [Experimental] Import themes.
   ui-config              [Experimental] Import UI configuration.
 

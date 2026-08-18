@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo conn test "frodo conn test": should fail connection with invalid credentials" 1`] = `
+"Error getting tokens
+  Error authenticating user
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/authenticate
+      Status: 401
+      Code: ERR_BAD_REQUEST
+      Reason: Unauthorized
+      Message: Login failure
+"
+`;
+
+exports[`frodo conn test "frodo conn test": should fail connection with invalid credentials" 2`] = `1`;
+
+exports[`frodo conn test "frodo conn test": should receive access tokens" 1`] = `""`;
+
+exports[`frodo conn test "frodo conn test": should receive access tokens" 2`] = `
+"Connected and authenticated successfully
+"
+`;

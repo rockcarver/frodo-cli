@@ -18,5 +18,6 @@ Commands:
   help              display help for command
   list              List connection profiles.
   save|add          Save connection profiles.
+  test              Test connection and authentication.
 "
 `;

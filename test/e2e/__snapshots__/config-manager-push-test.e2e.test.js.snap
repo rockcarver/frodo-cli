@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push test "frodo config-manager push test": should fail connection with invalid credentials" 1`] = `
+"Experimental feature in use: 'frodo config-manager push test'. This feature may change without notice.
+Error getting tokens
+  Error authenticating user
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/authenticate
+      Status: 401
+      Code: ERR_BAD_REQUEST
+      Reason: Unauthorized
+      Message: Login failure
+"
+`;
+
+exports[`frodo config-manager push test "frodo config-manager push test": should fail connection with invalid credentials" 2`] = `1`;
+
+exports[`frodo config-manager push test "frodo config-manager push test": should receive access tokens" 1`] = `""`;
+
+exports[`frodo config-manager push test "frodo config-manager push test": should receive access tokens" 2`] = `
+"Experimental feature in use: 'frodo config-manager push test'. This feature may change without notice.
+Connected and authenticated successfully
+"
+`;
