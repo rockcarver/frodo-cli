@@ -11,6 +11,7 @@ import CustomNodes from './config-manager-push-custom-nodes';
 import EmailProvider from './config-manager-push-email-provider';
 import EmailTemplates from './config-manager-push-email-templates';
 import Endpoints from './config-manager-push-endpoints';
+import IdmAuthentication from './config-manager-push-idm-authentication';
 import IgaWorkflows from './config-manager-push-iga-workflows';
 import InternalRoles from './config-manager-push-internal-roles';
 import Journeys from './config-manager-push-journeys';
@@ -42,6 +43,7 @@ export default function setup() {
   program.addCommand(Kba().name('kba'));
   program.addCommand(InternalRoles().name('internal-roles'));
   program.addCommand(IgaWorkflows().name('iga-workflows'));
+  program.addCommand(IdmAuthentication().name('idm-authentication'));
   program.addCommand(EmailTemplates().name('email-templates'));
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(OrgPrivileges().name('org-privileges'));

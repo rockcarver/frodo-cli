@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'config-manager pull' should be expected english 1`] = `
+"Usage: frodo config-manager pull [options] [command]
+
+[Experimental] Export configuration optimized for CI/CD pipelines (format
+compatible with fr-config-manager).
+
+Options:
+  -h, --help             Help
+  -hh, --help-more       Help with all options.
+  -hhh, --help-all       Help with all options, environment variables, and usage
+                         examples.
+
+Commands:
+  access-config          [Experimental] Export access-config objects.
+  all                    [Experimental] Export all config.
+  all-static             [Experimental] Export all static config.
+  audit                  [Experimental] Export audit objects.
+  authentication         [Experimental] Export authentication objects.
+  authz-policies         [Experimental] Export authorization policies from
+                         realm.
+  connector-definitions  [Experimental] Export aconnector definitions.
+  connector-mappings     [Experimental] Export connector mappings.
+  cookie-domains         [Experimental] Export cookie-domains objects.
+  cors                   [Experimental] Export CORS configuration.
+  csp                    [Experimental] Export content security policy.
+  custom-nodes           [Experimental] Export custom nodes.
+  email-provider         [Experimental] Export email provider configuration.
+  email-templates        [Experimental] Export email-templates objects.
+  endpoints              [Experimental] Export custom endpoints objects.
+  help                   display help for command
+  idm-authentication     [Experimental] Export idm authentication config.
+  internal-roles         [Experimental] Export internal roles.
+  journeys               [Experimental] Export journeys.
+  kba                    [Experimental] Export kba-config objects.
+  locales                [Experimental] Export custom locales objects.
+  managed-objects        [Experimental] Export managed-objects.
+  oauth2-agents          [Experimental] Export OAuth2 Agents
+  org-privileges         [Experimental] Export organization privileges config.
+  password-policy        [Experimental] Export password-policy objects.
+  raw                    [Experimental] Export raw configurations from the
+                         tenant.
+  remote-servers         [Experimental] Export remote-servers objects.
+  saml                   [Experimental] Export saml.
+  schedules              [Experimental] Export schedules.
+  scripts                [Experimental] Export authorization scripts.
+  secret-mappings        [Experimental] Export secret mappings.
+  secrets                [Experimental] Export secrets.
+  service-objects        [Experimental] Export service objects.
+  services               [Experimental] Export authentication services.
+  terms-and-conditions   [Experimental] Export terms and conditions.
+  test                   [Experimental] Test connection and authentication.
+  themes                 [Experimental] Export themes.
+  ui-config              [Experimental] Export ui-configuration objects.
+  variables              [Experimental] Export variables objects.
+
+  (Cloud-only):
+  iga-workflows          [Experimental] Export iga-workflows.
+"
+`;

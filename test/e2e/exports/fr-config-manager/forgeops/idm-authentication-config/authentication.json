@@ -1,0 +1,60 @@
+{
+  "_id": "authentication",
+  "rsFilter": {
+    "anonymousUserMapping": {
+      "executeAugmentationScript": false,
+      "localUser": "internal/user/anonymous",
+      "roles": [
+        "internal/role/openidm-reg"
+      ]
+    },
+    "augmentSecurityContext": {
+      "source": "require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, 'privileges', 'privilegeAssignments');",
+      "type": "text/javascript"
+    },
+    "cache": {
+      "maxTimeout": "300 seconds"
+    },
+    "clientId": "idm-resource-server",
+    "clientSecret": "&{rs.client.secret|password}",
+    "scopes": [
+      "fr:idm:*"
+    ],
+    "staticUserMapping": [
+      {
+        "executeAugmentationScript": false,
+        "localUser": "internal/user/openidm-admin",
+        "roles": [
+          "internal/role/openidm-authorized",
+          "internal/role/openidm-admin"
+        ],
+        "subject": "amadmin"
+      },
+      {
+        "executeAugmentationScript": false,
+        "localUser": "internal/user/idm-provisioning",
+        "roles": [
+          "internal/role/openidm-admin"
+        ],
+        "subject": "idm-provisioning"
+      }
+    ],
+    "subjectMapping": [
+      {
+        "additionalUserFields": [
+          "adminOfOrg",
+          "ownerOfOrg"
+        ],
+        "defaultRoles": [
+          "internal/role/openidm-authorized"
+        ],
+        "propertyMapping": {
+          "sub": "_id"
+        },
+        "queryOnResource": "managed/user",
+        "userRoles": "authzRoles/*"
+      }
+    ],
+    "tokenIntrospectUrl": "http://am/am/oauth2/introspect"
+  }
+}
