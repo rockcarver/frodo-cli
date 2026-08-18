@@ -1,0 +1,18 @@
+{
+  "displayName": "Reject Request",
+  "name": "scriptTask-c58309b8c470",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "done",
+        "step": null
+      }
+    ],
+    "script": {
+      "file": "Reject Request - scriptTask-c58309b8c470.js"
+    }
+  },
+  "type": "scriptTask"
+}

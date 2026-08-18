@@ -1,0 +1,18 @@
+{
+  "displayName": "Application Grant Validation Failure",
+  "name": "scriptTask-744ef6a8b9a2",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "done",
+        "step": null
+      }
+    ],
+    "script": {
+      "file": "Application Grant Validation Failure - scriptTask-744ef6a8b9a2.js"
+    }
+  },
+  "type": "scriptTask"
+}

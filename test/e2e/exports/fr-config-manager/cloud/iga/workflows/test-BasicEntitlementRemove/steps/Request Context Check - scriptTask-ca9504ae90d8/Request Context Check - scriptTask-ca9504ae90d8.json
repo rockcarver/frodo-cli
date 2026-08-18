@@ -1,0 +1,18 @@
+{
+  "displayName": "Request Context Check",
+  "name": "scriptTask-ca9504ae90d8",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "done",
+        "step": "exclusiveGateway-abbb089758c8"
+      }
+    ],
+    "script": {
+      "file": "Request Context Check - scriptTask-ca9504ae90d8.js"
+    }
+  },
+  "type": "scriptTask"
+}

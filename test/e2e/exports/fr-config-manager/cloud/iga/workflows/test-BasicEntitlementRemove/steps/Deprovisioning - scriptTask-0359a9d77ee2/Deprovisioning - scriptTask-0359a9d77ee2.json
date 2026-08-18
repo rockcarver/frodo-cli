@@ -1,0 +1,18 @@
+{
+  "displayName": "Deprovisioning",
+  "name": "scriptTask-0359a9d77ee2",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "done",
+        "step": null
+      }
+    ],
+    "script": {
+      "file": "Deprovisioning - scriptTask-0359a9d77ee2.js"
+    }
+  },
+  "type": "scriptTask"
+}

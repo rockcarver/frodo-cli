@@ -1,0 +1,24 @@
+{
+  "displayName": "Has End Date",
+  "name": "inclusiveGateway-8803458e3a77",
+  "scriptTask": {
+    "gatewayType": "inclusive",
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "enableWait == true",
+        "outcome": "hasEndDate",
+        "step": "waitTask-b6e654628b18"
+      },
+      {
+        "condition": "enableWait == false",
+        "outcome": "noEndDate",
+        "step": "scriptTask-0359a9d77ee2"
+      }
+    ],
+    "script": {
+      "file": "Has End Date - inclusiveGateway-8803458e3a77.js"
+    }
+  },
+  "type": "scriptTask"
+}

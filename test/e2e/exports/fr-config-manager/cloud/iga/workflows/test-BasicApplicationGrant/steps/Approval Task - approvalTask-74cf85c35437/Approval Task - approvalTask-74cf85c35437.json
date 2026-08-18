@@ -1,0 +1,61 @@
+{
+  "approvalMode": "any",
+  "approvalTask": {
+    "actors": [
+      {
+        "id": {
+          "isExpression": true,
+          "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+        },
+        "permissions": {
+          "approve": true,
+          "comment": true,
+          "modify": true,
+          "reassign": true,
+          "reject": true
+        }
+      }
+    ],
+    "approvalMode": "any",
+    "events": {
+      "assignment": {
+        "notification": "requestAssigned"
+      },
+      "expiration": {
+        "action": "reject",
+        "actors": [],
+        "date": {
+          "isExpression": true,
+          "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+        },
+        "notification": "requestExpired"
+      },
+      "reassign": {
+        "notification": "requestReassigned"
+      },
+      "reminder": {
+        "date": {
+          "isExpression": true,
+          "value": "(new Date(new Date().getTime()+(3*1*24*60*60*1000))).toISOString()"
+        },
+        "frequency": 3,
+        "notification": "requestReminder"
+      }
+    },
+    "nextStep": [
+      {
+        "condition": null,
+        "outcome": "APPROVE",
+        "step": "scriptTask-0e5b6187ea62"
+      },
+      {
+        "condition": null,
+        "outcome": "REJECT",
+        "step": "scriptTask-c58309b8c470"
+      }
+    ]
+  },
+  "displayName": "Approval Task",
+  "name": "approvalTask-74cf85c35437",
+  "type": "approvalTask"
+}

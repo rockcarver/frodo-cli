@@ -1,0 +1,18 @@
+{
+  "displayName": "Create Removal Request",
+  "name": "scriptTask-14acc58c28dd",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "done",
+        "step": null
+      }
+    ],
+    "script": {
+      "file": "Create Removal Request - scriptTask-14acc58c28dd.js"
+    }
+  },
+  "type": "scriptTask"
+}

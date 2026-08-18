@@ -41,6 +41,7 @@ Commands:
 
   (Cloud-only):
   csp                    [Experimental] Import content security policy.
+  iga-workflows          [Experimental] Import iga-workflows.
   restart                [Experimental] Restart the environment.
   secret-mappings        [Experimental] Import secret mappings.
 "
