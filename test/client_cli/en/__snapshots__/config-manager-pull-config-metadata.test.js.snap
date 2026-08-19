@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CLI help interface for 'config-manager pull' should be expected english 1`] = `
+exports[`CLI help interface for 'config-manager pull config-metadata' should be expected english 1`] = `
 "Usage: frodo config-manager pull [options] [command]
 
 [Experimental] Export configuration optimized for CI/CD pipelines (format
@@ -44,7 +44,7 @@ Commands:
   remote-servers         [Experimental] Export remote-servers objects.
   saml                   [Experimental] Export saml.
   schedules              [Experimental] Export schedules.
-  scripts                [Experimental] Export AM scripts.
+  scripts                [Experimental] Export authorization scripts.
   secret-mappings        [Experimental] Export secret mappings.
   secrets                [Experimental] Export secrets.
   service-objects        [Experimental] Export service objects.

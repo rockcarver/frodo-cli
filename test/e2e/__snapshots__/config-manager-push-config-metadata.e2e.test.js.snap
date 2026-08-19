@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push config-metadata "frodo config-manager push config-metadata --metadata.pushedAt 2023-09-10T10:21:46Z --metadata.versionInfo.version 1.0 --metadata.versionInfo.stable true --metadata.versionInfo.rev 0675342640420f7ff6635d6a63d2c9c81b6feca7 -m forgeops": should import config-metadata into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push config-metadata "frodo config-manager push config-metadata --metadata.pushedAt 2023-09-10T10:21:46Z --metadata.versionInfo.version 1.0 --metadata.versionInfo.stable true --metadata.versionInfo.rev 0675342640420f7ff6635d6a63d2c9c81b6feca7 -m forgeops": should import config-metadata into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push config-metadata'. This feature may change without notice.
+✔ Metadata config import completed.
+"
+`;
+
+exports[`frodo config-manager push config-metadata "frodo config-manager push config-metadata -M.two 2 -M.true true -M.true2 -M.true3 -M.true3 three -M.obj.one 1 -M.obj.two -M.obj2.obj3.msg hello -m forgeops": should correctly parse dot-notation options (string values, boolean defaults, duplicate-path arrays, and nested objects) and import config-metadata into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push config-metadata "frodo config-manager push config-metadata -M.two 2 -M.true true -M.true2 -M.true3 -M.true3 three -M.obj.one 1 -M.obj.two -M.obj2.obj3.msg hello -m forgeops": should correctly parse dot-notation options (string values, boolean defaults, duplicate-path arrays, and nested objects) and import config-metadata into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push config-metadata'. This feature may change without notice.
+✔ Metadata config import completed.
+"
+`;

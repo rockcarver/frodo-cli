@@ -6,6 +6,7 @@ import AllStatic from './config-manager-pull-all-static';
 import Audit from './config-manager-pull-audit';
 import Authentication from './config-manager-pull-authentication';
 import AuthzPolicies from './config-manager-pull-authz-policies';
+import Metadata from './config-manager-pull-config-metadata';
 import ConnectorDefinitions from './config-manager-pull-connector-definitions';
 import ConnectorMappings from './config-manager-pull-connector-mappings';
 import CookieDomains from './config-manager-pull-cookie-domains';
@@ -66,6 +67,7 @@ export default function setup() {
   program.addCommand(Kba().name('kba'));
   program.addCommand(Locales().name('locales'));
   program.addCommand(ManagedObjects().name('managed-objects'));
+  program.addCommand(Metadata().name('config-metadata'));
   program.addCommand(Oauth2Agents().name('oauth2-agents'));
   program.addCommand(OrgPrivileges().name('org-privileges'));
   program.addCommand(PasswordPolicy().name('password-policy'));

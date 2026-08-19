@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pull config-metadata "frodo config-manager pull config-metadata -m forgeops ": should export the config-metadata in fr-config-manager style" 1`] = `
+"{
+  "_id": "custom/config.metadata",
+  "pushedAt": "2023-09-10T10:21:46Z",
+  "versionInfo": {
+    "version": "1.0",
+    "stable": true,
+    "rev": "0675342640420f7ff6635d6a63d2c9c81b6feca7"
+  }
+}
+"
+`;
+
+exports[`frodo config-manager pull config-metadata "frodo config-manager pull config-metadata -m forgeops ": should export the config-metadata in fr-config-manager style" 2`] = `
+"Experimental feature in use: 'frodo config-manager pull config-metadata'. This feature may change without notice.
+"
+`;
