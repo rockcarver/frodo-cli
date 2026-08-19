@@ -74,6 +74,9 @@ export function runShellScenario({ actions, homeDir, env = {}, args = ['shell'] 
             FRODO_NO_CACHE: 'true',
             TERM: 'xterm-256color',
             FRODO_CONNECTION_PROFILES_PATH: '',
+            // Clear Jest's NODE_OPTIONS so --experimental-vm-modules and
+            // similar flags don't interfere with the shell's own loader setup.
+            NODE_OPTIONS: '',
         },
         actions,
     };

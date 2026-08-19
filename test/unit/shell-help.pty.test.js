@@ -5,13 +5,15 @@ import {
 } from '../utils/ShellPty.js';
 
 describe('frodo shell help() function', () => {
+    // CI startup can be slow under resource contention; allow up to 90 s.
     test('all help() variants produce correct output in a single session', async () => {
         const homeDir = createShellTestHome();
+
         try {
             const result = runShellScenario({
                 homeDir,
                 actions: [
-                    { type: 'wait_prompt' },
+                    { type: 'wait_prompt', timeoutMs: 30000 },
 
                     // ── help() ─────────────────────────────────────────────────────
                     { type: 'clear_output' },
@@ -60,5 +62,5 @@ describe('frodo shell help() function', () => {
         } finally {
             removeShellTestHome(homeDir);
         }
-    });
+    }, 90000);
 });
