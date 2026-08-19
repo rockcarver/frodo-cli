@@ -1,0 +1,6 @@
+{
+  "_id": "esv-fr-var-test-2",
+  "description": "",
+  "expressionType": "int",
+  "valueBase64": "${ESV_FR_VAR_TEST_2}"
+}

@@ -1,0 +1,6 @@
+{
+  "_id": "esv-fr-var-test",
+  "description": "",
+  "expressionType": "string",
+  "valueBase64": "${ESV_FR_VAR_TEST}"
+}

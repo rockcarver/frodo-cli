@@ -25,7 +25,7 @@ Arguments:
   password                            Password.
 
 Options:
-  -E, --frodo-export-dir <directory>  The directory where the frodo export is
+  -e, --frodo-export-dir <directory>  The directory where the frodo export is
                                       located.
   -M, --master-dir <directory>        The directory where the master
                                       configurations is located.

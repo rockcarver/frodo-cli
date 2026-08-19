@@ -28,7 +28,6 @@ export default function setup() {
   program
     .description('Import IDM configuration managed objects.')
     .addOption(new Option('-f, --file [file]', 'Import file.'))
-    .addOption(new Option('-e, --env-file [envfile]', 'Name of the env file.'))
     .addOption(
       new Option(
         '-i, --individual-object',
@@ -73,8 +72,7 @@ export default function setup() {
           );
           const outcome = await importManagedObjectFromFile(
             options.file,
-            undefined,
-            options.envFile
+            undefined
           );
           if (!outcome) process.exitCode = 1;
         } else if (
@@ -86,8 +84,7 @@ export default function setup() {
           );
           const outcome = await importConfigEntityByIdFromFile(
             'managed',
-            options.file,
-            options.envFile
+            options.file
           );
           if (!outcome) process.exitCode = 1;
         } else if (
@@ -97,10 +94,7 @@ export default function setup() {
           verboseMessage(
             `Importing IDM configuration objects ${envMessage}${directoryMessage}`
           );
-          const outcome = await importAllConfigEntitiesFromFiles(
-            undefined,
-            options.envFile
-          );
+          const outcome = await importAllConfigEntitiesFromFiles(undefined);
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

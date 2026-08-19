@@ -38,11 +38,10 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-E, --entities-file [entities-file]',
+        '-e, --entities-file [entities-file]',
         'Name of the entity file. Ignored with -i.'
       )
     )
-    .addOption(new Option('-e, --env-file [envfile]', 'Name of the env file.'))
     .addOption(
       new Option(
         '-a, --all',
@@ -99,7 +98,6 @@ export default function setup() {
           const outcome = await exportConfigEntityToFile(
             options.entityId,
             options.file,
-            options.envFile,
             options.metadata,
             options.extract
           );
@@ -115,7 +113,6 @@ export default function setup() {
           const outcome = await exportAllConfigEntitiesToFile(
             options.file,
             options.entitiesFile,
-            options.envFile,
             options.metadata
           );
           if (!outcome) process.exitCode = 1;
@@ -140,7 +137,6 @@ export default function setup() {
           );
           const outcome = await exportAllConfigEntitiesToFiles(
             options.entitiesFile,
-            options.envFile,
             options.metadata,
             options.extract
           );

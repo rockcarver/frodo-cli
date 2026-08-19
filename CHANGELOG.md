@@ -5,6 +5,17 @@
 ### Changed
 - Frodo shell autocomplete and `help()` output now indicate which parameters are optional.
 
+## [v4.7.0] - 2026-08-19
+
+### Added
+- Introduced `config-manager push variables` command, allowing users to push variable configurations. This feature supports ESV placeholders and includes global environment flags for enhanced configuration management. (#667, dff7e7bb)
+
+### Fixed
+- Corrected an issue in the `idm-import` command by adding a missing `await`, ensuring proper asynchronous operation and updated snapshots. (5a28650c)
+
+### Changed
+- Updated `@rockcarver/frodo-lib` to version 4.4.0, which includes improvements that may affect the behavior and performance of Frodo CLI. (b0e94969)
+
 ## [v4.6.0] - 2026-08-18
 
 ### Added

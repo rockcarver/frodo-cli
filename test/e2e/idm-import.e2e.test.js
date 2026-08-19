@@ -50,8 +50,8 @@
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -i script -D test/e2e/exports/all-separate/cloud/global/idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f test/e2e/exports/all-separate/cloud/global/idm/script.idm.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --entity-id script --file test/e2e/exports/all-separate/cloud/global/idm/script.idm.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -i script -e test/e2e/env/testEnvFile.env -f script.idm.json -D test/e2e/exports/all-separate/cloud/global/idm
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -af test/e2e/exports/all/all.idm.json -e test/e2e/env/testEnvFile.env -E test/e2e/env/testEntitiesFile.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -i script --env-file test/e2e/env/testEnvFile.env -f script.idm.json -D test/e2e/exports/all-separate/cloud/global/idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -af test/e2e/exports/all/all.idm.json --env-file test/e2e/env/testEnvFile.env -e test/e2e/env/testEntitiesFile.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --all --file all.idm.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/cloud/global/idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --all-separate --directory test/e2e/exports/all-separate/cloud/global/idm --env-file test/e2e/env/testEnvFile.env --entities-file test/e2e/env/testEntitiesFile.json
@@ -67,7 +67,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv,  testSuccess } from './utils/TestUtils';
+import { getEnv,  testFail,  testSuccess } from './utils/TestUtils';
 import { connection as c , forgeops_connection as fc} from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -93,58 +93,42 @@ describe('frodo idm import', () => {
 
     test(`"frodo idm import -i script -D ${idmExportDirectory}": should import the idm config with name 'script' from the directory ${idmExportDirectory}"`, async () => {
         const CMD = `frodo idm import -i script -D ${idmExportDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        await testSuccess(CMD, env);
     });
 
     test(`"frodo idm import -f ${idmScriptConfigExport}": should import the idm config from the file named '${idmScriptConfigExport}'"`, async () => {
         const CMD = `frodo idm import -f ${idmScriptConfigExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        await testSuccess(CMD, env);
     });
 
     test(`"frodo idm import --entity-id script --file ${idmScriptConfigExport}": should import the idm config with name 'script' from the file named '${idmScriptConfigExport}'"`, async () => {
         const CMD = `frodo idm import --entity-id script --file ${idmScriptConfigExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        await testSuccess(CMD, env);
     });
 
-    test(`"frodo idm import -i script -e ${testEnvFile} -f ${idmScriptConfigFileName} -D ${idmExportDirectory}": should import the idm config with name 'script' from the file named '${idmScriptConfigExport}'"`, async () => {
-        const CMD = `frodo idm import -i script -e ${testEnvFile} -f ${idmScriptConfigFileName} -D ${idmExportDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+    test(`"frodo idm import -i script --env-file ${testEnvFile} -f ${idmScriptConfigFileName} -D ${idmExportDirectory}": should import the idm config with name 'script' from the file named '${idmScriptConfigExport}'"`, async () => {
+        const CMD = `frodo idm import -i script --env-file ${testEnvFile} -f ${idmScriptConfigFileName} -D ${idmExportDirectory}`;
+        await testSuccess(CMD, env);
     });
 
-    test(`"frodo idm import -af ${allIdmExport} -e ${testEnvFile} -E ${testEntitiesFile}": Should import all configs from the file '${allIdmExport}' according to the env and entity files"`, async () => {
-        const CMD = `frodo idm import -af ${allIdmExport} -e ${testEnvFile} -E ${testEntitiesFile}`;
-        const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+    test(`"frodo idm import -af ${allIdmExport} --env-file ${testEnvFile} -e ${testEntitiesFile}": Should import all configs from the file '${allIdmExport}' according to the env and entity files"`, async () => {
+        const CMD = `frodo idm import -af ${allIdmExport} --env-file ${testEnvFile} -e ${testEntitiesFile}`;
+        await testSuccess(CMD, env);
     });
 
     test(`"frodo idm import --all --file ${allIdmExportFileName} -D ${allIdmExportDirectory}": Should import all configs from the file '${allIdmExportFileName}' in directory '${allIdmExportDirectory}'"`, async () => {
         const CMD = `frodo idm import --all --file ${allIdmExportFileName} -D ${allIdmExportDirectory}`;
-        try {
-            await exec(CMD, env);
-            fail("Command should've failed");
-        } catch (e) {
-            expect(e.stderr).toMatchSnapshot();
-        }
+        await testFail(CMD, env);
     });
 
     test(`"frodo idm import -AD ${idmExportDirectory}": Should import all configs from the directory '${idmExportDirectory}'"`, async () => {
         const CMD = `frodo idm import -AD ${idmExportDirectory}`;
-        try {
-            await exec(CMD, env);
-            fail("Command should've failed");
-        } catch (e) {
-            expect(e.stderr).toMatchSnapshot();
-        }
+        await testFail(CMD, env);
     });
 
     test(`"frodo idm import --all-separate --directory ${idmExportDirectory} --env-file ${testEnvFile} --entities-file ${testEntitiesFile}": Should import all configs from the directory '${idmExportDirectory}' according to the env and entity files"`, async () => {
         const CMD = `frodo idm import --all-separate --directory ${idmExportDirectory} --env-file ${testEnvFile} --entities-file ${testEntitiesFile}`;
-        const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        await testSuccess(CMD, env);
     });
 
     // Forgeops Tests

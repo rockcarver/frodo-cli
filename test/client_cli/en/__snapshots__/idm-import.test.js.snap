@@ -31,8 +31,7 @@ Options:
   -A, --all-separate                   Import all IDM configuration objects from
                                        separate files in directory -D. Ignored
                                        with -i, and -a.
-  -e, --env-file [envfile]             Name of the env file.
-  -E, --entities-file [entities-file]  Name of the entity file. Ignored with -i.
+  -e, --entities-file [entities-file]  Name of the entity file. Ignored with -i.
   -f, --file [file]                    Import file. Ignored with -A.
   -i, --entity-id <id>                 Config entity id/name. E.g. "managed",
                                        "sync", "provisioner-<connector-name>",

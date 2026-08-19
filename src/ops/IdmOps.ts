@@ -7,7 +7,6 @@ import {
 } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import fs from 'fs';
 import path from 'path';
-import propertiesReader from 'properties-reader';
 
 import {
   extractDataToFile,
@@ -104,7 +103,6 @@ export type ManagedSkeleton = IdObjectSkeletonInterface & {
  * Export an IDM configuration object.
  * @param {string} id the desired configuration object
  * @param {string} file optional export file name (or directory name if exporting mappings separately)
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract true to extract idm scripts, false otherwise. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
@@ -112,16 +110,11 @@ export type ManagedSkeleton = IdObjectSkeletonInterface & {
 export async function exportConfigEntityToFile(
   id: string,
   file?: string,
-  envFile?: string,
   includeMeta: boolean = true,
   extract: boolean = false
 ): Promise<boolean> {
   try {
-    const options = getIdmImportExportOptions(undefined, envFile);
-    const exportData = await exportConfigEntity(id, {
-      envReplaceParams: options.envReplaceParams,
-      entitiesToExport: undefined,
-    });
+    const exportData = await exportConfigEntity(id);
     if (!extract) {
       const fileName = file || getTypedFilename(`${id}`, 'idm');
       saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
@@ -157,22 +150,19 @@ export async function exportConfigEntityToFile(
  * Export an IDM configuration managed object.
  * @param {string} name the desired configuration object
  * @param {string} file optional export file name
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} extract true to extract idm scripts, false otherwise. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportManagedObjectToFile(
   name: string,
   file?: string,
-  envFile?: string,
   extract: boolean = false
 ): Promise<boolean> {
   try {
-    const options = getIdmImportExportOptions(undefined, envFile);
-    const exportData = (await readSubConfigEntity('managed', name, {
-      envReplaceParams: options.envReplaceParams,
-      entitiesToExport: undefined,
-    })) as ObjectSkeleton;
+    const exportData = (await readSubConfigEntity(
+      'managed',
+      name
+    )) as ObjectSkeleton;
     if (extract && extractManagedObjectScriptsToDirectory(exportData)) {
       const fileName = getTypedFilename(name, 'managed');
       saveJsonToFile(
@@ -195,21 +185,18 @@ export async function exportManagedObjectToFile(
  * Export all IDM configuration objects
  * @param {string} file file to export to
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportAllConfigEntitiesToFile(
   file?: string,
   entitiesFile?: string,
-  envFile?: string,
   includeMeta: boolean = true
 ): Promise<boolean> {
   try {
-    const options = getIdmImportExportOptions(entitiesFile, envFile);
+    const options = getIdmImportExportOptions(entitiesFile);
     const exportData = await exportConfigEntities(
       {
-        envReplaceParams: options.envReplaceParams,
         entitiesToExport: options.entitiesToExportOrImport,
       },
       errorHandler
@@ -229,23 +216,20 @@ export async function exportAllConfigEntitiesToFile(
 /**
  * Export all IDM configuration objects to separate files
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract true to extract idm scripts, false otherwise. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportAllConfigEntitiesToFiles(
   entitiesFile?: string,
-  envFile?: string,
   includeMeta: boolean = true,
   extract: boolean = false
 ): Promise<boolean> {
   const errors: Error[] = [];
   try {
-    const options = getIdmImportExportOptions(entitiesFile, envFile);
+    const options = getIdmImportExportOptions(entitiesFile);
     const exportData = await exportConfigEntities(
       {
-        envReplaceParams: options.envReplaceParams,
         entitiesToExport: options.entitiesToExportOrImport,
       },
       errorHandler
@@ -309,14 +293,12 @@ export async function exportAllConfigEntitiesToFiles(
  * Import an IDM configuration object by id from file.
  * @param {string} entityId the configuration object to import
  * @param {string} file optional file to import
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} validate True to validate script hooks. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importConfigEntityByIdFromFile(
   entityId: string,
   file?: string,
-  envFile?: string,
   validate: boolean = false
 ): Promise<boolean> {
   try {
@@ -356,13 +338,11 @@ export async function importConfigEntityByIdFromFile(
         importData.idm[entityId] = entity;
       }
     }
-    const options = getIdmImportExportOptions(undefined, envFile);
 
     await importConfigEntities(
       importData,
       entityId,
       {
-        envReplaceParams: options.envReplaceParams,
         entitiesToImport: undefined,
         validate,
       },
@@ -402,13 +382,11 @@ export async function deleteConfigEntityById(
 /**
  * Import first IDM configuration object from file.
  * @param {string} file optional file to import
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} validate True to validate script hooks. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importFirstConfigEntityFromFile(
   file: string,
-  envFile?: string,
   validate: boolean = false
 ): Promise<boolean> {
   const filePath = getFilePath(file);
@@ -463,13 +441,10 @@ export async function importFirstConfigEntityFromFile(
       ]);
     }
 
-    const options = getIdmImportExportOptions(undefined, envFile);
-
     await importConfigEntities(
       importData,
       entityId,
       {
-        envReplaceParams: options.envReplaceParams,
         entitiesToImport: undefined,
         validate,
       },
@@ -492,14 +467,12 @@ export async function importFirstConfigEntityFromFile(
  * Import all IDM configuration objects from a single file
  * @param {string} file the file with the configuration objects
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} validate True to validate script hooks. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importAllConfigEntitiesFromFile(
   file: string,
   entitiesFile?: string,
-  envFile?: string,
   validate: boolean = false
 ): Promise<boolean> {
   let indicatorId: string;
@@ -514,13 +487,12 @@ export async function importAllConfigEntitiesFromFile(
       0,
       `Importing config entities from ${filePath}...`
     );
-    const options = getIdmImportExportOptions(entitiesFile, envFile);
+    const options = getIdmImportExportOptions(entitiesFile);
     await importConfigEntities(
       importData as ConfigEntityExportInterface,
       undefined,
       {
         entitiesToImport: options.entitiesToExportOrImport,
-        envReplaceParams: options.envReplaceParams,
         validate,
       },
       errorHandler
@@ -541,13 +513,11 @@ export async function importAllConfigEntitiesFromFile(
 /**
  * Import an individual managed object from a file
  * @param {string} file the file containing the managed object
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} validate True to validate script hooks. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importManagedObjectFromFile(
   file: string,
-  envFile?: string,
   validate: boolean = false
 ): Promise<boolean> {
   let indicatorId: string;
@@ -563,10 +533,9 @@ export async function importManagedObjectFromFile(
       0,
       `Importing config managed object from ${filePath}...`
     );
-    const options = getIdmImportExportOptions(undefined, envFile);
+    const options = getIdmImportExportOptions(undefined);
     await importSubConfigEntity('managed', importData, {
       entitiesToImport: options.entitiesToExportOrImport,
-      envReplaceParams: options.envReplaceParams,
       validate,
     });
 
@@ -589,13 +558,11 @@ export async function importManagedObjectFromFile(
 /**
  * Import all IDM configuration objects from working directory
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} validate True to validate script hooks. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importAllConfigEntitiesFromFiles(
   entitiesFile?: string,
-  envFile?: string,
   validate: boolean = false
 ): Promise<boolean> {
   let indicatorId: string;
@@ -607,13 +574,12 @@ export async function importAllConfigEntitiesFromFiles(
       0,
       `Importing config entities from ${baseDirectory}...`
     );
-    const options = getIdmImportExportOptions(entitiesFile, envFile);
+    const options = getIdmImportExportOptions(entitiesFile);
     await importConfigEntities(
       importData as ConfigEntityExportInterface,
       undefined,
       {
         entitiesToImport: options.entitiesToExportOrImport,
-        envReplaceParams: options.envReplaceParams,
         validate,
       },
       errorHandler
@@ -721,14 +687,9 @@ export function resolveAllExtractedScriptsForImport(
 /**
  * Helper that returns options for exporting/importing IDM config entities
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @return {ConfigEntityExportOptions} the config export options
  */
-export function getIdmImportExportOptions(
-  entitiesFile?: string,
-  envFile?: string
-): {
-  envReplaceParams: string[][];
+export function getIdmImportExportOptions(entitiesFile?: string): {
   entitiesToExportOrImport: string[];
 } {
   // read list of entities to export/import
@@ -738,19 +699,8 @@ export function getIdmImportExportOptions(
     const entriesData = JSON.parse(data);
     entitiesToExportOrImport = entriesData.idm;
   }
-
-  // read list of configs to parameterize for environment specific values
-  const envReplaceParams: string[][] = [];
-  if (envFile) {
-    const envParams = propertiesReader(envFile);
-    envParams.each((key: string, value: string) => {
-      envReplaceParams.push([key, value]);
-    });
-  }
-
   return {
     entitiesToExportOrImport,
-    envReplaceParams,
   };
 }
 
