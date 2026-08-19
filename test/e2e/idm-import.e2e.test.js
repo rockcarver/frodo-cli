@@ -93,42 +93,42 @@ describe('frodo idm import', () => {
 
     test(`"frodo idm import -i script -D ${idmExportDirectory}": should import the idm config with name 'script' from the directory ${idmExportDirectory}"`, async () => {
         const CMD = `frodo idm import -i script -D ${idmExportDirectory}`;
-        testSuccess(CMD, env);
+        await testSuccess(CMD, env);
     });
 
     test(`"frodo idm import -f ${idmScriptConfigExport}": should import the idm config from the file named '${idmScriptConfigExport}'"`, async () => {
         const CMD = `frodo idm import -f ${idmScriptConfigExport}`;
-        testSuccess(CMD, env);
+        await testSuccess(CMD, env);
     });
 
     test(`"frodo idm import --entity-id script --file ${idmScriptConfigExport}": should import the idm config with name 'script' from the file named '${idmScriptConfigExport}'"`, async () => {
         const CMD = `frodo idm import --entity-id script --file ${idmScriptConfigExport}`;
-        testSuccess(CMD, env);
+        await testSuccess(CMD, env);
     });
 
     test(`"frodo idm import -i script --env-file ${testEnvFile} -f ${idmScriptConfigFileName} -D ${idmExportDirectory}": should import the idm config with name 'script' from the file named '${idmScriptConfigExport}'"`, async () => {
         const CMD = `frodo idm import -i script --env-file ${testEnvFile} -f ${idmScriptConfigFileName} -D ${idmExportDirectory}`;
-        testSuccess(CMD, env);
+        await testSuccess(CMD, env);
     });
 
     test(`"frodo idm import -af ${allIdmExport} --env-file ${testEnvFile} -e ${testEntitiesFile}": Should import all configs from the file '${allIdmExport}' according to the env and entity files"`, async () => {
         const CMD = `frodo idm import -af ${allIdmExport} --env-file ${testEnvFile} -e ${testEntitiesFile}`;
-        testSuccess(CMD, env);
+        await testSuccess(CMD, env);
     });
 
     test(`"frodo idm import --all --file ${allIdmExportFileName} -D ${allIdmExportDirectory}": Should import all configs from the file '${allIdmExportFileName}' in directory '${allIdmExportDirectory}'"`, async () => {
         const CMD = `frodo idm import --all --file ${allIdmExportFileName} -D ${allIdmExportDirectory}`;
-        testFail(CMD, env);
+        await testFail(CMD, env);
     });
 
     test(`"frodo idm import -AD ${idmExportDirectory}": Should import all configs from the directory '${idmExportDirectory}'"`, async () => {
         const CMD = `frodo idm import -AD ${idmExportDirectory}`;
-        testFail(CMD, env);
+        await testFail(CMD, env);
     });
 
     test(`"frodo idm import --all-separate --directory ${idmExportDirectory} --env-file ${testEnvFile} --entities-file ${testEntitiesFile}": Should import all configs from the directory '${idmExportDirectory}' according to the env and entity files"`, async () => {
         const CMD = `frodo idm import --all-separate --directory ${idmExportDirectory} --env-file ${testEnvFile} --entities-file ${testEntitiesFile}`;
-        testSuccess(CMD, env);
+        await testSuccess(CMD, env);
     });
 
     // Forgeops Tests
