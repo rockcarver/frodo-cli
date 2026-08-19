@@ -73,6 +73,7 @@ export function runShellScenario({ actions, homeDir, env = {}, args = ['shell'] 
             FRODO_TEST: '1',
             FRODO_NO_CACHE: 'true',
             TERM: 'xterm-256color',
+            FRODO_CONNECTION_PROFILES_PATH: '',
         },
         actions,
     };
