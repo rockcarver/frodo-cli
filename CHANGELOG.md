@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+## [v4.7.1] - 2026-08-19
+
 ### Changed
 - Frodo shell autocomplete and `help()` output now indicate which parameters are optional.
+
+- Frodo shell autocomplete and `help()` output now indicate which parameters are optional. The shell autocomplete scaffolds append `?` to parameter names marked as optional, and the `help()` output labels optional parameters with a `(optional)` tag. (#668, 66b9f1e7)
+- Updated `@rockcarver/frodo-lib` to version 4.4.1, which may include improvements affecting the behavior and performance of Frodo CLI. (3239da2a)
 
 ## [v4.7.0] - 2026-08-19
 
