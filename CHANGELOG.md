@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Frodo shell autocomplete and `help()` output now indicate which parameters are optional.
+
 ## [v4.6.0] - 2026-08-18
 
 ### Added

@@ -7,7 +7,12 @@ export type MethodHelpDoc = {
   methodName: string;
   signature: string;
   description: string;
-  params: Array<{ name: string; type: string; description: string }>;
+  params: Array<{
+    name: string;
+    type: string;
+    description: string;
+    required?: boolean;
+  }>;
   returns: string;
 };
 
@@ -59,7 +64,11 @@ export function buildMethodScaffold(
   const doc = findBestDoc(methodName, moduleSegments, docsByMethod);
   if (!doc) return '()';
   const paramNames = (doc.params ?? [])
-    .map((p) => p.name.trim())
+    .map((p) => {
+      const name = p.name.trim();
+      if (!name) return '';
+      return p.required === false ? `${name}?` : name;
+    })
     .filter((name) => name.length > 0);
   if (paramNames.length === 0) return '()';
   return `(${paramNames.join(', ')})`;
@@ -87,7 +96,10 @@ export function buildHintLine(fullPath: string, doc: MethodHelpDoc): string {
     .map((p) => {
       const name = p.name.trim();
       const type = abbrevType(p.type);
-      return name && type ? `${name}: ${type}` : name;
+      const optionalMarker = p.required === false ? '?' : '';
+      return name && type
+        ? `${name}${optionalMarker}: ${type}`
+        : `${name}${optionalMarker}`;
     })
     .filter((s) => s.length > 0)
     .join(', ');
