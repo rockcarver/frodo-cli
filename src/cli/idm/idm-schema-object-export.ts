@@ -51,7 +51,6 @@ export default function setup() {
         'Export file if -x or -a are included. Ignored with -A.'
       )
     )
-    .addOption(new Option('-e, --env-file [envfile]', 'Name of the env file.'))
     .addOption(
       new Option(
         '-N, --no-metadata',
@@ -93,7 +92,6 @@ export default function setup() {
           const outcome = await exportManagedObjectToFile(
             options.individualObject,
             options.file,
-            options.envFile,
             options.extract
           );
           if (!outcome) process.exitCode = 1;
@@ -108,7 +106,6 @@ export default function setup() {
           const outcome = await exportConfigEntityToFile(
             'managed',
             options.file,
-            options.envFile,
             options.metadata,
             false
           );
@@ -124,7 +121,6 @@ export default function setup() {
           const outcome = await exportConfigEntityToFile(
             'managed',
             options.file,
-            options.envFile,
             options.metadata,
             true
           );

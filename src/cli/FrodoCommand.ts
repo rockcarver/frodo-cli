@@ -2,6 +2,7 @@ import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { RetryStrategy } from '@rockcarver/frodo-lib/types/api/BaseApi.js';
 import { AddHelpTextContext, Argument, Command, Help, Option } from 'commander';
 import fs from 'fs';
+import propertiesReader from 'properties-reader';
 
 import {
   cleanupProgressIndicators,
@@ -427,6 +428,19 @@ function cloneArgument(argument: Argument): Argument {
   return cloned;
 }
 
+/**
+ * Option that collects repeated values into an array.
+ */
+export class ListOption extends Option {
+  constructor(flags: string, description?: string) {
+    super(flags, description);
+    this.argParser((value: string, previous: string[] = []) => {
+      previous.push(value);
+      return previous;
+    }).default([]);
+  }
+}
+
 export const hostArgument = new Argument(
   '[host]',
   'AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.'
@@ -520,6 +534,22 @@ const directoryOption = withHelpGroup(
     '-D, --directory <directory>',
     'Set the working directory.'
   ).default(undefined, 'undefined'),
+  RUNTIME_OPTIONS_HEADING
+);
+
+const envOption = withHelpGroup(
+  new ListOption(
+    '-E, --env <key=value>',
+    'Set an environment variable for placeholder resolution. May be specified multiple times. Overrides values from --env-file.'
+  ),
+  RUNTIME_OPTIONS_HEADING
+);
+
+const envFileOption = withHelpGroup(
+  new ListOption(
+    '--env-file <file>',
+    'Read environment variables from a file for placeholder resolution. May be specified multiple times; later files override earlier ones.'
+  ),
   RUNTIME_OPTIONS_HEADING
 );
 
@@ -631,6 +661,8 @@ const defaultOpts = [
   flushCacheOption,
   retryOption,
   useRealmPrefixOnManagedObjects,
+  envOption,
+  envFileOption,
 ];
 
 /**
@@ -714,6 +746,31 @@ const stateMap = {
   },
   [retryOption.attributeName()]: (strategy: RetryStrategy) => {
     state.setAxiosRetryStrategy(strategy);
+  },
+  [envFileOption.attributeName()]: (files: string[]) => {
+    for (const filePath of files) {
+      try {
+        propertiesReader(filePath).each((key: string, value: string) => {
+          state.setEnv(key, value);
+        });
+      } catch (error) {
+        throw new FrodoError(`Error parsing env file ${filePath}`, error);
+      }
+    }
+  },
+  [envOption.attributeName()]: (envs: string[]) => {
+    for (const env of envs) {
+      const separatorIndex = env.indexOf('=');
+      if (separatorIndex < 0) {
+        throw new FrodoError(
+          `Invalid env format; expected "key=value" but got "${env}"`
+        );
+      }
+      state.setEnv(
+        env.substring(0, separatorIndex),
+        env.substring(separatorIndex + 1)
+      );
+    }
   },
 };
 
@@ -2449,7 +2506,13 @@ export class FrodoCommand extends FrodoStubCommand {
     }
 
     // handle options
-    for (const [k, v] of Object.entries(options)) {
+    for (const [k, v] of Object.entries(options).sort(([k1], [k2]) => {
+      if (k1 === envFileOption.attributeName()) return -1;
+      if (k2 === envFileOption.attributeName()) return 1;
+      if (k1 === envOption.attributeName()) return -1;
+      if (k2 === envOption.attributeName()) return 1;
+      return 0;
+    })) {
       // handle only default options
       if (Object.keys(stateMap).includes(k)) {
         debugMessage(

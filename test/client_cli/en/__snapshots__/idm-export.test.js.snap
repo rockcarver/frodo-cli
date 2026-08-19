@@ -31,8 +31,7 @@ Options:
   -A, --all-separate                   Export all IDM configuration objects into
                                        separate JSON files in directory -D.
                                        Ignored with -i, and -a.
-  -e, --env-file [envfile]             Name of the env file.
-  -E, --entities-file [entities-file]  Name of the entity file. Ignored with -i.
+  -e, --entities-file [entities-file]  Name of the entity file. Ignored with -i.
   -f, --file [file]                    Export file if -x or -a is provided.
                                        Ignored with -A.
   -i, --entity-id <id>                 Config entity id/name. E.g. "managed",

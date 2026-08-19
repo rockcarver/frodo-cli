@@ -48,11 +48,10 @@ export default function setup() {
     .addOption(new Option('-f, --file [file]', 'Import file. Ignored with -A.'))
     .addOption(
       new Option(
-        '-E, --entities-file [entities-file]',
+        '-e, --entities-file [entities-file]',
         'Name of the entity file. Ignored with -i.'
       )
     )
-    .addOption(new Option('-e, --env-file [envfile]', 'Name of the env file.'))
     .addOption(
       new Option(
         '-a, --all',
@@ -103,8 +102,7 @@ export default function setup() {
           );
           const outcome = await importConfigEntityByIdFromFile(
             options.entityId,
-            options.file,
-            options.envFile
+            options.file
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -119,8 +117,7 @@ export default function setup() {
           );
           const outcome = await importAllConfigEntitiesFromFile(
             options.file,
-            options.entitiesFile,
-            options.envFile
+            options.entitiesFile
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -132,10 +129,7 @@ export default function setup() {
           verboseMessage(
             `Importing first object${envMessage}${fileMessage}...`
           );
-          const outcome = await importFirstConfigEntityFromFile(
-            options.file,
-            options.envFile
-          );
+          const outcome = await importFirstConfigEntityFromFile(options.file);
           if (!outcome) process.exitCode = 1;
         }
         // require --directory -D for all-separate functions
@@ -156,8 +150,7 @@ export default function setup() {
             `Importing IDM configuration objects${entitiesMessage}${envMessage}${directoryMessage}`
           );
           const outcome = await importAllConfigEntitiesFromFiles(
-            options.entitiesFile,
-            options.envFile
+            options.entitiesFile
           );
           if (!outcome) process.exitCode = 1;
         }

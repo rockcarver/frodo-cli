@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should import variables into cloud "frodo config-manager push variables --env-file test/e2e/exports/fr-config-manager/cloud/fr-test-2.env --env-file test/e2e/exports/fr-config-manager/cloud/fr-test.env  -D test/e2e/exports/fr-config-manager/cloud ": should import two variables into cloud" 1`] = `""`;
+
+exports[`Should import variables into cloud "frodo config-manager push variables --env-file test/e2e/exports/fr-config-manager/cloud/fr-test-2.env --env-file test/e2e/exports/fr-config-manager/cloud/fr-test.env  -D test/e2e/exports/fr-config-manager/cloud ": should import two variables into cloud" 2`] = `
+"Experimental feature in use: 'frodo config-manager push variables'. This feature may change without notice.
+✔ Successfully read 2 variables.
+Variable esv-fr-var-test-2 updated
+Variable esv-fr-var-test updated
+• 2 variables imported.
+Changes made to variables: 2 updated, 0 unchanged
+"
+`;
+
+exports[`Should import variables into cloud "frodo config-manager push variables --name esv-fr-var-test --env ESV_FR_VAR_TEST="test2" --env-file test/e2e/exports/fr-config-manager/cloud/fr-test.env -D test/e2e/exports/fr-config-manager/cloud ": should import the specified variable into cloud" 1`] = `""`;
+
+exports[`Should import variables into cloud "frodo config-manager push variables --name esv-fr-var-test --env ESV_FR_VAR_TEST="test2" --env-file test/e2e/exports/fr-config-manager/cloud/fr-test.env -D test/e2e/exports/fr-config-manager/cloud ": should import the specified variable into cloud" 2`] = `
+"Experimental feature in use: 'frodo config-manager push variables'. This feature may change without notice.
+✔ Successfully read 1 variables.
+Variable esv-fr-var-test updated
+• 1 variables imported.
+Changes made to variables: 1 updated, 0 unchanged
+"
+`;
+
+exports[`Should import variables into cloud "frodo config-manager push variables -E ESV_FR_VAR_TEST_2="20" -E ESV_FR_VAR_TEST='this is a test' -D test/e2e/exports/fr-config-manager/cloud ": should import two variables into cloud" 1`] = `""`;
+
+exports[`Should import variables into cloud "frodo config-manager push variables -E ESV_FR_VAR_TEST_2="20" -E ESV_FR_VAR_TEST='this is a test' -D test/e2e/exports/fr-config-manager/cloud ": should import two variables into cloud" 2`] = `
+"Experimental feature in use: 'frodo config-manager push variables'. This feature may change without notice.
+✔ Successfully read 2 variables.
+Variable esv-fr-var-test-2 updated
+Variable esv-fr-var-test updated
+• 2 variables imported.
+Changes made to variables: 2 updated, 0 unchanged
+"
+`;
+
+exports[`Should import variables into cloud "frodo config-manager push variables -n esv-fr-var-test-2 --env ESV_FR_VAR_TEST_2=20-D test/e2e/exports/fr-config-manager/cloud ": should import the specified variable into cloud" 1`] = `""`;
+
+exports[`Should import variables into cloud "frodo config-manager push variables -n esv-fr-var-test-2 --env ESV_FR_VAR_TEST_2=20-D test/e2e/exports/fr-config-manager/cloud ": should import the specified variable into cloud" 2`] = `
+"Experimental feature in use: 'frodo config-manager push variables'. This feature may change without notice.
+✔ Successfully read 1 variables.
+Variable esv-fr-var-test-2 updated
+• 1 variables imported.
+Changes made to variables: 1 updated, 0 unchanged
+"
+`;

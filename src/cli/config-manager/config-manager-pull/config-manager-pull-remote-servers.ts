@@ -34,7 +34,7 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting config entity remote-servers');
-        const outcome = await configManagerExportRemoteServers(options.envFile);
+        const outcome = await configManagerExportRemoteServers();
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

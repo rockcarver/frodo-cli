@@ -37,7 +37,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-E, --frodo-export-dir <directory>',
+        '-e, --frodo-export-dir <directory>',
         'The directory where the frodo export is located.'
       )
     )

@@ -34,7 +34,7 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting config entity ui-configuration');
-        const outcome = await configManagerExportUiConfig(options.envFile);
+        const outcome = await configManagerExportUiConfig();
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
