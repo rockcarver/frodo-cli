@@ -4,7 +4,12 @@ type MethodHelpDoc = {
   methodName: string;
   signature: string;
   description: string;
-  params: Array<{ name: string; type: string; description: string }>;
+  params: Array<{
+    name: string;
+    type: string;
+    description: string;
+    required?: boolean;
+  }>;
   returns: string;
 };
 
@@ -53,7 +58,11 @@ function formatMethodDoc(doc: MethodHelpDoc, verbose: boolean): string {
       for (const p of doc.params) {
         const typePart = p.type ? `{${p.type}} ` : '';
         const desc = p.description ? `: ${p.description}` : '';
-        lines.push(`    ${typePart}${GREEN}${p.name}${RESET}${desc}`);
+        const optionalTag =
+          p.required === false ? ` ${DIM}(optional)${RESET}` : '';
+        lines.push(
+          `    ${typePart}${GREEN}${p.name}${RESET}${optionalTag}${desc}`
+        );
       }
     }
     if (doc.returns) {
