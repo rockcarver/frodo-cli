@@ -541,6 +541,10 @@ export function writeSyncJsonToDirectory(
 ) {
   const mappingPaths = [];
   for (const mapping of sync.mappings) {
+    if (!mapping) {
+      // Skip null/malformed entries in the tenant's sync.json mappings array.
+      continue;
+    }
     const fileName = getTypedFilename(mapping.name, 'sync');
     if (
       extract &&
