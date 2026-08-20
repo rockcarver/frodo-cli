@@ -10,7 +10,7 @@ import {
   safeFileNameUnderscore,
 } from '../utils/FrConfig';
 
-const { getFilePath, saveJsonToFile, readToJson, loadEnvFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { exportSaml2Provider, importSaml2Providers } =
   frodo.saml2.entityProvider;
 const { exportCircleOfTrust, importCirclesOfTrust } =
@@ -105,16 +105,15 @@ export async function configManagerExportSaml(file): Promise<boolean> {
 
 /**
  * Import all SAML entity providers from all *.saml.json files in the current directory
+ * @param {string} entityName option parameter to import SAML entity by name  
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 
 export async function configManagerImportSaml(
   entityName?: string,
-  value?: string
 ): Promise<boolean> {
   try {
     const realmsDir = getFilePath('realms/');
-    const envFile = loadEnvFile();
     const realmsToProcess = fs
       .readdirSync(realmsDir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
@@ -148,11 +147,7 @@ export async function configManagerImportSaml(
       if (fs.existsSync(hostedDir)) {
         for (const file of fs.readdirSync(hostedDir)) {
           if (file.endsWith('.json')) {
-            const hostedData = readToJson(`${hostedDir}/${file}`, {
-              overrideValue: value,
-              envFile,
-              base64Encode: false,
-            });
+            const hostedData = readJsonFile(`${hostedDir}/${file}`) as any;
             if (entityName && hostedData.config.entityID !== entityName)
               continue;
 
@@ -165,11 +160,7 @@ export async function configManagerImportSaml(
       if (fs.existsSync(remoteDir)) {
         for (const file of fs.readdirSync(remoteDir)) {
           if (file.endsWith('.json')) {
-            const remoteData = readToJson(`${remoteDir}/${file}`, {
-              overrideValue: value,
-              envFile,
-              base64Encode: false,
-            });
+            const remoteData = readJsonFile(`${remoteDir}/${file}`) as any;
             if (entityName && remoteData.config.entityId !== entityName)
               continue;
             remote[remoteData.config.entityId] = remoteData.config;
@@ -181,11 +172,7 @@ export async function configManagerImportSaml(
       if (fs.existsSync(cotDir)) {
         for (const file of fs.readdirSync(cotDir)) {
           if (file.endsWith('.json')) {
-            const cotData = readToJson(`${cotDir}/${file}`, {
-              overrideValue: value,
-              envFile,
-              base64Encode: false,
-            });
+            const cotData = readJsonFile(`${cotDir}/${file}`) as any;
             if (entityName && cotData._id !== entityName) continue;
             cot[cotData._id] = cotData;
           }
@@ -202,7 +189,7 @@ export async function configManagerImportSaml(
           script: {},
           saml: { hosted, remote, metadata },
         };
-        await importSaml2Providers(samlImportData, { deps: true });
+        await importSaml2Providers(samlImportData);
       }
 
       if (hasCot) {
