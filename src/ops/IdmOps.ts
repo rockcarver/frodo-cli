@@ -719,6 +719,10 @@ export function writeManagedJsonToDirectory(
 ) {
   const objectPaths = [];
   for (const object of managed.objects) {
+    if (!object) {
+      // Skip null/malformed entries in the tenant's managed.json objects array.
+      continue;
+    }
     const fileName = getTypedFilename(object.name, 'managed');
     if (
       extract &&

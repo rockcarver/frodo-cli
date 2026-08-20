@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+- `writeSyncJsonToDirectory` (used by `frodo idm export` and `frodo config export`) no longer throws `Cannot read properties of null (reading 'name')` when a tenant's legacy `sync.json` `mappings` array contains a null/malformed entry; such entries are now skipped instead of aborting the config entity save.
+- `writeManagedJsonToDirectory` (used by `frodo idm export` and `frodo config export`) no longer throws `Cannot read properties of null (reading 'name')` when a tenant's `managed.json` `objects` array contains a null/malformed entry; such entries are now skipped instead of aborting the config entity save.
+
 ## [v4.7.1] - 2026-08-19
 
 ### Changed
