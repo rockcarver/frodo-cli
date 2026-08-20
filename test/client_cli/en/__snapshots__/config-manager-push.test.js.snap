@@ -25,6 +25,7 @@ Commands:
   email-templates        [Experimental] Import email template objects.
   endpoints              [Experimental] Import custom endpoints objects.
   help                   display help for command
+  idm-authentication     [Experimental] Import idm authentication.
   internal-roles         [Experimental] Import internal roles.
   journeys               [Experimental] Import journeys.
   kba                    [Experimental] Import kba configuration.

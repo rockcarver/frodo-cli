@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push idm-authentication "frodo config-manager push idm-authentication -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops": should import idm authentication into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push idm-authentication "frodo config-manager push idm-authentication -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops": should import idm authentication into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push idm-authentication'. This feature may change without notice.
+"
+`;
