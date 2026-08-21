@@ -48,37 +48,37 @@
 
 /*
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -n test-IDP -e "https://platform.dev.trivir.com" -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
-
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml --env-file /home/trivir/Work/frodo-cli/test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
 */
 
-import cp from 'child_process';
-import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv, testSuccess } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
-
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const forgeopsEnv = getEnv(fc);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
+const envDir = "test/e2e/env/configManager1.env"
 
 describe('frodo config-manager push saml', () => {
+    test(`"frodo config-manager push saml --env-file ${envDir} -D ${allDirectory} -m forgeops": should import the saml into forgeops"`, async () => {
+        const CMD = `frodo config-manager push saml --env-file ${envDir} -D ${allDirectory} -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv)
+    });
+    test(`"frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test6 -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D ${allDirectory} -m forgeops": should import a saml entity and update placeholders`, async () => {
+        const CMD = `frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D ${allDirectory} -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv)
+    });
     test(`"frodo config-manager push saml -D ${allDirectory} -m forgeops": should import the saml into forgeops"`, async () => {
         const CMD = `frodo config-manager push saml -D ${allDirectory} -m forgeops`;
-        const { stdout } = await exec(CMD, {
+        await testSuccess(CMD, {
             env: {
                 ...forgeopsEnv.env,
-                TENANT_BASE_URL: "https://platform.dev.trivir.com"
+                FRODO_REALM: "alpha"
             }
         });
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
-    test(`"frodo config-manager push saml -n test-IDP -e ... -D ${allDirectory}": should import a single named saml entity`, async () => {
-        const CMD = `frodo config-manager push saml -n test-IDP -e "https://platform.dev.trivir.com" -D ${allDirectory} `;
-        const { stdout } = await exec(CMD, { env: { ...forgeopsEnv.env } });
-        expect(stdout).toMatchSnapshot();
+        
     });
 });
