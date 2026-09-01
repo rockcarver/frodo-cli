@@ -48,9 +48,9 @@
 
 /*
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml --env-file /home/trivir/Work/frodo-cli/test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';
@@ -71,8 +71,8 @@ describe('frodo config-manager push saml', () => {
         const CMD = `frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D ${allDirectory} -m forgeops`;
         await testSuccess(CMD, forgeopsEnv)
     });
-    test(`"frodo config-manager push saml -D ${allDirectory} -m forgeops": should import the saml into forgeops"`, async () => {
-        const CMD = `frodo config-manager push saml -D ${allDirectory} -m forgeops`;
+    test(`"frodo config-manager push saml --env-file ${envDir} --directory ${allDirectory} -m forgeops": should import the saml into forgeops"`, async () => {
+        const CMD = `frodo config-manager push saml --env-file ${envDir} --directory ${allDirectory} -m forgeops`;
         await testSuccess(CMD, {
             env: {
                 ...forgeopsEnv.env,

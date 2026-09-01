@@ -1,17 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`frodo config-manager push saml "frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push saml "frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push saml'. This feature may change without notice.
+✔ SAML import completed.
+"
+`;
+
 exports[`frodo config-manager push saml "frodo config-manager push saml --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push saml "frodo config-manager push saml --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 2`] = `
 "Experimental feature in use: 'frodo config-manager push saml'. This feature may change without notice.
-"
-`;
-
-exports[`frodo config-manager push saml "frodo config-manager push saml -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 1`] = `""`;
-
-exports[`frodo config-manager push saml "frodo config-manager push saml -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push saml'. This feature may change without notice.
-No value found for placeholder "IDP_URL_PLACEHOLDER"
+✔ SAML import completed.
 "
 `;
 
@@ -19,5 +20,6 @@ exports[`frodo config-manager push saml "frodo config-manager push saml -n test-
 
 exports[`frodo config-manager push saml "frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test6 -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a saml entity and update placeholders 2`] = `
 "Experimental feature in use: 'frodo config-manager push saml'. This feature may change without notice.
+✔ SAML import completed.
 "
 `;

@@ -1,18 +1,24 @@
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/CirclesOfTrustApi';
 import { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
 import { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/CirclesOfTrustOps';
 import { Saml2ExportInterface } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
 import fs from 'fs';
 
-import { printError } from '../utils/Console';
+import {
+  createProgressIndicator,
+  printError,
+  stopProgressIndicator,
+} from '../utils/Console';
 import {
   escapePlaceholders,
   replaceAllInJson,
   safeFileNameUnderscore,
 } from '../utils/FrConfig';
 
-const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
+  frodo.utils;
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const { exportSaml2Provider, importSaml2Providers } =
   frodo.saml2.entityProvider;
 const { exportCircleOfTrust, importCirclesOfTrust } =
@@ -33,7 +39,13 @@ export async function configManagerExportSaml(file): Promise<boolean> {
     const objects = JSON.parse(fs.readFileSync(file, 'utf8'));
     for (const realm of Object.keys(objects)) {
       state.setRealm(realm);
-      const realmDir = realm === '/' ? 'root': realm
+      if (
+        realm === '/' &&
+        state.getDeploymentType() ===
+          frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
+      )
+        continue;
+      const realmDir = realm === '/' ? 'root' : realm;
       for (const samlProvider of objects[realm].samlProviders) {
         const result = await exportSaml2Provider(samlProvider.entityId, {
           deps: false,
@@ -115,35 +127,43 @@ export async function configManagerExportSaml(file): Promise<boolean> {
 /**
  * Import all SAML entity providers from all *.saml.json files in the current directory
  * @param {string} entityName option parameter to import SAML entity by name  
+ * @param {string} realm name of realm to import SAML entity
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 
 export async function configManagerImportSaml(
+  realm?: string,
   entityName?: string
 ): Promise<boolean> {
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    'Importing SAML configuration...'
+  );
   try {
-    const realmsDir = getFilePath('realms/');
-    const realmsToProcess = fs
-      .readdirSync(realmsDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name);
+    const realmsDir = `${getWorkingDirectory()}/realms`;
+    const realmsToProcess = realm
+      ? [realm]
+      : fs
+          .readdirSync(realmsDir, { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => entry.name);
 
-    if (entityName) {
-      const realmsWithSaml = realmsToProcess.filter((realm) =>
-        fs.existsSync(getFilePath(`realms/${realm}/realm-config/saml`))
+    if (entityName && realmsToProcess.length !== 1) {
+      stopProgressIndicator(
+        indicatorId,
+        'For a named SAML entity, specify a single realm.',
+        'fail'
       );
-      if (realmsWithSaml.length > 1) {
-        throw new FrodoError(
-          `For a named SAML entity, with only a single realm may contain SAML config`
-        );
-      }
+      return false;
     }
 
     for (const realm of realmsToProcess) {
-      state.setRealm(realm);
-      if (state.getRealm() === '/') continue;
-      const samlDir = getFilePath(`realms/${realm}/realm-config/saml`);
-
+      const realmName = realm === 'root' || realm === '/';
+      if (realmName && state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY)
+        continue;
+      state.setRealm(realmName ? '/' : realm);
+      const samlDir = `${getWorkingDirectory()}/realms/${realmName ? 'root' : realm}/realm-config/saml`;
       const hostedDir = `${samlDir}/hosted`;
       const remoteDir = `${samlDir}/remote`;
       const cotDir = `${samlDir}/COT`;
@@ -224,11 +244,11 @@ export async function configManagerImportSaml(
 
       if (fs.existsSync(cotDir)) {
         for (const file of fs.readdirSync(cotDir)) {
-          if (file.endsWith('.json')) {
-            const cotData = readJsonFile(`${cotDir}/${file}`) as any;
-            if (entityName && cotData._id !== entityName) continue;
-            samlConfig.cot[cotData._id] = cotData;
-          }
+          if (!file.endsWith('.json')) continue;
+          const cotData = readJsonFile(
+            `${cotDir}/${file}`
+          ) as CircleOfTrustSkeleton;
+          samlConfig.cot[cotData._id] = cotData;
         }
       }
 
@@ -242,10 +262,11 @@ export async function configManagerImportSaml(
         await importCirclesOfTrust(cotImportData);
       }
     }
-
+    stopProgressIndicator(indicatorId, 'SAML import completed.', 'success');
     return true;
   } catch (error) {
-    printError(error);
+    stopProgressIndicator(indicatorId, 'SAML import completed.', 'fail');
+    printError(error, 'Error importing SAML configuration');
   }
   return false;
 }

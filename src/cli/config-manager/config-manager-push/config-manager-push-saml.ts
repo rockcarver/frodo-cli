@@ -6,7 +6,7 @@ import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager push saml', []);
+  const program = new FrodoCommand('frodo config-manager push saml');
   program
     .description('Import saml configuration.')
     .addOption(
@@ -24,10 +24,10 @@ export default function setup() {
         options,
         command
       );
-      const getTokensIsSuccessful = await getTokens(false, true);
+      const getTokensIsSuccessful = await getTokens();
       if (!getTokensIsSuccessful) process.exit(1);
       verboseMessage('Importing SAML configuration.');
-      const outcome = await configManagerImportSaml(options.name);
+      const outcome = await configManagerImportSaml(realm, options.name);
       if (!outcome) process.exitCode = 1;
     });
   return program;
