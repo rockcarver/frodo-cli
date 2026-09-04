@@ -18,7 +18,7 @@ import {
 
 const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
   frodo.utils;
-const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const { CLOUD_DEPLOYMENT_TYPE_KEY, DEFAULT_REALM_KEY} = frodo.utils.constants;
 const { exportSaml2Provider, importSaml2Providers } =
   frodo.saml2.entityProvider;
 const { exportCircleOfTrust, importCirclesOfTrust } =
@@ -142,7 +142,7 @@ export async function configManagerImportSaml(
   );
   try {
     const realmsDir = `${getWorkingDirectory()}/realms`;
-    const realmsToProcess = realm
+    const realmsToProcess = realm && realm !== DEFAULT_REALM_KEY
       ? [realm]
       : fs
           .readdirSync(realmsDir, { withFileTypes: true })
@@ -159,11 +159,11 @@ export async function configManagerImportSaml(
     }
 
     for (const realm of realmsToProcess) {
-      const realmName = realm === 'root' || realm === '/';
-      if (realmName && state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY)
+      const isRootRealm = realm === 'root' || realm === '/';
+      if (isRootRealm && state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY)
         continue;
-      state.setRealm(realmName ? '/' : realm);
-      const samlDir = `${getWorkingDirectory()}/realms/${realmName ? 'root' : realm}/realm-config/saml`;
+      state.setRealm(isRootRealm ? '/' : realm);
+      const samlDir = `${getWorkingDirectory()}/realms/${isRootRealm ? 'root' : realm}/realm-config/saml`;
       const hostedDir = `${samlDir}/hosted`;
       const remoteDir = `${samlDir}/remote`;
       const cotDir = `${samlDir}/COT`;
@@ -265,7 +265,7 @@ export async function configManagerImportSaml(
     stopProgressIndicator(indicatorId, 'SAML import completed.', 'success');
     return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, 'SAML import completed.', 'fail');
+    stopProgressIndicator(indicatorId, 'SAML import failed.', 'fail');
     printError(error, 'Error importing SAML configuration');
   }
   return false;

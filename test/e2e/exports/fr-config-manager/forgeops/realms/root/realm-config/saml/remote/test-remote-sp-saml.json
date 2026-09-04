@@ -1,0 +1,97 @@
+{
+  "config": {
+    "_id": "dGVzdC1yZW1vdGUtc3Atc2FtbA",
+    "_rev": "302709081",
+    "entityId": "test-remote-sp-saml",
+    "serviceProvider": {
+      "advanced": {
+        "idpProxy": {},
+        "saeConfiguration": {},
+        "treeConfiguration": {}
+      },
+      "assertionContent": {
+        "basicAuthentication": {},
+        "nameIdFormat": {
+          "nameIdFormatList": [
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+          ]
+        },
+        "secrets": {},
+        "signingAndEncryption": {
+          "encryption": {},
+          "requestResponseSigning": {},
+          "secretIdAndAlgorithms": {}
+        }
+      },
+      "assertionProcessing": {
+        "accountMapper": {},
+        "attributeMapper": {},
+        "responseArtifactMessageEncoding": {}
+      },
+      "services": {
+        "serviceAttributes": {
+          "assertionConsumerService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact",
+              "index": 0,
+              "isDefault": true,
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/Consumer/metaAlias/alpha/test-user"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "index": 1,
+              "isDefault": false,
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/Consumer/metaAlias/alpha/test-user"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:PAOS",
+              "index": 2,
+              "isDefault": false,
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/Consumer/ECP/metaAlias/alpha/test-user"
+            }
+          ],
+          "nameIdService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/test-user",
+              "responseLocation": "https://openam-trivir-demo.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/test-user"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/test-user",
+              "responseLocation": "https://openam-trivir-demo.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/test-user"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/test-user",
+              "responseLocation": "https://openam-trivir-demo.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/test-user"
+            }
+          ],
+          "singleLogoutService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/test-user",
+              "responseLocation": "https://openam-trivir-demo.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/test-user"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/test-user",
+              "responseLocation": "https://openam-trivir-demo.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/test-user"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://openam-trivir-demo.forgeblocks.com/am/SPSloSoap/metaAlias/alpha/test-user"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "metadata": "ERROR : Unable to read configuration of component &quot;SAML2&quot; for realm &quot;root&quot;.\n"
+}

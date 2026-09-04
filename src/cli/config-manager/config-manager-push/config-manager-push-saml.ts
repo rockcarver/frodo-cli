@@ -12,7 +12,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --name <name>',
-        'The entityId (or COT _id) of a single SAML entity to import.'
+        'The entityId of a single SAML entity to import.'
       )
     )
     .action(async (host, realm, user, password, options, command) => {

@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`frodo config-manager push saml "frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops alpha realm" 1`] = `""`;
+
+exports[`frodo config-manager push saml "frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops alpha realm" 2`] = `
+"[32mA new version of frodo is available.
+Please run 'frodo -v' for more details.
+[39mExperimental feature in use: 'frodo config-manager push saml'. This feature may change without notice.
+✔ SAML import completed.
+"
+`;
+
 exports[`frodo config-manager push saml "frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push saml "frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 2`] = `
