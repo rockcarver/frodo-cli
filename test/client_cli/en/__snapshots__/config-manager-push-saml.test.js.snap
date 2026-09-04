@@ -21,8 +21,7 @@ Arguments:
   password           Password.
 
 Options:
-  -n, --name <name>  The entityId (or COT _id) of a single SAML entity to
-                     import.
+  -n, --name <name>  The entityId of a single SAML entity to import.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage
