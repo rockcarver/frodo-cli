@@ -1695,6 +1695,8 @@ exports[`frodo app export Cloud "frodo app export -A": should export all apps to
 
 exports[`frodo app export Cloud "frodo app export -A": should export all apps to separate files 2`] = `""`;
 
+exports[`frodo app export Cloud "frodo app export -A": should export all apps to separate files 3`] = `""`;
+
 exports[`frodo app export Cloud "frodo app export -A": should export all apps to separate files: Azure.application.json 1`] = `
 {
   "connector": {
