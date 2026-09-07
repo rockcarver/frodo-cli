@@ -25,12 +25,14 @@ Options:
                                        profile. Ignored without --save. Lets
                                        later commands address this session by an
                                        alias.
-  --browser                            Authenticate via an interactive browser
-                                       login instead of providing a
-                                       username/password on the command line.
-  --device                             Use the OAuth2 Device Authorization
-                                       Grant. Useful for headless/SSH sessions
-                                       with no local browser to launch.
+  --browser                            [Experimental] Authenticate via an
+                                       interactive browser login instead of
+                                       providing a username/password on the
+                                       command line.
+  --device                             [Experimental] Use the OAuth2 Device
+                                       Authorization Grant. Useful for
+                                       headless/SSH sessions with no local
+                                       browser to launch.
   --login-client-id <client-id>        Specify a custom OAuth2 client id.
                                        Mandatory with --browser and deployment
                                        types "forgeops" and "classic", optional

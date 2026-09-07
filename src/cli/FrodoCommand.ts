@@ -538,22 +538,35 @@ const loginRedirectUri = withHelpGroup(
   OptionCategory.Authentication
 );
 
-const browserLoginOption = withHelpGroup(
-  new Option(
-    '--browser',
-    'Authenticate via an interactive browser login instead of providing a username/password on the command line.'
+// Experimental: the device-flow bug tracked in the browser-login plan doc
+// is still open, and cloud defaults to piggy-backing on Ping's own
+// AICMCPClient/AICMCPExchangeClient rather than a Frodo-owned OAuth2
+// client — see that plan's item 19 for the full rationale. Help-text badge
+// only (via withOptionStability()); no runtime warning is wired up yet,
+// since --browser/--device are global options usable on any command, and
+// where a runtime signal should live is still an open design question.
+const browserLoginOption = withOptionStability(
+  withHelpGroup(
+    new Option(
+      '--browser',
+      'Authenticate via an interactive browser login instead of providing a username/password on the command line.'
+    ),
+    AUTHENTICATION_OPTIONS_HEADING,
+    OptionCategory.Authentication
   ),
-  AUTHENTICATION_OPTIONS_HEADING,
-  OptionCategory.Authentication
+  'experimental'
 );
 
-const deviceFlowOption = withHelpGroup(
-  new Option(
-    '--device',
-    'Use the OAuth2 Device Authorization Grant. Useful for headless/SSH sessions with no local browser to launch.'
+const deviceFlowOption = withOptionStability(
+  withHelpGroup(
+    new Option(
+      '--device',
+      'Use the OAuth2 Device Authorization Grant. Useful for headless/SSH sessions with no local browser to launch.'
+    ),
+    AUTHENTICATION_OPTIONS_HEADING,
+    OptionCategory.Authentication
   ),
-  AUTHENTICATION_OPTIONS_HEADING,
-  OptionCategory.Authentication
+  'experimental'
 );
 
 const noOpenOption = withHelpGroup(

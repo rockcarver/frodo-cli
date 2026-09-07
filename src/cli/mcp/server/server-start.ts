@@ -44,7 +44,8 @@ type McpProfileName =
   | 'federation'
   | 'iga'
   | 'apps'
-  | 'managed-objects';
+  | 'managed-objects'
+  | 'self-service';
 
 /** Parsed options for `frodo mcp server start`. */
 type McpStartOptions = {
@@ -136,6 +137,7 @@ export default function setup() {
           'iga',
           'apps',
           'managed-objects',
+          'self-service',
         ])
         .default('all')
     )

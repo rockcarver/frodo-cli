@@ -2498,6 +2498,18 @@ function buildErrorResult(err: unknown): {
     errorText += String(err);
   }
 
+  // A browser-login session's credential expired with no unattended
+  // refresh path (see BaseApi.ts's throwCannotSilentlyRefresh(), which sets
+  // this flag) — an MCP server process can't complete a fresh interactive
+  // browser round trip on its own, so this is terminal for the rest of the
+  // process's life, not just this one call. Every further AM/IDM-touching
+  // tool call will hit the same underlying cause, so surfacing this note on
+  // every subsequent error (not just the first) is accurate, not noisy.
+  if (state.getNeedsReauthentication()) {
+    errorText +=
+      '\n\nThis MCP server session needs re-authentication and cannot silently refresh itself. Restart the server after completing a fresh interactive login (e.g. `frodo login --browser`).';
+  }
+
   return {
     content: [
       {

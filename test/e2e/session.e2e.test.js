@@ -91,6 +91,12 @@ describe('frodo session', () => {
     });
     expect(stderr).toContain(host);
     expect(stdout).toContain('browserUserBearer');
+    // Item 23a: describe (unlike list) also decrypts a browserUserBearer
+    // entry (master-key-derived, no extra credential needed) to surface
+    // its granted scope and an "OAuth2 Access Token" vs "SSO Token" kind
+    // label, straight from data already sitting in the seeded token.
+    expect(stdout).toContain('OAuth2 Access Token');
+    expect(stdout).toContain('fr:idm:*');
   });
 
   test('"frodo session describe <host-with-no-session>": reports no cached session', async () => {

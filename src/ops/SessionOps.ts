@@ -1,10 +1,59 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import type { CachedSessionSummary } from '@rockcarver/frodo-lib/types/ops/TokenCacheOps';
 
 import { createTable, printMessage } from '../utils/Console';
 
 const { getConnectionProfileByHost } = frodo.conn;
-const { list: listCachedSessions, deleteHost: deleteHostTokens } = frodo.cache;
+const {
+  list: listCachedSessions,
+  deleteHost: deleteHostTokens,
+  readToken: readCachedToken,
+} = frodo.cache;
+
+/**
+ * Whether a cached token type is an AM SSO session token (opaque `tokenId`,
+ * no OAuth2 concept of scope) or an OAuth2 access token (has `scope`/
+ * `token_type`). Purely a name-shape mapping — no new data needed.
+ */
+function describeTokenKind(
+  tokenType: CachedSessionSummary['tokenType']
+): 'SSO Token' | 'OAuth2 Access Token' {
+  return tokenType === 'userSession' || tokenType === 'browserUserSession'
+    ? 'SSO Token'
+    : 'OAuth2 Access Token';
+}
+
+/**
+ * Decrypts a browser-login cache entry to surface its granted OAuth2 scope
+ * (or, for a session-kind entry, notes there is no OAuth2 scope concept).
+ * Only attempted for `browserUserBearer`/`browserUserSession`: those are
+ * the only token types whose cache-encryption key is derived from the
+ * master key alone (see TokenCacheOps.ts's generateSessionKey()), so they
+ * decrypt with zero extra input — every other cached type needs a
+ * password/service-account credential this read-only, local command has no
+ * way to collect. Defensive: the entry could have expired or been purged
+ * between the earlier list() call and this read, so a failure here just
+ * falls back to '—' rather than failing the whole `describe`.
+ */
+async function describeSessionScope(
+  session: CachedSessionSummary
+): Promise<string> {
+  if (session.tokenType === 'browserUserSession') {
+    return 'n/a (SSO session, no OAuth2 scope)';
+  }
+  if (session.tokenType !== 'browserUserBearer') {
+    return '—';
+  }
+  try {
+    state.setHost(session.host);
+    const token = (await readCachedToken(session.tokenType)) as {
+      scope?: string;
+    };
+    return token?.scope || '—';
+  } catch {
+    return '—';
+  }
+}
 
 /**
  * Formats a millisecond duration as a short, human-readable string, e.g.
@@ -101,12 +150,21 @@ export async function describeSession(host: string): Promise<void> {
     printMessage(`No cached session for ${resolvedHost}`, 'info');
     return;
   }
-  const table = createTable(['Realm', 'Token Type', 'Subject', 'Status']);
+  const table = createTable([
+    'Realm',
+    'Token Type',
+    'Kind',
+    'Subject',
+    'Scope',
+    'Status',
+  ]);
   for (const session of sessions) {
     table.push([
       session.realm,
       session.tokenType,
+      describeTokenKind(session.tokenType),
       session.subject,
+      await describeSessionScope(session),
       formatSessionStatus(session),
     ]);
   }
