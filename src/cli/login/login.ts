@@ -6,11 +6,28 @@ import { getTokens, getTokensInteractive } from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';
 import { printMessage } from '../../utils/Console';
 import { AUTHENTICATION_OPTIONS_HEADING, FrodoCommand } from '../FrodoCommand';
+import SetupCmd from './login-setup.js';
 
 const { saveConnectionProfile } = frodo.conn;
 
 export default function setup() {
   const program = new FrodoCommand('login', ['realm']);
+
+  // A subcommand alongside `login`'s own default action/arguments — typing
+  // `frodo login setup` dispatches here (commander matches "setup" against
+  // registered subcommand names before falling through to the parent's own
+  // action), while `frodo login <host>` (or any other non-matching first
+  // argument) is untouched, still handled by the action below.
+  //
+  // enablePositionalOptions() is required here: `login` both has its own
+  // action AND a subcommand, and it and `login setup` both register shared
+  // options like --login-client-id. Without this, commander tries to parse
+  // every option against `login`'s own definitions before ever dispatching
+  // to the subcommand, silently swallowing `login setup`'s own option
+  // values (confirmed live — they never even reached `setup`'s action as
+  // excess arguments, just vanished).
+  program.enablePositionalOptions();
+  program.addCommand(SetupCmd().name('setup'));
   // Every option on `login` already IS an authentication option, so a
   // separate "Authentication Options:" section doesn't add information —
   // fold it into the plain "Options:" section instead, sorted the same way

@@ -1,7 +1,12 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { CachedSessionSummary } from '@rockcarver/frodo-lib/types/ops/TokenCacheOps';
 
-import { createTable, printMessage } from '../utils/Console';
+import c from '../utils/ColorTheme';
+import {
+  createKeyValueTable,
+  createTable,
+  printMessage,
+} from '../utils/Console';
 
 const { getConnectionProfileByHost } = frodo.conn;
 const {
@@ -24,35 +29,104 @@ function describeTokenKind(
 }
 
 /**
+ * Human-readable label for a cached token's Frodo-internal type name —
+ * `<credential source> <session kind>`, so e.g. `browserUserSession` reads
+ * as "Browser Login Session" instead of exposing frodo-lib's own cache-key
+ * vocabulary. "Pf" is PingFederate (a supported non-interactive login mode
+ * when AM sits behind PingFederate as the IdP).
+ */
+const FRODO_SESSION_TYPE_LABELS: Record<
+  CachedSessionSummary['tokenType'],
+  string
+> = {
+  userSession: 'Username/Password Session',
+  userBearer: 'Username/Password Access Token',
+  pfUserBearer: 'PingFederate Access Token',
+  saBearer: 'Service Account Access Token',
+  pfSaBearer: 'PingFederate Service Account Access Token',
+  browserUserSession: 'Browser Login Session',
+  browserUserBearer: 'Browser Login Access Token',
+  unknown: 'Unknown',
+};
+
+function describeFrodoSessionType(
+  tokenType: CachedSessionSummary['tokenType']
+): string {
+  return FRODO_SESSION_TYPE_LABELS[tokenType] || tokenType;
+}
+
+/**
  * Decrypts a browser-login cache entry to surface its granted OAuth2 scope
- * (or, for a session-kind entry, notes there is no OAuth2 scope concept).
- * Only attempted for `browserUserBearer`/`browserUserSession`: those are
- * the only token types whose cache-encryption key is derived from the
- * master key alone (see TokenCacheOps.ts's generateSessionKey()), so they
- * decrypt with zero extra input — every other cached type needs a
+ * plus any richer metadata already captured for it at login time (see
+ * AuthenticateOps.ts's `applySessionCaptureToken()` for ForgeOps/classic's
+ * `universalId`/`latestAccessTime`/`AMCtxId`, and its cloud interactive
+ * case's opportunistic `getTokenInfo()` capture) — all of it already
+ * sitting in the cache, so this is still a pure local decrypt, never a
+ * network call. Only attempted for `browserUserBearer`/`browserUserSession`:
+ * those are the only token types whose cache-encryption key is derived from
+ * the master key alone (see TokenCacheOps.ts's generateSessionKey()), so
+ * they decrypt with zero extra input — every other cached type needs a
  * password/service-account credential this read-only, local command has no
  * way to collect. Defensive: the entry could have expired or been purged
  * between the earlier list() call and this read, so a failure here just
- * falls back to '—' rather than failing the whole `describe`.
+ * falls back to an empty detail rather than failing the whole `describe`.
+ * Returns an ordered `{label: value}` record — plain, human-readable field
+ * names, ready to spread straight into `describeSession()`'s per-session
+ * property table.
  */
-async function describeSessionScope(
+async function describeSessionDetail(
   session: CachedSessionSummary
-): Promise<string> {
+): Promise<Record<string, string>> {
   if (session.tokenType === 'browserUserSession') {
-    return 'n/a (SSO session, no OAuth2 scope)';
+    const detail: Record<string, string> = {
+      Scope: 'n/a (SSO session, no OAuth2 scope)',
+    };
+    try {
+      state.setHost(session.host);
+      const token = (await readCachedToken(session.tokenType)) as {
+        universalId?: string;
+        latestAccessTime?: string;
+        amCtxId?: string;
+      };
+      if (token?.universalId) detail['Universal ID'] = token.universalId;
+      if (token?.latestAccessTime) {
+        const parsed = Date.parse(token.latestAccessTime);
+        detail['Latest Access'] = Number.isFinite(parsed)
+          ? new Date(parsed).toLocaleString()
+          : token.latestAccessTime;
+      }
+      if (token?.amCtxId) detail['AM Context ID'] = token.amCtxId;
+    } catch {
+      // eslint-disable-next-line no-empty
+    }
+    return detail;
   }
   if (session.tokenType !== 'browserUserBearer') {
-    return '—';
+    return { Scope: '—' };
   }
+  const detail: Record<string, string> = { Scope: '—' };
   try {
     state.setHost(session.host);
     const token = (await readCachedToken(session.tokenType)) as {
       scope?: string;
+      tokenInfo?: {
+        sub?: string;
+        tokenName?: string;
+        auditTrackingId?: string;
+      };
     };
-    return token?.scope || '—';
+    if (token?.scope) detail['Scope'] = token.scope;
+    if (token?.tokenInfo?.sub) detail['Token Subject'] = token.tokenInfo.sub;
+    if (token?.tokenInfo?.tokenName) {
+      detail['Token Name'] = token.tokenInfo.tokenName;
+    }
+    if (token?.tokenInfo?.auditTrackingId) {
+      detail['Audit Tracking ID'] = token.tokenInfo.auditTrackingId;
+    }
   } catch {
-    return '—';
+    // eslint-disable-next-line no-empty
   }
+  return detail;
 }
 
 /**
@@ -87,7 +161,9 @@ function formatSessionStatus(session: CachedSessionSummary): string {
     const remaining = formatDuration(session.expires - Date.now());
     return `expires in ${remaining} (${new Date(session.expires).toLocaleString()})`;
   }
-  return Number.isFinite(session.expires) ? 'expired' : 'expired (corrupt cache entry)';
+  return Number.isFinite(session.expires)
+    ? 'expired'
+    : 'expired (corrupt cache entry)';
 }
 
 /**
@@ -121,7 +197,7 @@ export function listSessions(): void {
   const table = createTable([
     'Host',
     'Realm',
-    'Token Type',
+    'Session Type',
     'Subject',
     'Status',
   ]);
@@ -129,7 +205,7 @@ export function listSessions(): void {
     table.push([
       session.host,
       session.realm,
-      session.tokenType,
+      describeFrodoSessionType(session.tokenType),
       session.subject,
       formatSessionStatus(session),
     ]);
@@ -150,25 +226,38 @@ export async function describeSession(host: string): Promise<void> {
     printMessage(`No cached session for ${resolvedHost}`, 'info');
     return;
   }
-  const table = createTable([
-    'Realm',
-    'Token Type',
-    'Kind',
-    'Subject',
-    'Scope',
-    'Status',
-  ]);
-  for (const session of sessions) {
-    table.push([
-      session.realm,
-      session.tokenType,
-      describeTokenKind(session.tokenType),
-      session.subject,
-      await describeSessionScope(session),
-      formatSessionStatus(session),
-    ]);
+  // A plain key/value table, hand-built rather than createObjectTable()'s
+  // automatic nesting: each session gets a "Session N" heading row (not
+  // type/subject — a host can have more than one session of the same type
+  // — type and subject are properties inside the block instead), followed
+  // by a blank row, then its properties. Headings are one flat level, not
+  // nested under each other, so createKeyValueTable() (used the same way
+  // AdminOps.ts's OAuth2 client/issuer displays already do) is a better
+  // fit here than createObjectTable()'s recursive indentation.
+  printMessage(`Cached session(s) for ${resolvedHost}:\n`, 'info');
+  const table = createKeyValueTable();
+  for (let index = 0; index < sessions.length; index++) {
+    const session = sessions[index];
+    const properties: Record<string, string> = {
+      'Session Type': describeFrodoSessionType(session.tokenType),
+      Subject: session.subject,
+      Realm: session.realm,
+      'Token Type': describeTokenKind(session.tokenType),
+      Status: formatSessionStatus(session),
+      ...(await describeSessionDetail(session)),
+    };
+    // Blank row between sessions (not before the first — the blank line
+    // already printed before the table covers that), plus one after every
+    // heading, so each session reads as a clearly separated block.
+    if (index > 0) {
+      table.push(['', '']);
+    }
+    table.push([c.heading(`Session ${index + 1}`), '']);
+    table.push(['', '']);
+    for (const [label, value] of Object.entries(properties)) {
+      table.push([c.heading(label), value]);
+    }
   }
-  printMessage(`Cached session(s) for ${resolvedHost}:`, 'info');
   printMessage(table.toString(), 'data');
 }
 

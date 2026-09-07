@@ -1,9 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CLI help interface for 'login' should be expected english 1`] = `
-"Usage: frodo login [options] [command] [host] [username] [password]
+exports[`CLI help interface for 'login setup' should be expected english 1`] = `
+"Usage: frodo login setup [options] [host] [username] [password]
 
-Authenticate to a cloud, forgeops, or classic deployment.
+Setup a forgeops or classic deployment with an OAuth2 client and session-capture
+script for --browser/--device login.
+
+Cloud needs no setup. --login-client-id defaults to "frodo-browser-login" if
+omitted; --login-redirect-uri defaults to a wildcard loopback pattern matching
+any local port (if the target AM's version supports it) or a fixed URI otherwise
+— pass --login-redirect-uri explicitly to force a specific value. This is an
+ordinary (non-interactive) admin login, not a --browser login itself — a host
+with a saved connection profile (identified by its full URL, a unique substring,
+or a saved alias) works with no extra arguments; a brand-new host with no saved
+profile yet needs a username/password (or service account) on the command line.
+See docs/BROWSER_LOGIN.md.
 
 Arguments:
   host                                 AM base URL, e.g.:
@@ -21,10 +32,6 @@ Arguments:
   password                             Password.
 
 Options:
-  --alias [name]                       Alias name for the saved connection
-                                       profile. Ignored without --save. Lets
-                                       later commands address this session by an
-                                       alias.
   --browser                            [Experimental] Authenticate via an
                                        interactive browser login instead of
                                        providing a username/password on the
@@ -42,18 +49,21 @@ Options:
                                        its port binds the local loopback
                                        listener, and the URI itself is sent to
                                        your OAuth2 provider verbatim.
-  --login-scope <scope>                Override the default OAuth2 scope
-                                       requested for browser login. Ignored
-                                       without --browser/--device. Defaults per
+  --login-scope <scope>                OAuth2 scope for the client. Defaults per
                                        deployment type:
-                                       cloud:    "fr:am:* fr:idm:*"
-                                       forgeops: "fr:idm:* openid"
+                                       forgeops: "openid fr:idm:*"
                                        classic:  "openid"
   --no-open                            Print the browser-login URL instead of
                                        launching a local browser. Ignored
                                        without --browser.
-  --save                               Save a connection profile for this host
-                                       after a successful login.
+  --script-id <script-id>              Script id for the session-capture script.
+                                       Defaults to
+                                       "<login-client-id>-session-capture".
+  --script-name <script-name>          Display name for the session-capture
+                                       script. (default: "Frodo Browser Login
+                                       Session Capture")
+  --yes                                Skip the confirmation prompt and apply
+                                       changes immediately. (default: false)
   -h, --help                           Help
   -hh, --help-more                     Help with all options.
   -hhh, --help-all                     Help with all options, environment
@@ -67,15 +77,5 @@ Options:
                                        formats include PEM (both PKCS#1 and
                                        PKCS#8 variants), OpenSSH, DNSSEC, and
                                        JWK.
-
-  (Cloud-only):
-  --sa-id <sa-id>                      Service account id.
-  --sa-jwk-file <file>                 File containing the JSON Web Key (JWK)
-                                       associated with the the service account.
-
-Commands:
-  setup                                Setup a forgeops or classic deployment
-                                       with an OAuth2 client and session-capture
-                                       script for --browser/--device login.
 "
 `;

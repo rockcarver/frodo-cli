@@ -48,6 +48,10 @@ async function seedCachedBrowserSession() {
       scope: 'fr:idm:*',
       expires_in: 1800,
       expires: Date.now() + 1_800_000,
+      // Item 23b: mirrors cloud's opportunistic getTokenInfo() capture at
+      // fresh-login time (AuthenticateOps.ts) — 'describe' should surface
+      // this straight from the cache, no network call.
+      tokenInfo: { sub: 'jdoe', tokenName: 'Access Token', auditTrackingId: 'abc-123-audit' },
     }).then((ok) => { if (!ok) throw new Error('seed save returned false'); });
   `;
   await exec(`node -e "${script.replace(/"/g, '\\"')}"`, {
@@ -76,7 +80,9 @@ describe('frodo session', () => {
   test('"frodo session list": lists the seeded cached session', async () => {
     const { stdout } = await exec('frodo session list', { env, cwd: process.cwd() });
     expect(stdout).toContain(host);
-    expect(stdout).toContain('browserUserBearer');
+    // Human-readable Frodo Session Type label, not the raw internal
+    // 'browserUserBearer' cache-key name.
+    expect(stdout).toContain('Browser Login Access Token');
     expect(stdout).toContain('browser-login');
   });
 
@@ -90,13 +96,26 @@ describe('frodo session', () => {
       cwd: process.cwd(),
     });
     expect(stderr).toContain(host);
-    expect(stdout).toContain('browserUserBearer');
+    // "Session 1" heading with type/subject as properties, not
+    // "browserUserBearer (subject)" as the heading itself.
+    expect(stdout).toContain('Session 1');
+    expect(stdout).toContain('Browser Login Access Token');
     // Item 23a: describe (unlike list) also decrypts a browserUserBearer
     // entry (master-key-derived, no extra credential needed) to surface
     // its granted scope and an "OAuth2 Access Token" vs "SSO Token" kind
     // label, straight from data already sitting in the seeded token.
     expect(stdout).toContain('OAuth2 Access Token');
     expect(stdout).toContain('fr:idm:*');
+    // Item 23b: metadata captured once at login time (never a network call
+    // from describe itself) is rendered as extra rows in the same nested
+    // properties table — createObjectTable(), the same helper `frodo info`
+    // uses for its own nested data.
+    expect(stdout).toContain('Token Subject');
+    expect(stdout).toContain('jdoe');
+    expect(stdout).toContain('Token Name');
+    expect(stdout).toContain('Access Token');
+    expect(stdout).toContain('Audit Tracking ID');
+    expect(stdout).toContain('abc-123-audit');
   });
 
   test('"frodo session describe <host-with-no-session>": reports no cached session', async () => {
