@@ -113,9 +113,10 @@ test("'mcp server info' prints the active server summary", async () => {
 test("'mcp server profiles' lists registered profiles", async () => {
     const stdout = await runMcpCommand('profiles');
 
-    expect(stdout).toContain('MCP profiles (8):');
+    expect(stdout).toContain('MCP profiles (9):');
     expect(stdout).toContain('- all:');
     expect(stdout).toContain('- authentication:');
+    expect(stdout).toContain('- self-service:');
 });
 
 test("'mcp server policies' returns all policy presets", async () => {

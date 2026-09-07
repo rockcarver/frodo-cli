@@ -52,6 +52,7 @@ import {
 import { z } from 'zod';
 
 import { printMessage } from '../utils/Console.js';
+import { getUseDeviceFlow } from './AuthenticateOps.js';
 import { McpLogger, type McpProtocolLogLevel } from './McpLogger.js';
 import {
   getMcpHttpLockfilePath,
@@ -2595,6 +2596,31 @@ function buildRequestContext(
         password,
         realm,
         deploymentType: state.getDeploymentType(),
+        allowInsecureConnection: state.getAllowInsecureConnection(),
+        debug: state.getDebug(),
+        curlirize: state.getCurlirize(),
+      },
+    };
+  }
+
+  // The server's own singleton was already authenticated via
+  // getTokensInteractive() at startup (see server-start.ts) for the common
+  // case — this branch only matters for the rarer per-call realm override
+  // that forces a *new* scoped instance (resolveFrodoForMcpRequest), which
+  // still needs a real browser-login auth context (not the state-config
+  // fallback below) so the runtime's browserLoginPromptHandler gets used.
+  if (host && state.getAuthMode() === 'interactive') {
+    return {
+      ...sharedContext,
+      auth: {
+        mode: 'browser',
+        host,
+        realm,
+        deploymentType: state.getDeploymentType(),
+        loginClientId: state.getBrowserLoginClientId(),
+        loginScope: state.getBrowserLoginScope(),
+        loginRedirectUri: state.getAdminClientRedirectUri(),
+        useDeviceFlow: getUseDeviceFlow(),
         allowInsecureConnection: state.getAllowInsecureConnection(),
         debug: state.getDebug(),
         curlirize: state.getCurlirize(),

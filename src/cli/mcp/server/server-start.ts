@@ -9,6 +9,10 @@ import { Option } from 'commander';
 
 import * as s from '../../../help/SampleData';
 import {
+  cliBrowserLoginPromptHandler,
+  getUseDeviceFlow,
+} from '../../../ops/AuthenticateOps.js';
+import {
   MCP_LOG_LEVELS,
   McpLogger,
   type McpLogLevel,
@@ -314,7 +318,14 @@ export default function setup() {
       }
       const logger = new McpLogger(opts.mcpLogLevel);
       if (state.getHost()) {
-        await frodo.login.getTokens();
+        if (state.getAuthMode() === 'interactive') {
+          await frodo.login.getTokensInteractive({
+            useDeviceFlow: getUseDeviceFlow(),
+            promptHandler: cliBrowserLoginPromptHandler,
+          });
+        } else {
+          await frodo.login.getTokens();
+        }
       }
       const activeHost = sanitizeHost(state.getHost());
       const discoveryContext = await hydrateMcpDiscoveryContext({
@@ -346,6 +357,10 @@ export default function setup() {
           resolveFrodoForRequest: (context) =>
             resolveFrodoForMcpRequest(context, frodo, state.getRealm()),
           executeRecommendedByDefault: true,
+          // Only matters for a per-call realm override that forces a new
+          // scoped instance (the common case reuses the already-logged-in
+          // singleton above) — see buildRequestContext()'s browser branch.
+          browserLoginPromptHandler: cliBrowserLoginPromptHandler,
         },
       });
 

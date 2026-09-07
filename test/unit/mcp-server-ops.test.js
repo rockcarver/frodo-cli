@@ -26,6 +26,17 @@ const { request: httpRequest } = http;
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   getRealmFromContext: () => undefined,
   resolveRequestScopedFrodo: async (_context, frodoSingleton) => frodoSingleton,
+  // Pulled in transitively via ./AuthenticateOps.js's getUseDeviceFlow
+  // import (frodo-cli's own AuthenticateOps.ts destructures frodo.login/
+  // frodo.utils.constants at module top level) — only needs to exist, this
+  // test never exercises browser-login auth mode.
+  frodo: {
+    login: {
+      getTokens: async () => ({}),
+      getTokensInteractive: async () => ({}),
+    },
+    utils: { constants: { DEPLOYMENT_TYPES: [] } },
+  },
   state: {
     getHost: () => undefined,
     getRealm: () => undefined,
@@ -38,6 +49,10 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     getDebug: () => false,
     getCurlirize: () => false,
     getState: () => ({}),
+    getAuthMode: () => 'noninteractive',
+    getBrowserLoginClientId: () => undefined,
+    getBrowserLoginScope: () => undefined,
+    getBrowserLoginRedirectPort: () => undefined,
   },
 }));
 
@@ -46,6 +61,10 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage: (msg, type) => {
     printed.push({ msg: String(msg), type });
   },
+  // Pulled in transitively via ./AuthenticateOps.js's getUseDeviceFlow
+  // import — only need to exist, this test never exercises them.
+  printError: () => {},
+  verboseMessage: () => {},
 }));
 
 jest.unstable_mockModule('../../src/utils/Version', () => ({

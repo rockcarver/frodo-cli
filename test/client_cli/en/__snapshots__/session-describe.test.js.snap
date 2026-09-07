@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'session describe' should be expected english 1`] = `
+"Usage: frodo session describe [options] [host]
+
+Describe the session(s) for a particular host.
+
+Arguments:
+  host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
+                    connection profile, just specify a unique substring or
+                    alias.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
+`;

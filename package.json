@@ -153,6 +153,7 @@
     "log-update": "^4.0.0",
     "loglevel": "^1.9.1",
     "map-stream": "^0.0.7",
+    "open": "^11.0.2",
     "prettier": "^3.0.3",
     "properties-reader": "^2.2.0",
     "readline-sync": "^1.4.10",

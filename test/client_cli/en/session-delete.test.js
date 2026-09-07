@@ -2,21 +2,21 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo conn list --help';
+const CMD = 'frodo session delete --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'conn list' should be expected english", async () => {
+test("CLI help interface for 'session delete' should be expected english", async () => {
   expect(stdout).toMatchSnapshot();
 });
 
-test("'conn list -hhh' omits every Authentication/Connection option — it never calls getTokens()", async () => {
+test("'session delete -hhh' omits every Authentication/Connection option — it never calls getTokens()", async () => {
   // Regression coverage for FrodoCommand.ts's `{ local: true }` constructor
-  // option and OptionCategory: `conn list` is local file I/O only, so it
-  // should show none of the options a real login/connection would need,
+  // option and OptionCategory: `session delete` is local file I/O only, so
+  // it should show none of the options a real login/connection would need,
   // even at the fullest help level. Before this, these leaked in silently
-  // (conn-list.ts's omit list never accounted for options added after it
-  // was written, e.g. --browser/--device).
-  const { stdout: fullStdout } = await exec('frodo conn list -hhh');
+  // (session-delete.ts's omit list never accounted for options added after
+  // it was written, e.g. --browser/--device).
+  const { stdout: fullStdout } = await exec('frodo session delete -hhh');
   expect(fullStdout).not.toMatch(/Authentication Options:/);
   expect(fullStdout).not.toMatch(/Connection Options:/);
   expect(fullStdout).not.toMatch(/--browser/);

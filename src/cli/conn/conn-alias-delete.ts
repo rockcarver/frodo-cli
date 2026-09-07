@@ -4,14 +4,12 @@ import { printError } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo conn alias delete', [
-    'realm',
-    'username',
-    'password',
-    'type',
-    'insecure',
-    'curlirize',
-  ]);
+  const program = new FrodoCommand(
+    'frodo conn alias delete',
+    ['realm', 'username', 'password', 'curlirize'],
+    undefined,
+    { local: true }
+  );
 
   program
     .description('Delete connection profile alias.')
