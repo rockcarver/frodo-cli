@@ -146,6 +146,9 @@ export async function describeConnectionProfile(
     if (!profile.alias) {
       delete profile.alias;
     }
+    if (!profile.defaultCredential) {
+      delete profile.defaultCredential;
+    }
     const keyMap = {
       tenant: 'Host',
       alias: 'Alias',
@@ -161,6 +164,7 @@ export async function describeConnectionProfile(
       svcacctJwk: 'Service Account JWK',
       svcacctScope: 'Service Account Scope',
       amsterPrivateKey: 'Amster Private Key',
+      defaultCredential: 'Default Credential',
     };
     const table = createObjectTable(profile, keyMap);
     printMessage(table.toString(), 'data');

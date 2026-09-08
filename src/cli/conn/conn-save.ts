@@ -60,6 +60,12 @@ export default function setup() {
     .addOption(
       new Option('--alias [name]', 'Alias name for this connection profile.')
     )
+    .addOption(
+      new Option(
+        '--default-credential <type>',
+        'Explicit preference for which non-interactive credential type to use when this profile has more than one configured (e.g. both a service account and a plain username/password). Persisted; unlike --force-login-as-user, applies to every future implicit command against this host, not just one invocation.'
+      ).choices(['user', 'svcacct', 'amster'])
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -106,6 +112,10 @@ export default function setup() {
         `  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):\n` +
         c.command(
           `  $ frodo conn save --private-key ${s.amsterPrivateKey} --authentication-service ${s.customAmsterService} ${s.classicConnId}\n`
+        ) +
+        `  Update an existing connection profile (with both a service account and a username/password already saved) to prefer the plain user by default:\n` +
+        c.command(
+          `  $ frodo conn save --default-credential user ${s.connId}\n`
         )
     )
     .action(
@@ -132,6 +142,9 @@ export default function setup() {
           state.setConfigurationHeaderOverrides(
             JSON.parse(options.configurationHeaderOverrides)
           );
+        }
+        if (options.defaultCredential) {
+          state.setDefaultCredential(options.defaultCredential);
         }
         const needAmsterLogin = !!options.privateKey;
         const needSa =
