@@ -148,4 +148,27 @@ describe('frodo session', () => {
     );
     expect(stderr).toContain('No cached session');
   });
+
+  // An unresolvable alias/substring (no matching connection profile, and not
+  // itself a full host URL) must be reported as unresolved, not silently
+  // treated as a literal host that simply has no cached sessions — the two
+  // are different failures and previously looked identical ("No cached
+  // session for <raw-alias>"), which could read as "the delete/describe ran
+  // against your host and found nothing" when it never resolved a host at
+  // all.
+  test('"frodo session describe <unresolvable-alias>": reports the alias could not be resolved, not "no cached session"', async () => {
+    await expect(
+      exec('frodo session describe not-a-real-alias', { env, cwd: process.cwd() })
+    ).rejects.toThrow(
+      /'not-a-real-alias' is not a full host URL and could not be resolved to a host from a connection profile/
+    );
+  });
+
+  test('"frodo session delete <unresolvable-alias>": reports the alias could not be resolved, not "no cached session"', async () => {
+    await expect(
+      exec('frodo session delete not-a-real-alias', { env, cwd: process.cwd() })
+    ).rejects.toThrow(
+      /'not-a-real-alias' is not a full host URL and could not be resolved to a host from a connection profile/
+    );
+  });
 });

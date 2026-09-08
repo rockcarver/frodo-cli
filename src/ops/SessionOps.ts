@@ -9,6 +9,7 @@ import {
 } from '../utils/Console';
 
 const { getConnectionProfileByHost } = frodo.conn;
+const { isValidUrl } = frodo.utils;
 const {
   list: listCachedSessions,
   deleteHost: deleteHostTokens,
@@ -173,16 +174,27 @@ function formatSessionStatus(session: CachedSessionSummary): string {
  * input as a literal host when no saved profile matches — a browser-login
  * session created with `frodo login --browser` (no `--save`) has no
  * connection profile at all, so this must still work for a bare host URL.
+ *
+ * `resolved: false` distinguishes "this alias/substring genuinely couldn't
+ * be resolved to anything" from "resolved fine, just has zero cache
+ * entries" — callers must not report the former as the latter's normal,
+ * successful-but-empty "No cached session for X" message, which would
+ * silently imply a real host was checked when it wasn't.
  */
-async function resolveSessionHost(host: string): Promise<string> {
+async function resolveSessionHost(
+  host: string
+): Promise<{ host: string; resolved: boolean }> {
   try {
     const profile = await getConnectionProfileByHost(host);
     if (profile?.tenant) {
-      return profile.tenant;
+      return { host: profile.tenant, resolved: true };
     }
     // eslint-disable-next-line no-empty
   } catch {}
-  return host;
+  // A full host URL is its own valid resolution even with no saved
+  // connection profile (the browser-login-with-no---save case above) —
+  // only a bare alias/substring that matched no profile is unresolved.
+  return { host, resolved: isValidUrl(host) };
 }
 
 /**
@@ -218,7 +230,15 @@ export function listSessions(): void {
  * @param {string} host Host URL, unique substring, or alias
  */
 export async function describeSession(host: string): Promise<void> {
-  const resolvedHost = await resolveSessionHost(host);
+  const { host: resolvedHost, resolved } = await resolveSessionHost(host);
+  if (!resolved) {
+    printMessage(
+      `'${host}' is not a full host URL and could not be resolved to a host from a connection profile.`,
+      'error'
+    );
+    process.exitCode = 1;
+    return;
+  }
   const sessions = listCachedSessions().filter(
     (session) => session.host === resolvedHost
   );
@@ -268,7 +288,15 @@ export async function describeSession(host: string): Promise<void> {
  * @param {string} host Host URL, unique substring, or alias
  */
 export async function deleteSession(host: string): Promise<void> {
-  const resolvedHost = await resolveSessionHost(host);
+  const { host: resolvedHost, resolved } = await resolveSessionHost(host);
+  if (!resolved) {
+    printMessage(
+      `'${host}' is not a full host URL and could not be resolved to a host from a connection profile.`,
+      'error'
+    );
+    process.exitCode = 1;
+    return;
+  }
   const hadInteractiveSession = listCachedSessions().some(
     (session) =>
       session.host === resolvedHost &&
