@@ -7,15 +7,12 @@ import {
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo settings theme list', [
-    'host',
-    'realm',
-    'username',
-    'password',
-    'type',
-    'insecure',
-    'curlirize',
-  ]);
+  const program = new FrodoCommand(
+    'frodo settings theme list',
+    ['host', 'realm', 'username', 'password', 'curlirize'],
+    undefined,
+    { local: true }
+  );
 
   program
     .description('List available color themes.')

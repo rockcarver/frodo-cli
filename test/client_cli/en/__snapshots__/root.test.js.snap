@@ -27,6 +27,8 @@ Commands:
   idp                               Manage (social) identity providers.
   info                              Print versions and tokens.
   journey                           Manage journeys/trees.
+  login                             Authenticate to a cloud, forgeops, or
+                                    classic deployment.
   mapping                           Manage IDM mappings.
   node                              Manage custom nodes.
   oauth                             Manage OAuth2 clients and providers.
@@ -55,6 +57,7 @@ Utilities:
   conn|connection                   Manage connection profiles.
   mcp                               [Experimental] Manage Model Context Protocol
                                     (MCP) integrations.
+  session                           Manage sessions.
   settings                          Manage CLI settings.
   shell                             [Experimental] Launch the frodo interactive
                                     shell.

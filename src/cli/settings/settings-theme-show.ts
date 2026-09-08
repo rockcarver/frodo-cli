@@ -119,15 +119,12 @@ function renderRealisticSample(): void {
 }
 
 export default function setup() {
-  const program = new FrodoCommand('frodo settings theme show', [
-    'host',
-    'realm',
-    'username',
-    'password',
-    'type',
-    'insecure',
-    'curlirize',
-  ]);
+  const program = new FrodoCommand(
+    'frodo settings theme show',
+    ['host', 'realm', 'username', 'password', 'curlirize'],
+    undefined,
+    { local: true }
+  );
 
   program
     .description(

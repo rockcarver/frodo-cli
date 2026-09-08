@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'login setup' should be expected english 1`] = `
+"Usage: frodo login setup [options] [host] [username] [password]
+
+Setup a forgeops or classic deployment with an OAuth2 client and session-capture
+script for --browser/--device login.
+
+Cloud needs no setup. --login-client-id defaults to "frodo-browser-login" if
+omitted; --login-redirect-uri defaults to a wildcard loopback pattern matching
+any local port (if the target AM's version supports it) or a fixed URI otherwise
+— pass --login-redirect-uri explicitly to force a specific value. This is an
+ordinary (non-interactive) admin login, not a --browser login itself — a host
+with a saved connection profile (identified by its full URL, a unique substring,
+or a saved alias) works with no extra arguments; a brand-new host with no saved
+profile yet needs a username/password (or service account) on the command line.
+See docs/BROWSER_LOGIN.md.
+
+Arguments:
+  host                                 AM base URL, e.g.:
+                                       https://cdk.iam.example.com/am. To use a
+                                       connection profile, just specify a unique
+                                       substring or alias.
+  username                             Username to login with. Must be an admin
+                                       user with appropriate rights to manage
+                                       authentication journeys/trees. If given
+                                       without a password, and it matches the
+                                       username already stored in the connection
+                                       profile for the target host, frodo uses
+                                       that profile's stored password instead of
+                                       requiring it on the command line.
+  password                             Password.
+
+Options:
+  --browser                            [Experimental] Authenticate via an
+                                       interactive browser login instead of
+                                       providing a username/password on the
+                                       command line.
+  --device                             [Experimental] Use the OAuth2 Device
+                                       Authorization Grant. Useful for
+                                       headless/SSH sessions with no local
+                                       browser to launch.
+  --force-login-as-user                Force a plain username/password login
+                                       even if the resolved connection profile
+                                       also has a service account or Amster
+                                       credential configured.
+  --login-client-id <client-id>        Specify a custom OAuth2 client id.
+                                       Mandatory with --browser and deployment
+                                       types "forgeops" and "classic", optional
+                                       for cloud.
+  --login-redirect-uri <redirect-uri>  Specify a redirect URI for your custom
+                                       OAuth2 client. When used with --browser,
+                                       its port binds the local loopback
+                                       listener, and the URI itself is sent to
+                                       your OAuth2 provider verbatim.
+  --login-scope <scope>                OAuth2 scope for the client. Defaults per
+                                       deployment type:
+                                       forgeops: "openid fr:idm:*"
+                                       classic:  "openid"
+  --no-open                            Print the browser-login URL instead of
+                                       launching a local browser. Ignored
+                                       without --browser.
+  --script-id <script-id>              Script id for the session-capture script.
+                                       Defaults to
+                                       "<login-client-id>-session-capture".
+  --script-name <script-name>          Display name for the session-capture
+                                       script. (default: "Frodo Browser Login
+                                       Session Capture")
+  --yes                                Skip the confirmation prompt and apply
+                                       changes immediately. (default: false)
+  -h, --help                           Help
+  -hh, --help-more                     Help with all options.
+  -hhh, --help-all                     Help with all options, environment
+                                       variables, and usage examples.
+
+  (Classic-only):
+  --passphrase <passphrase>            The passphrase for the Amster private key
+                                       if it is encrypted.
+  --private-key <file>                 File containing the private key for
+                                       authenticating with Amster. Supported
+                                       formats include PEM (both PKCS#1 and
+                                       PKCS#8 variants), OpenSSH, DNSSEC, and
+                                       JWK.
+"
+`;

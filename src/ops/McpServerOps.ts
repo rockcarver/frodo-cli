@@ -52,6 +52,7 @@ import {
 import { z } from 'zod';
 
 import { printMessage } from '../utils/Console.js';
+import { getUseDeviceFlow } from './AuthenticateOps.js';
 import { McpLogger, type McpProtocolLogLevel } from './McpLogger.js';
 import {
   getMcpHttpLockfilePath,
@@ -2497,6 +2498,18 @@ function buildErrorResult(err: unknown): {
     errorText += String(err);
   }
 
+  // A browser-login session's credential expired with no unattended
+  // refresh path (see BaseApi.ts's throwCannotSilentlyRefresh(), which sets
+  // this flag) — an MCP server process can't complete a fresh interactive
+  // browser round trip on its own, so this is terminal for the rest of the
+  // process's life, not just this one call. Every further AM/IDM-touching
+  // tool call will hit the same underlying cause, so surfacing this note on
+  // every subsequent error (not just the first) is accurate, not noisy.
+  if (state.getNeedsReauthentication()) {
+    errorText +=
+      '\n\nThis MCP server session needs re-authentication and cannot silently refresh itself. Restart the server after completing a fresh interactive login (e.g. `frodo login --browser`).';
+  }
+
   return {
     content: [
       {
@@ -2595,6 +2608,31 @@ function buildRequestContext(
         password,
         realm,
         deploymentType: state.getDeploymentType(),
+        allowInsecureConnection: state.getAllowInsecureConnection(),
+        debug: state.getDebug(),
+        curlirize: state.getCurlirize(),
+      },
+    };
+  }
+
+  // The server's own singleton was already authenticated via
+  // getTokensInteractive() at startup (see server-start.ts) for the common
+  // case — this branch only matters for the rarer per-call realm override
+  // that forces a *new* scoped instance (resolveFrodoForMcpRequest), which
+  // still needs a real browser-login auth context (not the state-config
+  // fallback below) so the runtime's browserLoginPromptHandler gets used.
+  if (host && state.getAuthMode() === 'interactive') {
+    return {
+      ...sharedContext,
+      auth: {
+        mode: 'browser',
+        host,
+        realm,
+        deploymentType: state.getDeploymentType(),
+        loginClientId: state.getBrowserLoginClientId(),
+        loginScope: state.getBrowserLoginScope(),
+        loginRedirectUri: state.getAdminClientRedirectUri(),
+        useDeviceFlow: getUseDeviceFlow(),
         allowInsecureConnection: state.getAllowInsecureConnection(),
         debug: state.getDebug(),
         curlirize: state.getCurlirize(),

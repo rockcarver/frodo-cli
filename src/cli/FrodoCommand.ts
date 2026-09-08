@@ -5,6 +5,11 @@ import fs from 'fs';
 import propertiesReader from 'properties-reader';
 
 import {
+  setForceLoginAsUser,
+  setOpenBrowser,
+  setUseDeviceFlow,
+} from '../ops/AuthenticateOps.js';
+import {
   cleanupProgressIndicators,
   createProgressIndicator,
   curlirizeMessage,
@@ -34,7 +39,7 @@ const COMMAND_OPTIONS_HEADING = 'Options:';
 // Group for connection and deployment endpoint settings.
 const CONNECTION_OPTIONS_HEADING = 'Connection Options:';
 // Group for login and credential-related settings.
-const AUTHENTICATION_OPTIONS_HEADING = 'Authentication Options:';
+export const AUTHENTICATION_OPTIONS_HEADING = 'Authentication Options:';
 // Group for runtime behavior controls.
 const RUNTIME_OPTIONS_HEADING = 'Runtime Options:';
 // Group for output and diagnostics controls.
@@ -50,6 +55,23 @@ const AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING = 'Authentication:';
 const RUNTIME_ENVIRONMENT_VARIABLES_HEADING = 'Runtime:';
 // Top-level env var section for output and debug toggles.
 const OUTPUT_ENVIRONMENT_VARIABLES_HEADING = 'Output:';
+
+/**
+ * Stable identity for what kind of option this is, independent of which
+ * heading it renders under. Headings are purely cosmetic (renamed or
+ * reorganized freely for display); category is the semantic identity that
+ * drives bulk-omission decisions (e.g. `{ local: true }` dropping every
+ * Authentication/Connection option from a command that never calls
+ * getTokens()), so that reorganizing display headings can never silently
+ * change which options a command gets.
+ */
+export enum OptionCategory {
+  Command = 'command',
+  Connection = 'connection',
+  Authentication = 'authentication',
+  Runtime = 'runtime',
+  Output = 'output',
+}
 // Short flag alias for --help-more; triggers level-2 help showing all option groups.
 const HELP_MORE_SHORT_FLAG = '-hh';
 // Level-2 help flag: shows all option groups (Connection, Authentication, Runtime, Output)
@@ -172,8 +194,36 @@ const environmentVariableScopeOrder: DeploymentScope[] = [
   'forgeops-only',
 ];
 
-function withHelpGroup(option: Option, group: string): Option {
+// Property key used to attach category metadata to Option objects, mirroring
+// STABILITY_METADATA_KEY's double-underscore-prefixed convention to avoid
+// collision with Commander's own property namespace.
+const OPTION_CATEGORY_KEY = '__frodoOptionCategory' as const;
+
+type CategoryAnnotated = {
+  [OPTION_CATEGORY_KEY]?: OptionCategory;
+};
+
+function setOptionCategory(option: Option, category: OptionCategory): void {
+  (option as unknown as CategoryAnnotated)[OPTION_CATEGORY_KEY] = category;
+}
+
+/**
+ * Reads an option's category, as assigned via `withHelpGroup(...)`.
+ * @param option Annotated option.
+ * @returns The option's category, or undefined for options that never went
+ * through `withHelpGroup(...)` (e.g. help flags added directly).
+ */
+function getOptionCategory(option: Option): OptionCategory | undefined {
+  return (option as unknown as CategoryAnnotated)[OPTION_CATEGORY_KEY];
+}
+
+function withHelpGroup(
+  option: Option,
+  group: string,
+  category: OptionCategory
+): Option {
   option.helpGroup(group);
+  setOptionCategory(option, category);
   return option;
 }
 
@@ -402,6 +452,8 @@ function cloneOption(option: Option): Option {
   });
 
   setStabilityMetadata(cloned, getStabilityMetadata(option));
+  const category = getOptionCategory(option);
+  if (category) setOptionCategory(cloned, category);
   return cloned;
 }
 
@@ -468,28 +520,86 @@ const idmHostOption = withHelpGroup(
     '--idm-host <idm-host>',
     'IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".'
   ),
-  CONNECTION_OPTIONS_HEADING
+  CONNECTION_OPTIONS_HEADING,
+  OptionCategory.Connection
 );
 
 const loginClientId = withHelpGroup(
   new Option(
     '--login-client-id <client-id>',
-    'Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").'
+    'Specify a custom OAuth2 client id. Mandatory with --browser and deployment types "forgeops" and "classic", optional for cloud.'
   ),
-  AUTHENTICATION_OPTIONS_HEADING
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
 );
 
 const loginRedirectUri = withHelpGroup(
   new Option(
     '--login-redirect-uri <redirect-uri>',
-    'Specify a custom redirect URI to use with your custom OAuth2 client (efault: "<host>/platform/appAuthHelperRedirect.html").'
+    'Specify a redirect URI for your custom OAuth2 client. When used with --browser, its port binds the local loopback listener, and the URI itself is sent to your OAuth2 provider verbatim.'
   ),
-  AUTHENTICATION_OPTIONS_HEADING
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
+);
+
+// Experimental: the device-flow bug tracked in the browser-login plan doc
+// is still open, and cloud defaults to piggy-backing on Ping's own
+// AICMCPClient/AICMCPExchangeClient rather than a Frodo-owned OAuth2
+// client — see that plan's item 19 for the full rationale. Help-text badge
+// only (via withOptionStability()); no runtime warning is wired up yet,
+// since --browser/--device are global options usable on any command, and
+// where a runtime signal should live is still an open design question.
+const browserLoginOption = withOptionStability(
+  withHelpGroup(
+    new Option(
+      '--browser',
+      'Authenticate via an interactive browser login instead of providing a username/password on the command line.'
+    ),
+    AUTHENTICATION_OPTIONS_HEADING,
+    OptionCategory.Authentication
+  ),
+  'experimental'
+);
+
+const deviceFlowOption = withOptionStability(
+  withHelpGroup(
+    new Option(
+      '--device',
+      'Use the OAuth2 Device Authorization Grant. Useful for headless/SSH sessions with no local browser to launch.'
+    ),
+    AUTHENTICATION_OPTIONS_HEADING,
+    OptionCategory.Authentication
+  ),
+  'experimental'
+);
+
+const noOpenOption = withHelpGroup(
+  new Option(
+    '--no-open',
+    'Print the browser-login URL instead of launching a local browser. Ignored without --browser.'
+  ),
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
+);
+
+// A connection profile can hold more than one configured credential at once
+// (e.g. both a service account and a plain username/password) — without
+// this, an implicit command's credential resolution always follows a fixed
+// priority order (service account, then plain user, then Amster) with no
+// way to override it for one invocation.
+const forceLoginAsUserOption = withHelpGroup(
+  new Option(
+    '--force-login-as-user',
+    'Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured.'
+  ),
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
 );
 
 const serviceAccountIdOption = withHelpGroup(
   new Option('--sa-id <sa-id>', 'Service account id.'),
-  AUTHENTICATION_OPTIONS_HEADING
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
 );
 
 const serviceAccountJwkFileOption = withHelpGroup(
@@ -497,7 +607,8 @@ const serviceAccountJwkFileOption = withHelpGroup(
     '--sa-jwk-file <file>',
     'File containing the JSON Web Key (JWK) associated with the the service account.'
   ),
-  AUTHENTICATION_OPTIONS_HEADING
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
 );
 
 const amsterPrivateKeyPassphraseOption = withHelpGroup(
@@ -505,7 +616,8 @@ const amsterPrivateKeyPassphraseOption = withHelpGroup(
     '--passphrase <passphrase>',
     'The passphrase for the Amster private key if it is encrypted.'
   ),
-  AUTHENTICATION_OPTIONS_HEADING
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
 );
 
 const amsterPrivateKeyFileOption = withHelpGroup(
@@ -513,7 +625,8 @@ const amsterPrivateKeyFileOption = withHelpGroup(
     '--private-key <file>',
     'File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.'
   ),
-  AUTHENTICATION_OPTIONS_HEADING
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
 );
 
 const deploymentOption = withHelpGroup(
@@ -527,7 +640,8 @@ The detected or provided deployment type controls certain behavior like obtainin
 Management admin token or not and whether to export/import referenced email templates or how \
 to walk through the tenant admin login flow of Identity Cloud and handle MFA'
   ).choices(DEPLOYMENT_TYPES),
-  CONNECTION_OPTIONS_HEADING
+  CONNECTION_OPTIONS_HEADING,
+  OptionCategory.Connection
 );
 
 const directoryOption = withHelpGroup(
@@ -535,7 +649,8 @@ const directoryOption = withHelpGroup(
     '-D, --directory <directory>',
     'Set the working directory.'
   ).default(undefined, 'undefined'),
-  RUNTIME_OPTIONS_HEADING
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
 );
 
 const envOption = withHelpGroup(
@@ -543,7 +658,8 @@ const envOption = withHelpGroup(
     '-E, --env <key=value>',
     'Set an environment variable for placeholder resolution. May be specified multiple times. Overrides values from --env-file.'
   ),
-  RUNTIME_OPTIONS_HEADING
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
 );
 
 const envFileOption = withHelpGroup(
@@ -551,7 +667,8 @@ const envFileOption = withHelpGroup(
     '--env-file <file>',
     'Read environment variables from a file for placeholder resolution. May be specified multiple times; later files override earlier ones.'
   ),
-  RUNTIME_OPTIONS_HEADING
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
 );
 
 const insecureOption = withHelpGroup(
@@ -559,7 +676,8 @@ const insecureOption = withHelpGroup(
     '-k, --insecure',
     'Allow insecure connections when using SSL/TLS, including expired certificates.'
   ).default(false, "Don't allow insecure connections"),
-  CONNECTION_OPTIONS_HEADING
+  CONNECTION_OPTIONS_HEADING,
+  OptionCategory.Connection
 );
 
 const verboseOption = withHelpGroup(
@@ -567,7 +685,8 @@ const verboseOption = withHelpGroup(
     '--verbose',
     'Verbose output during command execution. If specified, may or may not produce additional output.'
   ),
-  OUTPUT_OPTIONS_HEADING
+  OUTPUT_OPTIONS_HEADING,
+  OptionCategory.Output
 );
 
 const debugOption = withHelpGroup(
@@ -575,17 +694,25 @@ const debugOption = withHelpGroup(
     '--debug',
     'Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.'
   ),
-  OUTPUT_OPTIONS_HEADING
+  OUTPUT_OPTIONS_HEADING,
+  OptionCategory.Output
 );
 
 const curlirizeOption = withHelpGroup(
   new Option('--curlirize', 'Output all network calls in curl format.'),
-  OUTPUT_OPTIONS_HEADING
+  OUTPUT_OPTIONS_HEADING,
+  OptionCategory.Output
 );
 
+// Categorized as Authentication (not Runtime, despite rendering under
+// "Runtime Options:") since it only means anything relative to a token
+// cache — `{ local: true }` commands that never call getTokens() have
+// nothing to flush/disable, so this should be omitted alongside the rest of
+// Authentication, not kept just because its heading differs.
 const noCacheOption = withHelpGroup(
   new Option('--no-cache', 'Disable token cache for this operation.'),
-  RUNTIME_OPTIONS_HEADING
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Authentication
 );
 
 const useRealmPrefixOnManagedObjects = withHelpGroup(
@@ -596,12 +723,15 @@ const useRealmPrefixOnManagedObjects = withHelpGroup(
   etc. is retained. \
   This option is ignored when the deployment type is "cloud".'
   ),
-  CONNECTION_OPTIONS_HEADING
+  CONNECTION_OPTIONS_HEADING,
+  OptionCategory.Connection
 );
 
+// See noCacheOption's comment above — same reasoning applies here.
 const flushCacheOption = withHelpGroup(
   new Option('--flush-cache', 'Flush token cache.'),
-  RUNTIME_OPTIONS_HEADING
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Authentication
 );
 
 const retryOption = withHelpGroup(
@@ -615,7 +745,8 @@ The selected retry strategy controls how the CLI handles failures.`
   )
     .choices(RETRY_STRATEGIES)
     .default(`${RETRY_NOTHING_KEY}`, `Do not retry failed operations.`),
-  RUNTIME_OPTIONS_HEADING
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
 );
 
 /**
@@ -638,7 +769,11 @@ const defaultArgs = [
  * Default options added to every `FrodoCommand` unless explicitly omitted.
  *
  * To add a new global/default option:
- * 1) Define the `Option` above and assign a help group via `withHelpGroup(...)`.
+ * 1) Define the `Option` above and assign a help group and category via
+ *    `withHelpGroup(option, heading, category)`. The category decides
+ *    whether `{ local: true }` commands (see FrodoCommand's constructor)
+ *    get it or not — pick Authentication/Connection deliberately, not just
+ *    whichever heading looks right for display.
  * 2) Add it to this array.
  * 3) Add its behavior to `stateMap` if it should update shared runtime state.
  * 4) Add corresponding env var metadata in `environmentVariables` if applicable.
@@ -648,6 +783,10 @@ const defaultOpts = [
   idmHostOption,
   loginClientId,
   loginRedirectUri,
+  browserLoginOption,
+  deviceFlowOption,
+  noOpenOption,
+  forceLoginAsUserOption,
   serviceAccountIdOption,
   serviceAccountJwkFileOption,
   amsterPrivateKeyPassphraseOption,
@@ -684,6 +823,21 @@ const stateMap = {
     state.setAdminClientId(clientId),
   [loginRedirectUri.attributeName()]: (redirectUri: string) =>
     state.setAdminClientRedirectUri(redirectUri),
+  [browserLoginOption.attributeName()]: (useBrowser: boolean) => {
+    if (useBrowser) state.setAuthMode('interactive');
+  },
+  [deviceFlowOption.attributeName()]: (useDevice: boolean) => {
+    if (useDevice) {
+      state.setAuthMode('interactive');
+      setUseDeviceFlow(true);
+    }
+  },
+  [noOpenOption.attributeName()]: (open: boolean) => {
+    if (!open) setOpenBrowser(false);
+  },
+  [forceLoginAsUserOption.attributeName()]: (force: boolean) => {
+    if (force) setForceLoginAsUser(true);
+  },
   [serviceAccountIdOption.attributeName()]: (saId: string) =>
     state.setServiceAccountId(saId),
   [serviceAccountJwkFileOption.attributeName()]: (file: string) => {
@@ -817,7 +971,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_LOGIN_CLIENT_ID',
     description:
-      "OAuth2 client id for IDM API calls. Overridden by '--login-client-id' option.",
+      "OAuth2 client id for IDM API calls, and (mandatory on forgeops/classic) for --browser login. Overridden by '--login-client-id' option.",
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
     appliesToTypes: [
       constants.CLOUD_DEPLOYMENT_TYPE_KEY,
@@ -829,7 +983,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_LOGIN_REDIRECT_URI',
     description:
-      "Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.",
+      "Redirect URI for your custom OAuth2 client, shared by the synthetic IDM-scoped login flow (default: '<host>/platform/appAuthHelperRedirect.html') and --browser login (default: an OS-assigned ephemeral port). Overridden by '--login-redirect-uri' option.",
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
     appliesToTypes: [
       constants.CLOUD_DEPLOYMENT_TYPE_KEY,
@@ -837,6 +991,38 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
     ],
     include: (command) =>
       command.hasDefaultOption(loginRedirectUri.attributeName()),
+  },
+  {
+    name: 'FRODO_BROWSER_LOGIN',
+    description:
+      "Authenticate via an interactive browser login instead of a username/password. Overridden by '--browser' option.",
+    group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(browserLoginOption.attributeName()),
+  },
+  {
+    name: 'FRODO_LOGIN_DEVICE_FLOW',
+    description:
+      "Use the OAuth2 Device Authorization Grant for browser login. Overridden by '--device' option.",
+    group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(deviceFlowOption.attributeName()),
+  },
+  {
+    name: 'FRODO_BROWSER_LOGIN_NO_OPEN',
+    description:
+      "Print the browser-login URL instead of launching a local browser. Overridden by '--no-open' option.",
+    group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(noOpenOption.attributeName()),
+  },
+  {
+    name: 'FRODO_FORCE_LOGIN_AS_USER',
+    description:
+      "Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured. Overridden by '--force-login-as-user' option.",
+    group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(forceLoginAsUserOption.attributeName()),
   },
   {
     name: 'FRODO_SA_ID',
@@ -1882,7 +2068,8 @@ export class FrodoStubCommand extends Command {
     this.addOption(
       withHelpGroup(
         new Option(HELP_MORE_FLAG, 'Help with all options.'),
-        HELP_OPTIONS_HEADING
+        HELP_OPTIONS_HEADING,
+        OptionCategory.Command
       )
     );
     this.addOption(
@@ -1891,7 +2078,8 @@ export class FrodoStubCommand extends Command {
           HELP_ALL_FLAG,
           'Help with all options, environment variables, and usage examples.'
         ),
-        HELP_OPTIONS_HEADING
+        HELP_OPTIONS_HEADING,
+        OptionCategory.Command
       )
     );
     this.showHelpAfterError();
@@ -1979,7 +2167,8 @@ export class FrodoStubCommand extends Command {
         this.addOption(
           withHelpGroup(
             new Option(`--${optionName}`, helpText),
-            HELP_OPTIONS_HEADING
+            HELP_OPTIONS_HEADING,
+            OptionCategory.Command
           )
         );
       }
@@ -2301,7 +2490,13 @@ class FrodoStubHelp extends Help {
    */
   override visibleOptions(cmd: Command): Option[] {
     // Base help (`-h`) intentionally hides advanced default option groups,
-    // while expanded help (`-hh` / `-hhh`) shows everything.
+    // while expanded help (`-hh` / `-hhh`) shows everything. A command can
+    // opt specific options out of a heading entirely (folding them into the
+    // always-visible "Options:" section instead) via
+    // `FrodoCommand.mergeHeadingIntoOptions()` — see `login`, whose
+    // authentication options aren't "advanced", they're the whole point of
+    // the command. That changes an option's `helpGroupHeading` directly, so
+    // it requires no special-casing here.
     const allVisible = super.visibleOptions(cmd);
 
     if (getHelpLevel() >= 2) {
@@ -2361,11 +2556,13 @@ export class FrodoCommand extends FrodoStubCommand {
    * @param name Name of the command
    * @param omits Array of default argument names and default option names that should not be added to this command
    * @param types Array of deployment types this command supports
+   * @param options.local Set for a command that never calls getTokens() (e.g. `conn list`, `session delete`) — omits every default option categorized as Authentication or Connection, in addition to whatever `omits` already lists. Default arguments (host/realm/username/password) are unaffected — categories only apply to options — so still list those explicitly in `omits` if this command has no use for them either.
    */
   constructor(
     name: string,
     omits: string[] = [],
-    types: string[] = DEPLOYMENT_TYPES
+    types: string[] = DEPLOYMENT_TYPES,
+    options: { local?: boolean } = {}
   ) {
     super(name);
 
@@ -2376,6 +2573,26 @@ export class FrodoCommand extends FrodoStubCommand {
     const supportsForgeops = types.includes(
       constants.FORGEOPS_DEPLOYMENT_TYPE_KEY
     );
+    const supportsClassic = types.includes(
+      constants.CLASSIC_DEPLOYMENT_TYPE_KEY
+    );
+
+    // A command that never calls getTokens() has no use for any
+    // Authentication or Connection option, regardless of how many more get
+    // added to those categories in the future — this reads category, not
+    // heading, so reorganizing display headings can never silently change
+    // what a `local` command gets.
+    if (options.local) {
+      for (const opt of defaultOpts) {
+        const category = getOptionCategory(opt);
+        if (
+          category === OptionCategory.Authentication ||
+          category === OptionCategory.Connection
+        ) {
+          commandOmits.add(opt.name());
+        }
+      }
+    }
 
     // Cloud-only commands do not need Amster private key defaults.
     if (
@@ -2392,8 +2609,8 @@ export class FrodoCommand extends FrodoStubCommand {
       commandOmits.add(serviceAccountJwkFileOption.name());
     }
 
-    // Login client options are applicable only when cloud or forgeops is supported.
-    if (!supportsCloud && !supportsForgeops) {
+    // Login client options are applicable only when cloud, forgeops, or classic is supported.
+    if (!supportsCloud && !supportsForgeops && !supportsClassic) {
       commandOmits.add(loginClientId.name());
       commandOmits.add(loginRedirectUri.name());
     }
@@ -2434,6 +2651,30 @@ export class FrodoCommand extends FrodoStubCommand {
     }
 
     return super.addOption(commandOption);
+  }
+
+  /**
+   * Moves every currently-registered option under the given heading(s) into
+   * the plain "Options:" section instead, for this command instance only.
+   * Every other command adding the same shared default option (e.g.
+   * `--browser`, `--sa-id`) keeps it under its usual heading — this
+   * mutates only this instance's own cloned copies (see `addOption()`
+   * above). Use it when a heading distinction that makes sense globally is
+   * redundant for one specific command (e.g. `login`, where every option
+   * already IS an authentication option, so a separate "Authentication
+   * Options:" section adds a heading without adding information). Call
+   * after every `addOption()`/default-option registration is done, since it
+   * only sees options already on the command.
+   * @param headings Heading(s) whose options should be reassigned.
+   * @returns This command for chaining.
+   */
+  mergeHeadingIntoOptions(...headings: string[]) {
+    for (const option of this.options) {
+      if (headings.includes(option.helpGroupHeading)) {
+        option.helpGroup(COMMAND_OPTIONS_HEADING);
+      }
+    }
+    return this;
   }
 
   /**
@@ -2537,6 +2778,20 @@ export class FrodoCommand extends FrodoStubCommand {
     ) {
       throw new FrodoError(
         `Command does not support deployment type '${state.getDeploymentType()}'`
+      );
+    }
+
+    // fail fast if --browser/--device was explicitly requested with no way
+    // to know the deployment type yet. state.getAuthMode() can only be
+    // 'interactive' here from this same loop above (a saved connection
+    // profile's own remembered authMode is resolved later, inside
+    // getTokens() itself, well after this point) — so this exactly matches
+    // the one condition that would otherwise reach getTokensInteractive()
+    // and fail deep inside library code with a message written for a
+    // library caller, not a CLI user.
+    if (state.getAuthMode() === 'interactive' && !state.getDeploymentType()) {
+      throw new FrodoError(
+        `--browser/--device requires an explicit deployment type: pass --type.`
       );
     }
   }

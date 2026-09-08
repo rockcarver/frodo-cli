@@ -113,9 +113,10 @@ test("'mcp server info' prints the active server summary", async () => {
 test("'mcp server profiles' lists registered profiles", async () => {
     const stdout = await runMcpCommand('profiles');
 
-    expect(stdout).toContain('MCP profiles (8):');
+    expect(stdout).toContain('MCP profiles (9):');
     expect(stdout).toContain('- all:');
     expect(stdout).toContain('- authentication:');
+    expect(stdout).toContain('- self-service:');
 });
 
 test("'mcp server policies' returns all policy presets", async () => {
@@ -194,6 +195,25 @@ test("'mcp server start --dry-run' validates service composition", async () => {
     expect(info.transport).toBe('stdio');
     expect(info.toolCounts).toEqual({ total: 5, canonical: 4, discovery: 1 });
     expect(info.skillCount).toBeGreaterThan(0);
+});
+
+test("'mcp server start --profile' accepts every profile 'mcp server profiles' lists, and rejects frodo-lib's internal-only 'platform-admin'/'disabled' profiles", async () => {
+    // Regression guard: --profile's .choices() is derived from frodo-lib's
+    // own listMcpProfiles() rather than a hand-typed array, specifically so
+    // it can't silently drift out of sync with the registry again (it did
+    // once already — self-service shipped in frodo-lib before this option's
+    // choices array was updated to include it).
+    const info = parseJsonOutput(
+        await runMcpCommand('start', '--profile', 'self-service', '--dry-run', '--json')
+    );
+    expect(info.profile).toBe('self-service');
+
+    await expect(
+        runMcpCommand('start', '--profile', 'platform-admin', '--dry-run', '--json')
+    ).rejects.toThrow(/argument 'platform-admin' is invalid/);
+    await expect(
+        runMcpCommand('start', '--profile', 'disabled', '--dry-run', '--json')
+    ).rejects.toThrow(/argument 'disabled' is invalid/);
 });
 
 test("'mcp server start' negotiates the 2026-07-28 protocol", async () => {

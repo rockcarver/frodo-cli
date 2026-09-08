@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'session' should be expected english 1`] = `
+"Usage: frodo session [options] [command]
+
+Manage sessions.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Commands:
+  delete            Delete the session(s) for a particular host.
+  describe          Describe the session(s) for a particular host.
+  help              display help for command
+  list              List authenticated sessions across all hosts.
+"
+`;

@@ -8,6 +8,9 @@ Username              │amadmin
 Password              │                                          
 Authentication Service│MockAmsterService                         
 Amster Private Key    │[present]                                 
+authMode              │                                          
+browserLoginClientId  │                                          
+browserLoginScope     │                                          
 "
 `;
 
@@ -29,5 +32,8 @@ Service Account Scope│fr:am:*
                      │fr:idc:release:*                           
                      │fr:idc:sso-cookie:*                        
                      │fr:idm:*                                   
+authMode             │                                           
+browserLoginClientId │                                           
+browserLoginScope    │                                           
 "
 `;

@@ -4,14 +4,12 @@ import { describeConnectionProfile } from '../../ops/ConnectionProfileOps';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo conn describe', [
-    'realm',
-    'username',
-    'password',
-    'type',
-    'insecure',
-    'curlirize',
-  ]);
+  const program = new FrodoCommand(
+    'frodo conn describe',
+    ['realm', 'username', 'password', 'curlirize'],
+    undefined,
+    { local: true }
+  );
 
   program
     .description('Describe connection profile.')
