@@ -1,39 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo conn describe Classic "frodo conn describe http://openam-frodo-dev.amster.com:8080/am": should describe the classic connection 1`] = `
-"Host                  │http://openam-frodo-dev.amster.com:8080/am
-Alias                 │amster                                    
-Deployment Type       │classic                                   
-Username              │amadmin                                   
-Password              │                                          
-Authentication Service│MockAmsterService                         
-Amster Private Key    │[present]                                 
-authMode              │                                          
-browserLoginClientId  │                                          
-browserLoginScope     │                                          
+"[1m[94mHost[39m[22m                  [90m│[39mhttp://openam-frodo-dev.amster.com:8080/am
+[1m[94mAlias[39m[22m                 [90m│[39mamster                                    
+[1m[94mDeployment Type[39m[22m       [90m│[39mclassic                                   
+[1m[94mUsername[39m[22m              [90m│[39mamadmin                                   
+[1m[94mPassword[39m[22m              [90m│[39m                                          
+[1m[94mAuthentication Service[39m[22m[90m│[39mMockAmsterService                         
+[1m[94mAmster Private Key[39m[22m    [90m│[39m[present]                                 
+[1m[94mauthMode[39m[22m              [90m│[39m                                          
+[1m[94mbrowserLoginClientId[39m[22m  [90m│[39m                                          
+[1m[94mbrowserLoginScope[39m[22m     [90m│[39m                                          
 "
 `;
 
 exports[`frodo conn describe Cloud "frodo conn describe https://openam-frodo-dev.forgeblocks.com/am": should describe the connection 1`] = `
-"Host                 │https://openam-frodo-dev.forgeblocks.com/am
-Deployment Type      │cloud                                      
-isIGA                │false                                      
-Service Account Name │Frodo-SA-1758728043147                     
-Service Account Id   │912dcd07-421b-4ba9-b019-edbfe66a89be       
-Service Account JWK  │[present]                                  
-Service Account Scope│fr:am:*                                    
-                     │fr:idc:analytics:*                         
-                     │fr:idc:certificate:*                       
-                     │fr:idc:content-security-policy:*           
-                     │fr:idc:cookie-domain:*                     
-                     │fr:idc:custom-domain:*                     
-                     │fr:idc:esv:*                               
-                     │fr:idc:promotion:*                         
-                     │fr:idc:release:*                           
-                     │fr:idc:sso-cookie:*                        
-                     │fr:idm:*                                   
-authMode             │                                           
-browserLoginClientId │                                           
-browserLoginScope    │                                           
+"[1m[94mHost[39m[22m                 [90m│[39mhttps://openam-frodo-dev.forgeblocks.com/am
+[1m[94mDeployment Type[39m[22m      [90m│[39mcloud                                      
+[1m[94misIGA[39m[22m                [90m│[39mfalse                                      
+[1m[94mService Account Name[39m[22m [90m│[39mFrodo-SA-1758728043147                     
+[1m[94mService Account Id[39m[22m   [90m│[39m912dcd07-421b-4ba9-b019-edbfe66a89be       
+[1m[94mService Account JWK[39m[22m  [90m│[39m[present]                                  
+[1m[94mService Account Scope[39m[22m[90m│[39mfr:am:*                                    
+                     [90m│[39mfr:idc:analytics:*                         
+                     [90m│[39mfr:idc:certificate:*                       
+                     [90m│[39mfr:idc:content-security-policy:*           
+                     [90m│[39mfr:idc:cookie-domain:*                     
+                     [90m│[39mfr:idc:custom-domain:*                     
+                     [90m│[39mfr:idc:esv:*                               
+                     [90m│[39mfr:idc:promotion:*                         
+                     [90m│[39mfr:idc:release:*                           
+                     [90m│[39mfr:idc:sso-cookie:*                        
+                     [90m│[39mfr:idm:*                                   
+[1m[94mauthMode[39m[22m             [90m│[39m                                           
+[1m[94mbrowserLoginClientId[39m[22m [90m│[39m                                           
+[1m[94mbrowserLoginScope[39m[22m    [90m│[39m                                           
 "
 `;

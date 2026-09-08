@@ -2,9 +2,11 @@ import {
   createMcpService,
   frodo,
   hydrateMcpDiscoveryContext,
+  listMcpProfiles,
   type McpDiscoveryHydrationEvent,
   state,
 } from '@rockcarver/frodo-lib';
+import type { McpProfileName } from '@rockcarver/frodo-lib/types/mcp/ProfileRegistry';
 import { Option } from 'commander';
 
 import * as s from '../../../help/SampleData';
@@ -36,23 +38,24 @@ import {
 } from './server-limits';
 import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
 
-type McpProfileName =
-  | 'all'
-  | 'authentication'
-  | 'journey-dev'
-  | 'authorization'
-  | 'federation'
-  | 'iga'
-  | 'apps'
-  | 'managed-objects'
-  | 'self-service';
+/**
+ * `--profile`'s selectable values: the same "user-facing" set frodo-lib's
+ * own `listMcpProfiles()` returns (also what `frodo mcp server profiles`
+ * lists) — deliberately excludes `'platform-admin'`/`'disabled'`, frodo-lib's
+ * own internal/composition-only profiles (`listAllMcpProfiles()`'s superset).
+ * Derived at module load rather than hand-listed, so this can't drift out of
+ * sync with the registry again — a real bug fixed here: `.choices()` used to
+ * hardcode a stale list that was missing `'self-service'` after it shipped.
+ */
+const CLI_SELECTABLE_PROFILES = listMcpProfiles().map((profile) => profile.name);
+type McpStartProfileName = (typeof CLI_SELECTABLE_PROFILES)[number];
 
 /** Parsed options for `frodo mcp server start`. */
 type McpStartOptions = {
   /** Policy preset controlling skill exposure. */
   policy: McpPolicyPreset;
   /** Active surface profile controlling skill scope. */
-  profile: McpProfileName;
+  profile: McpStartProfileName;
   /** Optional allow-list of top-level skill domains. */
   includeDomains?: string[];
   /** Optional deny-list of top-level skill domains. */
@@ -128,17 +131,7 @@ export default function setup() {
         '--profile <profile>',
         'Subject profile controlling the skill surface.'
       )
-        .choices([
-          'all',
-          'authentication',
-          'journey-dev',
-          'authorization',
-          'federation',
-          'iga',
-          'apps',
-          'managed-objects',
-          'self-service',
-        ])
+        .choices(CLI_SELECTABLE_PROFILES)
         .default('all')
     )
     .addOption(
