@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## [v4.12.0] - 2026-09-08
+
+### Added
+- Introduced the `frodo login setup` command, streamlining the login configuration process. This command enhances user experience by simplifying setup steps. (#672046a5)
+- Added browser-based interactive login support using loopback and device flow methods, providing users with more flexible authentication options. (#962078fe)
+- Enhanced the `frodo conn save` command with a `--default-credential` option, allowing users to specify a default credential for connection profiles. (#2c2d1ece)
+- Introduced the `--force-login-as-user` flag to override credential priority on profiles with multiple credentials, offering users more control over login behavior. (#9d97b191)
+- Updated the `session describe` command to display the admin role alongside scope, improving visibility into session details. (#3dee1869)
+
+### Changed
+- Redesigned the `session describe` and `session list` commands for improved clarity and usability, making it easier for users to manage sessions. (#672046a5)
+
+### Fixed
+- Fixed an issue where obsolete snapshots were left behind by an earlier fixture refresh, ensuring cleaner test environments. (commit 188b12f8)
+- Updated `@rockcarver/frodo-lib` to version 4.8.3, incorporating bug fixes and improvements from the library that enhance the stability and performance of the CLI. (commit c763b465)
+- Improved session host resolution to distinguish between unresolvable hosts and resolved-but-empty ones, enhancing error handling and diagnostics. (#a296115c)
+- Synchronized `mcp server start --profile` choices with the registry and refreshed stale `conn-describe` snapshots, ensuring accurate and up-to-date configurations. (#c72a802b)
+- Enhanced `session describe` enrichment, added MCP self-service profile support, and improved reauthentication error handling, providing a more robust session management experience. (#cc5f399e)
+
 ## [v4.11.0] - 2026-09-05
 
 ### Added
