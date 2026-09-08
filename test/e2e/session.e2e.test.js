@@ -52,6 +52,35 @@ async function seedCachedBrowserSession() {
       // fresh-login time (AuthenticateOps.ts) — 'describe' should surface
       // this straight from the cache, no network call.
       tokenInfo: { sub: 'jdoe', tokenName: 'Access Token', auditTrackingId: 'abc-123-audit' },
+      // Mirrors the same lookupCallerPrivilegeGroups() capture
+      // determineCallerTrustTier() uses, done once at login time — 'describe'
+      // shows this alongside scope, no network call from describe itself.
+      isMemberOf: ['cn=super-admins,ou=groups,o=root,ou=identities'],
+    }).then((ok) => { if (!ok) throw new Error('seed save returned false'); });
+  `;
+  await exec(`node -e "${script.replace(/"/g, '\\"')}"`, {
+    cwd: process.cwd(),
+  });
+}
+
+const forgeopsHost = 'https://openam-session-e2e-forgeops.example.com/am';
+
+async function seedCachedForgeopsBrowserSession() {
+  const script = `
+    const { frodo, state } = require('@rockcarver/frodo-lib');
+    const encode = (obj) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+    const accessToken = encode({ typ: 'JWT', alg: 'RS256' }) + '.' + encode({ sub: 'amadmin' }) + '.fake-signature';
+    state.setHost(${JSON.stringify(forgeopsHost)});
+    state.setTokenCachePath(${JSON.stringify(tokenCachePath)});
+    state.setMasterKeyPath(${JSON.stringify(masterKeyPath)});
+    state.setUseTokenCache(true);
+    frodo.cache.saveToken('browserUserBearer', {
+      access_token: accessToken,
+      token_type: 'Bearer',
+      scope: 'openid fr:idm:*',
+      expires_in: 1800,
+      expires: Date.now() + 1_800_000,
+      roles: ['ui-global-admin', 'ui-realm-admin'],
     }).then((ok) => { if (!ok) throw new Error('seed save returned false'); });
   `;
   await exec(`node -e "${script.replace(/"/g, '\\"')}"`, {
@@ -116,6 +145,24 @@ describe('frodo session', () => {
     expect(stdout).toContain('Access Token');
     expect(stdout).toContain('Audit Tracking ID');
     expect(stdout).toContain('abc-123-audit');
+    // The admin-role capture this session added: cloud's isMemberOf group,
+    // shown as its bare name (not the full DN) alongside the scope.
+    expect(stdout).toContain('Admin Role(s)');
+    expect(stdout).toContain('super-admins');
+  });
+
+  test('"frodo session describe <host>": shows ForgeOps/classic\'s admin role (roles), not just cloud\'s (isMemberOf)', async () => {
+    await seedCachedForgeopsBrowserSession();
+
+    const { stdout } = await exec(`frodo session describe ${forgeopsHost}`, {
+      env,
+      cwd: process.cwd(),
+    });
+
+    expect(stdout).toContain('Admin Role(s)');
+    // Friendlier display names, not the raw 'ui-global-admin'/'ui-realm-admin'
+    // AM role names.
+    expect(stdout).toContain('Global Admin, Realm Admin');
   });
 
   test('"frodo session describe <host-with-no-session>": reports no cached session', async () => {

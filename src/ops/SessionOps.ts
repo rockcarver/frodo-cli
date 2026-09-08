@@ -57,6 +57,48 @@ function describeFrodoSessionType(
 }
 
 /**
+ * Friendlier display names for ForgeOps/classic's cryptic AM UI-privilege
+ * role names (`roles`, from `frodo.user.readUser()`). Passes any unrecognized
+ * role through as-is rather than hiding it.
+ */
+const FORGEOPS_CLASSIC_ROLE_LABELS: Record<string, string> = {
+  'ui-global-admin': 'Global Admin',
+  'ui-realm-admin': 'Realm Admin',
+};
+
+/**
+ * Extracts the bare group name from a cloud (AIC) `isMemberOf` DN, e.g.
+ * `'cn=super-admins,ou=groups,o=root,ou=identities'` -> `'super-admins'`.
+ * Falls back to the raw DN if it doesn't match the expected shape, rather
+ * than silently dropping it.
+ */
+function extractGroupName(dn: string): string {
+  const match = dn.match(/^cn=([^,]+),/);
+  return match ? match[1] : dn;
+}
+
+/**
+ * Combines ForgeOps/classic's `roles` and cloud's `isMemberOf` — captured
+ * once at login time (see frodo-lib's AuthenticateOps.ts) via the same
+ * `frodo.user.readUser()` lookup `determineCallerTrustTier()` uses for MCP
+ * trust-tier classification — into one human-readable admin-role display
+ * string. Only one of the two is ever populated for a given session
+ * (deployment-type-dependent), but both are checked and combined for
+ * robustness. Returns `undefined` when neither is present, so the caller
+ * can omit the row entirely rather than showing an empty value.
+ */
+function describeAdminRoles(
+  roles: string[] | undefined,
+  isMemberOf: string[] | undefined
+): string | undefined {
+  const labels = [
+    ...(roles ?? []).map((role) => FORGEOPS_CLASSIC_ROLE_LABELS[role] || role),
+    ...(isMemberOf ?? []).map(extractGroupName),
+  ];
+  return labels.length > 0 ? labels.join(', ') : undefined;
+}
+
+/**
  * Decrypts a browser-login cache entry to surface its granted OAuth2 scope
  * plus any richer metadata already captured for it at login time (see
  * AuthenticateOps.ts's `applySessionCaptureToken()` for ForgeOps/classic's
@@ -115,8 +157,12 @@ async function describeSessionDetail(
         tokenName?: string;
         auditTrackingId?: string;
       };
+      roles?: string[];
+      isMemberOf?: string[];
     };
     if (token?.scope) detail['Scope'] = token.scope;
+    const adminRoles = describeAdminRoles(token?.roles, token?.isMemberOf);
+    if (adminRoles) detail['Admin Role(s)'] = adminRoles;
     if (token?.tokenInfo?.sub) detail['Token Subject'] = token.tokenInfo.sub;
     if (token?.tokenInfo?.tokenName) {
       detail['Token Name'] = token.tokenInfo.tokenName;
