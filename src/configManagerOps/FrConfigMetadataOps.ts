@@ -10,17 +10,17 @@ const { getFilePath, saveJsonToFile } = frodo.utils;
  * Export Idm authentication configuration in fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function configManagerExportIdmAuthentication(): Promise<boolean> {
+export async function configManagerExportMetadata(): Promise<boolean> {
   try {
-    const exportData = await readConfigEntity('metadata');
+    const exportData = await readConfigEntity('custom-config.metadata');
     saveJsonToFile(
       exportData,
-      getFilePath('idm-authentication-config/authentication.json', true),
+      getFilePath('config-metadata/custom-config.metadata.json', true),
       false
     );
     return true;
   } catch (error) {
-    printError(error, `Error exporting config entity selfservice.kba`);
+    printError(error, `Error exporting config-metadata`);
   }
   return false;
 }
@@ -29,15 +29,15 @@ export async function configManagerExportIdmAuthentication(): Promise<boolean> {
  * Import Idm authentication configuration in fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function configManagerImportIdmAuthentication(): Promise<boolean> {
+export async function configManagerImportMetadata(): Promise<boolean> {
   try {
-    const filePath = getFilePath('idm-authentication-config');
+    const filePath = getFilePath('config-metadata');
     const fileData = fs.readFileSync(
-      `${filePath}/authentication.json`,
+      `${filePath}/custom-config.metadata.json`,
       'utf-8'
     );
     let importData = JSON.parse(fileData);
-    importData = { idm: { [importData._id]: importData } };
+    importData = { idm: { 'custom-config.metadata': importData } };
     await importConfigEntities(importData);
     return true;
   } catch (error) {

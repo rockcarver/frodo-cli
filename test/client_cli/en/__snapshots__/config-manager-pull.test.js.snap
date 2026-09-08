@@ -57,6 +57,7 @@ Commands:
 
   (Cloud-only):
   iga-workflows          [Experimental] Export iga-workflows.
+  metadata               [Experimental] Export metadata.
   telemetry              [Experimental] Export telemetry exporters.
 "
 `;

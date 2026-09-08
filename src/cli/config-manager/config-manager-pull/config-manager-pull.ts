@@ -21,6 +21,7 @@ import Journeys from './config-manager-pull-journeys';
 import Kba from './config-manager-pull-kba';
 import Locales from './config-manager-pull-locales';
 import ManagedObjects from './config-manager-pull-managed-objects';
+import Metadata from './config-manager-pull-metadata';
 import Oauth2Agents from './config-manager-pull-oauth2-agents';
 import OrgPrivileges from './config-manager-pull-org-privileges';
 import PasswordPolicy from './config-manager-pull-password-policy';
@@ -66,6 +67,7 @@ export default function setup() {
   program.addCommand(Kba().name('kba'));
   program.addCommand(Locales().name('locales'));
   program.addCommand(ManagedObjects().name('managed-objects'));
+  program.addCommand(Metadata().name('metadata'));
   program.addCommand(Oauth2Agents().name('oauth2-agents'));
   program.addCommand(OrgPrivileges().name('org-privileges'));
   program.addCommand(PasswordPolicy().name('password-policy'));

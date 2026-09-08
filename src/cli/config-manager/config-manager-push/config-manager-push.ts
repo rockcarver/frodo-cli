@@ -18,6 +18,7 @@ import Journeys from './config-manager-push-journeys';
 import Kba from './config-manager-push-kba';
 import Locales from './config-manager-push-locales';
 import ManagedObjects from './config-manager-push-managed-objects';
+import Metadata from './config-manager-push-metadata';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
 import Raw from './config-manager-push-raw';
@@ -54,6 +55,7 @@ export default function setup() {
   program.addCommand(ManagedObjects().name('managed-objects'));
   program.addCommand(AccessConfig().name('access-config'));
   program.addCommand(Audit().name('audit'));
+  program.addCommand(Metadata().name('metadata'));
   program.addCommand(CookieDomains().name('cookie-domains'));
   program.addCommand(ServiceObjects().name('service-objects'));
   program.addCommand(Telemetry().name('telemetry'));

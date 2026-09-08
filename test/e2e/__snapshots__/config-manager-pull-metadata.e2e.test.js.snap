@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pull metadata "frodo config-manager pull metadata -D metaDataTest1": should export the config-metadata in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pull metadata "frodo config-manager pull metadata -D metaDataTest1": should export the config-metadata in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pull metadata "frodo config-manager pull metadata -D metaDataTest1": should export the config-metadata in fr-config-manager style": metaDataTest1/config-metadata/custom-config.metadata.json 1`] = `
+{
+  "_id": "custom/config.metadata",
+  "lastPush": "2026-09-08T00:00:00Z",
+  "pushedBy": "frodo-test",
+  "version": "1.0.0",
+}
+`;

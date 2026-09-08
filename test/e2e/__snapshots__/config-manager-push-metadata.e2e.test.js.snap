@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push metadata "frodo config-manager push metadata -D test/e2e/exports/fr-config-manager/cloud/": should import config-metadata into cloud" 1`] = `""`;
+
+exports[`frodo config-manager push metadata "frodo config-manager push metadata -D test/e2e/exports/fr-config-manager/cloud/": should import config-metadata into cloud" 2`] = `
+"Experimental feature in use: 'frodo config-manager push metadata'. This feature may change without notice.
+"
+`;
