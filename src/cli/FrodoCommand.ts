@@ -4,7 +4,11 @@ import { AddHelpTextContext, Argument, Command, Help, Option } from 'commander';
 import fs from 'fs';
 import propertiesReader from 'properties-reader';
 
-import { setOpenBrowser, setUseDeviceFlow } from '../ops/AuthenticateOps.js';
+import {
+  setForceLoginAsUser,
+  setOpenBrowser,
+  setUseDeviceFlow,
+} from '../ops/AuthenticateOps.js';
 import {
   cleanupProgressIndicators,
   createProgressIndicator,
@@ -578,6 +582,20 @@ const noOpenOption = withHelpGroup(
   OptionCategory.Authentication
 );
 
+// A connection profile can hold more than one configured credential at once
+// (e.g. both a service account and a plain username/password) — without
+// this, an implicit command's credential resolution always follows a fixed
+// priority order (service account, then plain user, then Amster) with no
+// way to override it for one invocation.
+const forceLoginAsUserOption = withHelpGroup(
+  new Option(
+    '--force-login-as-user',
+    'Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured.'
+  ),
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
+);
+
 const serviceAccountIdOption = withHelpGroup(
   new Option('--sa-id <sa-id>', 'Service account id.'),
   AUTHENTICATION_OPTIONS_HEADING,
@@ -768,6 +786,7 @@ const defaultOpts = [
   browserLoginOption,
   deviceFlowOption,
   noOpenOption,
+  forceLoginAsUserOption,
   serviceAccountIdOption,
   serviceAccountJwkFileOption,
   amsterPrivateKeyPassphraseOption,
@@ -815,6 +834,9 @@ const stateMap = {
   },
   [noOpenOption.attributeName()]: (open: boolean) => {
     if (!open) setOpenBrowser(false);
+  },
+  [forceLoginAsUserOption.attributeName()]: (force: boolean) => {
+    if (force) setForceLoginAsUser(true);
   },
   [serviceAccountIdOption.attributeName()]: (saId: string) =>
     state.setServiceAccountId(saId),
@@ -993,6 +1015,14 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
     include: (command) =>
       command.hasDefaultOption(noOpenOption.attributeName()),
+  },
+  {
+    name: 'FRODO_FORCE_LOGIN_AS_USER',
+    description:
+      "Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured. Overridden by '--force-login-as-user' option.",
+    group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(forceLoginAsUserOption.attributeName()),
   },
   {
     name: 'FRODO_SA_ID',

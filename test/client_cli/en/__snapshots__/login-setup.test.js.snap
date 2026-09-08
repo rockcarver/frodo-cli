@@ -40,6 +40,10 @@ Options:
                                        Authorization Grant. Useful for
                                        headless/SSH sessions with no local
                                        browser to launch.
+  --force-login-as-user                Force a plain username/password login
+                                       even if the resolved connection profile
+                                       also has a service account or Amster
+                                       credential configured.
   --login-client-id <client-id>        Specify a custom OAuth2 client id.
                                        Mandatory with --browser and deployment
                                        types "forgeops" and "classic", optional

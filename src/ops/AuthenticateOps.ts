@@ -53,6 +53,34 @@ export function getUseDeviceFlow(): boolean {
 }
 
 /**
+ * Whether an implicit (non-interactive) command's own `getTokens()` call
+ * should force a plain username/password login even when the resolved
+ * connection profile also has a service account (or Amster) credential
+ * configured — set by `--force-login-as-user`/`FRODO_FORCE_LOGIN_AS_USER`
+ * (see `FrodoCommand.ts`). Same reasoning as `useDeviceFlowOverride` above:
+ * a one-shot, per-invocation choice, not session identity, so it lives here
+ * rather than on frodo-lib's `state`. Threads straight through to
+ * frodo-lib's own `getTokens({forceLoginAsUser})` parameter — this is not a
+ * new mechanism, just the first way to reach it from an arbitrary command
+ * instead of only the one hardcoded internal call site (`conn-save.ts`).
+ */
+let forceLoginAsUserOverride: boolean | undefined;
+
+export function setForceLoginAsUser(value: boolean): void {
+  forceLoginAsUserOverride = value;
+}
+
+export function getForceLoginAsUserOverride(): boolean {
+  // Truthy-string check (not a strict === 'true'), matching frodo-lib's own
+  // reading of this exact same env var name in AuthenticateOps.ts's
+  // getTokens() default parameter — frodo-cli's wrapper always passes an
+  // explicit boolean through, so that default never actually applies once
+  // routed through here, but the same env var name should mean the same
+  // thing regardless of which layer happens to read it.
+  return forceLoginAsUserOverride ?? !!process.env.FRODO_FORCE_LOGIN_AS_USER;
+}
+
+/**
  * Whether `cliBrowserLoginPromptHandler` should try to launch a local
  * browser for the loopback-redirect flow, as opposed to only ever printing
  * the URL (for remote/SSH sessions with no usable local browser). Defaults
@@ -102,7 +130,7 @@ export const cliBrowserLoginPromptHandler: BrowserLoginPromptHandler = async (
 
 /**
  * Get tokens and store them in State
- * @param {boolean} forceLoginAsUser true to force login as user even if a service account is available (default: false)
+ * @param {boolean} forceLoginAsUser true to force login as user even if a service account is available (default: false). Also forced by the global --force-login-as-user option/FRODO_FORCE_LOGIN_AS_USER env var (see getForceLoginAsUserOverride()) regardless of this parameter.
  * @param {boolean} autoRefresh true to automatically refresh tokens before they expire (default: true)
  * @param {string[]} types Array of supported deployment types. The function will throw an error if an unsupported type is detected (default: ['classic', 'cloud', 'forgeops'])
  * @returns {Promise<Tokens>} object containing the tokens
@@ -114,7 +142,12 @@ export async function getTokens(
 ): Promise<boolean> {
   try {
     const tokens = await _getTokens(
-      forceLoginAsUser,
+      // The caller's own explicit request always wins; otherwise fall back
+      // to the global --force-login-as-user/FRODO_FORCE_LOGIN_AS_USER
+      // override, so any implicit command (not just conn-save.ts's own
+      // hardcoded call) can force a plain username/password login over a
+      // profile's configured service account/Amster credential.
+      forceLoginAsUser || getForceLoginAsUserOverride(),
       autoRefresh,
       types,
       otpCallbackHandler,
