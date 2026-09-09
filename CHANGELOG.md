@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## [v4.13.0] - 2026-09-09
+
+### Added
+- Introduced the `config-manager push authz-policies` command, enabling users to push authorization policies more efficiently. (#685)
+- Added the `config-manager push test` command, providing users with the ability to test configurations before deployment. (#686)
+
+### Changed
+- Added the `--credential` option to enhance login flexibility, and deprecated the `--force-login-as-user` flag to streamline credential management. (#688)
+
+### Fixed
+- Updated `@rockcarver/frodo-lib` to version 4.8.4, incorporating the latest bug fixes and performance improvements for better CLI stability. (#688)
+
 ## [v4.12.0] - 2026-09-08
 
 ### Added
