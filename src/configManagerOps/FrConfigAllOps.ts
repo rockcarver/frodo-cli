@@ -21,7 +21,7 @@ import { configManagerExportPasswordPolicy } from './FrConfigPasswordPolicyOps';
 import { configManagerExportRemoteServers } from './FrConfigRemoteServersOps';
 import { configManagerExportSaml } from './FrConfigSamlOps';
 import { configManagerExportSchedules } from './FrConfigSchedulesOps';
-import { configManagerExportScriptsAll } from './FrConfigScriptOps';
+import { configManagerExportScripts } from './FrConfigScriptOps';
 import { configManagerExportSecretMappings } from './FrConfigSecretMappingsOps';
 import { configManagerExportSecrets } from './FrConfigSecretOps';
 import { configManagerExportServiceObjectsFromFile } from './FrConfigServiceObjectsOps';
@@ -94,7 +94,7 @@ export async function configManagerExportAllWithConfigFolder(
       );
     }
 
-    await configManagerExportScriptsAll();
+    await configManagerExportScripts();
     await configManagerExportSecrets();
     await configManagerExportSecretMappings();
 
@@ -143,7 +143,7 @@ export async function configManagerExportAllStatic(): Promise<boolean> {
 
     await configManagerExportRemoteServers();
     await configManagerExportSchedules();
-    await configManagerExportScriptsAll();
+    await configManagerExportScripts();
     await configManagerExportServices();
     await configManagerExportThemes();
 

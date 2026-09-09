@@ -3,48 +3,36 @@
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull scripts [options] [host] [realm] [username] [password]
 
-[Experimental] Export authorization scripts.
+[Experimental] Export AM scripts.
 
 Arguments:
-  host                               AM base URL, e.g.:
-                                     https://cdk.iam.example.com/am. To use a
-                                     connection profile, just specify a unique
-                                     substring or alias.
-  realm                              Realm. Specify realm as '/' for the root
-                                     realm or 'realm' or '/parent/child'
-                                     otherwise. (default: "alpha" for Identity
-                                     Cloud tenants, "/" otherwise.)
-  username                           Username to login with. Must be an admin
-                                     user with appropriate rights to manage
-                                     authentication journeys/trees. If given
-                                     without a password, and it matches the
-                                     username already stored in the connection
-                                     profile for the target host, frodo uses
-                                     that profile's stored password instead of
-                                     requiring it on the command line.
-  password                           Password.
+  host                             AM base URL, e.g.:
+                                   https://cdk.iam.example.com/am. To use a
+                                   connection profile, just specify a unique
+                                   substring or alias.
+  realm                            Realm. Specify realm as '/' for the root
+                                   realm or 'realm' or '/parent/child'
+                                   otherwise. (default: "alpha" for Identity
+                                   Cloud tenants, "/" otherwise.)
+  username                         Username to login with. Must be an admin user
+                                   with appropriate rights to manage
+                                   authentication journeys/trees. If given
+                                   without a password, and it matches the
+                                   username already stored in the connection
+                                   profile for the target host, frodo uses that
+                                   profile's stored password instead of
+                                   requiring it on the command line.
+  password                         Password.
 
 Options:
-  --just-config                      Export only the config .json files, no
-                                     scripts. Ignored with --just-content
-  --just-content                     Export only the script .js files, no config
-                                     files
-  --language <programming language>  Export all scripts written a certain
-                                     programming language. ALL, GROOVY, or
-                                     JAVASCRIPT. defaults to JAVASCRIPT. Ignored
-                                     with -n
-  -n, --script-name <script name>    Export specific script using filename. Omit
-                                     file extension.
-  -p, --prefix <prefix>              Export all scripts that start with a
-                                     certain prefix. Ignored with -n
-  -r, --realm <realm>                Specifies the realm to export from. Only
-                                     the scripts from this realm will be
-                                     exported.
-  --script-type <script type>        Export all scripts of a certain type.
-                                     Ignored with -n.
-  -h, --help                         Help
-  -hh, --help-more                   Help with all options.
-  -hhh, --help-all                   Help with all options, environment
-                                     variables, and usage examples.
+  -n, --script-name <script name>  Export specific script using filename. Omit
+                                   file extension.
+  -p, --prefix <prefix>            Export all scripts that start with a certain
+                                   prefix. Repetition of this flag is allowed.
+                                   Ignored with -n (default: [])
+  -h, --help                       Help
+  -hh, --help-more                 Help with all options.
+  -hhh, --help-all                 Help with all options, environment variables,
+                                   and usage examples.
 "
 `;
