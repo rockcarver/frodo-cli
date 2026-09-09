@@ -5,6 +5,8 @@ import fs from 'fs';
 import propertiesReader from 'properties-reader';
 
 import {
+  CredentialOverrideType,
+  setCredentialOverride,
   setForceLoginAsUser,
   setOpenBrowser,
   setUseDeviceFlow,
@@ -583,17 +585,38 @@ const noOpenOption = withHelpGroup(
 );
 
 // A connection profile can hold more than one configured credential at once
-// (e.g. both a service account and a plain username/password) — without
-// this, an implicit command's credential resolution always follows a fixed
-// priority order (service account, then plain user, then Amster) with no
-// way to override it for one invocation.
-const forceLoginAsUserOption = withHelpGroup(
+// (e.g. both a service account and a plain username/password, or a cached
+// browser-login session alongside either) — without this, an implicit
+// command's credential resolution always follows a fixed priority order
+// (cached browser session if nothing else is requested, then service
+// account, then plain user, then Amster) with no way to override it for
+// one invocation. An absolute override: wins even over a saved
+// --default-credential preference. 'browser' means "use my cached
+// browser-login session, and fail clearly rather than fall back to
+// something else if none is valid" — it never launches a fresh interactive
+// login itself; that's what --browser/--device are for.
+const credentialOption = withHelpGroup(
   new Option(
-    '--force-login-as-user',
-    'Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured.'
-  ),
+    '--credential <type>',
+    "Force this one invocation to use a specific configured credential, overriding ambient browser-session reuse and any saved --default-credential preference. 'browser' reuses a cached browser-login session (fails clearly if none is valid; never starts a fresh interactive login)."
+  ).choices(['user', 'svcacct', 'amster', 'browser']),
   AUTHENTICATION_OPTIONS_HEADING,
   OptionCategory.Authentication
+);
+
+// Deprecated in favor of the more general --credential above (equivalent to
+// --credential user) — kept working for backward compatibility, planned for
+// removal at the next major release.
+const forceLoginAsUserOption = withOptionStability(
+  withHelpGroup(
+    new Option(
+      '--force-login-as-user',
+      "Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured. Deprecated: use --credential user instead."
+    ),
+    AUTHENTICATION_OPTIONS_HEADING,
+    OptionCategory.Authentication
+  ),
+  'deprecated'
 );
 
 const serviceAccountIdOption = withHelpGroup(
@@ -786,6 +809,7 @@ const defaultOpts = [
   browserLoginOption,
   deviceFlowOption,
   noOpenOption,
+  credentialOption,
   forceLoginAsUserOption,
   serviceAccountIdOption,
   serviceAccountJwkFileOption,
@@ -838,6 +862,8 @@ const stateMap = {
   [forceLoginAsUserOption.attributeName()]: (force: boolean) => {
     if (force) setForceLoginAsUser(true);
   },
+  [credentialOption.attributeName()]: (type: CredentialOverrideType) =>
+    setCredentialOverride(type),
   [serviceAccountIdOption.attributeName()]: (saId: string) =>
     state.setServiceAccountId(saId),
   [serviceAccountJwkFileOption.attributeName()]: (file: string) => {
@@ -1017,9 +1043,17 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
       command.hasDefaultOption(noOpenOption.attributeName()),
   },
   {
+    name: 'FRODO_CREDENTIAL',
+    description:
+      "Force this one invocation to use a specific configured credential ('user', 'svcacct', 'amster', or 'browser'). Overridden by '--credential' option.",
+    group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(credentialOption.attributeName()),
+  },
+  {
     name: 'FRODO_FORCE_LOGIN_AS_USER',
     description:
-      "Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured. Overridden by '--force-login-as-user' option.",
+      "Deprecated: use FRODO_CREDENTIAL=user instead. Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured. Overridden by '--force-login-as-user' option.",
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
     include: (command) =>
       command.hasDefaultOption(forceLoginAsUserOption.attributeName()),
@@ -2781,18 +2815,13 @@ export class FrodoCommand extends FrodoStubCommand {
       );
     }
 
-    // fail fast if --browser/--device was explicitly requested with no way
-    // to know the deployment type yet. state.getAuthMode() can only be
-    // 'interactive' here from this same loop above (a saved connection
-    // profile's own remembered authMode is resolved later, inside
-    // getTokens() itself, well after this point) — so this exactly matches
-    // the one condition that would otherwise reach getTokensInteractive()
-    // and fail deep inside library code with a message written for a
-    // library caller, not a CLI user.
-    if (state.getAuthMode() === 'interactive' && !state.getDeploymentType()) {
-      throw new FrodoError(
-        `--browser/--device requires an explicit deployment type: pass --type.`
-      );
-    }
+    // Deliberately no fail-fast check here for --browser/--device without an
+    // explicit --type: this runs synchronously, before any connection
+    // profile can be consulted, so it can't tell "genuinely unknown" apart
+    // from "resolvable from a saved profile for this host" — the exact case
+    // a bare `frodo login <alias> --browser` needs to work without a
+    // redundant --type. getTokensInteractive() (frodo-lib) now resolves
+    // deploymentType from the profile itself when one isn't already known,
+    // and throws its own clear error if it's still unresolvable there.
   }
 }

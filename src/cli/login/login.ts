@@ -57,6 +57,12 @@ classic:  "openid"'
         'Alias name for the saved connection profile. Ignored without --save. Lets later commands address this session by an alias.'
       )
     )
+    .addOption(
+      new Option(
+        '--default-credential <type>',
+        'Explicit preference for which non-interactive credential type later implicit commands against this host should use, when the saved profile ends up with more than one configured (e.g. both a service account and a plain username/password). Ignored without --save. Persisted; unlike --credential, applies to every future implicit command against this host, not just one invocation.'
+      ).choices(['user', 'svcacct', 'amster'])
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -113,6 +119,14 @@ classic:  "openid"'
         try {
           if (options.alias) {
             state.setAlias(options.alias);
+          }
+          // Set only after this invocation's own login already completed
+          // above (via its normal priority order, or --credential if also
+          // passed) — this preference is purely for future invocations, so
+          // it must not retroactively change how *this* one just
+          // authenticated.
+          if (options.defaultCredential) {
+            state.setDefaultCredential(options.defaultCredential);
           }
           await saveConnectionProfile(host);
           printMessage(`Saved connection profile ${state.getHost()}`);

@@ -80,6 +80,38 @@ export function getForceLoginAsUserOverride(): boolean {
   return forceLoginAsUserOverride ?? !!process.env.FRODO_FORCE_LOGIN_AS_USER;
 }
 
+export type CredentialOverrideType = 'user' | 'svcacct' | 'amster' | 'browser';
+
+/**
+ * Which configured credential type this one invocation should use,
+ * overriding ambient browser-session cache reuse and any saved
+ * defaultCredential/forceLoginAsUser preference — set by
+ * `--credential`/`FRODO_CREDENTIAL` (see `FrodoCommand.ts`). The
+ * generalized successor to `forceLoginAsUserOverride` above (which only
+ * ever forces 'user'): same reasoning for living here rather than on
+ * frodo-lib's `state` — a one-shot, per-invocation choice, not session
+ * identity. Threads straight through to frodo-lib's own
+ * `getTokens({credentialOverride})` parameter.
+ */
+let credentialOverride: CredentialOverrideType | undefined;
+
+export function setCredentialOverride(value: CredentialOverrideType): void {
+  credentialOverride = value;
+}
+
+export function getCredentialOverride(): CredentialOverrideType | undefined {
+  const envValue = process.env.FRODO_CREDENTIAL;
+  return (
+    credentialOverride ??
+    (envValue === 'user' ||
+    envValue === 'svcacct' ||
+    envValue === 'amster' ||
+    envValue === 'browser'
+      ? envValue
+      : undefined)
+  );
+}
+
 /**
  * Whether `cliBrowserLoginPromptHandler` should try to launch a local
  * browser for the loopback-redirect flow, as opposed to only ever printing
@@ -130,7 +162,7 @@ export const cliBrowserLoginPromptHandler: BrowserLoginPromptHandler = async (
 
 /**
  * Get tokens and store them in State
- * @param {boolean} forceLoginAsUser true to force login as user even if a service account is available (default: false). Also forced by the global --force-login-as-user option/FRODO_FORCE_LOGIN_AS_USER env var (see getForceLoginAsUserOverride()) regardless of this parameter.
+ * @param {boolean} forceLoginAsUser true to force login as user even if a service account is available (default: false). Also forced by the global --force-login-as-user option/FRODO_FORCE_LOGIN_AS_USER env var (see getForceLoginAsUserOverride()) regardless of this parameter. Deprecated — use --credential user (getCredentialOverride()) instead; kept for backward compatibility and overridden by it when both are set.
  * @param {boolean} autoRefresh true to automatically refresh tokens before they expire (default: true)
  * @param {string[]} types Array of supported deployment types. The function will throw an error if an unsupported type is detected (default: ['classic', 'cloud', 'forgeops'])
  * @returns {Promise<Tokens>} object containing the tokens
@@ -146,13 +178,15 @@ export async function getTokens(
       // to the global --force-login-as-user/FRODO_FORCE_LOGIN_AS_USER
       // override, so any implicit command (not just conn-save.ts's own
       // hardcoded call) can force a plain username/password login over a
-      // profile's configured service account/Amster credential.
+      // profile's configured service account/Amster credential. Ignored by
+      // frodo-lib whenever credentialOverride below is also set.
       forceLoginAsUser || getForceLoginAsUserOverride(),
       autoRefresh,
       types,
       otpCallbackHandler,
       getUseDeviceFlow(),
-      cliBrowserLoginPromptHandler
+      cliBrowserLoginPromptHandler,
+      getCredentialOverride()
     );
     verboseMessage(
       `Connected to ${state.getHost()} [${

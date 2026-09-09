@@ -36,14 +36,25 @@ Options:
                                        interactive browser login instead of
                                        providing a username/password on the
                                        command line.
+  --credential <type>                  Force this one invocation to use a
+                                       specific configured credential,
+                                       overriding ambient browser-session reuse
+                                       and any saved --default-credential
+                                       preference. 'browser' reuses a cached
+                                       browser-login session (fails clearly if
+                                       none is valid; never starts a fresh
+                                       interactive login). (choices: "user",
+                                       "svcacct", "amster", "browser")
   --device                             [Experimental] Use the OAuth2 Device
                                        Authorization Grant. Useful for
                                        headless/SSH sessions with no local
                                        browser to launch.
-  --force-login-as-user                Force a plain username/password login
-                                       even if the resolved connection profile
-                                       also has a service account or Amster
-                                       credential configured.
+  --force-login-as-user                [Deprecated] Force a plain
+                                       username/password login even if the
+                                       resolved connection profile also has a
+                                       service account or Amster credential
+                                       configured. Deprecated: use --credential
+                                       user instead.
   --login-client-id <client-id>        Specify a custom OAuth2 client id.
                                        Mandatory with --browser and deployment
                                        types "forgeops" and "classic", optional
