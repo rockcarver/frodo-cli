@@ -63,7 +63,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--default-credential <type>',
-        'Explicit preference for which non-interactive credential type to use when this profile has more than one configured (e.g. both a service account and a plain username/password). Persisted; unlike --force-login-as-user, applies to every future implicit command against this host, not just one invocation.'
+        'Explicit preference for which non-interactive credential type to use when this profile has more than one configured (e.g. both a service account and a plain username/password). Persisted; unlike --credential, applies to every future implicit command against this host, not just one invocation.'
       ).choices(['user', 'svcacct', 'amster'])
     )
     .addHelpText(

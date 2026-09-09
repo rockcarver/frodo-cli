@@ -72,7 +72,35 @@ describe('frodo login (argument-validation error paths)', () => {
     await expect(
       exec(`frodo login --browser ${c.host}`, { env, cwd: process.cwd() })
     ).rejects.toMatchObject({
-      stderr: expect.stringContaining('explicit deployment type'),
+      stderr: expect.stringContaining('known deployment type'),
+    });
+  });
+
+  test('"frodo login --browser <alias>" with no --type resolves the deployment type from a saved connection profile instead of failing', async () => {
+    // Live-repro'd bug: `frodo login --browser <alias>` used to always
+    // require --type, even when a saved profile already knows the
+    // deployment type for this host — exactly like every other command.
+    // Referenced by alias, not the full URL: profile-based resolution
+    // (host and deployment type alike) only ever applies to a non-URL
+    // host argument (an alias or unique substring), matching getTokens()'s
+    // own long-established behavior — passing the full URL directly has
+    // never consulted a saved profile for anything, on any command.
+    // Save a profile with a deployment type that fails clearly for a
+    // *different*, later reason (no OAuth2 client id — same as the two
+    // tests above) before any network call. Reaching that failure, instead
+    // of "known deployment type", proves --type wasn't needed: the profile
+    // supplied it.
+    await exec(
+      `frodo conn save --type forgeops --no-validate --alias loginErrorsTestAlias ${c.host}`,
+      { env, cwd: process.cwd() }
+    );
+    await expect(
+      exec(`frodo login --browser loginErrorsTestAlias`, {
+        env,
+        cwd: process.cwd(),
+      })
+    ).rejects.toMatchObject({
+      stderr: expect.stringContaining('requires an OAuth2 client id'),
     });
   });
 });
