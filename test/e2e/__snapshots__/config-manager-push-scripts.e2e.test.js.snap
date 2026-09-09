@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push scripts "frodo config-manager push scripts --directory test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the scripts into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push scripts "frodo config-manager push scripts --directory test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the scripts into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push scripts'. This feature may change without notice.
+✔ Finished importing scripts.
+"
+`;
+
+exports[`frodo config-manager push scripts "frodo config-manager push scripts --name testing -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the scripts into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push scripts "frodo config-manager push scripts --name testing -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the scripts into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push scripts'. This feature may change without notice.
+✔ Finished importing scripts.
+"
+`;
+
+exports[`frodo config-manager push scripts "frodo config-manager push scripts -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the scripts into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push scripts "frodo config-manager push scripts -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the scripts into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push scripts'. This feature may change without notice.
+Warning: no script config defined in realm bravo. Expecting directory test/e2e/exports/fr-config-manager/forgeops/realms/bravo/scripts/scripts-config
+✔ Finished importing scripts.
+"
+`;
+
+exports[`frodo config-manager push scripts "frodo config-manager push scripts -f 'Debug,~Next' -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the scripts into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push scripts "frodo config-manager push scripts -f 'Debug,~Next' -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the scripts into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push scripts'. This feature may change without notice.
+✔ Finished importing scripts.
+"
+`;

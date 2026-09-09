@@ -62,3 +62,30 @@ export function clearOperationalAttributes(obj) {
   delete obj.lastModifiedBy;
   delete obj.lastModifiedDate;
 }
+
+/**
+ * Check whether a script source-file path matches a filename filter.
+ * @param {string} filename script source-file path
+ * @param {string | boolean} filenameFilter comma-separated filters prefix an entry with ~ for a substring match
+ * @returns True if the file matches or no filter was provided
+ */
+export function fileFilter(
+  filename: string,
+  filenameFilter?: string | boolean
+): boolean {
+  if (!filename || filenameFilter === undefined) {
+    return true;
+  }
+
+  if (typeof filenameFilter === 'boolean' || filenameFilter.trim() === '') {
+    return false;
+  }
+
+  return filenameFilter.split(',').some((entry) => {
+    const filter = entry.trim();
+
+    return filter.startsWith('~')
+      ? filename.includes(filter.substring(1))
+      : filename === filter;
+  });
+}
