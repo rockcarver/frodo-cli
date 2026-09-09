@@ -10786,296 +10786,9 @@ exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": 
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/EdgePolicySet/EdgePolicySet.json 1`] = `
-{
-  "_id": "EdgePolicySet",
-  "_rev": "1783482072860",
-  "applicationType": "iPlanetAMWebAgentService",
-  "attributeNames": [],
-  "conditions": [
-    "Script",
-    "ClientId",
-    "AMIdentityMembership",
-    "IPv6",
-    "SimpleTime",
-    "IPv4",
-    "LEAuthLevel",
-    "LDAPFilter",
-    "AuthScheme",
-    "Session",
-    "AND",
-    "Expiration",
-    "AuthenticateToRealm",
-    "ResourceEnvIP",
-    "Policy",
-    "SessionProperty",
-    "OAuth2Scope",
-    "OR",
-    "Transaction",
-    "NOT",
-    "AuthLevel",
-    "AuthenticateToService",
-  ],
-  "createdBy": "id=dsameuser,ou=user,ou=am-config",
-  "creationDate": 1669672555404,
-  "description": "Policy Set EdgePolicySet",
-  "displayName": null,
-  "editable": true,
-  "entitlementCombiner": "DenyOverride",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": 1783482072860,
-  "name": "EdgePolicySet",
-  "resourceComparator": null,
-  "resourceTypeUuids": [
-    "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  ],
-  "saveIndex": null,
-  "searchIndex": null,
-  "subjects": [
-    "AuthenticatedUsers",
-    "NOT",
-    "Identity",
-    "Uma",
-    "OR",
-    "AND",
-    "NONE",
-    "Policy",
-    "JwtClaim",
-  ],
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/EdgePolicySet/policies/HR-webapp.json 1`] = `
-{
-  "_id": "HR-webapp",
-  "_rev": "1783483777393",
-  "actionValues": {
-    "GET": true,
-    "POST": true,
-  },
-  "active": true,
-  "applicationName": "EdgePolicySet",
-  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "creationDate": "2026-07-08T04:09:37.393Z",
-  "description": "",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": "2026-07-08T04:09:37.393Z",
-  "name": "HR-webapp",
-  "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  "resources": [
-    "*://*:*/apps/hrlite/*",
-    "*://*:*/apps/hrlite?*",
-    "*://*:*/apps/contractor",
-    "*://*:*/apps/contractor/*",
-    "*://*:*/apps/contractor?*",
-    "*://*:*/apps/hrlite",
-  ],
-  "subject": {
-    "subjectValues": [
-      "id=hradmins,ou=group,o=alpha,ou=services,ou=am-config",
-    ],
-    "type": "Identity",
-  },
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/FeatureStorePolicySet/FeatureStorePolicySet.json 1`] = `
-{
-  "_id": "FeatureStorePolicySet",
-  "_rev": "1783482073050",
-  "applicationType": "iPlanetAMWebAgentService",
-  "attributeNames": [],
-  "conditions": [
-    "AMIdentityMembership",
-    "AND",
-    "AuthLevel",
-    "AuthScheme",
-    "AuthenticateToRealm",
-    "AuthenticateToService",
-    "IPv4",
-    "IPv6",
-    "LDAPFilter",
-    "LEAuthLevel",
-    "NOT",
-    "OAuth2Scope",
-    "OR",
-    "Policy",
-    "ResourceEnvIP",
-    "Script",
-    "Session",
-    "SessionProperty",
-    "SimpleTime",
-    "Transaction",
-  ],
-  "createdBy": "id=8efaa5b6-8c98-4489-9b21-ee41f5589ab7,ou=user,ou=am-config",
-  "creationDate": 1695912757709,
-  "description": null,
-  "displayName": "FeatureStorePolicySet",
-  "editable": true,
-  "entitlementCombiner": "DenyOverride",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": 1783482073050,
-  "name": "FeatureStorePolicySet",
-  "resourceComparator": null,
-  "resourceTypeUuids": [
-    "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  ],
-  "saveIndex": null,
-  "searchIndex": null,
-  "subjects": [
-    "AND",
-    "AuthenticatedUsers",
-    "Identity",
-    "JwtClaim",
-    "NONE",
-    "NOT",
-    "OR",
-    "Policy",
-  ],
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/data/data.json 1`] = `
-{
-  "_id": "data",
-  "_rev": "1783482073246",
-  "applicationType": "iPlanetAMWebAgentService",
-  "attributeNames": [],
-  "conditions": [
-    "Script",
-    "AMIdentityMembership",
-    "IPv6",
-    "IPv4",
-    "SimpleTime",
-    "LEAuthLevel",
-    "LDAPFilter",
-    "AuthScheme",
-    "Session",
-    "AND",
-    "AuthenticateToRealm",
-    "ResourceEnvIP",
-    "Policy",
-    "OAuth2Scope",
-    "SessionProperty",
-    "OR",
-    "Transaction",
-    "NOT",
-    "AuthLevel",
-    "AuthenticateToService",
-  ],
-  "createdBy": "id=df492700-ba67-4345-83a9-58305850596c,ou=user,ou=am-config",
-  "creationDate": 1610648242757,
-  "description": null,
-  "displayName": "Baseline Demo",
-  "editable": true,
-  "entitlementCombiner": "DenyOverride",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": 1783482073246,
-  "name": "data",
-  "resourceComparator": null,
-  "resourceTypeUuids": [
-    "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  ],
-  "saveIndex": null,
-  "searchIndex": null,
-  "subjects": [
-    "AuthenticatedUsers",
-    "NOT",
-    "Identity",
-    "OR",
-    "AND",
-    "NONE",
-    "Policy",
-    "JwtClaim",
-  ],
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/data/policies/actions.json 1`] = `
-{
-  "_id": "actions",
-  "_rev": "1783483777502",
-  "actionValues": {
-    "GET": true,
-  },
-  "active": true,
-  "applicationName": "data",
-  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "creationDate": "2026-07-08T04:09:37.502Z",
-  "description": "",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": "2026-07-08T04:09:37.502Z",
-  "name": "actions",
-  "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  "resources": [
-    "*://*:*/demo/api/action/actions",
-  ],
-  "subject": {
-    "type": "AuthenticatedUsers",
-  },
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/data/policies/activity.json 1`] = `
-{
-  "_id": "activity",
-  "_rev": "1783483777578",
-  "actionValues": {
-    "GET": true,
-    "POST": true,
-  },
-  "active": true,
-  "applicationName": "data",
-  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "creationDate": "2026-07-08T04:09:37.578Z",
-  "description": "",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": "2026-07-08T04:09:37.578Z",
-  "name": "activity",
-  "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  "resources": [
-    "*://*:*/demo/api/action/activity",
-  ],
-  "subject": {
-    "type": "AuthenticatedUsers",
-  },
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/data/policies/apply.json 1`] = `
-{
-  "_id": "apply",
-  "_rev": "1783483777684",
-  "actionValues": {
-    "POST": true,
-  },
-  "active": true,
-  "applicationName": "data",
-  "condition": {
-    "authenticationStrategy": "AuthenticateToTreeConditionAdvice",
-    "strategySpecifier": "Baseline-Transaction",
-    "type": "Transaction",
-  },
-  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "creationDate": "2026-07-08T04:09:37.684Z",
-  "description": "",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": "2026-07-08T04:09:37.684Z",
-  "name": "apply",
-  "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  "resources": [
-    "*://*:*/demo/api/action/apply",
-  ],
-  "subject": {
-    "type": "AuthenticatedUsers",
-  },
-}
-`;
-
 exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/oauth2Scopes/oauth2Scopes.json 1`] = `
 {
   "_id": "oauth2Scopes",
-  "_rev": "1783482073416",
   "applicationType": "iPlanetAMWebAgentService",
   "attributeNames": [],
   "conditions": [
@@ -11105,8 +10818,8 @@ exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": 
   "displayName": "Default OAuth2 Scopes Policy Set",
   "editable": true,
   "entitlementCombiner": "DenyOverride",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": 1783482073416,
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251680021,
   "name": "oauth2Scopes",
   "resourceComparator": null,
   "resourceTypeUuids": [
@@ -11123,165 +10836,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": 
     "NONE",
     "JwtClaim",
   ],
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/test-policy-set/policies/FeatureStorePolicy.json 1`] = `
-{
-  "_id": "FeatureStorePolicy",
-  "_rev": "1783483777304",
-  "actionValues": {},
-  "active": true,
-  "applicationName": "test-policy-set",
-  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "creationDate": "2026-07-07T13:01:10.944Z",
-  "description": "FeatureStorePolicy",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": "2026-07-08T04:09:37.304Z",
-  "name": "FeatureStorePolicy",
-  "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  "resources": [
-    "https://www.example.com:443/*",
-  ],
-  "subject": {
-    "type": "NONE",
-  },
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/test-policy-set/policies/Test Policy.json 1`] = `
-{
-  "_id": "Test Policy",
-  "_rev": "1783483760996",
-  "actionValues": {
-    "GET": true,
-    "POST": false,
-  },
-  "active": false,
-  "applicationName": "test-policy-set",
-  "condition": {
-    "conditions": [
-      {
-        "endDate": "2023:08:02",
-        "endDay": "fri",
-        "endTime": "11:59",
-        "enforcementTimeZone": "GMT",
-        "startDate": "2023:08:01",
-        "startDay": "mon",
-        "startTime": "12:00",
-        "type": "SimpleTime",
-      },
-      {
-        "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
-        "type": "Script",
-      },
-    ],
-    "type": "AND",
-  },
-  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "creationDate": "2026-07-07T13:01:11.172Z",
-  "description": "Test Policy Description",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": "2026-07-08T04:09:20.996Z",
-  "name": "Test Policy",
-  "resourceAttributes": [
-    {
-      "propertyName": "Test_Name",
-      "propertyValues": [
-        "Test_Value",
-      ],
-      "type": "Static",
-    },
-  ],
-  "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  "resources": [
-    "lorem://ipsum:dolor/sit",
-  ],
-  "subject": {
-    "type": "NONE",
-  },
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/policy-sets/test-policy-set/test-policy-set.json 1`] = `
-{
-  "_id": "test-policy-set",
-  "_rev": "1783482537999",
-  "applicationType": "iPlanetAMWebAgentService",
-  "attributeNames": [],
-  "conditions": [
-    "AMIdentityMembership",
-    "AND",
-    "AuthLevel",
-    "AuthScheme",
-    "AuthenticateToRealm",
-    "AuthenticateToService",
-    "IPv4",
-    "IPv6",
-    "LDAPFilter",
-    "LEAuthLevel",
-    "NOT",
-    "OAuth2Scope",
-    "OR",
-    "Policy",
-    "ResourceEnvIP",
-    "Script",
-    "Session",
-    "SessionProperty",
-    "SimpleTime",
-    "Transaction",
-  ],
-  "createdBy": "id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config",
-  "creationDate": 1693494279401,
-  "description": "Test Policy Set Description",
-  "displayName": "Test Policy Set",
-  "editable": true,
-  "entitlementCombiner": "DenyOverride",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": 1783482537999,
-  "name": "test-policy-set",
-  "resourceComparator": null,
-  "resourceTypeUuids": [
-    "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  ],
-  "saveIndex": null,
-  "searchIndex": null,
-  "subjects": [
-    "AND",
-    "AuthenticatedUsers",
-    "Identity",
-    "JwtClaim",
-    "NONE",
-    "NOT",
-    "OR",
-    "Policy",
-  ],
-}
-`;
-
-exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/authorization/resource-types/URL.json 1`] = `
-{
-  "_id": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-  "actions": {
-    "DELETE": true,
-    "GET": true,
-    "HEAD": true,
-    "OPTIONS": true,
-    "PATCH": true,
-    "POST": true,
-    "PUT": true,
-  },
-  "createdBy": "id=dsameuser,ou=user,ou=am-config",
-  "creationDate": 1595479030487,
-  "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
-  "lastModifiedDate": 1783653191571,
-  "name": "URL",
-  "patterns": [
-    "*://*:*/*",
-    "*://*:*/*?*",
-  ],
-  "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
 }
 `;
 
@@ -29247,7 +28801,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": 
 exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/bravo/authorization/policy-sets/oauth2Scopes/oauth2Scopes.json 1`] = `
 {
   "_id": "oauth2Scopes",
-  "_rev": "1595479030629",
   "applicationType": "iPlanetAMWebAgentService",
   "attributeNames": [],
   "conditions": [
@@ -29277,8 +28830,8 @@ exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": 
   "displayName": "Default OAuth2 Scopes Policy Set",
   "editable": true,
   "entitlementCombiner": "DenyOverride",
-  "lastModifiedBy": "id=dsameuser,ou=user,ou=am-config",
-  "lastModifiedDate": 1595479030629,
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251683977,
   "name": "oauth2Scopes",
   "resourceComparator": null,
   "resourceTypeUuids": [
@@ -39005,6 +38558,597 @@ exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": 
   "profileMenuTextHighlightColor": "#009C80",
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/iPlanetAMWebAgentService/iPlanetAMWebAgentService.json 1`] = `
+{
+  "_id": "iPlanetAMWebAgentService",
+  "applicationType": "iPlanetAMWebAgentService",
+  "attributeNames": [],
+  "conditions": [
+    "Script",
+    "AMIdentityMembership",
+    "IPv6",
+    "SimpleTime",
+    "IPv4",
+    "LEAuthLevel",
+    "LDAPFilter",
+    "AuthScheme",
+    "Session",
+    "AND",
+    "AuthenticateToRealm",
+    "ResourceEnvIP",
+    "SessionProperty",
+    "OAuth2Scope",
+    "OR",
+    "Transaction",
+    "NOT",
+    "AuthLevel",
+    "AuthenticateToService",
+  ],
+  "createdBy": "id=dsameuser,ou=user,ou=am-config",
+  "creationDate": 1578580065033,
+  "description": "The built-in Application used by OpenAM Policy Agents.",
+  "displayName": "Default Policy Set",
+  "editable": true,
+  "entitlementCombiner": "DenyOverride",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251670606,
+  "name": "iPlanetAMWebAgentService",
+  "resourceComparator": null,
+  "resourceTypeUuids": [
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+  ],
+  "saveIndex": null,
+  "searchIndex": null,
+  "subjects": [
+    "AuthenticatedUsers",
+    "NOT",
+    "Identity",
+    "OR",
+    "AND",
+    "NONE",
+    "JwtClaim",
+  ],
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/oauth2Scopes/oauth2Scopes.json 1`] = `
+{
+  "_id": "oauth2Scopes",
+  "applicationType": "iPlanetAMWebAgentService",
+  "attributeNames": [],
+  "conditions": [
+    "Script",
+    "AMIdentityMembership",
+    "IPv6",
+    "SimpleTime",
+    "IPv4",
+    "LEAuthLevel",
+    "LDAPFilter",
+    "AuthScheme",
+    "Session",
+    "AND",
+    "AuthenticateToRealm",
+    "ResourceEnvIP",
+    "SessionProperty",
+    "OAuth2Scope",
+    "OR",
+    "Transaction",
+    "NOT",
+    "AuthLevel",
+    "AuthenticateToService",
+  ],
+  "createdBy": "id=dsameuser,ou=user,ou=am-config",
+  "creationDate": 1578580064992,
+  "description": "The built-in Application used by the OAuth2 scope authorization process.",
+  "displayName": "Default OAuth2 Scopes Policy Set",
+  "editable": true,
+  "entitlementCombiner": "DenyOverride",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251670705,
+  "name": "oauth2Scopes",
+  "resourceComparator": null,
+  "resourceTypeUuids": [
+    "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b",
+  ],
+  "saveIndex": null,
+  "searchIndex": null,
+  "subjects": [
+    "AuthenticatedUsers",
+    "NOT",
+    "Identity",
+    "OR",
+    "AND",
+    "NONE",
+    "JwtClaim",
+  ],
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/test-policy-set/policies/Test Policy 1.json 1`] = `
+{
+  "_id": "Test Policy 1",
+  "_rev": "1785251670996",
+  "actionValues": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true,
+  },
+  "active": true,
+  "applicationName": "test-policy-set",
+  "condition": {
+    "conditions": [
+      {
+        "requiredScopes": [
+          "test",
+          "scope",
+        ],
+        "type": "OAuth2Scope",
+      },
+      {
+        "scriptId": "11e1a3c0-038b-4c16-956a-6c9d89328cff",
+        "type": "Script",
+      },
+      {
+        "condition": {
+          "scriptId": "9de3eb62-f131-4fac-a294-7bd170fd4acb",
+          "type": "Script",
+        },
+        "type": "NOT",
+      },
+      {
+        "conditions": [
+          {
+            "comparator": "REGEX",
+            "decisionField": "decision",
+            "identityResource": "resource",
+            "queryField": "query",
+            "type": "IdmUser",
+            "value": "regex",
+          },
+          {
+            "authenticateToService": "tree",
+            "type": "AuthenticateToService",
+          },
+        ],
+        "type": "OR",
+      },
+    ],
+    "type": "AND",
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-07-09T15:30:06.300Z",
+  "description": "Policy Description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-07-28T15:14:30.996Z",
+  "name": "Test Policy 1",
+  "resourceAttributes": [
+    {
+      "propertyName": "sn",
+      "propertyValues": [
+        "surName",
+      ],
+      "type": "Static",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "sn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [
+        "currentName",
+      ],
+      "type": "Static",
+    },
+  ],
+  "resourceTypeUuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "resources": [
+    "test/hello",
+    "*/test",
+  ],
+  "subject": {
+    "subjects": [
+      {
+        "type": "AuthenticatedUsers",
+      },
+      {
+        "type": "NONE",
+      },
+      {
+        "subjects": [
+          {
+            "claimName": "claim",
+            "claimValue": "val",
+            "type": "JwtClaim",
+          },
+        ],
+        "type": "OR",
+      },
+      {
+        "subject": {
+          "subjectValues": [],
+          "type": "Identity",
+        },
+        "type": "NOT",
+      },
+    ],
+    "type": "AND",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/test-policy-set/policies/Test Policy 2.json 1`] = `
+{
+  "_id": "Test Policy 2",
+  "_rev": "1786649145126",
+  "actionValues": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true,
+  },
+  "active": true,
+  "applicationName": "test-policy-set",
+  "condition": {
+    "conditions": [
+      {
+        "requiredScopes": [
+          "test",
+          "scope",
+        ],
+        "type": "OAuth2Scope",
+      },
+      {
+        "scriptId": "11e1a3c0-038b-4c16-956a-6c9d89328cff",
+        "type": "Script",
+      },
+      {
+        "condition": {
+          "scriptId": "6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30",
+          "type": "Script",
+        },
+        "type": "NOT",
+      },
+      {
+        "conditions": [
+          {
+            "comparator": "REGEX",
+            "decisionField": "decision",
+            "identityResource": "resource",
+            "queryField": "query",
+            "type": "IdmUser",
+            "value": "regex",
+          },
+          {
+            "authenticateToService": "tree",
+            "type": "AuthenticateToService",
+          },
+        ],
+        "type": "OR",
+      },
+    ],
+    "type": "AND",
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-07-09T15:30:06.423Z",
+  "description": "Policy Description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-08-13T19:25:45.126Z",
+  "name": "Test Policy 2",
+  "resourceAttributes": [
+    {
+      "propertyName": "sn",
+      "propertyValues": [
+        "surName",
+      ],
+      "type": "Static",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "sn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [
+        "currentName",
+      ],
+      "type": "Static",
+    },
+  ],
+  "resourceTypeUuid": "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+  "resources": [
+    "*/test2",
+    "test2/hello",
+  ],
+  "subject": {
+    "subjects": [
+      {
+        "type": "AuthenticatedUsers",
+      },
+      {
+        "type": "NONE",
+      },
+      {
+        "subjects": [
+          {
+            "claimName": "claim",
+            "claimValue": "val",
+            "type": "JwtClaim",
+          },
+        ],
+        "type": "OR",
+      },
+      {
+        "subject": {
+          "subjectValues": [],
+          "type": "Identity",
+        },
+        "type": "NOT",
+      },
+    ],
+    "type": "AND",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/test-policy-set/policies/testadfas.json 1`] = `
+{
+  "_id": "testadfas",
+  "_rev": "1786649145255",
+  "actionValues": {},
+  "active": true,
+  "applicationName": "test-policy-set",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-08-13T18:33:21.285Z",
+  "description": "",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-08-13T19:25:45.255Z",
+  "name": "testadfas",
+  "resourceTypeUuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "resources": [
+    "test/*",
+  ],
+  "subject": {
+    "type": "NONE",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/test-policy-set/policies/undefined.json 1`] = `
+{
+  "_id": "undefined",
+  "_rev": "1786649144992",
+  "actionValues": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true,
+  },
+  "active": true,
+  "applicationName": "test-policy-set",
+  "condition": {
+    "conditions": [
+      {
+        "requiredScopes": [
+          "test",
+          "scope",
+        ],
+        "type": "OAuth2Scope",
+      },
+      {
+        "scriptId": "11e1a3c0-038b-4c16-956a-6c9d89328cff",
+        "type": "Script",
+      },
+      {
+        "condition": {
+          "scriptId": "9de3eb62-f131-4fac-a294-7bd170fd4acb",
+          "type": "Script",
+        },
+        "type": "NOT",
+      },
+      {
+        "conditions": [
+          {
+            "comparator": "REGEX",
+            "decisionField": "decision",
+            "identityResource": "resource",
+            "queryField": "query",
+            "type": "IdmUser",
+            "value": "regex",
+          },
+          {
+            "authenticateToService": "tree",
+            "type": "AuthenticateToService",
+          },
+        ],
+        "type": "OR",
+      },
+    ],
+    "type": "AND",
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-08-13T19:25:44.992Z",
+  "description": "Policy Description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-08-13T19:25:44.992Z",
+  "name": "undefined",
+  "resourceAttributes": [
+    {
+      "propertyName": "sn",
+      "propertyValues": [
+        "surName",
+      ],
+      "type": "Static",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "sn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [
+        "currentName",
+      ],
+      "type": "Static",
+    },
+  ],
+  "resourceTypeUuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "resources": [
+    "test/hello",
+    "*/test",
+  ],
+  "subject": {
+    "subjects": [
+      {
+        "type": "AuthenticatedUsers",
+      },
+      {
+        "type": "NONE",
+      },
+      {
+        "subjects": [
+          {
+            "claimName": "claim",
+            "claimValue": "val",
+            "type": "JwtClaim",
+          },
+        ],
+        "type": "OR",
+      },
+      {
+        "subject": {
+          "subjectValues": [],
+          "type": "Identity",
+        },
+        "type": "NOT",
+      },
+    ],
+    "type": "AND",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/test-policy-set/test-policy-set.json 1`] = `
+{
+  "_id": "test-policy-set",
+  "applicationType": "iPlanetAMWebAgentService",
+  "attributeNames": [],
+  "conditions": [
+    "AMIdentityMembership",
+    "AND",
+    "AuthLevel",
+    "AuthenticateToRealm",
+    "AuthenticateToService",
+    "IPv4",
+    "IPv6",
+    "IdmUser",
+    "LDAPFilter",
+    "LEAuthLevel",
+    "NOT",
+    "OAuth2Scope",
+    "OR",
+    "Policy",
+    "ResourceEnvIP",
+    "Script",
+    "Session",
+    "SessionProperty",
+    "SimpleTime",
+    "Transaction",
+  ],
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1783611006126,
+  "description": "Test policy set description",
+  "displayName": "Test Policy Set",
+  "editable": true,
+  "entitlementCombiner": "DenyOverride",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1786649144925,
+  "name": "test-policy-set",
+  "resourceComparator": null,
+  "resourceTypeUuids": [
+    "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+    "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  ],
+  "saveIndex": null,
+  "searchIndex": null,
+  "subjects": [
+    "AND",
+    "AuthenticatedUsers",
+    "Identity",
+    "JwtClaim",
+    "NONE",
+    "NOT",
+    "OR",
+    "Policy",
+  ],
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/resource-types/Test Resource Type 2.json 1`] = `
+{
+  "_id": "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+  "actions": {
+    "create": true,
+    "delete": true,
+    "read": false,
+    "update": false,
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1783611003289,
+  "description": "",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251667660,
+  "name": "Test Resource Type 2",
+  "patterns": [
+    "*/test2",
+    "test2/*",
+  ],
+  "uuid": "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/root/authorization/resource-types/Test Resource Type.json 1`] = `
+{
+  "_id": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "actions": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true,
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1783611003341,
+  "description": "Test resource description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251667715,
+  "name": "Test Resource Type",
+  "patterns": [
+    "test/*",
+    "*/test",
+  ],
+  "uuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
 }
 `;
 

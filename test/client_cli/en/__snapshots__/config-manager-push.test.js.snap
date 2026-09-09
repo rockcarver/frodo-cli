@@ -16,6 +16,7 @@ Commands:
   access-config          [Experimental] Import access configuration.
   audit                  [Experimental] Import audit configuration.
   authentication         [Experimental] Import authentication objects.
+  authz-policies         [Experimental] Import authorization policies.
   connector-definitions  [Experimental] Import connector definitions.
   connector-mappings     [Experimental] Import connector mappings.
   cookie-domains         [Experimental] Import cookie domains.

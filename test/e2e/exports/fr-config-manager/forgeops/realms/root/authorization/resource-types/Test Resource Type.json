@@ -1,0 +1,20 @@
+{
+  "_id": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "actions": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1783611003341,
+  "description": "Test resource description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251667715,
+  "name": "Test Resource Type",
+  "patterns": [
+    "test/*",
+    "*/test"
+  ],
+  "uuid": "f42519db-f43c-4325-b8d4-04a631ff46cb"
+}

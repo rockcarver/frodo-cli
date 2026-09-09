@@ -1,21 +1,702 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies --directory configManagerExportAuthzPoliciesDir4 -r bravo": should export policies, policy-sets, and resource-types from the bravo realm in fr-config manager style. 1`] = `0`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style. 1`] = `0`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies --directory configManagerExportAuthzPoliciesDir4 -r bravo": should export policies, policy-sets, and resource-types from the bravo realm in fr-config manager style. 2`] = `""`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style. 2`] = `""`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies -D configManagerExportAuthzPoliciesDir2": should export policies, policy-sets, and resource-types from all realms in fr-config manager style. 1`] = `0`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/alpha/authorization/policy-sets/oauth2Scopes/oauth2Scopes.json 1`] = `
+{
+  "_id": "oauth2Scopes",
+  "applicationType": "iPlanetAMWebAgentService",
+  "attributeNames": [],
+  "conditions": [
+    "Script",
+    "AMIdentityMembership",
+    "IPv6",
+    "SimpleTime",
+    "IPv4",
+    "LEAuthLevel",
+    "LDAPFilter",
+    "AuthScheme",
+    "Session",
+    "AND",
+    "AuthenticateToRealm",
+    "ResourceEnvIP",
+    "SessionProperty",
+    "OAuth2Scope",
+    "OR",
+    "Transaction",
+    "NOT",
+    "AuthLevel",
+    "AuthenticateToService",
+  ],
+  "createdBy": "id=dsameuser,ou=user,ou=am-config",
+  "creationDate": 1578580064992,
+  "description": "The built-in Application used by the OAuth2 scope authorization process.",
+  "displayName": "Default OAuth2 Scopes Policy Set",
+  "editable": true,
+  "entitlementCombiner": "DenyOverride",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251680021,
+  "name": "oauth2Scopes",
+  "resourceComparator": null,
+  "resourceTypeUuids": [
+    "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b",
+  ],
+  "saveIndex": null,
+  "searchIndex": null,
+  "subjects": [
+    "AuthenticatedUsers",
+    "NOT",
+    "Identity",
+    "OR",
+    "AND",
+    "NONE",
+    "JwtClaim",
+  ],
+}
+`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies -D configManagerExportAuthzPoliciesDir2": should export policies, policy-sets, and resource-types from all realms in fr-config manager style. 2`] = `""`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/bravo/authorization/policy-sets/oauth2Scopes/oauth2Scopes.json 1`] = `
+{
+  "_id": "oauth2Scopes",
+  "applicationType": "iPlanetAMWebAgentService",
+  "attributeNames": [],
+  "conditions": [
+    "Script",
+    "AMIdentityMembership",
+    "IPv6",
+    "SimpleTime",
+    "IPv4",
+    "LEAuthLevel",
+    "LDAPFilter",
+    "AuthScheme",
+    "Session",
+    "AND",
+    "AuthenticateToRealm",
+    "ResourceEnvIP",
+    "SessionProperty",
+    "OAuth2Scope",
+    "OR",
+    "Transaction",
+    "NOT",
+    "AuthLevel",
+    "AuthenticateToService",
+  ],
+  "createdBy": "id=dsameuser,ou=user,ou=am-config",
+  "creationDate": 1578580064992,
+  "description": "The built-in Application used by the OAuth2 scope authorization process.",
+  "displayName": "Default OAuth2 Scopes Policy Set",
+  "editable": true,
+  "entitlementCombiner": "DenyOverride",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251683977,
+  "name": "oauth2Scopes",
+  "resourceComparator": null,
+  "resourceTypeUuids": [
+    "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b",
+  ],
+  "saveIndex": null,
+  "searchIndex": null,
+  "subjects": [
+    "AuthenticatedUsers",
+    "NOT",
+    "Identity",
+    "OR",
+    "AND",
+    "NONE",
+    "JwtClaim",
+  ],
+}
+`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies -D configManagerExportAuthzPoliciesDir3 -r alpha": should export policies, policy-sets, and resource-types from the alpha realm in fr-config manager style. 1`] = `0`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/policy-sets/iPlanetAMWebAgentService/iPlanetAMWebAgentService.json 1`] = `
+{
+  "_id": "iPlanetAMWebAgentService",
+  "applicationType": "iPlanetAMWebAgentService",
+  "attributeNames": [],
+  "conditions": [
+    "Script",
+    "AMIdentityMembership",
+    "IPv6",
+    "SimpleTime",
+    "IPv4",
+    "LEAuthLevel",
+    "LDAPFilter",
+    "AuthScheme",
+    "Session",
+    "AND",
+    "AuthenticateToRealm",
+    "ResourceEnvIP",
+    "SessionProperty",
+    "OAuth2Scope",
+    "OR",
+    "Transaction",
+    "NOT",
+    "AuthLevel",
+    "AuthenticateToService",
+  ],
+  "createdBy": "id=dsameuser,ou=user,ou=am-config",
+  "creationDate": 1578580065033,
+  "description": "The built-in Application used by OpenAM Policy Agents.",
+  "displayName": "Default Policy Set",
+  "editable": true,
+  "entitlementCombiner": "DenyOverride",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251670606,
+  "name": "iPlanetAMWebAgentService",
+  "resourceComparator": null,
+  "resourceTypeUuids": [
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+  ],
+  "saveIndex": null,
+  "searchIndex": null,
+  "subjects": [
+    "AuthenticatedUsers",
+    "NOT",
+    "Identity",
+    "OR",
+    "AND",
+    "NONE",
+    "JwtClaim",
+  ],
+}
+`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies -D configManagerExportAuthzPoliciesDir3 -r alpha": should export policies, policy-sets, and resource-types from the alpha realm in fr-config manager style. 2`] = `""`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/policy-sets/oauth2Scopes/oauth2Scopes.json 1`] = `
+{
+  "_id": "oauth2Scopes",
+  "applicationType": "iPlanetAMWebAgentService",
+  "attributeNames": [],
+  "conditions": [
+    "Script",
+    "AMIdentityMembership",
+    "IPv6",
+    "SimpleTime",
+    "IPv4",
+    "LEAuthLevel",
+    "LDAPFilter",
+    "AuthScheme",
+    "Session",
+    "AND",
+    "AuthenticateToRealm",
+    "ResourceEnvIP",
+    "SessionProperty",
+    "OAuth2Scope",
+    "OR",
+    "Transaction",
+    "NOT",
+    "AuthLevel",
+    "AuthenticateToService",
+  ],
+  "createdBy": "id=dsameuser,ou=user,ou=am-config",
+  "creationDate": 1578580064992,
+  "description": "The built-in Application used by the OAuth2 scope authorization process.",
+  "displayName": "Default OAuth2 Scopes Policy Set",
+  "editable": true,
+  "entitlementCombiner": "DenyOverride",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251670705,
+  "name": "oauth2Scopes",
+  "resourceComparator": null,
+  "resourceTypeUuids": [
+    "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b",
+  ],
+  "saveIndex": null,
+  "searchIndex": null,
+  "subjects": [
+    "AuthenticatedUsers",
+    "NOT",
+    "Identity",
+    "OR",
+    "AND",
+    "NONE",
+    "JwtClaim",
+  ],
+}
+`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies -D configManagerExportAuthzPoliciesDir5 -n murphyTestPolicySet -r bravo": should export only the policy set with the id: "murphyTestPolicySet". 1`] = `0`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/policy-sets/test-policy-set/policies/Test Policy 1.json 1`] = `
+{
+  "_id": "Test Policy 1",
+  "_rev": "1785251670996",
+  "actionValues": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true,
+  },
+  "active": true,
+  "applicationName": "test-policy-set",
+  "condition": {
+    "conditions": [
+      {
+        "requiredScopes": [
+          "test",
+          "scope",
+        ],
+        "type": "OAuth2Scope",
+      },
+      {
+        "scriptId": "11e1a3c0-038b-4c16-956a-6c9d89328cff",
+        "type": "Script",
+      },
+      {
+        "condition": {
+          "scriptId": "9de3eb62-f131-4fac-a294-7bd170fd4acb",
+          "type": "Script",
+        },
+        "type": "NOT",
+      },
+      {
+        "conditions": [
+          {
+            "comparator": "REGEX",
+            "decisionField": "decision",
+            "identityResource": "resource",
+            "queryField": "query",
+            "type": "IdmUser",
+            "value": "regex",
+          },
+          {
+            "authenticateToService": "tree",
+            "type": "AuthenticateToService",
+          },
+        ],
+        "type": "OR",
+      },
+    ],
+    "type": "AND",
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-07-09T15:30:06.300Z",
+  "description": "Policy Description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-07-28T15:14:30.996Z",
+  "name": "Test Policy 1",
+  "resourceAttributes": [
+    {
+      "propertyName": "sn",
+      "propertyValues": [
+        "surName",
+      ],
+      "type": "Static",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "sn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [
+        "currentName",
+      ],
+      "type": "Static",
+    },
+  ],
+  "resourceTypeUuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "resources": [
+    "test/hello",
+    "*/test",
+  ],
+  "subject": {
+    "subjects": [
+      {
+        "type": "AuthenticatedUsers",
+      },
+      {
+        "type": "NONE",
+      },
+      {
+        "subjects": [
+          {
+            "claimName": "claim",
+            "claimValue": "val",
+            "type": "JwtClaim",
+          },
+        ],
+        "type": "OR",
+      },
+      {
+        "subject": {
+          "subjectValues": [],
+          "type": "Identity",
+        },
+        "type": "NOT",
+      },
+    ],
+    "type": "AND",
+  },
+}
+`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies -D configManagerExportAuthzPoliciesDir5 -n murphyTestPolicySet -r bravo": should export only the policy set with the id: "murphyTestPolicySet". 2`] = `""`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/policy-sets/test-policy-set/policies/Test Policy 2.json 1`] = `
+{
+  "_id": "Test Policy 2",
+  "_rev": "1786649145126",
+  "actionValues": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true,
+  },
+  "active": true,
+  "applicationName": "test-policy-set",
+  "condition": {
+    "conditions": [
+      {
+        "requiredScopes": [
+          "test",
+          "scope",
+        ],
+        "type": "OAuth2Scope",
+      },
+      {
+        "scriptId": "11e1a3c0-038b-4c16-956a-6c9d89328cff",
+        "type": "Script",
+      },
+      {
+        "condition": {
+          "scriptId": "6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30",
+          "type": "Script",
+        },
+        "type": "NOT",
+      },
+      {
+        "conditions": [
+          {
+            "comparator": "REGEX",
+            "decisionField": "decision",
+            "identityResource": "resource",
+            "queryField": "query",
+            "type": "IdmUser",
+            "value": "regex",
+          },
+          {
+            "authenticateToService": "tree",
+            "type": "AuthenticateToService",
+          },
+        ],
+        "type": "OR",
+      },
+    ],
+    "type": "AND",
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-07-09T15:30:06.423Z",
+  "description": "Policy Description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-08-13T19:25:45.126Z",
+  "name": "Test Policy 2",
+  "resourceAttributes": [
+    {
+      "propertyName": "sn",
+      "propertyValues": [
+        "surName",
+      ],
+      "type": "Static",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "sn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [
+        "currentName",
+      ],
+      "type": "Static",
+    },
+  ],
+  "resourceTypeUuid": "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+  "resources": [
+    "*/test2",
+    "test2/hello",
+  ],
+  "subject": {
+    "subjects": [
+      {
+        "type": "AuthenticatedUsers",
+      },
+      {
+        "type": "NONE",
+      },
+      {
+        "subjects": [
+          {
+            "claimName": "claim",
+            "claimValue": "val",
+            "type": "JwtClaim",
+          },
+        ],
+        "type": "OR",
+      },
+      {
+        "subject": {
+          "subjectValues": [],
+          "type": "Identity",
+        },
+        "type": "NOT",
+      },
+    ],
+    "type": "AND",
+  },
+}
+`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies -D configManagerExportAuthzPoliciesDir6-f test/e2e/fr-config-manager-pull-config/authz-policies.json" : should export only the policy set with the id: "murphyTestPolicySet". 1`] = `0`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/policy-sets/test-policy-set/policies/testadfas.json 1`] = `
+{
+  "_id": "testadfas",
+  "_rev": "1786649145255",
+  "actionValues": {},
+  "active": true,
+  "applicationName": "test-policy-set",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-08-13T18:33:21.285Z",
+  "description": "",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-08-13T19:25:45.255Z",
+  "name": "testadfas",
+  "resourceTypeUuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "resources": [
+    "test/*",
+  ],
+  "subject": {
+    "type": "NONE",
+  },
+}
+`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authz-policies -D configManagerExportAuthzPoliciesDir6-f test/e2e/fr-config-manager-pull-config/authz-policies.json" : should export only the policy set with the id: "murphyTestPolicySet". 2`] = `""`;
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/policy-sets/test-policy-set/policies/undefined.json 1`] = `
+{
+  "_id": "undefined",
+  "_rev": "1786649144992",
+  "actionValues": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true,
+  },
+  "active": true,
+  "applicationName": "test-policy-set",
+  "condition": {
+    "conditions": [
+      {
+        "requiredScopes": [
+          "test",
+          "scope",
+        ],
+        "type": "OAuth2Scope",
+      },
+      {
+        "scriptId": "11e1a3c0-038b-4c16-956a-6c9d89328cff",
+        "type": "Script",
+      },
+      {
+        "condition": {
+          "scriptId": "9de3eb62-f131-4fac-a294-7bd170fd4acb",
+          "type": "Script",
+        },
+        "type": "NOT",
+      },
+      {
+        "conditions": [
+          {
+            "comparator": "REGEX",
+            "decisionField": "decision",
+            "identityResource": "resource",
+            "queryField": "query",
+            "type": "IdmUser",
+            "value": "regex",
+          },
+          {
+            "authenticateToService": "tree",
+            "type": "AuthenticateToService",
+          },
+        ],
+        "type": "OR",
+      },
+    ],
+    "type": "AND",
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-08-13T19:25:44.992Z",
+  "description": "Policy Description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-08-13T19:25:44.992Z",
+  "name": "undefined",
+  "resourceAttributes": [
+    {
+      "propertyName": "sn",
+      "propertyValues": [
+        "surName",
+      ],
+      "type": "Static",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "sn",
+      "propertyValues": [],
+      "type": "User",
+    },
+    {
+      "propertyName": "cn",
+      "propertyValues": [
+        "currentName",
+      ],
+      "type": "Static",
+    },
+  ],
+  "resourceTypeUuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "resources": [
+    "test/hello",
+    "*/test",
+  ],
+  "subject": {
+    "subjects": [
+      {
+        "type": "AuthenticatedUsers",
+      },
+      {
+        "type": "NONE",
+      },
+      {
+        "subjects": [
+          {
+            "claimName": "claim",
+            "claimValue": "val",
+            "type": "JwtClaim",
+          },
+        ],
+        "type": "OR",
+      },
+      {
+        "subject": {
+          "subjectValues": [],
+          "type": "Identity",
+        },
+        "type": "NOT",
+      },
+    ],
+    "type": "AND",
+  },
+}
+`;
+
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/policy-sets/test-policy-set/test-policy-set.json 1`] = `
+{
+  "_id": "test-policy-set",
+  "applicationType": "iPlanetAMWebAgentService",
+  "attributeNames": [],
+  "conditions": [
+    "AMIdentityMembership",
+    "AND",
+    "AuthLevel",
+    "AuthenticateToRealm",
+    "AuthenticateToService",
+    "IPv4",
+    "IPv6",
+    "IdmUser",
+    "LDAPFilter",
+    "LEAuthLevel",
+    "NOT",
+    "OAuth2Scope",
+    "OR",
+    "Policy",
+    "ResourceEnvIP",
+    "Script",
+    "Session",
+    "SessionProperty",
+    "SimpleTime",
+    "Transaction",
+  ],
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1783611006126,
+  "description": "Test policy set description",
+  "displayName": "Test Policy Set",
+  "editable": true,
+  "entitlementCombiner": "DenyOverride",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1786649144925,
+  "name": "test-policy-set",
+  "resourceComparator": null,
+  "resourceTypeUuids": [
+    "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+    "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  ],
+  "saveIndex": null,
+  "searchIndex": null,
+  "subjects": [
+    "AND",
+    "AuthenticatedUsers",
+    "Identity",
+    "JwtClaim",
+    "NONE",
+    "NOT",
+    "OR",
+    "Policy",
+  ],
+}
+`;
+
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/resource-types/Test Resource Type 2.json 1`] = `
+{
+  "_id": "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+  "actions": {
+    "create": true,
+    "delete": true,
+    "read": false,
+    "update": false,
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1783611003289,
+  "description": "",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251667660,
+  "name": "Test Resource Type 2",
+  "patterns": [
+    "*/test2",
+    "test2/*",
+  ],
+  "uuid": "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+}
+`;
+
+exports[`frodo config-manager pull authz-policies "frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.: configManagerPullAuthzPoliciesDir/realms/root/authorization/resource-types/Test Resource Type.json 1`] = `
+{
+  "_id": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "actions": {
+    "create": false,
+    "delete": false,
+    "read": true,
+    "update": true,
+  },
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1783611003341,
+  "description": "Test resource description",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1785251667715,
+  "name": "Test Resource Type",
+  "patterns": [
+    "test/*",
+    "*/test",
+  ],
+  "uuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+}
+`;

@@ -1,0 +1,20 @@
+{
+  "_id": "testadfas",
+  "_rev": "1786649145255",
+  "actionValues": {},
+  "active": true,
+  "applicationName": "test-policy-set",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": "2026-08-13T18:33:21.285Z",
+  "description": "",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": "2026-08-13T19:25:45.255Z",
+  "name": "testadfas",
+  "resourceTypeUuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+  "resources": [
+    "test/*"
+  ],
+  "subject": {
+    "type": "NONE"
+  }
+}

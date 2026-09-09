@@ -18,8 +18,7 @@ Commands:
   all-static             [Experimental] Export all static config.
   audit                  [Experimental] Export audit objects.
   authentication         [Experimental] Export authentication objects.
-  authz-policies         [Experimental] Export authorization policies from
-                         realm.
+  authz-policies         [Experimental] Export authorization policies.
   connector-definitions  [Experimental] Export aconnector definitions.
   connector-mappings     [Experimental] Export connector mappings.
   cookie-domains         [Experimental] Export cookie-domains objects.

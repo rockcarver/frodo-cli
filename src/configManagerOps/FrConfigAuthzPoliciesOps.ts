@@ -2,229 +2,191 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { PolicySkeleton } from '@rockcarver/frodo-lib/types/api/PoliciesApi';
 import { PolicySetSkeleton } from '@rockcarver/frodo-lib/types/api/PolicySetApi';
 import { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ResourceTypesApi';
-import { readFile } from 'fs/promises';
+import { PolicySetExportInterface } from '@rockcarver/frodo-lib/types/ops/PolicySetOps';
+import fs from 'fs';
 
-import { printError, verboseMessage } from '../utils/Console';
+import {
+  createProgressIndicator,
+  printError,
+  stopProgressIndicator,
+  updateProgressIndicator,
+} from '../utils/Console';
+import { clearOperationalAttributes } from '../utils/FrConfig';
 
-const { getFilePath, saveJsonToFile } = frodo.utils;
-const { policySet, policy, resourceType } = frodo.authz;
-const { readRealms } = frodo.realm;
-
-type ByName = { policySetName: string };
-type BySkeleton = { ps: PolicySetSkeleton };
-
-/**
- * Export policy to its own separate file in fr-config-manager format
- * along with any resource types its associated with
- * @param {PolicySkeleton} p Policy object to export
- */
-async function exportPolicy(p: PolicySkeleton) {
-  verboseMessage(`    Exporting the policy "${p.name}".`);
-  // save to that policy-set's policy folder
-  saveJsonToFile(
-    p,
-    getFilePath(
-      `realms/${state.getRealm()}/authorization/policy-sets/${p.applicationName}/policies/${p.name}.json`,
-      true
-    ),
-    false,
-    true,
-    true
-  );
-
-  // also save any resource types associated with the policy
-  const r: ResourceTypeSkeleton = await resourceType.readResourceType(
-    p.resourceTypeUuid
-  );
-  verboseMessage(`      Exporting the resource-type "${r.name}".`);
-  r._id = r.uuid;
-
-  // The _.rev field changes to the utc time every time it is requested, been commented out for now
-  // r._rev = Date.now().toString();
-
-  saveJsonToFile(
-    r,
-    getFilePath(
-      `realms/${state.getRealm()}/authorization/resource-types/${r.name}.json`,
-      true
-    ),
-    false,
-    true,
-    true
-  );
-}
-
-// Export policy-set using its name {policySetName: ...}
-export async function configManagerExportAuthzPolicySet(
-  criteria: ByName,
-  configFile: string
-): Promise<boolean>;
-// Export policy-set using the provided PolicySetSkeleton {ps: ...}
-export async function configManagerExportAuthzPolicySet(
-  criteria: BySkeleton,
-  configFile: string
-): Promise<boolean>;
-/**
- * Export policy-set with each policy having its own file in fr-config-manager format
- * @param criteria Either PolicySetSkeleton or string
- * @param configFile If this is provided, this function only succeeds if the provided policy set is defined in the config file.
- * @returns True if export was successful
- */
-export async function configManagerExportAuthzPolicySet(
-  criteria: ByName | BySkeleton,
-  configFile: string = null
-): Promise<boolean> {
-  try {
-    // policySet.readPolicySet() will fail if the provided policy-set doesn't exist in the current-state realm
-    const ps: PolicySetSkeleton =
-      'ps' in criteria
-        ? criteria.ps
-        : await policySet.readPolicySet(criteria.policySetName);
-
-    // make sure ps is in the config file if one is passed
-    if (configFile) {
-      verboseMessage(`  Reading the config file "${configFile}"`);
-      const configFileData = JSON.parse(
-        await readFile(configFile, { encoding: 'utf8' })
-      );
-      if (
-        !configFileData[state.getRealm()] ||
-        !configFileData[state.getRealm()].includes(ps.name)
-      ) {
-        throw new Error(
-          `The policy set "${ps.name}" is not defined for the ${state.getRealm()} realm in the config file "${configFile}".`
-        );
-      }
-      verboseMessage(
-        `    The policy set "${ps.name}" was found in the ${state.getRealm()} realm block of the config file, moving forward.`
-      );
-    }
-    verboseMessage(`  Exporting the policy set "${ps.name}"`);
-
-    // these two fields aren't automatically provided in PolicySetSkeleton
-    ps._id = ps.name;
-    ps._rev = ps.lastModifiedDate.toString();
-
-    // save to same relative location as fr-config-manager
-    saveJsonToFile(
-      ps,
-      getFilePath(
-        `realms/${state.getRealm()}/authorization/policy-sets/${ps.name}/${ps.name}.json`,
-        true
-      ),
-      false,
-      true,
-      true
-    );
-
-    // create policies directory if it doesnt exist even if there are no policies, thats what fr-config-manager does
-    getFilePath(
-      `realms/${state.getRealm()}/authorization/policy-sets/${ps.name}/policies/`,
-      true
-    );
-
-    // save the policies associated with this specific policy set
-    const allPoliciesOfThis: PolicySkeleton[] =
-      await policy.readPoliciesByPolicySet(ps.name);
-    if (allPoliciesOfThis.length !== 0) {
-      for (const p of allPoliciesOfThis) {
-        await exportPolicy(p);
-      }
-    } else {
-      verboseMessage(
-        `    There are no policies in the policy-set "${ps.name}"`
-      );
-    }
-
-    return true;
-  } catch (error) {
-    printError(error);
-    return false;
-  }
-}
+const { getFilePath, saveJsonToFile, getWorkingDirectory, readJsonFile } =
+  frodo.utils;
+const { importPolicySets, readPolicySet } = frodo.authz.policySet;
+const { readPoliciesByPolicySet, importPolicies } = frodo.authz.policy;
+const { readResourceType } = frodo.authz.resourceType;
 
 /**
- * Export all policy-sets defined in the config file, current state realm is ignored, all realms in config file are iterated over
- * @param configFile json file to read from.
- * @returns True if all policy sets were written successfully
+ * Export policy sets for all realms
+ * @param {string} configFile required reference file for what sets to export
+ * @returns {Promise<boolean>} return true if export succesful, false otherwise
  */
 export async function configManagerExportAuthzPolicySets(
   configFile: string
 ): Promise<boolean> {
+  let indicatorId;
   try {
-    verboseMessage(`Reading the config file "${configFile}"`);
-    const configFileData = JSON.parse(
-      await readFile(configFile, { encoding: 'utf8' })
-    ) as Record<string, string[]>;
-    for (const [realm, policies] of Object.entries(configFileData)) {
-      if (policies.length !== 0) {
+    const policySets = readJsonFile(configFile, false);
+    indicatorId = createProgressIndicator(
+      'determinate',
+      Object.values(policySets as Record<string, object[]>).reduce(
+        (total, arr) => total + arr.length,
+        0
+      ),
+      'Exporting policy sets...'
+    );
+    for (const realm of Object.keys(policySets)) {
+      for (const setName of policySets[realm]) {
         state.setRealm(realm);
-        verboseMessage(`\n${state.getRealm()} realm:`);
-        for (const policy of policies) {
-          if (
-            !(await configManagerExportAuthzPolicySet(
-              { policySetName: policy },
-              null
-            ))
-          ) {
-            return false;
-          }
-        }
-      } else {
-        verboseMessage(
-          `\nNo policy sets defined for the ${realm} realm in the config file.`
+        const policySet = await readPolicySet(setName);
+        policySet._id = policySet.name;
+        const authzDir = `realms/${realm === '/' ? 'root' : realm}/authorization`;
+        saveJsonToFile(
+          policySet,
+          getFilePath(
+            `${authzDir}/policy-sets/${policySet.name}/${policySet.name}.json`,
+            true
+          ),
+          false,
+          true,
+          true
         );
+        const policies = await readPoliciesByPolicySet(policySet.name);
+        for (const policy of policies) {
+          saveJsonToFile(
+            policy,
+            getFilePath(
+              `${authzDir}/policy-sets/${policySet.name}/policies/${policy.name}.json`,
+              true
+            ),
+            false,
+            true,
+            true
+          );
+          const resourceType = await readResourceType(policy.resourceTypeUuid);
+          resourceType._id = resourceType.uuid;
+          saveJsonToFile(
+            resourceType,
+            getFilePath(
+              `${authzDir}/resource-types/${resourceType.name}.json`,
+              true
+            ),
+            false,
+            true,
+            true
+          );
+        }
+        updateProgressIndicator(indicatorId, `Exported policy set ${setName}`);
       }
     }
+    stopProgressIndicator(
+      indicatorId,
+      'Finished exporting policy sets.',
+      'success'
+    );
     return true;
   } catch (error) {
-    printError(error);
-    return false;
-  }
-}
-
-/**
- * Export all policy-sets from the current realm set in state
- * @returns True if export was successful
- */
-export async function configManagerExportAuthzPolicySetsRealm(): Promise<boolean> {
-  try {
-    const allPolicySets: PolicySetSkeleton[] = await policySet.readPolicySets();
-    if (allPolicySets.length !== 0) {
-      verboseMessage(`\n${state.getRealm()} realm:`);
-      for (const ps of allPolicySets) {
-        if (!(await configManagerExportAuthzPolicySet({ ps: ps }, null))) {
-          return false;
-        }
-      }
-    } else {
-      verboseMessage(
-        `  There are no policy sets in the realm "${state.getRealm()}"`
+    if (indicatorId) {
+      stopProgressIndicator(
+        indicatorId,
+        'Error exporting policy sets.',
+        'fail'
       );
     }
-  } catch (error) {
-    printError(error);
+    printError(error, 'Error exporting policy sets');
     return false;
   }
-  return true;
 }
 
 /**
- * Export all policy-sets from all realms
- * @returns True if export was successful
+ * Import authz policy sets
+ * @returns {Promise<boolean>} true if all imports were successful
  */
-export async function configManagerExportAuthzPoliciesAll(): Promise<boolean> {
+export async function configManagerImportAuthzPolicies(): Promise<boolean> {
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    'Exporting policy sets...'
+  );
   try {
-    for (const realm of await readRealms()) {
-      // set realm of state because policySet.readPolicySets() uses state to check realm
-      state.setRealm(realm.name);
-      if (!(await configManagerExportAuthzPolicySetsRealm())) {
-        return false;
+    const realmsDir = `${getWorkingDirectory()}/realms`;
+    const realmDirs = fs
+      .readdirSync(realmsDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
+
+    for (const realmDir of realmDirs) {
+      state.setRealm(realmDir === 'root' ? '/' : realmDir);
+      const authzDir = `${realmsDir}/${realmDir}/authorization`;
+      const importData: PolicySetExportInterface = {
+        script: {},
+        resourcetype: {},
+        policy: {},
+        policyset: {},
+      };
+
+      const resourceTypesDir = `${authzDir}/resource-types`;
+      const rtDir = fs.existsSync(resourceTypesDir)
+        ? fs.readdirSync(resourceTypesDir)
+        : [];
+      for (const file of rtDir) {
+        if (!file.endsWith('.json')) continue;
+        const rtData = readJsonFile(
+          `${resourceTypesDir}/${file}`
+        ) as ResourceTypeSkeleton;
+        clearOperationalAttributes(rtData);
+        importData.resourcetype[rtData.uuid] = rtData;
       }
+
+      const policySetsDir = `${authzDir}/policy-sets`;
+      const psDirs = fs.existsSync(policySetsDir)
+        ? fs.readdirSync(policySetsDir)
+        : [];
+      for (const psDir of psDirs) {
+        const psData = readJsonFile(
+          `${policySetsDir}/${psDir}/${psDir}.json`
+        ) as PolicySetSkeleton;
+        clearOperationalAttributes(psData);
+        importData.policyset[psData.name] = psData;
+
+        const policiesDir = `${policySetsDir}/${psDir}/policies`;
+        const pDir = fs.existsSync(policiesDir)
+          ? fs.readdirSync(policiesDir)
+          : [];
+        for (const file of pDir) {
+          if (!file.endsWith('.json')) continue;
+          const pData = readJsonFile(
+            `${policiesDir}/${file}`
+          ) as PolicySkeleton;
+          clearOperationalAttributes(pData);
+          // importPolicies requires the id to be specified
+          pData._id = pData.name;
+          importData.policy[pData.name] = pData;
+        }
+      }
+
+      // This will import sets, but we can't use it to import policies and resource types since this handles script dependencies and set resource type dependencies which config-manager doesn't support
+      await importPolicySets(importData, {
+        deps: false,
+        prereqs: false,
+      });
+      await importPolicies(importData, {
+        deps: false,
+        prereqs: true,
+      });
     }
+    stopProgressIndicator(
+      indicatorId,
+      'Success importing policy sets.',
+      'success'
+    );
     return true;
   } catch (error) {
-    printError(error);
+    stopProgressIndicator(indicatorId, 'Error importing policy sets.', 'fail');
+    printError(error, 'Error importing policy sets.');
     return false;
   }
 }
