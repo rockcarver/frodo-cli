@@ -1,3 +1,4 @@
+import Test from '../../conn/conn-test';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-pull-access-config';
 import All from './config-manager-pull-all';
@@ -35,7 +36,6 @@ import ServiceObjects from './config-manager-pull-service-objects';
 import Services from './config-manager-pull-services';
 import Telemetry from './config-manager-pull-telemetry';
 import Terms from './config-manager-pull-terms-and-conditions';
-import Test from './config-manager-pull-test';
 import Themes from './config-manager-pull-themes';
 import UiConfig from './config-manager-pull-uiConfig';
 import Variables from './config-manager-pull-variables';

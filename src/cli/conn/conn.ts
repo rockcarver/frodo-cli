@@ -4,6 +4,7 @@ import DeleteCmd from './conn-delete.js';
 import DescribeCmd from './conn-describe.js';
 import ListCmd from './conn-list.js';
 import SaveCmd from './conn-save.js';
+import TestCmd from './conn-test.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('conn')
@@ -21,6 +22,8 @@ export default function setup() {
   program.addCommand(DescribeCmd().name('describe'));
 
   program.addCommand(ListCmd().name('list'));
+
+  program.addCommand(TestCmd().name('test'));
 
   return program;
 }
