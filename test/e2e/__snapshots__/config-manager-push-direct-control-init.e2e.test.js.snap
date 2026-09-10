@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push direct-control-init "frodo config-manager push direct-control-init": should initialize a new direct configuration session 1`] = `
+"{ editable: true }
+"
+`;
+
+exports[`frodo config-manager push direct-control-init "frodo config-manager push direct-control-init": should initialize a new direct configuration session 2`] = `
+"Experimental feature in use: 'frodo config-manager push direct-control-init'. This feature may change without notice.
+"
+`;

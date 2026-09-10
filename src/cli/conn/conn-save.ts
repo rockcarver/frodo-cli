@@ -114,9 +114,7 @@ export default function setup() {
           `  $ frodo conn save --private-key ${s.amsterPrivateKey} --authentication-service ${s.customAmsterService} ${s.classicConnId}\n`
         ) +
         `  Update an existing connection profile (with both a service account and a username/password already saved) to prefer the plain user by default:\n` +
-        c.command(
-          `  $ frodo conn save --default-credential user ${s.connId}\n`
-        )
+        c.command(`  $ frodo conn save --default-credential user ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler
