@@ -1,0 +1,148 @@
+{
+  "config": {
+    "_id": "dGVzdC1ob3N0ZWQtaWRwLXNhbWw",
+    "_rev": "-187419486",
+    "entityId": "test-hosted-idp-saml",
+    "identityProvider": {
+      "advanced": {
+        "ecpConfiguration": {
+          "idpSessionMapper": "com.sun.identity.saml2.plugins.DefaultIDPECPSessionMapper"
+        },
+        "idpAdapter": {
+          "idpAdapterScript": "[Empty]"
+        },
+        "idpFinderImplementation": {},
+        "relayStateUrlList": {},
+        "saeConfiguration": {
+          "idpUrl": "https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/test_1"
+        },
+        "sessionSynchronization": {}
+      },
+      "assertionContent": {
+        "assertionCache": {},
+        "assertionTime": {
+          "effectiveTime": 600,
+          "notBeforeTimeSkew": 600
+        },
+        "authenticationContext": {
+          "authContextItems": [
+            {
+              "contextReference": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+              "level": 0
+            }
+          ],
+          "authenticationContextMapper": "com.sun.identity.saml2.plugins.DefaultIDPAuthnContextMapper"
+        },
+        "basicAuthentication": {},
+        "nameIdFormat": {
+          "nameIdFormatList": [
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+          ],
+          "nameIdValueMap": [
+            {
+              "binary": false,
+              "key": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+              "value": "mail"
+            }
+          ]
+        },
+        "signingAndEncryption": {
+          "encryption": {},
+          "requestResponseSigning": {},
+          "secretIdAndAlgorithms": {}
+        }
+      },
+      "assertionProcessing": {
+        "accountMapper": {
+          "accountMapper": "com.sun.identity.saml2.plugins.DefaultIDPAccountMapper",
+          "disableNameIdPersistence": false
+        },
+        "attributeMapper": {
+          "attributeMapper": "com.sun.identity.saml2.plugins.DefaultIDPAttributeMapper",
+          "attributeMapperScript": "c4f22465-2368-4e27-8013-e6399974fd48"
+        },
+        "localConfiguration": {}
+      },
+      "services": {
+        "assertionIdRequest": [
+          {
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+            "location": "https://platform.dev.trivir.com/am/AIDReqSoap/IDPRole/metaAlias/test_1"
+          },
+          {
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:URI",
+            "location": "https://platform.dev.trivir.com/am/AIDReqUri/IDPRole/metaAlias/test_1"
+          }
+        ],
+        "metaAlias": "/test_1",
+        "nameIdMapping": [
+          {
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+            "location": "https://platform.dev.trivir.com/am/NIMSoap/metaAlias/test_1"
+          }
+        ],
+        "serviceAttributes": {
+          "artifactResolutionService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://platform.dev.trivir.com/am/ArtifactResolver/metaAlias/test_1"
+            }
+          ],
+          "nameIdService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+              "location": "https://platform.dev.trivir.com/am/IDPMniRedirect/metaAlias/test_1",
+              "responseLocation": "https://platform.dev.trivir.com/am/IDPMniRedirect/metaAlias/test_1"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test_1",
+              "responseLocation": "https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test_1"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://platform.dev.trivir.com/am/IDPMniSoap/metaAlias/test_1"
+            }
+          ],
+          "singleLogoutService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+              "location": "https://platform.dev.trivir.com/am/IDPSloRedirect/metaAlias/test_1",
+              "responseLocation": "https://platform.dev.trivir.com/am/IDPSloRedirect/metaAlias/test_1"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test_1",
+              "responseLocation": "https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test_1"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://platform.dev.trivir.com/am/IDPSloSoap/metaAlias/test_1"
+            }
+          ],
+          "singleSignOnService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+              "location": "https://platform.dev.trivir.com/am/SSORedirect/metaAlias/test_1"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://platform.dev.trivir.com/am/SSOPOST/metaAlias/test_1"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://platform.dev.trivir.com/am/SSOSoap/metaAlias/test_1"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "metadata": "ERROR : Unable to read configuration of component &quot;SAML2&quot; for realm &quot;root&quot;.\n"
+}

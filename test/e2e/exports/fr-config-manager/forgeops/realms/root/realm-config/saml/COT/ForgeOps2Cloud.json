@@ -1,0 +1,15 @@
+{
+  "_id": "ForgeOps2Cloud",
+  "_rev": "1409951896",
+  "_type": {
+    "_id": "circlesoftrust",
+    "collection": true,
+    "name": "Circle of Trust"
+  },
+  "status": "active",
+  "trustedProviders": [
+    "test-remote-sp-saml|saml2",
+    "test-hosted-idp-saml|saml2",
+    "test-IDP|saml2"
+  ]
+}
