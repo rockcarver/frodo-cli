@@ -41,6 +41,18 @@ const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 export async function ensureLogApiCredentials(
   deploymentTypes: string[]
 ): Promise<boolean> {
+  // Fail fast and clearly on a genuinely absent host -- unlike getTokens()'s
+  // implicit path, this bootstrap resolves a connection profile directly
+  // and has no guard of its own otherwise, so a missing host would
+  // silently fall through to whatever profile matches an empty search
+  // instead of reporting the real problem before any network call.
+  if (!state.getHost()) {
+    printMessage(
+      'No host specified. Provide a host URL, or a unique substring/alias identifying a saved connection profile.',
+      'error'
+    );
+    return false;
+  }
   const conn = await getConnectionProfile();
   if (conn) state.setHost(conn.tenant);
 

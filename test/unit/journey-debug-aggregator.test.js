@@ -89,6 +89,18 @@ function treeCompletedEvent({
   };
 }
 
+function loginCompletedEvent({ transactionId, principal, result = 'SUCCESSFUL' }) {
+  return {
+    payload: JSON.stringify({
+      component: 'Authentication',
+      eventName: 'AM-LOGIN-COMPLETED',
+      transactionId,
+      result,
+      principal: principal ? [principal] : undefined,
+    }),
+  };
+}
+
 beforeEach(() => {
   mockTailResult = { result: [], pagedResultsCookie: undefined };
   mockTail = async () => mockTailResult;
@@ -136,6 +148,43 @@ describe('JourneyDebugAggregator - empty/no-activity state', () => {
 });
 
 describe('JourneyDebugAggregator - classification', () => {
+  test('a login-completed event with no accompanying node/tree event never creates a tracked session', async () => {
+    // Regression test: OAuth2 client authentication (e.g. a service client
+    // like an internal filter/resource-server client using
+    // client_credentials) completes via AM-LOGIN-COMPLETED with a real
+    // transactionId and principal but never runs through a tree -- this
+    // showed up live as a flood of "(unknown tree) as <service-client>"
+    // rows that were pure noise for journey debugging.
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        loginCompletedEvent({
+          transactionId: 'tx-client-auth',
+          principal: 'org-filter-client',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toEqual([]);
+  });
+
+  test('a login-completed event still enriches an already-tracked session (e.g. resolves its user)', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-real-login' }),
+        loginCompletedEvent({
+          transactionId: 'tx-real-login',
+          principal: 'demo-user',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const sessions = aggregator.getSessions();
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0].user).toBe('demo-user');
+  });
+
   test('a node event creates a running session', async () => {
     const aggregator = new JourneyDebugAggregator();
     mockTailResult = {

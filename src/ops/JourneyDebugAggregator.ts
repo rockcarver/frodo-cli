@@ -44,11 +44,7 @@ const { exportJourney } = frodo.authn.journey;
 const { readAuthenticationSettings } = frodo.authn.settings;
 
 export type JourneySessionStatus =
-  | 'running'
-  | 'suspended'
-  | 'finished'
-  | 'failed'
-  | 'abandoned';
+  'running' | 'suspended' | 'finished' | 'failed' | 'abandoned';
 
 export interface JourneySession {
   transactionId: string;
@@ -189,12 +185,28 @@ export class JourneyDebugAggregator {
     const transactionId = payload.transactionId;
     if (!transactionId) return;
 
+    // Not every 'Authentication'-component event belongs to a journey/tree
+    // execution -- OAuth2 client authentication (e.g. a service client
+    // using client_credentials) completes via AM-LOGIN-COMPLETED/
+    // AM-LOGIN-MODULE-COMPLETED too, with a real transactionId and
+    // principal, but never runs through a tree at all (confirmed live:
+    // these show up with no treeName, ever, for their whole transaction).
+    // Only a node/tree event proves a transaction is an actual journey
+    // execution, so only those may START a tracked session -- a
+    // login-completed event alone is never enough, though it can still
+    // enrich (e.g. resolve the user for) a session a node event already
+    // started for the same transactionId.
+    const isTreeEvent =
+      payload.eventName === 'AM-NODE-LOGIN-COMPLETED' ||
+      payload.eventName === 'AM-TREE-LOGIN-COMPLETED';
+
     const now = Date.now();
     const info = payload.entries?.[0]?.info;
     const line = formatJourneyEvent(payload);
 
     let session = this.sessions.get(transactionId);
     if (!session) {
+      if (!isTreeEvent) return;
       session = {
         transactionId,
         status: 'running',
@@ -255,7 +267,10 @@ export class JourneyDebugAggregator {
   ): void {
     const cached = this.treeCache.get(treeName);
     const now = Date.now();
-    if (cached && (cached.resolved || now - cached.lastAttemptAt < FAILED_LOOKUP_RETRY_MS)) {
+    if (
+      cached &&
+      (cached.resolved || now - cached.lastAttemptAt < FAILED_LOOKUP_RETRY_MS)
+    ) {
       return;
     }
     this.treeCache.set(treeName, {

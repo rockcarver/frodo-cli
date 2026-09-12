@@ -81,6 +81,15 @@ export default function setup() {
 
       let foundCredentials = false;
 
+      if (!state.getHost()) {
+        printMessage(
+          'No host specified. Provide a host URL, or a unique substring/alias identifying a saved connection profile.',
+          'error'
+        );
+        process.exitCode = 1;
+        return;
+      }
+
       const conn = await getConnectionProfile();
       if (conn) state.setHost(conn.tenant);
 
