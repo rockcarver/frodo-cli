@@ -1,8 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { ensureLogApiCredentials } from '../../ops/LogOps';
+import c from '../../utils/ColorTheme';
 import { printMessage } from '../../utils/Console';
 import { runJourneyDebugPrompt } from '../../utils/interactive/JourneyDebugPrompt';
 import { FrodoCommand } from '../FrodoCommand';
@@ -35,10 +37,17 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `Notes:\n` +
-        `  A live, color-coded list of journey executions (running/finished/failed/abandoned), built from the log stream and each tree's own definition. Select one to drill into its node-by-node history. Press Space to pin a session so it's never auto-evicted (e.g. a long-running IDV or magic-link flow); Esc backs out one level, then exits.\n` +
-        `  --journey-id/--user-id only narrow what's *displayed* -- every session is still tracked, cached, and swept for abandonment in the background regardless of whether it currently matches (a --user-id filter's match target, in particular, isn't always known until partway through a run).\n` +
-        `  --user-id also resolves usernames and uuids to each other in the background (e.g. a plain password login records the human username, while some flows -- FRServiceAccountInternal among them -- record a raw uuid), so either form finds a match no matter which one the session was actually recorded under. The resolved counterpart, once found, shows in the list header next to the filter.\n`
+      `Usage Examples:\n` +
+        `  Watch every journey execution on a tenant:\n` +
+        c.command(`  $ frodo debug journey ${s.amBaseUrl}\n`) +
+        `  Watch only executions of the "${s.journeyId}" journey:\n` +
+        c.command(`  $ frodo debug journey -i ${s.journeyId} ${s.connId2}\n`) +
+        `  Watch only journeys involving one user:\n` +
+        c.command(`  $ frodo debug journey -u ${s.username2} ${s.connId2}\n`) +
+        `  Narrow to just that user's runs of the "${s.journeyId}" journey:\n` +
+        c.command(
+          `  $ frodo debug journey -i ${s.journeyId} -u ${s.username2} ${s.connId2}\n`
+        )
     )
     .action(async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);

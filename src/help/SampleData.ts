@@ -29,3 +29,4 @@ export const manyRelationshipPropertyName = 'crewMembers';
 export const relationshipQueryFields = 'userName,givenName,sn';
 export const featureId = 'groups';
 export const loginClientId = 'zion-cli-client';
+export const journeyId = 'ZionLogin';
