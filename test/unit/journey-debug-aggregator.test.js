@@ -23,6 +23,8 @@ let mockReadAuthenticationSettings = async () => ({});
 let mockGetServiceAccount = async () => {
   throw Object.assign(new Error('not found'), { httpStatus: 404 });
 };
+let mockResolveIdentity = async (idOrDn) => ({ id: idOrDn, kind: 'unknown' });
+let mockQueryManagedObjects = async () => [];
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: {
@@ -45,6 +47,18 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
           mockReadAuthenticationSettings(...args),
       },
     },
+    idm: {
+      managed: {
+        resolveIdentity: (...args) => mockResolveIdentity(...args),
+        queryManagedObjects: (...args) => mockQueryManagedObjects(...args),
+      },
+    },
+    utils: {
+      getRealmName: (realm) => realm,
+    },
+  },
+  state: {
+    getRealm: () => 'alpha',
   },
 }));
 
@@ -185,6 +199,8 @@ beforeEach(() => {
   mockGetServiceAccount = async () => {
     throw Object.assign(new Error('not found'), { httpStatus: 404 });
   };
+  mockResolveIdentity = async (idOrDn) => ({ id: idOrDn, kind: 'unknown' });
+  mockQueryManagedObjects = async () => [];
 });
 
 afterEach(() => {
@@ -1121,5 +1137,200 @@ describe('JourneyDebugAggregator - idm-access debug-event correlation', () => {
     await aggregator.poll();
     const [session] = aggregator.getSessions();
     expect(session.events[1].outcome).toBe('FAILED');
+  });
+});
+
+describe('JourneyDebugAggregator - -i/--journey-id and -u/--user-id filtering', () => {
+  test('with no filter, getSessions() returns everything (unchanged default behavior)', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        treeCompletedEvent({ transactionId: 'tx-a', treeName: 'Login' }),
+        treeCompletedEvent({ transactionId: 'tx-b', treeName: 'Registration' }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(2);
+  });
+
+  test('journeyId filters by tree name, case-insensitively, by substring', async () => {
+    const aggregator = new JourneyDebugAggregator({ journeyId: 'login' });
+    mockTailResult = {
+      result: [
+        treeCompletedEvent({ transactionId: 'tx-a', treeName: 'CustomerLoginFlow' }),
+        treeCompletedEvent({ transactionId: 'tx-b', treeName: 'Registration' }),
+      ],
+    };
+    await aggregator.poll();
+    const sessions = aggregator.getSessions();
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0].treeName).toBe('CustomerLoginFlow');
+  });
+
+  test('userId filters by user, case-insensitively, by substring, matching either the raw id or the resolved display name', async () => {
+    const aggregator = new JourneyDebugAggregator({ userId: 'demo' });
+    mockTailResult = {
+      result: [
+        treeCompletedEvent({
+          transactionId: 'tx-a',
+          treeName: 'Login',
+          principal: 'demo-user',
+        }),
+        treeCompletedEvent({
+          transactionId: 'tx-b',
+          treeName: 'Login',
+          principal: 'someone-else',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const sessions = aggregator.getSessions();
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0].user).toBe('demo-user');
+  });
+
+  test('a session whose user has not resolved yet is hidden by a userId filter, not shown or crashed on', async () => {
+    const aggregator = new JourneyDebugAggregator({ userId: 'demo' });
+    mockTailResult = {
+      result: [nodeEvent({ transactionId: 'tx-no-user', treeName: 'Login' })],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(0);
+  });
+
+  test('journeyId and userId combined require both to match', async () => {
+    const aggregator = new JourneyDebugAggregator({
+      journeyId: 'login',
+      userId: 'demo',
+    });
+    mockTailResult = {
+      result: [
+        // Matches journeyId only.
+        treeCompletedEvent({
+          transactionId: 'tx-a',
+          treeName: 'Login',
+          principal: 'someone-else',
+        }),
+        // Matches userId only.
+        treeCompletedEvent({
+          transactionId: 'tx-b',
+          treeName: 'Registration',
+          principal: 'demo-user',
+        }),
+        // Matches both.
+        treeCompletedEvent({
+          transactionId: 'tx-c',
+          treeName: 'Login',
+          principal: 'demo-user',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const sessions = aggregator.getSessions();
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0].transactionId).toBe('tx-c');
+  });
+
+  test('a filtered-out session is still tracked internally -- pinning it by its own transactionId still works', async () => {
+    // Filtering only narrows getSessions()'s return value, never the
+    // internal session map -- see JourneyDebugFilter's own remarks.
+    const aggregator = new JourneyDebugAggregator({ journeyId: 'nomatch' });
+    mockTailResult = {
+      result: [treeCompletedEvent({ transactionId: 'tx-hidden', treeName: 'Login' })],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(0);
+    expect(() => aggregator.togglePin('tx-hidden')).not.toThrow();
+  });
+
+  // Lets the constructor's fire-and-forget resolveUserIdAlias() promise
+  // chain settle before assertions -- confirmed live (volker-dev) that
+  // AM records a plain password login's principal as the human userName
+  // but FRServiceAccountInternal's as a raw uuid, so a filter given only
+  // one form needs this resolution to ever match a session recorded in
+  // the other.
+  const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  test('a uuid-shaped userId resolves to its username via resolveIdentity() and then matches a session recorded by that username', async () => {
+    mockResolveIdentity = async (uuid) => ({
+      id: uuid,
+      kind: 'user',
+      username: 'amos',
+    });
+    const aggregator = new JourneyDebugAggregator({
+      userId: '03f4f90e-d1fa-433d-bc67-6349a8a6ca77',
+    });
+    await flush();
+    expect(aggregator.getResolvedUserIdAlias()).toBe('amos');
+
+    mockTailResult = {
+      result: [
+        treeCompletedEvent({ transactionId: 'tx-a', treeName: 'Login', principal: 'amos' }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(1);
+  });
+
+  test('a plain (non-uuid) userId resolves to its uuid via queryManagedObjects() and then matches a session recorded by that uuid', async () => {
+    mockQueryManagedObjects = async (type, filter) => {
+      expect(type).toBe('alpha_user');
+      expect(filter).toBe('userName eq "amos"');
+      return [{ _id: '03f4f90e-d1fa-433d-bc67-6349a8a6ca77' }];
+    };
+    const aggregator = new JourneyDebugAggregator({ userId: 'amos' });
+    await flush();
+    expect(aggregator.getResolvedUserIdAlias()).toBe(
+      '03f4f90e-d1fa-433d-bc67-6349a8a6ca77'
+    );
+
+    mockTailResult = {
+      result: [
+        treeCompletedEvent({
+          transactionId: 'tx-a',
+          treeName: 'FRServiceAccountInternal',
+          principal: '03f4f90e-d1fa-433d-bc67-6349a8a6ca77',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(1);
+  });
+
+  test('a userId value containing a double-quote never triggers the reverse-lookup query, and matching still falls back to the literal value', async () => {
+    let queried = false;
+    mockQueryManagedObjects = async () => {
+      queried = true;
+      return [];
+    };
+    const aggregator = new JourneyDebugAggregator({ userId: 'a"malicious' });
+    await flush();
+    expect(queried).toBe(false);
+    expect(aggregator.getResolvedUserIdAlias()).toBeUndefined();
+  });
+
+  test('a userId resolution that finds nothing leaves matching literal-only, without throwing', async () => {
+    mockResolveIdentity = async (uuid) => ({ id: uuid, kind: 'unknown' });
+    const aggregator = new JourneyDebugAggregator({
+      userId: '00000000-0000-0000-0000-000000000000',
+    });
+    await flush();
+    expect(aggregator.getResolvedUserIdAlias()).toBeUndefined();
+
+    mockTailResult = {
+      result: [treeCompletedEvent({ transactionId: 'tx-a', treeName: 'Login', principal: 'someone' })],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(0);
+  });
+
+  test('a userId resolution that rejects is swallowed, without throwing or crashing the aggregator', async () => {
+    mockResolveIdentity = async () => {
+      throw new Error('simulated network failure');
+    };
+    expect(
+      () => new JourneyDebugAggregator({ userId: '03f4f90e-d1fa-433d-bc67-6349a8a6ca77' })
+    ).not.toThrow();
+    await flush();
   });
 });

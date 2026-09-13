@@ -80,7 +80,7 @@
  * runtime event stream itself (a real test journey using the node produced
  * an `AM-NODE-LOGIN-COMPLETED` event with no timeout data at all).
  */
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import type { LogEventSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
 
 import {
@@ -95,6 +95,8 @@ const { createLogTailStream } = frodo.cloud.log;
 const { exportJourney } = frodo.authn.journey;
 const { readAuthenticationSettings } = frodo.authn.settings;
 const { getServiceAccount } = frodo.cloud.serviceAccount;
+const { resolveIdentity, queryManagedObjects } = frodo.idm.managed;
+const { getRealmName } = frodo.utils;
 
 // The well-known internal tree AM itself uses for JWT-bearer service-account
 // login (confirmed live against `volker-dev`) -- its `principal` is a raw
@@ -108,6 +110,13 @@ const SERVICE_ACCOUNT_INTERNAL_TREE = 'FRServiceAccountInternal';
 // high-volume and mostly irrelevant to one specific journey's failure, so
 // it's never even considered here.
 const DEBUG_LEVELS_TO_SURFACE = new Set(['WARN', 'ERROR', 'FATAL']);
+
+// Matches a bare managed-object uuid (confirmed live: AIC's own `_id` values,
+// e.g. `03f4f90e-d1fa-433d-bc67-6349a8a6ca77`) -- used to decide which
+// direction to resolve a `-u/--user-id` filter value in, see
+// `resolveUserIdAlias()`.
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type JourneySessionStatus =
   'running' | 'suspended' | 'finished' | 'failed' | 'abandoned';
@@ -242,6 +251,37 @@ type UpdateJourneyTimeoutNodeConfig = {
 };
 
 /**
+ * Narrows which tracked sessions `getSessions()` returns -- e.g.
+ * `frodo debug journey`'s `-i/--journey-id`/`-u/--user-id` options. Both
+ * fields are case-insensitive substring matches (not exact), the same
+ * forgiving convention the MCP server's own `cloud.log.searchEvents`
+ * principal filter already uses -- a user debugging live rarely has the
+ * exact, full tree name or principal UUID memorized or copy-pasted.
+ * Filtering happens only in `getSessions()`, not at ingestion: every
+ * session is still tracked, cached, swept, and evicted normally regardless
+ * of whether it currently matches, so a `userId` filter (whose match target
+ * often isn't known until partway through a run -- see `ingest()`'s own
+ * remarks on `user` enrichment) doesn't have to guess at session-creation
+ * time whether a not-yet-resolved user will turn out to match.
+ *
+ * `userId` specifically also gets a best-effort username<->uuid resolution
+ * (see `resolveUserIdAlias()`) -- confirmed live against `volker-dev` that
+ * which form a session's `user` actually holds is genuinely inconsistent:
+ * a plain password login's `principal` is the human `userName` (e.g.
+ * `"amos"`), while `FRServiceAccountInternal`'s is a raw managed-object
+ * uuid. A user who only has one of the two forms in hand (e.g. a uuid
+ * copied from an unrelated error, or a username from a support ticket)
+ * would otherwise get zero matches against a session recorded in the other
+ * form.
+ */
+export interface JourneyDebugFilter {
+  /** Matched against `JourneySession.treeName`. */
+  journeyId?: string;
+  /** Matched against `JourneySession.user` and `userDisplayName` -- either matching is enough. */
+  userId?: string;
+}
+
+/**
  * Live-updating session aggregator for one `frodo debug journey`
  * run. Owns the deduped tail stream (see `createLogTailStream()` in
  * frodo-lib -- cookie-tracking and redelivery-dedup both live there now,
@@ -258,8 +298,8 @@ export class JourneyDebugAggregator {
   private tailStream = createLogTailStream('am-authentication');
   /**
    * `am-core` and `idm-access` polled as one combined stream (`tail()`'s
-   * `source` param accepts a comma-joined list, same as `frodo debug
-   * --topic all`'s `am-everything,idm-everything`) -- both are correlated
+   * `source` param accepts a comma-joined list, same as `frodo debug all`'s
+   * `am-everything,idm-everything`) -- both are correlated
    * to an already-tracked session the same way (see
    * `resolveDebugSessionKey()`), so one stream/cookie is simpler than two.
    * `ingestDebugEvent()` tells the two payload shapes apart per event (see
@@ -279,6 +319,53 @@ export class JourneyDebugAggregator {
   private sessionAliases = new Map<string, Set<string>>();
   /** Next `JourneyDebugEventEntry.id` to assign per session key -- see that field's own remarks. Cleaned up alongside `trackingIndex`/`sessionAliases` on eviction. */
   private eventSeqCounters = new Map<string, number>();
+
+  /** The `-u/--user-id` filter's resolved counterpart (uuid if given a username, username if given a uuid) once `resolveUserIdAlias()` succeeds -- a one-shot, best-effort, fire-and-forget lookup (there's exactly one filter value for the aggregator's whole lifetime, so no map-based cache like the tree/service-account caches below is needed). `undefined` until/unless resolution succeeds; matching still falls back to the literal filter value regardless. */
+  private resolvedUserIdAlias: string | undefined;
+
+  constructor(private readonly filter: JourneyDebugFilter = {}) {
+    if (this.filter.userId) this.resolveUserIdAlias(this.filter.userId);
+  }
+
+  /**
+   * Best-effort username<->uuid resolution for a `-u/--user-id` filter
+   * value -- see `JourneyDebugFilter`'s own remarks for why this exists.
+   * Fire-and-forget: never awaited, never throws, and a failure (including
+   * simply not finding a match) just leaves `resolvedUserIdAlias`
+   * `undefined`, degrading to literal-only matching rather than breaking
+   * the filter.
+   */
+  private resolveUserIdAlias(userId: string): void {
+    const realm = getRealmName(state.getRealm());
+    if (UUID_REGEX.test(userId)) {
+      // uuid given -- resolve to the username (or service-account/admin
+      // name) it belongs to. Deliberately never throws or warns on "not
+      // found"/permission errors: this is a nice-to-have widening of an
+      // already-working literal filter, not a correctness-critical path.
+      resolveIdentity(userId, realm)
+        .then((identity) => {
+          if (identity.username) this.resolvedUserIdAlias = identity.username;
+        })
+        .catch(() => undefined);
+      return;
+    }
+    // A double-quote would break out of the CREST filter string below --
+    // same filter-injection caution `cloud.log.searchEvents` already takes
+    // (see its own remarks) -- so just skip the reverse-lookup enhancement
+    // for a value that could never legally be a userName anyway.
+    if (userId.includes('"')) return;
+    queryManagedObjects(`${realm}_user`, `userName eq "${userId}"`, ['_id'], 1)
+      .then((results) => {
+        const id = results?.[0]?._id;
+        if (typeof id === 'string') this.resolvedUserIdAlias = id;
+      })
+      .catch(() => undefined);
+  }
+
+  /** The resolved counterpart of the `-u/--user-id` filter value, if resolution has completed -- lets the UI show that the filter got "smarter" than a literal match (e.g. `-u amos` resolving to Amos's uuid) instead of silently widening it with no visible feedback. */
+  getResolvedUserIdAlias(): string | undefined {
+    return this.resolvedUserIdAlias;
+  }
 
   /**
    * Polls once for new events, ingests them, and sweeps for
@@ -340,11 +427,42 @@ export class JourneyDebugAggregator {
     }
   }
 
-  /** Current sessions, most-recently-active first. Empty is a normal, expected state -- not an error. */
+  /**
+   * Current sessions, most-recently-active first, narrowed by `filter` (see
+   * its own remarks) if one was given. Empty is a normal, expected state --
+   * not an error, whether that's because nothing has run yet or because
+   * nothing tracked currently matches the filter.
+   */
   getSessions(): JourneySession[] {
-    return [...this.sessions.values()].sort(
-      (a, b) => b.lastEventAt - a.lastEventAt
-    );
+    const sessions = [...this.sessions.values()];
+    const matching =
+      this.filter.journeyId || this.filter.userId
+        ? sessions.filter((session) => this.matchesFilter(session))
+        : sessions;
+    return matching.sort((a, b) => b.lastEventAt - a.lastEventAt);
+  }
+
+  private matchesFilter(session: JourneySession): boolean {
+    if (this.filter.journeyId) {
+      if (!containsCaseInsensitive(session.treeName, this.filter.journeyId)) {
+        return false;
+      }
+    }
+    if (this.filter.userId) {
+      // Checked against the literal filter value AND its resolved
+      // username<->uuid counterpart (once available) -- see
+      // `resolveUserIdAlias()`'s own remarks.
+      const terms = [this.filter.userId, this.resolvedUserIdAlias].filter(
+        (term): term is string => Boolean(term)
+      );
+      const matchesUser = terms.some(
+        (term) =>
+          containsCaseInsensitive(session.user, term) ||
+          containsCaseInsensitive(session.userDisplayName, term)
+      );
+      if (!matchesUser) return false;
+    }
+    return true;
   }
 
   togglePin(transactionId: string): void {
@@ -991,6 +1109,15 @@ export class JourneyDebugAggregator {
       }
     }
   }
+}
+
+/** `haystack` may legitimately be absent (e.g. `userId` filtering a session whose user hasn't resolved yet) -- that's never a match, not an error. */
+function containsCaseInsensitive(
+  haystack: string | undefined,
+  needle: string
+): boolean {
+  if (!haystack) return false;
+  return haystack.toLowerCase().includes(needle.toLowerCase());
 }
 
 function asNumber(value: unknown): number | undefined {

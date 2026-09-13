@@ -446,9 +446,35 @@ function computeDerivedState(
   };
 }
 
-const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
-  (_config, done) => {
-    const aggregator = useState(() => new JourneyDebugAggregator())[0];
+/** `frodo debug journey`'s `-i/--journey-id`/`-u/--user-id` options, threaded straight through to `JourneyDebugAggregator`'s own filter -- see its remarks for matching semantics. */
+export interface JourneyDebugPromptConfig {
+  journeyId?: string;
+  userId?: string;
+}
+
+/** A short, muted-rendered label describing an active `-i/-u` filter, or `undefined` when neither is set -- shown in the list header/empty-state so a typo'd filter value reads as "nothing matches this filter" rather than looking like a stuck or broken debugger. */
+function describeFilter(
+  config: JourneyDebugPromptConfig,
+  resolvedUserIdAlias?: string
+): string | undefined {
+  const parts: string[] = [];
+  if (config.journeyId) parts.push(`journey~"${config.journeyId}"`);
+  if (config.userId) {
+    // Surfaces the username<->uuid resolution once it lands (see
+    // JourneyDebugAggregator's own remarks) so the filter's extra reach
+    // is visible, not a silent, hard-to-trust widening.
+    parts.push(
+      resolvedUserIdAlias
+        ? `user~"${config.userId}"→"${resolvedUserIdAlias}"`
+        : `user~"${config.userId}"`
+    );
+  }
+  return parts.length ? parts.join(', ') : undefined;
+}
+
+const journeyDebugPromptImpl = createPrompt<void, JourneyDebugPromptConfig>(
+  (config, done) => {
+    const aggregator = useState(() => new JourneyDebugAggregator(config))[0];
     const [sessions, setSessions] = useState<JourneySession[]>([]);
     const [warning, setWarning] = useState<string | undefined>(undefined);
     const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -672,11 +698,18 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
           .join('\n');
       }
 
+      const filterLabel = describeFilter(
+        config,
+        aggregator.getResolvedUserIdAlias()
+      );
+
       if (sessions.length === 0) {
         return [
           `${prefix} ${c.heading('Debugging journeys')}`,
           c.muted(
-            'No journey activity detected yet -- waiting for a journey to start (this can take a few minutes)...'
+            filterLabel
+              ? `No journey activity matching [${filterLabel}] detected yet -- waiting for a match (or check the filter for a typo)...`
+              : 'No journey activity detected yet -- waiting for a journey to start (this can take a few minutes)...'
           ),
           c.muted('(esc exit)'),
           warningLine,
@@ -699,7 +732,7 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
       });
 
       return [
-        `${prefix} ${c.heading('Debugging journeys')} ${c.muted(`(${sessions.length} tracked)`)}`,
+        `${prefix} ${c.heading('Debugging journeys')} ${c.muted(`(${sessions.length} tracked)`)}${filterLabel ? ` ${c.muted(`[${filterLabel}]`)}` : ''}`,
         renderListHeader(listWidths),
         page,
         c.muted(
@@ -729,6 +762,8 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
  * Escape from the top-level list. Assumes `state`/credentials are already
  * set up by the caller (same convention as `frodo debug`'s other topics).
  */
-export async function runJourneyDebugPrompt(): Promise<void> {
-  await journeyDebugPromptImpl({});
+export async function runJourneyDebugPrompt(
+  config: JourneyDebugPromptConfig = {}
+): Promise<void> {
+  await journeyDebugPromptImpl(config);
 }
