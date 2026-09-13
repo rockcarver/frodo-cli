@@ -403,20 +403,42 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
       const runPoll = async () => {
         if (inFlight || cancelled) return;
         inFlight = true;
-        // Reset to this cycle's outcome only -- a warning is a transient
-        // "something went wrong just now" signal, not a permanent banner.
-        // Without this, a single early hiccup (e.g. one export failure)
-        // would stay pinned on screen forever even once later polls
-        // succeed cleanly.
-        let latestWarning: string | undefined;
-        await aggregator.poll((message) => {
-          latestWarning = message;
-        });
-        if (!cancelled) {
-          setWarning(latestWarning);
-          setSessions(aggregator.getSessions());
+        try {
+          // Reset to this cycle's outcome only -- a warning is a
+          // transient "something went wrong just now" signal, not a
+          // permanent banner. Without this, a single early hiccup (e.g.
+          // one export failure) would stay pinned on screen forever
+          // even once later polls succeed cleanly.
+          let latestWarning: string | undefined;
+          await aggregator.poll((message) => {
+            latestWarning = message;
+          });
+          if (!cancelled) {
+            setWarning(latestWarning);
+            setSessions(aggregator.getSessions());
+          }
+        } catch (error) {
+          // aggregator.poll() itself is documented never to throw, but
+          // this is the last line of defense before an uncaught
+          // rejection from this `void`-called, un-awaited function would
+          // otherwise go completely unhandled -- confirmed live that a
+          // long-running debug session left open against real traffic
+          // went totally unresponsive to every key except Escape (which
+          // resolves the prompt directly and needs no re-render to be
+          // visible, unlike every other key, which only updates state
+          // for a re-render this same interval loop drives).
+          if (!cancelled) {
+            setWarning(
+              `debug: unexpected error, will retry -- ${error instanceof Error ? error.message : String(error)}`
+            );
+          }
+        } finally {
+          // In `finally`, not just as the last line of the try block --
+          // otherwise an exception above would leave this stuck `true`
+          // forever, silently no-op-ing every future poll via the guard
+          // at the top even once the error itself stopped recurring.
+          inFlight = false;
         }
-        inFlight = false;
       };
       void runPoll();
       const interval = setInterval(() => void runPoll(), POLL_INTERVAL_MS);

@@ -236,7 +236,30 @@ export class JourneyDebugAggregator {
       );
     }
 
-    await this.sweep(onWarning);
+    // A second, separate try/catch -- not just one wrapping both calls --
+    // deliberately keeps a tail()/ingest() failure from skipping the sweep
+    // (abandoned-detection/eviction should still run even on a poll that
+    // found nothing new). This one exists because `sweep()` not actually
+    // being covered by any catch was a real bug: confirmed live that a
+    // long-running debug session (left open against real admin-console
+    // traffic for many minutes) went completely unresponsive to every key
+    // except Escape -- Escape resolves the prompt directly and needs no
+    // re-render to be visible, but every other key only ever updates state
+    // that a re-render would have to pick up, so once the interval-driven
+    // `poll()` this state depends on silently died from an unhandled
+    // rejection (a `void`-called async function -- see the UI layer's own
+    // `runPoll()` -- has no catch of its own either), the screen froze
+    // while Escape kept working. Whatever specifically threw inside sweep()
+    // that night doesn't need to be identified for this fix to matter --
+    // poll() already documents "Never throws", and this is what actually
+    // makes that true.
+    try {
+      await this.sweep(onWarning);
+    } catch (error) {
+      onWarning?.(
+        `debug: sweep failed, will retry -- ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
   }
 
   /** Current sessions, most-recently-active first. Empty is a normal, expected state -- not an error. */
