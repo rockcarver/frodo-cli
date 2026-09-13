@@ -3,6 +3,7 @@ import {
   type LogApiKey,
   type LogEventPayloadSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
+import type { LogTailStream } from '@rockcarver/frodo-lib/types/ops/cloud/LogOps';
 
 import {
   createTable,
@@ -20,7 +21,7 @@ const {
   getLogApiKeys,
   createLogApiKey,
   fetch,
-  tail,
+  createLogTailStream,
   getDefaultNoiseFilter,
   resolvePayloadLevel,
   deleteLogApiKey: _deleteLogApiKey,
@@ -183,35 +184,29 @@ export async function tailLogs(
   source: string,
   levels: string[],
   txid: string,
-  cookie: string,
-  nf: string[]
+  nf: string[],
+  stream?: LogTailStream
 ) {
   try {
-    const logsObject = await tail(source, cookie);
-    let filteredLogs = [];
+    const tailStream = stream ?? createLogTailStream(source);
+    const events = await tailStream.poll();
     const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
-    if (Array.isArray(logsObject.result)) {
-      filteredLogs = logsObject.result.filter(
-        (el) =>
-          !noiseFilter.includes(
-            (el.payload as LogEventPayloadSkeleton).logger
-          ) &&
-          !noiseFilter.includes(el.type) &&
-          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
-          (typeof txid === 'undefined' ||
-            txid === null ||
-            (el.payload as LogEventPayloadSkeleton).transactionId?.includes(
-              txid
-            ))
-      );
-    }
+    const filteredLogs = events.filter(
+      (el) =>
+        !noiseFilter.includes((el.payload as LogEventPayloadSkeleton).logger) &&
+        !noiseFilter.includes(el.type) &&
+        (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
+        (typeof txid === 'undefined' ||
+          txid === null ||
+          (el.payload as LogEventPayloadSkeleton).transactionId?.includes(txid))
+    );
 
     filteredLogs.forEach((e) => {
       printMessage(JSON.stringify(e), 'data');
     });
 
     setTimeout(() => {
-      tailLogs(source, levels, txid, logsObject.pagedResultsCookie, nf);
+      tailLogs(source, levels, txid, nf, tailStream);
     }, 5000);
   } catch (error) {
     printError(error);

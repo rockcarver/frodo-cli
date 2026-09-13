@@ -5,6 +5,14 @@
  * Mocking mirrors mcp-server-ops.test.js: a minimal `@rockcarver/frodo-lib`
  * surface is mocked before the dynamic import of the module under test,
  * with overridable `mock*` closures reassigned per test.
+ *
+ * `createLogTailStream` (not `tail` directly) is what the aggregator now
+ * calls -- cookie-tracking and redelivery-dedup both moved into frodo-lib's
+ * real implementation (see LogOps.unit.test.ts there for that coverage),
+ * so this file's mock is deliberately a thin, non-deduping pass-through:
+ * whatever `mockTailResult.result` holds is exactly what `poll()` returns,
+ * letting every test below keep asserting on the aggregator's own
+ * ingestion/grouping logic in isolation from that.
  */
 import { jest } from '@jest/globals';
 
@@ -12,12 +20,20 @@ let mockTailResult = { result: [], pagedResultsCookie: undefined };
 let mockTail = async () => mockTailResult;
 let mockExportJourney = async (treeName) => ({ trees: { [treeName]: {} } });
 let mockReadAuthenticationSettings = async () => ({});
+let mockGetServiceAccount = async () => {
+  throw Object.assign(new Error('not found'), { httpStatus: 404 });
+};
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: {
     cloud: {
       log: {
-        tail: (...args) => mockTail(...args),
+        createLogTailStream: () => ({
+          poll: async () => (await mockTail()).result ?? [],
+        }),
+      },
+      serviceAccount: {
+        getServiceAccount: (...args) => mockGetServiceAccount(...args),
       },
     },
     authn: {
@@ -48,12 +64,16 @@ function nodeEvent({
   displayName = 'Username Collector',
   nodeType = 'UsernameCollectorNode',
   nodeOutcome = 'true',
+  principal,
+  trackingIds,
 }) {
   return {
     payload: JSON.stringify({
       component: 'Authentication',
       eventName: 'AM-NODE-LOGIN-COMPLETED',
       transactionId,
+      principal: principal ? [principal] : undefined,
+      trackingIds,
       entries: [
         { info: { treeName, displayName, nodeType, nodeOutcome } },
       ],
@@ -67,6 +87,7 @@ function treeCompletedEvent({
   result = 'SUCCESSFUL',
   failureReason,
   principal,
+  trackingIds,
 }) {
   return {
     payload: JSON.stringify({
@@ -75,6 +96,7 @@ function treeCompletedEvent({
       transactionId,
       result,
       principal: principal ? [principal] : undefined,
+      trackingIds,
       entries: [
         {
           info: {
@@ -109,6 +131,9 @@ beforeEach(() => {
     authenticationSessionsMaxDuration: 5,
     suspendedAuthenticationTimeout: 5,
   });
+  mockGetServiceAccount = async () => {
+    throw Object.assign(new Error('not found'), { httpStatus: 404 });
+  };
 });
 
 afterEach(() => {
@@ -241,6 +266,35 @@ describe('JourneyDebugAggregator - classification', () => {
     );
   });
 
+  test('a generic tree-level failure with no node identity is enriched with the last completed node and its outcome', async () => {
+    // Regression test: confirmed live against a failed `P1P-Login`
+    // social-authentication attempt, where AM's only failure detail was
+    // the bare string "Node processing failed" -- no node id, no node
+    // name, nothing pointing at where in the tree it happened.
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-social-fail',
+          treeName: 'P1P-Login',
+          displayName: 'Login Page',
+          nodeOutcome: 'socialAuthentication',
+        }),
+        treeCompletedEvent({
+          transactionId: 'tx-social-fail',
+          treeName: 'P1P-Login',
+          result: 'FAILED',
+          failureReason: 'Node processing failed',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.failureReason).toBe(
+      'Node processing failed (last completed step: Login Page → socialAuthentication)'
+    );
+  });
+
   test('events are grouped by transactionId, not by tree name', async () => {
     const aggregator = new JourneyDebugAggregator();
     mockTailResult = {
@@ -288,6 +342,17 @@ describe('JourneyDebugAggregator - abandoned detection', () => {
     mockTailResult = { result: [] };
     await aggregator.poll();
     expect(aggregator.getSessions()[0].status).toBe('abandoned');
+  });
+
+  test('a running session exposes its effective abandoned-after duration for the UI to cite', async () => {
+    mockReadAuthenticationSettings = async () => ({
+      authenticationSessionsMaxDuration: 5,
+      suspendedAuthenticationTimeout: 5,
+    });
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = { result: [nodeEvent({ transactionId: 'tx-quiet' })] };
+    await aggregator.poll();
+    expect(aggregator.getSessions()[0].abandonedAfterMinutes).toBe(5);
   });
 
   test('a fresh node event revives a previously-abandoned session back to running', async () => {
@@ -412,5 +477,302 @@ describe('JourneyDebugAggregator - pinning and eviction', () => {
     await aggregator.poll();
     expect(aggregator.getSessions()).toHaveLength(1);
     expect(aggregator.getSessions()[0].pinned).toBe(true);
+  });
+});
+
+describe('JourneyDebugAggregator - user identity precedence', () => {
+  // Regression test: confirmed live against `volker-dev` that a scripted
+  // "Enrich Session"-style node's own internal IDM call logs in as a
+  // service identity (e.g. `idm-provisioning`) under the *same*
+  // transactionId as the real user's journey -- a bare AM-LOGIN-COMPLETED
+  // for that nested call must never clobber a user already established
+  // from this tree's own node/tree events.
+  test('a nested internal login-completed event enriches events but never overrides an already-established user', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-nested',
+          principal: 'real.user@example.com',
+        }),
+        loginCompletedEvent({
+          transactionId: 'tx-nested',
+          principal: 'idm-provisioning',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.user).toBe('real.user@example.com');
+    expect(session.events).toHaveLength(2);
+    expect(session.events[1].step).toBe('Login');
+    expect(session.events[1].outcome).toContain('idm-provisioning');
+  });
+
+  test('a bare login-completed event still fills in the user as a fallback when nothing else is known yet', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-fallback' }),
+        loginCompletedEvent({
+          transactionId: 'tx-fallback',
+          principal: 'fallback-user',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()[0].user).toBe('fallback-user');
+  });
+});
+
+describe('JourneyDebugAggregator - realm settings unavailable', () => {
+  // Regression test: `readAuthenticationSettings()` resolves to `null`
+  // (rather than throwing) when AM reports "This operation is not
+  // available in PingOne Advanced Identity Cloud" -- confirmed live
+  // against `volker-dev`'s realm-level settings. Consuming it without a
+  // null check crashed with "Cannot read properties of null".
+  test('a null result falls back to the default without throwing, and is never retried', async () => {
+    mockReadAuthenticationSettings = async () => null;
+    const aggregator = new JourneyDebugAggregator();
+    const warnings = [];
+    mockTailResult = {
+      result: [nodeEvent({ transactionId: 'tx-nullsettings' })],
+    };
+    await expect(
+      aggregator.poll((m) => warnings.push(m))
+    ).resolves.toBeUndefined();
+    expect(aggregator.getSessions()[0].status).toBe('running');
+    expect(warnings).toEqual([]);
+
+    mockReadAuthenticationSettings = async () => {
+      throw new Error('should not be called again once permanently resolved');
+    };
+    await expect(
+      aggregator.poll((m) => warnings.push(m))
+    ).resolves.toBeUndefined();
+    expect(warnings).toEqual([]);
+  });
+});
+
+describe('JourneyDebugAggregator - service account name resolution', () => {
+  // Regression test: `FRServiceAccountInternal` (AM's own internal
+  // service-account JWT-bearer auth tree) logs a raw service-account UUID
+  // as its principal -- confirmed live against `volker-dev` -- so the list
+  // showed an opaque UUID instead of the account's actual name.
+  test("FRServiceAccountInternal's raw principal UUID resolves to the account's name", async () => {
+    mockGetServiceAccount = async (id) => ({
+      _id: id,
+      name: 'CI Pipeline',
+      description: 'used by the nightly job',
+    });
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-svcacct',
+          treeName: 'FRServiceAccountInternal',
+          principal: 'a2245410-33a6-4442-9f3b-453c9aaf158a',
+        }),
+      ],
+    };
+    await aggregator.poll(); // kicks off resolution (fire-and-forget)
+    await aggregator.poll(); // picks up the now-resolved cache entry
+    const [session] = aggregator.getSessions();
+    expect(session.user).toBe('a2245410-33a6-4442-9f3b-453c9aaf158a');
+    expect(session.userDisplayName).toBe('CI Pipeline');
+  });
+
+  test('an id that does not resolve to a real service account (404) is left unresolved permanently, without warning', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    const warnings = [];
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-svcacct-404',
+          treeName: 'FRServiceAccountInternal',
+          principal: 'not-a-real-service-account',
+        }),
+      ],
+    };
+    await aggregator.poll((m) => warnings.push(m));
+    await aggregator.poll((m) => warnings.push(m));
+    expect(aggregator.getSessions()[0].userDisplayName).toBeUndefined();
+    expect(warnings).toEqual([]);
+  });
+
+  test('a non-FRServiceAccountInternal tree never attempts service-account resolution', async () => {
+    mockGetServiceAccount = async () => {
+      throw new Error('should not be called for a regular journey');
+    };
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-plain',
+          treeName: 'Login',
+          principal: 'vscheuber@gmail.com',
+        }),
+      ],
+    };
+    await expect(aggregator.poll()).resolves.toBeUndefined();
+    expect(aggregator.getSessions()[0].userDisplayName).toBeUndefined();
+  });
+});
+
+describe('JourneyDebugAggregator - cross-transaction correlation (polling nodes)', () => {
+  // Regression test: confirmed live against a real `MultiplePushDevicesExample`
+  // login that AM assigns a *different* transactionId to each polling leg
+  // of a wait-node-based flow, but every leg's events carry the flow's very
+  // first event id in `trackingIds` -- without correlating on that, one real
+  // login showed up as several separate, seemingly-unrelated sessions.
+  const SHARED_TRACKING_ID = 'f90b30c3-f6bc-44a6-aea7-d154585b025a-1633266';
+
+  test('later polling legs under a different transactionId merge into the original session, not a new one', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'leg-3',
+          treeName: 'MultiplePushDevicesExample',
+          displayName: 'Resolve User',
+          principal: 'demo-user',
+          trackingIds: [SHARED_TRACKING_ID],
+        }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(1);
+
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'leg-4',
+          treeName: 'MultiplePushDevicesExample',
+          displayName: 'Send Push',
+          principal: 'demo-user',
+          trackingIds: [SHARED_TRACKING_ID],
+        }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(1);
+    expect(aggregator.getSessions()[0].nodeCount).toBe(2);
+    expect(aggregator.getSessions()[0].lastNode).toBe('Send Push');
+
+    mockTailResult = {
+      result: [
+        treeCompletedEvent({
+          transactionId: 'leg-6',
+          treeName: 'MultiplePushDevicesExample',
+          result: 'SUCCESSFUL',
+          principal: 'demo-user',
+          trackingIds: [SHARED_TRACKING_ID],
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const sessions = aggregator.getSessions();
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0].status).toBe('finished');
+    expect(sessions[0].nodeCount).toBe(2);
+  });
+
+  test('two genuinely unrelated flows with no shared trackingIds stay separate sessions', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-unrelated-a',
+          trackingIds: ['tracking-a'],
+        }),
+        nodeEvent({
+          transactionId: 'tx-unrelated-b',
+          trackingIds: ['tracking-b'],
+        }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(2);
+  });
+
+  test('a plain, non-polling tree with no trackingIds at all is unaffected', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-plain-flow' }),
+        treeCompletedEvent({
+          transactionId: 'tx-plain-flow',
+          result: 'SUCCESSFUL',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const sessions = aggregator.getSessions();
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0].status).toBe('finished');
+  });
+});
+
+describe('JourneyDebugAggregator - event entry structure', () => {
+  // Event entries are kept structured (step/type/outcome), not a
+  // pre-formatted string, so the UI can render them as real table columns.
+  test('a node event produces a structured entry with its display name, type, and outcome', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-struct-node',
+          displayName: 'Platform Username',
+          nodeType: 'ValidatedUsernameNode',
+          nodeOutcome: 'outcome',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [entry] = aggregator.getSessions()[0].events;
+    expect(entry).toMatchObject({
+      step: 'Platform Username',
+      type: 'ValidatedUsernameNode',
+      outcome: 'outcome',
+    });
+  });
+
+  test('a successful tree-completed event produces a "Tree completed" entry with no outcome text', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-struct-tree' }),
+        treeCompletedEvent({
+          transactionId: 'tx-struct-tree',
+          result: 'SUCCESSFUL',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const events = aggregator.getSessions()[0].events;
+    expect(events[1]).toMatchObject({ step: 'Tree completed', type: 'SUCCESSFUL' });
+    expect(events[1].outcome).toBeUndefined();
+  });
+
+  test('a failed tree-completed event carries the same enriched failure text as session.failureReason', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-struct-fail',
+          displayName: 'Login Page',
+          nodeOutcome: 'socialAuthentication',
+        }),
+        treeCompletedEvent({
+          transactionId: 'tx-struct-fail',
+          result: 'FAILED',
+          failureReason: 'Node processing failed',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const session = aggregator.getSessions()[0];
+    expect(session.events[1].outcome).toBe(session.failureReason);
+    expect(session.events[1].outcome).toContain('Login Page → socialAuthentication');
   });
 });

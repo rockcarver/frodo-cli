@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Added
+- Introduced `frodo debug --topic journey`, an interactive, self-updating list of in-flight/recent journey executions (color-coded by status: running/finished/failed/abandoned), built from the log stream and each tree's own definition. (#688)
+  - Select a journey to drill into its node-by-node event history; select an event there to see its full raw detail (fields not shown in the table).
+  - The journey list, its properties block, and the event history all render as aligned tables rather than single lines.
+  - `FRServiceAccountInternal` sessions resolve their raw service-account UUID to the account's real name.
+  - A still-running session gone quiet shows a warning-colored "abandons after ~Xm" estimate, since AM logs nothing further at all once a redirect-style node (social login, SAML, etc.) is reached and the browser never returns.
+  - Space pins/unpins a session so it survives the otherwise-automatic eviction that keeps the tracked-session map bounded (e.g. a long-running IDV or magic-link flow).
+- Added `createLogTailStream()` to `@rockcarver/frodo-lib`'s Log API and switched every log-tailing command (`frodo log tail`, `frodo debug`'s every topic) onto it: a stateful, deduped wrapper around `tail()` that centrally handles the audit-log tail endpoint's own documented redelivery behavior, so no command has to reimplement cookie-tracking or dedup for itself. See `@rockcarver/frodo-lib`'s own changelog for the full detail on why this exists.
+
+### Fixed
+- Fixed `frodo debug --topic journey` sometimes showing the same node/tree-completion events twice (even a "Tree completed" line twice for one real login). Root cause: AM's tail-endpoint documentation is explicit that each poll's range "starts from the last returned log entry in the previous result (inclusive)", and confirmed live that a whole batch can be redelivered verbatim -- sometimes even within one poll's own result array -- with no event id returned on `tail()` results to tell repeats apart with. Now deduped centrally (see `createLogTailStream()` above).
+- Fixed the journey debugger showing a polling-based node (push, and generally any wait-for-callback flow) as several separate, unrelated-looking sessions -- AM assigns a different transaction id to each polling leg, confirmed live against a real `MultiplePushDevicesExample` login; sessions now correlate across legs via the log's own `trackingIds`.
+- Fixed the journey list's cursor: pin/drill-down could act on the wrong row if the list resorted (by most-recent-activity) between a poll and a keypress. The cursor now tracks the session itself, not its position.
+- Fixed a nested internal login sharing a journey's transaction id (e.g. a scripted node's own IDM call, logged in as `idm-provisioning`) being able to override the tracked user identity instead of only filling it in as a fallback.
+- Fixed `frodo debug --topic journey` never establishing an authenticated AM session when the connection profile already had cached Log API credentials (the common case after first use), silently degrading abandoned-detection to a generic fallback instead of the realm's real settings.
+- Fixed a generic AM-level tree failure (no node identity in the audit log at all, e.g. an internal exception in a built-in PingOne Protect node) showing no context whatsoever -- now cites the last node that did complete and the outcome it completed with.
+- Fixed a `null` realm-authentication-settings response (returned instead of thrown when AM reports the operation isn't available) crashing the journey debugger's poll loop instead of falling back to the default.
+- Fixed the journey debugger retrying a permanently-unexportable tree definition (e.g. AM's own internal `FRServiceAccountInternal` tree, which 404s) forever, once every cooldown window, for no benefit.
+
 ## [v4.13.0] - 2026-09-09
 
 ### Added

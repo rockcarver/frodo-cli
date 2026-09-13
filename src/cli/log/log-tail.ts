@@ -58,7 +58,6 @@ export default function setup() {
           command.opts().sources,
           resolveLevel(command.opts().level),
           command.opts().transactionId,
-          null,
           config.getNoiseFilters(options.defaults)
         );
       }

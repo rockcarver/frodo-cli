@@ -2,10 +2,10 @@
  * `frodo debug` — AIC-only, topic-scoped smart log tail (item 25).
  *
  * @remarks
- * Reuses the existing `frodo.cloud.log.tail()` polling primitive (the same
- * one `frodo log tail` already uses) — the new part is classifying each
- * raw audit-log event by topic and rendering it as a short, human-readable
- * line instead of dumping the full raw JSON payload.
+ * Reuses the existing `frodo.cloud.log.createLogTailStream()` polling
+ * primitive (the same one `frodo log tail` already uses) — the new part is
+ * classifying each raw audit-log event by topic and rendering it as a
+ * short, human-readable line instead of dumping the full raw JSON payload.
  *
  * Journey and OAuth transforms below were built against real, live event
  * payloads captured this session against a real AIC tenant (including a
@@ -29,10 +29,11 @@ import type {
   LogEventPayloadSkeleton,
   LogEventSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
+import type { LogTailStream } from '@rockcarver/frodo-lib/types/ops/cloud/LogOps';
 
 import { printError, printMessage } from '../utils/Console';
 
-const { tail } = frodo.cloud.log;
+const { createLogTailStream } = frodo.cloud.log;
 
 export type DebugTopic = 'journey' | 'oauth' | 'saml' | 'sync' | 'all';
 
@@ -65,6 +66,17 @@ export type AuditPayload = LogEventPayloadSkeleton &
     realm?: string;
     principal?: string[];
     userId?: string;
+    /**
+     * Ids of prior events this one causally traces back to. Confirmed live
+     * against a real `MultiplePushDevicesExample` login: AM assigns a
+     * *different* `transactionId` to each polling leg of a wait-node-based
+     * flow (Select Push Device / Send Push / Wait For Push / Verify Push
+     * are each their own leg), but every leg's events still carry the very
+     * first leg's own event id here -- the only field that stays constant
+     * across the whole real login attempt. See
+     * `JourneyDebugAggregator`'s cross-transaction correlation.
+     */
+    trackingIds?: string[];
     entries?: Array<{ info?: JourneyEventInfo & Record<string, unknown> }>;
     http?: {
       request?: { method?: string; path?: string };
@@ -279,25 +291,29 @@ export function formatDebugEvent(
  * Continuously tails and smart-renders logs for one topic, matching
  * `frodo log tail`'s existing recursive-poll pattern (a 5-second interval)
  * — this is not new polling machinery, just a new rendering layer on top
- * of the same `frodo.cloud.log.tail()` primitive.
+ * of `frodo.cloud.log.createLogTailStream()`, the deduped `tail()` wrapper
+ * (cookie-tracking and redelivery-dedup both live centrally in frodo-lib
+ * now -- see its own remarks on why raw `tail()` needs a wrapper at all).
+ * `stream` is only ever passed by this function's own recursive call, to
+ * carry the same stream (and its dedup state) forward across polls rather
+ * than starting a fresh one — external callers always omit it.
  */
 export async function debugTail(
   topic: DebugTopic,
-  cookie?: string
+  stream?: LogTailStream
 ): Promise<void> {
   try {
     const source = DEBUG_TOPIC_SOURCES[topic];
-    const logsObject = await tail(source, cookie);
-    if (Array.isArray(logsObject.result)) {
-      for (const event of logsObject.result) {
-        const line = formatDebugEvent(event, topic);
-        if (line) {
-          printMessage(line, 'data');
-        }
+    const tailStream = stream ?? createLogTailStream(source);
+    const events = await tailStream.poll();
+    for (const event of events) {
+      const line = formatDebugEvent(event, topic);
+      if (line) {
+        printMessage(line, 'data');
       }
     }
     setTimeout(() => {
-      debugTail(topic, logsObject.pagedResultsCookie);
+      debugTail(topic, tailStream);
     }, 5000);
   } catch (error) {
     printError(error);
