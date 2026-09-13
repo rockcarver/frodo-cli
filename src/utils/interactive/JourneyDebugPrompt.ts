@@ -462,7 +462,7 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
             (clampedEventIndex + offset + shownEvents.length) %
             shownEvents.length;
           const nextEvent = shownEvents[nextIndex];
-          setSelectedEventId(nextEvent.id ?? String(nextIndex));
+          setSelectedEventId(nextEvent.id);
         }
         return;
       }
@@ -473,7 +473,7 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
           aggregator.togglePin(detailSession.transactionId);
           setSessions(aggregator.getSessions());
         } else if (isEnterKey(key) && shownEvents.length) {
-          setSelectedEventId(activeEvent?.id ?? String(clampedEventIndex));
+          setSelectedEventId(activeEvent?.id);
           setViewMode('event');
         } else if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
           const offset = isUpKey(key) ? -1 : 1;
@@ -481,7 +481,7 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
             (clampedEventIndex + offset + shownEvents.length) %
             shownEvents.length;
           const nextEvent = shownEvents[nextIndex];
-          setSelectedEventId(nextEvent.id ?? String(nextIndex));
+          setSelectedEventId(nextEvent.id);
         }
         return;
       }

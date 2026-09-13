@@ -73,8 +73,19 @@ export type JourneySessionStatus =
  */
 export interface JourneyDebugEventEntry {
   at: number;
-  /** The raw log event's own `_id`, when present -- lets the UI track a selected event stably (e.g. across the display window sliding as new events arrive) instead of by array index. Absent for e.g. this file's own unit-test mocks. */
-  id?: string;
+  /**
+   * A per-session sequence number (assigned at ingestion, see
+   * `ingest()`), not the raw log event's own id -- confirmed live that
+   * `tail()`-sourced events never carry one at all (unlike `fetch()`'s),
+   * so an earlier version of this field that preferred the raw id left
+   * it permanently `undefined` in the real interactive command, which
+   * silently broke event selection: the UI's fallback selection key was
+   * never actually attached to anything to find again on the next
+   * render, so the cursor could never move off the first row. Always
+   * present and always unique within one session, regardless of the
+   * source event's own shape.
+   */
+  id: string;
   /** Node display name for a node event; a short fixed label ('Tree completed', 'Login') otherwise. */
   step: string;
   /** Node type for a node event; the AM result word (SUCCESSFUL/FAILED) for a tree-completed or login event. */
@@ -202,6 +213,8 @@ export class JourneyDebugAggregator {
    */
   private trackingIndex = new Map<string, string>();
   private sessionAliases = new Map<string, Set<string>>();
+  /** Next `JourneyDebugEventEntry.id` to assign per session key -- see that field's own remarks. Cleaned up alongside `trackingIndex`/`sessionAliases` on eviction. */
+  private eventSeqCounters = new Map<string, number>();
 
   /**
    * Polls once for new events, ingests them, and sweeps for
@@ -280,12 +293,14 @@ export class JourneyDebugAggregator {
     aliases.add(alias);
   }
 
-  /** Removes every alias pointing at `sessionKey` -- called on eviction so `trackingIndex` doesn't grow unbounded alongside sessions the map itself already forgets. */
+  /** Removes every alias pointing at `sessionKey`, and its event-sequence counter -- called on eviction so neither grows unbounded alongside sessions the map itself already forgets. */
   private forgetAliases(sessionKey: string): void {
     const aliases = this.sessionAliases.get(sessionKey);
-    if (!aliases) return;
-    for (const alias of aliases) this.trackingIndex.delete(alias);
-    this.sessionAliases.delete(sessionKey);
+    if (aliases) {
+      for (const alias of aliases) this.trackingIndex.delete(alias);
+      this.sessionAliases.delete(sessionKey);
+    }
+    this.eventSeqCounters.delete(sessionKey);
   }
 
   private ingest(
@@ -356,7 +371,9 @@ export class JourneyDebugAggregator {
       session.user = who;
     }
 
-    const eventId = (event as { _id?: string })._id;
+    const eventSeq = (this.eventSeqCounters.get(sessionKey) ?? 0) + 1;
+    this.eventSeqCounters.set(sessionKey, eventSeq);
+    const eventId = String(eventSeq);
     let entry: JourneyDebugEventEntry | undefined;
     switch (payload.eventName) {
       case 'AM-NODE-LOGIN-COMPLETED': {

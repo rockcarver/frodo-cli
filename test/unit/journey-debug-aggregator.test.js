@@ -775,4 +775,46 @@ describe('JourneyDebugAggregator - event entry structure', () => {
     expect(session.events[1].outcome).toBe(session.failureReason);
     expect(session.events[1].outcome).toContain('Login Page → socialAuthentication');
   });
+
+  // Regression test: `id` used to come from the raw log event's own `_id`,
+  // preferred over a synthesized one. Confirmed live that `tail()`-sourced
+  // events (what the real interactive command actually ingests) never
+  // carry `_id` at all, so `id` was silently always `undefined` in
+  // production -- which broke the UI's up/down event selection entirely,
+  // since its fallback selection key was never actually attached to
+  // anything findable on the next render (the cursor could never leave
+  // the first row). `id` must always be a real, per-session-unique value.
+  test('every event entry gets a real, unique, stable id -- never relying on the raw event having one', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-ids', displayName: 'Step 1' }),
+        nodeEvent({ transactionId: 'tx-ids', displayName: 'Step 2' }),
+        nodeEvent({ transactionId: 'tx-ids', displayName: 'Step 3' }),
+      ],
+    };
+    await aggregator.poll();
+    const { events } = aggregator.getSessions()[0];
+    expect(events.every((e) => typeof e.id === 'string' && e.id.length > 0)).toBe(
+      true
+    );
+    expect(new Set(events.map((e) => e.id)).size).toBe(events.length);
+  });
+
+  test('event ids stay stable and keep incrementing across separate polls for the same session', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [nodeEvent({ transactionId: 'tx-ids-2', displayName: 'Step 1' })],
+    };
+    await aggregator.poll();
+    const firstId = aggregator.getSessions()[0].events[0].id;
+
+    mockTailResult = {
+      result: [nodeEvent({ transactionId: 'tx-ids-2', displayName: 'Step 2' })],
+    };
+    await aggregator.poll();
+    const { events } = aggregator.getSessions()[0];
+    expect(events[0].id).toBe(firstId);
+    expect(events[1].id).not.toBe(firstId);
+  });
 });
