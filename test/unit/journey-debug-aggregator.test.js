@@ -123,6 +123,57 @@ function loginCompletedEvent({ transactionId, principal, result = 'SUCCESSFUL' }
   };
 }
 
+// Shaped like a real `am-core` line (confirmed live against a broken
+// ScriptedDecisionNode) -- deliberately has no `component`/`eventName` at
+// all, unlike the audit-shaped helpers above, since that's exactly how
+// `ingest()` tells the two apart (see its `payload.component !== 'Authentication'`
+// guard).
+function debugLogEvent({
+  transactionId,
+  level = 'WARN',
+  logger = 'org.forgerock.openam.auth.nodes.ScriptedDecisionNode',
+  message = 'error evaluating the script',
+  exception,
+}) {
+  return {
+    payload: JSON.stringify({
+      level,
+      logger,
+      message,
+      exception,
+      transactionId,
+      mdc: { transactionId },
+    }),
+  };
+}
+
+// Shaped like a real `idm-access` line (confirmed live against the same
+// broken ScriptedDecisionNode's `openidm.patch()` call) -- `eventName:
+// 'access'` is what `ingestDebugEvent()` uses to tell this apart from an
+// `am-core` line, and `level` is deliberately always 'INFO' here even for
+// a failed call (see `ingestIdmAccessEvent()`'s own remarks).
+function idmAccessEvent({
+  transactionId,
+  status = 'FAILED',
+  statusCode = '404',
+  method = 'PATCH',
+  path = 'http://idm.fr-platform/openidm/managed/alpha_user/does-not-exist',
+  message = 'No Such Entry: does not exist',
+  reason = 'Not Found',
+  userId = 'idm-provisioning',
+}) {
+  return {
+    payload: JSON.stringify({
+      eventName: 'access',
+      level: 'INFO',
+      transactionId,
+      userId,
+      http: { request: { method, path } },
+      response: { status, statusCode, detail: { message, reason } },
+    }),
+  };
+}
+
 beforeEach(() => {
   mockTailResult = { result: [], pagedResultsCookie: undefined };
   mockTail = async () => mockTailResult;
@@ -263,6 +314,31 @@ describe('JourneyDebugAggregator - classification', () => {
     expect(session.status).toBe('failed');
     expect(session.failureReason).toBe(
       'ReferenceError: "thisVariableDoesNotExist" is not defined (frodo-debug-test-broken-script:2)'
+    );
+  });
+
+  test('a failure reason wrapped in a generic adapter class (e.g. an openidm script call) is unwrapped and HTML-decoded', async () => {
+    // Regression test: confirmed live (openidm.patch() against a
+    // nonexistent managed object from a NextGen-evaluator script) that AM
+    // wraps a non-script-engine exception in `Wrapped <FQCN>: ` rather than
+    // the ScriptException/ExecutionException chain the other test above
+    // covers, and HTML-encodes quotes/equals signs in the message.
+    const aggregator = new JourneyDebugAggregator();
+    const rawFailure =
+      "Wrapped org.forgerock.openam.scripting.wrappers.ResourceExceptionScriptAdapter: No Such Entry: The search base entry &#39;fr-idm-uuid&#61;frodo-debug-does-not-exist-12345,ou&#61;user,o&#61;alpha,o&#61;root,ou&#61;identities&#39; does not exist (FrodoDebugBrokenScript:2)";
+    mockTailResult = {
+      result: [
+        treeCompletedEvent({
+          transactionId: 'tx-openidm-fail',
+          result: 'FAILED',
+          failureReason: rawFailure,
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.failureReason).toBe(
+      "No Such Entry: The search base entry 'fr-idm-uuid=frodo-debug-does-not-exist-12345,ou=user,o=alpha,o=root,ou=identities' does not exist (FrodoDebugBrokenScript:2)"
     );
   });
 
@@ -731,6 +807,7 @@ describe('JourneyDebugAggregator - event entry structure', () => {
     await aggregator.poll();
     const [entry] = aggregator.getSessions()[0].events;
     expect(entry).toMatchObject({
+      source: 'AM',
       step: 'Platform Username',
       type: 'ValidatedUsernameNode',
       outcome: 'outcome',
@@ -816,5 +893,233 @@ describe('JourneyDebugAggregator - event entry structure', () => {
     const { events } = aggregator.getSessions()[0];
     expect(events[0].id).toBe(firstId);
     expect(events[1].id).not.toBe(firstId);
+  });
+});
+
+describe('JourneyDebugAggregator - am-core debug-event correlation', () => {
+  test("a WARN am-core line for the exact transactionId AM gave the journey itself (already carrying its own '/0' suffix) is attached to that session", async () => {
+    // Regression test: confirmed live (2026-09-13) against a real broken
+    // ScriptedDecisionNode that a single-node journey failure's own
+    // `am-authentication` transactionId is *already* `<uuid>/0`, not the
+    // bare `<uuid>` an earlier version of this correlation assumed -- and
+    // `am-core`'s lines for that exact node carry that identical,
+    // unsuffixed-relative-to-itself id. An earlier implementation that
+    // stripped straight down to the bare root before every lookup missed
+    // this exact-match case entirely, since the bare root was never
+    // actually registered in `trackingIndex` -- only `<uuid>/0` was.
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-core-1/0', displayName: 'Scripted Decision' }),
+        debugLogEvent({
+          transactionId: 'tx-core-1/0',
+          level: 'WARN',
+          logger: 'org.forgerock.openam.auth.nodes.ScriptedDecisionNode',
+          message: 'error evaluating the script',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events).toHaveLength(2);
+    expect(session.events[1]).toMatchObject({
+      source: 'AM',
+      // The short class name, not the full FQCN -- see `ingestDebugEvent()`'s
+      // own remarks on why the FQCN is kept in `raw.logger` instead.
+      step: 'ScriptedDecisionNode',
+      type: 'WARN',
+      outcome: 'error evaluating the script',
+    });
+    expect(session.events[1].raw.logger).toBe(
+      'org.forgerock.openam.auth.nodes.ScriptedDecisionNode'
+    );
+  });
+
+  test('an am-core line nested deeper than the tracked transactionId (an internal AM lookup on the same request) still correlates', async () => {
+    // Regression test: confirmed live (an unrelated IdRepo lookup logged on
+    // the very same request as a `<uuid>/0`-keyed session) at `<uuid>/0/0/0`
+    // -- three segments past the *bare* root, but only two past the
+    // session's own real key. `resolveDebugSessionKey()` must walk upward
+    // from the id as given rather than assume any fixed nesting depth.
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-core-deep/0' }),
+        debugLogEvent({
+          transactionId: 'tx-core-deep/0/0/0',
+          level: 'WARN',
+          logger: 'com.sun.identity.idm.server.IdServicesImpl',
+          message: 'Unable to perform operation for the repository',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events).toHaveLength(2);
+    expect(session.events[1].step).toBe('IdServicesImpl');
+  });
+
+  test('an am-core line does not wrongly match a bare root that was never actually the tracked transactionId', async () => {
+    // The mirror image of the two tests above: the tracked session's real
+    // key is `<uuid>/0`, not the bare `<uuid>` -- an am-core line for a
+    // *different* uuid entirely must not be treated as a match just
+    // because stripping happens to eventually reach a bare id.
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-core-real/0' }),
+        debugLogEvent({ transactionId: 'tx-core-unrelated/0', level: 'ERROR' }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events).toHaveLength(1);
+  });
+
+  test('an am-core line whose root transactionId matches no tracked session is silently ignored, never starts one', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        debugLogEvent({ transactionId: 'tx-core-orphan/0', level: 'ERROR' }),
+      ],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(0);
+  });
+
+  test('an INFO-level am-core line is never surfaced, even for an already-tracked session', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-core-info' }),
+        debugLogEvent({
+          transactionId: 'tx-core-info/0',
+          level: 'INFO',
+          message: 'routine, not interesting',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events).toHaveLength(1);
+  });
+
+  test("an am-core line's own exception field is compacted the same way session.failureReason is", async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-core-exc' }),
+        debugLogEvent({
+          transactionId: 'tx-core-exc/0',
+          level: 'ERROR',
+          exception:
+            'javax.script.ScriptException: ReferenceError: "x" is not defined. (script#2) in script at line number 2 at column number 0',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events[1].raw.exception).toBe(
+      'ReferenceError: "x" is not defined (script:2)'
+    );
+  });
+});
+
+describe('JourneyDebugAggregator - idm-access debug-event correlation', () => {
+  test('a FAILED idm-access call nested under an already-tracked transactionId is attached to that session', async () => {
+    // Regression test: confirmed live against the same broken
+    // ScriptedDecisionNode's `openidm.patch()` call.
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-idm-1/0' }),
+        idmAccessEvent({
+          transactionId: 'tx-idm-1/0/0',
+          method: 'PATCH',
+          statusCode: '404',
+          message: "No Such Entry: The search base entry 'x=y' does not exist",
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events).toHaveLength(2);
+    expect(session.events[1]).toMatchObject({
+      source: 'IDM',
+      step: 'IDM PATCH',
+      type: '404',
+      outcome: "No Such Entry: The search base entry 'x=y' does not exist",
+    });
+    expect(session.events[1].raw.actor).toBe('idm-provisioning');
+  });
+
+  test('a SUCCESSFUL idm-access call is never surfaced, even for an already-tracked session', async () => {
+    // The common case, deliberately excluded -- most journey nodes that
+    // touch IDM at all (profile lookups, attribute writes, ...) succeed,
+    // and idm-access logs every one of those at the same 'INFO' level as a
+    // failure, so only `response.status` (not level) can tell them apart.
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-idm-ok/0' }),
+        idmAccessEvent({ transactionId: 'tx-idm-ok/0/0', status: 'SUCCESSFUL' }),
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events).toHaveLength(1);
+  });
+
+  test('an idm-access call whose transactionId matches no tracked session is silently ignored, never starts one', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [idmAccessEvent({ transactionId: 'tx-idm-orphan/0/0' })],
+    };
+    await aggregator.poll();
+    expect(aggregator.getSessions()).toHaveLength(0);
+  });
+
+  test('an idm-access call with no detail.message falls back to detail.reason', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-idm-fallback-1/0' }),
+        {
+          payload: JSON.stringify({
+            eventName: 'access',
+            level: 'INFO',
+            transactionId: 'tx-idm-fallback-1/0/0',
+            response: {
+              status: 'FAILED',
+              statusCode: '404',
+              detail: { reason: 'Not Found' },
+            },
+          }),
+        },
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events[1].outcome).toBe('Not Found');
+  });
+
+  test('an idm-access call with no detail at all falls back to the bare status', async () => {
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-idm-fallback-2/0' }),
+        {
+          payload: JSON.stringify({
+            eventName: 'access',
+            level: 'INFO',
+            transactionId: 'tx-idm-fallback-2/0/0',
+            response: { status: 'FAILED', statusCode: '500' },
+          }),
+        },
+      ],
+    };
+    await aggregator.poll();
+    const [session] = aggregator.getSessions();
+    expect(session.events[1].outcome).toBe('FAILED');
   });
 });

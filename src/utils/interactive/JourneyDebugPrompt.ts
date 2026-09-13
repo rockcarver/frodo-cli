@@ -1,5 +1,5 @@
 /**
- * The interactive list/drill-down view behind `frodo debug --topic journey`.
+ * The interactive list/drill-down view behind `frodo debug journey`.
  *
  * @remarks
  * Built the same way `escapableSelect` (`EscapableSelectPrompt.ts`) is: a
@@ -59,6 +59,9 @@ const QUIET_HINT_AFTER_MS = 3 * POLL_INTERVAL_MS;
 // different statuses come and go, which measuring live would otherwise
 // cause on every poll.
 const STATUS_COL_WIDTH = 9;
+// Fixed the same way STATUS_COL_WIDTH is -- only ever 'AM' or 'IDM'
+// (JourneyDebugEventEntry.source), so there's nothing to measure live.
+const SRC_COL_WIDTH = 3;
 // Caps on the two genuinely unbounded columns (a custom tree name or a
 // username can be arbitrarily long) -- past this, a single outlier would
 // otherwise stretch the whole table wider than the terminal.
@@ -69,6 +72,15 @@ const MAX_USER_COL_WIDTH = 26;
 // can run well past any well-known node type's name length.
 const MAX_STEP_COL_WIDTH = 26;
 const MAX_TYPE_COL_WIDTH = 32;
+// The list row's trailing DETAIL cell (failure reason / last node) is the
+// only column with no fixed right-hand neighbor to bound it, so a long raw
+// AM exception message (confirmed live: a script-adapter failure's message
+// alone ran past 190 chars once its identifiers were spelled out) would
+// otherwise wrap the whole row across terminal lines. `compactFailureReason`
+// already strips the noisy wrapper-class prefix; this is just the last-mile
+// bound so one long outlier can't blow out list-view alignment -- the full,
+// untruncated text is always still one Enter-key away in the detail view.
+const MAX_DETAIL_COL_WIDTH = 60;
 
 /** Truncates to `max` chars with a trailing ellipsis, never silently -- the reader can always tell a value was cut. */
 function truncate(text: string, max: number): string {
@@ -186,9 +198,9 @@ function renderListRow(
 
   const detailCell =
     session.status === 'failed' && session.failureReason
-      ? c.muted(`- ${session.failureReason}`)
+      ? c.muted(`- ${truncate(session.failureReason, MAX_DETAIL_COL_WIDTH)}`)
       : session.lastNode
-        ? c.muted(`@ ${session.lastNode}`)
+        ? c.muted(`@ ${truncate(session.lastNode, MAX_DETAIL_COL_WIDTH)}`)
         : '';
 
   const line = [cursor + pin, statusCell, journeyCell, userCell, ageCell]
@@ -272,7 +284,10 @@ function renderDetail(
     // Column widths measured across just the shown (already-capped) slice
     // -- unlike the list view's widths, this never scrolls, so there's no
     // "widths jump" concern to justify measuring anything wider.
-    let elapsedWidth = 'ELAPSED'.length;
+    // 'TIME', not 'ELAPSED' -- a typical value ('+0s', '+15s') is much
+    // narrower than the 7-char header 'ELAPSED' would force the column to,
+    // leaving distracting blank space ahead of every other column.
+    let elapsedWidth = 'TIME'.length;
     let stepWidth = 'STEP'.length;
     let typeWidth = 'TYPE'.length;
     for (const event of shown) {
@@ -293,7 +308,7 @@ function renderDetail(
     }
     lines.push(
       c.heading(
-        `    ${padCell('ELAPSED', elapsedWidth)} ${padCell('STEP', stepWidth)} ${padCell('TYPE', typeWidth)} OUTCOME`
+        `    ${padCell('TIME', elapsedWidth)} ${padCell('SRC', SRC_COL_WIDTH)} ${padCell('STEP', stepWidth)} ${padCell('TYPE', typeWidth)} OUTCOME`
       )
     );
     shown.forEach((event, index) => {
@@ -302,6 +317,7 @@ function renderDetail(
       const elapsedCell = c.muted(
         padCell(`+${formatElapsed(event.at - session.startedAt)}`, elapsedWidth)
       );
+      const srcCell = c.muted(padCell(event.source, SRC_COL_WIDTH));
       const stepCell = padCell(
         truncate(event.step, MAX_STEP_COL_WIDTH),
         stepWidth
@@ -312,7 +328,7 @@ function renderDetail(
       );
       const outcomeCell = event.outcome ?? '';
       const row =
-        `  ${cursor}${elapsedCell} ${stepCell} ${typeCell} ${outcomeCell}`.trimEnd();
+        `  ${cursor}${elapsedCell} ${srcCell} ${stepCell} ${typeCell} ${outcomeCell}`.trimEnd();
       lines.push(isActive ? c.command(row) : row);
     });
   }
@@ -348,7 +364,10 @@ function renderEventDetail(
   session: JourneySession,
   event: JourneyDebugEventEntry
 ): string {
-  const properties: PropertyRow[] = [{ label: 'Step', value: event.step }];
+  const properties: PropertyRow[] = [
+    { label: 'Step', value: event.step },
+    { label: 'Source', value: event.source },
+  ];
   if (event.type) properties.push({ label: 'Type', value: event.type });
   if (event.outcome)
     properties.push({ label: 'Outcome', value: event.outcome });
@@ -372,6 +391,60 @@ function renderEventDetail(
 }
 
 type ViewMode = 'list' | 'detail' | 'event';
+
+// Pulled out of the render body (see the try/catch around its call site
+// below) so a bad session/event shape can't throw mid-render and take the
+// whole prompt down with it -- every field here is derived, cheaply
+// recomputable state, never a source of truth itself.
+interface DerivedPromptState {
+  clampedActive: number;
+  detailSession: JourneySession | undefined;
+  shownEvents: JourneyDebugEventEntry[];
+  clampedEventIndex: number;
+  activeEvent: JourneyDebugEventEntry | undefined;
+}
+
+const EMPTY_DERIVED_STATE: DerivedPromptState = {
+  clampedActive: 0,
+  detailSession: undefined,
+  shownEvents: [],
+  clampedEventIndex: 0,
+  activeEvent: undefined,
+};
+
+function computeDerivedState(
+  sessions: JourneySession[],
+  activeId: string | undefined,
+  detailId: string | undefined,
+  selectedEventId: string | undefined
+): DerivedPromptState {
+  const activeIndex = activeId
+    ? sessions.findIndex((s) => s.transactionId === activeId)
+    : -1;
+  const clampedActive = sessions.length
+    ? Math.min(Math.max(activeIndex, 0), sessions.length - 1)
+    : 0;
+  const detailSession = detailId
+    ? sessions.find((s) => s.transactionId === detailId)
+    : undefined;
+  const shownEvents = detailSession
+    ? detailSession.events.slice(-MAX_DETAIL_EVENTS)
+    : [];
+  const eventIndex = selectedEventId
+    ? shownEvents.findIndex((e) => e.id === selectedEventId)
+    : -1;
+  const clampedEventIndex = shownEvents.length
+    ? Math.min(Math.max(eventIndex, 0), shownEvents.length - 1)
+    : 0;
+  const activeEvent = shownEvents[clampedEventIndex];
+  return {
+    clampedActive,
+    detailSession,
+    shownEvents,
+    clampedEventIndex,
+    activeEvent,
+  };
+}
 
 const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
   (_config, done) => {
@@ -448,81 +521,110 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
       };
     }, [aggregator]);
 
-    // Re-resolved from `activeId` every render, not carried over as a raw
-    // number -- this is what keeps the cursor glued to the same session
-    // across a resort. Falls back to the top of the list if that session
-    // is no longer tracked at all (e.g. evicted).
-    const activeIndex = activeId
-      ? sessions.findIndex((s) => s.transactionId === activeId)
-      : -1;
-    const clampedActive = sessions.length
-      ? Math.min(Math.max(activeIndex, 0), sessions.length - 1)
-      : 0;
-    const detailSession = detailId
-      ? sessions.find((s) => s.transactionId === detailId)
-      : undefined;
-
-    const shownEvents = detailSession
-      ? detailSession.events.slice(-MAX_DETAIL_EVENTS)
-      : [];
-    const eventIndex = selectedEventId
-      ? shownEvents.findIndex((e) => e.id === selectedEventId)
-      : -1;
-    const clampedEventIndex = shownEvents.length
-      ? Math.min(Math.max(eventIndex, 0), shownEvents.length - 1)
-      : 0;
-    const activeEvent = shownEvents[clampedEventIndex];
+    // Computed through a try/catch, not inline -- @inquirer/core's own
+    // render loop wraps the whole render call in exactly one try/catch and
+    // *rejects the entire prompt* on any exception (confirmed by reading
+    // its source, create-prompt.js): the promise settles, cleanup runs
+    // (readline listeners removed, terminal restored), and whatever key
+    // the user happened to press right around then just goes to their
+    // now-restored shell -- easily mistaken for "Escape got me out",
+    // when actually the app had already silently exited via a rejected
+    // promise. Confirmed live: a long-running session against real
+    // admin-console traffic became unresponsive to every key this way.
+    // useKeypress below needs `clampedActive`/`shownEvents`/etc for its
+    // closure, so if computing them throws, useKeypress must still be
+    // reached with *some* (degraded) values -- never skipped -- since a
+    // render pass that never reaches useKeypress leaves its internal
+    // keypress-handler ref stale, and every later render hitting the same
+    // throw at the same point means it never gets refreshed again.
+    // A caught error is carried in this plain local, not via setState --
+    // setState synchronously re-enters render() (confirmed by reading
+    // use-state.js), so calling it from within the render pass itself
+    // (as opposed to from inside the useKeypress callback below, which is
+    // an event handler and batches updates safely) risks reentrant/
+    // recursive rendering. The error surfaces via the plain fallback
+    // return near the bottom of this same render pass instead.
+    let derived: DerivedPromptState;
+    let derivedError: string | undefined;
+    try {
+      derived = computeDerivedState(
+        sessions,
+        activeId,
+        detailId,
+        selectedEventId
+      );
+    } catch (error) {
+      derived = EMPTY_DERIVED_STATE;
+      derivedError = error instanceof Error ? error.message : String(error);
+    }
+    const {
+      clampedActive,
+      detailSession,
+      shownEvents,
+      clampedEventIndex,
+      activeEvent,
+    } = derived;
 
     useKeypress((key) => {
-      if (done_) return;
-      if (viewMode === 'event') {
+      try {
+        if (done_) return;
+        if (viewMode === 'event') {
+          if (key.name === 'escape') {
+            setViewMode('detail');
+          } else if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
+            const offset = isUpKey(key) ? -1 : 1;
+            const nextIndex =
+              (clampedEventIndex + offset + shownEvents.length) %
+              shownEvents.length;
+            const nextEvent = shownEvents[nextIndex];
+            setSelectedEventId(nextEvent.id);
+          }
+          return;
+        }
+        if (viewMode === 'detail') {
+          if (key.name === 'escape') {
+            setViewMode('list');
+          } else if (isSpaceKey(key) && detailSession) {
+            aggregator.togglePin(detailSession.transactionId);
+            setSessions(aggregator.getSessions());
+          } else if (isEnterKey(key) && shownEvents.length) {
+            setSelectedEventId(activeEvent?.id);
+            setViewMode('event');
+          } else if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
+            const offset = isUpKey(key) ? -1 : 1;
+            const nextIndex =
+              (clampedEventIndex + offset + shownEvents.length) %
+              shownEvents.length;
+            const nextEvent = shownEvents[nextIndex];
+            setSelectedEventId(nextEvent.id);
+          }
+          return;
+        }
+        // list mode
         if (key.name === 'escape') {
+          setDone(true);
+          done();
+        } else if (isEnterKey(key) && sessions.length) {
+          setDetailId(sessions[clampedActive].transactionId);
+          setSelectedEventId(undefined);
           setViewMode('detail');
-        } else if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
-          const offset = isUpKey(key) ? -1 : 1;
-          const nextIndex =
-            (clampedEventIndex + offset + shownEvents.length) %
-            shownEvents.length;
-          const nextEvent = shownEvents[nextIndex];
-          setSelectedEventId(nextEvent.id);
-        }
-        return;
-      }
-      if (viewMode === 'detail') {
-        if (key.name === 'escape') {
-          setViewMode('list');
-        } else if (isSpaceKey(key) && detailSession) {
-          aggregator.togglePin(detailSession.transactionId);
+        } else if (isSpaceKey(key) && sessions.length) {
+          aggregator.togglePin(sessions[clampedActive].transactionId);
           setSessions(aggregator.getSessions());
-        } else if (isEnterKey(key) && shownEvents.length) {
-          setSelectedEventId(activeEvent?.id);
-          setViewMode('event');
-        } else if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
+        } else if ((isUpKey(key) || isDownKey(key)) && sessions.length) {
           const offset = isUpKey(key) ? -1 : 1;
           const nextIndex =
-            (clampedEventIndex + offset + shownEvents.length) %
-            shownEvents.length;
-          const nextEvent = shownEvents[nextIndex];
-          setSelectedEventId(nextEvent.id);
+            (clampedActive + offset + sessions.length) % sessions.length;
+          setActiveId(sessions[nextIndex].transactionId);
         }
-        return;
-      }
-      // list mode
-      if (key.name === 'escape') {
-        setDone(true);
-        done();
-      } else if (isEnterKey(key) && sessions.length) {
-        setDetailId(sessions[clampedActive].transactionId);
-        setSelectedEventId(undefined);
-        setViewMode('detail');
-      } else if (isSpaceKey(key) && sessions.length) {
-        aggregator.togglePin(sessions[clampedActive].transactionId);
-        setSessions(aggregator.getSessions());
-      } else if ((isUpKey(key) || isDownKey(key)) && sessions.length) {
-        const offset = isUpKey(key) ? -1 : 1;
-        const nextIndex =
-          (clampedActive + offset + sessions.length) % sessions.length;
-        setActiveId(sessions[nextIndex].transactionId);
+      } catch (error) {
+        // Safe to setState here (unlike the two render-pass try/catches
+        // above/below) -- this callback runs inside @inquirer/core's own
+        // withUpdates() batching, the same mechanism every other
+        // setState call in this handler already relies on.
+        setWarning(
+          `debug: unexpected error handling key, ignoring -- ${error instanceof Error ? error.message : String(error)}`
+        );
       }
     });
 
@@ -532,37 +634,86 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
 
     const warningLine = warning ? c.warning(warning) : '';
 
-    if (viewMode === 'event' && detailSession && activeEvent) {
-      return [
-        `${prefix} ${c.heading('Event detail')}`,
-        renderEventDetail(detailSession, activeEvent),
-        '',
-        c.muted('(↑↓ select another event · esc back to journey detail)'),
-        warningLine,
-      ]
-        .filter(Boolean)
-        .join('\n');
-    }
+    // Same reasoning as the derived-state try/catch above: any of these
+    // render helpers throwing (a malformed session, a raw event field that
+    // doesn't stringify the way `formatRawValue` expects, ...) must not be
+    // allowed to propagate out of the render call, or @inquirer/core's
+    // `cycle()` rejects the whole prompt promise instead of just this one
+    // frame. Falls back to a plain error line and keeps the prompt alive
+    // for the next poll/keypress to re-render from, rather than exiting.
+    try {
+      if (derivedError) {
+        throw new Error(derivedError);
+      }
 
-    if (viewMode === 'detail' && detailSession) {
+      if (viewMode === 'event' && detailSession && activeEvent) {
+        return [
+          `${prefix} ${c.heading('Event detail')}`,
+          renderEventDetail(detailSession, activeEvent),
+          '',
+          c.muted('(↑↓ select another event · esc back to journey detail)'),
+          warningLine,
+        ]
+          .filter(Boolean)
+          .join('\n');
+      }
+
+      if (viewMode === 'detail' && detailSession) {
+        return [
+          `${prefix} ${c.heading('Journey detail')}`,
+          renderDetail(detailSession, clampedEventIndex),
+          '',
+          c.muted(
+            '(↑↓ select event · enter view event · space pin/unpin · esc back to list)'
+          ),
+          warningLine,
+        ]
+          .filter(Boolean)
+          .join('\n');
+      }
+
+      if (sessions.length === 0) {
+        return [
+          `${prefix} ${c.heading('Debugging journeys')}`,
+          c.muted(
+            'No journey activity detected yet -- waiting for a journey to start (this can take a few minutes)...'
+          ),
+          c.muted('(esc exit)'),
+          warningLine,
+        ]
+          .filter(Boolean)
+          .join('\n');
+      }
+
+      // Measured across every tracked session, not just the visible page --
+      // otherwise columns would visibly resize every time paging brought a
+      // wider (or narrower) value into view.
+      const listWidths = computeListColumnWidths(sessions);
+      const page = usePagination({
+        items: sessions,
+        active: clampedActive,
+        renderItem: ({ item, isActive }) =>
+          renderListRow(item, isActive, listWidths),
+        pageSize: 15,
+        loop: true,
+      });
+
       return [
-        `${prefix} ${c.heading('Journey detail')}`,
-        renderDetail(detailSession, clampedEventIndex),
-        '',
+        `${prefix} ${c.heading('Debugging journeys')} ${c.muted(`(${sessions.length} tracked)`)}`,
+        renderListHeader(listWidths),
+        page,
         c.muted(
-          '(↑↓ select event · enter view event · space pin/unpin · esc back to list)'
+          '(↑↓ navigate · enter drill-down · space pin/unpin · esc exit)'
         ),
         warningLine,
       ]
         .filter(Boolean)
         .join('\n');
-    }
-
-    if (sessions.length === 0) {
+    } catch (error) {
       return [
         `${prefix} ${c.heading('Debugging journeys')}`,
-        c.muted(
-          'No journey activity detected yet -- waiting for a journey to start (this can take a few minutes)...'
+        c.negative(
+          `Internal error rendering this view, will retry on the next update -- ${error instanceof Error ? error.message : String(error)}`
         ),
         c.muted('(esc exit)'),
         warningLine,
@@ -570,29 +721,6 @@ const journeyDebugPromptImpl = createPrompt<void, Record<string, never>>(
         .filter(Boolean)
         .join('\n');
     }
-
-    // Measured across every tracked session, not just the visible page --
-    // otherwise columns would visibly resize every time paging brought a
-    // wider (or narrower) value into view.
-    const listWidths = computeListColumnWidths(sessions);
-    const page = usePagination({
-      items: sessions,
-      active: clampedActive,
-      renderItem: ({ item, isActive }) =>
-        renderListRow(item, isActive, listWidths),
-      pageSize: 15,
-      loop: true,
-    });
-
-    return [
-      `${prefix} ${c.heading('Debugging journeys')} ${c.muted(`(${sessions.length} tracked)`)}`,
-      renderListHeader(listWidths),
-      page,
-      c.muted('(↑↓ navigate · enter drill-down · space pin/unpin · esc exit)'),
-      warningLine,
-    ]
-      .filter(Boolean)
-      .join('\n');
   }
 );
 

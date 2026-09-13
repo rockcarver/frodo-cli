@@ -90,26 +90,99 @@ export type AuditPayload = LogEventPayloadSkeleton &
     };
   };
 
-/** Parses `event.payload`, which the Log API sometimes returns as a JSON string rather than an already-parsed object. */
-export function getAuditPayload(
+/**
+ * The shape of an `am-core` or `idm-access` event -- two genuinely
+ * different payload shapes that `JourneyDebugAggregator` nonetheless polls
+ * as one combined source (see its own remarks on why), so one loose type
+ * covers both rather than forcing an artificial union. `am-core` (confirmed
+ * live) is a flat debug-log line: no `component`/`eventName`/`entries` the
+ * way `AuditPayload` above has, just `level`/`logger`/`message`, an
+ * `exception` stack trace when the line came from one, and a
+ * `transactionId` also mirrored under `mdc.transactionId`. `idm-access`
+ * (confirmed live) is itself an *audit* event, structurally closer to
+ * `AuditPayload` -- `eventName: 'access'` is what distinguishes it from an
+ * `am-core` line -- carrying the IDM REST call's `http.request`,
+ * `response` (status/statusCode/detail), and the calling `userId` (e.g.
+ * `idm-provisioning` for a journey-triggered call), always at `level:
+ * 'INFO'` even when the call itself failed -- `response.status` is the
+ * real success/failure signal, not `level`.
+ */
+export type DebugLogPayload = Record<string, unknown> & {
+  level?: string;
+  logger?: string;
+  message?: string;
+  exception?: string;
+  eventName?: string;
+  http?: { request?: { method?: string; path?: string } };
+  response?: {
+    status?: string;
+    statusCode?: string;
+    detail?: { message?: string; reason?: string; code?: number };
+  };
+  userId?: string;
+  transactionId?: string;
+  timestamp?: string;
+};
+
+/** Parses `event.payload`, which the Log API sometimes returns as a JSON string rather than an already-parsed object -- shared by `getAuditPayload`/`getDebugLogPayload` below, which only differ in the type they assert onto the same raw parse. */
+function parseLogPayload(
   event: LogEventSkeleton
-): AuditPayload | undefined {
+): Record<string, unknown> | undefined {
   if (!event.payload) return undefined;
   if (typeof event.payload === 'string') {
     try {
-      return JSON.parse(event.payload) as AuditPayload;
+      return JSON.parse(event.payload) as Record<string, unknown>;
     } catch {
       return undefined;
     }
   }
-  return event.payload as AuditPayload;
+  return event.payload as Record<string, unknown>;
+}
+
+/** Parses an audit-source (e.g. `am-authentication`) event's payload. */
+export function getAuditPayload(
+  event: LogEventSkeleton
+): AuditPayload | undefined {
+  return parseLogPayload(event) as AuditPayload | undefined;
+}
+
+/** Parses a debug-source (e.g. `am-core`) event's payload -- see `DebugLogPayload`. */
+export function getDebugLogPayload(
+  event: LogEventSkeleton
+): DebugLogPayload | undefined {
+  return parseLogPayload(event) as DebugLogPayload | undefined;
+}
+
+/**
+ * Decodes the numeric/named HTML entities AM's own audit logging encodes a
+ * failure string with (confirmed live: a `ResourceExceptionScriptAdapter`
+ * failure came through as `...entry &#39;fr-idm-uuid=...&#39; does not
+ * exist...`) -- entities are meant for HTML embedding, not a terminal, so
+ * left undecoded every quote/equals/angle-bracket in the message renders as
+ * unreadable `&#39;`/`&#61;` noise. Exported (not just used internally by
+ * `compactFailureReason` below) since `idm-access`'s own `response.detail`
+ * text is worth passing through the same decoding, even though it isn't
+ * wrapped in the Java-exception prefixes `compactFailureReason` also
+ * strips -- confirmed live IDM's own message text isn't HTML-encoded the
+ * way AM's is, but decoding defensively costs nothing (a no-op on already
+ * plain text) and guards against a future IDM version that does encode it.
+ */
+export function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#(\d+);/g, (_match, code) => String.fromCharCode(Number(code)))
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"');
 }
 
 /**
  * Compacts an AM script-execution failure string down to the useful part —
  * the real error type/message and where it happened — dropping the
- * repeated `javax.script.ScriptException`/`ExecutionException` wrapper
- * layers AM's own exception chain always prepends.
+ * repeated `javax.script.ScriptException`/`ExecutionException`/`Wrapped
+ * <FQCN>` wrapper layers AM's own exception chain always prepends, and
+ * decoding the HTML entities AM encodes the message with (see
+ * `decodeHtmlEntities`).
  *
  * @remarks
  * Verified live (2026-09-12, against a deliberately broken
@@ -118,12 +191,17 @@ export function getAuditPayload(
  * `javax.script.ScriptException: java.util.concurrent.ExecutionException:
  * javax.script.ScriptException: ReferenceError: "x" is not defined.
  * (scriptName#2) in scriptName at line number 2 at column number 0` — this
- * extracts `ReferenceError: "x" is not defined (scriptName:2)`.
+ * extracts `ReferenceError: "x" is not defined (scriptName:2)`. A second
+ * script (an `openidm`-binding IDM call against a nonexistent object)
+ * instead wrapped the underlying IDM error as `Wrapped
+ * org.forgerock.openam.scripting.wrappers.ResourceExceptionScriptAdapter:
+ * No Such Entry: ...` — the generic `Wrapped <FQCN>:` prefix strip handles
+ * that shape too, without hardcoding this one adapter class name.
  */
 export function compactFailureReason(raw: string): string {
-  let msg = raw;
+  let msg = decodeHtmlEntities(raw);
   const wrapperPrefix =
-    /^(javax\.script\.ScriptException|java\.util\.concurrent\.ExecutionException):\s*/;
+    /^(?:javax\.script\.ScriptException|java\.util\.concurrent\.ExecutionException):\s*|^Wrapped\s+[\w.$]+:\s*/;
   while (wrapperPrefix.test(msg)) {
     msg = msg.replace(wrapperPrefix, '');
   }

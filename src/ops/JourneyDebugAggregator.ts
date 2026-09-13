@@ -1,5 +1,5 @@
 /**
- * Session-aggregating engine behind `frodo debug --topic journey`'s
+ * Session-aggregating engine behind `frodo debug journey`'s
  * interactive list.
  *
  * @remarks
@@ -29,6 +29,44 @@
  * failure is swallowed and retried on the next poll rather than surfaced as
  * a hard failure -- nothing in here throws.
  *
+ * Also polls `am-core` and `idm-access` (see `debugTailStream`) for lines
+ * correlated to an already-tracked session by transaction id, since AM's
+ * `am-authentication` audit model only ever records `*-COMPLETED` events
+ * (no "node started" event exists at any level) -- a node that throws
+ * mid-execution, or a node's own IDM REST call that fails, leaves nothing
+ * on the audit trail beyond the tree's own terminal failure. `am-core` is
+ * where AM actually logs the failing node's own error messages (confirmed
+ * live against a real `ScriptedDecisionNode` failure: separate lines for
+ * `"error evaluating the script"`, `"An error occurred during scripted
+ * node processing"`, and a `ThreadPoolScriptEvaluator`-logged summary,
+ * each carrying the same underlying Java stack trace as `exception`).
+ * `idm-access` is where a *failed* IDM call a node made shows up (e.g. the
+ * same test's `openidm.patch()` against a nonexistent managed object,
+ * confirmed live as a `PATCH` with `response.status: 'FAILED'` and a
+ * `404` detail) -- correlated the same way, but filtered on
+ * `response.status` instead of a log level (see `ingestIdmAccessEvent()`'s
+ * own remarks on why).
+ *
+ * Neither source's own `transactionId` lines up with the journey's the way
+ * it looks like it should at first -- confirmed live that even the
+ * journey's *own* `am-authentication` transactionId can already be
+ * `<uuid>/0` (not the bare `<uuid>` it's tempting to assume), with an
+ * internal AM lookup on the very same request logged one or more segments
+ * deeper still (`<uuid>/0/0/0`), and the `idm-access` call itself deeper
+ * still again. There's no fixed number of segments that reliably separates
+ * "the session's id" from "the nesting", so `resolveDebugSessionKey()`
+ * walks upward one path segment at a time -- trying the id exactly as
+ * given first, since that's the common single-node-failure case -- rather
+ * than assuming any specific depth. Deliberately never starts a new
+ * session by itself (only `ingest()`'s node/tree events can, via
+ * `resolveSessionKey()`) and only surfaces WARN/ERROR/FATAL am-core lines
+ * -- INFO/DEBUG-level am-core traffic is high-volume and mostly irrelevant
+ * to a specific journey's own failure. `idm-core` (IDM's *own*
+ * debug-level source, the analogue of `am-core`) is deliberately never
+ * polled at all -- confirmed live its lines carry no transactionId
+ * whatsoever (plain `java.util.logging` text), so there would be nothing
+ * to correlate it by.
+ *
  * Abandoned-detection deliberately goes after the realm's own
  * authentication-session lifetime settings
  * (`authenticationSessionsMaxDuration`/`suspendedAuthenticationTimeout`, via
@@ -45,7 +83,13 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import type { LogEventSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
 
-import { compactFailureReason, getAuditPayload } from './DebugLogOps';
+import {
+  compactFailureReason,
+  type DebugLogPayload,
+  decodeHtmlEntities,
+  getAuditPayload,
+  getDebugLogPayload,
+} from './DebugLogOps';
 
 const { createLogTailStream } = frodo.cloud.log;
 const { exportJourney } = frodo.authn.journey;
@@ -58,6 +102,12 @@ const { getServiceAccount } = frodo.cloud.serviceAccount;
 // where resolving `user` to a display name via `getServiceAccount()` is
 // worth the extra lookup.
 const SERVICE_ACCOUNT_INTERNAL_TREE = 'FRServiceAccountInternal';
+
+// `am-core` levels worth surfacing on an already-tracked session -- see
+// this file's own top-level remarks. INFO/DEBUG/TRACE am-core traffic is
+// high-volume and mostly irrelevant to one specific journey's failure, so
+// it's never even considered here.
+const DEBUG_LEVELS_TO_SURFACE = new Set(['WARN', 'ERROR', 'FATAL']);
 
 export type JourneySessionStatus =
   'running' | 'suspended' | 'finished' | 'failed' | 'abandoned';
@@ -86,6 +136,8 @@ export interface JourneyDebugEventEntry {
    * source event's own shape.
    */
   id: string;
+  /** Which system actually emitted this event -- 'AM' for everything from `ingest()` (the `am-authentication` audit trail) and `ingestAmCoreEvent()`; 'IDM' for `ingestIdmAccessEvent()`. Lets the UI show a SRC column so a mixed-source event history (a failure that spans an AM node and the IDM call it made) reads at a glance instead of requiring a drill-down into each row to tell them apart. */
+  source: 'AM' | 'IDM';
   /** Node display name for a node event; a short fixed label ('Tree completed', 'Login') otherwise. */
   step: string;
   /** Node type for a node event; the AM result word (SUCCESSFUL/FAILED) for a tree-completed or login event. */
@@ -190,7 +242,7 @@ type UpdateJourneyTimeoutNodeConfig = {
 };
 
 /**
- * Live-updating session aggregator for one `frodo debug --topic journey`
+ * Live-updating session aggregator for one `frodo debug journey`
  * run. Owns the deduped tail stream (see `createLogTailStream()` in
  * frodo-lib -- cookie-tracking and redelivery-dedup both live there now,
  * not here), the session map, the per-tree journey-definition cache, and
@@ -204,6 +256,18 @@ export class JourneyDebugAggregator {
   private serviceAccountCache = new Map<string, ServiceAccountCacheEntry>();
   private realmSettings: RealmSettingsCacheEntry | undefined;
   private tailStream = createLogTailStream('am-authentication');
+  /**
+   * `am-core` and `idm-access` polled as one combined stream (`tail()`'s
+   * `source` param accepts a comma-joined list, same as `frodo debug
+   * --topic all`'s `am-everything,idm-everything`) -- both are correlated
+   * to an already-tracked session the same way (see
+   * `resolveDebugSessionKey()`), so one stream/cookie is simpler than two.
+   * `ingestDebugEvent()` tells the two payload shapes apart per event (see
+   * `DebugLogPayload`'s own remarks). A separate stream from `tailStream`
+   * above so a failure polling one never blocks the other -- `poll()`
+   * wraps each in its own try/catch for the same reason.
+   */
+  private debugTailStream = createLogTailStream('am-core,idm-access');
   /**
    * Maps any correlation id seen so far (a `transactionId`, or one of an
    * event's `trackingIds`) to the session-key it belongs to -- see
@@ -236,7 +300,21 @@ export class JourneyDebugAggregator {
       );
     }
 
-    // A second, separate try/catch -- not just one wrapping both calls --
+    // Own try/catch, same reasoning as the two below it -- a failure
+    // polling `am-core` specifically must never block `am-authentication`
+    // ingestion or the sweep that follows.
+    try {
+      const debugEvents = await this.debugTailStream.poll();
+      for (const event of debugEvents) {
+        this.ingestDebugEvent(event);
+      }
+    } catch (error) {
+      onWarning?.(
+        `debug: am-core poll failed, will retry -- ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+
+    // A third, separate try/catch -- not just one wrapping every call above --
     // deliberately keeps a tail()/ingest() failure from skipping the sweep
     // (abandoned-detection/eviction should still run even on a poll that
     // found nothing new). This one exists because `sweep()` not actually
@@ -413,6 +491,7 @@ export class JourneyDebugAggregator {
         entry = {
           at: now,
           id: eventId,
+          source: 'AM',
           step: session.lastNode ?? 'node',
           type: info?.nodeType,
           outcome: info?.nodeOutcome,
@@ -451,6 +530,7 @@ export class JourneyDebugAggregator {
         entry = {
           at: now,
           id: eventId,
+          source: 'AM',
           step: 'Tree completed',
           type: payload.result,
           outcome:
@@ -469,6 +549,7 @@ export class JourneyDebugAggregator {
         entry = {
           at: now,
           id: eventId,
+          source: 'AM',
           step: 'Login',
           type: payload.result,
           outcome: `as ${loginWho}`,
@@ -486,15 +567,172 @@ export class JourneyDebugAggregator {
         break;
     }
 
-    if (entry) {
-      session.events.push(entry);
-      if (session.events.length > MAX_EVENTS_PER_SESSION) {
-        session.events.shift();
-      }
-    }
+    if (entry) this.pushEvent(session, entry);
 
     if (session.treeName) this.ensureTreeCached(session.treeName, onWarning);
     this.applyServiceAccountName(session, onWarning);
+  }
+
+  /** Appends to a session's event history, enforcing `MAX_EVENTS_PER_SESSION` -- shared by `ingest()` and `ingestDebugEvent()`. */
+  private pushEvent(
+    session: JourneySession,
+    entry: JourneyDebugEventEntry
+  ): void {
+    session.events.push(entry);
+    if (session.events.length > MAX_EVENTS_PER_SESSION) {
+      session.events.shift();
+    }
+  }
+
+  /**
+   * Resolves an `am-core` line's own (possibly nested) transactionId back
+   * to a tracked session's key, or `undefined` if none matches at any
+   * ancestor level.
+   *
+   * @remarks
+   * Confirmed live (2026-09-13) that a plain, single-node journey failure's
+   * own `am-authentication` transactionId is *already* `<uuid>/0` -- not
+   * the bare `<uuid>` an earlier version of this method assumed -- and the
+   * `am-core` lines for that same failing node carry that identical,
+   * unsuffixed id. Stripping straight down to the bare root (as that
+   * earlier version did) therefore missed this exact-match, single-level
+   * case entirely: `trackingIndex` only ever has `<uuid>/0` registered
+   * (from `resolveSessionKey()`, keyed off the real journey transactionId
+   * as AM reports it), never the bare `<uuid>`. A deeper internal call
+   * (confirmed live: an `IdServicesImpl` lookup on the very same request)
+   * logs one or more *further* segments still -- `<uuid>/0/0/0` in that
+   * case. So the only correct approach is to walk upward one path segment
+   * at a time from the id as given -- trying the exact id first, since
+   * that's the common case -- rather than assume any fixed number of
+   * segments belongs to "the session" versus "the nesting".
+   */
+  private resolveDebugSessionKey(rawTransactionId: string): string | undefined {
+    let candidate = rawTransactionId;
+    for (;;) {
+      const sessionKey = this.trackingIndex.get(candidate);
+      if (sessionKey) return sessionKey;
+      const lastSlash = candidate.lastIndexOf('/');
+      if (lastSlash === -1) return undefined;
+      candidate = candidate.slice(0, lastSlash);
+    }
+  }
+
+  /**
+   * Resolves `transactionId` to a tracked session (via
+   * `resolveDebugSessionKey()`) and, if found, bumps its `lastEventAt` and
+   * assigns the next event-sequence id for it -- the bookkeeping shared by
+   * `ingestAmCoreEvent()`/`ingestIdmAccessEvent()`, factored out so neither
+   * has to repeat it. Returns `undefined` (doing nothing else) for an
+   * untracked/unrecognized transactionId -- callers rely on this to know
+   * whether to build and attach an entry at all.
+   */
+  private beginDebugEvent(
+    transactionId: string | undefined
+  ): { session: JourneySession; eventId: string } | undefined {
+    if (!transactionId) return undefined;
+    const sessionKey = this.resolveDebugSessionKey(transactionId);
+    if (!sessionKey) return undefined;
+    const session = this.sessions.get(sessionKey);
+    if (!session) return undefined;
+
+    session.lastEventAt = Date.now();
+    const eventSeq = (this.eventSeqCounters.get(sessionKey) ?? 0) + 1;
+    this.eventSeqCounters.set(sessionKey, eventSeq);
+    return { session, eventId: String(eventSeq) };
+  }
+
+  /**
+   * Enriches an already-tracked session with one `am-core` WARN/ERROR/FATAL
+   * line -- see this file's own top-level remarks for why `am-core` is
+   * polled at all. Never creates a session and never touches
+   * `status`/`terminalAt` -- this is enrichment of an already-classified
+   * session, never itself a classification signal.
+   */
+  private ingestAmCoreEvent(payload: DebugLogPayload): void {
+    if (!payload.level || !DEBUG_LEVELS_TO_SURFACE.has(payload.level)) return;
+    const begun = this.beginDebugEvent(payload.transactionId);
+    if (!begun) return;
+
+    // AM's own `logger` is a full Java FQCN (e.g.
+    // `org.forgerock.openam.auth.nodes.ScriptedDecisionNode`) -- the
+    // meaningful part is the last segment, unlike every other `step` value
+    // this UI shows (a node display name, "Tree completed", "Login"), so
+    // showing the FQCN as-is would both look out of place and, once the
+    // STEP column's own truncation kicks in, get cut from the *wrong* end
+    // (a Java FQCN's useful part is at the end, not the start). The full
+    // FQCN is kept in `raw` for the drill-down, never discarded.
+    const shortLogger = payload.logger?.split('.').pop();
+
+    this.pushEvent(begun.session, {
+      at: Date.now(),
+      id: begun.eventId,
+      source: 'AM',
+      step: shortLogger ?? 'am-core',
+      type: payload.level,
+      outcome: payload.message,
+      raw: pickDefined({
+        logger: payload.logger,
+        exception: payload.exception
+          ? compactFailureReason(payload.exception)
+          : undefined,
+      }),
+    });
+  }
+
+  /**
+   * Enriches an already-tracked session with one *failed* `idm-access`
+   * call -- e.g. the `openidm.patch()` a script node made, or any other
+   * IDM REST call a journey node triggers. Only a failure is ever
+   * surfaced: `idm-access` is itself an audit log of *every* call
+   * (confirmed live it's always logged at `level: 'INFO'`, success or
+   * failure alike -- unlike `am-core`, level tells you nothing here), and a
+   * successful managed-object read/write is an extremely common, routine
+   * part of many journey nodes -- surfacing those too would flood every
+   * session's event list with noise instead of signal. `response.status`
+   * (confirmed live: `'SUCCESSFUL'` vs `'FAILED'`) is the real signal.
+   */
+  private ingestIdmAccessEvent(payload: DebugLogPayload): void {
+    const status = payload.response?.status;
+    if (!status || status === 'SUCCESSFUL') return;
+    const begun = this.beginDebugEvent(payload.transactionId);
+    if (!begun) return;
+
+    const method = payload.http?.request?.method;
+    const outcome =
+      payload.response?.detail?.message ??
+      payload.response?.detail?.reason ??
+      status;
+
+    this.pushEvent(begun.session, {
+      at: Date.now(),
+      id: begun.eventId,
+      source: 'IDM',
+      step: method ? `IDM ${method}` : 'IDM',
+      type: payload.response?.statusCode,
+      outcome: decodeHtmlEntities(outcome),
+      raw: pickDefined({
+        path: payload.http?.request?.path,
+        actor: payload.userId,
+      }),
+    });
+  }
+
+  /**
+   * Dispatches one `am-core`/`idm-access` combined-stream event to the
+   * right handler -- `eventName: 'access'` is what distinguishes an
+   * `idm-access` line from an `am-core` one (see `DebugLogPayload`'s own
+   * remarks); everything else here is a no-op by construction, since both
+   * handlers already silently ignore anything that isn't a tracked,
+   * surfaceable failure.
+   */
+  private ingestDebugEvent(event: LogEventSkeleton): void {
+    const payload = getDebugLogPayload(event);
+    if (!payload) return;
+    if (payload.eventName === 'access') {
+      this.ingestIdmAccessEvent(payload);
+    } else {
+      this.ingestAmCoreEvent(payload);
+    }
   }
 
   /** Resolves `session.user` to `session.userDisplayName` when it's a `FRServiceAccountInternal` service-account UUID -- see `ensureServiceAccountCached`. Applies whatever's already cached immediately; kicks off resolution if not yet attempted (fire-and-forget, picked up next time this or `sweep()` runs). */
