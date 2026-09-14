@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [v4.14.0] - 2026-09-14
+
 ### Added
 - Introduced `frodo debug`, an experimental command for interactively debugging Identity Cloud activity, with one subcommand per functional area: `journey`, `oauth`, `saml`, `sync`, `all`. Each topic owns its own command, so topic-specific options (e.g. a future `-i/--journey-id` or `-u/--user-id` on `journey`) can live directly on it rather than being conditionally validated against an unrelated topic. `oauth`/`saml`/`sync`/`all` print a smart-filtered passive log tail; `journey` (below) is the interactive session debugger.
 - Introduced `frodo debug journey`, an interactive, self-updating list of in-flight/recent journey executions (color-coded by status: running/finished/failed/abandoned), built from the log stream and each tree's own definition. (#688)
@@ -24,6 +26,13 @@
 - Fixed a `null` realm-authentication-settings response (returned instead of thrown when AM reports the operation isn't available) crashing the journey debugger's poll loop instead of falling back to the default.
 - Fixed the journey debugger retrying a permanently-unexportable tree definition (e.g. AM's own internal `FRServiceAccountInternal` tree, which 404s) forever, once every cooldown window, for no benefit.
 - Fixed a rendering exception anywhere in the journey debugger's UI (a malformed session/event shape, for instance) silently killing the whole interactive prompt instead of just that one frame -- confirmed live a long-running session could go completely unresponsive to every key except Escape. Now caught and shown as an inline error, with the prompt still running for the next poll/keypress.
+
+- Introduced commands to manage additional service accounts: `conn-service-account-add`, `conn-service-account-describe`, `conn-service-account-list`, and `conn-service-account-remove`. (#691)
+- Added external-IDP "shared mode" with claim-to-credential mapping and OAuth 2.1 resource-server "shared mode" for HTTP transport. (#691)
+- Added timestamps to MCP server debug log lines for improved traceability. (#691)
+
+### Updated
+- Updated `@rockcarver/frodo-lib` to version 4.8.5, incorporating the latest bug fixes and performance improvements for better CLI stability. (commit a7e0b86d)
 
 ## [v4.13.0] - 2026-09-09
 
