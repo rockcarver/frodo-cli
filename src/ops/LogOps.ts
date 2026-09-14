@@ -3,6 +3,7 @@ import {
   type LogApiKey,
   type LogEventPayloadSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
+import type { LogTailStream } from '@rockcarver/frodo-lib/types/ops/cloud/LogOps';
 
 import {
   createTable,
@@ -14,17 +15,85 @@ import {
   succeedSpinner,
   verboseMessage,
 } from '../utils/Console';
+import { getTokens } from './AuthenticateOps';
 
 const {
   getLogApiKeys,
   createLogApiKey,
   fetch,
-  tail,
+  createLogTailStream,
   getDefaultNoiseFilter,
   resolvePayloadLevel,
   deleteLogApiKey: _deleteLogApiKey,
   deleteLogApiKeys: _deleteLogApiKeys,
 } = frodo.cloud.log;
+const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
+
+/**
+ * Resolves and applies Log API credentials onto `state`, in priority
+ * order: explicit username/password on the command line, an existing
+ * connection profile's saved log API key/secret, environment variables,
+ * or (if the profile has admin username/password instead) provisioning a
+ * fresh log API key on the fly. Shared by `frodo log tail` and
+ * `frodo debug` — both need exactly this bootstrap before they can call
+ * the Log API at all.
+ * @returns whether usable Log API credentials ended up on `state`.
+ */
+export async function ensureLogApiCredentials(
+  deploymentTypes: string[]
+): Promise<boolean> {
+  // Fail fast and clearly on a genuinely absent host -- unlike getTokens()'s
+  // implicit path, this bootstrap resolves a connection profile directly
+  // and has no guard of its own otherwise, so a missing host would
+  // silently fall through to whatever profile matches an empty search
+  // instead of reporting the real problem before any network call.
+  if (!state.getHost()) {
+    printMessage(
+      'No host specified. Provide a host URL, or a unique substring/alias identifying a saved connection profile.',
+      'error'
+    );
+    return false;
+  }
+  const conn = await getConnectionProfile();
+  if (conn) state.setHost(conn.tenant);
+
+  if (state.getUsername() && state.getPassword()) {
+    verboseMessage(`Using log api credentials from command line.`);
+    state.setLogApiKey(state.getUsername());
+    state.setLogApiSecret(state.getPassword());
+    return true;
+  }
+  if (conn && conn.logApiKey != null && conn.logApiSecret != null) {
+    verboseMessage(`Using log api credentials from connection profile.`);
+    state.setLogApiKey(conn.logApiKey);
+    state.setLogApiSecret(conn.logApiSecret);
+    return true;
+  }
+  if (state.getLogApiKey() && state.getLogApiSecret()) {
+    verboseMessage(`Using log api credentials from environment variables.`);
+    return true;
+  }
+  if (conn && conn.username && conn.password) {
+    printMessage(
+      `Found admin credentials in connection profile, attempting to create log api credentials...`
+    );
+    state.setUsername(conn.username);
+    state.setPassword(conn.password);
+    if (await getTokens(true, true, deploymentTypes)) {
+      const creds = await provisionCreds();
+      state.setLogApiKey(creds.api_key_id as string);
+      state.setLogApiSecret(creds.api_key_secret as string);
+      try {
+        await saveConnectionProfile(state.getHost());
+      } catch (error) {
+        printError(error);
+      }
+      return true;
+    }
+    printMessage(`Unable to create log api credentials.`);
+  }
+  return false;
+}
 
 export async function listLogApiKeys(long = false): Promise<boolean> {
   let outcome = false;
@@ -115,35 +184,29 @@ export async function tailLogs(
   source: string,
   levels: string[],
   txid: string,
-  cookie: string,
-  nf: string[]
+  nf: string[],
+  stream?: LogTailStream
 ) {
   try {
-    const logsObject = await tail(source, cookie);
-    let filteredLogs = [];
+    const tailStream = stream ?? createLogTailStream(source);
+    const events = await tailStream.poll();
     const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
-    if (Array.isArray(logsObject.result)) {
-      filteredLogs = logsObject.result.filter(
-        (el) =>
-          !noiseFilter.includes(
-            (el.payload as LogEventPayloadSkeleton).logger
-          ) &&
-          !noiseFilter.includes(el.type) &&
-          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
-          (typeof txid === 'undefined' ||
-            txid === null ||
-            (el.payload as LogEventPayloadSkeleton).transactionId?.includes(
-              txid
-            ))
-      );
-    }
+    const filteredLogs = events.filter(
+      (el) =>
+        !noiseFilter.includes((el.payload as LogEventPayloadSkeleton).logger) &&
+        !noiseFilter.includes(el.type) &&
+        (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
+        (typeof txid === 'undefined' ||
+          txid === null ||
+          (el.payload as LogEventPayloadSkeleton).transactionId?.includes(txid))
+    );
 
     filteredLogs.forEach((e) => {
       printMessage(JSON.stringify(e), 'data');
     });
 
     setTimeout(() => {
-      tailLogs(source, levels, txid, logsObject.pagedResultsCookie, nf);
+      tailLogs(source, levels, txid, nf, tailStream);
     }, 5000);
   } catch (error) {
     printError(error);

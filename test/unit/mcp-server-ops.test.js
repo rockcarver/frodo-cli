@@ -23,6 +23,23 @@ const { request: httpRequest } = http;
 // The launcher test below needs fs/os/path; `path` is also used by the
 // resolveMcpAuthTokenValue import at line ~330 in its own scope.
 
+// Overridable per-test; buildAmTokenInfoVerifier's tests reassign this.
+let mockGetTokenInfo = async () => {
+  throw new Error('getTokenInfo mock not configured');
+};
+// Overridable per-test; buildRequestContext's bearer-token tests reassign
+// these. Every other existing test in this file relies on the undefined
+// default (no host configured).
+let mockStateHost;
+let mockStateDeploymentType;
+// Overridable per-test; external-IDP verifier/resolver tests reassign these.
+let mockVerifyJwtAgainstJwks = async () => {
+  throw new Error('verifyJwtAgainstJwks mock not configured');
+};
+let mockGetAdditionalServiceAccount = async () => {
+  throw new Error('getAdditionalServiceAccount mock not configured');
+};
+
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   getRealmFromContext: () => undefined,
   resolveRequestScopedFrodo: async (_context, frodoSingleton) => frodoSingleton,
@@ -35,16 +52,32 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
       getTokens: async () => ({}),
       getTokensInteractive: async () => ({}),
     },
-    utils: { constants: { DEPLOYMENT_TYPES: [] } },
+    oauth2oidc: {
+      endpoint: {
+        getTokenInfo: (...args) => mockGetTokenInfo(...args),
+      },
+    },
+    conn: {
+      getAdditionalServiceAccount: (...args) =>
+        mockGetAdditionalServiceAccount(...args),
+    },
+    utils: {
+      constants: { DEPLOYMENT_TYPES: [] },
+      jose: {
+        verifyJwtAgainstJwks: (...args) => mockVerifyJwtAgainstJwks(...args),
+      },
+    },
   },
   state: {
-    getHost: () => undefined,
+    // Overridable by buildRequestContext's bearer-token tests; every other
+    // existing test in this file relies on the undefined default.
+    getHost: () => mockStateHost,
     getRealm: () => undefined,
     getServiceAccountId: () => undefined,
     getServiceAccountJwk: () => undefined,
     getUsername: () => undefined,
     getPassword: () => undefined,
-    getDeploymentType: () => undefined,
+    getDeploymentType: () => mockStateDeploymentType,
     getAllowInsecureConnection: () => false,
     getDebug: () => false,
     getCurlirize: () => false,
@@ -72,12 +105,18 @@ jest.unstable_mockModule('../../src/utils/Version', () => ({
 }));
 
 const {
+  buildAmOAuthMetadata,
+  buildAmTokenInfoVerifier,
+  buildClaimMappedCredentialResolver,
+  buildExternalIdpVerifier,
+  buildRequestContext,
   computeHttpAllowedHosts,
   isLoopbackBindHost,
   registerServerCrashHandlers,
   startHttpTransport,
   validateHttpRequestMetadata,
   verifyMcpBearerAuthorization,
+  verifyMcpOAuthBearerToken,
 } = await import('../../src/ops/McpServerOps.ts');
 
 // ---------------------------------------------------------------------------
@@ -2696,5 +2735,320 @@ describe('heartbeat interval resolution (resolveMcpHttpHeartbeatInterval)', () =
     expect(resolveMcpHttpHeartbeatInterval(undefined, '0')).toBe(FIFTEEN_MIN);
     expect(resolveMcpHttpHeartbeatInterval(undefined, 'abc')).toBe(FIFTEEN_MIN);
     expect(resolveMcpHttpHeartbeatInterval(undefined, '')).toBe(FIFTEEN_MIN);
+  });
+});
+
+describe('OAuth resource-server mode ("shared mode")', () => {
+  const amBaseUrl = 'https://openam-example.forgeblocks.com/am';
+
+  afterEach(() => {
+    mockStateHost = undefined;
+    mockStateDeploymentType = undefined;
+  });
+
+  describe('buildAmOAuthMetadata', () => {
+    test('builds RFC 8414 metadata from the tenant\'s known endpoint scheme', () => {
+      const metadata = buildAmOAuthMetadata(amBaseUrl);
+
+      expect(metadata.issuer).toBe(`${amBaseUrl}/oauth2`);
+      expect(metadata.authorization_endpoint).toBe(`${amBaseUrl}/oauth2/authorize`);
+      expect(metadata.token_endpoint).toBe(`${amBaseUrl}/oauth2/access_token`);
+      expect(metadata.jwks_uri).toBe(`${amBaseUrl}/oauth2/connect/jwk_uri`);
+      expect(metadata.response_types_supported).toEqual(['code']);
+    });
+  });
+
+  describe('buildAmTokenInfoVerifier', () => {
+    test('maps a valid tokeninfo response to AuthInfo', async () => {
+      mockGetTokenInfo = async (calledAmBaseUrl, config) => {
+        expect(calledAmBaseUrl).toBe(amBaseUrl);
+        expect(config.headers.Authorization).toBe('Bearer real-token');
+        return {
+          sub: 'jdoe',
+          aud: 'some-mcp-client',
+          scope: ['fr:idm:*'],
+          exp: 1893456000,
+          realm: '/',
+          tokenName: 'access_token',
+        };
+      };
+
+      const verifier = buildAmTokenInfoVerifier(amBaseUrl);
+      const authInfo = await verifier.verifyAccessToken('real-token');
+
+      expect(authInfo).toEqual({
+        token: 'real-token',
+        clientId: 'some-mcp-client',
+        scopes: ['fr:idm:*'],
+        expiresAt: 1893456000,
+        extra: {
+          sub: 'jdoe',
+          realm: '/',
+          tokenName: 'access_token',
+          sessionToken: undefined,
+        },
+      });
+    });
+
+    test('throws an OAuthError(invalid_token) when the tenant rejects the token', async () => {
+      mockGetTokenInfo = async () => {
+        throw new Error('401 from AM');
+      };
+
+      const verifier = buildAmTokenInfoVerifier(amBaseUrl);
+
+      await expect(verifier.verifyAccessToken('bad-token')).rejects.toMatchObject({
+        code: 'invalid_token',
+      });
+    });
+  });
+
+  describe('verifyMcpOAuthBearerToken', () => {
+    test('returns AuthInfo for a valid Authorization header', async () => {
+      mockGetTokenInfo = async () => ({
+        sub: 'jdoe',
+        aud: 'client',
+        scope: ['fr:idm:*'],
+        exp: 1893456000,
+        realm: '/',
+      });
+
+      const authInfo = await verifyMcpOAuthBearerToken('Bearer real-token', {
+        verifier: buildAmTokenInfoVerifier(amBaseUrl),
+        oauthMetadata: buildAmOAuthMetadata(amBaseUrl),
+        resourceServerUrl: new URL('http://127.0.0.1:6277/mcp'),
+      });
+
+      expect(authInfo.token).toBe('real-token');
+      expect(authInfo.scopes).toEqual(['fr:idm:*']);
+    });
+
+    test('rejects a missing Authorization header', async () => {
+      await expect(
+        verifyMcpOAuthBearerToken(undefined, {
+          verifier: buildAmTokenInfoVerifier(amBaseUrl),
+          oauthMetadata: buildAmOAuthMetadata(amBaseUrl),
+          resourceServerUrl: new URL('http://127.0.0.1:6277/mcp'),
+        })
+      ).rejects.toMatchObject({ code: 'invalid_token' });
+    });
+  });
+
+  describe('buildRequestContext bearer-token branch', () => {
+    test('an authInfo argument wins outright, building a bearer-token auth context', () => {
+      mockStateHost = amBaseUrl;
+      mockStateDeploymentType = 'cloud';
+
+      const context = buildRequestContext(undefined, undefined, {
+        token: 'caller-token',
+        clientId: 'client',
+        scopes: ['fr:idm:*'],
+        expiresAt: 1893456000,
+        extra: { sessionToken: 'am-session-id' },
+      });
+
+      expect(context.auth).toEqual({
+        mode: 'bearer-token',
+        host: amBaseUrl,
+        accessToken: 'caller-token',
+        scope: 'fr:idm:*',
+        expiresAt: 1893456000 * 1000,
+        sessionId: 'am-session-id',
+        realm: undefined,
+        deploymentType: 'cloud',
+        allowInsecureConnection: false,
+        debug: false,
+        curlirize: false,
+      });
+    });
+
+    test('with no authInfo, falls back to the existing ambient-state resolution (state-config)', () => {
+      mockStateHost = undefined;
+
+      const context = buildRequestContext();
+
+      expect(context.auth.mode).toBe('state-config');
+    });
+
+    test('a resolved claim-mapped service account wins over the bearer-token branch', () => {
+      mockStateHost = 'https://openam-example.forgeblocks.com/am';
+      mockStateDeploymentType = 'cloud';
+
+      const context = buildRequestContext(undefined, undefined, {
+        token: 'external-idp-token',
+        clientId: 'external-client',
+        scopes: [],
+        extra: {
+          resolvedServiceAccountId: 'sa-id-1',
+          resolvedServiceAccountJwk: { kty: 'RSA', kid: 'k1' },
+        },
+      });
+
+      expect(context.auth).toEqual({
+        mode: 'service-account',
+        host: 'https://openam-example.forgeblocks.com/am',
+        serviceAccountId: 'sa-id-1',
+        serviceAccountJwk: JSON.stringify({ kty: 'RSA', kid: 'k1' }),
+        realm: undefined,
+        deploymentType: 'cloud',
+        allowInsecureConnection: false,
+        debug: false,
+        curlirize: false,
+      });
+    });
+  });
+
+  describe('buildExternalIdpVerifier (external-IDP "shared mode")', () => {
+    const oauthMetadata = {
+      issuer: 'https://login.example.com/tenant/v2.0',
+      authorization_endpoint: 'https://login.example.com/tenant/v2.0/authorize',
+      token_endpoint: 'https://login.example.com/tenant/v2.0/token',
+      response_types_supported: ['code'],
+    };
+    const jwks = { keys: [] };
+
+    afterEach(() => {
+      mockVerifyJwtAgainstJwks = async () => {
+        throw new Error('verifyJwtAgainstJwks mock not configured');
+      };
+    });
+
+    test('maps verified claims to AuthInfo when issuer/audience/expiry all check out', async () => {
+      const claims = {
+        iss: oauthMetadata.issuer,
+        aud: 'test-audience',
+        azp: 'test-audience',
+        scope: 'openid profile',
+        exp: Math.floor(Date.now() / 1000 + 300),
+        groups: ['frodo-mcp-admins'],
+      };
+      mockVerifyJwtAgainstJwks = async () => claims;
+
+      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
+      const authInfo = await verifier.verifyAccessToken('some-jwt');
+
+      expect(authInfo.token).toBe('some-jwt');
+      expect(authInfo.clientId).toBe('test-audience');
+      expect(authInfo.scopes).toEqual(['openid', 'profile']);
+      expect(authInfo.expiresAt).toBe(claims.exp);
+      expect(authInfo.extra).toEqual(claims);
+    });
+
+    test('rejects a token whose issuer does not match', async () => {
+      mockVerifyJwtAgainstJwks = async () => ({
+        iss: 'https://not-the-right-issuer.example.com',
+        aud: 'test-audience',
+        exp: Math.floor(Date.now() / 1000 + 300),
+      });
+
+      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
+
+      await expect(verifier.verifyAccessToken('some-jwt')).rejects.toMatchObject(
+        { code: 'invalid_token' }
+      );
+    });
+
+    test('rejects a token whose audience does not match', async () => {
+      mockVerifyJwtAgainstJwks = async () => ({
+        iss: oauthMetadata.issuer,
+        aud: 'someone-elses-client',
+        exp: Math.floor(Date.now() / 1000 + 300),
+      });
+
+      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
+
+      await expect(verifier.verifyAccessToken('some-jwt')).rejects.toMatchObject(
+        { code: 'invalid_token' }
+      );
+    });
+
+    test('rejects an expired token', async () => {
+      mockVerifyJwtAgainstJwks = async () => ({
+        iss: oauthMetadata.issuer,
+        aud: 'test-audience',
+        exp: Math.floor(Date.now() / 1000 - 60),
+      });
+
+      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
+
+      await expect(verifier.verifyAccessToken('some-jwt')).rejects.toMatchObject(
+        { code: 'invalid_token' }
+      );
+    });
+
+    test('rejects a token that fails signature verification', async () => {
+      mockVerifyJwtAgainstJwks = async () => {
+        throw new Error('no key found');
+      };
+
+      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
+
+      await expect(verifier.verifyAccessToken('some-jwt')).rejects.toMatchObject(
+        { code: 'invalid_token' }
+      );
+    });
+  });
+
+  describe('buildClaimMappedCredentialResolver (external-IDP claim-to-credential mapping)', () => {
+    const claimMapping = {
+      claimName: 'groups',
+      mappings: [
+        { claimValue: 'frodo-mcp-admins', serviceAccount: 'admin-sa' },
+      ],
+    };
+
+    afterEach(() => {
+      mockGetAdditionalServiceAccount = async () => {
+        throw new Error('getAdditionalServiceAccount mock not configured');
+      };
+    });
+
+    test('resolves a matched claim to the named additional service account', async () => {
+      mockGetAdditionalServiceAccount = async (host, name) => {
+        expect(host).toBe('https://openam-example.forgeblocks.com/am');
+        expect(name).toBe('admin-sa');
+        return {
+          name: 'admin-sa',
+          svcacctId: 'sa-id-1',
+          svcacctJwk: { kty: 'RSA', kid: 'k1' },
+          svcacctScope: 'fr:idm:*',
+        };
+      };
+      const resolver = buildClaimMappedCredentialResolver(
+        claimMapping,
+        'https://openam-example.forgeblocks.com/am'
+      );
+
+      const resolved = await resolver({
+        token: 'x',
+        clientId: 'c',
+        scopes: [],
+        extra: { groups: ['frodo-mcp-admins'] },
+      });
+
+      expect(resolved.extra.resolvedServiceAccountId).toBe('sa-id-1');
+      expect(resolved.extra.resolvedServiceAccountJwk).toEqual({
+        kty: 'RSA',
+        kid: 'k1',
+      });
+      // Original claims are preserved alongside the resolved credential.
+      expect(resolved.extra.groups).toEqual(['frodo-mcp-admins']);
+    });
+
+    test('fails closed (InsufficientScope) when nothing matches — never a default credential', async () => {
+      const resolver = buildClaimMappedCredentialResolver(
+        claimMapping,
+        'https://openam-example.forgeblocks.com/am'
+      );
+
+      await expect(
+        resolver({
+          token: 'x',
+          clientId: 'c',
+          scopes: [],
+          extra: { groups: ['unmapped-group'] },
+        })
+      ).rejects.toMatchObject({ code: 'insufficient_scope' });
+    });
   });
 });

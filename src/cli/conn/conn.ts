@@ -4,6 +4,7 @@ import DeleteCmd from './conn-delete.js';
 import DescribeCmd from './conn-describe.js';
 import ListCmd from './conn-list.js';
 import SaveCmd from './conn-save.js';
+import ServiceAccountCmd from './conn-service-account.js';
 import TestCmd from './conn-test.js';
 
 export default function setup() {
@@ -22,6 +23,8 @@ export default function setup() {
   program.addCommand(DescribeCmd().name('describe'));
 
   program.addCommand(ListCmd().name('list'));
+
+  program.addCommand(ServiceAccountCmd().name('service-account'));
 
   program.addCommand(TestCmd().name('test'));
 

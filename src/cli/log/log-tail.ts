@@ -1,15 +1,13 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import { getTokens } from '../../ops/AuthenticateOps';
-import { provisionCreds, tailLogs } from '../../ops/LogOps';
+import { ensureLogApiCredentials, tailLogs } from '../../ops/LogOps';
 import * as config from '../../utils/Config';
-import { printError, printMessage, verboseMessage } from '../../utils/Console';
+import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 import { sourcesOptionM } from './log';
 
 const { resolveLevel } = frodo.cloud.log;
-const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -46,53 +44,7 @@ export default function setup() {
     .action(async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
 
-      let foundCredentials = false;
-
-      const conn = await getConnectionProfile();
-      if (conn) state.setHost(conn.tenant);
-
-      // log api creds have been supplied as username and password arguments
-      if (state.getUsername() && state.getPassword()) {
-        verboseMessage(`Using log api credentials from command line.`);
-        state.setLogApiKey(state.getUsername());
-        state.setLogApiSecret(state.getPassword());
-        foundCredentials = true;
-      }
-      // log api creds from connection profile
-      else if (conn && conn.logApiKey != null && conn.logApiSecret != null) {
-        verboseMessage(`Using log api credentials from connection profile.`);
-        state.setLogApiKey(conn.logApiKey);
-        state.setLogApiSecret(conn.logApiSecret);
-        foundCredentials = true;
-      }
-      // log api creds have been supplied via env variables
-      else if (state.getLogApiKey() && state.getLogApiSecret()) {
-        verboseMessage(`Using log api credentials from environment variables.`);
-        foundCredentials = true;
-      }
-      // no log api creds but got username and password, so can try to create them
-      else if (conn && conn.username && conn.password) {
-        printMessage(
-          `Found admin credentials in connection profile, attempting to create log api credentials...`
-        );
-        state.setUsername(conn.username);
-        state.setPassword(conn.password);
-        if (await getTokens(true, true, deploymentTypes)) {
-          const creds = await provisionCreds();
-          state.setLogApiKey(creds.api_key_id as string);
-          state.setLogApiSecret(creds.api_key_secret as string);
-          try {
-            await saveConnectionProfile(state.getHost());
-          } catch (error) {
-            printError(error);
-          }
-          foundCredentials = true;
-        }
-        // unable to create credentials
-        else {
-          printMessage(`Unable to create log api credentials.`);
-        }
-      }
+      const foundCredentials = await ensureLogApiCredentials(deploymentTypes);
 
       if (foundCredentials) {
         printMessage(
@@ -106,7 +58,6 @@ export default function setup() {
           command.opts().sources,
           resolveLevel(command.opts().level),
           command.opts().transactionId,
-          null,
           config.getNoiseFilters(options.defaults)
         );
       }

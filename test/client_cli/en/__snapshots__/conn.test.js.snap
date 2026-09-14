@@ -18,6 +18,9 @@ Commands:
   help              display help for command
   list              List connection profiles.
   save|add          Save connection profiles.
+  service-account   Manage named, independently-addressable additional service
+                    accounts on a connection profile (alongside its own single
+                    primary service account).
   test              Test connection and authentication.
 "
 `;

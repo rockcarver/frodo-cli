@@ -46,6 +46,8 @@ Commands:
   (Cloud-only):
   dcc|direct-configuration-control  [Preview] Direct Configuration Control (DCC)
                                     commands.
+  debug                             [Experimental] Interactively debug Identity
+                                    Cloud activity
   esv                               Manage environment secrets and variables
                                     (ESVs).
   feature                           Manage features (e.g. groups, aiagent,

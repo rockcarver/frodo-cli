@@ -112,7 +112,7 @@ describe('McpLogger', () => {
     await new Promise((resolve) => setImmediate(resolve));
   });
 
-  test('writes [frodo-mcp] <level>: <data> line to process.stderr for every dispatched record', () => {
+  test('writes <timestamp> [frodo-mcp] <level>: <data> line to process.stderr for every dispatched record', () => {
     const captured = [];
     // Replace the suppressing spy set up by beforeEach with a capturing one.
     jest.spyOn(process.stderr, 'write').mockImplementation((s) => {
@@ -123,7 +123,20 @@ describe('McpLogger', () => {
     const logger = new McpLogger('info');
     logger.info('startup', 'hello world');
 
-    expect(captured).toContain('[frodo-mcp] info: startup: hello world\n');
+    expect(captured).toHaveLength(1);
+    expect(captured[0]).toMatch(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z \[frodo-mcp\] info: startup: hello world\n$/
+    );
+  });
+
+  test('does not add a timestamp to the record sent to an attached MCP sink — only the stderr line gets one', () => {
+    const records = [];
+    const logger = new McpLogger('info');
+
+    logger.info('event', 'message');
+    logger.attachSink((record) => records.push(record));
+
+    expect(records).toEqual([{ level: 'info', data: 'event: message' }]);
   });
 
   test('formats discovery summaries and ranked candidate details', () => {

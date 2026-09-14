@@ -110,8 +110,13 @@ export class McpLogger {
       level: record.level,
       data: record.data.slice(0, this.maxMessageLength),
     };
+    // Timestamp only the operator-facing stderr line, not the record sent
+    // to MCP clients via the sink/buffer below — the MCP logging
+    // notification has no timestamp field, and a client can already
+    // timestamp on receipt; baking one into `data` would just be message
+    // content the client never asked for.
     process.stderr.write(
-      `${MCP_STDERR_PREFIX} ${boundedRecord.level}: ${boundedRecord.data}\n`
+      `${new Date().toISOString()} ${MCP_STDERR_PREFIX} ${boundedRecord.level}: ${boundedRecord.data}\n`
     );
     const sink = record.mcpSink ?? this.sink;
     if (sink) {
