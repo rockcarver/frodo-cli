@@ -47,12 +47,7 @@ Commands:
   dcc|direct-configuration-control  [Preview] Direct Configuration Control (DCC)
                                     commands.
   debug                             [Experimental] Interactively debug Identity
-                                    Cloud activity for one functional area — for
-                                    journeys, this launches a live,
-                                    self-updating list of in-flight/recent
-                                    journey executions (detected from the log
-                                    stream) to drill into; other topics print a
-                                    smart-filtered log tail instead.
+                                    Cloud activity
   esv                               Manage environment secrets and variables
                                     (ESVs).
   feature                           Manage features (e.g. groups, aiagent,
