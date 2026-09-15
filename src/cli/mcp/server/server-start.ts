@@ -430,6 +430,17 @@ export default function setup() {
         }
       }
       const activeHost = sanitizeHost(state.getHost());
+      // TODO(oauth-resource-server): confirmed live that both hydration
+      // catalogs unconditionally fail in this mode -- `frodoInstance: frodo`
+      // below is the process singleton, deliberately never authenticated
+      // when `opts.oauthResourceServer` is set (see the comment above), so
+      // `readManagedObjectTypes()`/`readConfigEntityStubs()` always hit an
+      // unauthenticated session and always get rejected. Not a bug (the
+      // fallback to static skill metadata already handles it gracefully),
+      // but worth deciding deliberately rather than by accident: either
+      // skip hydration outright in this mode (skip the two guaranteed-401
+      // startup calls entirely), or find some other way to hydrate (e.g.
+      // once the first verified request resolves a real credential).
       const discoveryContext = await hydrateMcpDiscoveryContext({
         frodoInstance: frodo,
         activeTarget: {
