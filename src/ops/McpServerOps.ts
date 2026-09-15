@@ -40,9 +40,9 @@ import {
   getOAuthProtectedResourceMetadataUrl,
   localhostAllowedHostnames,
   McpServer,
-  type OAuthMetadata,
   OAuthError,
   OAuthErrorCode,
+  type OAuthMetadata,
   oauthMetadataResponse,
   type OAuthTokenVerifier,
   PROTOCOL_VERSION_META_KEY,
@@ -878,7 +878,9 @@ export function buildAmOAuthMetadata(amBaseUrl: string): OAuthMetadata {
  * onto a fresh, request-scoped Frodo instance (see
  * `AuthenticateOps.applyAccessToken()` in frodo-lib).
  */
-export function buildAmTokenInfoVerifier(amBaseUrl: string): OAuthTokenVerifier {
+export function buildAmTokenInfoVerifier(
+  amBaseUrl: string
+): OAuthTokenVerifier {
   return {
     async verifyAccessToken(token: string): Promise<AuthInfo> {
       let info;
@@ -1242,7 +1244,9 @@ export function buildDcrRegistrationResponse(
   registeredClientId: string
 ): Record<string, unknown> {
   const submitted =
-    requestBody && typeof requestBody === 'object' && !Array.isArray(requestBody)
+    requestBody &&
+    typeof requestBody === 'object' &&
+    !Array.isArray(requestBody)
       ? (requestBody as Record<string, unknown>)
       : {};
   return {
@@ -1850,9 +1854,9 @@ async function handleHttpRequest(
     info?.(
       `served pre-registered client_id '${oauthResourceServer.registeredClientId}' -- configure this redirect_uri on the app registration: ${JSON.stringify(registrationResponse.redirect_uris)}`
     );
-    res.writeHead(201, { 'Content-Type': 'application/json' }).end(
-      JSON.stringify(registrationResponse)
-    );
+    res
+      .writeHead(201, { 'Content-Type': 'application/json' })
+      .end(JSON.stringify(registrationResponse));
     return;
   }
 
@@ -1878,7 +1882,10 @@ async function handleHttpRequest(
     const rawQuery = req.url?.split('?')[1] ?? '';
     const incomingParams = new URLSearchParams(rawQuery);
     const requestedClientId = incomingParams.get('client_id');
-    if (requestedClientId && requestedClientId !== oauthResourceServer.registeredClientId) {
+    if (
+      requestedClientId &&
+      requestedClientId !== oauthResourceServer.registeredClientId
+    ) {
       debug?.(
         `rejected: /oauth2/authorize unknown client_id '${requestedClientId}'`
       );
@@ -1930,9 +1937,29 @@ async function handleHttpRequest(
       );
       return;
     }
+    // Strip `resource` (RFC 8707) before relaying upstream: the MCP client
+    // is spec-required to send it (bound to this server's own RFC 9728
+    // `resource` value, which must stay unchanged -- see the discovery
+    // block above), but most external IDPs don't implement RFC 8707 at
+    // all. Entra ID's v2.0 endpoint actively rejects it rather than
+    // ignoring it -- confirmed live (`AADSTS9010010: The resource
+    // parameter provided in the request doesn't match with the requested
+    // scopes`), and independently confirmed as a known, widespread
+    // incompatibility across other MCP-on-Entra integrations. The `scope`
+    // parameter already implies the target audience for these IDPs, so
+    // dropping `resource` on this leg only (never in what this server
+    // itself advertises) loses nothing they'd have honored anyway.
+    if (incomingParams.has('resource')) {
+      debug?.(
+        "authorize: stripped 'resource' param before relaying upstream (RFC 8707 unsupported by most external IDPs, e.g. Entra AADSTS9010010)"
+      );
+      incomingParams.delete('resource');
+    }
     const upstreamUrl = new URL(upstreamAuthorizationEndpoint);
-    upstreamUrl.search = rawQuery;
-    debug?.(`authorize: redirecting to upstream ${upstreamUrl.origin}${upstreamUrl.pathname}`);
+    upstreamUrl.search = incomingParams.toString();
+    debug?.(
+      `authorize: redirecting to upstream ${upstreamUrl.origin}${upstreamUrl.pathname}`
+    );
     res.writeHead(302, { Location: upstreamUrl.toString() }).end();
     return;
   }
@@ -1952,7 +1979,8 @@ async function handleHttpRequest(
     routePath === '/oauth2/token' &&
     oauthResourceServer?.registeredClientId
   ) {
-    const upstreamTokenEndpoint = oauthResourceServer.oauthMetadata.token_endpoint;
+    const upstreamTokenEndpoint =
+      oauthResourceServer.oauthMetadata.token_endpoint;
     if (!upstreamTokenEndpoint) {
       debug?.('rejected: 500 no upstream token_endpoint configured');
       res.writeHead(500, { 'Content-Type': 'application/json' }).end(
@@ -1979,16 +2007,33 @@ async function handleHttpRequest(
       }
       throw err;
     }
+    const contentType =
+      getSingleHeaderValue(req, 'content-type') ??
+      'application/x-www-form-urlencoded';
+    // Same `resource` (RFC 8707) stripping as the authorize leg above, and
+    // for the same reason -- RFC 8707 also defines a token-request
+    // `resource` parameter, and Entra rejects it there too. Only rewritten
+    // for the one content-type OAuth2 token requests actually use
+    // (RFC 6749 §3.2); anything else is relayed byte-faithful, unexamined.
+    let outgoingBody: Buffer | string = rawBody;
+    if (
+      contentType.split(';')[0].trim() === 'application/x-www-form-urlencoded'
+    ) {
+      const bodyParams = new URLSearchParams(rawBody.toString('utf8'));
+      if (bodyParams.has('resource')) {
+        debug?.(
+          "token: stripped 'resource' param before relaying upstream (RFC 8707 unsupported by most external IDPs, e.g. Entra AADSTS9010010)"
+        );
+        bodyParams.delete('resource');
+        outgoingBody = bodyParams.toString();
+      }
+    }
     let upstreamResponse: globalThis.Response;
     try {
       upstreamResponse = await fetch(upstreamTokenEndpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type':
-            getSingleHeaderValue(req, 'content-type') ??
-            'application/x-www-form-urlencoded',
-        },
-        body: rawBody,
+        headers: { 'Content-Type': contentType },
+        body: outgoingBody,
       });
     } catch (err) {
       debug?.(
@@ -2003,7 +2048,9 @@ async function handleHttpRequest(
       return;
     }
     const responseBody = await upstreamResponse.text();
-    debug?.(`token: proxied to upstream, upstream responded ${upstreamResponse.status}`);
+    debug?.(
+      `token: proxied to upstream, upstream responded ${upstreamResponse.status}`
+    );
     res
       .writeHead(upstreamResponse.status, {
         'Content-Type':
@@ -2102,9 +2149,8 @@ async function handleHttpRequest(
       // profile read), and correctly reflects a claim-mapping table the
       // operator could update between requests without restarting.
       if (oauthResourceServer.resolveCredential) {
-        oauthAuthInfo = await oauthResourceServer.resolveCredential(
-          oauthAuthInfo
-        );
+        oauthAuthInfo =
+          await oauthResourceServer.resolveCredential(oauthAuthInfo);
       }
       debug?.(
         `oauth: verified bearer token (clientId=${oauthAuthInfo.clientId})`
@@ -3490,9 +3536,8 @@ export function buildRequestContext(
     // service account (buildClaimMappedCredentialResolver) — use that
     // instead of the caller's own (external, not AM-native) token, which
     // is never itself a usable AM credential in this mode.
-    const resolvedServiceAccountId = authInfo.extra?.resolvedServiceAccountId as
-      | string
-      | undefined;
+    const resolvedServiceAccountId = authInfo.extra
+      ?.resolvedServiceAccountId as string | undefined;
     const resolvedServiceAccountJwk = authInfo.extra?.resolvedServiceAccountJwk;
     if (resolvedServiceAccountId && resolvedServiceAccountJwk) {
       return {
@@ -3517,9 +3562,7 @@ export function buildRequestContext(
         host,
         accessToken: authInfo.token,
         scope: authInfo.scopes?.join(' '),
-        expiresAt: authInfo.expiresAt
-          ? authInfo.expiresAt * 1000
-          : undefined,
+        expiresAt: authInfo.expiresAt ? authInfo.expiresAt * 1000 : undefined,
         sessionId: authInfo.extra?.sessionToken as string | undefined,
         realm,
         deploymentType: state.getDeploymentType(),

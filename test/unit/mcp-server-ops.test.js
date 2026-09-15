@@ -1944,6 +1944,35 @@ describe('startHttpTransport', () => {
       expect(location.searchParams.get('state')).toBe('xyz');
     });
 
+    test('/oauth2/authorize strips the resource param before redirecting upstream (RFC 8707 unsupported by e.g. Entra)', async () => {
+      const port = await getFreePort();
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: minimalOauthResourceServer(
+          port,
+          'frodo-mcp-preregistered'
+        ),
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/oauth2/authorize?client_id=frodo-mcp-preregistered&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&scope=openid&resource=http%3A%2F%2F127.0.0.1%3A' +
+          port +
+          '%2Fmcp&state=xyz'
+      );
+
+      expect(res.status).toBe(302);
+      const location = new URL(res.headers.location);
+      expect(location.searchParams.has('resource')).toBe(false);
+      // Everything else still passed through unmodified.
+      expect(location.searchParams.get('scope')).toBe('openid');
+      expect(location.searchParams.get('redirect_uri')).toBe(
+        'http://127.0.0.1:54321/callback'
+      );
+      expect(location.searchParams.get('state')).toBe('xyz');
+    });
+
     test('/oauth2/authorize rejects a client_id that does not match the pre-registered one', async () => {
       const port = await getFreePort();
       currentDone = startServer('127.0.0.1', port, {
@@ -2038,6 +2067,47 @@ describe('startHttpTransport', () => {
         // Byte-faithful relay -- nothing substituted or re-encoded.
         expect(receivedBody).toBe(body);
         expect(receivedContentType).toBe('application/x-www-form-urlencoded');
+      } finally {
+        upstream.server.close();
+      }
+    });
+
+    test('/oauth2/token strips the resource param before relaying to upstream (RFC 8707 unsupported by e.g. Entra)', async () => {
+      let receivedBody;
+      const upstream = await startFakeUpstream((req, res) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => {
+          receivedBody = Buffer.concat(chunks).toString('utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const body = `grant_type=authorization_code&code=real-upstream-code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&client_id=frodo-mcp-preregistered&resource=http%3A%2F%2F127.0.0.1%3A${port}%2Fmcp`;
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          body
+        );
+
+        expect(res.status).toBe(200);
+        const receivedParams = new URLSearchParams(receivedBody);
+        expect(receivedParams.has('resource')).toBe(false);
+        expect(receivedParams.get('grant_type')).toBe('authorization_code');
+        expect(receivedParams.get('code')).toBe('real-upstream-code');
+        expect(receivedParams.get('redirect_uri')).toBe(
+          'http://127.0.0.1:54321/callback'
+        );
       } finally {
         upstream.server.close();
       }
