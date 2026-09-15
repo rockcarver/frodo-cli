@@ -817,6 +817,23 @@ export type McpOAuthResourceServerOptions = {
    * own shim endpoint in the served AS metadata.
    */
   registeredClientId?: string;
+  /**
+   * `--oauth-scope`: the OAuth scope(s) a connecting client should request,
+   * advertised via both the RFC 9728 protected-resource metadata's
+   * `scopes_supported` and the `scope` parameter of the `WWW-Authenticate`
+   * challenge on a 401 -- the two sources, in that priority order, the MCP
+   * TypeScript SDK's own client uses to fill in `scope` on the authorize
+   * request when the client has no scope of its own to request (confirmed
+   * by reading the SDK's `selectScope` logic directly). Without this, some
+   * authorization servers reject the resulting authorize request outright
+   * for lacking a `scope` parameter at all -- confirmed live against a real
+   * Entra ID tenant (`AADSTS900144: The request body must contain the
+   * following parameter: 'scope'`); AM tends to be more lenient, but which
+   * scope(s) a given OAuth2 client/provider actually needs is operator
+   * knowledge frodo has no way to infer, so this is opt-in for both modes
+   * rather than defaulted.
+   */
+  scopesSupported?: string[];
 };
 
 /**
@@ -1764,6 +1781,7 @@ async function handleHttpRequest(
       oauthMetadata,
       resourceServerUrl: resolvedResourceServerUrl,
       resourceName: MCP_SERVER_NAME,
+      scopesSupported: oauthResourceServer.scopesSupported,
       // The SDK refuses a non-HTTPS issuer outside localhost/127.0.0.1 by
       // design (an authorization server's issuer identity should be HTTPS
       // in any real production deployment). --registered-client-id's own
@@ -2108,6 +2126,7 @@ async function handleHttpRequest(
               oauthResourceServer
             )
           ),
+          requiredScopes: oauthResourceServer.scopesSupported,
         })
       );
       return;

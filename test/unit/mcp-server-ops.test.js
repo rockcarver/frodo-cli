@@ -1817,6 +1817,91 @@ describe('startHttpTransport', () => {
     expect(metadata.token_endpoint).toBe(`${selfOrigin}/oauth2/token`);
   });
 
+  describe('--oauth-scope', () => {
+    test('protected-resource metadata advertises scopes_supported when configured', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, undefined);
+      delete options.registeredClientId;
+      options.scopesSupported = ['openid', 'api://client-id/.default'];
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/.well-known/oauth-protected-resource/mcp'
+      );
+      const metadata = JSON.parse(res.text);
+      expect(metadata.scopes_supported).toEqual([
+        'openid',
+        'api://client-id/.default',
+      ]);
+    });
+
+    test('protected-resource metadata has no scopes_supported when not configured', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, undefined);
+      delete options.registeredClientId;
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/.well-known/oauth-protected-resource/mcp'
+      );
+      const metadata = JSON.parse(res.text);
+      expect(metadata.scopes_supported).toBeUndefined();
+    });
+
+    test('401 challenge on /mcp carries the configured scope(s)', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, undefined);
+      delete options.registeredClientId;
+      options.scopesSupported = ['openid', 'profile'];
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'POST',
+        '/mcp',
+        JSON_HEADERS,
+        legacyInitializeBody()
+      );
+      expect(res.status).toBe(401);
+      expect(res.headers['www-authenticate']).toContain(
+        'scope="openid profile"'
+      );
+    });
+
+    test('401 challenge on /mcp omits scope when not configured', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, undefined);
+      delete options.registeredClientId;
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'POST',
+        '/mcp',
+        JSON_HEADERS,
+        legacyInitializeBody()
+      );
+      expect(res.status).toBe(401);
+      expect(res.headers['www-authenticate']).not.toContain('scope=');
+    });
+  });
+
   /** Starts a throwaway HTTP server standing in for the real upstream AS. */
   function startFakeUpstream(handler) {
     return new Promise((resolve) => {
