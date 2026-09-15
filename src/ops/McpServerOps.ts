@@ -1184,6 +1184,24 @@ function deriveRegistrationEndpointUrl(resolvedResourceServerUrl: URL): URL {
 }
 
 /**
+ * This server's own authorize-proxy endpoint URL -- see
+ * `handleHttpRequest`'s `/oauth2/authorize` route for what it actually
+ * does. Same derivation as `deriveRegistrationEndpointUrl`.
+ */
+function deriveAuthorizeEndpointUrl(resolvedResourceServerUrl: URL): URL {
+  return new URL('/oauth2/authorize', resolvedResourceServerUrl);
+}
+
+/**
+ * This server's own token-proxy endpoint URL -- see `handleHttpRequest`'s
+ * `/oauth2/token` route for what it actually does. Same derivation as
+ * `deriveRegistrationEndpointUrl`.
+ */
+function deriveTokenEndpointUrl(resolvedResourceServerUrl: URL): URL {
+  return new URL('/oauth2/token', resolvedResourceServerUrl);
+}
+
+/**
  * Builds an RFC 7591-shaped Dynamic Client Registration success response
  * that always names the same operator-pre-provisioned `registeredClientId`
  * — see `McpOAuthResourceServerOptions.registeredClientId`'s own remarks
@@ -1705,13 +1723,38 @@ async function handleHttpRequest(
       oauthResourceServer
     );
     // Only augment when a shim client_id is actually configured -- without
-    // it, AM-as-IdP mode's hand-built metadata correctly stays
-    // registration_endpoint-less (nothing to point it at), and
-    // external-IDP mode's metadata stays a faithful, unmodified passthrough
-    // of the real IDP's own document.
+    // it, AM-as-IdP mode's hand-built metadata correctly stays untouched
+    // (real issuer, no registration_endpoint), and external-IDP mode's
+    // metadata stays a faithful, unmodified passthrough of the real IDP's
+    // own document.
+    //
+    // issuer, authorization_endpoint, and token_endpoint all change
+    // together, or none do: a spec-compliant client fetches AS metadata by
+    // constructing a well-known URL FROM THE ISSUER ITSELF (RFC 8414 §3.1),
+    // not from wherever the resource server happens to also serve a copy
+    // (confirmed live: with the real upstream issuer left in place, a real
+    // client never even requests this document -- it goes straight to the
+    // real IDP's own discovery endpoint and correctly reports no DCR
+    // support there, since our /oauth2/register override is never seen).
+    // Once issuer points at this server, authorization_endpoint/
+    // token_endpoint must too, per RFC 8414 §3.3's mandatory issuer-match
+    // validation on the fetched document. This is safe because the
+    // *upstream's own* authorization_endpoint/token_endpoint (preserved
+    // unmodified in oauthResourceServer.oauthMetadata) don't have to live on
+    // the same origin as the issuer -- RFC 8414 doesn't require that --
+    // authorizeProxyHandler/tokenProxyHandler below forward to exactly
+    // those, so the real authorize/token legs stay entirely between the
+    // client's browser and AM/the external IDP.
     const oauthMetadata = oauthResourceServer.registeredClientId
       ? {
           ...oauthResourceServer.oauthMetadata,
+          issuer: resolvedResourceServerUrl.origin,
+          authorization_endpoint: deriveAuthorizeEndpointUrl(
+            resolvedResourceServerUrl
+          ).toString(),
+          token_endpoint: deriveTokenEndpointUrl(
+            resolvedResourceServerUrl
+          ).toString(),
           registration_endpoint: deriveRegistrationEndpointUrl(
             resolvedResourceServerUrl
           ).toString(),
@@ -1721,6 +1764,18 @@ async function handleHttpRequest(
       oauthMetadata,
       resourceServerUrl: resolvedResourceServerUrl,
       resourceName: MCP_SERVER_NAME,
+      // The SDK refuses a non-HTTPS issuer outside localhost/127.0.0.1 by
+      // design (an authorization server's issuer identity should be HTTPS
+      // in any real production deployment). --registered-client-id's own
+      // real-world use case is exactly the deployment shape that trips
+      // this: a private-network container reachable only over plain HTTP
+      // on its own LAN address (confirmed against a real deployment) --
+      // the same trust boundary --allowed-hosts already assumes for that
+      // address. A properly HTTPS-fronted deployment (--public-url
+      // https://...) is unaffected either way, since this only widens
+      // what's accepted, never narrows it.
+      dangerouslyAllowInsecureIssuerUrl:
+        Boolean(oauthResourceServer.registeredClientId) || undefined,
     });
     if (discoveryResponse) {
       debug?.(`discovery: served ${routePath}`);
@@ -1780,6 +1835,134 @@ async function handleHttpRequest(
     res.writeHead(201, { 'Content-Type': 'application/json' }).end(
       JSON.stringify(registrationResponse)
     );
+    return;
+  }
+
+  // Authorize-proxy (--registered-client-id only): a stateless 302 to the
+  // real upstream authorize endpoint, params passed straight through
+  // unmodified -- including the CLIENT's own (typically ephemeral-port
+  // loopback) redirect_uri. This only works because the upstream accepts
+  // that redirect_uri without it being individually pre-registered, which
+  // RFC 8252 §7.3 requires for loopback-IP redirect URIs specifically
+  // (confirmed live against this deployment's real Entra app registration:
+  // an arbitrary, never-registered loopback port was accepted). No state
+  // is stored here at all -- the upstream itself redirects the browser
+  // straight back to the client afterward, never back through this server.
+  // Reachable unauthenticated by definition (the whole point is to obtain
+  // credentials); the one thing validated is that client_id matches the
+  // single pre-provisioned client this server actually knows about --
+  // this server has no other client to broker an authorize flow for.
+  if (
+    req.method === 'GET' &&
+    routePath === '/oauth2/authorize' &&
+    oauthResourceServer?.registeredClientId
+  ) {
+    const rawQuery = req.url?.split('?')[1] ?? '';
+    const requestedClientId = new URLSearchParams(rawQuery).get('client_id');
+    if (requestedClientId && requestedClientId !== oauthResourceServer.registeredClientId) {
+      debug?.(
+        `rejected: 400 /oauth2/authorize unknown client_id '${requestedClientId}'`
+      );
+      res.writeHead(400, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'unauthorized_client',
+          error_description: 'Unknown client_id.',
+        })
+      );
+      return;
+    }
+    const upstreamAuthorizationEndpoint =
+      oauthResourceServer.oauthMetadata.authorization_endpoint;
+    if (!upstreamAuthorizationEndpoint) {
+      debug?.('rejected: 500 no upstream authorization_endpoint configured');
+      res.writeHead(500, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'server_error',
+          error_description: 'No upstream authorization endpoint configured.',
+        })
+      );
+      return;
+    }
+    const upstreamUrl = new URL(upstreamAuthorizationEndpoint);
+    upstreamUrl.search = rawQuery;
+    debug?.(`authorize: redirecting to upstream ${upstreamUrl.origin}${upstreamUrl.pathname}`);
+    res.writeHead(302, { Location: upstreamUrl.toString() }).end();
+    return;
+  }
+
+  // Token-proxy (--registered-client-id only): a stateless server-to-server
+  // relay to the real upstream token endpoint, body and content-type passed
+  // straight through unmodified (including the client's own redirect_uri
+  // and PKCE code_verifier -- both were already sent to the upstream
+  // unmodified during the authorize step above, so they still match there).
+  // Required, not optional, alongside the authorize proxy above: OAuth2
+  // requires redirect_uri to match between the authorize and token steps,
+  // and the actual grant/token decision genuinely has to be made by the
+  // real upstream regardless -- this server only ever relays bytes, it
+  // never itself decides whether to issue a token.
+  if (
+    req.method === 'POST' &&
+    routePath === '/oauth2/token' &&
+    oauthResourceServer?.registeredClientId
+  ) {
+    const upstreamTokenEndpoint = oauthResourceServer.oauthMetadata.token_endpoint;
+    if (!upstreamTokenEndpoint) {
+      debug?.('rejected: 500 no upstream token_endpoint configured');
+      res.writeHead(500, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'server_error',
+          error_description: 'No upstream token endpoint configured.',
+        })
+      );
+      return;
+    }
+    let rawBody: Buffer;
+    try {
+      rawBody = await readRawBody(req, maxBodySizeBytes);
+    } catch (err) {
+      if (err instanceof McpHttpBodyTooLargeError) {
+        debug?.('rejected: 413 token request body too large');
+        res.writeHead(413, { 'Content-Type': 'application/json' }).end(
+          JSON.stringify({
+            error: 'invalid_request',
+            error_description: 'Request body too large.',
+          })
+        );
+        return;
+      }
+      throw err;
+    }
+    let upstreamResponse: globalThis.Response;
+    try {
+      upstreamResponse = await fetch(upstreamTokenEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type':
+            getSingleHeaderValue(req, 'content-type') ??
+            'application/x-www-form-urlencoded',
+        },
+        body: rawBody,
+      });
+    } catch (err) {
+      debug?.(
+        `rejected: 502 /oauth2/token upstream fetch failed -- ${err instanceof Error ? err.message : String(err)}`
+      );
+      res.writeHead(502, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'server_error',
+          error_description: 'Failed to reach the upstream token endpoint.',
+        })
+      );
+      return;
+    }
+    const responseBody = await upstreamResponse.text();
+    debug?.(`token: proxied to upstream, upstream responded ${upstreamResponse.status}`);
+    res
+      .writeHead(upstreamResponse.status, {
+        'Content-Type':
+          upstreamResponse.headers.get('content-type') ?? 'application/json',
+      })
+      .end(responseBody);
     return;
   }
 
@@ -2149,10 +2332,14 @@ async function writeWebResponse(
  * (never more — the stream is not read past that point — and only equal to
  * the limit in the single-chunk-overshoot corner).
  */
-function readJsonBody(
-  req: IncomingMessage,
-  maxBytes: number
-): Promise<unknown> {
+/**
+ * Reads the raw body from an incoming HTTP request, refusing to buffer past
+ * `maxBytes`. The bounded-accumulation core `readJsonBody` and the
+ * `/oauth2/token` proxy route both build on -- see this function's own
+ * remarks there for why the cap works even against a Content-Length-less
+ * chunked upload.
+ */
+function readRawBody(req: IncomingMessage, maxBytes: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let totalBytes = 0;
@@ -2195,11 +2382,7 @@ function readJsonBody(
         return;
       }
       settled = true;
-      try {
-        resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
-      } catch (err) {
-        reject(err);
-      }
+      resolve(Buffer.concat(chunks));
     });
     req.on('error', (err) => {
       if (settled) {
@@ -2209,6 +2392,27 @@ function readJsonBody(
       reject(err);
     });
   });
+}
+
+/**
+ * Reads and parses the JSON body from an incoming HTTP request, refusing to
+ * buffer past `maxBytes`.
+ *
+ * The accumulation cap is what makes the read bounded: chunks past the limit
+ * stop being buffered immediately and the promise rejects mid-stream, so a
+ * Content-Length-less chunked upload cannot grow the buffer without bound
+ * either (the Content-Length pre-check in handleHttpRequest only covers
+ * requests that declare a length). The reported `receivedBytes` is the byte
+ * count actually observed up to and including the chunk that tripped the cap
+ * (never more — the stream is not read past that point — and only equal to
+ * the limit in the single-chunk-overshoot corner).
+ */
+async function readJsonBody(
+  req: IncomingMessage,
+  maxBytes: number
+): Promise<unknown> {
+  const raw = await readRawBody(req, maxBytes);
+  return JSON.parse(raw.toString('utf8'));
 }
 
 /**
