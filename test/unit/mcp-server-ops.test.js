@@ -2144,6 +2144,97 @@ describe('startHttpTransport', () => {
       }
     });
 
+    test('/oauth2/token logs the upstream error body at debug level (Entra AADSTS diagnostics), and never logs a success body', async () => {
+      // A rejected code exchange used to surface to the client only as the
+      // SDK's own follow-on error (it clears the client registration on
+      // invalid_client and retries, reporting "Existing OAuth client
+      // information is required when exchanging an authorization code") --
+      // the AADSTS code naming the real cause (e.g. public client flows
+      // disabled) never appeared anywhere. The failure body reaching the
+      // debug log is what makes this diagnosable from the server side.
+      const upstream = await startFakeUpstream((req, res) => {
+        req.on('data', () => {});
+        req.on('end', () => {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              error: 'invalid_client',
+              error_description:
+                'AADSTS7000218: The client assertion must be sent as client_secret.',
+            })
+          );
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          'grant_type=authorization_code&code=bad-code'
+        );
+
+        expect(res.status).toBe(400);
+        expect(JSON.parse(res.text)).toMatchObject({ error: 'invalid_client' });
+        const errorBodyLine = debugLines().find((p) =>
+          p.msg.includes('token: upstream error body:')
+        );
+        expect(errorBodyLine).toBeDefined();
+        expect(errorBodyLine.msg).toContain('AADSTS7000218');
+      } finally {
+        upstream.server.close();
+      }
+
+      // Success path: the response body carries a bearer token and must
+      // never reach the log -- assert the success exchange emits no
+      // 'upstream error body' line at all.
+      printed.length = 0;
+      const okUpstream = await startFakeUpstream((req, res) => {
+        req.on('data', () => {});
+        req.on('end', () => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              access_token: 'super-secret-token',
+              token_type: 'Bearer',
+              expires_in: 3600,
+            })
+          );
+        });
+      });
+
+      const okPort = await getFreePort();
+      const okOptions = minimalOauthResourceServer(okPort, 'frodo-mcp-preregistered');
+      okOptions.oauthMetadata.token_endpoint = `http://127.0.0.1:${okUpstream.port}/token`;
+      currentDone = startServer('127.0.0.1', okPort, { oauthResourceServer: okOptions });
+      await waitForListening('127.0.0.1', okPort);
+
+      try {
+        const res = await rawRequest(
+          okPort,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          'grant_type=authorization_code&code=good-code'
+        );
+
+        expect(res.status).toBe(200);
+        expect(
+          debugLines().some((p) => p.msg.includes('upstream error body'))
+        ).toBe(false);
+        expect(res.text).toContain('super-secret-token');
+      } finally {
+        okUpstream.server.close();
+      }
+    }, 30000);
+
     test('/oauth2/token returns 502 when the upstream is unreachable', async () => {
       const port = await getFreePort();
       const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');

@@ -972,23 +972,23 @@ export function buildExternalIdpVerifier(
       let claims: Record<string, unknown>;
       try {
         claims = await frodo.utils.jose.verifyJwtAgainstJwks(token, jwks);
-      } catch {
+      } catch (verifyError) {
         throw new OAuthError(
           OAuthErrorCode.InvalidToken,
-          "Token signature could not be verified against the configured external IDP's published keys."
+          `Token signature could not be verified against the configured external IDP's published keys. (${verifyError instanceof Error ? verifyError.message : String(verifyError)})`
         );
       }
       if (claims.iss !== oauthMetadata.issuer) {
         throw new OAuthError(
           OAuthErrorCode.InvalidToken,
-          'Token issuer does not match the configured external IDP.'
+          `Token issuer does not match the configured external IDP (token iss=${String(claims.iss)}, expected ${oauthMetadata.issuer}).`
         );
       }
       const audiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
       if (!audiences.includes(audience)) {
         throw new OAuthError(
           OAuthErrorCode.InvalidToken,
-          'Token audience does not match the configured client.'
+          `Token audience does not match the configured client (token aud=${audiences.join(' ')}, expected ${audience}).`
         );
       }
       const expiresAt = typeof claims.exp === 'number' ? claims.exp : undefined;
@@ -1041,10 +1041,25 @@ export function buildClaimMappedCredentialResolver(
         `No claim mapping matched this token's '${claimMapping.claimName}' claim - access denied.`
       );
     }
-    const account = await frodo.conn.getAdditionalServiceAccount(
-      host,
-      serviceAccountName
-    );
+    let account;
+    try {
+      account = await frodo.conn.getAdditionalServiceAccount(
+        host,
+        serviceAccountName
+      );
+    } catch (error) {
+      // A mapping that names a service account missing from the profile is
+      // an operator configuration error, not a server malfunction — but a
+      // raw FrodoError escaping here would surface as a bare 500 with no
+      // hint (and the CLI's OAuthError-only log line would say just
+      // 'verification failed'). Map it onto InsufficientScope instead: the
+      // token is genuinely valid but has no configured access, which is
+      // exactly what a 403 insufficient_scope challenge means.
+      throw new OAuthError(
+        OAuthErrorCode.InsufficientScope,
+        `Claim mapping names service account '${serviceAccountName}', but it could not be resolved from the connection profile: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
     return {
       ...authInfo,
       extra: {
@@ -2051,6 +2066,19 @@ async function handleHttpRequest(
     debug?.(
       `token: proxied to upstream, upstream responded ${upstreamResponse.status}`
     );
+    // Include the upstream body on failure: an OAuth error response carries
+    // the provider's own error code (Entra's AADSTS codes especially) in its
+    // `error_description`, which is exactly what makes a rejected code
+    // exchange diagnosable from the log alone. E.g. a missing "Allow public
+    // client flows" toggle surfaces here as invalid_client
+    // AADSTS7000218 -- without the body, the client sees only its own
+    // follow-on error ("Existing OAuth client information is required…",
+    // from the SDK clearing the client registration on invalid_client) and
+    // never the real cause. Always the failure path only: success bodies
+    // carry bearer tokens and must never reach a log line.
+    if (upstreamResponse.status >= 400 && responseBody) {
+      debug?.(`token: upstream error body: ${responseBody}`);
+    }
     res
       .writeHead(upstreamResponse.status, {
         'Content-Type':
@@ -2159,7 +2187,7 @@ async function handleHttpRequest(
       debug?.(
         authorization === undefined
           ? 'rejected: unauthorized (no Authorization header)'
-          : `rejected: unauthorized (${error instanceof OAuthError ? error.code : 'verification failed'})`
+          : `rejected: unauthorized (${error instanceof OAuthError ? `${error.code}: ${error.message}` : 'verification failed'})`
       );
       await writeWebResponse(
         res,
