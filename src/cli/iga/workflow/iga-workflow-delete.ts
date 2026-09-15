@@ -45,7 +45,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-F, --force',
+        '-f, --force',
         'Force delete workflow(s), even if they are associated with request types.'
       )
     )

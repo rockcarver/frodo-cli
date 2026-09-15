@@ -46,8 +46,8 @@ and bidirectional relationship properties, spanning two disposable
 managed-object types (A and B). If any step fails while recording against
 the live tenant, run:
 
-  frodo idm schema object delete -o alpha_frodoE2ERelTestA -y -F <host>
-  frodo idm schema object delete -o alpha_frodoE2ERelTestB -y -F <host>
+  frodo idm schema object delete -o alpha_frodoE2ERelTestA -y -f <host>
+  frodo idm schema object delete -o alpha_frodoE2ERelTestB -y -f <host>
 
 to manually clean up before re-recording.
 
@@ -57,7 +57,7 @@ plain live calls (FRODO_MOCK stripped from the child env, bypassing Polly
 entirely) in beforeAll/afterAll, gated to recording mode only. Both
 commands already have dedicated, snapshot-verified coverage in
 idm-schema-object-lifecycle.e2e.test.js, which uses the exact same command
-shape (-o/--title/-y and -o/-y/-F respectively) for its own disposable
+shape (-o/--title/-y and -o/-y/-f respectively) for its own disposable
 type. Since Polly's FSPersister replaces a bucket's persisted recording
 wholesale on every new invocation rather than merging entries, two
 different e2e test files recording against that identical shape --
@@ -172,7 +172,7 @@ async function setUp() {
 async function cleanUp() {
   try {
     await execWithRecordingProgress(
-      `frodo idm schema object delete -o ${typeA} -y -F`,
+      `frodo idm schema object delete -o ${typeA} -y -f`,
       liveOnlyEnv,
       false
     );
@@ -182,7 +182,7 @@ async function cleanUp() {
   }
   try {
     await execWithRecordingProgress(
-      `frodo idm schema object delete -o ${typeB} -y -F`,
+      `frodo idm schema object delete -o ${typeB} -y -f`,
       liveOnlyEnv,
       false
     );

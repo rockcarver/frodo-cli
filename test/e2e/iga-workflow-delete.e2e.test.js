@@ -48,11 +48,11 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete -di testWorkflow1
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete -Fpi testWorkflow9
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete -fpi testWorkflow9
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete --workflow-id testWorkflow4 --force
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete --draft-only -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete --published-only -Fa
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete -Fdp --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete --published-only -fa
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo iga workflow delete -fdp --all
  */
 
 import { getEnv, testFail, testSuccess } from './utils/TestUtils';
@@ -67,8 +67,8 @@ describe(`frodo iga workflow delete`, () => {
     await testSuccess(CMD, igaEnv);
   });
 
-  test(`"frodo iga workflow delete -Fpi testWorkflow9": should delete published testWorkflow9`, async () => {
-    const CMD = `frodo iga workflow delete -Fpi testWorkflow9`;
+  test(`"frodo iga workflow delete -fpi testWorkflow9": should delete published testWorkflow9`, async () => {
+    const CMD = `frodo iga workflow delete -fpi testWorkflow9`;
     await testSuccess(CMD, igaEnv);
   });
 
@@ -82,13 +82,13 @@ describe(`frodo iga workflow delete`, () => {
     await testSuccess(CMD, igaEnv);
   });
 
-  test(`"frodo iga workflow delete --published-only -Fa": should delete all published workflows`, async () => {
-    const CMD = `frodo iga workflow delete --published-only -Fa`;
+  test(`"frodo iga workflow delete --published-only -fa": should delete all published workflows`, async () => {
+    const CMD = `frodo iga workflow delete --published-only -fa`;
     await testFail(CMD, igaEnv);
   });
 
-  test(`"frodo iga workflow delete -Fdp --all": should delete all workflows`, async () => {
-    const CMD = `frodo iga workflow delete -Fdp --all`;
+  test(`"frodo iga workflow delete -fdp --all": should delete all workflows`, async () => {
+    const CMD = `frodo iga workflow delete -fdp --all`;
     await testFail(CMD, igaEnv);
   });
 });

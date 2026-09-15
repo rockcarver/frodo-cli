@@ -47,22 +47,23 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret set -i esv-test-secret-pi-generic --description "Test secret containing value of pi"
- */
-import cp from 'child_process';
-import { promisify } from 'util';
-import { getEnv } from './utils/TestUtils';
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret set -Fi esv-test-secret-pi-generic --description "Test secret containing value of pi"
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret set --secret-id esv-test-secret-pi-generic --description "Test secret containing value of pi"
+*/
+import { getEnv, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
-
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
 describe('frodo esv secret set', () => {
-    test('"frodo esv secret set -i esv-test-secret-pi-generic --description "Test secret containing value of pi"": should update the "esv-test-secret-pi-generic" secret\'s description.', async () => {
-        const CMD = `frodo esv secret set -i esv-test-secret-pi-generic --description "Test secret containing value of pi"`;
-        const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+    test('"frodo esv secret set -Fi esv-test-secret-pi-generic --description "Test secret containing value of pi"": should update the "esv-test-secret-pi-generic" secret\'s description.', async () => {
+        const CMD = `frodo esv secret set -Fi esv-test-secret-pi-generic --description "Test secret containing value of pi"`;
+        await testSuccess(CMD, env);
+    });
+
+    test('"frodo esv secret set --secret-id esv-test-secret-pi-generic --description "Test secret containing value of pi"": should not update the "esv-test-secret-pi-generic" secret\'s description when no changes are made.', async () => {
+        const CMD = `frodo esv secret set --secret-id esv-test-secret-pi-generic --description "Test secret containing value of pi"`;
+        await testSuccess(CMD, env);
     });
 });

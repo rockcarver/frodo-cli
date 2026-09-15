@@ -18,7 +18,7 @@ const {
   getWorkingDirectory,
 } = frodo.utils;
 const { DEFAULT_REALM_KEY, CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
-const { readScripts, readScriptByName, importScripts } = frodo.script;
+const { readScripts, readScriptByName, updateScript } = frodo.script;
 
 /**
  * Export scripts in config-manager format
@@ -164,7 +164,6 @@ export async function configManagerImportScripts(
       const configFiles = fs
         .readdirSync(configDir)
         .filter((file) => file.endsWith('.json'));
-      const scripts = { script: {} };
 
       for (const file of configFiles) {
         const configPath = `${configDir}/${file}`;
@@ -191,13 +190,13 @@ export async function configManagerImportScripts(
         );
         delete importData.script.file;
         importData.script = fs.readFileSync(fullScriptPath, 'utf8');
-        scripts.script[importData._id] = importData;
-      }
 
-      if (Object.keys(scripts.script).length === 0) {
-        continue;
+        const importedScript = await updateScript(importData._id, importData);
+        if (!importedScript)
+          printMessage(
+            `No change in script ${importData.name} - skipping update`
+          );
       }
-      await importScripts(null, null, scripts);
     }
 
     if (name && scriptNotFound) {

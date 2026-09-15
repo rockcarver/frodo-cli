@@ -1,5 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo esv variable set "frodo esv variable set --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"": should update the "esv-test-var-pi-string" variable 1`] = `""`;
+exports[`frodo esv variable set "frodo esv variable set --force-update --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"": should update the "esv-test-var-pi-string" variable 1`] = `""`;
 
-exports[`frodo esv variable set "frodo esv variable set -i esv-test-var-pi-string --description "This is a pi test variable."": should update the "esv-test-var-pi-string" variable's description. 1`] = `""`;
+exports[`frodo esv variable set "frodo esv variable set --force-update --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"": should update the "esv-test-var-pi-string" variable 2`] = `
+"✔ Updated variable esv-test-var-pi-string
+"
+`;
+
+exports[`frodo esv variable set "frodo esv variable set --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"": should not update the "esv-test-var-pi-string" variable when no changes made 1`] = `""`;
+
+exports[`frodo esv variable set "frodo esv variable set --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"": should not update the "esv-test-var-pi-string" variable when no changes made 2`] = `
+"⚠ Variable esv-test-var-pi-string not updated (value and description are already set to specified values)
+"
+`;
+
+exports[`frodo esv variable set "frodo esv variable set -Fi esv-test-var-pi-string --description "This is a pi test variable."": should update the "esv-test-var-pi-string" variable's description. 1`] = `""`;
+
+exports[`frodo esv variable set "frodo esv variable set -Fi esv-test-var-pi-string --description "This is a pi test variable."": should update the "esv-test-var-pi-string" variable's description. 2`] = `
+"✔ Updated variable esv-test-var-pi-string
+"
+`;
+
+exports[`frodo esv variable set "frodo esv variable set -Fi esv-test-var-pi-string --value "3.14"": should update the "esv-test-var-pi-string" variable's description. 1`] = `""`;
+
+exports[`frodo esv variable set "frodo esv variable set -Fi esv-test-var-pi-string --value "3.14"": should update the "esv-test-var-pi-string" variable's description. 2`] = `
+"✔ Updated variable esv-test-var-pi-string
+"
+`;
+
+exports[`frodo esv variable set "frodo esv variable set -i esv-test-var-pi-string --description "This is a pi test variable."": should not update the "esv-test-var-pi-string" variable's description when no changes are made 1`] = `""`;
+
+exports[`frodo esv variable set "frodo esv variable set -i esv-test-var-pi-string --description "This is a pi test variable."": should not update the "esv-test-var-pi-string" variable's description when no changes are made 2`] = `
+"⚠ Variable esv-test-var-pi-string not updated (value and description are already set to specified values)
+"
+`;
+
+exports[`frodo esv variable set "frodo esv variable set -i esv-test-var-pi-string --value "3.14"": should not update the "esv-test-var-pi-string" variable's description when no changes are made 1`] = `""`;
+
+exports[`frodo esv variable set "frodo esv variable set -i esv-test-var-pi-string --value "3.14"": should not update the "esv-test-var-pi-string" variable's description when no changes are made 2`] = `
+"✔ Updated variable esv-test-var-pi-string
+"
+`;

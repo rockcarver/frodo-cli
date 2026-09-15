@@ -841,7 +841,7 @@ async function handleScriptFileImport(
   const script = getScriptExportByScriptFile(file);
   const indicatorId = createProgressIndicator('determinate', 1, `${file}`);
   try {
-    await importScripts(
+    const scripts = await importScripts(
       id,
       name,
       script,
@@ -849,10 +849,23 @@ async function handleScriptFileImport(
       validateScripts,
       errorHandler
     );
-    updateProgressIndicator(indicatorId, `${file}`);
-    stopProgressIndicator(indicatorId, `${file}`);
+    let message;
+    if (id || name) {
+      message =
+        scripts.length > 0
+          ? `${file}: Imported ${id || name}.`
+          : `${file}: Did not import ${id || name} since no changes were made.`;
+    } else {
+      message = `${file}: Imported ${scripts.length} scripts.`;
+    }
+    updateProgressIndicator(indicatorId, message);
+    stopProgressIndicator(
+      indicatorId,
+      message,
+      scripts.length ? 'success' : 'warn'
+    );
   } catch (error) {
-    stopProgressIndicator(indicatorId, `${file}: ${error}`);
+    stopProgressIndicator(indicatorId, `${file}: ${error}`, 'fail');
   }
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
 }

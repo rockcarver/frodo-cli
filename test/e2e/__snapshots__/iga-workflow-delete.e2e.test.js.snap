@@ -7,7 +7,7 @@ exports[`frodo iga workflow delete "frodo iga workflow delete --draft-only -a": 
 "
 `;
 
-exports[`frodo iga workflow delete "frodo iga workflow delete --published-only -Fa": should delete all published workflows 1`] = `
+exports[`frodo iga workflow delete "frodo iga workflow delete --published-only -fa": should delete all published workflows 1`] = `
 "Error deleting workflow custom1BasicEntitlementGrant
   Error deleting published workflow custom1BasicEntitlementGrant
     Network error:
@@ -36,7 +36,7 @@ Error deleting workflow testWorkflow1
 "
 `;
 
-exports[`frodo iga workflow delete "frodo iga workflow delete --published-only -Fa": should delete all published workflows 2`] = `1`;
+exports[`frodo iga workflow delete "frodo iga workflow delete --published-only -fa": should delete all published workflows 2`] = `1`;
 
 exports[`frodo iga workflow delete "frodo iga workflow delete --workflow-id testWorkflow4 --force": Should delete both draft and published testWorkflow4 1`] = `""`;
 
@@ -45,7 +45,14 @@ exports[`frodo iga workflow delete "frodo iga workflow delete --workflow-id test
 "
 `;
 
-exports[`frodo iga workflow delete "frodo iga workflow delete -Fdp --all": should delete all workflows 1`] = `
+exports[`frodo iga workflow delete "frodo iga workflow delete -di testWorkflow1": should delete draft testWorkflow1" 1`] = `""`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete -di testWorkflow1": should delete draft testWorkflow1" 2`] = `
+"✔ Deleted workflow testWorkflow1.
+"
+`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete -fdp --all": should delete all workflows 1`] = `
 "Error deleting workflow custom1BasicEntitlementGrant
   Error deleting published workflow custom1BasicEntitlementGrant
     Network error:
@@ -74,18 +81,11 @@ Error deleting workflow testWorkflow1
 "
 `;
 
-exports[`frodo iga workflow delete "frodo iga workflow delete -Fdp --all": should delete all workflows 2`] = `1`;
+exports[`frodo iga workflow delete "frodo iga workflow delete -fdp --all": should delete all workflows 2`] = `1`;
 
-exports[`frodo iga workflow delete "frodo iga workflow delete -Fpi testWorkflow9": should delete published testWorkflow9 1`] = `""`;
+exports[`frodo iga workflow delete "frodo iga workflow delete -fpi testWorkflow9": should delete published testWorkflow9 1`] = `""`;
 
-exports[`frodo iga workflow delete "frodo iga workflow delete -Fpi testWorkflow9": should delete published testWorkflow9 2`] = `
+exports[`frodo iga workflow delete "frodo iga workflow delete -fpi testWorkflow9": should delete published testWorkflow9 2`] = `
 "✔ Deleted workflow testWorkflow9.
-"
-`;
-
-exports[`frodo iga workflow delete "frodo iga workflow delete -di testWorkflow1": should delete draft testWorkflow1" 1`] = `""`;
-
-exports[`frodo iga workflow delete "frodo iga workflow delete -di testWorkflow1": should delete draft testWorkflow1" 2`] = `
-"✔ Deleted workflow testWorkflow1.
 "
 `;

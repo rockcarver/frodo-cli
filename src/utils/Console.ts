@@ -399,6 +399,11 @@ export function succeedSpinner(message: string) {
   stopProgressIndicator(id, message, 'success');
 }
 
+export function warnSpinner(message: string) {
+  const id = createProgressIndicator('indeterminate', 0, message);
+  stopProgressIndicator(id, message, 'warn');
+}
+
 export function failSpinner(message: string) {
   const id = createProgressIndicator('indeterminate', 0, message);
   stopProgressIndicator(id, message, 'fail');

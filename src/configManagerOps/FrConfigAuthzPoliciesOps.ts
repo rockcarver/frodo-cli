@@ -17,7 +17,7 @@ const { getFilePath, saveJsonToFile, getWorkingDirectory, readJsonFile } =
   frodo.utils;
 const { importPolicySets, readPolicySet } = frodo.authz.policySet;
 const { readPoliciesByPolicySet, importPolicies } = frodo.authz.policy;
-const { readResourceType } = frodo.authz.resourceType;
+const { readResourceType, importResourceTypes } = frodo.authz.resourceType;
 
 /**
  * Export policy sets for all realms
@@ -109,7 +109,7 @@ export async function configManagerImportAuthzPolicies(): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
-    'Exporting policy sets...'
+    'Importing policy sets...'
   );
   try {
     const realmsDir = `${getWorkingDirectory()}/realms`;
@@ -117,6 +117,10 @@ export async function configManagerImportAuthzPolicies(): Promise<boolean> {
       .readdirSync(realmsDir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
+
+    let totalSets = 0;
+    let totalPolicies = 0;
+    let totalTypes = 0;
 
     for (const realmDir of realmDirs) {
       state.setRealm(realmDir === 'root' ? '/' : realmDir);
@@ -168,20 +172,23 @@ export async function configManagerImportAuthzPolicies(): Promise<boolean> {
         }
       }
 
-      // This will import sets, but we can't use it to import policies and resource types since this handles script dependencies and set resource type dependencies which config-manager doesn't support
-      await importPolicySets(importData, {
+      const importedSets = await importPolicySets(importData, {
         deps: false,
         prereqs: false,
       });
-      await importPolicies(importData, {
+      totalSets += importedSets.length;
+      const importedPolicies = await importPolicies(importData, {
         deps: false,
-        prereqs: true,
+        prereqs: false,
       });
+      totalPolicies += importedPolicies.length;
+      const importedTypes = await importResourceTypes(importData);
+      totalTypes += importedTypes.length;
     }
     stopProgressIndicator(
       indicatorId,
-      'Success importing policy sets.',
-      'success'
+      `Imported ${totalSets} policy sets, ${totalPolicies} policies, and ${totalTypes} resource types.`,
+      totalSets + totalPolicies + totalTypes > 0 ? 'success' : 'warn'
     );
     return true;
   } catch (error) {

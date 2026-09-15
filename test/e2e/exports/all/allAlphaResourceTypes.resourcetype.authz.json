@@ -50,7 +50,7 @@
       },
       "createdBy": "id=1e9280f6-eab6-467e-889c-83d147c8b936,ou=user,ou=am-config",
       "creationDate": 1725916543746,
-      "description": "",
+      "description": null,
       "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
       "lastModifiedDate": 1728514809011,
       "name": "test_resource",

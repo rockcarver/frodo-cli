@@ -62,9 +62,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='rootNoPrefix' frodo app import -af test/e2e/exports/all/forgeopsRootApps.application.json -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='rootPrefix' frodo app import --all --file test/e2e/exports/all/forgeopsRootApps.application.json --use-realm-prefix-on-managed-objects --type forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaNoPrefix' FRODO_REALM=alpha frodo app import -af test/e2e/exports/all/forgeopsRootApps.application.json -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaPrefix' FRODO_REALM=alpha frodo app import --all --file test/e2e/exports/all/forgeopsAlphaApps.application.json --use-realm-prefix-on-managed-objects --type forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaBravoNoPrefix' FRODO_REALM=alpha/bravo frodo app import -af test/e2e/exports/all/forgeopsRootApps.application.json -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaBravoPrefix' FRODO_REALM=alpha/bravo frodo app import --all --file test/e2e/exports/all/forgeopsBravoApps.application.json --use-realm-prefix-on-managed-objects --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaPrefix' FRODO_REALM=alpha frodo app import --all --file test/e2e/exports/all/forgeops/forgeopsAlphaApps.application.json --use-realm-prefix-on-managed-objects --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaBravoNoPrefix' FRODO_REALM=alpha/bravo frodo app import -af test/e2e/exports/all/forgeops/forgeopsRootApps.application.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaBravoPrefix' FRODO_REALM=alpha/bravo frodo app import --all --file test/e2e/exports/all/forgeops/forgeopsBravoApps.application.json --use-realm-prefix-on-managed-objects --type forgeops
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -81,9 +81,9 @@ const allDirectory = "test/e2e/exports/all";
 const allAlphaApplicationsFileName = "allAlphaApplications.application.json";
 const allAlphaApplicationsExport = `${allDirectory}/${allAlphaApplicationsFileName}`;
 const allSeparateApplicationsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/application`;
-const forgeopsRootApplicationsExport = `${allDirectory}/forgeopsRootApps.application.json`;
-const forgeopsAlphaApplicationsExport = `${allDirectory}/forgeopsAlphaApps.application.json`;
-const forgeopsBravoApplicationsExport = `${allDirectory}/forgeopsBravoApps.application.json`;
+const forgeopsRootApplicationsExport = `${allDirectory}/forgeops/forgeopsRootApps.application.json`;
+const forgeopsAlphaApplicationsExport = `${allDirectory}/forgeops/forgeopsAlphaApps.application.json`;
+const forgeopsBravoApplicationsExport = `${allDirectory}/forgeops/forgeopsBravoApps.application.json`;
 
 describe('frodo app import', () => {
 
