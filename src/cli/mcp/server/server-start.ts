@@ -118,6 +118,14 @@ type McpStartOptions = {
    * --oauth-resource-server.
    */
   publicUrl?: string;
+  /**
+   * A pre-provisioned, public (no-secret) OAuth client_id this server hands
+   * back to any caller attempting Dynamic Client Registration, instead of
+   * requiring the target AM/AIC tenant or external IDP to genuinely support
+   * RFC 7591 (most don't -- see `--registered-client-id`'s own help text).
+   * Requires --oauth-resource-server.
+   */
+  registeredClientId?: string;
   /** Max accepted POST /mcp body size in bytes (CLI flag; env fallback). */
   maxBodySize?: string;
   /** Max concurrent POST /mcp handler executions (CLI flag; env fallback). */
@@ -258,6 +266,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '--registered-client-id <client-id>',
+        'A pre-provisioned, public (no-secret, PKCE-only) OAuth client_id, already registered directly with the target AM/AIC tenant or external IDP, that this server hands back to ANY caller attempting Dynamic Client Registration (RFC 7591) at /oauth2/register — nothing is actually registered anywhere; the same client_id is always returned. Most authorization servers either don\'t support DCR at all (e.g. Entra ID) or require an initial access token to use it (AM\'s own real /oauth2/register does), so a generic DCR-attempting MCP client has no way to obtain a client_id without this. Security still comes entirely from the real app registration\'s own redirect-URI policy on AM/the external IDP, not from anything this server enforces — which means that app registration must already allow whatever redirect_uri your MCP client actually uses (commonly a loopback URI with an ephemeral port, e.g. http://127.0.0.1:<port>/callback — check whether AM/your IDP supports a wildcard-port pattern for this). To find out exactly what a specific client requests: let it connect once and read the resulting \'dcr: served pre-registered client_id ... configure this redirect_uri\' line, always logged at the default info level. Requires --oauth-resource-server.'
+      )
+    )
+    .addOption(
+      new Option(
         '--max-body-size <bytes>',
         `Maximum accepted request body size in bytes on POST /mcp (default 1048576 = 1 MiB; frodo transport policy, not part of the MCP protocol). Oversized requests are rejected with HTTP 413 before being buffered. Falls back to the FRODO_MCP_MAX_BODY_SIZE environment variable.`
       )
@@ -300,6 +314,10 @@ export default function setup() {
         `  Start as an OAuth 2.1 resource server reachable through a reverse proxy or TLS-terminating gateway (its externally-reachable URL differs from --bind-host, so it must be stated explicitly):\n` +
         c.command(
           `  $ frodo mcp server start --transport http --bind-host 0.0.0.0 --port 6277 --oauth-resource-server --public-url https://mcp.example.com\n`
+        ) +
+        `  Start as an OAuth 2.1 resource server against an authorization server with no usable Dynamic Client Registration (e.g. Entra ID has none at all; AM's own real endpoint needs an initial access token) -- hands a pre-provisioned public client_id to any client that attempts DCR:\n` +
+        c.command(
+          `  $ frodo mcp server start --transport http --oauth-resource-server --external-idp-issuer https://login.microsoftonline.com/<tenant>/v2.0 --external-idp-audience <client-id> --claims-config claims.json --registered-client-id <your-app-registration-client-id>\n`
         ) +
         `  Accept additional client hostnames (extends the localhost default):\n` +
         c.command(
@@ -415,6 +433,11 @@ export default function setup() {
               `http://${opts.bindHost ?? '127.0.0.1'}:${parseMcpHttpPortOption(opts.port)}/mcp`
             )
         : undefined;
+      if (opts.registeredClientId !== undefined && !opts.oauthResourceServer) {
+        throw new Error(
+          '--registered-client-id requires --oauth-resource-server.'
+        );
+      }
       // Transport-policy limits (HTTP only): resolved before the refusal
       // check so an operator who mistyped either value sees the fallback
       // note in the log regardless of what happens later in startup.
@@ -591,6 +614,7 @@ export default function setup() {
                 : ('derived-from-bind-host' as const),
             }
           : undefined,
+        registeredClientId: opts.registeredClientId,
         // Issuer/audience/claim-mapping are all operator-supplied
         // configuration, not secrets (the JWKs/tokens they gate are never
         // included) — printing them is exactly what confirms the intended
@@ -649,6 +673,7 @@ export default function setup() {
             // earlier computation used.
             resourceServerUrl: resourceServerUrl!,
             resourceServerUrlIsExplicit: Boolean(publicUrlOrigin),
+            registeredClientId: opts.registeredClientId,
             resolveCredential: buildClaimMappedCredentialResolver(
               // Guaranteed defined here: this branch only runs when
               // opts.externalIdpIssuer is set, the same condition the
@@ -664,6 +689,7 @@ export default function setup() {
             oauthMetadata: buildAmOAuthMetadata(state.getHost()),
             resourceServerUrl: resourceServerUrl!,
             resourceServerUrlIsExplicit: Boolean(publicUrlOrigin),
+            registeredClientId: opts.registeredClientId,
           };
         }
         await startHttpTransport(
@@ -729,6 +755,11 @@ type StartupSummary = {
     value: string;
     source: 'explicit' | 'derived-from-bind-host';
   };
+  // Present only when --registered-client-id is configured. The id itself
+  // is public/non-secret by design (see registeredClientId's own remarks),
+  // so printing it is safe and exactly what confirms the DCR shim is
+  // actually active.
+  registeredClientId?: string;
   externalIdp?: {
     issuer: string;
     audience: string;
@@ -754,6 +785,12 @@ function formatStartupMessages(summary: StartupSummary): string[] {
           summary.resourceServerUrl.source === 'explicit'
             ? `Resource server URL: ${summary.resourceServerUrl.value} (from --public-url)`
             : `Resource server URL: ${summary.resourceServerUrl.value} (derived from --bind-host; a request's own Host header is used instead per-request whenever it differs and passes the Host allow-list — pass --public-url to fix this instead, e.g. behind a reverse proxy)`,
+        ]
+      : []),
+    ...(summary.registeredClientId
+      ? [
+          `Registered client id (DCR shim, /oauth2/register): ${summary.registeredClientId}`,
+          `  A connecting client's requested redirect_uri is logged (info level) the first time it registers -- configure that exact value on the app registration on AM/the external IDP.`,
         ]
       : []),
     `Tools: ${summary.toolCounts.total} total (${summary.toolCounts.canonical} canonical, ${summary.toolCounts.discovery} discovery)`,

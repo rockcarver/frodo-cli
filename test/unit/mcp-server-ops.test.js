@@ -108,6 +108,7 @@ const {
   buildAmOAuthMetadata,
   buildAmTokenInfoVerifier,
   buildClaimMappedCredentialResolver,
+  buildDcrRegistrationResponse,
   buildExternalIdpVerifier,
   buildRequestContext,
   computeHttpAllowedHosts,
@@ -1679,6 +1680,121 @@ describe('startHttpTransport', () => {
     const arrival = debugLines().find((p) => p.msg.includes('POST /mcp'));
     expect(arrival).toBeDefined();
   }, 30000);
+
+  function minimalOauthResourceServer(port, registeredClientId) {
+    return {
+      verifier: {
+        verifyAccessToken: async () => {
+          throw new Error('not exercised by this test');
+        },
+      },
+      oauthMetadata: {
+        issuer: 'https://idp.example.com',
+        authorization_endpoint: 'https://idp.example.com/authorize',
+        token_endpoint: 'https://idp.example.com/token',
+      },
+      resourceServerUrl: new URL(`http://127.0.0.1:${port}/mcp`),
+      resourceServerUrlIsExplicit: true,
+      registeredClientId,
+    };
+  }
+
+  test('DCR shim: POST /oauth2/register returns the pre-registered client_id and logs the redirect_uri at info level', async () => {
+    const port = await getFreePort();
+    currentDone = startServer('127.0.0.1', port, {
+      oauthResourceServer: minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      ),
+    });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/oauth2/register',
+      JSON_HEADERS,
+      JSON.stringify({
+        redirect_uris: ['http://127.0.0.1:54321/callback'],
+        client_name: 'Test Client',
+      })
+    );
+
+    expect(res.status).toBe(201);
+    const body = JSON.parse(res.text);
+    expect(body.client_id).toBe('frodo-mcp-preregistered');
+    expect(body.redirect_uris).toEqual(['http://127.0.0.1:54321/callback']);
+
+    const dcrLine = printed.find(
+      (p) => p.type === 'info' && p.msg.includes('served pre-registered client_id')
+    );
+    expect(dcrLine).toBeDefined();
+    expect(dcrLine.msg).toContain('frodo-mcp-preregistered');
+    expect(dcrLine.msg).toContain('http://127.0.0.1:54321/callback');
+  });
+
+  test('DCR shim: malformed body returns a spec-shaped 400', async () => {
+    const port = await getFreePort();
+    currentDone = startServer('127.0.0.1', port, {
+      oauthResourceServer: minimalOauthResourceServer(port, 'client-id'),
+    });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/oauth2/register',
+      JSON_HEADERS,
+      'not json'
+    );
+
+    expect(res.status).toBe(400);
+    expect(JSON.parse(res.text)).toMatchObject({
+      error: 'invalid_client_metadata',
+    });
+  });
+
+  test('discovery metadata advertises registration_endpoint only when registeredClientId is configured', async () => {
+    const port = await getFreePort();
+    currentDone = startServer('127.0.0.1', port, {
+      oauthResourceServer: minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      ),
+    });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'GET',
+      '/.well-known/oauth-authorization-server'
+    );
+    const metadata = JSON.parse(res.text);
+    expect(metadata.registration_endpoint).toBe(
+      `http://127.0.0.1:${port}/oauth2/register`
+    );
+    // Real fields from the underlying oauthMetadata still pass through
+    // unmodified -- the shim only ever adds/overrides registration_endpoint.
+    expect(metadata.authorization_endpoint).toBe(
+      'https://idp.example.com/authorize'
+    );
+  });
+
+  test('discovery metadata has no registration_endpoint when registeredClientId is not configured', async () => {
+    const port = await getFreePort();
+    const options = minimalOauthResourceServer(port, undefined);
+    delete options.registeredClientId;
+    currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'GET',
+      '/.well-known/oauth-authorization-server'
+    );
+    const metadata = JSON.parse(res.text);
+    expect(metadata.registration_endpoint).toBeUndefined();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -2966,6 +3082,58 @@ describe('OAuth resource-server mode ("shared mode")', () => {
           options
         ).toString()
       ).toBe('http://localhost/mcp');
+    });
+  });
+
+  describe('buildDcrRegistrationResponse', () => {
+    const registeredClientId = 'frodo-mcp-preregistered-client';
+
+    test('always returns the pre-registered client_id, echoing back submitted metadata', () => {
+      const response = buildDcrRegistrationResponse(
+        {
+          redirect_uris: ['http://127.0.0.1:54321/callback'],
+          client_name: 'Claude Code',
+          application_type: 'native',
+        },
+        registeredClientId
+      );
+
+      expect(response.client_id).toBe(registeredClientId);
+      expect(response.token_endpoint_auth_method).toBe('none');
+      expect(response.redirect_uris).toEqual(['http://127.0.0.1:54321/callback']);
+      expect(response.client_name).toBe('Claude Code');
+      expect(response.application_type).toBe('native');
+      expect(typeof response.client_id_issued_at).toBe('number');
+    });
+
+    test('defaults grant_types/response_types when not submitted', () => {
+      const response = buildDcrRegistrationResponse({}, registeredClientId);
+
+      expect(response.grant_types).toEqual(['authorization_code']);
+      expect(response.response_types).toEqual(['code']);
+      expect(response.redirect_uris).toEqual([]);
+    });
+
+    test('is lenient with a malformed/non-object body -- still returns the client_id', () => {
+      expect(buildDcrRegistrationResponse(null, registeredClientId).client_id).toBe(
+        registeredClientId
+      );
+      expect(buildDcrRegistrationResponse('garbage', registeredClientId).client_id).toBe(
+        registeredClientId
+      );
+      expect(buildDcrRegistrationResponse([], registeredClientId).client_id).toBe(
+        registeredClientId
+      );
+    });
+
+    test('never honors a requested confidential auth method -- always public/PKCE', () => {
+      const response = buildDcrRegistrationResponse(
+        { token_endpoint_auth_method: 'client_secret_post' },
+        registeredClientId
+      );
+
+      expect(response.token_endpoint_auth_method).toBe('none');
+      expect(response.client_secret).toBeUndefined();
     });
   });
 

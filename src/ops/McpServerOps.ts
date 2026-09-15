@@ -802,6 +802,21 @@ export type McpOAuthResourceServerOptions = {
    * bearer-token branch for how the two shapes are told apart.
    */
   resolveCredential?: (authInfo: AuthInfo) => Promise<AuthInfo>;
+  /**
+   * `--registered-client-id`: an operator-pre-provisioned, public
+   * (no-secret) OAuth client_id to hand back verbatim from a DCR-emulation
+   * shim this server hosts itself at `/oauth2/register` — see
+   * `buildDcrRegistrationResponse`. Neither AM-as-IdP mode's hand-built
+   * metadata nor a typical external IDP's real metadata includes a working
+   * `registration_endpoint` a generic client can use (AM's own real one
+   * requires an initial access token frodo/clients don't have; most
+   * external IDPs, Entra ID included, don't implement RFC 7591 at all), so
+   * without this a DCR-attempting MCP client has no way to obtain a
+   * client_id at all. When set, `resolveResourceServerUrl`'s sibling
+   * derivation logic also points `registration_endpoint` at this server's
+   * own shim endpoint in the served AS metadata.
+   */
+  registeredClientId?: string;
 };
 
 /**
@@ -1160,6 +1175,67 @@ export function resolveResourceServerUrl(
 }
 
 /**
+ * This server's own DCR-emulation endpoint URL, derived from the same
+ * per-request-resolved base as `resourceServerUrl` (same host, same
+ * `0.0.0.0`-isn't-dialable concern) -- just a different path.
+ */
+function deriveRegistrationEndpointUrl(resolvedResourceServerUrl: URL): URL {
+  return new URL('/oauth2/register', resolvedResourceServerUrl);
+}
+
+/**
+ * Builds an RFC 7591-shaped Dynamic Client Registration success response
+ * that always names the same operator-pre-provisioned `registeredClientId`
+ * — see `McpOAuthResourceServerOptions.registeredClientId`'s own remarks
+ * for why this exists at all. Deliberately not real registration: nothing
+ * is persisted, nothing is forwarded to AM or the external IDP, and the
+ * exact same response is returned for every caller. That's safe because
+ * the client_id is public by design (`token_endpoint_auth_method: 'none'`,
+ * a PKCE-only client) — the real security boundary is the pre-provisioned
+ * app registration's own redirect-URI allow-list on AM/the external IDP,
+ * not anything this endpoint enforces.
+ *
+ * Deliberately lenient rather than RFC-7591-strict about the request body
+ * (echoing back whatever client metadata was actually submitted, defaulting
+ * the rest): the goal is maximum interoperability with whatever a generic
+ * DCR-attempting MCP client happens to send, not spec conformance testing.
+ *
+ * Exported for direct unit coverage without a real listener.
+ */
+export function buildDcrRegistrationResponse(
+  requestBody: unknown,
+  registeredClientId: string
+): Record<string, unknown> {
+  const submitted =
+    requestBody && typeof requestBody === 'object' && !Array.isArray(requestBody)
+      ? (requestBody as Record<string, unknown>)
+      : {};
+  return {
+    client_id: registeredClientId,
+    client_id_issued_at: Math.floor(Date.now() / 1000),
+    // Always public/PKCE, regardless of what the client asked for -- see
+    // this function's own remarks on why frodo can't honor a confidential
+    // client_secret request here even if one were submitted.
+    token_endpoint_auth_method: 'none',
+    redirect_uris: Array.isArray(submitted.redirect_uris)
+      ? submitted.redirect_uris
+      : [],
+    grant_types: Array.isArray(submitted.grant_types)
+      ? submitted.grant_types
+      : ['authorization_code'],
+    response_types: Array.isArray(submitted.response_types)
+      ? submitted.response_types
+      : ['code'],
+    ...(typeof submitted.client_name === 'string'
+      ? { client_name: submitted.client_name }
+      : {}),
+    ...(typeof submitted.application_type === 'string'
+      ? { application_type: submitted.application_type }
+      : {}),
+  };
+}
+
+/**
  * Verifies an HTTP `Authorization` header against the configured bearer
  * token, timing-safely.
  *
@@ -1263,6 +1339,23 @@ export async function startHttpTransport(
           printMessage(message, 'debug');
         }
       };
+      // A real DCR-shim registration is the one per-request event worth
+      // surfacing at 'info' rather than 'debug': it's low-frequency (once
+      // per new client, not routine traffic) and its content -- the
+      // redirect_uris the connecting client actually submitted -- is
+      // exactly what an operator needs to configure on the real app
+      // registration, information they have no other way to discover
+      // (frodo never sees the separate, later authorize-step failure an
+      // operator would otherwise only learn about from AM/the external
+      // IDP's own error page) and no reason to already be running with
+      // --mcp-log-level debug to catch.
+      const infoLog = (message: string): void => {
+        if (startupInfo) {
+          startupInfo.logger.info('dcr', message);
+        } else {
+          printMessage(message, 'info');
+        }
+      };
       try {
         await handleHttpRequest(
           req,
@@ -1274,6 +1367,7 @@ export async function startHttpTransport(
           options?.maxBodySizeBytes ?? DEFAULT_MCP_HTTP_MAX_BODY_SIZE_BYTES,
           limiter,
           debugLog,
+          infoLog,
           bindHost,
           allowedHostnames,
           options?.oauthResourceServer
@@ -1577,6 +1671,7 @@ async function handleHttpRequest(
   maxBodySizeBytes: number,
   limiter: McpHttpConcurrencyLimiter,
   debug: ((message: string) => void) | undefined,
+  info: ((message: string) => void) | undefined,
   bindHost: string,
   allowedHostnames: string[],
   oauthResourceServer?: McpOAuthResourceServerOptions
@@ -1603,14 +1698,28 @@ async function handleHttpRequest(
   // otherwise consume a POST /mcp body meant for the transport below.
   if (req.method === 'GET' && oauthResourceServer) {
     const webRequest = await toWebRequest(req);
+    const resolvedResourceServerUrl = resolveResourceServerUrl(
+      req,
+      bindHost,
+      allowedHostnames,
+      oauthResourceServer
+    );
+    // Only augment when a shim client_id is actually configured -- without
+    // it, AM-as-IdP mode's hand-built metadata correctly stays
+    // registration_endpoint-less (nothing to point it at), and
+    // external-IDP mode's metadata stays a faithful, unmodified passthrough
+    // of the real IDP's own document.
+    const oauthMetadata = oauthResourceServer.registeredClientId
+      ? {
+          ...oauthResourceServer.oauthMetadata,
+          registration_endpoint: deriveRegistrationEndpointUrl(
+            resolvedResourceServerUrl
+          ).toString(),
+        }
+      : oauthResourceServer.oauthMetadata;
     const discoveryResponse = await oauthMetadataResponse(webRequest, {
-      oauthMetadata: oauthResourceServer.oauthMetadata,
-      resourceServerUrl: resolveResourceServerUrl(
-        req,
-        bindHost,
-        allowedHostnames,
-        oauthResourceServer
-      ),
+      oauthMetadata,
+      resourceServerUrl: resolvedResourceServerUrl,
       resourceName: MCP_SERVER_NAME,
     });
     if (discoveryResponse) {
@@ -1618,6 +1727,60 @@ async function handleHttpRequest(
       await writeWebResponse(res, discoveryResponse);
       return;
     }
+  }
+
+  // DCR-emulation shim (--registered-client-id only) -- see
+  // buildDcrRegistrationResponse's own remarks for why this exists.
+  // Served before any other routing for the same reason discovery is: a
+  // client attempting registration has no token yet by definition.
+  // Deliberately stateless and side-effect-free (never touches AM/the
+  // external IDP), so gating it on Host/Origin would protect nothing real
+  // -- the response contains no secret, just a public client_id meant to
+  // be handed to any caller.
+  if (
+    req.method === 'POST' &&
+    routePath === '/oauth2/register' &&
+    oauthResourceServer?.registeredClientId
+  ) {
+    let body: unknown;
+    try {
+      body = await readJsonBody(req, maxBodySizeBytes);
+    } catch (err) {
+      if (err instanceof McpHttpBodyTooLargeError) {
+        debug?.('rejected: 413 registration request body too large');
+        res.writeHead(413, { 'Content-Type': 'application/json' }).end(
+          JSON.stringify({
+            error: 'invalid_client_metadata',
+            error_description: 'Request body too large.',
+          })
+        );
+        return;
+      }
+      debug?.('rejected: invalid JSON body on /oauth2/register');
+      res.writeHead(400, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'invalid_client_metadata',
+          error_description: 'Invalid JSON body.',
+        })
+      );
+      return;
+    }
+    const registrationResponse = buildDcrRegistrationResponse(
+      body,
+      oauthResourceServer.registeredClientId
+    );
+    // 'info', not 'debug': this is the one place an operator learns what
+    // redirect_uri(s) a real connecting client actually requested -- the
+    // exact value that must be configured on the app registration on
+    // AM/the external IDP for the later authorize step (which frodo is
+    // never part of) to succeed. See this route's own top-of-block remarks.
+    info?.(
+      `served pre-registered client_id '${oauthResourceServer.registeredClientId}' -- configure this redirect_uri on the app registration: ${JSON.stringify(registrationResponse.redirect_uris)}`
+    );
+    res.writeHead(201, { 'Content-Type': 'application/json' }).end(
+      JSON.stringify(registrationResponse)
+    );
+    return;
   }
 
   // Health probe — deliberately unauthenticated: liveness probes must not
