@@ -21,6 +21,7 @@ import {
   stopProgressIndicator,
   succeedSpinner,
   updateProgressIndicator,
+  warnSpinner,
 } from '../../utils/Console';
 import wordwrap from '../utils/Wordwrap';
 
@@ -33,12 +34,12 @@ const {
 } = frodo.utils;
 const { resolveIdentity } = frodo.idm.managed;
 const {
+  createVariable: _createVariable,
   readVariables,
   readVariable,
   exportVariable,
   exportVariables,
   deleteVariable,
-  updateVariableDescription,
   updateVariable: _updateVariable,
   importVariable,
   importVariables,
@@ -180,7 +181,7 @@ export async function createVariable(
     `Creating variable ${variableId}...`
   );
   try {
-    await _updateVariable(variableId, value, description, type);
+    await _createVariable(variableId, value, description, type);
     stopProgressIndicator(
       spinnerId,
       `Created variable ${variableId}`,
@@ -201,14 +202,14 @@ export async function createVariable(
 /**
  * Update variable
  * @param {string} variableId variable id
- * @param {string} value variable value
- * @param {string} description variable description
+ * @param {string} value optional variable value
+ * @param {string} description optional variable description
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function updateVariable(
   variableId: string,
-  value: string,
-  description: string
+  value?: string,
+  description?: string
 ): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
@@ -216,51 +217,24 @@ export async function updateVariable(
     `Updating variable ${variableId}...`
   );
   try {
-    await _updateVariable(variableId, value, description);
-    stopProgressIndicator(
-      spinnerId,
-      `Updated variable ${variableId}`,
-      'success'
-    );
+    if (await _updateVariable(variableId, value, description)) {
+      stopProgressIndicator(
+        spinnerId,
+        `Updated variable ${variableId}`,
+        'success'
+      );
+    } else {
+      stopProgressIndicator(
+        spinnerId,
+        `Variable ${variableId} not updated (value and description are already set to specified values)`,
+        'warn'
+      );
+    }
     return true;
   } catch (error) {
     stopProgressIndicator(
       spinnerId,
       `Error updating variable ${variableId}`,
-      'fail'
-    );
-    printError(error);
-  }
-  return false;
-}
-
-/**
- * Set description of variable
- * @param {string} variableId variable id
- * @param {string} description variable description
- * @returns {Promise<boolean>} true if successful, false otherwise
- */
-export async function setVariableDescription(
-  variableId: string,
-  description: string
-): Promise<boolean> {
-  const spinnerId = createProgressIndicator(
-    'indeterminate',
-    0,
-    `Setting description of variable ${variableId}...`
-  );
-  try {
-    await updateVariableDescription(variableId, description);
-    stopProgressIndicator(
-      spinnerId,
-      `Set description of variable ${variableId}`,
-      'success'
-    );
-    return true;
-  } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error setting description of variable ${variableId}`,
       'fail'
     );
     printError(error);
@@ -610,8 +584,14 @@ export async function importVariableFromFile(
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
-    await importVariable(variableId, importData);
-    succeedSpinner(`Imported ${variableId ? variableId : 'first variable'}.`);
+    const variable = await importVariable(variableId, importData);
+    if (variable) {
+      succeedSpinner(`Imported ${variableId ? variableId : 'first variable'}.`);
+    } else {
+      warnSpinner(
+        `Did not import ${variableId ? variableId : 'first variable'} since no changes were made.`
+      );
+    }
     debugMessage(`cli.VariablesOps.importVariableFromFile: end`);
     return true;
   } catch (error) {
@@ -635,8 +615,10 @@ export async function importVariablesFromFile(file: string): Promise<boolean> {
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    await importVariables(fileData);
-    succeedSpinner(`Imported ${filePath}.`);
+    const variables = await importVariables(fileData);
+    (variables.length ? succeedSpinner : warnSpinner)(
+      `Imported ${variables.length} variable(s) from ${filePath}.`
+    );
     debugMessage(`cli.VariablesOps.importVariablesFromFile: end`);
     return true;
   } catch (error) {
@@ -669,12 +651,11 @@ export async function importVariablesFromFiles(): Promise<boolean> {
       try {
         const data = fs.readFileSync(file, 'utf8');
         const fileData: VariablesExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.variable).length;
-        total += count;
-        await importVariables(fileData);
+        const variables = await importVariables(fileData);
+        total += variables.length;
         updateProgressIndicator(
           indicatorId,
-          `Imported ${count} variables from ${file}`
+          `Imported ${variables.length} variables from ${file}`
         );
       } catch (error) {
         errors.push(error);
@@ -685,12 +666,13 @@ export async function importVariablesFromFiles(): Promise<boolean> {
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} variables from ${files.length} files.`
+      `Finished importing ${total} variables from ${files.length} files.`,
+      total ? 'success' : 'warn'
     );
     debugMessage(`cli.VariablesOps.importVariablesFromFiles: end`);
     return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error importing variables`);
+    stopProgressIndicator(indicatorId, `Error importing variables`, 'fail');
     printError(error);
   }
   return false;

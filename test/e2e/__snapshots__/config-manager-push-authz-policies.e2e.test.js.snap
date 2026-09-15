@@ -1,10 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the authz-policies into forgeops" 1`] = `""`;
+exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should not import the authz-policies into forgeops when no changes are made" 1`] = `""`;
 
-exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the authz-policies into forgeops" 2`] = `
+exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should not import the authz-policies into forgeops when no changes are made" 2`] = `
 "Experimental feature in use: 'frodo config-manager push authz-policies'. This feature may change without notice.
 Importing authorization policies...
-✔ Success importing policy sets.
+⚠ Imported 0 policy sets, 0 policies, and 0 resource types.
+"
+`;
+
+exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -FD test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the authz-policies into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -FD test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the authz-policies into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push authz-policies'. This feature may change without notice.
+Importing authorization policies...
+✔ Imported 5 policy sets, 4 policies, and 2 resource types.
 "
 `;

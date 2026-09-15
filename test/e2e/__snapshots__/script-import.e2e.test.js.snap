@@ -1,0 +1,149 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo script import "frodo script import --default --no-deps --all-separate --directory test/e2e/exports/all-separate/forgeops/realm/root/script -m forgeops": should not import all unchanged scripts, including defaults, from the test/e2e/exports/all-separate/forgeops/realm/root/script directory 1`] = `""`;
+
+exports[`frodo script import "frodo script import --default --no-deps --all-separate --directory test/e2e/exports/all-separate/forgeops/realm/root/script -m forgeops": should not import all unchanged scripts, including defaults, from the test/e2e/exports/all-separate/forgeops/realm/root/script directory 2`] = `
+"⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Amazon-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Apple-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Authentication-Tree-Decision-Node-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Config-Provider.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Debug.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Device-Id-(Match)-Client-Side.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Device-Id-(Match)-Server-Side.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Device-Profile-Match-Template-Decision-Node-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Facebook-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/GitHub-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Google-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Instagram-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Itsme-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/LINE-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Library-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/LinkedIn-Profile-Normalization-(Legacy).script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/LinkedIn-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Microsoft-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Next-Generation-Device-Match-Node-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Next-Generation-Scripted-Decision-Node-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Normalized-Profile-to-Identity.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Normalized-Profile-to-Managed-User.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Access-Token-Modification-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Authorize-Endpoint-Data-Provider-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Dynamic-Client-Registration-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Evaluate-Scope-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-JWT-Issuer-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-May-Act-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Validate-Scope-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OIDC-Claims-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/SAML2-IDP-Adapter-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/SAML2-IDP-Attribute-Mapper-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/SAML2-NameID-Mapper-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/SAML2-SP-Adapter-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Salesforce-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Scripted-Module-Client-Side.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Scripted-Module-Server-Side.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Scripted-Policy-Condition.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Social-Identity-Provider-Profile-Transformation-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/TEMPLATE-OIDC-Claims-Script..script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Test-Groovy-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Test-Next-Gen.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Twitter-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/VKontakte-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/WeChat-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/WordPress-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Yahoo-Profile-Normalization.script.json: Imported 0 scripts.
+"
+`;
+
+exports[`frodo script import "frodo script import --force-update --script-id 3d27b6d3-0f41-410a-9975-2e9df43d885e --file test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should import the script with the id "3d27b6d3-0f41-410a-9975-2e9df43d885e" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 1`] = `""`;
+
+exports[`frodo script import "frodo script import --force-update --script-id 3d27b6d3-0f41-410a-9975-2e9df43d885e --file test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should import the script with the id "3d27b6d3-0f41-410a-9975-2e9df43d885e" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 2`] = `
+"✔ test/e2e/exports/all/forgeops/allScripts.script.json: Imported 3d27b6d3-0f41-410a-9975-2e9df43d885e.
+"
+`;
+
+exports[`frodo script import "frodo script import --no-deps --file test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should not import default or unchanged scripts from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 1`] = `""`;
+
+exports[`frodo script import "frodo script import --no-deps --file test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should not import default or unchanged scripts from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 2`] = `
+"⚠ test/e2e/exports/all/forgeops/allScripts.script.json: Imported 0 scripts.
+"
+`;
+
+exports[`frodo script import "frodo script import --no-deps --script-name "Test Groovy Script" --file test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should not import the script with the name "Test Groovy Script" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" when no changes are made 1`] = `""`;
+
+exports[`frodo script import "frodo script import --no-deps --script-name "Test Groovy Script" --file test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should not import the script with the name "Test Groovy Script" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" when no changes are made 2`] = `
+"⚠ test/e2e/exports/all/forgeops/allScripts.script.json: Did not import Test Groovy Script since no changes were made.
+"
+`;
+
+exports[`frodo script import "frodo script import --no-deps -i 3d27b6d3-0f41-410a-9975-2e9df43d885e -f test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should not import the script with the id "3d27b6d3-0f41-410a-9975-2e9df43d885e" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" when no changes are made 1`] = `""`;
+
+exports[`frodo script import "frodo script import --no-deps -i 3d27b6d3-0f41-410a-9975-2e9df43d885e -f test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should not import the script with the id "3d27b6d3-0f41-410a-9975-2e9df43d885e" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" when no changes are made 2`] = `
+"⚠ test/e2e/exports/all/forgeops/allScripts.script.json: Did not import 3d27b6d3-0f41-410a-9975-2e9df43d885e since no changes were made.
+"
+`;
+
+exports[`frodo script import "frodo script import -FAD test/e2e/exports/all-separate/forgeops/realm/root/script -m forgeops": should import all scripts from the test/e2e/exports/all-separate/forgeops/realm/root/script directory 1`] = `""`;
+
+exports[`frodo script import "frodo script import -FAD test/e2e/exports/all-separate/forgeops/realm/root/script -m forgeops": should import all scripts from the test/e2e/exports/all-separate/forgeops/realm/root/script directory 2`] = `
+"⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Amazon-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Apple-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Authentication-Tree-Decision-Node-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Config-Provider.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Device-Id-(Match)-Client-Side.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Device-Id-(Match)-Server-Side.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Device-Profile-Match-Template-Decision-Node-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Facebook-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/GitHub-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Google-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Instagram-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Itsme-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/LINE-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Library-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/LinkedIn-Profile-Normalization-(Legacy).script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/LinkedIn-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Microsoft-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Next-Generation-Device-Match-Node-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Next-Generation-Scripted-Decision-Node-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Normalized-Profile-to-Identity.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Normalized-Profile-to-Managed-User.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Access-Token-Modification-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Authorize-Endpoint-Data-Provider-Script.script.json: Imported 0 scripts.
+✔ test/e2e/exports/all-separate/forgeops/realm/root/script/Debug.script.json: Imported 1 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Dynamic-Client-Registration-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Evaluate-Scope-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-JWT-Issuer-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-May-Act-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OAuth2-Validate-Scope-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/OIDC-Claims-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/SAML2-IDP-Adapter-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/SAML2-IDP-Attribute-Mapper-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/SAML2-NameID-Mapper-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/SAML2-SP-Adapter-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Salesforce-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Scripted-Module-Client-Side.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Scripted-Module-Server-Side.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Scripted-Policy-Condition.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Social-Identity-Provider-Profile-Transformation-Script.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/TEMPLATE-OIDC-Claims-Script..script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Twitter-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/VKontakte-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/WeChat-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/WordPress-Profile-Normalization.script.json: Imported 0 scripts.
+⚠ test/e2e/exports/all-separate/forgeops/realm/root/script/Yahoo-Profile-Normalization.script.json: Imported 0 scripts.
+✔ test/e2e/exports/all-separate/forgeops/realm/root/script/Test-Groovy-Script.script.json: Imported 1 scripts.
+✔ test/e2e/exports/all-separate/forgeops/realm/root/script/Test-Next-Gen.script.json: Imported 1 scripts.
+"
+`;
+
+exports[`frodo script import "frodo script import -Fn "Test Groovy Script" -f test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should import the script with the name "Test Groovy Script" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 1`] = `""`;
+
+exports[`frodo script import "frodo script import -Fn "Test Groovy Script" -f test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should import the script with the name "Test Groovy Script" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 2`] = `
+"✔ test/e2e/exports/all/forgeops/allScripts.script.json: Imported Test Groovy Script.
+"
+`;
+
+exports[`frodo script import "frodo script import -dFf test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should import the all scripts including defaults from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 1`] = `""`;
+
+exports[`frodo script import "frodo script import -dFf test/e2e/exports/all/forgeops/allScripts.script.json -m forgeops": should import the all scripts including defaults from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 2`] = `
+"✔ test/e2e/exports/all/forgeops/allScripts.script.json: Imported 47 scripts.
+"
+`;

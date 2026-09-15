@@ -420,8 +420,15 @@ export async function importPolicySetFromFile(
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    await importPolicySet(policySetId, fileData, options);
-    stopProgressIndicator(indicatorId, `Imported ${policySetId}.`, 'success');
+    const set = await importPolicySet(policySetId, fileData, options);
+    if (set) {
+      stopProgressIndicator(indicatorId, `Imported ${policySetId}.`, 'success');
+    } else {
+      stopProgressIndicator(
+        `Did not import ${policySetId} since no changes were made.`,
+        'warn'
+      );
+    }
     debugMessage(`cli.PolicySetOps.importPolicySetFromFile: end`);
     return true;
   } catch (error) {
@@ -456,11 +463,18 @@ export async function importFirstPolicySetFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     const policySet = await importFirstPolicySet(fileData, options);
-    stopProgressIndicator(
-      indicatorId,
-      `Imported first policy set '${policySet.name}'`,
-      'success'
-    );
+    if (policySet) {
+      stopProgressIndicator(
+        indicatorId,
+        `Imported first policy set '${policySet.name}'`,
+        'success'
+      );
+    } else {
+      stopProgressIndicator(
+        `Did not import first policy set from ${filePath} since no changes were made.`,
+        'warn'
+      );
+    }
     debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: end`);
     return true;
   } catch (error) {
@@ -494,8 +508,12 @@ export async function importPolicySetsFromFile(
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    await importPolicySets(fileData, options);
-    stopProgressIndicator(indicatorId, `Imported ${filePath}.`, 'success');
+    const sets = await importPolicySets(fileData, options);
+    stopProgressIndicator(
+      indicatorId,
+      `Imported ${sets.length} policy sets from ${filePath}.`,
+      sets.length ? 'success' : 'warn'
+    );
     debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: end`);
     return true;
   } catch (error) {
@@ -538,12 +556,11 @@ export async function importPolicySetsFromFiles(
       try {
         const data = fs.readFileSync(file, 'utf8');
         const fileData: PolicySetExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.policyset).length;
-        total += count;
-        await importPolicySets(fileData, options);
+        const sets = await importPolicySets(fileData, options);
+        total += sets.length;
         updateProgressIndicator(
           indicatorId,
-          `Imported ${count} policy sets from ${file}`
+          `Imported ${sets.length} policy sets from ${file}`
         );
       } catch (error) {
         errors.push(error);
@@ -565,7 +582,7 @@ export async function importPolicySetsFromFiles(
       stopProgressIndicator(
         indicatorId,
         `Finished importing ${total} policy sets from ${files.length} files.`,
-        'success'
+        total ? 'success' : 'warn'
       );
     }
   } catch (error) {

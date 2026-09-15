@@ -36,7 +36,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-F, --output-file <file>',
+        '-O, --output-file <file>',
         'Name of the file to write the output to.'
       )
     )

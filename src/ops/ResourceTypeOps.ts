@@ -15,6 +15,7 @@ import {
   stopProgressIndicator,
   succeedSpinner,
   updateProgressIndicator,
+  warnSpinner,
 } from '../utils/Console';
 
 const {
@@ -429,8 +430,14 @@ export async function importResourceTypeFromFile(
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    await importResourceType(resourceTypeId, fileData);
-    succeedSpinner(`Imported ${resourceTypeId}.`);
+    const type = await importResourceType(resourceTypeId, fileData);
+    if (type) {
+      succeedSpinner(`Imported ${resourceTypeId}.`);
+    } else {
+      warnSpinner(
+        `Did not import resource type ${resourceTypeId} since no changes were made.`
+      );
+    }
     debugMessage(`cli.ResourceTypeOps.importResourceTypeFromFile: end`);
     return true;
   } catch (error) {
@@ -455,8 +462,14 @@ export async function importResourceTypeByNameFromFile(
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    await importResourceTypeByName(resourceTypeName, fileData);
-    succeedSpinner(`Imported ${resourceTypeName}.`);
+    const type = await importResourceTypeByName(resourceTypeName, fileData);
+    if (type) {
+      succeedSpinner(`Imported ${resourceTypeName}.`);
+    } else {
+      warnSpinner(
+        `Did not import resource type ${resourceTypeName} since no changes were made.`
+      );
+    }
     debugMessage(`cli.ResourceTypeOps.importResourceTypeByNameFromFile: end`);
     return true;
   } catch (error) {
@@ -480,8 +493,14 @@ export async function importFirstResourceTypeFromFile(
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    await importFirstResourceType(fileData);
-    succeedSpinner(`Imported ${filePath}.`);
+    const type = await importFirstResourceType(fileData);
+    if (type) {
+      succeedSpinner(`Imported ${filePath}.`);
+    } else {
+      warnSpinner(
+        `Did not import first resource type from ${filePath} since no changes were made.`
+      );
+    }
     debugMessage(`cli.ResourceTypeOps.importFirstResourceTypeFromFile: end`);
     return true;
   } catch (error) {
@@ -505,8 +524,10 @@ export async function importResourceTypesFromFile(
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    await importResourceTypes(fileData);
-    succeedSpinner(`Imported ${filePath}.`);
+    const types = await importResourceTypes(fileData);
+    (types.length ? succeedSpinner : warnSpinner)(
+      `Imported ${types.length} resource types from ${filePath}.`
+    );
     debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: end`);
     return true;
   } catch (error) {
@@ -545,12 +566,11 @@ export async function importResourceTypesFromFiles(): Promise<boolean> {
       try {
         const data = fs.readFileSync(file, 'utf8');
         const fileData: ResourceTypeExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.resourcetype).length;
-        total += count;
-        await importResourceTypes(fileData);
+        const types = await importResourceTypes(fileData);
+        total += types.length;
         updateProgressIndicator(
           indicatorId,
-          `Imported ${count} resource types from ${file}`
+          `Imported ${types.length} resource types from ${file}`
         );
       } catch (error) {
         errors.push(error);
@@ -561,12 +581,17 @@ export async function importResourceTypesFromFiles(): Promise<boolean> {
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} resource types from ${files.length} files.`
+      `Finished importing ${total} resource types from ${files.length} files.`,
+      total ? 'success' : 'warn'
     );
     debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: end`);
     return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error importing resource types`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing resource types`,
+      'fail'
+    );
     printError(error);
   }
   return false;

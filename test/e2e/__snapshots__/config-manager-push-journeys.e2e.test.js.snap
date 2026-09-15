@@ -20,9 +20,29 @@ exports[`frodo config-manager push journeys "frodo config-manager push journeys 
 "
 `;
 
-exports[`frodo config-manager push journeys "frodo config-manager push journeys -d -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should resolve dependencies when importing to  forgeops" 1`] = `""`;
+exports[`frodo config-manager push journeys "frodo config-manager push journeys -Fd -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should resolve dependencies when importing to forgeops" 1`] = `""`;
 
-exports[`frodo config-manager push journeys "frodo config-manager push journeys -d -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should resolve dependencies when importing to  forgeops" 2`] = `
+exports[`frodo config-manager push journeys "frodo config-manager push journeys -Fd -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should resolve dependencies when importing to forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push journeys'. This feature may change without notice.
+✔ Resolved all alpha realm dependencies.
+• Finished importing alpha realm journeys
+✔ Resolved all / realm dependencies.
+• Finished importing / realm journeys
+"
+`;
+
+exports[`frodo config-manager push journeys "frodo config-manager push journeys -Fn Test -d -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a journey with dependencies" 1`] = `""`;
+
+exports[`frodo config-manager push journeys "frodo config-manager push journeys -Fn Test -d -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a journey with dependencies" 2`] = `
+"Experimental feature in use: 'frodo config-manager push journeys'. This feature may change without notice.
+✔ Resolved all / realm dependencies.
+• Finished importing / realm journeys
+"
+`;
+
+exports[`frodo config-manager push journeys "frodo config-manager push journeys -d -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should not resolve dependencies when no changes to scripts" 1`] = `""`;
+
+exports[`frodo config-manager push journeys "frodo config-manager push journeys -d -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should not resolve dependencies when no changes to scripts" 2`] = `
 "Experimental feature in use: 'frodo config-manager push journeys'. This feature may change without notice.
 ✔ Resolved all alpha realm dependencies.
 • Finished importing alpha realm journeys
@@ -37,14 +57,5 @@ exports[`frodo config-manager push journeys "frodo config-manager push journeys 
 "Experimental feature in use: 'frodo config-manager push journeys'. This feature may change without notice.
 ✔ Resolved all alpha realm dependencies.
 • Finished importing alpha realm journeys
-"
-`;
-
-exports[`frodo config-manager push journeys "frodo config-manager push journeys -n Test -d -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a journey with dependencies" 1`] = `""`;
-
-exports[`frodo config-manager push journeys "frodo config-manager push journeys -n Test -d -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a journey with dependencies" 2`] = `
-"Experimental feature in use: 'frodo config-manager push journeys'. This feature may change without notice.
-✔ Resolved all / realm dependencies.
-• Finished importing / realm journeys
 "
 `;

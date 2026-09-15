@@ -1,15 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo esv variable create "frodo esv variable create --variable-id esv-test-var-pi-string --value "3.1415926" --variable-type string --description "This is another test variable."": should create an esv variable of type string with the value of pi. 1`] = `""`;
+exports[`frodo esv variable create "frodo esv variable create --variable-id esv-test-var-pi-string --value "3.1415926" --variable-type string --description "This is another test variable."": should create an esv variable of type string with the value of pi 1`] = `""`;
+
+exports[`frodo esv variable create "frodo esv variable create --variable-id esv-test-var-pi-string --value "3.1415926" --variable-type string --description "This is another test variable."": should create an esv variable of type string with the value of pi 2`] = `
+"✔ Created variable esv-test-var-pi-string
+"
+`;
 
 exports[`frodo esv variable create "frodo esv variable create --variable-id esv-test-var-pi-unknown --value "3.1415926" --description "This is another test variable." --variable-type unknown": should display an error when trying to create an esv variable of unknown type 1`] = `
-"✖ Error updating variable esv-test-var-pi-unknown
+"✖ Error creating variable esv-test-var-pi-unknown
   Network error:
     URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-test-var-pi-unknown
     Status: 400
     Code: ERR_BAD_REQUEST
     Message: request body has an error: doesn't match schema #/components/schemas/esvVariableCreateUpdateRequest: Error at "/expressionType": value is not one of the allowed values ["string","list","array","object","bool","int","number","base64encodedinlined","keyvaluelist"]
-Error updating variable esv-test-var-pi-unknown
+Error creating variable esv-test-var-pi-unknown
   Network error:
     URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-test-var-pi-unknown
     Status: 400
@@ -18,4 +23,19 @@ Error updating variable esv-test-var-pi-unknown
 "
 `;
 
-exports[`frodo esv variable create "frodo esv variable create -i esv-test-var-pi --value "3.1415926" --description "This is another test variable." --variable-type number": should create an esv variable of type number with the value of pi. 1`] = `""`;
+exports[`frodo esv variable create "frodo esv variable create --variable-id esv-test-var-pi-unknown --value "3.1415926" --description "This is another test variable." --variable-type unknown": should display an error when trying to create an esv variable of unknown type 2`] = `1`;
+
+exports[`frodo esv variable create "frodo esv variable create -i esv-test-var-bool --value "True" --variable-type bool --description "Test boolean variable"": should create an esv variable of type bool with value of true 1`] = `""`;
+
+exports[`frodo esv variable create "frodo esv variable create -i esv-test-var-bool --value "True" --variable-type bool --description "Test boolean variable"": should create an esv variable of type bool with value of true 2`] = `
+"✔ Created variable esv-test-var-bool
+"
+`;
+
+exports[`frodo esv variable create "frodo esv variable create -i esv-test-var-pi --value "3.1415926" --description "This is another test variable." --variable-type number": should fail to create an esv variable if it already exists 1`] = `
+"✖ Variable esv-test-var-pi already exists
+Variable esv-test-var-pi already exists
+"
+`;
+
+exports[`frodo esv variable create "frodo esv variable create -i esv-test-var-pi --value "3.1415926" --description "This is another test variable." --variable-type number": should fail to create an esv variable if it already exists 2`] = `1`;

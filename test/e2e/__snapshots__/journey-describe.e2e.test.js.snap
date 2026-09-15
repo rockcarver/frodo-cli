@@ -2120,9 +2120,9 @@ Email Templates (1):
 "
 `;
 
-exports[`frodo journey describe "frodo journey describe -F test1.json": should describe all journeys and write output to test1.json file 1`] = `""`;
+exports[`frodo journey describe "frodo journey describe -O test1.json": should describe all journeys and write output to test1.json file 1`] = `""`;
 
-exports[`frodo journey describe "frodo journey describe -F test1.json": should describe all journeys and write output to test1.json file 2`] = `
+exports[`frodo journey describe "frodo journey describe -O test1.json": should describe all journeys and write output to test1.json file 2`] = `
 "[Agent]
 
 CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.
@@ -2767,9 +2767,9 @@ Email Templates (1):
 "
 `;
 
-exports[`frodo journey describe "frodo journey describe -F test3.json --markdown": should describe all journeys and write output to test3.json file in markdown 1`] = `""`;
+exports[`frodo journey describe "frodo journey describe -O test3.json --markdown": should describe all journeys and write output to test3.json file in markdown 1`] = `""`;
 
-exports[`frodo journey describe "frodo journey describe -F test3.json --markdown": should describe all journeys and write output to test3.json file in markdown 2`] = `
+exports[`frodo journey describe "frodo journey describe -O test3.json --markdown": should describe all journeys and write output to test3.json file in markdown 2`] = `
 "
 # UpdatePassword - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
 \`Password Reset\`
@@ -2807,9 +2807,9 @@ Update password using active session
 "
 `;
 
-exports[`frodo journey describe "frodo journey describe -F test4.json -o 4.2.0": should describe all journeys and write output to test4.json file and override version to 4.2.0 1`] = `""`;
+exports[`frodo journey describe "frodo journey describe -O test4.json -o 4.2.0": should describe all journeys and write output to test4.json file and override version to 4.2.0 1`] = `""`;
 
-exports[`frodo journey describe "frodo journey describe -F test4.json -o 4.2.0": should describe all journeys and write output to test4.json file and override version to 4.2.0 2`] = `
+exports[`frodo journey describe "frodo journey describe -O test4.json -o 4.2.0": should describe all journeys and write output to test4.json file and override version to 4.2.0 2`] = `
 "[Agent]
 
 CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.
