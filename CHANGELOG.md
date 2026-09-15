@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+- `frodo mcp server start`'s startup summary (`--dry-run` output and the live `startup.configuration` debug log lines alike) now includes the external-IDP issuer, audience, and the full claims-config mapping table (claim value → service account name, never any secret) whenever `--external-idp-issuer` is configured — previously none of that appeared anywhere in startup output, making it hard to confirm the intended settings actually took effect.
+
+### Fixed
+- Fixed `frodo conn service-account add` failing with "Invalid URL" when the target host was given as an alias or unique substring instead of a full URL. Root cause: it validates the new service account's own credential against AM before saving, and that validation step reads the target host from ambient library state, which is only ever set to the raw value typed on the command line — nothing in this command resolves an alias to a real URL the way logging in normally does as a side effect. Every other command in this family already resolved it internally per-call; only the validation step read the unresolved raw value.
+- Fixed `frodo mcp server start --dry-run` never validating `--claims-config` when external-IDP mode is configured — a malformed or unparseable claims-config file previously went undetected by `--dry-run`, since that file was only ever loaded later, in code a dry run never reaches.
+
 ## [v4.14.0] - 2026-09-14
 
 ### Added

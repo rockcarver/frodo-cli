@@ -15,6 +15,7 @@ import {
   cliBrowserLoginPromptHandler,
   getUseDeviceFlow,
 } from '../../../ops/AuthenticateOps.js';
+import { loadClaimMappingConfig } from '../../../ops/McpClaimMapping.js';
 import {
   MCP_LOG_LEVELS,
   McpLogger,
@@ -28,13 +29,12 @@ import {
   computeHttpAllowedHosts,
   fetchExternalIdpMetadata,
   isLoopbackBindHost,
-  McpServerStartupInfo,
   type McpOAuthResourceServerOptions,
+  McpServerStartupInfo,
   resolveFrodoForMcpRequest,
   startHttpTransport,
   startStdioTransport,
 } from '../../../ops/McpServerOps.js';
-import { loadClaimMappingConfig } from '../../../ops/McpClaimMapping.js';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -55,7 +55,9 @@ import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
  * sync with the registry again — a real bug fixed here: `.choices()` used to
  * hardcode a stale list that was missing `'self-service'` after it shipped.
  */
-const CLI_SELECTABLE_PROFILES = listMcpProfiles().map((profile) => profile.name);
+const CLI_SELECTABLE_PROFILES = listMcpProfiles().map(
+  (profile) => profile.name
+);
 type McpStartProfileName = (typeof CLI_SELECTABLE_PROFILES)[number];
 
 /** Parsed options for `frodo mcp server start`. */
@@ -358,6 +360,16 @@ export default function setup() {
           );
         }
       }
+      // Loaded here (rather than only later, inline where it's consumed)
+      // for two reasons: a --dry-run never reaches that later code at all,
+      // so a malformed claims-config file previously went unvalidated by
+      // --dry-run; and the startup summary below needs its contents to
+      // actually show the operator what's configured, not just that
+      // external-IDP mode is on.
+      const claimMapping =
+        opts.oauthResourceServer && opts.externalIdpIssuer
+          ? loadClaimMappingConfig(opts.claimsConfig)
+          : undefined;
       // Transport-policy limits (HTTP only): resolved before the refusal
       // check so an operator who mistyped either value sees the fallback
       // note in the log regardless of what happens later in startup.
@@ -515,6 +527,23 @@ export default function setup() {
             (descriptor) => descriptor.operationType === 'import'
           ),
         },
+        // Issuer/audience/claim-mapping are all operator-supplied
+        // configuration, not secrets (the JWKs/tokens they gate are never
+        // included) — printing them is exactly what confirms the intended
+        // settings actually took effect instead of silently falling back
+        // to something else, the same reasoning every other field here
+        // already follows.
+        externalIdp: claimMapping
+          ? {
+              issuer: opts.externalIdpIssuer!,
+              audience: opts.externalIdpAudience!,
+              claimName: claimMapping.claimName,
+              mappings: claimMapping.mappings.map((m) => ({
+                claimValue: m.claimValue,
+                serviceAccount: m.serviceAccount,
+              })),
+            }
+          : undefined,
       };
 
       if (opts.dryRun) {
@@ -536,7 +565,8 @@ export default function setup() {
         const resourceServerUrl = new URL(
           `http://${opts.bindHost ?? '127.0.0.1'}:${resolvedPort}/mcp`
         );
-        let oauthResourceServerOptions: McpOAuthResourceServerOptions | undefined;
+        let oauthResourceServerOptions:
+          McpOAuthResourceServerOptions | undefined;
         if (opts.oauthResourceServer && opts.externalIdpIssuer) {
           // External-IDP "shared mode": validate against a third-party
           // OIDC provider and map the verified identity's claims to a
@@ -546,7 +576,6 @@ export default function setup() {
           const { oauthMetadata, jwks } = await fetchExternalIdpMetadata(
             opts.externalIdpIssuer
           );
-          const claimMapping = loadClaimMappingConfig(opts.claimsConfig);
           oauthResourceServerOptions = {
             verifier: buildExternalIdpVerifier(
               oauthMetadata,
@@ -556,7 +585,10 @@ export default function setup() {
             oauthMetadata,
             resourceServerUrl,
             resolveCredential: buildClaimMappedCredentialResolver(
-              claimMapping,
+              // Guaranteed defined here: this branch only runs when
+              // opts.externalIdpIssuer is set, the same condition the
+              // earlier load above used.
+              claimMapping!,
               state.getHost()
             ),
           };
@@ -622,6 +654,12 @@ type StartupSummary = {
   toolCounts: { total: number; canonical: number; discovery: number };
   skillCount: number;
   importExportExposed: { export: boolean; import: boolean };
+  externalIdp?: {
+    issuer: string;
+    audience: string;
+    claimName: string;
+    mappings: { claimValue: string; serviceAccount: string }[];
+  };
 };
 
 function formatStartupMessages(summary: StartupSummary): string[] {
@@ -639,6 +677,16 @@ function formatStartupMessages(summary: StartupSummary): string[] {
     `Tools: ${summary.toolCounts.total} total (${summary.toolCounts.canonical} canonical, ${summary.toolCounts.discovery} discovery)`,
     `Backing skills: ${summary.skillCount}`,
     `Import/export exposed: export=${summary.importExportExposed.export}, import=${summary.importExportExposed.import}`,
+    ...(summary.externalIdp
+      ? [
+          `External IDP issuer: ${summary.externalIdp.issuer}`,
+          `External IDP audience: ${summary.externalIdp.audience}`,
+          `Claims config: matching '${summary.externalIdp.claimName}' claim, ${summary.externalIdp.mappings.length} mapping(s):`,
+          ...summary.externalIdp.mappings.map(
+            (m) => `  ${m.claimValue} -> ${m.serviceAccount}`
+          ),
+        ]
+      : []),
   ];
 }
 
