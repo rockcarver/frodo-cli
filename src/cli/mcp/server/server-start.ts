@@ -109,6 +109,15 @@ type McpStartOptions = {
    * McpClaimMapping.ts). Required with --external-idp-issuer.
    */
   claimsConfig?: string;
+  /**
+   * Explicit override for this MCP server's own externally-reachable base
+   * URL, used as the RFC 9728 `resource` value instead of the one derived
+   * from --bind-host/--port. Necessary whenever --bind-host is a wildcard
+   * (e.g. 0.0.0.0, never itself a dialable address) or a reverse
+   * proxy/container bridge sits between clients and this process. Requires
+   * --oauth-resource-server.
+   */
+  publicUrl?: string;
   /** Max accepted POST /mcp body size in bytes (CLI flag; env fallback). */
   maxBodySize?: string;
   /** Max concurrent POST /mcp handler executions (CLI flag; env fallback). */
@@ -243,6 +252,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '--public-url <url>',
+        "Override this MCP server's own externally-reachable base URL (e.g. https://mcp.example.com:6277), used as the RFC 9728 resource value instead of one derived from --bind-host/--port. Without this, a request's own (allow-listed) Host header is used instead whenever it differs from --bind-host — --public-url is only needed for the cases that can't self-correct that way, chiefly a reverse proxy or TLS-terminating gateway in front of this process. Requires --oauth-resource-server."
+      )
+    )
+    .addOption(
+      new Option(
         '--max-body-size <bytes>',
         `Maximum accepted request body size in bytes on POST /mcp (default 1048576 = 1 MiB; frodo transport policy, not part of the MCP protocol). Oversized requests are rejected with HTTP 413 before being buffered. Falls back to the FRODO_MCP_MAX_BODY_SIZE environment variable.`
       )
@@ -281,6 +296,10 @@ export default function setup() {
         `  Start HTTP transport for a containerized gateway on this machine (bridge-network containers reach the host via host.docker.internal, which is accepted automatically on a non-loopback bind; a bearer token is required):\n` +
         c.command(
           `  $ frodo mcp server start --transport http --bind-host 0.0.0.0 --port 6277 --mcp-auth-token <secret>\n`
+        ) +
+        `  Start as an OAuth 2.1 resource server reachable through a reverse proxy or TLS-terminating gateway (its externally-reachable URL differs from --bind-host, so it must be stated explicitly):\n` +
+        c.command(
+          `  $ frodo mcp server start --transport http --bind-host 0.0.0.0 --port 6277 --oauth-resource-server --public-url https://mcp.example.com\n`
         ) +
         `  Accept additional client hostnames (extends the localhost default):\n` +
         c.command(
@@ -370,6 +389,32 @@ export default function setup() {
         opts.oauthResourceServer && opts.externalIdpIssuer
           ? loadClaimMappingConfig(opts.claimsConfig)
           : undefined;
+      // Same reasoning as claimMapping above: validated/resolved here, not
+      // only later where it's consumed, so --dry-run catches a malformed
+      // --public-url and the startup summary can show what's actually
+      // being advertised. --oauth-resource-server's own validation above
+      // already rejected an 'auto' --port, so parseMcpHttpPortOption(opts.port)
+      // is safe to call this early whenever oauthResourceServer is set.
+      if (opts.publicUrl !== undefined && !opts.oauthResourceServer) {
+        throw new Error('--public-url requires --oauth-resource-server.');
+      }
+      let publicUrlOrigin: URL | undefined;
+      if (opts.publicUrl !== undefined) {
+        try {
+          publicUrlOrigin = new URL(opts.publicUrl);
+        } catch {
+          throw new Error(
+            `--public-url '${opts.publicUrl}' is not a valid absolute URL, e.g. https://mcp.example.com:6277.`
+          );
+        }
+      }
+      const resourceServerUrl = opts.oauthResourceServer
+        ? publicUrlOrigin
+          ? new URL('/mcp', publicUrlOrigin)
+          : new URL(
+              `http://${opts.bindHost ?? '127.0.0.1'}:${parseMcpHttpPortOption(opts.port)}/mcp`
+            )
+        : undefined;
       // Transport-policy limits (HTTP only): resolved before the refusal
       // check so an operator who mistyped either value sees the fallback
       // note in the log regardless of what happens later in startup.
@@ -538,6 +583,14 @@ export default function setup() {
             (descriptor) => descriptor.operationType === 'import'
           ),
         },
+        resourceServerUrl: resourceServerUrl
+          ? {
+              value: resourceServerUrl.toString(),
+              source: publicUrlOrigin
+                ? ('explicit' as const)
+                : ('derived-from-bind-host' as const),
+            }
+          : undefined,
         // Issuer/audience/claim-mapping are all operator-supplied
         // configuration, not secrets (the JWKs/tokens they gate are never
         // included) — printing them is exactly what confirms the intended
@@ -573,9 +626,6 @@ export default function setup() {
         await startStdioTransport(service, startupInfo);
       } else {
         const resolvedPort = parseMcpHttpPortOption(opts.port);
-        const resourceServerUrl = new URL(
-          `http://${opts.bindHost ?? '127.0.0.1'}:${resolvedPort}/mcp`
-        );
         let oauthResourceServerOptions:
           McpOAuthResourceServerOptions | undefined;
         if (opts.oauthResourceServer && opts.externalIdpIssuer) {
@@ -594,7 +644,11 @@ export default function setup() {
               opts.externalIdpAudience
             ),
             oauthMetadata,
-            resourceServerUrl,
+            // Guaranteed defined here: this whole branch only runs when
+            // opts.oauthResourceServer is set, the same condition the
+            // earlier computation used.
+            resourceServerUrl: resourceServerUrl!,
+            resourceServerUrlIsExplicit: Boolean(publicUrlOrigin),
             resolveCredential: buildClaimMappedCredentialResolver(
               // Guaranteed defined here: this branch only runs when
               // opts.externalIdpIssuer is set, the same condition the
@@ -608,7 +662,8 @@ export default function setup() {
           oauthResourceServerOptions = {
             verifier: buildAmTokenInfoVerifier(state.getHost()),
             oauthMetadata: buildAmOAuthMetadata(state.getHost()),
-            resourceServerUrl,
+            resourceServerUrl: resourceServerUrl!,
+            resourceServerUrlIsExplicit: Boolean(publicUrlOrigin),
           };
         }
         await startHttpTransport(
@@ -665,6 +720,15 @@ type StartupSummary = {
   toolCounts: { total: number; canonical: number; discovery: number };
   skillCount: number;
   importExportExposed: { export: boolean; import: boolean };
+  // Only present in --oauth-resource-server mode. `source: 'explicit'` is
+  // fixed for every request (--public-url); `'derived-from-bind-host'` is
+  // only the startup-time fallback -- a live request whose own (allow-
+  // listed) Host header differs advertises that instead, per-request. See
+  // McpServerOps.ts's resolveResourceServerUrl.
+  resourceServerUrl?: {
+    value: string;
+    source: 'explicit' | 'derived-from-bind-host';
+  };
   externalIdp?: {
     issuer: string;
     audience: string;
@@ -685,6 +749,13 @@ function formatStartupMessages(summary: StartupSummary): string[] {
       ? [`HTTP allowed hosts: ${summary.http.allowedHosts.join(', ')}`]
       : []),
     ...(summary.http.auth ? [`HTTP auth: ${summary.http.auth}`] : []),
+    ...(summary.resourceServerUrl
+      ? [
+          summary.resourceServerUrl.source === 'explicit'
+            ? `Resource server URL: ${summary.resourceServerUrl.value} (from --public-url)`
+            : `Resource server URL: ${summary.resourceServerUrl.value} (derived from --bind-host; a request's own Host header is used instead per-request whenever it differs and passes the Host allow-list — pass --public-url to fix this instead, e.g. behind a reverse proxy)`,
+        ]
+      : []),
     `Tools: ${summary.toolCounts.total} total (${summary.toolCounts.canonical} canonical, ${summary.toolCounts.discovery} discovery)`,
     `Backing skills: ${summary.skillCount}`,
     `Import/export exposed: export=${summary.importExportExposed.export}, import=${summary.importExportExposed.import}`,

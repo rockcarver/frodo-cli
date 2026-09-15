@@ -113,6 +113,7 @@ const {
   computeHttpAllowedHosts,
   isLoopbackBindHost,
   registerServerCrashHandlers,
+  resolveResourceServerUrl,
   startHttpTransport,
   validateHttpRequestMetadata,
   verifyMcpBearerAuthorization,
@@ -2831,6 +2832,140 @@ describe('OAuth resource-server mode ("shared mode")', () => {
           resourceServerUrl: new URL('http://127.0.0.1:6277/mcp'),
         })
       ).rejects.toMatchObject({ code: 'invalid_token' });
+    });
+  });
+
+  describe('resolveResourceServerUrl', () => {
+    const fallback = new URL('http://0.0.0.0:6277/mcp');
+    const allowedHostnames = ['localhost', '127.0.0.1', '[::1]', 'mcp.example.internal'];
+
+    function req(headers) {
+      return { headers };
+    }
+
+    test('an explicit --public-url always wins, ignoring the request entirely', () => {
+      const explicit = new URL('https://mcp.example.com/mcp');
+      const options = {
+        resourceServerUrl: explicit,
+        resourceServerUrlIsExplicit: true,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({ host: 'evil.example.net', 'x-forwarded-proto': 'https' }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe(explicit.toString());
+    });
+
+    test('derives from an allow-listed Host header when not explicit', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({ host: 'mcp.example.internal:6277' }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('http://mcp.example.internal:6277/mcp');
+    });
+
+    test('falls back to the static default when Host is missing', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(req({}), '0.0.0.0', allowedHostnames, options).toString()
+      ).toBe(fallback.toString());
+    });
+
+    test('falls back to the static default when Host is not allow-listed (never advertises an unvalidated value)', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({ host: 'evil.example.net' }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe(fallback.toString());
+    });
+
+    test('honors X-Forwarded-Proto: https on a non-loopback bind', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({
+            host: 'mcp.example.internal',
+            'x-forwarded-proto': 'https',
+          }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('https://mcp.example.internal/mcp');
+    });
+
+    test('takes the first value of a comma-separated X-Forwarded-Proto list', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({
+            host: 'mcp.example.internal',
+            'x-forwarded-proto': 'https, http',
+          }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('https://mcp.example.internal/mcp');
+    });
+
+    test('ignores an unrecognized X-Forwarded-Proto value, defaulting to http', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({
+            host: 'mcp.example.internal',
+            'x-forwarded-proto': 'ftp',
+          }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('http://mcp.example.internal/mcp');
+    });
+
+    test('ignores X-Forwarded-Proto on a loopback bind -- never legitimately reverse-proxied', () => {
+      const options = {
+        resourceServerUrl: new URL('http://127.0.0.1:6277/mcp'),
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({ host: 'localhost', 'x-forwarded-proto': 'https' }),
+          '127.0.0.1',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('http://localhost/mcp');
     });
   });
 

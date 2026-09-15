@@ -48,6 +48,7 @@ import {
   PROTOCOL_VERSION_META_KEY,
   ToolAnnotations,
   UnsupportedProtocolVersionError,
+  validateHostHeader,
   verifyBearerToken,
 } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
@@ -775,8 +776,22 @@ export type McpOAuthResourceServerOptions = {
   verifier: OAuthTokenVerifier;
   /** RFC 8414 Authorization Server metadata for the target tenant. */
   oauthMetadata: OAuthMetadata;
-  /** This MCP server's own public URL (the RFC 9728 `resource` value). */
+  /**
+   * This MCP server's own public URL (the RFC 9728 `resource` value).
+   * Authoritative only when `resourceServerUrlIsExplicit` is true
+   * (`--public-url`); otherwise it's just the `--bind-host`-derived
+   * fallback used when a request's own Host header can't be — see
+   * `resolveResourceServerUrl`, which is what request handling actually
+   * calls.
+   */
   resourceServerUrl: URL;
+  /**
+   * Whether `resourceServerUrl` was explicitly set via `--public-url`
+   * (authoritative, used for every request unchanged) rather than derived
+   * from `--bind-host`/`--port` at startup (a fallback only — see
+   * `resolveResourceServerUrl`).
+   */
+  resourceServerUrlIsExplicit: boolean;
   /**
    * Optional post-verification hook: resolves a freshly-verified `AuthInfo`
    * into an enriched one that names a specific frodo-side credential to
@@ -1082,6 +1097,69 @@ export function isLoopbackBindHost(bindHost: string): boolean {
 }
 
 /**
+ * Parses an `X-Forwarded-Proto` header value down to `'http'`/`'https'`,
+ * or `undefined` for anything else (missing, empty, unrecognized).
+ * Multiple proxies append their own value comma-separated; only the first
+ * — the one closest to the original client — says what scheme the actual
+ * caller used, which is the only one relevant here.
+ */
+function firstForwardedProto(
+  headerValue: string | undefined
+): 'http' | 'https' | undefined {
+  const first = headerValue?.split(',')[0]?.trim().toLowerCase();
+  return first === 'http' || first === 'https' ? first : undefined;
+}
+
+/**
+ * Resolves this MCP server's own advertised "resource" URL (the RFC 9728
+ * `resource` value) for one request — used both for the discovery document
+ * itself and for the `resource_metadata` URL in a 401 challenge.
+ *
+ * An operator-supplied `--public-url`
+ * (`oauthResourceServer.resourceServerUrlIsExplicit`) is authoritative and
+ * always wins. Otherwise, the value fixed at startup from `--bind-host` is
+ * only a fallback: a request's own Host header — once confirmed against
+ * `allowedHostnames`, the same allow-list already used for DNS-rebinding
+ * protection — is what a client actually used to reach this server, which
+ * is more accurate than any single value guessed at startup, especially
+ * behind a wildcard bind (`--bind-host 0.0.0.0`, never itself a real,
+ * dialable address). A missing or unrecognized Host falls back to the
+ * startup value rather than ever advertising an unvalidated one.
+ *
+ * Scheme is read from `X-Forwarded-Proto` on a non-loopback bind only — a
+ * loopback-bound server is never legitimately reverse-proxied, and this
+ * transport itself never terminates TLS, so `http` is otherwise always
+ * correct regardless of what a request claims.
+ *
+ * Exported for direct unit coverage without a real listener.
+ */
+export function resolveResourceServerUrl(
+  req: IncomingMessage,
+  bindHost: string,
+  allowedHostnames: string[],
+  oauthResourceServer: McpOAuthResourceServerOptions
+): URL {
+  if (oauthResourceServer.resourceServerUrlIsExplicit) {
+    return oauthResourceServer.resourceServerUrl;
+  }
+  const hostHeader = getSingleHeaderValue(req, 'host');
+  if (!hostHeader || !validateHostHeader(hostHeader, allowedHostnames).ok) {
+    return oauthResourceServer.resourceServerUrl;
+  }
+  const proto =
+    !isLoopbackBindHost(bindHost) &&
+    firstForwardedProto(getSingleHeaderValue(req, 'x-forwarded-proto')) ===
+      'https'
+      ? 'https'
+      : 'http';
+  try {
+    return new URL(`${proto}://${hostHeader}/mcp`);
+  } catch {
+    return oauthResourceServer.resourceServerUrl;
+  }
+}
+
+/**
  * Verifies an HTTP `Authorization` header against the configured bearer
  * token, timing-safely.
  *
@@ -1163,9 +1241,11 @@ export async function startHttpTransport(
     sessionIdGenerator: undefined,
   });
   await mcpServer.connect(transport);
-  const validateHost = hostHeaderValidation(
-    computeHttpAllowedHosts(bindHost, options?.allowedHosts)
+  const allowedHostnames = computeHttpAllowedHosts(
+    bindHost,
+    options?.allowedHosts
   );
+  const validateHost = hostHeaderValidation(allowedHostnames);
   const validateOrigin = localhostOriginValidation();
   const limiter = new McpHttpConcurrencyLimiter(
     options?.maxConcurrentRequests ?? DEFAULT_MCP_HTTP_MAX_CONCURRENT_REQUESTS
@@ -1194,6 +1274,8 @@ export async function startHttpTransport(
           options?.maxBodySizeBytes ?? DEFAULT_MCP_HTTP_MAX_BODY_SIZE_BYTES,
           limiter,
           debugLog,
+          bindHost,
+          allowedHostnames,
           options?.oauthResourceServer
         );
       } catch (err) {
@@ -1495,6 +1577,8 @@ async function handleHttpRequest(
   maxBodySizeBytes: number,
   limiter: McpHttpConcurrencyLimiter,
   debug: ((message: string) => void) | undefined,
+  bindHost: string,
+  allowedHostnames: string[],
   oauthResourceServer?: McpOAuthResourceServerOptions
 ): Promise<void> {
   // Arrival line: even 404s and health probes are visible at debug level.
@@ -1521,7 +1605,12 @@ async function handleHttpRequest(
     const webRequest = await toWebRequest(req);
     const discoveryResponse = await oauthMetadataResponse(webRequest, {
       oauthMetadata: oauthResourceServer.oauthMetadata,
-      resourceServerUrl: oauthResourceServer.resourceServerUrl,
+      resourceServerUrl: resolveResourceServerUrl(
+        req,
+        bindHost,
+        allowedHostnames,
+        oauthResourceServer
+      ),
       resourceName: MCP_SERVER_NAME,
     });
     if (discoveryResponse) {
@@ -1637,7 +1726,12 @@ async function handleHttpRequest(
         res,
         bearerAuthChallengeResponse(error, {
           resourceMetadataUrl: getOAuthProtectedResourceMetadataUrl(
-            oauthResourceServer.resourceServerUrl
+            resolveResourceServerUrl(
+              req,
+              bindHost,
+              allowedHostnames,
+              oauthResourceServer
+            )
           ),
         })
       );
