@@ -1881,6 +1881,32 @@ describe('startHttpTransport', () => {
       });
     });
 
+    test('/oauth2/authorize redirects a client_id mismatch back to the client\'s own redirect_uri with error params (RFC 6749 §4.1.2.1), when one was given', async () => {
+      const port = await getFreePort();
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: minimalOauthResourceServer(
+          port,
+          'frodo-mcp-preregistered'
+        ),
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/oauth2/authorize?client_id=someone-elses-client&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&state=xyz'
+      );
+
+      expect(res.status).toBe(302);
+      const location = new URL(res.headers.location);
+      expect(`${location.origin}${location.pathname}`).toBe(
+        'http://127.0.0.1:54321/callback'
+      );
+      expect(location.searchParams.get('error')).toBe('unauthorized_client');
+      expect(location.searchParams.get('error_description')).toBeTruthy();
+      expect(location.searchParams.get('state')).toBe('xyz');
+    });
+
     test('/oauth2/token relays a real request/response to and from the upstream, substituting nothing', async () => {
       let receivedBody;
       let receivedContentType;

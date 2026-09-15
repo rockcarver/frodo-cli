@@ -1858,11 +1858,40 @@ async function handleHttpRequest(
     oauthResourceServer?.registeredClientId
   ) {
     const rawQuery = req.url?.split('?')[1] ?? '';
-    const requestedClientId = new URLSearchParams(rawQuery).get('client_id');
+    const incomingParams = new URLSearchParams(rawQuery);
+    const requestedClientId = incomingParams.get('client_id');
     if (requestedClientId && requestedClientId !== oauthResourceServer.registeredClientId) {
       debug?.(
-        `rejected: 400 /oauth2/authorize unknown client_id '${requestedClientId}'`
+        `rejected: /oauth2/authorize unknown client_id '${requestedClientId}'`
       );
+      // RFC 6749 §4.1.2.1: an authorize-endpoint error belongs in a redirect
+      // back to the client's own redirect_uri (error/error_description/state
+      // appended), not a raw response -- the client's browser is mid-flow,
+      // expecting a redirect chain back to its own callback, not a JSON
+      // error page. Only fall back to a raw response when redirect_uri
+      // itself isn't a trustworthy target (missing or unparseable) --
+      // redirecting to an unvalidated destination would make this route an
+      // open redirect instead.
+      const requestedRedirectUri = incomingParams.get('redirect_uri');
+      if (requestedRedirectUri) {
+        try {
+          const errorRedirect = new URL(requestedRedirectUri);
+          errorRedirect.searchParams.set('error', 'unauthorized_client');
+          errorRedirect.searchParams.set(
+            'error_description',
+            'Unknown client_id.'
+          );
+          const requestedState = incomingParams.get('state');
+          if (requestedState) {
+            errorRedirect.searchParams.set('state', requestedState);
+          }
+          res.writeHead(302, { Location: errorRedirect.toString() }).end();
+          return;
+        } catch {
+          // Malformed redirect_uri -- fall through to the raw response
+          // below rather than redirect to an unparseable/untrusted target.
+        }
+      }
       res.writeHead(400, { 'Content-Type': 'application/json' }).end(
         JSON.stringify({
           error: 'unauthorized_client',
