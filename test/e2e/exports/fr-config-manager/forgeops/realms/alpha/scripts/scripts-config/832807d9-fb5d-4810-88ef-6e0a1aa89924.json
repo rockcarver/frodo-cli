@@ -1,0 +1,16 @@
+{
+  "_id": "832807d9-fb5d-4810-88ef-6e0a1aa89924",
+  "context": "SCRIPTED_DECISION_NODE",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1774470672858,
+  "default": false,
+  "description": "testing",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1774470672858,
+  "name": "testing",
+  "script": {
+    "file": "scripts-content/SCRIPTED_DECISION_NODE/testing.js"
+  }
+}

@@ -27,6 +27,7 @@ import RemoteServers from './config-manager-push-remote-servers';
 import Restart from './config-manager-push-restart';
 import Saml from './config-manager-push-saml';
 import Schedules from './config-manager-push-schedules';
+import Scripts from './config-manager-push-scripts';
 import SecretMappings from './config-manager-push-secret-mappings';
 import Secrets from './config-manager-push-secrets';
 import ServiceObjects from './config-manager-push-service-objects';
@@ -78,6 +79,7 @@ export default function setup() {
   program.addCommand(Services().name('services'));
   program.addCommand(AuthzPolicies().name('authz-policies'));
   program.addCommand(Saml().name('saml'));
+  program.addCommand(Scripts().name('scripts'));
 
   return program;
 }
