@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push direct-control-apply "frodo config-manager push direct-control-apply": should apply the configuration and end the current direct configuration session 1`] = `
+"{ editable: false }
+"
+`;
+
+exports[`frodo config-manager push direct-control-apply "frodo config-manager push direct-control-apply": should apply the configuration and end the current direct configuration session 2`] = `
+"Experimental feature in use: 'frodo config-manager push direct-control-apply'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager push direct-control-apply "frodo config-manager push direct-control-apply": should apply the configuration and wait until the direct configuration session is ended 1`] = `
+"{ editable: false }
+"
+`;
+
+exports[`frodo config-manager push direct-control-apply "frodo config-manager push direct-control-apply": should apply the configuration and wait until the direct configuration session is ended 2`] = `
+"Experimental feature in use: 'frodo config-manager push direct-control-apply'. This feature may change without notice.
+Status: PENDING
+Status: SESSION_APPLIED
+"
+`;

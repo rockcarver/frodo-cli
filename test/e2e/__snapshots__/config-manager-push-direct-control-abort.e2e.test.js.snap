@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push direct-control-abort "frodo config-manager push direct-control-abort": should abort the current direct configuration session 1`] = `
+"{ editable: false }
+"
+`;
+
+exports[`frodo config-manager push direct-control-abort "frodo config-manager push direct-control-abort": should abort the current direct configuration session 2`] = `
+"Experimental feature in use: 'frodo config-manager push direct-control-abort'. This feature may change without notice.
+"
+`;

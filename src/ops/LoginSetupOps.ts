@@ -4,8 +4,8 @@ import type { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
 
 import { printMessage } from '../utils/Console';
 import { escapableSelect } from '../utils/interactive/EscapableSelectPrompt';
-import { cloneDeep } from './utils/OpsUtils';
 import OAUTH2_CLIENT_TEMPLATE from './templates/OAuth2ClientTemplate.json';
+import { cloneDeep } from './utils/OpsUtils';
 
 const constants = frodo.utils.constants;
 const {
@@ -45,7 +45,9 @@ const FIXED_FALLBACK_REDIRECT_URI = 'http://localhost:3000';
  */
 const MIN_AM_MAJOR_VERSION_FOR_WILDCARD_LOOPBACK = 7;
 
-function parseAmMajorVersion(amVersion: string | undefined): number | undefined {
+function parseAmMajorVersion(
+  amVersion: string | undefined
+): number | undefined {
   const match = amVersion?.match(/^(\d+)\./);
   return match ? Number(match[1]) : undefined;
 }
@@ -135,7 +137,9 @@ async function readIfExists<T>(read: () => Promise<T>): Promise<T | undefined> {
   }
 }
 
-function buildDesiredScript(existing: ScriptSkeleton | undefined): ScriptSkeleton {
+function buildDesiredScript(
+  existing: ScriptSkeleton | undefined
+): ScriptSkeleton {
   const base = existing ? cloneDeep(existing) : ({} as ScriptSkeleton);
   base.script = SESSION_CAPTURE_SCRIPT_BODY;
   base.language = 'JAVASCRIPT';
@@ -163,7 +167,10 @@ function buildDesiredClient(
     ...base.coreOAuth2ClientConfig,
     clientType: { inherited: false, value: 'Public' },
     clientName: { inherited: false, value: [options.clientId] },
-    scopes: { inherited: false, value: options.scope.split(' ').filter(Boolean) },
+    scopes: {
+      inherited: false,
+      value: options.scope.split(' ').filter(Boolean),
+    },
     redirectionUris: { inherited: false, value: [resolved.redirectUri] },
     loopbackInterfaceRedirection: {
       inherited: false,
@@ -179,7 +186,9 @@ function buildDesiredClient(
     isConsentImplied: { inherited: false, value: true },
     descriptions: {
       inherited: false,
-      value: [`Created/updated by \`frodo login setup\` on ${new Date().toLocaleString()}.`],
+      value: [
+        `Created/updated by \`frodo login setup\` on ${new Date().toLocaleString()}.`,
+      ],
     },
   };
   base.overrideOAuth2ClientConfig = {
@@ -223,7 +232,9 @@ export async function setupBrowserLogin(
   let existingClient: OAuth2ClientSkeleton | undefined;
   let existingScript: ScriptSkeleton | undefined;
   try {
-    existingClient = await readIfExists(() => readOAuth2Client(options.clientId));
+    existingClient = await readIfExists(() =>
+      readOAuth2Client(options.clientId)
+    );
     existingScript = await readIfExists(() => readScript(options.scriptId));
   } catch (error) {
     printMessage(

@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push direct-control-state "frodo config-manager push direct-control-state": should return the current state of the direct configuration session 1`] = `
+"{ editable: true }
+"
+`;
+
+exports[`frodo config-manager push direct-control-state "frodo config-manager push direct-control-state": should return the current state of the direct configuration session 2`] = `
+"Experimental feature in use: 'frodo config-manager push direct-control-state'. This feature may change without notice.
+"
+`;

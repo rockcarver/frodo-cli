@@ -49,6 +49,14 @@ Commands:
 
   (Cloud-only):
   csp                    [Experimental] Import content security policy.
+  direct-control-abort   [Experimental] Aborts the current direct configuration
+                         session.
+  direct-control-apply   [Experimental] Apply changes made during a direct
+                         configuration session.
+  direct-control-init    [Experimental] Initialize a new direct configuration
+                         session.
+  direct-control-state   [Experimental] Read the current direct configuration
+                         session state.
   iga-workflows          [Experimental] Import iga-workflows.
   restart                [Experimental] Restart the environment.
   secret-mappings        [Experimental] Import secret mappings.
