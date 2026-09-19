@@ -1,0 +1,22 @@
+{
+  "root": {
+    "samlProviders": [
+      {
+        "entityId": "test-IDP"
+      },
+      {
+        "entityId": "test-hosted-idp-saml"
+      },
+      {
+        "entityId": "test-hosted-sp-saml"
+      },
+      {
+        "entityId": "test-remote-idp-saml"
+      },
+      {
+        "entityId": "test-remote-sp-saml"
+      }
+    ],
+    "circlesOfTrust": []
+  }
+}

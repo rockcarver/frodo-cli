@@ -1,0 +1,15 @@
+{
+  "_id": "FR_COT",
+  "_rev": "641713822",
+  "_type": {
+    "_id": "circlesoftrust",
+    "collection": true,
+    "name": "Circle of Trust"
+  },
+  "description": "testCircle",
+  "status": "active",
+  "trustedProviders": [
+    "ForgeopsTest|saml2",
+    "test-IDP|saml2"
+  ]
+}
