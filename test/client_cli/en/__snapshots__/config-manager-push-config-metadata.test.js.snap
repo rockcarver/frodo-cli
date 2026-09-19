@@ -37,7 +37,9 @@ Commands:
   password-policy        [Experimental] Import password-policy objects.
   raw                    [Experimental] Import raw configurations.
   remote-servers         [Experimental] Import RCS config.
+  saml                   [Experimental] Import saml configuration.
   schedules              [Experimental] Import schedules.
+  scripts                [Experimental] Import scripts.
   service-objects        [Experimental] Import service objects.
   services               [Experimental] Import AM authentication services.
   terms-and-conditions   [Experimental] Import terms and conditions.

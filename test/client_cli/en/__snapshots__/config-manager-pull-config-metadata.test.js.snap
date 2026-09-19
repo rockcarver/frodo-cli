@@ -44,7 +44,7 @@ Commands:
   remote-servers         [Experimental] Export remote-servers objects.
   saml                   [Experimental] Export saml.
   schedules              [Experimental] Export schedules.
-  scripts                [Experimental] Export authorization scripts.
+  scripts                [Experimental] Export AM scripts.
   secret-mappings        [Experimental] Export secret mappings.
   secrets                [Experimental] Export secrets.
   service-objects        [Experimental] Export service objects.
