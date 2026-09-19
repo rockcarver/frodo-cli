@@ -496,6 +496,92 @@ export class ListOption extends Option {
   }
 }
 
+/**
+ * Option that collects repeated values into an object using dot notation
+ */
+export class ObjectOption extends Option {
+  constructor(flags: string, description?: string) {
+    super(flags, description);
+    this.expandArguments();
+    this.argParser((input: string, previous: Record<string, any> = {}) => {
+      const equalsIdx = input.indexOf('=');
+      if (equalsIdx === -1) {
+        this.setPath(previous, input, true);
+      } else {
+        this.setPath(
+          previous,
+          input.slice(0, equalsIdx),
+          input.slice(equalsIdx + 1)
+        );
+      }
+      return previous;
+    });
+  }
+
+  /**
+   * Helper that sets an object value at a specific path for an ObjectOption
+   * @param obj The object to set
+   * @param path The path to set in the object
+   * @param value The value to set in the object
+   */
+  setPath(obj: Record<string, any>, path: string, value: string | true): void {
+    const keys = path.split('.');
+    let current = obj;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const key = keys[i];
+      if (typeof current[key] !== 'object' || current[key] === null)
+        current[key] = {};
+      current = current[key];
+    }
+    const lastKey = keys[keys.length - 1];
+    if (!current[lastKey]) {
+      current[lastKey] = value;
+      return;
+    }
+    if (!Array.isArray(current[lastKey])) {
+      current[lastKey] = [current[lastKey]];
+    }
+    current[lastKey].push(value);
+  }
+
+  /**
+   * Helper that "expands" arguments from dot notation into <key>=<value> notation that the option argParser can then use to easily parse the object
+   */
+  expandArguments(): void {
+    // This pattern ends up looking something like this to match the flags: `^(-M|--metadata)\\.(.+)$`
+    const pattern = new RegExp(
+      `^(${[this.short, this.long]
+        .filter((o) => o)
+        // This escapes characters in the flags for the regex
+        .map((f) => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join('|')})\\.(.+)$`
+    );
+    const expandedArgv: string[] = [];
+    for (let i = 0; i < process.argv.length; i++) {
+      const token = process.argv[i];
+      const match = token.match(pattern);
+      if (!match) {
+        expandedArgv.push(token);
+        continue;
+      }
+      const [, baseFlag, path] = match;
+      const equalsIdx = path.indexOf('=');
+      if (equalsIdx !== -1) {
+        expandedArgv.push(baseFlag, path);
+      } else if (
+        process.argv[i + 1] !== undefined &&
+        // Check that the next argument is not a flag
+        !/^-{1,2}.*/.test(process.argv[i + 1])
+      ) {
+        expandedArgv.push(baseFlag, `${path}=${process.argv[++i]}`);
+      } else {
+        expandedArgv.push(baseFlag, path);
+      }
+    }
+    process.argv = expandedArgv;
+  }
+}
+
 export const hostArgument = new Argument(
   '[host]',
   'AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.'
@@ -611,7 +697,7 @@ const forceLoginAsUserOption = withOptionStability(
   withHelpGroup(
     new Option(
       '--force-login-as-user',
-      "Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured. Deprecated: use --credential user instead."
+      'Force a plain username/password login even if the resolved connection profile also has a service account or Amster credential configured. Deprecated: use --credential user instead.'
     ),
     AUTHENTICATION_OPTIONS_HEADING,
     OptionCategory.Authentication
