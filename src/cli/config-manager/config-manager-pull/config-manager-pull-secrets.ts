@@ -1,4 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
 
 import { configManagerExportSecrets } from '../../../configManagerOps/FrConfigSecretOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
@@ -22,6 +23,9 @@ export default function setup() {
 
   program
     .description('Export secrets.')
+    .addOption(
+      new Option('-a, --active-only', 'Export only active secret versions.')
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -34,7 +38,7 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting secrets');
-        const outcome = await configManagerExportSecrets(options);
+        const outcome = await configManagerExportSecrets(options.activeOnly);
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

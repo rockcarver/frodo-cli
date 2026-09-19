@@ -61,9 +61,10 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv(c);
 
 describe('frodo config-manager pulls', () => {
-   test('"frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style"', async () => {
+   test('"frodo config-manager pull all -F test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in fr-config-manager style"', async () => {
      const dirName = 'allDir1';
-     const CMD = `frodo config-manager pull all -F test/e2e/fr-config-manager-pull-config -D ${dirName}`;
+     const fileName= 'test/e2e/fr-config-manager-pull-config';
+     const CMD = `frodo config-manager pull all -F ${fileName} -D ${dirName}`;
      await testExport(CMD, env, undefined, undefined, dirName, false);
    });
  
