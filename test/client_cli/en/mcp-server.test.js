@@ -177,6 +177,28 @@ test("'mcp server tools' preserves the canonical five-tool surface", async () =>
     );
 });
 
+test("'mcp server start --oauth-forward-resource' is refused without the proxy legs it governs, and surfaces in the startup summary when wired", async () => {
+    await expect(
+        runMcpCommand('start', '--transport', 'http', '--oauth-forward-resource')
+    ).rejects.toThrow(/--oauth-forward-resource requires --oauth-resource-server/);
+
+    // Refused without --registered-client-id: the proxied legs are the only
+    // thing the flag governs, and the refusal must name that rather than
+    // silently ignoring it.
+    await expect(
+        runMcpCommand(
+            'start',
+            'https://openam-frodo-dev.forgeblocks.com/am',
+            '--type',
+            'cloud',
+            '--transport',
+            'http',
+            '--oauth-resource-server',
+            '--oauth-forward-resource'
+        )
+    ).rejects.toThrow(/governs the proxied authorize\/token legs, which only exist with --registered-client-id/);
+});
+
 test("'mcp server start --dry-run' validates service composition", async () => {
     const info = parseJsonOutput(
         await runMcpCommand(

@@ -108,11 +108,14 @@ const {
   buildAmOAuthMetadata,
   buildAmTokenInfoVerifier,
   buildClaimMappedCredentialResolver,
+  buildDcrRegistrationResponse,
   buildExternalIdpVerifier,
   buildRequestContext,
   computeHttpAllowedHosts,
   isLoopbackBindHost,
   registerServerCrashHandlers,
+  resolveForwardedResourceValue,
+  resolveResourceServerUrl,
   startHttpTransport,
   validateHttpRequestMetadata,
   verifyMcpBearerAuthorization,
@@ -1678,6 +1681,821 @@ describe('startHttpTransport', () => {
     const arrival = debugLines().find((p) => p.msg.includes('POST /mcp'));
     expect(arrival).toBeDefined();
   }, 30000);
+
+  function minimalOauthResourceServer(port, registeredClientId) {
+    return {
+      verifier: {
+        verifyAccessToken: async () => {
+          throw new Error('not exercised by this test');
+        },
+      },
+      oauthMetadata: {
+        issuer: 'https://idp.example.com',
+        authorization_endpoint: 'https://idp.example.com/authorize',
+        token_endpoint: 'https://idp.example.com/token',
+      },
+      resourceServerUrl: new URL(`http://127.0.0.1:${port}/mcp`),
+      resourceServerUrlIsExplicit: true,
+      registeredClientId,
+    };
+  }
+
+  test('DCR shim: POST /oauth2/register returns the pre-registered client_id and logs the redirect_uri at info level', async () => {
+    const port = await getFreePort();
+    currentDone = startServer('127.0.0.1', port, {
+      oauthResourceServer: minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      ),
+    });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/oauth2/register',
+      JSON_HEADERS,
+      JSON.stringify({
+        redirect_uris: ['http://127.0.0.1:54321/callback'],
+        client_name: 'Test Client',
+      })
+    );
+
+    expect(res.status).toBe(201);
+    const body = JSON.parse(res.text);
+    expect(body.client_id).toBe('frodo-mcp-preregistered');
+    expect(body.redirect_uris).toEqual(['http://127.0.0.1:54321/callback']);
+
+    const dcrLine = printed.find(
+      (p) => p.type === 'info' && p.msg.includes('served pre-registered client_id')
+    );
+    expect(dcrLine).toBeDefined();
+    expect(dcrLine.msg).toContain('frodo-mcp-preregistered');
+    expect(dcrLine.msg).toContain('http://127.0.0.1:54321/callback');
+  });
+
+  test('DCR shim: malformed body returns a spec-shaped 400', async () => {
+    const port = await getFreePort();
+    currentDone = startServer('127.0.0.1', port, {
+      oauthResourceServer: minimalOauthResourceServer(port, 'client-id'),
+    });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/oauth2/register',
+      JSON_HEADERS,
+      'not json'
+    );
+
+    expect(res.status).toBe(400);
+    expect(JSON.parse(res.text)).toMatchObject({
+      error: 'invalid_client_metadata',
+    });
+  });
+
+  test('discovery metadata advertises registration_endpoint only when registeredClientId is configured', async () => {
+    const port = await getFreePort();
+    currentDone = startServer('127.0.0.1', port, {
+      oauthResourceServer: minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      ),
+    });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'GET',
+      '/.well-known/oauth-authorization-server'
+    );
+    const metadata = JSON.parse(res.text);
+    expect(metadata.registration_endpoint).toBe(
+      `http://127.0.0.1:${port}/oauth2/register`
+    );
+    // issuer/authorization_endpoint/token_endpoint also change together --
+    // covered by their own dedicated test below, not duplicated here.
+  });
+
+  test('discovery metadata has no registration_endpoint when registeredClientId is not configured', async () => {
+    const port = await getFreePort();
+    const options = minimalOauthResourceServer(port, undefined);
+    delete options.registeredClientId;
+    currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'GET',
+      '/.well-known/oauth-authorization-server'
+    );
+    const metadata = JSON.parse(res.text);
+    expect(metadata.registration_endpoint).toBeUndefined();
+  });
+
+  test('discovery metadata: issuer/authorization_endpoint/token_endpoint all point at this server when registeredClientId is configured', async () => {
+    const port = await getFreePort();
+    currentDone = startServer('127.0.0.1', port, {
+      oauthResourceServer: minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      ),
+    });
+    await waitForListening('127.0.0.1', port);
+
+    const res = await rawRequest(
+      port,
+      'GET',
+      '/.well-known/oauth-authorization-server'
+    );
+    const metadata = JSON.parse(res.text);
+    const selfOrigin = `http://127.0.0.1:${port}`;
+    expect(metadata.issuer).toBe(selfOrigin);
+    expect(metadata.authorization_endpoint).toBe(
+      `${selfOrigin}/oauth2/authorize`
+    );
+    expect(metadata.token_endpoint).toBe(`${selfOrigin}/oauth2/token`);
+  });
+
+  describe('--oauth-scope', () => {
+    test('protected-resource metadata advertises scopes_supported when configured', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, undefined);
+      delete options.registeredClientId;
+      options.scopesSupported = ['openid', 'api://client-id/.default'];
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/.well-known/oauth-protected-resource/mcp'
+      );
+      const metadata = JSON.parse(res.text);
+      expect(metadata.scopes_supported).toEqual([
+        'openid',
+        'api://client-id/.default',
+      ]);
+    });
+
+    test('protected-resource metadata has no scopes_supported when not configured', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, undefined);
+      delete options.registeredClientId;
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/.well-known/oauth-protected-resource/mcp'
+      );
+      const metadata = JSON.parse(res.text);
+      expect(metadata.scopes_supported).toBeUndefined();
+    });
+
+    test('401 challenge on /mcp carries the configured scope(s)', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, undefined);
+      delete options.registeredClientId;
+      options.scopesSupported = ['openid', 'profile'];
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'POST',
+        '/mcp',
+        JSON_HEADERS,
+        legacyInitializeBody()
+      );
+      expect(res.status).toBe(401);
+      expect(res.headers['www-authenticate']).toContain(
+        'scope="openid profile"'
+      );
+    });
+
+    test('401 challenge on /mcp omits scope when not configured', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, undefined);
+      delete options.registeredClientId;
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'POST',
+        '/mcp',
+        JSON_HEADERS,
+        legacyInitializeBody()
+      );
+      expect(res.status).toBe(401);
+      expect(res.headers['www-authenticate']).not.toContain('scope=');
+    });
+  });
+
+  /** Starts a throwaway HTTP server standing in for the real upstream AS. */
+  function startFakeUpstream(handler) {
+    return new Promise((resolve) => {
+      const server = http.createServer(handler);
+      server.listen(0, '127.0.0.1', () => {
+        resolve({ server, port: server.address().port });
+      });
+    });
+  }
+
+  describe('authorize/token proxy (--registered-client-id)', () => {
+    test('/oauth2/authorize redirects to the real upstream, passing query params straight through', async () => {
+      const port = await getFreePort();
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: minimalOauthResourceServer(
+          port,
+          'frodo-mcp-preregistered'
+        ),
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/oauth2/authorize?client_id=frodo-mcp-preregistered&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&code_challenge=abc123&code_challenge_method=S256&state=xyz'
+      );
+
+      expect(res.status).toBe(302);
+      const location = new URL(res.headers.location);
+      expect(`${location.origin}${location.pathname}`).toBe(
+        'https://idp.example.com/authorize'
+      );
+      expect(location.searchParams.get('client_id')).toBe(
+        'frodo-mcp-preregistered'
+      );
+      expect(location.searchParams.get('redirect_uri')).toBe(
+        'http://127.0.0.1:54321/callback'
+      );
+      expect(location.searchParams.get('code_challenge')).toBe('abc123');
+      expect(location.searchParams.get('state')).toBe('xyz');
+    });
+
+    test('/oauth2/authorize strips the resource param before redirecting upstream (RFC 8707 unsupported by e.g. Entra)', async () => {
+      const port = await getFreePort();
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: minimalOauthResourceServer(
+          port,
+          'frodo-mcp-preregistered'
+        ),
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/oauth2/authorize?client_id=frodo-mcp-preregistered&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&scope=openid&resource=http%3A%2F%2F127.0.0.1%3A' +
+          port +
+          '%2Fmcp&state=xyz'
+      );
+
+      expect(res.status).toBe(302);
+      const location = new URL(res.headers.location);
+      expect(location.searchParams.has('resource')).toBe(false);
+      // Everything else still passed through unmodified.
+      expect(location.searchParams.get('scope')).toBe('openid');
+      expect(location.searchParams.get('redirect_uri')).toBe(
+        'http://127.0.0.1:54321/callback'
+      );
+      expect(location.searchParams.get('state')).toBe('xyz');
+    });
+
+    test('/oauth2/authorize with oauthForwardResource=true relays the client resource value upstream verbatim (RFC 8707-compliant AS)', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
+      options.oauthForwardResource = true;
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const clientResource = `http://127.0.0.1:${port}/mcp`;
+      const res = await rawRequest(
+        port,
+        'GET',
+        `/oauth2/authorize?client_id=frodo-mcp-preregistered&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&scope=openid&resource=${encodeURIComponent(
+          clientResource
+        )}&state=xyz`
+      );
+
+      expect(res.status).toBe(302);
+      const location = new URL(res.headers.location);
+      expect(location.searchParams.get('resource')).toBe(clientResource);
+      // Everything else still passed through unmodified.
+      expect(location.searchParams.get('scope')).toBe('openid');
+      expect(location.searchParams.get('state')).toBe('xyz');
+    });
+
+    test('/oauth2/authorize with a fixed oauthForwardResource uri substitutes that value for the client resource (e.g. PingFederate ATM key)', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
+      options.oauthForwardResource = 'urn:ping:atm:mcp-prod';
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        `/oauth2/authorize?client_id=frodo-mcp-preregistered&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&scope=openid&resource=${encodeURIComponent(
+          `http://127.0.0.1:${port}/mcp`
+        )}&state=xyz`
+      );
+
+      expect(res.status).toBe(302);
+      const location = new URL(res.headers.location);
+      expect(location.searchParams.get('resource')).toBe(
+        'urn:ping:atm:mcp-prod'
+      );
+      expect(location.searchParams.get('state')).toBe('xyz');
+    });
+
+    test('/oauth2/authorize with oauthForwardResource=true and NO client resource param does not invent one (relay, not originate)', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
+      options.oauthForwardResource = true;
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/oauth2/authorize?client_id=frodo-mcp-preregistered&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&scope=openid&state=xyz'
+      );
+
+      expect(res.status).toBe(302);
+      const location = new URL(res.headers.location);
+      expect(location.searchParams.has('resource')).toBe(false);
+    });
+
+    test('/oauth2/authorize rejects a client_id that does not match the pre-registered one', async () => {
+      const port = await getFreePort();
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: minimalOauthResourceServer(
+          port,
+          'frodo-mcp-preregistered'
+        ),
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/oauth2/authorize?client_id=someone-elses-client&response_type=code'
+      );
+
+      expect(res.status).toBe(400);
+      expect(JSON.parse(res.text)).toMatchObject({
+        error: 'unauthorized_client',
+      });
+    });
+
+    test('/oauth2/authorize redirects a client_id mismatch back to the client\'s own redirect_uri with error params (RFC 6749 §4.1.2.1), when one was given', async () => {
+      const port = await getFreePort();
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: minimalOauthResourceServer(
+          port,
+          'frodo-mcp-preregistered'
+        ),
+      });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'GET',
+        '/oauth2/authorize?client_id=someone-elses-client&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&state=xyz'
+      );
+
+      expect(res.status).toBe(302);
+      const location = new URL(res.headers.location);
+      expect(`${location.origin}${location.pathname}`).toBe(
+        'http://127.0.0.1:54321/callback'
+      );
+      expect(location.searchParams.get('error')).toBe('unauthorized_client');
+      expect(location.searchParams.get('error_description')).toBeTruthy();
+      expect(location.searchParams.get('state')).toBe('xyz');
+    });
+
+    test('/oauth2/token relays a real request/response to and from the upstream, substituting nothing', async () => {
+      let receivedBody;
+      let receivedContentType;
+      const upstream = await startFakeUpstream((req, res) => {
+        receivedContentType = req.headers['content-type'];
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => {
+          receivedBody = Buffer.concat(chunks).toString('utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              access_token: 'real-upstream-token',
+              token_type: 'Bearer',
+              expires_in: 3600,
+            })
+          );
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const body =
+          'grant_type=authorization_code&code=real-upstream-code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&client_id=frodo-mcp-preregistered&code_verifier=verifier123';
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          body
+        );
+
+        expect(res.status).toBe(200);
+        expect(JSON.parse(res.text)).toEqual({
+          access_token: 'real-upstream-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+        });
+        // Byte-faithful relay -- nothing substituted or re-encoded.
+        expect(receivedBody).toBe(body);
+        expect(receivedContentType).toBe('application/x-www-form-urlencoded');
+      } finally {
+        upstream.server.close();
+      }
+    });
+
+    test('/oauth2/token strips the resource param before relaying to upstream (RFC 8707 unsupported by e.g. Entra)', async () => {
+      let receivedBody;
+      const upstream = await startFakeUpstream((req, res) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => {
+          receivedBody = Buffer.concat(chunks).toString('utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const body = `grant_type=authorization_code&code=real-upstream-code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&client_id=frodo-mcp-preregistered&resource=http%3A%2F%2F127.0.0.1%3A${port}%2Fmcp`;
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          body
+        );
+
+        expect(res.status).toBe(200);
+        const receivedParams = new URLSearchParams(receivedBody);
+        expect(receivedParams.has('resource')).toBe(false);
+        expect(receivedParams.get('grant_type')).toBe('authorization_code');
+        expect(receivedParams.get('code')).toBe('real-upstream-code');
+        expect(receivedParams.get('redirect_uri')).toBe(
+          'http://127.0.0.1:54321/callback'
+        );
+      } finally {
+        upstream.server.close();
+      }
+    });
+
+    test('/oauth2/token with oauthForwardResource=true relays the client resource value upstream verbatim (RFC 8707-compliant AS)', async () => {
+      let receivedBody;
+      const upstream = await startFakeUpstream((req, res) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => {
+          receivedBody = Buffer.concat(chunks).toString('utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      options.oauthForwardResource = true;
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const clientResource = `http://127.0.0.1:${port}/mcp`;
+        const body = `grant_type=authorization_code&code=real-upstream-code&redirect_uri=http%3A%2F%2F127.0.0.1%3A54321%2Fcallback&client_id=frodo-mcp-preregistered&resource=${encodeURIComponent(
+          clientResource
+        )}`;
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          body
+        );
+
+        expect(res.status).toBe(200);
+        const receivedParams = new URLSearchParams(receivedBody);
+        expect(receivedParams.get('resource')).toBe(clientResource);
+        expect(receivedParams.get('grant_type')).toBe('authorization_code');
+      } finally {
+        upstream.server.close();
+      }
+    });
+
+    test('/oauth2/token with a fixed oauthForwardResource uri substitutes that value on the token leg too (both legs agree)', async () => {
+      let receivedBody;
+      const upstream = await startFakeUpstream((req, res) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => {
+          receivedBody = Buffer.concat(chunks).toString('utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      options.oauthForwardResource = 'urn:ping:atm:mcp-prod';
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const body = `grant_type=refresh_token&refresh_token=abc&client_id=frodo-mcp-preregistered&resource=http%3A%2F%2F127.0.0.1%3A${port}%2Fmcp`;
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          body
+        );
+
+        expect(res.status).toBe(200);
+        const receivedParams = new URLSearchParams(receivedBody);
+        expect(receivedParams.get('resource')).toBe('urn:ping:atm:mcp-prod');
+        expect(receivedParams.get('grant_type')).toBe('refresh_token');
+      } finally {
+        upstream.server.close();
+      }
+    });
+
+    test('/oauth2/token with oauthForwardResource=true and no client resource param does not invent one, and relays other bodies untouched', async () => {
+      let receivedBody;
+      const upstream = await startFakeUpstream((req, res) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => {
+          receivedBody = Buffer.concat(chunks).toString('utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      options.oauthForwardResource = true;
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const body =
+          'grant_type=refresh_token&refresh_token=abc&client_id=frodo-mcp-preregistered';
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          body
+        );
+
+        expect(res.status).toBe(200);
+        const receivedParams = new URLSearchParams(receivedBody);
+        expect(receivedParams.has('resource')).toBe(false);
+        expect(receivedParams.get('refresh_token')).toBe('abc');
+      } finally {
+        upstream.server.close();
+      }
+    });
+
+    test('/oauth2/token with a non-form content type relays the body byte-faithful even with oauthForwardResource set (RFC 6749 §3.2 scope only)', async () => {
+      let receivedBody;
+      let receivedContentType;
+      const upstream = await startFakeUpstream((req, res) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => {
+          receivedBody = Buffer.concat(chunks).toString('utf8');
+          receivedContentType = req.headers['content-type'];
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      options.oauthForwardResource = 'urn:ping:atm:mcp-prod';
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const jsonBody = JSON.stringify({
+          grant_type: 'token_exchange',
+          resource: 'http://127.0.0.1/mcp',
+        });
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/json' },
+          jsonBody
+        );
+
+        expect(res.status).toBe(200);
+        expect(receivedContentType).toBe('application/json');
+        expect(receivedBody).toBe(jsonBody);
+      } finally {
+        upstream.server.close();
+      }
+    });
+
+    test('/oauth2/token relays a real upstream error response unchanged (e.g. an invalid/expired code)', async () => {
+      const upstream = await startFakeUpstream((req, res) => {
+        req.on('data', () => {});
+        req.on('end', () => {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'invalid_grant' }));
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          'grant_type=authorization_code&code=bad-code'
+        );
+
+        expect(res.status).toBe(400);
+        expect(JSON.parse(res.text)).toEqual({ error: 'invalid_grant' });
+      } finally {
+        upstream.server.close();
+      }
+    });
+
+    test('/oauth2/token logs the upstream error body at debug level (Entra AADSTS diagnostics), and never logs a success body', async () => {
+      // A rejected code exchange used to surface to the client only as the
+      // SDK's own follow-on error (it clears the client registration on
+      // invalid_client and retries, reporting "Existing OAuth client
+      // information is required when exchanging an authorization code") --
+      // the AADSTS code naming the real cause (e.g. public client flows
+      // disabled) never appeared anywhere. The failure body reaching the
+      // debug log is what makes this diagnosable from the server side.
+      const upstream = await startFakeUpstream((req, res) => {
+        req.on('data', () => {});
+        req.on('end', () => {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              error: 'invalid_client',
+              error_description:
+                'AADSTS7000218: The client assertion must be sent as client_secret.',
+            })
+          );
+        });
+      });
+
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      try {
+        const res = await rawRequest(
+          port,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          'grant_type=authorization_code&code=bad-code'
+        );
+
+        expect(res.status).toBe(400);
+        expect(JSON.parse(res.text)).toMatchObject({ error: 'invalid_client' });
+        const errorBodyLine = debugLines().find((p) =>
+          p.msg.includes('token: upstream error body:')
+        );
+        expect(errorBodyLine).toBeDefined();
+        expect(errorBodyLine.msg).toContain('AADSTS7000218');
+      } finally {
+        upstream.server.close();
+      }
+
+      // Success path: the response body carries a bearer token and must
+      // never reach the log -- assert the success exchange emits no
+      // 'upstream error body' line at all.
+      printed.length = 0;
+      const okUpstream = await startFakeUpstream((req, res) => {
+        req.on('data', () => {});
+        req.on('end', () => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              access_token: 'super-secret-token',
+              token_type: 'Bearer',
+              expires_in: 3600,
+            })
+          );
+        });
+      });
+
+      const okPort = await getFreePort();
+      const okOptions = minimalOauthResourceServer(okPort, 'frodo-mcp-preregistered');
+      okOptions.oauthMetadata.token_endpoint = `http://127.0.0.1:${okUpstream.port}/token`;
+      currentDone = startServer('127.0.0.1', okPort, { oauthResourceServer: okOptions });
+      await waitForListening('127.0.0.1', okPort);
+
+      try {
+        const res = await rawRequest(
+          okPort,
+          'POST',
+          '/oauth2/token',
+          { 'content-type': 'application/x-www-form-urlencoded' },
+          'grant_type=authorization_code&code=good-code'
+        );
+
+        expect(res.status).toBe(200);
+        expect(
+          debugLines().some((p) => p.msg.includes('upstream error body'))
+        ).toBe(false);
+        expect(res.text).toContain('super-secret-token');
+      } finally {
+        okUpstream.server.close();
+      }
+    }, 30000);
+
+    test('/oauth2/token returns 502 when the upstream is unreachable', async () => {
+      const port = await getFreePort();
+      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      // Nothing listens here -- guaranteed unreachable.
+      options.oauthMetadata.token_endpoint = 'http://127.0.0.1:1/token';
+      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      await waitForListening('127.0.0.1', port);
+
+      const res = await rawRequest(
+        port,
+        'POST',
+        '/oauth2/token',
+        { 'content-type': 'application/x-www-form-urlencoded' },
+        'grant_type=authorization_code&code=x'
+      );
+
+      expect(res.status).toBe(502);
+      expect(JSON.parse(res.text)).toMatchObject({ error: 'server_error' });
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -2831,6 +3649,228 @@ describe('OAuth resource-server mode ("shared mode")', () => {
           resourceServerUrl: new URL('http://127.0.0.1:6277/mcp'),
         })
       ).rejects.toMatchObject({ code: 'invalid_token' });
+    });
+  });
+
+  describe('resolveForwardedResourceValue', () => {
+    test('default (undefined) strips: never forwards, even when the client sent a value', () => {
+      expect(
+        resolveForwardedResourceValue('http://10.1.0.178:6277/mcp', undefined)
+      ).toBeUndefined();
+      expect(
+        resolveForwardedResourceValue('http://10.1.0.178:6277/mcp', false)
+      ).toBeUndefined();
+    });
+    test('bare flag relays the client value verbatim', () => {
+      expect(
+        resolveForwardedResourceValue('http://10.1.0.178:6277/mcp', true)
+      ).toBe('http://10.1.0.178:6277/mcp');
+    });
+    test('bare flag with no client value forwards nothing (relay, not originate)', () => {
+      expect(resolveForwardedResourceValue(null, true)).toBeUndefined();
+      expect(resolveForwardedResourceValue('', true)).toBeUndefined();
+    });
+    test('a fixed uri replaces whatever the client sent, always', () => {
+      expect(
+        resolveForwardedResourceValue(
+          'http://10.1.0.178:6277/mcp',
+          'urn:ping:atm:mcp-prod'
+        )
+      ).toBe('urn:ping:atm:mcp-prod');
+      expect(
+        resolveForwardedResourceValue(null, 'urn:ping:atm:mcp-prod')
+      ).toBe('urn:ping:atm:mcp-prod');
+    });
+    test('an empty-string fixed value is treated as unset (strip), not as a blank resource', () => {
+      expect(
+        resolveForwardedResourceValue('http://10.1.0.178:6277/mcp', '')
+      ).toBeUndefined();
+    });
+  });
+
+  describe('resolveResourceServerUrl', () => {
+    const fallback = new URL('http://0.0.0.0:6277/mcp');
+    const allowedHostnames = ['localhost', '127.0.0.1', '[::1]', 'mcp.example.internal'];
+
+    function req(headers) {
+      return { headers };
+    }
+
+    test('an explicit --public-url always wins, ignoring the request entirely', () => {
+      const explicit = new URL('https://mcp.example.com/mcp');
+      const options = {
+        resourceServerUrl: explicit,
+        resourceServerUrlIsExplicit: true,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({ host: 'evil.example.net', 'x-forwarded-proto': 'https' }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe(explicit.toString());
+    });
+
+    test('derives from an allow-listed Host header when not explicit', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({ host: 'mcp.example.internal:6277' }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('http://mcp.example.internal:6277/mcp');
+    });
+
+    test('falls back to the static default when Host is missing', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(req({}), '0.0.0.0', allowedHostnames, options).toString()
+      ).toBe(fallback.toString());
+    });
+
+    test('falls back to the static default when Host is not allow-listed (never advertises an unvalidated value)', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({ host: 'evil.example.net' }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe(fallback.toString());
+    });
+
+    test('honors X-Forwarded-Proto: https on a non-loopback bind', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({
+            host: 'mcp.example.internal',
+            'x-forwarded-proto': 'https',
+          }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('https://mcp.example.internal/mcp');
+    });
+
+    test('takes the first value of a comma-separated X-Forwarded-Proto list', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({
+            host: 'mcp.example.internal',
+            'x-forwarded-proto': 'https, http',
+          }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('https://mcp.example.internal/mcp');
+    });
+
+    test('ignores an unrecognized X-Forwarded-Proto value, defaulting to http', () => {
+      const options = {
+        resourceServerUrl: fallback,
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({
+            host: 'mcp.example.internal',
+            'x-forwarded-proto': 'ftp',
+          }),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('http://mcp.example.internal/mcp');
+    });
+
+    test('ignores X-Forwarded-Proto on a loopback bind -- never legitimately reverse-proxied', () => {
+      const options = {
+        resourceServerUrl: new URL('http://127.0.0.1:6277/mcp'),
+        resourceServerUrlIsExplicit: false,
+      };
+      expect(
+        resolveResourceServerUrl(
+          req({ host: 'localhost', 'x-forwarded-proto': 'https' }),
+          '127.0.0.1',
+          allowedHostnames,
+          options
+        ).toString()
+      ).toBe('http://localhost/mcp');
+    });
+  });
+
+  describe('buildDcrRegistrationResponse', () => {
+    const registeredClientId = 'frodo-mcp-preregistered-client';
+
+    test('always returns the pre-registered client_id, echoing back submitted metadata', () => {
+      const response = buildDcrRegistrationResponse(
+        {
+          redirect_uris: ['http://127.0.0.1:54321/callback'],
+          client_name: 'Claude Code',
+          application_type: 'native',
+        },
+        registeredClientId
+      );
+
+      expect(response.client_id).toBe(registeredClientId);
+      expect(response.token_endpoint_auth_method).toBe('none');
+      expect(response.redirect_uris).toEqual(['http://127.0.0.1:54321/callback']);
+      expect(response.client_name).toBe('Claude Code');
+      expect(response.application_type).toBe('native');
+      expect(typeof response.client_id_issued_at).toBe('number');
+    });
+
+    test('defaults grant_types/response_types when not submitted', () => {
+      const response = buildDcrRegistrationResponse({}, registeredClientId);
+
+      expect(response.grant_types).toEqual(['authorization_code']);
+      expect(response.response_types).toEqual(['code']);
+      expect(response.redirect_uris).toEqual([]);
+    });
+
+    test('is lenient with a malformed/non-object body -- still returns the client_id', () => {
+      expect(buildDcrRegistrationResponse(null, registeredClientId).client_id).toBe(
+        registeredClientId
+      );
+      expect(buildDcrRegistrationResponse('garbage', registeredClientId).client_id).toBe(
+        registeredClientId
+      );
+      expect(buildDcrRegistrationResponse([], registeredClientId).client_id).toBe(
+        registeredClientId
+      );
+    });
+
+    test('never honors a requested confidential auth method -- always public/PKCE', () => {
+      const response = buildDcrRegistrationResponse(
+        { token_endpoint_auth_method: 'client_secret_post' },
+        registeredClientId
+      );
+
+      expect(response.token_endpoint_auth_method).toBe('none');
+      expect(response.client_secret).toBeUndefined();
     });
   });
 

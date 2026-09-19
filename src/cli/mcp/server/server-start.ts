@@ -15,6 +15,7 @@ import {
   cliBrowserLoginPromptHandler,
   getUseDeviceFlow,
 } from '../../../ops/AuthenticateOps.js';
+import { loadClaimMappingConfig } from '../../../ops/McpClaimMapping.js';
 import {
   MCP_LOG_LEVELS,
   McpLogger,
@@ -28,13 +29,12 @@ import {
   computeHttpAllowedHosts,
   fetchExternalIdpMetadata,
   isLoopbackBindHost,
-  McpServerStartupInfo,
   type McpOAuthResourceServerOptions,
+  McpServerStartupInfo,
   resolveFrodoForMcpRequest,
   startHttpTransport,
   startStdioTransport,
 } from '../../../ops/McpServerOps.js';
-import { loadClaimMappingConfig } from '../../../ops/McpClaimMapping.js';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -55,7 +55,9 @@ import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
  * sync with the registry again — a real bug fixed here: `.choices()` used to
  * hardcode a stale list that was missing `'self-service'` after it shipped.
  */
-const CLI_SELECTABLE_PROFILES = listMcpProfiles().map((profile) => profile.name);
+const CLI_SELECTABLE_PROFILES = listMcpProfiles().map(
+  (profile) => profile.name
+);
 type McpStartProfileName = (typeof CLI_SELECTABLE_PROFILES)[number];
 
 /** Parsed options for `frodo mcp server start`. */
@@ -107,6 +109,41 @@ type McpStartOptions = {
    * McpClaimMapping.ts). Required with --external-idp-issuer.
    */
   claimsConfig?: string;
+  /**
+   * Explicit override for this MCP server's own externally-reachable base
+   * URL, used as the RFC 9728 `resource` value instead of the one derived
+   * from --bind-host/--port. Necessary whenever --bind-host is a wildcard
+   * (e.g. 0.0.0.0, never itself a dialable address) or a reverse
+   * proxy/container bridge sits between clients and this process. Requires
+   * --oauth-resource-server.
+   */
+  publicUrl?: string;
+  /**
+   * A pre-provisioned, public (no-secret) OAuth client_id this server hands
+   * back to any caller attempting Dynamic Client Registration, instead of
+   * requiring the target AM/AIC tenant or external IDP to genuinely support
+   * RFC 7591 (most don't -- see `--registered-client-id`'s own help text).
+   * Requires --oauth-resource-server.
+   */
+  registeredClientId?: string;
+  /**
+   * `--oauth-forward-resource`: controls what this server does with the
+   * MCP-mandated RFC 8707 `resource` parameter on its proxied
+   * authorize/token legs. Bare flag = relay the client's own value
+   * verbatim; a value = relay that fixed identifier instead; default
+   * (absent) = strip it. See `McpServerOps`'s
+   * `McpOAuthResourceServerOptions.oauthForwardResource` remarks.
+   * Requires --registered-client-id (the proxy legs are what it governs).
+   */
+  oauthForwardResource?: boolean | string;
+  /**
+   * OAuth scope(s) a connecting client should request. Advertised via both
+   * the RFC 9728 protected-resource metadata's `scopes_supported` and the
+   * `WWW-Authenticate` 401 challenge's `scope` parameter, so a client that
+   * has no scope of its own configured fills one in from here instead of
+   * omitting the parameter entirely. Requires --oauth-resource-server.
+   */
+  oauthScope?: string[];
   /** Max accepted POST /mcp body size in bytes (CLI flag; env fallback). */
   maxBodySize?: string;
   /** Max concurrent POST /mcp handler executions (CLI flag; env fallback). */
@@ -241,6 +278,30 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '--public-url <url>',
+        "Override this MCP server's own externally-reachable base URL (e.g. https://mcp.example.com:6277), used as the RFC 9728 resource value instead of one derived from --bind-host/--port. Without this, a request's own (allow-listed) Host header is used instead whenever it differs from --bind-host — --public-url is only needed for the cases that can't self-correct that way, chiefly a reverse proxy or TLS-terminating gateway in front of this process. Requires --oauth-resource-server."
+      )
+    )
+    .addOption(
+      new Option(
+        '--registered-client-id <client-id>',
+        "A pre-provisioned, public (no-secret, PKCE-only) OAuth client_id, already registered directly with the target AM/AIC tenant or external IDP, that this server presents on behalf of ANY connecting MCP client. Turns this server into a lightweight OAuth proxy for three endpoints: /oauth2/register (RFC 7591 DCR emulation -- nothing is actually registered, the same client_id is always returned), /oauth2/authorize (a stateless redirect to the real upstream authorize endpoint), and /oauth2/token (a stateless relay to the real upstream token endpoint). This server also becomes the advertised issuer while this is set (required for a spec-compliant client to actually fetch these overridden endpoints at all: a client validates the issuer in fetched metadata against the URL it used to fetch it, so once issuer points elsewhere the client goes straight to the real upstream's own metadata instead, silently bypassing everything above). Necessary because most authorization servers either don't support DCR at all (e.g. Entra ID) or require an initial access token to use it (AM's own real /oauth2/register does) -- a generic DCR-attempting MCP client otherwise has no way to obtain a client_id or complete the OAuth flow at all. The proxy is stateless: it never stores anything, and the real authorize/token decisions are still made entirely by AM/the external IDP using the real, pre-existing app registration's own policy -- this server only relays bytes. Nearly everything is passed through unmodified, including the client's own redirect_uri, with one deliberate exception on both legs: the MCP-mandated RFC 8707 resource parameter is stripped before relaying upstream, since most external IDPs don't implement RFC 8707 at all and some (Entra ID's v2.0 endpoint) reject the request outright if it's present (AADSTS9010010) -- this server's own RFC 9728 resource value, which the connecting client validates independently, is unaffected either way. For a native/loopback MCP client, the client's own (typically ephemeral-port) redirect_uri is passed to the upstream unmodified; this only works if the upstream accepts an unregistered loopback redirect_uri, which RFC 8252 §7.3 requires for exactly this case (confirmed against real AM and Entra ID tenants). A connecting client's actual requested redirect_uri is always logged (info level, at /oauth2/register) if you need to confirm or debug this. Requires --oauth-resource-server."
+      )
+    )
+    .addOption(
+      new Option(
+        '--oauth-scope <scope...>',
+        "OAuth scope(s) a connecting client should request, advertised via the RFC 9728 protected-resource metadata's scopes_supported and the WWW-Authenticate 401 challenge's scope parameter. Without this, a client with no scope of its own configured omits the scope parameter from its authorize request entirely, which some authorization servers reject outright -- confirmed live against a real Entra ID tenant (AADSTS900144: \"The request body must contain the following parameter: 'scope'\"). Set this to whatever scope(s) the target AM/AIC tenant or external IDP's OAuth2 client/app registration actually needs, e.g. --oauth-scope openid profile (AM) or --oauth-scope openid api://<app-id>/.default (Entra, requesting an access token audienced to that app). Variadic: it swallows everything after it, so put positional arguments before it or separate them with --. Requires --oauth-resource-server."
+      )
+    )
+    .addOption(
+      new Option(
+        '--oauth-forward-resource [uri]',
+        "Controls what this server does with the RFC 8707 'resource' parameter a connecting MCP client sends (MCP spec-mandated) on the proxied /oauth2/authorize and /oauth2/token legs. Default (flag absent): STRIP it -- most authorization servers don't implement RFC 8707, and Entra ID's v2.0 endpoint rejects the request outright when 'resource' is present but doesn't match the scope-implied audience (AADSTS9010010), so stripping is safe everywhere. Bare flag: relay the CLIENT's own 'resource' value upstream, verbatim -- for authorization servers that DO implement RFC 8707 (WorkOS AuthKit, Authlete 3.0, Auth0 with the Resource Parameter Compatibility Profile, Keycloak 26.8 experimental): MCP's profile requires the AS to audience-restrict the token to this value, which only works if it arrives. With a value: relay THAT identifier upstream instead of the client's -- for servers that accept 'resource' but use it only as an internal selector (e.g. PingFederate's access-token-manager keys), where what must arrive is the AS-known identifier, not the client's MCP URL. RFC 8707 support is not discoverable from the AS's metadata and the stateless proxy never sees the authorize response, so which servers honor it is operator knowledge -- hence manual. WARNING: with Entra ID as the upstream, the bare flag reproduces AADSTS9010010 on every flow -- only use it against servers that genuinely audience-restrict tokens to the relayed 'resource'. This server's own RFC 9728 'resource' advertisement to connecting clients is unaffected either way. Requires --registered-client-id."
+      )
+    )
+    .addOption(
+      new Option(
         '--max-body-size <bytes>',
         `Maximum accepted request body size in bytes on POST /mcp (default 1048576 = 1 MiB; frodo transport policy, not part of the MCP protocol). Oversized requests are rejected with HTTP 413 before being buffered. Falls back to the FRODO_MCP_MAX_BODY_SIZE environment variable.`
       )
@@ -279,6 +340,14 @@ export default function setup() {
         `  Start HTTP transport for a containerized gateway on this machine (bridge-network containers reach the host via host.docker.internal, which is accepted automatically on a non-loopback bind; a bearer token is required):\n` +
         c.command(
           `  $ frodo mcp server start --transport http --bind-host 0.0.0.0 --port 6277 --mcp-auth-token <secret>\n`
+        ) +
+        `  Start as an OAuth 2.1 resource server reachable through a reverse proxy or TLS-terminating gateway (its externally-reachable URL differs from --bind-host, so it must be stated explicitly):\n` +
+        c.command(
+          `  $ frodo mcp server start --transport http --bind-host 0.0.0.0 --port 6277 --oauth-resource-server --public-url https://mcp.example.com\n`
+        ) +
+        `  Start as an OAuth 2.1 resource server against an authorization server with no usable Dynamic Client Registration (e.g. Entra ID has none at all; AM's own real endpoint needs an initial access token) -- hands a pre-provisioned public client_id to any client that attempts DCR. --oauth-scope is required here for Entra specifically: without it, a client's authorize request omits the scope parameter entirely, which Entra rejects (AADSTS900144):\n` +
+        c.command(
+          `  $ frodo mcp server start --transport http --oauth-resource-server --external-idp-issuer https://login.microsoftonline.com/<tenant>/v2.0 --external-idp-audience <client-id> --claims-config claims.json --registered-client-id <your-app-registration-client-id> --oauth-scope openid api://<client-id>/.default\n`
         ) +
         `  Accept additional client hostnames (extends the localhost default):\n` +
         c.command(
@@ -358,6 +427,70 @@ export default function setup() {
           );
         }
       }
+      // Loaded here (rather than only later, inline where it's consumed)
+      // for two reasons: a --dry-run never reaches that later code at all,
+      // so a malformed claims-config file previously went unvalidated by
+      // --dry-run; and the startup summary below needs its contents to
+      // actually show the operator what's configured, not just that
+      // external-IDP mode is on.
+      const claimMapping =
+        opts.oauthResourceServer && opts.externalIdpIssuer
+          ? loadClaimMappingConfig(opts.claimsConfig)
+          : undefined;
+      // Same reasoning as claimMapping above: validated/resolved here, not
+      // only later where it's consumed, so --dry-run catches a malformed
+      // --public-url and the startup summary can show what's actually
+      // being advertised. --oauth-resource-server's own validation above
+      // already rejected an 'auto' --port, so parseMcpHttpPortOption(opts.port)
+      // is safe to call this early whenever oauthResourceServer is set.
+      if (opts.publicUrl !== undefined && !opts.oauthResourceServer) {
+        throw new Error('--public-url requires --oauth-resource-server.');
+      }
+      let publicUrlOrigin: URL | undefined;
+      if (opts.publicUrl !== undefined) {
+        try {
+          publicUrlOrigin = new URL(opts.publicUrl);
+        } catch {
+          throw new Error(
+            `--public-url '${opts.publicUrl}' is not a valid absolute URL, e.g. https://mcp.example.com:6277.`
+          );
+        }
+      }
+      const resourceServerUrl = opts.oauthResourceServer
+        ? publicUrlOrigin
+          ? new URL('/mcp', publicUrlOrigin)
+          : new URL(
+              `http://${opts.bindHost ?? '127.0.0.1'}:${parseMcpHttpPortOption(opts.port)}/mcp`
+            )
+        : undefined;
+      if (opts.registeredClientId !== undefined && !opts.oauthResourceServer) {
+        throw new Error(
+          '--registered-client-id requires --oauth-resource-server.'
+        );
+      }
+      if (
+        opts.oauthScope !== undefined &&
+        opts.oauthScope.length > 0 &&
+        !opts.oauthResourceServer
+      ) {
+        throw new Error('--oauth-scope requires --oauth-resource-server.');
+      }
+      if (
+        opts.oauthForwardResource !== undefined &&
+        !opts.oauthResourceServer
+      ) {
+        throw new Error(
+          '--oauth-forward-resource requires --oauth-resource-server.'
+        );
+      }
+      if (
+        opts.oauthForwardResource !== undefined &&
+        opts.registeredClientId === undefined
+      ) {
+        throw new Error(
+          "--oauth-forward-resource governs the proxied authorize/token legs, which only exist with --registered-client-id. Without a registered client, this server has no upstream legs to forward 'resource' to -- the flag has nothing to do and is refused rather than silently ignored."
+        );
+      }
       // Transport-policy limits (HTTP only): resolved before the refusal
       // check so an operator who mistyped either value sees the fallback
       // note in the log regardless of what happens later in startup.
@@ -418,6 +551,17 @@ export default function setup() {
         }
       }
       const activeHost = sanitizeHost(state.getHost());
+      // TODO(oauth-resource-server): confirmed live that both hydration
+      // catalogs unconditionally fail in this mode -- `frodoInstance: frodo`
+      // below is the process singleton, deliberately never authenticated
+      // when `opts.oauthResourceServer` is set (see the comment above), so
+      // `readManagedObjectTypes()`/`readConfigEntityStubs()` always hit an
+      // unauthenticated session and always get rejected. Not a bug (the
+      // fallback to static skill metadata already handles it gracefully),
+      // but worth deciding deliberately rather than by accident: either
+      // skip hydration outright in this mode (skip the two guaranteed-401
+      // startup calls entirely), or find some other way to hydrate (e.g.
+      // once the first verified request resolves a real credential).
       const discoveryContext = await hydrateMcpDiscoveryContext({
         frodoInstance: frodo,
         activeTarget: {
@@ -515,6 +659,34 @@ export default function setup() {
             (descriptor) => descriptor.operationType === 'import'
           ),
         },
+        resourceServerUrl: resourceServerUrl
+          ? {
+              value: resourceServerUrl.toString(),
+              source: publicUrlOrigin
+                ? ('explicit' as const)
+                : ('derived-from-bind-host' as const),
+            }
+          : undefined,
+        registeredClientId: opts.registeredClientId,
+        oauthScope: opts.oauthScope,
+        oauthForwardResource: opts.oauthForwardResource,
+        // Issuer/audience/claim-mapping are all operator-supplied
+        // configuration, not secrets (the JWKs/tokens they gate are never
+        // included) — printing them is exactly what confirms the intended
+        // settings actually took effect instead of silently falling back
+        // to something else, the same reasoning every other field here
+        // already follows.
+        externalIdp: claimMapping
+          ? {
+              issuer: opts.externalIdpIssuer!,
+              audience: opts.externalIdpAudience!,
+              claimName: claimMapping.claimName,
+              mappings: claimMapping.mappings.map((m) => ({
+                claimValue: m.claimValue,
+                serviceAccount: m.serviceAccount,
+              })),
+            }
+          : undefined,
       };
 
       if (opts.dryRun) {
@@ -533,10 +705,8 @@ export default function setup() {
         await startStdioTransport(service, startupInfo);
       } else {
         const resolvedPort = parseMcpHttpPortOption(opts.port);
-        const resourceServerUrl = new URL(
-          `http://${opts.bindHost ?? '127.0.0.1'}:${resolvedPort}/mcp`
-        );
-        let oauthResourceServerOptions: McpOAuthResourceServerOptions | undefined;
+        let oauthResourceServerOptions:
+          McpOAuthResourceServerOptions | undefined;
         if (opts.oauthResourceServer && opts.externalIdpIssuer) {
           // External-IDP "shared mode": validate against a third-party
           // OIDC provider and map the verified identity's claims to a
@@ -546,7 +716,6 @@ export default function setup() {
           const { oauthMetadata, jwks } = await fetchExternalIdpMetadata(
             opts.externalIdpIssuer
           );
-          const claimMapping = loadClaimMappingConfig(opts.claimsConfig);
           oauthResourceServerOptions = {
             verifier: buildExternalIdpVerifier(
               oauthMetadata,
@@ -554,9 +723,19 @@ export default function setup() {
               opts.externalIdpAudience
             ),
             oauthMetadata,
-            resourceServerUrl,
+            // Guaranteed defined here: this whole branch only runs when
+            // opts.oauthResourceServer is set, the same condition the
+            // earlier computation used.
+            resourceServerUrl: resourceServerUrl!,
+            resourceServerUrlIsExplicit: Boolean(publicUrlOrigin),
+            registeredClientId: opts.registeredClientId,
+            scopesSupported: opts.oauthScope,
+            oauthForwardResource: opts.oauthForwardResource,
             resolveCredential: buildClaimMappedCredentialResolver(
-              claimMapping,
+              // Guaranteed defined here: this branch only runs when
+              // opts.externalIdpIssuer is set, the same condition the
+              // earlier load above used.
+              claimMapping!,
               state.getHost()
             ),
           };
@@ -565,7 +744,11 @@ export default function setup() {
           oauthResourceServerOptions = {
             verifier: buildAmTokenInfoVerifier(state.getHost()),
             oauthMetadata: buildAmOAuthMetadata(state.getHost()),
-            resourceServerUrl,
+            resourceServerUrl: resourceServerUrl!,
+            resourceServerUrlIsExplicit: Boolean(publicUrlOrigin),
+            registeredClientId: opts.registeredClientId,
+            scopesSupported: opts.oauthScope,
+            oauthForwardResource: opts.oauthForwardResource,
           };
         }
         await startHttpTransport(
@@ -622,6 +805,34 @@ type StartupSummary = {
   toolCounts: { total: number; canonical: number; discovery: number };
   skillCount: number;
   importExportExposed: { export: boolean; import: boolean };
+  // Only present in --oauth-resource-server mode. `source: 'explicit'` is
+  // fixed for every request (--public-url); `'derived-from-bind-host'` is
+  // only the startup-time fallback -- a live request whose own (allow-
+  // listed) Host header differs advertises that instead, per-request. See
+  // McpServerOps.ts's resolveResourceServerUrl.
+  resourceServerUrl?: {
+    value: string;
+    source: 'explicit' | 'derived-from-bind-host';
+  };
+  // Present only when --registered-client-id is configured. The id itself
+  // is public/non-secret by design (see registeredClientId's own remarks),
+  // so printing it is safe and exactly what confirms the DCR shim is
+  // actually active.
+  registeredClientId?: string;
+  // Present only when --oauth-scope is configured.
+  oauthScope?: string[];
+  // Present only when --oauth-forward-resource is configured: the upstream
+  // RFC 8707 'resource' behavior on the proxied legs. Not a secret (it's
+  // either the flag itself or an identifier already visible in every
+  // authorize URL), and printing it is exactly what confirms the strip
+  // default isn't silently in effect.
+  oauthForwardResource?: boolean | string;
+  externalIdp?: {
+    issuer: string;
+    audience: string;
+    claimName: string;
+    mappings: { claimValue: string; serviceAccount: string }[];
+  };
 };
 
 function formatStartupMessages(summary: StartupSummary): string[] {
@@ -636,9 +847,42 @@ function formatStartupMessages(summary: StartupSummary): string[] {
       ? [`HTTP allowed hosts: ${summary.http.allowedHosts.join(', ')}`]
       : []),
     ...(summary.http.auth ? [`HTTP auth: ${summary.http.auth}`] : []),
+    ...(summary.resourceServerUrl
+      ? [
+          summary.resourceServerUrl.source === 'explicit'
+            ? `Resource server URL: ${summary.resourceServerUrl.value} (from --public-url)`
+            : `Resource server URL: ${summary.resourceServerUrl.value} (derived from --bind-host; a request's own Host header is used instead per-request whenever it differs and passes the Host allow-list — pass --public-url to fix this instead, e.g. behind a reverse proxy)`,
+        ]
+      : []),
+    ...(summary.registeredClientId
+      ? [
+          `Registered client id (DCR shim, /oauth2/register): ${summary.registeredClientId}`,
+          `  A connecting client's requested redirect_uri is logged (info level) the first time it registers -- configure that exact value on the app registration on AM/the external IDP.`,
+        ]
+      : []),
+    ...(summary.oauthScope
+      ? [`OAuth scope requested by clients: ${summary.oauthScope.join(' ')}`]
+      : []),
+    ...(summary.oauthForwardResource !== undefined
+      ? [
+          typeof summary.oauthForwardResource === 'string'
+            ? `OAuth forward resource (upstream RFC 8707): fixed value '${summary.oauthForwardResource}' replaces the client's`
+            : `OAuth forward resource (upstream RFC 8707): relaying the client's value verbatim`,
+        ]
+      : []),
     `Tools: ${summary.toolCounts.total} total (${summary.toolCounts.canonical} canonical, ${summary.toolCounts.discovery} discovery)`,
     `Backing skills: ${summary.skillCount}`,
     `Import/export exposed: export=${summary.importExportExposed.export}, import=${summary.importExportExposed.import}`,
+    ...(summary.externalIdp
+      ? [
+          `External IDP issuer: ${summary.externalIdp.issuer}`,
+          `External IDP audience: ${summary.externalIdp.audience}`,
+          `Claims config: matching '${summary.externalIdp.claimName}' claim, ${summary.externalIdp.mappings.length} mapping(s):`,
+          ...summary.externalIdp.mappings.map(
+            (m) => `  ${m.claimValue} -> ${m.serviceAccount}`
+          ),
+        ]
+      : []),
   ];
 }
 

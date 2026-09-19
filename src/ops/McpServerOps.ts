@@ -40,14 +40,15 @@ import {
   getOAuthProtectedResourceMetadataUrl,
   localhostAllowedHostnames,
   McpServer,
-  type OAuthMetadata,
   OAuthError,
   OAuthErrorCode,
+  type OAuthMetadata,
   oauthMetadataResponse,
   type OAuthTokenVerifier,
   PROTOCOL_VERSION_META_KEY,
   ToolAnnotations,
   UnsupportedProtocolVersionError,
+  validateHostHeader,
   verifyBearerToken,
 } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
@@ -775,8 +776,22 @@ export type McpOAuthResourceServerOptions = {
   verifier: OAuthTokenVerifier;
   /** RFC 8414 Authorization Server metadata for the target tenant. */
   oauthMetadata: OAuthMetadata;
-  /** This MCP server's own public URL (the RFC 9728 `resource` value). */
+  /**
+   * This MCP server's own public URL (the RFC 9728 `resource` value).
+   * Authoritative only when `resourceServerUrlIsExplicit` is true
+   * (`--public-url`); otherwise it's just the `--bind-host`-derived
+   * fallback used when a request's own Host header can't be — see
+   * `resolveResourceServerUrl`, which is what request handling actually
+   * calls.
+   */
   resourceServerUrl: URL;
+  /**
+   * Whether `resourceServerUrl` was explicitly set via `--public-url`
+   * (authoritative, used for every request unchanged) rather than derived
+   * from `--bind-host`/`--port` at startup (a fallback only — see
+   * `resolveResourceServerUrl`).
+   */
+  resourceServerUrlIsExplicit: boolean;
   /**
    * Optional post-verification hook: resolves a freshly-verified `AuthInfo`
    * into an enriched one that names a specific frodo-side credential to
@@ -787,6 +802,68 @@ export type McpOAuthResourceServerOptions = {
    * bearer-token branch for how the two shapes are told apart.
    */
   resolveCredential?: (authInfo: AuthInfo) => Promise<AuthInfo>;
+  /**
+   * `--registered-client-id`: an operator-pre-provisioned, public
+   * (no-secret) OAuth client_id to hand back verbatim from a DCR-emulation
+   * shim this server hosts itself at `/oauth2/register` — see
+   * `buildDcrRegistrationResponse`. Neither AM-as-IdP mode's hand-built
+   * metadata nor a typical external IDP's real metadata includes a working
+   * `registration_endpoint` a generic client can use (AM's own real one
+   * requires an initial access token frodo/clients don't have; most
+   * external IDPs, Entra ID included, don't implement RFC 7591 at all), so
+   * without this a DCR-attempting MCP client has no way to obtain a
+   * client_id at all. When set, `resolveResourceServerUrl`'s sibling
+   * derivation logic also points `registration_endpoint` at this server's
+   * own shim endpoint in the served AS metadata.
+   */
+  registeredClientId?: string;
+  /**
+   * `--oauth-scope`: the OAuth scope(s) a connecting client should request,
+   * advertised via both the RFC 9728 protected-resource metadata's
+   * `scopes_supported` and the `scope` parameter of the `WWW-Authenticate`
+   * challenge on a 401 -- the two sources, in that priority order, the MCP
+   * TypeScript SDK's own client uses to fill in `scope` on the authorize
+   * request when the client has no scope of its own to request (confirmed
+   * by reading the SDK's `selectScope` logic directly). Without this, some
+   * authorization servers reject the resulting authorize request outright
+   * for lacking a `scope` parameter at all -- confirmed live against a real
+   * Entra ID tenant (`AADSTS900144: The request body must contain the
+   * following parameter: 'scope'`); AM tends to be more lenient, but which
+   * scope(s) a given OAuth2 client/provider actually needs is operator
+   * knowledge frodo has no way to infer, so this is opt-in for both modes
+   * rather than defaulted.
+   */
+  scopesSupported?: string[];
+  /**
+   * `--oauth-forward-resource`: what to do with the MCP-mandated RFC 8707
+   * `resource` parameter a connecting client sends to this server's proxied
+   * authorize/token endpoints. The default (undefined) is to STRIP it before
+   * relaying upstream: most external IDPs don't implement RFC 8707 at all,
+   * and some (Entra ID's v2.0 endpoint) reject the request outright if a
+   * `resource` is present that doesn't match the scope-implied audience
+   * (AADSTS9010010, confirmed live) -- stripping is safe everywhere.
+   *
+   * RFC 8707 support is NOT discoverable from the IDP's metadata (no
+   * `resource_indicators_supported` field exists in RFC 8414/9728), and the
+   * stateless proxy design never sees the upstream's response to the
+   * authorize leg (the browser is redirected straight back to the client),
+   * so there is no way to learn this from feedback either -- the operator
+   * has the knowledge and frodo can't infer it, hence manual opt-in.
+   *
+   * When `true`, the client's own `resource` value is relayed verbatim --
+   * for authorization servers that DO implement RFC 8707 (WorkOS AuthKit,
+   * Authlete 3.0, Auth0 with the Resource Parameter Compatibility Profile,
+   * Keycloak 26.8's experimental support): MCP's own profile of RFC 8707
+   * (2025-11-25 / 2026-07-28) requires the AS to audience-restrict the
+   * issued token to this value, which only works if it actually arrives.
+   *
+   * When set to a URI string, THAT value is relayed as `resource` instead
+   * of the client's -- for authorization servers (e.g. PingFederate 13.1)
+   * where `resource` is accepted but used only as an access-token-manager /
+   * API key selector, so what must arrive is not the client's MCP URL but
+   * the operator-known identifier that AS actually recognizes.
+   */
+  oauthForwardResource?: boolean | string;
 };
 
 /**
@@ -831,7 +908,9 @@ export function buildAmOAuthMetadata(amBaseUrl: string): OAuthMetadata {
  * onto a fresh, request-scoped Frodo instance (see
  * `AuthenticateOps.applyAccessToken()` in frodo-lib).
  */
-export function buildAmTokenInfoVerifier(amBaseUrl: string): OAuthTokenVerifier {
+export function buildAmTokenInfoVerifier(
+  amBaseUrl: string
+): OAuthTokenVerifier {
   return {
     async verifyAccessToken(token: string): Promise<AuthInfo> {
       let info;
@@ -923,23 +1002,23 @@ export function buildExternalIdpVerifier(
       let claims: Record<string, unknown>;
       try {
         claims = await frodo.utils.jose.verifyJwtAgainstJwks(token, jwks);
-      } catch {
+      } catch (verifyError) {
         throw new OAuthError(
           OAuthErrorCode.InvalidToken,
-          "Token signature could not be verified against the configured external IDP's published keys."
+          `Token signature could not be verified against the configured external IDP's published keys. (${verifyError instanceof Error ? verifyError.message : String(verifyError)})`
         );
       }
       if (claims.iss !== oauthMetadata.issuer) {
         throw new OAuthError(
           OAuthErrorCode.InvalidToken,
-          'Token issuer does not match the configured external IDP.'
+          `Token issuer does not match the configured external IDP (token iss=${String(claims.iss)}, expected ${oauthMetadata.issuer}).`
         );
       }
       const audiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
       if (!audiences.includes(audience)) {
         throw new OAuthError(
           OAuthErrorCode.InvalidToken,
-          'Token audience does not match the configured client.'
+          `Token audience does not match the configured client (token aud=${audiences.join(' ')}, expected ${audience}).`
         );
       }
       const expiresAt = typeof claims.exp === 'number' ? claims.exp : undefined;
@@ -992,10 +1071,25 @@ export function buildClaimMappedCredentialResolver(
         `No claim mapping matched this token's '${claimMapping.claimName}' claim - access denied.`
       );
     }
-    const account = await frodo.conn.getAdditionalServiceAccount(
-      host,
-      serviceAccountName
-    );
+    let account;
+    try {
+      account = await frodo.conn.getAdditionalServiceAccount(
+        host,
+        serviceAccountName
+      );
+    } catch (error) {
+      // A mapping that names a service account missing from the profile is
+      // an operator configuration error, not a server malfunction — but a
+      // raw FrodoError escaping here would surface as a bare 500 with no
+      // hint (and the CLI's OAuthError-only log line would say just
+      // 'verification failed'). Map it onto InsufficientScope instead: the
+      // token is genuinely valid but has no configured access, which is
+      // exactly what a 403 insufficient_scope challenge means.
+      throw new OAuthError(
+        OAuthErrorCode.InsufficientScope,
+        `Claim mapping names service account '${serviceAccountName}', but it could not be resolved from the connection profile: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
     return {
       ...authInfo,
       extra: {
@@ -1082,6 +1176,179 @@ export function isLoopbackBindHost(bindHost: string): boolean {
 }
 
 /**
+ * Parses an `X-Forwarded-Proto` header value down to `'http'`/`'https'`,
+ * or `undefined` for anything else (missing, empty, unrecognized).
+ * Multiple proxies append their own value comma-separated; only the first
+ * — the one closest to the original client — says what scheme the actual
+ * caller used, which is the only one relevant here.
+ */
+function firstForwardedProto(
+  headerValue: string | undefined
+): 'http' | 'https' | undefined {
+  const first = headerValue?.split(',')[0]?.trim().toLowerCase();
+  return first === 'http' || first === 'https' ? first : undefined;
+}
+
+/**
+ * Resolves this MCP server's own advertised "resource" URL (the RFC 9728
+ * `resource` value) for one request — used both for the discovery document
+ * itself and for the `resource_metadata` URL in a 401 challenge.
+ *
+ * An operator-supplied `--public-url`
+ * (`oauthResourceServer.resourceServerUrlIsExplicit`) is authoritative and
+ * always wins. Otherwise, the value fixed at startup from `--bind-host` is
+ * only a fallback: a request's own Host header — once confirmed against
+ * `allowedHostnames`, the same allow-list already used for DNS-rebinding
+ * protection — is what a client actually used to reach this server, which
+ * is more accurate than any single value guessed at startup, especially
+ * behind a wildcard bind (`--bind-host 0.0.0.0`, never itself a real,
+ * dialable address). A missing or unrecognized Host falls back to the
+ * startup value rather than ever advertising an unvalidated one.
+ *
+ * Scheme is read from `X-Forwarded-Proto` on a non-loopback bind only — a
+ * loopback-bound server is never legitimately reverse-proxied, and this
+ * transport itself never terminates TLS, so `http` is otherwise always
+ * correct regardless of what a request claims.
+ *
+ * Exported for direct unit coverage without a real listener.
+ */
+export function resolveResourceServerUrl(
+  req: IncomingMessage,
+  bindHost: string,
+  allowedHostnames: string[],
+  oauthResourceServer: McpOAuthResourceServerOptions
+): URL {
+  if (oauthResourceServer.resourceServerUrlIsExplicit) {
+    return oauthResourceServer.resourceServerUrl;
+  }
+  const hostHeader = getSingleHeaderValue(req, 'host');
+  if (!hostHeader || !validateHostHeader(hostHeader, allowedHostnames).ok) {
+    return oauthResourceServer.resourceServerUrl;
+  }
+  const proto =
+    !isLoopbackBindHost(bindHost) &&
+    firstForwardedProto(getSingleHeaderValue(req, 'x-forwarded-proto')) ===
+      'https'
+      ? 'https'
+      : 'http';
+  try {
+    return new URL(`${proto}://${hostHeader}/mcp`);
+  } catch {
+    return oauthResourceServer.resourceServerUrl;
+  }
+}
+
+/**
+ * This server's own DCR-emulation endpoint URL, derived from the same
+ * per-request-resolved base as `resourceServerUrl` (same host, same
+ * `0.0.0.0`-isn't-dialable concern) -- just a different path.
+ */
+function deriveRegistrationEndpointUrl(resolvedResourceServerUrl: URL): URL {
+  return new URL('/oauth2/register', resolvedResourceServerUrl);
+}
+
+/**
+ * This server's own authorize-proxy endpoint URL -- see
+ * `handleHttpRequest`'s `/oauth2/authorize` route for what it actually
+ * does. Same derivation as `deriveRegistrationEndpointUrl`.
+ */
+function deriveAuthorizeEndpointUrl(resolvedResourceServerUrl: URL): URL {
+  return new URL('/oauth2/authorize', resolvedResourceServerUrl);
+}
+
+/**
+ * This server's own token-proxy endpoint URL -- see `handleHttpRequest`'s
+ * `/oauth2/token` route for what it actually does. Same derivation as
+ * `deriveRegistrationEndpointUrl`.
+ */
+function deriveTokenEndpointUrl(resolvedResourceServerUrl: URL): URL {
+  return new URL('/oauth2/token', resolvedResourceServerUrl);
+}
+
+/**
+ * What value (if any) to put in the upstream `resource` (RFC 8707)
+ * parameter, given what the client sent and the operator's
+ * `--oauth-forward-resource` setting. Shared by both proxy legs so the
+ * authorize and token legs can never disagree.
+ *
+ * - `undefined`/`false` (default): null -- the parameter is stripped.
+ * - `true`: the client's own value, verbatim, or null when the client sent
+ *   none (frodo never invents a `resource` upstream: the operator opted
+ *   into relaying, not into originating). A present-but-empty client value
+ *   (`resource=`) counts as none: RFC 8707 §2 requires a non-empty URI, and
+ *   relaying a blank parameter would only re-trigger whatever rejection the
+ *   strip was protecting against.
+ * - a string: that fixed value on every leg, whether or not the client
+ *   sent its own (it replaces the client's).
+ */
+export function resolveForwardedResourceValue(
+  clientResource: string | null,
+  oauthForwardResource: boolean | string | undefined
+): string | undefined {
+  if (oauthForwardResource === true) {
+    return clientResource ? clientResource : undefined;
+  }
+  if (typeof oauthForwardResource === 'string' && oauthForwardResource) {
+    return oauthForwardResource;
+  }
+  return undefined;
+}
+
+/**
+ * Builds an RFC 7591-shaped Dynamic Client Registration success response
+ * that always names the same operator-pre-provisioned `registeredClientId`
+ * — see `McpOAuthResourceServerOptions.registeredClientId`'s own remarks
+ * for why this exists at all. Deliberately not real registration: nothing
+ * is persisted, nothing is forwarded to AM or the external IDP, and the
+ * exact same response is returned for every caller. That's safe because
+ * the client_id is public by design (`token_endpoint_auth_method: 'none'`,
+ * a PKCE-only client) — the real security boundary is the pre-provisioned
+ * app registration's own redirect-URI allow-list on AM/the external IDP,
+ * not anything this endpoint enforces.
+ *
+ * Deliberately lenient rather than RFC-7591-strict about the request body
+ * (echoing back whatever client metadata was actually submitted, defaulting
+ * the rest): the goal is maximum interoperability with whatever a generic
+ * DCR-attempting MCP client happens to send, not spec conformance testing.
+ *
+ * Exported for direct unit coverage without a real listener.
+ */
+export function buildDcrRegistrationResponse(
+  requestBody: unknown,
+  registeredClientId: string
+): Record<string, unknown> {
+  const submitted =
+    requestBody &&
+    typeof requestBody === 'object' &&
+    !Array.isArray(requestBody)
+      ? (requestBody as Record<string, unknown>)
+      : {};
+  return {
+    client_id: registeredClientId,
+    client_id_issued_at: Math.floor(Date.now() / 1000),
+    // Always public/PKCE, regardless of what the client asked for -- see
+    // this function's own remarks on why frodo can't honor a confidential
+    // client_secret request here even if one were submitted.
+    token_endpoint_auth_method: 'none',
+    redirect_uris: Array.isArray(submitted.redirect_uris)
+      ? submitted.redirect_uris
+      : [],
+    grant_types: Array.isArray(submitted.grant_types)
+      ? submitted.grant_types
+      : ['authorization_code'],
+    response_types: Array.isArray(submitted.response_types)
+      ? submitted.response_types
+      : ['code'],
+    ...(typeof submitted.client_name === 'string'
+      ? { client_name: submitted.client_name }
+      : {}),
+    ...(typeof submitted.application_type === 'string'
+      ? { application_type: submitted.application_type }
+      : {}),
+  };
+}
+
+/**
  * Verifies an HTTP `Authorization` header against the configured bearer
  * token, timing-safely.
  *
@@ -1163,9 +1430,11 @@ export async function startHttpTransport(
     sessionIdGenerator: undefined,
   });
   await mcpServer.connect(transport);
-  const validateHost = hostHeaderValidation(
-    computeHttpAllowedHosts(bindHost, options?.allowedHosts)
+  const allowedHostnames = computeHttpAllowedHosts(
+    bindHost,
+    options?.allowedHosts
   );
+  const validateHost = hostHeaderValidation(allowedHostnames);
   const validateOrigin = localhostOriginValidation();
   const limiter = new McpHttpConcurrencyLimiter(
     options?.maxConcurrentRequests ?? DEFAULT_MCP_HTTP_MAX_CONCURRENT_REQUESTS
@@ -1183,6 +1452,23 @@ export async function startHttpTransport(
           printMessage(message, 'debug');
         }
       };
+      // A real DCR-shim registration is the one per-request event worth
+      // surfacing at 'info' rather than 'debug': it's low-frequency (once
+      // per new client, not routine traffic) and its content -- the
+      // redirect_uris the connecting client actually submitted -- is
+      // exactly what an operator needs to configure on the real app
+      // registration, information they have no other way to discover
+      // (frodo never sees the separate, later authorize-step failure an
+      // operator would otherwise only learn about from AM/the external
+      // IDP's own error page) and no reason to already be running with
+      // --mcp-log-level debug to catch.
+      const infoLog = (message: string): void => {
+        if (startupInfo) {
+          startupInfo.logger.info('dcr', message);
+        } else {
+          printMessage(message, 'info');
+        }
+      };
       try {
         await handleHttpRequest(
           req,
@@ -1194,6 +1480,9 @@ export async function startHttpTransport(
           options?.maxBodySizeBytes ?? DEFAULT_MCP_HTTP_MAX_BODY_SIZE_BYTES,
           limiter,
           debugLog,
+          infoLog,
+          bindHost,
+          allowedHostnames,
           options?.oauthResourceServer
         );
       } catch (err) {
@@ -1495,6 +1784,9 @@ async function handleHttpRequest(
   maxBodySizeBytes: number,
   limiter: McpHttpConcurrencyLimiter,
   debug: ((message: string) => void) | undefined,
+  info: ((message: string) => void) | undefined,
+  bindHost: string,
+  allowedHostnames: string[],
   oauthResourceServer?: McpOAuthResourceServerOptions
 ): Promise<void> {
   // Arrival line: even 404s and health probes are visible at debug level.
@@ -1519,16 +1811,371 @@ async function handleHttpRequest(
   // otherwise consume a POST /mcp body meant for the transport below.
   if (req.method === 'GET' && oauthResourceServer) {
     const webRequest = await toWebRequest(req);
+    const resolvedResourceServerUrl = resolveResourceServerUrl(
+      req,
+      bindHost,
+      allowedHostnames,
+      oauthResourceServer
+    );
+    // Only augment when a shim client_id is actually configured -- without
+    // it, AM-as-IdP mode's hand-built metadata correctly stays untouched
+    // (real issuer, no registration_endpoint), and external-IDP mode's
+    // metadata stays a faithful, unmodified passthrough of the real IDP's
+    // own document.
+    //
+    // issuer, authorization_endpoint, and token_endpoint all change
+    // together, or none do: a spec-compliant client fetches AS metadata by
+    // constructing a well-known URL FROM THE ISSUER ITSELF (RFC 8414 §3.1),
+    // not from wherever the resource server happens to also serve a copy
+    // (confirmed live: with the real upstream issuer left in place, a real
+    // client never even requests this document -- it goes straight to the
+    // real IDP's own discovery endpoint and correctly reports no DCR
+    // support there, since our /oauth2/register override is never seen).
+    // Once issuer points at this server, authorization_endpoint/
+    // token_endpoint must too, per RFC 8414 §3.3's mandatory issuer-match
+    // validation on the fetched document. This is safe because the
+    // *upstream's own* authorization_endpoint/token_endpoint (preserved
+    // unmodified in oauthResourceServer.oauthMetadata) don't have to live on
+    // the same origin as the issuer -- RFC 8414 doesn't require that --
+    // authorizeProxyHandler/tokenProxyHandler below forward to exactly
+    // those, so the real authorize/token legs stay entirely between the
+    // client's browser and AM/the external IDP.
+    const oauthMetadata = oauthResourceServer.registeredClientId
+      ? {
+          ...oauthResourceServer.oauthMetadata,
+          issuer: resolvedResourceServerUrl.origin,
+          authorization_endpoint: deriveAuthorizeEndpointUrl(
+            resolvedResourceServerUrl
+          ).toString(),
+          token_endpoint: deriveTokenEndpointUrl(
+            resolvedResourceServerUrl
+          ).toString(),
+          registration_endpoint: deriveRegistrationEndpointUrl(
+            resolvedResourceServerUrl
+          ).toString(),
+        }
+      : oauthResourceServer.oauthMetadata;
     const discoveryResponse = await oauthMetadataResponse(webRequest, {
-      oauthMetadata: oauthResourceServer.oauthMetadata,
-      resourceServerUrl: oauthResourceServer.resourceServerUrl,
+      oauthMetadata,
+      resourceServerUrl: resolvedResourceServerUrl,
       resourceName: MCP_SERVER_NAME,
+      scopesSupported: oauthResourceServer.scopesSupported,
+      // The SDK refuses a non-HTTPS issuer outside localhost/127.0.0.1 by
+      // design (an authorization server's issuer identity should be HTTPS
+      // in any real production deployment). --registered-client-id's own
+      // real-world use case is exactly the deployment shape that trips
+      // this: a private-network container reachable only over plain HTTP
+      // on its own LAN address (confirmed against a real deployment) --
+      // the same trust boundary --allowed-hosts already assumes for that
+      // address. A properly HTTPS-fronted deployment (--public-url
+      // https://...) is unaffected either way, since this only widens
+      // what's accepted, never narrows it.
+      dangerouslyAllowInsecureIssuerUrl:
+        Boolean(oauthResourceServer.registeredClientId) || undefined,
     });
     if (discoveryResponse) {
       debug?.(`discovery: served ${routePath}`);
       await writeWebResponse(res, discoveryResponse);
       return;
     }
+  }
+
+  // DCR-emulation shim (--registered-client-id only) -- see
+  // buildDcrRegistrationResponse's own remarks for why this exists.
+  // Served before any other routing for the same reason discovery is: a
+  // client attempting registration has no token yet by definition.
+  // Deliberately stateless and side-effect-free (never touches AM/the
+  // external IDP), so gating it on Host/Origin would protect nothing real
+  // -- the response contains no secret, just a public client_id meant to
+  // be handed to any caller.
+  if (
+    req.method === 'POST' &&
+    routePath === '/oauth2/register' &&
+    oauthResourceServer?.registeredClientId
+  ) {
+    let body: unknown;
+    try {
+      body = await readJsonBody(req, maxBodySizeBytes);
+    } catch (err) {
+      if (err instanceof McpHttpBodyTooLargeError) {
+        debug?.('rejected: 413 registration request body too large');
+        res.writeHead(413, { 'Content-Type': 'application/json' }).end(
+          JSON.stringify({
+            error: 'invalid_client_metadata',
+            error_description: 'Request body too large.',
+          })
+        );
+        return;
+      }
+      debug?.('rejected: invalid JSON body on /oauth2/register');
+      res.writeHead(400, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'invalid_client_metadata',
+          error_description: 'Invalid JSON body.',
+        })
+      );
+      return;
+    }
+    const registrationResponse = buildDcrRegistrationResponse(
+      body,
+      oauthResourceServer.registeredClientId
+    );
+    // 'info', not 'debug': this is the one place an operator learns what
+    // redirect_uri(s) a real connecting client actually requested -- the
+    // exact value that must be configured on the app registration on
+    // AM/the external IDP for the later authorize step (which frodo is
+    // never part of) to succeed. See this route's own top-of-block remarks.
+    info?.(
+      `served pre-registered client_id '${oauthResourceServer.registeredClientId}' -- configure this redirect_uri on the app registration: ${JSON.stringify(registrationResponse.redirect_uris)}`
+    );
+    res
+      .writeHead(201, { 'Content-Type': 'application/json' })
+      .end(JSON.stringify(registrationResponse));
+    return;
+  }
+
+  // Authorize-proxy (--registered-client-id only): a stateless 302 to the
+  // real upstream authorize endpoint, params passed straight through
+  // unmodified -- including the CLIENT's own (typically ephemeral-port
+  // loopback) redirect_uri. This only works because the upstream accepts
+  // that redirect_uri without it being individually pre-registered, which
+  // RFC 8252 §7.3 requires for loopback-IP redirect URIs specifically
+  // (confirmed live against this deployment's real Entra app registration:
+  // an arbitrary, never-registered loopback port was accepted). No state
+  // is stored here at all -- the upstream itself redirects the browser
+  // straight back to the client afterward, never back through this server.
+  // Reachable unauthenticated by definition (the whole point is to obtain
+  // credentials); the one thing validated is that client_id matches the
+  // single pre-provisioned client this server actually knows about --
+  // this server has no other client to broker an authorize flow for.
+  if (
+    req.method === 'GET' &&
+    routePath === '/oauth2/authorize' &&
+    oauthResourceServer?.registeredClientId
+  ) {
+    const rawQuery = req.url?.split('?')[1] ?? '';
+    const incomingParams = new URLSearchParams(rawQuery);
+    const requestedClientId = incomingParams.get('client_id');
+    if (
+      requestedClientId &&
+      requestedClientId !== oauthResourceServer.registeredClientId
+    ) {
+      debug?.(
+        `rejected: /oauth2/authorize unknown client_id '${requestedClientId}'`
+      );
+      // RFC 6749 §4.1.2.1: an authorize-endpoint error belongs in a redirect
+      // back to the client's own redirect_uri (error/error_description/state
+      // appended), not a raw response -- the client's browser is mid-flow,
+      // expecting a redirect chain back to its own callback, not a JSON
+      // error page. Only fall back to a raw response when redirect_uri
+      // itself isn't a trustworthy target (missing or unparseable) --
+      // redirecting to an unvalidated destination would make this route an
+      // open redirect instead.
+      const requestedRedirectUri = incomingParams.get('redirect_uri');
+      if (requestedRedirectUri) {
+        try {
+          const errorRedirect = new URL(requestedRedirectUri);
+          errorRedirect.searchParams.set('error', 'unauthorized_client');
+          errorRedirect.searchParams.set(
+            'error_description',
+            'Unknown client_id.'
+          );
+          const requestedState = incomingParams.get('state');
+          if (requestedState) {
+            errorRedirect.searchParams.set('state', requestedState);
+          }
+          res.writeHead(302, { Location: errorRedirect.toString() }).end();
+          return;
+        } catch {
+          // Malformed redirect_uri -- fall through to the raw response
+          // below rather than redirect to an unparseable/untrusted target.
+        }
+      }
+      res.writeHead(400, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'unauthorized_client',
+          error_description: 'Unknown client_id.',
+        })
+      );
+      return;
+    }
+    const upstreamAuthorizationEndpoint =
+      oauthResourceServer.oauthMetadata.authorization_endpoint;
+    if (!upstreamAuthorizationEndpoint) {
+      debug?.('rejected: 500 no upstream authorization_endpoint configured');
+      res.writeHead(500, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'server_error',
+          error_description: 'No upstream authorization endpoint configured.',
+        })
+      );
+      return;
+    }
+    // `resource` (RFC 8707) handling before relaying upstream: the MCP client
+    // is spec-required to send it (bound to this server's own RFC 9728
+    // `resource` value, which must stay unchanged -- see the discovery
+    // block above), but most external IDPs don't implement RFC 8707 at
+    // all. Entra ID's v2.0 endpoint actively rejects it rather than
+    // ignoring it -- confirmed live (`AADSTS9010010: The resource
+    // parameter provided in the request doesn't match with the requested
+    // scopes`), and independently confirmed as a known, widespread
+    // incompatibility across other MCP-on-Entra integrations. The `scope`
+    // parameter already implies the target audience for these IDPs, so
+    // dropping `resource` on this leg only (never in what this server
+    // itself advertises) loses nothing they'd have honored anyway --
+    // hence the default strip, overridden per `oauthForwardResource` when
+    // the operator's authorization server DOES implement RFC 8707 (relay
+    // the client's value verbatim, the MCP-profile-required behavior) or
+    // wants a fixed AS-known identifier sent instead (e.g. PingFederate's
+    // access-token-manager keys, where the client's MCP URL is not what
+    // the AS recognizes).
+    const clientResourceParam = incomingParams.get('resource');
+    if (clientResourceParam !== null) {
+      incomingParams.delete('resource');
+    }
+    const forwardedResource = resolveForwardedResourceValue(
+      clientResourceParam,
+      oauthResourceServer.oauthForwardResource
+    );
+    if (clientResourceParam !== null && !forwardedResource) {
+      debug?.(
+        "authorize: stripped 'resource' param before relaying upstream (RFC 8707 unsupported by most external IDPs, e.g. Entra AADSTS9010010)"
+      );
+    }
+    if (forwardedResource) {
+      debug?.(`authorize: forwarding resource=${forwardedResource} upstream`);
+      incomingParams.set('resource', forwardedResource);
+    }
+    const upstreamUrl = new URL(upstreamAuthorizationEndpoint);
+    upstreamUrl.search = incomingParams.toString();
+    debug?.(
+      `authorize: redirecting to upstream ${upstreamUrl.origin}${upstreamUrl.pathname}`
+    );
+    res.writeHead(302, { Location: upstreamUrl.toString() }).end();
+    return;
+  }
+
+  // Token-proxy (--registered-client-id only): a stateless server-to-server
+  // relay to the real upstream token endpoint, body and content-type passed
+  // straight through unmodified (including the client's own redirect_uri
+  // and PKCE code_verifier -- both were already sent to the upstream
+  // unmodified during the authorize step above, so they still match there).
+  // Required, not optional, alongside the authorize proxy above: OAuth2
+  // requires redirect_uri to match between the authorize and token steps,
+  // and the actual grant/token decision genuinely has to be made by the
+  // real upstream regardless -- this server only ever relays bytes, it
+  // never itself decides whether to issue a token.
+  if (
+    req.method === 'POST' &&
+    routePath === '/oauth2/token' &&
+    oauthResourceServer?.registeredClientId
+  ) {
+    const upstreamTokenEndpoint =
+      oauthResourceServer.oauthMetadata.token_endpoint;
+    if (!upstreamTokenEndpoint) {
+      debug?.('rejected: 500 no upstream token_endpoint configured');
+      res.writeHead(500, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'server_error',
+          error_description: 'No upstream token endpoint configured.',
+        })
+      );
+      return;
+    }
+    let rawBody: Buffer;
+    try {
+      rawBody = await readRawBody(req, maxBodySizeBytes);
+    } catch (err) {
+      if (err instanceof McpHttpBodyTooLargeError) {
+        debug?.('rejected: 413 token request body too large');
+        res.writeHead(413, { 'Content-Type': 'application/json' }).end(
+          JSON.stringify({
+            error: 'invalid_request',
+            error_description: 'Request body too large.',
+          })
+        );
+        return;
+      }
+      throw err;
+    }
+    const contentType =
+      getSingleHeaderValue(req, 'content-type') ??
+      'application/x-www-form-urlencoded';
+    // Same `resource` (RFC 8707) handling as the authorize leg above, and
+    // for the same reason -- RFC 8707 also defines a token-request
+    // `resource` parameter, and Entra rejects it there too. Both legs share
+    // `resolveForwardedResourceValue` so they can never disagree. Only
+    // rewritten for the one content-type OAuth2 token requests actually use
+    // (RFC 6749 §3.2); anything else is relayed byte-faithful, unexamined.
+    let outgoingBody: Buffer | string = rawBody;
+    if (
+      contentType.split(';')[0].trim() === 'application/x-www-form-urlencoded'
+    ) {
+      const bodyParams = new URLSearchParams(rawBody.toString('utf8'));
+      const clientResourceParam = bodyParams.get('resource');
+      if (clientResourceParam !== null) {
+        bodyParams.delete('resource');
+      }
+      const forwardedResource = resolveForwardedResourceValue(
+        clientResourceParam,
+        oauthResourceServer.oauthForwardResource
+      );
+      if (clientResourceParam !== null && !forwardedResource) {
+        debug?.(
+          "token: stripped 'resource' param before relaying upstream (RFC 8707 unsupported by most external IDPs, e.g. Entra AADSTS9010010)"
+        );
+      }
+      if (forwardedResource) {
+        debug?.(`token: forwarding resource=${forwardedResource} upstream`);
+        bodyParams.set('resource', forwardedResource);
+      }
+      if (clientResourceParam !== null || forwardedResource !== undefined) {
+        outgoingBody = bodyParams.toString();
+      }
+    }
+    let upstreamResponse: globalThis.Response;
+    try {
+      upstreamResponse = await fetch(upstreamTokenEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': contentType },
+        body: outgoingBody,
+      });
+    } catch (err) {
+      debug?.(
+        `rejected: 502 /oauth2/token upstream fetch failed -- ${err instanceof Error ? err.message : String(err)}`
+      );
+      res.writeHead(502, { 'Content-Type': 'application/json' }).end(
+        JSON.stringify({
+          error: 'server_error',
+          error_description: 'Failed to reach the upstream token endpoint.',
+        })
+      );
+      return;
+    }
+    const responseBody = await upstreamResponse.text();
+    debug?.(
+      `token: proxied to upstream, upstream responded ${upstreamResponse.status}`
+    );
+    // Include the upstream body on failure: an OAuth error response carries
+    // the provider's own error code (Entra's AADSTS codes especially) in its
+    // `error_description`, which is exactly what makes a rejected code
+    // exchange diagnosable from the log alone. E.g. a missing "Allow public
+    // client flows" toggle surfaces here as invalid_client
+    // AADSTS7000218 -- without the body, the client sees only its own
+    // follow-on error ("Existing OAuth client information is required…",
+    // from the SDK clearing the client registration on invalid_client) and
+    // never the real cause. Always the failure path only: success bodies
+    // carry bearer tokens and must never reach a log line.
+    if (upstreamResponse.status >= 400 && responseBody) {
+      debug?.(`token: upstream error body: ${responseBody}`);
+    }
+    res
+      .writeHead(upstreamResponse.status, {
+        'Content-Type':
+          upstreamResponse.headers.get('content-type') ?? 'application/json',
+      })
+      .end(responseBody);
+    return;
   }
 
   // Health probe — deliberately unauthenticated: liveness probes must not
@@ -1620,9 +2267,8 @@ async function handleHttpRequest(
       // profile read), and correctly reflects a claim-mapping table the
       // operator could update between requests without restarting.
       if (oauthResourceServer.resolveCredential) {
-        oauthAuthInfo = await oauthResourceServer.resolveCredential(
-          oauthAuthInfo
-        );
+        oauthAuthInfo =
+          await oauthResourceServer.resolveCredential(oauthAuthInfo);
       }
       debug?.(
         `oauth: verified bearer token (clientId=${oauthAuthInfo.clientId})`
@@ -1631,14 +2277,20 @@ async function handleHttpRequest(
       debug?.(
         authorization === undefined
           ? 'rejected: unauthorized (no Authorization header)'
-          : `rejected: unauthorized (${error instanceof OAuthError ? error.code : 'verification failed'})`
+          : `rejected: unauthorized (${error instanceof OAuthError ? `${error.code}: ${error.message}` : 'verification failed'})`
       );
       await writeWebResponse(
         res,
         bearerAuthChallengeResponse(error, {
           resourceMetadataUrl: getOAuthProtectedResourceMetadataUrl(
-            oauthResourceServer.resourceServerUrl
+            resolveResourceServerUrl(
+              req,
+              bindHost,
+              allowedHostnames,
+              oauthResourceServer
+            )
           ),
+          requiredScopes: oauthResourceServer.scopesSupported,
         })
       );
       return;
@@ -1892,10 +2544,14 @@ async function writeWebResponse(
  * (never more — the stream is not read past that point — and only equal to
  * the limit in the single-chunk-overshoot corner).
  */
-function readJsonBody(
-  req: IncomingMessage,
-  maxBytes: number
-): Promise<unknown> {
+/**
+ * Reads the raw body from an incoming HTTP request, refusing to buffer past
+ * `maxBytes`. The bounded-accumulation core `readJsonBody` and the
+ * `/oauth2/token` proxy route both build on -- see this function's own
+ * remarks there for why the cap works even against a Content-Length-less
+ * chunked upload.
+ */
+function readRawBody(req: IncomingMessage, maxBytes: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let totalBytes = 0;
@@ -1938,11 +2594,7 @@ function readJsonBody(
         return;
       }
       settled = true;
-      try {
-        resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
-      } catch (err) {
-        reject(err);
-      }
+      resolve(Buffer.concat(chunks));
     });
     req.on('error', (err) => {
       if (settled) {
@@ -1952,6 +2604,27 @@ function readJsonBody(
       reject(err);
     });
   });
+}
+
+/**
+ * Reads and parses the JSON body from an incoming HTTP request, refusing to
+ * buffer past `maxBytes`.
+ *
+ * The accumulation cap is what makes the read bounded: chunks past the limit
+ * stop being buffered immediately and the promise rejects mid-stream, so a
+ * Content-Length-less chunked upload cannot grow the buffer without bound
+ * either (the Content-Length pre-check in handleHttpRequest only covers
+ * requests that declare a length). The reported `receivedBytes` is the byte
+ * count actually observed up to and including the chunk that tripped the cap
+ * (never more — the stream is not read past that point — and only equal to
+ * the limit in the single-chunk-overshoot corner).
+ */
+async function readJsonBody(
+  req: IncomingMessage,
+  maxBytes: number
+): Promise<unknown> {
+  const raw = await readRawBody(req, maxBytes);
+  return JSON.parse(raw.toString('utf8'));
 }
 
 /**
@@ -2981,9 +3654,8 @@ export function buildRequestContext(
     // service account (buildClaimMappedCredentialResolver) — use that
     // instead of the caller's own (external, not AM-native) token, which
     // is never itself a usable AM credential in this mode.
-    const resolvedServiceAccountId = authInfo.extra?.resolvedServiceAccountId as
-      | string
-      | undefined;
+    const resolvedServiceAccountId = authInfo.extra
+      ?.resolvedServiceAccountId as string | undefined;
     const resolvedServiceAccountJwk = authInfo.extra?.resolvedServiceAccountJwk;
     if (resolvedServiceAccountId && resolvedServiceAccountJwk) {
       return {
@@ -3008,9 +3680,7 @@ export function buildRequestContext(
         host,
         accessToken: authInfo.token,
         scope: authInfo.scopes?.join(' '),
-        expiresAt: authInfo.expiresAt
-          ? authInfo.expiresAt * 1000
-          : undefined,
+        expiresAt: authInfo.expiresAt ? authInfo.expiresAt * 1000 : undefined,
         sessionId: authInfo.extra?.sessionToken as string | undefined,
         realm,
         deploymentType: state.getDeploymentType(),

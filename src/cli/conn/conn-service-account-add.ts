@@ -14,6 +14,7 @@ import {
 import { FrodoCommand, hostArgument } from '../FrodoCommand';
 
 const { validateServiceAccount } = frodo.cloud.serviceAccount;
+const { loadConnectionProfileByHost } = frodo.conn;
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -66,14 +67,25 @@ export default function setup() {
     .action(async (host: string, options: any, command: FrodoCommand) => {
       command.handleDefaultArgsAndOpts(host, options, command);
       try {
+        // `handleDefaultArgsAndOpts` only sets state's host to whatever
+        // was typed verbatim (alias, substring, or full URL) -- it never
+        // resolves it. Every other call below (`addAdditionalServiceAccount`
+        // etc.) takes `host` as an explicit argument and resolves it
+        // internally, but `validateServiceAccount` takes no host argument
+        // at all and reads `state.getHost()` directly, so an unresolved
+        // alias reached it as a literal string and failed to parse as a
+        // URL. Resolving here first (the same step `getTokens()` would
+        // otherwise do as a side effect, which this command deliberately
+        // never calls -- it validates a *different* credential than the
+        // profile's own primary one) fixes that for every ambient-state
+        // read below, not just this one.
+        await loadConnectionProfileByHost(host);
         const jwk = JSON.parse(fs.readFileSync(options.saJwkFile, 'utf8'));
         if (options.validate) {
           showSpinner(`Validating service account ${options.saId}...`);
           const token = await validateServiceAccount(options.saId, jwk);
           if (!token) {
-            failSpinner(
-              `Failed to validate service account ${options.saId}.`
-            );
+            failSpinner(`Failed to validate service account ${options.saId}.`);
             process.exitCode = 1;
             return;
           }
