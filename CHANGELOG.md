@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [v4.15.0] - 2026-09-19
+
 ### Added
 - `frodo mcp server start`'s startup summary (`--dry-run` output and the live `startup.configuration` debug log lines alike) now includes the external-IDP issuer, audience, and the full claims-config mapping table (claim value → service account name, never any secret) whenever `--external-idp-issuer` is configured — previously none of that appeared anywhere in startup output, making it hard to confirm the intended settings actually took effect.
 - Added `--public-url <url>` to `frodo mcp server start`, overriding the RFC 9728 `resource` value advertised in OAuth 2.1 resource-server ("shared mode") discovery metadata for cases that can't self-correct via the fix below — chiefly a reverse proxy or TLS-terminating gateway in front of the process, where the externally-reachable URL genuinely differs from anything the process itself can observe.
@@ -13,6 +15,23 @@
 - Fixed `frodo mcp server start --dry-run` never validating `--claims-config` when external-IDP mode is configured — a malformed or unparseable claims-config file previously went undetected by `--dry-run`, since that file was only ever loaded later, in code a dry run never reaches.
 - Fixed `frodo mcp server start --oauth-resource-server`'s discovery metadata (and the `resource_metadata` URL in its 401 challenges) always advertising itself at `--bind-host` verbatim, e.g. literally `http://0.0.0.0:<port>/mcp` when bound to a wildcard interface for remote reachability (the documented way to expose the HTTP transport beyond one machine) — an address nothing can actually dial, which MCP clients correctly refuse to proceed against as a resource-identifier mismatch. Now derived per-request from the request's own `Host` header once confirmed against the same allow-list already used for DNS-rebinding protection (falling back to the `--bind-host`-derived value for a missing/unrecognized Host, never advertising an unvalidated one), with the scheme upgraded to `https` when `X-Forwarded-Proto` says so on a non-loopback bind. See `--public-url` above for the one case this can't self-correct.
 - Fixed `--registered-client-id`'s authorize/token proxy relaying the MCP-mandated RFC 8707 `resource` parameter straight through to the upstream authorization server, breaking the flow against any AS that doesn't implement RFC 8707 (most don't) and especially against Entra ID's v2.0 endpoint, which rejects the request outright when `resource` is present (`AADSTS9010010: The resource parameter provided in the request doesn't match with the requested scopes`) — confirmed live, and a known, widespread incompatibility across other MCP-on-Entra integrations. `resource` is now stripped from both the `/oauth2/authorize` redirect and the `/oauth2/token` relay before forwarding upstream; this server's own RFC 9728 `resource` value (which the connecting client validates independently) is unaffected, and every other parameter on both legs is still passed through unmodified.
+
+- Added `--registered-client-id <client-id>` to `frodo mcp server start --oauth-resource-server`, enabling the server to act as a lightweight OAuth proxy for specific endpoints on behalf of a pre-provisioned, public client_id. This is necessary for authorization servers that don't support Dynamic Client Registration or require an initial access token to use it. (commit 8acf5c90)
+- Introduced `--oauth-scope <scope...>` to `frodo mcp server start --oauth-resource-server`, specifying the OAuth scopes a connecting client should request. This is advertised via the RFC 9728 protected-resource metadata and the `WWW-Authenticate` 401 challenge's `scope` parameter. (commit 790b398a)
+- Added `--oauth-forward-resource` to `frodo mcp server start`, allowing the forwarding of the RFC 8707 `resource` parameter to authorization servers that support it. (commit 1266a403)
+- Added `-a, --active-only` flag to `config-manager pull secrets`, allowing users to export only active secrets. (PR #695)
+- Introduced commands for direct control of configuration management: `config-manager-direct-control-abort`, `config-manager-direct-control-apply`, `config-manager-direct-control-init`, and `config-manager-direct-control-state`. These commands facilitate direct control over configuration management processes. (PR #693)
+- Added `config-manager pull and push metadata` commands, enabling the pulling and pushing of configuration metadata. (PR #692)
+- Added `config-manager push scripts` command, allowing users to push scripts directly. (PR #690)
+- Added `config-manager push saml` command, enabling the pushing of SAML configurations. (PR #689)
+
+### Changed
+- `frodo mcp server start`'s startup summary now includes the external-IDP issuer, audience, and the full claims-config mapping table when `--external-idp-issuer` is configured. This enhances the visibility of the intended settings. (commit 46c1cfec)
+
+- Fixed `frodo mcp server start --dry-run` not validating `--claims-config` when external-IDP mode is configured. A malformed claims-config file is now detected during a dry run. (commit 46c1cfec)
+- Fixed `frodo mcp server start --oauth-resource-server`'s discovery metadata advertising itself at `--bind-host` verbatim, which could lead to resource-identifier mismatches. The advertised URL is now derived from the request's `Host` header. (commit 0f7239a9)
+- Fixed `--registered-client-id`'s proxy relaying the RFC 8707 `resource` parameter to upstream authorization servers, which could break the flow against servers not implementing RFC 8707. The `resource` parameter is now stripped before forwarding. (commit 940deff4)
+- Improved error handling in OAuth flows by diagnosing external-IDP OAuth failures instead of masking them. (commit be9483de)
 
 ## [v4.14.0] - 2026-09-14
 
