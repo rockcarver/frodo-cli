@@ -127,6 +127,16 @@ type McpStartOptions = {
    */
   registeredClientId?: string;
   /**
+   * `--oauth-forward-resource`: controls what this server does with the
+   * MCP-mandated RFC 8707 `resource` parameter on its proxied
+   * authorize/token legs. Bare flag = relay the client's own value
+   * verbatim; a value = relay that fixed identifier instead; default
+   * (absent) = strip it. See `McpServerOps`'s
+   * `McpOAuthResourceServerOptions.oauthForwardResource` remarks.
+   * Requires --registered-client-id (the proxy legs are what it governs).
+   */
+  oauthForwardResource?: boolean | string;
+  /**
    * OAuth scope(s) a connecting client should request. Advertised via both
    * the RFC 9728 protected-resource metadata's `scopes_supported` and the
    * `WWW-Authenticate` 401 challenge's `scope` parameter, so a client that
@@ -275,13 +285,19 @@ export default function setup() {
     .addOption(
       new Option(
         '--registered-client-id <client-id>',
-        'A pre-provisioned, public (no-secret, PKCE-only) OAuth client_id, already registered directly with the target AM/AIC tenant or external IDP, that this server presents on behalf of ANY connecting MCP client. Turns this server into a lightweight OAuth proxy for three endpoints: /oauth2/register (RFC 7591 DCR emulation -- nothing is actually registered, the same client_id is always returned), /oauth2/authorize (a stateless redirect to the real upstream authorize endpoint), and /oauth2/token (a stateless relay to the real upstream token endpoint). This server also becomes the advertised issuer while this is set (required for a spec-compliant client to actually fetch these overridden endpoints at all: a client validates the issuer in fetched metadata against the URL it used to fetch it, so once issuer points elsewhere the client goes straight to the real upstream\'s own metadata instead, silently bypassing everything above). Necessary because most authorization servers either don\'t support DCR at all (e.g. Entra ID) or require an initial access token to use it (AM\'s own real /oauth2/register does) -- a generic DCR-attempting MCP client otherwise has no way to obtain a client_id or complete the OAuth flow at all. The proxy is stateless: it never stores anything, and the real authorize/token decisions are still made entirely by AM/the external IDP using the real, pre-existing app registration\'s own policy -- this server only relays bytes. Nearly everything is passed through unmodified, including the client\'s own redirect_uri, with one deliberate exception on both legs: the MCP-mandated RFC 8707 resource parameter is stripped before relaying upstream, since most external IDPs don\'t implement RFC 8707 at all and some (Entra ID\'s v2.0 endpoint) reject the request outright if it\'s present (AADSTS9010010) -- this server\'s own RFC 9728 resource value, which the connecting client validates independently, is unaffected either way. For a native/loopback MCP client, the client\'s own (typically ephemeral-port) redirect_uri is passed to the upstream unmodified; this only works if the upstream accepts an unregistered loopback redirect_uri, which RFC 8252 §7.3 requires for exactly this case (confirmed against real AM and Entra ID tenants). A connecting client\'s actual requested redirect_uri is always logged (info level, at /oauth2/register) if you need to confirm or debug this. Requires --oauth-resource-server.'
+        "A pre-provisioned, public (no-secret, PKCE-only) OAuth client_id, already registered directly with the target AM/AIC tenant or external IDP, that this server presents on behalf of ANY connecting MCP client. Turns this server into a lightweight OAuth proxy for three endpoints: /oauth2/register (RFC 7591 DCR emulation -- nothing is actually registered, the same client_id is always returned), /oauth2/authorize (a stateless redirect to the real upstream authorize endpoint), and /oauth2/token (a stateless relay to the real upstream token endpoint). This server also becomes the advertised issuer while this is set (required for a spec-compliant client to actually fetch these overridden endpoints at all: a client validates the issuer in fetched metadata against the URL it used to fetch it, so once issuer points elsewhere the client goes straight to the real upstream's own metadata instead, silently bypassing everything above). Necessary because most authorization servers either don't support DCR at all (e.g. Entra ID) or require an initial access token to use it (AM's own real /oauth2/register does) -- a generic DCR-attempting MCP client otherwise has no way to obtain a client_id or complete the OAuth flow at all. The proxy is stateless: it never stores anything, and the real authorize/token decisions are still made entirely by AM/the external IDP using the real, pre-existing app registration's own policy -- this server only relays bytes. Nearly everything is passed through unmodified, including the client's own redirect_uri, with one deliberate exception on both legs: the MCP-mandated RFC 8707 resource parameter is stripped before relaying upstream, since most external IDPs don't implement RFC 8707 at all and some (Entra ID's v2.0 endpoint) reject the request outright if it's present (AADSTS9010010) -- this server's own RFC 9728 resource value, which the connecting client validates independently, is unaffected either way. For a native/loopback MCP client, the client's own (typically ephemeral-port) redirect_uri is passed to the upstream unmodified; this only works if the upstream accepts an unregistered loopback redirect_uri, which RFC 8252 §7.3 requires for exactly this case (confirmed against real AM and Entra ID tenants). A connecting client's actual requested redirect_uri is always logged (info level, at /oauth2/register) if you need to confirm or debug this. Requires --oauth-resource-server."
       )
     )
     .addOption(
       new Option(
         '--oauth-scope <scope...>',
         "OAuth scope(s) a connecting client should request, advertised via the RFC 9728 protected-resource metadata's scopes_supported and the WWW-Authenticate 401 challenge's scope parameter. Without this, a client with no scope of its own configured omits the scope parameter from its authorize request entirely, which some authorization servers reject outright -- confirmed live against a real Entra ID tenant (AADSTS900144: \"The request body must contain the following parameter: 'scope'\"). Set this to whatever scope(s) the target AM/AIC tenant or external IDP's OAuth2 client/app registration actually needs, e.g. --oauth-scope openid profile (AM) or --oauth-scope openid api://<app-id>/.default (Entra, requesting an access token audienced to that app). Variadic: it swallows everything after it, so put positional arguments before it or separate them with --. Requires --oauth-resource-server."
+      )
+    )
+    .addOption(
+      new Option(
+        '--oauth-forward-resource [uri]',
+        "Controls what this server does with the RFC 8707 'resource' parameter a connecting MCP client sends (MCP spec-mandated) on the proxied /oauth2/authorize and /oauth2/token legs. Default (flag absent): STRIP it -- most authorization servers don't implement RFC 8707, and Entra ID's v2.0 endpoint rejects the request outright when 'resource' is present but doesn't match the scope-implied audience (AADSTS9010010), so stripping is safe everywhere. Bare flag: relay the CLIENT's own 'resource' value upstream, verbatim -- for authorization servers that DO implement RFC 8707 (WorkOS AuthKit, Authlete 3.0, Auth0 with the Resource Parameter Compatibility Profile, Keycloak 26.8 experimental): MCP's profile requires the AS to audience-restrict the token to this value, which only works if it arrives. With a value: relay THAT identifier upstream instead of the client's -- for servers that accept 'resource' but use it only as an internal selector (e.g. PingFederate's access-token-manager keys), where what must arrive is the AS-known identifier, not the client's MCP URL. RFC 8707 support is not discoverable from the AS's metadata and the stateless proxy never sees the authorize response, so which servers honor it is operator knowledge -- hence manual. WARNING: with Entra ID as the upstream, the bare flag reproduces AADSTS9010010 on every flow -- only use it against servers that genuinely audience-restrict tokens to the relayed 'resource'. This server's own RFC 9728 'resource' advertisement to connecting clients is unaffected either way. Requires --registered-client-id."
       )
     )
     .addOption(
@@ -458,6 +474,22 @@ export default function setup() {
         !opts.oauthResourceServer
       ) {
         throw new Error('--oauth-scope requires --oauth-resource-server.');
+      }
+      if (
+        opts.oauthForwardResource !== undefined &&
+        !opts.oauthResourceServer
+      ) {
+        throw new Error(
+          '--oauth-forward-resource requires --oauth-resource-server.'
+        );
+      }
+      if (
+        opts.oauthForwardResource !== undefined &&
+        opts.registeredClientId === undefined
+      ) {
+        throw new Error(
+          "--oauth-forward-resource governs the proxied authorize/token legs, which only exist with --registered-client-id. Without a registered client, this server has no upstream legs to forward 'resource' to -- the flag has nothing to do and is refused rather than silently ignored."
+        );
       }
       // Transport-policy limits (HTTP only): resolved before the refusal
       // check so an operator who mistyped either value sees the fallback
@@ -637,6 +669,7 @@ export default function setup() {
           : undefined,
         registeredClientId: opts.registeredClientId,
         oauthScope: opts.oauthScope,
+        oauthForwardResource: opts.oauthForwardResource,
         // Issuer/audience/claim-mapping are all operator-supplied
         // configuration, not secrets (the JWKs/tokens they gate are never
         // included) — printing them is exactly what confirms the intended
@@ -697,6 +730,7 @@ export default function setup() {
             resourceServerUrlIsExplicit: Boolean(publicUrlOrigin),
             registeredClientId: opts.registeredClientId,
             scopesSupported: opts.oauthScope,
+            oauthForwardResource: opts.oauthForwardResource,
             resolveCredential: buildClaimMappedCredentialResolver(
               // Guaranteed defined here: this branch only runs when
               // opts.externalIdpIssuer is set, the same condition the
@@ -714,6 +748,7 @@ export default function setup() {
             resourceServerUrlIsExplicit: Boolean(publicUrlOrigin),
             registeredClientId: opts.registeredClientId,
             scopesSupported: opts.oauthScope,
+            oauthForwardResource: opts.oauthForwardResource,
           };
         }
         await startHttpTransport(
@@ -786,6 +821,12 @@ type StartupSummary = {
   registeredClientId?: string;
   // Present only when --oauth-scope is configured.
   oauthScope?: string[];
+  // Present only when --oauth-forward-resource is configured: the upstream
+  // RFC 8707 'resource' behavior on the proxied legs. Not a secret (it's
+  // either the flag itself or an identifier already visible in every
+  // authorize URL), and printing it is exactly what confirms the strip
+  // default isn't silently in effect.
+  oauthForwardResource?: boolean | string;
   externalIdp?: {
     issuer: string;
     audience: string;
@@ -821,6 +862,13 @@ function formatStartupMessages(summary: StartupSummary): string[] {
       : []),
     ...(summary.oauthScope
       ? [`OAuth scope requested by clients: ${summary.oauthScope.join(' ')}`]
+      : []),
+    ...(summary.oauthForwardResource !== undefined
+      ? [
+          typeof summary.oauthForwardResource === 'string'
+            ? `OAuth forward resource (upstream RFC 8707): fixed value '${summary.oauthForwardResource}' replaces the client's`
+            : `OAuth forward resource (upstream RFC 8707): relaying the client's value verbatim`,
+        ]
       : []),
     `Tools: ${summary.toolCounts.total} total (${summary.toolCounts.canonical} canonical, ${summary.toolCounts.discovery} discovery)`,
     `Backing skills: ${summary.skillCount}`,

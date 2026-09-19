@@ -834,6 +834,36 @@ export type McpOAuthResourceServerOptions = {
    * rather than defaulted.
    */
   scopesSupported?: string[];
+  /**
+   * `--oauth-forward-resource`: what to do with the MCP-mandated RFC 8707
+   * `resource` parameter a connecting client sends to this server's proxied
+   * authorize/token endpoints. The default (undefined) is to STRIP it before
+   * relaying upstream: most external IDPs don't implement RFC 8707 at all,
+   * and some (Entra ID's v2.0 endpoint) reject the request outright if a
+   * `resource` is present that doesn't match the scope-implied audience
+   * (AADSTS9010010, confirmed live) -- stripping is safe everywhere.
+   *
+   * RFC 8707 support is NOT discoverable from the IDP's metadata (no
+   * `resource_indicators_supported` field exists in RFC 8414/9728), and the
+   * stateless proxy design never sees the upstream's response to the
+   * authorize leg (the browser is redirected straight back to the client),
+   * so there is no way to learn this from feedback either -- the operator
+   * has the knowledge and frodo can't infer it, hence manual opt-in.
+   *
+   * When `true`, the client's own `resource` value is relayed verbatim --
+   * for authorization servers that DO implement RFC 8707 (WorkOS AuthKit,
+   * Authlete 3.0, Auth0 with the Resource Parameter Compatibility Profile,
+   * Keycloak 26.8's experimental support): MCP's own profile of RFC 8707
+   * (2025-11-25 / 2026-07-28) requires the AS to audience-restrict the
+   * issued token to this value, which only works if it actually arrives.
+   *
+   * When set to a URI string, THAT value is relayed as `resource` instead
+   * of the client's -- for authorization servers (e.g. PingFederate 13.1)
+   * where `resource` is accepted but used only as an access-token-manager /
+   * API key selector, so what must arrive is not the client's MCP URL but
+   * the operator-known identifier that AS actually recognizes.
+   */
+  oauthForwardResource?: boolean | string;
 };
 
 /**
@@ -1233,6 +1263,35 @@ function deriveAuthorizeEndpointUrl(resolvedResourceServerUrl: URL): URL {
  */
 function deriveTokenEndpointUrl(resolvedResourceServerUrl: URL): URL {
   return new URL('/oauth2/token', resolvedResourceServerUrl);
+}
+
+/**
+ * What value (if any) to put in the upstream `resource` (RFC 8707)
+ * parameter, given what the client sent and the operator's
+ * `--oauth-forward-resource` setting. Shared by both proxy legs so the
+ * authorize and token legs can never disagree.
+ *
+ * - `undefined`/`false` (default): null -- the parameter is stripped.
+ * - `true`: the client's own value, verbatim, or null when the client sent
+ *   none (frodo never invents a `resource` upstream: the operator opted
+ *   into relaying, not into originating). A present-but-empty client value
+ *   (`resource=`) counts as none: RFC 8707 §2 requires a non-empty URI, and
+ *   relaying a blank parameter would only re-trigger whatever rejection the
+ *   strip was protecting against.
+ * - a string: that fixed value on every leg, whether or not the client
+ *   sent its own (it replaces the client's).
+ */
+export function resolveForwardedResourceValue(
+  clientResource: string | null,
+  oauthForwardResource: boolean | string | undefined
+): string | undefined {
+  if (oauthForwardResource === true) {
+    return clientResource ? clientResource : undefined;
+  }
+  if (typeof oauthForwardResource === 'string' && oauthForwardResource) {
+    return oauthForwardResource;
+  }
+  return undefined;
 }
 
 /**
@@ -1952,7 +2011,7 @@ async function handleHttpRequest(
       );
       return;
     }
-    // Strip `resource` (RFC 8707) before relaying upstream: the MCP client
+    // `resource` (RFC 8707) handling before relaying upstream: the MCP client
     // is spec-required to send it (bound to this server's own RFC 9728
     // `resource` value, which must stay unchanged -- see the discovery
     // block above), but most external IDPs don't implement RFC 8707 at
@@ -1963,12 +2022,29 @@ async function handleHttpRequest(
     // incompatibility across other MCP-on-Entra integrations. The `scope`
     // parameter already implies the target audience for these IDPs, so
     // dropping `resource` on this leg only (never in what this server
-    // itself advertises) loses nothing they'd have honored anyway.
-    if (incomingParams.has('resource')) {
+    // itself advertises) loses nothing they'd have honored anyway --
+    // hence the default strip, overridden per `oauthForwardResource` when
+    // the operator's authorization server DOES implement RFC 8707 (relay
+    // the client's value verbatim, the MCP-profile-required behavior) or
+    // wants a fixed AS-known identifier sent instead (e.g. PingFederate's
+    // access-token-manager keys, where the client's MCP URL is not what
+    // the AS recognizes).
+    const clientResourceParam = incomingParams.get('resource');
+    if (clientResourceParam !== null) {
+      incomingParams.delete('resource');
+    }
+    const forwardedResource = resolveForwardedResourceValue(
+      clientResourceParam,
+      oauthResourceServer.oauthForwardResource
+    );
+    if (clientResourceParam !== null && !forwardedResource) {
       debug?.(
         "authorize: stripped 'resource' param before relaying upstream (RFC 8707 unsupported by most external IDPs, e.g. Entra AADSTS9010010)"
       );
-      incomingParams.delete('resource');
+    }
+    if (forwardedResource) {
+      debug?.(`authorize: forwarding resource=${forwardedResource} upstream`);
+      incomingParams.set('resource', forwardedResource);
     }
     const upstreamUrl = new URL(upstreamAuthorizationEndpoint);
     upstreamUrl.search = incomingParams.toString();
@@ -2025,21 +2101,35 @@ async function handleHttpRequest(
     const contentType =
       getSingleHeaderValue(req, 'content-type') ??
       'application/x-www-form-urlencoded';
-    // Same `resource` (RFC 8707) stripping as the authorize leg above, and
+    // Same `resource` (RFC 8707) handling as the authorize leg above, and
     // for the same reason -- RFC 8707 also defines a token-request
-    // `resource` parameter, and Entra rejects it there too. Only rewritten
-    // for the one content-type OAuth2 token requests actually use
+    // `resource` parameter, and Entra rejects it there too. Both legs share
+    // `resolveForwardedResourceValue` so they can never disagree. Only
+    // rewritten for the one content-type OAuth2 token requests actually use
     // (RFC 6749 §3.2); anything else is relayed byte-faithful, unexamined.
     let outgoingBody: Buffer | string = rawBody;
     if (
       contentType.split(';')[0].trim() === 'application/x-www-form-urlencoded'
     ) {
       const bodyParams = new URLSearchParams(rawBody.toString('utf8'));
-      if (bodyParams.has('resource')) {
+      const clientResourceParam = bodyParams.get('resource');
+      if (clientResourceParam !== null) {
+        bodyParams.delete('resource');
+      }
+      const forwardedResource = resolveForwardedResourceValue(
+        clientResourceParam,
+        oauthResourceServer.oauthForwardResource
+      );
+      if (clientResourceParam !== null && !forwardedResource) {
         debug?.(
           "token: stripped 'resource' param before relaying upstream (RFC 8707 unsupported by most external IDPs, e.g. Entra AADSTS9010010)"
         );
-        bodyParams.delete('resource');
+      }
+      if (forwardedResource) {
+        debug?.(`token: forwarding resource=${forwardedResource} upstream`);
+        bodyParams.set('resource', forwardedResource);
+      }
+      if (clientResourceParam !== null || forwardedResource !== undefined) {
         outgoingBody = bodyParams.toString();
       }
     }
