@@ -111,6 +111,61 @@ const SERVICE_ACCOUNT_INTERNAL_TREE = 'FRServiceAccountInternal';
 // it's never even considered here.
 const DEBUG_LEVELS_TO_SURFACE = new Set(['WARN', 'ERROR', 'FATAL']);
 
+/**
+ * `am-core` WARN chatter observed live (2026-09-20) on a real, entirely
+ * *successful* `FRLogin` run against the `volker-dev` tenant -- confirmed to
+ * have nothing to do with any specific node's own correctness (the tree
+ * finished fine), just AM logging routine internal repository/config lookups
+ * on every run regardless of outcome. Log level alone (`DEBUG_LEVELS_TO_SURFACE`)
+ * isn't a reliable noise signal, since AM logs this at WARN too.
+ *
+ * Deliberately narrow and substring-matched against the *exact* observed
+ * message text, never a broad heuristic like "any IdServicesImpl WARN" --
+ * this list should only grow from further live confirmation, not
+ * speculation about what else might be noise.
+ *
+ * IMPORTANT caveat: only confirmed against this one tenant so far, not
+ * cross-tenant. The standing bar for calling something genuine, safe-to-
+ * suppress platform noise (rather than something tied to this one tenant's
+ * own config/data) is seeing it recur identically across *multiple*
+ * different AIC tenants -- that hasn't been done yet for these five, so
+ * treat this list as provisional until it has been.
+ */
+const CONFIRMED_NOISE_PATTERNS: ReadonlyArray<{
+  logger: string;
+  messageIncludes: string;
+}> = [
+  { logger: 'IdServicesImpl', messageIncludes: 'Not a valid entry:' },
+  { logger: 'IdServicesImpl', messageIncludes: 'of type user not found.' },
+  {
+    logger: 'TokenStoreUtils',
+    messageIncludes: 'Could not get list of auth modules from authentication',
+  },
+  {
+    logger: 'ScriptedNodeHelper',
+    messageIncludes:
+      'Found an action result from scripted node, but it was not an Action object',
+  },
+  {
+    logger: 'ValidGotoUrlExtractor',
+    messageIncludes:
+      'Unable to retrieve instance of the ValidationServiceConfig for realm',
+  },
+];
+
+/** Whether an `am-core` line matches a `CONFIRMED_NOISE_PATTERNS` entry -- see that constant's own remarks. `shortLogger` is the already-shortened last-FQCN-segment form `ingestAmCoreEvent` computes, matching how the pattern list's `logger` values are written. */
+function isConfirmedNoise(
+  shortLogger: string | undefined,
+  message: string | undefined
+): boolean {
+  if (!shortLogger || !message) return false;
+  return CONFIRMED_NOISE_PATTERNS.some(
+    (pattern) =>
+      pattern.logger === shortLogger &&
+      message.includes(pattern.messageIncludes)
+  );
+}
+
 // Matches a bare managed-object uuid (confirmed live: AIC's own `_id` values,
 // e.g. `03f4f90e-d1fa-433d-bc67-6349a8a6ca77`) -- used to decide which
 // direction to resolve a `-u/--user-id` filter value in, see
@@ -155,6 +210,17 @@ export interface JourneyDebugEventEntry {
   outcome?: string;
   /** Extra raw fields for this one event, shown in the UI's per-event drill-down -- whatever's actually present varies by event kind (see `ingest()`), so this is a plain bag rather than a fixed shape. */
   raw?: Record<string, unknown>;
+  /**
+   * How many consecutive times (including this one) an event with the same
+   * `source`/`step`/`type`/`outcome` occurred in a row -- see
+   * `dedupeAppend()`. Absent/`1` means it occurred once; the UI renders
+   * `(×N)` for anything higher, the same convention syslog-style loggers use
+   * ("message repeated N times") rather than showing every identical line
+   * as its own row. `at` is kept updated to the *latest* occurrence's
+   * timestamp when this increments, so the displayed elapsed time reflects
+   * when the run last hit this state, not when it first did.
+   */
+  repeatCount?: number;
 }
 
 export interface JourneySession {
@@ -210,6 +276,14 @@ const MAX_TRACKED_SESSIONS = 500;
 // Cap on stored per-session event history -- a long-running IDV/magic-link
 // journey could otherwise accumulate an unbounded number of node events.
 const MAX_EVENTS_PER_SESSION = 200;
+
+// Cap on a session's rolling buffer of confirmed-noise am-core lines held
+// back from `session.events` (see `bufferSuppressedNoise`) -- only ever
+// flushed into the real event history if the session goes on to fail, so
+// this just bounds how much *pre-failure* context a failure explanation can
+// pull in, not overall memory for a long successful run (which never
+// accumulates anything here beyond this cap either).
+const MAX_SUPPRESSED_NOISE = 15;
 
 // How long to wait before retrying a failed journey-definition export or
 // realm-settings read, so a permission/transient error doesn't turn into a
@@ -319,6 +393,8 @@ export class JourneyDebugAggregator {
   private sessionAliases = new Map<string, Set<string>>();
   /** Next `JourneyDebugEventEntry.id` to assign per session key -- see that field's own remarks. Cleaned up alongside `trackingIndex`/`sessionAliases` on eviction. */
   private eventSeqCounters = new Map<string, number>();
+  /** Per-session rolling buffer of confirmed-noise `am-core` lines held back from `session.events`, see `bufferSuppressedNoise()`/`flushSuppressedNoise()`. Cleaned up alongside the maps above on eviction. */
+  private suppressedNoiseBuffer = new Map<string, JourneyDebugEventEntry[]>();
 
   /** The `-u/--user-id` filter's resolved counterpart (uuid if given a username, username if given a uuid) once `resolveUserIdAlias()` succeeds -- a one-shot, best-effort, fire-and-forget lookup (there's exactly one filter value for the aggregator's whole lifetime, so no map-based cache like the tree/service-account caches below is needed). `undefined` until/unless resolution succeeds; matching still falls back to the literal filter value regardless. */
   private resolvedUserIdAlias: string | undefined;
@@ -512,7 +588,7 @@ export class JourneyDebugAggregator {
     aliases.add(alias);
   }
 
-  /** Removes every alias pointing at `sessionKey`, and its event-sequence counter -- called on eviction so neither grows unbounded alongside sessions the map itself already forgets. */
+  /** Removes every alias pointing at `sessionKey`, and its event-sequence counter and suppressed-noise buffer -- called on eviction so none of these grow unbounded alongside sessions the map itself already forgets. */
   private forgetAliases(sessionKey: string): void {
     const aliases = this.sessionAliases.get(sessionKey);
     if (aliases) {
@@ -520,6 +596,7 @@ export class JourneyDebugAggregator {
       this.sessionAliases.delete(sessionKey);
     }
     this.eventSeqCounters.delete(sessionKey);
+    this.suppressedNoiseBuffer.delete(sessionKey);
   }
 
   private ingest(
@@ -642,6 +719,14 @@ export class JourneyDebugAggregator {
           session.failureReason = session.lastNode
             ? `${compact} (last completed step: ${session.lastNode}${session.lastNodeOutcome ? ` → ${session.lastNodeOutcome}` : ''})`
             : compact;
+          // Now that this session is known to have actually failed, the
+          // confirmed-noise filter's whole premise (this chatter is
+          // irrelevant because nothing went wrong) no longer holds -- fold
+          // back in whatever recent am-core noise was held back on the way
+          // here, since it's now potential forensic context rather than
+          // clutter. Flushed *before* the 'Tree completed' entry below so
+          // it reads in its real chronological position, not dumped after.
+          this.flushSuppressedNoise(sessionKey, session);
         } else {
           session.status = 'finished';
         }
@@ -691,15 +776,44 @@ export class JourneyDebugAggregator {
     this.applyServiceAccountName(session, onWarning);
   }
 
-  /** Appends to a session's event history, enforcing `MAX_EVENTS_PER_SESSION` -- shared by `ingest()` and `ingestDebugEvent()`. */
+  /** Appends to a session's event history, enforcing `MAX_EVENTS_PER_SESSION` and collapsing an immediate repeat via `dedupeAppend()` -- shared by `ingest()` and `ingestDebugEvent()`. */
   private pushEvent(
     session: JourneySession,
     entry: JourneyDebugEventEntry
   ): void {
-    session.events.push(entry);
-    if (session.events.length > MAX_EVENTS_PER_SESSION) {
-      session.events.shift();
+    dedupeAppend(session.events, entry, MAX_EVENTS_PER_SESSION);
+  }
+
+  /**
+   * Holds back one confirmed-noise `am-core` entry instead of pushing it
+   * straight into `session.events` -- see `CONFIRMED_NOISE_PATTERNS` and
+   * `ingestAmCoreEvent()`. Also runs through `dedupeAppend()`, so a burst of
+   * the exact same suppressed line (e.g. the five near-identical
+   * `AttributeMappingIdRepo` "not found" lines observed live back to back)
+   * collapses to one buffered entry with a `repeatCount`, the same as it
+   * would have in the real event list.
+   */
+  private bufferSuppressedNoise(
+    sessionKey: string,
+    entry: JourneyDebugEventEntry
+  ): void {
+    let buffer = this.suppressedNoiseBuffer.get(sessionKey);
+    if (!buffer) {
+      buffer = [];
+      this.suppressedNoiseBuffer.set(sessionKey, buffer);
     }
+    dedupeAppend(buffer, entry, MAX_SUPPRESSED_NOISE);
+  }
+
+  /** Moves a session's whole suppressed-noise buffer into its real `events` history (each entry still going through the same `pushEvent`/dedup path) and clears the buffer -- called once a session is confirmed to have actually failed, see `ingest()`'s `AM-TREE-LOGIN-COMPLETED` handling. A no-op if nothing was ever suppressed. */
+  private flushSuppressedNoise(
+    sessionKey: string,
+    session: JourneySession
+  ): void {
+    const buffer = this.suppressedNoiseBuffer.get(sessionKey);
+    if (!buffer || buffer.length === 0) return;
+    for (const entry of buffer) this.pushEvent(session, entry);
+    this.suppressedNoiseBuffer.delete(sessionKey);
   }
 
   /**
@@ -781,7 +895,7 @@ export class JourneyDebugAggregator {
     // FQCN is kept in `raw` for the drill-down, never discarded.
     const shortLogger = payload.logger?.split('.').pop();
 
-    this.pushEvent(begun.session, {
+    const entry: JourneyDebugEventEntry = {
       at: Date.now(),
       id: begun.eventId,
       source: 'AM',
@@ -794,7 +908,23 @@ export class JourneyDebugAggregator {
           ? compactFailureReason(payload.exception)
           : undefined,
       }),
-    });
+    };
+
+    // A session already known to have failed gets full visibility -- see
+    // `flushSuppressedNoise()`'s own remarks on why the filter's premise
+    // stops holding once something has actually gone wrong. Otherwise,
+    // confirmed noise is held back rather than shown, so it never crowds a
+    // genuinely successful run's node-by-node history out of its own
+    // (necessarily limited) display window.
+    if (
+      begun.session.status !== 'failed' &&
+      isConfirmedNoise(shortLogger, payload.message)
+    ) {
+      this.bufferSuppressedNoise(begun.session.transactionId, entry);
+      return;
+    }
+
+    this.pushEvent(begun.session, entry);
   }
 
   /**
@@ -1123,6 +1253,39 @@ function containsCaseInsensitive(
 function asNumber(value: unknown): number | undefined {
   const num = typeof value === 'string' ? Number(value) : value;
   return typeof num === 'number' && Number.isFinite(num) ? num : undefined;
+}
+
+/**
+ * Appends `entry` to `list`, enforcing `maxLength` -- unless `entry` is an
+ * exact repeat (same `source`/`step`/`type`/`outcome`) of `list`'s current
+ * last item, in which case that existing item's `repeatCount` is bumped and
+ * its `at` refreshed to `entry`'s timestamp instead of appending a new row.
+ * The same syslog-style "message repeated N times" collapsing, applied
+ * generically so both `session.events` (via `pushEvent`) and the
+ * suppressed-noise buffer (via `bufferSuppressedNoise`) get it for free.
+ * Only ever compares against the immediately preceding item -- a repeat
+ * that isn't strictly consecutive (something else happened in between) is
+ * deliberately left as its own row, not merged with an earlier occurrence.
+ */
+function dedupeAppend(
+  list: JourneyDebugEventEntry[],
+  entry: JourneyDebugEventEntry,
+  maxLength: number
+): void {
+  const last = list[list.length - 1];
+  if (
+    last &&
+    last.source === entry.source &&
+    last.step === entry.step &&
+    last.type === entry.type &&
+    last.outcome === entry.outcome
+  ) {
+    last.repeatCount = (last.repeatCount ?? 1) + 1;
+    last.at = entry.at;
+    return;
+  }
+  list.push(entry);
+  if (list.length > maxLength) list.shift();
 }
 
 /** Drops undefined/null values so a `JourneyDebugEventEntry.raw` bag only ever shows fields that were actually present on the source event. */
