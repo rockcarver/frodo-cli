@@ -124,12 +124,17 @@ const DEBUG_LEVELS_TO_SURFACE = new Set(['WARN', 'ERROR', 'FATAL']);
  * this list should only grow from further live confirmation, not
  * speculation about what else might be noise.
  *
- * IMPORTANT caveat: only confirmed against this one tenant so far, not
- * cross-tenant. The standing bar for calling something genuine, safe-to-
- * suppress platform noise (rather than something tied to this one tenant's
- * own config/data) is seeing it recur identically across *multiple*
- * different AIC tenants -- that hasn't been done yet for these five, so
- * treat this list as provisional until it has been.
+ * IMPORTANT caveat: the first five entries below are only confirmed against
+ * one tenant (`volker-dev`) so far, not cross-tenant. The standing bar for
+ * calling something genuine, safe-to-suppress platform noise (rather than
+ * something tied to one tenant's own config/data) is seeing it recur
+ * identically across *multiple* different AIC tenants -- that hasn't been
+ * done yet for those five, so treat them as provisional until it has been.
+ * `SSOTokenFactory` below has cleared that bar: confirmed live (2026-09-21)
+ * with byte-identical logger/message text on both `volker-dev` and
+ * `frodo-dev`, each time during an otherwise entirely successful `FRLogin`
+ * run (a stale/expired session lookup at the very start of a fresh login,
+ * unrelated to the eventual outcome either time).
  */
 const CONFIRMED_NOISE_PATTERNS: ReadonlyArray<{
   logger: string;
@@ -150,6 +155,10 @@ const CONFIRMED_NOISE_PATTERNS: ReadonlyArray<{
     logger: 'ValidGotoUrlExtractor',
     messageIncludes:
       'Unable to retrieve instance of the ValidationServiceConfig for realm',
+  },
+  {
+    logger: 'SSOTokenFactory',
+    messageIncludes: 'Failed to create SSO Token: Invalid session ID',
   },
 ];
 
@@ -254,6 +263,19 @@ export interface JourneySession {
   pinned: boolean;
   /** Human-readable event history for drill-down, oldest first -- capped, see `MAX_EVENTS_PER_SESSION`. */
   events: JourneyDebugEventEntry[];
+  /**
+   * How many confirmed-noise `am-core` lines are currently being held back
+   * from `events` for this session -- see `bufferSuppressedNoise()`. Exists
+   * so the UI can show *that* filtering happened instead of leaving it
+   * ambiguous whether a clean event list means "nothing to filter" or
+   * "something was filtered and you can't tell" (confirmed live: those two
+   * cases are otherwise indistinguishable from the outside, e.g. comparing
+   * a quiet tenant against a noisy one). Reset to 0 once
+   * `flushSuppressedNoise()` moves everything into `events` on failure,
+   * since nothing is being held back anymore at that point. Absent/`0` for
+   * a session that has never had anything suppressed.
+   */
+  suppressedNoiseCount?: number;
 }
 
 // Realm default when the setting can't be read at all (matches the live
@@ -676,12 +698,24 @@ export class JourneyDebugAggregator {
         session.nodeCount += 1;
         session.lastNode = info?.displayName ?? info?.nodeType;
         session.lastNodeOutcome = info?.nodeOutcome;
-        // A node event arriving for a session previously marked abandoned
-        // means it wasn't actually abandoned -- self-heal back to running
-        // rather than leaving a stale, now-wrong status displayed.
-        if (session.status === 'running' || session.status === 'abandoned') {
+        // A node event arriving for a session already marked terminal --
+        // abandoned, or a tree that already completed finished/failed --
+        // means the underlying AM transaction is genuinely still active, not
+        // that the earlier terminal verdict was wrong to record at the time.
+        // Confirmed live: a chained/step-up journey (e.g. FRSecondFactor)
+        // correlated back to an already-"finished" session via trackingIds
+        // keeps producing real AM-NODE-LOGIN-COMPLETED events well after its
+        // first tree's own completion -- previously left status stuck on
+        // that first tree's stale verdict (nodeCount/events kept growing
+        // underneath it, but the header never reflected that anything was
+        // still happening). Self-heal back to running -- and drop a stale
+        // failureReason along with it, since it no longer describes the
+        // session's current state -- rather than leaving a once-true,
+        // now-outdated terminal status displayed indefinitely.
+        if (session.status !== 'running') {
           session.status = 'running';
           session.terminalAt = undefined;
+          session.failureReason = undefined;
         }
         entry = {
           at: now,
@@ -814,6 +848,8 @@ export class JourneyDebugAggregator {
     if (!buffer || buffer.length === 0) return;
     for (const entry of buffer) this.pushEvent(session, entry);
     this.suppressedNoiseBuffer.delete(sessionKey);
+    // Nothing is being held back anymore -- it's all in `events` now.
+    session.suppressedNoiseCount = 0;
   }
 
   /**
@@ -920,6 +956,8 @@ export class JourneyDebugAggregator {
       begun.session.status !== 'failed' &&
       isConfirmedNoise(shortLogger, payload.message)
     ) {
+      begun.session.suppressedNoiseCount =
+        (begun.session.suppressedNoiseCount ?? 0) + 1;
       this.bufferSuppressedNoise(begun.session.transactionId, entry);
       return;
     }

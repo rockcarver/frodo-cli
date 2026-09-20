@@ -265,6 +265,18 @@ function renderDetail(
     value: `${isQuiet ? c.warning(lastActivityText) : lastActivityText}${abandonSuffix}`,
   });
   properties.push({ label: 'Nodes visited', value: String(session.nodeCount) });
+  // Only shown when nonzero -- otherwise it's ambiguous from the outside
+  // whether a clean "Recent events" list means nothing needed filtering, or
+  // something did and you just can't tell (confirmed live: comparing a
+  // quiet tenant against a noisy one raised exactly this question).
+  if (session.suppressedNoiseCount) {
+    properties.push({
+      label: 'Noise filtered',
+      value: c.muted(
+        `${session.suppressedNoiseCount} am-core line(s) held back as routine noise (shown automatically if this session fails)`
+      ),
+    });
+  }
   if (session.failureReason) {
     properties.push({
       label: 'Failure',
