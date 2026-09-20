@@ -126,10 +126,19 @@ export function setOpenBrowser(value: boolean): void {
 
 /**
  * Presents an interactive browser-login step on the CLI: launches the
- * system browser for the loopback-redirect flow (falling back to printing
- * the URL if that fails, or if launching one was disabled via
- * `setOpenBrowser(false)`), or prints the user code and verification URL
- * for the device-authorization flow.
+ * system browser for the loopback-redirect flow, or prints the user code
+ * and verification URL for the device-authorization flow.
+ *
+ * @remarks
+ * The authorize URL itself is always printed too, even when the system
+ * browser opens successfully — not just as a fallback for when launching
+ * one fails or was disabled via `setOpenBrowser(false)`. The auto-opened
+ * browser is whatever the OS considers the default, which isn't
+ * necessarily the one the login should actually happen in (e.g. a profile
+ * with the right admin session, or a clean one with no extensions that
+ * might interfere with the loopback redirect) — printing the URL
+ * unconditionally lets the user open it in a different browser themselves
+ * without having to first watch the automatic launch fail.
  */
 export const cliBrowserLoginPromptHandler: BrowserLoginPromptHandler = async (
   prompt: BrowserLoginPrompt
@@ -146,7 +155,9 @@ export const cliBrowserLoginPromptHandler: BrowserLoginPromptHandler = async (
       printMessage(`Opening browser to complete login...`);
       try {
         await open(prompt.authorizeUrl);
-        return;
+        printMessage(
+          `If you'd rather use a different browser, open this URL manually:`
+        );
       } catch {
         printMessage(
           `Could not open a browser automatically. Open this URL manually to complete login:`,

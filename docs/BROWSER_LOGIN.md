@@ -89,3 +89,7 @@ Two differences from the ForgeOps setup above:
 ## Login journey configuration
 
 Because this is a real interactive login through an actual browser (or another device, for the device flow), your realm's login journey can include MFA, WebAuthn, or federation steps the way it would for any other user-facing login — none of the `checkAndHandle2FA` limitations that apply to CLI-only mode (which can't drive a WebAuthn ceremony or a federation redirect) apply here.
+
+## Known issues
+
+**Chrome may not complete the loopback redirect.** Confirmed live (2026-09-21) against a real cloud tenant: after granting consent, Chrome (including Incognito, which rules out an extension) never followed the resulting `302` redirect to `http://localhost:<port>` — the tab just stayed on the consent page with no visible error. Network capture confirmed AM's side was correct the whole time: the `/oauth2/authorize` POST returned a well-formed `302` with a valid authorization code to exactly the right `redirect_uri`. Firefox completed the same flow immediately with no changes. The leading theory is Chrome's Private Network Access enforcement silently declining a top-level navigation from a public HTTPS origin to a private/`localhost` target, though this hasn't been confirmed against Chrome's own release notes. If your browser opens automatically but the flow never completes, the CLI always prints the authorize URL too (even on a successful auto-open) — copy it into a different browser rather than assuming the login itself failed.
