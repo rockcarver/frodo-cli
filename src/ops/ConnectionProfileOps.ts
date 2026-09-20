@@ -149,6 +149,22 @@ export async function describeConnectionProfile(
     if (!profile.defaultCredential) {
       delete profile.defaultCredential;
     }
+    // Browser-login fields -- only ever written to a profile that's
+    // actually completed a browser login at least once (see
+    // frodo-lib's saveConnectionProfile(), which gates all three behind
+    // `authMode === 'interactive'`), so a plain username/password or
+    // service-account profile will never have these keys at all. Omitted
+    // here like every other optional field above, rather than shown as
+    // permanently-blank rows for a feature the profile has never used.
+    if (!profile.authMode) {
+      delete profile.authMode;
+    }
+    if (!profile.browserLoginClientId) {
+      delete profile.browserLoginClientId;
+    }
+    if (!profile.browserLoginScope) {
+      delete profile.browserLoginScope;
+    }
     const keyMap = {
       tenant: 'Host',
       alias: 'Alias',
@@ -165,6 +181,9 @@ export async function describeConnectionProfile(
       svcacctScope: 'Service Account Scope',
       amsterPrivateKey: 'Amster Private Key',
       defaultCredential: 'Default Credential',
+      authMode: 'Auth Mode',
+      browserLoginClientId: 'Browser Login Client Id',
+      browserLoginScope: 'Browser Login Scope',
     };
     const table = createObjectTable(profile, keyMap);
     printMessage(table.toString(), 'data');
