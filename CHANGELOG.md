@@ -1,5 +1,10 @@
 # Changelog
 
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## Unreleased
 
 ## [v4.15.0] - 2026-09-19
@@ -9,15 +14,6 @@
 - Added `--public-url <url>` to `frodo mcp server start`, overriding the RFC 9728 `resource` value advertised in OAuth 2.1 resource-server ("shared mode") discovery metadata for cases that can't self-correct via the fix below — chiefly a reverse proxy or TLS-terminating gateway in front of the process, where the externally-reachable URL genuinely differs from anything the process itself can observe.
 - Added `--registered-client-id <client-id>` to `frodo mcp server start --oauth-resource-server`, turning this server into a lightweight OAuth proxy for three endpoints (`/oauth2/register`, `/oauth2/authorize`, `/oauth2/token`) on behalf of a single, pre-provisioned, public (no-secret, PKCE-only) client_id already registered directly with AM/AIC or the external IDP. Necessary because most authorization servers either don't support Dynamic Client Registration at all (Entra ID has no `registration_endpoint`) or require an initial access token to use it (AM's own real one does), so a generic DCR-attempting MCP client otherwise has no way to obtain a client_id or complete the OAuth flow. This server also becomes the advertised `issuer` while the flag is set — required for a spec-compliant client to actually fetch these overridden endpoints at all, since a client validates a fetched metadata document's `issuer` against the URL it used to fetch it (RFC 8414 §3.3) and otherwise goes straight to the real upstream's own metadata instead, silently bypassing everything here. The proxy is entirely stateless: `/oauth2/authorize` is a 302 redirect straight to the real upstream authorize endpoint with every parameter (including the connecting client's own, typically ephemeral-port loopback `redirect_uri`) passed through unmodified, and `/oauth2/token` is a byte-faithful relay to the real upstream token endpoint. Real authorize/token decisions are still made entirely by AM/the external IDP against the real, pre-existing app registration's own policy — this server never stores anything or decides whether to issue a token. The client's own loopback redirect_uri working unregistered relies on RFC 8252 §7.3 (confirmed live against both a real AM tenant and a real Entra ID tenant). A connecting client's actual requested redirect_uri is still always logged (info level) on registration, for confirming/debugging the underlying app registration's own configuration.
 - Added `--oauth-scope <scope...>` to `frodo mcp server start --oauth-resource-server`, naming the OAuth scope(s) a connecting client should request. Advertised via both the RFC 9728 protected-resource metadata's `scopes_supported` and the `WWW-Authenticate` 401 challenge's `scope` parameter — the two sources, in that priority order, the MCP TypeScript SDK's client uses to fill in the authorize request's `scope` parameter when the client has no scope of its own configured. Without this, such a client's authorize request omits `scope` entirely, which some authorization servers reject outright — confirmed live against a real Entra ID tenant (`AADSTS900144: The request body must contain the following parameter: 'scope'`), reached only after fixing `--registered-client-id`'s proxy to be discoverable at all (see above). Opt-in for both AM-as-IdP and external-IDP mode, since which scope(s) a given OAuth2 client/app registration actually needs is operator knowledge frodo has no way to infer.
-
-### Fixed
-- Fixed `frodo conn service-account add` failing with "Invalid URL" when the target host was given as an alias or unique substring instead of a full URL. Root cause: it validates the new service account's own credential against AM before saving, and that validation step reads the target host from ambient library state, which is only ever set to the raw value typed on the command line — nothing in this command resolves an alias to a real URL the way logging in normally does as a side effect. Every other command in this family already resolved it internally per-call; only the validation step read the unresolved raw value.
-- Fixed `frodo mcp server start --dry-run` never validating `--claims-config` when external-IDP mode is configured — a malformed or unparseable claims-config file previously went undetected by `--dry-run`, since that file was only ever loaded later, in code a dry run never reaches.
-- Fixed `frodo mcp server start --oauth-resource-server`'s discovery metadata (and the `resource_metadata` URL in its 401 challenges) always advertising itself at `--bind-host` verbatim, e.g. literally `http://0.0.0.0:<port>/mcp` when bound to a wildcard interface for remote reachability (the documented way to expose the HTTP transport beyond one machine) — an address nothing can actually dial, which MCP clients correctly refuse to proceed against as a resource-identifier mismatch. Now derived per-request from the request's own `Host` header once confirmed against the same allow-list already used for DNS-rebinding protection (falling back to the `--bind-host`-derived value for a missing/unrecognized Host, never advertising an unvalidated one), with the scheme upgraded to `https` when `X-Forwarded-Proto` says so on a non-loopback bind. See `--public-url` above for the one case this can't self-correct.
-- Fixed `--registered-client-id`'s authorize/token proxy relaying the MCP-mandated RFC 8707 `resource` parameter straight through to the upstream authorization server, breaking the flow against any AS that doesn't implement RFC 8707 (most don't) and especially against Entra ID's v2.0 endpoint, which rejects the request outright when `resource` is present (`AADSTS9010010: The resource parameter provided in the request doesn't match with the requested scopes`) — confirmed live, and a known, widespread incompatibility across other MCP-on-Entra integrations. `resource` is now stripped from both the `/oauth2/authorize` redirect and the `/oauth2/token` relay before forwarding upstream; this server's own RFC 9728 `resource` value (which the connecting client validates independently) is unaffected, and every other parameter on both legs is still passed through unmodified.
-
-- Added `--registered-client-id <client-id>` to `frodo mcp server start --oauth-resource-server`, enabling the server to act as a lightweight OAuth proxy for specific endpoints on behalf of a pre-provisioned, public client_id. This is necessary for authorization servers that don't support Dynamic Client Registration or require an initial access token to use it. (commit 8acf5c90)
-- Introduced `--oauth-scope <scope...>` to `frodo mcp server start --oauth-resource-server`, specifying the OAuth scopes a connecting client should request. This is advertised via the RFC 9728 protected-resource metadata and the `WWW-Authenticate` 401 challenge's `scope` parameter. (commit 790b398a)
 - Added `--oauth-forward-resource` to `frodo mcp server start`, allowing the forwarding of the RFC 8707 `resource` parameter to authorization servers that support it. (commit 1266a403)
 - Added `-a, --active-only` flag to `config-manager pull secrets`, allowing users to export only active secrets. (PR #695)
 - Introduced commands for direct control of configuration management: `config-manager-direct-control-abort`, `config-manager-direct-control-apply`, `config-manager-direct-control-init`, and `config-manager-direct-control-state`. These commands facilitate direct control over configuration management processes. (PR #693)
@@ -27,11 +23,12 @@
 
 ### Changed
 - `frodo mcp server start`'s startup summary now includes the external-IDP issuer, audience, and the full claims-config mapping table when `--external-idp-issuer` is configured. This enhances the visibility of the intended settings. (commit 46c1cfec)
-
-- Fixed `frodo mcp server start --dry-run` not validating `--claims-config` when external-IDP mode is configured. A malformed claims-config file is now detected during a dry run. (commit 46c1cfec)
-- Fixed `frodo mcp server start --oauth-resource-server`'s discovery metadata advertising itself at `--bind-host` verbatim, which could lead to resource-identifier mismatches. The advertised URL is now derived from the request's `Host` header. (commit 0f7239a9)
-- Fixed `--registered-client-id`'s proxy relaying the RFC 8707 `resource` parameter to upstream authorization servers, which could break the flow against servers not implementing RFC 8707. The `resource` parameter is now stripped before forwarding. (commit 940deff4)
 - Improved error handling in OAuth flows by diagnosing external-IDP OAuth failures instead of masking them. (commit be9483de)
+
+### Fixed
+- Fixed `frodo conn service-account add` failing with "Invalid URL" when the target host was given as an alias or unique substring instead of a full URL. Root cause: it validates the new service account's own credential against AM before saving, and that validation step reads the target host from ambient library state, which is only ever set to the raw value typed on the command line — nothing in this command resolves an alias to a real URL the way logging in normally does as a side effect. Every other command in this family already resolved it internally per-call; only the validation step read the unresolved raw value.
+- Fixed `frodo mcp server start --dry-run` never validating `--claims-config` when external-IDP mode is configured — a malformed or unparseable claims-config file previously went undetected by `--dry-run`, since that file was only ever loaded later, in code a dry run never reaches.
+- Fixed `frodo mcp server start --oauth-resource-server`'s discovery metadata (and the `resource_metadata` URL in its 401 challenges) always advertising itself at `--bind-host` verbatim, e.g. literally `http://0.0.0.0:<port>/mcp` when bound to a wildcard interface for remote reachability (the documented way to expose the HTTP transport beyond one machine) — an address nothing can actually dial, which MCP clients correctly refuse to proceed against as a resource-identifier mismatch. Now derived per-request from the request's own `Host` header once confirmed against the same allow-list already used for DNS-rebinding protection (falling back to the `--bind-host`-derived value for a missing/unrecognized Host, never advertising an unvalidated one), with the scheme upgraded to `https` when `X-Forwarded-Proto` says so on a non-loopback bind. See `--public-url` above for the one case this can't self-correct.
 
 ## [v4.14.0] - 2026-09-14
 
@@ -413,13 +410,6 @@
 - Resolved crash in `frodo oauth client list --long` when an OAuth client omits `redirectionUris`, improving CLI robustness. (#650)
 - Fixed `frodo shell` REPL to correctly route debug and curlirize output to the REPL output stream. (#611)
 - Allowed Forgeops deployments to export/import full AM configuration. (#612)
-
-All notable changes to this project are documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
 
 ## [4.3.1] - 2026-07-30
 
@@ -2819,6 +2809,28 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Miscellaneous bug fixes
 
 [unreleased]: https://github.com/rockcarver/frodo-cli/compare/v4.3.1...HEAD
+[v4.15.0]: https://github.com/rockcarver/frodo-cli/compare/v4.14.0...v4.15.0
+[v4.14.0]: https://github.com/rockcarver/frodo-cli/compare/v4.13.0...v4.14.0
+[v4.13.0]: https://github.com/rockcarver/frodo-cli/compare/v4.12.0...v4.13.0
+[v4.12.0]: https://github.com/rockcarver/frodo-cli/compare/v4.11.0...v4.12.0
+[v4.11.0]: https://github.com/rockcarver/frodo-cli/compare/v4.10.0...v4.11.0
+[v4.10.0]: https://github.com/rockcarver/frodo-cli/compare/v4.9.1...v4.10.0
+[v4.9.1]: https://github.com/rockcarver/frodo-cli/compare/v4.9.0...v4.9.1
+[v4.9.0]: https://github.com/rockcarver/frodo-cli/compare/v4.8.0...v4.9.0
+[v4.8.0]: https://github.com/rockcarver/frodo-cli/compare/v4.7.2...v4.8.0
+[v4.7.2]: https://github.com/rockcarver/frodo-cli/compare/v4.7.1...v4.7.2
+[v4.7.1]: https://github.com/rockcarver/frodo-cli/compare/v4.7.0...v4.7.1
+[v4.7.0]: https://github.com/rockcarver/frodo-cli/compare/v4.6.0...v4.7.0
+[v4.6.0]: https://github.com/rockcarver/frodo-cli/compare/v4.5.4...v4.6.0
+[v4.5.4]: https://github.com/rockcarver/frodo-cli/compare/v4.5.3...v4.5.4
+[v4.5.3]: https://github.com/rockcarver/frodo-cli/compare/v4.5.2...v4.5.3
+[v4.5.2]: https://github.com/rockcarver/frodo-cli/compare/v4.5.1...v4.5.2
+[v4.5.1]: https://github.com/rockcarver/frodo-cli/compare/v4.5.0...v4.5.1
+[v4.5.0]: https://github.com/rockcarver/frodo-cli/compare/v4.4.0...v4.5.0
+[v4.4.0]: https://github.com/rockcarver/frodo-cli/compare/v4.3.3...v4.4.0
+[v4.3.3]: https://github.com/rockcarver/frodo-cli/compare/v4.3.2...v4.3.3
+[v4.3.2]: https://github.com/rockcarver/frodo-cli/compare/v4.3.2-0...v4.3.2
+[v4.3.2-0]: https://github.com/rockcarver/frodo-cli/compare/v4.3.1...v4.3.2-0
 [4.3.1]: https://github.com/rockcarver/frodo-cli/compare/v4.3.0...v4.3.1
 [4.3.0]: https://github.com/rockcarver/frodo-cli/compare/v4.2.1-2...v4.3.0
 [4.2.1-2]: https://github.com/rockcarver/frodo-cli/compare/v4.2.1-1...v4.2.1-2
