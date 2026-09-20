@@ -145,15 +145,6 @@ jobs:
         node-version: [26, 24, 22]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    # Service containers to run with `test`
-    services:
-      # Label used to access the service container
-      squid:
-        image: ubuntu/squid
-        ports:
-          # Maps tcp port 3128 on the host to the same port in the service container
-          - 3128:3128
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -197,9 +188,49 @@ jobs:
       - name: Version Test
         run: frodo -v
 
+  test-live:
+    name: 'Live Tenant Smoke Test'
+    needs: build
+    # don't run on PRs -> secrets are not available as workflow runs in the context of the external repo
+    if: github.event_name != 'pull_request'
+    # You must use a Linux environment when using service containers or container jobs
+    runs-on: ubuntu-latest
+
+    # Service containers to run with `test-live`
+    services:
+      # Label used to access the service container
+      squid:
+        image: ubuntu/squid
+        ports:
+          # Maps tcp port 3128 on the host to the same port in the service container
+          - 3128:3128
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # Use PR head repo/ref for forked PRs; default to current repo/ref for push/workflow_dispatch.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install frodo-cli globally
+        run: npm i -g
+
       - name: Direct Tests
-        # don't run this test on PRs -> secrets are not available as workflow runs in the context of the external repo
-        if: github.event_name != 'pull_request'
         env:
           FIDC_TENANT_URL: ${{ vars.FIDC_TENANT_URL }}
           FRODO_SA_ID: ${{ vars.FIDC_TENANT_SA_ID }}
@@ -209,8 +240,6 @@ jobs:
           frodo info "$FIDC_TENANT_URL"
 
       - name: Proxy Tests
-        # don't run this test on PRs -> secrets are not available as workflow runs in the context of the external repo
-        if: github.event_name != 'pull_request'
         env:
           HTTPS_PROXY: 'http://127.0.0.1:3128'
           FIDC_TENANT_URL: ${{ vars.FIDC_TENANT_URL }}
@@ -225,6 +254,7 @@ jobs:
     needs:
       [
         build,
+        test-live,
         linux-x64-binary-release,
         linux-arm64-binary-release,
         macos-intel-binary-release,
@@ -325,6 +355,7 @@ jobs:
     needs:
       [
         build,
+        test-live,
         linux-x64-binary-release,
         linux-arm64-binary-release,
         macos-intel-binary-release,
