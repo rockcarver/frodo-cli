@@ -112,36 +112,43 @@ const SERVICE_ACCOUNT_INTERNAL_TREE = 'FRServiceAccountInternal';
 const DEBUG_LEVELS_TO_SURFACE = new Set(['WARN', 'ERROR', 'FATAL']);
 
 /**
- * `am-core` WARN chatter observed live (2026-09-20) on a real, entirely
- * *successful* `FRLogin` run against the `volker-dev` tenant -- confirmed to
- * have nothing to do with any specific node's own correctness (the tree
- * finished fine), just AM logging routine internal repository/config lookups
- * on every run regardless of outcome. Log level alone (`DEBUG_LEVELS_TO_SURFACE`)
- * isn't a reliable noise signal, since AM logs this at WARN too.
+ * `am-core` WARN chatter observed live (2026-09-20/21) on real, entirely
+ * *successful* `FRLogin` runs -- confirmed to have nothing to do with any
+ * specific node's own correctness (the tree finished fine), just AM logging
+ * routine internal repository/config lookups on every run regardless of
+ * outcome. Log level alone (`DEBUG_LEVELS_TO_SURFACE`) isn't a reliable
+ * noise signal, since AM logs this at WARN too.
  *
  * Deliberately narrow and substring-matched against the *exact* observed
  * message text, never a broad heuristic like "any IdServicesImpl WARN" --
  * this list should only grow from further live confirmation, not
  * speculation about what else might be noise.
  *
- * IMPORTANT caveat: the first five entries below are only confirmed against
- * one tenant (`volker-dev`) so far, not cross-tenant. The standing bar for
- * calling something genuine, safe-to-suppress platform noise (rather than
- * something tied to one tenant's own config/data) is seeing it recur
- * identically across *multiple* different AIC tenants -- that hasn't been
- * done yet for those five, so treat them as provisional until it has been.
- * `SSOTokenFactory` below has cleared that bar: confirmed live (2026-09-21)
- * with byte-identical logger/message text on both `volker-dev` and
- * `frodo-dev`, each time during an otherwise entirely successful `FRLogin`
- * run (a stale/expired session lookup at the very start of a fresh login,
- * unrelated to the eventual outcome either time).
+ * The standing bar for calling something genuine, safe-to-suppress platform
+ * noise (rather than something tied to one tenant's own config/data) is
+ * seeing it recur identically across *multiple* different AIC tenants --
+ * mere log level or a plausible-sounding message isn't enough on its own.
+ * The four entries below marked cross-tenant-confirmed have cleared that
+ * bar (`volker-dev` and `frodo-dev`, byte-identical logger/message text
+ * both times). The two `IdServicesImpl` entries have not, and at this point
+ * that's a real finding, not just an unchecked gap: two separate, complete
+ * `frodo-dev` `am-core` captures spanning full `FRLogin` runs (2026-09-20
+ * and 2026-09-21) came up with zero matches for either message on that
+ * tenant. Still kept here and still suppressed -- confirmed directly, live,
+ * to be noise unrelated to node correctness on `volker-dev` itself (the
+ * original justification for adding it), which doesn't depend on it being
+ * universal -- but documented as tenant-specific chatter (most likely
+ * `volker-dev`'s own IDM data: the exact message references a specific
+ * identity UUID, i.e. some stale/orphaned managed-object reference in that
+ * tenant's own repository), not a general AM behavior every tenant hits.
+ * Promote this note only if a *different* tenant is later confirmed to hit
+ * it too.
  */
 const CONFIRMED_NOISE_PATTERNS: ReadonlyArray<{
   logger: string;
   messageIncludes: string;
 }> = [
-  { logger: 'IdServicesImpl', messageIncludes: 'Not a valid entry:' },
-  { logger: 'IdServicesImpl', messageIncludes: 'of type user not found.' },
+  // Cross-tenant confirmed (volker-dev + frodo-dev).
   {
     logger: 'TokenStoreUtils',
     messageIncludes: 'Could not get list of auth modules from authentication',
@@ -160,6 +167,10 @@ const CONFIRMED_NOISE_PATTERNS: ReadonlyArray<{
     logger: 'SSOTokenFactory',
     messageIncludes: 'Failed to create SSO Token: Invalid session ID',
   },
+  // volker-dev-specific (confirmed absent from frodo-dev across two full
+  // capture checks) -- see this constant's own remarks above.
+  { logger: 'IdServicesImpl', messageIncludes: 'Not a valid entry:' },
+  { logger: 'IdServicesImpl', messageIncludes: 'of type user not found.' },
 ];
 
 /** Whether an `am-core` line matches a `CONFIRMED_NOISE_PATTERNS` entry -- see that constant's own remarks. `shortLogger` is the already-shortened last-FQCN-segment form `ingestAmCoreEvent` computes, matching how the pattern list's `logger` values are written. */
