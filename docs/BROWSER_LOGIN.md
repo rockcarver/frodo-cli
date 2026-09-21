@@ -26,7 +26,9 @@ frodo login --device --login-client-id my-browser-client --type forgeops https:/
 frodo login --browser --login-client-id my-browser-client --type classic https://openam-classic.example.com:8080/am --save
 ```
 
-`--save` persists a connection profile so later commands (`frodo journey list <host>`, etc.) reuse the same login mode without repeating `--browser`. Every other `frodo` command also accepts `--browser`/`--device` directly, so `frodo conn save --browser ...` works the same way.
+`--save` on `frodo login` persists a connection profile so later commands (`frodo journey list <host>`, etc.) reuse the same login mode without repeating `--browser` — this sets the profile's `--preferred-credential` to `browser`, since asking `login` to both authenticate interactively and remember it *is* the explicit "remember this" request. Every other `frodo` command accepts `--browser`/`--device` too, but only for that one invocation; an unrelated command's own `--save`-like behavior never infers a persisted preference from that on its own. To make browser login the persisted default from a command other than `login`, pass `--preferred-credential browser` explicitly, e.g. `frodo conn save --preferred-credential browser <host>`.
+
+`--preferred-credential` (`user`/`svcacct`/`amster`/`browser`) is the one persisted preference for which credential type later implicit commands against a host should use — it replaces the old `--default-credential`, now also covering browser login. View or change it at any time with `frodo conn <host>` (an interactive picker offering only what that profile actually has configured) or `frodo conn save --preferred-credential <type> <host>` directly. For device flow specifically, `--preferred-device-flow`/`--no-preferred-device-flow` on `conn save` persists that choice too, so a headless/SSH profile doesn't need `--device` repeated on every command.
 
 Cloud uses a fixed, built-in OAuth2 client and needs no further setup — just `--browser`/`--device` and a `--type cloud` host. ForgeOps and classic are fully customer-controlled and need the setup below.
 
@@ -84,7 +86,7 @@ Two differences from the ForgeOps setup above:
 
 ## Device flow
 
-`--device` uses the OAuth2 Device Authorization Grant instead of a loopback redirect — useful for headless or SSH sessions with no local browser to open. It requires your OAuth2 provider to have the device grant enabled on the client; this is optional, not required, for browser login to work.
+`--device` uses the OAuth2 Device Authorization Grant instead of a loopback redirect — useful for headless or SSH sessions with no local browser to open. It requires your OAuth2 provider to have the device grant enabled on the client; this is optional, not required, for browser login to work. To persist this as a profile's default (so a headless/SSH host doesn't need `--device` repeated on every command), save it explicitly with `frodo conn save --preferred-credential browser --preferred-device-flow <host>` — see `--preferred-credential` above.
 
 ## Login journey configuration
 
