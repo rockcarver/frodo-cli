@@ -7,7 +7,7 @@ import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
 import c from '../../utils/ColorTheme';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
-import { FrodoCommand } from '../FrodoCommand';
+import { FrodoCommand, preferredCredentialOption } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const { isServiceAccountsFeatureAvailable } = frodo.cloud.serviceAccount;
@@ -60,11 +60,18 @@ export default function setup() {
     .addOption(
       new Option('--alias [name]', 'Alias name for this connection profile.')
     )
+    .addOption(preferredCredentialOption)
     .addOption(
       new Option(
-        '--default-credential <type>',
-        'Explicit preference for which non-interactive credential type to use when this profile has more than one configured (e.g. both a service account and a plain username/password). Persisted; unlike --credential, applies to every future implicit command against this host, not just one invocation.'
-      ).choices(['user', 'svcacct', 'amster'])
+        '--preferred-device-flow',
+        'Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--no-preferred-device-flow',
+        'Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.'
+      )
     )
     .addHelpText(
       'after',
@@ -114,7 +121,9 @@ export default function setup() {
           `  $ frodo conn save --private-key ${s.amsterPrivateKey} --authentication-service ${s.customAmsterService} ${s.classicConnId}\n`
         ) +
         `  Update an existing connection profile (with both a service account and a username/password already saved) to prefer the plain user by default:\n` +
-        c.command(`  $ frodo conn save --default-credential user ${s.connId}\n`)
+        c.command(
+          `  $ frodo conn save --preferred-credential user ${s.connId}\n`
+        )
     )
     .action(
       // implement command logic inside action handler
@@ -141,8 +150,14 @@ export default function setup() {
             JSON.parse(options.configurationHeaderOverrides)
           );
         }
-        if (options.defaultCredential) {
-          state.setDefaultCredential(options.defaultCredential);
+        if (options.preferredCredential) {
+          state.setPreferredCredential(options.preferredCredential);
+        }
+        // Tri-state: --preferred-device-flow sets true, --no-preferred-device-flow
+        // sets false, neither leaves options.preferredDeviceFlow undefined
+        // (and any existing saved preference untouched).
+        if (options.preferredDeviceFlow !== undefined) {
+          state.setPreferredDeviceFlow(options.preferredDeviceFlow);
         }
         const needAmsterLogin = !!options.privateKey;
         const needSa =
