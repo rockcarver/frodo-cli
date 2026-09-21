@@ -1,9 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import fs from 'fs';
 
 import { printError } from '../utils/Console';
 
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { queryManagedObjects, updateManagedObject } = frodo.idm.managed;
 /**
  * Export an IDM configuration object in the fr-config-manager format.
@@ -133,8 +134,7 @@ export async function configManagerImportServiceObjects(): Promise<boolean> {
 
       for (const objectFile of objectFiles) {
         const fullPath = `${objectPath}/${objectFile}`;
-        const readFiles = fs.readFileSync(fullPath, 'utf8');
-        const importData = JSON.parse(readFiles);
+        const importData = readJsonFile(fullPath) as IdObjectSkeletonInterface;
         delete importData._rev;
         delete importData._refProperties;
 

@@ -1,3 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo config-manager push service-objects "frodo config-manager push service-objects -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the service objects into forgeops" 1`] = `""`;
+exports[`frodo config-manager push service-objects "frodo config-manager push service-objects -E SERVICE_OBJECT_GIVEN_NAME=testName -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the service objects into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push service-objects "frodo config-manager push service-objects -E SERVICE_OBJECT_GIVEN_NAME=testName -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the service objects into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push service-objects'. This feature may change without notice.
+"
+`;
