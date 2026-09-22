@@ -97,3 +97,10 @@ export function fileFilter(
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+export function csvEscape(value: string): string {
+  return /[",\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+export function friendlyTimestamp(timestamp: string): string {
+  return timestamp.slice(0, 19).replace('T', ' ');
+}

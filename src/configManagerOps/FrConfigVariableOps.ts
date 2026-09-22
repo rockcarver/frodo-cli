@@ -9,16 +9,24 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import { escapePlaceholders, esvToEnv } from '../utils/FrConfig';
+import {
+  csvEscape,
+  escapePlaceholders,
+  esvToEnv,
+  friendlyTimestamp,
+} from '../utils/FrConfig';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { readVariables, importVariables } = frodo.cloud.variable;
 
 /**
- * Export all variables to seperate files
+ * Export all variables to individual files in fr-config-manager format
+ * @param {boolean} report true to report in csv format
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function configManagerExportVariables(): Promise<boolean> {
+export async function configManagerExportVariables(
+  report?: boolean
+): Promise<boolean> {
   let spinnerId: string;
   let indicatorId: string;
   let variableList: VariableSkeleton[] = [];
@@ -39,6 +47,11 @@ export async function configManagerExportVariables(): Promise<boolean> {
     printError(error);
     return false;
   }
+
+  if (report) {
+    printMessage('Name, Description, Type, Value, Last Changed', 'data');
+  }
+
   try {
     const indicatorId = createProgressIndicator(
       'determinate',
@@ -46,6 +59,19 @@ export async function configManagerExportVariables(): Promise<boolean> {
       'Exporting variables'
     );
     for (const variable of variableList) {
+      if (report) {
+        printMessage(
+          [
+            variable._id,
+            csvEscape(variable.description),
+            variable.expressionType,
+            csvEscape(variable.value),
+            friendlyTimestamp(variable.lastChangeDate),
+          ].join(','),
+          'data'
+        );
+        continue;
+      }
       const envVariable = esvToEnv(variable._id);
 
       const variableObject = {
