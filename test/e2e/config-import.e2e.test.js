@@ -60,9 +60,9 @@ FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo co
 FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NRdAD test/e2e/exports/all-separate/classic
 
 To update idm exports, ensure you have a local on-prem instance of idm with the host https://nightly.gcp.forgeops.com/am, then run these:
-rm test/e2e/exports/all/all.forgeops.json
+rm test/e2e/exports/all/forgeops/all.forgeops.json
 rm -rf test/e2e/exports/all-separate/forgeops
-FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config export -NRdaD test/e2e/exports/all -f all.forgeops.json
+FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config export -NRdaD test/e2e/exports/all/forgeops -f all.forgeops.json
 FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config export -NRdAD test/e2e/exports/all-separate/forgeops
 
 To record, run these:
@@ -88,9 +88,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config import -af test/e2e/exports/all/all.forgeops.json -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am  frodo config import -aCf test/e2e/exports/all/all.forgeops.json -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config import -AD test/e2e/exports/all-separate/forgeops -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config import -af test/e2e/exports/all/forgeops/all.forgeops.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am  frodo config import -aCf test/e2e/exports/all/forgeops/all.forgeops.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config import -FAD test/e2e/exports/all-separate/forgeops -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am  frodo config import --default -CAD test/e2e/exports/all-separate/forgeops -m forgeops
 */
 import {
@@ -112,7 +112,7 @@ const allClassicFileName = 'all.classic.json';
 const allForgeopsFileName = 'all.forgeops.json';
 const allCloudExport = `${allDirectory}/${allCloudFileName}`;
 const allClassicExport = `${allDirectory}/${allClassicFileName}`;
-const allForgeopsExport = `${allDirectory}/${allForgeopsFileName}`;
+const allForgeopsExport = `${allDirectory}/forgeops/${allForgeopsFileName}`;
 const allSeparateCloudDirectory = `test/e2e/exports/all-separate/cloud`;
 const allSeparateClassicDirectory = `test/e2e/exports/all-separate/classic`;
 const allSeparateForgeopsDirectory = `test/e2e/exports/all-separate/forgeops`;
@@ -220,11 +220,7 @@ describe('frodo config import', () => {
 
   // Forgeops Tests
   describe('Forgeops', () => {
-    // TODO: Re-record. This import relies on missing Polly recordings whose
-    // "recording not found" errors were previously baked into the snapshot.
-    // The replay-integrity guard in the test runners now fails on those, so
-    // this test must be re-recorded before it can be re-enabled.
-    test.skip(`"frodo config import -af ${allForgeopsExport} -m forgeops" Import everything from "${allForgeopsFileName}".`, async () => {
+    test(`"frodo config import -af ${allForgeopsExport} -m forgeops" Import everything from "${allForgeopsFileName}".`, async () => {
       const CMD = `frodo config import -af ${allForgeopsExport} -m forgeops`;
       await testFail(CMD, forgeopsEnv);
     });
@@ -236,8 +232,8 @@ describe('frodo config import', () => {
       await testFail(CMD, forgeopsEnv);
     });
 
-    test(`"frodo config import -AD ${allSeparateForgeopsDirectory} -m forgeops" Import everything from directory "${allSeparateForgeopsDirectory}".`, async () => {
-      const CMD = `frodo config import -AD ${allSeparateForgeopsDirectory} -m forgeops`;
+    test(`"frodo config import -FAD ${allSeparateForgeopsDirectory} -m forgeops" Import everything from directory "${allSeparateForgeopsDirectory}".`, async () => {
+      const CMD = `frodo config import -FAD ${allSeparateForgeopsDirectory} -m forgeops`;
       await testFail(CMD, forgeopsEnv);
     });
 

@@ -1,0 +1,14 @@
+{
+  "script": {
+    "bd027bdf-002d-42e2-a549-d5fdb0d6605a": {
+      "_id": "bd027bdf-002d-42e2-a549-d5fdb0d6605a",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Test",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "name": "Test Groovy Script",
+      "script": "file://Test-Groovy-Script.script.groovy"
+    }
+  }
+}

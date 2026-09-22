@@ -1,6 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo authz set import "frodo authz set import --all --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should not import policy sets from test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset when no changes are made 1`] = `""`;
+
+exports[`frodo authz set import "frodo authz set import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should not import policy sets from test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset when no changes are made 2`] = `
+"⚠ Finished importing 0 policy sets from 5 files.
+"
+`;
 
 exports[`frodo authz set import "frodo authz set import --all-separate --no-deps --prereqs --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should fail when prerequisite resource type definitions are not included in the separate export files 1`] = `
 "Error importing alpha realm policy sets
@@ -18,24 +23,78 @@ Error importing alpha realm policy sets
 Error importing alpha realm policy sets
   Error importing alpha realm hard dependencies for policy set test-policy-set
     Import data is missing prerequisite resource type definitions for policy set test-policy-set. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
-✖ Failed after processing 5 policy sets from 5 files; 5 files had errors.
+✖ Failed after processing 0 policy sets from 5 files; 5 files had errors.
 "
 `;
 
-exports[`frodo authz set import "frodo authz set import --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --all-separate --no-deps --prereqs --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should fail when prerequisite resource type definitions are not included in the separate export files 2`] = `1`;
 
-exports[`frodo authz set import "frodo authz set import --set-id 'test-policy-set' --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --force-update --all --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 1`] = `""`;
 
-exports[`frodo authz set import "frodo authz set import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should import all policy sets from the test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset directory" 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --force-update --all --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 2`] = `
+"✔ Imported 2 policy sets from test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json.
+"
+`;
 
-exports[`frodo authz set import "frodo authz set import -af allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --force-update --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 1`] = `""`;
 
-exports[`frodo authz set import "frodo authz set import -af test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --force-update --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 2`] = `
+"✔ Imported first policy set 'FeatureStorePolicySet'
+"
+`;
 
-exports[`frodo authz set import "frodo authz set import -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --force-update --set-id 'test-policy-set' --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 1`] = `""`;
 
-exports[`frodo authz set import "frodo authz set import -f test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --force-update --set-id 'test-policy-set' --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 2`] = `
+"✔ Imported test-policy-set.
+"
+`;
 
-exports[`frodo authz set import "frodo authz set import -i 'test-policy-set' -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import -FAD test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should import all policy sets from the test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset directory" 1`] = `""`;
 
-exports[`frodo authz set import "frodo authz set import -i 'test-policy-set' -f test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import -FAD test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should import all policy sets from the test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset directory" 2`] = `
+"✔ Finished importing 5 policy sets from 5 files.
+"
+`;
+
+exports[`frodo authz set import "frodo authz set import -Faf test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+
+exports[`frodo authz set import "frodo authz set import -Faf test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 2`] = `
+"✔ Imported 2 policy sets from test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json.
+"
+`;
+
+exports[`frodo authz set import "frodo authz set import -Ff test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+
+exports[`frodo authz set import "frodo authz set import -Ff test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 2`] = `
+"✔ Imported first policy set 'FeatureStorePolicySet'
+"
+`;
+
+exports[`frodo authz set import "frodo authz set import -Fi 'test-policy-set' -f test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 1`] = `""`;
+
+exports[`frodo authz set import "frodo authz set import -Fi 'test-policy-set' -f test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json": should import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" 2`] = `
+"✔ Imported test-policy-set.
+"
+`;
+
+exports[`frodo authz set import "frodo authz set import -af allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 1`] = `""`;
+
+exports[`frodo authz set import "frodo authz set import -af allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 2`] = `
+"⚠ Imported 0 policy sets from test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json.
+"
+`;
+
+exports[`frodo authz set import "frodo authz set import -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 1`] = `""`;
+
+exports[`frodo authz set import "frodo authz set import -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 2`] = `
+"Progress indicator Did not import first policy set from test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json since no changes were made. not found.
+"
+`;
+
+exports[`frodo authz set import "frodo authz set import -i 'test-policy-set' -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 1`] = `""`;
+
+exports[`frodo authz set import "frodo authz set import -i 'test-policy-set' -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 2`] = `
+"Progress indicator Did not import test-policy-set since no changes were made. not found.
+"
+`;

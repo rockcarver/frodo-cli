@@ -46,7 +46,7 @@ created by the step before it, and the suite is self-cleaning (the final two
 steps delete the property and the type it created). If any step fails while
 recording against the live tenant, run:
 
-  frodo idm schema object delete -o alpha_frodoE2ETestWidget -y -F <host>
+  frodo idm schema object delete -o alpha_frodoE2ETestWidget -y -f <host>
 
 to manually clean up before re-recording. 'object create' is flags-only
 (-o/--title/--icon, no file) -- every command in this family takes -o
@@ -112,7 +112,7 @@ const type = 'alpha_frodoE2ETestWidget';
 async function cleanUp() {
   try {
     await execWithRecordingProgress(
-      `frodo idm schema object delete -o ${type} -y -F`,
+      `frodo idm schema object delete -o ${type} -y -f`,
       liveOnlyEnv,
       false
     );
@@ -221,7 +221,7 @@ describe('frodo idm schema object lifecycle (create type -> add property -> upda
     expect(assertNoPollyReplayError(stderr, CMD)).toMatchSnapshot();
   });
 
-  // -F/--force is required here even though this test never creates a
+  // -f/--force is required here even though this test never creates a
   // record: IDM's record-count index can briefly report a stale non-zero
   // count right after schema operations on a type, especially one reused
   // across many recording/replay runs like this fixture's own type name --
@@ -240,9 +240,9 @@ describe('frodo idm schema object lifecycle (create type -> add property -> upda
   // than by --reverse-property. Every other write in this file (object
   // create/update, property create/update/delete) records and replays
   // cleanly, so this is isolated to object delete specifically.
-  test(`"frodo idm schema object delete -o ${type} -y -F" (live): should delete the managed-object type`, async () => {
+  test(`"frodo idm schema object delete -o ${type} -y -f" (live): should delete the managed-object type`, async () => {
     if (!isRecording) return;
-    const CMD = `frodo idm schema object delete -o ${type} -y -F`;
+    const CMD = `frodo idm schema object delete -o ${type} -y -f`;
     const { stderr } = await execWithRecordingProgress(CMD, liveOnlyEnv, true);
     expect(stderr).toContain('Deleted');
     // Config removal is asynchronous by default (no waitForCompletion) --

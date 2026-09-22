@@ -12,7 +12,7 @@ Arguments:
   password                                  Password.
 
 Options:
-  -F, --config-folder <config-folder-path>  Path to the folder containing the config files.
+  -C, --config-folder <config-folder-path>  Path to the folder containing the config files.
   
   -h, --help                                Help
   -hh, --help-more                          Help with all options.

@@ -153,16 +153,35 @@ export async function configManagerImportVariables(
       }
     }
 
+    if (imported.length !== fileNames.length) {
+      const unchangedVariables = (await readVariables()).filter((remoteVar) =>
+        imported.every((importedVar) => remoteVar._id !== importedVar._id)
+      );
+      unchanged += unchangedVariables.length;
+
+      for (const v of unchangedVariables) {
+        const status = v.loaded ? 'unchanged' : 'pending restart';
+        printMessage(`Variable ${v._id} ${status}`);
+      }
+    }
+
     stopProgressIndicator(
       indicatorId,
-      `${imported.length} variables imported.`
+      `${imported.length} variables imported.`,
+      imported.length ? 'success' : 'warn'
     );
 
-    printMessage(
-      updated > 0
-        ? `Changes made to variables: ${updated} updated, ${unchanged} unchanged`
-        : `No changes, (${unchanged} variable(s) already up to date)`
-    );
+    if (updated > 0) {
+      printMessage(
+        `Changes made to variables: ${updated} updated, ${unchanged} unchanged`,
+        'success'
+      );
+    } else {
+      printMessage(
+        `No changes, (${unchanged} variable(s) already up to date)`,
+        'warn'
+      );
+    }
     return true;
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error importing variables`, 'fail');

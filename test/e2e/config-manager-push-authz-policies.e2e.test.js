@@ -48,6 +48,7 @@
 
 /*
 // ForgeOps
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push authz-policies -FD test/e2e/exports/fr-config-manager/forgeops -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push authz-policies -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
 */
 
@@ -60,7 +61,12 @@ const forgeopsEnv = getEnv(fc);
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
 describe('frodo config-manager push authz-policies', () => {
-    test(`"frodo config-manager push authz-policies -D ${allDirectory} -m forgeops": should import the authz-policies into forgeops"`, async () => {
+    test(`"frodo config-manager push authz-policies -FD ${allDirectory} -m forgeops": should import the authz-policies into forgeops"`, async () => {
+        const CMD = `frodo config-manager push authz-policies -FD ${allDirectory} -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo config-manager push authz-policies -D ${allDirectory} -m forgeops": should not import the authz-policies into forgeops when no changes are made"`, async () => {
         const CMD = `frodo config-manager push authz-policies -D ${allDirectory} -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });
