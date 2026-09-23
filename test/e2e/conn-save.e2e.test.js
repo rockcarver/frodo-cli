@@ -56,7 +56,7 @@ const exec = promisify(cp.exec);
 
 const connectionsSaveFile = './test/e2e/env/ConnectionsSave.json';
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   path.resolve('./test/e2e/env/ConnectionsSave.json');
 process.env['FRODO_MASTER_KEY_PATH'] =

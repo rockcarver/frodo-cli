@@ -54,9 +54,12 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 import { getEnv, testSuccess } from './utils/TestUtils';
 import { iga_connection as ic } from './utils/TestConfig';
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const igaEnv = getEnv(ic);
 
+// Lists whatever IGA workflows exist on the target tenant -- no specific
+// workflow needs to be staged first. Ready to record as-is once the shared
+// login cassette exists for the target host (see test/e2e/README.md).
 describe('frodo iga workflow list', () => {
   test('"frodo iga workflow list": should list the ids of the workflows', async () => {
     const CMD = `frodo iga workflow list`;

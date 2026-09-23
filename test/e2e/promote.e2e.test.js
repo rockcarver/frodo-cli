@@ -71,7 +71,7 @@ FRODO_MOCK=record FRODO_TEST_NAME='node' FRODO_NO_CACHE=1 FRODO_HOST=https://ope
 import { getEnv, testPromote } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 const sourceDir = `./test/e2e/exports/full-export-separate`
 

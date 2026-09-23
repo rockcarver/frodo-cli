@@ -59,7 +59,7 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const forgeopsEnv = getEnv(fc);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";

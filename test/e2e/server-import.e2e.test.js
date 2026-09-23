@@ -64,7 +64,7 @@ import { classic_connection as cc } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     './test/e2e/env/Connections.json';
 const classicEnv = getEnv(cc);

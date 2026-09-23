@@ -72,7 +72,7 @@ import fs from "fs";
 
 const exec = promisify(cp.exec);
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 
 describe('frodo journey describe', () => {

@@ -47,13 +47,34 @@ export function normalizeStackPaths(text) {
 }
 
 /**
+ * Strip @pollyjs/adapter's warn-strategy expiry notice: functionally
+ * harmless (the expired-but-present recording is still replayed as normal)
+ * but its "has expired" message plus a pretty-printed (2-space-indented)
+ * dump of the full request object would otherwise leak into captured
+ * stdout/stderr and break snapshot equality for every recording older than
+ * FRODO_MOCK_EXPIRES_IN. Kept separate from removePollyRecordingNoise (and
+ * its trim()) below since this needs to run for every snapshotted value,
+ * including the majority of call sites that never went through that
+ * trim()-including helper historically.
+ * @param {string} text
+ * @returns {string}
+ */
+export function removeExpiryNoise(text) {
+  if (!text) return text;
+  return text.replace(
+    /(?:\[Polly\] )?Recording for the following request has expired\.\n\{[\s\S]*?\n\}\n?/g,
+    ''
+  );
+}
+
+/**
  * Normalize command output for stable snapshots across local and CI environments.
  * @param {string} text
  * @returns {string}
  */
 export function normalizeSnapshotText(text) {
-  return normalizeStackPaths(
-    maskUserAgentVersions(maskTransactionIds(text))
+  return removeExpiryNoise(
+    normalizeStackPaths(maskUserAgentVersions(maskTransactionIds(text)))
   );
 }
 
@@ -564,6 +585,46 @@ export async function testFail(
  */
 export async function stageFixture(command, env, options = {}) {
   await exec(command, env);
+}
+
+/**
+ * Stage a fixture, then poll a read command until it succeeds before
+ * returning -- for backends (notably IGA, which is data-warehouse-backed
+ * with an attached async workflow engine, unlike AM/IDM's synchronous REST
+ * APIs) where a successful write doesn't guarantee an immediate consistent
+ * read. A fixed short sleep after staging is not reliable for these; polling
+ * a real read until it succeeds (or a generous timeout elapses) is.
+ * @param {string} stageCommand The staging command to run (e.g. an import)
+ * @param {string} verifyCommand A read-only command that only succeeds once staging is visible
+ * @param {{env: Record<string, string>}} env The environment variables
+ * @param {Object} [options]
+ * @param {number} [options.timeoutMs=30000] Give up polling after this long
+ * @param {number} [options.intervalMs=1000] Delay between poll attempts
+ * @returns {Promise<void>}
+ */
+export async function stageFixtureAndVerify(
+  stageCommand,
+  verifyCommand,
+  env,
+  options = {}
+) {
+  const { timeoutMs = 30000, intervalMs = 1000 } = options;
+  await exec(stageCommand, env);
+  const deadline = Date.now() + timeoutMs;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      await exec(verifyCommand, env);
+      return;
+    } catch (error) {
+      if (Date.now() >= deadline) {
+        throw new Error(
+          `stageFixtureAndVerify: "${verifyCommand}" still failing ${timeoutMs}ms after staging "${stageCommand}": ${error.message || error}`
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    }
+  }
 }
 
 /**

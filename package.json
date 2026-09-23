@@ -37,6 +37,7 @@
     "test:serial": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent --runInBand",
     "test:debug": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent=false --json --outputFile=./testResults.json",
     "test:update": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent=false --updateSnapshot",
+    "test:record:cloud": "node tools/record-cloud-e2e.mjs",
     "mcp:batch1": "node tools/mcp-agentic-batch-run.mjs --output docs/mcp-agentic-run-log.batch1.json",
     "mcp:batch2": "node tools/mcp-agentic-batch-run.mjs --batch batch2 --output docs/mcp-agentic-run-log.batch2.json",
     "mcp:batch3": "node tools/mcp-agentic-batch-run.mjs --batch batch3 --output docs/mcp-agentic-run-log.batch3.json",

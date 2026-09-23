@@ -59,7 +59,7 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 
 describe('frodo config-manager push direct-control-apply', () => {

@@ -55,24 +55,23 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
+import { forgeops_connection as fc } from './utils/TestConfig';
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     './test/e2e/env/Connections.json';
-const env = getEnv(c);
 const forgeopsEnv = getEnv(fc);
 
 describe('frodo config-manager pull scripts', () => {
     test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.`, async () => {
         const dirName = 'configManagerExportScriptsDir0';
         const CMD = `frodo config-manager pull scripts -D ${dirName} -m forgeops`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false);
     });
     test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir1 -p Scripted -p Library -m forgeops": should export scripts prefixed: Scripted & Library from all realms in fr-config-manager style.`, async () => {
         const dirName = 'configManagerExportScriptsDir1';
         const CMD = `frodo config-manager pull scripts -D ${dirName} -p Scripted -p Library -m forgeops`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false);
     });
     test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir2 --prefix OAUTH2 --prefix SAML -m forgeops": should export scripts prefixed: OAUTH2 & SAML from alpha realm in fr-config-manager style.`, async () => {
         const dirName = 'configManagerExportScriptsDir2';

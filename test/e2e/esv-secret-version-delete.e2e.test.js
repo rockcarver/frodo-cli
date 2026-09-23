@@ -52,19 +52,19 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv } from './utils/TestUtils';
+import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 
 describe('frodo esv secret version delete', () => {
     test('"frodo esv secret version delete -i esv-test-secret-pi-generic -v 2": should delete version 2 of the "esv-test-var-pi-generic" secret', async () => {
         const CMD = `frodo esv secret version delete -i esv-test-secret-pi-generic -v 2`;
         const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
     test('"frodo esv secret version delete --secret-id esv-test-secret-pi-generic --version 4": should display error when deleting non-existent version 4 of the "esv-test-var-pi-generic" secret', async () => {
@@ -73,7 +73,7 @@ describe('frodo esv secret version delete', () => {
           await exec(CMD, env);
           fail("Command should've failed");
         } catch (e) {
-          expect(e.stderr).toMatchSnapshot();
+          expect(normalizeSnapshotText(e.stderr)).toMatchSnapshot();
         }
     });
 });

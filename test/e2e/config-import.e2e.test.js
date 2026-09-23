@@ -100,7 +100,7 @@ import {
 } from './utils/TestUtils';
 import { connection as c, iga_connection as ic, classic_connection as cc, forgeops_connection as fc } from './utils/TestConfig';
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const cloudEnv = getEnv(c);
 const igaEnv = getEnv(ic);
 const classicEnv = getEnv(cc);

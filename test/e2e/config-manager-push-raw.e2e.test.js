@@ -62,7 +62,7 @@ import { forgeops_connection as fc } from './utils/TestConfig';
 import { connection as c } from './utils/TestConfig';
 import {readFileSync} from 'fs'
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const forgeopsEnv = getEnv(fc);
 const cloudEnv = getEnv(c)
 

@@ -78,10 +78,11 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo mapping export --no-extract --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir9 -m forgeops
 */
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 const syncType = 'sync';
 const mappingType = 'mapping';
@@ -144,31 +145,31 @@ describe('frodo mapping export', () => {
         test('"frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files', async () => {
             const dirName = 'mappingExportTestDir5';
             const CMD = `frodo mapping export -AD ${dirName} -m forgeops`;
-            await testExport(CMD, env, undefined, undefined, dirName, false);
+            await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false);
         });
 
         test('"frodo mapping export -i sync/UserToUserGroovySync -D mappingExportTestDir6 -m forgeops": should export sync/UserToUserGroovySync object with extracted idm scripts', async () => {
             const dirName = 'mappingExportTestDir6';
             const CMD = `frodo mapping export -i sync/UserToUserGroovySync -D ${dirName} -m forgeops`;
-            await testExport(CMD, env, syncType, undefined, dirName, false);
+            await testExport(CMD, forgeopsEnv, syncType, undefined, dirName, false);
         });
 
         test('"frodo mapping export --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir7 -m forgeops": should export mapping/UserToUserJavascript object with extracted idm scripts', async () => {
             const dirName = 'mappingExportTestDir7';
             const CMD = `frodo mapping export --mapping-id mapping/UserToUserJavascript -D ${dirName} -m forgeops`;
-            await testExport(CMD, env, mappingType, undefined, dirName, false);
+            await testExport(CMD, forgeopsEnv, mappingType, undefined, dirName, false);
         });
 
         test('"frodo mapping export -xi sync/UserToUserGroovySync -D mappingExportTestDir8 -m forgeops": should export sync/UserToUserGroovySync object with extracted idm scripts', async () => {
             const dirName = 'mappingExportTestDir8';
             const CMD = `frodo mapping export -xi sync/UserToUserGroovySync -D ${dirName} -m forgeops`;
-            await testExport(CMD, env, syncType, "UserToUserGroovySync.sync.json", dirName, false);
+            await testExport(CMD, forgeopsEnv, syncType, "UserToUserGroovySync.sync.json", dirName, false);
         });
 
         test('"frodo mapping export --no-extract --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir9 -m forgeops": should export mapping/UserToUserJavascript object with extracted idm scripts', async () => {
             const dirName = 'mappingExportTestDir9';
             const CMD = `frodo mapping export --no-extract --mapping-id mapping/UserToUserJavascript -D ${dirName} -m forgeops`;
-            await testExport(CMD, env, mappingType, "UserToUserJavascript.mapping.json", dirName, false);
+            await testExport(CMD, forgeopsEnv, mappingType, "UserToUserJavascript.mapping.json", dirName, false);
         });
     });
 });

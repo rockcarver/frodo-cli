@@ -63,7 +63,7 @@ import { forgeops_connection as fc, connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const cloudEnv = getEnv(c);
 const forgeopsEnv = getEnv(fc);
 

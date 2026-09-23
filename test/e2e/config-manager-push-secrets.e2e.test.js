@@ -60,7 +60,7 @@ import { connection as c } from './utils/TestConfig';
 
 
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const cloudEnv = getEnv(c);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/cloud";

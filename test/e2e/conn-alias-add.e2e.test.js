@@ -56,7 +56,7 @@ const exec = promisify(cp.exec);
 const connectionsFile = path.resolve('./test/e2e/env/Connections.json');
 const connectionsAliasFile = path.resolve('./test/e2e/env/ConnectionsAddAlias.json');
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] = connectionsAliasFile;
 process.env['FRODO_MASTER_KEY_PATH'] =
   path.resolve('./test/e2e/env/masterkey.key');

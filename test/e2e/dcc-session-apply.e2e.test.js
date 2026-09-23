@@ -60,7 +60,7 @@ import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 
 describe('frodo dcc session apply', () => {

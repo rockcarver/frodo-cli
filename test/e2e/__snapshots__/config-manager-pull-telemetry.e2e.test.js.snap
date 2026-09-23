@@ -83,14 +83,15 @@ exports[`frodo config-manager pull telemetry "frodo config-manager pull telemetr
 
 exports[`frodo config-manager pull telemetry "frodo config-manager pull telemetry": should export telemetry in fr-config-manager style" 2`] = `""`;
 
-exports[`frodo config-manager pull telemetry "frodo config-manager pull telemetry": should export telemetry in fr-config-manager style": telemetryTestDir/telemetry/otlp/datadog.json 1`] = `
+exports[`frodo config-manager pull telemetry "frodo config-manager pull telemetry": should export telemetry in fr-config-manager style": telemetryTestDir/telemetry/otlp/test-otlp.json 1`] = `
 {
-  "encoding": "PROTO",
-  "endpoint": "https://otlp.us5.datadoghq.com/v1/logs",
+  "encoding": "JSON",
+  "endpoint": "https://example-siem.com:4317",
   "headers": {
-    "dd-api-key": "\${TELEMETRY_HEADER_OTLP_DATADOG_DD_API_KEY}",
+    "api-key": "\${TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY}",
+    "api-secret": "\${TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET}",
   },
-  "id": "datadog",
+  "id": "test-otlp",
   "sources": [
     "am-activity",
     "idm-activity",

@@ -53,10 +53,10 @@ Commands:
   test                   [Experimental] Test connection and authentication.
   themes                 [Experimental] Export themes.
   ui-config              [Experimental] Export ui-configuration objects.
-  variables              [Experimental] Export variables objects.
 
   (Cloud-only):
   iga-workflows          [Experimental] Export iga-workflows.
   telemetry              [Experimental] Export telemetry exporters.
+  variables              [Experimental] Export variables objects.
 "
 `;

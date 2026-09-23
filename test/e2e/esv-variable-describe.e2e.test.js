@@ -61,7 +61,7 @@ import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 
 const allConfigFile = 'test/e2e/exports/all/all.cloud.json';

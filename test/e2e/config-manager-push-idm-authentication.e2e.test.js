@@ -57,7 +57,7 @@ import { forgeops_connection as fc } from './utils/TestConfig';
 
 
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const forgeopsEnv = getEnv(fc);
 
 
