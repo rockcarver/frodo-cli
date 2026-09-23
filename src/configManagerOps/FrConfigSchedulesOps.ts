@@ -3,6 +3,7 @@ import fs from 'fs';
 
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
+import { fileFilter } from '../utils/FrConfig';
 
 const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
 const { getFilePath, saveJsonToFile } = frodo.utils;
@@ -74,10 +75,12 @@ function processSchedules(schedules, fileDir, name?) {
 /**
  * Import schedules in fr-config-manager format.
  * @param {string} schedulesName Optional name of the schedule to import. If not provided, imports all schedules.
+ * @param {string} filenameFilter Optional filter to filter which scripts are imported.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerImportSchedules(
-  schedulesName?: string
+  schedulesName?: string,
+  filenameFilter?: string
 ): Promise<boolean> {
   try {
     const schedulesPath = getFilePath('schedules');
@@ -98,6 +101,9 @@ export async function configManagerImportSchedules(
         importData.invokeService === 'script' &&
         importData.invokeContext?.script?.file
       ) {
+        if (!fileFilter(importData.invokeContext.script.file, filenameFilter)) {
+          continue;
+        }
         const scriptPath = getFilePath(
           `schedules/${schedulesFile}/${importData.invokeContext.script.file}`
         );
@@ -110,6 +116,11 @@ export async function configManagerImportSchedules(
         importData.invokeService === 'taskscanner' &&
         importData.invokeContext?.task?.script?.file
       ) {
+        if (
+          !fileFilter(importData.invokeContext.task.script.file, filenameFilter)
+        ) {
+          continue;
+        }
         const scriptPath = getFilePath(
           `schedules/${schedulesFile}/${importData.invokeContext.task.script.file}`
         );

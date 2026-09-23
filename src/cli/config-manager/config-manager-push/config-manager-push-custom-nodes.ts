@@ -19,6 +19,12 @@ export default function setup() {
         'Custom node display name. If specified, only the specified custom node is imported.'
       )
     )
+    .addOption(
+      new Option(
+        '-f, --filename-filter <filenameFilter>',
+        'Combine multiple files using comma, use ~ prefix on entry for wildcard match'
+      )
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -35,7 +41,10 @@ export default function setup() {
         } else {
           verboseMessage('Importing custom nodes');
         }
-        const outcome = await configManagerImportCustomNodes(options.name);
+        const outcome = await configManagerImportCustomNodes(
+          options.name,
+          options.filenameFilter
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
