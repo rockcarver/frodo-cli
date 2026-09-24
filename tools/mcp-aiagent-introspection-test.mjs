@@ -27,7 +27,7 @@ function defaultMcpConfigPath() {
 function parseArgs(argv) {
     const args = {
         mcpConfig: defaultMcpConfigPath(),
-        output: 'docs/mcp-aiagent-introspection-report.json',
+        output: 'tools/reports/mcp-aiagent-introspection-report.json',
         cwd: REPO_ROOT,
     };
 

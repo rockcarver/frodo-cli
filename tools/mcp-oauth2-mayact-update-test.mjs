@@ -28,7 +28,7 @@ function parseArgs(argv) {
     const args = {
         realm: '/alpha',
         mcpConfig: defaultMcpConfigPath(),
-        output: 'docs/mcp-oauth2-mayact-update-report.json',
+        output: 'tools/reports/mcp-oauth2-mayact-update-report.json',
         baselineClientId: undefined,
         cwd: REPO_ROOT,
     };

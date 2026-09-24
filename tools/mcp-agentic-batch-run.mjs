@@ -28,7 +28,7 @@ function parseArgs(argv) {
     const args = {
         batch: 'batch1',
         mcpConfig: defaultMcpConfigPath(),
-        output: 'docs/mcp-agentic-run-log.batch1.json',
+        output: 'tools/reports/mcp-agentic-run-log.batch1.json',
         cwd: REPO_ROOT,
     };
 
