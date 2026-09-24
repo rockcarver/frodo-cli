@@ -1,6 +1,6 @@
 # E2E tests
 
-frodo-cli's tests are e2e-only by hard technical constraint: Jest's real-ESM mode (required by this project) can't load `@rockcarver/frodo-lib`'s built bundle, so no unit test can import a real `src/cli/**/*.ts` command file. Every test in this directory instead shells out to the `frodo` binary on `PATH` as a subprocess and asserts on its stdout/stderr, usually via a snapshot.
+frodo-cli's tests are e2e-only by deliberate choice: a CLI can only be properly tested by running the CLI, so these tests avoid anything in between — a mocked module, an imported command function, a harness that bypasses argument parsing — that would leave out real conditions or cut testing corners. Every test in this directory shells out to the `frodo` binary on `PATH` as a subprocess, exactly as a user would invoke it, and asserts on its stdout/stderr, usually via a snapshot. Worth calling out: there's also a hard technical constraint pointing the same direction — Jest's real-ESM mode (required by this project) can't load `@rockcarver/frodo-lib`'s built bundle, so no unit test could import a real `src/cli/**/*.ts` command file even if that were desired.
 
 HTTP traffic from those subprocesses is recorded and replayed by [Polly.js](https://netflix.github.io/pollyjs/), wired up inside frodo-lib itself (`frodo-lib/src/utils/SetupPollyForFrodoLib.ts`), not by the Jest harness. Recordings live under `test/e2e/mocks/` as HAR fixtures and are committed to the repo.
 
@@ -14,15 +14,25 @@ Controlled by the `FRODO_MOCK` env var, read at process start by the `frodo` bin
 | `1` | Replay mode. Requests are matched against existing recordings; a miss fails with `Recording for the following request is not found`. This is what `npm run test:only`/`test:serial` use by default — each test file sets `process.env['FRODO_MOCK'] ||= '1'` itself, so an external `FRODO_MOCK=record` (from `npm run test:record:cloud` or a manual invocation) still overrides it. |
 | `record` | Record mode. Requests hit the real network and responses are persisted as new/updated recordings. |
 
-Other relevant env vars: `FRODO_NO_CACHE=1` disables frodo's on-disk token cache so a command actually re-authenticates instead of reusing a cached token — always set this when recording, otherwise the oauth2/authenticate calls you're trying to capture may never happen. `FRODO_HOST`/`FRODO_CONNECTION` and, in replay mode, `FRODO_USERNAME`/`FRODO_PASSWORD`/`FRODO_SA_ID`/`FRODO_SA_JWK`/`FRODO_AMSTER_PRIVATE_KEY` are set per test file by `test/e2e/utils/TestUtils.js`'s `getEnv()`, sourced from the fixed set of test identities in `test/e2e/utils/TestConfig.js` (`connection`/`iga_connection` for cloud, `classic_connection`, `forgeops_connection`, `amster_connection`).
+Other relevant env vars: `FRODO_NO_CACHE=1` disables frodo's on-disk token cache so a command actually re-authenticates instead of reusing a cached token — always set this when recording, otherwise the oauth2/authenticate calls you're trying to capture may never happen. `FRODO_TEST_NAME` sets a test's recording identity explicitly instead of letting Polly derive one from argument count and flags — see Writing a test below; both the recording pass and every replay of that test must set it to the same value. `FRODO_HOST`/`FRODO_CONNECTION` and, in replay mode, `FRODO_USERNAME`/`FRODO_PASSWORD`/`FRODO_SA_ID`/`FRODO_SA_JWK`/`FRODO_AMSTER_PRIVATE_KEY` are set per test file by `test/e2e/utils/TestUtils.js`'s `getEnv()`, sourced from the fixed set of test identities in `test/e2e/utils/TestConfig.js` (`connection`/`iga_connection` for cloud, `classic_connection`, `forgeops_connection`, `amster_connection`).
 
 ## Writing a test
 
-1. Check whether the mocks you need already exist by running your exact command in replay mode (`FRODO_MOCK=1 frodo <command>`). If it works, skip to step 3.
-2. If it fails with a "Recording ... not found" error, record it: `FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=<host> frodo <command>` (or `npm run test:update <pattern>` once the test itself is written — see below). Wait for Polly's shutdown countdown ("Polly instance '...' stopping in 3s...") to finish before running anything else against the same recordings.
-3. Validate the recording by re-running step 1.
-4. Write the test using the exact command, argument count, and flags you recorded with — Polly's default recording name includes an arg-count/flag fingerprint, so a mismatched invocation won't find the recording.
-5. Commit both the test and the new/updated files under `test/e2e/mocks/`.
+Every test should carry its own explicit `FRODO_TEST_NAME` — a short, file-unique label that identifies its recording, independent of the command's actual arguments and flags. This is what lets you write as many test cases as you need for a given command, even ones that share the exact same invocation (e.g. the same command run against different realms, or a success/failure variant of the same flags) — the recording's identity is the label you chose, not an incidental property of the flags you happened to pass.
+
+1. Pick a short label for the test case (e.g. `noDeps`, `allSeparate`, `invalidCredentials`) — unique among the other tests in the same file, since collisions silently overwrite one another's recording.
+2. Check whether a recording already exists under that label by running the exact command in replay mode with it set: `FRODO_MOCK=1 FRODO_TEST_NAME=<name> frodo <command>`. For a genuinely new label this will normally fail — that's expected, move to step 3.
+3. Record it: `FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=<host> FRODO_TEST_NAME=<name> frodo <command>` (or `npm run test:update <pattern>` once the test itself is written — see below). Wait for Polly's shutdown countdown ("Polly instance '...' stopping in 3s...") to finish before running anything else against the same recordings.
+4. Validate the recording by re-running step 2.
+5. Write the test using the exact command you recorded with, and pass the same `FRODO_TEST_NAME` in its `env` — both record and every future replay must use the identical value, since it's now part of the recording's location, not just a recording-time flag:
+   ```js
+   const { stdout } = await exec(CMD, {
+     env: { ...env.env, FRODO_TEST_NAME: 'noDeps' },
+   });
+   ```
+6. Commit both the test and the new/updated files under `test/e2e/mocks/`.
+
+**Fallback (existing tests, not recommended for new ones).** If `FRODO_TEST_NAME` is unset, Polly derives an identity from the command's argument count and flags instead. Most of the existing suite was recorded this way, and it still works — but it means two test cases with identical arguments silently collide, and it's the reason older test files carry a hand-maintained comment block listing every exact recording command, so a human can eyeball that no two are alike. Prefer setting `FRODO_TEST_NAME` explicitly on every new test instead of relying on this.
 
 ## Shared login recording
 
@@ -51,7 +61,33 @@ Practical consequence: a test file's own recording no longer needs to contain a 
 
 Recordings expire after 90 days by default (`expiresIn`/`expiryStrategy` in `SetupPollyForFrodoLib.ts`, backed by Polly's built-in expiration support — no custom code). An expired recording currently only warns (`expiryStrategy: warn`) rather than failing a replay run, so a stale fixture doesn't silently break CI or a contributor's local run; treat the warning as a prompt to re-record that fixture, not something to ignore indefinitely. Override with `FRODO_MOCK_EXPIRES_IN` (e.g. `30d`) and `FRODO_MOCK_EXPIRY_STRATEGY` (`record`/`warn`/`error`) if you need different behavior for a specific run.
 
+## Re-recording individual tests
+
+This is the common case, not the bulk tool below: a developer changes or adds one command, or notices an expiration warning (see Expiration above) on a handful of fixtures, and just needs to refresh those. It's the same manual flow as step 3–4 of Writing a test, aimed at an existing test file instead of a new one:
+
+1. `FRODO_MOCK=record FRODO_NO_CACHE=1 npm run test:update <pattern>` — re-records that test's own per-command HTTP traffic against your connection profile (`FRODO_HOST`/`FRODO_CONNECTION`, resolved by `TestConfig.js`'s `getEnv()`) and updates its snapshot in the same pass. `<pattern>` is a Jest test-path pattern (a substring match against the file path), not a glob.
+2. `npm run test:only <pattern>` — validate it replays cleanly with no live network access.
+3. Commit the test file (if changed) and the updated files under `test/e2e/mocks/`.
+
+Sample commands:
+
+```console
+# Re-record one test file
+FRODO_MOCK=record FRODO_NO_CACHE=1 npm run test:update e2e/conn-describe
+
+# Re-record every test whose path starts with "conn-" in one pass
+FRODO_MOCK=record FRODO_NO_CACHE=1 npm run test:update e2e/conn-
+
+# Re-record, then verify the replay
+FRODO_MOCK=record FRODO_NO_CACHE=1 npm run test:update e2e/agent-list
+npm run test:only e2e/agent-list
+```
+
+An ordinary pass like these leaves the shared login fixture untouched (see Shared login recording above) — only that test's own per-command traffic is refreshed. If the shared fixture itself needs refreshing (bootstrapping a host/credential combination it's never carried before, or after a scope change), add `FRODO_MOCK_REFRESH_SHARED_AUTH=1` to the command, once.
+
 ## Bulk-recording cloud tests
+
+Reach for this only when many recordings need to move together at once — e.g. a change to `SetupPollyForFrodoLib.ts`'s recording/matching logic that reshapes the whole cassette. A full cloud run touches hundreds of files and takes a long time, and (per below) can't fully cover the multi-phase destructive tests in one pass — for everyday changes, re-recording the individual test(s) above is faster and the more realistic workflow.
 
 `npm run test:record:cloud` (`tools/record-cloud-e2e.mjs`) re-records every cloud-targeted test file (anything importing `connection`/`iga_connection` from `TestConfig.js`) serially against whatever profile `FRODO_CONNECTION` resolves to for that host — assumes you already have a working, saved connection profile for it (e.g. `frodo-dev`). Pass `--pattern <substring>` to narrow it to a subset, or `--dry-run` to see which files it would touch without recording anything. It replaces the old fully-manual, one-file-at-a-time process; after it lands, most of its work is re-recording per-command traffic rather than the login sequence, since the shared login fixture only needs refreshing on its own.
 
