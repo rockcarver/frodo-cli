@@ -94,7 +94,22 @@ export async function configManagerImportSchedules(
       if (schedulesName && id !== `schedule/${schedulesName}`) {
         continue;
       }
-      if (importData.invokeContext?.task?.script?.file) {
+      if (
+        importData.invokeService === 'script' &&
+        importData.invokeContext?.script?.file
+      ) {
+        const scriptPath = getFilePath(
+          `schedules/${schedulesFile}/${importData.invokeContext.script.file}`
+        );
+        importData.invokeContext.script.source = fs.readFileSync(
+          scriptPath,
+          'utf8'
+        );
+        delete importData.invokeContext.script.file;
+      } else if (
+        importData.invokeService === 'taskscanner' &&
+        importData.invokeContext?.task?.script?.file
+      ) {
         const scriptPath = getFilePath(
           `schedules/${schedulesFile}/${importData.invokeContext.task.script.file}`
         );
