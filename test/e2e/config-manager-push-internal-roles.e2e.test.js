@@ -54,7 +54,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv } from './utils/TestUtils';
+import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -68,11 +68,11 @@ describe('frodo config-manager push internal-roles', () => {
     test(`"frodo config-manager push internal-roles -D ${allDirectory} -m forgeops": should import the internal roles into forgeops"`, async () => {
         const CMD = `frodo config-manager push internal-roles -D ${allDirectory} -m forgeops`;
         const { stdout } = await exec(CMD, forgeopsEnv);
-        expect(stdout).toMatchSnapshot();
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
     });
     test(`"frodo config-manager push internal-roles -n test-internal-role -D ${allDirectory} -m forgeops": should import a specific internal role by name into forgeops"`, async () => {
         const CMD = `frodo config-manager push internal-roles -n test-internal-role -D ${allDirectory} -m forgeops`;
         const { stdout } = await exec(CMD, forgeopsEnv);
-        expect(stdout).toMatchSnapshot();
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
     });
 });

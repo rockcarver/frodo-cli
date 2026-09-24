@@ -53,7 +53,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv } from './utils/TestUtils';
+import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -65,18 +65,18 @@ describe('frodo email template list', () => {
     test('"frodo email template list": should list the ids of the email templates', async () => {
         const CMD = `frodo email template list`;
         const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
     test('"frodo email template list -l": should list the ids, names, statuses, locales, senders (from), and subjects of the email templates', async () => {
         const CMD = `frodo email template list -l`;
         const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
     test('"frodo email template list --long": should list the ids, names, statuses, locales, senders (from), and subjects of the email templates', async () => {
         const CMD = `frodo email template list --long`;
         const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 });

@@ -52,7 +52,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv } from './utils/TestUtils';
+import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -64,12 +64,12 @@ describe('frodo saml describe', () => {
     test('"frodo saml describe -i iSPAzure": should describe the iSPAzure saml provider', async () => {
         const CMD = `frodo saml describe -i iSPAzure`;
         const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
     test('"frodo saml describe --entity-id iSPAzure": should describe the iSPAzure saml provider', async () => {
         const CMD = `frodo saml describe --entity-id iSPAzure`;
         const { stdout } = await exec(CMD, env);
-        expect(stdout).toMatchSnapshot()
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 });

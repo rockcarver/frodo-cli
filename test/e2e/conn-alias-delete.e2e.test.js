@@ -48,7 +48,7 @@
 import cp from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
-import { getEnv,  testif } from './utils/TestUtils';
+import { getEnv, testif, normalizeSnapshotText } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 import { readFileSync, rmSync, writeFileSync } from 'fs';
 
@@ -88,8 +88,8 @@ describe('frodo conn alias delete', () => {
     async () => {
       const CMD = `frodo conn alias delete ${c.host}`;
       const { stdout, stderr } = await exec(CMD, { ...env, cwd: process.cwd() });
-      expect(stdout).toMatchSnapshot();
-      expect(stderr).toMatchSnapshot();
+      expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+      expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
     }
   );
   testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
@@ -105,8 +105,8 @@ describe('frodo conn alias delete', () => {
         await exec(CMD, { ...env, cwd: process.cwd() });
         throw new Error('Expected command to fail');
       } catch (e) {
-        expect(e.stderr).toMatchSnapshot();
-        expect(e.stdout).toMatchSnapshot();
+        expect(normalizeSnapshotText(e.stderr)).toMatchSnapshot();
+        expect(normalizeSnapshotText(e.stdout)).toMatchSnapshot();
       }
       expect.assertions(2);
     }

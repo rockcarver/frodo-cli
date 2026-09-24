@@ -68,13 +68,54 @@ export function removeExpiryNoise(text) {
 }
 
 /**
+ * Strip the same FRODO_MOCK=record-only diagnostic chatter
+ * removePollyRecordingNoise (below) filters -- the per-host "***** Host:"
+ * announcement, Polly's own recorded-request JSON dumps, and its shutdown
+ * countdown -- but without that function's trailing trim(). Needed here
+ * because tools/record-cloud-e2e.mjs (and any other single-pass
+ * `FRODO_MOCK=record ... --updateSnapshot` run) captures a command's
+ * stdout/stderr *while still recording*, so this noise would otherwise get
+ * baked into the snapshot as if it were real output -- the same class of
+ * bug removeExpiryNoise above exists to prevent, just for a different
+ * source of noise. Kept separate from removePollyRecordingNoise for the
+ * same reason removeExpiryNoise is: this needs to run for every snapshotted
+ * value, including call sites that never went through that trim()-including
+ * helper historically.
+ * @param {string} text
+ * @returns {string}
+ */
+export function removeRecordModeNoise(text) {
+  if (!text) return text;
+  const lines = text.split('\n');
+  return lines
+    .filter((line) => {
+      if (line.startsWith('[Polly] Recording may fail because the browser is offline.')) {
+        return false;
+      }
+      if (line.startsWith('{"url":"') && line.includes('"recordingName":')) {
+        return false;
+      }
+      if (line.startsWith('***** Host: ')) {
+        return false;
+      }
+      if (/^Polly instance '.*' (stopping in \d+s\.\.\.|stopped\.)$/.test(line)) {
+        return false;
+      }
+      return true;
+    })
+    .join('\n');
+}
+
+/**
  * Normalize command output for stable snapshots across local and CI environments.
  * @param {string} text
  * @returns {string}
  */
 export function normalizeSnapshotText(text) {
-  return removeExpiryNoise(
-    normalizeStackPaths(maskUserAgentVersions(maskTransactionIds(text)))
+  return removeRecordModeNoise(
+    removeExpiryNoise(
+      normalizeStackPaths(maskUserAgentVersions(maskTransactionIds(text)))
+    )
   );
 }
 
@@ -164,29 +205,7 @@ export function assertNoPollyReplayError(
  */
 export function removePollyRecordingNoise(text) {
   if (!text) return text;
-  const lines = text.split('\n');
-  const filtered = lines.filter((line) => {
-    if (line.startsWith('[Polly] Recording may fail because the browser is offline.')) {
-      return false;
-    }
-    if (line.startsWith('{"url":"') && line.includes('"recordingName":')) {
-      return false;
-    }
-    // frodo-lib's Polly setup logs one line per allow-listed host while
-    // actually recording (mode === modes.RECORD) -- diagnostic chatter, not
-    // command output. Only ever appears in FRODO_MOCK=record captures.
-    if (line.startsWith('***** Host: ')) {
-      return false;
-    }
-    // Polly's own shutdown countdown/confirmation, printed while a
-    // long-running command (e.g. one using a progress indicator) keeps the
-    // process alive past the point Polly starts winding down its instance.
-    if (/^Polly instance '.*' (stopping in \d+s\.\.\.|stopped\.)$/.test(line)) {
-      return false;
-    }
-    return true;
-  });
-  return filtered.join('\n').trim();
+  return removeRecordModeNoise(text).trim();
 }
 
 /**

@@ -52,6 +52,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 import cp from 'child_process';
 import { promisify } from 'util';
 import { connection as c } from './utils/TestConfig';
+import { normalizeSnapshotText } from './utils/TestUtils';
 
 const exec = promisify(cp.exec);
 
@@ -68,6 +69,6 @@ describe('frodo log list', () => {
   test('"frodo log list": should list the names of the logs sources', async () => {
     const CMD = `frodo log list`;
     const { stdout } = await exec(CMD, env);
-    expect(stdout).toMatchSnapshot()
+    expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 });
