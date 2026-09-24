@@ -1,17 +1,36 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 
+// Repo root, resolved from this script's own location (tools/<this file>)
+// rather than the invoker's cwd, so `node tools/mcp-oauth2-mayact-update-test.mjs`
+// works the same regardless of where it's run from.
+const REPO_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+function defaultMcpConfigPath() {
+    return path.join(
+        os.homedir(),
+        'Library',
+        'Application Support',
+        'Code',
+        'User',
+        'mcp.json'
+    );
+}
+
 function parseArgs(argv) {
     const args = {
         realm: '/alpha',
-        mcpConfig: '/Users/volker.scheuber/Library/Application Support/Code/User/mcp.json',
+        mcpConfig: defaultMcpConfigPath(),
         output: 'docs/mcp-oauth2-mayact-update-report.json',
         baselineClientId: undefined,
+        cwd: REPO_ROOT,
     };
 
     for (let i = 2; i < argv.length; i += 1) {
@@ -36,6 +55,11 @@ function parseArgs(argv) {
             i += 1;
             continue;
         }
+        if (token === '--cwd') {
+            args.cwd = argv[i + 1] || args.cwd;
+            i += 1;
+            continue;
+        }
     }
 
     return args;
@@ -51,12 +75,12 @@ function loadServerConfig(configPath) {
     return server;
 }
 
-async function connectClient(server) {
+async function connectClient(server, cwd) {
     const transport = new StdioClientTransport({
         command: server.command,
         args: server.args,
         env: server.env,
-        cwd: '/Users/volker.scheuber/Documents/Projects/frodo-cli',
+        cwd,
         stderr: 'pipe',
     });
 
@@ -188,7 +212,7 @@ function assert(condition, message) {
 async function run() {
     const args = parseArgs(process.argv);
     const server = loadServerConfig(args.mcpConfig);
-    const { client, transport } = await connectClient(server);
+    const { client, transport } = await connectClient(server, args.cwd);
 
     const stamp = Date.now();
     const scriptId = `mcp-mayact-script-${stamp}`;
@@ -399,7 +423,7 @@ async function run() {
     } finally {
         const outputPath = path.isAbsolute(args.output)
             ? args.output
-            : path.join('/Users/volker.scheuber/Documents/Projects/frodo-cli', args.output);
+            : path.join(args.cwd, args.output);
         fs.mkdirSync(path.dirname(outputPath), { recursive: true });
         fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
         console.log(JSON.stringify(report, null, 2));

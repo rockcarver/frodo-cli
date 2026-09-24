@@ -1,15 +1,34 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 
+// Repo root, resolved from this script's own location (tools/<this file>)
+// rather than the invoker's cwd, so `node tools/mcp-aiagent-introspection-test.mjs`
+// works the same regardless of where it's run from.
+const REPO_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+function defaultMcpConfigPath() {
+    return path.join(
+        os.homedir(),
+        'Library',
+        'Application Support',
+        'Code',
+        'User',
+        'mcp.json'
+    );
+}
+
 function parseArgs(argv) {
     const args = {
-        mcpConfig: '/Users/volker.scheuber/Library/Application Support/Code/User/mcp.json',
+        mcpConfig: defaultMcpConfigPath(),
         output: 'docs/mcp-aiagent-introspection-report.json',
+        cwd: REPO_ROOT,
     };
 
     for (let i = 2; i < argv.length; i += 1) {
@@ -21,6 +40,11 @@ function parseArgs(argv) {
         }
         if (token === '--output') {
             args.output = argv[i + 1] || args.output;
+            i += 1;
+            continue;
+        }
+        if (token === '--cwd') {
+            args.cwd = argv[i + 1] || args.cwd;
             i += 1;
             continue;
         }
@@ -39,12 +63,12 @@ function loadServerConfig(configPath) {
     return server;
 }
 
-async function connectClient(server) {
+async function connectClient(server, cwd) {
     const transport = new StdioClientTransport({
         command: server.command,
         args: server.args,
         env: server.env,
-        cwd: '/Users/volker.scheuber/Documents/Projects/frodo-cli',
+        cwd,
         stderr: 'pipe',
     });
 
@@ -165,7 +189,7 @@ function getRecordId(record) {
 async function run() {
     const args = parseArgs(process.argv);
     const server = loadServerConfig(args.mcpConfig);
-    const { client, transport } = await connectClient(server);
+    const { client, transport } = await connectClient(server, args.cwd);
 
     const report = {
         generatedAt: new Date().toISOString(),
