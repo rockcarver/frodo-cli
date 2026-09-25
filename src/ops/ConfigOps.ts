@@ -13,6 +13,7 @@ import {
   type MappingSkeleton,
   type ScriptExportInterface,
   type SyncSkeleton,
+  type ThemeExportInterface,
   type WorkflowExportInterface,
 } from '@rockcarver/frodo-lib';
 import {
@@ -38,6 +39,7 @@ import {
 } from './MappingOps';
 import { extractCustomNodeScriptsToFiles } from './NodeOps';
 import { extractScriptsToFiles } from './ScriptOps';
+import { extractThemeHTMLToFiles } from './ThemeOps';
 import { errorHandler } from './utils/OpsUtils';
 
 const {
@@ -324,7 +326,7 @@ export function exportItem(
         if (type === 'nodeTypes') {
           name = value.displayName;
         }
-        const filename = getTypedFilename(
+        let filename = getTypedFilename(
           // Server information has an id of *, which is not an allowed file name character in windows
           name ? name : id === '*' ? 'information' : id,
           fileType
@@ -341,6 +343,13 @@ export function exportItem(
             id,
             `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`
           );
+        } else if (extract && type === 'theme') {
+          extractThemeHTMLToFiles(
+            exportData as ThemeExportInterface,
+            id,
+            `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/${name}`
+          );
+          filename = `${name}/${filename}`;
         } else if (extract && type === 'workflow') {
           extractWorkflowScriptsToFiles(
             exportData as WorkflowExportInterface,

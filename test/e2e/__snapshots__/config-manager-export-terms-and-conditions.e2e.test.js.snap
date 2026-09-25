@@ -4,6 +4,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull terms-and-conditi
 
 exports[`frodo config-manager pulls "frodo config-manager pull terms-and-conditions -D termTestDir": should receive access tokens" 2`] = `""`;
 
+exports[`frodo config-manager pulls "frodo config-manager pull terms-and-conditions -D termTestDir": should receive access tokens": cmTncThemeExportDir/terms-conditions/0.0/en.html 1`] = `
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+"
+`;
+
 exports[`frodo config-manager pulls "frodo config-manager pull terms-and-conditions -D termTestDir": should receive access tokens": cmTncThemeExportDir/terms-conditions/terms-conditions.json 1`] = `
 {
   "_id": "selfservice.terms",

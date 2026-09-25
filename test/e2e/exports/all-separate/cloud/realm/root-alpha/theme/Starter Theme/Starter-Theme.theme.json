@@ -1,8 +1,15 @@
 {
+  "meta": {
+    "exportDate": "2026-09-29T19:05:07.172Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.9.1 [v24.18.0]",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
   "theme": {
     "86ce2f64-586d-44fe-8593-b12a85aac68d": {
       "_id": "86ce2f64-586d-44fe-8593-b12a85aac68d",
-      "accountFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2021</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Terms & Conditions</a></div>",
+      "accountFooter": "file://accountFooter.theme.html",
       "accountFooterEnabled": false,
       "accountPageSections": {
         "accountControls": {
@@ -51,9 +58,9 @@
       "dangerColor": "#f7685b",
       "favicon": "",
       "isDefault": true,
-      "journeyFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2021</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Terms & Conditions</a></div>",
+      "journeyFooter": "file://journeyFooter.theme.html",
       "journeyFooterEnabled": false,
-      "journeyHeader": "<div class=\"d-flex justify-content-center py-4 flex-grow-1\">Header Content</div>",
+      "journeyHeader": "file://journeyHeader.theme.html",
       "journeyHeaderEnabled": false,
       "journeyJustifiedContent": "",
       "journeyJustifiedContentEnabled": false,

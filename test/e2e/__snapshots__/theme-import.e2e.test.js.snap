@@ -2,28 +2,116 @@
 
 exports[`frodo theme import "frodo theme import --all --file test/e2e/exports/all/allAlphaThemes.theme.json": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
 
+exports[`frodo theme import "frodo theme import --all --file test/e2e/exports/all/allAlphaThemes.theme.json": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported 7 themes from test/e2e/exports/all/allAlphaThemes.theme.json.
+"
+`;
+
 exports[`frodo theme import "frodo theme import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/theme": should import all themes from the 'test/e2e/exports/all-separate/cloud/realm/root-alpha/theme' directory" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/theme": should import all themes from the 'test/e2e/exports/all-separate/cloud/realm/root-alpha/theme' directory" 2`] = `
+"• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Contrast/Contrast.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Highlander/Highlander.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/NoAccess/NoAccess.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Robroy/Robroy.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Starter Theme/Starter-Theme.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Test/Test.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Test No HTML/Test-No-HTML.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Test Single HTML/Test-Single-HTML.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Zardoz/Zardoz.theme.json.
+• Finished importing themes from 9 file(s).
+"
+`;
 
 exports[`frodo theme import "frodo theme import --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the first theme from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
 
+exports[`frodo theme import "frodo theme import --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the first theme from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme Highlander
+"
+`;
+
 exports[`frodo theme import "frodo theme import --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme 86ce2f64-586d-44fe-8593-b12a85aac68d.
+"
+`;
 
 exports[`frodo theme import "frodo theme import --theme-name 'Starter Theme' --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the name "Starter Theme" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
 
+exports[`frodo theme import "frodo theme import --theme-name 'Starter Theme' --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the name "Starter Theme" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme Starter Theme.
+"
+`;
+
 exports[`frodo theme import "frodo theme import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/theme": should import all themes from the 'test/e2e/exports/all-separate/cloud/realm/root-alpha/theme' directory" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/theme": should import all themes from the 'test/e2e/exports/all-separate/cloud/realm/root-alpha/theme' directory" 2`] = `
+"• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Contrast/Contrast.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Highlander/Highlander.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/NoAccess/NoAccess.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Robroy/Robroy.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Starter Theme/Starter-Theme.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Test/Test.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Test No HTML/Test-No-HTML.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Test Single HTML/Test-Single-HTML.theme.json.
+• Successfully imported 1 themes from test/e2e/exports/all-separate/cloud/realm/root-alpha/theme/Zardoz/Zardoz.theme.json.
+• Finished importing themes from 9 file(s).
+"
+`;
 
 exports[`frodo theme import "frodo theme import -af allAlphaThemes.theme.json -D test/e2e/exports/all": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
 
+exports[`frodo theme import "frodo theme import -af allAlphaThemes.theme.json -D test/e2e/exports/all": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported 7 themes from test/e2e/exports/all/allAlphaThemes.theme.json.
+"
+`;
+
 exports[`frodo theme import "frodo theme import -af test/e2e/exports/all/allAlphaThemes.theme.json": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -af test/e2e/exports/all/allAlphaThemes.theme.json": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported 7 themes from test/e2e/exports/all/allAlphaThemes.theme.json.
+"
+`;
 
 exports[`frodo theme import "frodo theme import -f allAlphaThemes.theme.json -D test/e2e/exports/all": should import the first theme from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
 
+exports[`frodo theme import "frodo theme import -f allAlphaThemes.theme.json -D test/e2e/exports/all": should import the first theme from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme Highlander
+"
+`;
+
 exports[`frodo theme import "frodo theme import -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the first theme from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the first theme from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme Highlander
+"
+`;
 
 exports[`frodo theme import "frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f allAlphaThemes.theme.json -D test/e2e/exports/all": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
 
+exports[`frodo theme import "frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f allAlphaThemes.theme.json -D test/e2e/exports/all": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme 86ce2f64-586d-44fe-8593-b12a85aac68d.
+"
+`;
+
 exports[`frodo theme import "frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme 86ce2f64-586d-44fe-8593-b12a85aac68d.
+"
+`;
 
 exports[`frodo theme import "frodo theme import -n 'Starter Theme' -f allAlphaThemes.theme.json -D test/e2e/exports/all": should import the theme with the name "Starter Theme" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
 
+exports[`frodo theme import "frodo theme import -n 'Starter Theme' -f allAlphaThemes.theme.json -D test/e2e/exports/all": should import the theme with the name "Starter Theme" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme Starter Theme.
+"
+`;
+
 exports[`frodo theme import "frodo theme import -n 'Starter Theme' -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the name "Starter Theme" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -n 'Starter Theme' -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the name "Starter Theme" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 2`] = `
+"• Successfully imported theme Starter Theme.
+"
+`;

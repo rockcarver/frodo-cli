@@ -59,6 +59,12 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+    .addOption(
+      new Option(
+        '-x, --no-extract',
+        'Do not extract the HTML from the exported file to a separate file.'
+      ).default(true, 'true')
+    )
     .requireOneOf({
       options: ['all', 'allSeparate', 'themeId', 'themeName'],
       purpose: 'what to export',
@@ -87,7 +93,8 @@ export default function setup() {
           const outcome = await exportThemeByName(
             options.themeName,
             options.file,
-            options.metadata
+            options.metadata,
+            options.extract
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -104,7 +111,8 @@ export default function setup() {
           const outcome = await exportThemeById(
             options.themeId,
             options.file,
-            options.metadata
+            options.metadata,
+            options.extract
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -126,7 +134,10 @@ export default function setup() {
           (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Exporting all themes to separate files...');
-          const outcome = await exportThemesToFiles(options.metadata);
+          const outcome = await exportThemesToFiles(
+            options.metadata,
+            options.extract
+          );
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way

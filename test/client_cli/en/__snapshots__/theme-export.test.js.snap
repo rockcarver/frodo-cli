@@ -33,6 +33,8 @@ Options:
   -n, --theme-name <name>  Name of the theme. If specified, -a and -A are
                            ignored.
   -N, --no-metadata        Does not include metadata in the export file.
+  -x, --no-extract         Do not extract the HTML from the exported file to a
+                           separate file.
   -h, --help               Help
   -hh, --help-more         Help with all options.
   -hhh, --help-all         Help with all options, environment variables, and
