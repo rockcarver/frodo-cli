@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v4.15.1] - 2026-09-25
+
+### Added
+- Added `frodo log key create` command, allowing users to create new log keys. (commit 88b3c212)
+- Introduced `--preferred-credential` to replace `--default-credential` in connection management, providing a more explicit way to specify preferred credentials. (commit 869a4df6)
+
+### Changed
+- Enhanced debug capabilities by surfacing suppressed noise and confirming SSOTokenFactory status. (commit feecd12f)
+- Improved logging by confirming and updating noise-pattern statuses in debug logs. (commit bd27b5ed)
+
+### Fixed
+- Resolved an issue in the CLI where `action()` arity caused crashes in five commands that omitted the realm. (commit 8976bdb0)
+- Fixed the CLI to always print the browser-login URL, even when auto-open is enabled, ensuring users can access the URL if needed. (commit 132b2b81)
+- Corrected the behavior of `conn describe` to hide auth-mode/browser-login fields when they are unset, preventing unnecessary information from being displayed. (commit da8a4f87)
+- Fixed deployment types being passed incorrectly as omits instead of types in `config-manager`. (commit 48ee2fcb)
+- Improved MCP test tools by resolving hardcoded paths dynamically, enhancing flexibility and reducing errors. (commit 1612c2c5, d57e9484)
+- Extended snapshot noise-stripping to record-mode chatter, closing gaps in bulk-tool testing. (commit 9793e9a3)
+
 ## [v4.15.0] - 2026-09-19
 
 ### Added
@@ -2808,6 +2826,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v4.15.1]: https://github.com/rockcarver/frodo-cli/compare/v4.15.0...v4.15.1
 [unreleased]: https://github.com/rockcarver/frodo-cli/compare/v4.3.1...HEAD
 [v4.15.0]: https://github.com/rockcarver/frodo-cli/compare/v4.14.0...v4.15.0
 [v4.14.0]: https://github.com/rockcarver/frodo-cli/compare/v4.13.0...v4.14.0
