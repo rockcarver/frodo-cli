@@ -15,12 +15,13 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
-  --default-credential <type>                  Explicit preference for which non-interactive credential type to use when this profile has more than one configured (e.g. both a service account and a plain username/password). Persisted; unlike --credential, applies to every future implicit command against this host, not just one invocation. (choices: "user", "svcacct", "amster")
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
   --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.
   --no-log-api                                 Do not create and add log API key and secret.
+  --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --preferred-device-flow                      Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.
   -h, --help                                   Help
   -hh, --help-more                             Help with all options.
   -hhh, --help-all                             Help with all options, environment variables, and usage examples.
@@ -42,12 +43,13 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
-  --default-credential <type>                  Explicit preference for which non-interactive credential type to use when this profile has more than one configured (e.g. both a service account and a plain username/password). Persisted; unlike --credential, applies to every future implicit command against this host, not just one invocation. (choices: "user", "svcacct", "amster")
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
   --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.
   --no-log-api                                 Do not create and add log API key and secret.
+  --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --preferred-device-flow                      Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.
   -h, --help                                   Help
   -hh, --help-more                             Help with all options.
   -hhh, --help-all                             Help with all options, environment variables, and usage examples.
@@ -69,12 +71,13 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
-  --default-credential <type>                  Explicit preference for which non-interactive credential type to use when this profile has more than one configured (e.g. both a service account and a plain username/password). Persisted; unlike --credential, applies to every future implicit command against this host, not just one invocation. (choices: "user", "svcacct", "amster")
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
   --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.
   --no-log-api                                 Do not create and add log API key and secret.
+  --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --preferred-device-flow                      Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.
   -h, --help                                   Help
   -hh, --help-more                             Help with all options.
   -hhh, --help-all                             Help with all options, environment variables, and usage examples.
@@ -96,12 +99,13 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
-  --default-credential <type>                  Explicit preference for which non-interactive credential type to use when this profile has more than one configured (e.g. both a service account and a plain username/password). Persisted; unlike --credential, applies to every future implicit command against this host, not just one invocation. (choices: "user", "svcacct", "amster")
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
   --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.
   --no-log-api                                 Do not create and add log API key and secret.
+  --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --preferred-device-flow                      Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.
   -h, --help                                   Help
   -hh, --help-more                             Help with all options.
   -hhh, --help-all                             Help with all options, environment variables, and usage examples.

@@ -245,30 +245,12 @@ Bearer token:
 exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --json 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "amVersion": "9.0.0-SNAPSHOT Build f1b0a8894327de5a283ef1030bed22eec58d662f (2026-September-16 17:26)",
   "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
-  "deploymentType": "cloud",
+  "deploymentType": "forgeops",
   "cookieName": "6ac6499e9da2071",
   "sessionToken": "<token id>",
-  "bearerToken": "<access token>",
-  "backupRegion": "us-south1",
-  "config_promotion_done": false,
-  "immutable": false,
-  "ipAddresses": [
-    "34.58.53.151"
-  ],
-  "locked": false,
-  "placeholder_management": "CUSTOMER",
-  "promotionTierInfo": {
-    "tierDisplayName": "other",
-    "tiers": [
-      "other"
-    ],
-    "upperTierDisplayName": null,
-    "lowerTierDisplayName": null
-  },
-  "region": "us-central1",
-  "tier": "other"
+  "bearerToken": "<access token>"
 }
 "
 `;
@@ -276,30 +258,12 @@ exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --json 
 exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --scriptFriendly 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "amVersion": "9.0.0-SNAPSHOT Build f1b0a8894327de5a283ef1030bed22eec58d662f (2026-September-16 17:26)",
   "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
-  "deploymentType": "cloud",
+  "deploymentType": "forgeops",
   "cookieName": "6ac6499e9da2071",
   "sessionToken": "<token id>",
-  "bearerToken": "<access token>",
-  "backupRegion": "us-south1",
-  "config_promotion_done": false,
-  "immutable": false,
-  "ipAddresses": [
-    "34.58.53.151"
-  ],
-  "locked": false,
-  "placeholder_management": "CUSTOMER",
-  "promotionTierInfo": {
-    "tierDisplayName": "other",
-    "tiers": [
-      "other"
-    ],
-    "upperTierDisplayName": null,
-    "lowerTierDisplayName": null
-  },
-  "region": "us-central1",
-  "tier": "other"
+  "bearerToken": "<access token>"
 }
 "
 `;
@@ -307,59 +271,23 @@ exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --scrip
 exports[`frodo info Authenticate as user frodo info <host> <user> <pass> -s 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "amVersion": "9.0.0-SNAPSHOT Build f1b0a8894327de5a283ef1030bed22eec58d662f (2026-September-16 17:26)",
   "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
-  "deploymentType": "cloud",
+  "deploymentType": "forgeops",
   "cookieName": "6ac6499e9da2071",
   "sessionToken": "<token id>",
-  "bearerToken": "<access token>",
-  "backupRegion": "us-south1",
-  "config_promotion_done": false,
-  "immutable": false,
-  "ipAddresses": [
-    "34.58.53.151"
-  ],
-  "locked": false,
-  "placeholder_management": "CUSTOMER",
-  "promotionTierInfo": {
-    "tierDisplayName": "other",
-    "tiers": [
-      "other"
-    ],
-    "upperTierDisplayName": null,
-    "lowerTierDisplayName": null
-  },
-  "region": "us-central1",
-  "tier": "other"
+  "bearerToken": "<access token>"
 }
 "
 `;
 
 exports[`frodo info Authenticate as user frodo info <host> <user> <pass> 1`] = `
 "
-Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                       
-AM Version            │9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)
-Subject (Type)        │volker.scheuber@forgerock.com (User)                                              
-Deployment Type       │cloud                                                                             
-Cookie Name           │6ac6499e9da2071                                                                   
-backupRegion          │us-south1                                                                         
-Promotion Done        │false                                                                             
-Immutable             │false                                                                             
-Locked                │false                                                                             
-Placeholder Management│CUSTOMER                                                                          
-Region                │us-central1                                                                       
-Tier                  │other                                                                             
-                      │                                                                                  
-  ipAddresses         │                                                                                  
-                     0│34.58.53.151                                                                      
-                      │                                                                                  
-  promotionTierInfo   │                                                                                  
-       tierDisplayName│other                                                                             
-  upperTierDisplayName│                                                                                  
-  lowerTierDisplayName│                                                                                  
-                      │                                                                                  
-    tiers             │                                                                                  
-                     0│other                                                                             
+Host URL       │https://openam-frodo-dev.forgeblocks.com/am                                            
+AM Version     │9.0.0-SNAPSHOT Build f1b0a8894327de5a283ef1030bed22eec58d662f (2026-September-16 17:26)
+Subject (Type) │volker.scheuber@forgerock.com (User)                                                   
+Deployment Type│forgeops                                                                               
+Cookie Name    │6ac6499e9da2071                                                                        
 
 Session token:
 <token id>

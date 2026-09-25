@@ -677,14 +677,34 @@ const noOpenOption = withHelpGroup(
 // (cached browser session if nothing else is requested, then service
 // account, then plain user, then Amster) with no way to override it for
 // one invocation. An absolute override: wins even over a saved
-// --default-credential preference. 'browser' means "use my cached
+// --preferred-credential preference. 'browser' means "use my cached
 // browser-login session, and fail clearly rather than fall back to
 // something else if none is valid" — it never launches a fresh interactive
 // login itself; that's what --browser/--device are for.
 const credentialOption = withHelpGroup(
   new Option(
     '--credential <type>',
-    "Force this one invocation to use a specific configured credential, overriding ambient browser-session reuse and any saved --default-credential preference. 'browser' reuses a cached browser-login session (fails clearly if none is valid; never starts a fresh interactive login)."
+    "Force this one invocation to use a specific configured credential, overriding ambient browser-session reuse and any saved --preferred-credential preference. 'browser' reuses a cached browser-login session (fails clearly if none is valid; never starts a fresh interactive login)."
+  ).choices(['user', 'svcacct', 'amster', 'browser']),
+  AUTHENTICATION_OPTIONS_HEADING,
+  OptionCategory.Authentication
+);
+
+// Explicit, persisted preference for which credential type later implicit
+// commands against this profile should use — replaces the old
+// --default-credential entirely (it couldn't express "prefer browser",
+// since browser-login persistence was a separate, ambient-state-derived
+// mechanism — see AuthenticateOps.ts's/ConnectionProfileOps.ts's
+// preferredCredential remarks for the full history). Unlike --credential
+// above (a one-shot per-invocation override), this is durable: it applies
+// to every future implicit command against this host, not just one
+// invocation. Only added explicitly by the commands that persist a
+// profile (conn-save.ts, login.ts) — not part of defaultOpts, since it's
+// meaningless without --save.
+export const preferredCredentialOption = withHelpGroup(
+  new Option(
+    '--preferred-credential <type>',
+    "Explicit, persisted preference for which credential type later implicit commands against this host should use — 'browser' means always launch/reuse an interactive browser login; the other three narrow a profile with more than one non-interactive credential configured. Unlike --credential, applies to every future implicit command against this host, not just one invocation."
   ).choices(['user', 'svcacct', 'amster', 'browser']),
   AUTHENTICATION_OPTIONS_HEADING,
   OptionCategory.Authentication

@@ -45,7 +45,7 @@ Use a fixed set of scenarios for all variants:
 
 ## Data Collection Format
 
-Use the template in `docs/mcp-agentic-run-log.template.json` and append one record per scenario run.
+Use the template in `tools/reports/mcp-agentic-run-log.template.json` and append one record per scenario run.
 
 Key fields:
 
@@ -60,13 +60,13 @@ Key fields:
 Generate a scoreboard report:
 
 ```bash
-npm run mcp:score -- --input docs/mcp-agentic-run-log.template.json
+npm run mcp:score -- --input tools/reports/mcp-agentic-run-log.template.json
 ```
 
 Optionally write output to JSON:
 
 ```bash
-npm run mcp:score -- --input docs/mcp-agentic-run-log.template.json --output docs/mcp-agentic-scoreboard.json
+npm run mcp:score -- --input tools/reports/mcp-agentic-run-log.template.json --output tools/reports/mcp-agentic-scoreboard.json
 ```
 
 ## Suggested Decision Thresholds

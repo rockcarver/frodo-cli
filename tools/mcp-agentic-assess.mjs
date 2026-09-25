@@ -5,11 +5,11 @@ import path from 'node:path';
 
 function parseArgs(argv) {
     const args = {
-        output: 'docs/mcp-agentic-assessment.json',
+        output: 'tools/reports/mcp-agentic-assessment.json',
         scoreboards: [
-            'docs/mcp-agentic-scoreboard.batch2.json',
-            'docs/mcp-agentic-scoreboard.batch3.json',
-            'docs/mcp-agentic-scoreboard.batch4.json',
+            'tools/reports/mcp-agentic-scoreboard.batch2.json',
+            'tools/reports/mcp-agentic-scoreboard.batch3.json',
+            'tools/reports/mcp-agentic-scoreboard.batch4.json',
         ],
     };
 

@@ -39,7 +39,7 @@ Options:
   --credential <type>                  Force this one invocation to use a
                                        specific configured credential,
                                        overriding ambient browser-session reuse
-                                       and any saved --default-credential
+                                       and any saved --preferred-credential
                                        preference. 'browser' reuses a cached
                                        browser-login session (fails clearly if
                                        none is valid; never starts a fresh

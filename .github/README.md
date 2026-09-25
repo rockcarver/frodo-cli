@@ -528,7 +528,7 @@ If you are a node developer and want to use frodo as a cli tool or as a library 
 
 ### Connection Profiles
 
-A connection profile is a set of ForgeRock environment URL (Access Management base URL) and login credentials. For PingOne Advanced Identity Cloud connections, the profile also contains log API key and secret and service account id and jwk. Connection profiless are stored in `~/.frodo/.frodorc`. Passwords, secrets, and keys are encrypted.
+A connection profile is a set of ForgeRock environment URL (Access Management base URL) and login credentials. For PingOne Advanced Identity Cloud connections, the profile also contains log API key and secret and service account id and jwk. Connection profiles are stored in `~/.frodo/Connections.json`. Passwords, secrets, and keys are encrypted.
 
 Connection profiles make it super easy to access your different environments securely. Follow these steps to get started:
 
@@ -541,6 +541,8 @@ Connection profiles make it super easy to access your different environments sec
    Created log API key 7683791888e2c7740eb91abd988b65f7 and secret.
    Saved connection profile https://openam-my-tenant.forgeblocks.com/am
    ```
+
+   **Alternative: `frodo login --save`.** `frodo conn add`/`save` is connection *management* — it also auto-provisions a service account and log API key by default. `frodo login --save` is a lighter entry point that just authenticates and, with `--save`, remembers how: `frodo login --save https://openam-my-tenant.forgeblocks.com/am john.doe@company.com '5uP3r-53cr3t!'` saves a profile the same way, without provisioning anything extra. It's also how to use browser-based login instead of a password on the command line — `frodo login --browser --save --type cloud https://openam-my-tenant.forgeblocks.com/am` opens a real browser, so MFA/WebAuthn/federation steps in your login journey work the same way they would for any other interactive login. See [Browser Login](../docs/BROWSER_LOGIN.md) for the full setup.
 
 2. Test your connection profile using the `frodo info` command:
 

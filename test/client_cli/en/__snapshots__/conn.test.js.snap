@@ -1,9 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'conn' should be expected english 1`] = `
-"Usage: frodo conn|connection [options] [command]
+"Usage: frodo conn|connection [options] [command] [host]
 
 Manage connection profiles.
+
+Arguments:
+  host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
+                    connection profile, just specify a unique substring or
+                    alias.
 
 Options:
   -h, --help        Help
@@ -15,7 +20,6 @@ Commands:
   alias             Manage connection aliases.
   delete            Delete connection profiles.
   describe          Describe connection profile.
-  help              display help for command
   list              List connection profiles.
   save|add          Save connection profiles.
   service-account   Manage named, independently-addressable additional service

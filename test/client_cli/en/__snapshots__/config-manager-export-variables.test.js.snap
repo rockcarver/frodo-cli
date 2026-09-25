@@ -20,6 +20,8 @@ Arguments:
                     requiring it on the command line.
   password          Password.
 
+Deployment: Cloud-only
+
 Options:
   -h, --help        Help
   -hh, --help-more  Help with all options.

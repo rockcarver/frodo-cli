@@ -2,21 +2,15 @@
 
 exports[`frodo iga workflow list "frodo iga workflow list --long": should list the ids, names, mutability, and statuses of the workflows. 1`] = `
 "ID                                 │Name                                   │Drafted│Published│Mutable
-createNonEmployee                  │CreateNonEmployee                      │true   │false    │true   
-phhBasicApplicationGrant           │phh-BasicApplicationGrant              │true   │true     │true   
-phhInternalRoleEntitlementGrant    │phh-InternalRoleEntitlementGrant       │true   │false    │true   
-phhNewUserCreate                   │phh-new-user-create                    │true   │true     │true   
-testWorkflow1                      │test_workflow_1                        │true   │true     │true   
-testWorkflow4                      │test_workflow_4                        │true   │true     │true   
-testWorkflow5                      │test_workflow_5                        │true   │false    │true   
-testWorkflow7                      │test_workflow_7                        │true   │true     │true   
-testWorkflow8                      │test_workflow_8                        │true   │true     │true   
-wfEntitlementExampleIsPrivileged   │wfEntitlementExampleIsPrivileged       │true   │false    │true   
 BasicApplicationGrant              │BasicApplicationGrant                  │false  │true     │false  
-BasicApplicationRemove             │BasicApplicationRemove                 │false  │true     │false  
+BasicApplicationRemove             │BasicApplicationRemove                 │true   │true     │false  
 BasicEntitlementGrant              │BasicEntitlementGrant                  │false  │true     │false  
 BasicEntitlementRemove             │BasicEntitlementRemove                 │false  │true     │false  
+BasicRoleCreate                    │BasicRoleCreate                        │false  │true     │false  
+BasicRoleDelete                    │BasicRoleDelete                        │false  │true     │false  
 BasicRoleGrant                     │BasicRoleGrant                         │false  │true     │false  
+BasicRoleModify                    │BasicRoleModify                        │false  │true     │false  
+BasicRolePublish                   │BasicRolePublish                       │false  │true     │false  
 BasicRoleRemove                    │BasicRoleRemove                        │false  │true     │false  
 BasicViolationProcess              │BasicViolationProcess                  │false  │true     │false  
 CreateEntitlement                  │CreateEntitlement                      │false  │true     │false  
@@ -24,10 +18,26 @@ CreateUser                         │CreateUser                             │
 DeleteUser                         │DeleteUser                             │false  │true     │false  
 ModifyEntitlement                  │ModifyEntitlement                      │false  │true     │false  
 ModifyUser                         │ModifyUser                             │false  │true     │false  
+custom1BasicEntitlementGrant       │custom-1-BasicEntitlementGrant         │false  │true     │true   
+extendGrantEndDate                 │extendGrantEndDate                     │false  │true     │false  
+phhBasicApplicationGrant           │phh-BasicApplicationGrant              │false  │true     │true   
+phhBasicEntitlementGrant           │phh-BasicEntitlementGrant              │true   │false    │true   
 phhBirthrightRolesRequiringApproval│phh-birthright-roles-requiring-approval│false  │true     │true   
 phhDelegatedUserDisableWorkflow    │phh-delegated-user-disable-workflow    │false  │true     │true   
+phhInternalRoleEntitlementGrant    │phh-InternalRoleEntitlementGrant       │true   │false    │true   
 phhNeDisable                       │phh-ne-disable                         │false  │true     │true   
+phhNewUserCreate                   │phh-new-user-create                    │true   │true     │true   
+test                               │test                                   │false  │true     │true   
+testBasicApplicationGrant          │test-BasicApplicationGrant             │true   │true     │true   
+testBasicEntitlementRemove         │test-BasicEntitlementRemove            │true   │false    │true   
+testWorkflow1                      │test_workflow_1                        │false  │true     │true   
+testWorkflow4                      │test_workflow_4                        │false  │true     │true   
+testWorkflow5                      │test_workflow_5                        │true   │false    │true   
 testWorkflow6                      │test_workflow_6                        │false  │true     │true   
+testWorkflow7                      │test_workflow_7                        │false  │true     │true   
+testWorkflow8                      │test_workflow_8                        │false  │true     │true   
+testWorkflow9                      │test_workflow_9                        │false  │true     │true   
+wfEntitlementExampleIsPrivileged   │wfEntitlementExampleIsPrivileged       │true   │false    │true   
 "
 `;
 
@@ -35,21 +45,15 @@ exports[`frodo iga workflow list "frodo iga workflow list --long": should list t
 
 exports[`frodo iga workflow list "frodo iga workflow list -l": should list the ids, names, mutability, and statuses of the workflows. 1`] = `
 "ID                                 │Name                                   │Drafted│Published│Mutable
-createNonEmployee                  │CreateNonEmployee                      │true   │false    │true   
-phhBasicApplicationGrant           │phh-BasicApplicationGrant              │true   │true     │true   
-phhInternalRoleEntitlementGrant    │phh-InternalRoleEntitlementGrant       │true   │false    │true   
-phhNewUserCreate                   │phh-new-user-create                    │true   │true     │true   
-testWorkflow1                      │test_workflow_1                        │true   │true     │true   
-testWorkflow4                      │test_workflow_4                        │true   │true     │true   
-testWorkflow5                      │test_workflow_5                        │true   │false    │true   
-testWorkflow7                      │test_workflow_7                        │true   │true     │true   
-testWorkflow8                      │test_workflow_8                        │true   │true     │true   
-wfEntitlementExampleIsPrivileged   │wfEntitlementExampleIsPrivileged       │true   │false    │true   
 BasicApplicationGrant              │BasicApplicationGrant                  │false  │true     │false  
-BasicApplicationRemove             │BasicApplicationRemove                 │false  │true     │false  
+BasicApplicationRemove             │BasicApplicationRemove                 │true   │true     │false  
 BasicEntitlementGrant              │BasicEntitlementGrant                  │false  │true     │false  
 BasicEntitlementRemove             │BasicEntitlementRemove                 │false  │true     │false  
+BasicRoleCreate                    │BasicRoleCreate                        │false  │true     │false  
+BasicRoleDelete                    │BasicRoleDelete                        │false  │true     │false  
 BasicRoleGrant                     │BasicRoleGrant                         │false  │true     │false  
+BasicRoleModify                    │BasicRoleModify                        │false  │true     │false  
+BasicRolePublish                   │BasicRolePublish                       │false  │true     │false  
 BasicRoleRemove                    │BasicRoleRemove                        │false  │true     │false  
 BasicViolationProcess              │BasicViolationProcess                  │false  │true     │false  
 CreateEntitlement                  │CreateEntitlement                      │false  │true     │false  
@@ -57,31 +61,41 @@ CreateUser                         │CreateUser                             │
 DeleteUser                         │DeleteUser                             │false  │true     │false  
 ModifyEntitlement                  │ModifyEntitlement                      │false  │true     │false  
 ModifyUser                         │ModifyUser                             │false  │true     │false  
+custom1BasicEntitlementGrant       │custom-1-BasicEntitlementGrant         │false  │true     │true   
+extendGrantEndDate                 │extendGrantEndDate                     │false  │true     │false  
+phhBasicApplicationGrant           │phh-BasicApplicationGrant              │false  │true     │true   
+phhBasicEntitlementGrant           │phh-BasicEntitlementGrant              │true   │false    │true   
 phhBirthrightRolesRequiringApproval│phh-birthright-roles-requiring-approval│false  │true     │true   
 phhDelegatedUserDisableWorkflow    │phh-delegated-user-disable-workflow    │false  │true     │true   
+phhInternalRoleEntitlementGrant    │phh-InternalRoleEntitlementGrant       │true   │false    │true   
 phhNeDisable                       │phh-ne-disable                         │false  │true     │true   
+phhNewUserCreate                   │phh-new-user-create                    │true   │true     │true   
+test                               │test                                   │false  │true     │true   
+testBasicApplicationGrant          │test-BasicApplicationGrant             │true   │true     │true   
+testBasicEntitlementRemove         │test-BasicEntitlementRemove            │true   │false    │true   
+testWorkflow1                      │test_workflow_1                        │false  │true     │true   
+testWorkflow4                      │test_workflow_4                        │false  │true     │true   
+testWorkflow5                      │test_workflow_5                        │true   │false    │true   
 testWorkflow6                      │test_workflow_6                        │false  │true     │true   
+testWorkflow7                      │test_workflow_7                        │false  │true     │true   
+testWorkflow8                      │test_workflow_8                        │false  │true     │true   
+testWorkflow9                      │test_workflow_9                        │false  │true     │true   
+wfEntitlementExampleIsPrivileged   │wfEntitlementExampleIsPrivileged       │true   │false    │true   
 "
 `;
 
 exports[`frodo iga workflow list "frodo iga workflow list -l": should list the ids, names, mutability, and statuses of the workflows. 2`] = `""`;
 
 exports[`frodo iga workflow list "frodo iga workflow list": should list the ids of the workflows 1`] = `
-"createNonEmployee
-phhBasicApplicationGrant
-phhInternalRoleEntitlementGrant
-phhNewUserCreate
-testWorkflow1
-testWorkflow4
-testWorkflow5
-testWorkflow7
-testWorkflow8
-wfEntitlementExampleIsPrivileged
-BasicApplicationGrant
+"BasicApplicationGrant
 BasicApplicationRemove
 BasicEntitlementGrant
 BasicEntitlementRemove
+BasicRoleCreate
+BasicRoleDelete
 BasicRoleGrant
+BasicRoleModify
+BasicRolePublish
 BasicRoleRemove
 BasicViolationProcess
 CreateEntitlement
@@ -89,10 +103,26 @@ CreateUser
 DeleteUser
 ModifyEntitlement
 ModifyUser
+custom1BasicEntitlementGrant
+extendGrantEndDate
+phhBasicApplicationGrant
+phhBasicEntitlementGrant
 phhBirthrightRolesRequiringApproval
 phhDelegatedUserDisableWorkflow
+phhInternalRoleEntitlementGrant
 phhNeDisable
+phhNewUserCreate
+test
+testBasicApplicationGrant
+testBasicEntitlementRemove
+testWorkflow1
+testWorkflow4
+testWorkflow5
 testWorkflow6
+testWorkflow7
+testWorkflow8
+testWorkflow9
+wfEntitlementExampleIsPrivileged
 "
 `;
 

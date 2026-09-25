@@ -47,13 +47,75 @@ export function normalizeStackPaths(text) {
 }
 
 /**
+ * Strip @pollyjs/adapter's warn-strategy expiry notice: functionally
+ * harmless (the expired-but-present recording is still replayed as normal)
+ * but its "has expired" message plus a pretty-printed (2-space-indented)
+ * dump of the full request object would otherwise leak into captured
+ * stdout/stderr and break snapshot equality for every recording older than
+ * FRODO_MOCK_EXPIRES_IN. Kept separate from removePollyRecordingNoise (and
+ * its trim()) below since this needs to run for every snapshotted value,
+ * including the majority of call sites that never went through that
+ * trim()-including helper historically.
+ * @param {string} text
+ * @returns {string}
+ */
+export function removeExpiryNoise(text) {
+  if (!text) return text;
+  return text.replace(
+    /(?:\[Polly\] )?Recording for the following request has expired\.\n\{[\s\S]*?\n\}\n?/g,
+    ''
+  );
+}
+
+/**
+ * Strip the same FRODO_MOCK=record-only diagnostic chatter
+ * removePollyRecordingNoise (below) filters -- the per-host "***** Host:"
+ * announcement, Polly's own recorded-request JSON dumps, and its shutdown
+ * countdown -- but without that function's trailing trim(). Needed here
+ * because tools/record-cloud-e2e.mjs (and any other single-pass
+ * `FRODO_MOCK=record ... --updateSnapshot` run) captures a command's
+ * stdout/stderr *while still recording*, so this noise would otherwise get
+ * baked into the snapshot as if it were real output -- the same class of
+ * bug removeExpiryNoise above exists to prevent, just for a different
+ * source of noise. Kept separate from removePollyRecordingNoise for the
+ * same reason removeExpiryNoise is: this needs to run for every snapshotted
+ * value, including call sites that never went through that trim()-including
+ * helper historically.
+ * @param {string} text
+ * @returns {string}
+ */
+export function removeRecordModeNoise(text) {
+  if (!text) return text;
+  const lines = text.split('\n');
+  return lines
+    .filter((line) => {
+      if (line.startsWith('[Polly] Recording may fail because the browser is offline.')) {
+        return false;
+      }
+      if (line.startsWith('{"url":"') && line.includes('"recordingName":')) {
+        return false;
+      }
+      if (line.startsWith('***** Host: ')) {
+        return false;
+      }
+      if (/^Polly instance '.*' (stopping in \d+s\.\.\.|stopped\.)$/.test(line)) {
+        return false;
+      }
+      return true;
+    })
+    .join('\n');
+}
+
+/**
  * Normalize command output for stable snapshots across local and CI environments.
  * @param {string} text
  * @returns {string}
  */
 export function normalizeSnapshotText(text) {
-  return normalizeStackPaths(
-    maskUserAgentVersions(maskTransactionIds(text))
+  return removeRecordModeNoise(
+    removeExpiryNoise(
+      normalizeStackPaths(maskUserAgentVersions(maskTransactionIds(text)))
+    )
   );
 }
 
@@ -143,29 +205,7 @@ export function assertNoPollyReplayError(
  */
 export function removePollyRecordingNoise(text) {
   if (!text) return text;
-  const lines = text.split('\n');
-  const filtered = lines.filter((line) => {
-    if (line.startsWith('[Polly] Recording may fail because the browser is offline.')) {
-      return false;
-    }
-    if (line.startsWith('{"url":"') && line.includes('"recordingName":')) {
-      return false;
-    }
-    // frodo-lib's Polly setup logs one line per allow-listed host while
-    // actually recording (mode === modes.RECORD) -- diagnostic chatter, not
-    // command output. Only ever appears in FRODO_MOCK=record captures.
-    if (line.startsWith('***** Host: ')) {
-      return false;
-    }
-    // Polly's own shutdown countdown/confirmation, printed while a
-    // long-running command (e.g. one using a progress indicator) keeps the
-    // process alive past the point Polly starts winding down its instance.
-    if (/^Polly instance '.*' (stopping in \d+s\.\.\.|stopped\.)$/.test(line)) {
-      return false;
-    }
-    return true;
-  });
-  return filtered.join('\n').trim();
+  return removeRecordModeNoise(text).trim();
 }
 
 /**
@@ -564,6 +604,46 @@ export async function testFail(
  */
 export async function stageFixture(command, env, options = {}) {
   await exec(command, env);
+}
+
+/**
+ * Stage a fixture, then poll a read command until it succeeds before
+ * returning -- for backends (notably IGA, which is data-warehouse-backed
+ * with an attached async workflow engine, unlike AM/IDM's synchronous REST
+ * APIs) where a successful write doesn't guarantee an immediate consistent
+ * read. A fixed short sleep after staging is not reliable for these; polling
+ * a real read until it succeeds (or a generous timeout elapses) is.
+ * @param {string} stageCommand The staging command to run (e.g. an import)
+ * @param {string} verifyCommand A read-only command that only succeeds once staging is visible
+ * @param {{env: Record<string, string>}} env The environment variables
+ * @param {Object} [options]
+ * @param {number} [options.timeoutMs=30000] Give up polling after this long
+ * @param {number} [options.intervalMs=1000] Delay between poll attempts
+ * @returns {Promise<void>}
+ */
+export async function stageFixtureAndVerify(
+  stageCommand,
+  verifyCommand,
+  env,
+  options = {}
+) {
+  const { timeoutMs = 30000, intervalMs = 1000 } = options;
+  await exec(stageCommand, env);
+  const deadline = Date.now() + timeoutMs;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      await exec(verifyCommand, env);
+      return;
+    } catch (error) {
+      if (Date.now() >= deadline) {
+        throw new Error(
+          `stageFixtureAndVerify: "${verifyCommand}" still failing ${timeoutMs}ms after staging "${stageCommand}": ${error.message || error}`
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    }
+  }
 }
 
 /**

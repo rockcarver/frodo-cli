@@ -1,16 +1,35 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 
+// Repo root, resolved from this script's own location (tools/<this file>)
+// rather than the invoker's cwd, so `node tools/mcp-agentic-batch-run.mjs`
+// works the same regardless of where it's run from.
+const REPO_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+function defaultMcpConfigPath() {
+    return path.join(
+        os.homedir(),
+        'Library',
+        'Application Support',
+        'Code',
+        'User',
+        'mcp.json'
+    );
+}
+
 function parseArgs(argv) {
     const args = {
         batch: 'batch1',
-        mcpConfig: '/Users/volker.scheuber/Library/Application Support/Code/User/mcp.json',
-        output: 'docs/mcp-agentic-run-log.batch1.json',
+        mcpConfig: defaultMcpConfigPath(),
+        output: 'tools/reports/mcp-agentic-run-log.batch1.json',
+        cwd: REPO_ROOT,
     };
 
     for (let i = 2; i < argv.length; i += 1) {
@@ -27,6 +46,11 @@ function parseArgs(argv) {
         }
         if (token === '--output') {
             args.output = argv[i + 1] || args.output;
+            i += 1;
+            continue;
+        }
+        if (token === '--cwd') {
+            args.cwd = argv[i + 1] || args.cwd;
             i += 1;
             continue;
         }
@@ -59,12 +83,12 @@ function withPolicyArgs(baseArgs, variant) {
     return args;
 }
 
-async function connectClient(server, variant) {
+async function connectClient(server, variant, cwd) {
     const transport = new StdioClientTransport({
         command: server.command,
         args: withPolicyArgs(server.args, variant),
         env: server.env,
-        cwd: '/Users/volker.scheuber/Documents/Projects/frodo-cli',
+        cwd,
         stderr: 'pipe',
     });
 
@@ -1028,8 +1052,8 @@ function buildScenarioRunners(batch, toolNames) {
     return buildBatch1ScenarioRunners(toolNames);
 }
 
-async function runVariant(server, variant, batch) {
-    const { client, transport } = await connectClient(server, variant);
+async function runVariant(server, variant, batch, cwd) {
+    const { client, transport } = await connectClient(server, variant, cwd);
 
     try {
         const list = await client.listTools();
@@ -1073,7 +1097,7 @@ async function main() {
     for (const variant of variants) {
         // eslint-disable-next-line no-console
         console.log(`Running MCP ${args.batch} for variant: ${variant}`);
-        const result = await runVariant(server, variant, args.batch);
+        const result = await runVariant(server, variant, args.batch, args.cwd);
         variantResults.push(result);
     }
 

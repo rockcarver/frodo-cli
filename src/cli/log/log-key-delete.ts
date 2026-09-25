@@ -30,10 +30,9 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,

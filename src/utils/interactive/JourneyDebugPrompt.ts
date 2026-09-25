@@ -43,7 +43,12 @@ import {
 import c from '../ColorTheme';
 
 const POLL_INTERVAL_MS = 5000;
-const MAX_DETAIL_EVENTS = 20;
+// Raised from an original 20 -- a long-running journey's event history is
+// now less densely packed with am-core noise (most confirmed noise is
+// suppressed pre-failure and consecutive repeats collapse into one row, see
+// `JourneyDebugAggregator`'s dedup), but a bigger window is still worth it
+// on its own for a journey with many real nodes (e.g. a long IDV flow).
+const MAX_DETAIL_EVENTS = 40;
 
 // How long a still-"running" session must go quiet before the detail view
 // hints that it may be waiting on an external redirect (e.g. social login,
@@ -260,6 +265,18 @@ function renderDetail(
     value: `${isQuiet ? c.warning(lastActivityText) : lastActivityText}${abandonSuffix}`,
   });
   properties.push({ label: 'Nodes visited', value: String(session.nodeCount) });
+  // Only shown when nonzero -- otherwise it's ambiguous from the outside
+  // whether a clean "Recent events" list means nothing needed filtering, or
+  // something did and you just can't tell (confirmed live: comparing a
+  // quiet tenant against a noisy one raised exactly this question).
+  if (session.suppressedNoiseCount) {
+    properties.push({
+      label: 'Noise filtered',
+      value: c.muted(
+        `${session.suppressedNoiseCount} am-core line(s) held back as routine noise (shown automatically if this session fails)`
+      ),
+    });
+  }
   if (session.failureReason) {
     properties.push({
       label: 'Failure',
@@ -326,7 +343,15 @@ function renderDetail(
         event.type ? truncate(event.type, MAX_TYPE_COL_WIDTH) : '',
         typeWidth
       );
-      const outcomeCell = event.outcome ?? '';
+      // `repeatCount` > 1 means `JourneyDebugAggregator`'s dedup collapsed a
+      // run of exact repeats into this one row (see `dedupeAppend`) -- the
+      // same "message repeated N times" convention syslog-style loggers
+      // use, so a burst of identical noise takes one row instead of N.
+      const repeatSuffix =
+        event.repeatCount && event.repeatCount > 1
+          ? c.muted(` (×${event.repeatCount})`)
+          : '';
+      const outcomeCell = `${event.outcome ?? ''}${repeatSuffix}`;
       const row =
         `  ${cursor}${elapsedCell} ${srcCell} ${stepCell} ${typeCell} ${outcomeCell}`.trimEnd();
       lines.push(isActive ? c.command(row) : row);
@@ -375,6 +400,12 @@ function renderEventDetail(
     label: 'Elapsed',
     value: `+${formatElapsed(event.at - session.startedAt)}`,
   });
+  if (event.repeatCount && event.repeatCount > 1) {
+    properties.push({
+      label: 'Repeated',
+      value: `${event.repeatCount} times (shown once, most recent timestamp)`,
+    });
+  }
   if (event.raw) {
     for (const [key, value] of Object.entries(event.raw)) {
       properties.push({

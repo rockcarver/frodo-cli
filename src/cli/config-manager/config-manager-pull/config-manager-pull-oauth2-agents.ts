@@ -24,6 +24,7 @@ const { readRealms } = frodo.realm;
 export default function setup() {
   const program = new FrodoCommand(
     'frodo config-manager pull oauth2-agents',
+    [],
     deploymentTypes
   );
 

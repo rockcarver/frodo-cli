@@ -5,7 +5,11 @@ import * as s from '../../help/SampleData';
 import { getTokens, getTokensInteractive } from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';
 import { printMessage } from '../../utils/Console';
-import { AUTHENTICATION_OPTIONS_HEADING, FrodoCommand } from '../FrodoCommand';
+import {
+  AUTHENTICATION_OPTIONS_HEADING,
+  FrodoCommand,
+  preferredCredentialOption,
+} from '../FrodoCommand';
 import SetupCmd from './login-setup.js';
 
 const { saveConnectionProfile } = frodo.conn;
@@ -57,12 +61,7 @@ classic:  "openid"'
         'Alias name for the saved connection profile. Ignored without --save. Lets later commands address this session by an alias.'
       )
     )
-    .addOption(
-      new Option(
-        '--default-credential <type>',
-        'Explicit preference for which non-interactive credential type later implicit commands against this host should use, when the saved profile ends up with more than one configured (e.g. both a service account and a plain username/password). Ignored without --save. Persisted; unlike --credential, applies to every future implicit command against this host, not just one invocation.'
-      ).choices(['user', 'svcacct', 'amster'])
-    )
+    .addOption(preferredCredentialOption)
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -125,8 +124,15 @@ classic:  "openid"'
           // passed) — this preference is purely for future invocations, so
           // it must not retroactively change how *this* one just
           // authenticated.
-          if (options.defaultCredential) {
-            state.setDefaultCredential(options.defaultCredential);
+          if (options.preferredCredential) {
+            state.setPreferredCredential(options.preferredCredential);
+          } else if (state.getAuthMode() === 'interactive') {
+            // --browser/--device + --save on `login` specifically IS the
+            // explicit "remember this" ask (unlike --save on any other
+            // command, which must never infer this from merely-ambient
+            // state) — preserves this command's own documented
+            // `--browser --save` example above.
+            state.setPreferredCredential('browser');
           }
           await saveConnectionProfile(host);
           printMessage(`Saved connection profile ${state.getHost()}`);
