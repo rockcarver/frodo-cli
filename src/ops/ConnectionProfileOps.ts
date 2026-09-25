@@ -53,7 +53,7 @@ export function listConnectionProfiles(long: boolean = false): void {
             connectionsData[c].alias,
             connectionsData[c].svcacctName || connectionsData[c].svcacctId,
             connectionsData[c].username,
-            connectionsData[c].logApiKey,
+            connectionsData[c].logApiKey ? '[present]' : undefined,
             connectionsData[c].authenticationService,
           ]);
         });
