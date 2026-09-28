@@ -1,0 +1,62 @@
+{
+  "_id": "test",
+  "_rev": "1629044953",
+  "_type": {
+    "_id": "RemoteConsentAgent",
+    "collection": true,
+    "name": "OAuth2 Remote Consent Service"
+  },
+  "jwkSet": {
+    "inherited": false
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000
+  },
+  "jwksUri": {
+    "inherited": false
+  },
+  "publicKeyLocation": {
+    "inherited": false,
+    "value": "jwks_uri"
+  },
+  "remoteConsentRedirectUrl": {
+    "inherited": false
+  },
+  "remoteConsentRequestEncryptionAlgorithm": {
+    "inherited": false,
+    "value": "RSA-OAEP-256"
+  },
+  "remoteConsentRequestEncryptionEnabled": {
+    "inherited": false,
+    "value": true
+  },
+  "remoteConsentRequestEncryptionMethod": {
+    "inherited": false,
+    "value": "A128GCM"
+  },
+  "remoteConsentRequestSigningAlgorithm": {
+    "inherited": false,
+    "value": "RS256"
+  },
+  "remoteConsentResponseEncryptionAlgorithm": {
+    "inherited": false,
+    "value": "RSA-OAEP-256"
+  },
+  "remoteConsentResponseEncryptionMethod": {
+    "inherited": false,
+    "value": "A128GCM"
+  },
+  "remoteConsentResponseSigningAlg": {
+    "inherited": false,
+    "value": "RS256"
+  },
+  "requestTimeLimit": {
+    "inherited": false,
+    "value": 180
+  }
+}

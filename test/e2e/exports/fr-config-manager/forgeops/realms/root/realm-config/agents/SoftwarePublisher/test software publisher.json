@@ -1,0 +1,34 @@
+{
+  "_id": "test software publisher",
+  "_rev": "1920993704",
+  "_type": {
+    "_id": "SoftwarePublisher",
+    "collection": true,
+    "name": "OAuth2 Software Publisher"
+  },
+  "issuer": {
+    "inherited": false
+  },
+  "jwkSet": {
+    "inherited": false
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000
+  },
+  "jwksUri": {
+    "inherited": false
+  },
+  "publicKeyLocation": {
+    "inherited": false,
+    "value": "jwks_uri"
+  },
+  "softwareStatementSigningAlgorithm": {
+    "inherited": false,
+    "value": "RS256"
+  }
+}

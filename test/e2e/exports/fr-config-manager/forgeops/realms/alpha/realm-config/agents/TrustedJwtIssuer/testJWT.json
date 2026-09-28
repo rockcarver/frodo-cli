@@ -1,0 +1,38 @@
+{
+  "_id": "testJWT",
+  "_type": {
+    "_id": "TrustedJwtIssuer",
+    "collection": true,
+    "name": "OAuth2 Trusted JWT Issuer"
+  },
+  "allowedSubjects": {
+    "inherited": false,
+    "value": []
+  },
+  "consentedScopesClaim": {
+    "inherited": false,
+    "value": "scope"
+  },
+  "issuer": {
+    "inherited": false,
+    "value": "test"
+  },
+  "jwkSet": {
+    "inherited": false
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000
+  },
+  "jwksUri": {
+    "inherited": false
+  },
+  "resourceOwnerIdentityClaim": {
+    "inherited": false,
+    "value": "sub"
+  }
+}

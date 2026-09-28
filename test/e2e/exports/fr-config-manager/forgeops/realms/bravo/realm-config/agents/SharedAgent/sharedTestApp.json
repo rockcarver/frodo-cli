@@ -1,0 +1,22 @@
+{
+  "_id": "sharedTestApp",
+  "_rev": "-1689972850",
+  "_type": {
+    "_id": "SharedAgent",
+    "collection": true,
+    "name": "Shared Agents"
+  },
+  "agentProfilesAllowedToRead": {
+    "inherited": false,
+    "value": []
+  },
+  "cdssoRootUrl": {
+    "inherited": false,
+    "value": []
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active"
+  },
+  "userpassword": "${SHARED_AGENT_PASSWORD}"
+}

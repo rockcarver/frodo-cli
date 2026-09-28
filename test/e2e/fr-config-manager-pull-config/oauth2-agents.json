@@ -1,29 +1,170 @@
 {
-  "alpha": {
+  "/": {
     "2.2_Agent": [
-      {"id": "my-policy-agent"}
-    ],
-    "RemoteConsentAgent": [
-      {"id": "test"}
-    ],
-    "SoftwarePublisher": [
-      {"id": "test software publisher"}
+      {
+        "id": "my-policy-agent",
+        "overrides": {
+          "userpassword": "${2_2_AGENT_PASSWORD}"
+        }
+      }
     ],
     "IdentityGatewayAgent": [
-      {"id": "cdsso-ig-agent"},
-      {"id": "frodo-test-ig-agent"},
-      {"id": "frodo-test-ig-agent2"},
-      {"id": "ig-agent"}
+      {
+        "id": "ig-agent",
+        "overrides": {
+          "userpassword": "${IG_AGENT_PASSWORD}"
+        }
+      }
     ],
     "J2EEAgent": [
-      {"id": "frodo-test-java-agent"},
-      {"id": "frodo-test-java-agent2"}
+      {
+        "id": "frodo-test-java-agent"
+      }
+    ],
+    "OAuth2Client": [
+      {
+        "id": "testapp"
+      }
+    ],
+    "RemoteConsentAgent": [
+      {
+        "id": "test"
+      }
+    ],
+    "SharedAgent": [
+      {
+        "id": "sharedTestApp",
+        "overrides": {
+          "userpassword": "${SHARED_AGENT_PASSWORD}"
+        }
+      }
+    ],
+    "SoftwarePublisher": [
+      {
+        "id": "test software publisher"
+      }
+    ],
+    "TrustedJwtIssuer": [
+      {
+        "id": "testJWT"
+      }
     ],
     "WebAgent": [
-      {"id": "frodo-test-web-agent"},
-      {"id": "frodo-test-web-agent2"}
+      {
+        "id": "frodo-test-web-agent"
+      }
+    ]
+  },
+  "alpha": {
+    "2.2_Agent": [
+      {
+        "id": "my-policy-agent",
+        "overrides": {
+          "userpassword": "${2_2_AGENT_PASSWORD}"
+        }
+      }
+    ],
+    "IdentityGatewayAgent": [
+      {
+        "id": "ig-agent",
+        "overrides": {
+          "userpassword": "${IG_AGENT_PASSWORD}"
+        }
+      }
+    ],
+    "J2EEAgent": [
+      {
+        "id": "frodo-test-java-agent"
+      }
+    ],
+    "OAuth2Client": [
+      {
+        "id": "testapp"
+      }
+    ],
+    "RemoteConsentAgent": [
+      {
+        "id": "test"
+      }
+    ],
+    "SharedAgent": [
+      {
+        "id": "sharedTestApp",
+        "overrides": {
+          "userpassword": "${SHARED_AGENT_PASSWORD}"
+        }
+      }
+    ],
+    "SoftwarePublisher": [
+      {
+        "id": "test software publisher"
+      }
+    ],
+    "TrustedJwtIssuer": [
+      {
+        "id": "testJWT"
+      }
+    ],
+    "WebAgent": [
+      {
+        "id": "frodo-test-web-agent"
+      }
     ]
   },
   "bravo": {
+    "2.2_Agent": [
+      {
+        "id": "my-policy-agent",
+        "overrides": {
+          "userpassword": "${2_2_AGENT_PASSWORD}"
+        }
+      }
+    ],
+    "IdentityGatewayAgent": [
+      {
+        "id": "ig-agent",
+        "overrides": {
+          "userpassword": "${IG_AGENT_PASSWORD}"
+        }
+      }
+    ],
+    "J2EEAgent": [
+      {
+        "id": "frodo-test-java-agent"
+      }
+    ],
+    "OAuth2Client": [
+      {
+        "id": "testapp"
+      }
+    ],
+    "RemoteConsentAgent": [
+      {
+        "id": "test"
+      }
+    ],
+    "SharedAgent": [
+      {
+        "id": "sharedTestApp",
+        "overrides": {
+          "userpassword": "${SHARED_AGENT_PASSWORD}"
+        }
+      }
+    ],
+    "SoftwarePublisher": [
+      {
+        "id": "test software publisher"
+      }
+    ],
+    "TrustedJwtIssuer": [
+      {
+        "id": "testJWT"
+      }
+    ],
+    "WebAgent": [
+      {
+        "id": "frodo-test-web-agent"
+      }
+    ]
   }
 }

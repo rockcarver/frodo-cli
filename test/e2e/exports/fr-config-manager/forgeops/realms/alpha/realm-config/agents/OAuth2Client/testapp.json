@@ -1,0 +1,336 @@
+{
+  "_id": "testapp",
+  "_type": {
+    "_id": "OAuth2Client",
+    "collection": true,
+    "name": "OAuth2 Clients"
+  },
+  "advancedOAuth2ClientConfig": {
+    "clientUri": {
+      "inherited": false,
+      "value": []
+    },
+    "contacts": {
+      "inherited": false,
+      "value": []
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": []
+    },
+    "descriptions": {
+      "inherited": false,
+      "value": [
+        "Test Application"
+      ]
+    },
+    "grantTypes": {
+      "inherited": false,
+      "value": [
+        "authorization_code"
+      ]
+    },
+    "isConsentImplied": {
+      "inherited": false,
+      "value": false
+    },
+    "javascriptOrigins": {
+      "inherited": false,
+      "value": []
+    },
+    "logoUri": {
+      "inherited": false,
+      "value": []
+    },
+    "mixUpMitigation": {
+      "inherited": false,
+      "value": false
+    },
+    "name": {
+      "inherited": false,
+      "value": []
+    },
+    "policyUri": {
+      "inherited": false,
+      "value": []
+    },
+    "refreshTokenGracePeriod": {
+      "inherited": false,
+      "value": 0
+    },
+    "requestUris": {
+      "inherited": false,
+      "value": []
+    },
+    "require_pushed_authorization_requests": {
+      "inherited": false,
+      "value": false
+    },
+    "responseTypes": {
+      "inherited": false,
+      "value": [
+        "code",
+        "token",
+        "id_token",
+        "code token",
+        "token id_token",
+        "code id_token",
+        "code token id_token",
+        "device_code",
+        "device_code id_token"
+      ]
+    },
+    "sectorIdentifierUri": {
+      "inherited": false
+    },
+    "softwareIdentity": {
+      "inherited": false
+    },
+    "softwareVersion": {
+      "inherited": false
+    },
+    "subjectType": {
+      "inherited": false,
+      "value": "public"
+    },
+    "tokenEndpointAuthMethod": {
+      "inherited": false,
+      "value": "client_secret_basic"
+    },
+    "tokenExchangeAuthLevel": {
+      "inherited": false,
+      "value": 0
+    },
+    "tosURI": {
+      "inherited": false,
+      "value": []
+    },
+    "updateAccessToken": {
+      "inherited": false
+    }
+  },
+  "coreOAuth2ClientConfig": {
+    "accessTokenLifetime": {
+      "inherited": false,
+      "value": 0
+    },
+    "authorizationCodeLifetime": {
+      "inherited": false,
+      "value": 0
+    },
+    "clientName": {
+      "inherited": false,
+      "value": [
+        "testapp"
+      ]
+    },
+    "clientType": {
+      "inherited": false,
+      "value": "Confidential"
+    },
+    "defaultScopes": {
+      "inherited": false,
+      "value": []
+    },
+    "loopbackInterfaceRedirection": {
+      "inherited": false,
+      "value": false
+    },
+    "redirectionUris": {
+      "inherited": false,
+      "value": []
+    },
+    "refreshTokenLifetime": {
+      "inherited": false,
+      "value": 0
+    },
+    "scopes": {
+      "inherited": false,
+      "value": []
+    },
+    "secretLabelIdentifier": {
+      "inherited": false
+    },
+    "status": {
+      "inherited": false,
+      "value": "Active"
+    }
+  },
+  "coreOpenIDClientConfig": {
+    "backchannel_logout_session_required": {
+      "inherited": false,
+      "value": false
+    },
+    "backchannel_logout_uri": {
+      "inherited": false
+    },
+    "claims": {
+      "inherited": false,
+      "value": []
+    },
+    "clientSessionUri": {
+      "inherited": false
+    },
+    "defaultAcrValues": {
+      "inherited": false,
+      "value": []
+    },
+    "defaultMaxAge": {
+      "inherited": false,
+      "value": 600
+    },
+    "defaultMaxAgeEnabled": {
+      "inherited": false,
+      "value": false
+    },
+    "jwtTokenLifetime": {
+      "inherited": false,
+      "value": 0
+    },
+    "postLogoutRedirectUri": {
+      "inherited": false,
+      "value": []
+    }
+  },
+  "coreUmaClientConfig": {
+    "claimsRedirectionUris": {
+      "inherited": false,
+      "value": []
+    }
+  },
+  "overrideOAuth2ClientConfig": {
+    "accessTokenMayActScript": "[Empty]",
+    "accessTokenModificationPluginType": "PROVIDER",
+    "accessTokenModificationScript": "[Empty]",
+    "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+    "authorizeEndpointDataProviderPluginType": "PROVIDER",
+    "authorizeEndpointDataProviderScript": "[Empty]",
+    "clientsCanSkipConsent": false,
+    "enableRemoteConsent": false,
+    "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+    "evaluateScopePluginType": "PROVIDER",
+    "evaluateScopeScript": "[Empty]",
+    "issueRefreshToken": true,
+    "issueRefreshTokenOnRefreshedToken": true,
+    "oidcClaimsPluginType": "PROVIDER",
+    "oidcClaimsScript": "[Empty]",
+    "oidcMayActScript": "[Empty]",
+    "overrideableOIDCClaims": [],
+    "providerOverridesEnabled": false,
+    "remoteConsentServiceId": null,
+    "scopesPolicySet": "oauth2Scopes",
+    "statelessTokensEnabled": false,
+    "tokenEncryptionEnabled": false,
+    "useForceAuthnForMaxAge": false,
+    "usePolicyEngineForScope": false,
+    "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+    "validateScopePluginType": "PROVIDER",
+    "validateScopeScript": "[Empty]"
+  },
+  "signEncOAuth2ClientConfig": {
+    "authorizationResponseEncryptionAlgorithm": {
+      "inherited": false
+    },
+    "authorizationResponseEncryptionMethod": {
+      "inherited": false
+    },
+    "authorizationResponseSigningAlgorithm": {
+      "inherited": false,
+      "value": "RS256"
+    },
+    "clientJwtPublicKey": {
+      "inherited": false
+    },
+    "idTokenEncryptionAlgorithm": {
+      "inherited": false,
+      "value": "RSA-OAEP-256"
+    },
+    "idTokenEncryptionEnabled": {
+      "inherited": false,
+      "value": false
+    },
+    "idTokenEncryptionMethod": {
+      "inherited": false,
+      "value": "A128CBC-HS256"
+    },
+    "idTokenPublicEncryptionKey": {
+      "inherited": false
+    },
+    "idTokenSignedResponseAlg": {
+      "inherited": false,
+      "value": "RS256"
+    },
+    "jwkSet": {
+      "inherited": false
+    },
+    "jwkStoreCacheMissCacheTime": {
+      "inherited": false,
+      "value": 60000
+    },
+    "jwksCacheTimeout": {
+      "inherited": false,
+      "value": 3600000
+    },
+    "jwksUri": {
+      "inherited": false
+    },
+    "mTLSCertificateBoundAccessTokens": {
+      "inherited": false,
+      "value": false
+    },
+    "mTLSSubjectDN": {
+      "inherited": false
+    },
+    "mTLSTrustedCert": {
+      "inherited": false
+    },
+    "publicKeyLocation": {
+      "inherited": false,
+      "value": "jwks_uri"
+    },
+    "requestParameterEncryptedAlg": {
+      "inherited": false
+    },
+    "requestParameterEncryptedEncryptionAlgorithm": {
+      "inherited": false,
+      "value": "A128CBC-HS256"
+    },
+    "requestParameterSignedAlg": {
+      "inherited": false
+    },
+    "tokenEndpointAuthSigningAlgorithm": {
+      "inherited": false,
+      "value": "RS256"
+    },
+    "tokenIntrospectionEncryptedResponseAlg": {
+      "inherited": false,
+      "value": "RSA-OAEP-256"
+    },
+    "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": {
+      "inherited": false,
+      "value": "A128CBC-HS256"
+    },
+    "tokenIntrospectionResponseFormat": {
+      "inherited": false,
+      "value": "JSON"
+    },
+    "tokenIntrospectionSignedResponseAlg": {
+      "inherited": false,
+      "value": "RS256"
+    },
+    "userinfoEncryptedResponseAlg": {
+      "inherited": false
+    },
+    "userinfoEncryptedResponseEncryptionAlgorithm": {
+      "inherited": false,
+      "value": "A128CBC-HS256"
+    },
+    "userinfoResponseFormat": {
+      "inherited": false,
+      "value": "JSON"
+    },
+    "userinfoSignedResponseAlg": {
+      "inherited": false
+    }
+  }
+}

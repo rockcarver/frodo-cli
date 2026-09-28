@@ -1,53 +1,20 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import {
-  configManagerExportAgent,
-  configManagerExportAgentsAll,
-  configManagerExportAgentsRealm,
-  configManagerExportConfigAgents,
-} from '../../../configManagerOps/FrConfigOauth2AgentOps';
+import { configManagerExportOAuth2Agents } from '../../../configManagerOps/FrConfigOauth2AgentOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage } from '../../../utils/Console';
+import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-const { constants } = frodo.utils;
-const { readRealms } = frodo.realm;
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull oauth2-agents',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config-manager pull oauth2-agents');
 
   program
     .description('Export OAuth2 Agents')
     .addOption(
       new Option(
-        '-r, --realm <realm>',
-        'Specifies the realm to export from. Only the agents from this realm will be exported.'
-      )
-    )
-    .addOption(
-      new Option(
-        '-n, --agent-name <agent name>',
-        'Export specific agent using agentId/agentName.'
-      )
-    )
-
-    .addOption(
-      new Option(
         '-f, --file <file>',
         'The OAUTH2_AGENTS_CONFIG json file. ex: "/home/trivir/Documents/oauth2-agents.json", or "oauth2-agents.json"'
-      )
+      ).makeOptionMandatory()
     )
     .addHelpText(
       'after',
@@ -57,31 +24,58 @@ export default function setup() {
         `Config file example:\n` +
         '------------  Example Oauth2 agents export config for oauth2-agents.json file -----------\n' +
         '{\n' +
-        ' "alpha": {\n' +
-        '   "2.2_Agent": [\n' +
-        '     {"id": "my-policy-agent"}\n' +
-        '    ],\n' +
-        '   "RemoteConsentAgent": [\n' +
-        '     {"id": "test", "overrides":{"testestest": "hotdog"}}\n' +
-        '   ],\n' +
-        '   "SoftwarePublisher": [\n' +
-        '     {"id": "test software publisher"}\n' +
-        '   ],\n' +
+        '  "/": {},\n' +
+        '  "alpha": {\n' +
         '    "IdentityGatewayAgent": [\n' +
-        '     {"id": "cdsso-ig-agent"},\n' +
-        '     {"id": "frodo-test-ig-agent"},\n' +
-        '     {"id": "frodo-test-ig-agent2"},\n' +
-        '     {"id": "ig-agent", "overrides": {"yes": "no, not yes", "taco":"sandwich"}}\n' +
-        '   ],\n' +
-        '   "J2EEAgent": [\n' +
-        '     {"id": "frodo-test-java-agent"},\n' +
-        '     {"id": "frodo-test-java-agent2"}\n' +
-        '   ],\n' +
-        '   "WebAgent": [\n' +
-        '     {"id": "frodo-test-web-agent"},\n' +
-        '      {"id": "frodo-test-web-agent2"}\n' +
-        '   ]\n' +
-        ' }\n' +
+        '      {\n' +
+        '        "id": "my-ig-agent",\n' +
+        '        "overrides": {\n' +
+        '          "userpassword": "\\${IG_AGENT_PASSWORD}"\n' +
+        '        }\n' +
+        '      }\n' +
+        '    ],\n' +
+        '    "OAuth2Client": [\n' +
+        '      {\n' +
+        '        "id": "my-policy-client",\n' +
+        '        "overrides": {\n' +
+        '          "userpassword": "\\${MY_CLIENT_SECRET}"\n' +
+        '        }\n' +
+        '      }\n' +
+        '    ],\n' +
+        '    "RemoteConsentAgent": [\n' +
+        '      {\n' +
+        '        "id": "my-rcs"\n' +
+        '      }\n' +
+        '    ],\n' +
+        '    "SoftwarePublisher": [\n' +
+        '      {\n' +
+        '        "id": "My Publisher",\n' +
+        '        "overrides": {\n' +
+        '          "jwksUri": {\n' +
+        '            "inherited": false,\n' +
+        '            "value": "\\${MY_PUBLISHER_JWKS_URI}"\n' +
+        '          }\n' +
+        '        }\n' +
+        '      }\n' +
+        '    ],\n' +
+        '    "J2EEAgent": [\n' +
+        '      {\n' +
+        '        "id": "my-java-agent",\n' +
+        '        "overrides": {\n' +
+        '          "userpassword": "\\${MY_JAVA_AGENT_PASSWORD}"\n' +
+        '        }\n' +
+        '      }\n' +
+        '    ],\n' +
+        '    "WebAgent": [\n' +
+        '      {\n' +
+        '        "id": "my-web-agent",\n' +
+        '        "overrides": {\n' +
+        '          "userpassword": "\\${MY_WEB_AGENT_PASSWORD}"\n' +
+        '        }\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  },\n' +
+        '  "bravo": {}\n' +
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
@@ -95,95 +89,11 @@ export default function setup() {
         command
       );
 
-      // -r/--realm flag has precedence over [realm] arguement
-      if (options.realm) {
-        realm = options.realm;
-      }
-
-      if (await getTokens(false, true, deploymentTypes)) {
-        let outcome: boolean;
-
-        // -n/--script-name
-        if (options.agentName) {
-          printMessage(
-            `Exporting the agent "${options.agentName}" from the ${state.getRealm()} realm.`
-          );
-
-          // try and find the agent in current realm
-          outcome = await configManagerExportAgent(
-            options.agentName,
-            options.file
-          );
-
-          // check other realms for the agent
-          if (!outcome && !options.file) {
-            const checkedRealms: string[] = [state.getRealm()];
-            for (const realm of await readRealms()) {
-              if (outcome) {
-                break;
-              }
-              if (!checkedRealms.includes(realm.name)) {
-                printMessage(
-                  `Exporting the agent "${options.agentName}" from the ${state.getRealm()} realm failed.`
-                );
-                state.setRealm(realm.name);
-                checkedRealms.push(state.getRealm());
-                printMessage(
-                  `Looking for the agent "${options.agentName}" in the ${state.getRealm()} realm now.`
-                );
-                outcome = await configManagerExportAgent(
-                  options.agentName,
-                  null
-                );
-              }
-            }
-            if (!outcome) {
-              printMessage(
-                `Did not find the agent "${options.agentName}" anywhere.`
-              );
-            }
-          }
-        }
-
-        // -f/--file
-        else if (options.file) {
-          printMessage(
-            `Exporting all the agents defined in the provided config file.`
-          );
-          outcome = await configManagerExportConfigAgents(options.file);
-        }
-
-        // -r/--realm
-        else if (realm !== constants.DEFAULT_REALM_KEY) {
-          printMessage(
-            `Exporting all the agents from the ${state.getRealm()} realm.`
-          );
-          outcome = await configManagerExportAgentsRealm();
-        }
-
-        // export all oauth2 agents, the default when no options are provided
-        else {
-          printMessage(`Exporting all the agents in the host tenant.`);
-          outcome = await configManagerExportAgentsAll();
-        }
-
-        if (!outcome) {
-          printMessage(
-            `Failed to export one or more oauth2 agents. ${options.verbose ? '' : 'Check --verbose for me details.'}`
-          );
-          process.exitCode = 1;
-        }
-      }
-
-      // unrecognized combination of options or no options
-      else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
-        process.exitCode = 1;
-        program.help();
-      }
+      const getTokensIsSuccessful = await getTokens();
+      if (!getTokensIsSuccessful) process.exit(1);
+      verboseMessage('Exporting OAuth2 agents.');
+      const outcome = await configManagerExportOAuth2Agents(options.file);
+      if (!outcome) process.exitCode = 1;
     });
 
   return program;
