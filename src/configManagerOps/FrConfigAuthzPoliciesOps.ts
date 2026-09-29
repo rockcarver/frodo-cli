@@ -172,6 +172,12 @@ export async function configManagerImportAuthzPolicies(): Promise<boolean> {
         }
       }
 
+      // Resource types must be imported before policy sets and policies,
+      // since both reference resource types by uuid (resourceTypeUuids /
+      // resourceTypeUuid) and the server rejects a policy set or policy
+      // whose referenced resource type doesn't exist yet.
+      const importedTypes = await importResourceTypes(importData);
+      totalTypes += importedTypes.length;
       const importedSets = await importPolicySets(importData, {
         deps: false,
         prereqs: false,
@@ -182,8 +188,6 @@ export async function configManagerImportAuthzPolicies(): Promise<boolean> {
         prereqs: false,
       });
       totalPolicies += importedPolicies.length;
-      const importedTypes = await importResourceTypes(importData);
-      totalTypes += importedTypes.length;
     }
     stopProgressIndicator(
       indicatorId,

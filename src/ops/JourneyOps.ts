@@ -640,6 +640,24 @@ function describeTreeDescendentsMd(
 }
 
 /**
+ * Return an object map's values sorted by key. Export maps like
+ * `journeyData.scripts` are assembled by walking a tree's nodes and
+ * deduplicating by id as references are discovered, so their key order
+ * reflects incidental discovery order rather than anything stable -- AM
+ * itself doesn't guarantee a tree's own node/reference order is identical
+ * across separate requests either. Describing the same journey twice
+ * (e.g. a live run vs. a later replay of recorded traffic) can otherwise
+ * print the same set of entries in a different order.
+ * @param {Record<string, T>} obj object map to sort
+ * @returns {T[]} values sorted by their key
+ */
+function sortedValues<T>(obj: Record<string, T>): T[] {
+  return Object.keys(obj)
+    .sort((a, b) => a.localeCompare(b))
+    .map((key) => obj[key]);
+}
+
+/**
  * Describe a journey:
  * - Properties, tags, description, name, metadata
  * - Inner tree dependency tree
@@ -752,7 +770,7 @@ export async function describeJourney(
     // Nodes
     if (Object.entries(allNodes).length) {
       printMessage(`\nNodes (${Object.entries(allNodes).length}):`, 'data');
-      for (const nodeObj of Object.values<NodeSkeleton>(allNodes)) {
+      for (const nodeObj of sortedValues<NodeSkeleton>(allNodes)) {
         printMessage(
           `- ${Node.getOneLineDescription(
             nodeObj,
@@ -777,7 +795,7 @@ export async function describeJourney(
         `\nScripts (${Object.entries(journeyData.scripts).length}):`,
         'data'
       );
-      for (const scriptData of Object.values(journeyData.scripts)) {
+      for (const scriptData of sortedValues(journeyData.scripts)) {
         printMessage(`- ${Script.getOneLineDescription(scriptData)}`, 'data');
       }
     }
@@ -790,7 +808,7 @@ export async function describeJourney(
         }):`,
         'data'
       );
-      for (const templateData of Object.values(journeyData.emailTemplates)) {
+      for (const templateData of sortedValues(journeyData.emailTemplates)) {
         printMessage(
           `- ${EmailTemplate.getOneLineDescription(templateData)}`,
           'data'
@@ -806,7 +824,7 @@ export async function describeJourney(
         }):`,
         'data'
       );
-      for (const socialIdpData of Object.values(
+      for (const socialIdpData of sortedValues(
         journeyData.socialIdentityProviders
       )) {
         printMessage(`- ${Idp.getOneLineDescription(socialIdpData)}`, 'data');
@@ -821,7 +839,7 @@ export async function describeJourney(
         }):`,
         'data'
       );
-      for (const entityProviderData of Object.values(
+      for (const entityProviderData of sortedValues(
         journeyData.saml2Entities
       )) {
         printMessage(
@@ -839,7 +857,7 @@ export async function describeJourney(
         }):`,
         'data'
       );
-      for (const cotData of Object.values(journeyData.circlesOfTrust)) {
+      for (const cotData of sortedValues(journeyData.circlesOfTrust)) {
         printMessage(
           `- ${CirclesOfTrust.getOneLineDescription(cotData)}`,
           'data'
@@ -970,7 +988,7 @@ export async function describeJourneyMd(
     if (Object.entries(allNodes).length) {
       printMessage(`## Nodes (${Object.entries(allNodes).length})`, 'data');
       printMessage(Node.getTableHeaderMd(), 'data');
-      for (const nodeObj of Object.values<NodeSkeleton>(allNodes)) {
+      for (const nodeObj of sortedValues<NodeSkeleton>(allNodes)) {
         printMessage(
           `${Node.getTableRowMd(nodeObj, getNodeRef(nodeObj, journeyData))}`,
           'data'
@@ -994,7 +1012,7 @@ export async function describeJourneyMd(
         'data'
       );
       printMessage(Script.getTableHeaderMd(), 'data');
-      for (const scriptData of Object.values(journeyData.scripts)) {
+      for (const scriptData of sortedValues(journeyData.scripts)) {
         printMessage(`${Script.getTableRowMd(scriptData)}`, 'data');
       }
     }
@@ -1008,7 +1026,7 @@ export async function describeJourneyMd(
         'data'
       );
       printMessage(EmailTemplate.getTableHeaderMd(), 'data');
-      for (const templateData of Object.values(journeyData.emailTemplates)) {
+      for (const templateData of sortedValues(journeyData.emailTemplates)) {
         printMessage(`${EmailTemplate.getTableRowMd(templateData)}`, 'data');
       }
     }
@@ -1022,7 +1040,7 @@ export async function describeJourneyMd(
         'data'
       );
       printMessage(Idp.getTableHeaderMd(), 'data');
-      for (const socialIdpData of Object.values(
+      for (const socialIdpData of sortedValues(
         journeyData.socialIdentityProviders
       )) {
         printMessage(`${Idp.getTableRowMd(socialIdpData)}`, 'data');
@@ -1038,7 +1056,7 @@ export async function describeJourneyMd(
         'data'
       );
       printMessage(Saml2.getTableHeaderMd(), 'data');
-      for (const entityProviderData of Object.values(
+      for (const entityProviderData of sortedValues(
         journeyData.saml2Entities
       )) {
         printMessage(`${Saml2.getTableRowMd(entityProviderData)}`, 'data');
@@ -1054,7 +1072,7 @@ export async function describeJourneyMd(
         'data'
       );
       printMessage(CirclesOfTrust.getTableHeaderMd(), 'data');
-      for (const cotData of Object.values(journeyData.circlesOfTrust)) {
+      for (const cotData of sortedValues(journeyData.circlesOfTrust)) {
         printMessage(`${CirclesOfTrust.getTableRowMd(cotData)}`, 'data');
       }
     }

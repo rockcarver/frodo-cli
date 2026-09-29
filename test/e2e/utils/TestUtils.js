@@ -4,7 +4,13 @@ import { promisify } from 'util';
 import cp from 'child_process';
 import tmp from 'tmp'
 
-const exec = promisify(cp.exec);
+const execRaw = promisify(cp.exec);
+// Node's child_process default maxBuffer (1MB) is too small for commands that
+// dump full object bodies (e.g. `journey describe` with no filter) against a
+// shared dev tenant that accumulates objects over time.
+const EXEC_MAX_BUFFER = 50 * 1024 * 1024;
+const exec = (command, options = {}) =>
+  execRaw(command, { maxBuffer: EXEC_MAX_BUFFER, ...options });
 const fspromise = fs.promises
 
 /**
@@ -530,7 +536,7 @@ export async function testSuccess(
   let stdout = '';
   let stderr = '';
   const useProcess = runningTimeout || stdin;
-  const proc = useProcess  ? cp.exec(command, env) : await exec(command, env);
+  const proc = useProcess  ? cp.exec(command, { maxBuffer: EXEC_MAX_BUFFER, ...env }) : await exec(command, env);
   if (useProcess) {
     proc.stdout?.on('data', chunk => {
         stdout += chunk;
