@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v4.16.0] - 2026-09-29
+
+### Added
+- Introduced a new `-F, --force-update` global flag for `authz`, `esv`, and `script` commands. This flag allows users to force an import update even if no changes are detected in the remote configuration. Without this flag, the import only occurs if significant changes are found. (#697)
+
+### Fixed
+- Corrected the import order for resource types and resolved non-deterministic behavior in `journey-describe`. (commit 679eb5c0)
+
 ## [v4.15.1] - 2026-09-25
 
 ### Added
@@ -2826,6 +2834,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v4.16.0]: https://github.com/rockcarver/frodo-cli/compare/v4.15.1...v4.16.0
 [v4.15.1]: https://github.com/rockcarver/frodo-cli/compare/v4.15.0...v4.15.1
 [unreleased]: https://github.com/rockcarver/frodo-cli/compare/v4.3.1...HEAD
 [v4.15.0]: https://github.com/rockcarver/frodo-cli/compare/v4.14.0...v4.15.0
