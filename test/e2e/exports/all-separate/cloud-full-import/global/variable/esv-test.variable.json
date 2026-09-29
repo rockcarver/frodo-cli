@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-test": {
+      "_id": "esv-test",
+      "description": "list",
+      "expressionType": "list",
+      "loaded": true,
+      "value": "a,b,c,d"
+    }
+  }
+}

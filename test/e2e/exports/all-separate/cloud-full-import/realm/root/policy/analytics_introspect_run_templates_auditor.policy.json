@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "analytics_introspect_run_templates_auditor": {
+      "_id": "analytics_introspect_run_templates_auditor",
+      "actionValues": {
+        "RUN": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "description": "Admin policy for RUN /reports/templates/*",
+      "name": "analytics_introspect_run_templates_auditor",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports/templates/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

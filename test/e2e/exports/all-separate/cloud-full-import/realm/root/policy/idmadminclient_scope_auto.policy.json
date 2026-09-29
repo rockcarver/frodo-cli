@@ -1,0 +1,33 @@
+{
+  "policy": {
+    "idmadminclient_scope_auto": {
+      "_id": "idmadminclient_scope_auto",
+      "actionValues": {
+        "GRANT": false
+      },
+      "active": true,
+      "applicationName": "idmAdminClient-scope",
+      "description": "Policy for Auto scopes",
+      "name": "idmadminclient_scope_auto",
+      "resourceTypeUuid": "",
+      "resources": [
+        "fr:helix:*",
+        "fr:autoaccess:*",
+        "fr:iga:*",
+        "fr:idc:analytics:*"
+      ],
+      "subject": {
+        "subject": {
+          "subjectValues": [
+            "id=tenant-auditor,ou=group,ou=am-config",
+            "id=tenant-admins,ou=group,ou=am-config",
+            "id=amadmin,ou=user,ou=am-config",
+            "id=super-admins,ou=group,ou=am-config"
+          ],
+          "type": "Identity"
+        },
+        "type": "NOT"
+      }
+    }
+  }
+}

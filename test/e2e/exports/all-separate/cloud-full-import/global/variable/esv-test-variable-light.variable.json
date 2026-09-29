@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-test-variable-light": {
+      "_id": "esv-test-variable-light",
+      "description": "Test variable containing the speed of light in meters per second (as an int).",
+      "expressionType": "int",
+      "loaded": true,
+      "value": "299792458"
+    }
+  }
+}

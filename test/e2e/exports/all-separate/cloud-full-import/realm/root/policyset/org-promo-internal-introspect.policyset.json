@@ -1,0 +1,27 @@
+{
+  "policyset": {
+    "org-promo-internal-introspect": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "OAuth2Scope",
+        "OR",
+        "NOT"
+      ],
+      "description": "The set of policies used by org-promo-internal token introspection",
+      "displayName": "Policies for org-promo-internal token introspection",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "name": "org-promo-internal-introspect",
+      "resourceComparator": null,
+      "resourceTypeUuids": [],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "ResourceOwnerInGroup",
+        "OR",
+        "NOT"
+      ]
+    }
+  }
+}

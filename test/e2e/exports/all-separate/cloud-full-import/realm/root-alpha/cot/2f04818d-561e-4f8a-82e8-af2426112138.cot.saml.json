@@ -1,0 +1,22 @@
+{
+  "saml": {
+    "cot": {
+      "2f04818d-561e-4f8a-82e8-af2426112138": {
+        "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust"
+        },
+        "status": "active",
+        "trustedProviders": [
+          "benefits-IDP|saml2",
+          "iSPAzure|saml2"
+        ]
+      }
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {}
+  }
+}

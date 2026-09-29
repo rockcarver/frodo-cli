@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_esv_introspect_admins__environment_variables___put": {
+      "_id": "org_esv_introspect_admins__environment_variables___put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-esv-introspect",
+      "description": "Admin policy for PUT /environment/variables/*",
+      "name": "org_esv_introspect_admins__environment_variables___put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/variables/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

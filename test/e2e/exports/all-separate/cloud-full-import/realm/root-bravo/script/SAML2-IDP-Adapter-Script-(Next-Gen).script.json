@@ -1,0 +1,14 @@
+{
+  "script": {
+    "7c399b7e-e596-4447-aa7a-071af55e892c": {
+      "_id": "7c399b7e-e596-4447-aa7a-071af55e892c",
+      "context": "SAML2_IDP_ADAPTER_NEXTGEN",
+      "default": true,
+      "description": "Default global script for SAML2 IDP Adapter (Next Gen)",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "SAML2 IDP Adapter Script (Next Gen)",
+      "script": "file://SAML2-IDP-Adapter-Script-(Next-Gen).script.js"
+    }
+  }
+}

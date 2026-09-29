@@ -1,0 +1,37 @@
+{
+  "service": {
+    "email": {
+      "_id": "",
+      "_type": {
+        "_id": "email",
+        "collection": false,
+        "name": "Email Service"
+      },
+      "emailAddressAttribute": "mail",
+      "emailImplClassName": "org.forgerock.openam.services.email.MailServerImpl",
+      "emailRateLimitSeconds": 1,
+      "from": "vscheuber@gmail.com",
+      "location": "/alpha",
+      "message": "Test Message",
+      "nextDescendents": [
+        {
+          "_id": "gmail",
+          "_type": {
+            "_id": "smtpTransports",
+            "collection": true,
+            "name": "SMTP"
+          },
+          "emailImplClassName": "org.forgerock.openam.services.email.MailServerImpl",
+          "hostname": "smtp.gmail.com",
+          "port": 465,
+          "sslState": "SSL",
+          "username": "vscheuber@gmail.com"
+        }
+      ],
+      "port": 465,
+      "sslState": "SSL",
+      "subject": "Test Subject",
+      "transportType": "default-smtp"
+    }
+  }
+}

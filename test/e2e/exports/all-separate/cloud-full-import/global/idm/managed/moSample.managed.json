@@ -1,0 +1,203 @@
+{
+  "name": "moSample",
+  "schema": {
+    "description": "A sample managed object for testing frodo commands",
+    "icon": "",
+    "mat-icon": "directions_boat",
+    "order": [
+      "_id",
+      "string",
+      "number",
+      "boolean",
+      "date",
+      "time",
+      "dateTime",
+      "duration",
+      "object",
+      "objectStructured",
+      "scripts"
+    ],
+    "properties": {
+      "_id": {
+        "description": "moSample ID",
+        "isPersonal": false,
+        "searchable": false,
+        "type": "string",
+        "userEditable": false,
+        "viewable": false
+      },
+      "boolean": {
+        "searchable": false,
+        "title": "Boolean",
+        "type": "boolean",
+        "userEditable": true,
+        "viewable": true
+      },
+      "date": {
+        "format": "date",
+        "searchable": false,
+        "title": "Date",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "dateTime": {
+        "format": "datetime",
+        "searchable": false,
+        "title": "Date/Time",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "duration": {
+        "format": "duration",
+        "searchable": false,
+        "title": "Duration",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "number": {
+        "searchable": false,
+        "title": "Number",
+        "type": "number",
+        "userEditable": true,
+        "viewable": true
+      },
+      "object": {
+        "searchable": false,
+        "title": "Object",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true
+      },
+      "objectStructured": {
+        "order": [
+          "string",
+          "number",
+          "boolean",
+          "date",
+          "time",
+          "dateTime",
+          "duration"
+        ],
+        "properties": {
+          "boolean": {
+            "searchable": false,
+            "title": "Boolean",
+            "type": "boolean",
+            "userEditable": true,
+            "viewable": true
+          },
+          "date": {
+            "format": "date",
+            "searchable": false,
+            "title": "Date",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          },
+          "dateTime": {
+            "format": "datetime",
+            "searchable": false,
+            "title": "Date/Time",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          },
+          "duration": {
+            "format": "duration",
+            "searchable": false,
+            "title": "Duration",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          },
+          "number": {
+            "searchable": false,
+            "title": "Number",
+            "type": "number",
+            "userEditable": true,
+            "viewable": true
+          },
+          "string": {
+            "searchable": false,
+            "title": "String",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          },
+          "time": {
+            "format": "time",
+            "searchable": false,
+            "title": "Time",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          }
+        },
+        "required": [
+          "string"
+        ],
+        "searchable": false,
+        "title": "Object (Structured)",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true
+      },
+      "scripts": {
+        "description": "JavaScripts",
+        "id": "urn:jsonschema:org:forgerock:openidm:managed:api:MoSample:scripts",
+        "notifySelf": false,
+        "properties": {
+          "_ref": {
+            "type": "string"
+          },
+          "_refProperties": {
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "resourceCollection": [
+          {
+            "label": "javascript",
+            "notify": true,
+            "path": "managed/javascript",
+            "query": {
+              "fields": [
+                "string"
+              ],
+              "queryFilter": "true"
+            }
+          }
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": "samples",
+        "reverseRelationship": true,
+        "searchable": false,
+        "title": "Scripts",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
+        "viewable": true
+      },
+      "string": {
+        "searchable": false,
+        "title": "String",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "time": {
+        "format": "time",
+        "searchable": false,
+        "title": "Time",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      }
+    },
+    "required": [],
+    "title": "Managed Object Example"
+  }
+}

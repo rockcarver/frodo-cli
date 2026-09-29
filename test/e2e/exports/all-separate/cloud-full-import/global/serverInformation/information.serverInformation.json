@@ -1,0 +1,33 @@
+{
+  "serverInformation": {
+    "*": {
+      "_id": "*",
+      "cdkDeployment": false,
+      "cloudOnlyFeaturesEnabled": true,
+      "cookieName": "6ac6499e9da2071",
+      "fileBasedConfiguration": true,
+      "forgotPassword": "false",
+      "forgotUsername": "false",
+      "kbaEnabled": "false",
+      "lang": "en-US",
+      "oauth2AIAgentsEnabled": true,
+      "protectedUserAttributes": [
+        "telephoneNumber",
+        "mail"
+      ],
+      "realm": "/",
+      "referralsEnabled": "false",
+      "secureCookie": true,
+      "selfRegistration": "false",
+      "socialImplementations": [],
+      "successfulUserRegistrationDestination": "default",
+      "userIdAttributes": [],
+      "xuiUserSessionValidationEnabled": true,
+      "zeroPageLogin": {
+        "allowedWithoutReferer": true,
+        "enabled": false,
+        "refererWhitelist": []
+      }
+    }
+  }
+}

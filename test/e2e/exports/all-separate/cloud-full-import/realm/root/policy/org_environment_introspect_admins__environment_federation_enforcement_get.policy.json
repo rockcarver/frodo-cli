@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_federation_enforcement_get": {
+      "_id": "org_environment_introspect_admins__environment_federation_enforcement_get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for GET /environment/federation/enforcement",
+      "name": "org_environment_introspect_admins__environment_federation_enforcement_get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/federation/enforcement"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

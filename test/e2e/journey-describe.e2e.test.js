@@ -24,7 +24,12 @@ import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 import fs from "fs";
 
-const exec = promisify(cp.exec);
+const execRaw = promisify(cp.exec);
+// Node's child_process default maxBuffer (1MB) is too small for describing
+// every journey with no filter against a shared dev tenant that accumulates
+// journeys over time.
+const exec = (command, options = {}) =>
+  execRaw(command, { maxBuffer: 50 * 1024 * 1024, ...options });
 
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);

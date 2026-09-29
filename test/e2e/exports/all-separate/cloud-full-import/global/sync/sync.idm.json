@@ -1,0 +1,24 @@
+{
+  "idm": {
+    "sync": {
+      "_id": "sync",
+      "mappings": [
+        "file://test_mapping.sync.json",
+        "file://managedBravo_user_managedBravo_user.sync.json",
+        "file://managedAlpha_user_managedBravo_user/managedAlpha_user_managedBravo_user.sync.json",
+        "file://managedBravo_user_managedAlpha_user.sync.json",
+        "file://AlphaUser2GoogleApps/AlphaUser2GoogleApps.sync.json",
+        "file://managedBravo_group_managedBravo_group.sync.json",
+        "file://managedAlpha_application_managedBravo_application.sync.json",
+        "file://managedAlpha_assignment_managedBravo_assignment.sync.json",
+        "file://managedAlpha_user_systemAzureUser/managedAlpha_user_systemAzureUser.sync.json",
+        "file://managedBravo_user_managedBravo_user0.sync.json",
+        "file://systemAzure__group___managedAlpha_assignment/systemAzure__group___managedAlpha_assignment.sync.json",
+        "file://systemAzureDirectoryrole_managedAlpha_assignment/systemAzureDirectoryrole_managedAlpha_assignment.sync.json",
+        "file://systemAzureServiceplan_managedAlpha_assignment/systemAzureServiceplan_managedAlpha_assignment.sync.json",
+        "file://systemAzureUser_managedAlpha_user/systemAzureUser_managedAlpha_user.sync.json",
+        "file://mapping12.sync.json"
+      ]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "analytics_introspect_create_entities_admin": {
+      "_id": "analytics_introspect_create_entities_admin",
+      "actionValues": {
+        "CREATE": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "description": "Admin policy for CREATE /reports/entities",
+      "name": "analytics_introspect_create_entities_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports/entities"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

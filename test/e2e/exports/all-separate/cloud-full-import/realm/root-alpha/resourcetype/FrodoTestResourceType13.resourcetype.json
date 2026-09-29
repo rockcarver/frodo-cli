@@ -1,0 +1,17 @@
+{
+  "resourcetype": {
+    "0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76": {
+      "actions": {
+        "action1": true,
+        "action2": true
+      },
+      "description": "Frodo Test Resource Type Thirteen",
+      "name": "FrodoTestResourceType13",
+      "patterns": [
+        "pattern2://*:*/*?*",
+        "pattern1://*:*/*"
+      ],
+      "uuid": "0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76"
+    }
+  }
+}

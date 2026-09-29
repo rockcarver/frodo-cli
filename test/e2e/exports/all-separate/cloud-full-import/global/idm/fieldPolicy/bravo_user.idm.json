@@ -1,0 +1,51 @@
+{
+  "idm": {
+    "fieldPolicy/bravo_user": {
+      "_id": "fieldPolicy/bravo_user",
+      "defaultPasswordStorageScheme": [
+        {
+          "_id": "PBKDF2-HMAC-SHA256"
+        }
+      ],
+      "passwordAttribute": "password",
+      "resourceCollection": "managed/bravo_user",
+      "type": "password-policy",
+      "validator": [
+        {
+          "_id": "bravo_userPasswordPolicy-length-based-password-validator",
+          "enabled": true,
+          "maxPasswordLength": 0,
+          "minPasswordLength": 8,
+          "type": "length-based"
+        },
+        {
+          "_id": "bravo_userPasswordPolicy-attribute-value-password-validator",
+          "checkSubstrings": true,
+          "enabled": true,
+          "matchAttribute": [
+            "mail",
+            "userName",
+            "givenName",
+            "sn"
+          ],
+          "minSubstringLength": 5,
+          "testReversedPassword": true,
+          "type": "attribute-value"
+        },
+        {
+          "_id": "bravo_userPasswordPolicy-character-set-password-validator",
+          "allowUnclassifiedCharacters": true,
+          "characterSet": [
+            "0:abcdefghijklmnopqrstuvwxyz",
+            "0:ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            "0:0123456789",
+            "0:~!@#$%^&*()-_=+[]{}|;:,.<>/?\"'\\`"
+          ],
+          "enabled": true,
+          "minCharacterSets": 4,
+          "type": "character-set"
+        }
+      ]
+    }
+  }
+}

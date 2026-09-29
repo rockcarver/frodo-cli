@@ -1,0 +1,14 @@
+{
+  "script": {
+    "a31a1796-8410-46b8-82ca-eb0c6e901775": {
+      "_id": "a31a1796-8410-46b8-82ca-eb0c6e901775",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Collect all the configuration items required for the Set Custom Cookie node to function properly.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Collect Set Custom Cookie Node Config",
+      "script": "file://Collect-Set-Custom-Cookie-Node-Config.script.js"
+    }
+  }
+}

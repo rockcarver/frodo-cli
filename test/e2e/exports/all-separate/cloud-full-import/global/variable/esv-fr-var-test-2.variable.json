@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-fr-var-test-2": {
+      "_id": "esv-fr-var-test-2",
+      "description": "",
+      "expressionType": "int",
+      "loaded": true,
+      "value": "20"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "script": {
+    "91d197de-5916-4dca-83b5-9a4df26e7159": {
+      "_id": "91d197de-5916-4dca-83b5-9a4df26e7159",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "default": true,
+      "description": "Normalizes raw profile data from WordPress",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "name": "WordPress Profile Normalization",
+      "script": "file://WordPress-Profile-Normalization.script.groovy"
+    }
+  }
+}

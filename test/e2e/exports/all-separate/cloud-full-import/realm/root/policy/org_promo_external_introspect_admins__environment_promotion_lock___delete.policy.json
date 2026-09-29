@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_promo_external_introspect_admins__environment_promotion_lock___delete": {
+      "_id": "org_promo_external_introspect_admins__environment_promotion_lock___delete",
+      "actionValues": {
+        "DELETE": true
+      },
+      "active": true,
+      "applicationName": "org-promo-external-introspect",
+      "description": "Admin policy for DELETE /environment/promotion/lock/*",
+      "name": "org_promo_external_introspect_admins__environment_promotion_lock___delete",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/promotion/lock/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "nodeTypes": {
+    "4b76e2122a0541498f380072cd115683-1": {
+      "_id": "4b76e2122a0541498f380072cd115683-1",
+      "description": "Display node state, request params, and request header information. Beware that this node changes state (promotes transient to secure state) by nature of displaying information.",
+      "displayName": "Debug",
+      "errorOutcome": false,
+      "inputs": [
+        "*"
+      ],
+      "outcomes": [
+        "outcome"
+      ],
+      "outputs": [],
+      "properties": {
+        "showNodeState": {
+          "defaultValue": true,
+          "description": "Show node state values.",
+          "multivalued": false,
+          "required": true,
+          "title": "Show Node State",
+          "type": "BOOLEAN"
+        },
+        "showObjectAttributes": {
+          "defaultValue": true,
+          "description": "Show objectAttributes node state object separately.",
+          "multivalued": false,
+          "required": true,
+          "title": "Show objectAttributes Separately",
+          "type": "BOOLEAN"
+        },
+        "showRequestHeaders": {
+          "defaultValue": true,
+          "description": "Show request headers",
+          "multivalued": false,
+          "required": true,
+          "title": "Show Headers",
+          "type": "BOOLEAN"
+        },
+        "showRequestParams": {
+          "defaultValue": true,
+          "description": "Show request query parameters",
+          "multivalued": false,
+          "required": true,
+          "title": "Show Query Params",
+          "type": "BOOLEAN"
+        },
+        "showUserProfile": {
+          "defaultValue": true,
+          "description": "Show user profile attributes.",
+          "multivalued": false,
+          "required": true,
+          "title": "Show User Profile",
+          "type": "BOOLEAN"
+        }
+      },
+      "script": "file://Debug.nodeTypes.js",
+      "serviceName": "4b76e2122a0541498f380072cd115683",
+      "tags": [
+        "debug",
+        "nodeState",
+        "headers",
+        "params",
+        "utilities"
+      ],
+      "version": 1
+    }
+  }
+}

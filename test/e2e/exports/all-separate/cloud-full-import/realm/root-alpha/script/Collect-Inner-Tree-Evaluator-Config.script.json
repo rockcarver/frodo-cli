@@ -1,0 +1,14 @@
+{
+  "script": {
+    "d70df7a8-6390-409d-b821-166272a9a9c8": {
+      "_id": "d70df7a8-6390-409d-b821-166272a9a9c8",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Collect all the configuration items required for the Inner Tree Evaluator to function properly.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Collect Inner Tree Evaluator Config",
+      "script": "file://Collect-Inner-Tree-Evaluator-Config.script.js"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "webhookService": {
+    "test-webhook": {
+      "_id": "test-webhook",
+      "_type": {
+        "_id": "webhooks",
+        "collection": true,
+        "name": "Webhook Service"
+      },
+      "headers": {
+        "accept": "*/*"
+      },
+      "url": "frodo.com/test"
+    }
+  }
+}

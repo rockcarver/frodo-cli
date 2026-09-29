@@ -1,0 +1,58 @@
+{
+  "policyset": {
+    "customerApplicationPolicySet": {
+      "applicationType": "authenticationApplicationType",
+      "attributeNames": [],
+      "conditions": [
+        "AMIdentityMembership",
+        "AND",
+        "AuthLevel",
+        "AuthScheme",
+        "AuthenticateToRealm",
+        "AuthenticateToService",
+        "ClientId",
+        "Expiration",
+        "IPv4",
+        "IPv6",
+        "IdmUser",
+        "Json",
+        "LDAPFilter",
+        "LEAuthLevel",
+        "NOT",
+        "OAuth2Scope",
+        "OR",
+        "Policy",
+        "ResourceEnvIP",
+        "Script",
+        "Session",
+        "SessionProperty",
+        "SimpleTime",
+        "Transaction"
+      ],
+      "description": "Contains policies to be used by the customer application policy decision node.",
+      "displayName": "Customer Application Policy Set",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "name": "customerApplicationPolicySet",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "authenticationResourceType"
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AND",
+        "AuthenticatedUsers",
+        "Identity",
+        "JwtClaim",
+        "NONE",
+        "NOT",
+        "OR",
+        "Policy",
+        "ResourceOwnerInGroup",
+        "ResourceOwnerPresent",
+        "Uma"
+      ]
+    }
+  }
+}

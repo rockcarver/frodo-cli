@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_promo_external_introspect_admins__environment_promotion_rollback_post": {
+      "_id": "org_promo_external_introspect_admins__environment_promotion_rollback_post",
+      "actionValues": {
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "org-promo-external-introspect",
+      "description": "Admin policy for POST /environment/promotion/rollback",
+      "name": "org_promo_external_introspect_admins__environment_promotion_rollback_post",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/promotion/rollback"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

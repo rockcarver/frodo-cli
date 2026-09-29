@@ -1,0 +1,27 @@
+{
+  "policy": {
+    "analytics_introspect_get_metrics_auditor": {
+      "_id": "analytics_introspect_get_metrics_auditor",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "description": "Admin policy for GET /users/metrics",
+      "name": "analytics_introspect_get_metrics_auditor",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/users/metrics",
+        "/users/metrics/v2"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

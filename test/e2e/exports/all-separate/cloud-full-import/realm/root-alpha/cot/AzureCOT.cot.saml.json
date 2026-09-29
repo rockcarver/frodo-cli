@@ -1,0 +1,25 @@
+{
+  "saml": {
+    "cot": {
+      "AzureCOT": {
+        "_id": "AzureCOT",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust"
+        },
+        "status": "active",
+        "trustedProviders": [
+          "iSPAzure|saml2",
+          "urn:federation:MicrosoftOnline|saml2",
+          "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/|saml2",
+          "SPAzure|saml2",
+          "https://idc.scheuber.io/am/saml2/IDPAzure|saml2"
+        ]
+      }
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {}
+  }
+}

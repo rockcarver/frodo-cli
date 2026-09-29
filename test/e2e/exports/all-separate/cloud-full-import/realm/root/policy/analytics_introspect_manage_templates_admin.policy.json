@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "analytics_introspect_manage_templates_admin": {
+      "_id": "analytics_introspect_manage_templates_admin",
+      "actionValues": {
+        "DELETE": true,
+        "DUPLICATE": true,
+        "EDIT": true,
+        "EXPORT": true,
+        "PUBLISH": true,
+        "SEED": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "description": "Admin policy for manage /reports/templates/*",
+      "name": "analytics_introspect_manage_templates_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports/templates/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_p1integration_____delete": {
+      "_id": "org_environment_introspect_admins__environment_p1integration_____delete",
+      "actionValues": {
+        "DELETE": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for DELETE /environment/p1integration/*/*",
+      "name": "org_environment_introspect_admins__environment_p1integration_____delete",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/p1integration/*/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

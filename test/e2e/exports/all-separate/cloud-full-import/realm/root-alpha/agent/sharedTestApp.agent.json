@@ -1,0 +1,16 @@
+{
+  "agent": {
+    "sharedTestApp": {
+      "_id": "sharedTestApp",
+      "_type": {
+        "_id": "SharedAgent",
+        "collection": true,
+        "name": "Shared Agents"
+      },
+      "agentProfilesAllowedToRead": [],
+      "cdssoRootUrl": [],
+      "status": "Active",
+      "userpassword": null
+    }
+  }
+}

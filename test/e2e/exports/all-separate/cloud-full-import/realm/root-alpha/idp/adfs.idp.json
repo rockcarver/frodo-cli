@@ -1,0 +1,54 @@
+{
+  "idp": {
+    "adfs": {
+      "_id": "adfs",
+      "_type": {
+        "_id": "oidcConfig",
+        "collection": true,
+        "name": "Client configuration for providers that implement the OpenID Connect specification."
+      },
+      "acrValues": [],
+      "authenticationIdKey": "sub",
+      "authorizationEndpoint": "https://adfs.mytestrun.com/adfs/oauth2/authorize",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "aa9a179e-cdba-4db8-8477-3d1069d5ec04",
+      "enableNativeNonce": true,
+      "enabled": true,
+      "encryptJwtRequestParameter": false,
+      "encryptedIdTokens": false,
+      "issuer": "https://adfs.mytestrun.com/adfs",
+      "issuerComparisonCheckType": "EXACT",
+      "jwksUriEndpoint": "https://adfs.mytestrun.com/adfs/discovery/keys",
+      "jwtEncryptionAlgorithm": "NONE",
+      "jwtEncryptionMethod": "NONE",
+      "jwtRequestParameterOption": "NONE",
+      "jwtSigningAlgorithm": "RS256",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectURI": "https://idc.scheuber.io/login",
+      "responseMode": "DEFAULT",
+      "revocationCheckOptions": [],
+      "scopeDelimiter": " ",
+      "scopes": [
+        "openid",
+        "profile",
+        "email"
+      ],
+      "tokenEndpoint": "https://adfs.mytestrun.com/adfs/oauth2/token",
+      "transform": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
+      "uiConfig": {
+        "buttonClass": "",
+        "buttonCustomStyle": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
+        "buttonCustomStyleHover": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
+        "buttonDisplayName": "Microsoft ADFS",
+        "buttonImage": "/login/images/microsoft-logo.png",
+        "iconBackground": "#0078d7",
+        "iconClass": "fa-windows",
+        "iconFontColor": "white"
+      },
+      "useCustomTrustStore": false,
+      "userInfoResponseType": "JSON",
+      "wellKnownEndpoint": "https://adfs.mytestrun.com/adfs/.well-known/openid-configuration"
+    }
+  }
+}

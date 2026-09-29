@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "org_promo_external_introspect_admins__environment_promotion_report_provisional_get": {
+      "_id": "org_promo_external_introspect_admins__environment_promotion_report_provisional_get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-promo-external-introspect",
+      "description": "Admin policy for GET /environment/promotion/report/provisional",
+      "name": "org_promo_external_introspect_admins__environment_promotion_report_provisional_get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/promotion/report/provisional"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

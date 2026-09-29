@@ -1,0 +1,19 @@
+{
+  "policy": {
+    "testadfas": {
+      "_id": "testadfas",
+      "actionValues": {},
+      "active": true,
+      "applicationName": "test-policy-set",
+      "description": "",
+      "name": "testadfas",
+      "resourceTypeUuid": "f42519db-f43c-4325-b8d4-04a631ff46cb",
+      "resources": [
+        "test/*"
+      ],
+      "subject": {
+        "type": "NONE"
+      }
+    }
+  }
+}

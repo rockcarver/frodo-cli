@@ -1,0 +1,41 @@
+{
+  "_id": "ConfigManagerPushTest",
+  "_rev": "2131508795",
+  "description": "Test journey",
+  "enabled": true,
+  "entryNodeId": "a77ddb64-45af-4f7b-a734-8a8294f53294",
+  "identityResource": "managed/user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "a77ddb64-45af-4f7b-a734-8a8294f53294": {
+      "connections": {
+        "error": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Inner Test",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "x": 1172,
+      "y": 141.5
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 440,
+      "y": 284
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1454,
+      "y": 182
+    },
+    "startNode": {
+      "x": 70,
+      "y": 182
+    }
+  },
+  "uiConfig": {
+    "categories": "[\"Test\"]"
+  }
+}

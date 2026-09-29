@@ -1,0 +1,14 @@
+{
+  "script": {
+    "c0413dae-fdd1-45b7-9302-61d6ae02b194": {
+      "_id": "c0413dae-fdd1-45b7-9302-61d6ae02b194",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Debug to show AM States",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "FR-Debug",
+      "script": "file://FR-Debug.script.js"
+    }
+  }
+}

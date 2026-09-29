@@ -1,0 +1,14 @@
+{
+  "script": {
+    "60609c1a-4cef-4729-a417-354aafdebf3f": {
+      "_id": "60609c1a-4cef-4729-a417-354aafdebf3f",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "default": true,
+      "description": "Normalizes raw profile data from LINE",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "name": "LINE Profile Normalization",
+      "script": "file://LINE-Profile-Normalization.script.groovy"
+    }
+  }
+}

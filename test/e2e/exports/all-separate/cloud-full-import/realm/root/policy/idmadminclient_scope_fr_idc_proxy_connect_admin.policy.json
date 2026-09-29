@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "idmadminclient_scope_fr_idc_proxy_connect_admin": {
+      "_id": "idmadminclient_scope_fr_idc_proxy_connect_admin",
+      "actionValues": {
+        "GRANT": false
+      },
+      "active": false,
+      "applicationName": "idmAdminClient-scope",
+      "description": "Policy for fr:idc:proxy-connect:*",
+      "name": "idmadminclient_scope_fr_idc_proxy_connect_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "fr:idc:proxy-connect:*"
+      ],
+      "subject": {
+        "subject": {
+          "subjectValues": [
+            "id=tenant-auditor,ou=group,ou=am-config",
+            "id=tenant-admins,ou=group,ou=am-config",
+            "id=amadmin,ou=user,ou=am-config",
+            "id=super-admins,ou=group,ou=am-config"
+          ],
+          "type": "Identity"
+        },
+        "type": "NOT"
+      }
+    }
+  }
+}

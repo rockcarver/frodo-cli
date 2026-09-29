@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-nebuchadnezzar-crew": {
+      "_id": "esv-nebuchadnezzar-crew",
+      "description": "The crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "array",
+      "loaded": true,
+      "value": "[\"Morpheus\",\"Trinity\",\"Link\",\"Tank\",\"Dozer\",\"Apoc\",\"Cypher\",\"Mouse\",\"Neo\",\"Switch\"]"
+    }
+  }
+}

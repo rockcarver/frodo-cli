@@ -44,25 +44,127 @@ No configuration was imported.
 "
 `;
 
-exports[`frodo config import Forgeops "frodo config import -FAD test/e2e/exports/all-separate/forgeops -m forgeops" Import everything from directory "test/e2e/exports/all-separate/forgeops". 1`] = `
-"Error Importing Services
-  Error importing services
-    Error putting global full service configs
-      Error putting global full service config DataStoreService
-        Error putting descendent 'application-store' of service 'DataStoreService'
-          Network error:
-            URL: https://nightly.gcp.forgeops.com/am/json/global-config/services/DataStoreService/config/application-store
-            Status: 400
-            Code: ERR_BAD_REQUEST
-            Reason: Bad Request
-            Message: The request body must include 'bindPassword'.
-✔ Finished Importing Everything to global!
-✔ Resolved all / realm dependencies.
-• Finished importing / realm journeys
+exports[`frodo config import Cloud "frodo config import -AD test/e2e/exports/all-separate/cloud-full-import" Import everything from directory "test/e2e/exports/all-separate/cloud-full-import" 1`] = `
+"✔ Finished Importing Everything to global!
 ✔ Finished Importing Everything to root realm!
+Error updating alpha realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+Error updating alpha realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+✔ Resolved all alpha realm dependencies.
+• Finished importing alpha realm journeys
+Error Importing Services
+  Error importing services
+    Error putting alpha realm full service configs
+      Error putting alpha realm full service config email
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/services/email
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Transport Type
+✔ Finished Importing Everything to root-alpha realm!
+Error updating bravo realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+Error updating bravo realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+✔ Resolved all bravo realm dependencies.
+Error importing the bravo realm journey undefined
+  Error importing bravo realm journey 'IntervieweeFullVerification'
+    Error importing bravo realm inner node 1895ec19-f7ca-45b4-ae9b-20946e7183ef in journey IntervieweeFullVerification
+      Network error:
+        URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/realm-config/authentication/authenticationtrees/nodes/PingOneVerifyProofing/1.0/1895ec19-f7ca-45b4-ae9b-20946e7183ef
+        Status: 400
+        Code: ERR_BAD_REQUEST
+        Reason: Bad Request
+        Message: Data validation failed for the attribute, PingOne Service
+Error importing the bravo realm journey undefined
+  Error importing bravo realm journey 'IntervieweeSelfieAuthentication'
+    Error importing bravo realm inner node e08c5232-2b8c-4d40-958b-2cb5a261d5e6 in journey IntervieweeSelfieAuthentication
+      Network error:
+        URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/realm-config/authentication/authenticationtrees/nodes/PingOneVerifyAuthentication/1.0/e08c5232-2b8c-4d40-958b-2cb5a261d5e6
+        Status: 400
+        Code: ERR_BAD_REQUEST
+        Reason: Bad Request
+        Message: Data validation failed for the attribute, PingOne Service
+Error importing the bravo realm journey undefined
+  Error importing bravo realm journey 'IntervieweeRegistration'
+    Error importing bravo realm node 2295c6bc-6eb5-4822-978e-640312c34ea0 in journey IntervieweeRegistration
+      Network error:
+        URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/realm-config/authentication/authenticationtrees/nodes/InnerTreeEvaluatorNode/1.0/2295c6bc-6eb5-4822-978e-640312c34ea0
+        Status: 400
+        Code: ERR_BAD_REQUEST
+        Reason: Bad Request
+        Message: Data validation failed for the attribute, Tree Name
+• Finished importing bravo realm journeys
+✔ Finished Importing Everything to root-bravo realm!
+✔ Finished Importing all other AM config entities!
+"
+`;
+
+exports[`frodo config import Cloud "frodo config import -AD test/e2e/exports/all-separate/cloud-full-import" Import everything from directory "test/e2e/exports/all-separate/cloud-full-import" 2`] = `1`;
+
+exports[`frodo config import Cloud "frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json" Import everything from "all.cloud-full-import.json", including default scripts. 1`] = `
+"✔ Finished Importing Everything to global!
+Error Importing Circles of Trust
+  Error importing / realm circles of trust
+    Error reading / realm saml2 entity ids
+      Network error:
+        URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realm-config/saml2?_queryFilter=true
+        Status: 403
+        Code: ERR_BAD_REQUEST
+        Reason: Forbidden
+        Message: This operation is not available in PingOne Advanced Identity Cloud.
+✔ Finished Importing Everything to root realm!
+Error updating alpha realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+Error updating alpha realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
 ✔ Resolved all alpha realm dependencies.
 • Finished importing alpha realm journeys
 ✔ Finished Importing Everything to root-alpha realm!
+Error updating bravo realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
+    Status: 502
+    Code: ERR_BAD_RESPONSE
+Error updating bravo realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
 ✔ Resolved all bravo realm dependencies.
 • Finished importing bravo realm journeys
 ✔ Finished Importing Everything to root-bravo realm!
@@ -70,32 +172,4 @@ exports[`frodo config import Forgeops "frodo config import -FAD test/e2e/exports
 "
 `;
 
-exports[`frodo config import Forgeops "frodo config import -FAD test/e2e/exports/all-separate/forgeops -m forgeops" Import everything from directory "test/e2e/exports/all-separate/forgeops". 2`] = `1`;
-
-exports[`frodo config import Forgeops "frodo config import -af test/e2e/exports/all/forgeops/all.forgeops.json -m forgeops" Import everything from "all.forgeops.json". 1`] = `
-"Error Importing Services
-  Error importing services
-    Error putting global full service configs
-      Error putting global full service config DataStoreService
-        Error putting descendent 'application-store' of service 'DataStoreService'
-          Network error:
-            URL: https://nightly.gcp.forgeops.com/am/json/global-config/services/DataStoreService/config/application-store
-            Status: 400
-            Code: ERR_BAD_REQUEST
-            Reason: Bad Request
-            Message: The request body must include 'bindPassword'.
-✔ Finished Importing Everything to global!
-✔ Resolved all / realm dependencies.
-• Finished importing / realm journeys
-✔ Finished Importing Everything to root realm!
-✔ Resolved all alpha realm dependencies.
-• Finished importing alpha realm journeys
-✔ Finished Importing Everything to root-alpha realm!
-✔ Resolved all bravo realm dependencies.
-• Finished importing bravo realm journeys
-✔ Finished Importing Everything to root-bravo realm!
-✔ Finished Importing all other AM config entities!
-"
-`;
-
-exports[`frodo config import Forgeops "frodo config import -af test/e2e/exports/all/forgeops/all.forgeops.json -m forgeops" Import everything from "all.forgeops.json". 2`] = `1`;
+exports[`frodo config import Cloud "frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json" Import everything from "all.cloud-full-import.json", including default scripts. 2`] = `1`;

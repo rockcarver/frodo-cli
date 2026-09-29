@@ -1,0 +1,64 @@
+{
+  "nodeTypes": {
+    "c15e2efb3deb4d4ea338c74a6440b69f-1": {
+      "_id": "c15e2efb3deb4d4ea338c74a6440b69f-1",
+      "description": "Simple ALU that performs basic binary vector math operations. Outputs the result onto the shared state with key \"c\".",
+      "displayName": "Vector ALU",
+      "errorOutcome": true,
+      "inputs": [],
+      "outcomes": [
+        "Success"
+      ],
+      "outputs": [
+        "c"
+      ],
+      "properties": {
+        "a": {
+          "defaultValue": [
+            1,
+            2,
+            3
+          ],
+          "description": "Left vector operand",
+          "multivalued": true,
+          "required": true,
+          "title": "A",
+          "type": "NUMBER"
+        },
+        "b": {
+          "defaultValue": [
+            4,
+            5,
+            6
+          ],
+          "description": "Right vector operand",
+          "multivalued": true,
+          "required": true,
+          "title": "B",
+          "type": "NUMBER"
+        },
+        "operator": {
+          "defaultValue": "DOT",
+          "description": "The binary operation to perform on the vectors.",
+          "multivalued": false,
+          "options": {
+            "ADD": "+",
+            "CROSS": "X",
+            "DOT": ".",
+            "SUBTRACT": "-"
+          },
+          "required": true,
+          "title": "Operator",
+          "type": "STRING"
+        }
+      },
+      "script": "file://Vector-ALU.nodeTypes.js",
+      "serviceName": "c15e2efb3deb4d4ea338c74a6440b69f",
+      "tags": [
+        "math",
+        "vector",
+        "utilities"
+      ]
+    }
+  }
+}

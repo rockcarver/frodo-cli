@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "1686201e-9aac-4ecb-9e93-34986a359cf9": {
+      "_id": "1686201e-9aac-4ecb-9e93-34986a359cf9",
+      "actionValues": {
+        "MODIFY": true,
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "description": "",
+      "name": "1686201e-9aac-4ecb-9e93-34986a359cf9",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://*ou=am-config/*"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=org-engine-client,ou=agent,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

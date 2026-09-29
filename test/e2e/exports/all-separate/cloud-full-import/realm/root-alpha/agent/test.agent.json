@@ -1,0 +1,31 @@
+{
+  "agent": {
+    "test": {
+      "_id": "test",
+      "_type": {
+        "_id": "RemoteConsentAgent",
+        "collection": true,
+        "name": "OAuth2 Remote Consent Service"
+      },
+      "agentgroup": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "metadataUrl": null,
+      "publicKeyLocation": "jwks_uri",
+      "pushedConsentAuthenticationMethod": "None",
+      "pushedConsentRequestUrl": null,
+      "remoteConsentRedirectUrl": null,
+      "remoteConsentRequestEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentRequestEncryptionEnabled": true,
+      "remoteConsentRequestEncryptionMethod": "A128GCM",
+      "remoteConsentRequestSigningAlgorithm": "RS256",
+      "remoteConsentResponseEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentResponseEncryptionMethod": "A128GCM",
+      "remoteConsentResponseSigningAlg": "RS256",
+      "requestTimeLimit": 180,
+      "resourceOwnerSessionProperties": {}
+    }
+  }
+}

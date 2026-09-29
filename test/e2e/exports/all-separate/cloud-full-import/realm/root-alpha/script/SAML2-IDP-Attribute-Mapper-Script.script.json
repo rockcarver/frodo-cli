@@ -1,0 +1,14 @@
+{
+  "script": {
+    "c4f22465-2368-4e27-8013-e6399974fd48": {
+      "_id": "c4f22465-2368-4e27-8013-e6399974fd48",
+      "context": "SAML2_IDP_ATTRIBUTE_MAPPER",
+      "default": true,
+      "description": "Default global script for SAML2 IDP Attribute Mapper Script",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "SAML2 IDP Attribute Mapper Script",
+      "script": "file://SAML2-IDP-Attribute-Mapper-Script.script.js"
+    }
+  }
+}

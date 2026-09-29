@@ -1,0 +1,14 @@
+{
+  "script": {
+    "2a196ca6-6da2-46e5-8224-764fdbdd2007": {
+      "_id": "2a196ca6-6da2-46e5-8224-764fdbdd2007",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "This script will send an SMS to the phone number in the user's profile.",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "Twilio SMS Sender",
+      "script": "file://Twilio-SMS-Sender.script.js"
+    }
+  }
+}

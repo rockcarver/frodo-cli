@@ -1,0 +1,27 @@
+{
+  "policyset": {
+    "org-esv-introspect": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "OAuth2Scope",
+        "OR",
+        "NOT"
+      ],
+      "description": "The set of policies used by org-esv token introspection",
+      "displayName": "Policies for org-esv token introspection",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "name": "org-esv-introspect",
+      "resourceComparator": null,
+      "resourceTypeUuids": [],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "ResourceOwnerInGroup",
+        "OR",
+        "NOT"
+      ]
+    }
+  }
+}

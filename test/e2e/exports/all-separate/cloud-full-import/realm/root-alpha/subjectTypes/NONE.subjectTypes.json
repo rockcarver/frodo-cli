@@ -1,0 +1,13 @@
+{
+  "subjectTypes": {
+    "NONE": {
+      "_id": "NONE",
+      "config": {
+        "properties": {},
+        "type": "object"
+      },
+      "logical": false,
+      "title": "NONE"
+    }
+  }
+}

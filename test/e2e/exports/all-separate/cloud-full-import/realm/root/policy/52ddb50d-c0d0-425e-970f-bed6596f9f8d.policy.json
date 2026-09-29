@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "52ddb50d-c0d0-425e-970f-bed6596f9f8d": {
+      "_id": "52ddb50d-c0d0-425e-970f-bed6596f9f8d",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "platformUIPolicySet",
+      "description": "Tenant auditor policy for Platform UI",
+      "name": "52ddb50d-c0d0-425e-970f-bed6596f9f8d",
+      "resourceTypeUuid": "",
+      "resources": [
+        "menuItem:/*",
+        "route:/*"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=tenant-auditor,ou=group,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

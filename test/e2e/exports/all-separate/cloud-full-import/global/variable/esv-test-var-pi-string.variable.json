@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-test-var-pi-string": {
+      "_id": "esv-test-var-pi-string",
+      "description": "This is a test variable of pi.",
+      "expressionType": "string",
+      "loaded": true,
+      "value": "3.14"
+    }
+  }
+}

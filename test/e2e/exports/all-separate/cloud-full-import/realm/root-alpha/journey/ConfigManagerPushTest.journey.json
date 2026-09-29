@@ -1,0 +1,83 @@
+{
+  "trees": {
+    "ConfigManagerPushTest": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "a77ddb64-45af-4f7b-a734-8a8294f53294": {
+          "_id": "a77ddb64-45af-4f7b-a734-8a8294f53294",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            },
+            {
+              "displayName": "Error",
+              "id": "error"
+            }
+          ],
+          "_type": {
+            "_id": "InnerTreeEvaluatorNode",
+            "collection": true,
+            "name": "Inner Tree Evaluator",
+            "version": "1.0"
+          },
+          "displayErrorOutcome": true,
+          "tree": "ConfigManagerPushInnerTest"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "ConfigManagerPushTest",
+        "description": "Test journey",
+        "enabled": true,
+        "entryNodeId": "a77ddb64-45af-4f7b-a734-8a8294f53294",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "a77ddb64-45af-4f7b-a734-8a8294f53294": {
+            "connections": {
+              "error": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Inner Test",
+            "nodeType": "InnerTreeEvaluatorNode",
+            "version": "1.0",
+            "x": 1172,
+            "y": 141.5
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 440,
+            "y": 284
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1454,
+            "y": 182
+          },
+          "startNode": {
+            "x": 70,
+            "y": 182
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[\"Test\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

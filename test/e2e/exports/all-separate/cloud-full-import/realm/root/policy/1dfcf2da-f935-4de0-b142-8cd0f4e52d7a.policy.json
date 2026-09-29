@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "1dfcf2da-f935-4de0-b142-8cd0f4e52d7a": {
+      "_id": "1dfcf2da-f935-4de0-b142-8cd0f4e52d7a",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "description": "",
+      "name": "1dfcf2da-f935-4de0-b142-8cd0f4e52d7a",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://ou=am-config/rest/1.0/contexts/read"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=helix-journey-ai-explain-client,ou=agent,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

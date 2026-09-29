@@ -1,0 +1,14 @@
+{
+  "script": {
+    "48df3aaf-ea53-4dba-a913-3c2e18e69de0": {
+      "_id": "48df3aaf-ea53-4dba-a913-3c2e18e69de0",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Send email message",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "Send EMAIL Message",
+      "script": "file://Send-EMAIL-Message.script.js"
+    }
+  }
+}

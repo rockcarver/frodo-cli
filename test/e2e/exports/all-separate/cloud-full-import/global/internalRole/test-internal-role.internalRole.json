@@ -1,0 +1,330 @@
+{
+  "internalRole": {
+    "ccb11ba1-333b-4197-95db-89bb08a2ab56": {
+      "_id": "ccb11ba1-333b-4197-95db-89bb08a2ab56",
+      "condition": "/description co \"somerandomstring\"",
+      "description": "A test internal role",
+      "name": "test-internal-role",
+      "privileges": [
+        {
+          "accessFlags": [
+            {
+              "attribute": "userName",
+              "readOnly": false
+            },
+            {
+              "attribute": "givenName",
+              "readOnly": false
+            },
+            {
+              "attribute": "cn",
+              "readOnly": false
+            },
+            {
+              "attribute": "sn",
+              "readOnly": false
+            },
+            {
+              "attribute": "mail",
+              "readOnly": false
+            },
+            {
+              "attribute": "profileImage",
+              "readOnly": true
+            },
+            {
+              "attribute": "description",
+              "readOnly": false
+            },
+            {
+              "attribute": "accountStatus",
+              "readOnly": true
+            },
+            {
+              "attribute": "telephoneNumber",
+              "readOnly": true
+            },
+            {
+              "attribute": "postalAddress",
+              "readOnly": true
+            },
+            {
+              "attribute": "city",
+              "readOnly": true
+            },
+            {
+              "attribute": "postalCode",
+              "readOnly": true
+            },
+            {
+              "attribute": "country",
+              "readOnly": true
+            },
+            {
+              "attribute": "stateProvince",
+              "readOnly": true
+            },
+            {
+              "attribute": "roles",
+              "readOnly": true
+            },
+            {
+              "attribute": "assignments",
+              "readOnly": true
+            },
+            {
+              "attribute": "groups",
+              "readOnly": true
+            },
+            {
+              "attribute": "applications",
+              "readOnly": true
+            },
+            {
+              "attribute": "manager",
+              "readOnly": true
+            },
+            {
+              "attribute": "authzRoles",
+              "readOnly": true
+            },
+            {
+              "attribute": "reports",
+              "readOnly": true
+            },
+            {
+              "attribute": "effectiveRoles",
+              "readOnly": true
+            },
+            {
+              "attribute": "effectiveAssignments",
+              "readOnly": true
+            },
+            {
+              "attribute": "effectiveGroups",
+              "readOnly": true
+            },
+            {
+              "attribute": "effectiveApplications",
+              "readOnly": true
+            },
+            {
+              "attribute": "lastSync",
+              "readOnly": true
+            },
+            {
+              "attribute": "kbaInfo",
+              "readOnly": true
+            },
+            {
+              "attribute": "preferences",
+              "readOnly": true
+            },
+            {
+              "attribute": "consentedMappings",
+              "readOnly": true
+            },
+            {
+              "attribute": "ownerOfOrg",
+              "readOnly": true
+            },
+            {
+              "attribute": "adminOfOrg",
+              "readOnly": true
+            },
+            {
+              "attribute": "memberOfOrg",
+              "readOnly": true
+            },
+            {
+              "attribute": "memberOfOrgIDs",
+              "readOnly": true
+            },
+            {
+              "attribute": "ownerOfApp",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedString1",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedString2",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedString3",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedString4",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedString5",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedString1",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedString2",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedString3",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedString4",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedString5",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedMultivalued1",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedMultivalued2",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedMultivalued3",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedMultivalued4",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedMultivalued5",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedMultivalued1",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedMultivalued2",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedMultivalued3",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedMultivalued4",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedMultivalued5",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedDate1",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedDate2",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedDate3",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedDate4",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedDate5",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedDate1",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedDate2",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedDate3",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedDate4",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedDate5",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedInteger1",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedInteger2",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedInteger3",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedInteger4",
+              "readOnly": true
+            },
+            {
+              "attribute": "frIndexedInteger5",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedInteger1",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedInteger2",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedInteger3",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedInteger4",
+              "readOnly": true
+            },
+            {
+              "attribute": "frUnindexedInteger5",
+              "readOnly": true
+            },
+            {
+              "attribute": "assignedDashboard",
+              "readOnly": true
+            }
+          ],
+          "actions": [],
+          "filter": "/userName co \"test\"",
+          "name": "Alpha realm - Users",
+          "path": "managed/alpha_user",
+          "permissions": [
+            "VIEW",
+            "UPDATE",
+            "CREATE"
+          ]
+        }
+      ],
+      "temporalConstraints": [
+        {
+          "duration": "2024-11-04T12:45:00.000Z/2100-12-01T12:45:00.000Z"
+        }
+      ]
+    }
+  }
+}

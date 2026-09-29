@@ -1,0 +1,14 @@
+{
+  "script": {
+    "ac40a394-b3cd-400f-b2aa-b6b2e4a8be8e": {
+      "_id": "ac40a394-b3cd-400f-b2aa-b6b2e4a8be8e",
+      "context": "CACHE_LOADER",
+      "default": true,
+      "description": "Default global script for Cache Loader",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "Cache Loader Script",
+      "script": "file://Cache-Loader-Script.script.js"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "conditionTypes": {
+    "Script": {
+      "_id": "Script",
+      "config": {
+        "properties": {
+          "scriptId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "Script"
+    }
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "_id": "sync/AlphaUser2GoogleApps",
+  "consentRequired": false,
+  "correlationQuery": [
+    {
+      "expressionTree": {
+        "all": [
+          "__NAME__"
+        ]
+      },
+      "file": "ui/correlateTreeToQueryFilter.js",
+      "linkQualifier": "default",
+      "mapping": "AlphaUser2GoogleApps",
+      "type": "text/javascript"
+    }
+  ],
+  "displayName": "AlphaUser2GoogleApps",
+  "enableSync": {
+    "$bool": "&{esv.gac.enable.mapping}"
+  },
+  "icon": null,
+  "name": "AlphaUser2GoogleApps",
+  "onCreate": {
+    "globals": {},
+    "source": "file://onCreate.js",
+    "type": "text/javascript"
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "file://onUpdate.js",
+    "type": "text/javascript"
+  },
+  "policies": [
+    {
+      "action": "EXCEPTION",
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": "UNLINK",
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "file://MISSING.action.js",
+        "type": "text/javascript"
+      },
+      "situation": "MISSING"
+    },
+    {
+      "action": "EXCEPTION",
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "UNQUALIFIED"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": "UNLINK",
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": "UPDATE",
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": "LINK",
+      "situation": "FOUND"
+    },
+    {
+      "action": "CREATE",
+      "situation": "ABSENT"
+    }
+  ],
+  "properties": [
+    {
+      "condition": {
+        "globals": {},
+        "source": "file://custom_password_encrypted.__PASSWORD__.condition.js",
+        "type": "text/javascript"
+      },
+      "source": "custom_password_encrypted",
+      "target": "__PASSWORD__",
+      "transform": {
+        "globals": {},
+        "source": "file://custom_password_encrypted.__PASSWORD__.transform.js",
+        "type": "text/javascript"
+      }
+    },
+    {
+      "source": "cn",
+      "target": "__NAME__",
+      "transform": {
+        "globals": {},
+        "source": "file://cn.__NAME__.transform.js",
+        "type": "text/javascript"
+      }
+    },
+    {
+      "source": "givenName",
+      "target": "givenName"
+    },
+    {
+      "source": "",
+      "target": "familyName",
+      "transform": {
+        "globals": {},
+        "source": "file://SOURCE.familyName.transform.js",
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "queuedSync": {
+    "enabled": true,
+    "maxQueueSize": 20000,
+    "maxRetries": 5,
+    "pageSize": 100,
+    "pollingInterval": 1000,
+    "postRetryAction": "logged-ignore",
+    "retryDelay": 1000
+  },
+  "source": "managed/alpha_user",
+  "syncAfter": [
+    "test_mapping",
+    "managedBravo_user_managedBravo_user",
+    "managedAlpha_user_managedBravo_user",
+    "managedBravo_user_managedAlpha_user"
+  ],
+  "target": "system/GoogleApps/__ACCOUNT__",
+  "validSource": {
+    "globals": {},
+    "source": "file://validSource.js",
+    "type": "text/javascript"
+  }
+}

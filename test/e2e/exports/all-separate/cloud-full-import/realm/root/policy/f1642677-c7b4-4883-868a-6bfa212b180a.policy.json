@@ -1,0 +1,27 @@
+{
+  "policy": {
+    "f1642677-c7b4-4883-868a-6bfa212b180a": {
+      "_id": "f1642677-c7b4-4883-868a-6bfa212b180a",
+      "actionValues": {
+        "READ": true,
+        "WRITE": true
+      },
+      "active": true,
+      "applicationName": "platformUIPolicySet",
+      "description": "Brand Admin policy for Platform UI",
+      "name": "f1642677-c7b4-4883-868a-6bfa212b180a",
+      "resourceTypeUuid": "",
+      "resources": [
+        "route:/HostedPagesEdit",
+        "menuItem:/sideMenu.hostedPages",
+        "route:/HostedPages"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=brand-admin,ou=group,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

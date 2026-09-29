@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_csrs___delete": {
+      "_id": "org_environment_introspect_admins__environment_csrs___delete",
+      "actionValues": {
+        "DELETE": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for DELETE /environment/csrs/*",
+      "name": "org_environment_introspect_admins__environment_csrs___delete",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/csrs/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

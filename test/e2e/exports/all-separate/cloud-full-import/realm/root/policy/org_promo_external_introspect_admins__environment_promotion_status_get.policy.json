@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "org_promo_external_introspect_admins__environment_promotion_status_get": {
+      "_id": "org_promo_external_introspect_admins__environment_promotion_status_get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-promo-external-introspect",
+      "description": "Admin policy for GET /environment/promotion/status",
+      "name": "org_promo_external_introspect_admins__environment_promotion_status_get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/promotion/status"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

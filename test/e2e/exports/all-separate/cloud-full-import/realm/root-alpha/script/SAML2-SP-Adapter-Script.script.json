@@ -1,0 +1,14 @@
+{
+  "script": {
+    "69f06e63-128c-4e2f-af52-079a8a6f448b": {
+      "_id": "69f06e63-128c-4e2f-af52-079a8a6f448b",
+      "context": "SAML2_SP_ADAPTER",
+      "default": true,
+      "description": "Default global script for SAML2 SP Adapter",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "SAML2 SP Adapter Script",
+      "script": "file://SAML2-SP-Adapter-Script.script.js"
+    }
+  }
+}

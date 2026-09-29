@@ -1,0 +1,18 @@
+{
+  "idm": {
+    "FrodoTestEmailTemplate2": {
+      "_id": "FrodoTestEmailTemplate2",
+      "defaultLocale": "en",
+      "displayName": "Frodo Test Email Template Two",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>This is your one-time password:</h3><h4>{{object.description}}</a></h4>"
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "One-Time Password for login"
+      }
+    }
+  }
+}

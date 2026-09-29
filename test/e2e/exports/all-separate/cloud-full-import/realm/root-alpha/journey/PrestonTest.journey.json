@@ -1,0 +1,111 @@
+{
+  "trees": {
+    "PrestonTest": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "ebce4ad5-8a1a-4d56-beca-193a8a5e7337": {
+          "_id": "ebce4ad5-8a1a-4d56-beca-193a8a5e7337",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "SetFailureUrlNode",
+            "collection": true,
+            "name": "Failure URL",
+            "version": "1.0"
+          },
+          "failureUrl": "#/service/PrestonTest"
+        },
+        "f280317b-d7e7-4098-9f36-1ba429ec24df": {
+          "_id": "f280317b-d7e7-4098-9f36-1ba429ec24df",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node",
+            "version": "1.0"
+          },
+          "message": {
+            "en": "True or False"
+          },
+          "messageNo": {
+            "en": "False"
+          },
+          "messageYes": {
+            "en": "True"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "PrestonTest",
+        "description": "Test journey with a script that no longer exists, to fix a journey export issue.",
+        "enabled": true,
+        "entryNodeId": "f280317b-d7e7-4098-9f36-1ba429ec24df",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "ebce4ad5-8a1a-4d56-beca-193a8a5e7337": {
+            "connections": {
+              "outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Failure URL",
+            "nodeType": "SetFailureUrlNode",
+            "version": "1.0",
+            "x": 477,
+            "y": 315.8125
+          },
+          "f280317b-d7e7-4098-9f36-1ba429ec24df": {
+            "connections": {
+              "false": "ebce4ad5-8a1a-4d56-beca-193a8a5e7337",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "True or false",
+            "nodeType": "MessageNode",
+            "version": "1.0",
+            "x": 218,
+            "y": 249.8125
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 500,
+            "y": 50
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 713,
+            "y": 343
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

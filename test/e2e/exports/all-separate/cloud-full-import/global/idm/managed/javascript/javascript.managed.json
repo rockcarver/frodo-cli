@@ -1,0 +1,633 @@
+{
+  "name": "javascript",
+  "onCreate": {
+    "globals": {},
+    "source": "file://onCreate.groovy",
+    "type": "groovy"
+  },
+  "onDelete": {
+    "globals": {},
+    "source": "file://onDelete.js",
+    "type": "text/javascript"
+  },
+  "onRead": {
+    "globals": {},
+    "source": "file://onRead.js",
+    "type": "text/javascript"
+  },
+  "onRetrieve": {
+    "globals": {},
+    "source": "file://onRetrieve.js",
+    "type": "text/javascript"
+  },
+  "onStore": {
+    "globals": {},
+    "source": "file://onStore.js",
+    "type": "text/javascript"
+  },
+  "onSync": {
+    "globals": {},
+    "source": "file://onSync.js",
+    "type": "text/javascript"
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "file://onUpdate.js",
+    "type": "text/javascript"
+  },
+  "onValidate": {
+    "globals": {},
+    "source": "file://onValidate.js",
+    "type": "text/javascript"
+  },
+  "postCreate": {
+    "globals": {},
+    "source": "file://postCreate.js",
+    "type": "text/javascript"
+  },
+  "postDelete": {
+    "globals": {},
+    "source": "file://postDelete.js",
+    "type": "text/javascript"
+  },
+  "postUpdate": {
+    "globals": {},
+    "source": "file://postUpdate.js",
+    "type": "text/javascript"
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "Managed object that contains Javascript scripts",
+    "icon": "fa-jsfiddle",
+    "mat-icon": "",
+    "order": [
+      "object",
+      "string",
+      "boolean",
+      "number",
+      "array",
+      "samples"
+    ],
+    "properties": {
+      "array": {
+        "description": null,
+        "isVirtual": false,
+        "items": {
+          "order": [
+            "array",
+            "object"
+          ],
+          "properties": {
+            "array": {
+              "description": null,
+              "isVirtual": false,
+              "items": {
+                "type": "boolean"
+              },
+              "onRetrieve": {
+                "globals": {},
+                "source": "file://array.items.array.onRetrieve.js",
+                "type": "text/javascript"
+              },
+              "onStore": {
+                "globals": {},
+                "source": "file://array.items.array.onStore.js",
+                "type": "text/javascript"
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "file://array.items.array.onValidate.js",
+                "type": "text/javascript"
+              },
+              "searchable": false,
+              "title": "Array",
+              "type": "array",
+              "userEditable": true,
+              "viewable": true
+            },
+            "object": {
+              "description": null,
+              "isVirtual": false,
+              "nullable": false,
+              "onRetrieve": {
+                "globals": {},
+                "source": "file://array.items.object.onRetrieve.js",
+                "type": "text/javascript"
+              },
+              "onStore": {
+                "globals": {},
+                "source": "file://array.items.object.onStore.js",
+                "type": "text/javascript"
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "file://array.items.object.onValidate.js",
+                "type": "text/javascript"
+              },
+              "order": [
+                "object",
+                "string"
+              ],
+              "properties": {
+                "object": {
+                  "description": null,
+                  "isVirtual": false,
+                  "nullable": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onRetrieve.js",
+                    "type": "text/javascript"
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onStore.js",
+                    "type": "text/javascript"
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onValidate.js",
+                    "type": "text/javascript"
+                  },
+                  "order": [
+                    "object",
+                    "string"
+                  ],
+                  "properties": {
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onRetrieve.js",
+                        "type": "text/javascript"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onStore.js",
+                        "type": "text/javascript"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onValidate.js",
+                        "type": "text/javascript"
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true
+                    },
+                    "string": {
+                      "description": null,
+                      "format": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onRetrieve.js",
+                        "type": "text/javascript"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onStore.js",
+                        "type": "text/javascript"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onValidate.js",
+                        "type": "text/javascript"
+                      },
+                      "searchable": false,
+                      "title": "String",
+                      "type": "string",
+                      "userEditable": true,
+                      "viewable": true
+                    }
+                  },
+                  "required": [],
+                  "searchable": false,
+                  "title": "Object",
+                  "type": "object",
+                  "userEditable": true,
+                  "viewable": true
+                },
+                "string": {
+                  "description": null,
+                  "format": null,
+                  "isVirtual": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onRetrieve.js",
+                    "type": "text/javascript"
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onStore.js",
+                    "type": "text/javascript"
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onValidate.js",
+                    "type": "text/javascript"
+                  },
+                  "searchable": false,
+                  "title": "String",
+                  "type": "string",
+                  "userEditable": true,
+                  "viewable": true
+                }
+              },
+              "required": [
+                "object"
+              ],
+              "searchable": false,
+              "title": "Object",
+              "type": "object",
+              "userEditable": true,
+              "viewable": true
+            }
+          },
+          "required": [
+            "array",
+            "object"
+          ],
+          "type": "object"
+        },
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "file://array.onRetrieve.js",
+          "type": "text/javascript"
+        },
+        "onStore": {
+          "globals": {},
+          "source": "file://array.onStore.js",
+          "type": "text/javascript"
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "file://array.onValidate.js",
+          "type": "text/javascript"
+        },
+        "searchable": false,
+        "title": "Array",
+        "type": "array",
+        "userEditable": true,
+        "viewable": true
+      },
+      "boolean": {
+        "searchable": false,
+        "title": "Boolean",
+        "type": "boolean",
+        "userEditable": true,
+        "viewable": true
+      },
+      "number": {
+        "searchable": false,
+        "title": "Number",
+        "type": "number",
+        "userEditable": true,
+        "viewable": true
+      },
+      "object": {
+        "description": null,
+        "isVirtual": false,
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "file://object.onRetrieve.js",
+          "type": "text/javascript"
+        },
+        "onStore": {
+          "globals": {},
+          "source": "file://object.onStore.js",
+          "type": "text/javascript"
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "file://object.onValidate.js",
+          "type": "text/javascript"
+        },
+        "order": [
+          "object",
+          "array",
+          "string",
+          "number"
+        ],
+        "properties": {
+          "array": {
+            "description": null,
+            "isVirtual": false,
+            "items": {
+              "items": {
+                "items": {
+                  "order": [
+                    "array",
+                    "object"
+                  ],
+                  "properties": {
+                    "array": {
+                      "description": null,
+                      "isVirtual": false,
+                      "items": {
+                        "order": [
+                          "string",
+                          "number"
+                        ],
+                        "properties": {
+                          "number": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.number.onRetrieve.js",
+                              "type": "text/javascript"
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.number.onValidate.js",
+                              "type": "text/javascript"
+                            },
+                            "searchable": false,
+                            "title": "Number",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true
+                          },
+                          "string": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onRetrieve.js",
+                              "type": "text/javascript"
+                            },
+                            "onStore": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onStore.js",
+                              "type": "text/javascript"
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onValidate.js",
+                              "type": "text/javascript"
+                            },
+                            "searchable": false,
+                            "title": "String",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true
+                          }
+                        },
+                        "required": [],
+                        "type": "object"
+                      },
+                      "nullable": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onRetrieve.js",
+                        "type": "text/javascript"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onStore.js",
+                        "type": "text/javascript"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onValidate.js",
+                        "type": "text/javascript"
+                      },
+                      "searchable": false,
+                      "title": "Array",
+                      "type": "array",
+                      "userEditable": true,
+                      "viewable": true
+                    },
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.object.onRetrieve.js",
+                        "type": "text/javascript"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.object.onValidate.js",
+                        "type": "text/javascript"
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "file://object.array.onRetrieve.js",
+              "type": "text/javascript"
+            },
+            "onStore": {
+              "globals": {},
+              "source": "file://object.array.onStore.js",
+              "type": "text/javascript"
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "file://object.array.onValidate.js",
+              "type": "text/javascript"
+            },
+            "searchable": false,
+            "title": "Array",
+            "type": "array",
+            "userEditable": true,
+            "viewable": true
+          },
+          "number": {
+            "searchable": false,
+            "title": "Number",
+            "type": "number",
+            "userEditable": true,
+            "viewable": true
+          },
+          "object": {
+            "description": null,
+            "isVirtual": false,
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "file://object.object.onRetrieve.js",
+              "type": "text/javascript"
+            },
+            "onStore": {
+              "globals": {},
+              "source": "file://object.object.onStore.js",
+              "type": "text/javascript"
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "file://object.object.onValidate.js",
+              "type": "text/javascript"
+            },
+            "order": [
+              "object",
+              "string"
+            ],
+            "properties": {
+              "object": {
+                "description": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "file://object.object.object.onRetrieve.js",
+                  "type": "text/javascript"
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "file://object.object.object.onStore.js",
+                  "type": "text/javascript"
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "file://object.object.object.onValidate.js",
+                  "type": "text/javascript"
+                },
+                "order": [],
+                "properties": {},
+                "required": [],
+                "searchable": false,
+                "title": "Object",
+                "type": "object",
+                "userEditable": true,
+                "viewable": true
+              },
+              "string": {
+                "description": null,
+                "format": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "file://object.object.string.onRetrieve.js",
+                  "type": "text/javascript"
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "file://object.object.string.onStore.js",
+                  "type": "text/javascript"
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "file://object.object.string.onValidate.js",
+                  "type": "text/javascript"
+                },
+                "searchable": false,
+                "title": "String",
+                "type": "string",
+                "userEditable": true,
+                "viewable": true
+              }
+            },
+            "required": [],
+            "searchable": false,
+            "title": "Object",
+            "type": "object",
+            "userEditable": true,
+            "viewable": true
+          },
+          "string": {
+            "searchable": false,
+            "title": "String",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          }
+        },
+        "required": [
+          "object",
+          "array"
+        ],
+        "searchable": false,
+        "title": "Object",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true
+      },
+      "samples": {
+        "description": "Samples",
+        "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Javascript:samples",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Javascript:samples:items",
+          "notifySelf": true,
+          "properties": {
+            "_ref": {
+              "type": "string"
+            },
+            "_refProperties": {
+              "properties": {
+                "_id": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "moSample",
+              "notify": false,
+              "path": "managed/moSample",
+              "query": {
+                "fields": [
+                  "_id"
+                ],
+                "queryFilter": "true",
+                "sortKeys": []
+              }
+            }
+          ],
+          "reversePropertyName": "scripts",
+          "reverseRelationship": true,
+          "type": "relationship",
+          "validate": false
+        },
+        "notifySelf": false,
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Samples",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      },
+      "string": {
+        "searchable": false,
+        "title": "String",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      }
+    },
+    "required": [
+      "array",
+      "object"
+    ],
+    "title": "Javascript",
+    "type": "object"
+  }
+}

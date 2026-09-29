@@ -1,0 +1,14 @@
+{
+  "script": {
+    "e1db8a0a-0329-4962-a5bf-ecffaca376ae": {
+      "_id": "e1db8a0a-0329-4962-a5bf-ecffaca376ae",
+      "context": "OIDC_CLAIMS",
+      "default": false,
+      "description": "Used by endUserUIClient",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Alpha endUserUIClient OIDC Claims Script",
+      "script": "file://Alpha-endUserUIClient-OIDC-Claims-Script.script.js"
+    }
+  }
+}

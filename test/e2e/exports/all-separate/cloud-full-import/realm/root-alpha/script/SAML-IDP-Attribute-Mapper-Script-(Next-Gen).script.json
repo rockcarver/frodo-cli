@@ -1,0 +1,14 @@
+{
+  "script": {
+    "0c1d7319-5a82-4359-8839-094121404832": {
+      "_id": "0c1d7319-5a82-4359-8839-094121404832",
+      "context": "SAML2_IDP_ATTRIBUTE_MAPPER_NEXT_GEN",
+      "default": true,
+      "description": "Default global script for SAML2 IDP Attribute Mapper (Next Gen)",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "SAML IDP Attribute Mapper Script (Next Gen)",
+      "script": "file://SAML-IDP-Attribute-Mapper-Script-(Next-Gen).script.js"
+    }
+  }
+}

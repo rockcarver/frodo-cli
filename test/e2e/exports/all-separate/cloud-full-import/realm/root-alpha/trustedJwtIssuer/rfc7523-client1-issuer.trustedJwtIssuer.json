@@ -1,0 +1,20 @@
+{
+  "trustedJwtIssuer": {
+    "rfc7523-client1-issuer": {
+      "_id": "rfc7523-client1-issuer",
+      "_type": {
+        "_id": "TrustedJwtIssuer",
+        "collection": true,
+        "name": "OAuth2 Trusted JWT Issuer"
+      },
+      "allowedSubjects": [],
+      "consentedScopesClaim": "scope",
+      "issuer": "https://my-issuer.com/issuer",
+      "jwkSet": "{\n  \"keys\": [\n    {\n      \"alg\": \"RS256\",\n      \"e\": \"AQAB\",\n      \"kid\": \"F8XFabIUlF3EDIJNX7YXdmK5uanwbON7CRbaL1MEFqs\",\n      \"kty\": \"RSA\",\n      \"n\": \"nuFbAmaHuTnH5yMkEU8b0SiL7pfQtfJz1p50QMeN_ZRxd3rEMPkP95sEjd5d4CjzkGIlgF_vX3oLm1GreAqp97okjM-KCAlYI8rIqptDfMFRRJV-ydw0zeDFjNdIo1FFquat1rz_mgys6oBBgYyc1x2MSfuCL82lJK__E0KULdqgZ-93eEfS9UgxguPsHCYnrdUrLQbk7j0OWy0awaGgjw_GBeW6VriVMPNm7q0Ist4XoXpTHqfuDhrchdOadSw5wULJQLqkK2iOzKfE1JrunIVMcsN_FhyxMGhJ2f6j1_8txMac5ISW6AugGoW6yeeRL-H_y_Pc1MPHNPYPOAvzAyviomajaVSQImSCTIrrtYX1WUSdrVkEFwk0H379xwlfwux7-6DjgwbJKrbtHlKw28CGNanHs2j1eJNuWkPXF_1F5koqKr05jIC6h96g1vl_EKddN7Vy9j6yRYdfS1A5co5nW4UtuVo1VujQWVtOnDEpDOQFYriAxRrghk250FGW82jyxEstI2HmLznHgPYUw_xS6qEmboCJ2r9zfVMVTTcaE9KWaetEhSTZzVTLddQs2-1vp-7A_VmVU0OmUXIyFpAv0uE94nX1mW24yOf0tYUrEfmktfNNMxHh3fncSJu93q90yaj6e3m4Ibgc2JZnp4m_hDFjyuTAruclisN4u4M\"\n    }\n  ]\n}",
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "resourceOwnerIdentityClaim": "sub"
+    }
+  }
+}

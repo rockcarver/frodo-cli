@@ -1,0 +1,14 @@
+{
+  "managedApplication": {
+    "54d9267b-6dcb-4fb3-b9ed-ef4e8dfee3e1": {
+      "_id": "54d9267b-6dcb-4fb3-b9ed-ef4e8dfee3e1",
+      "description": "Test Application Two",
+      "name": "testApp2",
+      "ssoEntities": {
+        "oidcId": "testApp2"
+      },
+      "templateName": "service",
+      "templateVersion": "1.0"
+    }
+  }
+}

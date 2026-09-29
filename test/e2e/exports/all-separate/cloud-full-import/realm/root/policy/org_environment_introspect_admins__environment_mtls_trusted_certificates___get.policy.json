@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_mtls_trusted_certificates___get": {
+      "_id": "org_environment_introspect_admins__environment_mtls_trusted_certificates___get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for GET /environment/mtls/trusted-certificates/*",
+      "name": "org_environment_introspect_admins__environment_mtls_trusted_certificates___get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/mtls/trusted-certificates/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

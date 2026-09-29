@@ -1,0 +1,1 @@
+require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, security.authorization.component.includes('/alpha_') ? 'alphaOrgPrivileges' : 'bravoOrgPrivileges', 'privilegeAssignments');

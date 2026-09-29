@@ -1,0 +1,14 @@
+{
+  "script": {
+    "3b2f6836-184c-4ee9-8a1d-557cb01837a5": {
+      "_id": "3b2f6836-184c-4ee9-8a1d-557cb01837a5",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Check if username has already been collected.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "FrodoTestScript3",
+      "script": "file://FrodoTestScript3.script.js"
+    }
+  }
+}

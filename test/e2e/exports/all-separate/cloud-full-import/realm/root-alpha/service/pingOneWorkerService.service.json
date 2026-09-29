@@ -1,0 +1,44 @@
+{
+  "service": {
+    "pingOneWorkerService": {
+      "_id": "",
+      "_type": {
+        "_id": "pingOneWorkerService",
+        "collection": false,
+        "name": "PingOne Worker Service"
+      },
+      "enabled": true,
+      "location": "/alpha",
+      "nextDescendents": [
+        {
+          "_id": "Encore",
+          "_type": {
+            "_id": "workers",
+            "collection": true,
+            "name": "PingOne Worker"
+          },
+          "apiUrl": "https://api.pingone.com/v1",
+          "authUrl": "https://auth.pingone.com",
+          "clientId": "bogus",
+          "clientSecretPurpose": "bogus",
+          "environmentId": "bogus",
+          "useCredential": false
+        },
+        {
+          "_id": "volker-pingone",
+          "_type": {
+            "_id": "workers",
+            "collection": true,
+            "name": "PingOne Worker"
+          },
+          "apiUrl": "https://api.pingone.com/v1",
+          "authUrl": "https://auth.pingone.com",
+          "clientId": "8d749c80-5ef2-4361-974d-c077f233b3a0",
+          "clientSecretPurpose": "volkerPingOne",
+          "environmentId": "62976c51-1de1-49ce-b29a-06b32b0c2e2c",
+          "useCredential": false
+        }
+      ]
+    }
+  }
+}

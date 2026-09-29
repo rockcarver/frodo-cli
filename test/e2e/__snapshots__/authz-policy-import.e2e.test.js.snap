@@ -3,7 +3,7 @@
 exports[`frodo authz policy import "frodo authz policy import --all-separate --set-id test-policy-set --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policy": should not import all policies for set test-policy-set from the directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policy when no changes are made 1`] = `""`;
 
 exports[`frodo authz policy import "frodo authz policy import --all-separate --set-id test-policy-set --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policy": should not import all policies for set test-policy-set from the directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policy when no changes are made 2`] = `
-"⚠ Finished importing 0 policies from 6 files.
+"✔ Finished importing 4 policies from 6 files.
 "
 `;
 

@@ -1,0 +1,442 @@
+{
+  "idm": {
+    "provisioner.openicf/GoogleApps": {
+      "_id": "provisioner.openicf/GoogleApps",
+      "configurationProperties": {
+        "availableLicenses": [
+          "101005/1010050001",
+          "101001/1010010001",
+          "101031/1010310010",
+          "101034/1010340002",
+          "101038/1010380002",
+          "101034/1010340001",
+          "101038/1010380003",
+          "101034/1010340004",
+          "101034/1010340003",
+          "101034/1010340006",
+          "Google-Apps/Google-Apps-For-Business",
+          "101034/1010340005",
+          "Google-Vault/Google-Vault",
+          "Google-Apps/1010020031",
+          "Google-Apps/1010020030",
+          "Google-Apps/1010060003",
+          "Google-Apps/1010060005",
+          "Google-Apps/Google-Apps-Unlimited",
+          "Google-Apps/1010020029",
+          "Google-Apps/Google-Apps-Lite",
+          "101031/1010310003",
+          "101033/1010330002",
+          "101033/1010330004",
+          "Google-Apps/Google-Apps-For-Education",
+          "101031/1010310002",
+          "101033/1010330003",
+          "Google-Apps/1010020026",
+          "101031/1010310007",
+          "Google-Apps/1010020025",
+          "101031/1010310008",
+          "Google-Apps/1010020028",
+          "Google-Apps/Google-Apps-For-Postini",
+          "101031/1010310005",
+          "Google-Apps/1010020027",
+          "101031/1010310006",
+          "101031/1010310009",
+          "Google-Vault/Google-Vault-Former-Employee",
+          "101038/1010370001",
+          "Google-Apps/1010020020",
+          "Google-Apps/1010060001"
+        ],
+        "clientId": "&{esv.gac.client.id}",
+        "clientSecret": "&{esv.gac.secret}",
+        "domain": "&{esv.gac.domain}",
+        "groupsMaxResults": "200",
+        "listProductAndSkuMaxResults": "100",
+        "listProductMaxResults": "100",
+        "membersMaxResults": "200",
+        "proxyHost": null,
+        "proxyPort": 8080,
+        "refreshToken": "&{esv.gac.refresh}",
+        "roleAssignmentMaxResults": 100,
+        "roleMaxResults": 100,
+        "usersMaxResults": "100",
+        "validateCertificate": true
+      },
+      "connectorRef": {
+        "bundleName": "org.forgerock.openicf.connectors.googleapps-connector",
+        "bundleVersion": "[1.5.0.0,1.6.0.0)",
+        "connectorHostRef": "",
+        "connectorName": "org.forgerock.openicf.connectors.googleapps.GoogleAppsConnector",
+        "displayName": "GoogleApps Connector",
+        "systemType": "provisioner.openicf"
+      },
+      "enabled": {
+        "$bool": "&{esv.gac.enable.connector}"
+      },
+      "objectTypes": {
+        "__ACCOUNT__": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "__ACCOUNT__",
+          "nativeType": "__ACCOUNT__",
+          "properties": {
+            "__GROUPS__": {
+              "flags": [
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "__GROUPS__",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "__PASSWORD__": {
+              "flags": [
+                "NOT_READABLE",
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "nativeName": "__PASSWORD__",
+              "nativeType": "JAVA_TYPE_GUARDEDSTRING",
+              "required": true,
+              "type": "string"
+            },
+            "__PHOTO__": {
+              "flags": [
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "nativeName": "__PHOTO__",
+              "nativeType": "JAVA_TYPE_BYTE_ARRAY",
+              "type": "string"
+            },
+            "__SECONDARY_EMAILS__": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "__SECONDARY_EMAILS__",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "__UID__": {
+              "nativeName": "__UID__",
+              "nativeType": "string",
+              "required": false,
+              "type": "string"
+            },
+            "addresses": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "addresses",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "agreedToTerms": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "agreedToTerms",
+              "nativeType": "JAVA_TYPE_PRIMITIVE_BOOLEAN",
+              "type": "boolean"
+            },
+            "aliases": {
+              "flags": [
+                "NOT_CREATABLE"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "aliases",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "archived": {
+              "nativeName": "archived",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "changePasswordAtNextLogin": {
+              "nativeName": "changePasswordAtNextLogin",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "creationTime": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "creationTime",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "customSchemas": {
+              "nativeName": "customSchemas",
+              "nativeType": "object",
+              "type": "object"
+            },
+            "customerId": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "customerId",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "deletionTime": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "deletionTime",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "externalIds": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "externalIds",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "familyName": {
+              "nativeName": "familyName",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "fullName": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "fullName",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "givenName": {
+              "nativeName": "givenName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string"
+            },
+            "hashFunction": {
+              "flags": [
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "nativeName": "hashFunction",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "ims": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "ims",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "includeInGlobalAddressList": {
+              "nativeName": "includeInGlobalAddressList",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "ipWhitelisted": {
+              "nativeName": "ipWhitelisted",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "isAdmin": {
+              "nativeName": "isAdmin",
+              "nativeType": "JAVA_TYPE_PRIMITIVE_BOOLEAN",
+              "type": "boolean"
+            },
+            "isDelegatedAdmin": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "isDelegatedAdmin",
+              "nativeType": "JAVA_TYPE_PRIMITIVE_BOOLEAN",
+              "type": "boolean"
+            },
+            "isEnforcedIn2Sv": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "isEnforcedIn2Sv",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "isEnrolledIn2Sv": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "isEnrolledIn2Sv",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "isMailboxSetup": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "isMailboxSetup",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "languages": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "languages",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "lastLoginTime": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "lastLoginTime",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "nonEditableAliases": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "nonEditableAliases",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "orgUnitPath": {
+              "nativeName": "orgUnitPath",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "organizations": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "organizations",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "phones": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "phones",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "primaryEmail": {
+              "nativeName": "primaryEmail",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "recoveryEmail": {
+              "nativeName": "recoveryEmail",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "recoveryPhone": {
+              "nativeName": "recoveryPhone",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "relations": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "relations",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "suspended": {
+              "nativeName": "suspended",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "suspensionReason": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "suspensionReason",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "thumbnailPhotoUrl": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "thumbnailPhotoUrl",
+              "nativeType": "string",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "operationTimeout": {
+        "AUTHENTICATE": -1,
+        "CREATE": -1,
+        "DELETE": -1,
+        "GET": -1,
+        "RESOLVEUSERNAME": -1,
+        "SCHEMA": -1,
+        "SCRIPT_ON_CONNECTOR": -1,
+        "SCRIPT_ON_RESOURCE": -1,
+        "SEARCH": -1,
+        "SYNC": -1,
+        "TEST": -1,
+        "UPDATE": -1,
+        "VALIDATE": -1
+      },
+      "poolConfigOption": {
+        "maxIdle": 10,
+        "maxObjects": 10,
+        "maxWait": 150000,
+        "minEvictableIdleTimeMillis": 120000,
+        "minIdle": 1
+      },
+      "resultsHandlerConfig": {
+        "enableAttributesToGetSearchResultsHandler": true,
+        "enableCaseInsensitiveFilter": false,
+        "enableFilteredResultsHandler": false,
+        "enableNormalizingResultsHandler": false
+      }
+    }
+  }
+}

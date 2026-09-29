@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "idmadminclient_scope_fr_idc_content_security_policy_read": {
+      "_id": "idmadminclient_scope_fr_idc_content_security_policy_read",
+      "actionValues": {
+        "GRANT": false
+      },
+      "active": false,
+      "applicationName": "idmAdminClient-scope",
+      "description": "Policy for fr:idc:content-security-policy:read",
+      "name": "idmadminclient_scope_fr_idc_content_security_policy_read",
+      "resourceTypeUuid": "",
+      "resources": [
+        "fr:idc:content-security-policy:read"
+      ],
+      "subject": {
+        "subject": {
+          "subjectValues": [
+            "id=tenant-auditor,ou=group,ou=am-config",
+            "id=tenant-admins,ou=group,ou=am-config",
+            "id=amadmin,ou=user,ou=am-config",
+            "id=super-admins,ou=group,ou=am-config"
+          ],
+          "type": "Identity"
+        },
+        "type": "NOT"
+      }
+    }
+  }
+}

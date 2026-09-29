@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "analytics_introspect_config_api_admin": {
+      "_id": "analytics_introspect_config_api_admin",
+      "actionValues": {
+        "DELETE": true,
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "description": "Admin policy for manafe /reports/config/*",
+      "name": "analytics_introspect_config_api_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports/config/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

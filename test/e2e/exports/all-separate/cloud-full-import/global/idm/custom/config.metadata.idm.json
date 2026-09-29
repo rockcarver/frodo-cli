@@ -1,0 +1,23 @@
+{
+  "idm": {
+    "custom/config.metadata": {
+      "_id": "custom/config.metadata",
+      "obj": {
+        "one": "1",
+        "two": true
+      },
+      "obj2": {
+        "obj3": {
+          "msg": "hello"
+        }
+      },
+      "true": "true",
+      "true2": true,
+      "true3": [
+        true,
+        "three"
+      ],
+      "two": "2"
+    }
+  }
+}

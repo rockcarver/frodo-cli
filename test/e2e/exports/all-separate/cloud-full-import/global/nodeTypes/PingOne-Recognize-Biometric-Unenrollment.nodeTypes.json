@@ -1,0 +1,50 @@
+{
+  "nodeTypes": {
+    "d6b9e3f1a2c4d5e6f7a8b9c0d1e2f3a4-1": {
+      "_id": "d6b9e3f1a2c4d5e6f7a8b9c0d1e2f3a4-1",
+      "description": "Deletes a user's biometric enrollment from PingOne Recognize.",
+      "displayName": "PingOne Recognize Biometric Unenrollment",
+      "errorOutcome": false,
+      "inputs": [],
+      "outcomes": [
+        "success",
+        "error"
+      ],
+      "outputs": [],
+      "properties": {
+        "apiKey": {
+          "description": "API Key generated in the P1Recognize tenant under Access Control. Supports ESV references using dot notation e.g. esv.p1recognize.apikey",
+          "multivalued": false,
+          "required": true,
+          "title": "API Key",
+          "type": "STRING"
+        },
+        "tenantEnvironment": {
+          "defaultValue": "US",
+          "description": "The regional location of the provisioned P1Recognize tenant.",
+          "multivalued": false,
+          "options": {
+            "EUROPE": "EUROPE",
+            "LATAM": "LATAM",
+            "SANDBOX": "SANDBOX",
+            "US": "US"
+          },
+          "required": true,
+          "title": "P1 Recognize Tenant Region",
+          "type": "STRING"
+        },
+        "tenantName": {
+          "description": "The P1Recognize tenant name, shown as customer name within the P1Recognize tenant.",
+          "multivalued": false,
+          "required": true,
+          "title": "P1 Recognize Tenant Name",
+          "type": "STRING"
+        }
+      },
+      "script": "file://PingOne-Recognize-Biometric-Unenrollment.nodeTypes.js",
+      "serviceName": "d6b9e3f1a2c4d5e6f7a8b9c0d1e2f3a4",
+      "tags": [],
+      "version": 1
+    }
+  }
+}

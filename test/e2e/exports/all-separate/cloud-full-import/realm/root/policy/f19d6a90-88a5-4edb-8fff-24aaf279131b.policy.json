@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "f19d6a90-88a5-4edb-8fff-24aaf279131b": {
+      "_id": "f19d6a90-88a5-4edb-8fff-24aaf279131b",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "description": "",
+      "name": "f19d6a90-88a5-4edb-8fff-24aaf279131b",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://*ou=am-config/sunAMRealmService/*"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=brand-admin,ou=group,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

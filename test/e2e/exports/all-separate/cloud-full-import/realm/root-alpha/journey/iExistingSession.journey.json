@@ -1,0 +1,146 @@
+{
+  "trees": {
+    "iExistingSession": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "3dc8f048-f79b-4767-86d1-d9e6e9b2baa0": {
+          "_id": "3dc8f048-f79b-4767-86d1-d9e6e9b2baa0",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "IdentifyExistingUserNode",
+            "collection": true,
+            "name": "Identify Existing User",
+            "version": "1.0"
+          },
+          "identifier": "userName",
+          "identityAttribute": "_id"
+        },
+        "8cf3cc43-df04-42ac-ad10-67fd2fb96ca2": {
+          "_id": "8cf3cc43-df04-42ac-ad10-67fd2fb96ca2",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            },
+            {
+              "displayName": "false",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true",
+            "false"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "616d3541-14d6-4a54-94dd-46a146ef2423"
+        },
+        "c6515adb-d22b-4d33-906c-afbdebcac6b7": {
+          "_id": "c6515adb-d22b-4d33-906c-afbdebcac6b7",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "SessionDataNode",
+            "collection": true,
+            "name": "Get Session Data",
+            "version": "1.0"
+          },
+          "sessionDataKey": "UserId",
+          "sharedStateKey": "_id"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "iExistingSession",
+        "description": "Detect and adopt existing session",
+        "enabled": true,
+        "entryNodeId": "8cf3cc43-df04-42ac-ad10-67fd2fb96ca2",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "3dc8f048-f79b-4767-86d1-d9e6e9b2baa0": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Lookup Profile",
+            "nodeType": "IdentifyExistingUserNode",
+            "version": "1.0",
+            "x": 686,
+            "y": 173.015625
+          },
+          "8cf3cc43-df04-42ac-ad10-67fd2fb96ca2": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "c6515adb-d22b-4d33-906c-afbdebcac6b7"
+            },
+            "displayName": "Existing Session?",
+            "nodeType": "ScriptedDecisionNode",
+            "version": "1.0",
+            "x": 170,
+            "y": 217.015625
+          },
+          "c6515adb-d22b-4d33-906c-afbdebcac6b7": {
+            "connections": {
+              "outcome": "3dc8f048-f79b-4767-86d1-d9e6e9b2baa0"
+            },
+            "displayName": "Get Session Data",
+            "nodeType": "SessionDataNode",
+            "version": "1.0",
+            "x": 427,
+            "y": 231.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 971,
+            "y": 109
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 970,
+            "y": 338
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[\"Helper\",\"Proof Of Concept\",\"TxAuthZ\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

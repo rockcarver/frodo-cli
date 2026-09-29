@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_csrs___patch": {
+      "_id": "org_environment_introspect_admins__environment_csrs___patch",
+      "actionValues": {
+        "PATCH": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for PATCH /environment/csrs/*",
+      "name": "org_environment_introspect_admins__environment_csrs___patch",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/csrs/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

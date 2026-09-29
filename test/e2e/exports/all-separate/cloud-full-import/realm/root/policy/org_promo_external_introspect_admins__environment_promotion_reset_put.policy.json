@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_promo_external_introspect_admins__environment_promotion_reset_put": {
+      "_id": "org_promo_external_introspect_admins__environment_promotion_reset_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-promo-external-introspect",
+      "description": "Admin policy for PUT /environment/promotion/reset",
+      "name": "org_promo_external_introspect_admins__environment_promotion_reset_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/promotion/reset"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

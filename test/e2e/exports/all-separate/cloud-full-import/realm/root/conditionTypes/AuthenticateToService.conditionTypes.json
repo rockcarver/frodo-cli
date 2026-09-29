@@ -1,0 +1,17 @@
+{
+  "conditionTypes": {
+    "AuthenticateToService": {
+      "_id": "AuthenticateToService",
+      "config": {
+        "properties": {
+          "authenticateToService": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "AuthenticateToService"
+    }
+  }
+}

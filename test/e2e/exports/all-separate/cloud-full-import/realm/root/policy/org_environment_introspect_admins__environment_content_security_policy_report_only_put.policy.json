@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_content_security_policy_report_only_put": {
+      "_id": "org_environment_introspect_admins__environment_content_security_policy_report_only_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for PUT /environment/content-security-policy/report-only",
+      "name": "org_environment_introspect_admins__environment_content_security_policy_report_only_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/content-security-policy/report-only"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

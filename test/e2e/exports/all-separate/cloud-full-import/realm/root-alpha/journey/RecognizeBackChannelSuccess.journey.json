@@ -1,0 +1,112 @@
+{
+  "trees": {
+    "RecognizeBackChannelSuccess": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "0486dffc-a0b1-444a-9ee7-1f114a17ebc0": {
+          "_id": "0486dffc-a0b1-444a-9ee7-1f114a17ebc0",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        }
+      },
+      "nodes": {
+        "5e3400c4-4f1e-4694-bc6f-26f21acad322": {
+          "_id": "5e3400c4-4f1e-4694-bc6f-26f21acad322",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "0486dffc-a0b1-444a-9ee7-1f114a17ebc0",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {
+            "en": "Congratulations, you have been successfully authenticated."
+          },
+          "pageHeader": {
+            "en": "Biometric Authentication Successful!"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "RecognizeBackChannelSuccess",
+        "description": "Candidate authentication success\n",
+        "enabled": true,
+        "entryNodeId": "5e3400c4-4f1e-4694-bc6f-26f21acad322",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": true,
+        "noSession": false,
+        "nodes": {
+          "5e3400c4-4f1e-4694-bc6f-26f21acad322": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Success Message",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 194,
+            "y": 206.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 46,
+            "y": 107
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 509,
+            "y": 258
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "annotations": "{\"forNodes\":{},\"structural\":[]}",
+          "categories": "[\"Helper\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

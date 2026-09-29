@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "HR-webapp": {
+      "_id": "HR-webapp",
+      "actionValues": {
+        "GET": true,
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "test-policy-set",
+      "description": "",
+      "name": "HR-webapp",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "*://*:*/apps/hrlite/*",
+        "*://*:*/apps/hrlite?*",
+        "*://*:*/apps/contractor",
+        "*://*:*/apps/contractor/*",
+        "*://*:*/apps/contractor?*",
+        "*://*:*/apps/hrlite"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=hradmins,ou=group,o=alpha,ou=services,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

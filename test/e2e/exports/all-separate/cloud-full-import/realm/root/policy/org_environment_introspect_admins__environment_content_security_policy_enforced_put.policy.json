@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_content_security_policy_enforced_put": {
+      "_id": "org_environment_introspect_admins__environment_content_security_policy_enforced_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for PUT /environment/content-security-policy/enforced",
+      "name": "org_environment_introspect_admins__environment_content_security_policy_enforced_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/content-security-policy/enforced"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "policyset": {
+    "platformUIPolicySet": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [],
+      "description": "The example Platform UI Policy Set to drive dynamic UI behavior",
+      "displayName": null,
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "name": "platformUIPolicySet",
+      "resourceComparator": null,
+      "resourceTypeUuids": [],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": []
+    }
+  }
+}

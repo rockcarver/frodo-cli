@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "org_esv_introspect_admins__environment_variables___get": {
+      "_id": "org_esv_introspect_admins__environment_variables___get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-esv-introspect",
+      "description": "Admin policy for GET /environment/variables/*",
+      "name": "org_esv_introspect_admins__environment_variables___get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/variables/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "_id": "sync/systemAzureUser_managedAlpha_user",
+  "consentRequired": false,
+  "correlationQuery": [
+    {
+      "linkQualifier": "default",
+      "source": "file://correlationQuery.0.js",
+      "type": "text/javascript"
+    }
+  ],
+  "defaultSourceFields": [
+    "*",
+    "memberOf",
+    "__roles__",
+    "__servicePlanIds__"
+  ],
+  "defaultTargetFields": [
+    "*",
+    "assignments"
+  ],
+  "displayName": "systemAzureUser_managedAlpha_user",
+  "icon": null,
+  "links": "managedAlpha_user_systemAzureUser",
+  "name": "systemAzureUser_managedAlpha_user",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": "UPDATE",
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": "ONBOARD",
+      "situation": "FOUND"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_TARGET_CONFLICT"
+    }
+  ],
+  "properties": [
+    {
+      "referencedObjectType": "__GROUP__",
+      "source": "memberOf",
+      "target": "assignments"
+    },
+    {
+      "referencedObjectType": "directoryRole",
+      "source": "__roles__",
+      "target": "assignments"
+    },
+    {
+      "referencedObjectType": "servicePlan",
+      "source": "__servicePlanIds__",
+      "target": "assignments"
+    }
+  ],
+  "reconSourceQueryPageSize": 999,
+  "reconSourceQueryPaging": true,
+  "runTargetPhase": false,
+  "source": "system/Azure/User",
+  "sourceQueryFullEntry": true,
+  "syncAfter": [
+    "test_mapping",
+    "managedBravo_user_managedBravo_user",
+    "managedAlpha_user_managedBravo_user",
+    "managedBravo_user_managedAlpha_user",
+    "AlphaUser2GoogleApps",
+    "managedBravo_group_managedBravo_group",
+    "managedAlpha_application_managedBravo_application",
+    "managedAlpha_assignment_managedBravo_assignment",
+    "managedAlpha_user_systemAzureUser",
+    "managedBravo_user_managedBravo_user0",
+    "systemAzure__group___managedAlpha_assignment",
+    "systemAzureDirectoryrole_managedAlpha_assignment",
+    "systemAzureServiceplan_managedAlpha_assignment"
+  ],
+  "target": "managed/alpha_user"
+}

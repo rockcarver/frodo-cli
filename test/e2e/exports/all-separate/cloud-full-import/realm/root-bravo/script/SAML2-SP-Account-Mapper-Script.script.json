@@ -1,0 +1,14 @@
+{
+  "script": {
+    "05ab4a85-11ec-4a32-94cf-05bbb763c8f3": {
+      "_id": "05ab4a85-11ec-4a32-94cf-05bbb763c8f3",
+      "context": "SAML2_SP_ACCOUNT_MAPPER",
+      "default": true,
+      "description": "Default global script for SAML2 SP Account Mapper",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "SAML2 SP Account Mapper Script",
+      "script": "file://SAML2-SP-Account-Mapper-Script.script.js"
+    }
+  }
+}

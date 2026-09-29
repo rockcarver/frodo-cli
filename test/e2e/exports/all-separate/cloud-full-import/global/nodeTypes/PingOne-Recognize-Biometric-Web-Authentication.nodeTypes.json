@@ -1,0 +1,140 @@
+{
+  "nodeTypes": {
+    "5e75b06c44e344b4b39b9b8a7377bfd3-1": {
+      "_id": "5e75b06c44e344b4b39b9b8a7377bfd3-1",
+      "description": "Face biometric authentication via PingOne Recognize WebSDK.",
+      "displayName": "PingOne Recognize Biometric Web Authentication",
+      "errorOutcome": false,
+      "inputs": [],
+      "outcomes": [
+        "success",
+        "retry",
+        "lockout",
+        "error",
+        "notEnrolled"
+      ],
+      "outputs": [],
+      "properties": {
+        "apiKey": {
+          "description": "API Key generated in the P1Recognize tenant under Access Control. Supports ESV references using dot notation e.g. esv.p1recognize.apikey",
+          "multivalued": false,
+          "required": true,
+          "title": "API Key",
+          "type": "STRING"
+        },
+        "enableCameraInstructions": {
+          "defaultValue": true,
+          "description": "Show camera instruction steps before biometric capture begins",
+          "multivalued": false,
+          "required": false,
+          "title": "Enable Camera Instructions",
+          "type": "BOOLEAN"
+        },
+        "errorSubmitDelay": {
+          "defaultValue": 3000,
+          "description": "Milliseconds to wait after a biometric error before submitting. Default 3000. Set to 0 to submit immediately.",
+          "multivalued": false,
+          "required": false,
+          "title": "Error Submit Delay (ms)",
+          "type": "NUMBER"
+        },
+        "finishedSubmitDelay": {
+          "defaultValue": 3000,
+          "description": "Milliseconds to wait after a successful biometric before submitting. Default 3000. Set to 0 to submit immediately.",
+          "multivalued": false,
+          "required": false,
+          "title": "Finished Submit Delay (ms)",
+          "type": "NUMBER"
+        },
+        "hidePoweredBy": {
+          "defaultValue": true,
+          "description": "Hides the PoweredBy footer displayed on all screens.",
+          "multivalued": false,
+          "required": false,
+          "title": "Hide Powered By Keyless",
+          "type": "BOOLEAN"
+        },
+        "publicKey": {
+          "description": "The public key used as part of the image encryption process. The publicKey is available via an HTTP GET to the {{baseURL}}/v1/customers/{{tenant_name}}}/image-encryption endpoint. Remove all \\n newline characters and the -----BEGIN PUBLIC KEY----- and -----END PUBLIC KEY----- tags from the publicKey before using it in the node configuration. ",
+          "multivalued": false,
+          "required": true,
+          "title": "Public Key",
+          "type": "STRING"
+        },
+        "publicKeyId": {
+          "description": "The ID of the public key used as part of the image encryption process. The keyID is available via an HTTP GET to the {{baseURL}}/v1/customers/{{tenant_name}}}/image-encryption endpoint.",
+          "multivalued": false,
+          "required": true,
+          "title": "Public Key ID",
+          "type": "STRING"
+        },
+        "sdkLanguage": {
+          "description": "Explicit language override. If set, takes precedence over auto-detection. Leave blank for auto-detection. (e.g. en, fr, de)",
+          "multivalued": false,
+          "required": false,
+          "title": "SDK Language (override)",
+          "type": "STRING"
+        },
+        "sdkLocalization": {
+          "description": "JSON to enable customization and localisation of text displayed by P1Recognize UI.  Multiple language tags are supported. e.g. [\n  {\"language\":\"en\",\"steps\":{\"camera-instructions\":{\"headline\":\"...\",\"text\":\"...\"}}},\n  {\"language\":\"fr\",\"steps\":{\"camera-instructions\":{\"headline\":\"...\",\"text\":\"...\"}}}\n]",
+          "multivalued": false,
+          "required": false,
+          "title": "SDK Localization",
+          "type": "STRING"
+        },
+        "sdkTheme": {
+          "defaultValue": "LIGHT",
+          "description": "Controls which color palette the SDK component uses",
+          "multivalued": false,
+          "options": {
+            "DARK": "dark",
+            "LIGHT": "light"
+          },
+          "required": true,
+          "title": "SDK Theme",
+          "type": "STRING"
+        },
+        "sdkThemeOptions": {
+          "description": "JSON to align to UX theme option changes. e.g. {\"colors\":{\"light\":{\"primary\":\"#1E69D2\",\"onPrimary\":\"#fff\",\"surface\":\"#fff\",\"onSurface\":\"#000\"}}})",
+          "multivalued": false,
+          "required": false,
+          "title": "SDK Theme Options",
+          "type": "STRING"
+        },
+        "tenantEnvironment": {
+          "defaultValue": "US",
+          "description": "The regional location of the provisioned P1Recognize tenant.",
+          "multivalued": false,
+          "options": {
+            "EUROPE": "EUROPE",
+            "LATAM": "LATAM",
+            "SANDBOX": "SANDBOX",
+            "US": "US"
+          },
+          "required": true,
+          "title": "P1 Recognize Tenant Region",
+          "type": "STRING"
+        },
+        "tenantName": {
+          "description": "The P1Recognize tenant name, shown as customer name within the P1Recognize tenant.",
+          "multivalued": false,
+          "required": true,
+          "title": "P1 Recognize Tenant Name",
+          "type": "STRING"
+        },
+        "webSdkVersion": {
+          "defaultValue": "2.3.0",
+          "description": "Version of the P1Recognize Web SDK. Default is 2.3.0.",
+          "multivalued": false,
+          "required": true,
+          "title": "Web SDK Version",
+          "type": "STRING"
+        }
+      },
+      "script": "file://PingOne-Recognize-Biometric-Web-Authentication.nodeTypes.js",
+      "serviceName": "5e75b06c44e344b4b39b9b8a7377bfd3",
+      "tags": [],
+      "version": 1
+    }
+  }
+}
