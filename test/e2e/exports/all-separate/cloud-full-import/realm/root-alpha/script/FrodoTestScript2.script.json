@@ -1,0 +1,14 @@
+{
+  "script": {
+    "b7259916-71ed-4675-8c5a-de86a80e4aed": {
+      "_id": "b7259916-71ed-4675-8c5a-de86a80e4aed",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "test new description",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "FrodoTestScript2",
+      "script": "file://FrodoTestScript2.script.js"
+    }
+  }
+}

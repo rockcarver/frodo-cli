@@ -1,19 +1,81 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo esv variable import "frodo esv variable import --variable-id esv-test-var --file test/e2e/exports/all/allVariables.variable.json" Import variable "esv-test-var" from "allVariables.variable.json". 1`] = `""`;
+exports[`frodo esv variable import "frodo esv variable import --all-separate --directory test/e2e/exports/all-separate/cloud/global/variable" Import all variables in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
 
-exports[`frodo esv variable import "frodo esv variable import -AD test/e2e/exports/all-separate/cloud/global/variable" Import all variables in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
+exports[`frodo esv variable import "frodo esv variable import --all-separate --directory test/e2e/exports/all-separate/cloud/global/variable" Import all variables in directory "test/e2e/exports/all-separate/cloud/global/variable". 2`] = `
+"Importing all variables from separate files in working directory...
+⚠ Finished importing 0 variables from 12 files.
+"
+`;
 
-exports[`frodo esv variable import "frodo esv variable import -a --file test/e2e/exports/all/allVariables.variable.json" Import all variables from "test/e2e/exports/all/allVariables.variable.json". 1`] = `""`;
+exports[`frodo esv variable import "frodo esv variable import --force-update --variable-id esv-test-var --file test/e2e/exports/all/allVariables.variable.json" Import variable "esv-test-var" from "allVariables.variable.json". 1`] = `""`;
+
+exports[`frodo esv variable import "frodo esv variable import --force-update --variable-id esv-test-var --file test/e2e/exports/all/allVariables.variable.json" Import variable "esv-test-var" from "allVariables.variable.json". 2`] = `
+"Importing variable esv-test-var...
+✔ Imported esv-test-var.
+"
+`;
+
+exports[`frodo esv variable import "frodo esv variable import -FAD test/e2e/exports/all-separate/cloud/global/variable" Import all variables in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
+
+exports[`frodo esv variable import "frodo esv variable import -FAD test/e2e/exports/all-separate/cloud/global/variable" Import all variables in directory "test/e2e/exports/all-separate/cloud/global/variable". 2`] = `
+"Importing all variables from separate files in working directory...
+✔ Finished importing 12 variables from 12 files.
+"
+`;
+
+exports[`frodo esv variable import "frodo esv variable import -Fa --file test/e2e/exports/all/allVariables.variable.json" Import all variables from "test/e2e/exports/all/allVariables.variable.json". 1`] = `""`;
+
+exports[`frodo esv variable import "frodo esv variable import -Fa --file test/e2e/exports/all/allVariables.variable.json" Import all variables from "test/e2e/exports/all/allVariables.variable.json". 2`] = `
+"Importing all variables from a single file (test/e2e/exports/all/allVariables.variable.json)...
+✔ Imported 11 variable(s) from test/e2e/exports/all/allVariables.variable.json.
+"
+`;
+
+exports[`frodo esv variable import "frodo esv variable import -Ff esv-test-var.variable.json --directory test/e2e/exports/all-separate/cloud/global/variable" Import first variable from "esv-test-var.variable.json" in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
+
+exports[`frodo esv variable import "frodo esv variable import -Ff esv-test-var.variable.json --directory test/e2e/exports/all-separate/cloud/global/variable" Import first variable from "esv-test-var.variable.json" in directory "test/e2e/exports/all-separate/cloud/global/variable". 2`] = `
+"Importing first variable in file...
+✔ Imported first variable.
+"
+`;
+
+exports[`frodo esv variable import "frodo esv variable import -Ff test/e2e/exports/all/allVariables.variable.json" Import first variable from "test/e2e/exports/all/allVariables.variable.json". 1`] = `""`;
+
+exports[`frodo esv variable import "frodo esv variable import -Ff test/e2e/exports/all/allVariables.variable.json" Import first variable from "test/e2e/exports/all/allVariables.variable.json". 2`] = `
+"Importing first variable in file...
+✔ Imported first variable.
+"
+`;
+
+exports[`frodo esv variable import "frodo esv variable import -Fi esv-test-var -f test/e2e/exports/all/allVariables.variable.json" Import variable "esv-test-var" from "test/e2e/exports/all/allVariables.variable.json". 1`] = `""`;
+
+exports[`frodo esv variable import "frodo esv variable import -Fi esv-test-var -f test/e2e/exports/all/allVariables.variable.json" Import variable "esv-test-var" from "test/e2e/exports/all/allVariables.variable.json". 2`] = `
+"Importing variable esv-test-var...
+✔ Imported esv-test-var.
+"
+`;
 
 exports[`frodo esv variable import "frodo esv variable import -a -f allVariables.variable.json -D test/e2e/exports/all" Import all variables from "allVariables.variable.json" in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
 
+exports[`frodo esv variable import "frodo esv variable import -a -f allVariables.variable.json -D test/e2e/exports/all" Import all variables from "allVariables.variable.json" in directory "test/e2e/exports/all-separate/cloud/global/variable". 2`] = `
+"Importing all variables from a single file (allVariables.variable.json)...
+⚠ Imported 0 variable(s) from test/e2e/exports/all/allVariables.variable.json.
+"
+`;
+
 exports[`frodo esv variable import "frodo esv variable import -f allVariables.variable.json -D test/e2e/exports/all" Import first variable from "allVariables.variable.json" in directory "test/e2e/exports/all" 1`] = `""`;
 
-exports[`frodo esv variable import "frodo esv variable import -f esv-test-var.variable.json --directory test/e2e/exports/all-separate/cloud/global/variable" Import first variable from "esv-test-var.variable.json" in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
-
-exports[`frodo esv variable import "frodo esv variable import -f test/e2e/exports/all/allVariables.variable.json" Import first variable from "test/e2e/exports/all/allVariables.variable.json". 1`] = `""`;
+exports[`frodo esv variable import "frodo esv variable import -f allVariables.variable.json -D test/e2e/exports/all" Import first variable from "allVariables.variable.json" in directory "test/e2e/exports/all" 2`] = `
+"Importing first variable in file...
+⚠ Did not import first variable since no changes were made.
+"
+`;
 
 exports[`frodo esv variable import "frodo esv variable import -i esv-test-var -f allVariables.variable.json -D test/e2e/exports/all" Import variable "esv-test-var" from "allVariables.variable.json" in directory "test/e2e/exports/all". 1`] = `""`;
 
-exports[`frodo esv variable import "frodo esv variable import -i esv-test-var -f test/e2e/exports/all/allVariables.variable.json" Import variable "esv-test-var" from "test/e2e/exports/all/allVariables.variable.json". 1`] = `""`;
+exports[`frodo esv variable import "frodo esv variable import -i esv-test-var -f allVariables.variable.json -D test/e2e/exports/all" Import variable "esv-test-var" from "allVariables.variable.json" in directory "test/e2e/exports/all". 2`] = `
+"Importing variable esv-test-var...
+⚠ Did not import esv-test-var since no changes were made.
+"
+`;

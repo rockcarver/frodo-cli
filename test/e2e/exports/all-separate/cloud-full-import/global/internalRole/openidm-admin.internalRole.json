@@ -1,0 +1,12 @@
+{
+  "internalRole": {
+    "openidm-admin": {
+      "_id": "openidm-admin",
+      "condition": null,
+      "description": "Administrative access",
+      "name": "openidm-admin",
+      "privileges": [],
+      "temporalConstraints": []
+    }
+  }
+}

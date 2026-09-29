@@ -1,0 +1,14 @@
+{
+  "script": {
+    "663d0f65-ddf3-419c-8369-a90fde43d521": {
+      "_id": "663d0f65-ddf3-419c-8369-a90fde43d521",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Generate QR Code",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "QR Code",
+      "script": "file://QR-Code.script.js"
+    }
+  }
+}

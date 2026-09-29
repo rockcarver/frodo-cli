@@ -1,0 +1,23 @@
+{
+  "applicationTypes": {
+    "amDelegationV2": {
+      "_id": "amDelegationV2",
+      "actions": {
+        "*": true,
+        "CREATE": true,
+        "DELEGATE": true,
+        "DELETE": true,
+        "MODIFY": true,
+        "PATCH": true,
+        "QUERY": true,
+        "READ": true,
+        "UPDATE": true
+      },
+      "applicationClassName": "com.sun.identity.entitlement.Application",
+      "name": "amDelegationV2",
+      "resourceComparator": "com.sun.identity.entitlement.opensso.DelegationV2RegExResourceName",
+      "saveIndex": "com.sun.identity.entitlement.opensso.DelegationV2ResourceNameIndexGenerator",
+      "searchIndex": "com.sun.identity.entitlement.opensso.DelegationV2ResourceNameSplitter"
+    }
+  }
+}

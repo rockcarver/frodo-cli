@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_mtls_config_put": {
+      "_id": "org_environment_introspect_admins__environment_mtls_config_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for PUT /environment/mtls/config",
+      "name": "org_environment_introspect_admins__environment_mtls_config_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/mtls/config"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "1cf590fa-50fc-479a-a2df-a641bbdaf50c": {
+      "_id": "1cf590fa-50fc-479a-a2df-a641bbdaf50c",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "description": "",
+      "name": "1cf590fa-50fc-479a-a2df-a641bbdaf50c",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://*ou=am-config/*"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=tenant-auditor,ou=group,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

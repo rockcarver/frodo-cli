@@ -25,7 +25,7 @@ export default function setup() {
     .description('Export all config.')
     .addOption(
       new Option(
-        '-F, --config-folder <config-folder-path>',
+        '-C, --config-folder <config-folder-path>',
         'Path to the folder containing the config files.\n'
       )
     )

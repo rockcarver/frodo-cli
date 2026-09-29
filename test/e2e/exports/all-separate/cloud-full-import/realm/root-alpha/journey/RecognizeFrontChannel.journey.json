@@ -1,0 +1,1073 @@
+{
+  "trees": {
+    "RecognizeFrontChannel": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "144f5888-05a7-40a8-8f6f-e76a854eb2a6": {
+          "_id": "144f5888-05a7-40a8-8f6f-e76a854eb2a6",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "c0413dae-fdd1-45b7-9302-61d6ae02b194"
+        },
+        "3cf4bbb6-0427-492f-8795-b619ee3a6067": {
+          "_id": "3cf4bbb6-0427-492f-8795-b619ee3a6067",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "76307759-e5cd-476a-af54-0a665c20eed6": {
+          "_id": "76307759-e5cd-476a-af54-0a665c20eed6",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "663d0f65-ddf3-419c-8369-a90fde43d521"
+        },
+        "7846f0da-172f-4114-a7b1-87f108a213e1": {
+          "_id": "7846f0da-172f-4114-a7b1-87f108a213e1",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "af055ddb-9635-4b90-aec9-529ddc4e78fe"
+        },
+        "810d7409-2df0-4a8e-8ba8-3a810ae072e2": {
+          "_id": "810d7409-2df0-4a8e-8ba8-3a810ae072e2",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "81f4b5bf-0563-4d06-b177-98d4c8f92643": {
+          "_id": "81f4b5bf-0563-4d06-b177-98d4c8f92643",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "Success"
+            }
+          ],
+          "_type": {
+            "_id": "designer-9baced97d9314337bcd202d28f3fd17b",
+            "collection": true,
+            "name": "Display Message",
+            "version": "1.0"
+          },
+          "message": "{{selectedUserDisplayName}} has failed the biometric challenge. Proceed with caution.",
+          "messageType": "INFORMATION",
+          "replaceUnresolvedHandlebarsWithEmptyString": true,
+          "stateValuesToRemove": []
+        },
+        "965976a3-5a8f-4820-b7fc-b5635f456f4c": {
+          "_id": "965976a3-5a8f-4820-b7fc-b5635f456f4c",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "c0413dae-fdd1-45b7-9302-61d6ae02b194"
+        },
+        "d7f7924b-8d08-43eb-8636-164db1f302e8": {
+          "_id": "d7f7924b-8d08-43eb-8636-164db1f302e8",
+          "_outcomes": [
+            {
+              "displayName": "QR",
+              "id": "QR"
+            },
+            {
+              "displayName": "SMS",
+              "id": "SMS"
+            },
+            {
+              "displayName": "EMAIL",
+              "id": "EMAIL"
+            }
+          ],
+          "_type": {
+            "_id": "ChoiceCollectorNode",
+            "collection": true,
+            "name": "Choice Collector",
+            "version": "1.0"
+          },
+          "choices": [
+            "QR",
+            "SMS",
+            "EMAIL"
+          ],
+          "defaultChoice": "QR",
+          "prompt": "Method of delivery"
+        },
+        "d80b362c-2e66-4607-94b7-13fd8745ac4e": {
+          "_id": "d80b362c-2e66-4607-94b7-13fd8745ac4e",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "Success"
+            }
+          ],
+          "_type": {
+            "_id": "designer-9baced97d9314337bcd202d28f3fd17b",
+            "collection": true,
+            "name": "Display Message",
+            "version": "1.0"
+          },
+          "message": "{{selectedUserDisplayName}} has successfully completed the biometric challenge.",
+          "messageType": "INFORMATION",
+          "replaceUnresolvedHandlebarsWithEmptyString": true,
+          "stateValuesToRemove": []
+        },
+        "d8b25caa-946e-4a64-a2f8-562add04030e": {
+          "_id": "d8b25caa-946e-4a64-a2f8-562add04030e",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "e59a28c3-cae6-4317-b48a-dd4379c78a82": {
+          "_id": "e59a28c3-cae6-4317-b48a-dd4379c78a82",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node",
+            "version": "1.0"
+          },
+          "message": {
+            "en": "Try again?"
+          },
+          "messageNo": {},
+          "messageYes": {
+            "en": "Try again"
+          }
+        },
+        "f462428b-6b03-4db9-9589-0608c0b80909": {
+          "_id": "f462428b-6b03-4db9-9589-0608c0b80909",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            },
+            {
+              "displayName": "error",
+              "id": "error"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true",
+            "error"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9228b1f7-53c6-4f34-ae14-45b90db22ccb"
+        },
+        "fe15e89b-be29-46ab-aa2a-ab3014982e99": {
+          "_id": "fe15e89b-be29-46ab-aa2a-ab3014982e99",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "Success"
+            }
+          ],
+          "_type": {
+            "_id": "designer-9baced97d9314337bcd202d28f3fd17b",
+            "collection": true,
+            "name": "Display Message",
+            "version": "1.0"
+          },
+          "message": "{{selectedUserDisplayName}} please scan the QR code with your mobile device to complete the biometric authentication process.",
+          "messageType": "INFORMATION",
+          "replaceUnresolvedHandlebarsWithEmptyString": true,
+          "stateValuesToRemove": []
+        }
+      },
+      "nodes": {
+        "00e7ebb9-7303-4f81-bd92-c97b9c3d1fb0": {
+          "_id": "00e7ebb9-7303-4f81-bd92-c97b9c3d1fb0",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "144f5888-05a7-40a8-8f6f-e76a854eb2a6",
+              "displayName": "Debug",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Unknown"
+          }
+        },
+        "15722040-21fd-4c10-8321-99ea34cecc1a": {
+          "_id": "15722040-21fd-4c10-8321-99ea34cecc1a",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "InnerTreeEvaluatorNode",
+            "collection": true,
+            "name": "Inner Tree Evaluator",
+            "version": "1.0"
+          },
+          "displayErrorOutcome": false,
+          "tree": "iExistingSession"
+        },
+        "27063442-891e-404c-ad6d-bc062786a748": {
+          "_id": "27063442-891e-404c-ad6d-bc062786a748",
+          "_outcomes": [
+            {
+              "displayName": "sent",
+              "id": "sent"
+            },
+            {
+              "displayName": "failed",
+              "id": "failed"
+            },
+            {
+              "displayName": "error",
+              "id": "error"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*",
+            "selectedUserDisplayName",
+            "selectedUserId",
+            "BCAURI"
+          ],
+          "outcomes": [
+            "sent",
+            "failed",
+            "error"
+          ],
+          "outputs": [
+            "*",
+            "selectedUserDisplayName",
+            "selectedUserId",
+            "BCAURI"
+          ],
+          "script": "2a196ca6-6da2-46e5-8224-764fdbdd2007"
+        },
+        "371d3ca2-d2dc-4d34-b167-65d71b5137a6": {
+          "_id": "371d3ca2-d2dc-4d34-b167-65d71b5137a6",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            },
+            {
+              "displayName": "error",
+              "id": "error"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "f462428b-6b03-4db9-9589-0608c0b80909",
+              "displayName": "Select User",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {
+            "en": "Select your user from the list. Validate the user you select is the person you are talking to."
+          },
+          "pageHeader": {
+            "en": "User Authentication"
+          },
+          "stage": "{\"submitButtonText\":{\"en\":\"Select User\"}}"
+        },
+        "39a46d9f-f879-4606-b4c7-268f5e31d4a0": {
+          "_id": "39a46d9f-f879-4606-b4c7-268f5e31d4a0",
+          "_outcomes": [
+            {
+              "displayName": "sent",
+              "id": "sent"
+            },
+            {
+              "displayName": "failed",
+              "id": "failed"
+            },
+            {
+              "displayName": "error",
+              "id": "error"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "sent",
+            "failed",
+            "error"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "48df3aaf-ea53-4dba-a913-3c2e18e69de0"
+        },
+        "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a": {
+          "_id": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "965976a3-5a8f-4820-b7fc-b5635f456f4c",
+              "displayName": "Debug",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Error"
+          }
+        },
+        "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac": {
+          "_id": "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "UpdateJourneyTimeoutNode",
+            "collection": true,
+            "name": "Update Journey Timeout",
+            "version": "1.0"
+          },
+          "operation": "SET",
+          "value": 10
+        },
+        "600d92ce-6055-4226-97c4-c11e77c5a3fa": {
+          "_id": "600d92ce-6055-4226-97c4-c11e77c5a3fa",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "7846f0da-172f-4114-a7b1-87f108a213e1",
+              "displayName": "Search Field",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {
+            "en": "Verify you are talking to the right person."
+          },
+          "pageHeader": {
+            "en": "User Facial Biometric Authentication"
+          },
+          "stage": "{\"submitButtonText\":{\"en\":\"Find Person\"}}"
+        },
+        "642d3d2c-49d1-4167-916b-c26d12f84647": {
+          "_id": "642d3d2c-49d1-4167-916b-c26d12f84647",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "d80b362c-2e66-4607-94b7-13fd8745ac4e",
+              "displayName": "Display Message",
+              "nodeType": "designer-9baced97d9314337bcd202d28f3fd17b",
+              "nodeVersion": "1.0"
+            },
+            {
+              "_id": "810d7409-2df0-4a8e-8ba8-3a810ae072e2",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "User Successfully Verified"
+          }
+        },
+        "7661153f-a42c-4183-a7e8-0bbae910e161": {
+          "_id": "7661153f-a42c-4183-a7e8-0bbae910e161",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "d8b25caa-946e-4a64-a2f8-562add04030e",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Aborted"
+          }
+        },
+        "954588db-2d3d-4ee9-b447-e184382af1db": {
+          "_id": "954588db-2d3d-4ee9-b447-e184382af1db",
+          "_outcomes": [
+            {
+              "displayName": "Created",
+              "id": "created"
+            },
+            {
+              "displayName": "Error",
+              "id": "error"
+            }
+          ],
+          "_type": {
+            "_id": "BackChannelInitNode",
+            "collection": true,
+            "name": "Backchannel Initialize",
+            "version": "1.0"
+          },
+          "allowRetry": true,
+          "idType": "NONE",
+          "redirectUrlType": "GET"
+        },
+        "b5de01d5-1e2d-4427-bedb-5d27206701c3": {
+          "_id": "b5de01d5-1e2d-4427-bedb-5d27206701c3",
+          "_outcomes": [
+            {
+              "displayName": "QR",
+              "id": "QR"
+            },
+            {
+              "displayName": "SMS",
+              "id": "SMS"
+            },
+            {
+              "displayName": "EMAIL",
+              "id": "EMAIL"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "d7f7924b-8d08-43eb-8636-164db1f302e8",
+              "displayName": "Choice Collector",
+              "nodeType": "ChoiceCollectorNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {
+            "en": "Select method of delivery. This will determine how the verification flow is transferred to the user. Select QR code only if you are on video conference with the user, otherwise select Text or Email."
+          },
+          "pageHeader": {
+            "en": "User Authentication"
+          },
+          "stage": "{\"ChoiceCallback\":[{\"id\":\"411b925f-b1bd-497a-9267-1dab27e58cf1\",\"displayType\":\"radio\"}]}"
+        },
+        "cdca977d-8264-4933-ac9b-d4769c8f5e23": {
+          "_id": "cdca977d-8264-4933-ac9b-d4769c8f5e23",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "81f4b5bf-0563-4d06-b177-98d4c8f92643",
+              "displayName": "Display Message",
+              "nodeType": "designer-9baced97d9314337bcd202d28f3fd17b",
+              "nodeVersion": "1.0"
+            },
+            {
+              "_id": "e59a28c3-cae6-4317-b48a-dd4379c78a82",
+              "displayName": "Try again?",
+              "nodeType": "MessageNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {
+            "en": "Proceed with caution!"
+          },
+          "pageHeader": {
+            "en": "User Failed Authentication"
+          },
+          "stage": "{\"ConfirmationCallback\":[{\"id\":\"b2f5e9aa-151f-4d4f-bd41-f8b5e3cb5968\",\"showOnlyPositiveAnswer\":true}]}"
+        },
+        "de8b09b8-ce4b-4d34-8ce9-6cfd81e63e8a": {
+          "_id": "de8b09b8-ce4b-4d34-8ce9-6cfd81e63e8a",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "3cf4bbb6-0427-492f-8795-b619ee3a6067",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Timeout"
+          }
+        },
+        "e22606c4-a25f-4bee-89cd-1a90d5f264ac": {
+          "_id": "e22606c4-a25f-4bee-89cd-1a90d5f264ac",
+          "_outcomes": [
+            {
+              "displayName": "Done",
+              "id": "DONE"
+            },
+            {
+              "displayName": "Exited",
+              "id": "EXITED"
+            },
+            {
+              "displayName": "Spam",
+              "id": "SPAM"
+            }
+          ],
+          "_type": {
+            "_id": "PollingWaitNode",
+            "collection": true,
+            "name": "Polling Wait Node",
+            "version": "1.0"
+          },
+          "exitMessage": {},
+          "exitable": true,
+          "secondsToWait": 5,
+          "spamDetectionEnabled": true,
+          "spamDetectionTolerance": 24,
+          "waitingMessage": {
+            "en": "Waiting for candidate authentication to complete"
+          }
+        },
+        "e3a74b62-6eec-40f4-a2f6-2dceb73acce9": {
+          "_id": "e3a74b62-6eec-40f4-a2f6-2dceb73acce9",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "fe15e89b-be29-46ab-aa2a-ab3014982e99",
+              "displayName": "Display Message",
+              "nodeType": "designer-9baced97d9314337bcd202d28f3fd17b",
+              "nodeVersion": "1.0"
+            },
+            {
+              "_id": "76307759-e5cd-476a-af54-0a665c20eed6",
+              "displayName": "QR Code",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "User Authentication"
+          },
+          "stage": "{\"submitButtonText\":{\"en\":\"Share your screen now. After candidate scans QR code, stop screen sharing and continue to results\"}}"
+        },
+        "fe68e233-373e-49db-b264-b1e79d3ee759": {
+          "_id": "fe68e233-373e-49db-b264-b1e79d3ee759",
+          "_outcomes": [
+            {
+              "displayName": "Pending",
+              "id": "pending"
+            },
+            {
+              "displayName": "In Progress",
+              "id": "inprogress"
+            },
+            {
+              "displayName": "Success",
+              "id": "success"
+            },
+            {
+              "displayName": "Failure",
+              "id": "failure"
+            },
+            {
+              "displayName": "Unknown",
+              "id": "unknown"
+            },
+            {
+              "displayName": "Error",
+              "id": "error"
+            }
+          ],
+          "_type": {
+            "_id": "BackChannelStatusNode",
+            "collection": true,
+            "name": "Backchannel Status",
+            "version": "1.0"
+          },
+          "recordData": true,
+          "recordTransactionData": false
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "RecognizeFrontChannel",
+        "description": "Helpdesk agents or candidate interviewers can launch this journey to biometrically verify caller or candidate.",
+        "enabled": true,
+        "entryNodeId": "15722040-21fd-4c10-8321-99ea34cecc1a",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "00e7ebb9-7303-4f81-bd92-c97b9c3d1fb0": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Unknown",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 3013,
+            "y": 554.015625
+          },
+          "15722040-21fd-4c10-8321-99ea34cecc1a": {
+            "connections": {
+              "false": "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac",
+              "true": "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac"
+            },
+            "displayName": "Existing Session?",
+            "nodeType": "InnerTreeEvaluatorNode",
+            "version": "1.0",
+            "x": 187,
+            "y": 393.015625
+          },
+          "27063442-891e-404c-ad6d-bc062786a748": {
+            "connections": {
+              "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+              "failed": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+              "sent": "e22606c4-a25f-4bee-89cd-1a90d5f264ac"
+            },
+            "displayName": "SMS",
+            "nodeType": "ScriptedDecisionNode",
+            "version": "1.0",
+            "x": 1921,
+            "y": 457.015625
+          },
+          "371d3ca2-d2dc-4d34-b167-65d71b5137a6": {
+            "connections": {
+              "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+              "true": "954588db-2d3d-4ee9-b447-e184382af1db"
+            },
+            "displayName": "Select Candidate",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 1021,
+            "y": 354.015625
+          },
+          "39a46d9f-f879-4606-b4c7-268f5e31d4a0": {
+            "connections": {
+              "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+              "failed": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+              "sent": "e22606c4-a25f-4bee-89cd-1a90d5f264ac"
+            },
+            "displayName": "EMAIL",
+            "nodeType": "ScriptedDecisionNode",
+            "version": "1.0",
+            "x": 1925,
+            "y": 627.015625
+          },
+          "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 3014,
+            "y": 1070.015625
+          },
+          "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac": {
+            "connections": {
+              "outcome": "600d92ce-6055-4226-97c4-c11e77c5a3fa"
+            },
+            "displayName": "Set Timeout",
+            "nodeType": "UpdateJourneyTimeoutNode",
+            "version": "1.0",
+            "x": 466,
+            "y": 420.015625
+          },
+          "600d92ce-6055-4226-97c4-c11e77c5a3fa": {
+            "connections": {
+              "true": "371d3ca2-d2dc-4d34-b167-65d71b5137a6"
+            },
+            "displayName": "Search User",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 750,
+            "y": 376.015625
+          },
+          "642d3d2c-49d1-4167-916b-c26d12f84647": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Success",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 3012,
+            "y": 34.015625
+          },
+          "7661153f-a42c-4183-a7e8-0bbae910e161": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Aborted",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 3012,
+            "y": 728.015625
+          },
+          "954588db-2d3d-4ee9-b447-e184382af1db": {
+            "connections": {
+              "created": "b5de01d5-1e2d-4427-bedb-5d27206701c3",
+              "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+              "unknown": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a"
+            },
+            "displayName": "Backchannel Initialize",
+            "nodeType": "BackChannelInitNode",
+            "version": "1.0",
+            "x": 1310,
+            "y": 376.015625
+          },
+          "b5de01d5-1e2d-4427-bedb-5d27206701c3": {
+            "connections": {
+              "EMAIL": "39a46d9f-f879-4606-b4c7-268f5e31d4a0",
+              "QR": "e3a74b62-6eec-40f4-a2f6-2dceb73acce9",
+              "SMS": "27063442-891e-404c-ad6d-bc062786a748"
+            },
+            "displayName": "Method of Delivery",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 1609,
+            "y": 350.015625
+          },
+          "cdca977d-8264-4933-ac9b-d4769c8f5e23": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "b5de01d5-1e2d-4427-bedb-5d27206701c3"
+            },
+            "displayName": "Failure",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 3013,
+            "y": 267.015625
+          },
+          "de8b09b8-ce4b-4d34-8ce9-6cfd81e63e8a": {
+            "connections": {},
+            "displayName": "Timeout",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 3013.8888888888887,
+            "y": 899.4618055555555
+          },
+          "e22606c4-a25f-4bee-89cd-1a90d5f264ac": {
+            "connections": {
+              "DONE": "fe68e233-373e-49db-b264-b1e79d3ee759",
+              "EXITED": "7661153f-a42c-4183-a7e8-0bbae910e161",
+              "SPAM": "de8b09b8-ce4b-4d34-8ce9-6cfd81e63e8a"
+            },
+            "displayName": "Polling Wait Node",
+            "nodeType": "PollingWaitNode",
+            "version": "1.0",
+            "x": 2219,
+            "y": 298.015625
+          },
+          "e3a74b62-6eec-40f4-a2f6-2dceb73acce9": {
+            "connections": {
+              "true": "e22606c4-a25f-4bee-89cd-1a90d5f264ac"
+            },
+            "displayName": "QR",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 1911,
+            "y": 199.015625
+          },
+          "fe68e233-373e-49db-b264-b1e79d3ee759": {
+            "connections": {
+              "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+              "failure": "cdca977d-8264-4933-ac9b-d4769c8f5e23",
+              "inprogress": "e22606c4-a25f-4bee-89cd-1a90d5f264ac",
+              "pending": "e22606c4-a25f-4bee-89cd-1a90d5f264ac",
+              "success": "642d3d2c-49d1-4167-916b-c26d12f84647",
+              "unknown": "00e7ebb9-7303-4f81-bd92-c97b9c3d1fb0"
+            },
+            "displayName": "Backchannel Status",
+            "nodeType": "BackChannelStatusNode",
+            "version": "1.0",
+            "x": 2599.714285714286,
+            "y": 157.59375
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 74,
+            "y": 260
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 3335,
+            "y": 718
+          },
+          "startNode": {
+            "x": 70,
+            "y": 420
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "annotations": "{\"forNodes\":{},\"structural\":[]}",
+          "categories": "[\"Prototype\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

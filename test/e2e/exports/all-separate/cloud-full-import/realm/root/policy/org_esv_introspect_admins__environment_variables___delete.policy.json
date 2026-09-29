@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_esv_introspect_admins__environment_variables___delete": {
+      "_id": "org_esv_introspect_admins__environment_variables___delete",
+      "actionValues": {
+        "DELETE": true
+      },
+      "active": true,
+      "applicationName": "org-esv-introspect",
+      "description": "Admin policy for DELETE /environment/variables/*",
+      "name": "org_esv_introspect_admins__environment_variables___delete",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/variables/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

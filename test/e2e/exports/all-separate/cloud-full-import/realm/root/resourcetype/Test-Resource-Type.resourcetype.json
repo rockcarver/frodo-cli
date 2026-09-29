@@ -1,0 +1,19 @@
+{
+  "resourcetype": {
+    "f42519db-f43c-4325-b8d4-04a631ff46cb": {
+      "actions": {
+        "create": false,
+        "delete": false,
+        "read": true,
+        "update": true
+      },
+      "description": "Test resource description",
+      "name": "Test Resource Type",
+      "patterns": [
+        "test/*",
+        "*/test"
+      ],
+      "uuid": "f42519db-f43c-4325-b8d4-04a631ff46cb"
+    }
+  }
+}

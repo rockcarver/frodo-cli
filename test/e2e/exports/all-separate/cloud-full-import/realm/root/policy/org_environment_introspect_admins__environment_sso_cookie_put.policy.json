@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_sso_cookie_put": {
+      "_id": "org_environment_introspect_admins__environment_sso_cookie_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for PUT /environment/sso-cookie",
+      "name": "org_environment_introspect_admins__environment_sso_cookie_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/sso-cookie"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

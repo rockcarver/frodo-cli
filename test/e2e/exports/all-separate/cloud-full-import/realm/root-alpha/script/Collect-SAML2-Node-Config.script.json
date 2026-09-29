@@ -1,0 +1,14 @@
+{
+  "script": {
+    "48f17202-039f-4d40-b7fc-4ce380f1b929": {
+      "_id": "48f17202-039f-4d40-b7fc-4ce380f1b929",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Collect all the configuration items required for the SAML2 Node to function properly.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Collect SAML2 Node Config",
+      "script": "file://Collect-SAML2-Node-Config.script.js"
+    }
+  }
+}

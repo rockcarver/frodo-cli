@@ -1,0 +1,14 @@
+{
+  "script": {
+    "424da748-82cc-4b54-be6f-82bd64d82a74": {
+      "_id": "424da748-82cc-4b54-be6f-82bd64d82a74",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "default": true,
+      "description": "Normalizes raw profile data from Yahoo",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "name": "Yahoo Profile Normalization",
+      "script": "file://Yahoo-Profile-Normalization.script.groovy"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "agent": {
+    "my-policy-agent": {
+      "_id": "my-policy-agent",
+      "_type": {
+        "_id": "2.2_Agent",
+        "collection": true,
+        "name": "Policy Agents"
+      },
+      "cdssoRootUrl": [],
+      "description": null,
+      "status": "Active"
+    }
+  }
+}

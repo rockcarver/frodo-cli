@@ -1,0 +1,20 @@
+{
+  "conditionTypes": {
+    "AMIdentityMembership": {
+      "_id": "AMIdentityMembership",
+      "config": {
+        "properties": {
+          "amIdentityName": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "AMIdentityMembership"
+    }
+  }
+}

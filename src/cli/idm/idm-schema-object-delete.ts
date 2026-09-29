@@ -34,7 +34,7 @@ export default function setup() {
     .addOption(new Option('-y, --yes', 'Answer y/yes to all prompts.'))
     .addOption(
       new Option(
-        '-F, --force',
+        '-f, --force',
         "Delete even if the type has existing records, or if the record count can't be confirmed."
       )
     )

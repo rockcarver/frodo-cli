@@ -1,0 +1,27 @@
+{
+  "_id": "sync/mapping12",
+  "consentRequired": false,
+  "displayName": "mapping12",
+  "linkQualifiers": [],
+  "name": "mapping12",
+  "policies": [],
+  "properties": [],
+  "source": "managed/bravo_user",
+  "syncAfter": [
+    "test_mapping",
+    "managedBravo_user_managedBravo_user",
+    "managedAlpha_user_managedBravo_user",
+    "managedBravo_user_managedAlpha_user",
+    "AlphaUser2GoogleApps",
+    "managedBravo_group_managedBravo_group",
+    "managedAlpha_application_managedBravo_application",
+    "managedAlpha_assignment_managedBravo_assignment",
+    "managedAlpha_user_systemAzureUser",
+    "managedBravo_user_managedBravo_user0",
+    "systemAzure__group___managedAlpha_assignment",
+    "systemAzureDirectoryrole_managedAlpha_assignment",
+    "systemAzureServiceplan_managedAlpha_assignment",
+    "systemAzureUser_managedAlpha_user"
+  ],
+  "target": "managed/bravo_user"
+}

@@ -1,0 +1,13 @@
+{
+  "managedApplication": {
+    "2d7ecf9b-745d-4d21-867b-c2a6c83ab459": {
+      "_id": "2d7ecf9b-745d-4d21-867b-c2a6c83ab459",
+      "name": "Brian App",
+      "ssoEntities": {
+        "oidcId": "brian-app"
+      },
+      "templateName": "web",
+      "templateVersion": "1.0"
+    }
+  }
+}

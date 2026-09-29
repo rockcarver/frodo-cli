@@ -1,0 +1,25 @@
+{
+  "emailTemplate": {
+    "joiner": {
+      "_id": "emailTemplate/joiner",
+      "advancedEditor": true,
+      "defaultLocale": "en",
+      "description": "This email will be sent onCreate of user to the external eMail address provided during creation. An OTP will also be sent to Telephone Number provided during creation to validate the user.  The user will then be able to set their password and ForgeRock Push Authenticator",
+      "displayName": "Joiner",
+      "enabled": true,
+      "from": "\"Encore HR\" <no-reply@encore.com>",
+      "html": {
+        "en": ""
+      },
+      "message": {
+        "en": "<html>\n  <head></head>\n  <body style=\"background-color:#324054;color:#455469;padding:60px;text-align:center\">\n    <div class=\"content\" style=\"background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:500px\">\n      <p>\n        <img src=\"https://encore.forgerock.com/media/logos/encore-icon-dark-logo.png\" width=\"125\" title=\"Welcome to Encore\" />\n      </p>\n      <h1 id=\"welcometoencore\">Welcome to Encore {{object.givenName}} {{object.sn}}</h1>\n      <p>Please click on the link below to validate your phone number with a One Time Code that will be sent via SMS or called to you depending on your phone type. </p>\n      <p>You will see your UserName and have the ability to set your password that will be used to login to Encore resources.  </p>\n      <p>As we believe in enhanced security, you will also be setting up a Push Notification for future use.</p>\n      <a href=\"https://openam-volker-demo.forgeblocks.com/am/XUI/?realm=alpha&amp;authIndexType=service&amp;authIndexValue=wks-NEO&amp;userName={{object.userName}}\">Click to Join Encore</a>\n    </div>\n  </body>\n</html>"
+      },
+      "mimeType": "text/html",
+      "styles": "body {\n   background-color: #324054;\n   color: #455469;\n   padding: 60px;\n   text-align: center \n}\n a {\n   text-decoration: none;\n   color: #109cf1;\n}\n .content {\n   background-color: #fff;\n   border-radius: 4px;\n   margin: 0 auto;\n   padding: 48px;\n   width: 235px \n}\n ",
+      "subject": {
+        "en": "Welcome to Encore!"
+      },
+      "templateId": "joiner"
+    }
+  }
+}

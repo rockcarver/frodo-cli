@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_direct_configuration_session_init_put": {
+      "_id": "org_environment_introspect_admins__environment_direct_configuration_session_init_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for PUT /environment/direct-configuration/session/init",
+      "name": "org_environment_introspect_admins__environment_direct_configuration_session_init_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/direct-configuration/session/init"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

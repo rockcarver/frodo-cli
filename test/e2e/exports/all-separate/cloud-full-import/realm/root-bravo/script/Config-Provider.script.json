@@ -1,0 +1,14 @@
+{
+  "script": {
+    "5e854779-6ec1-4c39-aeba-0477e0986646": {
+      "_id": "5e854779-6ec1-4c39-aeba-0477e0986646",
+      "context": "CONFIG_PROVIDER_NODE",
+      "default": true,
+      "description": "Default global script for Config Provider",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Config Provider",
+      "script": "file://Config-Provider.script.js"
+    }
+  }
+}

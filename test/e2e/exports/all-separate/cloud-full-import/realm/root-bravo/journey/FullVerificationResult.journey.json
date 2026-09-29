@@ -1,0 +1,252 @@
+{
+  "trees": {
+    "FullVerificationResult": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "5d32ece5-bf1d-4b3a-a0e5-e47867334112": {
+          "_id": "5d32ece5-bf1d-4b3a-a0e5-e47867334112",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "ca0c39c5-9c50-417f-a36e-815cfd1ecffe"
+        },
+        "c1f34309-1be3-4fd8-8c7d-8f027a91bb46": {
+          "_id": "c1f34309-1be3-4fd8-8c7d-8f027a91bb46",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "da8218d8-0226-432c-abe5-d4518e06fce8": {
+          "_id": "da8218d8-0226-432c-abe5-d4518e06fce8",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "collection": true,
+            "name": "Attribute Collector"
+          },
+          "attributesToCollect": [
+            "mail"
+          ],
+          "identityAttribute": "userName",
+          "required": true,
+          "validateInputs": true
+        }
+      },
+      "nodes": {
+        "43bd2a51-06e5-4f77-a239-0ae14d0f903e": {
+          "_id": "43bd2a51-06e5-4f77-a239-0ae14d0f903e",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "IdentifyExistingUserNode",
+            "collection": true,
+            "name": "Identify Existing User"
+          },
+          "identifier": "userName",
+          "identityAttribute": "mail"
+        },
+        "75cd0cc5-dae5-4289-b160-bae08c5f24af": {
+          "_id": "75cd0cc5-dae5-4289-b160-bae08c5f24af",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "da8218d8-0226-432c-abe5-d4518e06fce8",
+              "displayName": "Email",
+              "nodeType": "AttributeCollectorNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        },
+        "a668ff0a-12cc-4b0f-8e34-1ef75a70cc7d": {
+          "_id": "a668ff0a-12cc-4b0f-8e34-1ef75a70cc7d",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "5d32ece5-bf1d-4b3a-a0e5-e47867334112",
+              "displayName": "Results",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "c1f34309-1be3-4fd8-8c7d-8f027a91bb46",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Identity Verification Result"
+          }
+        },
+        "cbce5b49-d75d-440a-92e1-6d76290046bf": {
+          "_id": "cbce5b49-d75d-440a-92e1-6d76290046bf",
+          "_outcomes": [
+            {
+              "displayName": "known",
+              "id": "known"
+            },
+            {
+              "displayName": "unknown",
+              "id": "unknown"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "known",
+            "unknown"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "739bdc48-fd24-4c52-b353-88706d75558a"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "FullVerificationResult",
+        "description": "Display full verification result.",
+        "enabled": true,
+        "entryNodeId": "cbce5b49-d75d-440a-92e1-6d76290046bf",
+        "identityResource": "managed/bravo_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "43bd2a51-06e5-4f77-a239-0ae14d0f903e": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "a668ff0a-12cc-4b0f-8e34-1ef75a70cc7d"
+            },
+            "displayName": "Identify Existing User",
+            "nodeType": "IdentifyExistingUserNode",
+            "x": 645,
+            "y": 133.015625
+          },
+          "75cd0cc5-dae5-4289-b160-bae08c5f24af": {
+            "connections": {
+              "outcome": "43bd2a51-06e5-4f77-a239-0ae14d0f903e"
+            },
+            "displayName": "Email",
+            "nodeType": "PageNode",
+            "x": 411,
+            "y": 312.015625
+          },
+          "a668ff0a-12cc-4b0f-8e34-1ef75a70cc7d": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Result Dialog",
+            "nodeType": "PageNode",
+            "x": 886,
+            "y": 100.015625
+          },
+          "cbce5b49-d75d-440a-92e1-6d76290046bf": {
+            "connections": {
+              "known": "43bd2a51-06e5-4f77-a239-0ae14d0f903e",
+              "unknown": "75cd0cc5-dae5-4289-b160-bae08c5f24af"
+            },
+            "displayName": "Check username",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 177,
+            "y": 231.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 54,
+            "y": 148
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1111,
+            "y": 307
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "uiConfig": {
+          "categories": "[\"IDV\",\"P1 Verify\"]"
+        }
+      }
+    }
+  }
+}

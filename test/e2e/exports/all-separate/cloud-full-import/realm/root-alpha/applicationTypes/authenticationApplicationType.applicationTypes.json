@@ -1,0 +1,13 @@
+{
+  "applicationTypes": {
+    "authenticationApplicationType": {
+      "_id": "authenticationApplicationType",
+      "actions": {},
+      "applicationClassName": "com.sun.identity.entitlement.Application",
+      "name": "authenticationApplicationType",
+      "resourceComparator": "org.forgerock.openam.entitlement.indexwildcardonly.WildcardOnlyResourceMatcher",
+      "saveIndex": "org.forgerock.openam.entitlement.indexsimple.SimpleSaveIndex",
+      "searchIndex": "org.forgerock.openam.entitlement.indexwildcardonly.WildcardOnlySearchIndex"
+    }
+  }
+}

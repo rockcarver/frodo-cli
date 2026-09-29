@@ -1,0 +1,14 @@
+{
+  "script": {
+    "9228b1f7-53c6-4f34-ae14-45b90db22ccb": {
+      "_id": "9228b1f7-53c6-4f34-ae14-45b90db22ccb",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Perform user search using search criteria in nodeState field \"userSearch\" allow selection of a user.",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "Select User From Search Results",
+      "script": "file://Select-User-From-Search-Results.script.js"
+    }
+  }
+}

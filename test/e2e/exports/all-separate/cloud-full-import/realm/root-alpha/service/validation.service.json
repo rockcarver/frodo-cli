@@ -1,0 +1,17 @@
+{
+  "service": {
+    "validation": {
+      "_id": "",
+      "_type": {
+        "_id": "validation",
+        "collection": false,
+        "name": "Validation Service"
+      },
+      "location": "/alpha",
+      "nextDescendents": [],
+      "validGotoDestinations": [
+        "&{am.server.protocol|https}://&{fqdn}/*?*"
+      ]
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "apply": {
+      "_id": "apply",
+      "actionValues": {
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "authenticationStrategy": "AuthenticateToTreeConditionAdvice",
+        "strategySpecifier": "Baseline-Transaction",
+        "type": "Transaction"
+      },
+      "description": "",
+      "name": "apply",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "*://*:*/demo/api/action/apply"
+      ],
+      "subject": {
+        "type": "AuthenticatedUsers"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "script": {
+    "af055ddb-9635-4b90-aec9-529ddc4e78fe": {
+      "_id": "af055ddb-9635-4b90-aec9-529ddc4e78fe",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Render a search field to find users.",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "User Search Field",
+      "script": "file://User-Search-Field.script.js"
+    }
+  }
+}

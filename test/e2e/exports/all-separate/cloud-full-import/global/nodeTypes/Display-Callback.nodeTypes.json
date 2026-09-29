@@ -1,0 +1,93 @@
+{
+  "nodeTypes": {
+    "ef81b1a52c914710b3388caebfe7233a-1": {
+      "_id": "ef81b1a52c914710b3388caebfe7233a-1",
+      "description": "Displays custom callback to the page",
+      "displayName": "Display Callback",
+      "errorOutcome": false,
+      "inputs": [],
+      "outcomes": [
+        "outcome"
+      ],
+      "outputs": [],
+      "properties": {
+        "callback": {
+          "description": "The callback to display",
+          "multivalued": false,
+          "options": {
+            "BOOLEAN_ATTRIBUTE_INPUT_CALLBACK": "booleanAttributeInputCallback",
+            "CHOICE_CALLBACK": "choiceCallback",
+            "CONFIRMATION_CALLBACK": "confirmationCallback",
+            "CONSENT_MAPPING_CALLBACK": "consentMappingCallback",
+            "DEVICE_PROFILE_CALLBACK": "deviceProfileCallback",
+            "HIDDEN_VALUE_CALLBACK": "hiddenValueCallback",
+            "HTTP_CALLBACK": "httpCallback",
+            "IDP_CALLBACK": "idPCallback",
+            "KBA_CREATE_CALLBACK": "kbaCreateCallback",
+            "LANGUAGE_CALLBACK": "languageCallback",
+            "METADATA_CALLBACK": "metadataCallback",
+            "NAME_CALLBACK": "nameCallback",
+            "NUMBER_ATTRIBUTE_INPUT_CALLBACK": "numberAttributeInputCallback",
+            "PASSWORD_CALLBACK": "passwordCallback",
+            "POLLING_WAIT_CALLBACK": "pollingWaitCallback",
+            "REDIRECT_CALLBACK": "redirectCallback",
+            "SCRIPT_TEXT_OUTPUT_CALLBACK": "scriptTextOutputCallback",
+            "SELECT_IDP_CALLBACK": "selectIdPCallback",
+            "STRING_ATTRIBUTE_INPUT_CALLBACK": "stringAttributeInputCallback",
+            "SUSPENDED_TEXT_OUTPUT_CALLBACK": "suspendedTextOutputCallback",
+            "TERMS_AND_CONDITIONS_CALLBACK": "termsAndConditionsCallback",
+            "TEXT_INPUT_CALLBACK": "textInputCallback",
+            "TEXT_OUTPUT_CALLBACK": "textOutputCallback",
+            "VALIDATED_PASSWORD_CALLBACK": "validatedPasswordCallback",
+            "VALIDATED_USERNAME_CALLBACK": "validatedUsernameCallback",
+            "X509_CERTIFICATE_CALLBACK": "x509CertificateCallback"
+          },
+          "required": true,
+          "title": "Callback",
+          "type": "STRING"
+        },
+        "objectSharedProperty": {
+          "description": "The objectAttributes property on the shared state to put the callback input into (if applicable)",
+          "multivalued": false,
+          "required": false,
+          "title": "Object Attributes Shared Property",
+          "type": "STRING"
+        },
+        "objectTransientProperty": {
+          "description": "The objectAttributes property on the transient state to put the callback input into (if applicable)",
+          "multivalued": false,
+          "required": false,
+          "title": "Object Attributes Transient Property",
+          "type": "STRING"
+        },
+        "options": {
+          "description": "The options containing the parameters for the callback (see documentation for possible parameters: https://docs.pingidentity.com/pingoneaic/latest/am-scripting/scripting-api-node.html#scripting-api-node-callbacks). \n\nFor example, for textOutputCallback, the options could be: { messageType: 0, message: \"Hello World!\" }. \n\nNote that for required parameters that are not specified in the options will use default values based on the type of the parameter (\"\" for Strings, [] for Arrays, {} for Objects, 0 for Ints, 0.0 for Doubles, and false for Booleans).",
+          "multivalued": false,
+          "required": true,
+          "title": "Options",
+          "type": "OBJECT"
+        },
+        "sharedProperty": {
+          "description": "The shared state property to put the callback input into (if applicable)",
+          "multivalued": false,
+          "required": false,
+          "title": "Shared State Property",
+          "type": "STRING"
+        },
+        "transientProperty": {
+          "description": "The transient state property to put the callback input into (if applicable)",
+          "multivalued": false,
+          "required": false,
+          "title": "Transient State Property",
+          "type": "STRING"
+        }
+      },
+      "script": "file://Display-Callback.nodeTypes.js",
+      "serviceName": "ef81b1a52c914710b3388caebfe7233a",
+      "tags": [
+        "callback",
+        "utilities"
+      ]
+    }
+  }
+}

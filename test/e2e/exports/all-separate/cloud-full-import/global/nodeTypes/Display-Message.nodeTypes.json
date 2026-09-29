@@ -1,0 +1,58 @@
+{
+  "nodeTypes": {
+    "9baced97d9314337bcd202d28f3fd17b-1": {
+      "_id": "9baced97d9314337bcd202d28f3fd17b-1",
+      "description": "Displays a Message as defined by the TextOutputCallback to the current page. The message can be a combination of plaintext and (nested or non-nested) values retrieved from state. Depending on configuration, the message can conditionally appear given the presence of values from state.",
+      "displayName": "Display Message",
+      "errorOutcome": false,
+      "inputs": [],
+      "outcomes": [
+        "Success"
+      ],
+      "outputs": [],
+      "properties": {
+        "message": {
+          "description": "The message to display at the top of the page. This node supports nested objects and arrays using <a href=\"https://rapidjson.org/md_doc_pointer.html\">JSON Pointer Notation</a> as well as string interpolation using handlebars.",
+          "multivalued": false,
+          "required": true,
+          "title": "Message",
+          "type": "STRING"
+        },
+        "messageType": {
+          "defaultValue": "INFORMATION",
+          "description": "The type of Message to display to the user.",
+          "multivalued": false,
+          "options": {
+            "ERROR": "Error",
+            "INFORMATION": "Information",
+            "WARNING": "Warning"
+          },
+          "required": true,
+          "title": "Message Type",
+          "type": "STRING"
+        },
+        "replaceUnresolvedHandlebarsWithEmptyString": {
+          "defaultValue": true,
+          "description": "If true and the state value cannot be found the value will be replaced with an empty string. If false, the message will not display without all state values present.",
+          "multivalued": false,
+          "required": true,
+          "title": "Replace Unresolved Handlebars with Empty String",
+          "type": "BOOLEAN"
+        },
+        "stateValuesToRemove": {
+          "description": "Element(s) in state to remove after this message is displayed. Common examples include <code>errorMessage</code> or <code>result</code>",
+          "multivalued": true,
+          "required": false,
+          "title": "State Elements to Remove",
+          "type": "STRING"
+        }
+      },
+      "script": "file://Display-Message.nodeTypes.js",
+      "serviceName": "9baced97d9314337bcd202d28f3fd17b",
+      "tags": [
+        "utilities"
+      ],
+      "version": 1
+    }
+  }
+}

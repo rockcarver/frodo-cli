@@ -1,0 +1,363 @@
+{
+  "name": "bravo_aiagentprivilege",
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "icon": "fa-unlock-alt",
+    "order": [
+      "_id",
+      "description",
+      "agentID",
+      "agentOAuth2ClientId",
+      "agent",
+      "resource",
+      "resourceData",
+      "subjects",
+      "subjectGroups",
+      "subjectIDs",
+      "permissions"
+    ],
+    "properties": {
+      "_id": {
+        "description": "Agent Privilege ID",
+        "searchable": false,
+        "type": "string",
+        "userEditable": false,
+        "viewable": true
+      },
+      "agent": {
+        "description": "Agent",
+        "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgentPrivilege:agent",
+        "notifySelf": true,
+        "properties": {
+          "_ref": {
+            "description": "References a relationship from a managed object",
+            "type": "string"
+          },
+          "_refProperties": {
+            "description": "Supports metadata within the relationship",
+            "properties": {
+              "_id": {
+                "description": "_refProperties object ID",
+                "propName": "_id",
+                "required": false,
+                "type": "string"
+              }
+            },
+            "title": "Agent Privilege Agent _refProperties",
+            "type": "object"
+          }
+        },
+        "resourceCollection": [
+          {
+            "label": "Agent",
+            "notify": false,
+            "path": "managed/bravo_aiagent",
+            "query": {
+              "fields": [
+                "_id"
+              ],
+              "queryFilter": "true",
+              "sortKeys": []
+            }
+          }
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": "privileges",
+        "reverseRelationship": true,
+        "searchable": false,
+        "title": "Agent",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
+        "viewable": true
+      },
+      "agentID": {
+        "description": "ID of the associated AI Agent",
+        "isVirtual": true,
+        "queryConfig": {
+          "flattenProperties": true,
+          "referencedObjectFields": [
+            "_id"
+          ],
+          "referencedRelationshipFields": [
+            "agent"
+          ]
+        },
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Agent ID",
+        "type": "string",
+        "userEditable": false,
+        "viewable": true
+      },
+      "agentOAuth2ClientId": {
+        "description": "OAuth2 Client ID of the associated AI Agent",
+        "isVirtual": true,
+        "queryConfig": {
+          "flattenProperties": true,
+          "referencedObjectFields": [
+            "oauth2ClientId"
+          ],
+          "referencedRelationshipFields": [
+            "agent"
+          ]
+        },
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Agent OAuth2 Client ID",
+        "type": "string",
+        "userEditable": false,
+        "viewable": true
+      },
+      "description": {
+        "description": "Privilege Description",
+        "searchable": false,
+        "title": "Description",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "permissions": {
+        "description": "Permission grants for this privilege",
+        "items": {
+          "order": [
+            "type",
+            "values"
+          ],
+          "properties": {
+            "type": {
+              "description": "Type of permission",
+              "searchable": false,
+              "title": "Permission Type",
+              "type": "string",
+              "userEditable": true,
+              "viewable": true
+            },
+            "values": {
+              "description": "Permission values",
+              "items": {
+                "type": "string"
+              },
+              "searchable": false,
+              "title": "Values",
+              "type": "array",
+              "userEditable": true,
+              "viewable": true
+            }
+          },
+          "required": [
+            "type",
+            "values"
+          ],
+          "title": "Permission",
+          "type": "object"
+        },
+        "searchable": false,
+        "title": "Permissions",
+        "type": "array",
+        "userEditable": true,
+        "viewable": true
+      },
+      "resource": {
+        "description": "The resource this privilege applies to",
+        "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgentPrivilege:resource",
+        "notifySelf": true,
+        "properties": {
+          "_ref": {
+            "description": "References a relationship from a managed object",
+            "type": "string"
+          },
+          "_refProperties": {
+            "description": "Supports metadata within the relationship",
+            "properties": {
+              "_id": {
+                "description": "_refProperties object ID",
+                "propName": "_id",
+                "required": false,
+                "type": "string"
+              }
+            },
+            "title": "Agent Privilege Resource _refProperties",
+            "type": "object"
+          }
+        },
+        "resourceCollection": [
+          {
+            "label": "Application",
+            "notify": true,
+            "path": "managed/bravo_application",
+            "query": {
+              "fields": [
+                "name"
+              ],
+              "queryFilter": "true",
+              "sortKeys": []
+            }
+          }
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": "aiagentprivileges",
+        "reverseRelationship": true,
+        "searchable": false,
+        "title": "Resource",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
+        "viewable": true
+      },
+      "resourceData": {
+        "description": "Resource identifiers for querying privileges by application",
+        "isVirtual": true,
+        "queryConfig": {
+          "referencedObjectFields": [
+            "_id",
+            "ssoEntities"
+          ],
+          "referencedRelationshipFields": [
+            "resource"
+          ]
+        },
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Resource Data",
+        "type": "object",
+        "userEditable": false,
+        "viewable": true
+      },
+      "subjectGroups": {
+        "description": "Group of subjects participating in this privilege, on whose behalf the agent can operate",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgentPrivilege:subjectGroups:items",
+          "notifySelf": true,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string"
+                }
+              },
+              "title": "Agent Privilege Subject Groups Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "Group",
+              "notify": false,
+              "path": "managed/bravo_group",
+              "query": {
+                "fields": [
+                  "name"
+                ],
+                "queryFilter": "true",
+                "sortKeys": []
+              }
+            }
+          ],
+          "reversePropertyName": "aiagentprivileges",
+          "reverseRelationship": true,
+          "title": "Agent Privilege Subject Groups Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Subject Groups",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      },
+      "subjectIDs": {
+        "description": "IDs of the subjects",
+        "isVirtual": true,
+        "items": {
+          "type": "string"
+        },
+        "queryConfig": {
+          "flattenProperties": true,
+          "referencedObjectFields": [
+            "_id"
+          ],
+          "referencedRelationshipFields": [
+            [
+              "subjectGroups",
+              "members"
+            ],
+            [
+              "subjects"
+            ]
+          ]
+        },
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Subject IDs",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      },
+      "subjects": {
+        "description": "The subjects participating in this privilege, on whose behalf the agent can operate",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgentPrivilege:subjects:items",
+          "notifySelf": true,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string"
+                }
+              },
+              "title": "Agent Privilege Subjects Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "User",
+              "notify": false,
+              "path": "managed/bravo_user",
+              "query": {
+                "fields": [
+                  "userName"
+                ],
+                "queryFilter": "true",
+                "sortKeys": []
+              }
+            }
+          ],
+          "reverseRelationship": false,
+          "title": "Agent Privilege Subjects Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Subjects",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      }
+    },
+    "required": [
+      "agent"
+    ],
+    "title": "Bravo realm - AI Agent Privilege",
+    "type": "object"
+  }
+}

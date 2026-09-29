@@ -1,0 +1,14 @@
+{
+  "script": {
+    "d58977ed-0542-4147-8197-973ef7300191": {
+      "_id": "d58977ed-0542-4147-8197-973ef7300191",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Custom Device Match Script",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Custom Device Match Script",
+      "script": "file://Custom-Device-Match-Script.script.js"
+    }
+  }
+}

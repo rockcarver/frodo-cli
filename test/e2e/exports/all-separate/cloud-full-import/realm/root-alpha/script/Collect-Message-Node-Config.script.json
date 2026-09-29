@@ -1,0 +1,14 @@
+{
+  "script": {
+    "169150da-0bd1-4866-8095-eae0bbc269e4": {
+      "_id": "169150da-0bd1-4866-8095-eae0bbc269e4",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Collect all the configuration items required for the Message Node to function properly.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Collect Message Node Config",
+      "script": "file://Collect-Message-Node-Config.script.js"
+    }
+  }
+}

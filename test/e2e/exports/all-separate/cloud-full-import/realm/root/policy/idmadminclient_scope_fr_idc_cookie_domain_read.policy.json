@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "idmadminclient_scope_fr_idc_cookie_domain_read": {
+      "_id": "idmadminclient_scope_fr_idc_cookie_domain_read",
+      "actionValues": {
+        "GRANT": false
+      },
+      "active": false,
+      "applicationName": "idmAdminClient-scope",
+      "description": "Policy for fr:idc:cookie-domain:read",
+      "name": "idmadminclient_scope_fr_idc_cookie_domain_read",
+      "resourceTypeUuid": "",
+      "resources": [
+        "fr:idc:cookie-domain:read"
+      ],
+      "subject": {
+        "subject": {
+          "subjectValues": [
+            "id=tenant-auditor,ou=group,ou=am-config",
+            "id=tenant-admins,ou=group,ou=am-config",
+            "id=amadmin,ou=user,ou=am-config",
+            "id=super-admins,ou=group,ou=am-config"
+          ],
+          "type": "Identity"
+        },
+        "type": "NOT"
+      }
+    }
+  }
+}

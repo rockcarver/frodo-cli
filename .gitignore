@@ -144,3 +144,6 @@ test/fs_tmp/*
 temp
 .vscode/settings.json
 .polaris/
+
+# Claude Code personal settings
+.claude/settings.local.json

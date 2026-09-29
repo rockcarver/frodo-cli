@@ -1,0 +1,14 @@
+{
+  "script": {
+    "3d27b6d3-0f41-410a-9975-2e9df43d885e": {
+      "_id": "3d27b6d3-0f41-410a-9975-2e9df43d885e",
+      "context": "SCRIPTED_DECISION_NODE",
+      "default": false,
+      "description": "null",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "Test Next Gen",
+      "script": "file://Test-Next-Gen.script.js"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-asdf": {
+      "_id": "esv-asdf",
+      "description": "",
+      "expressionType": "string",
+      "loaded": true,
+      "value": "asdf"
+    }
+  }
+}

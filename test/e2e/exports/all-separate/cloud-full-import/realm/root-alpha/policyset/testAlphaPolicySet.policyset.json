@@ -1,0 +1,51 @@
+{
+  "policyset": {
+    "testAlphaPolicySet": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "AMIdentityMembership",
+        "AND",
+        "AuthLevel",
+        "AuthenticateToRealm",
+        "AuthenticateToService",
+        "IPv4",
+        "IPv6",
+        "IdmUser",
+        "LDAPFilter",
+        "LEAuthLevel",
+        "NOT",
+        "OAuth2Scope",
+        "OR",
+        "Policy",
+        "ResourceEnvIP",
+        "Script",
+        "Session",
+        "SessionProperty",
+        "SimpleTime",
+        "Transaction"
+      ],
+      "description": null,
+      "displayName": "Test Alpha Policy Set",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "name": "testAlphaPolicySet",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "993eba78-1c3f-4f27-b205-b4b29418f831"
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AND",
+        "AuthenticatedUsers",
+        "Identity",
+        "JwtClaim",
+        "NONE",
+        "NOT",
+        "OR",
+        "Policy"
+      ]
+    }
+  }
+}

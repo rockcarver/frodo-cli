@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_aiagent_post": {
+      "_id": "org_environment_introspect_admins__environment_aiagent_post",
+      "actionValues": {
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for POST /environment/aiagent",
+      "name": "org_environment_introspect_admins__environment_aiagent_post",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/aiagent"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

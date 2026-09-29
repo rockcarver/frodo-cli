@@ -1,0 +1,14 @@
+{
+  "script": {
+    "616d3541-14d6-4a54-94dd-46a146ef2423": {
+      "_id": "616d3541-14d6-4a54-94dd-46a146ef2423",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Check For Existing Session",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Check For Existing Session",
+      "script": "file://Check-For-Existing-Session.script.js"
+    }
+  }
+}

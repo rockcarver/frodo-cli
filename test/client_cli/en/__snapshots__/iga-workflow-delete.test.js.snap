@@ -31,7 +31,7 @@ Options:
                                    both draft and published unless -d or -p are
                                    used exclusively. Ignored with -i.
   -d, --draft-only                 Delete only the draft workflow(s).
-  -F, --force                      Force delete workflow(s), even if they are
+  -f, --force                      Force delete workflow(s), even if they are
                                    associated with request types.
   -i, --workflow-id <workflow-id>  Workflow id. If specified, -a is ignored. By
                                    default, deletes both draft and published

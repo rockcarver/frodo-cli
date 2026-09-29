@@ -1,0 +1,139 @@
+{
+  "theme": {
+    "e47838b5-48c9-4dea-8a84-43f4b4ea8e04": {
+      "_id": "e47838b5-48c9-4dea-8a84-43f4b4ea8e04",
+      "accountCardBackgroundColor": "#ffffff",
+      "accountCardHeaderColor": "#23282e",
+      "accountCardInnerBorderColor": "#e7eef4",
+      "accountCardInputBackgroundColor": "#ffffff",
+      "accountCardInputBorderColor": "#c0c9d5",
+      "accountCardInputLabelColor": "#5e6d82",
+      "accountCardInputSelectColor": "#e4f4fd",
+      "accountCardInputSelectHoverColor": "#f6f8fa",
+      "accountCardInputTextColor": "#23282e",
+      "accountCardOuterBorderColor": "#e7eef4",
+      "accountCardShadow": 3,
+      "accountCardTabActiveBorderColor": "#109cf1",
+      "accountCardTabActiveColor": "#e4f4fd",
+      "accountCardTextColor": "#5e6d82",
+      "accountFooter": "<footer>\n  <div class=\"container-md\">\n    <div class=\"py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100\">\n      <div class=\"text-nowrap\">\n        <span class=\"pr-1\">© 2022</span>\n        <a href=\"#\" target=\"_blank\" class=\"notranslate text-body\">Zardoz, Inc</a>\n      </div>\n      <ul class=\"nav\">\n        <li class=\"nav-item\">\n          <a href=\"#\" class=\"nav-link\">Privacy Policy</a>\n        </li>\n        <li class=\"nav-item\">\n          <a href=\"#\" class=\"nav-link\">Terms of Use</a>\n        </li>\n      </ul>\n    </div>\n  </div>\n</footer>\n",
+      "accountFooterEnabled": true,
+      "accountFooterScriptTag": "",
+      "accountFooterScriptTagEnabled": false,
+      "accountNavigationBackgroundColor": "#ffffff",
+      "accountNavigationTextColor": "#455469",
+      "accountNavigationToggleBorderColor": "#e7eef4",
+      "accountPageSections": {
+        "accountControls": {
+          "enabled": false
+        },
+        "accountSecurity": {
+          "enabled": true,
+          "subsections": {
+            "password": {
+              "enabled": true
+            },
+            "securityQuestions": {
+              "enabled": false
+            },
+            "twoStepVerification": {
+              "enabled": true
+            },
+            "username": {
+              "enabled": true
+            }
+          }
+        },
+        "consent": {
+          "enabled": false
+        },
+        "oauthApplications": {
+          "enabled": false
+        },
+        "personalInformation": {
+          "enabled": true
+        },
+        "preferences": {
+          "enabled": false
+        },
+        "social": {
+          "enabled": false
+        },
+        "trustedDevices": {
+          "enabled": true
+        }
+      },
+      "accountTableRowHoverColor": "#f6f8fa",
+      "backgroundColor": "#FFFFFF",
+      "backgroundImage": "",
+      "bodyText": "#5E6D82",
+      "boldLinks": false,
+      "buttonRounded": "50",
+      "dangerColor": "#f7685b",
+      "favicon": "",
+      "fontFamily": "Open Sans",
+      "isDefault": false,
+      "journeyA11yAddFallbackErrorHeading": true,
+      "journeyCardBackgroundColor": "#ffffff",
+      "journeyCardBorderRadius": 4,
+      "journeyCardHeaderBackgroundColor": "#ffffff",
+      "journeyCardShadow": 3,
+      "journeyCardTextColor": "#5e6d82",
+      "journeyCardTitleColor": "#23282e",
+      "journeyFloatingLabels": true,
+      "journeyFocusElement": "header",
+      "journeyFocusFirstFocusableItemEnabled": false,
+      "journeyFooter": "<footer>\n            <div class=\"container-md\">\n            <div class=\"py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100\">\n              <div class=\"text-nowrap\">\n                <span class=\"pr-1\">© 2022</span>\n                <a href=\"#\" target=\"_blank\" class=\"notranslate text-body\">Zardoz, Inc</a>\n              </div>\n              <ul class=\"nav\">\n                <li class=\"nav-item\">\n                  <a href=\"#\" class=\"nav-link\">Privacy Policy</a>\n                </li>\n                <li class=\"nav-item\">\n                  <a href=\"#\" class=\"nav-link\">Terms of Use</a>\n                </li>\n              </ul>\n            </div>\n            </div>\n          </footer>\n",
+      "journeyFooterEnabled": true,
+      "journeyFooterScriptTag": "",
+      "journeyFooterScriptTagEnabled": false,
+      "journeyHeader": "<div class=\"d-flex justify-content-center py-4 flex-grow-1\">Header Content</div>",
+      "journeyHeaderEnabled": false,
+      "journeyHeaderSkipLinkEnabled": false,
+      "journeyInputBackgroundColor": "#ffffff",
+      "journeyInputBorderColor": "#c0c9d5",
+      "journeyInputLabelColor": "#5e6d82",
+      "journeyInputSelectColor": "#e4f4fd",
+      "journeyInputSelectHoverColor": "#f6f8fa",
+      "journeyInputTextColor": "#23282e",
+      "journeyJustifiedContent": "<div style=\"display: flex; background-color: black; height: 100vh;\">\n    <div class=\"d-none d-md-flex justify-content-center align-items-center p-5\" style=\"background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);\n    background-size: cover;\"><h1 class=\"text-center display-3\" style=\"color: rgb(255, 255, 255);\">Uptime &amp; Performance Benchmarking Made Easy</h1></div>\n</div>\n\n",
+      "journeyJustifiedContentEnabled": true,
+      "journeyJustifiedContentMobileViewEnabled": false,
+      "journeyLayout": "justified-right",
+      "journeyRememberMeEnabled": false,
+      "journeyRememberMeLabel": "",
+      "journeySignInButtonPosition": "flex-column",
+      "journeyTheaterMode": true,
+      "linkActiveColor": "#007661",
+      "linkColor": "#009C80",
+      "linkedTrees": [],
+      "logo": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+      "logoAltText": "Zardoz Logo",
+      "logoEnabled": true,
+      "logoHeight": "47",
+      "logoProfile": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+      "logoProfileAltText": "Zardaz Logo",
+      "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+      "logoProfileCollapsedAltText": "Zardaz Logo",
+      "logoProfileCollapsedHeight": "28",
+      "logoProfileHeight": "40",
+      "name": "Copy of Zardoz",
+      "pageTitle": "#23282e",
+      "primaryColor": "#009C80",
+      "primaryOffColor": "#007661",
+      "profileBackgroundColor": "#FFFFFF",
+      "profileMenuHighlightColor": "#FFFFFF",
+      "profileMenuHoverColor": "#FFFFFF",
+      "profileMenuHoverTextColor": "#455469",
+      "profileMenuTextHighlightColor": "#009C80",
+      "secondaryColor": "#69788b",
+      "successColor": "#2ed47a",
+      "switchBackgroundColor": "#c0c9d5",
+      "textColor": "#ffffff",
+      "topBarBackgroundColor": "#ffffff",
+      "topBarBorderColor": "#e7eef4",
+      "topBarHeaderColor": "#23282e",
+      "topBarTextColor": "#69788b"
+    }
+  }
+}

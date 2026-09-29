@@ -1,0 +1,22 @@
+{
+  "policy": {
+    "activity": {
+      "_id": "activity",
+      "actionValues": {
+        "GET": true,
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "test-policy-set",
+      "description": "",
+      "name": "activity",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "*://*:*/demo/api/action/activity"
+      ],
+      "subject": {
+        "type": "AuthenticatedUsers"
+      }
+    }
+  }
+}

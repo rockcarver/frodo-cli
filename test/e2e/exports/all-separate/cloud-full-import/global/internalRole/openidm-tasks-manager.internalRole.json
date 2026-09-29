@@ -1,0 +1,12 @@
+{
+  "internalRole": {
+    "openidm-tasks-manager": {
+      "_id": "openidm-tasks-manager",
+      "condition": null,
+      "description": "Allowed to reassign workflow tasks",
+      "name": "openidm-tasks-manager",
+      "privileges": [],
+      "temporalConstraints": []
+    }
+  }
+}

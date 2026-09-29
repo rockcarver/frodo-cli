@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_telemetry_splunk___get": {
+      "_id": "org_environment_introspect_admins__environment_telemetry_splunk___get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for GET /environment/telemetry/splunk/*",
+      "name": "org_environment_introspect_admins__environment_telemetry_splunk___get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/telemetry/splunk/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

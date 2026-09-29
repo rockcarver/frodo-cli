@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_cookie_domains_put": {
+      "_id": "org_environment_introspect_admins__environment_cookie_domains_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for PUT /environment/cookie-domains",
+      "name": "org_environment_introspect_admins__environment_cookie_domains_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/cookie-domains"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

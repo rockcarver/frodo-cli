@@ -1,0 +1,27 @@
+{
+  "policyset": {
+    "auto-analytics-introspect": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "OAuth2Scope",
+        "OR",
+        "NOT"
+      ],
+      "description": "The set of policies used by analytics token introspection",
+      "displayName": "Policies for analytics token introspection",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "name": "auto-analytics-introspect",
+      "resourceComparator": null,
+      "resourceTypeUuids": [],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "ResourceOwnerInGroup",
+        "OR",
+        "NOT"
+      ]
+    }
+  }
+}

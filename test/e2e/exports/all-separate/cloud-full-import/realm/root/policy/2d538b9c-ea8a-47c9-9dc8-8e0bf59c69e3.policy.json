@@ -1,0 +1,34 @@
+{
+  "policy": {
+    "2d538b9c-ea8a-47c9-9dc8-8e0bf59c69e3": {
+      "_id": "2d538b9c-ea8a-47c9-9dc8-8e0bf59c69e3",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "condition": {
+        "conditions": [
+          {
+            "expression": "/application eq \"platformUIPolicySet\"",
+            "type": "Json"
+          },
+          {
+            "expression": "! (/subject pr)",
+            "type": "Json"
+          }
+        ],
+        "type": "AND"
+      },
+      "description": "",
+      "name": "2d538b9c-ea8a-47c9-9dc8-8e0bf59c69e3",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://ou=am-config/rest/1.0/policies/evaluate"
+      ],
+      "subject": {
+        "type": "AuthenticatedUsers"
+      }
+    }
+  }
+}

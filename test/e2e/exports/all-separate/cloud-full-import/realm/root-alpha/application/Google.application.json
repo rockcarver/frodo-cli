@@ -1,0 +1,13 @@
+{
+  "managedApplication": {
+    "2e4663b7-aed2-4521-8819-d379449d91b0": {
+      "_id": "2e4663b7-aed2-4521-8819-d379449d91b0",
+      "description": "Link to Google",
+      "name": "Google",
+      "ssoEntities": {},
+      "templateName": "bookmark",
+      "templateVersion": "1.0",
+      "url": "https://www.google.com/"
+    }
+  }
+}

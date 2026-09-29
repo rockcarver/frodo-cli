@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-neo-age": {
+      "_id": "esv-neo-age",
+      "description": "Neo's age in the matrix.",
+      "expressionType": "int",
+      "loaded": true,
+      "value": "28"
+    }
+  }
+}

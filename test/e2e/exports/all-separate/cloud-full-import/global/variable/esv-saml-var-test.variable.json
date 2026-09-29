@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-saml-var-test": {
+      "_id": "esv-saml-var-test",
+      "description": "testing config manager saml placeholder handling",
+      "expressionType": "string",
+      "loaded": true,
+      "value": "test"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "nodeTypes": {
+    "c6063fb2f5dc42dd9772bedc93898bd8-1": {
+      "_id": "c6063fb2f5dc42dd9772bedc93898bd8-1",
+      "description": "Simple ALU that performs basic binary math operations. Expects an \"x\" and \"y\" value on the shared state, and will produce a new \"z\" value on the shared state as output.",
+      "displayName": "ALU",
+      "errorOutcome": true,
+      "inputs": [
+        "x",
+        "y"
+      ],
+      "outcomes": [
+        "Success"
+      ],
+      "outputs": [
+        "z"
+      ],
+      "properties": {
+        "operator": {
+          "defaultValue": "ADD",
+          "description": "The operation to perform.",
+          "multivalued": false,
+          "options": {
+            "ADD": "+",
+            "DIVIDE": "/",
+            "MULTIPLY": "*",
+            "SUBTRACT": "-"
+          },
+          "required": true,
+          "title": "Operator",
+          "type": "STRING"
+        }
+      },
+      "script": "file://ALU.nodeTypes.js",
+      "serviceName": "c6063fb2f5dc42dd9772bedc93898bd8",
+      "tags": [
+        "math",
+        "utilities"
+      ]
+    }
+  }
+}

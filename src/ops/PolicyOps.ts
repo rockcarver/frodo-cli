@@ -20,6 +20,7 @@ import {
   stopProgressIndicator,
   succeedSpinner,
   updateProgressIndicator,
+  warnSpinner,
 } from '../utils/Console';
 
 const {
@@ -573,8 +574,12 @@ export async function importPolicyFromFile(
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    await importPolicy(policyId, fileData, options);
-    succeedSpinner(`Imported ${policyId}.`);
+    const policy = await importPolicy(policyId, fileData, options);
+    if (policy) {
+      succeedSpinner(`Imported ${policyId}.`);
+    } else {
+      warnSpinner(`Did not import ${policyId} since no changes were made.`);
+    }
     debugMessage(`cli.PolicyOps.importPolicyFromFile: end`);
     return true;
   } catch (error) {
@@ -601,9 +606,15 @@ export async function importFirstPolicyFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     const policy = await importFirstPolicy(fileData, options);
-    succeedSpinner(
-      `Imported first policy with id '${policy._id}' from ${filePath}.`
-    );
+    if (policy) {
+      succeedSpinner(
+        `Imported first policy with id '${policy._id}' from ${filePath}.`
+      );
+    } else {
+      warnSpinner(
+        `Did not import first policy from ${filePath} since no changes were made.`
+      );
+    }
     debugMessage(`cli.PolicySetOps.importFirstPolicyFromFile: end`);
     return true;
   } catch (error) {
@@ -629,9 +640,9 @@ export async function importPoliciesFromFile(
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    await importPolicies(fileData, options);
-    succeedSpinner(
-      `Imported ${filePath}${
+    const policies = await importPolicies(fileData, options);
+    (policies.length ? succeedSpinner : warnSpinner)(
+      `Imported ${policies.length} policies from ${filePath}${
         options.policySetName
           ? ' into policy set ' + options.policySetName
           : '.'
@@ -685,12 +696,11 @@ export async function importPoliciesFromFiles(
       try {
         const data = fs.readFileSync(file, 'utf8');
         const fileData: PolicyExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.policy ?? {}).length;
-        total += count;
-        await importPolicies(fileData, options);
+        const policies = await importPolicies(fileData, options);
+        total += policies.length;
         updateProgressIndicator(
           indicatorId,
-          `Imported ${count} policies from ${file}`
+          `Imported ${policies.length} policies from ${file}`
         );
       } catch (error) {
         errors.push(error);
@@ -710,7 +720,7 @@ export async function importPoliciesFromFiles(
     stopProgressIndicator(
       indicatorId,
       `Finished importing ${total} policies from ${files.length} files.`,
-      'success'
+      total ? 'success' : 'warn'
     );
     debugMessage(`cli.PolicyOps.importPoliciesFromFiles: end`);
     return true;

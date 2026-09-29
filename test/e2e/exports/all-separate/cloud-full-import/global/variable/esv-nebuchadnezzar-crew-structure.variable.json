@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-nebuchadnezzar-crew-structure": {
+      "_id": "esv-nebuchadnezzar-crew-structure",
+      "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "object",
+      "loaded": true,
+      "value": "{\"Captain\":\"Morpheus\",\"FirstMate\":\"Trinity\",\"Operator\":[\"Link\",\"Tank\"],\"Medic\":\"Dozer\",\"Crewmen\":[\"Apoc\",\"Cypher\",\"Mouse\",\"Neo\",\"Switch\"]}"
+    }
+  }
+}

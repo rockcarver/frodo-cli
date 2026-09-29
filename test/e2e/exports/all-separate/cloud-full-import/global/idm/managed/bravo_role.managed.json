@@ -1,0 +1,247 @@
+{
+  "name": "bravo_role",
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "",
+    "icon": "fa-check-square-o",
+    "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Role",
+    "mat-icon": "assignment_ind",
+    "order": [
+      "_id",
+      "name",
+      "description",
+      "members",
+      "assignments",
+      "applications",
+      "condition",
+      "temporalConstraints"
+    ],
+    "properties": {
+      "_id": {
+        "description": "Role ID",
+        "searchable": false,
+        "title": "Name",
+        "type": "string",
+        "viewable": false
+      },
+      "applications": {
+        "description": "Role Applications",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Role:applications:items",
+          "notifySelf": true,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_accountType": {
+                  "description": "Account type",
+                  "type": "string"
+                },
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "type": "string"
+                }
+              },
+              "title": "Role Application Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "Application",
+              "path": "managed/bravo_application",
+              "query": {
+                "fields": [
+                  "name"
+                ],
+                "queryFilter": "true"
+              }
+            }
+          ],
+          "reversePropertyName": "roles",
+          "reverseRelationship": true,
+          "title": "Role Application Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "notifyRelationships": [
+          "members"
+        ],
+        "relationshipGrantTemporalConstraintsEnforced": true,
+        "returnByDefault": false,
+        "title": "Applications",
+        "type": "array",
+        "viewable": false
+      },
+      "assignments": {
+        "description": "Managed Assignments",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Role:assignments:items",
+          "notifySelf": true,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_accountType": {
+                  "description": "Account type",
+                  "type": "string"
+                },
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "type": "string"
+                }
+              },
+              "title": "Managed Assignments Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "Assignment",
+              "path": "managed/bravo_assignment",
+              "query": {
+                "fields": [
+                  "name"
+                ],
+                "queryFilter": "true"
+              }
+            }
+          ],
+          "reversePropertyName": "roles",
+          "reverseRelationship": true,
+          "title": "Managed Assignments Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "notifyRelationships": [
+          "members"
+        ],
+        "returnByDefault": false,
+        "title": "Managed Assignments",
+        "type": "array",
+        "viewable": true
+      },
+      "condition": {
+        "description": "A conditional filter for this role",
+        "isConditional": true,
+        "searchable": false,
+        "title": "Condition",
+        "type": "string",
+        "viewable": false
+      },
+      "description": {
+        "description": "The role description, used for display purposes.",
+        "searchable": true,
+        "title": "Description",
+        "type": "string",
+        "viewable": true
+      },
+      "members": {
+        "description": "Role Members",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Role:members:items",
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_grantType": {
+                  "description": "Grant Type",
+                  "label": "Grant Type",
+                  "type": "string"
+                },
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "type": "string"
+                }
+              },
+              "title": "Role Members Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "conditionalAssociation": true,
+              "label": "User",
+              "notify": true,
+              "path": "managed/bravo_user",
+              "query": {
+                "fields": [
+                  "userName",
+                  "givenName",
+                  "sn"
+                ],
+                "queryFilter": "true"
+              }
+            }
+          ],
+          "reversePropertyName": "roles",
+          "reverseRelationship": true,
+          "title": "Role Members Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "relationshipGrantTemporalConstraintsEnforced": true,
+        "returnByDefault": false,
+        "title": "Role Members",
+        "type": "array",
+        "viewable": true
+      },
+      "name": {
+        "description": "The role name, used for display purposes.",
+        "policies": [
+          {
+            "policyId": "unique"
+          }
+        ],
+        "searchable": true,
+        "title": "Name",
+        "type": "string",
+        "viewable": true
+      },
+      "temporalConstraints": {
+        "description": "An array of temporal constraints for a role",
+        "isTemporalConstraint": true,
+        "items": {
+          "order": [
+            "duration"
+          ],
+          "properties": {
+            "duration": {
+              "description": "Duration",
+              "type": "string"
+            }
+          },
+          "required": [
+            "duration"
+          ],
+          "title": "Temporal Constraints Items",
+          "type": "object"
+        },
+        "notifyRelationships": [
+          "members"
+        ],
+        "returnByDefault": true,
+        "title": "Temporal Constraints",
+        "type": "array",
+        "viewable": false
+      }
+    },
+    "required": [
+      "name"
+    ],
+    "title": "Bravo realm - Role",
+    "type": "object"
+  }
+}

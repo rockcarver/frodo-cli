@@ -1,0 +1,31 @@
+{
+  "idm": {
+    "ui/themeconfig": {
+      "_id": "ui/themeconfig",
+      "icon": "favicon.ico",
+      "path": "",
+      "settings": {
+        "footer": {
+          "mailto": "info@pingidentity.com"
+        },
+        "loginLogo": {
+          "alt": "Ping Identity",
+          "height": "120px",
+          "src": "images/login-logo-dark.png",
+          "title": "Ping Identity",
+          "width": "120px"
+        },
+        "logo": {
+          "alt": "Ping Identity",
+          "src": "images/logo-horizontal-white.png",
+          "title": "Ping Identity"
+        }
+      },
+      "stylesheets": [
+        "css/bootstrap-3.4.1-custom.css",
+        "css/structure.css",
+        "css/theme.css"
+      ]
+    }
+  }
+}

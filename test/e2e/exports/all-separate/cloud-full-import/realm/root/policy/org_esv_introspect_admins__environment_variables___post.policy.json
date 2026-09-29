@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_esv_introspect_admins__environment_variables___post": {
+      "_id": "org_esv_introspect_admins__environment_variables___post",
+      "actionValues": {
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "org-esv-introspect",
+      "description": "Admin policy for POST /environment/variables/*",
+      "name": "org_esv_introspect_admins__environment_variables___post",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/variables/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

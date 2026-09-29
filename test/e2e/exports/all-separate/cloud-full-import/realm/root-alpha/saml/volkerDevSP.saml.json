@@ -1,0 +1,151 @@
+{
+  "saml": {
+    "cot": {},
+    "hosted": {
+      "dm9sa2VyRGV2U1A": {
+        "_id": "dm9sa2VyRGV2U1A",
+        "entityId": "volkerDevSP",
+        "serviceProvider": {
+          "advanced": {
+            "ecpConfiguration": {
+              "ecpRequestIdpListFinderImpl": "com.sun.identity.saml2.plugins.ECPIDPFinder"
+            },
+            "idpProxy": {},
+            "relayStateUrlList": {},
+            "saeConfiguration": {
+              "spUrl": "https://openam-volker-dev.forgeblocks.com/am/spsaehandler/metaAlias/alpha/volkerDevSP"
+            }
+          },
+          "assertionContent": {
+            "assertionTimeSkew": 300,
+            "authenticationContext": {
+              "authContextItems": [
+                {
+                  "contextReference": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+                  "defaultItem": true,
+                  "level": 0
+                }
+              ],
+              "authenticationComparisonType": "Exact",
+              "authenticationContextMapper": "com.sun.identity.saml2.plugins.DefaultSPAuthnContextMapper",
+              "includeRequestedAuthenticationContext": true
+            },
+            "basicAuthentication": {},
+            "clientAuthentication": {},
+            "nameIdFormat": {
+              "nameIdFormatList": [
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+              ]
+            },
+            "signingAndEncryption": {
+              "encryption": {},
+              "requestResponseSigning": {},
+              "secretIdAndAlgorithms": {}
+            }
+          },
+          "assertionProcessing": {
+            "accountMapping": {
+              "spAccountMapper": "com.sun.identity.saml2.plugins.DefaultSPAccountMapper",
+              "useNameIDAsSPUserID": true
+            },
+            "adapter": {},
+            "attributeMapper": {
+              "attributeMap": [
+                {
+                  "key": "*",
+                  "value": "*"
+                }
+              ],
+              "attributeMapper": "com.sun.identity.saml2.plugins.DefaultSPAttributeMapper"
+            },
+            "autoFederation": {
+              "autoFedEnabled": false
+            },
+            "redirectTreeConfiguration": {},
+            "responseArtifactMessageEncoding": {
+              "encoding": "URI"
+            },
+            "url": {}
+          },
+          "services": {
+            "metaAlias": "/alpha/volkerDevSP",
+            "serviceAttributes": {
+              "assertionConsumerService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "index": 1,
+                  "isDefault": true,
+                  "location": "https://openam-volker-dev.forgeblocks.com/am/Consumer/metaAlias/alpha/volkerDevSP"
+                }
+              ],
+              "nameIdService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://openam-volker-dev.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/volkerDevSP",
+                  "responseLocation": "https://openam-volker-dev.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/volkerDevSP"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://openam-volker-dev.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/volkerDevSP",
+                  "responseLocation": "https://openam-volker-dev.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/volkerDevSP"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://openam-volker-dev.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/volkerDevSP",
+                  "responseLocation": "https://openam-volker-dev.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/volkerDevSP"
+                }
+              ],
+              "singleLogoutService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://openam-volker-dev.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/volkerDevSP",
+                  "responseLocation": "https://openam-volker-dev.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/volkerDevSP"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://openam-volker-dev.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/volkerDevSP",
+                  "responseLocation": "https://openam-volker-dev.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/volkerDevSP"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://openam-volker-dev.forgeblocks.com/am/SPSloSoap/metaAlias/alpha/volkerDevSP"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "dm9sa2VyRGV2U1A": [
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
+        "<EntityDescriptor entityID=\"volkerDevSP\" xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:query=\"urn:oasis:names:tc:SAML:metadata:ext:query\" xmlns:mdattr=\"urn:oasis:names:tc:SAML:metadata:attribute\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:xenc11=\"http://www.w3.org/2009/xmlenc11#\" xmlns:alg=\"urn:oasis:names:tc:SAML:metadata:algsupport\" xmlns:x509qry=\"urn:oasis:names:tc:SAML:metadata:X509:query\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">",
+        "    <SPSSODescriptor protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://openam-volker-dev.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/volkerDevSP\" ResponseLocation=\"https://openam-volker-dev.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/volkerDevSP\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-volker-dev.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/volkerDevSP\" ResponseLocation=\"https://openam-volker-dev.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/volkerDevSP\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-volker-dev.forgeblocks.com/am/SPSloSoap/metaAlias/alpha/volkerDevSP\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-volker-dev.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/volkerDevSP\" ResponseLocation=\"https://openam-volker-dev.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/volkerDevSP\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://openam-volker-dev.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/volkerDevSP\" ResponseLocation=\"https://openam-volker-dev.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/volkerDevSP\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-volker-dev.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/volkerDevSP\" ResponseLocation=\"https://openam-volker-dev.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/volkerDevSP\"/>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</NameIDFormat>",
+        "        <AssertionConsumerService index=\"1\" isDefault=\"true\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-volker-dev.forgeblocks.com/am/Consumer/metaAlias/alpha/volkerDevSP\"/>",
+        "    </SPSSODescriptor>",
+        "</EntityDescriptor>",
+        ""
+      ]
+    },
+    "remote": {}
+  }
+}

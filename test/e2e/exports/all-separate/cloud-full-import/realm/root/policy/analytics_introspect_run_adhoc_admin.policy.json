@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "analytics_introspect_run_adhoc_admin": {
+      "_id": "analytics_introspect_run_adhoc_admin",
+      "actionValues": {
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "description": "Admin policy for run Ad hoc reports /reports",
+      "name": "analytics_introspect_run_adhoc_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

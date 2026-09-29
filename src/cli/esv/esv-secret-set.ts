@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { setSecretDescription } from '../../ops/cloud/SecretsOps';
@@ -19,8 +18,8 @@ export default function setup() {
 
   program
     .description('Set secret description.')
-    .addOption(new Option('-i, --secret-id <secret-id>', 'Secret id.'))
-    .addOption(new Option('--description <description>', 'Secret description.'))
+    .requiredOption('-i, --secret-id <secret-id>', 'Secret id.')
+    .requiredOption('--description <description>', 'Secret description.')
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {

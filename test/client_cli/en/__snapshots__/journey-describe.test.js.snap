@@ -29,7 +29,6 @@ Arguments:
 Options:
   -f, --file <file>                 Name of the journey export file to describe.
                                     Ignored with -A.
-  -F, --output-file <file>          Name of the file to write the output to.
   -i, --journey-id <journey>        Name of a journey/tree. If specified, -a and
                                     -A are ignored.
   --markdown                        Output in markdown.
@@ -41,6 +40,7 @@ Options:
                                     compatible running in another environment
                                     (e.g. in preparation of migrating from
                                     on-prem to ForgeRock Identity Cloud.
+  -O, --output-file <file>          Name of the file to write the output to.
   -h, --help                        Help
   -hh, --help-more                  Help with all options.
   -hhh, --help-all                  Help with all options, environment

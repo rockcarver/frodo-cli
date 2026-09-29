@@ -13,10 +13,10 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe --file test/e2e/exports/all/allAlphaJourneys.journey.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe -f test/e2e/exports/all/allAlphaJourneys.journey.json --markdown
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe -f test/e2e/exports/all/allAlphaJourneys.journey.json -o 4.2.0
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe -F test1.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe -O test1.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe --output-file test2.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe -F test3.json --markdown
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe -F test4.json -o 4.2.0
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe -O test3.json --markdown
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey describe -O test4.json -o 4.2.0
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -24,7 +24,12 @@ import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 import fs from "fs";
 
-const exec = promisify(cp.exec);
+const execRaw = promisify(cp.exec);
+// Node's child_process default maxBuffer (1MB) is too small for describing
+// every journey with no filter against a shared dev tenant that accumulates
+// journeys over time.
+const exec = (command, options = {}) =>
+  execRaw(command, { maxBuffer: 50 * 1024 * 1024, ...options });
 
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
@@ -102,8 +107,8 @@ describe('frodo journey describe', () => {
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test('"frodo journey describe -F test1.json": should describe all journeys and write output to test1.json file', async () => {
-        const CMD = `frodo journey describe -F test1.json`;
+    test('"frodo journey describe -O test1.json": should describe all journeys and write output to test1.json file', async () => {
+        const CMD = `frodo journey describe -O test1.json`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
         const data = fs.readFileSync("test1.json", 'utf8');
@@ -120,8 +125,8 @@ describe('frodo journey describe', () => {
         fs.unlinkSync("test2.json");
     });
 
-    test('"frodo journey describe -F test3.json --markdown": should describe all journeys and write output to test3.json file in markdown', async () => {
-        const CMD = `frodo journey describe -F test3.json --markdown`;
+    test('"frodo journey describe -O test3.json --markdown": should describe all journeys and write output to test3.json file in markdown', async () => {
+        const CMD = `frodo journey describe -O test3.json --markdown`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
         const data = fs.readFileSync("test3.json", 'utf8');
@@ -129,8 +134,8 @@ describe('frodo journey describe', () => {
         fs.unlinkSync("test3.json");
     });
 
-    test('"frodo journey describe -F test4.json -o 4.2.0": should describe all journeys and write output to test4.json file and override version to 4.2.0', async () => {
-        const CMD = `frodo journey describe -F test4.json -o 4.2.0`;
+    test('"frodo journey describe -O test4.json -o 4.2.0": should describe all journeys and write output to test4.json file and override version to 4.2.0', async () => {
+        const CMD = `frodo journey describe -O test4.json -o 4.2.0`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
         const data = fs.readFileSync("test4.json", 'utf8');

@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-test-var-bool": {
+      "_id": "esv-test-var-bool",
+      "description": "Test boolean variable",
+      "expressionType": "bool",
+      "loaded": true,
+      "value": "True"
+    }
+  }
+}

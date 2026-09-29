@@ -1,0 +1,14 @@
+{
+  "script": {
+    "3043cd81-2f2f-4972-9b0c-aaa694dcdba3": {
+      "_id": "3043cd81-2f2f-4972-9b0c-aaa694dcdba3",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "null",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "aic-debug.js",
+      "script": "file://aic-debug.js.script.js"
+    }
+  }
+}

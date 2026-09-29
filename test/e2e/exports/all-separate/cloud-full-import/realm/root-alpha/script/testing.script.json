@@ -1,0 +1,14 @@
+{
+  "script": {
+    "832807d9-fb5d-4810-88ef-6e0a1aa89924": {
+      "_id": "832807d9-fb5d-4810-88ef-6e0a1aa89924",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "testing",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "name": "testing",
+      "script": "file://testing.script.js"
+    }
+  }
+}

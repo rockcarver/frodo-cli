@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_direct_configuration_session_state_get": {
+      "_id": "org_environment_introspect_admins__environment_direct_configuration_session_state_get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for GET /environment/direct-configuration/session/state",
+      "name": "org_environment_introspect_admins__environment_direct_configuration_session_state_get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/direct-configuration/session/state"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

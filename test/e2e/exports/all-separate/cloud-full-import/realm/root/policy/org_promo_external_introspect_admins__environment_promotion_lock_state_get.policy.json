@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "org_promo_external_introspect_admins__environment_promotion_lock_state_get": {
+      "_id": "org_promo_external_introspect_admins__environment_promotion_lock_state_get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-promo-external-introspect",
+      "description": "Admin policy for GET /environment/promotion/lock/state",
+      "name": "org_promo_external_introspect_admins__environment_promotion_lock_state_get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/promotion/lock/state"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

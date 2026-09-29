@@ -1,0 +1,24 @@
+{
+  "authenticationModules": {
+    "oath": {
+      "_id": "oath",
+      "_type": {
+        "_id": "oath",
+        "collection": true,
+        "name": "OATH"
+      },
+      "addChecksum": "False",
+      "authenticationLevel": 0,
+      "forgerock-oath-maximum-clock-drift": 0,
+      "forgerock-oath-sharedsecret-implementation-class": "org.forgerock.openam.authentication.modules.oath.plugins.DefaultSharedSecretProvider",
+      "hotpWindowSize": 100,
+      "minimumSecretKeyLength": "32",
+      "oathAlgorithm": "HOTP",
+      "oathOtpMaxRetry": 3,
+      "passwordLength": "6",
+      "stepsInWindow": 2,
+      "timeStepSize": 30,
+      "truncationOffset": -1
+    }
+  }
+}

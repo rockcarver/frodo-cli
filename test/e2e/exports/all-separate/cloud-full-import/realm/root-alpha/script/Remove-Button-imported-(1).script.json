@@ -1,0 +1,14 @@
+{
+  "script": {
+    "3814d347-a2f2-4be9-a810-ab41a1e374bd": {
+      "_id": "3814d347-a2f2-4be9-a810-ab41a1e374bd",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Hide buttons on the journey page.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Remove Button - imported (1)",
+      "script": "file://Remove-Button-imported-(1).script.js"
+    }
+  }
+}

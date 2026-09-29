@@ -1,0 +1,173 @@
+{
+  "name": "alpha_aiagent",
+  "onDelete": {
+    "source": "file://onDelete.js",
+    "type": "text/javascript"
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "icon": "fa-android",
+    "order": [
+      "_id",
+      "name",
+      "description",
+      "oauth2ClientId",
+      "owners",
+      "privileges",
+      "customAttributes"
+    ],
+    "properties": {
+      "_id": {
+        "description": "Agent ID",
+        "searchable": false,
+        "type": "string",
+        "userEditable": false,
+        "viewable": true
+      },
+      "customAttributes": {
+        "description": "JSON object for arbitrary attributes",
+        "order": [],
+        "properties": {},
+        "searchable": false,
+        "title": "Custom Attributes",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true
+      },
+      "description": {
+        "description": "Agent Description",
+        "searchable": false,
+        "title": "Description",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "name": {
+        "description": "Agent Name",
+        "searchable": false,
+        "title": "Agent Name",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "oauth2ClientId": {
+        "description": "ID of the agent's OAuth2 client",
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "OAuth2 Client ID",
+        "type": "string",
+        "userEditable": false,
+        "viewable": true
+      },
+      "owners": {
+        "description": "Agent Owners",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgent:owners:items",
+          "notifySelf": false,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string"
+                }
+              },
+              "title": "Agent Owners Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "User",
+              "notify": false,
+              "path": "managed/alpha_user",
+              "query": {
+                "fields": [
+                  "userName",
+                  "givenName",
+                  "sn"
+                ],
+                "queryFilter": "true",
+                "sortKeys": []
+              }
+            }
+          ],
+          "reverseRelationship": false,
+          "title": "Agent Owners Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Agent Owners",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      },
+      "privileges": {
+        "description": "Agent Privileges",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgent:privileges:items",
+          "notifySelf": false,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string"
+                }
+              },
+              "title": "Agent Privileges Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "Agent Privilege",
+              "notify": true,
+              "path": "managed/alpha_aiagentprivilege",
+              "query": {
+                "fields": [
+                  "_id"
+                ],
+                "queryFilter": "true",
+                "sortKeys": []
+              }
+            }
+          ],
+          "reversePropertyName": "agent",
+          "reverseRelationship": true,
+          "title": "Agent Privileges Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Privileges",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      }
+    },
+    "required": [
+      "name",
+      "oauth2ClientId"
+    ],
+    "title": "Alpha realm - AI Agent",
+    "type": "object"
+  }
+}

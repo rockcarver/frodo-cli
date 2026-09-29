@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "b974063b-bfe0-4282-a11c-d26f4bc25fa8": {
+      "_id": "b974063b-bfe0-4282-a11c-d26f4bc25fa8",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "description": "",
+      "name": "b974063b-bfe0-4282-a11c-d26f4bc25fa8",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://ou=am-config/rest/1.0/realms/read"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=brand-admin,ou=group,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

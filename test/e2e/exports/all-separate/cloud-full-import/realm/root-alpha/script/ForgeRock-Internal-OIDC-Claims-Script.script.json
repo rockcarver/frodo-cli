@@ -1,0 +1,14 @@
+{
+  "script": {
+    "1f389a3d-21cf-417c-a6d3-42ea620071f0": {
+      "_id": "1f389a3d-21cf-417c-a6d3-42ea620071f0",
+      "context": "OIDC_CLAIMS",
+      "default": false,
+      "description": "Internal OIDC Claims script",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "ForgeRock Internal: OIDC Claims Script",
+      "script": "file://ForgeRock-Internal-OIDC-Claims-Script.script.js"
+    }
+  }
+}

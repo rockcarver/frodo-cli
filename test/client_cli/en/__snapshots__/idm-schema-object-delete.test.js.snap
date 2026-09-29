@@ -24,7 +24,7 @@ Arguments:
   password                     Password.
 
 Options:
-  -F, --force                  Delete even if the type has existing records, or
+  -f, --force                  Delete even if the type has existing records, or
                                if the record count can't be confirmed.
   -o, --managed-object <type>  Managed object type.
   -y, --yes                    Answer y/yes to all prompts.

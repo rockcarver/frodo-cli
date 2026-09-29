@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_custom_domains___get": {
+      "_id": "org_environment_introspect_admins__environment_custom_domains___get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for GET /environment/custom-domains/*",
+      "name": "org_environment_introspect_admins__environment_custom_domains___get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/custom-domains/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

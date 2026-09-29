@@ -1,0 +1,235 @@
+{
+  "saml": {
+    "cot": {},
+    "hosted": {},
+    "metadata": {
+      "Rm9yZ2VvcHNUZXN0": [
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
+        "<EntityDescriptor entityID=\"ForgeopsTest\" xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:query=\"urn:oasis:names:tc:SAML:metadata:ext:query\" xmlns:mdattr=\"urn:oasis:names:tc:SAML:metadata:attribute\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:xenc11=\"http://www.w3.org/2009/xmlenc11#\" xmlns:alg=\"urn:oasis:names:tc:SAML:metadata:algsupport\" xmlns:x509qry=\"urn:oasis:names:tc:SAML:metadata:X509:query\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">",
+        "    <IDPSSODescriptor protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">",
+        "        <ArtifactResolutionService index=\"0\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/ArtifactResolver/metaAlias/alpha/idp\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/IDPSloRedirect/metaAlias/alpha/idp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/IDPSloRedirect/metaAlias/alpha/idp\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/IDPSloPOST/metaAlias/alpha/idp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/IDPSloPOST/metaAlias/alpha/idp\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/IDPSloSoap/metaAlias/alpha/idp\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/IDPMniRedirect/metaAlias/alpha/idp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/IDPMniRedirect/metaAlias/alpha/idp\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/IDPMniPOST/metaAlias/alpha/idp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/IDPMniPOST/metaAlias/alpha/idp\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/IDPMniSoap/metaAlias/alpha/idp\"/>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</NameIDFormat>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SSORedirect/metaAlias/alpha/idp\"/>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SSOPOST/metaAlias/alpha/idp\"/>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SSOSoap/metaAlias/alpha/idp\"/>",
+        "        <NameIDMappingService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/NIMSoap/metaAlias/alpha/idp\"/>",
+        "        <AssertionIDRequestService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/AIDReqSoap/IDPRole/metaAlias/alpha/idp\"/>",
+        "        <AssertionIDRequestService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:URI\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/AIDReqUri/IDPRole/metaAlias/alpha/idp\"/>",
+        "    </IDPSSODescriptor>",
+        "    <SPSSODescriptor protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/sp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/sp\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/sp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/sp\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SPSloSoap/metaAlias/alpha/sp\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/sp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/sp\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/sp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/sp\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/sp\" ResponseLocation=\"https://openam-frodo-dev.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/sp\"/>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</NameIDFormat>",
+        "        <AssertionConsumerService index=\"0\" isDefault=\"true\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/Consumer/metaAlias/alpha/sp\"/>",
+        "        <AssertionConsumerService index=\"1\" isDefault=\"false\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/Consumer/metaAlias/alpha/sp\"/>",
+        "        <AssertionConsumerService index=\"2\" isDefault=\"false\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:PAOS\" Location=\"https://openam-frodo-dev.forgeblocks.com/am/Consumer/ECP/metaAlias/alpha/sp\"/>",
+        "    </SPSSODescriptor>",
+        "</EntityDescriptor>",
+        ""
+      ]
+    },
+    "remote": {
+      "Rm9yZ2VvcHNUZXN0": {
+        "_id": "Rm9yZ2VvcHNUZXN0",
+        "entityId": "ForgeopsTest",
+        "identityProvider": {
+          "assertionContent": {
+            "basicAuthentication": {},
+            "clientAuthentication": {},
+            "nameIdFormat": {
+              "nameIdFormatList": [
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+              ]
+            },
+            "secrets": {},
+            "signingAndEncryption": {
+              "encryption": {},
+              "requestResponseSigning": {},
+              "secretIdAndAlgorithms": {}
+            }
+          },
+          "services": {
+            "nameIdMapping": [
+              {
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                "location": "https://openam-frodo-dev.forgeblocks.com/am/NIMSoap/metaAlias/alpha/idp"
+              }
+            ],
+            "serviceAttributes": {
+              "artifactResolutionService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/ArtifactResolver/metaAlias/alpha/idp"
+                }
+              ],
+              "nameIdService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/IDPMniRedirect/metaAlias/alpha/idp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/IDPMniRedirect/metaAlias/alpha/idp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/IDPMniPOST/metaAlias/alpha/idp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/IDPMniPOST/metaAlias/alpha/idp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/IDPMniSoap/metaAlias/alpha/idp"
+                }
+              ],
+              "singleLogoutService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/IDPSloRedirect/metaAlias/alpha/idp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/IDPSloRedirect/metaAlias/alpha/idp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/IDPSloPOST/metaAlias/alpha/idp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/IDPSloPOST/metaAlias/alpha/idp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/IDPSloSoap/metaAlias/alpha/idp"
+                }
+              ],
+              "singleSignOnService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SSORedirect/metaAlias/alpha/idp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SSOPOST/metaAlias/alpha/idp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SSOSoap/metaAlias/alpha/idp"
+                }
+              ]
+            }
+          }
+        },
+        "serviceProvider": {
+          "advanced": {
+            "applicationContext": {},
+            "idpProxy": {},
+            "saeConfiguration": {},
+            "treeConfiguration": {}
+          },
+          "assertionContent": {
+            "basicAuthentication": {},
+            "nameIdFormat": {
+              "nameIdFormatList": [
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+              ]
+            },
+            "secrets": {},
+            "signingAndEncryption": {
+              "encryption": {},
+              "requestResponseSigning": {},
+              "secretIdAndAlgorithms": {}
+            }
+          },
+          "assertionProcessing": {
+            "accountMapper": {},
+            "attributeMapper": {},
+            "responseArtifactMessageEncoding": {}
+          },
+          "services": {
+            "serviceAttributes": {
+              "assertionConsumerService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact",
+                  "index": 0,
+                  "isDefault": true,
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/Consumer/metaAlias/alpha/sp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "index": 1,
+                  "isDefault": false,
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/Consumer/metaAlias/alpha/sp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:PAOS",
+                  "index": 2,
+                  "isDefault": false,
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/Consumer/ECP/metaAlias/alpha/sp"
+                }
+              ],
+              "nameIdService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/sp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/SPMniRedirect/metaAlias/alpha/sp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/sp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/SPMniPOST/metaAlias/alpha/sp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/sp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/SPMniSoap/metaAlias/alpha/sp"
+                }
+              ],
+              "singleLogoutService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/sp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/SPSloRedirect/metaAlias/alpha/sp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/sp",
+                  "responseLocation": "https://openam-frodo-dev.forgeblocks.com/am/SPSloPOST/metaAlias/alpha/sp"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://openam-frodo-dev.forgeblocks.com/am/SPSloSoap/metaAlias/alpha/sp"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

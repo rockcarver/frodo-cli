@@ -1,0 +1,13 @@
+{
+  "idm": {
+    "ui.context/api": {
+      "_id": "ui.context/api",
+      "authEnabled": true,
+      "cacheEnabled": false,
+      "defaultDir": "&{idm.install.dir}/ui/api/default",
+      "enabled": true,
+      "extensionDir": "&{idm.install.dir}/ui/api/extension",
+      "urlContextRoot": "/api"
+    }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "policy": {
+    "Test Policy 2": {
+      "_id": "Test Policy 2",
+      "actionValues": {
+        "create": false,
+        "delete": false,
+        "read": true,
+        "update": true
+      },
+      "active": true,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "requiredScopes": [
+              "test",
+              "scope"
+            ],
+            "type": "OAuth2Scope"
+          },
+          {
+            "scriptId": "11e1a3c0-038b-4c16-956a-6c9d89328cff",
+            "type": "Script"
+          },
+          {
+            "condition": {
+              "scriptId": "6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30",
+              "type": "Script"
+            },
+            "type": "NOT"
+          },
+          {
+            "conditions": [
+              {
+                "comparator": "REGEX",
+                "decisionField": "decision",
+                "identityResource": "resource",
+                "queryField": "query",
+                "type": "IdmUser",
+                "value": "regex"
+              },
+              {
+                "authenticateToService": "tree",
+                "type": "AuthenticateToService"
+              }
+            ],
+            "type": "OR"
+          }
+        ],
+        "type": "AND"
+      },
+      "description": "Policy Description",
+      "name": "Test Policy 2",
+      "resourceAttributes": [
+        {
+          "propertyName": "sn",
+          "propertyValues": [
+            "surName"
+          ],
+          "type": "Static"
+        },
+        {
+          "propertyName": "cn",
+          "propertyValues": [],
+          "type": "User"
+        },
+        {
+          "propertyName": "sn",
+          "propertyValues": [],
+          "type": "User"
+        },
+        {
+          "propertyName": "cn",
+          "propertyValues": [
+            "currentName"
+          ],
+          "type": "Static"
+        }
+      ],
+      "resourceTypeUuid": "88e74fda-3e8b-47b3-b50d-22a456c9bab1",
+      "resources": [
+        "*/test2",
+        "test2/hello"
+      ],
+      "subject": {
+        "subjects": [
+          {
+            "type": "AuthenticatedUsers"
+          },
+          {
+            "type": "NONE"
+          },
+          {
+            "subjects": [
+              {
+                "claimName": "claim",
+                "claimValue": "val",
+                "type": "JwtClaim"
+              }
+            ],
+            "type": "OR"
+          },
+          {
+            "subject": {
+              "subjectValues": [],
+              "type": "Identity"
+            },
+            "type": "NOT"
+          }
+        ],
+        "type": "AND"
+      }
+    }
+  }
+}

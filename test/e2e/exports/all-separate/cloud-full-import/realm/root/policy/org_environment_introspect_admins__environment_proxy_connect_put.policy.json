@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_proxy_connect_put": {
+      "_id": "org_environment_introspect_admins__environment_proxy_connect_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for PUT /environment/proxy-connect",
+      "name": "org_environment_introspect_admins__environment_proxy_connect_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/proxy-connect"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

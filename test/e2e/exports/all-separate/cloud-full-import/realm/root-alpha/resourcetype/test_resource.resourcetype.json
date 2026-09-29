@@ -1,0 +1,16 @@
+{
+  "resourcetype": {
+    "1f445c60-0828-41ac-9a4e-a16c026e9536": {
+      "actions": {
+        "allow": true
+      },
+      "description": null,
+      "name": "test_resource",
+      "patterns": [
+        "type1/node1",
+        "type2/node2"
+      ],
+      "uuid": "1f445c60-0828-41ac-9a4e-a16c026e9536"
+    }
+  }
+}

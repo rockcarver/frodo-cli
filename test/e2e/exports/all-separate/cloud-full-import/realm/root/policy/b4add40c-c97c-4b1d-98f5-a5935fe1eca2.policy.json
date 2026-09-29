@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "b4add40c-c97c-4b1d-98f5-a5935fe1eca2": {
+      "_id": "b4add40c-c97c-4b1d-98f5-a5935fe1eca2",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "description": "",
+      "name": "b4add40c-c97c-4b1d-98f5-a5935fe1eca2",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://ou=am-config/rest/1.0/trees/read"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=analytics-report-ai-assistant,ou=agent,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

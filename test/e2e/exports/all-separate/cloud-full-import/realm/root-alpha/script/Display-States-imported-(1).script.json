@@ -1,0 +1,14 @@
+{
+  "script": {
+    "e49225eb-e7ad-4699-bf2a-d57689f9cd6e": {
+      "_id": "e49225eb-e7ad-4699-bf2a-d57689f9cd6e",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "default": false,
+      "description": "Display sharedState and transientState.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Display States - imported (1)",
+      "script": "file://Display-States-imported-(1).script.js"
+    }
+  }
+}

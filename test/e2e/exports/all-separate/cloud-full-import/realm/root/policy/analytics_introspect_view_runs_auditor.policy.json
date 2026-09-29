@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "analytics_introspect_view_runs_auditor": {
+      "_id": "analytics_introspect_view_runs_auditor",
+      "actionValues": {
+        "CHARTVIEW": true,
+        "DOWNLOAD": true,
+        "DOWNLOADREPORT": true,
+        "EXPORT": true,
+        "VIEW": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "description": "Admin policy for VIEW /reports/runs/*",
+      "name": "analytics_introspect_view_runs_auditor",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports/runs/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

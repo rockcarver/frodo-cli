@@ -1,0 +1,121 @@
+{
+  "trees": {
+    "SocialProviderHandler": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "3af612be-340e-4dc9-80fb-62319a187b74": {
+          "_id": "3af612be-340e-4dc9-80fb-62319a187b74",
+          "_outcomes": [
+            {
+              "displayName": "Account exists",
+              "id": "ACCOUNT_EXISTS"
+            },
+            {
+              "displayName": "No account exists",
+              "id": "NO_ACCOUNT"
+            }
+          ],
+          "_type": {
+            "_id": "SocialProviderHandlerNode",
+            "collection": true,
+            "name": "Legacy Social Provider Handler Node",
+            "version": "1.0"
+          },
+          "clientType": "BROWSER",
+          "script": "58c824ae-84ed-4724-82cd-db128fc3f6c",
+          "storeTokens": false,
+          "subjectAttribute": "iplanet-am-user-alias-list",
+          "usernameAttribute": "userName"
+        },
+        "e15c8efe-b7a7-42bf-845e-861a9419af32": {
+          "_id": "e15c8efe-b7a7-42bf-845e-861a9419af32",
+          "_outcomes": [
+            {
+              "displayName": "Account exists",
+              "id": "ACCOUNT_EXISTS"
+            },
+            {
+              "displayName": "No account exists",
+              "id": "NO_ACCOUNT"
+            },
+            {
+              "displayName": "Social auth interrupted",
+              "id": "SOCIAL_AUTH_INTERRUPTED"
+            }
+          ],
+          "_type": {
+            "_id": "SocialProviderHandlerNodeV2",
+            "collection": true,
+            "name": "Social Provider Handler Node",
+            "version": "1.0"
+          },
+          "clientType": "BROWSER",
+          "detectConnectionTimeOut": false,
+          "script": "ed685f9f-5909-4726-86e8-22bd38b47663",
+          "storeTokens": false,
+          "subjectAttribute": "iplanet-am-user-alias-list",
+          "usernameAttribute": "userName"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "SocialProviderHandler",
+        "enabled": true,
+        "entryNodeId": "3af612be-340e-4dc9-80fb-62319a187b74",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "3af612be-340e-4dc9-80fb-62319a187b74": {
+            "connections": {
+              "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "NO_ACCOUNT": "e15c8efe-b7a7-42bf-845e-861a9419af32"
+            },
+            "displayName": "Legacy Social Provider Handler Node",
+            "nodeType": "SocialProviderHandlerNode",
+            "version": "1.0",
+            "x": 290,
+            "y": 166.015625
+          },
+          "e15c8efe-b7a7-42bf-845e-861a9419af32": {
+            "connections": {
+              "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "NO_ACCOUNT": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "SOCIAL_AUTH_INTERRUPTED": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Social Provider Handler Node",
+            "nodeType": "SocialProviderHandlerNodeV2",
+            "version": "1.0",
+            "x": 292,
+            "y": 326.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 718,
+            "y": 63
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 731,
+            "y": 519
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

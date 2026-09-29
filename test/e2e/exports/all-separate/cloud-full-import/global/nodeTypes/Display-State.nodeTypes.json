@@ -1,0 +1,35 @@
+{
+  "nodeTypes": {
+    "8ab9f1aad4b4460a9c45d15fb148e221-1": {
+      "_id": "8ab9f1aad4b4460a9c45d15fb148e221-1",
+      "description": "Debug node that displays the shared and transient state of the journey for debugging purposes.",
+      "displayName": "Display State",
+      "errorOutcome": false,
+      "inputs": [],
+      "outcomes": [
+        "outcome"
+      ],
+      "outputs": [],
+      "properties": {
+        "displayFormat": {
+          "defaultValue": "TABLE",
+          "description": "The format in which to display the states.",
+          "multivalued": false,
+          "options": {
+            "JSON": "Raw JSON",
+            "TABLE": "HTML Table"
+          },
+          "required": true,
+          "title": "Display Format",
+          "type": "STRING"
+        }
+      },
+      "script": "file://Display-State.nodeTypes.js",
+      "serviceName": "8ab9f1aad4b4460a9c45d15fb148e221",
+      "tags": [
+        "debug",
+        "testing"
+      ]
+    }
+  }
+}

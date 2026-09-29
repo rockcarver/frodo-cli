@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_content_security_policy_report_only_get": {
+      "_id": "org_environment_introspect_admins__environment_content_security_policy_report_only_get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "description": "Admin policy for GET /environment/content-security-policy/report-only",
+      "name": "org_environment_introspect_admins__environment_content_security_policy_report_only_get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/content-security-policy/report-only"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

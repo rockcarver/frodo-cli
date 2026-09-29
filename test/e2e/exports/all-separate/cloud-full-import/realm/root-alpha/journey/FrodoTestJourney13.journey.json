@@ -1,0 +1,154 @@
+{
+  "trees": {
+    "FrodoTestJourney13": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "64dceffc-2db4-468b-96d1-491824e037a2": {
+          "_id": "64dceffc-2db4-468b-96d1-491824e037a2",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username",
+            "version": "2.0"
+          },
+          "autocompleteValues": [],
+          "prepopulate": false,
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "e4c5071f-acc8-47c9-b097-5c4144170742": {
+          "_id": "e4c5071f-acc8-47c9-b097-5c4144170742",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedPasswordNode",
+            "collection": true,
+            "name": "Platform Password",
+            "version": "1.0"
+          },
+          "passwordAttribute": "password",
+          "validateInput": false
+        }
+      },
+      "nodes": {
+        "bdca20b7-ada8-4906-8b3a-e59c313f6491": {
+          "_id": "bdca20b7-ada8-4906-8b3a-e59c313f6491",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "DataStoreDecisionNode",
+            "collection": true,
+            "name": "Data Store Decision",
+            "version": "1.0"
+          }
+        },
+        "c847e93b-afa3-4d20-9a15-f75404ec353c": {
+          "_id": "c847e93b-afa3-4d20-9a15-f75404ec353c",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "e4c5071f-acc8-47c9-b097-5c4144170742-outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "2.0"
+          },
+          "nodes": [
+            {
+              "_id": "64dceffc-2db4-468b-96d1-491824e037a2",
+              "displayName": "Username",
+              "nodeType": "ValidatedUsernameNode",
+              "nodeVersion": "2.0"
+            },
+            {
+              "_id": "e4c5071f-acc8-47c9-b097-5c4144170742",
+              "displayName": "Password",
+              "nodeType": "ValidatedPasswordNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "FrodoTestJourney13",
+        "description": "Frodo test journey using v2.0 nodes",
+        "enabled": true,
+        "entryNodeId": "c847e93b-afa3-4d20-9a15-f75404ec353c",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "bdca20b7-ada8-4906-8b3a-e59c313f6491": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Validate Credentials",
+            "nodeType": "DataStoreDecisionNode",
+            "version": "1.0",
+            "x": 528,
+            "y": 128
+          },
+          "c847e93b-afa3-4d20-9a15-f75404ec353c": {
+            "connections": {
+              "e4c5071f-acc8-47c9-b097-5c4144170742-outcome": "bdca20b7-ada8-4906-8b3a-e59c313f6491"
+            },
+            "displayName": "Login Page",
+            "nodeType": "PageNode",
+            "version": "2.0",
+            "x": 210,
+            "y": 80.5
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 829,
+            "y": 230
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 829,
+            "y": 80
+          },
+          "startNode": {
+            "x": 70,
+            "y": 155
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[\"Frodo\",\"Prototype\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

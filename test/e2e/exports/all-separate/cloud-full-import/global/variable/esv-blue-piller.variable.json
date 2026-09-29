@@ -1,0 +1,11 @@
+{
+  "variable": {
+    "esv-blue-piller": {
+      "_id": "esv-blue-piller",
+      "description": "Zion membership criteria.",
+      "expressionType": "bool",
+      "loaded": true,
+      "value": "false"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "41f4da10-53e2-467f-a42f-ee53d9103be3": {
+      "_id": "41f4da10-53e2-467f-a42f-ee53d9103be3",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "description": "",
+      "name": "41f4da10-53e2-467f-a42f-ee53d9103be3",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://ou=am-config/rest/1.0/trees/read"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=brand-admin,ou=group,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

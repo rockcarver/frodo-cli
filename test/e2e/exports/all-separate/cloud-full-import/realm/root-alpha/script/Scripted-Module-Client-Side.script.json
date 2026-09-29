@@ -1,0 +1,14 @@
+{
+  "script": {
+    "c827d2b4-3608-4693-868e-bbcf86bd87c7": {
+      "_id": "c827d2b4-3608-4693-868e-bbcf86bd87c7",
+      "context": "AUTHENTICATION_CLIENT_SIDE",
+      "default": true,
+      "description": "Default global script for client side Scripted Authentication Module",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "name": "Scripted Module - Client Side",
+      "script": "file://Scripted-Module-Client-Side.script.js"
+    }
+  }
+}

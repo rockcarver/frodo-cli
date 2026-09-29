@@ -1,0 +1,15 @@
+{
+  "resourcetype": {
+    "authenticationResourceType": {
+      "actions": {
+        "Access": true
+      },
+      "description": "An immutable Authentication Resource Type available to OpenAM Policies.",
+      "name": "Authentication",
+      "patterns": [
+        "*"
+      ],
+      "uuid": "authenticationResourceType"
+    }
+  }
+}

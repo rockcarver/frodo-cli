@@ -1,0 +1,454 @@
+{
+  "trees": {
+    "RecognizeBackChannel": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "27827c52-30b2-4443-8256-c3431ab1e0ab": {
+          "_id": "27827c52-30b2-4443-8256-c3431ab1e0ab",
+          "_outcomes": [
+            {
+              "displayName": "success",
+              "id": "success"
+            },
+            {
+              "displayName": "retry",
+              "id": "retry"
+            },
+            {
+              "displayName": "error",
+              "id": "error"
+            },
+            {
+              "displayName": "alreadyEnrolled",
+              "id": "alreadyEnrolled"
+            }
+          ],
+          "_type": {
+            "_id": "designer-c5a8d1b2e4f06a9b3c5d7e8f1a2b3c4d",
+            "collection": true,
+            "name": "PingOne Recognize Biometric Web Enrollment",
+            "version": "1.0"
+          },
+          "apiKey": "&{esv.p1recognize.apikey}",
+          "enableCameraInstructions": true,
+          "errorSubmitDelay": 3000,
+          "finishedSubmitDelay": 3000,
+          "hidePoweredBy": true,
+          "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2C6rUQLZhn2ttBxbLE6OjQvaqmyFltUUMw+3vBFDjcpnzYiRt854/EanFlTDupPIydjvlEW71ELHpp8mJc2243P0j10H+LeaYyzuuIPldKBpeuOTdz6c2W5cQGCJWZjEy6uctZXYs2DFhCNygL8YxYi/QPQqjiXK4Dqw8pbc3/xBMhzjqYhv6WKtHFnkyXW0ReuudMSitPat6K2oPDLHEZhfJZhwQPcUZmBYUGqy/MGZ/i39AFRJA70aJpLVfEBWpTCd6WNaMdaosj1LUDQjZDeJGbylPH8HCqYwMNc6co4ik8tMZ0thEoTyGr3ayt+CwjHo+BXKVjLtvC3oYEtybwIDAQAB",
+          "publicKeyId": "alias/kl-saas-us-east-1-authentication-service-image-key",
+          "sdkTheme": "LIGHT",
+          "sdkThemeOptions": "{\"colors\":{\"light\":{\"primary\":\"#1D3F59\",\"onPrimary\":\"#ffffff\",\"surface\":\"#ffffff\",\"onSurface\":\"#000000\"}}}",
+          "tenantEnvironment": "US",
+          "tenantName": "ping_vscheuber",
+          "webSdkVersion": "2.3.0"
+        },
+        "a8ecc82a-6aaf-4d00-a72c-f516b2b9dfbe": {
+          "_id": "a8ecc82a-6aaf-4d00-a72c-f516b2b9dfbe",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node",
+            "version": "1.0"
+          },
+          "message": {
+            "en": "Biometric Successfully Enrolled"
+          },
+          "messageNo": {},
+          "messageYes": {
+            "en": "Verify To Complete"
+          }
+        },
+        "ff346ac8-8a29-44b0-baa3-c8aaecc84240": {
+          "_id": "ff346ac8-8a29-44b0-baa3-c8aaecc84240",
+          "_outcomes": [
+            {
+              "displayName": "success",
+              "id": "success"
+            },
+            {
+              "displayName": "retry",
+              "id": "retry"
+            },
+            {
+              "displayName": "lockout",
+              "id": "lockout"
+            },
+            {
+              "displayName": "error",
+              "id": "error"
+            },
+            {
+              "displayName": "notEnrolled",
+              "id": "notEnrolled"
+            }
+          ],
+          "_type": {
+            "_id": "designer-5e75b06c44e344b4b39b9b8a7377bfd3",
+            "collection": true,
+            "name": "PingOne Recognize Biometric Web Authentication",
+            "version": "1.0"
+          },
+          "apiKey": "&{esv.p1recognize.apikey}",
+          "enableCameraInstructions": false,
+          "errorSubmitDelay": 3000,
+          "finishedSubmitDelay": 3000,
+          "hidePoweredBy": true,
+          "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2C6rUQLZhn2ttBxbLE6OjQvaqmyFltUUMw+3vBFDjcpnzYiRt854/EanFlTDupPIydjvlEW71ELHpp8mJc2243P0j10H+LeaYyzuuIPldKBpeuOTdz6c2W5cQGCJWZjEy6uctZXYs2DFhCNygL8YxYi/QPQqjiXK4Dqw8pbc3/xBMhzjqYhv6WKtHFnkyXW0ReuudMSitPat6K2oPDLHEZhfJZhwQPcUZmBYUGqy/MGZ/i39AFRJA70aJpLVfEBWpTCd6WNaMdaosj1LUDQjZDeJGbylPH8HCqYwMNc6co4ik8tMZ0thEoTyGr3ayt+CwjHo+BXKVjLtvC3oYEtybwIDAQAB",
+          "publicKeyId": "alias/kl-saas-us-east-1-authentication-service-image-key",
+          "sdkLocalization": "[{\"language\":\"en\",\"steps\":{\"camera-instructions\":{\"headline\":\"Verify your identity\",\"text\":\"Look at the camera to proceed.\"},\"done\":{\"headline\":\"Verified!\",\"text\":\"You're all set.\"}}}]",
+          "sdkTheme": "LIGHT",
+          "sdkThemeOptions": "{\"colors\":{\"light\":{\"primary\":\"#1D3F59\",\"onPrimary\":\"#ffffff\",\"surface\":\"#ffffff\",\"onSurface\":\"#000000\"}}}",
+          "tenantEnvironment": "US",
+          "tenantName": "ping_vscheuber",
+          "webSdkVersion": "2.3.1"
+        }
+      },
+      "nodes": {
+        "1fc92eed-08b7-412a-905b-097db5daab48": {
+          "_id": "1fc92eed-08b7-412a-905b-097db5daab48",
+          "_outcomes": [
+            {
+              "displayName": "success",
+              "id": "success"
+            },
+            {
+              "displayName": "retry",
+              "id": "retry"
+            },
+            {
+              "displayName": "lockout",
+              "id": "lockout"
+            },
+            {
+              "displayName": "error",
+              "id": "error"
+            },
+            {
+              "displayName": "notEnrolled",
+              "id": "notEnrolled"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "ff346ac8-8a29-44b0-baa3-c8aaecc84240",
+              "displayName": "Biometric Authentication",
+              "nodeType": "designer-5e75b06c44e344b4b39b9b8a7377bfd3",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {
+            "en": "Follow the instructions to proceed."
+          },
+          "pageHeader": {
+            "en": "Biometric Authentication"
+          },
+          "stage": "{\"themeId\":\"fba77261-530a-4f9d-aaca-43f1ce800e7a\"}"
+        },
+        "502d5c39-aa9d-4212-b757-a20af3895d73": {
+          "_id": "502d5c39-aa9d-4212-b757-a20af3895d73",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "a8ecc82a-6aaf-4d00-a72c-f516b2b9dfbe",
+              "displayName": "Enrollment Succeeded",
+              "nodeType": "MessageNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Biometric Enrollment"
+          },
+          "stage": "{\"ConfirmationCallback\":[{\"id\":\"706f8501-ede2-4bb5-af98-a1f1efbc57ec\",\"showOnlyPositiveAnswer\":true},{\"id\":\"a8ecc82a-6aaf-4d00-a72c-f516b2b9dfbe\",\"showOnlyPositiveAnswer\":true}]}"
+        },
+        "6cff13ad-1789-4ea1-af99-a5bda1bc2343": {
+          "_id": "6cff13ad-1789-4ea1-af99-a5bda1bc2343",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node",
+            "version": "1.0"
+          },
+          "message": {
+            "en": "Action Cancelled"
+          },
+          "messageNo": {
+            "en": "Exit"
+          },
+          "messageYes": {
+            "en": "Retry?"
+          }
+        },
+        "d515d9ff-8559-4126-8977-19bf1513d5b0": {
+          "_id": "d515d9ff-8559-4126-8977-19bf1513d5b0",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "3043cd81-2f2f-4972-9b0c-aaa694dcdba3"
+        },
+        "db4b696c-f83c-487c-a335-71e6b2cfa252": {
+          "_id": "db4b696c-f83c-487c-a335-71e6b2cfa252",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "SetSuccessUrlNode",
+            "collection": true,
+            "name": "Success URL",
+            "version": "1.0"
+          },
+          "successUrl": "https://idc.scheuber.io/am/XUI/?realm=alpha&authIndexType=service&authIndexValue=RecognizeBackChannelSuccess"
+        },
+        "f6f1ee45-a332-48dd-9b4b-31989963d6b5": {
+          "_id": "f6f1ee45-a332-48dd-9b4b-31989963d6b5",
+          "_outcomes": [
+            {
+              "displayName": "success",
+              "id": "success"
+            },
+            {
+              "displayName": "retry",
+              "id": "retry"
+            },
+            {
+              "displayName": "error",
+              "id": "error"
+            },
+            {
+              "displayName": "alreadyEnrolled",
+              "id": "alreadyEnrolled"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "27827c52-30b2-4443-8256-c3431ab1e0ab",
+              "displayName": "Biometric Enrollment",
+              "nodeType": "designer-c5a8d1b2e4f06a9b3c5d7e8f1a2b3c4d",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {
+            "en": "Follow the instructions to proceed."
+          },
+          "pageHeader": {
+            "en": "Biometric Enrollment"
+          },
+          "stage": "{\"themeId\":\"c7dd2e03-3bfd-42d9-8bf5-14a5517ff984\"}"
+        },
+        "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b": {
+          "_id": "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node",
+            "version": "1.0"
+          },
+          "message": {
+            "en": "Retry Authentication?"
+          },
+          "messageNo": {
+            "en": "Exit"
+          },
+          "messageYes": {
+            "en": "Retry"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "RecognizeBackChannel",
+        "description": "Securely authenticate candidates throughout the interview process.",
+        "enabled": true,
+        "entryNodeId": "1fc92eed-08b7-412a-905b-097db5daab48",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "1fc92eed-08b7-412a-905b-097db5daab48": {
+            "connections": {
+              "error": "d515d9ff-8559-4126-8977-19bf1513d5b0",
+              "lockout": "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b",
+              "notEnrolled": "f6f1ee45-a332-48dd-9b4b-31989963d6b5",
+              "retry": "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b",
+              "success": "db4b696c-f83c-487c-a335-71e6b2cfa252"
+            },
+            "displayName": "Biometric Authentication",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 200,
+            "y": 119.3125
+          },
+          "502d5c39-aa9d-4212-b757-a20af3895d73": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "1fc92eed-08b7-412a-905b-097db5daab48"
+            },
+            "displayName": "Enrollment Complete",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 880,
+            "y": 394.015625
+          },
+          "6cff13ad-1789-4ea1-af99-a5bda1bc2343": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "f6f1ee45-a332-48dd-9b4b-31989963d6b5"
+            },
+            "displayName": "Cancelled",
+            "nodeType": "MessageNode",
+            "version": "1.0",
+            "x": 881,
+            "y": 618
+          },
+          "d515d9ff-8559-4126-8977-19bf1513d5b0": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Debug",
+            "nodeType": "ScriptedDecisionNode",
+            "version": "1.0",
+            "x": 553,
+            "y": 403.66666666666663
+          },
+          "db4b696c-f83c-487c-a335-71e6b2cfa252": {
+            "connections": {
+              "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Success URL",
+            "nodeType": "SetSuccessUrlNode",
+            "version": "1.0",
+            "x": 556.5,
+            "y": 156.01953125
+          },
+          "f6f1ee45-a332-48dd-9b4b-31989963d6b5": {
+            "connections": {
+              "alreadyEnrolled": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "error": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "retry": "6cff13ad-1789-4ea1-af99-a5bda1bc2343",
+              "success": "502d5c39-aa9d-4212-b757-a20af3895d73"
+            },
+            "displayName": "Biometric Enrollment",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 557,
+            "y": 506.3125
+          },
+          "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "1fc92eed-08b7-412a-905b-097db5daab48"
+            },
+            "displayName": "Retry or Cancelled",
+            "nodeType": "MessageNode",
+            "version": "1.0",
+            "x": 553,
+            "y": 253.83333333333337
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1231,
+            "y": 159
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1236,
+            "y": 749
+          },
+          "startNode": {
+            "x": 53,
+            "y": 219
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "annotations": "{\"forNodes\":{},\"structural\":[]}",
+          "categories": "[\"PingOne Recognize\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

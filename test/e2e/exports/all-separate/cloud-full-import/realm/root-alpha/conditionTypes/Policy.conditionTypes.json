@@ -1,0 +1,20 @@
+{
+  "conditionTypes": {
+    "Policy": {
+      "_id": "Policy",
+      "config": {
+        "properties": {
+          "className": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "Policy"
+    }
+  }
+}

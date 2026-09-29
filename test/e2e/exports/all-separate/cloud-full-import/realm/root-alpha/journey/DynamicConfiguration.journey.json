@@ -1,0 +1,692 @@
+{
+  "trees": {
+    "DynamicConfiguration": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "149a4797-8f0f-4dc0-876f-8e1780c97f1c": {
+          "_id": "149a4797-8f0f-4dc0-876f-8e1780c97f1c",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "d70df7a8-6390-409d-b821-166272a9a9c8"
+        },
+        "180b3e21-c32e-4611-85ff-94f59bd80755": {
+          "_id": "180b3e21-c32e-4611-85ff-94f59bd80755",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "3814d347-a2f2-4be9-a810-ab41a1e374bd"
+        },
+        "2f4f5438-a343-49fb-8cd4-cafccc2d3ee9": {
+          "_id": "2f4f5438-a343-49fb-8cd4-cafccc2d3ee9",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "48f17202-039f-4d40-b7fc-4ce380f1b929"
+        },
+        "369d8794-1e43-4f8c-92d6-94e5ed295e0d": {
+          "_id": "369d8794-1e43-4f8c-92d6-94e5ed295e0d",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "a31a1796-8410-46b8-82ca-eb0c6e901775"
+        },
+        "41d53024-e2cb-4594-9539-845bc393c728": {
+          "_id": "41d53024-e2cb-4594-9539-845bc393c728",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "e49225eb-e7ad-4699-bf2a-d57689f9cd6e"
+        },
+        "431cf085-c449-465b-bd84-6e391e0df804": {
+          "_id": "431cf085-c449-465b-bd84-6e391e0df804",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "169150da-0bd1-4866-8095-eae0bbc269e4"
+        },
+        "4cd8636a-2ebe-4190-a6a2-7fdf43274ae2": {
+          "_id": "4cd8636a-2ebe-4190-a6a2-7fdf43274ae2",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "e49225eb-e7ad-4699-bf2a-d57689f9cd6e"
+        },
+        "a0d49552-eccf-40be-b67a-cdf911afdfcd": {
+          "_id": "a0d49552-eccf-40be-b67a-cdf911afdfcd",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision",
+            "version": "1.0"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "3814d347-a2f2-4be9-a810-ab41a1e374bd"
+        }
+      },
+      "nodes": {
+        "0b837a16-ffb4-453d-a53d-21138e4ee63d": {
+          "_id": "0b837a16-ffb4-453d-a53d-21138e4ee63d",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "41d53024-e2cb-4594-9539-845bc393c728",
+              "displayName": "Display States",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            },
+            {
+              "_id": "180b3e21-c32e-4611-85ff-94f59bd80755",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        },
+        "1911c911-0bf3-407e-b1cc-2ce57cdefcad": {
+          "_id": "1911c911-0bf3-407e-b1cc-2ce57cdefcad",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "2f4f5438-a343-49fb-8cd4-cafccc2d3ee9",
+              "displayName": "Node Config",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Configure SAML2 Node"
+          }
+        },
+        "26dd984a-3f8d-4d31-a57e-3a30d678c682": {
+          "_id": "26dd984a-3f8d-4d31-a57e-3a30d678c682",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            },
+            {
+              "displayName": "Error",
+              "id": "error"
+            },
+            {
+              "displayName": "Configuration failure",
+              "id": "CONFIGURATION_FAILED"
+            }
+          ],
+          "_type": {
+            "_id": "ConfigProviderNode",
+            "collection": true,
+            "name": "Configuration Provider",
+            "version": "1.0"
+          },
+          "nodeType": "InnerTreeEvaluatorNode",
+          "nodeVersion": 1,
+          "script": "5e854779-6ec1-4c39-aeba-0477e0986646",
+          "scriptInputs": [
+            "*"
+          ]
+        },
+        "4e4bbd8a-8fcd-4db8-9ac0-0832c2a5c967": {
+          "_id": "4e4bbd8a-8fcd-4db8-9ac0-0832c2a5c967",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "149a4797-8f0f-4dc0-876f-8e1780c97f1c",
+              "displayName": "Node Config",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Configure Inner Tree Evaluator"
+          }
+        },
+        "5142a4e5-68f6-452a-af56-bb534fa26400": {
+          "_id": "5142a4e5-68f6-452a-af56-bb534fa26400",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "431cf085-c449-465b-bd84-6e391e0df804",
+              "displayName": "Node Config",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Configure Message Node"
+          }
+        },
+        "5e098acb-7fa5-46fd-912f-9f4d0d48cce6": {
+          "_id": "5e098acb-7fa5-46fd-912f-9f4d0d48cce6",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "4cd8636a-2ebe-4190-a6a2-7fdf43274ae2",
+              "displayName": "Display States",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            },
+            {
+              "_id": "a0d49552-eccf-40be-b67a-cdf911afdfcd",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Configuration Error!"
+          }
+        },
+        "6958fb2d-aad3-4eef-abb7-04525de55e80": {
+          "_id": "6958fb2d-aad3-4eef-abb7-04525de55e80",
+          "_outcomes": [
+            {
+              "displayName": "Message Node",
+              "id": "Message Node"
+            },
+            {
+              "displayName": "SAML2 Node",
+              "id": "SAML2 Node"
+            },
+            {
+              "displayName": "Inner Tree Evaluator",
+              "id": "Inner Tree Evaluator"
+            },
+            {
+              "displayName": "Set Custom Cookie",
+              "id": "Set Custom Cookie"
+            }
+          ],
+          "_type": {
+            "_id": "ChoiceCollectorNode",
+            "collection": true,
+            "name": "Choice Collector",
+            "version": "1.0"
+          },
+          "choices": [
+            "Message Node",
+            "SAML2 Node",
+            "Inner Tree Evaluator",
+            "Set Custom Cookie"
+          ],
+          "defaultChoice": "Set Custom Cookie",
+          "prompt": "Pick your node!"
+        },
+        "8dd7a7b0-6ce2-47d1-9225-fed27113cef3": {
+          "_id": "8dd7a7b0-6ce2-47d1-9225-fed27113cef3",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "369d8794-1e43-4f8c-92d6-94e5ed295e0d",
+              "displayName": "Node Config",
+              "nodeType": "ScriptedDecisionNode",
+              "nodeVersion": "1.0"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        },
+        "980b82c5-4c44-42c3-a7e9-a1201da885d0": {
+          "_id": "980b82c5-4c44-42c3-a7e9-a1201da885d0",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            },
+            {
+              "displayName": "Configuration failure",
+              "id": "CONFIGURATION_FAILED"
+            }
+          ],
+          "_type": {
+            "_id": "ConfigProviderNode",
+            "collection": true,
+            "name": "Configuration Provider",
+            "version": "1.0"
+          },
+          "nodeType": "SetCustomCookieNode",
+          "nodeVersion": 1,
+          "script": "5e854779-6ec1-4c39-aeba-0477e0986646",
+          "scriptInputs": [
+            "*"
+          ]
+        },
+        "d4ab5309-9508-4bef-a95b-7bf8024a7ddf": {
+          "_id": "d4ab5309-9508-4bef-a95b-7bf8024a7ddf",
+          "_outcomes": [
+            {
+              "displayName": "Account exists",
+              "id": "ACCOUNT_EXISTS"
+            },
+            {
+              "displayName": "No account exists",
+              "id": "NO_ACCOUNT"
+            },
+            {
+              "displayName": "Error",
+              "id": "ERROR"
+            },
+            {
+              "displayName": "Configuration failure",
+              "id": "CONFIGURATION_FAILED"
+            }
+          ],
+          "_type": {
+            "_id": "ConfigProviderNode",
+            "collection": true,
+            "name": "Configuration Provider",
+            "version": "1.0"
+          },
+          "nodeType": "product-Saml2Node",
+          "nodeVersion": 1,
+          "script": "5e854779-6ec1-4c39-aeba-0477e0986646",
+          "scriptInputs": [
+            "*"
+          ]
+        },
+        "eda4c1c7-938b-4c96-8819-467af09c7200": {
+          "_id": "eda4c1c7-938b-4c96-8819-467af09c7200",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            },
+            {
+              "displayName": "Configuration failure",
+              "id": "CONFIGURATION_FAILED"
+            }
+          ],
+          "_type": {
+            "_id": "ConfigProviderNode",
+            "collection": true,
+            "name": "Configuration Provider",
+            "version": "1.0"
+          },
+          "nodeType": "MessageNode",
+          "nodeVersion": 1,
+          "script": "5e854779-6ec1-4c39-aeba-0477e0986646",
+          "scriptInputs": [
+            "*"
+          ]
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "DynamicConfiguration",
+        "description": "Dynamic Node Configuration",
+        "enabled": true,
+        "entryNodeId": "6958fb2d-aad3-4eef-abb7-04525de55e80",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "0b837a16-ffb4-453d-a53d-21138e4ee63d": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Success",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 1000,
+            "y": 140.76666259765625
+          },
+          "1911c911-0bf3-407e-b1cc-2ce57cdefcad": {
+            "connections": {
+              "true": "d4ab5309-9508-4bef-a95b-7bf8024a7ddf"
+            },
+            "displayName": "SAML2 Node",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 444,
+            "y": 243.76666259765625
+          },
+          "26dd984a-3f8d-4d31-a57e-3a30d678c682": {
+            "connections": {
+              "CONFIGURATION_FAILED": "5e098acb-7fa5-46fd-912f-9f4d0d48cce6",
+              "false": "0b837a16-ffb4-453d-a53d-21138e4ee63d",
+              "true": "0b837a16-ffb4-453d-a53d-21138e4ee63d"
+            },
+            "displayName": "Dynamic Inner Tree Evaluator",
+            "nodeType": "ConfigProviderNode",
+            "version": "1.0",
+            "x": 691,
+            "y": 388.76666259765625
+          },
+          "4e4bbd8a-8fcd-4db8-9ac0-0832c2a5c967": {
+            "connections": {
+              "true": "26dd984a-3f8d-4d31-a57e-3a30d678c682"
+            },
+            "displayName": "Inner Tree Evaluator",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 447,
+            "y": 395.76666259765625
+          },
+          "5142a4e5-68f6-452a-af56-bb534fa26400": {
+            "connections": {
+              "true": "eda4c1c7-938b-4c96-8819-467af09c7200"
+            },
+            "displayName": "Message Node",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 447,
+            "y": 88.76666259765625
+          },
+          "5e098acb-7fa5-46fd-912f-9f4d0d48cce6": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Configuration Error",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 1002,
+            "y": 310.76666259765625
+          },
+          "6958fb2d-aad3-4eef-abb7-04525de55e80": {
+            "connections": {
+              "Inner Tree Evaluator": "4e4bbd8a-8fcd-4db8-9ac0-0832c2a5c967",
+              "Message Node": "5142a4e5-68f6-452a-af56-bb534fa26400",
+              "SAML2 Node": "1911c911-0bf3-407e-b1cc-2ce57cdefcad",
+              "Set Custom Cookie": "8dd7a7b0-6ce2-47d1-9225-fed27113cef3"
+            },
+            "displayName": "Choice Collector",
+            "nodeType": "ChoiceCollectorNode",
+            "version": "1.0",
+            "x": 198,
+            "y": 213.76666259765625
+          },
+          "8dd7a7b0-6ce2-47d1-9225-fed27113cef3": {
+            "connections": {
+              "true": "980b82c5-4c44-42c3-a7e9-a1201da885d0"
+            },
+            "displayName": "Set Custom Cookie",
+            "nodeType": "PageNode",
+            "version": "1.0",
+            "x": 446,
+            "y": 547.7666625976562
+          },
+          "980b82c5-4c44-42c3-a7e9-a1201da885d0": {
+            "connections": {
+              "CONFIGURATION_FAILED": "5e098acb-7fa5-46fd-912f-9f4d0d48cce6",
+              "outcome": "0b837a16-ffb4-453d-a53d-21138e4ee63d"
+            },
+            "displayName": "Dynamic Set Custom Cookie",
+            "nodeType": "ConfigProviderNode",
+            "version": "1.0",
+            "x": 692,
+            "y": 553.7666625976562
+          },
+          "d4ab5309-9508-4bef-a95b-7bf8024a7ddf": {
+            "connections": {
+              "ACCOUNT_EXISTS": "0b837a16-ffb4-453d-a53d-21138e4ee63d",
+              "CONFIGURATION_FAILED": "5e098acb-7fa5-46fd-912f-9f4d0d48cce6",
+              "NO_ACCOUNT": "0b837a16-ffb4-453d-a53d-21138e4ee63d"
+            },
+            "displayName": "Dynamic SAML2 Node",
+            "nodeType": "ConfigProviderNode",
+            "version": "1.0",
+            "x": 697,
+            "y": 237.76666259765625
+          },
+          "eda4c1c7-938b-4c96-8819-467af09c7200": {
+            "connections": {
+              "CONFIGURATION_FAILED": "5e098acb-7fa5-46fd-912f-9f4d0d48cce6",
+              "false": "0b837a16-ffb4-453d-a53d-21138e4ee63d",
+              "true": "0b837a16-ffb4-453d-a53d-21138e4ee63d"
+            },
+            "displayName": "Dynamic Message Node",
+            "nodeType": "ConfigProviderNode",
+            "version": "1.0",
+            "x": 696,
+            "y": 82.76666259765625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 53,
+            "y": 126
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1250,
+            "y": 272
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}
