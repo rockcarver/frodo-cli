@@ -3,6 +3,7 @@ import fs from 'fs';
 
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
+import { fileFilter } from '../utils/FrConfig';
 
 const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
 const { saveJsonToFile, getFilePath } = frodo.utils;
@@ -59,8 +60,15 @@ function processEndpoints(endpoints, fileDir, name?) {
   }
 }
 
+/**
+ * Import endpoints in fr-config-manager format.
+ * @param {string} endpointName Optional name of the endpoint to import. If not provided, imports all endpoints.
+ * @param {string} filenameFilter Optional filter to filter which scripts are imported.
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
 export async function configManagerImportEndpoints(
-  endpointName?: string
+  endpointName?: string,
+  filenameFilter?: string
 ): Promise<boolean> {
   try {
     const endpointsDir = getFilePath(`endpoints`);
@@ -77,6 +85,11 @@ export async function configManagerImportEndpoints(
       if (endpointName && id !== `endpoint/${endpointName}`) {
         continue;
       }
+
+      if (!fileFilter(importData.file, filenameFilter)) {
+        continue;
+      }
+
       if (importData.file) {
         const scriptPath = getFilePath(
           `endpoints/${endpointsFile}/${importData.file}`

@@ -29,6 +29,12 @@ export default function setup() {
         'Endpoint name, import only specified endpoint'
       )
     )
+    .addOption(
+      new Option(
+        '-f, --filename-filter <filenameFilter>',
+        'Combine multiple files using comma, use ~ prefix on entry for wildcard match'
+      )
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -41,7 +47,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing config entity endpoints');
-        const outcome = await configManagerImportEndpoints(options.name);
+        const outcome = await configManagerImportEndpoints(
+          options.name,
+          options.filenameFilter
+        );
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

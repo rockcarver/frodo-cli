@@ -29,6 +29,12 @@ export default function setup() {
         'Schedule name; import only the specified schedule name'
       )
     )
+    .addOption(
+      new Option(
+        '-f, --filename-filter <filenameFilter>',
+        'Combine multiple files using comma, use ~ prefix on entry for wildcard match'
+      )
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -40,7 +46,10 @@ export default function setup() {
       );
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing schedules');
-        const outcome = await configManagerImportSchedules(options.name);
+        const outcome = await configManagerImportSchedules(
+          options.name,
+          options.filenameFilter
+        );
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

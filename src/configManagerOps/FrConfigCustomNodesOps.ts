@@ -2,6 +2,7 @@ import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 
 import { printError } from '../utils/Console';
+import { fileFilter } from '../utils/FrConfig';
 
 const { saveJsonToFile, getFilePath, saveTextToFile } = frodo.utils;
 const { readCustomNode, readCustomNodes, importCustomNodes } = frodo.authn.node;
@@ -50,10 +51,12 @@ export async function configManagerExportCustomNodes(
 /**
  * Import all custom nodes to specified tenant.
  * @param {string} name Optional display name of a custom node to import. If not provided, all custom nodes will be imported.
+ * @param {string} filenameFilter Optional filter to filter which scripts are imported.
  * @returns {Promise<boolean>} True if import was successful
  */
 export async function configManagerImportCustomNodes(
-  nodeName?: string
+  nodeName?: string,
+  filenameFilter?: string
 ): Promise<boolean> {
   try {
     const nodesDir = getFilePath(`custom-nodes/nodes`);
@@ -67,6 +70,10 @@ export async function configManagerImportCustomNodes(
       const importData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
 
       if (nodeName && nodeName !== importData.displayName) continue;
+
+      if (!fileFilter(importData.script?.file, filenameFilter)) {
+        continue;
+      }
 
       nodeFound = true;
 
