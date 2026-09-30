@@ -1,4 +1,5 @@
 export const connection = {
+  type: 'cloud',
   host: 'https://openam-frodo-dev.forgeblocks.com/am',
   user: 'volker.scheuber@forgerock.com',
   pass: 'Sup3rS3cr3t!',
@@ -11,6 +12,7 @@ export const connection = {
 };
 
 export const iga_connection = {
+  type: 'cloud',
   host: 'https://openam-frodo-dev.forgeblocks.com/am',
   user: 'volker.scheuber@forgerock.com',
   pass: 'Sup3rS3cr3t!',
@@ -22,6 +24,7 @@ export const iga_connection = {
 };
 
 export const classic_connection = {
+  type: 'classic',
   host: 'http://openam-frodo-dev.classic.com:8080/am',
   user: 'amAdmin',
   pass: 'Sup3rS3cr3t!',
@@ -29,6 +32,7 @@ export const classic_connection = {
 }
 
 export const forgeops_connection = {
+  type: 'forgeops',
   host: 'https://nightly.gcp.forgeops.com/am',
   user: 'amAdmin',
   pass: 'Sup3rS3cr3t!',
@@ -36,6 +40,7 @@ export const forgeops_connection = {
 }
 
 export const amster_connection = {
+  type: 'classic',
   host: 'http://openam-frodo-dev.amster.com:8080/am',
   user: 'amAdmin',
   realm: '/',
