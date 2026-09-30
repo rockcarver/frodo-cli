@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v4.17.0] - 2026-09-30
+
+### Added
+- Introduced `-f, --filename-filter` option for `config-manager push` commands targeting endpoints, schedules, and custom nodes, allowing users to filter which files are pushed. (#707)
+- Added support for `config-manager push` command to handle OAuth2 agents, enhancing the ability to manage OAuth2 configurations. (#706)
+- Enabled environment variable support for `config-manager push service-objects` command, allowing dynamic configuration based on environment settings. (#702)
+
+### Fixed
+- Resolved issues with `config-manager push schedules` command to ensure it functions correctly with script schedules. (#700)
+- Corrected metadata client CLI test for `config-manager push`, ensuring accurate test results. (commit 3194e382)
+- Updated mock recordings for `config-manager-export-all.e2e.test.js` to align with current configurations, improving test reliability. (commit fc6955b8)
+- Renamed mock recordings to reflect the updated flag naming from `-F` to `-C`, ensuring consistency across tests. (commit 6959e9fe)
+
 ## [v4.16.0] - 2026-09-29
 
 ### Added
@@ -2834,6 +2847,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v4.17.0]: https://github.com/rockcarver/frodo-cli/compare/v4.16.0...v4.17.0
 [v4.16.0]: https://github.com/rockcarver/frodo-cli/compare/v4.15.1...v4.16.0
 [v4.15.1]: https://github.com/rockcarver/frodo-cli/compare/v4.15.0...v4.15.1
 [unreleased]: https://github.com/rockcarver/frodo-cli/compare/v4.3.1...HEAD
