@@ -22,7 +22,7 @@
 //   node tools/record-cloud-e2e.mjs --refresh-shared-auth     # also refresh the shared login cassette
 //
 // By default, none of these recording passes touch the shared login cassette
-// (test/e2e/mocks/shared_*/auth_*/ -- see test/e2e/README.md's "Shared login
+// (test/e2e/mocks/shared_*/auth_*/cloud_*/ -- see test/e2e/README.md's "Shared login
 // recording" section): each file's real auth exchange still happens live,
 // but is captured into a disposable per-command bucket instead, since the
 // shared cassette is order-indexed and shared across every cloud host's

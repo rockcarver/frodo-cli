@@ -474,16 +474,29 @@ export function getEnv(connection = undefined, options = {}) {
     ...baseEnv
   } = process.env;
 
+  // Profile store + master key. Unset, the CLI falls back to the developer's
+  // real ~/.frodo/Connections.json (and its master key), so a replay run could
+  // silently read -- or a test could write to -- live profiles. So: when
+  // replaying, always point at the committed test fixtures instead; a test
+  // that needs to write profiles (conn save/delete/alias) opts into its own
+  // files via preserveProfilePaths. Recording is the one case that still needs
+  // the real profiles (FRODO_CONNECTION names one), so it keeps the default.
+  const preservedPaths = {
+    ...(process.env.FRODO_CONNECTION_PROFILES_PATH && {
+      FRODO_CONNECTION_PROFILES_PATH: process.env.FRODO_CONNECTION_PROFILES_PATH,
+    }),
+    ...(process.env.FRODO_MASTER_KEY_PATH && {
+      FRODO_MASTER_KEY_PATH: process.env.FRODO_MASTER_KEY_PATH,
+    }),
+  };
   const pathOverrides = preserveProfilePaths
-    ? {
-      ...(process.env.FRODO_CONNECTION_PROFILES_PATH && {
-        FRODO_CONNECTION_PROFILES_PATH: process.env.FRODO_CONNECTION_PROFILES_PATH,
-      }),
-      ...(process.env.FRODO_MASTER_KEY_PATH && {
-        FRODO_MASTER_KEY_PATH: process.env.FRODO_MASTER_KEY_PATH,
-      }),
-    }
-    : {};
+    ? preservedPaths
+    : isRecording
+      ? {}
+      : {
+        FRODO_CONNECTION_PROFILES_PATH: path.resolve('./test/e2e/env/Connections.json'),
+        FRODO_MASTER_KEY_PATH: path.resolve('./test/e2e/env/masterkey.key'),
+      };
 
   return {
     env: {
@@ -493,6 +506,9 @@ export function getEnv(connection = undefined, options = {}) {
         FRODO_CONNECTION: requestedProfile,
       }),
       // only add property if we have it
+      // declares the deployment type so frodo-lib's Polly setup can pick the
+      // matching shared auth cassette (see SetupPollyForFrodoLib.ts)
+      ...(connection?.type && { FRODO_MOCK_DEPLOYMENT: connection.type }),
       ...(connection?.host && { FRODO_HOST: connection.host }),
       ...(connection?.authService && { FRODO_AUTHENTICATION_SERVICE: connection.authService }),
       ...(connection?.isIGA && { FRODO_IGA: connection.isIGA }),
