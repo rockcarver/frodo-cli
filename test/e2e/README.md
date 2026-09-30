@@ -65,6 +65,17 @@ Every test file builds the environment for its subprocess with `getEnv(connectio
 
 Variables you set yourself when recording: `FRODO_NO_CACHE=1` (always — it disables frodo's on-disk token cache so a command really re-authenticates instead of reusing a cached token, otherwise the login calls you are trying to capture may never happen), `FRODO_TEST_NAME` (see [Writing a test](#writing-a-test)), and `FRODO_HOST`/`FRODO_CONNECTION` to pick the environment to record from. The full list, including the ones that control cassettes and expiration, is in the [frodo-lib guide](https://github.com/rockcarver/frodo-lib/blob/main/RECORD_REPLAY.md#environment-variables).
 
+**Recording against your own tenant.** Route-specific recording names are only applied to hosts in `FRODO_MOCK_HOSTS`, which defaults to the frodo development hosts (`openam-frodo-dev`, `openam-volker-dev`, `openam-volker-demo`, `nightly.gcp.forgeops.com`, and the classic test host). If you record against a tenant that is not on that list, list it, or its traffic lands in a stray `default_*` recording instead of the per-area ones:
+
+```console
+FRODO_MOCK=record FRODO_NO_CACHE=1 \
+FRODO_MOCK_HOSTS=https://openam-mytenant.forgeblocks.com \
+FRODO_HOST=https://openam-mytenant.forgeblocks.com/am \
+npm run test:update e2e/agent-list
+```
+
+Setting it **replaces** the default list, so add any default host the same run also talks to (a comma-separated list, origins only, no `/am`). Replay needs nothing extra: the tests replay against the frodo-dev hosts from `TestConfig.js`, which are on the default list, and matching ignores the host you recorded from. If a `default_*` directory shows up under `test/e2e/mocks/` after a recording pass, an unlisted host is the cause; delete it and re-record. Details are in the [frodo-lib guide](https://github.com/rockcarver/frodo-lib/blob/main/RECORD_REPLAY.md#hosts).
+
 ## Writing a test
 
 Every test should carry its own explicit `FRODO_TEST_NAME` — a short, file-unique label that identifies its recording, independent of the command's actual arguments and flags. This is what lets you write as many test cases as you need for a given command, even ones that share the exact same invocation (e.g. the same command run against different realms, or a success/failure variant of the same flags) — the recording's identity is the label you chose, not an incidental property of the flags you happened to pass.
