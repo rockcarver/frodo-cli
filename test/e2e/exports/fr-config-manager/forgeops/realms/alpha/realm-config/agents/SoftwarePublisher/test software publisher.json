@@ -1,0 +1,17 @@
+{
+  "_id": "test software publisher",
+  "_rev": "1510799304",
+  "_type": {
+    "_id": "SoftwarePublisher",
+    "collection": true,
+    "name": "OAuth2 Software Publisher"
+  },
+  "agentgroup": null,
+  "issuer": null,
+  "jwkSet": null,
+  "jwkStoreCacheMissCacheTime": 60000,
+  "jwksCacheTimeout": 3600000,
+  "jwksUri": null,
+  "publicKeyLocation": "jwks_uri",
+  "softwareStatementSigningAlgorithm": "RS256"
+}

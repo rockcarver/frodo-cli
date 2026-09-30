@@ -15,7 +15,7 @@ import { configManagerExportJourneys } from './FrConfigJourneysOps';
 import { configManagerExportKbaConfig } from './FrConfigKbaOps';
 import { configManagerExportLocales } from './FrConfigLocalesOps';
 import { configManagerExportManagedObjects } from './FrConfigManagedObjectsOps';
-import { configManagerExportConfigAgents } from './FrConfigOauth2AgentOps';
+import { configManagerExportOAuth2Agents } from './FrConfigOauth2AgentOps';
 import { configManagerExportOrgPrivilegesAllRealms } from './FrConfigOrgPrivilegesOps';
 import { configManagerExportPasswordPolicy } from './FrConfigPasswordPolicyOps';
 import { configManagerExportRemoteServers } from './FrConfigRemoteServersOps';
@@ -70,7 +70,7 @@ export async function configManagerExportAllWithConfigFolder(
     await configManagerExportManagedObjects();
 
     try {
-      await configManagerExportConfigAgents(
+      await configManagerExportOAuth2Agents(
         `${options.configFolder}/oauth2-agents.json`
       );
     } catch (err) {

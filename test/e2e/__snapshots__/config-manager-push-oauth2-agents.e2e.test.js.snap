@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push oauth2-agents "frodo config-manager push oauth2-agents --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import all oauth2-agents into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push oauth2-agents "frodo config-manager push oauth2-agents --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import all oauth2-agents into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push oauth2-agents'. This feature may change without notice.
+✔ Oauth2 Agents import completed.
+"
+`;

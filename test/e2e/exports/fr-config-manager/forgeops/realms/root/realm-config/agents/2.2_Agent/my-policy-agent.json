@@ -1,0 +1,21 @@
+{
+  "_id": "my-policy-agent",
+  "_rev": "-1073182983",
+  "_type": {
+    "_id": "2.2_Agent",
+    "collection": true,
+    "name": "Policy Agents"
+  },
+  "cdssoRootUrl": {
+    "inherited": false,
+    "value": []
+  },
+  "description": {
+    "inherited": false
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active"
+  },
+  "userpassword": "${2_2_AGENT_PASSWORD}"
+}

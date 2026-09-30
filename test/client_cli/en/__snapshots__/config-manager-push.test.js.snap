@@ -33,6 +33,7 @@ Commands:
   kba                    [Experimental] Import kba configuration.
   locales                [Experimental] Import custom locales objects.
   managed-objects        [Experimental] Import managed objects.
+  oauth2-agents          [Experimental] Import Oauth2 agents.
   org-privileges         [Experimental] Import organization privileges config.
   password-policy        [Experimental] Import password-policy objects.
   raw                    [Experimental] Import raw configurations.

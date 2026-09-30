@@ -25,6 +25,7 @@ import Journeys from './config-manager-push-journeys';
 import Kba from './config-manager-push-kba';
 import Locales from './config-manager-push-locales';
 import ManagedObjects from './config-manager-push-managed-objects';
+import OAuth2Agents from './config-manager-push-oauth2-agents';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
 import Raw from './config-manager-push-raw';
@@ -60,6 +61,7 @@ export default function setup() {
   program.addCommand(EmailTemplates().name('email-templates'));
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(OrgPrivileges().name('org-privileges'));
+  program.addCommand(OAuth2Agents().name('oauth2-agents'));
   program.addCommand(ManagedObjects().name('managed-objects'));
   program.addCommand(AccessConfig().name('access-config'));
   program.addCommand(Audit().name('audit'));

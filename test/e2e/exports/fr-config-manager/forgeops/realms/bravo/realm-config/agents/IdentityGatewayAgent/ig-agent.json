@@ -1,0 +1,30 @@
+{
+  "_id": "ig-agent",
+  "_rev": "-953540750",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents"
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "http://am:80/am/cdcservlet"
+    ]
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "None"
+  },
+  "secretLabelIdentifier": {
+    "inherited": false
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active"
+  },
+  "userpassword": "${IG_AGENT_PASSWORD}"
+}
