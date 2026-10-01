@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
 import Applications from '../config-manager-delete/config-manager-delete-applications';
+import Cors from '../config-manager-delete/config-manager-delete-cors';
 import EmailTemplates from '../config-manager-delete/config-manager-delete-email-templates';
 import Endpoints from '../config-manager-delete/config-manager-delete-endpoints';
 import Locales from '../config-manager-delete/config-manager-delete-locales';
@@ -40,5 +41,6 @@ export default function setup() {
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(TenantConfig().name('tenant-config'));
+  program.addCommand(Cors().name('cors'));
   return program;
 }

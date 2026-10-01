@@ -1,5 +1,7 @@
 import { frodo, state, type FullService } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
+import { OperationRun } from '../utils/OperationRun';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
@@ -81,6 +83,87 @@ export async function configManagerImportCors(): Promise<boolean> {
     return true;
   } catch (error) {
     printError(error);
+    return false;
+  }
+}
+
+/**
+ * Delete the global CORS configuration json in fr-config manager format
+ * @param {string} name name of secondary configuration to only be deleted
+ * @returns True if file was successfully deleted
+ */
+
+export async function configManagerDeleteCors(
+  name?: string,
+  dryRun: boolean = false,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const named = name !== undefined;
+
+  if (named && name.trim() === '') {
+    printMessage(
+      'The CORS name must not be empty. To delete all CORS configurations, leave out the name.',
+      'error'
+    );
+    return false;
+  }
+
+  const run = new OperationRun({
+    unit: 'CORS configuration',
+    allowFailures,
+  });
+
+  try {
+    const api = frodo.factory.generateAmApi({
+      apiVersion: 'protocol=2.0,resource=1.0',
+    });
+
+    const url = `${state.getHost()}/json/global-config/services/CorsService`;
+
+    const { data } = await api.post(
+      `${url}?_action=nextdescendents`,
+      undefined,
+      { withCredentials: true }
+    );
+
+    const descendents = data.result.filter((descendent) =>
+      named ? descendent._id === name : true
+    );
+
+    if (descendents.length === 0) {
+      if (named) {
+        printMessage(`CORS configuration '${name}' not found.`, 'error');
+        return false;
+      }
+
+      printMessage('No CORS configurations found to delete.', 'warn');
+      return true;
+    }
+
+    for (const descendent of descendents) {
+      const corsName = descendent._id;
+
+      if (dryRun) {
+        printMessage(`Dry run: Deleting CORS configuration: ${corsName}`);
+        continue;
+      }
+
+      try {
+        await api.delete(`${url}/${descendent._type._id}/${descendent._id}`, {
+          withCredentials: true,
+        });
+
+        printMessage(`Deleting CORS configuration: ${corsName}`);
+        run.recordSuccess();
+      } catch (error) {
+        printError(error, `Error deleting CORS configuration ${corsName}`);
+        run.recordFailure(corsName, causeOf(error));
+      }
+    }
+
+    return dryRun ? true : run.finish();
+  } catch (error) {
+    printError(error, 'Error deleting CORS configurations');
     return false;
   }
 }

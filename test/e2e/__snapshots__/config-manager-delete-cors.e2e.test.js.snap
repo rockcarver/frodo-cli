@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete cors "frodo config-manager delete cors -d": should give a dry run showing which CORS would be deleted without deleting. Shown in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager delete cors "frodo config-manager delete cors -d": should give a dry run showing which CORS would be deleted without deleting. Shown in fr-config manager style. 2`] = `
+"Experimental feature in use: 'frodo config-manager delete cors'. This feature may change without notice.
+Deleting all CORS configurations.
+Dry run: Deleting CORS configuration: test
+Dry run: Deleting CORS configuration: cors
+"
+`;
+
+exports[`frodo config-manager delete cors "frodo config-manager delete cors -n test": should delete CORS secondary configuration by name custom in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager delete cors "frodo config-manager delete cors -n test": should delete CORS secondary configuration by name custom in fr-config manager style. 2`] = `
+"Experimental feature in use: 'frodo config-manager delete cors'. This feature may change without notice.
+Deleting CORS configuration: "test"
+Deleting CORS configuration: test
+"
+`;
+
+exports[`frodo config-manager delete cors "frodo config-manager delete cors -y": should delete all CORS secondary configurations in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager delete cors "frodo config-manager delete cors -y": should delete all CORS secondary configurations in fr-config manager style. 2`] = `
+"Experimental feature in use: 'frodo config-manager delete cors'. This feature may change without notice.
+Deleting all CORS configurations.
+Deleting CORS configuration: test
+Deleting CORS configuration: cors
+"
+`;
