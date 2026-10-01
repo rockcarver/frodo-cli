@@ -17,6 +17,7 @@ import Telemetry from './config-manager-delete-telemetry';
 import TenantConfig from './config-manager-delete-tenant-config';
 import TermsConditions from './config-manager-delete-terms-and-conditions';
 import Variables from './config-manager-delete-variables';
+import ConnectorDefininitions from '../config-manager-delete/config-manager-delete-connector-definitions';
 
 export default function setup() {
   const program = new FrodoStubCommand('delete').description(
@@ -42,5 +43,6 @@ export default function setup() {
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(TenantConfig().name('tenant-config'));
   program.addCommand(Journeys().name('journeys'));
+  program.addCommand(ConnectorDefininitions().name('connector-definitions'));
   return program;
 }
