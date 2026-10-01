@@ -3,9 +3,8 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull secrets -D secretTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull secrets -aD secretTestDir2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull secrets -r
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME='report' frodo config-manager pull secrets -r
 */
-
 
 import { getEnv, testExport, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -28,7 +27,9 @@ describe('frodo config-manager pulls', () => {
   });
   test('"frodo config-manager pull secrets -r": should report all secrets as a csv table report in fr-config-manager style"', async () => {
     const CMD = `frodo config-manager pull secrets -r`;
-    await testSuccess(CMD, env);
+    await testSuccess(CMD, {
+      ...env,
+      env: { ...env.env, FRODO_TEST_NAME: 'report' },
+    });
   });
-
 });

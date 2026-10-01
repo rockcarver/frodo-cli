@@ -20,7 +20,6 @@ export default function setup() {
   program
     .description('Export variables objects.')
     .addOption(new Option('-r, --report', 'Output variables as a CSV report.'))
-
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,

@@ -2,11 +2,8 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull variables -D variableTestDir
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull variables -r
-
-
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME='report' frodo config-manager pull variables -r
 */
-
 
 import { getEnv, testExport, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -22,10 +19,11 @@ describe('frodo config-manager pulls', () => {
     const CMD = `frodo config-manager pull variables -D ${dirName}`;
     await testExport(CMD, env, undefined, undefined, dirName, false);
   });
-
-    test('"frodo config-manager pull variables -r": should report all variables as a csv table report in fr-config-manager style"', async () => {
-      const CMD = `frodo config-manager pull variables -r`;
-      await testSuccess(CMD, env);
+  test('"frodo config-manager pull variables -r": should report all variables as a csv table report in fr-config-manager style"', async () => {
+    const CMD = `frodo config-manager pull variables -r`;
+    await testSuccess(CMD, {
+      ...env,
+      env: { ...env.env, FRODO_TEST_NAME: 'report' },
     });
-
+  });
 });

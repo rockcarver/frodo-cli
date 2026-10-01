@@ -50,6 +50,19 @@ export async function configManagerExportVariables(
 
   if (report) {
     printMessage('Name, Description, Type, Value, Last Changed', 'data');
+    for (const variable of variableList) {
+      printMessage(
+        [
+          variable._id,
+          csvEscape(variable.description),
+          variable.expressionType,
+          csvEscape(variable.value),
+          friendlyTimestamp(variable.lastChangeDate),
+        ].join(','),
+        'data'
+      );
+    }
+    return true;
   }
 
   try {
@@ -59,19 +72,6 @@ export async function configManagerExportVariables(
       'Exporting variables'
     );
     for (const variable of variableList) {
-      if (report) {
-        printMessage(
-          [
-            variable._id,
-            csvEscape(variable.description),
-            variable.expressionType,
-            csvEscape(variable.value),
-            friendlyTimestamp(variable.lastChangeDate),
-          ].join(','),
-          'data'
-        );
-        continue;
-      }
       const envVariable = esvToEnv(variable._id);
 
       const variableObject = {

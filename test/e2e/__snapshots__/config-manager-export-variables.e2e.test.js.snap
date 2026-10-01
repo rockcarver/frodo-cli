@@ -137,6 +137,5 @@ esv-trinity-phone,"In the opening of The Matrix (1999), the phone number Trinity
 exports[`frodo config-manager pulls "frodo config-manager pull variables -r": should report all variables as a csv table report in fr-config-manager style" 2`] = `
 "Experimental feature in use: 'frodo config-manager pull variables'. This feature may change without notice.
 ✔ Successfully retrieved 17 variables
-• 17 variables exported
 "
 `;

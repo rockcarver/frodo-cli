@@ -52,21 +52,12 @@ export async function configManagerExportSecrets(
       'success'
     );
 
-    const indicatorId = createProgressIndicator(
-      'determinate',
-      secrets.length,
-      'Exporting secrets'
-    );
-
     if (report) {
       printMessage(
         'Name, Description, Encoding, Use in Placeholders, Last Changed',
         'data'
       );
-    }
-
-    for (const secret of secrets) {
-      if (report) {
+      for (const secret of secrets) {
         printMessage(
           [
             secret._id,
@@ -77,9 +68,17 @@ export async function configManagerExportSecrets(
           ].join(','),
           'data'
         );
-        continue;
       }
+      return true;
+    }
 
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      secrets.length,
+      'Exporting secrets'
+    );
+
+    for (const secret of secrets) {
       const cleanSecret: Partial<SecretSkeleton> = {
         _id: secret._id,
         description: secret.description,
