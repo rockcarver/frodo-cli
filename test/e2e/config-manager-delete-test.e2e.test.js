@@ -1,7 +1,7 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager delete test
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME='success' frodo config-manager delete test
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_USERNAME=wrong FRODO_PASSWORD=wrong FRODO_TEST_NAME='invalid_credentials' frodo config-manager delete test
 */
 
@@ -11,12 +11,11 @@ import { connection as c } from './utils/TestConfig';
 
 
 process.env['FRODO_MOCK'] ||= '1';
-process.env['FRODO_CONNECTION_PROFILES_PATH'] =
-  './test/e2e/env/Connections.json';
 
 describe('frodo config-manager delete test', () => {
   test('"frodo config-manager delete test": should receive access tokens"', async () => {
     const env = getEnv(c);
+    env.env.FRODO_TEST_NAME = 'success';
     const CMD = `frodo config-manager delete test`;
     await testSuccess(CMD, env);
   });
