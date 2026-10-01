@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete connector-definitions "frodo config-manager delete connector-definitions -d -m forgeops": should show what would be deleted in fr-config-manager format as a preview" 1`] = `""`;
+
+exports[`frodo config-manager delete connector-definitions "frodo config-manager delete connector-definitions -d -m forgeops": should show what would be deleted in fr-config-manager format as a preview" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete connector-definitions'. This feature may change without notice.
+Would delete connector: "Azure"
+Would delete connector: "GoogleApps"
+Would delete connector: "salesforce"
+"
+`;
+
+exports[`frodo config-manager delete connector-definitions "frodo config-manager delete connector-definitions -m forgeops": should delete all the connector definitions in fr-config-manager format" 1`] = `""`;
+
+exports[`frodo config-manager delete connector-definitions "frodo config-manager delete connector-definitions -m forgeops": should delete all the connector definitions in fr-config-manager format" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete connector-definitions'. This feature may change without notice.
+  Deleting connector: "provisioner.openicf/Azure"
+  Deleting connector: "provisioner.openicf/GoogleApps"
+  Deleting connector: "provisioner.openicf/salesforce"
+"
+`;
+
+exports[`frodo config-manager delete connector-definitions "frodo config-manager delete connector-definitions -n Azure -m forgeops": should delete the Azure connector definition in fr-config-manager format" 1`] = `""`;
+
+exports[`frodo config-manager delete connector-definitions "frodo config-manager delete connector-definitions -n Azure -m forgeops": should delete the Azure connector definition in fr-config-manager format" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete connector-definitions'. This feature may change without notice.
+  Deleting connector: "provisioner.openicf/Azure"
+"
+`;
