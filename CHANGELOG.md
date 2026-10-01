@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v4.18.0] - 2026-10-01
+
 ### Added
-- Added `-r, --report` option to `config-manager pull secrets` and `config-manager pull variables` to output a CSV report instead of writing files. (#710)
+- Added `-r, --report` option to `config-manager pull secrets` and `config-manager pull variables` to output a CSV report instead of writing files. Improved output handling for the `--report` flag. (#710, commit dcb05029)
+- Introduced `config-manager delete` command, providing a foundation for future delete-related features. (#709)
 
 ## [v4.17.0] - 2026-09-30
 
@@ -2850,6 +2853,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v4.18.0]: https://github.com/rockcarver/frodo-cli/compare/v4.17.0...v4.18.0
 [v4.17.0]: https://github.com/rockcarver/frodo-cli/compare/v4.16.0...v4.17.0
 [v4.16.0]: https://github.com/rockcarver/frodo-cli/compare/v4.15.1...v4.16.0
 [v4.15.1]: https://github.com/rockcarver/frodo-cli/compare/v4.15.0...v4.15.1
