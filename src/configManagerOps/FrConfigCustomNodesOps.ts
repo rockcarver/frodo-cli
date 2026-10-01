@@ -1,10 +1,17 @@
 import fs from 'fs';
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { errorHandler } from '../ops/utils/OpsUtils';
+import { printError, printMessage } from '../utils/Console';
 import { fileFilter } from '../utils/FrConfig';
 
 const { saveJsonToFile, getFilePath, saveTextToFile } = frodo.utils;
-const { readCustomNode, readCustomNodes, importCustomNodes } = frodo.authn.node;
+const {
+  readCustomNode,
+  readCustomNodes,
+  importCustomNodes,
+  deleteCustomNode,
+  deleteCustomNodes,
+} = frodo.authn.node;
 
 /**
  * Export all custom nodes to 'custom-nodes/nodes' directory.
@@ -93,4 +100,39 @@ export async function configManagerImportCustomNodes(
     printError(error, `Error importing custom nodes`);
   }
   return false;
+}
+
+/**
+ * Delete custom nodes from the configured tenant.
+ * @param {string} name Optional display name. If omitted, all custom nodes are targeted.
+ * @param {boolean} dryRun Show matching nodes without deleting them.
+ * @returns {Promise<boolean>} True if no errors were reported.
+ */
+export async function configManagerDeleteCustomNodes(
+  name?: string,
+  dryRun: boolean = false
+): Promise<boolean> {
+  try {
+    const successful = true;
+    if (dryRun) {
+      const nodes = name
+        ? [await readCustomNode(undefined, name)]
+        : await readCustomNodes();
+      for (const node of nodes) {
+        printMessage(
+          `Dry run: Deleting node with displayName ${node.displayName}`
+        );
+      }
+    } else if (name) {
+      await deleteCustomNode(undefined, name);
+      printMessage(`Deleting node with displayName: ${name}`);
+    } else {
+      const deletedNodes = await deleteCustomNodes(errorHandler);
+      printMessage(`Deleted ${deletedNodes.length} custom nodes.`);
+    }
+    return successful;
+  } catch (error) {
+    printError(error, 'Error deleting custom nodes');
+    return false;
+  }
 }

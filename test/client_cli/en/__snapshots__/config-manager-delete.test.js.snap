@@ -17,6 +17,8 @@ Runtime Options:
                     FRODO_NO_PROMPT).
 
 Commands:
+  custom-nodes      [Experimental] Delete custom nodes.
+  help              display help for command
   test              [Experimental] Test connection and authentication.
 
 Utilities:
