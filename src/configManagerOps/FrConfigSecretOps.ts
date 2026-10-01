@@ -3,7 +3,6 @@ import {
   SecretSkeleton,
   VersionOfSecretSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
-import { SecretsExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/SecretsOps';
 import fs from 'fs';
 
 import {
@@ -13,12 +12,11 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import { esvToEnv } from '../utils/FrConfig';
+import { csvEscape, esvToEnv, friendlyTimestamp } from '../utils/FrConfig';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const {
   readSecrets,
-  exportSecret,
   createSecret,
   createVersionOfSecret,
   readVersionsOfSecret,
@@ -32,10 +30,12 @@ type FrConfigSecret = SecretSkeleton & {
 /**
  * Export all secrets to individual files in fr-config-manager format
  * @param {boolean} activeOnly true to export only active secret versions, false to export all secrets versions
+ * @param {boolean} report true to report in csv format
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportSecrets(
-  activeOnly?: boolean
+  activeOnly?: boolean,
+  report?: boolean
 ): Promise<boolean> {
   let secrets: FrConfigSecret[] = [];
   const spinnerId = createProgressIndicator(
@@ -51,28 +51,44 @@ export async function configManagerExportSecrets(
       `Successfully read ${secrets.length} secrets.`,
       'success'
     );
+
+    if (report) {
+      printMessage(
+        'Name, Description, Encoding, Use in Placeholders, Last Changed',
+        'data'
+      );
+      for (const secret of secrets) {
+        printMessage(
+          [
+            secret._id,
+            csvEscape(secret.description),
+            secret.encoding,
+            secret.useInPlaceholders,
+            friendlyTimestamp(secret.lastChangeDate),
+          ].join(','),
+          'data'
+        );
+      }
+      return true;
+    }
+
     const indicatorId = createProgressIndicator(
       'determinate',
       secrets.length,
       'Exporting secrets'
     );
+
     for (const secret of secrets) {
-      const exportData: SecretsExportInterface = await exportSecret(
-        secret._id,
-        false
-      );
-      const [secretKey] = Object.keys(exportData.secret);
-      const fullSecret = exportData.secret[secretKey] as FrConfigSecret;
       const cleanSecret: Partial<SecretSkeleton> = {
-        _id: fullSecret._id,
-        description: fullSecret.description,
-        encoding: fullSecret.encoding,
-        useInPlaceholders: fullSecret.useInPlaceholders,
+        _id: secret._id,
+        description: secret.description,
+        encoding: secret.encoding,
+        useInPlaceholders: secret.useInPlaceholders,
       };
       if (activeOnly) {
         cleanSecret.valueBase64 = `\${${esvToEnv(secret._id)}}`;
       } else {
-        const versionsResponse = await readVersionsOfSecret(fullSecret._id);
+        const versionsResponse = await readVersionsOfSecret(secret._id);
         const versions = versionsResponse.filter(
           (version) => version.status !== 'DESTROYED'
         );

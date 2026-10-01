@@ -23,6 +23,7 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
+  -r, --report      Output variables as a CSV report.
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

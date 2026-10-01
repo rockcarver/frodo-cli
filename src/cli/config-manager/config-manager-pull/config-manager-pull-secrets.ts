@@ -26,6 +26,7 @@ export default function setup() {
     .addOption(
       new Option('-a, --active-only', 'Export only active secret versions.')
     )
+    .addOption(new Option('-r, --report', 'Output secrets as a CSV report.'))
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -38,7 +39,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting secrets');
-        const outcome = await configManagerExportSecrets(options.activeOnly);
+        const outcome = await configManagerExportSecrets(
+          options.activeOnly,
+          options.report
+        );
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

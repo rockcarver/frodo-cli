@@ -111,3 +111,31 @@ exports[`frodo config-manager pulls "frodo config-manager pull variables -D vari
   "valueBase64": "\${ESV_TRINITY_PHONE}",
 }
 `;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -r": should report all variables as a csv table report in fr-config-manager style" 1`] = `
+"Name, Description, Type, Value, Last Changed
+esv-asdf,,string,asdf,2026-09-22 15:34:24
+esv-blue-piller,Zion membership criteria.,bool,false,2026-07-07 13:42:37
+esv-fr-var-test,,string,test2,2026-09-28 15:05:55
+esv-fr-var-test-2,,int,20,2026-09-28 15:05:39
+esv-ipv4-cidr-access-rules,"IPv4 CIDR access rules: { ""allow"": [ ""address/mask"" ] }",object,"{ ""allow"": [ ""145.118.0.0/16"", ""132.35.0.0/16"", ""101.226.0.0/16"", ""99.72.28.182/32"" ] }",2026-07-07 13:42:38
+esv-nebuchadnezzar-crew,The crew of the Nebuchadnezzar hovercraft.,array,"[""Morpheus"",""Trinity"",""Link"",""Tank"",""Dozer"",""Apoc"",""Cypher"",""Mouse"",""Neo"",""Switch""]",2026-07-07 13:42:39
+esv-nebuchadnezzar-crew-structure,The structure of the crew of the Nebuchadnezzar hovercraft.,object,"{""Captain"":""Morpheus"",""FirstMate"":""Trinity"",""Operator"":[""Link"",""Tank""],""Medic"":""Dozer"",""Crewmen"":[""Apoc"",""Cypher"",""Mouse"",""Neo"",""Switch""]}",2026-07-07 13:42:41
+esv-neo-age,Neo's age in the matrix.,int,28,2026-07-07 13:42:42
+esv-number,test number,number,1.134,2026-07-07 13:42:43
+esv-saml-var-test,testing config manager saml placeholder handling,string,test,2026-08-21 14:02:20
+esv-test,list,list,"a,b,c,d",2026-09-15 21:48:34
+esv-test-var,this is a test description,string,this is a test variable,2026-09-28 14:16:54
+esv-test-var-bool,Test boolean variable,bool,True,2026-09-28 14:15:23
+esv-test-var-pi,This is another test variable.,number,3.1415926,2026-07-07 13:42:44
+esv-test-var-pi-string,This is a test variable of pi.,string,3.14,2026-09-28 14:20:53
+esv-test-variable-light,Test variable containing the speed of light in meters per second (as an int).,int,299792458,2026-07-07 13:42:47
+esv-trinity-phone,"In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",string,(312)-555-0690,2026-07-07 13:42:48
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -r": should report all variables as a csv table report in fr-config-manager style" 2`] = `
+"Experimental feature in use: 'frodo config-manager pull variables'. This feature may change without notice.
+✔ Successfully retrieved 17 variables
+"
+`;
