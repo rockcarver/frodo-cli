@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'config-manager delete' should be expected english 1`] = `
+"Usage: frodo config-manager delete [options] [command]
+
+[Experimental] Delete configuration optimized for CI/CD pipelines (format
+compatible with fr-config-manager).
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Commands:
+  help              display help for command
+  test              [Experimental] Test connection and authentication.
+"
+`;
