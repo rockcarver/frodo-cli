@@ -4,10 +4,10 @@ on:
   pull_request:
     branches:
       - 'main'
-    paths-ignore:
-      - '**/CODE_OF_CONDUCT.md'
-      - '**/README.md'
-      - 'docs/**'
+    # No paths-ignore here: with required status checks on main, a PR whose
+    # changes skip CI entirely could never merge (its required checks would
+    # stay "expected" forever). Docs-only PRs run the full pipeline. The push
+    # trigger keeps paths-ignore so docs-only pushes to main stay cheap.
   push:
     branches:
       - 'main'
