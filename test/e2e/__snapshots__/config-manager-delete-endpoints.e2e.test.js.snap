@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete endpoints "frodo config-manager delete endpoints --dry-run -n Javascript -m forgeops": should delete a specific endpoint by name in config-manager format 1`] = `""`;
+
+exports[`frodo config-manager delete endpoints "frodo config-manager delete endpoints --dry-run -n Javascript -m forgeops": should delete a specific endpoint by name in config-manager format 2`] = `
+"Experimental feature in use: 'frodo config-manager delete endpoints'. This feature may change without notice.
+Dry run: Deleting endpoint: Javascript
+"
+`;
+
+exports[`frodo config-manager delete endpoints "frodo config-manager delete endpoints -d -m forgeops": should delete all endpoints in config-manager format 1`] = `""`;
+
+exports[`frodo config-manager delete endpoints "frodo config-manager delete endpoints -d -m forgeops": should delete all endpoints in config-manager format 2`] = `
+"Experimental feature in use: 'frodo config-manager delete endpoints'. This feature may change without notice.
+Dry run: Deleting endpoint: Groovy
+Dry run: Deleting endpoint: Javascript
+Dry run: Deleting endpoint: joshTest
+Dry run: Deleting endpoint: joshTestCustomNodes
+Dry run: Deleting endpoint: joshTestEndpoints
+Dry run: Deleting endpoint: joshTestSchedules
+"
+`;
+
+exports[`frodo config-manager delete endpoints "frodo config-manager delete endpoints -m forgeops": should delete all endpoints in config-manager format 1`] = `""`;
+
+exports[`frodo config-manager delete endpoints "frodo config-manager delete endpoints -m forgeops": should delete all endpoints in config-manager format 2`] = `
+"Experimental feature in use: 'frodo config-manager delete endpoints'. This feature may change without notice.
+Deleting endpoint: groovy
+Deleting endpoint: Groovy
+Deleting endpoint: Javascript
+Deleting endpoint: joshTest
+Deleting endpoint: joshTestCustomNodes
+Deleting endpoint: joshTestEndpoints
+Deleting endpoint: joshTestSchedules
+"
+`;
+
+exports[`frodo config-manager delete endpoints "frodo config-manager delete endpoints -n Javascript -m forgeops": should delete a specific endpoint by name in config-manager format 1`] = `""`;
+
+exports[`frodo config-manager delete endpoints "frodo config-manager delete endpoints -n Javascript -m forgeops": should delete a specific endpoint by name in config-manager format 2`] = `
+"Experimental feature in use: 'frodo config-manager delete endpoints'. This feature may change without notice.
+Deleting endpoint: Javascript
+"
+`;
