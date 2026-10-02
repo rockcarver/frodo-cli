@@ -99,9 +99,9 @@ npm run lint
 npm test
 ```
 
-## Integration batching
+## Merging
 
-Maintainers can batch eligible PRs into the `integration` branch using the [`integration-batch` workflow](../.github/workflows/integration-batch.yml). See [INTEGRATION.md](./INTEGRATION.md) for label semantics and workflow behavior.
+PRs merge into `main` through ordinary pull requests once the required CI checks pass; the previous `integration` batch-merge workflow has been retired.
 
 ### Code structure and conventions
 
