@@ -1,3 +1,0 @@
-# One path per line. Paths listed here are added to the generated union allowlist.
-# Example:
-# src/cli/example/example-command.ts
