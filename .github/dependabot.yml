@@ -1,11 +1,42 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot version updates.
+# Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# - One grouped weekly PR for development-dependency minor/patch updates.
+#   Prettier, TypeScript and ESLint are excluded from the group (and TS majors
+#   ignored entirely): Prettier minors reformat code, and the TypeScript/ESLint
+#   majors need coordinated config work - those arrive as individual PRs for
+#   human review.
+# - The exact @rockcarver/frodo-lib pin is updated by this too, so new library
+#   releases automatically arrive here as a PR.
+# - Weekly updates for the GitHub Actions used by the workflows.
+# - Dependabot security updates are enabled separately in repo settings.
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      dev-minor-patch:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          - "prettier"
+          - "typescript"
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "@typescript-eslint/*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
       interval: "weekly"
