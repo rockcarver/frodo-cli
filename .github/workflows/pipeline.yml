@@ -152,7 +152,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [26, 24, 22]
+        # The CLI's supported runtime is the SEA binary, which is built on
+        # Node 26 - so 26 is the only version the tests need. (frodo-lib,
+        # which the CLI embeds, keeps its own wider matrix in its repo.)
+        node-version: [26]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -187,8 +190,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install frodo-cli globally
-        run: npm i -g
+      # The e2e suites shell out to `frodo` and the test helpers pin that to
+      # this checkout's SEA binary (dist-sea/, built on demand). Building the
+      # binary here - not `npm i -g` - means the tests exercise exactly the
+      # artifact the release jobs ship. `--build-sea` needs Node >= 25.5,
+      # which the matrix now guarantees (26).
+      - name: Build SEA binary
+        run: npm run build:binary
 
       - name: CLI Tests
         env:
@@ -196,7 +204,7 @@ jobs:
         run: npm run test:serial
 
       - name: Version Test
-        run: frodo -v
+        run: ./dist-sea/frodo -v
 
   # Single stable-named gate over the versioned test matrix. Required status
   # checks on main point at THIS job, so changing the matrix's Node versions
@@ -564,7 +572,7 @@ jobs:
           node -e "
             const cfg = require('./sea-config.json');
             cfg.executable = 'build-sea-runtime/node';
-            cfg.output = 'frodo';
+            cfg.output = 'dist-sea/frodo';
             require('fs').writeFileSync('sea-config.build.json', JSON.stringify(cfg, null, 2));
           "
           node --build-sea sea-config.build.json
@@ -581,8 +589,8 @@ jobs:
             <true/>
           </dict>
           DELIM
-          codesign --force --sign 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp frodo
-          codesign --verify --strict --verbose=2 frodo
+          codesign --force --sign 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp dist-sea/frodo
+          codesign --verify --strict --verbose=2 dist-sea/frodo
 
       #
       # Fail early on failing tests. The x64 binary runs under Rosetta 2
@@ -590,12 +598,12 @@ jobs:
       #
       - name: 'Test (under Rosetta)'
         run: |
-          ./frodo -v
-          ./frodo journey -h
-          ./frodo journey export -h
+          ./dist-sea/frodo -v
+          ./dist-sea/frodo journey -h
+          ./dist-sea/frodo journey export -h
 
       - name: Create zip file
-        run: ditto -c -k frodo frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
+        run: ditto -c -k dist-sea/frodo frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
 
       - name: Notorize
         run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
@@ -666,20 +674,20 @@ jobs:
             <true/>
           </dict>
           DELIM
-          codesign --force --sign 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp frodo
-          codesign --verify --strict --verbose=2 frodo
+          codesign --force --sign 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp dist-sea/frodo
+          codesign --verify --strict --verbose=2 dist-sea/frodo
 
       #
       # Fail early on failing tests.
       #
       - name: 'Test'
         run: |
-          ./frodo -v
-          ./frodo journey -h
-          ./frodo journey export -h
+          ./dist-sea/frodo -v
+          ./dist-sea/frodo journey -h
+          ./dist-sea/frodo journey export -h
 
       - name: Create zip file
-        run: ditto -c -k frodo frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
+        run: ditto -c -k dist-sea/frodo frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
 
       - name: Notorize
         run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
@@ -715,12 +723,12 @@ jobs:
       #
       - name: 'Test'
         run: |
-          ./frodo -v
-          ./frodo journey -h
-          ./frodo journey export -h
+          ./dist-sea/frodo -v
+          ./dist-sea/frodo journey -h
+          ./dist-sea/frodo journey export -h
 
       - name: Archive distribution binary
-        run: zip -Z bzip2 frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip frodo
+        run: zip -Z bzip2 frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip dist-sea/frodo
 
       - uses: actions/upload-artifact@v6
         with:
@@ -756,12 +764,12 @@ jobs:
       #
       - name: 'Test'
         run: |
-          ./frodo -v
-          ./frodo journey -h
-          ./frodo journey export -h
+          ./dist-sea/frodo -v
+          ./dist-sea/frodo journey -h
+          ./dist-sea/frodo journey export -h
 
       - name: Archive distribution binary
-        run: zip -Z bzip2 frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip frodo
+        run: zip -Z bzip2 frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip dist-sea/frodo
 
       - uses: actions/upload-artifact@v6
         with:
@@ -791,21 +799,22 @@ jobs:
         shell: pwsh
         run: |
           npm run build:sea-bundle
-          # sea-config.json writes "frodo"; the Windows artifact is frodo.exe
+          # sea-config.json writes dist-sea/frodo; the Windows artifact is
+          # dist-sea/frodo.exe
           # (Version.ts binary detection keys on the executable's basename).
-          Copy-Item frodo frodo.exe
+          Copy-Item dist-sea/frodo dist-sea/frodo.exe
 
       #
       # Fail early on failing tests.
       #
       - name: 'Test'
         run: |
-          ./frodo.exe -v
-          ./frodo.exe journey -h
-          ./frodo.exe journey export -h
+          ./dist-sea/frodo.exe -v
+          ./dist-sea/frodo.exe journey -h
+          ./dist-sea/frodo.exe journey export -h
 
       - name: Archive distribution binary
-        run: 7z a -tzip frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip frodo.exe
+        run: 7z a -tzip frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip dist-sea/frodo.exe
 
       - uses: actions/upload-artifact@v6
         with:

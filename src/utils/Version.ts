@@ -128,6 +128,14 @@ function getBinaryName() {
   return path.basename(process.execPath);
 }
 
+function isBinary() {
+  const name = getBinaryName();
+  // node --build-sea names the executable `frodo`/`frodo.exe` regardless of
+  // the directory it lives in (dist-sea in the repo, or wherever Homebrew
+  // or the user's PATH puts it).
+  return name === 'frodo' || name === 'frodo.exe';
+}
+
 function isHomebrew() {
   return process.execPath.indexOf('brew') != -1;
 }
@@ -135,7 +143,7 @@ function isHomebrew() {
 export async function getVersions(checkOnly: boolean) {
   let updateAvailable = false;
   let usingBinary = false;
-  if (getBinaryName() === 'frodo' || getBinaryName() === 'frodo.exe') {
+  if (isBinary()) {
     usingBinary = true;
   }
   try {

@@ -1,6 +1,6 @@
 {
   "main": "dist-sea/app.cjs",
-  "output": "frodo",
+  "output": "dist-sea/frodo",
   "disableExperimentalSEAWarning": true,
   "useCodeCache": false,
   "useSnapshot": false,

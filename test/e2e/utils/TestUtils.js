@@ -4,6 +4,13 @@ import { promisify } from 'util';
 import cp from 'child_process';
 import tmp from 'tmp'
 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const {
+  ensureFrodoBinary,
+  getTestBinaryPath,
+} = require('./FrodoBinary.cjs');
+
 const execRaw = promisify(cp.exec);
 // Node's child_process default maxBuffer (1MB) is too small for commands that
 // dump full object bodies (e.g. `journey describe` with no filter) against a
@@ -462,6 +469,11 @@ async function getAllFiles(dir, base) {
  */
 export function getEnv(connection = undefined, options = {}) {
   const { preserveProfilePaths = false } = options;
+  // The e2e suites shell out to bare `frodo ...` - make that resolve to THIS
+  // checkout's SEA binary (built on demand), never a globally installed one.
+  // Prepending dist-sea to PATH is how the bare command strings in the 260
+  // test files stay untouched while pinning the binary (see FrodoBinary.cjs).
+  ensureFrodoBinary();
   const isRecording = process.env['FRODO_MOCK'] === 'record';
   const requestedProfile =
     process.env['FRODO_CONNECTION'] || (isRecording ? (connection?.profile || connection?.host) : connection?.profile);
@@ -474,6 +486,8 @@ export function getEnv(connection = undefined, options = {}) {
     ...baseEnv
   } = process.env;
 
+  // Pin the binary: dist-sea first on PATH (see getEnv comment above).
+  const pinnedPath = getTestBinaryPath();
   // Profile store + master key. Unset, the CLI falls back to the developer's
   // real ~/.frodo/Connections.json (and its master key), so a replay run could
   // silently read -- or a test could write to -- live profiles. So: when
@@ -501,6 +515,7 @@ export function getEnv(connection = undefined, options = {}) {
   return {
     env: {
       ...baseEnv,
+      PATH: pinnedPath,
       ...pathOverrides,
       ...(isRecording && requestedProfile && {
         FRODO_CONNECTION: requestedProfile,

@@ -21,7 +21,7 @@
     "devops"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=26"
   },
   "repository": {
     "type": "git",
