@@ -2,6 +2,10 @@
 
 The Frodo CLI project uses an automated release pipeline defined in [../.github/workflows/pipeline.yml](../.github/workflows/pipeline.yml).
 
+For the tools underneath the pipeline — bundler, binary packaging (pkg /
+native SEA), macOS signing and notarization, Dependabot auto-merge, and the
+maintenance history of the build environment — see [BUILD-ENV.md](BUILD-ENV.md).
+
 ![Frodo Release Pipeline Workflow](images/release_pipeline.png)
 
 ## Release Model

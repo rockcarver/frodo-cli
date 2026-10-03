@@ -864,4 +864,4 @@ If you would like to contribute to frodo, please refer to the [contributing inst
 
 ## Maintaining
 
-If you are a maintainer of this repository, please refer to the [pipeline and release process instructions](../docs/PIPELINE.md).
+If you are a maintainer of this repository, please refer to the [pipeline and release process instructions](../docs/PIPELINE.md) and the [build environment documentation](../docs/BUILD-ENV.md) (toolchain, packaging, signing, dependency automation).

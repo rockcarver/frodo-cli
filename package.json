@@ -31,6 +31,18 @@
     "url": "https://github.com/rockcarver/frodo-cli/issues"
   },
   "main": "dist/launch.cjs",
+  "files": [
+    "dist/app.cjs",
+    "dist/app.cjs.map",
+    "dist/launch.cjs",
+    "dist/launch.cjs.map",
+    "dist/loader.cjs",
+    "dist/loader.cjs.map",
+    "dist/rolldown-runtime-*.cjs",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "test": "npm run test:only",
     "test:only": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent",
