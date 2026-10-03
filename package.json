@@ -148,7 +148,7 @@
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
     "fs-extra": "^11.1.1",
     "jest": "30.5.2",
     "log-update": "^4.0.0",
