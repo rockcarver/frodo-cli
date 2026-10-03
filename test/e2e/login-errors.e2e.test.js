@@ -18,6 +18,10 @@ import { promisify } from 'util';
 import path from 'path';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { connection as c } from './utils/TestConfig';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { ensureFrodoBinary, getTestBinaryPath } = require('./utils/FrodoBinary.cjs');
 
 const exec = promisify(cp.exec);
 
@@ -26,8 +30,13 @@ const connectionProfilesPath = path.join(TMP_DIR, 'Connections.json');
 const masterKeyPath = path.join(TMP_DIR, 'masterkey.key');
 const tokenCachePath = path.join(TMP_DIR, 'TokenCache.json');
 
+// This suite builds its own env (no mocks involved), but still pins `frodo`
+// to this checkout's SEA binary: CI no longer installs frodo globally.
+ensureFrodoBinary();
+
 const env = {
   ...process.env,
+  PATH: getTestBinaryPath(),
   FRODO_CONNECTION_PROFILES_PATH: connectionProfilesPath,
   FRODO_MASTER_KEY_PATH: masterKeyPath,
   FRODO_TOKEN_CACHE_PATH: tokenCachePath,
