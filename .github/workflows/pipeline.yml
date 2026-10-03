@@ -31,6 +31,9 @@ on:
 
 env:
   NODE_VERSION: 24
+  # Native SEA builds embed the runtime binary, which must be Node >= 25.5
+  # (--build-sea). Binary jobs install this version explicitly.
+  SEA_NODE_VERSION: 26
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
@@ -482,10 +485,15 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
 
   macos-intel-binary-release:
+    # Cross-builds the x64 binary on the arm64 runner via the SEA
+    # `executable` field (the macos-15-intel runner retires Aug 2027, and
+    # nodejs/node#65479 makes --build-sea unusable on x64 *hosts* - the
+    # arm64-host/x64-target path is unaffected). Smoke-tested under
+    # Rosetta below.
     # don't run on PRs, since secrets are not available
     if: github.event_name == 'workflow_dispatch'
     needs: [build, test]
-    runs-on: macos-15-intel
+    runs-on: macos-15
     timeout-minutes: 15
     steps:
       - name: Install the Apple certificate
@@ -520,29 +528,60 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          # node --build-sea needs >= 25.5; 26 is current. The build itself
+          # runs on arm64; the x64 runtime binary is fetched separately.
+          node-version: ${{ env.SEA_NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run dist-pkg
+      - name: Build SEA bundle
+        run: npm run build:sea-bundle
 
+      # Cross-build: point the SEA config's `executable` at the official
+      # darwin-x64 Node binary (same Node version as the blob producer).
+      # useCodeCache/useSnapshot are false in sea-config.json, as required
+      # for cross-architecture builds.
+      - name: Download darwin-x64 Node runtime
+        run: |
+          NODE_SEA_VERSION=$(node -p process.versions.node)
+          curl -sSfL -o /tmp/node-darwin-x64.tar.gz \
+            "https://nodejs.org/dist/v${NODE_SEA_VERSION}/node-v${NODE_SEA_VERSION}-darwin-x64.tar.gz"
+          mkdir -p build-sea-runtime
+          tar xf /tmp/node-darwin-x64.tar.gz -C build-sea-runtime --strip-components=2 \
+            "node-v${NODE_SEA_VERSION}-darwin-x64/bin/node"
+
+      - name: Build SEA binary (darwin-x64 target)
+        run: |
+          node -e "
+            const cfg = require('./sea-config.json');
+            cfg.executable = 'build-sea-runtime/node';
+            cfg.output = 'frodo';
+            require('fs').writeFileSync('sea-config.build.json', JSON.stringify(cfg, null, 2));
+          "
+          node --build-sea sea-config.build.json
+
+      # --build-sea output is UNSIGNED (the injector strips the base Node
+      # signature and does not re-sign). Sign with Developer ID before the
+      # Rosetta smoke test; sign strictly LAST: any byte change after this
+      # invalidates the signature.
       - name: Sign distribution binary
         run: |
           cat > entitlements.plist <<DELIM
           <dict>
-            <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+            <key>com.apple.security.cs.allow-jit</key>
             <true/>
           </dict>
           DELIM
-          codesign -f -s 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp --deep frodo
+          codesign --force --sign 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp frodo
+          codesign --verify --strict --verbose=2 frodo
 
       #
-      # Fail early on failing tests.
+      # Fail early on failing tests. The x64 binary runs under Rosetta 2
+      # on this arm64 runner (preinstalled on GitHub macOS images).
       #
-      - name: 'Test'
+      - name: 'Test (under Rosetta)'
         run: |
           ./frodo -v
           ./frodo journey -h
@@ -598,24 +637,30 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          # node --build-sea needs >= 25.5; 26 is current.
+          node-version: ${{ env.SEA_NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run dist-pkg
+      - name: Build SEA binary
+        run: npm run build:binary
 
+      # --build-sea output is UNSIGNED (the injector strips the base Node
+      # signature and does not re-sign). Unsigned arm64 binaries are killed
+      # by the kernel (SIGKILL), so sign immediately. Sign strictly LAST:
+      # any byte change after this invalidates the signature.
       - name: Sign distribution binary
         run: |
           cat > entitlements.plist <<DELIM
           <dict>
-            <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+            <key>com.apple.security.cs.allow-jit</key>
             <true/>
           </dict>
           DELIM
-          codesign -f -s 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp --deep frodo
+          codesign --force --sign 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp frodo
+          codesign --verify --strict --verbose=2 frodo
 
       #
       # Fail early on failing tests.
@@ -648,14 +693,15 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          # node --build-sea needs >= 25.5; 26 is current.
+          node-version: ${{ env.SEA_NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run dist-pkg
+      - name: Build SEA binary
+        run: npm run build:binary
 
       #
       # Fail early on failing tests.
@@ -675,6 +721,8 @@ jobs:
           path: frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip
 
   linux-arm64-binary-release:
+    # Native arm64 runner (not a container) - SEA binaries need a full
+    # glibc userland; alpine is not a supported SEA platform.
     # don't run on PRs to speed up the checks
     if: github.event_name == 'workflow_dispatch'
     needs: [build, test]
@@ -686,14 +734,15 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          # node --build-sea needs >= 25.5; 26 is current.
+          node-version: ${{ env.SEA_NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run dist-pkg
+      - name: Build SEA binary
+        run: npm run build:binary
 
       #
       # Fail early on failing tests.
@@ -724,14 +773,20 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          # node --build-sea needs >= 25.5; 26 is current.
+          node-version: ${{ env.SEA_NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run dist-pkg
+      - name: Build SEA binary
+        shell: pwsh
+        run: |
+          npm run build:sea-bundle
+          # sea-config.json writes "frodo"; the Windows artifact is frodo.exe
+          # (Version.ts binary detection keys on the executable's basename).
+          Copy-Item frodo frodo.exe
 
       #
       # Fail early on failing tests.
