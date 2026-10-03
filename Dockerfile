@@ -2,7 +2,7 @@
 #
 # Multi-stage build:
 #   1. build  — installs the full toolchain and runs `npm run build:only`
-#               (tsup + tsc), producing the self-contained dist/ bundle.
+#               (tsdown), producing the self-contained dist/ bundle.
 #   2. runtime — node:24-slim + dist/ only. The bundle was verified to have
 #                zero runtime node_modules dependencies (every dependency is
 #                compiled into dist/*.cjs), so the runtime image needs no
@@ -17,11 +17,11 @@ WORKDIR /build
 
 # Copy the manifests first: a source change that does not touch dependencies
 # reuses the cached npm ci layer.
-COPY package.json package-lock.json tsup.config.ts tsconfig.json ./
+COPY package.json package-lock.json tsdown.config.ts tsconfig.json ./
 RUN npm ci --include=dev
 
 # Now the sources (tsconfig compiles the whole src tree; help data and
-# templates are bundled into dist by tsup).
+# templates are bundled into dist by tsdown).
 COPY src ./src
 COPY package.json ./
 RUN npm run build:only
