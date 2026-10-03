@@ -51,11 +51,11 @@
     "lint:fix": "eslint --cache --cache-location .eslintcache --fix \"src/**/*.ts\"",
     "lint:fix:ci": "eslint --no-cache --fix \"src/**/*.ts\"",
     "build": "npm run build:binary",
-    "build:only": "npx tsup && npx tsc",
+    "build:only": "npx tsdown && npx tsc",
     "build:binary": "npm run build:only && npm run dist-pkg",
     "dist-pkg": "pkg -C Gzip -t node24 --config package.json -o frodo dist/app.cjs",
     "link": "npm link ../frodo-lib",
-    "dev": "npx tsup --watch src"
+    "dev": "npx tsdown --watch src"
   },
   "jest": {
     "testTimeout": 120000,
@@ -166,7 +166,7 @@
     "tinyrainbow": "^3.0.3",
     "tmp": "^0.2.3",
     "ts-jest": "^29.1.4",
-    "tsup": "^8.1.0",
+    "tsdown": "0.23.0",
     "typescript": "^5.2.2",
     "uuid": "^11.1.0",
     "winston": "^3.19.0",
