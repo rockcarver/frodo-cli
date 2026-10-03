@@ -34,7 +34,7 @@ jobs:
 
       - name: Enable auto-merge for minor and patch updates
         if: >-
-          contains(fromJSON('["semver-patch", "semver-minor"]'), steps.metadata.outputs.update-type) &&
+          contains(fromJSON('["version-update:semver-patch", "version-update:semver-minor"]'), steps.metadata.outputs.update-type) &&
           !contains(steps.metadata.outputs.dependency-names, 'prettier') &&
           !contains(steps.metadata.outputs.dependency-names, 'typescript') &&
           !contains(steps.metadata.outputs.dependency-names, 'eslint')
