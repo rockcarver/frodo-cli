@@ -9,7 +9,7 @@ The library repo ([frodo-lib](https://github.com/rockcarver/frodo-lib)) shares
 most of this toolchain and keeps its own copy of this document
 (`BUILD-ENV.md` there) for the pieces that differ.
 
-_Last updated: 2026-10-03 (tooling modernization, phases 0-6)._
+_Last updated: 2026-10-03 (tooling modernization)._
 
 ---
 
@@ -23,9 +23,9 @@ TypeScript sources (src/)
   ├─ tsdown (rolldown) .... bundle src/{app,launch,loader}.ts -> dist/*.cjs
   ├─ tsc .................. type check gate (no emit)
   │
-  ├─ @yao-pkg/pkg ......... dist/app.cjs -> single binaries (5 platforms)   [Phase 7 replaces with native SEA]
+  ├─ node --build-sea ..... dist-sea/app.cjs + Node 26 -> single binaries (5 platforms)
   │
-  └─ eslint + prettier .... lint & format (currently ESLint 8/9 configs; Phase 5 migrates to 10 + Prettier-owns-imports)
+  └─ eslint + prettier .... lint & format (currently ESLint 8/9 configs; a planned migration will move to ESLint 10 with Prettier owning import order)
 
 Release automation:
   ├─ dependabot.yml ....... weekly grouped dependency PRs
@@ -68,7 +68,7 @@ loaded, then threw `SyntaxError: Unexpected token ','`. The workaround
 - **Code splitting stays on** → `dist/app.cjs` requires the sibling
   `dist/rolldown-runtime-*.cjs` chunk. The chunk hash changes every build;
   the npm `files` allowlist therefore uses a `dist/rolldown-runtime-*.cjs`
-  glob. Phase 7's SEA config turns splitting **off** (single file).
+  glob. The SEA build config turns splitting **off** (single file).
 - `shims: true` is required — `src/launch.ts` uses `import.meta.url`, which
   does not exist in CJS; tsdown shims it.
 - `deps.neverBundle` lists every devDependency. tsdown (like tsup before it)
@@ -105,7 +105,7 @@ import both expose all 62 exports).
 - HTTP traffic is mocked with the Polly.js stack (`@pollyjs/*` +
   `setup-polly-jest` + cassettes under `test/`). Record new cassettes with
   `test:record:cloud`. NOTE (2026-10): the Polly stack is unmaintained (last
-  release 2023); migration to nock is planned (Phase 4d) but is no longer
+  release 2023); migration to nock is planned but is no longer
   security-driven — the `qs` advisory that motivated it is closed (Polly's
   tree now resolves patched `qs@6.16.0`).
 - Two stale assertions in `src/mcp/server/mcp-server.test.js` fail on `main`
@@ -115,7 +115,7 @@ import both expose all 62 exports).
 
 ---
 
-## 5. Lint and format (today, and the Phase 5 plan)
+## 5. Lint and format (today, and where we are taking it)
 
 **Today**: ESLint 8.57 flat config via `FlatCompat` (`eslint.config.mjs`),
 plugins: `@typescript-eslint`, `prettier` (as a lint rule — slow, ~38 s),
@@ -125,7 +125,7 @@ but `lint:fix` cannot always fix them — the sorter (`simple-import-sort`) and
 Prettier disagree, and the fix must be applied by the editor's
 "organize imports" action.
 
-**Phase 5 (planned)**: ESLint 10 native flat config, `eslint-plugin-import-x`,
+**Planned migration**: ESLint 10 native flat config, `eslint-plugin-import-x`,
 **Prettier owns import order** via `@ianvs/prettier-plugin-sort-imports`
 (the lib's `.prettierrc` already declares its `importOrder`), drop
 `eslint-plugin-prettier` and the redundant sorters, scripts become
@@ -136,44 +136,58 @@ the migration PR.
 
 ---
 
-## 6. Binary packaging: pkg today, native SEA next (Phase 7)
+## 6. Binary packaging: native Node.js SEA (since 2026-10)
 
-**Today**: `npm run build:binary` = tsdown build + `pkg -C Gzip -t node24
---config package.json -o frodo dist/app.cjs`. The `pkg` block in
-`package.json` lists `_scripts`/`_assets`; the templates are bundled into
-`dist/app.cjs` by tsdown, so the asset list is belt-and-suspenders.
-Five release binaries: linux-x64, linux-arm64, macos-intel, macos-arm64,
-windows-x64. Homebrew formulas install prebuilt release binaries.
+`npm run build:binary` = tsdown dist build + SEA build. (`npm run build` /
+`build:only` build the npm bundle only — no binary, no Node 26 requirement;
+the CI Build job runs that one. `--build-sea` needs Node ≥ 25.5, so only the
+binary jobs and `build:binary`/`build:sea` need Node 26.)
 
-**Phase 7 (spiked 2026-10, ready to implement)**: native Node.js SEA via
-`node --build-sea` (needs Node ≥ 25.5; we use 26):
+1. `build:only` — the normal `dist/` bundle (npm package entry points).
+2. `build:sea-bundle` — `tsdown --config tsdown.sea.config.mts`: single entry
+   (`src/app.ts`), `outputOptions: { codeSplitting: false }` → one
+   self-contained `dist-sea/app.cjs` (~10 MB).
+3. `node --build-sea sea-config.json` → the `frodo` binary (Node ≥ 25.5;
+   binary jobs use Node 26 via `SEA_NODE_VERSION`).
 
-- Single-entry tsdown config, `outputOptions: { codeSplitting: false }` →
-  one self-contained `app.cjs`.
-- `sea-config.json`: `execArgv: ["--no-warnings"]` (silences Node 26's
-  spurious `localStorage` ExperimentalWarning), `execArgvExtension: "none"`
-  (user flags like `--inspect` reach the app, not Node), `useCodeCache: false`,
-  `useSnapshot: false` (required for cross-builds).
-- All five targets cross-build from one arm64 macOS runner via the
-  `executable` field pointing at official per-target Node 26 binaries;
-  macos-intel verified under Rosetta. Upstream caveat: `--build-sea` is
-  broken on macOS **x64 hosts** (nodejs/node#65479, open) — does not affect
-  our arm64-host/x64-target path.
-- **macOS signing (mandatory, sign LAST)**: `--build-sea` output is unsigned
-  (the injector strips the signature); unsigned arm64 binaries are SIGKILLed
-  (rc=137) and quarantined ones get the "Apple could not verify" dialog.
-  Sign with Developer ID + `--options runtime --timestamp` +
-  entitlements `com.apple.security.cs.allow-jit` **only** (no entitlements at
-  all = V8 CodeRange fatal; `allow-unsigned-executable-memory` works but is
-  the broader legacy exception). Then `ditto` zip + `notarytool submit
-  --wait` (zips cannot be stapled).
-- Linux SEAs need `libatomic1` (present in debian:stable-slim; alpine is not
-  a supported SEA platform).
-- Size: zipped SEA ~44 MB vs zipped pkg ~30 MB (+14 MB); uncompressed ~148 MB
-  vs ~74 MB. Accepted.
-- Full signed-and-notarized flow: see `SEA-SIGNING-SPEC.md` in the
-  frodo tooling workspace; CI keeps a Rosetta smoke test for the intel
-  artifact.
+**sea-config.json**: `execArgv: ["--no-warnings"]` silences Node 26's
+spurious `localStorage` ExperimentalWarning; `execArgvExtension: "none"`
+makes user flags (`--inspect`, `--node-options`) reach the app, not Node;
+`useCodeCache: false` + `useSnapshot: false` (required for cross-builds);
+`output: "frodo"` (the Windows job copies it to `frodo.exe` — Version.ts
+binary detection keys on `basename(process.execPath)` being `frodo`/
+`frodo.exe`).
+
+**The five targets** (same artifact names as the pkg era):
+
+| Target | Runner | How |
+|---|---|---|
+| linux-x64 | ubuntu-24.04 | native (`--build-sea` with its own Node 26) |
+| linux-arm64 | ubuntu-24.04-arm | native, not a container (SEA needs glibc; alpine unsupported) |
+| macos-arm64 | macos-15 | native |
+| macos-intel | macos-15 (arm64) | **cross-build**: downloads the official darwin-x64 Node binary, points `executable` at it; smoke-tested under Rosetta on the runner. Retires `macos-15-intel` (EOL Aug 2027). Upstream caveat: `--build-sea` is broken on macOS x64 *hosts* (nodejs/node#65479, open) — our arm64-host/x64-target path is unaffected. |
+| windows-x64 | windows-2022 | native; copy `frodo` → `frodo.exe`; unsigned (as in the pkg era) |
+
+**macOS signing (mandatory, sign LAST)**: `--build-sea` output is **unsigned**
+(the injector strips the base Node signature and does not re-sign — verified
+in node src/node_sea_bin.cc). Unsigned arm64 binaries are SIGKILLed (rc=137);
+quarantined ones get the "Apple could not verify" dialog. The pipeline signs
+immediately after the build: Developer ID + `--options runtime --timestamp`
++ entitlements `com.apple.security.cs.allow-jit` **only** (no entitlements at
+all = V8 "Failed to reserve virtual memory for CodeRange" fatal under the
+hardened runtime; `allow-unsigned-executable-memory` also works but is the
+broader legacy exception Electron dropped). Then `codesign --verify
+--strict`, `ditto -c -k` zip, `xcrun notarytool submit --wait` (zips cannot
+be stapled; Gatekeeper checks online). `cp` does NOT break a valid
+signature; re-signing does not clear the quarantine xattr.
+
+**Size**: zipped SEA ~44 MB vs zipped pkg ~30 MB (+14 MB); uncompressed
+~148 MB vs ~74 MB. Accepted (users download zips).
+
+**Removed with the migration**: `@yao-pkg/pkg`, the `pkg` config block in
+`package.json`, the `dist-pkg` script. The `files` allowlist's
+`dist/rolldown-runtime-*.cjs` glob is unaffected (the runtime chunk only
+exists in the npm `dist/` build, not the single-file SEA bundle).
 
 ---
 
@@ -239,7 +253,7 @@ updated from the stale `tsup.config.ts` reference when the allowlist
 landed); stage 2 copies only `dist/` and runs `node dist/launch.cjs`
 (signal-forwarding wrapper → graceful MCP shutdown on `docker stop`).
 The image does not use the release binaries and is unaffected by the
-pkg→SEA migration.
+pkg→SEA migration (it builds `dist/` from source).
 
 ---
 
@@ -257,5 +271,6 @@ pkg→SEA migration.
 | 2026-10-03 | Branch protection rulesets active; admin bypass via repository role | (repo settings) |
 | 2026-10-03 | Dependabot auto-merge workflow | #731 |
 | 2026-10-03 | TypeScript aligned to ^5.9.3 | #732 |
-| 2026-10-03 | npm `files` allowlist; Dockerfile tsup→tsdown fix | this PR |
-| planned | ESLint 10 + Prettier-owns-imports (Phase 5); pkg→SEA (Phase 7); Polly→nock (Phase 4d) | — |
+| 2026-10-03 | npm `files` allowlist; Dockerfile tsup→tsdown fix | #733 |
+| 2026-10-03 | pkg → native Node.js SEA (all 5 targets; macos-intel cross-built on arm64; sign+jit entitlements+notarize; `@yao-pkg/pkg` removed) | this PR |
+| planned | ESLint 10 + Prettier-owns-imports; Polly→nock + remaining unmaintained deps | — |

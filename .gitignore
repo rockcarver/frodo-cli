@@ -147,3 +147,4 @@ temp
 
 # Claude Code personal settings
 .claude/settings.local.json
+dist-sea/

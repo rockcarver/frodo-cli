@@ -37,15 +37,17 @@ configuration details, binary packaging and signing — see
 
 #### Build and create platform binary
 
-The following command builds the CLI and creates the binary for your platform:
+The following command builds the CLI and creates a native SEA binary for
+your platform (requires Node.js >= 25.5):
 
 ```console
-npm run build
+npm run build:binary
 ```
 
 #### Build only, don't create platform binary
 
-The following commands builds the CLI but does not create a binary:
+The following command builds the CLI but does not create a binary (`npm run
+build` is an alias for it):
 
 ```console
 npm run build:only

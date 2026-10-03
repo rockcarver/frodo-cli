@@ -62,10 +62,11 @@
     "lint": "eslint --cache --cache-location .eslintcache \"src/**/*.ts\"",
     "lint:fix": "eslint --cache --cache-location .eslintcache --fix \"src/**/*.ts\"",
     "lint:fix:ci": "eslint --no-cache --fix \"src/**/*.ts\"",
-    "build": "npm run build:binary",
+    "build": "npm run build:only",
     "build:only": "npx tsdown && npx tsc",
-    "build:binary": "npm run build:only && npm run dist-pkg",
-    "dist-pkg": "pkg -C Gzip -t node24 --config package.json -o frodo dist/app.cjs",
+    "build:binary": "npm run build:only && npm run build:sea",
+    "build:sea": "npm run build:sea-bundle && node --build-sea sea-config.json",
+    "build:sea-bundle": "npx tsdown --config tsdown.sea.config.mts",
     "link": "npm link ../frodo-lib",
     "dev": "npx tsdown --watch src"
   },
@@ -117,21 +118,6 @@
   "bin": {
     "frodo": "dist/launch.cjs"
   },
-  "pkg": {
-    "_assets": [
-      "package.json",
-      "cjs/ops/templates/*.json",
-      "cjs/ops/templates/**/*.json",
-      "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/*.json",
-      "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json"
-    ],
-    "_scripts": [
-      "cjs/cli/**/*.js",
-      "cjs/ops/**/*.js",
-      "cjs/storage/**/*.js",
-      "cjs/utils/**/*.js"
-    ]
-  },
   "devDependencies": {
     "@inquirer/core": "^12.0.1",
     "@inquirer/select": "^5.2.3",
@@ -145,7 +131,6 @@
     "@types/node": "^25.3.0",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
-    "@yao-pkg/pkg": "^6.12.0",
     "chokidar": "^4.0.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
