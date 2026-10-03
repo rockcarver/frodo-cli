@@ -1,5 +1,4 @@
 import { listMcpProfiles } from '@rockcarver/frodo-lib';
-
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
 import { FrodoStubCommand } from '../../FrodoCommand';

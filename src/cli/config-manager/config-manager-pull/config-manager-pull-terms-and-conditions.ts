@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { configManagerExportTermsAndConditions } from '../../../configManagerOps/FrConfigTermsAndConditionsOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';

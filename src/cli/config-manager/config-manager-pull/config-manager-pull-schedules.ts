@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { configManagerExportSchedules } from '../../../configManagerOps/FrConfigSchedulesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';

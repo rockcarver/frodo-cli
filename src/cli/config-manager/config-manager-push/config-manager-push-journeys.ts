@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { configManagerImportJourneys } from '../../../configManagerOps/FrConfigJourneysOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';

@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { printError, printMessage } from '../../utils/Console';
 import { FrodoCommand, hostArgument } from '../FrodoCommand';
 

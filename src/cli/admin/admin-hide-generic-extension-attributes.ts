@@ -1,6 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { hideGenericExtensionAttributes } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';

@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import {
   exportAgentsToFile,
   exportAgentsToFiles,

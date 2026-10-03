@@ -1,6 +1,5 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteJourney, deleteJourneys } from '../../ops/JourneyOps';
 import { printMessage, verboseMessage } from '../../utils/Console';

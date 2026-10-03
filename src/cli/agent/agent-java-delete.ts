@@ -1,6 +1,5 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { deleteJavaAgent, deleteJavaAgents } from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console.js';

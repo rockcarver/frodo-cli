@@ -44,13 +44,16 @@ export type McpClaimMappingConfig = {
  * @throws when the file is missing, isn't valid JSON, or doesn't match the
  * expected shape (fail fast at startup, not on the first request).
  */
-export function loadClaimMappingConfig(filePath: string): McpClaimMappingConfig {
+export function loadClaimMappingConfig(
+  filePath: string
+): McpClaimMappingConfig {
   let raw: unknown;
   try {
     raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (error) {
     throw new Error(
-      `Failed to read or parse claim-mapping config '${filePath}': ${error instanceof Error ? error.message : String(error)}`
+      `Failed to read or parse claim-mapping config '${filePath}': ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error }
     );
   }
   if (

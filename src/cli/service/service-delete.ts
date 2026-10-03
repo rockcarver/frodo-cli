@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteService, deleteServices } from '../../ops/ServiceOps.js';
 import { FrodoCommand } from '../FrodoCommand';

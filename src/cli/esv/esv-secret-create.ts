@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { createSecret, createSecretFromFile } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
@@ -51,7 +50,7 @@ export default function setup() {
         );
         if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage('Creating secret...');
-          let outcome = null;
+          let outcome;
           if (options.value) {
             outcome = await createSecret(
               options.secretId,

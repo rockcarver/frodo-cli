@@ -1,6 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { ensureLogApiCredentials, tailLogs } from '../../ops/LogOps';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';

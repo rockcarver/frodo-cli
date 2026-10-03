@@ -1,8 +1,7 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ResourceTypesApi';
 import { type ResourceTypeExportInterface } from '@rockcarver/frodo-lib/types/ops/ResourceTypeOps';
-import fs from 'fs';
-
 import {
   createObjectTable,
   createProgressIndicator,

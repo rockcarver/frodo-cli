@@ -1,7 +1,6 @@
+import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import fs from 'fs';
-
 import * as s from '../../help/SampleData';
 import c from '../../utils/ColorTheme';
 import {

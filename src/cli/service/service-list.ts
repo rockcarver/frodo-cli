@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { listServices } from '../../ops/ServiceOps.js';
 import { verboseMessage } from '../../utils/Console.js';

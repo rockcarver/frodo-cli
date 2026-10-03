@@ -12,9 +12,8 @@ import {
   CallbackHandler,
 } from '@rockcarver/frodo-lib/types/ops/CallbackOps';
 import open from 'open';
-import { question } from '../utils/Prompt';
-
 import { printError, printMessage, verboseMessage } from '../utils/Console';
+import { question } from '../utils/Prompt';
 
 const { getTokens: _getTokens, getTokensInteractive: _getTokensInteractive } =
   frodo.login;

@@ -1,6 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { fetchLogs, provisionCreds } from '../../ops/LogOps';
 import * as config from '../../utils/Config';
@@ -139,8 +138,8 @@ export default function setup() {
       if (foundCredentials) {
         const now = Date.now() / 1000;
         const nowString = new Date(now * 1000).toISOString();
-        let beginTs = -1;
-        let endTs = -1;
+        let beginTs;
+        let endTs;
 
         if (
           (typeof options.beginTimestamp === 'undefined' ||

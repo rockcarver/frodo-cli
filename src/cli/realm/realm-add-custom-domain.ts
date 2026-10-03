@@ -1,6 +1,5 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { addCustomDomain } from '../../ops/RealmOps';
 import { verboseMessage } from '../../utils/Console';

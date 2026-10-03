@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { listCustomNodes } from '../../ops/NodeOps';
 import { verboseMessage } from '../../utils/Console';

@@ -4,7 +4,6 @@ import {
   type LogEventPayloadSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
 import type { LogTailStream } from '@rockcarver/frodo-lib/types/ops/cloud/LogOps';
-
 import {
   createTable,
   debugMessage,

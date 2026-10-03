@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describePolicySet } from '../../ops/PolicySetOps';
 import { verboseMessage } from '../../utils/Console.js';

@@ -73,7 +73,8 @@ ruleset's admin bypass; the GitHub Actions app cannot be a bypass actor.
   `vscheuber/version-bump-action@v1`; guards against duplicate tag/version
 - Updates manifests with `vscheuber/manifest-version-update-action@v1`
 - Runs the MCP SDK track check, the npm bundle build (`tsdown` + `tsc`),
-  lint, and a critical-level security audit
+  `npm run check` (ESLint 10 + Prettier, including import order — see
+  [BUILD-ENV.md](BUILD-ENV.md) §5), and a critical-level security audit
 - Uploads `package.json`, `package-lock.json` and `dist/` as the `build`
   artifact that every downstream job consumes
 

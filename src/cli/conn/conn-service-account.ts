@@ -18,13 +18,17 @@ export default function setup() {
   program.addCommand(
     ListCmd()
       .name('list')
-      .description('List the additional service accounts on a connection profile.')
+      .description(
+        'List the additional service accounts on a connection profile.'
+      )
   );
 
   program.addCommand(
     RemoveCmd()
       .name('remove')
-      .description('Remove an additional service account from a connection profile.')
+      .description(
+        'Remove an additional service account from a connection profile.'
+      )
   );
 
   program.addCommand(

@@ -82,13 +82,12 @@
  */
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { LogEventSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
-
 import {
   compactFailureReason,
-  type DebugLogPayload,
   decodeHtmlEntities,
   getAuditPayload,
   getDebugLogPayload,
+  type DebugLogPayload,
 } from './DebugLogOps';
 
 const { createLogTailStream } = frodo.cloud.log;
@@ -194,7 +193,11 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type JourneySessionStatus =
-  'running' | 'suspended' | 'finished' | 'failed' | 'abandoned';
+  | 'running'
+  | 'suspended'
+  | 'finished'
+  | 'failed'
+  | 'abandoned';
 
 /**
  * One entry in a session's event history, kept structured (not a

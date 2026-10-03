@@ -1,10 +1,9 @@
 import { createMcpService } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
 import { FrodoStubCommand } from '../../FrodoCommand';
-import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
+import { resolvePolicySelection, type McpPolicyPreset } from './server-policy';
 
 type McpProfileName =
   | 'all'

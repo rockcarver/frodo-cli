@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type PolicySkeleton } from '@rockcarver/frodo-lib/types/api/PoliciesApi';
 import type {
@@ -5,8 +6,6 @@ import type {
   PolicyExportOptions,
   PolicyImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/PolicyOps';
-import fs from 'fs';
-
 import c from '../utils/ColorTheme';
 import {
   createObjectTable,

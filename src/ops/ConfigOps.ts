@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { WorkflowExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/iga/IgaWorkflowOps';
@@ -14,8 +15,6 @@ import {
 } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import { CustomNodeExportInterface } from '@rockcarver/frodo-lib/types/ops/NodeOps';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
-import fs from 'fs';
-
 import {
   getConfig,
   getFullExportConfig,
@@ -129,7 +128,7 @@ export async function exportEverythingToFiles(
     );
     delete exportData.meta;
     const baseDirectory = getWorkingDirectory(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     Object.entries(exportData.global).forEach(([type, obj]: [string, any]) =>
       exportItem(
         exportData.global,
@@ -212,7 +211,7 @@ export function exportItem(
       if (!fs.existsSync(`${baseDirectory}/cot`)) {
         fs.mkdirSync(`${baseDirectory}/cot`);
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       Object.entries(obj.cot).forEach(([id, value]: [string, any]) => {
         samlData.saml.cot = {
           [id]: value,
@@ -229,7 +228,7 @@ export function exportItem(
     }
     Object.entries(obj.hosted)
       .concat(Object.entries(obj.remote))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       .forEach(([id, value]: [string, any]) => {
         const filename = getTypedFilename(
           value.entityId ? value.entityId : id,
@@ -291,7 +290,6 @@ export function exportItem(
       );
     }
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Object.entries(obj).forEach(([id, value]: [string, any]) => {
       if (type === 'idm') {
         if (value != null) {

@@ -1,8 +1,7 @@
-import { frodo, FrodoError } from '@rockcarver/frodo-lib';
-import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
 import fs from 'fs';
 import path from 'path';
-
+import { frodo, FrodoError } from '@rockcarver/frodo-lib';
+import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,
@@ -107,7 +106,7 @@ export function getTableRowMd(templateObj: EmailTemplateSkeleton): string {
 export async function listEmailTemplates(
   long: boolean = false
 ): Promise<boolean> {
-  let emailTemplates = [];
+  let emailTemplates;
   try {
     emailTemplates = await readEmailTemplates(true);
   } catch (error) {

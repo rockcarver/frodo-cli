@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { printMessage } from '../utils/Console';
 
 const { queryManagedObjects } = frodo.idm.managed;

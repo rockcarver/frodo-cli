@@ -2,8 +2,8 @@ import { errorMessage, successMessage } from '../../utils/Console';
 import {
   activatePersistedTheme,
   CONTRAST_TIERS,
-  type ContrastTier,
   setActiveContrast,
+  type ContrastTier,
 } from '../../utils/ThemeConfig';
 import { FrodoCommand } from '../FrodoCommand';
 

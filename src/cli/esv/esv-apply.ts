@@ -1,7 +1,6 @@
+import confirm from '@inquirer/confirm';
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import confirm from '@inquirer/confirm';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { createTable, printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
@@ -70,7 +69,7 @@ export default function setup() {
                 'secret',
                 secret['_id'],
                 new Date(secret['lastChangeDate']).toLocaleString(),
-                // eslint-disable-next-line no-await-in-loop
+
                 await resolveUserName('teammember', secret['lastChangedBy']),
               ]);
             }
@@ -81,7 +80,7 @@ export default function setup() {
                 'variable',
                 variable['_id'],
                 new Date(variable['lastChangeDate']).toLocaleString(),
-                // eslint-disable-next-line no-await-in-loop
+
                 await resolveUserName('teammember', variable['lastChangedBy']),
               ]);
             }

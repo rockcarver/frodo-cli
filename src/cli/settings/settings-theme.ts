@@ -5,16 +5,16 @@ import {
 } from '../../utils/interactive/EscapableSelectPrompt';
 import {
   activatePersistedTheme,
-  type Background,
   BACKGROUNDS,
   CONTRAST_TIERS,
-  type ContrastTier,
   detectAndPersistTheme,
   getActiveBackground,
   getActiveContrast,
   setActiveBackground,
   setActiveContrast,
   themeName,
+  type Background,
+  type ContrastTier,
 } from '../../utils/ThemeConfig';
 import { FrodoStubCommand } from '../FrodoCommand';
 import AutodetectCmd from './settings-theme-autodetect';
@@ -59,7 +59,6 @@ const AUTO_DETECT = Symbol('runInteractiveThemePicker:autoDetect');
  * very first attempt), `true` once both preferences have been applied.
  */
 export async function runInteractiveThemePicker(): Promise<boolean> {
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const currentBackground = getActiveBackground();
     const backgroundChoice = await escapableSelect<

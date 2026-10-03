@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { configManagerImportThemes } from '../../../configManagerOps/FrConfigThemeOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';

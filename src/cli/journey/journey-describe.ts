@@ -1,7 +1,6 @@
+import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import fs from 'fs';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
@@ -146,11 +145,9 @@ export default function setup() {
             `Describing journey(s) in realm "${state.getRealm()}"...`
           );
           if (typeof options.journeyId === 'undefined') {
-            let journeys = [];
-            journeys = await readJourneys();
+            const journeys = await readJourneys();
             for (const journey of journeys) {
               try {
-                // eslint-disable-next-line no-await-in-loop, dot-notation
                 // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
                 const multiTreeData = await exportJourney(journey['_id']);
                 const treeData = multiTreeData.trees[journey['_id']];

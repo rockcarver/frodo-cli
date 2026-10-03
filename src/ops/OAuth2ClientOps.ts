@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { Readable } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
@@ -5,8 +6,6 @@ import {
   type OAuth2ClientExportOptions,
   type OAuth2ClientImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
-import fs from 'fs';
-
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,
@@ -74,7 +73,8 @@ export async function listOAuth2Clients(long = false) {
       clients.forEach((client) => {
         const grantTypes = (
           client.advancedOAuth2ClientConfig.grantTypes as
-            Readable<string[]> | undefined
+            | Readable<string[]>
+            | undefined
         )?.map((type) => grantTypesMap[type] ?? type);
         table.push([
           client._id,

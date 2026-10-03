@@ -9,7 +9,6 @@ import {
   usePrefix,
   useState,
 } from '@inquirer/core';
-
 import c from '../ColorTheme';
 
 /**

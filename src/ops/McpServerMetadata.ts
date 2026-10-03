@@ -1,5 +1,4 @@
 import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/server';
-
 import packageJson from '../../package.json';
 import { getCliBuildTimestamp } from '../utils/Version';
 

@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { disableJourney } from '../../ops/JourneyOps';
 import { printMessage } from '../../utils/Console';

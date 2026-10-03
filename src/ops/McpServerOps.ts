@@ -21,13 +21,12 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 import {
   createServer,
-  type IncomingMessage,
   request as httpRequest,
+  type IncomingMessage,
   type ServerResponse,
 } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { isIP } from 'node:net';
-
 import {
   hostHeaderValidation,
   localhostOriginValidation,
@@ -35,39 +34,38 @@ import {
   toWebRequest,
 } from '@modelcontextprotocol/node';
 import {
-  type AuthInfo,
   bearerAuthChallengeResponse,
   getOAuthProtectedResourceMetadataUrl,
   localhostAllowedHostnames,
   McpServer,
   OAuthError,
   OAuthErrorCode,
-  type OAuthMetadata,
   oauthMetadataResponse,
-  type OAuthTokenVerifier,
   PROTOCOL_VERSION_META_KEY,
   ToolAnnotations,
   UnsupportedProtocolVersionError,
   validateHostHeader,
   verifyBearerToken,
+  type AuthInfo,
+  type OAuthMetadata,
+  type OAuthTokenVerifier,
 } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import {
   frodo,
   getRealmFromContext,
+  resolveRequestScopedFrodo,
+  state,
   type McpRuntimeRequestContext,
   type McpService,
   type McpToolRuntimeTraceHandler,
-  resolveRequestScopedFrodo,
-  state,
 } from '@rockcarver/frodo-lib';
 import { z } from 'zod';
-
 import { printMessage } from '../utils/Console.js';
 import { getUseDeviceFlow } from './AuthenticateOps.js';
 import {
-  type McpClaimMappingConfig,
   resolveServiceAccountForClaims,
+  type McpClaimMappingConfig,
 } from './McpClaimMapping.js';
 import { McpLogger, type McpProtocolLogLevel } from './McpLogger.js';
 import {
@@ -2477,7 +2475,8 @@ async function handleHttpRequest(
     const protocolVersionError = getUnsupportedProtocolVersionError(req, body);
     if (protocolVersionError) {
       const errorData = protocolVersionError.error.data as
-        { requested?: string } | undefined;
+        | { requested?: string }
+        | undefined;
       debug?.(
         `rejected: unsupported protocol version ${errorData?.requested ?? '(unnamed)'}`
       );

@@ -115,24 +115,40 @@ import both expose all 62 exports).
 
 ---
 
-## 5. Lint and format (today, and where we are taking it)
+## 5. Lint and format (since 2026-10)
 
-**Today**: ESLint 8.57 flat config via `FlatCompat` (`eslint.config.mjs`),
-plugins: `@typescript-eslint`, `prettier` (as a lint rule — slow, ~38 s),
-`jest`, `simple-import-sort`, `import`. Prettier 3.8 with a plain config
-(no import sorting plugin). Known pain: import-order errors are flagged in CI
-but `lint:fix` cannot always fix them — the sorter (`simple-import-sort`) and
-Prettier disagree, and the fix must be applied by the editor's
-"organize imports" action.
+**ESLint 10** with native flat config in `eslint.config.mjs`
+(`typescript-eslint` 8.x, no `FlatCompat` — 10 has no compat layer).
+Plugins: `@typescript-eslint` (type-checked rules on `src/**/*.ts` via
+`parserOptions.project`), `eslint-plugin-import-x` (successor of the
+unmaintained `eslint-plugin-import`). `@eslint/js` recommended as the base.
 
-**Planned migration**: ESLint 10 native flat config, `eslint-plugin-import-x`,
-**Prettier owns import order** via `@ianvs/prettier-plugin-sort-imports`
-(the lib's `.prettierrc` already declares its `importOrder`), drop
-`eslint-plugin-prettier` and the redundant sorters, scripts become
-`fix = eslint --fix && prettier --write` (prettier last) and
-`check = eslint && prettier --check`. One reformat commit recorded in
-`.git-blame-ignore-revs`. ESLint 10's new findings (~51 in CLI) get fixed in
-the migration PR.
+**Prettier owns import order.** `@ianvs/prettier-plugin-sort-imports` runs as
+a Prettier plugin (`plugins` in `.prettierrc`), with
+`importOrder: ["^node:", "<BUILTIN_MODULES>", "<THIRD_PARTY_MODULES>", "^[./]"]`.
+ESLint no longer checks import order (`import-x/first` and
+`import-x/no-duplicates` are the only import rules) — the sorter and the
+linter can no longer disagree. Note: in plugin ≥4.7 the old
+`importOrderSeparation` / `importOrderSortSpecifiers` options no longer exist;
+group separation and specifier sorting are always on.
+
+**Removed plugins**: `eslint-plugin-prettier` (running Prettier as an ESLint
+rule made lint slow and turned formatting errors into lint errors),
+`eslint-plugin-simple-import-sort`, `eslint-plugin-jest`,
+`eslint-plugin-jsx-a11y`, `eslint-plugin-import`.
+
+**Scripts**: `npm run fix` = `eslint --fix && prettier --write "src/**/*.ts"`
+(prettier last, so it wins), `npm run check` = `eslint && prettier --check`,
+and `lint` / `lint:fix` alias them. CI runs `npm run check`.
+
+**ESLint 10 findings fixed in the migration**: dead initializers on `let`
+declarations (`no-useless-assignment`, including two real shadowing bugs
+where an inner `const` hid an outer progress-indicator handle so an error
+handler could stop an undefined spinner), `preserve-caught-error` (rethrown
+errors now carry `{ cause }`), and empty catch blocks got comments.
+TypeScript `lib` was bumped to `ES2022` so the two-argument `Error(message,
+{ cause })` constructor type-checks (emit target stays ES2020; the CLI runs
+on Node ≥ 24 where `cause` is runtime-supported).
 
 ---
 
@@ -274,4 +290,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-10-03 | npm `files` allowlist; Dockerfile tsup→tsdown fix | #733 |
 | 2026-10-03 | pkg → native Node.js SEA (all 5 targets; macos-intel cross-built on arm64; sign+jit entitlements+notarize; `@yao-pkg/pkg` removed) | #734 |
 | 2026-10-03 | Remaining unmaintained CLI deps replaced: `yesno`→`@inquirer/confirm` (6 confirm-prompt sites; prompts now answer with Enter-as-default-false), `readline-sync`→native `fs.readSync` in `utils/Prompt.ts` (the MFA OTP handler needs a *synchronous* prompt — frodo-lib's `CallbackHandler` is sync), `deep-diff`→a local `mergeOver` helper in `FrConfigCspOps.ts` (deep-diff's exact `applyDiff`-minus-deletions semantics; frodo-lib's `mergeDeep` was evaluated and rejected — it cannot overwrite a scalar with an object and throws) | this PR |
-| planned | ESLint 10 + Prettier-owns-imports; Polly→nock (library repo) | — |
+| 2026-10-03 | ESLint 8→10 (native flat config), Prettier-owns-imports via `@ianvs/prettier-plugin-sort-imports`; `eslint-plugin-prettier`, `simple-import-sort`, `jest`, `jsx-a11y`, `import` plugins removed; scripts `fix`/`check`; ~40 dead initializers, 1 `preserve-caught-error`, 2 real shadowing bugs fixed; `tsconfig.lib` → `ES2022` for `Error(cause)` typing | this PR |
+| planned | Polly→nock (library repo) | — |

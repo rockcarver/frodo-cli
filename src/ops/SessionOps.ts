@@ -1,6 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { CachedSessionSummary } from '@rockcarver/frodo-lib/types/ops/TokenCacheOps';
-
 import c from '../utils/ColorTheme';
 import {
   createKeyValueTable,
@@ -140,7 +139,7 @@ async function describeSessionDetail(
       }
       if (token?.amCtxId) detail['AM Context ID'] = token.amCtxId;
     } catch {
-      // eslint-disable-next-line no-empty
+      // Ignore - session details are best-effort enrichment only.
     }
     return detail;
   }
@@ -171,7 +170,7 @@ async function describeSessionDetail(
       detail['Audit Tracking ID'] = token.tokenInfo.auditTrackingId;
     }
   } catch {
-    // eslint-disable-next-line no-empty
+    // Ignore - session details are best-effort enrichment only.
   }
   return detail;
 }

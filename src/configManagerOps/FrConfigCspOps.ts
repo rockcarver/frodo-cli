@@ -1,8 +1,7 @@
-import { frodo } from '@rockcarver/frodo-lib';
-import { ContentSecurityPolicy } from '@rockcarver/frodo-lib/types/api/cloud/EnvContentSecurityPolicyApi';
 import fs from 'fs';
 import { readFile } from 'fs/promises';
-
+import { frodo } from '@rockcarver/frodo-lib';
+import { ContentSecurityPolicy } from '@rockcarver/frodo-lib/types/api/cloud/EnvContentSecurityPolicyApi';
 import { printError } from '../utils/Console';
 
 const { env } = frodo.cloud;
@@ -48,9 +47,7 @@ function mergeOver(
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return (
-    typeof value === 'object' && value !== null && !Array.isArray(value)
-  );
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**

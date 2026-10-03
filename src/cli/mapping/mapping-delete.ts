@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteMapping, deleteMappings } from '../../ops/MappingOps';
 import { printMessage, verboseMessage } from '../../utils/Console';

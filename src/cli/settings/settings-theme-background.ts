@@ -1,9 +1,9 @@
 import { errorMessage, successMessage } from '../../utils/Console';
 import {
   activatePersistedTheme,
-  type Background,
   BACKGROUNDS,
   setActiveBackground,
+  type Background,
 } from '../../utils/ThemeConfig';
 import { FrodoCommand } from '../FrodoCommand';
 

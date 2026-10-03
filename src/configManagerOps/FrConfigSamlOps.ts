@@ -1,10 +1,9 @@
+import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/CirclesOfTrustApi';
 import { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
 import { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/CirclesOfTrustOps';
 import { Saml2ExportInterface } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
-import fs from 'fs';
-
 import {
   createProgressIndicator,
   printError,
@@ -126,7 +125,7 @@ export async function configManagerExportSaml(file): Promise<boolean> {
 
 /**
  * Import all SAML entity providers from all *.saml.json files in the current directory
- * @param {string} entityName option parameter to import SAML entity by name  
+ * @param {string} entityName option parameter to import SAML entity by name
  * @param {string} realm name of realm to import SAML entity
  * @returns {Promise<boolean>} true if successful, false otherwise
  */

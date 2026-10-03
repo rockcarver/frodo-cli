@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { listWebAgents } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';

@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { configManagerImportTelemetry } from '../../../configManagerOps/FrConfigTelemetryOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';

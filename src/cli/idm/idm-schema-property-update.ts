@@ -1,12 +1,11 @@
+import fs from 'fs';
+import path from 'path';
 import {
   frodo,
   FrodoError,
   MANAGED_OBJECT_SCHEMA_CREATABLE_PROPERTY_TYPES as SCHEMA_PROPERTY_TYPES,
 } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import fs from 'fs';
-import path from 'path';
-
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { updateManagedObjectSchemaPropertyCli } from '../../ops/IdmOps';

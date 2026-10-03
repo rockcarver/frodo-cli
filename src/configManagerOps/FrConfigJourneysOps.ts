@@ -1,9 +1,8 @@
+import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { NodeSkeleton } from '@rockcarver/frodo-lib/types/api/NodeApi';
 import { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
 import { SingleTreeExportInterface } from '@rockcarver/frodo-lib/types/ops/JourneyOps';
-import fs from 'fs';
-
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError, printMessage } from '../utils/Console';
 import { existScript, realmList, safeFileName } from '../utils/FrConfig';

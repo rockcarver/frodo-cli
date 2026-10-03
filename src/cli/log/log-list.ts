@@ -1,6 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { ConnectionProfileInterface } from '@rockcarver/frodo-lib/types/ops/ConnectionProfileOps';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { provisionCreds } from '../../ops/LogOps';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';

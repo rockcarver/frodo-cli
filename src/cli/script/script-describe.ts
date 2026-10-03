@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeScript } from '../../ops/ScriptOps';
 import { printMessage, verboseMessage } from '../../utils/Console';

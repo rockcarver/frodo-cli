@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { Readable, Writable } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { OAuth2ClientSkeleton } from '@rockcarver/frodo-lib/types/api/OAuth2ClientApi';
@@ -5,8 +6,6 @@ import { AccessTokenResponseType } from '@rockcarver/frodo-lib/types/api/OAuth2O
 import { OAuth2TrustedJwtIssuerSkeleton } from '@rockcarver/frodo-lib/types/api/OAuth2TrustedJwtIssuerApi';
 import { JwkRsa, JwksInterface } from '@rockcarver/frodo-lib/types/ops/JoseOps';
 import { AccessTokenMetaType } from '@rockcarver/frodo-lib/types/ops/OAuth2OidcOps';
-import fs from 'fs';
-
 import c from '../utils/ColorTheme';
 import {
   cleanupProgressIndicators,
@@ -907,7 +906,7 @@ export async function hideGenericExtensionAttributes(
         ) {
           if (object.schema.properties[property].viewable) {
             printMessage(`${property}: hide`);
-            // eslint-disable-next-line no-param-reassign
+
             object.schema.properties[property].viewable = false;
           } else {
             printMessage(`${property}: ignore (already hidden)`);
@@ -957,7 +956,7 @@ export async function showGenericExtensionAttributes(
         ) {
           if (!object.schema.properties[property].viewable) {
             printMessage(`${property}: show`);
-            // eslint-disable-next-line no-param-reassign
+
             object.schema.properties[property].viewable = true;
           } else {
             printMessage(`${property}: ignore (already showing)`);
@@ -997,7 +996,7 @@ async function repairOrgModelUser(dryRun: boolean): Promise<boolean> {
       RDVPs.forEach((name) => {
         if (!object.schema.properties[name].queryConfig.flattenProperties) {
           printMessage(`- ${name}: repairing - needs flattening`, 'warn');
-          // eslint-disable-next-line no-param-reassign
+
           object.schema.properties[name].queryConfig.flattenProperties = true;
           repairData = true;
         } else {
@@ -1037,7 +1036,7 @@ async function repairOrgModelOrg(dryRun: boolean): Promise<boolean> {
       RDVPs.forEach((name) => {
         if (!object.schema.properties[name].queryConfig.flattenProperties) {
           printMessage(`- ${name}: repairing - needs flattening`, 'warn');
-          // eslint-disable-next-line no-param-reassign
+
           object.schema.properties[name].queryConfig.flattenProperties = true;
           repairData = true;
         } else {

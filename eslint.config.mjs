@@ -1,25 +1,34 @@
-import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
+import importX from 'eslint-plugin-import-x';
+import tseslint from 'typescript-eslint';
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
-
-const tsConfigs = compat
-  .config({
-    extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-      requireConfigFile: false,
-      project: './tsconfig.json',
+export default tseslint.config(
+  {
+    ignores: [
+      'src/**/*.test.ts',
+      'src/**/*.test_.ts',
+      'test/**/*.test.ts',
+      'test/**/*.test_.ts',
+      'tsdown.config.ts',
+      'tsdown.sea.config.mts',
+    ],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ['src/**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
-    plugins: ['@typescript-eslint', 'prettier', 'jest', 'simple-import-sort', 'import'],
+    plugins: {
+      'import-x': importX,
+    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-deprecated': 'warn',
-      'prettier/prettier': ['warn'],
       'dot-notation': 'off',
       'no-console': 'warn',
       'no-underscore-dangle': 'off',
@@ -37,32 +46,14 @@ const tsConfigs = compat
         },
       ],
       'no-multi-str': 'off',
-      'simple-import-sort/imports': 'error',
-      'simple-import-sort/exports': 'error',
-      'import/first': 'error',
-      'import/newline-after-import': 'error',
-      'import/no-duplicates': 'error',
+      'import-x/first': 'error',
+      'import-x/no-duplicates': 'error',
     },
-    env: {
-      jest: true,
-      'jest/globals': true,
-      node: true,
-    },
-  })
-  .map((config) => ({
-    ...config,
-    files: ['src/**/*.ts'],
-  }));
-
-export default [
-  {
-    ignores: ['src/**/*.test.ts', 'src/**/*.test_.ts', 'test/**/*.test.ts', 'test/**/*.test_.ts', 'tsup.config.ts'],
   },
-  ...tsConfigs,
   {
     files: ['src/utils/ColorTheme.ts'],
     rules: {
       'no-restricted-imports': 'off',
     },
-  },
-];
+  }
+);

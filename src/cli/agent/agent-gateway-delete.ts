@@ -1,6 +1,5 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import {
   deleteIdentityGatewayAgent,
   deleteIdentityGatewayAgents,

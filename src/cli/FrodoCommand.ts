@@ -1,9 +1,8 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { RetryStrategy } from '@rockcarver/frodo-lib/types/api/BaseApi.js';
 import { AddHelpTextContext, Argument, Command, Help, Option } from 'commander';
-import fs from 'fs';
 import propertiesReader from 'properties-reader';
-
 import {
   CredentialOverrideType,
   setCredentialOverride,
@@ -101,7 +100,10 @@ const SUPPRESS_STABILITY_WARNING_KEY =
   '__frodoSuppressStabilityWarning' as const;
 
 export type StabilityIndicator =
-  'stable' | 'preview' | 'experimental' | 'deprecated';
+  | 'stable'
+  | 'preview'
+  | 'experimental'
+  | 'deprecated';
 
 export type StabilityGateMode = 'option-or-env' | 'option-only' | 'env-only';
 
@@ -2203,7 +2205,6 @@ export class FrodoStubCommand extends Command {
     super(name);
 
     if (!process.listenerCount('unhandledRejection')) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       process.on('unhandledRejection', (error: any) => {
         printError(
           new FrodoError(
@@ -2271,7 +2272,7 @@ export class FrodoStubCommand extends Command {
     activatePersistedTheme();
 
     // shutdown handlers
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     this.hook('postAction', (thisCommand, actionCommand) => {
       debugMessage(
         `FrodoCommand: running postAction hook: this command: ${thisCommand.name()}, action command: ${actionCommand.name()}`
@@ -2870,7 +2871,7 @@ export class FrodoCommand extends FrodoStubCommand {
    * @param args Commander action arguments where trailing values are options and command.
    * @returns Promise from command action flow.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   handleDefaultArgsAndOpts(...args: any) {
     const command = args.pop();
     const options = args.pop();
@@ -2890,7 +2891,7 @@ export class FrodoCommand extends FrodoStubCommand {
         debugMessage(
           `FrodoCommand.handleDefaultArgsAndOpts: Handling default argument '${arg}'.`
         );
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         const handler: any = stateMap[arg];
         handler(v);
       } else {
@@ -2913,7 +2914,7 @@ export class FrodoCommand extends FrodoStubCommand {
         debugMessage(
           `FrodoCommand.handleDefaultArgsAndOpts: Handling default option '${k}'.`
         );
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         const handler: any = stateMap[k];
         handler(v, options);
       } else {

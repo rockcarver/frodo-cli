@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import {
   ApprovalTask,
@@ -10,8 +11,6 @@ import {
   WorkflowGroup,
   WorkflowImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/cloud/iga/IgaWorkflowOps';
-import fs from 'fs';
-
 import c from '../../../utils/ColorTheme';
 import { extractDataToFile, getExtractedData } from '../../../utils/Config';
 import {
@@ -45,7 +44,7 @@ const {
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function listWorkflows(long: boolean = false): Promise<boolean> {
-  let workflows: WorkflowGroup[] = [];
+  let workflows: WorkflowGroup[];
   try {
     workflows = await readWorkflowGroups();
     if (!long) {

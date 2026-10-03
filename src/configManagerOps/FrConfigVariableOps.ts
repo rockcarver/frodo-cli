@@ -1,7 +1,6 @@
+import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { VariableSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
-import fs from 'fs';
-
 import {
   createProgressIndicator,
   printError,
@@ -28,8 +27,7 @@ export async function configManagerExportVariables(
   report?: boolean
 ): Promise<boolean> {
   let spinnerId: string;
-  let indicatorId: string;
-  let variableList: VariableSkeleton[] = [];
+  let variableList: VariableSkeleton[];
   try {
     spinnerId = createProgressIndicator(
       'indeterminate',
@@ -65,8 +63,9 @@ export async function configManagerExportVariables(
     return true;
   }
 
+  let indicatorId: string;
   try {
-    const indicatorId = createProgressIndicator(
+    indicatorId = createProgressIndicator(
       'determinate',
       variableList.length,
       'Exporting variables'
@@ -109,7 +108,6 @@ export async function configManagerImportVariables(
   variableName?: string
 ): Promise<boolean> {
   let indicatorId: string;
-
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,

@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type NodeSkeleton } from '@rockcarver/frodo-lib/types/api/NodeApi';
 import { type TreeSkeleton } from '@rockcarver/frodo-lib/types/api/TreeApi';
@@ -10,8 +11,6 @@ import {
   type TreeExportResolverInterface,
   type TreeImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/JourneyOps';
-import fs from 'fs';
-
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,
@@ -61,7 +60,7 @@ const {
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function listJourneys(long: boolean = false): Promise<boolean> {
-  let journeys = [];
+  let journeys;
   try {
     journeys = await readJourneys();
     if (!long) {

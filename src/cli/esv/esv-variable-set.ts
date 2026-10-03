@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { updateVariable } from '../../ops/cloud/VariablesOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';

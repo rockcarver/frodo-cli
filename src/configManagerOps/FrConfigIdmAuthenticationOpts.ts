@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, updateConfigEntity } = frodo.idm.config;

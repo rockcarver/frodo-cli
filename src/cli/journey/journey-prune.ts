@@ -1,6 +1,5 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
 import confirm from '@inquirer/confirm';
-
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';

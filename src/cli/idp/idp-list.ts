@@ -1,5 +1,4 @@
 import { state } from '@rockcarver/frodo-lib';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { listSocialProviders } from '../../ops/IdpOps';
 import { verboseMessage } from '../../utils/Console';

@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { printError } from '../utils/Console';
 
 const { readConfigEntity } = frodo.idm.config;

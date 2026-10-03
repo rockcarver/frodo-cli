@@ -1,7 +1,6 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { OAuth2ClientSkeleton } from '@rockcarver/frodo-lib/types/api/OAuth2ClientApi';
 import type { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
-
 import { printMessage } from '../utils/Console';
 import { escapableSelect } from '../utils/interactive/EscapableSelectPrompt';
 import OAUTH2_CLIENT_TEMPLATE from './templates/OAuth2ClientTemplate.json';

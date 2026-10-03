@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { configManagerRestart } from '../../../configManagerOps/FrConfigRestartOps.ts';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { FrodoCommand } from '../../FrodoCommand';

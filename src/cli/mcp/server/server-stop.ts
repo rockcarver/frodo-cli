@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import {
   isPidAlive,
   readMcpHttpLockfile,

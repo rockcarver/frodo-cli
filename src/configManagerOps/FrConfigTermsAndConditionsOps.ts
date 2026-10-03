@@ -1,6 +1,5 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-
+import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
 
