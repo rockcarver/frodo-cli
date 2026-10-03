@@ -9,7 +9,7 @@ The library repo ([frodo-lib](https://github.com/rockcarver/frodo-lib)) shares
 most of this toolchain and keeps its own copy of this document
 (`BUILD-ENV.md` there) for the pieces that differ.
 
-_Last updated: 2026-10-03 (tooling modernization, phases 0-7)._
+_Last updated: 2026-10-03 (tooling modernization)._
 
 ---
 
@@ -25,7 +25,7 @@ TypeScript sources (src/)
   │
   ├─ node --build-sea ..... dist-sea/app.cjs + Node 26 -> single binaries (5 platforms)
   │
-  └─ eslint + prettier .... lint & format (currently ESLint 8/9 configs; Phase 5 migrates to 10 + Prettier-owns-imports)
+  └─ eslint + prettier .... lint & format (currently ESLint 8/9 configs; a planned migration will move to ESLint 10 with Prettier owning import order)
 
 Release automation:
   ├─ dependabot.yml ....... weekly grouped dependency PRs
@@ -68,7 +68,7 @@ loaded, then threw `SyntaxError: Unexpected token ','`. The workaround
 - **Code splitting stays on** → `dist/app.cjs` requires the sibling
   `dist/rolldown-runtime-*.cjs` chunk. The chunk hash changes every build;
   the npm `files` allowlist therefore uses a `dist/rolldown-runtime-*.cjs`
-  glob. Phase 7's SEA config turns splitting **off** (single file).
+  glob. The SEA build config turns splitting **off** (single file).
 - `shims: true` is required — `src/launch.ts` uses `import.meta.url`, which
   does not exist in CJS; tsdown shims it.
 - `deps.neverBundle` lists every devDependency. tsdown (like tsup before it)
@@ -105,7 +105,7 @@ import both expose all 62 exports).
 - HTTP traffic is mocked with the Polly.js stack (`@pollyjs/*` +
   `setup-polly-jest` + cassettes under `test/`). Record new cassettes with
   `test:record:cloud`. NOTE (2026-10): the Polly stack is unmaintained (last
-  release 2023); migration to nock is planned (Phase 4d) but is no longer
+  release 2023); migration to nock is planned but is no longer
   security-driven — the `qs` advisory that motivated it is closed (Polly's
   tree now resolves patched `qs@6.16.0`).
 - Two stale assertions in `src/mcp/server/mcp-server.test.js` fail on `main`
@@ -115,7 +115,7 @@ import both expose all 62 exports).
 
 ---
 
-## 5. Lint and format (today, and the Phase 5 plan)
+## 5. Lint and format (today, and where we are taking it)
 
 **Today**: ESLint 8.57 flat config via `FlatCompat` (`eslint.config.mjs`),
 plugins: `@typescript-eslint`, `prettier` (as a lint rule — slow, ~38 s),
@@ -125,7 +125,7 @@ but `lint:fix` cannot always fix them — the sorter (`simple-import-sort`) and
 Prettier disagree, and the fix must be applied by the editor's
 "organize imports" action.
 
-**Phase 5 (planned)**: ESLint 10 native flat config, `eslint-plugin-import-x`,
+**Planned migration**: ESLint 10 native flat config, `eslint-plugin-import-x`,
 **Prettier owns import order** via `@ianvs/prettier-plugin-sort-imports`
 (the lib's `.prettierrc` already declares its `importOrder`), drop
 `eslint-plugin-prettier` and the redundant sorters, scripts become
@@ -136,7 +136,7 @@ the migration PR.
 
 ---
 
-## 6. Binary packaging: native Node.js SEA (since Phase 7, 2026-10)
+## 6. Binary packaging: native Node.js SEA (since 2026-10)
 
 `npm run build:binary` = tsdown dist build + SEA build:
 
@@ -270,4 +270,4 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-10-03 | TypeScript aligned to ^5.9.3 | #732 |
 | 2026-10-03 | npm `files` allowlist; Dockerfile tsup→tsdown fix | #733 |
 | 2026-10-03 | pkg → native Node.js SEA (all 5 targets; macos-intel cross-built on arm64; sign+jit entitlements+notarize; `@yao-pkg/pkg` removed) | this PR |
-| planned | ESLint 10 + Prettier-owns-imports (Phase 5); Polly→nock + remaining unmaintained deps (Phase 4) | — |
+| planned | ESLint 10 + Prettier-owns-imports; Polly→nock + remaining unmaintained deps | — |
