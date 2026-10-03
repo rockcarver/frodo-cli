@@ -4,10 +4,10 @@ on:
   pull_request:
     branches:
       - 'main'
-    paths-ignore:
-      - '**/CODE_OF_CONDUCT.md'
-      - '**/README.md'
-      - 'docs/**'
+    # No paths-ignore here: with required status checks on main, a PR whose
+    # changes skip CI entirely could never merge (its required checks would
+    # stay "expected" forever). Docs-only PRs run the full pipeline. The push
+    # trigger keeps paths-ignore so docs-only pushes to main stay cheap.
   push:
     branches:
       - 'main'
@@ -187,6 +187,25 @@ jobs:
 
       - name: Version Test
         run: frodo -v
+
+  # Single stable-named gate over the versioned test matrix. Required status
+  # checks on main point at THIS job, so changing the matrix's Node versions
+  # never touches repo settings. It fails if any matrix leg fails or is
+  # cancelled/skipped unexpectedly.
+  test-gate:
+    name: 'Test gate'
+    needs: [test]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any test matrix leg did not succeed
+        run: |
+          result='${{ needs.test.result }}'
+          echo "test matrix result: ${result}"
+          if [ "${result}" != "success" ]; then
+            echo "::error::Not all test matrix legs succeeded"
+            exit 1
+          fi
 
   test-live:
     name: 'Live Tenant Smoke Test'
