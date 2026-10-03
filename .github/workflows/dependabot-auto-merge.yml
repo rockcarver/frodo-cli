@@ -1,0 +1,44 @@
+name: 'Dependabot Auto-Merge'
+
+# Enables auto-merge on Dependabot version-update PRs for patch and minor
+# bumps (including security updates, which arrive as patch/minor PRs).
+# GitHub merges once the required status checks pass and the branch-protection
+# ruleset is satisfied - this workflow only arms the merge.
+#
+# Not auto-merged, on purpose:
+# - Major updates: can break the API, need a human.
+# - Prettier, TypeScript and ESLint (mirrors the exclude-patterns in
+#   dependabot.yml): Prettier minors reformat code and the TS/ESLint majors
+#   need coordinated config work.
+# Note: Dependabot "rules" in repo settings only triage alerts - they cannot
+# auto-merge PRs. That is why this workflow exists.
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    # Guard on the actor: skips immediately for every non-Dependabot PR,
+    # including all human PRs.
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+
+      - name: Enable auto-merge for minor and patch updates
+        if: >-
+          contains(fromJSON('["version-update:semver-patch", "version-update:semver-minor"]'), steps.metadata.outputs.update-type) &&
+          !contains(steps.metadata.outputs.dependency-names, 'prettier') &&
+          !contains(steps.metadata.outputs.dependency-names, 'typescript') &&
+          !contains(steps.metadata.outputs.dependency-names, 'eslint')
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
