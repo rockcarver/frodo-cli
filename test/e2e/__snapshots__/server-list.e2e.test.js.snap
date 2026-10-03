@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo server list "frodo server list --long": should list the ids, urls, and site names of the servers 1`] = `
 "Id│Url                     │Site Name

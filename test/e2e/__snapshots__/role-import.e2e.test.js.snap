@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo role import "frodo role import --all --file test/e2e/exports/all/allInternalRoles.internalRole.json": should import all roles from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
 

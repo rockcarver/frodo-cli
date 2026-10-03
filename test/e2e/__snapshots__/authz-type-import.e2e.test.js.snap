@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz type import "frodo authz type import --force-update --all --file test/e2e/exports/all/allAlphaResourceTypes.resourcetype.authz.json": should import all resource types from the file "test/e2e/exports/all/allAlphaResourceTypes.resourcetype.authz.json" 1`] = `""`;
 

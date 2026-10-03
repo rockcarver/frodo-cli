@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo conn describe Classic "frodo conn describe http://openam-frodo-dev.amster.com:8080/am": should describe the classic connection 1`] = `
 "Host                  │http://openam-frodo-dev.amster.com:8080/am

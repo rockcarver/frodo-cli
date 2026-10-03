@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo script import "frodo script import --force-update --script-id 3d27b6d3-0f41-410a-9975-2e9df43d885e --file test/e2e/exports/all/forgeops/allScripts.script.json": should import the script with the id "3d27b6d3-0f41-410a-9975-2e9df43d885e" from the file "test/e2e/exports/all/forgeops/allScripts.script.json" 1`] = `""`;
 

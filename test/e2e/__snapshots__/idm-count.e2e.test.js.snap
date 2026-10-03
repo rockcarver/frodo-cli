@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idm count "frodo idm count --managed-object alpha_user": should count all alpha_users 1`] = `
 "alpha_user: 1

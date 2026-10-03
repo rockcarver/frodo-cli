@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull idm-authentication "frodo config-manager pull idm-authentication -D idmAuthDir -m forgeops": should export idm authentication from forgeops" 1`] = `0`;
 

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authn import "frodo authn import --file root-alpha.authentication.settings.json --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/authentication": should import authentication settings from the file root-alpha.authentication.settings.json in the directory test/e2e/exports/all-separate/cloud/realm/root-alpha/authentication 1`] = `""`;
 

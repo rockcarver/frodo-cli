@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo node list "frodo node list --long": should list the ids, names, descriptions, and usages of the custom nodes. 1`] = `
 "Display Name    │Id (<Service Name>-1)             │Journeys│Instances│Error Outcome│Description                   

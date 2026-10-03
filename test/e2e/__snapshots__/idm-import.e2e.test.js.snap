@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idm import "frodo idm import --all --file all.idm.json -D test/e2e/exports/all": Should import all configs from the file 'all.idm.json' in directory 'test/e2e/exports/all'" 1`] = `
 "Error updating config entity bravoOrgPrivileges

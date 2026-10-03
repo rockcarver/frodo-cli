@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo mapping rename "frodo mapping rename --all": should rename all mappings to new" 1`] = `""`;
 

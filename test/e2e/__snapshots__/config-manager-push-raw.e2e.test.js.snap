@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager push raw  "frodo config-manager push raw -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import raw configuration into forgeops" 1`] = `""`;
 

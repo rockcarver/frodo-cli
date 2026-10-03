@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent java delete "frodo agent java delete --agent-id frodo-test-java-agent": should display error when the java agent with id 'frodo-test-java-agent' cannot be deleted since it does not exist 1`] = `
 "Error deleting alpha realm java agent frodo-test-java-agent

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent web import "frodo agent web import --agent-id frodo-test-web-agent --file test/e2e/exports/all/allAlphaAgents.web.agent.json": should import the agent with the id "frodo-test-web-agent" from the file "test/e2e/exports/all/allAlphaAgents.web.agent.json" 1`] = `""`;
 

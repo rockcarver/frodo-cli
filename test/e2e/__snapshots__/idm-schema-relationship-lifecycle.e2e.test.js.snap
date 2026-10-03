@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idm schema relationship lifecycle (single-side, then bidirectional across two types) "frodo idm schema relationship describe -o alpha_frodoE2ERelTestA -p bidiLinkedB --with-reverse --json": should describe both sides of the bidirectional relationship 1`] = `
 "{

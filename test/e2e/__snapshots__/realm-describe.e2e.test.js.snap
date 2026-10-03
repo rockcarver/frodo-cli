@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo realm describe "frodo realm describe": should describe the current realm 1`] = `
 "Name          │alpha   

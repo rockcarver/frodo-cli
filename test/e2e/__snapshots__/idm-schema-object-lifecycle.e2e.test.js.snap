@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idm schema object lifecycle (create type -> add property -> update property -> remove property -> delete type) "frodo idm schema object create -o alpha_frodoE2ETestWidget --title 'Frodo E2E Test Widget' -y": should create the new managed-object type 1`] = `""`;
 

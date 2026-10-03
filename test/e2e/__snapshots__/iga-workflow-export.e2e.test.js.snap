@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo iga workflow export "frodo iga workflow export --all -R --no-coords --no-deps --use-string-arrays --file testWorkflowExportFile2.json": should export all workflows including non-mutable ones with no coordinates and no dependencies 1`] = `1`;
 

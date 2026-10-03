@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo esv variable set "frodo esv variable set --force-update --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"": should update the "esv-test-var-pi-string" variable 1`] = `""`;
 

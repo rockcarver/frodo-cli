@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pulls "frodo config-manager pull locales -D testDir15": should export the locales in fr-config-manager style" 1`] = `0`;
 

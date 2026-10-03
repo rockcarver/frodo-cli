@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent java import "frodo agent java import --agent-id frodo-test-java-agent --file test/e2e/exports/all/allAlphaAgents.java.agent.json": should import the agent with the id "frodo-test-java-agent" from the file "test/e2e/exports/all/allAlphaAgents.java.agent.json" 1`] = `""`;
 

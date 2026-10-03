@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo esv variable import "frodo esv variable import --all-separate --directory test/e2e/exports/all-separate/cloud/global/variable" Import all variables in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
 

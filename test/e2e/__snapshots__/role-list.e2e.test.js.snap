@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo role list "frodo role list --long": should list the ids, names, descriptions, and conditions of the internal roles 1`] = `
 "Id                                  │Name                 │Description                       │Condition                         

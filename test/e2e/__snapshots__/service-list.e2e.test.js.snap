@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo service list "frodo service list --long --global": should list the ids and names of the global services 1`] = `
 "Service Id │Service Name

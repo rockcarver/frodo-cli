@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo admin list-oauth2-clients-with-custom-privileges "frodo admin list-oauth2-clients-with-custom-privileges": should list the ids of the oauth2 clients with custom privileges. 1`] = `
 "23281ea7-739b-4fd1-b953-eaae73a2b497

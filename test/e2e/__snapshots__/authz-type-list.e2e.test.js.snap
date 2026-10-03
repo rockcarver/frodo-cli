@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz type list "frodo authz type list --long": should list the names, descriptions, and uuids of the authz types 1`] = `
 "Name                   │Description                                                             │Uuid                                

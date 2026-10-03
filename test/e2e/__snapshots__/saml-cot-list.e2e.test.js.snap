@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo saml cot list "frodo saml cot list --long": should list the names, descriptions, status, and trusted providers of the circles of trust 1`] = `
 "Name                                │Description│Status│Trusted Providers                                            

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo mapping list "frodo mapping list --long": should list the ids, display names, sources/targets, and other info of the mappings 1`] = `
 "Id                                                    │Display Name                         │Source                   │Target                       │Consent Required│Is Legacy

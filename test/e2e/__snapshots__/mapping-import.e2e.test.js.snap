@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo mapping import "frodo mapping import --all --no-deps --file allMappings.mapping.json --directory test/e2e/exports/all": should import all mappings from the file "test/e2e/exports/all/allMappings.mapping.json" 1`] = `""`;
 

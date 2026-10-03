@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -e test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json 1`] = `0`;
 

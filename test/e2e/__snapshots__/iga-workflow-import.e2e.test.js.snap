@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo iga workflow import "frodo iga workflow import --all --file test/e2e/exports/all/allWorkflows.workflow.json --no-deps": should import all workflows from the file "test/e2e/exports/all/allWorkflows.workflow.json" 1`] = `""`;
 

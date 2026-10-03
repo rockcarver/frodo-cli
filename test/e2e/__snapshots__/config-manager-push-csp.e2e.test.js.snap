@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager push csp "frodo config-manager push csp --name report-only --directory test/e2e/exports/fr-config-manager/cloud ": should import the 'report-only' CSP into cloud" 1`] = `""`;
 

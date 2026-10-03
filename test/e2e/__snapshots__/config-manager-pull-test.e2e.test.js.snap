@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull test "frodo config-manager pull test": should fail connection with invalid credentials" 1`] = `
 "Experimental feature in use: 'frodo config-manager pull test'. This feature may change without notice.

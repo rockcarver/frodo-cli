@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo theme import "frodo theme import --all --file test/e2e/exports/all/allAlphaThemes.theme.json": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
 

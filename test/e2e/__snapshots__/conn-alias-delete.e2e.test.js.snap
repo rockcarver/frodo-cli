@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo conn alias delete "frodo conn alias delete https://openam-frodo-dev.forgeblocks.com/am": should delete the alias of the connection profile 1`] = `""`;
 

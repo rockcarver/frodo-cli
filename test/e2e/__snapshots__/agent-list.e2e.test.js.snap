@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent list Cloud Tests: "frodo agent list -l": should list the ids, statuses, and types of the agents 1`] = `
 "Agent Id│Status│Agent Type

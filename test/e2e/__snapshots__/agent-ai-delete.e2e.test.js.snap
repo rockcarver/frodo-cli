@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent ai delete "frodo agent ai delete frodo-dev --agent-id does-not-exist": should fail deleting does-not-exist 1`] = `
 "Error deleting alpha realm AI agent does-not-exist

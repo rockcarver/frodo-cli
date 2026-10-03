@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz set export "frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should export all policy sets from the test-policy-set to a single file named my-allAlphaPolicySets.policyset.authz.json with no dependencies and with prereqs 1`] = `0`;
 

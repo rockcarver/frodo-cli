@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo email template list "frodo email template list --long": should list the ids, names, statuses, locales, senders (from), and subjects of the email templates 1`] = `
 "Id               │Name        │Status  │Locale(s)│From                        │Subject                       

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure --file test.xml --directory samlMetadataExportTestDir2": should export the saml metadata with entity id "iSPAzure" to the file test.xml in the directory samlMetadataExportTestDir2 1`] = `0`;
 

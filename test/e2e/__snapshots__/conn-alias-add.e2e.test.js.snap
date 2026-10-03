@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo conn alias add "frodo conn alias add testname https://openam-frodo-dev.forgeblocks.com/am": should add an alias 'testname' to the connection profile 1`] = `""`;
 

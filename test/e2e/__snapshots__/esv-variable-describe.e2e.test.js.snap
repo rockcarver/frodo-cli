@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo esv variable describe "frodo esv variable describe --json --usage --variable-id esv-test-var-pi --directory test/e2e/exports/all-separate/cloud": should describe the esv variable "esv-test-var-pi" with usage from directory test/e2e/exports/all-separate/cloud and json output 1`] = `
 "{

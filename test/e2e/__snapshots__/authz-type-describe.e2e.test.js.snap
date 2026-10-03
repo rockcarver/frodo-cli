@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz type describe "frodo authz type describe --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should describe the 76656a38-5f8e-401b-83aa-4ccb74ce88d2 resource type 1`] = `
 "uuid            │76656a38-5f8e-401b-83aa-4ccb74ce88d2                        

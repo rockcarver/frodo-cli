@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent ai describe "frodo agent ai describe -i banking-assistant --json": should describe AI agent in JSON format 1`] = `
 "{

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo app import Cloud "frodo app import --all --file test/e2e/exports/all/allAlphaApplications.application.json": should import all applications from the file "test/e2e/exports/all/allAlphaApplications.application.json" 1`] = `""`;
 

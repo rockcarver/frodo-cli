@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent export Cloud Tests: "frodo agent export --agent-id frodo-test-java-agent": should export the agent with agent id "frodo-test-java-agent" 1`] = `0`;
 

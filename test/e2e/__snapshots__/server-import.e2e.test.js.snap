@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo server import "frodo server import --all --file test/e2e/exports/all/allServers.server.json": should import all servers from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
 

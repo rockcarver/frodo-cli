@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo realm list "frodo realm list --long": should list the names, statuses, custom domains, and parents of the realms 1`] = `
 "Id      │Name │Status│Custom Domains│Parent Path

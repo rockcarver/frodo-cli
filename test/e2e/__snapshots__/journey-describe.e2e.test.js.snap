@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo journey describe "frodo journey describe --file test/e2e/exports/all/allAlphaJourneys.journey.json": should describe all journeys from file 1`] = `
 "[ForgottenUsername]

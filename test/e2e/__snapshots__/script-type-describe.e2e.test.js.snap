@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo script type describe "frodo script type describe -c SCRIPTED_DECISION_NODE": should list the bindings available in that scripting context 1`] = `
 "Name              │Java Class                                                                         │Elements

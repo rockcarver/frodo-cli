@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo iga workflow list "frodo iga workflow list --long": should list the ids, names, mutability, and statuses of the workflows. 1`] = `
 "ID                                 │Name                                   │Drafted│Published│Mutable

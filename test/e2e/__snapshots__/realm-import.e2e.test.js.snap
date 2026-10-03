@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo realm import "frodo realm import --all --file test/e2e/exports/all/allRealms.realm.json --type classic": should import all realms from the file "test/e2e/exports/all/allRealms.realm.json" 1`] = `""`;
 

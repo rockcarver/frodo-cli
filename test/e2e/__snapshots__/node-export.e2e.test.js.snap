@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo node export "frodo node export --all --no-metadata --file customNodeTest1.json --directory customNodeExportDir3 --use-string-arrays": should export all nodes to a single file named customNodeTest1.json in the directory customNodeExportDir3 with no metadata 1`] = `0`;
 

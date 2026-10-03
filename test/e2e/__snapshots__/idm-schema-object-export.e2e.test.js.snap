@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idm schema object export "frodo idm schema object export -A -D testDir3": should export all managed objects into separate files in the directory "testDir3" 1`] = `0`;
 

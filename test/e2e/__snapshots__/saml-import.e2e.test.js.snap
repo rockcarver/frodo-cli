@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo saml import "frodo saml import --all --no-deps --file test/e2e/exports/all/allAlphaProviders.saml.json": should import all saml providers from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
 

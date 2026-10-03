@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on authentication changes 1`] = `""`;
 

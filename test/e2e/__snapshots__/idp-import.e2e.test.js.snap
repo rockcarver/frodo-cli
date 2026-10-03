@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idp import "frodo idp import --all --no-deps --file test/e2e/exports/all/allAlphaProviders.idp.json": should import all idps from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
