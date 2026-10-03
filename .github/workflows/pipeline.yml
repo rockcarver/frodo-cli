@@ -126,9 +126,16 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: build
+          # Binary jobs run `npm run build:binary` themselves (SEA bundles
+          # from source), so they need the sources and build configs too.
           path: |
             package.json
             package-lock.json
+            src
+            tsconfig.json
+            tsdown.config.ts
+            tsdown.sea.config.mts
+            sea-config.json
             dist
 
     outputs:
