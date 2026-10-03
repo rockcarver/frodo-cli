@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -D test/e2e/exports/fr-config-manager/forgeops": should not import the authz-policies when no changes are made" 1`] = `""`;
 

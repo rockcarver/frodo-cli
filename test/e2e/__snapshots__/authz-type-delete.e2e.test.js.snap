@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz type delete "frodo authz type delete --type-id 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76": should display error when the resource type with id 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76 cannot be deleted since it does not exist 1`] = `
 "✖ Error deleting resource type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76

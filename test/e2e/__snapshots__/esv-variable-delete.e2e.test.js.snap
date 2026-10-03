@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo esv variable delete "frodo esv variable delete --variable-id esv-test-var-pi": should display error when the variable with id 'esv-test-var-pi' cannot be deleted since it does not exist 1`] = `
 "✖ Error deleting variable esv-test-var-pi

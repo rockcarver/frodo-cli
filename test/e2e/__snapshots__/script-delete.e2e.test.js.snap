@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo script delete "frodo script delete --script-id e15a13ee-9168-40cf-934f-656a5f568a6a": should display error when the script with id 'e15a13ee-9168-40cf-934f-656a5f568a6a' cannot be deleted since it does not exist 1`] = `
 "✖ Error: Request failed with status code 404

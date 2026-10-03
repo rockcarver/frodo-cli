@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo service import "frodo service import --all --global --file test/e2e/exports/all/allGlobalServices.service.json": should import all global services from the file "test/e2e/exports/all/allGlobalServices.service.json" 1`] = `""`;
 

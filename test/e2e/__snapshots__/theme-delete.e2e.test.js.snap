@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo theme delete "frodo theme delete --theme-id 4eeb434c-1f56-4173-8da3-b49214bedeb6": should display error when the theme with id '4eeb434c-1f56-4173-8da3-b49214bedeb6' cannot be deleted since it does not exist 1`] = `
 "✖ Error deleting theme

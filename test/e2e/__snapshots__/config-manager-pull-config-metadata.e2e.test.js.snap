@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull config-metadata "frodo config-manager pull config-metadata -m forgeops ": should export the config-metadata in fr-config-manager style" 1`] = `
 "{

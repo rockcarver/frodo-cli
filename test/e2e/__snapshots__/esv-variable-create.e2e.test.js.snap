@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo esv variable create "frodo esv variable create --variable-id esv-test-var-pi-string --value "3.1415926" --variable-type string --description "This is another test variable."": should create an esv variable of type string with the value of pi 1`] = `""`;
 

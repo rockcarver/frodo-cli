@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo email template export "frodo email template export --all --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json 1`] = `0`;
 

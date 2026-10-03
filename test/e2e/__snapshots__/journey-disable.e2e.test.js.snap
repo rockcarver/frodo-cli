@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo journey disable "frodo journey disable --journey-id j10": should do nothing special when disabling the journey with id "j10" when it is already disabled 1`] = `
 "✔ Disabled journey j10.

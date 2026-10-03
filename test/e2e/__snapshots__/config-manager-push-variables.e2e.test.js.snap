@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Should import variables into cloud "frodo config-manager push variables --env-file test/e2e/env/configManager2.env --env-file test/e2e/env/configManager1.env  -D test/e2e/exports/fr-config-manager/cloud ": should not import two variables into cloud when no changes" 1`] = `""`;
 

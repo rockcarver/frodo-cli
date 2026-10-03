@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo journey export "frodo journey export --all --file my-allAlphaJourneys.journey.json": should export all journeys to a single file named my-allAlphaJourneys.journey.json 1`] = `0`;
 

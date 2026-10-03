@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idm import "frodo idm schema object import -D test/e2e/exports/all-separate/cloud/global/idm/managed": should refuse to import the managed objects from the directory test/e2e/exports/all-separate/cloud/global/idm/managed without -y 1`] = `
 "

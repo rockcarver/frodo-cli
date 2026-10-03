@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo saml describe "frodo saml describe --entity-id iSPAzure": should describe the iSPAzure saml provider 1`] = `
 "entityId                             │iSPAzure                                                                                              

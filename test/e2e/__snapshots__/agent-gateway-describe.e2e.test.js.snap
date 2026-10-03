@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent gateway describe "frodo agent gateway describe -i frodo-test-ig-agent --json": should describe gateway agent in JSON format 1`] = `
 "{

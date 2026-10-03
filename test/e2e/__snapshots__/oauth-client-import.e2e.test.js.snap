@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo oauth client import "Regression rockcarver/frodo-lib#393: frodo oauth client import -f 'testclient.oauth2.app.json' -D test/e2e/exports/all-separate/cloud/realm/root-alpha/oauth2.app": should import the first oauth client from the file "testclient.oauth2.app.json" 1`] = `""`;
 

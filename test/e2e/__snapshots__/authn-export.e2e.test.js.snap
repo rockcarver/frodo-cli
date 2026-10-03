@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authn export Classic "frodo authn export --global --no-metadata --directory  authnExportDir3 --type classic": should export global authentication settings to a file in the "authnExportDir3" directory 1`] = `0`;
 

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull org-privileges "frodo config-manager pull org-privileges -D configManagerExportOrgPrivilegesDir0": should export all the realms organizations privileges in fr-config manager style. 1`] = `0`;
 

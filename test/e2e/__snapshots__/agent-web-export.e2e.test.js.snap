@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-web-agent": should export the web agent with agent id "frodo-test-web-agent" 1`] = `0`;
 

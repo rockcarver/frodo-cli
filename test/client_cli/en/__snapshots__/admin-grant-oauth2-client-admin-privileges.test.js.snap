@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CLI help interface for 'admin grant-oauth2-client-admin-privileges' should be expected english 1`] = `
 "Usage: frodo admin grant-oauth2-client-admin-privileges [options] [host] [realm] [username] [password]

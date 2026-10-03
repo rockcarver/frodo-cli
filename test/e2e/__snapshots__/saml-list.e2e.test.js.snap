@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo saml list "frodo saml list --long": should list the ids, locations, and roles of the saml entity providers 1`] = `
 "Entity Id                                                    │Location│Role(s)

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz policy describe "frodo authz policy describe --policy-id "Test Policy"": should describe the "Test Policy" policy 1`] = `
 "_id                 │Test Policy                                                 

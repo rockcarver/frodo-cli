@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=all-test -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=all-secret -D test/e2e/exports/fr-config-manager/cloud": should fail to import all telemetry config 1`] = `
 "Experimental feature in use: 'frodo config-manager push telemetry'. This feature may change without notice.

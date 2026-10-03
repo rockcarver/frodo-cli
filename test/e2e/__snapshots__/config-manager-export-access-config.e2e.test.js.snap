@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pulls "frodo config-manager pull access-config -D testDir0": should export the access-config in fr-config-manager style" 1`] = `0`;
 

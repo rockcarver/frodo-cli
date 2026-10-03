@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo oauth client export "frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json": should export all oauth clients to a single file with no dependencies 1`] = `0`;
 

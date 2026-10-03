@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz set delete "frodo authz set delete --all": should do nothing when no policy sets can be deleted 1`] = `
 "✔ Found 0 policy sets.

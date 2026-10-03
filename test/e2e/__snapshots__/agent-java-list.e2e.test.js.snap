@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent java list "frodo agent java list --long": should list the ids and statuses of the java agents 1`] = `
 "Java Agent Id         │Status  

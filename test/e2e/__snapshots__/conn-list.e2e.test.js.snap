@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo conn list "frodo conn list --long": should list the connection hosts, service accounts, usernames, and log API keys. 1`] = `
 "Host                                       │Alias │Service Account       │Username│Log API Key│Authentication Service

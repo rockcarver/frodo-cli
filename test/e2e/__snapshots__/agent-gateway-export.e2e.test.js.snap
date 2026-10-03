@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent" 1`] = `0`;
 

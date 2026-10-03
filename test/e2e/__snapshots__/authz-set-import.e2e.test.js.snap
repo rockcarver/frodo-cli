@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz set import "frodo authz set import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should not import policy sets from test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset when no changes are made 1`] = `""`;
 

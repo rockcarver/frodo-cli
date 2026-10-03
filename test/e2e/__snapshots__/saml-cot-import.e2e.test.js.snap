@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo saml cot import "frodo saml cot import --all --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
 

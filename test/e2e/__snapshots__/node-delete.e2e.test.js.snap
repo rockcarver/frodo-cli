@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo node delete "frodo node delete --all": should not delete any nodes if they are all in use 1`] = `
 "Error deleting custom node Display Callback

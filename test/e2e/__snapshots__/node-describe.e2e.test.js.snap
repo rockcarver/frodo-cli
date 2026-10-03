@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo node describe "frodo node describe --json --node-id c605506774a848f7877b4d17a453bd39-1": should describe the custom node with id "c605506774a848f7877b4d17a453bd39-1" with json output 1`] = `
 "{

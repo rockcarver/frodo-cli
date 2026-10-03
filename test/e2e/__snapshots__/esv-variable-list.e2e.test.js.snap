@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo esv variable list "frodo esv variable list --usage --long --directory test/e2e/exports/all-separate/cloud": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the test/e2e/exports/all-separate/cloud directory 1`] = `
 "Id                               │Value                                   │Status│Description                             │Modifier              │Modified (UTC)               │Used                                                                                                                                          

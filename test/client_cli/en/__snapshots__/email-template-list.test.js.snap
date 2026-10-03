@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CLI help interface for 'email templates list' should be expected english 1`] = `
 "Usage: frodo email template list [options] [host] [realm] [username] [password]

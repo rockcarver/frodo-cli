@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo oauth client list "frodo oauth client list --long": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of the oauth clients 1`] = `
 "Client Id                           │Status│Client Type │Grant Types  │Scopes                     │Redirect URIs                              

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager delete test "frodo config-manager delete test": should fail connection with invalid credentials" 1`] = `
 "Experimental feature in use: 'frodo config-manager delete test'. This feature may change without notice.

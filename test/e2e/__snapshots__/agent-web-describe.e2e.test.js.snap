@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent web describe "frodo agent web describe -i frodo-test-web-agent --json": should describe web agent in JSON format 1`] = `
 "{

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager push scripts "frodo config-manager push scripts --directory test/e2e/exports/fr-config-manager/forgeops": should not import the scripts when no changes made 1`] = `""`;
 

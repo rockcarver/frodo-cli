@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json 1`] = `0`;
 

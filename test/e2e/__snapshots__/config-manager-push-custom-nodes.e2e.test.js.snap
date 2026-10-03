@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager push custom-nodes "frodo config-manager push custom-nodes -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the custom-nodes into forgeops" 1`] = `""`;
 

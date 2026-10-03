@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo iga workflow describe "frodo iga workflow describe --file test/e2e/exports/all/allWorkflows.workflow.json": should describe first workflow from file test/e2e/exports/all/allWorkflows.workflow.json 1`] = `
 "Draft Workflow

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz policy delete "frodo authz policy delete --all --set-id test-policy-set": should delete all policies in the test-policy-set set 1`] = `""`;
 

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo theme list "frodo theme list --long": should list the names, ids, and default status of the themes 1`] = `
 "Name         │Id                                  │Default

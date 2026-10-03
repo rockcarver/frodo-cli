@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo info Authenticate as service account using cli args frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> --json 1`] = `
 "{

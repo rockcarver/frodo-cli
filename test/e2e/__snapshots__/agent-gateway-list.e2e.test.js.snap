@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent gateway list "frodo agent gateway list --long": should list the ids and statuses of the gateway agents 1`] = `
 "Gateway Agent Id    │Status  

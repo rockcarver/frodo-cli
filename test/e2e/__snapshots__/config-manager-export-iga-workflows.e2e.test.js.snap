@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull  "frodo config-manager pull iga-workflows --name BasicApplicationGrant -D igaTestDir05": should fail because the non-mutable workflow is not found without -i" 1`] = `
 "Experimental feature in use: 'frodo config-manager pull iga-workflows'. This feature may change without notice.

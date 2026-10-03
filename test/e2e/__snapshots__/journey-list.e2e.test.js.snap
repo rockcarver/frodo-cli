@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo journey list "frodo journey list --long": should list the names, status, and tags of the default journeys 1`] = `
 "Name                 │Status │Inner Only│Must Run│No Session│Tx Only│Resource          │Tags               

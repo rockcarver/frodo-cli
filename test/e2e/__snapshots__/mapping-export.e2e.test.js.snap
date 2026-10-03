@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo mapping export Cloud "frodo mapping export --all": should export all mappings to a single file 1`] = `0`;
 

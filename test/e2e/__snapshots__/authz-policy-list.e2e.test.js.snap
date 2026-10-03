@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo authz policy list "frodo authz policy list --long --set-id test-policy-set": should list the ids, descriptions, and statuses of the authz policies in the test-policy-set set 1`] = `
 "Id         │Description            │Status  

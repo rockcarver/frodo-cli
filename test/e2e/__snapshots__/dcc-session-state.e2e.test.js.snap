@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo dcc session state "frodo dcc session state --json": should return the current state of the direct configuration session in JSON format 1`] = `
 "{ editable: false }

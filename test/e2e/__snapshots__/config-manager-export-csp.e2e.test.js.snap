@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull csp "frodo config-manager pull csp --directory configManagerExportCspDir1 -f test/e2e/fr-config-manager-pull-config/csp-overrides.json": should export the content security policy with overrides defined in the config file. 1`] = `0`;
 

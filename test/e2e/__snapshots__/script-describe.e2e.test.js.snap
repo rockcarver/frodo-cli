@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo script describe "frodo script describe --json --usage --script-id 1b52a7e0-4019-40fa-958a-15a49870e901 --file test/e2e/exports/all/all.cloud.json": should describe the script with id "1b52a7e0-4019-40fa-958a-15a49870e901" with usage from file test/e2e/exports/all/all.cloud.json and json output 1`] = `
 "{

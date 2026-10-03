@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pulls "frodo config-manager pull internal-roles -D testDir9": should export the internal-role in fr-config-manager style" 1`] = `0`;
 

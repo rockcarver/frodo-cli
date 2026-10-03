@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo mapping delete "frodo mapping delete --all": should do nothing when no mappings can be deleted 1`] = `""`;
 

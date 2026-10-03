@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json -m forgeops": should export all agents from all realms in fr-config manager style. 1`] = `0`;
 

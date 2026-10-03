@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 1`] = `0`;
 

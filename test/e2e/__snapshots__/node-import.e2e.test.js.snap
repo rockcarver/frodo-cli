@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo node import "frodo node import --all --file test/e2e/exports/all/allCustomNodes.nodeTypes.json": should import all custom nodes from the file "test/e2e/exports/all/allCustomNodes.nodeTypes.json" 1`] = `""`;
 

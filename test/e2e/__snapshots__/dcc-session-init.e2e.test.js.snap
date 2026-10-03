@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo dcc session init "frodo dcc session init --json": should initialize a new direct configuration session in JSON format 1`] = `
 "{ editable: true }

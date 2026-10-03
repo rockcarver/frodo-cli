@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`wordwrap wraps long strings with no spaces correctly 1`] = `"nfiguration.html"`;
 

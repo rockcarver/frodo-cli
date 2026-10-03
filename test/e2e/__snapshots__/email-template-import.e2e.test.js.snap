@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo email template import "frodo email template import --all --file test/e2e/exports/all/allEmailTemplates.template.email.json": should import all email templates from the file "test/e2e/exports/all/allEmailTemplates.template.email.json" 1`] = `""`;
 

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull telemetry "frodo config-manager pull telemetry --category splunk": should export only splunk exporters 1`] = `0`;
 

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent ai export "frodo agent ai export --agent-id banking-assistant": should export AI agent banking-assistant 1`] = `0`;
 
