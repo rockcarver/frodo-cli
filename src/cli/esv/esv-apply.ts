@@ -1,6 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import yesno from 'yesno';
+import confirm from '@inquirer/confirm';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { createTable, printMessage } from '../../utils/Console.js';
@@ -97,8 +97,10 @@ export default function setup() {
             ) {
               const ok =
                 options.yes ||
-                (await yesno({
-                  question: `\nChanges may take up to 10 minutes to propagate, during which time you will not be able to make further updates.\n\nApply updates? (y|n):`,
+                (await confirm({
+                  message:
+                    '\nChanges may take up to 10 minutes to propagate, during which time you will not be able to make further updates.\n\nApply updates?',
+                  default: false,
                 }));
               if (ok) {
                 if (

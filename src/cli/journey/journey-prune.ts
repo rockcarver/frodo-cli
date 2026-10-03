@@ -1,5 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import yesno from 'yesno';
+import confirm from '@inquirer/confirm';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
@@ -32,8 +32,9 @@ export default function setup() {
           try {
             const orphanedNodes = await findOrphanedNodes();
             if (orphanedNodes.length > 0) {
-              const ok = await yesno({
-                question: 'Prune (permanently delete) orphaned nodes? (y|n):',
+              const ok = await confirm({
+                message: 'Prune (permanently delete) orphaned nodes?',
+                default: false,
               });
               if (ok) {
                 await removeOrphanedNodes(orphanedNodes);
