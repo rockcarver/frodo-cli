@@ -12,7 +12,7 @@ import {
   CallbackHandler,
 } from '@rockcarver/frodo-lib/types/ops/CallbackOps';
 import open from 'open';
-import readlineSync from 'readline-sync';
+import { question } from '../utils/Prompt';
 
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 
@@ -26,9 +26,7 @@ const otpCallbackHandler: CallbackHandler = (callback: Callback) => {
   printMessage(
     `Multi-factor authentication is enabled and required for this user.`
   );
-  callback.input[0].value = readlineSync.question(
-    `${callback.output[0].value}: `
-  );
+  callback.input[0].value = question(`${callback.output[0].value}: `);
   return callback;
 };
 

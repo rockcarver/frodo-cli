@@ -272,5 +272,6 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-10-03 | Dependabot auto-merge workflow | #731 |
 | 2026-10-03 | TypeScript aligned to ^5.9.3 | #732 |
 | 2026-10-03 | npm `files` allowlist; Dockerfile tsup→tsdown fix | #733 |
-| 2026-10-03 | pkg → native Node.js SEA (all 5 targets; macos-intel cross-built on arm64; sign+jit entitlements+notarize; `@yao-pkg/pkg` removed) | this PR |
-| planned | ESLint 10 + Prettier-owns-imports; Polly→nock + remaining unmaintained deps | — |
+| 2026-10-03 | pkg → native Node.js SEA (all 5 targets; macos-intel cross-built on arm64; sign+jit entitlements+notarize; `@yao-pkg/pkg` removed) | #734 |
+| 2026-10-03 | Remaining unmaintained CLI deps replaced: `yesno`→`@inquirer/confirm` (6 confirm-prompt sites; prompts now answer with Enter-as-default-false), `readline-sync`→native `fs.readSync` in `utils/Prompt.ts` (the MFA OTP handler needs a *synchronous* prompt — frodo-lib's `CallbackHandler` is sync), `deep-diff`→a local `mergeOver` helper in `FrConfigCspOps.ts` (deep-diff's exact `applyDiff`-minus-deletions semantics; frodo-lib's `mergeDeep` was evaluated and rejected — it cannot overwrite a scalar with an object and throws) | this PR |
+| planned | ESLint 10 + Prettier-owns-imports; Polly→nock (library repo) | — |

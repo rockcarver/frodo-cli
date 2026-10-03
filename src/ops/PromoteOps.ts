@@ -2,7 +2,7 @@ import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import yesno from 'yesno';
+import confirm from '@inquirer/confirm';
 
 import { printError, verboseMessage } from '../utils/Console';
 import {
@@ -913,8 +913,9 @@ async function deleteSwitch(
           const orphanedNodes = await findOrphanedNodes();
           if (orphanedNodes.length > 0) {
             if (PromptPrune) {
-              const ok = await yesno({
-                question: `Prune (permanently delete) orphaned nodes from journey ${journeyId}? (y|n):`,
+              const ok = await confirm({
+                message: `Prune (permanently delete) orphaned nodes from journey ${journeyId}?`,
+                default: false,
               });
               if (ok) {
                 await removeOrphanedNodes(orphanedNodes);

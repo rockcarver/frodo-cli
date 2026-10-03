@@ -2,7 +2,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import fs from 'fs';
 import path from 'path';
-import yesno from 'yesno';
+import confirm from '@inquirer/confirm';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -57,9 +57,10 @@ async function confirmSchemaChanges(
     );
     return false;
   }
-  return yesno({
-    question:
-      '\nSchema changes affect every existing and future record of that managed object type. Continue? (y|n):',
+  return confirm({
+    message:
+      '\nSchema changes affect every existing and future record of that managed object type. Continue?',
+    default: false,
   });
 }
 

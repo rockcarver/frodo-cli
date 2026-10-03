@@ -119,6 +119,7 @@
     "frodo": "dist/launch.cjs"
   },
   "devDependencies": {
+    "@inquirer/confirm": "6.3.2",
     "@inquirer/core": "^12.0.1",
     "@inquirer/select": "^5.2.3",
     "@modelcontextprotocol/client": "^2.0.0",
@@ -137,7 +138,6 @@
     "commander": "^14.0.3",
     "compare-versions": "^6.1.0",
     "copyfiles": "^2.4.1",
-    "deep-diff": "^1.0.2",
     "del": "^8.0.0",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^10.1.1",
@@ -154,7 +154,6 @@
     "open": "^11.0.2",
     "prettier": "^3.0.3",
     "properties-reader": "^2.2.0",
-    "readline-sync": "^1.4.10",
     "replaceall": "^0.1.6",
     "resolve": "^1.22.1",
     "rimraf": "^6.0.1",
@@ -167,7 +166,6 @@
     "typescript": "^5.9.3",
     "uuid": "^11.1.0",
     "winston": "^3.19.0",
-    "yesno": "^0.4.0",
     "zod": "^4.3.6"
   },
   "allowScripts": {

@@ -25,7 +25,7 @@ import {
 } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import fs from 'fs';
 import path from 'path';
-import yesno from 'yesno';
+import confirm from '@inquirer/confirm';
 
 import c from '../utils/ColorTheme';
 import {
@@ -646,7 +646,7 @@ async function confirmChange(
     );
     return false;
   }
-  return yesno({ question });
+  return confirm({ message: question, default: false });
 }
 
 /** One row of a property table: `path` is the property's dot-path (just its own name, when not nested under --recursive). */
