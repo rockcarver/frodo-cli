@@ -56,7 +56,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -166,7 +166,7 @@ jobs:
           fetch-tags: true
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
           node-version: ${{ matrix.node-version }}
@@ -244,7 +244,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -399,7 +399,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -533,7 +533,7 @@ jobs:
         with:
           name: build
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # node --build-sea needs >= 25.5; 26 is current. The build itself
           # runs on arm64; the x64 runtime binary is fetched separately.
@@ -642,7 +642,7 @@ jobs:
         with:
           name: build
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # node --build-sea needs >= 25.5; 26 is current.
           node-version: ${{ env.SEA_NODE_VERSION }}
@@ -698,7 +698,7 @@ jobs:
         with:
           name: build
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # node --build-sea needs >= 25.5; 26 is current.
           node-version: ${{ env.SEA_NODE_VERSION }}
@@ -739,7 +739,7 @@ jobs:
         with:
           name: build
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # node --build-sea needs >= 25.5; 26 is current.
           node-version: ${{ env.SEA_NODE_VERSION }}
@@ -778,7 +778,7 @@ jobs:
         with:
           name: build
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # node --build-sea needs >= 25.5; 26 is current.
           node-version: ${{ env.SEA_NODE_VERSION }}
