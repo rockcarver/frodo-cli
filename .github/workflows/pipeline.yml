@@ -458,7 +458,7 @@ jobs:
     needs: [release, build, npm-release]
     runs-on: ubuntu-latest
     steps:
-      - uses: mislav/bump-homebrew-formula-action@v3
+      - uses: mislav/bump-homebrew-formula-action@v4
         if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
         with:
           formula-name: frodo-cli
@@ -469,7 +469,7 @@ jobs:
           download-url: https://github.com/rockcarver/frodo-cli.git
         env:
           COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
-      - uses: mislav/bump-homebrew-formula-action@v3
+      - uses: mislav/bump-homebrew-formula-action@v4
         # if: ${{ fromJSON(needs.build.outputs.preRelease) }}
         with:
           formula-name: frodo-cli-next
