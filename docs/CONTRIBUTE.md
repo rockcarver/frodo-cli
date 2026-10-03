@@ -31,6 +31,10 @@ npm ci
 
 ### Build and install
 
+For how the build toolchain works — what each tool does and why, bundler
+configuration details, binary packaging and signing — see
+[BUILD-ENV.md](BUILD-ENV.md).
+
 #### Build and create platform binary
 
 The following command builds the CLI and creates the binary for your platform:
