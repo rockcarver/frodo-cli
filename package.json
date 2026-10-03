@@ -62,7 +62,7 @@
     "lint": "eslint --cache --cache-location .eslintcache \"src/**/*.ts\"",
     "lint:fix": "eslint --cache --cache-location .eslintcache --fix \"src/**/*.ts\"",
     "lint:fix:ci": "eslint --no-cache --fix \"src/**/*.ts\"",
-    "build": "npm run build:binary",
+    "build": "npm run build:only",
     "build:only": "npx tsdown && npx tsc",
     "build:binary": "npm run build:only && npm run build:sea",
     "build:sea": "npm run build:sea-bundle && node --build-sea sea-config.json",

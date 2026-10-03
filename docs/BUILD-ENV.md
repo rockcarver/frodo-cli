@@ -138,7 +138,10 @@ the migration PR.
 
 ## 6. Binary packaging: native Node.js SEA (since 2026-10)
 
-`npm run build:binary` = tsdown dist build + SEA build:
+`npm run build:binary` = tsdown dist build + SEA build. (`npm run build` /
+`build:only` build the npm bundle only — no binary, no Node 26 requirement;
+the CI Build job runs that one. `--build-sea` needs Node ≥ 25.5, so only the
+binary jobs and `build:binary`/`build:sea` need Node 26.)
 
 1. `build:only` — the normal `dist/` bundle (npm package entry points).
 2. `build:sea-bundle` — `tsdown --config tsdown.sea.config.mts`: single entry
