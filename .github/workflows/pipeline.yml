@@ -120,8 +120,13 @@ jobs:
         run: npm run check:mcp-sdk-track
 
       - name: Build frodo-cli
+        # build:only = the npm bundle (dist/) + typecheck. NOT `npm run
+        # build`: that now means the full build including the SEA binary,
+        # which needs Node 26 - and this job (and the artifact it uploads)
+        # intentionally runs on Node 24; the binary jobs bundle the SEA from
+        # source themselves.
         run: |
-          npm run build
+          npm run build:only
 
       - name: Lint
         run: npm run check
