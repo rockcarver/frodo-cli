@@ -17,7 +17,7 @@
  * so the pinned hash is verified twice - here and by brew.
  */
 import { createHash } from 'node:crypto';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -27,6 +27,7 @@ if (!version || !tag) {
   process.exit(2);
 }
 const outDir = outArg || mkdtempSync(join(tmpdir(), 'frodo-formula-'));
+mkdirSync(outDir, { recursive: true });
 
 const RELEASE_BASE = `https://github.com/rockcarver/frodo-cli/releases/download/${tag}`;
 
@@ -130,9 +131,13 @@ async function urlBlocks() {
 
 const main = async () => {
   const blocks = await urlBlocks();
-  for (const which of ['stable', 'next']) {
-    const file = join(outDir, `frodo-cli${which === 'next' ? '-next' : ''}.rb`);
-    writeFileSync(file, formulaBody(which, blocks));
+  const prerelease = /-/.test(version);
+  // The stable formula tracks stable releases only (the pipeline gates it on
+  // !preRelease); frodo-cli-next tracks every release, prereleases included.
+  const which = prerelease ? ['next'] : ['stable', 'next'];
+  for (const w of which) {
+    const file = join(outDir, `frodo-cli${w === 'next' ? '-next' : ''}.rb`);
+    writeFileSync(file, formulaBody(w, blocks));
     console.log(`wrote ${file}`);
   }
 };
