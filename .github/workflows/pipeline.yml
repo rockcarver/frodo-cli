@@ -123,7 +123,7 @@ jobs:
       - name: Security Audit
         run: npm audit fix --audit-level critical
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: build
           # Binary jobs run `npm run build:binary` themselves (SEA bundles
@@ -608,7 +608,7 @@ jobs:
       - name: Notorize
         run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: macos-intel-binary-release
           path: frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
@@ -692,7 +692,7 @@ jobs:
       - name: Notorize
         run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: macos-arm64-binary-release
           path: frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
@@ -730,7 +730,7 @@ jobs:
       - name: Archive distribution binary
         run: zip -Z bzip2 frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip dist-sea/frodo
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-x64-binary-release
           path: frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip
@@ -771,7 +771,7 @@ jobs:
       - name: Archive distribution binary
         run: zip -Z bzip2 frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip dist-sea/frodo
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-arm64-binary-release
           path: frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
@@ -816,7 +816,7 @@ jobs:
       - name: Archive distribution binary
         run: 7z a -tzip frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip dist-sea/frodo.exe
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-x64-binary-release
           path: frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip
