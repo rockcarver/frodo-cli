@@ -254,7 +254,18 @@ manual `workflow_dispatch` only (prerelease/patch/minor/major).
 Jobs: Build (version bump, manifest update, tsdown+tsc) → Test (Node 26
 matrix + cross-platform credential-file tests + live-tenant smoke)
 → 5 binary-release jobs → npm trusted publish → GitHub release → Homebrew
-prebuilt-formula push (generate + git push via `PAT_HOMEBREW_FORMULA_REPO`).
+prebuilt-formula push (generate + git push via `FRODO_CI_PAT`).
+
+**npm publish review hold**: npm runs automated review on
+not-yet-trusted version patterns — a *new major* version's first publish
+(5.0.0-1 was the first) can sit in "Validating" on the npmjs.com versions
+tab for hours while the registry 404s it, even though the publish
+transaction itself succeeded (npm CLI + action report success, provenance
+lands in the sigstore/rekor log). It clears on its own when review
+completes; don't re-run the npm-release job. Policy watch: npm restricts
+2FA-bypass tokens for direct publishing (Jan 2027) — the pipeline uses
+trusted publishing (OIDC provenance), which is the exempt path, but
+re-verify that setup before a release day if the policy tightens.
 
 **Branch protection**: ruleset `main-branch-protection` requires
 `Build`, `Test gate`, `linux-x64-binary-release` (cli) / `Cross-Platform
