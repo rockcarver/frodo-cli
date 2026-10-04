@@ -472,14 +472,62 @@ function isValidThemeDefinition(value: unknown): value is ThemeDefinition {
  * Every theme definition found in ~/.frodo/themes/ -- both the built-in
  * reference files and any custom ones a user has added. Malformed files
  * are skipped with a warning rather than failing the whole listing.
+ *
+ * Results are cached and revalidated against each file's mtime+size, so
+ * repeated calls within one process (the FrodoStubCommand constructor
+ * calls activatePersistedTheme, and every color resolution re-reads
+ * settings) don't re-read the whole directory -- ~5,600 redundant file
+ * reads / ~200 ms of startup on the first `frodo -v` without this.
+ * Editing a theme file still takes effect immediately (mtime changes).
  */
+type DirCacheEntry = {
+  signature: Map<string, { mtimeMs: number; size: number }>;
+  definitions: ThemeDefinition[];
+};
+let dirCache: DirCacheEntry | undefined;
+
+function currentDirSignature(
+  dir: string,
+  filenames: string[]
+): Map<string, { mtimeMs: number; size: number }> {
+  const signature = new Map<string, { mtimeMs: number; size: number }>();
+  for (const filename of filenames) {
+    try {
+      const st = fs.statSync(path.join(dir, filename));
+      signature.set(filename, { mtimeMs: st.mtimeMs, size: st.size });
+    } catch {
+      // unreadable/ vanished between readdir and stat -- treated as absent
+    }
+  }
+  return signature;
+}
+
+function sameSignature(
+  a: Map<string, { mtimeMs: number; size: number }>,
+  b: Map<string, { mtimeMs: number; size: number }>
+): boolean {
+  if (a.size !== b.size) return false;
+  for (const [name, stat] of a) {
+    const other = b.get(name);
+    if (!other || other.mtimeMs !== stat.mtimeMs || other.size !== stat.size) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function listThemeDefinitions(): ThemeDefinition[] {
   const dir = getThemesDir();
   let filenames: string[];
   try {
     filenames = fs.readdirSync(dir).filter((f) => f.endsWith('.json'));
   } catch {
+    dirCache = undefined;
     return [];
+  }
+  const signature = currentDirSignature(dir, filenames);
+  if (dirCache && sameSignature(dirCache.signature, signature)) {
+    return dirCache.definitions;
   }
   const definitions: ThemeDefinition[] = [];
   for (const filename of filenames) {
@@ -501,6 +549,7 @@ export function listThemeDefinitions(): ThemeDefinition[] {
       );
     }
   }
+  dirCache = { signature, definitions };
   return definitions;
 }
 
@@ -522,24 +571,44 @@ type ThemeSettings = {
 // file on disk to the new shape naturally, no separate migration step.
 type LegacyThemeSettings = { active?: string; autoDetect?: boolean };
 
+// Cache for `readThemeSettings`, revalidated against Theme.json's mtime+size.
+// The color getters resolve live on every access by design (theme edits take
+// effect immediately), but resolution must not cost three sync file reads per
+// access -- `getActiveThemeName` alone reads it three times.
+let settingsCache:
+  | { mtimeMs: number; size: number; settings: ThemeSettings }
+  | undefined;
+
 function readThemeSettings(): ThemeSettings {
-  let parsed: unknown;
+  const file = getActiveThemeFilePath();
   try {
-    const raw = fs.readFileSync(getActiveThemeFilePath(), 'utf8');
-    parsed = JSON.parse(raw);
+    const st = fs.statSync(file);
+    if (
+      settingsCache &&
+      settingsCache.mtimeMs === st.mtimeMs &&
+      settingsCache.size === st.size
+    ) {
+      return settingsCache.settings;
+    }
+    const parsed: unknown = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (typeof parsed !== 'object' || !parsed) return {};
+    const settings = parsed as ThemeSettings & LegacyThemeSettings;
+    let result: ThemeSettings;
+    if (settings.background || settings.customActive) {
+      result = settings;
+    } else if (typeof settings.active === 'string') {
+      const legacyParsed = parseThemeName(settings.active);
+      result = legacyParsed
+        ? { ...legacyParsed, autoDetect: settings.autoDetect }
+        : { customActive: settings.active, autoDetect: settings.autoDetect };
+    } else {
+      result = settings;
+    }
+    settingsCache = { mtimeMs: st.mtimeMs, size: st.size, settings: result };
+    return result;
   } catch {
     return {};
   }
-  if (typeof parsed !== 'object' || !parsed) return {};
-  const settings = parsed as ThemeSettings & LegacyThemeSettings;
-  if (settings.background || settings.customActive) return settings;
-  if (typeof settings.active === 'string') {
-    const legacyParsed = parseThemeName(settings.active);
-    return legacyParsed
-      ? { ...legacyParsed, autoDetect: settings.autoDetect }
-      : { customActive: settings.active, autoDetect: settings.autoDetect };
-  }
-  return settings;
 }
 
 function writeThemeSettings(settings: ThemeSettings): void {
@@ -555,6 +624,7 @@ function writeThemeSettings(settings: ThemeSettings): void {
       getActiveThemeFilePath(),
       JSON.stringify(settings, null, 2)
     );
+    settingsCache = undefined;
   } catch (e) {
     // Losing a theme preference is not fatal: report it and let startup
     // continue with the defaults (matching `ensureBuiltInThemeFiles`).

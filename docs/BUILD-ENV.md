@@ -40,11 +40,11 @@ Release automation:
 
 **What it does**: bundles the three TypeScript entries into CJS outputs:
 
-| Entry | Output | Role |
-|---|---|---|
+| Entry           | Output            | Role                                                                                     |
+| --------------- | ----------------- | ---------------------------------------------------------------------------------------- |
 | `src/launch.ts` | `dist/launch.cjs` | npm `bin` entry; spawns `app.cjs` with the module-resolution loader and forwards signals |
-| `src/loader.ts` | `dist/loader.cjs` | module-resolution loader for the app |
-| `src/app.ts` | `dist/app.cjs` | the CLI itself (~10 MB, self-contained) |
+| `src/loader.ts` | `dist/loader.cjs` | module-resolution loader for the app                                                     |
+| `src/app.ts`    | `dist/app.cjs`    | the CLI itself (~10 MB, self-contained)                                                  |
 
 **Why tsdown and not tsup**: tsup is unmaintained (last release Nov 2025) and
 had a real defect we hit in production CI (see §2.1). tsdown is the
@@ -179,33 +179,39 @@ binary jobs and `build:binary`/`build:sea` need Node 26.)
 **sea-config.json**: `execArgv: ["--no-warnings"]` silences Node 26's
 spurious `localStorage` ExperimentalWarning; `execArgvExtension: "none"`
 makes user flags (`--inspect`, `--node-options`) reach the app, not Node;
-`useCodeCache: false` + `useSnapshot: false` (required for cross-builds);
+`useCodeCache: true` (saves ~50 ms of bundle compile at startup for +2.7 MB
+uncompressed / ~1 MB zipped; host-arch-specific, so the macos-intel
+cross-build forces it back to `false` in `sea-config.build.json`) +
+`useSnapshot: false` (startup snapshots are not viable for this app:
+`node:http`/`https` API objects cannot be serialized, and module-scope
+state would bake at build time);
 `output: "frodo"` (the Windows job copies it to `frodo.exe` — Version.ts
 binary detection keys on `basename(process.execPath)` being `frodo`/
 `frodo.exe`).
 
 **The five targets** (same artifact names as the pkg era):
 
-| Target | Runner | How |
-|---|---|---|
-| linux-x64 | ubuntu-24.04 | native (`--build-sea` with its own Node 26) |
-| linux-arm64 | ubuntu-24.04-arm | native, not a container (SEA needs glibc; alpine unsupported) |
-| macos-arm64 | macos-15 | native |
-| macos-intel | macos-15 (arm64) | **cross-build**: downloads the official darwin-x64 Node binary, points `executable` at it; smoke-tested under Rosetta on the runner. Retires `macos-15-intel` (EOL Aug 2027). Upstream caveat: `--build-sea` is broken on macOS x64 *hosts* (nodejs/node#65479, open) — our arm64-host/x64-target path is unaffected. |
-| windows-x64 | windows-2022 | native; copy `frodo` → `frodo.exe`; unsigned (as in the pkg era) |
+| Target      | Runner           | How                                                                                                                                                                                                                                                                                                                   |
+| ----------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| linux-x64   | ubuntu-24.04     | native (`--build-sea` with its own Node 26)                                                                                                                                                                                                                                                                           |
+| linux-arm64 | ubuntu-24.04-arm | native, not a container (SEA needs glibc; alpine unsupported)                                                                                                                                                                                                                                                         |
+| macos-arm64 | macos-15         | native                                                                                                                                                                                                                                                                                                                |
+| macos-intel | macos-15 (arm64) | **cross-build**: downloads the official darwin-x64 Node binary, points `executable` at it; smoke-tested under Rosetta on the runner. Retires `macos-15-intel` (EOL Aug 2027). Upstream caveat: `--build-sea` is broken on macOS x64 _hosts_ (nodejs/node#65479, open) — our arm64-host/x64-target path is unaffected. |
+| windows-x64 | windows-2022     | native; copy `frodo` → `frodo.exe`; unsigned (as in the pkg era)                                                                                                                                                                                                                                                      |
 
 **macOS signing (mandatory, sign LAST)**: `--build-sea` output is **unsigned**
 (the injector strips the base Node signature and does not re-sign — verified
 in node src/node_sea_bin.cc). Unsigned arm64 binaries are SIGKILLed (rc=137);
 quarantined ones get the "Apple could not verify" dialog. The pipeline signs
 immediately after the build: Developer ID + `--options runtime --timestamp`
-+ entitlements `com.apple.security.cs.allow-jit` **only** (no entitlements at
-all = V8 "Failed to reserve virtual memory for CodeRange" fatal under the
-hardened runtime; `allow-unsigned-executable-memory` also works but is the
-broader legacy exception Electron dropped). Then `codesign --verify
+
+- entitlements `com.apple.security.cs.allow-jit` **only** (no entitlements at
+  all = V8 "Failed to reserve virtual memory for CodeRange" fatal under the
+  hardened runtime; `allow-unsigned-executable-memory` also works but is the
+  broader legacy exception Electron dropped). Then `codesign --verify
 --strict`, `ditto -c -k` zip, `xcrun notarytool submit --wait` (zips cannot
-be stapled; Gatekeeper checks online). `cp` does NOT break a valid
-signature; re-signing does not clear the quarantine xattr.
+  be stapled; Gatekeeper checks online). `cp` does NOT break a valid
+  signature; re-signing does not clear the quarantine xattr.
 
 **Size**: zipped SEA ~44 MB vs zipped pkg ~30 MB (+14 MB); uncompressed
 ~148 MB vs ~74 MB. Accepted (users download zips).
@@ -297,22 +303,23 @@ pkg→SEA migration (it builds `dist/` from source).
 
 ## 11. Maintenance history (what changed when)
 
-| Date | Change | PR |
-|---|---|---|
-| 2026-10-02 | Dependabot configs fixed (were empty template); security updates + secret scanning on | #712 |
-| 2026-10-02 | Unmaintained deps replaced: esprima→acorn, jwk-to-pem→node:crypto, replaceall→String.replaceAll, dead deps removed | #671 (lib) |
-| 2026-10-02 | node-jose→jose; tsup sucrase workaround | #672 (lib) |
-| 2026-10-02 | node-forge→@peculiar/x509 (test-only certs) | #673 (lib) |
-| 2026-10-03 | jest 29→30 + snapshot header migration | #729 |
-| 2026-10-03 | paths-ignore removed from PR trigger; Test gate aggregator added | #728 |
-| 2026-10-03 | tsup→tsdown | #730 |
-| 2026-10-03 | Branch protection rulesets active; admin bypass via repository role | (repo settings) |
-| 2026-10-03 | Dependabot auto-merge workflow | #731 |
-| 2026-10-03 | TypeScript aligned to ^5.9.3 | #732 |
-| 2026-10-03 | npm `files` allowlist; Dockerfile tsup→tsdown fix | #733 |
-| 2026-10-03 | pkg → native Node.js SEA (all 5 targets; macos-intel cross-built on arm64; sign+jit entitlements+notarize; `@yao-pkg/pkg` removed) | #734 |
-| 2026-10-03 | Remaining unmaintained CLI deps replaced: `yesno`→`@inquirer/confirm` (6 confirm-prompt sites; prompts now answer with Enter-as-default-false), `readline-sync`→native `fs.readSync` in `utils/Prompt.ts` (the MFA OTP handler needs a *synchronous* prompt — frodo-lib's `CallbackHandler` is sync), `deep-diff`→a local `mergeOver` helper in `FrConfigCspOps.ts` (deep-diff's exact `applyDiff`-minus-deletions semantics; frodo-lib's `mergeDeep` was evaluated and rejected — it cannot overwrite a scalar with an object and throws) | this PR |
-| 2026-10-03 | ESLint 8→10 (native flat config), Prettier-owns-imports via `@ianvs/prettier-plugin-sort-imports`; `eslint-plugin-prettier`, `simple-import-sort`, `jest`, `jsx-a11y`, `import` plugins removed; scripts `fix`/`check`; ~40 dead initializers, 1 `preserve-caught-error`, 2 real shadowing bugs fixed; `tsconfig.lib` → `ES2022` for `Error(cause)` typing | this PR |
-| 2026-10-04 | Binary-first test runtime: SEA output at `dist-sea/frodo[.exe]`, test scripts wrap `tools/with-frodo-bin.mjs` (on-demand binary build + PATH pin), npm-entry smoke suite, CLI test matrix → Node 26 only, engines ≥26, Docker node:26-slim | #741 |
-| 2026-10-04 | Homebrew formulas install prebuilt release zips (per-OS/arch sha256-pinned; `mislav/bump-homebrew-formula-action` replaced by `tools/update-homebrew-formula.mjs` + pipeline git push; `depends_on node@24` dropped; `brew test` implemented) | #742 |
-| planned | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage) | — |
+| Date       | Change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | PR              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- |
+| 2026-10-02 | Dependabot configs fixed (were empty template); security updates + secret scanning on                                                                                                                                                                                                                                                                                                                                                                                                                                                      | #712            |
+| 2026-10-02 | Unmaintained deps replaced: esprima→acorn, jwk-to-pem→node:crypto, replaceall→String.replaceAll, dead deps removed                                                                                                                                                                                                                                                                                                                                                                                                                         | #671 (lib)      |
+| 2026-10-02 | node-jose→jose; tsup sucrase workaround                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | #672 (lib)      |
+| 2026-10-02 | node-forge→@peculiar/x509 (test-only certs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | #673 (lib)      |
+| 2026-10-03 | jest 29→30 + snapshot header migration                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | #729            |
+| 2026-10-03 | paths-ignore removed from PR trigger; Test gate aggregator added                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | #728            |
+| 2026-10-03 | tsup→tsdown                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | #730            |
+| 2026-10-03 | Branch protection rulesets active; admin bypass via repository role                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | (repo settings) |
+| 2026-10-03 | Dependabot auto-merge workflow                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | #731            |
+| 2026-10-03 | TypeScript aligned to ^5.9.3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | #732            |
+| 2026-10-03 | npm `files` allowlist; Dockerfile tsup→tsdown fix                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | #733            |
+| 2026-10-03 | pkg → native Node.js SEA (all 5 targets; macos-intel cross-built on arm64; sign+jit entitlements+notarize; `@yao-pkg/pkg` removed)                                                                                                                                                                                                                                                                                                                                                                                                         | #734            |
+| 2026-10-03 | Remaining unmaintained CLI deps replaced: `yesno`→`@inquirer/confirm` (6 confirm-prompt sites; prompts now answer with Enter-as-default-false), `readline-sync`→native `fs.readSync` in `utils/Prompt.ts` (the MFA OTP handler needs a _synchronous_ prompt — frodo-lib's `CallbackHandler` is sync), `deep-diff`→a local `mergeOver` helper in `FrConfigCspOps.ts` (deep-diff's exact `applyDiff`-minus-deletions semantics; frodo-lib's `mergeDeep` was evaluated and rejected — it cannot overwrite a scalar with an object and throws) | this PR         |
+| 2026-10-03 | ESLint 8→10 (native flat config), Prettier-owns-imports via `@ianvs/prettier-plugin-sort-imports`; `eslint-plugin-prettier`, `simple-import-sort`, `jest`, `jsx-a11y`, `import` plugins removed; scripts `fix`/`check`; ~40 dead initializers, 1 `preserve-caught-error`, 2 real shadowing bugs fixed; `tsconfig.lib` → `ES2022` for `Error(cause)` typing                                                                                                                                                                                 | this PR         |
+| 2026-10-04 | Binary-first test runtime: SEA output at `dist-sea/frodo[.exe]`, test scripts wrap `tools/with-frodo-bin.mjs` (on-demand binary build + PATH pin), npm-entry smoke suite, CLI test matrix → Node 26 only, engines ≥26, Docker node:26-slim                                                                                                                                                                                                                                                                                                 | #741            |
+| 2026-10-04 | Homebrew formulas install prebuilt release zips (per-OS/arch sha256-pinned; `mislav/bump-homebrew-formula-action` replaced by `tools/update-homebrew-formula.mjs` + pipeline git push; `depends_on node@24` dropped; `brew test` implemented)                                                                                                                                                                                                                                                                                              | #742            |
+| 2026-10-04 | Startup performance: theme settings + theme-definition reads cached with mtime validation (the per-command `FrodoStubCommand` re-activated the theme, re-reading `~/.frodo/themes/*.json` ~400× per invocation — 5,600 redundant sync reads, ~200 ms); SEA `useCodeCache: true` for native targets (+~50 ms compile saving); `frodo -v` 560 → ~355 ms. Fixed the Windows binary job missing its `--build-sea` invocation (would have shipped `Copy-Item` of a nonexistent file)                                                            | this PR         |
+| planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                        | —               |
