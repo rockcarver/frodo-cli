@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-1] - 2026-10-04
+
+### Added
+- Added support for the `premajor` release type in the pipeline dispatch input, allowing pre-releases of the next major version. This feature facilitates the creation of pre-release versions like `5.0.0-1`, which are published to npm under the `next` tag and include updates to the `frodo-cli-next` Homebrew formula. (#745)
+
+### Changed
+- Improved startup performance by caching theme reads and SEA code, reducing startup time from 560 ms to approximately 355 ms. This optimization eliminates redundant file reads during command execution. (#743)
+- Updated Homebrew formulas to install prebuilt release zips instead of building from source, streamlining the installation process for users. (#742)
+
 ## [v4.18.0] - 2026-10-01
 
 ### Added
@@ -2853,6 +2862,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-1]: https://github.com/rockcarver/frodo-cli/compare/v4.18.0...v5.0.0-1
 [v4.18.0]: https://github.com/rockcarver/frodo-cli/compare/v4.17.0...v4.18.0
 [v4.17.0]: https://github.com/rockcarver/frodo-cli/compare/v4.16.0...v4.17.0
 [v4.16.0]: https://github.com/rockcarver/frodo-cli/compare/v4.15.1...v4.16.0
