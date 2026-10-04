@@ -14,7 +14,7 @@ described in the job sections that follow.)
 ```mermaid
 flowchart TD
     PR["PR to main<br/>or push to main"] --> B["Build<br/>(version bump, dist bundle)<br/>required check"]
-    B --> T["Test (22 / 24 / 26)"]
+    B --> T["Test (26)"]
     B --> X["Cross-Platform Tests<br/>(credential file permissions)"]
     T --> TG["Test gate<br/>required check"]
     PR -->|"workflow_dispatch only (release)"| RELPATH["Release path"]
@@ -29,7 +29,7 @@ flowchart TD
         LX & LA & MI & MA & WI --> NR["npm-release<br/>(trusted publish)"]
         TL --> NR
         NR --> R["Release<br/>(changelog, tag, GitHub release)"]
-        R2["Release"] --> HB["Bump Homebrew formula<br/>(frodo-cli, frodo-cli-next)"]
+        R2["Release"] --> HB["Update Homebrew formulas<br/>(prebuilt zips, frodo-cli + frodo-cli-next)"]
         NR --> R2
     end
 ```
@@ -78,15 +78,21 @@ ruleset's admin bypass; the GitHub Actions app cannot be a bypass actor.
 - Uploads `package.json`, `package-lock.json` and `dist/` as the `build`
   artifact that every downstream job consumes
 
-Runs on Node 24 (the npm support floor). Note this job intentionally does
-NOT build the SEA binary — that requires Node 26 and is the binary jobs'
-product (see [BUILD-ENV.md](BUILD-ENV.md) §6).
+Runs on Node 24 (the npm support floor; the Build job only produces the npm
+bundle). Note this job intentionally does NOT build the SEA binary — that
+requires Node 26 and is the binary jobs' product (see
+[BUILD-ENV.md](BUILD-ENV.md) §6). The Test job pins Node 26 and runs the
+suite against the SEA binary itself.
 
 ### Test
 
-- **Test (22 / 24 / 26)**: the full jest suite (≈632 suites, ≈1,950 tests,
-  ≈8,500 snapshots) serially, on each supported Node version. Uses Python
-  3.11 for the PTY-based shell tests.
+- **Test (26)**: the full jest suite (≈632 suites, ≈1,950 tests,
+  ≈8,500 snapshots) serially, on Node 26 — the version the shipped SEA
+  binary embeds, and the only one the CLI supports (engines ≥26 since
+  #741). frodo-lib keeps the full 22/24/26 matrix in its own pipeline.
+  Uses Python 3.11 for the PTY-based shell tests. The suite runs against
+  the freshly built SEA binary (pinned via `tools/with-frodo-bin.mjs`), not
+  an npm install.
 - **Live Tenant Smoke Test** (push/release only): runs against a real
   tenant using service credentials (`FRODO_SA_ID`/`FRODO_SA_JWK`), through a
   squid proxy service container.
@@ -100,7 +106,7 @@ product (see [BUILD-ENV.md](BUILD-ENV.md) §6).
 fails if **any** matrix leg failed. It exists because of how branch
 protection works: the ruleset must name required checks exactly, and the
 required-check name of a matrix job includes its matrix value
-(`Test (22)`, `Test (24)` …). If the ruleset named those directly, every
+(`Test (22)`, `Test (26)` …). If the ruleset named those directly, every
 Node version added or retired would require a ruleset edit. Instead the
 ruleset requires the single, stable name `Test gate`, whose outcome is
 derived from the whole matrix — so the Node version list can change freely
@@ -168,12 +174,25 @@ Release assets include:
 - `frodo-macos-arm64-<version>.zip`
 - `frodo-windows-x64-<version>.zip`
 
-### Bump Homebrew formula
+### Update Homebrew formulas
 
-After a successful release + npm publish (not for prereleases on the stable
-formula), the workflow updates the Homebrew tap formulas (`frodo-cli` and
-`frodo-cli-next`) via `mislav/bump-homebrew-formula-action@v3`. The formulas
-install prebuilt release binaries (not source builds).
+After a successful release + npm publish, the `homebrew-formula-update` job
+regenerates the Homebrew tap formulas (`frodo-cli` and `frodo-cli-next`) and
+pushes them to `rockcarver/homebrew-frodo-cli` (via the
+`PAT_HOMEBREW_FORMULA_REPO` PAT).
+
+The formulas install **prebuilt release binaries** (not source builds):
+each formula carries per-OS/arch `url` + `sha256` blocks pointing at the
+release zips (`frodo-macos-arm64` / `frodo-macos-intel` /
+`frodo-linux-arm64` / `frodo-linux-x64`), so `brew install` hands the user
+the exact CI-tested, Developer ID-signed, notarized binary — no local
+Node.js toolchain needed. Both formulas are regenerated on every release
+from `tools/update-homebrew-formula.mjs`, which downloads each zip to
+compute its sha256 (the same bytes brew will download, so the pin is
+verified twice) and skips the tap commit if nothing changed. The stable and
+next formulas differ only in their install-time collision guard (stable
+refuses to clobber an installed `frodo-cli-next` pre-release and vice
+versa) — both install a binary named `frodo`.
 
 ## Pipeline Maintenance
 

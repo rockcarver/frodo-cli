@@ -472,32 +472,46 @@ jobs:
 
   homebrew-formula-update:
     if: github.event_name == 'workflow_dispatch'
-    name: Bump Homebrew formula
+    name: Update Homebrew formulas (prebuilt zips)
     needs: [release, build, npm-release]
     runs-on: ubuntu-latest
     steps:
-      - uses: mislav/bump-homebrew-formula-action@v3
-        if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
+      - uses: actions/checkout@v6
         with:
-          formula-name: frodo-cli
-          formula-path: Formula/frodo-cli.rb
-          homebrew-tap: rockcarver/homebrew-frodo-cli
-          push-to: rockcarver/homebrew-frodo-cli
-          tag-name: ${{ needs.build.outputs.newTag }}
-          download-url: https://github.com/rockcarver/frodo-cli.git
-        env:
-          COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
-      - uses: mislav/bump-homebrew-formula-action@v3
-        # if: ${{ fromJSON(needs.build.outputs.preRelease) }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
         with:
-          formula-name: frodo-cli-next
-          formula-path: Formula/frodo-cli-next.rb
-          homebrew-tap: rockcarver/homebrew-frodo-cli
-          push-to: rockcarver/homebrew-frodo-cli
-          tag-name: ${{ needs.build.outputs.newTag }}
-          download-url: https://github.com/rockcarver/frodo-cli.git
+          node-version: 26
+      # Generates both formulas from the per-arch release zips the pipeline
+      # built, tested, signed and notarized. Homebrew then installs the exact
+      # tested artifact instead of building a second, untested binary from
+      # source on the user's machine (which also required node@24).
+      - name: Generate formulas
         env:
-          COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
+          GH_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
+        run: |
+          node tools/update-homebrew-formula.mjs \
+            ${{ needs.build.outputs.newVersion }} \
+            ${{ needs.build.outputs.newTag }} \
+            "$RUNNER_TEMP/frodo-formulas"
+      - name: Push formula updates to the tap
+        env:
+          GH_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
+          NEEDS_VERSION: ${{ needs.build.outputs.newVersion }}
+        run: |
+          gh repo clone rockcarver/homebrew-frodo-cli tap
+          cd tap
+          git config user.name "rockcarver-pipeline"
+          git config user.email "actions@github.com"
+          cp "$RUNNER_TEMP/frodo-formulas/frodo-cli.rb" Formula/frodo-cli.rb
+          cp "$RUNNER_TEMP/frodo-formulas/frodo-cli-next.rb" Formula/frodo-cli-next.rb
+          git add Formula/frodo-cli.rb Formula/frodo-cli-next.rb
+          if git diff --cached --quiet; then
+            echo "Formulas already up to date for ${{ needs.build.outputs.newTag }}"
+          else
+            git commit -m "frodo-cli ${NEEDS_VERSION} (prebuilt binary zips)"
+            git push origin main
+          fi
 
   macos-intel-binary-release:
     # Cross-builds the x64 binary on the arm64 runner via the SEA

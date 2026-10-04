@@ -28,14 +28,14 @@ npm run test:serial                  # replay everything, one file at a time
 
 Replay needs no network access and no credentials of yours.
 
-**The `frodo` on your `PATH` has to be this checkout's build.** Tests run whatever `frodo` resolves to, and the binary bundles frodo-lib, so a stale or foreign binary fails in confusing ways (typically `Recording for the following request has expired / is not found` for changes it doesn't contain). Before trusting a result:
+**The binary under test is this checkout's build, and the test scripts pin it for you.** Every `npm run test:*` script goes through `tools/with-frodo-bin.mjs`, which builds `dist-sea/frodo` on demand (guarded by a lock file so concurrent runs don't clobber each other) and prepends `dist-sea` to `PATH` for the run — tests spawn exactly that binary, never whatever stale `frodo` might sit elsewhere on your `PATH`. The binary bundles frodo-lib, so a foreign binary would fail in confusing ways (typically `Recording for the following request has expired / is not found` for changes it doesn't contain) — but the pin makes that a non-issue for npm-script runs. Before trusting a result:
 
 ```console
-readlink -f "$(which frodo)"         # should be <this checkout>/dist/launch.cjs
-npm run link                         # once: npm-link the sibling ../frodo-lib checkout
+test/e2e/utils/FrodoBinary.cjs        # how the binary path is resolved
+ls dist-sea/frodo                     # built on first test run; rm -rf to force a rebuild
 ```
 
-After changing frodo-lib, rebuild it first and then rebuild frodo-cli (`npm run build` in each); after changing only frodo-cli, `npm run build` here. If you keep more than one checkout (for example a fork and an upstream clone) and `frodo` is npm-linked to one of them, point it at the one you are testing, or put the right binary first on `PATH` for the run.
+After changing frodo-lib, rebuild it first and then rebuild frodo-cli (`npm run build` in each; `npm run build:binary` re-cuts the SEA binary); after changing only frodo-cli, `npm run build` here. If you bypass the npm scripts and invoke `npx jest` directly, run `node tools/with-frodo-bin.mjs npx jest ...` instead, or set up the pin yourself — see `FrodoBinary.cjs`'s `getTestBinaryPath()`.
 
 ## How the harness works
 
