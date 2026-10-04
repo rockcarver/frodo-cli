@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteCustomNode, deleteCustomNodes } from '../../ops/NodeOps';
 import { printMessage, verboseMessage } from '../../utils/Console';

@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { printError, printMessage } from '../utils/Console';
 
 const { checkForUpdates, applyUpdates, readStatus } = frodo.cloud.startup;

@@ -35,7 +35,7 @@ export default function setup() {
         await CATEGORIES[0].run();
         return;
       }
-      // eslint-disable-next-line no-constant-condition
+
       while (true) {
         const category = await escapableSelect({
           message: 'Choose a settings category:',

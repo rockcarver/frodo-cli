@@ -1,7 +1,6 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/AgentOps';
-import fs from 'fs';
-
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,
@@ -1903,7 +1902,6 @@ export async function importAIAgentsFromFiles(): Promise<boolean> {
         JSON.parse(data) as AgentImportData
       );
       if (!importData.agent) {
-        // eslint-disable-next-line no-continue
         continue;
       }
       try {

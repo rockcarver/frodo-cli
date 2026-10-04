@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { configManagerImportRaw } from '../../../configManagerOps/FrConfigRawOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';

@@ -1,11 +1,9 @@
 /* eslint-disable no-console */
 import repl from 'node:repl';
-
-import { frodo, state } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import util from 'util';
 import vm from 'vm';
-
+import { frodo, state } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {

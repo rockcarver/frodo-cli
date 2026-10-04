@@ -1,6 +1,5 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { exportSaml2MetadataToFile } from '../../ops/Saml2Ops';
 import { printMessage } from '../../utils/Console';

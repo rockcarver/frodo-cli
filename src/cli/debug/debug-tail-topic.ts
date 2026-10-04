@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-
 import { debugTail, type DebugTopic } from '../../ops/DebugLogOps';
 import { ensureLogApiCredentials } from '../../ops/LogOps';
 import { printMessage } from '../../utils/Console';

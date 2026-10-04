@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { configManagerExportSaml } from '../../../configManagerOps/FrConfigSamlOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';
@@ -64,9 +63,9 @@ export default function setup() {
         options,
         command
       );
-      if (options.realm) {
-        realm = options.realm;
-      }
+      // Note: unlike the other config-manager pull commands, the realm is
+      // intentionally not overridden here - SAML export iterates the realms
+      // found in the exported file itself (see configManagerExportSaml).
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting config entity saml');

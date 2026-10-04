@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { listResourceTypes } from '../../ops/ResourceTypeOps';
 import { verboseMessage } from '../../utils/Console.js';

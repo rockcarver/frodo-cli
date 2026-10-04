@@ -30,7 +30,6 @@ import type {
   LogEventSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
 import type { LogTailStream } from '@rockcarver/frodo-lib/types/ops/cloud/LogOps';
-
 import { printError, printMessage } from '../utils/Console';
 
 const { createLogTailStream } = frodo.cloud.log;

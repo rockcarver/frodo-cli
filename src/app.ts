@@ -1,13 +1,12 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-
 // commands
 import admin from './cli/admin/admin';
 import agent from './cli/agent/agent';
 import app from './cli/app/app';
 import authn from './cli/authn/authn';
 import authz from './cli/authz/authz';
-import config from './cli/config/config';
 import configManager from './cli/config-manager/config-manager';
+import config from './cli/config/config';
 import conn from './cli/conn/conn';
 import directConfigSession from './cli/dcc/dcc';
 import debug from './cli/debug/debug';

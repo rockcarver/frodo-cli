@@ -1,6 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import * as s from '../../help/SampleData';
 import { getTokens, getTokensInteractive } from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';

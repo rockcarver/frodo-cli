@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { configManagerExportCustomNodes } from '../../../configManagerOps/FrConfigCustomNodesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';

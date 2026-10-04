@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import {
   MappingExportInterface,
@@ -6,9 +8,6 @@ import {
   MappingSkeleton,
   SyncSkeleton,
 } from '@rockcarver/frodo-lib/types/ops/MappingOps';
-import fs from 'fs';
-import path from 'path';
-
 import c from '../utils/ColorTheme';
 import { extractDataToFile, getExtractedJsonData } from '../utils/Config';
 import {

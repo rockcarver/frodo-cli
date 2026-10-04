@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   SecretEncodingType,
@@ -5,8 +6,6 @@ import {
   VersionOfSecretSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
 import { SecretsExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/SecretsOps';
-import fs from 'fs';
-
 import c from '../../utils/ColorTheme';
 import { getFullExportConfig, getIdLocations } from '../../utils/Config';
 import {
@@ -59,7 +58,7 @@ export async function listSecrets(
   file: string | null = null
 ): Promise<boolean> {
   let spinnerId: string;
-  let secrets: SecretSkeleton[] = [];
+  let secrets: SecretSkeleton[];
   try {
     spinnerId = createProgressIndicator(
       'indeterminate',
@@ -336,7 +335,7 @@ export async function listSecretVersions(
   json = false
 ): Promise<boolean> {
   let spinnerId: string;
-  let versions: VersionOfSecretSkeleton[] = [];
+  let versions: VersionOfSecretSkeleton[];
   try {
     spinnerId = createProgressIndicator(
       'indeterminate',
@@ -571,7 +570,7 @@ export async function exportSecretsToFiles(
   includeActiveValues?: boolean,
   target?: string
 ): Promise<boolean> {
-  let secrets: SecretSkeleton[] = [];
+  let secrets: SecretSkeleton[];
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -871,7 +870,7 @@ export async function deactivateVersionOfSecret(
 ): Promise<boolean> {
   let spinnerId: string;
   try {
-    const spinnerId = createProgressIndicator(
+    spinnerId = createProgressIndicator(
       'indeterminate',
       0,
       `Deactivating version ${version} of secret ${secretId}...`

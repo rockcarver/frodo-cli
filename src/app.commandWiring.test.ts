@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { describe, expect, it } from '@jest/globals';
 
 // Every real `src/cli/**/*.ts` command file transitively imports
@@ -82,10 +81,7 @@ type CheckResult = { checkedCount: number; mismatches: string[] };
  * sync), not just these five instances.
  */
 function checkCommandWiring(): CheckResult {
-  const cliDir = path.join(
-    path.dirname(fileURLToPath(import.meta.url)),
-    'cli'
-  );
+  const cliDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'cli');
   const files = walkTsFiles(cliDir).filter(
     (file) => !file.endsWith(path.join('cli', 'FrodoCommand.ts'))
   );

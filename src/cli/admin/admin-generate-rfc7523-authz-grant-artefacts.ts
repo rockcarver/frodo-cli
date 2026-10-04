@@ -1,9 +1,8 @@
+import fs from 'fs';
 import { state } from '@rockcarver/frodo-lib';
 import { JwkRsa } from '@rockcarver/frodo-lib/types/ops/JoseOps.js';
 import { Option } from 'commander';
-import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-
 import * as s from '../../help/SampleData';
 import { generateRfc7523AuthZGrantArtefacts } from '../../ops/AdminOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';

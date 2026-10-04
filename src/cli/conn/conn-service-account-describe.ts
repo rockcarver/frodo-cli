@@ -1,7 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
-import { createObjectTable, printError, printMessage } from '../../utils/Console';
+import {
+  createObjectTable,
+  printError,
+  printMessage,
+} from '../../utils/Console';
 import { FrodoCommand, hostArgument } from '../FrodoCommand';
 
 export default function setup() {
@@ -13,7 +16,9 @@ export default function setup() {
   );
 
   program
-    .description('Describe one additional service account on a connection profile.')
+    .description(
+      'Describe one additional service account on a connection profile.'
+    )
     .addArgument(hostArgument)
     .addOption(
       new Option(
@@ -21,7 +26,9 @@ export default function setup() {
         'Name of the additional service account to describe.'
       ).makeOptionMandatory()
     )
-    .addOption(new Option('--show-secrets', 'Show the decrypted private key JWK.'))
+    .addOption(
+      new Option('--show-secrets', 'Show the decrypted private key JWK.')
+    )
     .action(async (host: string, options: any, command: FrodoCommand) => {
       command.handleDefaultArgsAndOpts(host, options, command);
       try {

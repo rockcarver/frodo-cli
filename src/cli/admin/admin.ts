@@ -14,6 +14,7 @@ import RemoveStaticUserMappingCmd from './admin-remove-static-user-mapping.js';
 import RepairOrgModelCmd from './admin-repair-org-model.js';
 import RevokeOauth2ClientAdminPrivilegesCmd from './admin-revoke-oauth2-client-admin-privileges.js';
 import ShowGenericExtensionAttributesCmd from './admin-show-generic-extension-attributes.js';
+
 // import TrainAutoAccessModelCmd from './admin-train-auto-access-model.js';
 
 export default function setup() {

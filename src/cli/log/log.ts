@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { FrodoStubCommand } from '../FrodoCommand';
 import FetchCmd from './log-fetch';
 import KeyCmd from './log-key.js';

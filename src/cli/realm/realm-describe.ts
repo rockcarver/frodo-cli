@@ -1,5 +1,4 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeRealm } from '../../ops/RealmOps';
 import { verboseMessage } from '../../utils/Console';

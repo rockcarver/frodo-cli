@@ -17,5 +17,8 @@ export function question(question: string): string {
   process.stdout.write(question);
   const buffer = Buffer.alloc(1024);
   const bytesRead = readSync(0, buffer, 0, buffer.length, null);
-  return buffer.subarray(0, bytesRead).toString('utf8').replace(/\r?\n$/, '');
+  return buffer
+    .subarray(0, bytesRead)
+    .toString('utf8')
+    .replace(/\r?\n$/, '');
 }

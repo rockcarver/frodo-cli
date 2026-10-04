@@ -5,7 +5,6 @@ import {
   type ManagedObjectSchemaRelationshipReverseFields as RelationshipReverseCreateFields,
 } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { createManagedObjectSchemaRelationshipProperty } from '../../ops/IdmOps';

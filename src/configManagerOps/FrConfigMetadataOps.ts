@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { ConfigEntityExportInterface } from '@rockcarver/frodo-lib/types/ops/IdmConfigOps';
-
 import {
   createProgressIndicator,
   printError,

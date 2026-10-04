@@ -1,7 +1,6 @@
+import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import fs from 'fs';
-
 import { printError } from '../utils/Console';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;

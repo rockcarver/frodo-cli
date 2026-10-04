@@ -1,3 +1,6 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
@@ -6,10 +9,6 @@ import {
   FullRealmExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import { ExportMetaData } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-
 import { readServersFromFiles } from '../ops/classic/ServerOps';
 import { getWorkflowExportFromFile } from '../ops/cloud/iga/IgaWorkflowOps';
 import {
@@ -408,7 +407,6 @@ export function getExtractedJsonData(
  * @returns {string[]} an array of locations where the id is being used
  */
 export function getIdLocations(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   configuration: object,
   id: string,
   isEsv: boolean
@@ -434,16 +432,11 @@ export function getIdLocations(
  * @param {RegExp} regex The regex test
  * @returns {string[]} an array of locations where the id is found
  */
-function getIdLocationsRecurse(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  configuration: any,
-  regex: RegExp
-): string[] {
+function getIdLocationsRecurse(configuration: any, regex: RegExp): string[] {
   let locations = [];
   const type = typeof configuration;
   if (type === 'object' && configuration !== null) {
     for (const [id, value] of Object.entries(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       configuration as Record<string, any>
     )) {
       const usedLocations = getIdLocationsRecurse(value, regex);

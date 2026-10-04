@@ -1,5 +1,4 @@
 import { FrodoError } from '@rockcarver/frodo-lib';
-
 import { printError } from '../../utils/Console';
 
 /**

@@ -33,7 +33,6 @@ import {
   usePrefix,
   useState,
 } from '@inquirer/core';
-
 import {
   JourneyDebugAggregator,
   type JourneyDebugEventEntry,

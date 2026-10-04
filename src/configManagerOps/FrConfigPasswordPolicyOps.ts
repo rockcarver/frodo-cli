@@ -1,6 +1,5 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-
+import { frodo } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 

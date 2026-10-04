@@ -1,8 +1,7 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/CirclesOfTrustApi';
 import { type CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/CirclesOfTrustOps';
-import fs from 'fs';
-
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,
@@ -75,7 +74,7 @@ export function getTableRowMd(cotObj: CircleOfTrustSkeleton): string {
 export async function listCirclesOfTrust(
   long: boolean = false
 ): Promise<boolean> {
-  let cotList = [];
+  let cotList;
   try {
     cotList = await readCirclesOfTrust();
     cotList.sort((a, b) => a._id.localeCompare(b._id));

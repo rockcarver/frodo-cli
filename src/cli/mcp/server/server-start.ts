@@ -3,13 +3,12 @@ import {
   frodo,
   hydrateMcpDiscoveryContext,
   listMcpProfiles,
-  type McpDiscoveryHydrationEvent,
   resolveRequestScopedFrodo,
   state,
+  type McpDiscoveryHydrationEvent,
 } from '@rockcarver/frodo-lib';
 import type { McpProfileName } from '@rockcarver/frodo-lib/types/mcp/ProfileRegistry';
 import { Option } from 'commander';
-
 import * as s from '../../../help/SampleData';
 import {
   cliBrowserLoginPromptHandler,
@@ -29,11 +28,11 @@ import {
   computeHttpAllowedHosts,
   fetchExternalIdpMetadata,
   isLoopbackBindHost,
-  type McpOAuthResourceServerOptions,
   McpServerStartupInfo,
   resolveFrodoForMcpRequest,
   startHttpTransport,
   startStdioTransport,
+  type McpOAuthResourceServerOptions,
 } from '../../../ops/McpServerOps.js';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
@@ -44,7 +43,7 @@ import {
   resolveMcpHttpMaxBodySize,
   resolveMcpHttpMaxConcurrentRequests,
 } from './server-limits';
-import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
+import { resolvePolicySelection, type McpPolicyPreset } from './server-policy';
 
 /**
  * `--profile`'s selectable values: the same "user-facing" set frodo-lib's
@@ -706,7 +705,8 @@ export default function setup() {
       } else {
         const resolvedPort = parseMcpHttpPortOption(opts.port);
         let oauthResourceServerOptions:
-          McpOAuthResourceServerOptions | undefined;
+          | McpOAuthResourceServerOptions
+          | undefined;
         if (opts.oauthResourceServer && opts.externalIdpIssuer) {
           // External-IDP "shared mode": validate against a third-party
           // OIDC provider and map the verified identity's claims to a
@@ -950,7 +950,9 @@ function logDiscoveryHydrationEvent(
  * Infers runtime auth mode from currently configured global state.
  */
 function inferAuthModeFromState():
-  'service-account' | 'admin-account' | 'state-config' {
+  | 'service-account'
+  | 'admin-account'
+  | 'state-config' {
   const serviceAccountId = state.getServiceAccountId();
   const serviceAccountJwk = state.getServiceAccountJwk();
   if (serviceAccountId && serviceAccountJwk) {

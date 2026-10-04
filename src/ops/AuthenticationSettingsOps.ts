@@ -1,6 +1,5 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-
+import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   createObjectTable,
   createProgressIndicator,

@@ -7,7 +7,6 @@ import {
   resolveMcpProfileSelection,
 } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import packageJson from '../../../../package.json';
 import {
   MCP_SERVER_VERSION,
@@ -17,7 +16,7 @@ import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
 import { getCliBuildTimestamp } from '../../../utils/Version.js';
 import { FrodoStubCommand } from '../../FrodoCommand';
-import { type McpPolicyPreset, resolvePolicySelection } from './server-policy';
+import { resolvePolicySelection, type McpPolicyPreset } from './server-policy';
 
 type McpProfileName =
   | 'all'

@@ -115,7 +115,7 @@ jobs:
           npm run build
 
       - name: Lint
-        run: npm run lint:fix
+        run: npm run check
 
       - name: Type Check
         run: npx tsc

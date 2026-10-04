@@ -1,20 +1,23 @@
+import fs from 'fs';
+import path from 'path';
+import confirm from '@inquirer/confirm';
 import {
-  buildManagedObjectSchemaPropertyPayload as buildSchemaPropertyPayload,
   buildManagedObjectSchemaRelationshipPropertyPayload as buildRelationshipPropertyPayload,
-  extractManagedObjectSchemaPropertyFields as extractSchemaPropertyFields,
+  buildManagedObjectSchemaPropertyPayload as buildSchemaPropertyPayload,
   extractManagedObjectSchemaRelationshipPropertyFields as extractRelationshipFields,
+  extractManagedObjectSchemaPropertyFields as extractSchemaPropertyFields,
   frodo,
   FrodoError,
   inferManagedObjectSchemaRelationshipReverseIdentity as inferReverseIdentity,
-  type ManagedObjectSchemaPropertyFields as SchemaPropertyFields,
-  type ManagedObjectSchemaRelationshipPropertyFields as RelationshipPropertyFields,
-  type ManagedObjectSchemaRelationshipReverseFields as RelationshipReverseCreateFields,
   navigatePropertyPath,
   navigateToPropertyContainer,
   parseSubPropertyPath,
-  type PropertyContainer,
   setSchemaProperty,
   toManagedObjectSchemaRelationshipReverseFields as toReverseDescriptorFields,
+  type PropertyContainer,
+  type ManagedObjectSchemaRelationshipPropertyFields as RelationshipPropertyFields,
+  type ManagedObjectSchemaRelationshipReverseFields as RelationshipReverseCreateFields,
+  type ManagedObjectSchemaPropertyFields as SchemaPropertyFields,
 } from '@rockcarver/frodo-lib';
 import { type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { type ManagedObjectSchema } from '@rockcarver/frodo-lib/types/api/ManagedObjectApi';
@@ -23,10 +26,6 @@ import {
   MappingSkeleton,
   SyncSkeleton,
 } from '@rockcarver/frodo-lib/types/ops/MappingOps';
-import fs from 'fs';
-import path from 'path';
-import confirm from '@inquirer/confirm';
-
 import c from '../utils/ColorTheme';
 import {
   extractDataToFile,
@@ -711,7 +710,8 @@ function relationshipCardinality(property: Record<string, unknown>): string {
     return `${thisSide}:-`;
   }
   const resourceCollection = core.resourceCollection as
-    Array<{ reverseProperty?: { type?: string } }> | undefined;
+    | Array<{ reverseProperty?: { type?: string } }>
+    | undefined;
   const reverseType = resourceCollection?.[0]?.reverseProperty?.type;
   const otherSide =
     reverseType === 'array' ? 'n' : reverseType === 'relationship' ? '1' : '-';
@@ -741,7 +741,8 @@ function relationshipTarget(property: Record<string, unknown>): string {
     return '';
   }
   const resourceCollection = core.resourceCollection as
-    Array<{ path?: string }> | undefined;
+    | Array<{ path?: string }>
+    | undefined;
   return resourceCollection?.[0]?.path?.replace(/^managed\//, '') || '';
 }
 
@@ -1031,7 +1032,8 @@ export async function describeManagedObjectSchemaProperty(
     if (scriptKeys.length > 0) {
       const scriptSections = scriptKeys.map((key) => {
         const script = property[key] as
-          { type?: string; source?: string } | undefined;
+          | { type?: string; source?: string }
+          | undefined;
         return `${c.heading(key)} (${script?.type || 'text/javascript'}):\n\n${(script?.source || '').trimEnd()}`;
       });
       sections.push(

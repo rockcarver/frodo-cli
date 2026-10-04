@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { listSecretVersions } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';

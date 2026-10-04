@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { describeConnectionProfile } from '../../ops/ConnectionProfileOps';
 import { FrodoCommand } from '../FrodoCommand';
 

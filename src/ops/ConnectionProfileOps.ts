@@ -1,6 +1,5 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-
+import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   createObjectTable,
   createTable,
@@ -13,8 +12,8 @@ import {
 } from '../utils/Console';
 import {
   escapableSelect,
-  type EscapableSelectChoice,
   ESCAPE,
+  type EscapableSelectChoice,
 } from '../utils/interactive/EscapableSelectPrompt';
 import type { CredentialOverrideType } from './AuthenticateOps';
 

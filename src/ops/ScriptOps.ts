@@ -1,14 +1,13 @@
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
 import { FullExportInterface } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import {
-  type ScriptExportInterface,
   ScriptExportOptions,
+  type ScriptExportInterface,
   type ScriptImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import chokidar from 'chokidar';
-import fs from 'fs';
-
 import c from '../utils/ColorTheme';
 import {
   extractDataToFile,
@@ -190,7 +189,7 @@ export async function listScripts(
   filters: ScriptFilters = {}
 ): Promise<boolean> {
   let spinnerId: string;
-  let scripts: ScriptSkeleton[] = [];
+  let scripts: ScriptSkeleton[];
   debugMessage(`Cli.ScriptOps.listScripts: start`);
   try {
     spinnerId = createProgressIndicator(

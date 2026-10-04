@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
   createVersionOfSecret,
@@ -42,7 +41,7 @@ export default function setup() {
         );
         if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage('Creating new version of secret...');
-          let outcome = null;
+          let outcome;
           if (options.value) {
             outcome = await createVersionOfSecret(
               options.secretId,

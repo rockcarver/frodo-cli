@@ -1,7 +1,6 @@
+import fs from 'fs';
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { RealmExportInterface } from '@rockcarver/frodo-lib/types/ops/RealmOps';
-import fs from 'fs';
-
 import c from '../utils/ColorTheme';
 import {
   createKeyValueTable,

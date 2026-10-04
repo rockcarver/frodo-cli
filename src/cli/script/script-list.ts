@@ -1,6 +1,5 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import { getTokens } from '../../ops/AuthenticateOps';
 import { listScripts } from '../../ops/ScriptOps';
 import { verboseMessage } from '../../utils/Console';

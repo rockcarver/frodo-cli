@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import { describeWebAgent } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';

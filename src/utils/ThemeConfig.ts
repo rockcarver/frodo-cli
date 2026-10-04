@@ -1,13 +1,12 @@
+import fs from 'fs';
+import path from 'path';
 import {
-  type BackgroundPreset,
   detectTerminalBackgroundRgb,
   FRODO_COLOR_THEME_ENV_KEY,
   matchBackgroundPreset,
   state,
+  type BackgroundPreset,
 } from '@rockcarver/frodo-lib';
-import fs from 'fs';
-import path from 'path';
-
 import { applyCustomThemeOverrides, HUE_NAME_TO_FUNCTION } from './ColorTheme';
 import { getConfigPath } from './Config';
 import { printMessage } from './Console';

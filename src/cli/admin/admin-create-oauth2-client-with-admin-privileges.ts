@@ -2,7 +2,6 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import Table from 'cli-table3';
 import { Option } from 'commander';
 import { v4 as uuidv4 } from 'uuid';
-
 import {
   createLongLivedToken,
   createOAuth2ClientWithAdminPrivileges,

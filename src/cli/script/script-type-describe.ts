@@ -1,5 +1,4 @@
 import { Option } from 'commander';
-
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeScriptBindings } from '../../ops/ScriptOps';
