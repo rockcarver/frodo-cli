@@ -186,8 +186,7 @@ export default function setup() {
             state.getDirectory()
           );
           const managed = importData.idm?.managed as
-            | { objects?: { name: string; schema?: unknown }[] }
-            | undefined;
+            { objects?: { name: string; schema?: unknown }[] } | undefined;
           if (
             !(await confirmSchemaChanges(managed?.objects || [], options.yes))
           ) {

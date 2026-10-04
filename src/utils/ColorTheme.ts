@@ -42,12 +42,7 @@ import c from 'tinyrainbow';
  * directly (enforced by an ESLint rule), same as before.
  */
 export type CliIntent =
-  | LibIntent
-  | 'heading'
-  | 'positive'
-  | 'negative'
-  | 'muted'
-  | 'debug';
+  LibIntent | 'heading' | 'positive' | 'negative' | 'muted' | 'debug';
 
 // `unknown` input, matching frodo-lib's base theme and tinyrainbow's own
 // `Formatter` type -- callers routinely color values whose static type is

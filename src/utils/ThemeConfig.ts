@@ -576,8 +576,7 @@ type LegacyThemeSettings = { active?: string; autoDetect?: boolean };
 // effect immediately), but resolution must not cost three sync file reads per
 // access -- `getActiveThemeName` alone reads it three times.
 let settingsCache:
-  | { mtimeMs: number; size: number; settings: ThemeSettings }
-  | undefined;
+  { mtimeMs: number; size: number; settings: ThemeSettings } | undefined;
 
 function readThemeSettings(): ThemeSettings {
   const file = getActiveThemeFilePath();

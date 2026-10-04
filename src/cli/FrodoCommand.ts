@@ -100,10 +100,7 @@ const SUPPRESS_STABILITY_WARNING_KEY =
   '__frodoSuppressStabilityWarning' as const;
 
 export type StabilityIndicator =
-  | 'stable'
-  | 'preview'
-  | 'experimental'
-  | 'deprecated';
+  'stable' | 'preview' | 'experimental' | 'deprecated';
 
 export type StabilityGateMode = 'option-or-env' | 'option-only' | 'env-only';
 

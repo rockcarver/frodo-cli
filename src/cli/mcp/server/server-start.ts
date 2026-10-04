@@ -705,8 +705,7 @@ export default function setup() {
       } else {
         const resolvedPort = parseMcpHttpPortOption(opts.port);
         let oauthResourceServerOptions:
-          | McpOAuthResourceServerOptions
-          | undefined;
+          McpOAuthResourceServerOptions | undefined;
         if (opts.oauthResourceServer && opts.externalIdpIssuer) {
           // External-IDP "shared mode": validate against a third-party
           // OIDC provider and map the verified identity's claims to a
@@ -950,9 +949,7 @@ function logDiscoveryHydrationEvent(
  * Infers runtime auth mode from currently configured global state.
  */
 function inferAuthModeFromState():
-  | 'service-account'
-  | 'admin-account'
-  | 'state-config' {
+  'service-account' | 'admin-account' | 'state-config' {
   const serviceAccountId = state.getServiceAccountId();
   const serviceAccountJwk = state.getServiceAccountJwk();
   if (serviceAccountId && serviceAccountJwk) {

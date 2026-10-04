@@ -2475,8 +2475,7 @@ async function handleHttpRequest(
     const protocolVersionError = getUnsupportedProtocolVersionError(req, body);
     if (protocolVersionError) {
       const errorData = protocolVersionError.error.data as
-        | { requested?: string }
-        | undefined;
+        { requested?: string } | undefined;
       debug?.(
         `rejected: unsupported protocol version ${errorData?.requested ?? '(unnamed)'}`
       );

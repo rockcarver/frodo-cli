@@ -187,12 +187,7 @@ export function curlirizeMessage(message) {
 }
 
 export type MessageType =
-  | 'data'
-  | 'text'
-  | 'info'
-  | 'warn'
-  | 'error'
-  | 'success';
+  'data' | 'text' | 'info' | 'warn' | 'error' | 'success';
 
 /**
  * Prints a string message to console
