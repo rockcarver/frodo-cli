@@ -532,9 +532,14 @@ jobs:
           cd tap
           git config user.name "rockcarver-pipeline"
           git config user.email "actions@github.com"
-          cp "$RUNNER_TEMP/frodo-formulas/frodo-cli.rb" Formula/frodo-cli.rb
-          cp "$RUNNER_TEMP/frodo-formulas/frodo-cli-next.rb" Formula/frodo-cli-next.rb
-          git add Formula/frodo-cli.rb Formula/frodo-cli-next.rb
+          # The generator only writes frodo-cli.rb for stable releases; a
+          # prerelease (e.g. 5.0.0-1) must not touch the stable formula, so
+          # copy whichever formulas it produced.
+          shopt -s nullglob
+          for f in "$RUNNER_TEMP"/frodo-formulas/*.rb; do
+            cp "$f" "Formula/$(basename "$f")"
+            git add "Formula/$(basename "$f")"
+          done
           if git diff --cached --quiet; then
             echo "Formulas already up to date for ${{ needs.build.outputs.newTag }}"
           else
