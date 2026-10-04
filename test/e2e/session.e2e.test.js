@@ -18,6 +18,10 @@ import { promisify } from 'util';
 import path from 'path';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { ensureFrodoBinary, getTestBinaryPath } = require('./utils/FrodoBinary.cjs');
+
 const exec = promisify(cp.exec);
 
 const TMP_DIR = path.resolve('./test/fs_tmp/session-e2e');
@@ -26,8 +30,14 @@ const masterKeyPath = path.join(TMP_DIR, 'masterkey.key');
 const connectionProfilesPath = path.join(TMP_DIR, 'Connections.json');
 const host = 'https://openam-session-e2e.example.com/am';
 
+// This suite builds its own env (it must not import frodo-lib directly - see
+// the note above - so it cannot use getEnv()), but still pins `frodo` to this
+// checkout's SEA binary: CI no longer installs frodo globally.
+ensureFrodoBinary();
+
 const env = {
   ...process.env,
+  PATH: getTestBinaryPath(),
   FRODO_TOKEN_CACHE_PATH: tokenCachePath,
   FRODO_MASTER_KEY_PATH: masterKeyPath,
   FRODO_CONNECTION_PROFILES_PATH: connectionProfilesPath,

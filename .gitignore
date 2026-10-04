@@ -5,9 +5,6 @@ testResults.json
 *.p12
 *.developerprofile
 
-frodo
-frodo.exe
-
 # MacOS Desktop Services Store
 .DS_Store
 

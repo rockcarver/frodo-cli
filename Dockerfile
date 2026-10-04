@@ -3,16 +3,16 @@
 # Multi-stage build:
 #   1. build  — installs the full toolchain and runs `npm run build:only`
 #               (tsdown), producing the self-contained dist/ bundle.
-#   2. runtime — node:24-slim + dist/ only. The bundle was verified to have
+#   2. runtime — node:26-slim + dist/ only. The bundle was verified to have
 #                zero runtime node_modules dependencies (every dependency is
 #                compiled into dist/*.cjs), so the runtime image needs no
 #                node_modules and no dev tooling: smaller surface, smaller
 #                image, no prod-install pruning step to get wrong.
 #
-# node 24 matches the pkg packaging target (package.json: `pkg -t node24`)
-# and exceeds the engines floor (>=20); the tag is pinned to -slim for a
-# small, predictable base.
-FROM node:24-slim AS build
+# node 26 matches the runtime the SEA release binary is built on
+# (SEA_NODE_VERSION in the pipeline; package.json engines >= 26); the tag is
+# pinned to -slim for a small, predictable base.
+FROM node:26-slim AS build
 WORKDIR /build
 
 # Copy the manifests first: a source change that does not touch dependencies
@@ -27,7 +27,7 @@ COPY package.json ./
 RUN npm run build:only
 
 # ---------------------------------------------------------------------------
-FROM node:24-slim AS runtime
+FROM node:26-slim AS runtime
 WORKDIR /app
 
 # Run as a non-root user (node user ships with the base image).

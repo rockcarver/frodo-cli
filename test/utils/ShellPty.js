@@ -3,53 +3,20 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const {
+    binaryPath: seaBinaryPath,
+    ensureFrodoBinary,
+} = require('../e2e/utils/FrodoBinary.cjs');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '../..');
-const distLaunchPath = path.join(repoRoot, 'dist', 'launch.cjs');
-const distAppPath = path.join(repoRoot, 'dist', 'app.cjs');
 const driverPath = path.join(repoRoot, 'test', 'utils', 'shell_pty_driver.py');
-const buildLockPath = path.join(repoRoot, '.shell-pty-build.lock');
 
 function sleepSync(ms) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-}
-
-function distExists() {
-    return fs.existsSync(distLaunchPath) && fs.existsSync(distAppPath);
-}
-
-function ensureCliBuilt() {
-    if (distExists()) return;
-
-    try {
-        const fd = fs.openSync(buildLockPath, 'wx');
-        try {
-            cp.execFileSync('npm', ['run', 'build:only'], {
-                cwd: repoRoot,
-                stdio: 'inherit',
-                env: process.env,
-            });
-        } finally {
-            fs.closeSync(fd);
-            fs.rmSync(buildLockPath, { force: true });
-        }
-        return;
-    } catch (error) {
-        if (error?.code !== 'EEXIST') throw error;
-    }
-
-    const start = Date.now();
-    while (Date.now() - start < 180000) {
-        if (distExists()) return;
-        if (!fs.existsSync(buildLockPath)) {
-            return ensureCliBuilt();
-        }
-        sleepSync(250);
-    }
-
-    throw new Error('Timed out waiting for the CLI build to complete.');
 }
 
 export function createShellTestHome() {
@@ -61,11 +28,14 @@ export function removeShellTestHome(homeDir) {
 }
 
 export function runShellScenario({ actions, homeDir, env = {}, args = ['shell'] }) {
-    ensureCliBuilt();
-
+    // The shell tests exercise the interactive shell of THIS checkout's build.
+    // The SEA binary is the artifact customers run, so prefer it; build it on
+    // demand if missing. The npm dist build stays as a fallback so the shell
+    // tests remain runnable on a bare checkout without a Node >= 25.5.
+    ensureFrodoBinary();
     const scenarioHomeDir = homeDir ?? createShellTestHome();
     const scenario = {
-        command: [process.execPath, distLaunchPath, ...args],
+        command: [seaBinaryPath, ...args],
         cwd: repoRoot,
         homeDir: scenarioHomeDir,
         env: {

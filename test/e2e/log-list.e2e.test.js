@@ -7,6 +7,10 @@ import cp from 'child_process';
 import { promisify } from 'util';
 import { connection as c } from './utils/TestConfig';
 import { normalizeSnapshotText } from './utils/TestUtils';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { ensureFrodoBinary, getTestBinaryPath } = require('./utils/FrodoBinary.cjs');
 
 const exec = promisify(cp.exec);
 
@@ -15,6 +19,10 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] = './test/e2e/env/Connections.json
 process.env['FRODO_HOST'] = c.host;
 process.env['FRODO_LOG_KEY'] = c.saId;
 process.env['FRODO_LOG_SECRET'] = c.saJwk;
+// This suite mutates process.env directly instead of using getEnv(); pin
+// `frodo` to this checkout's SEA binary anyway (CI has no global install).
+ensureFrodoBinary();
+process.env['PATH'] = getTestBinaryPath();
 const env = {
   env: process.env,
 };
