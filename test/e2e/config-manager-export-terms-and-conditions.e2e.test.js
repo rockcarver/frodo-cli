@@ -15,7 +15,7 @@ const env = getEnv(c);
 
 describe('frodo config-manager pulls', () => {
   test('"frodo config-manager pull terms-and-conditions -D termTestDir": should receive access tokens"', async () => {
-    const dirName = 'themeTestDir';
+    const dirName = 'cmTncThemeExportDir';
     const CMD = `frodo config-manager pull terms-and-conditions -D ${dirName}`;
     await testExport(CMD, env, undefined, undefined, dirName, false);
     });

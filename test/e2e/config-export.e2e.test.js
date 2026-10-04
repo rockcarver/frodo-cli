@@ -13,8 +13,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 // Cloud IGA
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -NRag --use-string-arrays --no-coords -f testExportAllIGA1.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --all --only-custom --global --file testExportAllIGA2.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --no-metadata --read-only --all-separate -g --use-string-arrays --no-coords --directory exportAllTestDir11
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -cxAgD exportAllTestDir12
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --no-metadata --read-only --all-separate -g --use-string-arrays --no-coords --directory configExportAllDir11
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -cxAgD configExportAllDir12
 // Classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -adND exportAllTestDir6 -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --all --modified-properties --read-only --file testExportAll2.json --include-active-values --use-string-arrays --no-decode --no-coords --type classic
@@ -23,8 +23,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --realm-only -AD exportAllTestDir10 -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --global-only -af testExportAllGlobal.json -m classic
 // Forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config export -AND exportAllTestDir11 --type forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config export -xAND exportAllTestDir12 --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config export -AND configExportAllDir11 --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config export -xAND configExportAllDir12 --type forgeops
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c, iga_connection as ic, classic_connection as cc, forgeops_connection as fc } from './utils/TestConfig';
@@ -114,15 +114,15 @@ describe('frodo config export', () => {
   });
 
   // TODO: Record test
-  test.skip('"frodo config export --no-metadata --read-only --all-separate -g --use-string-arrays --no-coords --directory exportAllTestDir11": should export all global IGA configuration separately with extracted scripts, no-coords, string arrays, and read only configuration.', async () => {
-    const exportDirectory = 'exportAllTestDir11';
+  test.skip('"frodo config export --no-metadata --read-only --all-separate -g --use-string-arrays --no-coords --directory configExportAllDir11": should export all global IGA configuration separately with extracted scripts, no-coords, string arrays, and read only configuration.', async () => {
+    const exportDirectory = 'configExportAllDir11';
     const CMD = `frodo config export --no-metadata --read-only --all-separate -g --use-string-arrays --no-coords --directory ${exportDirectory}`;
     await testExport(CMD, igaEnv, type, undefined, exportDirectory, false, true);
   });
 
   // TODO: Record test
-  test.skip('"frodo config export -cxAgD exportAllTestDir12": should export all global IGA configuration separately without extraction and only custom request types', async () => {
-    const exportDirectory = 'exportAllTestDir12';
+  test.skip('"frodo config export -cxAgD configExportAllDir12": should export all global IGA configuration separately without extraction and only custom request types', async () => {
+    const exportDirectory = 'configExportAllDir12';
     const CMD = `frodo config export -cxAgD ${exportDirectory}`;
     await testExport(CMD, igaEnv, type, undefined, exportDirectory, true, true);
   });
@@ -190,15 +190,15 @@ describe('frodo config export', () => {
   // Forgeops tests
   describe('Forgeops', () => {
     // TODO: Re-record test (relies on missing Polly recordings caught by the replay-integrity guard)
-    test.skip('"frodo config export -AND exportAllTestDir11 --type forgeops": should export all separated files with extracted idm scripts.', async () => {
-      const exportDirectory = 'exportAllTestDir11';
+    test.skip('"frodo config export -AND configExportAllDir11 --type forgeops": should export all separated files with extracted idm scripts.', async () => {
+      const exportDirectory = 'configExportAllDir11';
       const CMD = `frodo config export -AND ${exportDirectory} --type forgeops`;
       await testExport(CMD, forgeopsEnv, undefined, undefined, exportDirectory, false);
     });
 
     // TODO: Re-record test (relies on missing Polly recordings caught by the replay-integrity guard)
-    test.skip('"frodo config export -xAND exportAllTestDir12 --type forgeops": should export all separated files without extracted idm scripts.', async () => {
-      const exportDirectory = 'exportAllTestDir12';
+    test.skip('"frodo config export -xAND configExportAllDir12 --type forgeops": should export all separated files without extracted idm scripts.', async () => {
+      const exportDirectory = 'configExportAllDir12';
       const CMD = `frodo config export -xAND ${exportDirectory} --type forgeops`;
       await testExport(CMD, forgeopsEnv, undefined, undefined, exportDirectory, false);
     });
