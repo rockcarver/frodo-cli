@@ -193,11 +193,7 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type JourneySessionStatus =
-  | 'running'
-  | 'suspended'
-  | 'finished'
-  | 'failed'
-  | 'abandoned';
+  'running' | 'suspended' | 'finished' | 'failed' | 'abandoned';
 
 /**
  * One entry in a session's event history, kept structured (not a
