@@ -19,10 +19,11 @@ on:
   workflow_dispatch:
     inputs:
       release-type:
-        description: 'Release kind: prerelease | patch | minor | major'
+        description: 'Release kind: prerelease | premajor | patch | minor | major'
         type: choice
         options:
           - prerelease
+          - premajor
           - patch
           - minor
           - major
