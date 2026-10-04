@@ -7,7 +7,7 @@ import tmp from 'tmp'
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const {
-  ensureFrodoBinary,
+  ensureFrodoArtifact,
   getTestBinaryPath,
 } = require('./FrodoBinary.cjs');
 
@@ -473,7 +473,7 @@ export function getEnv(connection = undefined, options = {}) {
   // checkout's SEA binary (built on demand), never a globally installed one.
   // Prepending dist-sea to PATH is how the bare command strings in the 260
   // test files stay untouched while pinning the binary (see FrodoBinary.cjs).
-  ensureFrodoBinary();
+  ensureFrodoArtifact();
   const isRecording = process.env['FRODO_MOCK'] === 'record';
   const requestedProfile =
     process.env['FRODO_CONNECTION'] || (isRecording ? (connection?.profile || connection?.host) : connection?.profile);

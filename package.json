@@ -46,6 +46,7 @@
   "scripts": {
     "test": "npm run test:only",
     "test:only": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent",
+    "test:binary": "FRODO_TEST=1 FRODO_TEST_BINARY=sea NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent",
     "test:parallel": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent --maxWorkers=4",
     "test:serial": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent --runInBand",
     "test:debug": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent=false --json --outputFile=./testResults.json",
@@ -64,10 +65,10 @@
     "lint:fix": "npm run fix",
     "fix": "eslint --fix \"src/**/*.ts\" && prettier --write \"src/**/*.ts\"",
     "check": "eslint \"src/**/*.ts\" && prettier --check \"src/**/*.ts\"",
-    "build": "npm run build:only",
+    "build": "npm run build:binary",
     "build:only": "npx tsdown && npx tsc",
     "build:binary": "npm run build:only && npm run build:sea",
-    "build:sea": "npm run build:sea-bundle && node --build-sea sea-config.json",
+    "build:sea": "node scripts/build-sea.mjs",
     "build:sea-bundle": "npx tsdown --config tsdown.sea.config.mts",
     "link": "npm link ../frodo-lib",
     "dev": "npx tsdown --watch src"

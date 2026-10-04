@@ -37,5 +37,8 @@ export default defineConfig({
   define: {
     __CLI_BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
   },
-  deps: { neverBundle: devDeps },
+  // Bundling all production deps into dist/ is the design (zero-dep
+  // published package); onlyBundle:false is tsdown's "we know" switch that
+  // silences the detected-dependencies hint and its long dep list.
+  deps: { neverBundle: devDeps, onlyBundle: false },
 });

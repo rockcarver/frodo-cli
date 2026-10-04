@@ -17,7 +17,10 @@ OR
 
 ### Prerequisites
 
-- Node.js 20 or later (Node.js 24 recommended)
+- Node.js 26 or later. Developing this CLI requires Node.js 26: the full
+  build (`npm run build`) produces the platform binary, which needs Node 26
+  for the SEA packaging step (`--build-sea`), and `package.json` declares
+  `engines.node >= 26`.
 - npm (included with Node.js)
 - A GUI editor is highly recommended. The current developers use [VSCode](https://code.visualstudio.com/), but you are welcome to others, like [Atom](https://atom.io/) or [Sublime](https://www.sublimetext.com/) too. The repository contains configuration files for VSCode's [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) and [prettier](https://prettier.io/) add-ons, which will automatically lint the code and apply coding styles when using VSCode. The same files may work for other editors with similar add-ons, but this has not been tested.
 
@@ -35,19 +38,21 @@ For how the build toolchain works — what each tool does and why, bundler
 configuration details, binary packaging and signing — see
 [BUILD-ENV.md](BUILD-ENV.md).
 
-#### Build and create platform binary
+#### Full build (npm bundle + platform binary)
 
 The following command builds the CLI and creates a native SEA binary for
-your platform (requires Node.js >= 25.5):
+your platform (requires Node.js 26; on macOS the binary is automatically
+signed with an ad-hoc certificate so it runs immediately):
 
 ```console
-npm run build:binary
+npm run build
 ```
 
 #### Build only, don't create platform binary
 
-The following command builds the CLI but does not create a binary (`npm run
-build` is an alias for it):
+The following command builds the CLI but does not create a binary. It is
+faster (and helpful when you only need the npm/Docker build — but it still
+expects Node.js 26, per `engines`):
 
 ```console
 npm run build:only
@@ -88,10 +93,10 @@ npm i -g
 
 ##### Running the binary version
 
-The `frodo` binary (`frodo.exe` on Windows) is self contained and statically linked, so no dependencies are needed. It can be run as:
+The `frodo` binary (`frodo.exe` on Windows) is self contained and statically linked, so no dependencies are needed. After a full build (`npm run build`), it is at `dist-sea/frodo` and can be run as:
 
 ```console
-/path/to/frodo/frodo-cli/frodo
+/path/to/frodo-cli/dist-sea/frodo
 ```
 
 Add the binary to your system path to make it easier to call from your terminal without switching directories
@@ -103,6 +108,16 @@ Before you submit a PR, make sure your code follows the frodo code formatting co
 ```console
 npm run lint
 npm test
+```
+
+`npm test` runs the full test suite against the npm build of this checkout
+(`node dist/launch.cjs`), building it on demand if missing — no platform
+binary or macOS signing step needed. CI additionally runs the same suite
+against the platform binary (`npm run test:binary`); if your change touches
+the binary packaging or startup path, you can run that locally too:
+
+```console
+npm run test:binary
 ```
 
 ## Merging

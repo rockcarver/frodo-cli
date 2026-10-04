@@ -7,7 +7,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const {
     binaryPath: seaBinaryPath,
-    ensureFrodoBinary,
+    ensureFrodoArtifact,
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 const __filename = fileURLToPath(import.meta.url);
@@ -32,7 +32,7 @@ export function runShellScenario({ actions, homeDir, env = {}, args = ['shell'] 
     // The SEA binary is the artifact customers run, so prefer it; build it on
     // demand if missing. The npm dist build stays as a fallback so the shell
     // tests remain runnable on a bare checkout without a Node >= 25.5.
-    ensureFrodoBinary();
+    ensureFrodoArtifact();
     const scenarioHomeDir = homeDir ?? createShellTestHome();
     const scenario = {
         command: [seaBinaryPath, ...args],

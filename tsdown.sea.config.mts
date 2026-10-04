@@ -14,6 +14,9 @@ export default defineConfig({
   shims: true,
   platform: 'node',
   outputOptions: { codeSplitting: false },
+  // Self-contained by design (single SEA bundle); onlyBundle:false silences
+  // tsdown's detected-dependencies hint and its long dep list.
+  deps: { onlyBundle: false },
   define: {
     __CLI_BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
   },
