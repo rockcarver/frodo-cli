@@ -152,7 +152,7 @@
     "map-stream": "^0.0.7",
     "open": "^11.0.2",
     "prettier": "3.8.1",
-    "properties-reader": "^2.2.0",
+    "properties-reader": "^3.0.1",
     "replaceall": "^0.1.6",
     "resolve": "^1.22.1",
     "rimraf": "^6.0.1",
