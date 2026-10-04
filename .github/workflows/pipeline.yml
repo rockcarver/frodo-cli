@@ -146,6 +146,7 @@ jobs:
             package.json
             package-lock.json
             src
+            scripts
             tsconfig.json
             tsdown.config.ts
             tsdown.sea.config.mts
