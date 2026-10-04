@@ -843,11 +843,11 @@ jobs:
       - name: Build SEA binary
         shell: pwsh
         run: |
-          npm run build:only
-          # --build-sea needs Node >= 25.5 (set up above); sea-config.json
-          # enables the startup code cache, which is host-arch-specific and
-          # fine here (native windows-x64 build).
-          node --build-sea sea-config.json
+          # build:binary = bundle (tsdown.sea.config.mts -> dist-sea/app.cjs,
+          # the file sea-config.json's main points at) + node --build-sea.
+          # build:only alone produces dist/ only, so --build-sea fails with
+          # "Cannot read main script dist-sea/app.cjs".
+          npm run build:binary
           # sea-config.json writes dist-sea/frodo; the Windows artifact is
           # dist-sea/frodo.exe
           # (Version.ts binary detection keys on the executable's basename).
