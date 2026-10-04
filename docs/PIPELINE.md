@@ -61,7 +61,10 @@ merges to `main`:
 - `linux-x64-binary-release`
 
 Release bot commits to `main` (changelog/version updates) are covered by the
-ruleset's admin bypass; the GitHub Actions app cannot be a bypass actor.
+ruleset's bypass: the Release job authenticates with the org-wide
+`FRODO_CI_PAT` fine-grained token (repository admin identity), whose pushes
+the admin bypass admits. The GitHub Actions app cannot be a bypass actor —
+`GITHUB_TOKEN` pushes to `main` are rejected by the required status checks.
 
 ## Pipeline Jobs
 
@@ -159,8 +162,10 @@ For `prerelease`, it publishes to `next`.
 Release job (needs build, live smoke, all five binary jobs):
 
 - Generates changelog/release notes using `vscheuber/ai-changelog-action@v1`
-- Commits changelog and manifest updates to `main` (attributed to the
-  dispatching user, which the ruleset's admin bypass covers)
+- Commits changelog and manifest updates to `main` (pushed as the
+  `FRODO_CI_PAT` identity — the repository admin the ruleset's bypass
+  covers; a plain `GITHUB_TOKEN` push would be rejected by the required
+  status checks, since the Actions app cannot be a bypass actor)
 - Creates the GitHub release with platform artifacts
 
 Release assets include:
@@ -178,8 +183,11 @@ Release assets include:
 
 After a successful release + npm publish, the `homebrew-formula-update` job
 regenerates the Homebrew tap formulas (`frodo-cli` and `frodo-cli-next`) and
-pushes them to `rockcarver/homebrew-frodo-cli` (via the
-`PAT_HOMEBREW_FORMULA_REPO` PAT).
+pushes them to `rockcarver/homebrew-frodo-cli` (via the org-wide
+`FRODO_CI_PAT` PAT — the same fine-grained token (Contents: read/write on
+`frodo-cli`, `frodo-lib`, `homebrew-frodo-cli`, stored as an organization
+secret with selected-repository visibility) that the Release jobs use to
+push their release commits).
 
 The formulas install **prebuilt release binaries** (not source builds):
 each formula carries per-OS/arch `url` + `sha256` blocks pointing at the

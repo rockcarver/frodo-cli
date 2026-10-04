@@ -309,6 +309,12 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          # Push the release commit with the org-wide FRODO_CI_PAT instead of
+          # GITHUB_TOKEN: the main-branch ruleset's required status checks
+          # reject github-actions[bot] pushes (the Actions app cannot be a
+          # bypass actor), while PAT-attributed pushes from a repository
+          # admin are covered by the ruleset's bypass. See docs/PIPELINE.md.
+          token: ${{ secrets.FRODO_CI_PAT }}
 
       - uses: actions/download-artifact@v7
         with:
@@ -361,7 +367,16 @@ jobs:
 
       - name: Commit updated changelog and version
         id: commit-changelog
+        env:
+          FRODO_CI_PAT: ${{ secrets.FRODO_CI_PAT }}
         run: |
+          set -euo pipefail
+          # Refuse to run on an unauthenticated PAT (e.g. fork runs) instead
+          # of silently pushing with GITHUB_TOKEN and tripping the ruleset.
+          if [ -z "${FRODO_CI_PAT}" ]; then
+            echo "::error::FRODO_CI_PAT secret is not set; cannot push the release commit"
+            exit 1
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md package.json package-lock.json
@@ -489,7 +504,7 @@ jobs:
       # source on the user's machine (which also required node@24).
       - name: Generate formulas
         env:
-          GH_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
+          GH_TOKEN: ${{ secrets.FRODO_CI_PAT }}
         run: |
           node tools/update-homebrew-formula.mjs \
             ${{ needs.build.outputs.newVersion }} \
@@ -497,7 +512,7 @@ jobs:
             "$RUNNER_TEMP/frodo-formulas"
       - name: Push formula updates to the tap
         env:
-          GH_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
+          GH_TOKEN: ${{ secrets.FRODO_CI_PAT }}
           NEEDS_VERSION: ${{ needs.build.outputs.newVersion }}
         run: |
           gh repo clone rockcarver/homebrew-frodo-cli tap
