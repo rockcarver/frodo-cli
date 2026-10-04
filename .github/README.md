@@ -65,329 +65,337 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 
 - Added support for Node.js 24 and 25/26.
 - Dropped support for Node.js 18 and 20.
+- The binaries are self-contained (Node.js embedded) — no Node.js
+  installation needed.
 
 ## About
 
 ### Commands
 
-| Command                                          |  Since  | Description                                                            |
-| ------------------------------------------------ | :-----: | ---------------------------------------------------------------------- |
-| frodo admin                                      |  1.0.0  | Platform admin tasks.                                                  |
-| &emsp;add-autoid-static-user-mapping             |  1.0.0  | Add AutoId static user mapping to enable dashboards.                   |
-| &emsp;create-oauth2-client-with-admin-privileges |  1.0.0  | Create an oauth2 client with admin privileges.                         |
-| &emsp;execute-rfc7523-authz-grant-flow           |  2.0.0  | Execute RFC7523 authorization grant flow.                              |
-| &emsp;federation                                 |  1.0.0  | Manages admin federation configuration.                                |
-| &emsp;generate-rfc7523-authz-grant-artefacts     |  2.0.0  | Generate RFC7523 authorization grant artefacts.                        |
-| &emsp;get-access-token                           |  1.0.0  | Get an access token using client credentials grant type.               |
-| &emsp;grant-oauth2-client-admin-privileges       |  1.0.0  | Grant an oauth2 client admin privileges.                               |
-| &emsp;hide-generic-extension-attributes          |  1.0.0  | Hide generic extension attributes.                                     |
-| &emsp;list-oauth2-clients-with-admin-privileges  |  1.0.0  | List oauth2 clients with admin privileges.                             |
-| &emsp;list-oauth2-clients-with-custom-privileges |  1.0.0  | List oauth2 clients with custom privileges.                            |
-| &emsp;list-static-user-mappings                  |  1.0.0  | List all subjects of static user mappings that are not oauth2 clients. |
-| &emsp;remove-static-user-mapping                 |  1.0.0  | Remove a subject's static user mapping.                                |
-| &emsp;repair-org-model                           |  1.0.0  | Repair org model.                                                      |
-| &emsp;revoke-oauth2-client-admin-privileges      |  1.0.0  | Revoke admin privileges from an oauth2 client.                         |
-| &emsp;show-generic-extension-attributes          |  1.0.0  | Show generic extension attributes.                                     |
-|                                                  |         |                                                                        |
-| frodo agent                                      |  1.0.0  | Manage agents.                                                         |
-| &emsp;delete                                     |  1.0.0  | Delete agents.                                                         |
-| &emsp;describe                                   |  1.0.0  | Describe agents.                                                       |
-| &emsp;export                                     |  1.0.0  | Export agents.                                                         |
-| &emsp;gateway / ig                               |  1.0.0  | Manage gateway agents.                                                 |
-| &emsp;&emsp;delete                               |  1.0.0  | Delete identity gateway agents.                                        |
-| &emsp;&emsp;describe                             |  1.0.0  | Describe gateway agents.                                               |
-| &emsp;&emsp;export                               |  1.0.0  | Export gateway agents.                                                 |
-| &emsp;import                                     |  1.0.0  | Import gateway agents.                                                 |
-| &emsp;list                                       |  1.0.0  | List gateway agents.                                                   |
-| &emsp;import                                     |  1.0.0  | Import agents.                                                         |
-| &emsp;java                                       |  1.0.0  | Manage java agents.                                                    |
-| &emsp;&emsp;delete                               |  1.0.0  | Delete java agents.                                                    |
-| &emsp;&emsp;describe                             |  1.0.0  | Describe java agents.                                                  |
-| &emsp;&emsp;export                               |  1.0.0  | Export java agents.                                                    |
-| &emsp;&emsp;import                               |  1.0.0  | Import java agents.                                                    |
-| &emsp;&emsp;list                                 |  1.0.0  | List java agents.                                                      |
-| &emsp;list                                       |  1.0.0  | List agents.                                                           |
-| &emsp;web                                        |  1.0.0  | Manage web agents.                                                     |
-| &emsp;&emsp;delete                               |  1.0.0  | Delete web agents.                                                     |
-| &emsp;&emsp;describe                             |  1.0.0  | Describe web agents.                                                   |
-| &emsp;&emsp;export                               |  1.0.0  | Export web agents.                                                     |
-| &emsp;&emsp;import                               |  1.0.0  | Import web agents.                                                     |
-| &emsp;&emsp;list                                 |  1.0.0  | List web agents.                                                       |
-|                                                  |         |                                                                        |
-| frodo authn                                      |  2.0.0  | Manage authentication settings.                                        |
-| &emsp;describe                                   |  2.0.0  | Describe authentication settings.                                      |
-| &emsp;export                                     |  2.0.0  | Export authentication settings.                                        |
-| &emsp;import                                     |  2.0.0  | Import authentication settings.                                        |
-|                                                  |         |                                                                        |
-| frodo authz                                      |  1.0.0  | Manage authorization policies, policy sets, and resource types.        |
-| &emsp;policy                                     |  1.0.0  | Manages authorization policies.                                        |
-| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization policies.                                         |
-| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization policies.                                       |
-| &emsp;&emsp;export                               |  1.0.0  | Export authorization policies.                                         |
-| &emsp;&emsp;import                               |  1.0.0  | Import authorization policies.                                         |
-| &emsp;&emsp;list                                 |  1.0.0  | List authorization policies.                                           |
-| &emsp;set / policyset                            |  1.0.0  | Manage authorization policy sets.                                      |
-| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization policy sets.                                      |
-| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization policy sets.                                    |
-| &emsp;&emsp;export                               |  1.0.0  | Export authorization policy sets.                                      |
-| &emsp;&emsp;import                               |  1.0.0  | Import authorization policy sets.                                      |
-| &emsp;&emsp;list                                 |  1.0.0  | List authorization policy sets.                                        |
-| &emsp;type                                       |  1.0.0  | Manage authorization resource types.                                   |
-| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization resource types.                                   |
-| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization resource types.                                 |
-| &emsp;&emsp;export                               |  1.0.0  | Export authorization resource types.                                   |
-| &emsp;&emsp;import                               |  1.0.0  | Import authorization resource types.                                   |
-| &emsp;&emsp;list                                 |  1.0.0  | List authorization resource types.                                     |
-|                                                  |         |                                                                        |
-| frodo app / application                          |  2.0.0  | Manage applications. Old `app` command was renamed to `oauth`.         |
-| &emsp;delete                                     |  2.0.0  | Delete applications.                                                   |
-| &emsp;export                                     |  2.0.0  | Export applications.                                                   |
-| &emsp;import                                     |  2.0.0  | Import applications.                                                   |
-| &emsp;list                                       |  2.0.0  | List applications.                                                     |
-| frodo config                                     |  2.0.0  | Manage full cloud configuration.                                       |
-| &emsp;export                                     |  2.0.0  | Export full cloud configuration.                                       |
-| &emsp;import                                     |  2.0.0  | Import full cloud configuration.                                       |
-|                                                  |         |                                                                        |
-| frodo config-manager                             | `4.0.0` | Manage cloud configuration using fr-config-manager.                    |
-| &emsp;pull                                       | `4.0.0` | Export cloud configuration using fr-config-manager.                    |
-| &emsp;&emsp;access-config                        | `4.0.0` | Export access-config objects.                                          |
-| &emsp;&emsp;all                                  | `4.0.0` | Export all config.                                                     |
-| &emsp;&emsp;all-static                           | `4.0.0` | Export all static config.                                              |
-| &emsp;&emsp;audit                                | `4.0.0` | Export audit objects.                                                  |
-| &emsp;&emsp;authentication                       | `4.0.0` | Export authentication objects.                                         |
-| &emsp;&emsp;authz-policies                       | `4.0.0` | Export authorization policies from realm.                              |
-| &emsp;&emsp;connector-definitions                | `4.0.0` | Export aconnector definitions.                                         |
-| &emsp;&emsp;connector-mappings                   | `4.0.0` | Export connector mappings.                                             |
-| &emsp;&emsp;cookie-domains                       | `4.0.0` | Export cookie-domains objects.                                         |
-| &emsp;&emsp;cors                                 | `4.0.0` | Export CORS configuration.                                             |
-| &emsp;&emsp;csp                                  | `4.0.0` | Export content security policy.                                        |
-| &emsp;&emsp;custom-nodes                         | `4.0.0` | Export custom nodes.                                                   |
-| &emsp;&emsp;email-provider                       | `4.0.0` | Export email provider configuration.                                   |
-| &emsp;&emsp;email-templates                      | `4.0.0` | Export email-templates objects.                                        |
-| &emsp;&emsp;endpoints                            | `4.0.0` | Export custom endpoints objects.                                       |
-| &emsp;&emsp;internal-roles                       | `4.0.0` | Export internal roles.                                                 |
-| &emsp;&emsp;journeys                             | `4.0.0` | Export journeys.                                                       |
-| &emsp;&emsp;kba                                  | `4.0.0` | Export kba-config objects.                                             |
-| &emsp;&emsp;locales                              | `4.0.0` | Export custom locales objects.                                         |
-| &emsp;&emsp;managed-objects                      | `4.0.0` | Export managed-objects.                                                |
-| &emsp;&emsp;oauth2-agents                        | `4.0.0` | Export OAuth2 Agents                                                   |
-| &emsp;&emsp;org-privileges                       | `4.0.0` | Export organization privileges config.                                 |
-| &emsp;&emsp;password-policy                      | `4.0.0` | Export password-policy objects.                                        |
-| &emsp;&emsp;raw                                  | `4.0.0` | Export raw configurations from the tenant.                             |
-| &emsp;&emsp;remote-servers                       | `4.0.0` | Export remote-servers objects.                                         |
-| &emsp;&emsp;saml                                 | `4.0.0` | Export saml.                                                           |
-| &emsp;&emsp;schedules                            | `4.0.0` | Export schedules.                                                      |
-| &emsp;&emsp;scripts                              | `4.0.0` | Export authorization scripts.                                          |
-| &emsp;&emsp;secret-mappings                      | `4.0.0` | Export secret mappings.                                                |
-| &emsp;&emsp;secrets                              | `4.0.0` | Export secrets.                                                        |
-| &emsp;&emsp;service-objects                      | `4.0.0` | Export service objects.                                                |
-| &emsp;&emsp;services                             | `4.0.0` | Export authentication services.                                        |
-| &emsp;&emsp;terms-and-conditions                 | `4.0.0` | Export terms and conditions.                                           |
-| &emsp;&emsp;test                                 | `4.0.0` | Test connection and authentication.                                    |
-| &emsp;&emsp;themes                               | `4.0.0` | Export themes.                                                         |
-| &emsp;&emsp;ui-config                            | `4.0.0` | Export ui-configuration objects.                                       |
-| &emsp;&emsp;variables                            | `4.0.0` | Export variables objects.                                              |
-| &emsp;push                                       | `4.0.0` | Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager). |
-| &emsp;&emsp;access-config                        | `4.0.0` | Import access configuration.                                           |
-| &emsp;&emsp;audit                                | `4.0.0` | Import audit configuration.                                            |
-| &emsp;&emsp;authentication                       | `4.0.0` | Import authentication objects.                                         |
-| &emsp;&emsp;connector-definitions                | `4.0.0` | Import connector definitions.                                          |
-| &emsp;&emsp;cookie-domains                       | `4.0.0` | Import cookie domains.                                                 |
-| &emsp;&emsp;email-provider                       | `4.0.0` | Import email provider configuration.                                   |
-| &emsp;&emsp;email-templates                      | `4.0.0` | Import email template objects.                                         |
-| &emsp;&emsp;endpoints                            | `4.0.0` | Import custom endpoints objects.                                       |
-| &emsp;&emsp;internal-roles                       | `4.0.0` | Import internal roles.                                                 |
-| &emsp;&emsp;kba                                  | `4.0.0` | Import kba configuration.                                              |
-| &emsp;&emsp;locales                              | `4.0.0` | Import custom locales objects.                                         |
-| &emsp;&emsp;managed-objects                      | `4.0.0` | Import managed objects.                                                |
-| &emsp;&emsp;org-privileges                       | `4.0.0` | Import organization privileges config.                                 |
-| &emsp;&emsp;password-policy                      | `4.0.0` | Import password-policy objects.                                        |
-| &emsp;&emsp;schedules                            | `4.0.0` | Import schedules.                                                      |
-| &emsp;&emsp;service-objects                      | `4.0.0` | Import service objects.                                                |
-| &emsp;&emsp;terms-and-conditions                 | `4.0.0` | Import terms and conditions.                                           |
-| &emsp;&emsp;themes                               | `4.0.0` | Import themes.                                                         |
-| &emsp;&emsp;ui-config                            | `4.0.0` | Import UI configuration.                                               |
-|                                                  |         |                                                                        |
-| frodo conn / connection                          |  1.0.0  | Manage connection profiles.                                            |
-| &emsp;delete                                     |  1.0.0  | Delete connection profiles.                                            |
-| &emsp;describe                                   |  1.0.0  | Describe connection profile.                                           |
-| &emsp;list                                       |  1.0.0  | List connection profiles.                                              |
-| &emsp;save / add                                 |  1.0.0  | Save connection profiles.                                              |
-|                                                  |         |                                                                        |
-| frodo dcc / direct-configuration-control         | `4.0.0` | Direct Configuration Control (DCC) commands.                           |
-| &emsp;session                                    | `4.0.0` | Manage direct configuration sessions.                                  |
-| &emsp;&emsp;abort                                | `4.0.0` | Abort a direct configuration session.                                  |
-| &emsp;&emsp;apply.                               | `4.0.0` | Apply configuration and end a direct configuration session.            |
-| &emsp;&emsp;init                                 | `4.0.0` | Initialize a direct configuration session.                             |
-| &emsp;&emsp;state.                               | `4.0.0` | Retrieve the state of the direct configuration session.                |
-|                                                  |         |                                                                        |
-| frodo email                                      |  1.0.0  | Manage email templates and configuration.                              |
-| &emsp;template                                   |  1.0.0  | Manage email templates.                                                |
-| &emsp;&emsp;delete                               |  3.1.0  | Delete email templates.                                                |
-| &emsp;&emsp;export                               |  1.0.0  | Export email templates.                                                |
-| &emsp;&emsp;import                               |  1.0.0  | Import email templates.                                                |
-| &emsp;&emsp;list                                 |  1.0.0  | List email templates.                                                  |
-|                                                  |         |                                                                        |
-| frodo esv                                        |  1.0.0  | Manage environment secrets and variables (ESVs).                       |
-| &emsp;apply                                      |  1.0.0  | Apply pending changes to secrets and variables.                        |
-| &emsp;secret                                     |  1.0.0  | Manages secrets.                                                       |
-| &emsp;&emsp;create                               |  1.0.0  | Create secrets.                                                        |
-| &emsp;&emsp;delete                               |  1.0.0  | Delete secrets.                                                        |
-| &emsp;&emsp;describe                             |  1.0.0  | Describe secrets.                                                      |
-| &emsp;&emsp;export                               |  2.0.0  | Export secrets.                                                        |
-| &emsp;&emsp;import                               |  2.0.0  | Import secrets.                                                        |
-| &emsp;&emsp;list                                 |  1.0.0  | List secrets.                                                          |
-| &emsp;&emsp;set                                  |  1.0.0  | Set secret description.                                                |
-| &emsp;&emsp;version                              |  1.0.0  | Manage secret versions.                                                |
-| &emsp;variable                                   |  1.0.0  | Manage variables.                                                      |
-| &emsp;&emsp;create                               |  1.0.0  | Create variables.                                                      |
-| &emsp;&emsp;delete                               |  1.0.0  | Delete variables.                                                      |
-| &emsp;&emsp;describe                             |  1.0.0  | Describe variables.                                                    |
-| &emsp;&emsp;export                               |  2.0.0  | Export variables.                                                      |
-| &emsp;&emsp;import                               |  2.0.0  | Import variables.                                                      |
-| &emsp;&emsp;list                                 |  1.0.0  | List variables.                                                        |
-| &emsp;&emsp;set                                  |  1.0.0  | Set variable description.                                              |
-|                                                  |         |                                                                        |
-| frodo feature                                    | `4.9.0` | Manage features (e.g. groups, aiagent, am/2fa/profiles).              |
-| &emsp;describe                                   | `4.9.0` | Describe feature.                                                     |
-| &emsp;install                                    | `4.9.0` | Install a feature. IRREVERSIBLE.                                      |
-| &emsp;list                                       | `4.9.0` | List features.                                                        |
-| &emsp;validate                                   | `4.9.0` | Validate whether a feature is installable.                            |
-|                                                  |         |                                                                        |
-| frodo idm                                        |  1.0.0  | Manage IDM configuration.                                              |
-| &emsp;count                                      |  1.0.0  | Count managed objects.                                                 |
-| &emsp;export                                     |  1.0.0  | Export IDM configuration objects.                                      |
-| &emsp;import                                     |  1.0.0  | Import IDM configuration objects.                                      |
-| &emsp;list                                       |  1.0.0  | List IDM configuration objects.                                        |
-| &emsp;schema                                     | `4.9.0` | Manage IDM schema.                                                     |
-| &emsp;&emsp;object                               | `4.9.0` | Manage IDM managed object schema definitions.                         |
-| &emsp;&emsp;&emsp;create                         | `4.9.0` | Create IDM managed object schema definition.                          |
-| &emsp;&emsp;&emsp;delete                         | `4.9.0` | Delete IDM managed object schema definition.                          |
-| &emsp;&emsp;&emsp;describe                       | `4.9.0` | Describe IDM managed object schema definition.                        |
-| &emsp;&emsp;&emsp;export                         | `4.9.0` | Export IDM managed object schema definition.                          |
-| &emsp;&emsp;&emsp;import                         | `4.9.0` | Import IDM managed object schema definition.                          |
-| &emsp;&emsp;&emsp;list                           | `4.9.0` | List IDM managed object schema definitions.                           |
-| &emsp;&emsp;&emsp;update                         | `4.9.0` | Update IDM managed object schema definition.                          |
-| &emsp;&emsp;property                             | `4.9.0` | Manage IDM managed object property schema definitions.                |
-| &emsp;&emsp;&emsp;create                         | `4.9.0` | Create IDM managed object property schema definition.                 |
-| &emsp;&emsp;&emsp;delete                         | `4.9.0` | Delete IDM managed object property schema definition.                 |
-| &emsp;&emsp;&emsp;describe                       | `4.9.0` | Describe IDM managed object property schema definition.               |
-| &emsp;&emsp;&emsp;export                         | `4.9.0` | Export IDM managed object property schema definition.                 |
-| &emsp;&emsp;&emsp;import                         | `4.9.0` | Import IDM managed object property schema definition.                 |
-| &emsp;&emsp;&emsp;list                           | `4.9.0` | List IDM managed object property schema definitions.                  |
-| &emsp;&emsp;&emsp;update                         | `4.9.0` | Update IDM managed object property schema definition.                 |
-| &emsp;&emsp;relationship                         | `4.9.0` | Manage IDM relationship schema definitions.                           |
-| &emsp;&emsp;&emsp;create                         | `4.9.0` | Create IDM managed object relationship schema definition.             |
-| &emsp;&emsp;&emsp;delete                         | `4.9.0` | Delete IDM managed object relationship schema definition.             |
-| &emsp;&emsp;&emsp;describe                       | `4.9.0` | Describe IDM managed object relationship schema definition.           |
-| &emsp;&emsp;&emsp;export                         | `4.9.0` | Export IDM managed object relationship schema definition.             |
-| &emsp;&emsp;&emsp;import                         | `4.9.0` | Import IDM managed object relationship schema definition.             |
-| &emsp;&emsp;&emsp;list                           | `4.9.0` | List IDM managed object relationship schema definitions.              |
-| &emsp;&emsp;&emsp;update                         | `4.9.0` | Update IDM managed object relationship schema definition.             |
-|                                                  |         |                                                                        |
-| frodo idp                                        |  1.0.0  | Manage (social) identity providers.                                    |
-| &emsp;export                                     |  1.0.0  | Export (social) identity providers.                                    |
-| &emsp;import                                     |  1.0.0  | Import (social) identity providers.                                    |
-| &emsp;list                                       |  1.0.0  | List (social) identity providers.                                      |
-|                                                  |         |                                                                        |
-| frodo info                                       |  1.0.0  | Print versions and tokens.                                             |
-|                                                  |         |                                                                        |
-| frodo journey                                    |  1.0.0  | Manage journeys/trees.                                                 |
-| &emsp;delete                                     |  1.0.0  | Delete journeys/trees.                                                 |
-| &emsp;describe                                   |  1.0.0  | Describe journeys/trees.                                               |
-| &emsp;disable                                    |  1.0.0  | Disable journeys/trees.                                                |
-| &emsp;enable                                     |  1.0.0  | Enable journeys/trees.                                                 |
-| &emsp;export                                     |  1.0.0  | Export journeys/trees.                                                 |
-| &emsp;import                                     |  1.0.0  | Import journey/tree.                                                   |
-| &emsp;list                                       |  1.0.0  | List journeys/trees.                                                   |
-| &emsp;prune                                      |  1.0.0  | Prune orphaned configuration artifacts.                                |
-|                                                  |         |                                                                        |
-| frodo log / logs                                 |  1.0.0  | List/View Identity Cloud logs                                          |
-| &emsp;fetch                                      |  1.0.0  | Fetch Identity Cloud logs.                                             |
-| &emsp;key                                        |  1.0.0  | Manage Identity Cloud log API keys.                                    |
-| &emsp;list                                       |  1.0.0  | List available ID Cloud log sources.                                   |
-| &emsp;tail                                       |  1.0.0  | Tail Identity Cloud logs.                                              |
-|                                                  |         |                                                                        |
-| frodo mapping                                    |  2.0.0  | Manage IDM mappings.                                                   |
-| &emsp;delete                                     |  2.0.0  | Delete IDM mappings.                                                   |
-| &emsp;export                                     |  2.0.0  | Export IDM mappings.                                                   |
-| &emsp;import                                     |  2.0.0  | Import IDM mappings.                                                   |
-| &emsp;list                                       |  2.0.0  | List IDM mappings.                                                     |
-| &emsp;rename                                     |  2.0.0  | Renames mappings from legacy to new naming scheme.                     |
-|                                                  |         |                                                                        |
-| frodo mcp                                        | `4.0.0` | Manage Model Context Protocol (MCP) integrations.                      |
-| &emsp;server                                     | `4.0.0` | Manage Frodo MCP server lifecycle and metadata.                        |
-| &emsp;&emsp;start                                | `4.0.0` | Start an MCP server session from frodo-lib capabilities.               |
-| &emsp;&emsp;tools                                | `4.0.0` | List MCP tools exposed under the current policy/profile.               |
-|                                                  |         |                                                                        |
-| frodo node                                       | `4.0.0` | Manage custom nodes.                                                   |
-| &emsp;delete                                     | `4.0.0` | Delete custom nodes.                                                   |
-| &emsp;describe                                   | `4.0.0` | Delete custom nodes.                                                   |
-| &emsp;export                                     | `4.0.0` | Export custom nodes.                                                   |
-| &emsp;import                                     | `4.0.0` | Import custom nodes.                                                   |
-| &emsp;list                                       | `4.0.0` | List custom nodes.                                                     |
-|                                                  |         |                                                                        |
-| frodo oauth                                      |  2.0.0  | Renamed from `app`! Manage OAuth2 clients and providers.               |
-| &emsp;client                                     |  2.0.0  | Manage OAuth2 clients.                                                 |
-| &emsp;&emsp;export                               |  2.0.0  | Export OAuth2 clients.                                                 |
-| &emsp;&emsp;import                               |  2.0.0  | Import OAuth2 clients.                                                 |
-| &emsp;&emsp;list                                 |  2.0.0  | List OAuth2 clients.                                                   |
-|                                                  |         |                                                                        |
-| frodo realm                                      |  1.0.0  | Manage realms.                                                         |
-| &emsp;add-custom-domain                          |  1.0.0  | Add custom domain (realm DNS alias).                                   |
-| &emsp;describe / details                         |  1.0.0  | Describe realms.                                                       |
-| &emsp;list                                       |  1.0.0  | List realms.                                                           |
-| &emsp;remove-custom-domain                       |  1.0.0  | Remove custom domain (realm DNS alias).                                |
-|                                                  |         |                                                                        |
-| frodo saml                                       |  1.0.0  | Manage SAML entity providers and circles of trust.                     |
-| &emsp;cot                                        |  1.0.0  | Manage circles of trust.                                               |
-| &emsp;&emsp;export                               |  1.0.0  | Export SAML circles of trust.                                          |
-| &emsp;&emsp;import                               |  1.0.0  | Import SAML circles of trust.                                          |
-| &emsp;&emsp;list                                 |  1.0.0  | List SAML circles of trust.                                            |
-| &emsp;delete                                     |  1.0.0  | Delete SAML entity providers.                                          |
-| &emsp;describe                                   |  1.0.0  | Describe the configuration of an entity provider.                      |
-| &emsp;export                                     |  1.0.0  | Export SAML entity providers.                                          |
-| &emsp;import                                     |  1.0.0  | Import SAML entity providers.                                          |
-| &emsp;list                                       |  1.0.0  | List SAML entity providers.                                            |
-| &emsp;metadata                                   |  1.0.0  | SAML metadata operations.                                              |
-| &emsp;&emsp;export                               |  1.0.0  | Export metadata.                                                       |
-|                                                  |         |                                                                        |
-| frodo script                                     |  1.0.0  | Manage scripts.                                                        |
-| &emsp;delete                                     |  1.0.0  | Delete scripts.                                                        |
-| &emsp;export                                     |  1.0.0  | Export scripts.                                                        |
-| &emsp;import                                     |  1.0.0  | Import scripts.                                                        |
-| &emsp;list                                       |  1.0.0  | List scripts.                                                          |
-| &emsp;type                                       | `4.9.0` | Manage scripting contexts (script types).                             |
+| Command                                          |  Since  | Description                                                                                             |
+| ------------------------------------------------ | :-----: | ------------------------------------------------------------------------------------------------------- |
+| frodo admin                                      |  1.0.0  | Platform admin tasks.                                                                                   |
+| &emsp;add-autoid-static-user-mapping             |  1.0.0  | Add AutoId static user mapping to enable dashboards.                                                    |
+| &emsp;create-oauth2-client-with-admin-privileges |  1.0.0  | Create an oauth2 client with admin privileges.                                                          |
+| &emsp;execute-rfc7523-authz-grant-flow           |  2.0.0  | Execute RFC7523 authorization grant flow.                                                               |
+| &emsp;federation                                 |  1.0.0  | Manages admin federation configuration.                                                                 |
+| &emsp;generate-rfc7523-authz-grant-artefacts     |  2.0.0  | Generate RFC7523 authorization grant artefacts.                                                         |
+| &emsp;get-access-token                           |  1.0.0  | Get an access token using client credentials grant type.                                                |
+| &emsp;grant-oauth2-client-admin-privileges       |  1.0.0  | Grant an oauth2 client admin privileges.                                                                |
+| &emsp;hide-generic-extension-attributes          |  1.0.0  | Hide generic extension attributes.                                                                      |
+| &emsp;list-oauth2-clients-with-admin-privileges  |  1.0.0  | List oauth2 clients with admin privileges.                                                              |
+| &emsp;list-oauth2-clients-with-custom-privileges |  1.0.0  | List oauth2 clients with custom privileges.                                                             |
+| &emsp;list-static-user-mappings                  |  1.0.0  | List all subjects of static user mappings that are not oauth2 clients.                                  |
+| &emsp;remove-static-user-mapping                 |  1.0.0  | Remove a subject's static user mapping.                                                                 |
+| &emsp;repair-org-model                           |  1.0.0  | Repair org model.                                                                                       |
+| &emsp;revoke-oauth2-client-admin-privileges      |  1.0.0  | Revoke admin privileges from an oauth2 client.                                                          |
+| &emsp;show-generic-extension-attributes          |  1.0.0  | Show generic extension attributes.                                                                      |
+|                                                  |         |                                                                                                         |
+| frodo agent                                      |  1.0.0  | Manage agents.                                                                                          |
+| &emsp;delete                                     |  1.0.0  | Delete agents.                                                                                          |
+| &emsp;describe                                   |  1.0.0  | Describe agents.                                                                                        |
+| &emsp;export                                     |  1.0.0  | Export agents.                                                                                          |
+| &emsp;gateway / ig                               |  1.0.0  | Manage gateway agents.                                                                                  |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete identity gateway agents.                                                                         |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe gateway agents.                                                                                |
+| &emsp;&emsp;export                               |  1.0.0  | Export gateway agents.                                                                                  |
+| &emsp;import                                     |  1.0.0  | Import gateway agents.                                                                                  |
+| &emsp;list                                       |  1.0.0  | List gateway agents.                                                                                    |
+| &emsp;import                                     |  1.0.0  | Import agents.                                                                                          |
+| &emsp;java                                       |  1.0.0  | Manage java agents.                                                                                     |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete java agents.                                                                                     |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe java agents.                                                                                   |
+| &emsp;&emsp;export                               |  1.0.0  | Export java agents.                                                                                     |
+| &emsp;&emsp;import                               |  1.0.0  | Import java agents.                                                                                     |
+| &emsp;&emsp;list                                 |  1.0.0  | List java agents.                                                                                       |
+| &emsp;list                                       |  1.0.0  | List agents.                                                                                            |
+| &emsp;web                                        |  1.0.0  | Manage web agents.                                                                                      |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete web agents.                                                                                      |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe web agents.                                                                                    |
+| &emsp;&emsp;export                               |  1.0.0  | Export web agents.                                                                                      |
+| &emsp;&emsp;import                               |  1.0.0  | Import web agents.                                                                                      |
+| &emsp;&emsp;list                                 |  1.0.0  | List web agents.                                                                                        |
+|                                                  |         |                                                                                                         |
+| frodo authn                                      |  2.0.0  | Manage authentication settings.                                                                         |
+| &emsp;describe                                   |  2.0.0  | Describe authentication settings.                                                                       |
+| &emsp;export                                     |  2.0.0  | Export authentication settings.                                                                         |
+| &emsp;import                                     |  2.0.0  | Import authentication settings.                                                                         |
+|                                                  |         |                                                                                                         |
+| frodo authz                                      |  1.0.0  | Manage authorization policies, policy sets, and resource types.                                         |
+| &emsp;policy                                     |  1.0.0  | Manages authorization policies.                                                                         |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization policies.                                                                          |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization policies.                                                                        |
+| &emsp;&emsp;export                               |  1.0.0  | Export authorization policies.                                                                          |
+| &emsp;&emsp;import                               |  1.0.0  | Import authorization policies.                                                                          |
+| &emsp;&emsp;list                                 |  1.0.0  | List authorization policies.                                                                            |
+| &emsp;set / policyset                            |  1.0.0  | Manage authorization policy sets.                                                                       |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization policy sets.                                                                       |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization policy sets.                                                                     |
+| &emsp;&emsp;export                               |  1.0.0  | Export authorization policy sets.                                                                       |
+| &emsp;&emsp;import                               |  1.0.0  | Import authorization policy sets.                                                                       |
+| &emsp;&emsp;list                                 |  1.0.0  | List authorization policy sets.                                                                         |
+| &emsp;type                                       |  1.0.0  | Manage authorization resource types.                                                                    |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization resource types.                                                                    |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization resource types.                                                                  |
+| &emsp;&emsp;export                               |  1.0.0  | Export authorization resource types.                                                                    |
+| &emsp;&emsp;import                               |  1.0.0  | Import authorization resource types.                                                                    |
+| &emsp;&emsp;list                                 |  1.0.0  | List authorization resource types.                                                                      |
+|                                                  |         |                                                                                                         |
+| frodo app / application                          |  2.0.0  | Manage applications. Old `app` command was renamed to `oauth`.                                          |
+| &emsp;delete                                     |  2.0.0  | Delete applications.                                                                                    |
+| &emsp;export                                     |  2.0.0  | Export applications.                                                                                    |
+| &emsp;import                                     |  2.0.0  | Import applications.                                                                                    |
+| &emsp;list                                       |  2.0.0  | List applications.                                                                                      |
+| frodo config                                     |  2.0.0  | Manage full cloud configuration.                                                                        |
+| &emsp;export                                     |  2.0.0  | Export full cloud configuration.                                                                        |
+| &emsp;import                                     |  2.0.0  | Import full cloud configuration.                                                                        |
+|                                                  |         |                                                                                                         |
+| frodo config-manager                             | `4.0.0` | Manage cloud configuration using fr-config-manager.                                                     |
+| &emsp;pull                                       | `4.0.0` | Export cloud configuration using fr-config-manager.                                                     |
+| &emsp;&emsp;access-config                        | `4.0.0` | Export access-config objects.                                                                           |
+| &emsp;&emsp;all                                  | `4.0.0` | Export all config.                                                                                      |
+| &emsp;&emsp;all-static                           | `4.0.0` | Export all static config.                                                                               |
+| &emsp;&emsp;audit                                | `4.0.0` | Export audit objects.                                                                                   |
+| &emsp;&emsp;authentication                       | `4.0.0` | Export authentication objects.                                                                          |
+| &emsp;&emsp;authz-policies                       | `4.0.0` | Export authorization policies from realm.                                                               |
+| &emsp;&emsp;connector-definitions                | `4.0.0` | Export aconnector definitions.                                                                          |
+| &emsp;&emsp;connector-mappings                   | `4.0.0` | Export connector mappings.                                                                              |
+| &emsp;&emsp;cookie-domains                       | `4.0.0` | Export cookie-domains objects.                                                                          |
+| &emsp;&emsp;cors                                 | `4.0.0` | Export CORS configuration.                                                                              |
+| &emsp;&emsp;csp                                  | `4.0.0` | Export content security policy.                                                                         |
+| &emsp;&emsp;custom-nodes                         | `4.0.0` | Export custom nodes.                                                                                    |
+| &emsp;&emsp;email-provider                       | `4.0.0` | Export email provider configuration.                                                                    |
+| &emsp;&emsp;email-templates                      | `4.0.0` | Export email-templates objects.                                                                         |
+| &emsp;&emsp;endpoints                            | `4.0.0` | Export custom endpoints objects.                                                                        |
+| &emsp;&emsp;internal-roles                       | `4.0.0` | Export internal roles.                                                                                  |
+| &emsp;&emsp;journeys                             | `4.0.0` | Export journeys.                                                                                        |
+| &emsp;&emsp;kba                                  | `4.0.0` | Export kba-config objects.                                                                              |
+| &emsp;&emsp;locales                              | `4.0.0` | Export custom locales objects.                                                                          |
+| &emsp;&emsp;managed-objects                      | `4.0.0` | Export managed-objects.                                                                                 |
+| &emsp;&emsp;oauth2-agents                        | `4.0.0` | Export OAuth2 Agents                                                                                    |
+| &emsp;&emsp;org-privileges                       | `4.0.0` | Export organization privileges config.                                                                  |
+| &emsp;&emsp;password-policy                      | `4.0.0` | Export password-policy objects.                                                                         |
+| &emsp;&emsp;raw                                  | `4.0.0` | Export raw configurations from the tenant.                                                              |
+| &emsp;&emsp;remote-servers                       | `4.0.0` | Export remote-servers objects.                                                                          |
+| &emsp;&emsp;saml                                 | `4.0.0` | Export saml.                                                                                            |
+| &emsp;&emsp;schedules                            | `4.0.0` | Export schedules.                                                                                       |
+| &emsp;&emsp;scripts                              | `4.0.0` | Export authorization scripts.                                                                           |
+| &emsp;&emsp;secret-mappings                      | `4.0.0` | Export secret mappings.                                                                                 |
+| &emsp;&emsp;secrets                              | `4.0.0` | Export secrets.                                                                                         |
+| &emsp;&emsp;service-objects                      | `4.0.0` | Export service objects.                                                                                 |
+| &emsp;&emsp;services                             | `4.0.0` | Export authentication services.                                                                         |
+| &emsp;&emsp;terms-and-conditions                 | `4.0.0` | Export terms and conditions.                                                                            |
+| &emsp;&emsp;test                                 | `4.0.0` | Test connection and authentication.                                                                     |
+| &emsp;&emsp;themes                               | `4.0.0` | Export themes.                                                                                          |
+| &emsp;&emsp;ui-config                            | `4.0.0` | Export ui-configuration objects.                                                                        |
+| &emsp;&emsp;variables                            | `4.0.0` | Export variables objects.                                                                               |
+| &emsp;push                                       | `4.0.0` | Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).          |
+| &emsp;&emsp;access-config                        | `4.0.0` | Import access configuration.                                                                            |
+| &emsp;&emsp;audit                                | `4.0.0` | Import audit configuration.                                                                             |
+| &emsp;&emsp;authentication                       | `4.0.0` | Import authentication objects.                                                                          |
+| &emsp;&emsp;connector-definitions                | `4.0.0` | Import connector definitions.                                                                           |
+| &emsp;&emsp;cookie-domains                       | `4.0.0` | Import cookie domains.                                                                                  |
+| &emsp;&emsp;email-provider                       | `4.0.0` | Import email provider configuration.                                                                    |
+| &emsp;&emsp;email-templates                      | `4.0.0` | Import email template objects.                                                                          |
+| &emsp;&emsp;endpoints                            | `4.0.0` | Import custom endpoints objects.                                                                        |
+| &emsp;&emsp;internal-roles                       | `4.0.0` | Import internal roles.                                                                                  |
+| &emsp;&emsp;kba                                  | `4.0.0` | Import kba configuration.                                                                               |
+| &emsp;&emsp;locales                              | `4.0.0` | Import custom locales objects.                                                                          |
+| &emsp;&emsp;managed-objects                      | `4.0.0` | Import managed objects.                                                                                 |
+| &emsp;&emsp;org-privileges                       | `4.0.0` | Import organization privileges config.                                                                  |
+| &emsp;&emsp;password-policy                      | `4.0.0` | Import password-policy objects.                                                                         |
+| &emsp;&emsp;schedules                            | `4.0.0` | Import schedules.                                                                                       |
+| &emsp;&emsp;service-objects                      | `4.0.0` | Import service objects.                                                                                 |
+| &emsp;&emsp;terms-and-conditions                 | `4.0.0` | Import terms and conditions.                                                                            |
+| &emsp;&emsp;themes                               | `4.0.0` | Import themes.                                                                                          |
+| &emsp;&emsp;ui-config                            | `4.0.0` | Import UI configuration.                                                                                |
+|                                                  |         |                                                                                                         |
+| frodo conn / connection                          |  1.0.0  | Manage connection profiles.                                                                             |
+| &emsp;delete                                     |  1.0.0  | Delete connection profiles.                                                                             |
+| &emsp;describe                                   |  1.0.0  | Describe connection profile.                                                                            |
+| &emsp;list                                       |  1.0.0  | List connection profiles.                                                                               |
+| &emsp;save / add                                 |  1.0.0  | Save connection profiles.                                                                               |
+|                                                  |         |                                                                                                         |
+| frodo dcc / direct-configuration-control         | `4.0.0` | Direct Configuration Control (DCC) commands.                                                            |
+| &emsp;session                                    | `4.0.0` | Manage direct configuration sessions.                                                                   |
+| &emsp;&emsp;abort                                | `4.0.0` | Abort a direct configuration session.                                                                   |
+| &emsp;&emsp;apply.                               | `4.0.0` | Apply configuration and end a direct configuration session.                                             |
+| &emsp;&emsp;init                                 | `4.0.0` | Initialize a direct configuration session.                                                              |
+| &emsp;&emsp;state.                               | `4.0.0` | Retrieve the state of the direct configuration session.                                                 |
+|                                                  |         |                                                                                                         |
+| frodo email                                      |  1.0.0  | Manage email templates and configuration.                                                               |
+| &emsp;template                                   |  1.0.0  | Manage email templates.                                                                                 |
+| &emsp;&emsp;delete                               |  3.1.0  | Delete email templates.                                                                                 |
+| &emsp;&emsp;export                               |  1.0.0  | Export email templates.                                                                                 |
+| &emsp;&emsp;import                               |  1.0.0  | Import email templates.                                                                                 |
+| &emsp;&emsp;list                                 |  1.0.0  | List email templates.                                                                                   |
+|                                                  |         |                                                                                                         |
+| frodo esv                                        |  1.0.0  | Manage environment secrets and variables (ESVs).                                                        |
+| &emsp;apply                                      |  1.0.0  | Apply pending changes to secrets and variables.                                                         |
+| &emsp;secret                                     |  1.0.0  | Manages secrets.                                                                                        |
+| &emsp;&emsp;create                               |  1.0.0  | Create secrets.                                                                                         |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete secrets.                                                                                         |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe secrets.                                                                                       |
+| &emsp;&emsp;export                               |  2.0.0  | Export secrets.                                                                                         |
+| &emsp;&emsp;import                               |  2.0.0  | Import secrets.                                                                                         |
+| &emsp;&emsp;list                                 |  1.0.0  | List secrets.                                                                                           |
+| &emsp;&emsp;set                                  |  1.0.0  | Set secret description.                                                                                 |
+| &emsp;&emsp;version                              |  1.0.0  | Manage secret versions.                                                                                 |
+| &emsp;variable                                   |  1.0.0  | Manage variables.                                                                                       |
+| &emsp;&emsp;create                               |  1.0.0  | Create variables.                                                                                       |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete variables.                                                                                       |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe variables.                                                                                     |
+| &emsp;&emsp;export                               |  2.0.0  | Export variables.                                                                                       |
+| &emsp;&emsp;import                               |  2.0.0  | Import variables.                                                                                       |
+| &emsp;&emsp;list                                 |  1.0.0  | List variables.                                                                                         |
+| &emsp;&emsp;set                                  |  1.0.0  | Set variable description.                                                                               |
+|                                                  |         |                                                                                                         |
+| frodo feature                                    | `4.9.0` | Manage features (e.g. groups, aiagent, am/2fa/profiles).                                                |
+| &emsp;describe                                   | `4.9.0` | Describe feature.                                                                                       |
+| &emsp;install                                    | `4.9.0` | Install a feature. IRREVERSIBLE.                                                                        |
+| &emsp;list                                       | `4.9.0` | List features.                                                                                          |
+| &emsp;validate                                   | `4.9.0` | Validate whether a feature is installable.                                                              |
+|                                                  |         |                                                                                                         |
+| frodo idm                                        |  1.0.0  | Manage IDM configuration.                                                                               |
+| &emsp;count                                      |  1.0.0  | Count managed objects.                                                                                  |
+| &emsp;export                                     |  1.0.0  | Export IDM configuration objects.                                                                       |
+| &emsp;import                                     |  1.0.0  | Import IDM configuration objects.                                                                       |
+| &emsp;list                                       |  1.0.0  | List IDM configuration objects.                                                                         |
+| &emsp;schema                                     | `4.9.0` | Manage IDM schema.                                                                                      |
+| &emsp;&emsp;object                               | `4.9.0` | Manage IDM managed object schema definitions.                                                           |
+| &emsp;&emsp;&emsp;create                         | `4.9.0` | Create IDM managed object schema definition.                                                            |
+| &emsp;&emsp;&emsp;delete                         | `4.9.0` | Delete IDM managed object schema definition.                                                            |
+| &emsp;&emsp;&emsp;describe                       | `4.9.0` | Describe IDM managed object schema definition.                                                          |
+| &emsp;&emsp;&emsp;export                         | `4.9.0` | Export IDM managed object schema definition.                                                            |
+| &emsp;&emsp;&emsp;import                         | `4.9.0` | Import IDM managed object schema definition.                                                            |
+| &emsp;&emsp;&emsp;list                           | `4.9.0` | List IDM managed object schema definitions.                                                             |
+| &emsp;&emsp;&emsp;update                         | `4.9.0` | Update IDM managed object schema definition.                                                            |
+| &emsp;&emsp;property                             | `4.9.0` | Manage IDM managed object property schema definitions.                                                  |
+| &emsp;&emsp;&emsp;create                         | `4.9.0` | Create IDM managed object property schema definition.                                                   |
+| &emsp;&emsp;&emsp;delete                         | `4.9.0` | Delete IDM managed object property schema definition.                                                   |
+| &emsp;&emsp;&emsp;describe                       | `4.9.0` | Describe IDM managed object property schema definition.                                                 |
+| &emsp;&emsp;&emsp;export                         | `4.9.0` | Export IDM managed object property schema definition.                                                   |
+| &emsp;&emsp;&emsp;import                         | `4.9.0` | Import IDM managed object property schema definition.                                                   |
+| &emsp;&emsp;&emsp;list                           | `4.9.0` | List IDM managed object property schema definitions.                                                    |
+| &emsp;&emsp;&emsp;update                         | `4.9.0` | Update IDM managed object property schema definition.                                                   |
+| &emsp;&emsp;relationship                         | `4.9.0` | Manage IDM relationship schema definitions.                                                             |
+| &emsp;&emsp;&emsp;create                         | `4.9.0` | Create IDM managed object relationship schema definition.                                               |
+| &emsp;&emsp;&emsp;delete                         | `4.9.0` | Delete IDM managed object relationship schema definition.                                               |
+| &emsp;&emsp;&emsp;describe                       | `4.9.0` | Describe IDM managed object relationship schema definition.                                             |
+| &emsp;&emsp;&emsp;export                         | `4.9.0` | Export IDM managed object relationship schema definition.                                               |
+| &emsp;&emsp;&emsp;import                         | `4.9.0` | Import IDM managed object relationship schema definition.                                               |
+| &emsp;&emsp;&emsp;list                           | `4.9.0` | List IDM managed object relationship schema definitions.                                                |
+| &emsp;&emsp;&emsp;update                         | `4.9.0` | Update IDM managed object relationship schema definition.                                               |
+|                                                  |         |                                                                                                         |
+| frodo idp                                        |  1.0.0  | Manage (social) identity providers.                                                                     |
+| &emsp;export                                     |  1.0.0  | Export (social) identity providers.                                                                     |
+| &emsp;import                                     |  1.0.0  | Import (social) identity providers.                                                                     |
+| &emsp;list                                       |  1.0.0  | List (social) identity providers.                                                                       |
+|                                                  |         |                                                                                                         |
+| frodo info                                       |  1.0.0  | Print versions and tokens.                                                                              |
+|                                                  |         |                                                                                                         |
+| frodo journey                                    |  1.0.0  | Manage journeys/trees.                                                                                  |
+| &emsp;delete                                     |  1.0.0  | Delete journeys/trees.                                                                                  |
+| &emsp;describe                                   |  1.0.0  | Describe journeys/trees.                                                                                |
+| &emsp;disable                                    |  1.0.0  | Disable journeys/trees.                                                                                 |
+| &emsp;enable                                     |  1.0.0  | Enable journeys/trees.                                                                                  |
+| &emsp;export                                     |  1.0.0  | Export journeys/trees.                                                                                  |
+| &emsp;import                                     |  1.0.0  | Import journey/tree.                                                                                    |
+| &emsp;list                                       |  1.0.0  | List journeys/trees.                                                                                    |
+| &emsp;prune                                      |  1.0.0  | Prune orphaned configuration artifacts.                                                                 |
+|                                                  |         |                                                                                                         |
+| frodo log / logs                                 |  1.0.0  | List/View Identity Cloud logs                                                                           |
+| &emsp;fetch                                      |  1.0.0  | Fetch Identity Cloud logs.                                                                              |
+| &emsp;key                                        |  1.0.0  | Manage Identity Cloud log API keys.                                                                     |
+| &emsp;list                                       |  1.0.0  | List available ID Cloud log sources.                                                                    |
+| &emsp;tail                                       |  1.0.0  | Tail Identity Cloud logs.                                                                               |
+|                                                  |         |                                                                                                         |
+| frodo mapping                                    |  2.0.0  | Manage IDM mappings.                                                                                    |
+| &emsp;delete                                     |  2.0.0  | Delete IDM mappings.                                                                                    |
+| &emsp;export                                     |  2.0.0  | Export IDM mappings.                                                                                    |
+| &emsp;import                                     |  2.0.0  | Import IDM mappings.                                                                                    |
+| &emsp;list                                       |  2.0.0  | List IDM mappings.                                                                                      |
+| &emsp;rename                                     |  2.0.0  | Renames mappings from legacy to new naming scheme.                                                      |
+|                                                  |         |                                                                                                         |
+| frodo mcp                                        | `4.0.0` | Manage Model Context Protocol (MCP) integrations.                                                       |
+| &emsp;server                                     | `4.0.0` | Manage Frodo MCP server lifecycle and metadata.                                                         |
+| &emsp;&emsp;start                                | `4.0.0` | Start an MCP server session from frodo-lib capabilities.                                                |
+| &emsp;&emsp;tools                                | `4.0.0` | List MCP tools exposed under the current policy/profile.                                                |
+|                                                  |         |                                                                                                         |
+| frodo node                                       | `4.0.0` | Manage custom nodes.                                                                                    |
+| &emsp;delete                                     | `4.0.0` | Delete custom nodes.                                                                                    |
+| &emsp;describe                                   | `4.0.0` | Delete custom nodes.                                                                                    |
+| &emsp;export                                     | `4.0.0` | Export custom nodes.                                                                                    |
+| &emsp;import                                     | `4.0.0` | Import custom nodes.                                                                                    |
+| &emsp;list                                       | `4.0.0` | List custom nodes.                                                                                      |
+|                                                  |         |                                                                                                         |
+| frodo oauth                                      |  2.0.0  | Renamed from `app`! Manage OAuth2 clients and providers.                                                |
+| &emsp;client                                     |  2.0.0  | Manage OAuth2 clients.                                                                                  |
+| &emsp;&emsp;export                               |  2.0.0  | Export OAuth2 clients.                                                                                  |
+| &emsp;&emsp;import                               |  2.0.0  | Import OAuth2 clients.                                                                                  |
+| &emsp;&emsp;list                                 |  2.0.0  | List OAuth2 clients.                                                                                    |
+|                                                  |         |                                                                                                         |
+| frodo realm                                      |  1.0.0  | Manage realms.                                                                                          |
+| &emsp;add-custom-domain                          |  1.0.0  | Add custom domain (realm DNS alias).                                                                    |
+| &emsp;describe / details                         |  1.0.0  | Describe realms.                                                                                        |
+| &emsp;list                                       |  1.0.0  | List realms.                                                                                            |
+| &emsp;remove-custom-domain                       |  1.0.0  | Remove custom domain (realm DNS alias).                                                                 |
+|                                                  |         |                                                                                                         |
+| frodo saml                                       |  1.0.0  | Manage SAML entity providers and circles of trust.                                                      |
+| &emsp;cot                                        |  1.0.0  | Manage circles of trust.                                                                                |
+| &emsp;&emsp;export                               |  1.0.0  | Export SAML circles of trust.                                                                           |
+| &emsp;&emsp;import                               |  1.0.0  | Import SAML circles of trust.                                                                           |
+| &emsp;&emsp;list                                 |  1.0.0  | List SAML circles of trust.                                                                             |
+| &emsp;delete                                     |  1.0.0  | Delete SAML entity providers.                                                                           |
+| &emsp;describe                                   |  1.0.0  | Describe the configuration of an entity provider.                                                       |
+| &emsp;export                                     |  1.0.0  | Export SAML entity providers.                                                                           |
+| &emsp;import                                     |  1.0.0  | Import SAML entity providers.                                                                           |
+| &emsp;list                                       |  1.0.0  | List SAML entity providers.                                                                             |
+| &emsp;metadata                                   |  1.0.0  | SAML metadata operations.                                                                               |
+| &emsp;&emsp;export                               |  1.0.0  | Export metadata.                                                                                        |
+|                                                  |         |                                                                                                         |
+| frodo script                                     |  1.0.0  | Manage scripts.                                                                                         |
+| &emsp;delete                                     |  1.0.0  | Delete scripts.                                                                                         |
+| &emsp;export                                     |  1.0.0  | Export scripts.                                                                                         |
+| &emsp;import                                     |  1.0.0  | Import scripts.                                                                                         |
+| &emsp;list                                       |  1.0.0  | List scripts.                                                                                           |
+| &emsp;type                                       | `4.9.0` | Manage scripting contexts (script types).                                                               |
 | &emsp;&emsp;describe                             | `4.9.0` | Describe the bindings (available objects/APIs) exposed to scripts running in a given scripting context. |
-|                                                  |         |                                                                        |
-| frodo service                                    |  1.0.0  | Manage AM services.                                                    |
-| &emsp;delete                                     |  1.0.0  | Delete AM services.                                                    |
-| &emsp;export                                     |  1.0.0  | Export AM services.                                                    |
-| &emsp;import                                     |  1.0.0  | Import AM services.                                                    |
-| &emsp;list                                       |  1.0.0  | List AM services.                                                      |
-|                                                  |         |                                                                        |
-| frodo shell                                      |  2.0.0  | Launch the frodo interactive shell.                                    |
-|                                                  |         |                                                                        |
-| frodo theme                                      |  1.0.0  | Manage themes.                                                         |
-| &emsp;delete                                     |  1.0.0  | Delete themes.                                                         |
-| &emsp;export                                     |  1.0.0  | Export themes.                                                         |
-| &emsp;import                                     |  1.0.0  | Import themes.                                                         |
-| &emsp;list                                       |  1.0.0  | List themes.                                                           |
-|                                                  |         |                                                                        |
-| frodo help                                       |  1.0.0  | display help for command                                               |
+|                                                  |         |                                                                                                         |
+| frodo service                                    |  1.0.0  | Manage AM services.                                                                                     |
+| &emsp;delete                                     |  1.0.0  | Delete AM services.                                                                                     |
+| &emsp;export                                     |  1.0.0  | Export AM services.                                                                                     |
+| &emsp;import                                     |  1.0.0  | Import AM services.                                                                                     |
+| &emsp;list                                       |  1.0.0  | List AM services.                                                                                       |
+|                                                  |         |                                                                                                         |
+| frodo shell                                      |  2.0.0  | Launch the frodo interactive shell.                                                                     |
+|                                                  |         |                                                                                                         |
+| frodo theme                                      |  1.0.0  | Manage themes.                                                                                          |
+| &emsp;delete                                     |  1.0.0  | Delete themes.                                                                                          |
+| &emsp;export                                     |  1.0.0  | Export themes.                                                                                          |
+| &emsp;import                                     |  1.0.0  | Import themes.                                                                                          |
+| &emsp;list                                       |  1.0.0  | List themes.                                                                                            |
+|                                                  |         |                                                                                                         |
+| frodo help                                       |  1.0.0  | display help for command                                                                                |
 
 ### Node.js Versions
 
-| Node.js |          1.x       |          2.x       |          3.x.      |.      ***4.x***    |          5.x       |
+| Node.js |        1.x         |        2.x         |        3.x.        |    . _**4.x**_     |        5.x         |
 | :-----: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
 |   14    | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
 |   16    | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
 |   18    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: |
-|   20    | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: |
+|   20    | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |
 |   22    | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: |
 |   24    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: |
 |   26    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: |
 |   28    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: |
+
+The CLI is distributed primarily as self-contained binaries (Homebrew,
+release zips) with the Node.js runtime embedded — the table above applies to
+running the npm package from source. For 5.x, the npm package requires
+Node.js 20+; the release binaries ship with Node.js 26 embedded and have no
+Node.js requirement at all.
 
 ### Global support for `-D`, `--directory` to set the working directory
 
@@ -457,7 +465,7 @@ STABLE
 ```console
 $ brew install frodo-cli
 ==> Fetching rockcarver/frodo-cli/frodo-cli
-==> Cloning https://github.com/rockcarver/frodo-cli.git
+==> Downloading https://github.com/rockcarver/frodo-cli/releases/download/v4.18.0/frodo-macos-arm64-4.18.0.zip
 .
 .
 ```
@@ -467,20 +475,23 @@ Or latest/unstable (next)
 ```console
 $ brew install frodo-cli-next
 ==> Fetching rockcarver/frodo-cli/frodo-cli-next
-==> Cloning https://github.com/rockcarver/frodo-cli.git
+==> Downloading https://github.com/rockcarver/frodo-cli/releases/download/v5.0.0-1/frodo-macos-arm64-5.0.0-1.zip
 .
 .
 ```
+
+Both formulas install the official prebuilt, code-signed (and on macOS
+notarized) release binary — Homebrew, CI, and the release pipeline all run
+the exact same artifact.
 
 To verify the installation, run `frodo -v`, it should print something like:
 
 ```console
 $ frodo -v
-You are running the binary release.
-Installed versions:
-cli: v2.0.0-43
-lib: v2.0.0-59
-node: v18.18.2
+You are running the homebrew release.
+cli: v5.0.0-1 (2026-10-04T18:44:13.010Z)
+lib: v4.11.0 (2026-10-04T14:28:30.822Z)
+node: v26.10.0
 ```
 
 If you have the STABLE version installed and you want to get the latest, do:
@@ -495,25 +506,17 @@ Or vice-versa.
 To upgrade to latest frodo
 
 ```console
-$ brew upgrade frodo-cli
+$ brew upgrade frodo-cli-next
 ==> Upgrading 1 outdated package:
-rockcarver/frodo-cli/frodo-cli-next 2.0.0-43 -> 2.0.0-44
-==> Fetching rockcarver/frodo-cli/frodo-cli-next
-==> Cloning https://github.com/rockcarver/frodo-cli.git
-Updating /Users/sandeep.chaturvedi/Library/Caches/Homebrew/frodo-cli-next--git
-From https://github.com/rockcarver/frodo-cli
- * [new tag]           v2.0.0-44  -> v2.0.0-44
-==> Checking out tag v2.0.0-44
-Previous HEAD position was 9a968346 Updated changelog and version for release v2.0.0-43
-HEAD is now at e687fdf6 Updated changelog and version for release v2.0.0-44
-HEAD is now at e687fdf6 Updated changelog and version for release v2.0.0-44
-==> Upgrading rockcarver/frodo-cli/frodo-cli-next
-  2.0.0-43 -> 2.0.0-44
+rockcarver/frodo-cli/frodo-cli-next 5.0.0-1 -> 5.0.0-2
+==> Downloading https://github.com/rockcarver/frodo-cli/releases/download/v5.0.0-2/frodo-macos-arm64-5.0.0-2.zip
+==> Upgrading frodo-cli-next
+  5.0.0-1 -> 5.0.0-2
 ```
 
 ### NPM package
 
-If you are a node developer and want to use frodo as a cli tool or as a library for your own applications, you can install the npm package:
+If you are a node developer and want to use frodo as a cli tool or as a library for your own applications, you can install the npm package (requires Node.js 20 or later):
 
 - To install (or update to) the latest version as a cli tool:
   ```console
@@ -542,7 +545,7 @@ Connection profiles make it super easy to access your different environments sec
    Saved connection profile https://openam-my-tenant.forgeblocks.com/am
    ```
 
-   **Alternative: `frodo login --save`.** `frodo conn add`/`save` is connection *management* — it also auto-provisions a service account and log API key by default. `frodo login --save` is a lighter entry point that just authenticates and, with `--save`, remembers how: `frodo login --save https://openam-my-tenant.forgeblocks.com/am john.doe@company.com '5uP3r-53cr3t!'` saves a profile the same way, without provisioning anything extra. It's also how to use browser-based login instead of a password on the command line — `frodo login --browser --save --type cloud https://openam-my-tenant.forgeblocks.com/am` opens a real browser, so MFA/WebAuthn/federation steps in your login journey work the same way they would for any other interactive login. See [Browser Login](../docs/BROWSER_LOGIN.md) for the full setup.
+   **Alternative: `frodo login --save`.** `frodo conn add`/`save` is connection _management_ — it also auto-provisions a service account and log API key by default. `frodo login --save` is a lighter entry point that just authenticates and, with `--save`, remembers how: `frodo login --save https://openam-my-tenant.forgeblocks.com/am john.doe@company.com '5uP3r-53cr3t!'` saves a profile the same way, without provisioning anything extra. It's also how to use browser-based login instead of a password on the command line — `frodo login --browser --save --type cloud https://openam-my-tenant.forgeblocks.com/am` opens a real browser, so MFA/WebAuthn/federation steps in your login journey work the same way they would for any other interactive login. See [Browser Login](../docs/BROWSER_LOGIN.md) for the full setup.
 
 2. Test your connection profile using the `frodo info` command:
 
@@ -730,37 +733,37 @@ For instructions on configuring a specific MCP client (VS Code Copilot, Claude C
 
 ### One tool surface, many skills
 
-Whatever the configuration, a connected client always sees the same five tools: `frodo_discover` (one-time bootstrap: target, deployment type, object families), `frodo_find_skills` (rank the skills that fit a task, auto-executing a unique read-only recommendation by default), `frodo_describe_skill` (one skill's full contract), `frodo_dispatch_read_only` (run a read-only skill), and `frodo_dispatch` (run a mutating skill). What `--policy` and `--profile` control is the skill layer underneath: which of frodo's capabilities those tools are allowed to discover and dispatch. A policy narrows what the client can *do*; a profile narrows what it gets to do *it to*. Use `frodo mcp server info --policy <preset> --profile <profile>` to see the resulting counts for an exact combination, `frodo mcp server skills` to browse the active skills, and `frodo mcp server policies` / `frodo mcp server profiles` to list the registries.
+Whatever the configuration, a connected client always sees the same five tools: `frodo_discover` (one-time bootstrap: target, deployment type, object families), `frodo_find_skills` (rank the skills that fit a task, auto-executing a unique read-only recommendation by default), `frodo_describe_skill` (one skill's full contract), `frodo_dispatch_read_only` (run a read-only skill), and `frodo_dispatch` (run a mutating skill). What `--policy` and `--profile` control is the skill layer underneath: which of frodo's capabilities those tools are allowed to discover and dispatch. A policy narrows what the client can _do_; a profile narrows what it gets to do _it to_. Use `frodo mcp server info --policy <preset> --profile <profile>` to see the resulting counts for an exact combination, `frodo mcp server skills` to browse the active skills, and `frodo mcp server policies` / `frodo mcp server profiles` to list the registries.
 
 ### Policies (`--policy`)
 
 A policy is the safety posture applied to every skill before it can be exposed: it filters by operation type (create, read, update, delete, search, list, count, export, import) and by risk class (low, medium, high, critical -- the blast radius of the operation). Every preset except `admin` also denies critical-risk skills outright, because some read-shaped operations (e.g. service-account reads) return material that should not reach a client even in an otherwise read-only session.
 
-| Policy | Default | Can do | Cannot do | Tools (canonical + discovery) | Active skills / inventory |
-|--------|---------|--------|-----------|-------------------------------|---------------------------|
-| `read-only` | | count, read, search, list | create, update, delete, import, export; critical-risk skills; special skills | 5 (4 + 1) | 189 / 679 |
-| `agentic` | yes | create, count, read, update, search, list; special skills | delete, import, export; critical-risk skills | 5 (4 + 1) | 332 / 679 |
-| `standard` | | everything `agentic` allows, plus export | delete, import; critical-risk skills | 5 (4 + 1) | 418 / 679 |
-| `admin` | | every operation and risk class, including special skills | nothing | 5 (4 + 1) | 679 / 679 |
+| Policy      | Default | Can do                                                    | Cannot do                                                                    | Tools (canonical + discovery) | Active skills / inventory |
+| ----------- | ------- | --------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------- | ------------------------- |
+| `read-only` |         | count, read, search, list                                 | create, update, delete, import, export; critical-risk skills; special skills | 5 (4 + 1)                     | 189 / 679                 |
+| `agentic`   | yes     | create, count, read, update, search, list; special skills | delete, import, export; critical-risk skills                                 | 5 (4 + 1)                     | 332 / 679                 |
+| `standard`  |         | everything `agentic` allows, plus export                  | delete, import; critical-risk skills                                         | 5 (4 + 1)                     | 418 / 679                 |
+| `admin`     |         | every operation and risk class, including special skills  | nothing                                                                      | 5 (4 + 1)                     | 679 / 679                 |
 
 Counts measured with the default `all` profile and no tenant connection (`frodo mcp server info --policy <preset> --profile all`); they scale down with a narrower profile, so check `info` for your exact combination. "Inventory" is the profile's unfiltered skill pool; "active skills" is what survives the policy and backs the tools (frodo reports the same number as "backing skills"). The five-tool surface is fixed at every policy -- `frodo_dispatch` stays registered even under `read-only`; it just has no mutating skills to reach.
 
-The default is `agentic`: the `standard` posture (which permits data *export* for operator-led maintenance) with `export` additionally denied, so an autonomous assistant can make progress with create/update flows but can neither destroy anything, nor bulk-import, nor bulk-extract tenant data. `read-only` is for audits, inventory, and least-privilege sessions; `standard` for operator-led maintenance that needs extraction but keeps destructive paths guarded; `admin` removes all built-in restrictions and should only run in trusted sessions with change control. `agentic`, `standard`, and `admin` also include frodo's "special" skills (operations outside the CRUD vocabulary, e.g. recon cancellation and signing-key generation); `read-only` excludes them.
+The default is `agentic`: the `standard` posture (which permits data _export_ for operator-led maintenance) with `export` additionally denied, so an autonomous assistant can make progress with create/update flows but can neither destroy anything, nor bulk-import, nor bulk-extract tenant data. `read-only` is for audits, inventory, and least-privilege sessions; `standard` for operator-led maintenance that needs extraction but keeps destructive paths guarded; `admin` removes all built-in restrictions and should only run in trusted sessions with change control. `agentic`, `standard`, and `admin` also include frodo's "special" skills (operations outside the CRUD vocabulary, e.g. recon cancellation and signing-key generation); `read-only` excludes them.
 
 ### Profiles (`--profile`)
 
-A profile scopes the surface by *subject area* instead of by danger: it selects the skills that concern one administrative responsibility and hides the rest. Where a policy protects the tenant from the client, a profile protects the client's context -- a journey engineer's assistant does not need IDM reconciliation skills in its search space. Profiles compose freely with policies (`--policy read-only --profile authentication` is exactly what it sounds like).
+A profile scopes the surface by _subject area_ instead of by danger: it selects the skills that concern one administrative responsibility and hides the rest. Where a policy protects the tenant from the client, a profile protects the client's context -- a journey engineer's assistant does not need IDM reconciliation skills in its search space. Profiles compose freely with policies (`--policy read-only --profile authentication` is exactly what it sounds like).
 
-| Profile | Default | Scopes the surface to | Typical use | Active skills / inventory (agentic policy) |
-|---------|---------|------------------------|-------------|--------------------------------------------|
-| `all` | yes | every non-disabled domain -- the full derived universe | broad agent sessions; exploratory work | 332 / 679 |
-| `authentication` | | journeys, nodes, OAuth/OIDC, login, sessions (`authn`, `oauth2oidc`, `login`, `session`) | end-to-end authentication administration | 42 / 86 |
-| `journey-dev` | | journey engineering only: journeys, nodes, journey settings (`authn.journey`, `authn.node`, `authn.settings`) | building and tuning login journeys | 26 / 42 |
-| `authorization` | | access control, policy sets, resource types, roles, user-adjacent operations (`authz`, `role`, `user`) | access-control administration | 25 / 63 |
-| `federation` | | SAML, WS-Federation, admin federation (`saml2`, `cloud.adminFed`, `cloud.wsfed`) | trust and federation configuration | 36 / 236 |
-| `iga` | | certifications, events, glossary, request forms/types, workflows (`cloud.iga`) | identity-governance operations | 31 / 212 |
-| `apps` | | application lifecycle, SSO/provisioning apps, AI-agent app workflows (`app`, `cloud.env.enableAIAgentFeature`, `cloud.feature`) | app onboarding and access-app workflows | 10 / 229 |
-| `managed-objects` | | IDM object model and lifecycle: managed objects, mappings, recon, connectors, organization, config, system, script (`idm.*`) | identity data modeling and synchronization | 60 / 118 |
+| Profile           | Default | Scopes the surface to                                                                                                           | Typical use                                | Active skills / inventory (agentic policy) |
+| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------ |
+| `all`             | yes     | every non-disabled domain -- the full derived universe                                                                          | broad agent sessions; exploratory work     | 332 / 679                                  |
+| `authentication`  |         | journeys, nodes, OAuth/OIDC, login, sessions (`authn`, `oauth2oidc`, `login`, `session`)                                        | end-to-end authentication administration   | 42 / 86                                    |
+| `journey-dev`     |         | journey engineering only: journeys, nodes, journey settings (`authn.journey`, `authn.node`, `authn.settings`)                   | building and tuning login journeys         | 26 / 42                                    |
+| `authorization`   |         | access control, policy sets, resource types, roles, user-adjacent operations (`authz`, `role`, `user`)                          | access-control administration              | 25 / 63                                    |
+| `federation`      |         | SAML, WS-Federation, admin federation (`saml2`, `cloud.adminFed`, `cloud.wsfed`)                                                | trust and federation configuration         | 36 / 236                                   |
+| `iga`             |         | certifications, events, glossary, request forms/types, workflows (`cloud.iga`)                                                  | identity-governance operations             | 31 / 212                                   |
+| `apps`            |         | application lifecycle, SSO/provisioning apps, AI-agent app workflows (`app`, `cloud.env.enableAIAgentFeature`, `cloud.feature`) | app onboarding and access-app workflows    | 10 / 229                                   |
+| `managed-objects` |         | IDM object model and lifecycle: managed objects, mappings, recon, connectors, organization, config, system, script (`idm.*`)    | identity data modeling and synchronization | 60 / 118                                   |
 
 Counts use the default `agentic` policy and no tenant connection (`frodo mcp server info --profile <profile>`); the pool behind each profile (the inventory number) is larger than what a policy activates. Internal frodo domains (`state`, `cache`, `factory`, `utils`) are never exposed by any profile -- `--include-domains` and `--exclude-domains` override the profile's top-level domain selection, and `--include-utils` affects the inventory pool only; no profile or policy exposes utils skills.
 
@@ -806,7 +809,7 @@ The canonical shared-server story is an AI gateway in a Docker container on the 
 
 #### OAuth 2.1 resource server (per-caller identity)
 
-`--mcp-auth-token` gives every caller the *same* identity -- whoever holds the shared secret runs every MCP request as the one account the server authenticated with at startup. `--oauth-resource-server` is the alternative for a shared HTTP server where callers should be distinguishable: each `POST /mcp` request presents its own bearer token, verified per request, and executes with that caller's own identity instead of one shared startup credential. It requires `--transport http` and is mutually exclusive with `--mcp-auth-token`/`--allow-unauthenticated`.
+`--mcp-auth-token` gives every caller the _same_ identity -- whoever holds the shared secret runs every MCP request as the one account the server authenticated with at startup. `--oauth-resource-server` is the alternative for a shared HTTP server where callers should be distinguishable: each `POST /mcp` request presents its own bearer token, verified per request, and executes with that caller's own identity instead of one shared startup credential. It requires `--transport http` and is mutually exclusive with `--mcp-auth-token`/`--allow-unauthenticated`.
 
 ```console
 frodo mcp server start --transport http --bind-host 0.0.0.0 --port 6277 --oauth-resource-server my-tenant --type cloud
@@ -837,7 +840,7 @@ Getting this far only gets a client to the authorize redirect -- some authorizat
 The HTTP transport is built on an explicit layered model; nothing is exposed without deliberate configuration:
 
 - **Loopback-only by default.** The server binds `127.0.0.1:6277`, reachable only from the machine it runs on.
-- **DNS-rebinding-safe Host and Origin validation.** Every request's `Host` and `Origin` headers are validated against the localhost set (`localhost`, `127.0.0.1`, `[::1]`); a foreign Host header -- the shape a DNS-rebinding attack produces -- is answered `403` before the MCP endpoint is touched. `--allowed-hosts` *extends* the set, and `host.docker.internal` is added automatically to the Host allow-list (the Origin check stays localhost-only) whenever the bind host is non-loopback, so a bridge-network container can reach the host without weakening the default.
+- **DNS-rebinding-safe Host and Origin validation.** Every request's `Host` and `Origin` headers are validated against the localhost set (`localhost`, `127.0.0.1`, `[::1]`); a foreign Host header -- the shape a DNS-rebinding attack produces -- is answered `403` before the MCP endpoint is touched. `--allowed-hosts` _extends_ the set, and `host.docker.internal` is added automatically to the Host allow-list (the Origin check stays localhost-only) whenever the bind host is non-loopback, so a bridge-network container can reach the host without weakening the default.
 - **Leaving loopback requires a token.** Binding a non-loopback host without `--mcp-auth-token` (or `FRODO_MCP_AUTH_TOKEN`) **refuses to start**; `--allow-unauthenticated` is the explicitly named escape hatch for accepting that risk.
 - **Bearer auth on `/mcp` only.** When a token is configured, every `POST /mcp` must carry a matching `Authorization: Bearer` header -- compared timing-safely over SHA-256 digests -- and failures get `401` with a `WWW-Authenticate: Bearer` challenge. `GET /health` stays open for liveness probes (it can only ever answer `{"status":"ok"}`). The token value is never logged or echoed; startup summaries report only `HTTP auth: on`.
 - **Bounded request handling.** Request bodies are capped at 1 MiB (`--max-body-size`, env `FRODO_MCP_MAX_BODY_SIZE`) -- enforced as a `Content-Length` pre-check and a mid-stream accumulation cap; over-limit requests are answered `413` with a JSON-RPC error and the socket is closed. Concurrent handler executions are capped at 64 (`--max-concurrent-requests`, env `FRODO_MCP_MAX_CONCURRENT_REQUESTS`) -- over-cap requests get `429` with `Retry-After: 1` rather than queueing.

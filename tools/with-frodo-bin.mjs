@@ -13,9 +13,9 @@
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { ensureFrodoBinary, getTestBinaryPath } = require('../test/e2e/utils/FrodoBinary.cjs');
+const { ensureFrodoArtifact, getTestBinaryPath } = require('../test/e2e/utils/FrodoBinary.cjs');
 
-ensureFrodoBinary();
+ensureFrodoArtifact();
 process.env.PATH = getTestBinaryPath();
 
 const [cmd, ...args] = process.argv.slice(2);

@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+// Dev-mode test launcher: execs this checkout's npm entry (dist/launch.cjs),
+// the artifact npm installs and Docker runs. The e2e suites invoke bare
+// `frodo ...`; PATH is prepended with this shims directory (see
+// FrodoBinary.cjs, dev mode). Built on demand by `npm run build:only` - no
+// SEA build or macOS signing needed for the developer test loop.
+// ESM (import, not require): the repo's package.json sets "type": "module".
+import { spawn } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..', '..', '..');
+const entry = path.join(repoRoot, 'dist', 'launch.cjs');
+const result = spawn(process.execPath, [entry, ...process.argv.slice(2)], {
+  stdio: 'inherit',
+  env: process.env,
+});
+result.on('exit', (code) => process.exit(code ?? 1));

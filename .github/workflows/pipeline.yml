@@ -120,8 +120,13 @@ jobs:
         run: npm run check:mcp-sdk-track
 
       - name: Build frodo-cli
+        # build:only = the npm bundle (dist/) + typecheck. NOT `npm run
+        # build`: that now means the full build including the SEA binary,
+        # which needs Node 26 - and this job (and the artifact it uploads)
+        # intentionally runs on Node 24; the binary jobs bundle the SEA from
+        # source themselves.
         run: |
-          npm run build
+          npm run build:only
 
       - name: Lint
         run: npm run check
@@ -141,6 +146,7 @@ jobs:
             package.json
             package-lock.json
             src
+            scripts
             tsconfig.json
             tsdown.config.ts
             tsdown.sea.config.mts
@@ -210,12 +216,16 @@ jobs:
       - name: CLI Tests
         env:
           FRODO_MASTER_KEY: ${{ secrets.FRODO_MASTER_KEY }}
-        # Jest's default parallel scheduling (one worker per suite). The e2e
-        # suites are replay-only (FRODO_MOCK=1) with per-suite connections
-        # profiles and per-suite export directories, so suites are isolated;
-        # --runInBand was retired after the file-lifecycle races it guarded
-        # against were fixed (per-suite export dir names, mkdtemp PTY homes).
-        run: npm run test:only
+        # Sea mode: jest's default parallel scheduling (one worker per suite)
+        # against the SEA binary - exactly the artifact the release jobs
+        # ship. The e2e suites are replay-only (FRODO_MOCK=1) with per-suite
+        # connections profiles and per-suite export directories, so suites
+        # are isolated; --runInBand was retired after the file-lifecycle
+        # races it guarded against were fixed (per-suite export dir names,
+        # mkdtemp PTY homes). Developers default to dev mode (`npm test`,
+        # node dist/launch.cjs - no SEA build needed); FRODO_TEST_BINARY=sea
+        # selects the binary here.
+        run: npm run test:binary
 
       - name: Version Test
         run: ./dist-sea/frodo -v
