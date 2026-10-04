@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens" 1`] = `0`;
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens" 1`] = `0`;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens" 2`] = `""`;
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens" 2`] = `""`;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/alpha/themes/Contrast/Contrast.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Contrast/Contrast.json 1`] = `
 {
   "_id": "cd6c93e2-52e2-4340-9770-66a588343841",
   "accountFooter": {
@@ -97,7 +97,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/alpha/themes/Copy of Zardoz/Copy of Zardoz.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Copy of Zardoz/Copy of Zardoz.json 1`] = `
 {
   "_id": "e47838b5-48c9-4dea-8a84-43f4b4ea8e04",
   "accountCardBackgroundColor": "#ffffff",
@@ -243,7 +243,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/alpha/themes/Highlander/Highlander.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Highlander/Highlander.json 1`] = `
 {
   "_id": "00203891-dde0-4114-b27a-219ae0b43a61",
   "accountFooter": {
@@ -336,7 +336,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/alpha/themes/NoAccess/NoAccess.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/NoAccess/NoAccess.json 1`] = `
 {
   "_id": "63e19668-909f-479e-83d7-be7a01cd8187",
   "accountCardBackgroundColor": "#ffffff",
@@ -465,7 +465,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/alpha/themes/Robroy/Robroy.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Robroy/Robroy.json 1`] = `
 {
   "_id": "b82755e8-fe9a-4d27-b66b-45e37ae12345",
   "accountFooter": {
@@ -560,7 +560,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/alpha/themes/Starter Theme/Starter Theme.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Starter Theme/Starter Theme.json 1`] = `
 {
   "_id": "86ce2f64-586d-44fe-8593-b12a85aac68d",
   "accountFooter": {
@@ -652,7 +652,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/alpha/themes/Zardoz/Zardoz.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Zardoz/Zardoz.json 1`] = `
 {
   "_id": "4ded6d91-ceea-400a-ae3f-42209f1b0e06",
   "accountFooter": {
@@ -747,7 +747,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Contrast/Contrast.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Contrast/Contrast.json 1`] = `
 {
   "_id": "bf4828bd-6e24-41ba-8773-0a4a349399d3",
   "accountFooter": {
@@ -840,7 +840,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Highlander/Highlander.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Highlander/Highlander.json 1`] = `
 {
   "_id": "f2bdd040-2e46-4602-a0ab-24ed52103cdc",
   "accountFooter": {
@@ -933,7 +933,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Robroy/Robroy.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Robroy/Robroy.json 1`] = `
 {
   "_id": "62ac2a64-9db9-4f0a-a7e4-74f3d662bc42",
   "accountFooter": {
@@ -1028,7 +1028,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Starter Theme/Starter Theme.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Starter Theme/Starter Theme.json 1`] = `
 {
   "_id": "b7d8de5a-f788-4ac8-b80a-3220a5f977ec",
   "accountFooter": {
@@ -1120,7 +1120,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 }
 `;
 
-exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Zardoz/Zardoz.json 1`] = `
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Zardoz/Zardoz.json 1`] = `
 {
   "_id": "8dfd6c93-972a-4786-950d-79904f66af4b",
   "accountFooter": {

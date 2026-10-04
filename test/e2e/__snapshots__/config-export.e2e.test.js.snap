@@ -268464,11 +268464,3 @@ exports[`frodo config export Cloud "frodo config export -gAD exportAllTestDir9":
 exports[`frodo config export Cloud "frodo config export -raf testExportAllAlpha.json": should export all alpha realm config to a single file named testExportAllAlpha.json. 1`] = `1`;
 
 exports[`frodo config export Cloud "frodo config export -raf testExportAllAlpha.json": should export all alpha realm config to a single file named testExportAllAlpha.json. 2`] = `""`;
-
-exports[`frodo config export Forgeops "frodo config export -AND exportAllTestDir11 --type forgeops": should export all separated files with extracted idm scripts. 1`] = `1`;
-
-exports[`frodo config export Forgeops "frodo config export -AND exportAllTestDir11 --type forgeops": should export all separated files with extracted idm scripts. 2`] = `""`;
-
-exports[`frodo config export Forgeops "frodo config export -xAND exportAllTestDir12 --type forgeops": should export all separated files without extracted idm scripts. 1`] = `1`;
-
-exports[`frodo config export Forgeops "frodo config export -xAND exportAllTestDir12 --type forgeops": should export all separated files without extracted idm scripts. 2`] = `""`;

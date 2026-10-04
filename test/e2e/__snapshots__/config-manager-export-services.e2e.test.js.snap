@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style" 1`] = `0`;
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style" 1`] = `0`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style" 2`] = `""`;
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style" 2`] = `""`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders.json 1`] = `
 {
   "_id": "",
   "_rev": "1077208638",
@@ -17,7 +17,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/adfs.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/adfs.json 1`] = `
 {
   "_id": "adfs",
   "_type": {
@@ -70,7 +70,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/apple_web.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/apple_web.json 1`] = `
 {
   "_id": "apple_web",
   "_type": {
@@ -124,7 +124,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/apple-stoyan.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/apple-stoyan.json 1`] = `
 {
   "_id": "apple-stoyan",
   "_type": {
@@ -178,7 +178,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/azure.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/azure.json 1`] = `
 {
   "_id": "azure",
   "_type": {
@@ -222,7 +222,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/github.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/github.json 1`] = `
 {
   "_id": "github",
   "_type": {
@@ -263,7 +263,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/google.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/google.json 1`] = `
 {
   "_id": "google",
   "_type": {
@@ -316,7 +316,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/okta-trial-5735851.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/okta-trial-5735851.json 1`] = `
 {
   "_id": "okta-trial-5735851",
   "_type": {
@@ -362,7 +362,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/baseurl.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/baseurl.json 1`] = `
 {
   "_id": "",
   "_rev": "-1889820858",
@@ -377,7 +377,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/dashboard.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/dashboard.json 1`] = `
 {
   "_id": "",
   "_rev": "6506753",
@@ -390,7 +390,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/email.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/email.json 1`] = `
 {
   "_id": "",
   "_rev": "-439720564",
@@ -411,7 +411,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/email/gmail.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/email/gmail.json 1`] = `
 {
   "_id": "gmail",
   "_type": {
@@ -427,7 +427,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/httpclient.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/httpclient.json 1`] = `
 {
   "_id": "",
   "_rev": "-1187676076",
@@ -442,7 +442,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/httpclient/testHTTPClient.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/httpclient/testHTTPClient.json 1`] = `
 {
   "_id": "testHTTPClient",
   "_type": {
@@ -467,7 +467,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/oauth-oidc.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/oauth-oidc.json 1`] = `
 {
   "_id": "",
   "_rev": "611625667",
@@ -885,7 +885,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/pingOneWorkerService.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/pingOneWorkerService.json 1`] = `
 {
   "_id": "",
   "_rev": "-945038405",
@@ -898,7 +898,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/policyconfiguration.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/policyconfiguration.json 1`] = `
 {
   "_id": "",
   "_rev": "-1504612008",
@@ -937,7 +937,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/selfServiceTrees.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/selfServiceTrees.json 1`] = `
 {
   "_id": "",
   "_rev": "-948959244",
@@ -956,7 +956,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/session.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/session.json 1`] = `
 {
   "_id": "",
   "_rev": "-548141557",
@@ -974,7 +974,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/alpha/services/validation.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/alpha/services/validation.json 1`] = `
 {
   "_id": "",
   "_rev": "896681690",
@@ -989,7 +989,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/SocialIdentityProviders.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/SocialIdentityProviders.json 1`] = `
 {
   "_id": "",
   "_rev": "1077208638",
@@ -1002,7 +1002,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/TNTPPingOneService.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/TNTPPingOneService.json 1`] = `
 {
   "_id": "",
   "_rev": "1688843526",
@@ -1015,7 +1015,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/TNTPPingOneService/JC.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/TNTPPingOneService/JC.json 1`] = `
 {
   "_id": "JC",
   "_type": {
@@ -1030,7 +1030,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/TNTPPingOneService/p1-volker-dev.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/TNTPPingOneService/p1-volker-dev.json 1`] = `
 {
   "_id": "p1-volker-dev",
   "_type": {
@@ -1045,7 +1045,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/baseurl.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/baseurl.json 1`] = `
 {
   "_id": "",
   "_rev": "-1889820858",
@@ -1060,7 +1060,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/email.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/email.json 1`] = `
 {
   "_id": "",
   "_rev": "1248750872",
@@ -1078,7 +1078,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/oauth-oidc.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/oauth-oidc.json 1`] = `
 {
   "_id": "",
   "_rev": "-1364615819",
@@ -1496,7 +1496,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/pingOneWorkerService.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/pingOneWorkerService.json 1`] = `
 {
   "_id": "",
   "_rev": "-945038405",
@@ -1509,7 +1509,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/policyconfiguration.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/policyconfiguration.json 1`] = `
 {
   "_id": "",
   "_rev": "-1504612008",
@@ -1548,7 +1548,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/selfServiceTrees.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/selfServiceTrees.json 1`] = `
 {
   "_id": "",
   "_rev": "-948959244",
@@ -1567,7 +1567,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -D serviceTestDir": should export the services in fr-config-manager style": serviceTestDir/realms/bravo/services/validation.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -D cmServicesExportDir": should export the services in fr-config-manager style": cmServicesExportDir/realms/bravo/services/validation.json 1`] = `
 {
   "_id": "",
   "_rev": "896681690",
@@ -1582,11 +1582,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -D servi
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style" 1`] = `0`;
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style" 1`] = `0`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style" 2`] = `""`;
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style" 2`] = `""`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders.json 1`] = `
 {
   "_id": "",
   "_rev": "1077208638",
@@ -1599,7 +1599,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/adfs.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/adfs.json 1`] = `
 {
   "_id": "adfs",
   "_type": {
@@ -1652,7 +1652,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/apple_web.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/apple_web.json 1`] = `
 {
   "_id": "apple_web",
   "_type": {
@@ -1706,7 +1706,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/apple-stoyan.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/apple-stoyan.json 1`] = `
 {
   "_id": "apple-stoyan",
   "_type": {
@@ -1760,7 +1760,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/azure.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/azure.json 1`] = `
 {
   "_id": "azure",
   "_type": {
@@ -1804,7 +1804,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/github.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/github.json 1`] = `
 {
   "_id": "github",
   "_type": {
@@ -1845,7 +1845,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/google.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/google.json 1`] = `
 {
   "_id": "google",
   "_type": {
@@ -1898,7 +1898,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/okta-trial-5735851.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/okta-trial-5735851.json 1`] = `
 {
   "_id": "okta-trial-5735851",
   "_type": {
@@ -1944,7 +1944,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/baseurl.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/baseurl.json 1`] = `
 {
   "_id": "",
   "_rev": "-1889820858",
@@ -1959,7 +1959,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/dashboard.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/dashboard.json 1`] = `
 {
   "_id": "",
   "_rev": "6506753",
@@ -1972,7 +1972,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/email.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/email.json 1`] = `
 {
   "_id": "",
   "_rev": "-439720564",
@@ -1993,7 +1993,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/email/gmail.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/email/gmail.json 1`] = `
 {
   "_id": "gmail",
   "_type": {
@@ -2009,7 +2009,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/httpclient.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/httpclient.json 1`] = `
 {
   "_id": "",
   "_rev": "-1187676076",
@@ -2024,7 +2024,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/httpclient/testHTTPClient.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/httpclient/testHTTPClient.json 1`] = `
 {
   "_id": "testHTTPClient",
   "_type": {
@@ -2049,7 +2049,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/oauth-oidc.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/oauth-oidc.json 1`] = `
 {
   "_id": "",
   "_rev": "611625667",
@@ -2467,7 +2467,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/pingOneWorkerService.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/pingOneWorkerService.json 1`] = `
 {
   "_id": "",
   "_rev": "-945038405",
@@ -2480,7 +2480,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/policyconfiguration.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/policyconfiguration.json 1`] = `
 {
   "_id": "",
   "_rev": "-1504612008",
@@ -2519,7 +2519,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/selfServiceTrees.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/selfServiceTrees.json 1`] = `
 {
   "_id": "",
   "_rev": "-948959244",
@@ -2538,7 +2538,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/session.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/session.json 1`] = `
 {
   "_id": "",
   "_rev": "-548141557",
@@ -2556,7 +2556,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D serviceTestDir": should export the services in alpha realm in fr-config-manager style": serviceTestDir/realms/alpha/services/validation.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -D cmServicesExportDir": should export the services in alpha realm in fr-config-manager style": cmServicesExportDir/realms/alpha/services/validation.json 1`] = `
 {
   "_id": "",
   "_rev": "896681690",
@@ -2571,11 +2571,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style" 1`] = `0`;
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style" 1`] = `0`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style" 2`] = `""`;
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style" 2`] = `""`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders.json 1`] = `
 {
   "_id": "",
   "_rev": "1077208638",
@@ -2588,7 +2588,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/adfs.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/adfs.json 1`] = `
 {
   "_id": "adfs",
   "_type": {
@@ -2641,7 +2641,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/apple_web.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/apple_web.json 1`] = `
 {
   "_id": "apple_web",
   "_type": {
@@ -2695,7 +2695,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/apple-stoyan.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/apple-stoyan.json 1`] = `
 {
   "_id": "apple-stoyan",
   "_type": {
@@ -2749,7 +2749,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/azure.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/azure.json 1`] = `
 {
   "_id": "azure",
   "_type": {
@@ -2793,7 +2793,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/github.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/github.json 1`] = `
 {
   "_id": "github",
   "_type": {
@@ -2834,7 +2834,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/google.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/google.json 1`] = `
 {
   "_id": "google",
   "_type": {
@@ -2887,7 +2887,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D serviceTestDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": serviceTestDir/realms/alpha/services/SocialIdentityProviders/okta-trial-5735851.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull services -r alpha -n SocialIdentityProviders -D cmServicesExportDir": should export the services with name: SocialIdentityProviders in fr-config-manager style": cmServicesExportDir/realms/alpha/services/SocialIdentityProviders/okta-trial-5735851.json 1`] = `
 {
   "_id": "okta-trial-5735851",
   "_type": {

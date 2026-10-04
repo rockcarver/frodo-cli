@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style" 1`] = `0`;
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style" 1`] = `0`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style" 2`] = `""`;
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style" 2`] = `""`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/baselineDemoEmailVerification/baselineDemoEmailVerification.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/baselineDemoEmailVerification/baselineDemoEmailVerification.json 1`] = `
 {
   "_id": "emailTemplate/baselineDemoEmailVerification",
   "defaultLocale": "en",
@@ -32,7 +32,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/baselineDemoMagicLink/baselineDemoMagicLink.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/baselineDemoMagicLink/baselineDemoMagicLink.json 1`] = `
 {
   "_id": "emailTemplate/baselineDemoMagicLink",
   "defaultLocale": "en",
@@ -60,7 +60,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/deleteTemplate/deleteTemplate.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/deleteTemplate/deleteTemplate.json 1`] = `
 {
   "_id": "emailTemplate/deleteTemplate",
   "defaultLocale": "en",
@@ -88,7 +88,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/forgottenUsername/forgottenUsername.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/forgottenUsername/forgottenUsername.json 1`] = `
 {
   "_id": "emailTemplate/forgottenUsername",
   "defaultLocale": "en",
@@ -121,7 +121,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/idv/idv.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/idv/idv.json 1`] = `
 {
   "_id": "emailTemplate/idv",
   "defaultLocale": "en",
@@ -158,7 +158,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/joiner/joiner.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/joiner/joiner.json 1`] = `
 {
   "_id": "emailTemplate/joiner",
   "advancedEditor": true,
@@ -188,7 +188,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/registerPasswordlessDevice/registerPasswordlessDevice.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/registerPasswordlessDevice/registerPasswordlessDevice.json 1`] = `
 {
   "_id": "emailTemplate/registerPasswordlessDevice",
   "defaultLocale": "en",
@@ -217,7 +217,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/registration/registration.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/registration/registration.json 1`] = `
 {
   "_id": "emailTemplate/registration",
   "defaultLocale": "en",
@@ -250,7 +250,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/resetPassword/resetPassword.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/resetPassword/resetPassword.json 1`] = `
 {
   "_id": "emailTemplate/resetPassword",
   "defaultLocale": "en",
@@ -272,7 +272,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/updatePassword/updatePassword.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/updatePassword/updatePassword.json 1`] = `
 {
   "_id": "emailTemplate/updatePassword",
   "defaultLocale": "en",
@@ -298,7 +298,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/welcome/welcome.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/welcome/welcome.json 1`] = `
 {
   "_id": "emailTemplate/welcome",
   "defaultLocale": "en",

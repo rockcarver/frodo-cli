@@ -3,15 +3,15 @@
 /*
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a -D testDir1
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a -D testDir2 -f test.file.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a -D idmSchemaObjectExportDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a -D idmSchemaObjectExportDir2 -f test.file.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a -f test.file.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -A -D testDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -A -D idmSchemaObjectExportDir3
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -o alpha_user 
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -o bravo_assignment -f test2.file.json 
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -o alpha_role -f test2.file.json -D testDir4
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -o alpha_group -D testDir5
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -o alpha_role -f test2.file.json -D idmSchemaObjectExportDir4
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -o alpha_group -D idmSchemaObjectExportDir5
 
 // Forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm schema object export -AD managedSchemaTestDir6 -m forgeops
@@ -36,14 +36,14 @@ describe('frodo idm schema object export', () => {
     await testExport(CMD, env, type, undefined, undefined, false);
   });
 
-  test('"frodo idm schema object export -a -D testDir1": should export all managed objects into a single file in testDir1', async () => {
-    const dirName = 'testDir1';
+  test('"frodo idm schema object export -a -D idmSchemaObjectExportDir1": should export all managed objects into a single file in idmSchemaObjectExportDir1', async () => {
+    const dirName = 'idmSchemaObjectExportDir1';
     const CMD = `frodo idm schema object export -a -D ${dirName}`;
     await testExport(CMD, env, type, undefined, dirName, false);
   });
 
-  test('"frodo idm schema object export -a -D testDir2 -f test.file.json": should export all managed objects into a single file named test.file.json in testDir2', async () => {
-    const dirName = 'testDir2';
+  test('"frodo idm schema object export -a -D idmSchemaObjectExportDir2 -f test.file.json": should export all managed objects into a single file named test.file.json in idmSchemaObjectExportDir2', async () => {
+    const dirName = 'idmSchemaObjectExportDir2';
     const fileName = 'test.file.json';
     const CMD = `frodo idm schema object export -a -D ${dirName} -f ${fileName}`;
     await testExport(CMD, env, type, fileName, dirName, false);
@@ -61,8 +61,8 @@ describe('frodo idm schema object export', () => {
     await testExport(CMD, env, type, undefined, defaultDirName, false);
   });
 
-  test('"frodo idm schema object export -A -D testDir3": should export all managed objects into separate files in the directory "testDir3"', async () => {
-    const dirName = 'testDir3';
+  test('"frodo idm schema object export -A -D idmSchemaObjectExportDir3": should export all managed objects into separate files in the directory "idmSchemaObjectExportDir3"', async () => {
+    const dirName = 'idmSchemaObjectExportDir3';
     const CMD = `frodo idm schema object export -A -D ${dirName}`;
     await testExport(CMD, env, type, undefined, dirName, false);
   });
@@ -79,16 +79,16 @@ describe('frodo idm schema object export', () => {
     await testExport(CMD, env, type, fileName, undefined, false);
   });
 
-  test('"frodo idm schema object export -o alpha_role -f test2.file.json -D testDir4": should export the alpha_role managed object into a file named "test2.file.json" in the directory "testDir4"', async () => {
-    const dirName = 'testDir4';
+  test('"frodo idm schema object export -o alpha_role -f test2.file.json -D idmSchemaObjectExportDir4": should export the alpha_role managed object into a file named "test2.file.json" in the directory "idmSchemaObjectExportDir4"', async () => {
+    const dirName = 'idmSchemaObjectExportDir4';
     const fileName = 'test2.file.json';
     const CMD = `frodo idm schema object export -o alpha_role -f ${fileName} -D ${dirName}`;
     await testExport(CMD, env, type, fileName, dirName, false);
   });
 
-  test('"frodo idm schema object export -o alpha_group -D testDir5": should export the alpha_group managed object into a file named "alpha_group.managed.json" in the directory "testDir5"', async () => {
+  test('"frodo idm schema object export -o alpha_group -D idmSchemaObjectExportDir5": should export the alpha_group managed object into a file named "alpha_group.managed.json" in the directory "idmSchemaObjectExportDir5"', async () => {
     const defaultFileName = 'alpha_group.managed.json';
-    const dirName = 'testDir5';
+    const dirName = 'idmSchemaObjectExportDir5';
     const CMD = `frodo idm schema object export -o alpha_group -D ${dirName}`;
     await testExport(CMD, env, type, defaultFileName, dirName, false);
   });

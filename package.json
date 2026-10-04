@@ -46,6 +46,7 @@
   "scripts": {
     "test": "npm run test:only",
     "test:only": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent",
+    "test:parallel": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent --maxWorkers=4",
     "test:serial": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent --runInBand",
     "test:debug": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent=false --json --outputFile=./testResults.json",
     "test:update": "FRODO_TEST=1 NO_COLOR=1 NODE_OPTIONS='--no-warnings --experimental-vm-modules' node tools/with-frodo-bin.mjs npx jest --silent=false --updateSnapshot",

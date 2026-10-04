@@ -30,6 +30,14 @@ on:
         default: 'prerelease'
         required: true
 
+# Cancel superseded runs: each new push to a PR (including Dependabot
+# rebases) cancels the previous run for the same ref instead of piling up
+# full test cycles. Release dispatches get their own group so a release is
+# never cancelled by a push.
+concurrency:
+  group: pipeline-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   NODE_VERSION: 24
   # Native SEA builds embed the runtime binary, which must be Node >= 25.5
@@ -202,7 +210,12 @@ jobs:
       - name: CLI Tests
         env:
           FRODO_MASTER_KEY: ${{ secrets.FRODO_MASTER_KEY }}
-        run: npm run test:serial
+        # Jest's default parallel scheduling (one worker per suite). The e2e
+        # suites are replay-only (FRODO_MOCK=1) with per-suite connections
+        # profiles and per-suite export directories, so suites are isolated;
+        # --runInBand was retired after the file-lifecycle races it guarded
+        # against were fixed (per-suite export dir names, mkdtemp PTY homes).
+        run: npm run test:only
 
       - name: Version Test
         run: ./dist-sea/frodo -v

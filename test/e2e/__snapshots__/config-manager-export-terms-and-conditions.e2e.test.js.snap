@@ -4,7 +4,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull terms-and-conditi
 
 exports[`frodo config-manager pulls "frodo config-manager pull terms-and-conditions -D termTestDir": should receive access tokens" 2`] = `""`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull terms-and-conditions -D termTestDir": should receive access tokens": themeTestDir/terms-conditions/terms-conditions.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull terms-and-conditions -D termTestDir": should receive access tokens": cmTncThemeExportDir/terms-conditions/terms-conditions.json 1`] = `
 {
   "_id": "selfservice.terms",
   "active": "0.0",
