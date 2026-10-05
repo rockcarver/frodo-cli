@@ -42,9 +42,16 @@ if (major < 26) {
 
 // 1. Bundle: single self-contained CJS file at dist-sea/app.cjs (the file
 // sea-config.json's main points at).
+//
+// spawnShell note: on Windows npm is a .cmd shim, and Node refuses to spawn
+// .cmd/.bat files without a shell (CVE-2024-27980 hardening) - hence
+// shell: true there. The arguments are fixed literals, so no quoting
+// concerns arise from the shell. On macOS/Linux npm is a real executable
+// and spawning goes through execve directly.
 execFileSync('npm', ['run', 'build:sea-bundle'], {
   cwd: repoRoot,
   stdio: 'inherit',
+  shell: process.platform === 'win32',
 });
 
 // 2. Embed the bundle into the Node runtime.
