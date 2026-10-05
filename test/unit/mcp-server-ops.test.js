@@ -2777,6 +2777,19 @@ describe('mcp server stop (spawned dist)', () => {
       const spawned = await spawnServer(port, tmpDir);
       server = spawned.child;
       const lockPath = path.join(tmpDir, `mcp-http-${port}.pid`);
+      // The server writes the lockfile inside the listen callback, AFTER the
+      // port accepts connections, so the first successful connect (what
+      // waitForListening resolves on) can beat the write by a hair. Wait
+      // for the lockfile instead of asserting it immediately.
+      await (async () => {
+        const deadline = Date.now() + 5000;
+        while (!fs.existsSync(lockPath)) {
+          if (Date.now() > deadline) {
+            throw new Error(`lockfile never appeared at ${lockPath}`);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 25));
+        }
+      })();
       expect(fs.existsSync(lockPath)).toBe(true);
 
       const stop = await runStop(port, tmpDir);
