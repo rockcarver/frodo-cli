@@ -17,7 +17,8 @@ const {
   getWorkingDirectory,
 } = frodo.utils;
 const { DEFAULT_REALM_KEY, CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
-const { readScripts, readScriptByName, updateScript } = frodo.script;
+const { readScripts, readScriptByName, updateScript, deleteScript } =
+  frodo.script;
 
 /**
  * Export scripts in config-manager format
@@ -212,6 +213,84 @@ export async function configManagerImportScripts(
   } catch (error) {
     stopProgressIndicator(indicatorId, 'Error importing scripts', 'fail');
     printError(error, 'Error importing scripts.');
+    return false;
+  }
+}
+
+/**
+ * Delete scripts using config-manager selection rules.
+ * @param {string[]} prefixes Optional name prefixes. Ignored when name is provided.
+ * @param {string} realm Optional realm to process. If omitted, uses the configured realm list.
+ * @param {string} name Optional exact name of a script to delete.
+ * @param {boolean} dryRun Preview matching scripts without deleting them. For unnamed previews, show counts by context.
+ * @returns {Promise<boolean>} True if the operation succeeds, otherwise false.
+ */
+export async function configManagerDeleteScripts(
+  prefixes: string[] = [],
+  realm?: string,
+  name?: string,
+  dryRun: boolean = false
+): Promise<boolean> {
+  try {
+    const realms =
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    if (name && realms.length !== 1) {
+      printMessage('For a script name, specify a single realm.', 'error');
+      return false;
+    }
+    const scriptCountsByContext = new Map<string, number>();
+    for (const currentRealm of realms) {
+      if (
+        currentRealm === '/' &&
+        state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+      ) {
+        continue;
+      }
+      state.setRealm(currentRealm);
+      const scripts = await readScripts();
+      const eligibleScripts = scripts
+        .filter((script) =>
+          name
+            ? script.name === name
+            : script.language === 'JAVASCRIPT' &&
+              (prefixes.length === 0 ||
+                prefixes.some((prefix) => script.name.startsWith(prefix)))
+        )
+        .sort((a, b) => a.context.localeCompare(b.context));
+      if (name && eligibleScripts.length !== 1) {
+        printMessage(
+          eligibleScripts.length === 0
+            ? `No script found with name: ${name}`
+            : `Multiple scripts found with name: ${name}`,
+          'error'
+        );
+        return false;
+      }
+      for (const script of eligibleScripts) {
+        if (dryRun) {
+          printMessage(
+            `Dry run: Deleting script ${script.name} (${script._id})`
+          );
+          const count = scriptCountsByContext.get(script.context) ?? 0;
+          scriptCountsByContext.set(script.context, count + 1);
+          continue;
+        }
+        await deleteScript(script._id);
+        printMessage(
+          `Successfully deleted script ${script.name} (${script._id})`
+        );
+      }
+    }
+    if (dryRun && !name) {
+      let summary = '--- Scripts Deletion Summary by Type ---';
+      for (const [context, count] of scriptCountsByContext) {
+        summary += `\n- ${context}: ${count}`;
+      }
+      printMessage(summary);
+    }
+    return true;
+  } catch (error) {
+    printError(error, 'Error deleting scripts.');
     return false;
   }
 }
