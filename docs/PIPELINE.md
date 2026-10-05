@@ -46,8 +46,10 @@ The workflow runs on:
 - **Pushes to `main`** — the same validation, plus the Live Tenant Smoke
   Test. No publishing, no release.
 - **Manual `workflow_dispatch`** — the full release path with the release
-  type as an explicit input: `prerelease` | `patch` | `minor` | `major`
-  (with a `dry-run` flag that stops short of publishing/tagging).
+  type as an explicit input: `prerelease` | `premajor` | `patch` | `minor`
+  | `major` (with a `dry-run` flag that stops short of publishing/tagging).
+  `premajor` starts (or continues) an `X.0.0-1` prerelease train for the
+  next major.
 
 All releases are manual. There is no PR-label-based release-type logic.
 
