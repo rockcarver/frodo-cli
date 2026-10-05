@@ -1,6 +1,9 @@
 import fs from 'fs';
-import { frodo, state } from '@rockcarver/frodo-lib';
-import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import {
+  frodo,
+  state,
+  type IdObjectSkeletonInterface,
+} from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
 const { config } = frodo.idm;

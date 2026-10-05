@@ -1,12 +1,14 @@
 import fs from 'fs';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { type ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
-import { FullExportInterface } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import {
-  ScriptExportOptions,
+  frodo,
+  FrodoError,
+  state,
+  type FullExportInterface,
   type ScriptExportInterface,
+  type ScriptExportOptions,
   type ScriptImportOptions,
-} from '@rockcarver/frodo-lib/types/ops/ScriptOps';
+  type ScriptSkeleton,
+} from '@rockcarver/frodo-lib';
 import chokidar from 'chokidar';
 import c from '../utils/ColorTheme';
 import {

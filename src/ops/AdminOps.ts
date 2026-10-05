@@ -1,11 +1,17 @@
 import fs from 'fs';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { Readable, Writable } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { OAuth2ClientSkeleton } from '@rockcarver/frodo-lib/types/api/OAuth2ClientApi';
-import { AccessTokenResponseType } from '@rockcarver/frodo-lib/types/api/OAuth2OIDCApi';
-import { OAuth2TrustedJwtIssuerSkeleton } from '@rockcarver/frodo-lib/types/api/OAuth2TrustedJwtIssuerApi';
-import { JwkRsa, JwksInterface } from '@rockcarver/frodo-lib/types/ops/JoseOps';
-import { AccessTokenMetaType } from '@rockcarver/frodo-lib/types/ops/OAuth2OidcOps';
+import {
+  frodo,
+  FrodoError,
+  state,
+  type AccessTokenMetaType,
+  type AccessTokenResponseType,
+  type JwkRsa,
+  type JwksInterface,
+  type OAuth2ClientSkeleton,
+  type OAuth2TrustedJwtIssuerSkeleton,
+  type Readable,
+  type Writable,
+} from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
   cleanupProgressIndicators,

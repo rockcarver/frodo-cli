@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { frodo, FrodoError } from '@rockcarver/frodo-lib';
-import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
+import {
+  frodo,
+  FrodoError,
+  type EmailTemplateSkeleton,
+} from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,

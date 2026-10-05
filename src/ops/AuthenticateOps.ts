@@ -1,16 +1,13 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
-import type {
-  BrowserLoginOptions,
-  Tokens,
-} from '@rockcarver/frodo-lib/types/ops/AuthenticateOps';
-import type {
-  BrowserLoginPrompt,
-  BrowserLoginPromptHandler,
-} from '@rockcarver/frodo-lib/types/ops/BrowserAuthenticateOps';
 import {
-  Callback,
-  CallbackHandler,
-} from '@rockcarver/frodo-lib/types/ops/CallbackOps';
+  frodo,
+  state,
+  type BrowserLoginOptions,
+  type BrowserLoginPrompt,
+  type BrowserLoginPromptHandler,
+  type Callback,
+  type CallbackHandler,
+  type Tokens,
+} from '@rockcarver/frodo-lib';
 import open from 'open';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { question } from '../utils/Prompt';

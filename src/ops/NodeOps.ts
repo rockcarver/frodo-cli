@@ -1,17 +1,16 @@
 import fs from 'fs';
-import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import {
-  CustomNodeSkeleton,
+  frodo,
+  FrodoError,
+  type CustomNodeExportInterface,
+  type CustomNodeExportOptions,
+  type CustomNodeImportOptions,
+  type CustomNodeSkeleton,
   type CustomNodeUsage,
   type InnerNodeRefSkeletonInterface,
   type NodeRefSkeletonInterface,
   type NodeSkeleton,
-} from '@rockcarver/frodo-lib/types/api/NodeApi';
-import {
-  type CustomNodeExportInterface,
-  type CustomNodeExportOptions,
-  type CustomNodeImportOptions,
-} from '@rockcarver/frodo-lib/types/ops/NodeOps';
+} from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import { extractDataToFile, getExtractedData } from '../utils/Config';
 import {

@@ -1,11 +1,13 @@
 import fs from 'fs';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { Readable } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
+  frodo,
+  FrodoError,
+  state,
   type OAuth2ClientExportInterface,
   type OAuth2ClientExportOptions,
   type OAuth2ClientImportOptions,
-} from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
+  type Readable,
+} from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,

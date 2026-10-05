@@ -1,13 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import {
-  MappingExportInterface,
-  MappingExportOptions,
-  MappingImportOptions,
-  MappingSkeleton,
-  SyncSkeleton,
-} from '@rockcarver/frodo-lib/types/ops/MappingOps';
+  frodo,
+  FrodoError,
+  type MappingExportInterface,
+  type MappingExportOptions,
+  type MappingImportOptions,
+  type MappingSkeleton,
+  type SyncSkeleton,
+} from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import { extractDataToFile, getExtractedJsonData } from '../utils/Config';
 import {

@@ -1,5 +1,7 @@
-import { frodo } from '@rockcarver/frodo-lib';
-import { DirectConfigurationSessionState } from '@rockcarver/frodo-lib/types/api/cloud/EnvDirectConfigurationSessionApi';
+import {
+  frodo,
+  type DirectConfigurationSessionState,
+} from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../../utils/Console';
 
 export async function readDirectConfigurationSessionState(

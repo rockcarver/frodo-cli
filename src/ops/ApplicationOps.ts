@@ -1,10 +1,12 @@
 import fs from 'fs';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import type {
-  ApplicationExportInterface,
-  ApplicationExportOptions,
-  ApplicationImportOptions,
-} from '@rockcarver/frodo-lib/types/ops/ApplicationOps';
+import {
+  frodo,
+  FrodoError,
+  state,
+  type ApplicationExportInterface,
+  type ApplicationExportOptions,
+  type ApplicationImportOptions,
+} from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   createTable,

@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
 import { inspect } from 'node:util';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
-  ProgressIndicatorStatusType,
-  ProgressIndicatorType,
-} from '@rockcarver/frodo-lib/types/utils/Console';
+  frodo,
+  FrodoError,
+  state,
+  type ProgressIndicatorStatusType,
+  type ProgressIndicatorType,
+} from '@rockcarver/frodo-lib';
 import Table, { Table as TableType } from 'cli-table3';
 import { stderr as logUpdateStderr } from 'log-update';
 import { v4 as uuidv4 } from 'uuid';

@@ -1,6 +1,10 @@
 import fs from 'fs';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { RetryStrategy } from '@rockcarver/frodo-lib/types/api/BaseApi.js';
+import {
+  frodo,
+  FrodoError,
+  state,
+  type RetryStrategy,
+} from '@rockcarver/frodo-lib';
 import { AddHelpTextContext, Argument, Command, Help, Option } from 'commander';
 import propertiesReader from 'properties-reader';
 import {

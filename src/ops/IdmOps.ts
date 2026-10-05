@@ -14,18 +14,16 @@ import {
   parseSubPropertyPath,
   setSchemaProperty,
   toManagedObjectSchemaRelationshipReverseFields as toReverseDescriptorFields,
+  type ConfigEntityExportInterface,
+  type IdObjectSkeletonInterface,
+  type ManagedObjectSchema,
+  type MappingSkeleton,
   type PropertyContainer,
   type ManagedObjectSchemaRelationshipPropertyFields as RelationshipPropertyFields,
   type ManagedObjectSchemaRelationshipReverseFields as RelationshipReverseCreateFields,
   type ManagedObjectSchemaPropertyFields as SchemaPropertyFields,
+  type SyncSkeleton,
 } from '@rockcarver/frodo-lib';
-import { type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { type ManagedObjectSchema } from '@rockcarver/frodo-lib/types/api/ManagedObjectApi';
-import { type ConfigEntityExportInterface } from '@rockcarver/frodo-lib/types/ops/IdmConfigOps';
-import {
-  MappingSkeleton,
-  SyncSkeleton,
-} from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import c from '../utils/ColorTheme';
 import {
   extractDataToFile,
