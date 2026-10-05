@@ -1,0 +1,138 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts --dry-run -m forgeops": should dry-run delete all eligible scripts across realms 1`] = `""`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts --dry-run -m forgeops": should dry-run delete all eligible scripts across realms 2`] = `
+"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+Dry run: Deleting script Scripted Module - Client Side (c827d2b4-3608-4693-868e-bbcf86bd87c7)
+Dry run: Deleting script Device Id (Match) - Client Side (157298c0-7d31-4059-a95b-eeb08473b7e5)
+Dry run: Deleting script Scripted Module - Server Side (7e3d7067-d50f-4674-8c76-a3e13a810c33)
+Dry run: Deleting script Device Id (Match) - Server Side (703dab1a-1921-4981-98dd-b8e5349d8548)
+Dry run: Deleting script Authentication Tree Decision Node Script (01e1a3c0-038b-4c16-956a-6c9d89328cff)
+Dry run: Deleting script Debug (9b75654f-2553-4627-9938-b14a5f62ce81)
+Dry run: Deleting script Device Profile Match Template - Decision Node Script (13e3f263-9cd3-4844-8d1c-040fd0dd02eb)
+Dry run: Deleting script FrodoDeleteByName (6c698adf-a990-4084-8ad8-c47625bf7490)
+Dry run: Deleting script Config Provider (5e854779-6ec1-4c39-aeba-0477e0986646)
+Dry run: Deleting script Next Generation Device Match Node Script (11e1a3c0-038b-4c16-956a-6c9d89328d00)
+Dry run: Deleting script Library Script (6c49bebe-3a62-11ed-a261-0242ac120002)
+Dry run: Deleting script OAuth2 Access Token Modification Script (d22f9a0c-426a-4466-b95e-d0f125b0d5fa)
+Dry run: Deleting script OAuth2 Authorize Endpoint Data Provider Script (3f93ef6e-e54a-4393-aba1-f322656db28a)
+Dry run: Deleting script OAuth2 Dynamic Client Registration Script (4b6b7e8e-cf03-46c8-949f-c5742dbd6bc5)
+Dry run: Deleting script OAuth2 Evaluate Scope Script (da56fe60-8b38-4c46-a405-d6b306d4b336)
+Dry run: Deleting script OAuth2 May Act Script (c735de08-f8f2-4e69-aa4a-2d8d3d438323)
+Dry run: Deleting script OAuth2 JWT Issuer Script (400e48ba-3f13-4144-ac7b-f824ea8e98c5)
+Dry run: Deleting script OAuth2 Validate Scope Script (25e6c06d-cf70-473b-bd28-26931edc476b)
+Dry run: Deleting script OIDC Claims Script (36863ffb-40ec-48b9-94b1-9a99f71cc3b5)
+Dry run: Deleting script Scripted Policy Condition (9de3eb62-f131-4fac-a294-7bd170fd4acb)
+Dry run: Deleting script SAML2 IDP Adapter Script (248b8a56-df81-4b1b-b4ba-45d994f6504c)
+Dry run: Deleting script SAML2 IDP Attribute Mapper Script (c4f22465-2368-4e27-8013-e6399974fd48)
+Dry run: Deleting script SAML2 NameID Mapper Script (4a171d3a-056b-4ab7-a19f-d7e93ddf7ae5)
+Dry run: Deleting script SAML2 SP Adapter Script (69f06e63-128c-4e2f-af52-079a8a6f448b)
+Dry run: Deleting script Test Next Gen (3d27b6d3-0f41-410a-9975-2e9df43d885e)
+Dry run: Deleting script Next Generation Scripted Decision Node Script (11e1a3c0-038b-4c16-956a-6c9d89328cff)
+Dry run: Deleting script Scripted Module - Client Side (c827d2b4-3608-4693-868e-bbcf86bd87c7)
+Dry run: Deleting script Device Id (Match) - Client Side (157298c0-7d31-4059-a95b-eeb08473b7e5)
+Dry run: Deleting script Scripted Module - Server Side (7e3d7067-d50f-4674-8c76-a3e13a810c33)
+Dry run: Deleting script Device Id (Match) - Server Side (703dab1a-1921-4981-98dd-b8e5349d8548)
+Dry run: Deleting script Authentication Tree Decision Node Script (01e1a3c0-038b-4c16-956a-6c9d89328cff)
+Dry run: Deleting script Device Profile Match Template - Decision Node Script (13e3f263-9cd3-4844-8d1c-040fd0dd02eb)
+Dry run: Deleting script Config Provider (5e854779-6ec1-4c39-aeba-0477e0986646)
+Dry run: Deleting script Next Generation Device Match Node Script (11e1a3c0-038b-4c16-956a-6c9d89328d00)
+Dry run: Deleting script Library Script (6c49bebe-3a62-11ed-a261-0242ac120002)
+Dry run: Deleting script OAuth2 Access Token Modification Script (d22f9a0c-426a-4466-b95e-d0f125b0d5fa)
+Dry run: Deleting script OAuth2 Authorize Endpoint Data Provider Script (3f93ef6e-e54a-4393-aba1-f322656db28a)
+Dry run: Deleting script OAuth2 Dynamic Client Registration Script (4b6b7e8e-cf03-46c8-949f-c5742dbd6bc5)
+Dry run: Deleting script OAuth2 Evaluate Scope Script (da56fe60-8b38-4c46-a405-d6b306d4b336)
+Dry run: Deleting script OAuth2 May Act Script (c735de08-f8f2-4e69-aa4a-2d8d3d438323)
+Dry run: Deleting script OAuth2 JWT Issuer Script (400e48ba-3f13-4144-ac7b-f824ea8e98c5)
+Dry run: Deleting script OAuth2 Validate Scope Script (25e6c06d-cf70-473b-bd28-26931edc476b)
+Dry run: Deleting script OIDC Claims Script (36863ffb-40ec-48b9-94b1-9a99f71cc3b5)
+Dry run: Deleting script Scripted Policy Condition (9de3eb62-f131-4fac-a294-7bd170fd4acb)
+Dry run: Deleting script SAML2 IDP Adapter Script (248b8a56-df81-4b1b-b4ba-45d994f6504c)
+Dry run: Deleting script SAML2 IDP Attribute Mapper Script (c4f22465-2368-4e27-8013-e6399974fd48)
+Dry run: Deleting script SAML2 NameID Mapper Script (4a171d3a-056b-4ab7-a19f-d7e93ddf7ae5)
+Dry run: Deleting script SAML2 SP Adapter Script (69f06e63-128c-4e2f-af52-079a8a6f448b)
+Dry run: Deleting script Next Generation Scripted Decision Node Script (11e1a3c0-038b-4c16-956a-6c9d89328cff)
+Dry run: Deleting script Scripted Module - Client Side (c827d2b4-3608-4693-868e-bbcf86bd87c7)
+Dry run: Deleting script Device Id (Match) - Client Side (157298c0-7d31-4059-a95b-eeb08473b7e5)
+Dry run: Deleting script Scripted Module - Server Side (7e3d7067-d50f-4674-8c76-a3e13a810c33)
+Dry run: Deleting script Device Id (Match) - Server Side (703dab1a-1921-4981-98dd-b8e5349d8548)
+Dry run: Deleting script Authentication Tree Decision Node Script (01e1a3c0-038b-4c16-956a-6c9d89328cff)
+Dry run: Deleting script Device Profile Match Template - Decision Node Script (13e3f263-9cd3-4844-8d1c-040fd0dd02eb)
+Dry run: Deleting script Config Provider (5e854779-6ec1-4c39-aeba-0477e0986646)
+Dry run: Deleting script Next Generation Device Match Node Script (11e1a3c0-038b-4c16-956a-6c9d89328d00)
+Dry run: Deleting script Library Script (6c49bebe-3a62-11ed-a261-0242ac120002)
+Dry run: Deleting script OAuth2 Access Token Modification Script (d22f9a0c-426a-4466-b95e-d0f125b0d5fa)
+Dry run: Deleting script OAuth2 Authorize Endpoint Data Provider Script (3f93ef6e-e54a-4393-aba1-f322656db28a)
+Dry run: Deleting script OAuth2 Dynamic Client Registration Script (4b6b7e8e-cf03-46c8-949f-c5742dbd6bc5)
+Dry run: Deleting script OAuth2 Evaluate Scope Script (da56fe60-8b38-4c46-a405-d6b306d4b336)
+Dry run: Deleting script OAuth2 May Act Script (c735de08-f8f2-4e69-aa4a-2d8d3d438323)
+Dry run: Deleting script OAuth2 JWT Issuer Script (400e48ba-3f13-4144-ac7b-f824ea8e98c5)
+Dry run: Deleting script OAuth2 Validate Scope Script (25e6c06d-cf70-473b-bd28-26931edc476b)
+Dry run: Deleting script OIDC Claims Script (36863ffb-40ec-48b9-94b1-9a99f71cc3b5)
+Dry run: Deleting script Scripted Policy Condition (9de3eb62-f131-4fac-a294-7bd170fd4acb)
+Dry run: Deleting script SAML2 IDP Adapter Script (248b8a56-df81-4b1b-b4ba-45d994f6504c)
+Dry run: Deleting script SAML2 IDP Attribute Mapper Script (c4f22465-2368-4e27-8013-e6399974fd48)
+Dry run: Deleting script SAML2 NameID Mapper Script (4a171d3a-056b-4ab7-a19f-d7e93ddf7ae5)
+Dry run: Deleting script SAML2 SP Adapter Script (69f06e63-128c-4e2f-af52-079a8a6f448b)
+Dry run: Deleting script Next Generation Scripted Decision Node Script (11e1a3c0-038b-4c16-956a-6c9d89328cff)
+--- Scripts Deletion Summary by Type ---
+- AUTHENTICATION_CLIENT_SIDE: 6
+- AUTHENTICATION_SERVER_SIDE: 6
+- AUTHENTICATION_TREE_DECISION_NODE: 8
+- CONFIG_PROVIDER_NODE: 3
+- DEVICE_MATCH_NODE: 3
+- LIBRARY: 3
+- OAUTH2_ACCESS_TOKEN_MODIFICATION: 3
+- OAUTH2_AUTHORIZE_ENDPOINT_DATA_PROVIDER: 3
+- OAUTH2_DYNAMIC_CLIENT_REGISTRATION: 3
+- OAUTH2_EVALUATE_SCOPE: 3
+- OAUTH2_MAY_ACT: 3
+- OAUTH2_SCRIPTED_JWT_ISSUER: 3
+- OAUTH2_VALIDATE_SCOPE: 3
+- OIDC_CLAIMS: 3
+- POLICY_CONDITION: 3
+- SAML2_IDP_ADAPTER: 3
+- SAML2_IDP_ATTRIBUTE_MAPPER: 3
+- SAML2_NAMEID_MAPPER: 3
+- SAML2_SP_ADAPTER: 3
+- SCRIPTED_DECISION_NODE: 4
+"
+`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -d -n FrodoDeleteByName -m forgeops": should dry-run delete a specific script by name 1`] = `""`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -d -n FrodoDeleteByName -m forgeops": should dry-run delete a specific script by name 2`] = `
+"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+Dry run: Deleting script FrodoDeleteByName (a2ed93ac-ac7b-4ee5-8a5e-0e2ffb3a35d4)
+"
+`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -m forgeops": should delete eligible scripts across realms 1`] = `
+"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+Error deleting scripts.
+HTTP client error
+  Code: ERR_BAD_REQUEST
+  Status: 403
+  Message: Default script Device Id (Match) - Client Side cannot be deleted
+"
+`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -m forgeops": should delete eligible scripts across realms 2`] = `1`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -n FrodoDeleteByName -m forgeops": should delete a specific script by name 1`] = `""`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -n FrodoDeleteByName -m forgeops": should delete a specific script by name 2`] = `
+"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+Successfully deleted script FrodoDeleteByName (0342f5f7-d33f-496d-8f12-1e1021fae8a9)
+"
+`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -p FrodoDeletePrefix -m forgeops": should delete scripts matching the prefix 1`] = `""`;
+
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -p FrodoDeletePrefix -m forgeops": should delete scripts matching the prefix 2`] = `
+"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+Successfully deleted script FrodoDeletePrefixOne (770ae490-3c2b-4f34-a7b4-b75a09c0de55)
+Successfully deleted script FrodoDeletePrefixTwo (30f741d7-da0f-4123-a391-20139566caa8)
+"
+`;
