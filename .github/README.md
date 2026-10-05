@@ -443,7 +443,7 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 
 ### Node.js Versions
 
-| Node.js |        1.x         |        2.x         |        3.x.        |    . _**4.x**_     |        5.x         |
+| Node.js |        1.x         |        2.x         |        3.x         |    . _**4.x**_     |        5.x         |
 | :-----: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
 |   14    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
 |   16    | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
@@ -510,7 +510,7 @@ Frodo supports exporting and importing of ESV secret values. To leave stuartship
 
 Download the platform specific binary archive from the [release page](https://github.com/rockcarver/frodo-cli/releases).
 
-### Homebrew (preferred for MacOS [x86 and M1] and Linux)
+### Homebrew (preferred for MacOS [Apple Silicon and Intel] and Linux)
 
 1. Make sure you have a working [homebrew](https://brew.sh/).
 2. [Tap](https://docs.brew.sh/Taps) the custom formula as below:
