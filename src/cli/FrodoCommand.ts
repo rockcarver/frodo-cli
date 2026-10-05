@@ -1046,9 +1046,14 @@ const stateMap = {
   [envFileOption.attributeName()]: (files: string[]) => {
     for (const filePath of files) {
       try {
-        propertiesReader(filePath).each((key: string, value: string) => {
-          state.setEnv(key, value);
-        });
+        propertiesReader({ sourceFile: filePath }).each(
+          (key: string, value: number | boolean | string) => {
+            // env-file values are strings by definition; coerce the reader's
+            // numeric/boolean guesses back (properties-reader v3 widened the
+            // .each callback's value type to `Value`).
+            state.setEnv(key, String(value));
+          }
+        );
       } catch (error) {
         throw new FrodoError(`Error parsing env file ${filePath}`, error);
       }
