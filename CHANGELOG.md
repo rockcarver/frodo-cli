@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-2] - 2026-10-05
+
+### Fixed
+- Resolved an issue in the Windows release pipeline where the SEA build step was not being executed, ensuring the binary is now correctly built. (f6a12374)
+
 ## [v5.0.0-1] - 2026-10-04
 
 > **Note for the 5.0.0 stable release:** entries in this section are
@@ -2957,6 +2962,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-2]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-1...v5.0.0-2
 [v5.0.0-1]: https://github.com/rockcarver/frodo-cli/compare/v4.18.0...v5.0.0-1
 [v4.18.0]: https://github.com/rockcarver/frodo-cli/compare/v4.17.0...v4.18.0
 [v4.17.0]: https://github.com/rockcarver/frodo-cli/compare/v4.16.0...v4.17.0
