@@ -20,6 +20,8 @@ Commands:
   custom-nodes      [Experimental] Delete custom nodes.
   endpoints         [Experimental] Delete custom endpoint objects.
   test              [Experimental] Test connection and authentication.
+  themes            [Experimental] Delete themes by name or delete all themes in
+                    the selected realms.
 
 Utilities:
   help              display help for command
