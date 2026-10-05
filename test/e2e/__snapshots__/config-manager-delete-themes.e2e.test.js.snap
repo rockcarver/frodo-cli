@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete themes "frodo config-manager delete themes --dry-run -m forgeops": should preview theme deletion across all realms 1`] = `""`;
+
+exports[`frodo config-manager delete themes "frodo config-manager delete themes --dry-run -m forgeops": should preview theme deletion across all realms 2`] = `
+"Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
+Dry run: Deleting theme 'Contrast' in realm '/'
+Dry run: Deleting theme 'ForgeRock Theme' in realm '/'
+Dry run: Deleting theme 'Highlander' in realm '/'
+Dry run: Deleting theme 'Robroy' in realm '/'
+Dry run: Deleting theme 'Test No HTML' in realm '/'
+Dry run: Deleting theme 'Test Single HTML' in realm '/'
+Dry run: Deleting theme 'Test' in realm '/'
+Dry run: Deleting theme 'Zardoz' in realm '/'
+Dry run: Deleting theme 'Contrast' in realm 'alpha'
+Dry run: Deleting theme 'ForgeRock Theme' in realm 'alpha'
+Dry run: Deleting theme 'Highlander' in realm 'alpha'
+Dry run: Deleting theme 'Robroy' in realm 'alpha'
+Dry run: Deleting theme 'Test No HTML' in realm 'alpha'
+Dry run: Deleting theme 'Test Single HTML' in realm 'alpha'
+Dry run: Deleting theme 'Test' in realm 'alpha'
+Dry run: Deleting theme 'Zardoz' in realm 'alpha'
+No themes found to delete in realm 'bravo'.
+"
+`;
+
+exports[`frodo config-manager delete themes "frodo config-manager delete themes -d -n Test -m forgeops": should dry-run delete a specific theme by name in alpha 1`] = `""`;
+
+exports[`frodo config-manager delete themes "frodo config-manager delete themes -d -n Test -m forgeops": should dry-run delete a specific theme by name in alpha 2`] = `
+"Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
+Dry run: Deleting theme 'Test' in realm 'alpha'
+"
+`;
+
+exports[`frodo config-manager delete themes "frodo config-manager delete themes -m forgeops": should delete themes across all realms 1`] = `""`;
+
+exports[`frodo config-manager delete themes "frodo config-manager delete themes -m forgeops": should delete themes across all realms 2`] = `
+"Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
+Deleting theme 'Contrast' in realm '/'
+Deleting theme 'ForgeRock Theme' in realm '/'
+Deleting theme 'Highlander' in realm '/'
+Deleting theme 'Robroy' in realm '/'
+Deleting theme 'Test' in realm '/'
+Deleting theme 'Test No HTML' in realm '/'
+Deleting theme 'Test Single HTML' in realm '/'
+Deleting theme 'Zardoz' in realm '/'
+Deleting theme 'Contrast' in realm 'alpha'
+Deleting theme 'ForgeRock Theme' in realm 'alpha'
+Deleting theme 'Highlander' in realm 'alpha'
+Deleting theme 'Robroy' in realm 'alpha'
+Deleting theme 'Test' in realm 'alpha'
+Deleting theme 'Test No HTML' in realm 'alpha'
+Deleting theme 'Test Single HTML' in realm 'alpha'
+Deleting theme 'Zardoz' in realm 'alpha'
+Deleting theme 'Contrast' in realm 'bravo'
+Deleting theme 'ForgeRock Theme' in realm 'bravo'
+Deleting theme 'Highlander' in realm 'bravo'
+Deleting theme 'Robroy' in realm 'bravo'
+Deleting theme 'Test' in realm 'bravo'
+Deleting theme 'Test No HTML' in realm 'bravo'
+Deleting theme 'Test Single HTML' in realm 'bravo'
+Deleting theme 'Zardoz' in realm 'bravo'
+"
+`;
+
+exports[`frodo config-manager delete themes "frodo config-manager delete themes -n Test -m forgeops": should delete a specific theme by name in alpha 1`] = `""`;
+
+exports[`frodo config-manager delete themes "frodo config-manager delete themes -n Test -m forgeops": should delete a specific theme by name in alpha 2`] = `
+"Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
+Deleting theme 'Test' in realm 'alpha'
+"
+`;

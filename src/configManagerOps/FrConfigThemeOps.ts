@@ -5,7 +5,7 @@ import {
   type ThemeExportInterface,
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { printError, printMessage } from '../utils/Console';
 import { decodeOrNot, encodeOrNot, realmList } from '../utils/FrConfig';
 
 const { DEFAULT_REALM_KEY, CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -16,7 +16,13 @@ const {
   saveTextToFile,
   getWorkingDirectory,
 } = frodo.utils;
-const { readThemes, importThemes } = frodo.theme;
+const {
+  readThemes,
+  readThemeByName,
+  deleteThemeByName,
+  importThemes,
+  deleteThemes,
+} = frodo.theme;
 
 const THEME_HTML_FIELDS = [
   { name: 'accountFooter', encoded: false },
@@ -159,6 +165,57 @@ export async function configManagerImportThemes(
         importData.theme[theme._id] = theme;
       }
       await importThemes(importData);
+    }
+    return true;
+  } catch (error) {
+    printError(error);
+    return false;
+  }
+}
+
+/**
+ * Delete themes in the specified realm, or in all listed realms if omitted.
+ * Skips the root realm on Cloud deployments.
+ * @param {string} name Optional exact name of the theme to target.
+ * @param {string} realm Optional realm to process.
+ * @param {boolean} dryRun Show which themes would be deleted without deleting them.
+ * @returns {Promise<boolean>} False if a read or deletion throws; otherwise true. An empty result is reported as a warning.
+ */
+export async function configManagerDeleteThemes(
+  name?: string,
+  realm?: string,
+  dryRun: boolean = false
+): Promise<boolean> {
+  try {
+    const realms =
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    for (const currentRealm of realms) {
+      if (
+        currentRealm === '/' &&
+        state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+      ) {
+        continue;
+      }
+      state.setRealm(currentRealm);
+      const themes = dryRun
+        ? name
+          ? [await readThemeByName(name)]
+          : await readThemes()
+        : name
+          ? [await deleteThemeByName(name)]
+          : await deleteThemes(currentRealm);
+      if (themes.length === 0) {
+        printMessage(
+          `No themes found to delete in realm '${currentRealm}'.`,
+          'warn'
+        );
+        continue;
+      }
+      for (const theme of themes) {
+        printMessage(
+          `${dryRun ? 'Dry run: ' : ''}Deleting theme '${theme.name}' in realm '${currentRealm}'`
+        );
+      }
     }
     return true;
   } catch (error) {
