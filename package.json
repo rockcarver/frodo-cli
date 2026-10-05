@@ -140,7 +140,7 @@
     "chokidar": "^5.0.0",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
-    "commander": "^14.0.3",
+    "commander": "^15.0.0",
     "compare-versions": "^6.1.0",
     "copyfiles": "^2.4.1",
     "del": "^8.0.0",
