@@ -47,8 +47,9 @@ Detailed [Installation](#installing) instructions below.
 
 Frodo CLI 5.x ships as native Node.js SEA (Single Executable Application)
 binaries with the Node.js 26 runtime embedded — no Node.js installation is
-needed to use the Homebrew formula or release zips. Running the npm package
-from source requires Node.js 26.
+needed to use the Homebrew formula or release zips. (Building frodo from
+source requires Node.js 26 — see the [Developer surface](#developer-surface)
+section.)
 
 ### Developer surface
 
@@ -82,8 +83,8 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 
 ### Node.js Versions
 
-- 5.x (current): the npm package and source builds require Node.js 26
-  (`engines.node >= 26`).
+- 5.x (current): building frodo from source (the npm package) requires
+  Node.js 26 (`engines.node >= 26`).
 - The binaries are self-contained (Node.js 26 embedded) — no Node.js
   installation needed.
 
@@ -169,7 +170,7 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 | &emsp;export                                     |  2.0.0   | Export full cloud configuration.                                                                                                |
 | &emsp;import                                     |  2.0.0   | Import full cloud configuration.                                                                                                |
 |                                                  |          |                                                                                                                                 |
-| frodo config-manager                             | `4.0.0`  | Manage cloud configuration using fr-config-manager.                                                                             |
+| frodo config-manager                             | `4.0.0`  | [Experimental] Manage cloud configuration using fr-config-manager.                                                              |
 | &emsp;pull                                       | `4.0.0`  | Export cloud configuration using fr-config-manager.                                                                             |
 | &emsp;&emsp;access-config                        | `4.0.0`  | Export access-config objects.                                                                                                   |
 | &emsp;&emsp;all                                  | `4.0.0`  | Export all config.                                                                                                              |
@@ -235,7 +236,7 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 | &emsp;list                                       |  1.0.0   | List connection profiles.                                                                                                       |
 | &emsp;save / add                                 |  1.0.0   | Save connection profiles.                                                                                                       |
 |                                                  |          |                                                                                                                                 |
-| frodo dcc / direct-configuration-control         | `4.0.0`  | Direct Configuration Control (DCC) commands.                                                                                    |
+| frodo dcc / direct-configuration-control         | `4.0.0`  | [Preview] Direct Configuration Control (DCC) commands.                                                                          |
 | &emsp;session                                    | `4.0.0`  | Manage direct configuration sessions.                                                                                           |
 | &emsp;&emsp;abort                                | `4.0.0`  | Abort a direct configuration session.                                                                                           |
 | &emsp;&emsp;apply.                               | `4.0.0`  | Apply configuration and end a direct configuration session.                                                                     |
@@ -352,7 +353,7 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 | &emsp;list                                       |  2.0.0   | List IDM mappings.                                                                                                              |
 | &emsp;rename                                     |  2.0.0   | Renames mappings from legacy to new naming scheme.                                                                              |
 |                                                  |          |                                                                                                                                 |
-| frodo mcp                                        | `4.0.0`  | Manage Model Context Protocol (MCP) integrations.                                                                               |
+| frodo mcp                                        | `4.0.0`  | [Experimental] Manage Model Context Protocol (MCP) integrations.                                                                |
 | &emsp;server                                     | `4.0.0`  | Manage Frodo MCP server lifecycle and metadata.                                                                                 |
 | &emsp;&emsp;start                                | `4.0.0`  | Start an MCP server session from frodo-lib capabilities.                                                                        |
 | &emsp;&emsp;tools                                | `4.0.0`  | List MCP tools exposed under the current policy/profile.                                                                        |
@@ -444,20 +445,23 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 
 | Node.js |        1.x         |        2.x         |        3.x.        |    . _**4.x**_     |        5.x         |
 | :-----: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
-|   14    | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
+|   14    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
 |   16    | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
 |   18    | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: |
-|   20    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :heavy_minus_sign: |
+|   20    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: |
 |   22    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :heavy_minus_sign: |
 |   24    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :heavy_minus_sign: |
 |   26    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: |
 |   28    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
 
-The CLI is distributed primarily as self-contained binaries (Homebrew,
-release zips) with the Node.js runtime embedded — the table above applies to
-running the npm package from source. For 5.x, the npm package requires
-Node.js 26 (per `engines`); the release binaries ship with Node.js 26
-embedded and have no Node.js requirement at all.
+The table reflects the Node.js versions each release line was **tested**
+against (git-tag-verifiable from the CI test matrix), not the historical
+`engines` claim, which has lagged the matrix in some releases. The CLI is
+distributed primarily as self-contained binaries (Homebrew, release zips)
+with the Node.js runtime embedded — for those, no Node.js installation is
+needed at all. The table applies to running the npm package from source: 5.x
+requires Node.js 26 (`engines.node >= 26`), which is also the only version
+the 5.x test matrix runs.
 
 ### Global support for `-D`, `--directory` to set the working directory
 
@@ -527,7 +531,7 @@ STABLE
 ```console
 $ brew install frodo-cli
 ==> Fetching rockcarver/frodo-cli/frodo-cli
-==> Downloading https://github.com/rockcarver/frodo-cli/releases/download/v4.18.0/frodo-macos-arm64-4.18.0.zip
+==> Downloading https://github.com/rockcarver/frodo-cli/releases/download/v5.0.0/frodo-macos-arm64-5.0.0.zip
 .
 .
 ```
@@ -544,17 +548,42 @@ $ brew install frodo-cli-next
 
 Both formulas install the official prebuilt, code-signed (and on macOS
 notarized) release binary — Homebrew, CI, and the release pipeline all run
-the exact same artifact.
+the exact same artifact. No Node.js installation is required.
+
+**Upgrading from Frodo CLI 4.x.** Releases up to 4.18.0 were installed from
+the tap by _compiling from source_ (a `node@24` dependency and a local
+build ran during `brew install`). From 5.0.0 on, both formulas install the
+prebuilt binary zip instead. `brew upgrade` handles the switch: upgrade to
+5.0.0 or later and Homebrew replaces the source-built binary with the
+prebuilt one and drops the now-unneeded `node@24` dependency. `frodo -v`
+before and after confirms the version move:
+
+```console
+$ brew upgrade frodo-cli
+==> Upgrading 1 outdated package:
+rockcarver/frodo-cli/frodo-cli 4.18.0 -> 5.0.0
+==> Downloading https://github.com/rockcarver/frodo-cli/releases/download/v5.0.0/frodo-macos-arm64-5.0.0.zip
+==> Upgrading frodo-cli
+  4.18.0 -> 5.0.0
+```
+
+There is no configuration to migrate: connection profiles, tokens, themes,
+and settings under `~/.frodo/` are untouched by the upgrade, and 5.0.0
+reads the same profiles written by 4.x. (For the behavioral changes in the
+5.x line, see [New in 5.x](#new-in-5x).)
 
 To verify the installation, run `frodo -v`, it should print something like:
 
 ```console
 $ frodo -v
 You are running the homebrew release.
-cli: v5.0.0-1 (2026-10-04T18:44:13.010Z)
-lib: v4.11.0 (2026-10-04T14:28:30.822Z)
+cli: v5.0.0-2 (2026-10-05T12:29:03.649Z)
+lib: v5.0.0-2 (2026-10-05T12:29:03.649Z)
 node: v26.10.0
 ```
+
+(The `cli:` and `lib:` lines carry real build timestamps; the exact values
+shown here are illustrative.)
 
 If you have the STABLE version installed and you want to get the latest, do:
 
@@ -578,7 +607,8 @@ rockcarver/frodo-cli/frodo-cli-next 5.0.0-1 -> 5.0.0-2
 
 ### NPM package
 
-If you are a node developer and want to use frodo as a cli tool or as a library for your own applications, you can install the npm package (requires Node.js 26 or later):
+Node developers can also install frodo as a global cli tool from npm
+(requires Node.js 26 or later):
 
 - To install (or update to) the latest version as a cli tool:
   ```console
@@ -588,6 +618,11 @@ If you are a node developer and want to use frodo as a cli tool or as a library 
   ```console
   npm i @rockcarver/frodo-cli@next
   ```
+
+The npm package is a cli distribution, not a library — if you want to build
+your own applications on frodo, use the
+[`@rockcarver/frodo-lib`](https://github.com/rockcarver/frodo-lib) package
+instead.
 
 ## Usage
 

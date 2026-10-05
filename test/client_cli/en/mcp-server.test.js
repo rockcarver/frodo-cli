@@ -87,7 +87,8 @@ test("'mcp server info' prints the active server summary", async () => {
     expect(stdout).toMatch(
         new RegExp(` {2}cli: v${cliVersion} \\(\\d{4}-\\d{2}-\\d{2}T[\\d:.]+Z\\)\\n`)
     );
-    expect(stdout).toMatch(/ {2}lib: v[\d.]+ \(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)\n/);
+    // Prerelease lib versions carry a "-suffix" (e.g. v5.0.0-2), so allow it.
+    expect(stdout).toMatch(/ {2}lib: v[\d.]+(?:-[\w.-]+)? \(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)\n/);
     expect(stdout).toContain(
         '  Supported protocol versions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05, 2024-10-07\n'
     );
