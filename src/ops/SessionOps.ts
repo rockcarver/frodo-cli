@@ -1,5 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
-import type { CachedSessionSummary } from '@rockcarver/frodo-lib/types/ops/TokenCacheOps';
+import { frodo, state, type CachedSessionSummary } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
   createKeyValueTable,

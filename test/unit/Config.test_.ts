@@ -3,8 +3,8 @@
 // jest's testMatch until that was fixed, so the drift went unnoticed).
 // Needs updating to whatever isIdUsed became, or removal if the
 // functionality it covered is gone.
+import { type FullExportInterface } from '@rockcarver/frodo-lib';
 import * as Config from '../../src/utils/Config';
-import { FullExportInterface } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 
 describe('Config - isIdUsed()', () => {
   const exportObject = {

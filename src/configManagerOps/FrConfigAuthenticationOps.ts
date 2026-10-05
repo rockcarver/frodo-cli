@@ -1,6 +1,9 @@
 import fs from 'fs';
-import { frodo, state } from '@rockcarver/frodo-lib';
-import { AuthenticationSettingsExportInterface } from '@rockcarver/frodo-lib/types/ops/AuthenticationSettingsOps';
+import {
+  frodo,
+  state,
+  type AuthenticationSettingsExportInterface,
+} from '@rockcarver/frodo-lib';
 import { printError, verboseMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 

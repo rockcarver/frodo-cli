@@ -1,6 +1,5 @@
 import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
-import { VariableSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
+import { frodo, type VariableSkeleton } from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printError,

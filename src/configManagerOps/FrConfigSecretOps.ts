@@ -1,9 +1,9 @@
 import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
 import {
-  SecretSkeleton,
-  VersionOfSecretSkeleton,
-} from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
+  frodo,
+  type SecretSkeleton,
+  type VersionOfSecretSkeleton,
+} from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printError,

@@ -1,9 +1,12 @@
 import fs from 'fs';
-import { frodo, state } from '@rockcarver/frodo-lib';
-import { PolicySkeleton } from '@rockcarver/frodo-lib/types/api/PoliciesApi';
-import { PolicySetSkeleton } from '@rockcarver/frodo-lib/types/api/PolicySetApi';
-import { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ResourceTypesApi';
-import { PolicySetExportInterface } from '@rockcarver/frodo-lib/types/ops/PolicySetOps';
+import {
+  frodo,
+  state,
+  type PolicySetExportInterface,
+  type PolicySetSkeleton,
+  type PolicySkeleton,
+  type ResourceTypeSkeleton,
+} from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printError,

@@ -1,9 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
 import {
+  frodo,
+  state,
   type LogApiKey,
   type LogEventPayloadSkeleton,
-} from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
-import type { LogTailStream } from '@rockcarver/frodo-lib/types/ops/cloud/LogOps';
+  type LogTailStream,
+} from '@rockcarver/frodo-lib';
 import {
   createTable,
   debugMessage,

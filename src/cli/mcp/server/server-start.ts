@@ -6,8 +6,8 @@ import {
   resolveRequestScopedFrodo,
   state,
   type McpDiscoveryHydrationEvent,
+  type McpProfileName,
 } from '@rockcarver/frodo-lib';
-import type { McpProfileName } from '@rockcarver/frodo-lib/types/mcp/ProfileRegistry';
 import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import {

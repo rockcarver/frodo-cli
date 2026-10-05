@@ -1,11 +1,12 @@
 import fs from 'fs';
-import { frodo, FrodoError } from '@rockcarver/frodo-lib';
-import { type Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
-import type {
-  Saml2EntitiesExportOptions,
-  Saml2EntitiesImportOptions,
-  Saml2ExportInterface,
-} from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
+import {
+  frodo,
+  FrodoError,
+  type Saml2EntitiesExportOptions,
+  type Saml2EntitiesImportOptions,
+  type Saml2ExportInterface,
+  type Saml2ProviderSkeleton,
+} from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
   createObjectTable,

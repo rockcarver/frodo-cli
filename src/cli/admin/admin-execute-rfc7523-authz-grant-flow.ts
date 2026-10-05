@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { JwkRsa } from '@rockcarver/frodo-lib/types/ops/JoseOps.js';
+import { type JwkRsa } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { v4 as uuidv4 } from 'uuid';
 import * as s from '../../help/SampleData';

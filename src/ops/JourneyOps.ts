@@ -1,16 +1,18 @@
 import fs from 'fs';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { type NodeSkeleton } from '@rockcarver/frodo-lib/types/api/NodeApi';
-import { type TreeSkeleton } from '@rockcarver/frodo-lib/types/api/TreeApi';
 import {
-  DeleteJourneysStatus,
+  frodo,
+  FrodoError,
+  state,
+  type DeleteJourneysStatus,
   type MultiTreeExportInterface,
+  type NodeSkeleton,
   type SingleTreeExportInterface,
   type TreeDependencyMapInterface,
   type TreeExportOptions,
   type TreeExportResolverInterface,
   type TreeImportOptions,
-} from '@rockcarver/frodo-lib/types/ops/JourneyOps';
+  type TreeSkeleton,
+} from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,

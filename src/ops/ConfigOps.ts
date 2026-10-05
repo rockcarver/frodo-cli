@@ -1,20 +1,20 @@
 import fs from 'fs';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { WorkflowExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/iga/IgaWorkflowOps';
 import {
-  FullExportInterface,
-  FullExportOptions,
-  FullGlobalExportInterface,
-  FullImportOptions,
-  FullRealmExportInterface,
-} from '@rockcarver/frodo-lib/types/ops/ConfigOps';
-import {
-  MappingSkeleton,
-  SyncSkeleton,
-} from '@rockcarver/frodo-lib/types/ops/MappingOps';
-import { CustomNodeExportInterface } from '@rockcarver/frodo-lib/types/ops/NodeOps';
-import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
+  frodo,
+  FrodoError,
+  state,
+  type CustomNodeExportInterface,
+  type FullExportInterface,
+  type FullExportOptions,
+  type FullGlobalExportInterface,
+  type FullImportOptions,
+  type FullRealmExportInterface,
+  type IdObjectSkeletonInterface,
+  type MappingSkeleton,
+  type ScriptExportInterface,
+  type SyncSkeleton,
+  type WorkflowExportInterface,
+} from '@rockcarver/frodo-lib';
 import {
   getConfig,
   getFullExportConfig,

@@ -1,9 +1,12 @@
 import fs from 'fs';
-import { frodo, state } from '@rockcarver/frodo-lib';
-import { CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/CirclesOfTrustApi';
-import { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
-import { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/CirclesOfTrustOps';
-import { Saml2ExportInterface } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
+import {
+  frodo,
+  state,
+  type CircleOfTrustSkeleton,
+  type CirclesOfTrustExportInterface,
+  type Saml2ExportInterface,
+  type Saml2ProviderSkeleton,
+} from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printError,

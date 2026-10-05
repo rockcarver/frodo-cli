@@ -1,6 +1,5 @@
 import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
-import { ConnectorSkeleton } from '@rockcarver/frodo-lib/types/ops/ConnectorOps';
+import { frodo, type ConnectorSkeleton } from '@rockcarver/frodo-lib';
 import { printError, verboseMessage } from '../utils/Console';
 
 const { connector } = frodo.idm;

@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { readFile } from 'fs/promises';
-import { frodo } from '@rockcarver/frodo-lib';
-import { ContentSecurityPolicy } from '@rockcarver/frodo-lib/types/api/cloud/EnvContentSecurityPolicyApi';
+import { frodo, type ContentSecurityPolicy } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
 const { env } = frodo.cloud;

@@ -1,11 +1,13 @@
 import fs from 'fs';
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
-  VariableExpressionType,
-  VariableSkeleton,
-} from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
-import { VariablesExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/VariablesOps';
-import { ResolvedIdentity } from '@rockcarver/frodo-lib/types/ops/ManagedObjectOps';
+  frodo,
+  FrodoError,
+  state,
+  type ResolvedIdentity,
+  type VariableExpressionType,
+  type VariablesExportInterface,
+  type VariableSkeleton,
+} from '@rockcarver/frodo-lib';
 import c from '../../utils/ColorTheme';
 import { getFullExportConfig, getIdLocations } from '../../utils/Config';
 import {

@@ -24,12 +24,12 @@
  * (never silently dropped, never raw JSON) — it just isn't specially
  * compacted the way journey/OAuth events are.
  */
-import { frodo } from '@rockcarver/frodo-lib';
-import type {
-  LogEventPayloadSkeleton,
-  LogEventSkeleton,
-} from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
-import type { LogTailStream } from '@rockcarver/frodo-lib/types/ops/cloud/LogOps';
+import {
+  frodo,
+  type LogEventPayloadSkeleton,
+  type LogEventSkeleton,
+  type LogTailStream,
+} from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
 
 const { createLogTailStream } = frodo.cloud.log;

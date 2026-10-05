@@ -1,9 +1,10 @@
 import fs from 'fs';
-import { frodo, state } from '@rockcarver/frodo-lib';
 import {
-  FullService,
-  ServiceNextDescendent,
-} from '@rockcarver/frodo-lib/types/api/ServiceApi';
+  frodo,
+  state,
+  type FullService,
+  type ServiceNextDescendent,
+} from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printError,
