@@ -37,7 +37,9 @@ const TARGETS = [
   { asset: `frodo-macos-arm64-${version}.zip`, cond: 'on_macos', arch: 'arm64' },
   { asset: `frodo-macos-intel-${version}.zip`, cond: 'on_macos', arch: 'intel' },
   { asset: `frodo-linux-arm64-${version}.zip`, cond: 'on_linux', arch: 'arm64' },
-  { asset: `frodo-linux-x64-${version}.zip`, cond: 'on_linux', arch: 'x86_64' },
+  // Homebrew 7.x removed Hardware::CPU.x86_64?; `intel?` is the surviving
+  // predicate for x86-64 (and the only one for it on Linux).
+  { asset: `frodo-linux-x64-${version}.zip`, cond: 'on_linux', arch: 'intel' },
 ];
 
 async function sha256OfZip(url) {
