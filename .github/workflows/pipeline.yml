@@ -542,6 +542,9 @@ jobs:
           cd tap
           git config user.name "rockcarver-pipeline"
           git config user.email "actions@github.com"
+          # plain `git push` has no credentials (GH_TOKEN only authenticates
+          # the gh CLI); route git through gh's credential helper.
+          gh auth setup-git
           # The generator only writes frodo-cli.rb for stable releases; a
           # prerelease (e.g. 5.0.0-1) must not touch the stable formula, so
           # copy whichever formulas it produced.
