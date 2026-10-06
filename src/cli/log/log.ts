@@ -4,6 +4,7 @@ import FetchCmd from './log-fetch';
 import KeyCmd from './log-key.js';
 import ListCmd from './log-list.js';
 import TailCmd from './log-tail.js';
+import { frodo } from '@rockcarver/frodo-lib';
 
 export const sourcesOptionM = new Option(
   '-c, --sources <sources>',
@@ -13,7 +14,9 @@ export const sourcesOptionM = new Option(
   .default('am-everything,idm-everything', 'Log everything');
 
 export default function setup() {
-  const program = new FrodoStubCommand('log')
+  const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+
+  const program = new FrodoStubCommand('log', [CLOUD_DEPLOYMENT_TYPE_KEY])
     // for backwards compatibility
     .alias('logs')
     .summary('List/View Identity Cloud logs')

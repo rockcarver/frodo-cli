@@ -2206,9 +2206,18 @@ export class FrodoStubCommand extends Command {
   /**
    * Creates a new FrodoCommand instance
    * @param name Name of the command
+   * @param types Deployment types this command supports. When omitted, the
+   *   command starts untyped and inherits types from its sub-commands via
+   *   addCommand's type-merge — but an untyped or multi-type parent drops out
+   *   of the scoped (Cloud-only etc.) help grouping, so single-type families
+   *   should declare their type here explicitly.
    */
-  constructor(name: string) {
+  constructor(name: string, types?: string[]) {
     super(name);
+
+    if (types && types.length > 0) {
+      this.types = [...new Set(types)];
+    }
 
     if (!process.listenerCount('unhandledRejection')) {
       process.on('unhandledRejection', (error: any) => {
