@@ -5,7 +5,8 @@ import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
 
 const { saveJsonToFile, getFilePath } = frodo.utils;
-const { readConfigEntity, importConfigEntities } = frodo.idm.config;
+const { readConfigEntity, importConfigEntities, updateConfigEntity } =
+  frodo.idm.config;
 
 /**
  * Export terms and conditions to file
@@ -62,6 +63,63 @@ export async function configManagerImportTermsAndConditions(): Promise<boolean> 
     return true;
   } catch (error) {
     printError(error);
+    return false;
+  }
+}
+
+/**
+ * Delete terms and conditions versions.
+ * @param name Optional version identifier. If omitted, deletes all versions.
+ * @param dryRun Log selected versions without updating the configuration.
+ * @returns true if successful, false if reading or updating fails,
+ * or a requested version is not found.
+ */
+export async function configManagerDeleteTermsAndConditions(
+  name?: string,
+  dryRun = false
+): Promise<boolean> {
+  try {
+    const terms = (await readConfigEntity('selfservice.terms')) as any;
+    const versions = terms.versions;
+    if (versions.length === 0) {
+      console.log('No terms and conditions versions found to delete.');
+      return !name;
+    }
+    let matchFound = false;
+    let success = true;
+    for (const version of versions) {
+      const versionId = version.version;
+      if (name && name !== versionId) {
+        continue;
+      }
+      matchFound = true;
+      if (dryRun) {
+        console.log(
+          `Dry run: Deleting terms and conditions version: ${versionId}`
+        );
+        continue;
+      }
+      terms.versions = terms.versions.filter(
+        (entry) => entry.version !== versionId
+      );
+      try {
+        await updateConfigEntity('selfservice.terms', terms);
+        console.log(`Deleting terms and conditions version: ${versionId}`);
+      } catch (error) {
+        printError(
+          error,
+          `Error deleting terms and conditions version ${versionId}`
+        );
+        success = false;
+      }
+    }
+    if (name && !matchFound) {
+      console.log(`Warning: terms and conditions version '${name}' not found.`);
+      return false;
+    }
+    return success;
+  } catch (error) {
+    printError(error, 'Error deleting terms and conditions versions');
     return false;
   }
 }

@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete terms-and-conditions should delete a specific terms and conditions version from forgeops 1`] = `
+"Deleting terms and conditions version: 0.1
+"
+`;
+
+exports[`frodo config-manager delete terms-and-conditions should delete a specific terms and conditions version from forgeops 2`] = `
+"Experimental feature in use: 'frodo config-manager delete terms-and-conditions'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager delete terms-and-conditions should delete all terms and conditions versions from forgeops 1`] = `
+"Deleting terms and conditions version: 0.0
+Deleting terms and conditions version: 0.1
+"
+`;
+
+exports[`frodo config-manager delete terms-and-conditions should delete all terms and conditions versions from forgeops 2`] = `
+"Experimental feature in use: 'frodo config-manager delete terms-and-conditions'. This feature may change without notice.
+"
+`;
