@@ -23,6 +23,7 @@ Commands:
   email-templates       [Experimental] Delete email template objects.
   endpoints             [Experimental] Delete custom endpoint objects.
   locales               [Experimental] Delete locale objects.
+  schedules             [Experimental] Delete schedules.
   scripts               [Experimental] Delete AM scripts. Default scripts are
                         never deleted.
   secrets               [Experimental] [Cloud-only] Delete secrets.
