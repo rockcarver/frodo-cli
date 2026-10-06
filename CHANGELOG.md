@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-3] - 2026-10-06
+
+### Added
+- Integrated `@rockcarver/frodo-lib` version 5.0.0-3, which includes the removal of deprecated `frodo.cloud.variable` functions and journey/node classification functions. This update aligns the CLI with the latest library API changes. (#762)
+
+### Fixed
+- Resolved a race condition in the MCP server stop happy-path test by ensuring the test waits for the server lockfile, improving test reliability. (#761)
+
 ## [v5.0.0-2] - 2026-10-05
 
 ### Fixed
@@ -2962,6 +2970,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-3]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-2...v5.0.0-3
 [v5.0.0-2]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-1...v5.0.0-2
 [v5.0.0-1]: https://github.com/rockcarver/frodo-cli/compare/v4.18.0...v5.0.0-1
 [v4.18.0]: https://github.com/rockcarver/frodo-cli/compare/v4.17.0...v4.18.0
