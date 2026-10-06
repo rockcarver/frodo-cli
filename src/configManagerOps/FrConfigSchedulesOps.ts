@@ -6,7 +6,8 @@ import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 
-const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
+const { readConfigEntitiesByType, importConfigEntities, deleteConfigEntity } =
+  frodo.idm.config;
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 /**
@@ -193,4 +194,55 @@ export async function configManagerImportSchedules(
     printError(error, `Error importing schedules`);
   }
   return false;
+}
+
+/**
+ * Delete schedules using fr-config-manager selection rules.
+ * @param {string} name Optional exact schedule name. If omitted, targets all schedules.
+ * @param {boolean} dryRun Show matching schedules without deleting them.
+ * @param {boolean} allowFailures Report individual deletion failures without failing the command.
+ * @returns {Promise<boolean>} False if reading fails or a deletion fails without allowFailures; otherwise true.
+ */
+export async function configManagerDeleteSchedules(
+  name?: string,
+  dryRun: boolean = false,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'schedule', allowFailures });
+  try {
+    const schedules = await readConfigEntitiesByType('schedule/');
+    const selectedSchedules = name
+      ? schedules.filter((schedule) => schedule._id === `schedule/${name}`)
+      : schedules;
+
+    if (selectedSchedules.length === 0) {
+      printMessage(
+        name
+          ? `Warning: schedule '${name}' not found.`
+          : 'No schedules found to delete.',
+        'warn'
+      );
+      return true;
+    }
+    for (const schedule of selectedSchedules) {
+      const scheduleName = schedule._id.slice('schedule/'.length);
+
+      if (dryRun) {
+        printMessage(`Dry run: Deleting schedule: ${scheduleName}`);
+        continue;
+      }
+      try {
+        await deleteConfigEntity(schedule._id);
+        printMessage(`Deleting schedule: ${scheduleName}`);
+        run.recordSuccess();
+      } catch (error) {
+        printError(error, `Error deleting schedule ${scheduleName}`);
+        run.recordFailure(scheduleName, causeOf(error));
+      }
+    }
+    return run.finish();
+  } catch (error) {
+    printError(error, 'Error deleting schedules');
+    return false;
+  }
 }

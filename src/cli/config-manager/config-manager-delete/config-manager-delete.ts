@@ -8,6 +8,7 @@ import OauthCimdProfiles from '../config-manager-delete/config-manager-delete-oa
 import Themes from '../config-manager-delete/config-manager-delete-themes';
 import CustomNodes from './config-manager-delete-custom-nodes';
 import OauthIssuers from './config-manager-delete-oauth-issuers';
+import Schedules from './config-manager-delete-schedules';
 import Scripts from './config-manager-delete-scripts';
 import Secrets from './config-manager-delete-secrets';
 import TermsConditions from './config-manager-delete-terms-and-conditions';
@@ -30,5 +31,6 @@ export default function setup() {
   program.addCommand(Locales().name('locales'));
   program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
   program.addCommand(OauthIssuers().name('oauth-issuers'));
+  program.addCommand(Schedules().name('schedules'));
   return program;
 }
