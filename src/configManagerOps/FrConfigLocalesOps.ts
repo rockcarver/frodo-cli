@@ -8,7 +8,8 @@ import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 
-const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
+const { readConfigEntitiesByType, importConfigEntities, deleteConfigEntity } =
+  frodo.idm.config;
 const { saveJsonToFile, getFilePath, readJsonFile, getWorkingDirectory } =
   frodo.utils;
 
@@ -112,6 +113,55 @@ export async function configManagerImportLocales(
     return run.finish();
   } catch (error) {
     printError(error, `Error importing locales`);
+    return false;
+  }
+}
+
+/**
+ * Delete IDM locales using fr-config-manager selection rules.
+ * @param {string} localeName Optional exact locale name. If omitted, targets all locales.
+ * @param {boolean} dryRun Show matching locales without deleting them.
+ * @param {boolean} allowFailures True to succeed although some locales could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} False if reading or deletion fails or a named locale is not found; otherwise true.
+ */
+export async function configManagerDeleteLocales(
+  localeName?: string,
+  dryRun: boolean = false,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'locale', allowFailures });
+  try {
+    const locales = await readConfigEntitiesByType('uilocale');
+    const selectedLocales = localeName
+      ? locales.filter((locale) => locale._id === `uilocale/${localeName}`)
+      : locales;
+    if (selectedLocales.length === 0) {
+      printMessage(
+        localeName
+          ? `Warning: locale '${localeName}' not found.`
+          : 'No locales found to delete.',
+        'warn'
+      );
+      return true;
+    }
+    for (const locale of selectedLocales) {
+      const name = locale._id.slice('uilocale/'.length);
+      if (dryRun) {
+        printMessage(`Dry run: Deleting uilocale: ${name}`);
+        continue;
+      }
+      try {
+        await deleteConfigEntity(locale._id);
+        printMessage(`Deleting uilocale: ${name}`);
+        run.recordSuccess();
+      } catch (error) {
+        printError(error, `Error deleting uilocale ${name}`);
+        run.recordFailure(name, causeOf(error));
+      }
+    }
+    return run.finish();
+  } catch (error) {
+    printError(error, 'Error deleting config entity locales');
     return false;
   }
 }

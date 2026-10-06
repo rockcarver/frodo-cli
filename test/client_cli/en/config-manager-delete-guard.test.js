@@ -33,6 +33,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete scripts -p Example -p Other',
     'frodo config-manager delete themes',
     'frodo config-manager delete email-templates',
+    'frodo config-manager delete locales',
     'frodo config-manager delete secrets',
     'frodo config-manager delete terms-and-conditions',
     'frodo config-manager delete variables',
@@ -123,6 +124,9 @@ describe('what is not refused', () => {
     'frodo config-manager delete secrets -y',
     'frodo config-manager delete terms-and-conditions -y',
     'frodo config-manager delete variables -y',
+    'frodo config-manager delete locales -d',
+    'frodo config-manager delete locales -y',
+    'frodo config-manager delete locales -n en',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
