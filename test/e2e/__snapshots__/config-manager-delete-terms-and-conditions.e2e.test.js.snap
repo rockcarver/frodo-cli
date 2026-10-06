@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions --dry-run -m forgeops": should preview deletion of all terms and conditions versions from forgeops 1`] = `""`;
+
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions --dry-run -m forgeops": should preview deletion of all terms and conditions versions from forgeops 2`] = `
+"Experimental feature in use: 'frodo config-manager delete terms-and-conditions'. This feature may change without notice.
+Dry run: Deleting terms and conditions version: 0.0
+Dry run: Deleting terms and conditions version: 0.1
+"
+`;
+
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -d -n 0.1 -m forgeops": should preview deletion of a specific terms and conditions version from forgeops 1`] = `""`;
+
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -d -n 0.1 -m forgeops": should preview deletion of a specific terms and conditions version from forgeops 2`] = `
+"Experimental feature in use: 'frodo config-manager delete terms-and-conditions'. This feature may change without notice.
+Dry run: Deleting terms and conditions version: 0.1
+"
+`;
+
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -m forgeops": should delete all terms and conditions versions from forgeops 1`] = `""`;
+
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -m forgeops": should delete all terms and conditions versions from forgeops 2`] = `
+"Experimental feature in use: 'frodo config-manager delete terms-and-conditions'. This feature may change without notice.
+Deleting terms and conditions version: 0.0
+Deleting terms and conditions version: 0.1
+"
+`;
+
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -n 0.1 -m forgeops": should delete a specific terms and conditions version from forgeops 1`] = `""`;
+
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -n 0.1 -m forgeops": should delete a specific terms and conditions version from forgeops 2`] = `
+"Experimental feature in use: 'frodo config-manager delete terms-and-conditions'. This feature may change without notice.
+Deleting terms and conditions version: 0.1
+"
+`;
