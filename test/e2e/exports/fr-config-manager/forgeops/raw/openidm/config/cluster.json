@@ -1,5 +1,9 @@
 {
   "_id": "cluster",
+  "_pushApiVersion": {
+    "protocol": "2.1",
+    "resource": "1.0"
+  },
   "enabled": true,
   "instanceCheckInInterval": 5000,
   "instanceCheckInOffset": 0,

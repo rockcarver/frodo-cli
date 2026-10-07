@@ -69,6 +69,7 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     }
   },
   ListOption: class extends Option {},
+  ObjectOption: class extends Option {},
 }));
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
@@ -101,8 +102,8 @@ const COMMANDS = [
     name: 'config-manager pull raw',
     file: 'config-manager-pull/config-manager-pull-raw',
     fn: 'configManagerExportRaw',
-    options: { configFile: 'raw.json' },
-    args: (allowFailures) => ['raw.json', allowFailures],
+    options: { configFile: 'raw.json', pushApiVersion: { resource: '1.0', protocol: '2.1' }, path: "/openidm/config", stdout: false },
+    args: (allowFailures) => ['raw.json', { resource: '1.0', protocol: '2.1' }, '/openidm/config', false, allowFailures],
     mandatory: 'configFile',
   },
   {

@@ -159,16 +159,16 @@ beforeEach(() => {
   });
   frodo.rawConfig.exportRawConfig
     .mockReset()
-    .mockImplementation(async (config) => {
-      attempted.push(config.path);
-      if (!config.path || failing.has(config.path)) {
-        throw new Error(`could not export ${config.path}`);
+    .mockImplementation(async (path) => {
+      attempted.push(path);
+      if (!path || failing.has(path)) {
+        throw new Error(`could not export ${path}`);
       }
-      return { _id: config.path };
+      return { _id: path };
     });
   frodo.rawConfig.importRawConfig
     .mockReset()
-    .mockImplementation(async ({ path: rawPath }) => {
+    .mockImplementation(async (rawPath) => {
       attempted.push(rawPath);
       if (failing.has(rawPath)) throw new Error(`could not import ${rawPath}`);
     });
@@ -177,10 +177,9 @@ beforeEach(() => {
 afterEach(() => {
   fs.rmSync(tmp, { recursive: true, force: true });
 });
-
 describe('config-manager pull raw', () => {
   const run = (allowFailures, file = path.join(tmp, 'raw.json')) =>
-    ops.configManagerExportRaw(file, allowFailures);
+    ops.configManagerExportRaw(file, { resource: "2.0", protocol: "2.1" }, undefined, false, allowFailures);
 
   beforeEach(() => {
     put(
