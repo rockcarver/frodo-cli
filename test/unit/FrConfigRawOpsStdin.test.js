@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { escapePlaceholders } from '../../src/utils/FrConfig.js';
 
 /**
  * How `config-manager push raw --stdin` hands the piped config to frodo-lib
@@ -49,6 +50,7 @@ jest.unstable_mockModule('../../src/utils/FrConfig', () => ({
   clearOperationalAttributes: (obj) => {
     delete obj._id;
   },
+  escapePlaceholders: jest.fn()
 }));
 jest.unstable_mockModule('../../src/utils/StdinSync', () => ({
   readStdinToEndSync,
@@ -79,15 +81,15 @@ beforeEach(() => {
 
 describe('configManagerImportRaw --stdin', () => {
   it('reads stdin once through the helper and hands lib a private file with the piped text', async () => {
-    readStdinToEndSync.mockReturnValue('{"_id":"x","value":1}');
-    await expect(configManagerImportRaw('x/y', true)).resolves.toBe(true);
+    readStdinToEndSync.mockReturnValue('{"_id":"x","_pushApiVersion": { "protocol": "2.1", "resource": "2.0" },"value":1}');
+    await expect(configManagerImportRaw('x/y', true, { protocol: "2.1", resource: "2.0" })).resolves.toBe(true);
     expect(readStdinToEndSync).toHaveBeenCalledTimes(1);
     expect(readJsonFile).toHaveBeenCalledTimes(1);
-    expect(state.seen.text).toBe('{"_id":"x","value":1}');
+    expect(state.seen.text).toBe('{"_id":"x","_pushApiVersion": { "protocol": "2.1", "resource": "2.0" },"value":1}');
     expect(path.basename(state.seen.dir)).toMatch(/^frodo-stdin-/);
     expect(path.dirname(state.seen.dir)).toBe(os.tmpdir());
     // What was parsed is what gets imported (operational attributes cleared).
-    expect(importRawConfig).toHaveBeenCalledWith({ path: 'x/y' }, { value: 1 });
+    expect(importRawConfig).toHaveBeenCalledWith('x/y', { value: 1 }, { protocol: "2.1", resource: "2.0" });
   });
 
   (posix ? it : it.skip)(
