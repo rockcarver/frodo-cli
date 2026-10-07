@@ -1,12 +1,15 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { FrodoStubCommand } from '../FrodoCommand';
 import ApplyCmd from './esv-apply.js';
 import SecretCmd from './esv-secret.js';
 import VariableCmd from './esv-variable.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('esv').description(
-    'Manage environment secrets and variables (ESVs).'
-  );
+  const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+
+  const program = new FrodoStubCommand('esv', [
+    CLOUD_DEPLOYMENT_TYPE_KEY,
+  ]).description('Manage environment secrets and variables (ESVs).');
 
   program.addCommand(ApplyCmd().name('apply'));
 

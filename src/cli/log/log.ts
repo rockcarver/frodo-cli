@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { FrodoStubCommand } from '../FrodoCommand';
 import FetchCmd from './log-fetch';
@@ -13,7 +14,9 @@ export const sourcesOptionM = new Option(
   .default('am-everything,idm-everything', 'Log everything');
 
 export default function setup() {
-  const program = new FrodoStubCommand('log')
+  const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+
+  const program = new FrodoStubCommand('log', [CLOUD_DEPLOYMENT_TYPE_KEY])
     // for backwards compatibility
     .alias('logs')
     .summary('List/View Identity Cloud logs')

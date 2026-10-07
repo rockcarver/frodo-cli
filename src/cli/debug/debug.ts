@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { FrodoStubCommand } from '../FrodoCommand';
 import AllCmd from './debug-all';
 import JourneyCmd from './debug-journey';
@@ -6,7 +7,9 @@ import SamlCmd from './debug-saml';
 import SyncCmd from './debug-sync';
 
 export default function setup() {
-  const program = new FrodoStubCommand('debug')
+  const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+
+  const program = new FrodoStubCommand('debug', [CLOUD_DEPLOYMENT_TYPE_KEY])
     .summary('Interactively debug Identity Cloud activity')
     .description(
       'Interactively debug Identity Cloud activity for one functional area — for journeys, this launches a live, self-updating list of in-flight/recent journey executions (detected from the log stream) to drill into; other topics print a smart-filtered log tail instead.'
