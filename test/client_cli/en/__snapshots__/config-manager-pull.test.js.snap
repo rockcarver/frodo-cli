@@ -31,6 +31,7 @@ Commands:
   endpoints              [Experimental] Export custom endpoints objects.
   help                   display help for command
   idm-authentication     [Experimental] Export idm authentication config.
+  iga-workflows          [Experimental] [Cloud-only] Export iga-workflows.
   internal-roles         [Experimental] Export internal roles.
   journeys               [Experimental] Export journeys.
   kba                    [Experimental] Export kba-config objects.
@@ -49,14 +50,11 @@ Commands:
   secrets                [Experimental] Export secrets.
   service-objects        [Experimental] Export service objects.
   services               [Experimental] Export authentication services.
+  telemetry              [Experimental] [Cloud-only] Export telemetry exporters.
   terms-and-conditions   [Experimental] Export terms and conditions.
   test                   [Experimental] Test connection and authentication.
   themes                 [Experimental] Export themes.
   ui-config              [Experimental] Export ui-configuration objects.
-
-  (Cloud-only):
-  iga-workflows          [Experimental] Export iga-workflows.
-  telemetry              [Experimental] Export telemetry exporters.
-  variables              [Experimental] Export variables objects.
+  variables              [Experimental] [Cloud-only] Export variables objects.
 "
 `;

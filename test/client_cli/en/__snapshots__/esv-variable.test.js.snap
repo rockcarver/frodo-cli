@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'esv variable' should be expected english 1`] = `
 "Usage: frodo esv variable [options] [command]
 
-Manage variables.
+[Cloud-only] Manage variables.
 
 Deployment: Cloud-only
 
@@ -14,15 +14,13 @@ Options:
                     examples.
 
 Commands:
+  create            [Cloud-only] Create variables.
+  delete            [Cloud-only] Delete variables.
+  describe          [Cloud-only] Describe variables.
+  export            [Cloud-only] Export variables.
   help              display help for command
-
-  (Cloud-only):
-  create            Create variables.
-  delete            Delete variables.
-  describe          Describe variables.
-  export            Export variables.
-  import            Import variables.
-  list              List variables.
-  set               Set variable description.
+  import            [Cloud-only] Import variables.
+  list              [Cloud-only] List variables.
+  set               [Cloud-only] Set variable description.
 "
 `;

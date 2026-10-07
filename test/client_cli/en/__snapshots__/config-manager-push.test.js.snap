@@ -22,12 +22,23 @@ Commands:
   connector-mappings     [Experimental] Import connector mappings.
   cookie-domains         [Experimental] Import cookie domains.
   cors                   [Experimental] Import CORS configuration.
+  csp                    [Experimental] [Cloud-only] Import content security
+                         policy.
   custom-nodes           [Experimental] Import custom nodes.
+  direct-control-abort   [Experimental] [Cloud-only] Aborts the current direct
+                         configuration session.
+  direct-control-apply   [Experimental] [Cloud-only] Apply changes made during a
+                         direct configuration session.
+  direct-control-init    [Experimental] [Cloud-only] Initialize a new direct
+                         configuration session.
+  direct-control-state   [Experimental] [Cloud-only] Read the current direct
+                         configuration session state.
   email-provider         [Experimental] Import email provider configuration.
   email-templates        [Experimental] Import email template objects.
   endpoints              [Experimental] Import custom endpoints objects.
   help                   display help for command
   idm-authentication     [Experimental] Import idm authentication.
+  iga-workflows          [Experimental] [Cloud-only] Import iga-workflows.
   internal-roles         [Experimental] Import internal roles.
   journeys               [Experimental] Import journeys.
   kba                    [Experimental] Import kba configuration.
@@ -38,31 +49,19 @@ Commands:
   password-policy        [Experimental] Import password-policy objects.
   raw                    [Experimental] Import raw configurations.
   remote-servers         [Experimental] Import RCS config.
+  restart                [Experimental] [Cloud-only] Restart the environment.
   saml                   [Experimental] Import saml configuration.
   schedules              [Experimental] Import schedules.
   scripts                [Experimental] Import scripts.
+  secret-mappings        [Experimental] [Cloud-only] Import secret mappings.
+  secrets                [Experimental] [Cloud-only] Import secrets.
   service-objects        [Experimental] Import service objects.
   services               [Experimental] Import AM authentication services.
+  telemetry              [Experimental] [Cloud-only] Import telemetry exporters.
   terms-and-conditions   [Experimental] Import terms and conditions.
   test                   [Experimental] Test connection and authentication.
   themes                 [Experimental] Import themes.
   ui-config              [Experimental] Import UI configuration.
-
-  (Cloud-only):
-  csp                    [Experimental] Import content security policy.
-  direct-control-abort   [Experimental] Aborts the current direct configuration
-                         session.
-  direct-control-apply   [Experimental] Apply changes made during a direct
-                         configuration session.
-  direct-control-init    [Experimental] Initialize a new direct configuration
-                         session.
-  direct-control-state   [Experimental] Read the current direct configuration
-                         session state.
-  iga-workflows          [Experimental] Import iga-workflows.
-  restart                [Experimental] Restart the environment.
-  secret-mappings        [Experimental] Import secret mappings.
-  secrets                [Experimental] Import secrets.
-  telemetry              [Experimental] Import telemetry exporters.
-  variables              [Experimental] Import variables.
+  variables              [Experimental] [Cloud-only] Import variables.
 "
 `;

@@ -3,8 +3,8 @@
 exports[`CLI help interface for 'admin add-autoid-static-user-mapping' should be expected english 1`] = `
 "Usage: frodo admin add-autoid-static-user-mapping [options] [host] [username] [password]
 
-Add AutoId static user mapping to enable dashboards and other AutoId-based
-functionality.
+[Cloud-only] Add AutoId static user mapping to enable dashboards and other
+AutoId-based functionality.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager push variables' should be expected english 1`] = `
 "Usage: frodo config-manager push variables [options] [host] [realm] [username] [password]
 
-[Experimental] Import variables.
+[Experimental] [Cloud-only] Import variables.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

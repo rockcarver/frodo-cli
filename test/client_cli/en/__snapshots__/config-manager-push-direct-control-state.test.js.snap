@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager push direct-control-state' should be expected english 1`] = `
 "Usage: frodo config-manager push direct-control-state [options] [host] [realm] [username] [password]
 
-[Experimental] Read the current direct configuration session state.
+[Experimental] [Cloud-only] Read the current direct configuration session state.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'iga workflow delete' should be expected english 1`] = `
 "Usage: frodo iga workflow delete [options] [host] [realm] [username] [password]
 
-Delete workflows.
+[Cloud-only] Delete workflows.
 
 Arguments:
   host                             AM base URL, e.g.:

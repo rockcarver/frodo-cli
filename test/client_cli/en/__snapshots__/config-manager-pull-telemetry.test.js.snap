@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager pull telemetry' should be expected english 1`] = `
 "Usage: frodo config-manager pull telemetry [options] [host] [realm] [username] [password]
 
-[Experimental] Export telemetry exporters.
+[Experimental] [Cloud-only] Export telemetry exporters.
 
 Arguments:
   host                       AM base URL, e.g.: https://cdk.iam.example.com/am.

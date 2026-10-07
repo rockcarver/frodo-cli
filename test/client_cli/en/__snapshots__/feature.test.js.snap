@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'feature' should be expected english 1`] = `
 "Usage: frodo feature [options] [command]
 
-Manage features (e.g. groups, aiagent, am/2fa/profiles).
+[Cloud-only] Manage features (e.g. groups, aiagent, am/2fa/profiles).
 
 Deployment: Cloud-only
 
@@ -14,14 +14,12 @@ Options:
                     examples.
 
 Commands:
+  describe          [Cloud-only] Describe feature.
   help              display help for command
-
-  (Cloud-only):
-  describe          Describe feature.
-  install           Install a feature. IRREVERSIBLE: uninstalling or disabling a
-                    feature once installed requires contacting Ping support and
-                    rolling back the tenant.
-  list              List features.
-  validate          Validate whether a feature is installable.
+  install           [Cloud-only] Install a feature. IRREVERSIBLE: uninstalling
+                    or disabling a feature once installed requires contacting
+                    Ping support and rolling back the tenant.
+  list              [Cloud-only] List features.
+  validate          [Cloud-only] Validate whether a feature is installable.
 "
 `;

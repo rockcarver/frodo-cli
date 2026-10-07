@@ -11,26 +11,30 @@ Options:
                     examples.
 
 Commands:
-  admin             Platform admin tasks.
   agent             Manage agents.
   app               Manage applications.
   authn             Manage authentication settings.
   authz             Manage authorization policies, policy sets, and resource
                     types.
   config            Manage full cloud configuration.
-  config-manager    [Experimental] Manage configuration optimized for CI/CD
-                    pipelines (format compatible with fr-config-manager).
+  dcc               [Preview] [Cloud-only] Direct Configuration Control (DCC)
+                    commands.
+  debug             [Experimental] [Cloud-only] Interactively debug Identity
+                    Cloud activity
   email             Manage email templates and configuration.
+  esv               [Cloud-only] Manage environment secrets and variables
+                    (ESVs).
+  feature           [Cloud-only] Manage features (e.g. groups, aiagent,
+                    am/2fa/profiles).
   help              display help for command
   idm               Manage IDM configuration.
   idp               Manage (social) identity providers.
-  info              Print versions and tokens.
+  iga               [Cloud-only] Manage IGA configuration.
   journey           Manage journeys/trees.
-  login             Authenticate to a cloud, forgeops, or classic deployment.
+  log               [Cloud-only] List/View Identity Cloud logs
   mapping           Manage IDM mappings.
   node              Manage custom nodes.
   oauth             Manage OAuth2 clients and providers.
-  promote           Prepares a tenant to be promoted
   realm             Manage realms.
   role              Manage internal (authorization) roles.
   saml              Manage SAML entity providers and circles of trust.
@@ -40,20 +44,20 @@ Commands:
   service           Manage AM services.
   theme             Manage themes.
 
-  (Cloud-only):
-  dcc               [Preview] Direct Configuration Control (DCC) commands.
-  debug             [Experimental] Interactively debug Identity Cloud activity
-  esv               Manage environment secrets and variables (ESVs).
-  feature           Manage features (e.g. groups, aiagent, am/2fa/profiles).
-  iga               Manage IGA configuration.
-  log               List/View Identity Cloud logs
-
 Utilities:
+  admin             Platform admin tasks.
   conn              Manage connection profiles.
+  info              Print versions and tokens.
+  login             Authenticate to a cloud, forgeops, or classic deployment.
   mcp               [Experimental] Manage Model Context Protocol (MCP)
                     integrations.
   session           Manage sessions.
   settings          Manage CLI settings.
   shell             [Experimental] Launch the frodo interactive shell.
+
+Continuous integration:
+  config-manager    [Experimental] Manage configuration optimized for CI/CD
+                    pipelines (format compatible with fr-config-manager).
+  promote           Prepares a tenant to be promoted
 "
 `;

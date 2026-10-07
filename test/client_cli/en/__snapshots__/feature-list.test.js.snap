@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'feature list' should be expected english 1`] = `
 "Usage: frodo feature list [options] [host] [username] [password]
 
-List features.
+[Cloud-only] List features.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

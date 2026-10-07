@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'frodo dcc session' should be expected english 1`] = `
 "Usage: frodo dcc session [options] [command]
 
-[Preview] Manage direct configuration sessions.
+[Preview] [Cloud-only] Manage direct configuration sessions.
 
 Deployment: Cloud-only
 
@@ -14,14 +14,13 @@ Options:
                     examples.
 
 Commands:
+  abort             [Preview] [Cloud-only] Abort a direct configuration session.
+  apply             [Preview] [Cloud-only] Apply configuration and end a direct
+                    configuration session.
   help              display help for command
-
-  (Cloud-only):
-  abort             [Preview] Abort a direct configuration session.
-  apply             [Preview] Apply configuration and end a direct configuration
+  init              [Preview] [Cloud-only] Initialize a direct configuration
                     session.
-  init              [Preview] Initialize a direct configuration session.
-  state             [Preview] Retrieve the state of the direct configuration
-                    session.
+  state             [Preview] [Cloud-only] Retrieve the state of the direct
+                    configuration session.
 "
 `;

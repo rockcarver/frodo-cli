@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'frodo dcc session state' should be expected english 1`] = `
 "Usage: frodo dcc session state [options] [host] [realm] [username] [password]
 
-[Preview] Retrieve the state of the direct configuration session.
+[Preview] [Cloud-only] Retrieve the state of the direct configuration session.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

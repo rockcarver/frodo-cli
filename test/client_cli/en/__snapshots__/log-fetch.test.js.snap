@@ -3,9 +3,9 @@
 exports[`CLI help interface for 'log fetch' Usage should be expected english 1`] = `
 "Usage: frodo log fetch [options] [host] [username] [password]
 
-Fetch Identity Cloud logs between a specified begin and end time period.
-WARNING: depending on filters and time period specified, this could take
-substantial time to complete.
+[Cloud-only] Fetch Identity Cloud logs between a specified begin and end time
+period.  WARNING: depending on filters and time period specified, this could
+take substantial time to complete.
 
 Arguments:
   host                             AM base URL, e.g.:

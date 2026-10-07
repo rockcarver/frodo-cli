@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'frodo dcc session init' should be expected english 1`] = `
 "Usage: frodo dcc session init [options] [host] [realm] [username] [password]
 
-[Preview] Initialize a direct configuration session.
+[Preview] [Cloud-only] Initialize a direct configuration session.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
