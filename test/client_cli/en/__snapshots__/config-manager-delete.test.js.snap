@@ -27,6 +27,7 @@ Commands:
   test              [Experimental] Test connection and authentication.
   themes            [Experimental] Delete themes by name or delete all themes in
                     the selected realms.
+  variables         [Experimental] [Cloud-only] Delete variables.
 
 Utilities:
   help              display help for command

@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Should delete variables from cloud "frodo config-manager delete variables --dry-run -n esv-josh-delete-test": should print a dryrun message deleting by name from cloud." 1`] = `""`;
+
+exports[`Should delete variables from cloud "frodo config-manager delete variables --dry-run -n esv-josh-delete-test": should print a dryrun message deleting by name from cloud." 2`] = `
+"Experimental feature in use: 'frodo config-manager delete variables'. This feature may change without notice.
+Dry run: Deleting variable: esv-josh-delete-test
+"
+`;
+
+exports[`Should delete variables from cloud "frodo config-manager delete variables -d": should print a dryrun message deleting by name from cloud." 1`] = `""`;
+
+exports[`Should delete variables from cloud "frodo config-manager delete variables -d": should print a dryrun message deleting by name from cloud." 2`] = `
+"Experimental feature in use: 'frodo config-manager delete variables'. This feature may change without notice.
+Dry run: Deleting variable: esv-asdf
+Dry run: Deleting variable: esv-blue-piller
+Dry run: Deleting variable: esv-fr-var-test
+Dry run: Deleting variable: esv-fr-var-test-2
+Dry run: Deleting variable: esv-ipv4-cidr-access-rules
+Dry run: Deleting variable: esv-nebuchadnezzar-crew
+Dry run: Deleting variable: esv-nebuchadnezzar-crew-structure
+Dry run: Deleting variable: esv-neo-age
+Dry run: Deleting variable: esv-number
+Dry run: Deleting variable: esv-saml-var-test
+Dry run: Deleting variable: esv-test
+Dry run: Deleting variable: esv-test-var
+Dry run: Deleting variable: esv-test-var-bool
+Dry run: Deleting variable: esv-test-var-pi
+Dry run: Deleting variable: esv-test-var-pi-string
+Dry run: Deleting variable: esv-test-variable-light
+Dry run: Deleting variable: esv-trinity-phone
+"
+`;
+
+exports[`Should delete variables from cloud "frodo config-manager delete variables -n esv-josh-delete-test": should delete a specific variable by name from cloud." 1`] = `""`;
+
+exports[`Should delete variables from cloud "frodo config-manager delete variables -n esv-josh-delete-test": should delete a specific variable by name from cloud." 2`] = `
+"Experimental feature in use: 'frodo config-manager delete variables'. This feature may change without notice.
+Deleted variable: esv-josh-delete-test
+"
+`;
