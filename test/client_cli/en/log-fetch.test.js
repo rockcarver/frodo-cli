@@ -8,9 +8,3 @@ test("CLI help interface for 'log fetch' Usage should be expected english", asyn
   const { stdout } = await exec(CMD);
   expect(stdout).toMatchSnapshot();
 });
-
-test("CLI help interface for 'logs fetch' Usage should be expected english", async () => {
-  const CMD = 'frodo logs fetch --help';
-  const { stdout } = await exec(CMD);
-  expect(stdout).toMatchSnapshot();
-});

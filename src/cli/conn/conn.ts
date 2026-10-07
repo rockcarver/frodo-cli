@@ -11,9 +11,6 @@ import TestCmd from './conn-test.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('conn')
-    .alias('connection')
-    // for backwards compatibility
-    .alias('connections')
     .description('Manage connection profiles.')
     .addArgument(hostArgument);
 

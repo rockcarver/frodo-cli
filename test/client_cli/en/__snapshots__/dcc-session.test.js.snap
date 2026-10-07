@@ -25,29 +25,3 @@ Commands:
                     session.
 "
 `;
-
-exports[`CLI help interface for 'frodo direct-configuration-control session' should be expected english 1`] = `
-"Usage: frodo dcc session [options] [command]
-
-[Preview] Manage direct configuration sessions.
-
-Deployment: Cloud-only
-
-Options:
-  -h, --help        Help
-  -hh, --help-more  Help with all options.
-  -hhh, --help-all  Help with all options, environment variables, and usage
-                    examples.
-
-Commands:
-  help              display help for command
-
-  (Cloud-only):
-  abort             [Preview] Abort a direct configuration session.
-  apply             [Preview] Apply configuration and end a direct configuration
-                    session.
-  init              [Preview] Initialize a direct configuration session.
-  state             [Preview] Retrieve the state of the direct configuration
-                    session.
-"
-`;

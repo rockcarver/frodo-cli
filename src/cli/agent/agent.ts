@@ -14,7 +14,7 @@ export default function setup() {
 
   program.addCommand(AICmd().name('ai'));
 
-  program.addCommand(GatewayCmd().name('gateway').alias('ig'));
+  program.addCommand(GatewayCmd().name('gateway'));
 
   program.addCommand(JavaCmd().name('java'));
 

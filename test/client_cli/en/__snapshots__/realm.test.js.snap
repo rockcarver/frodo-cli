@@ -13,7 +13,7 @@ Options:
 
 Commands:
   add-custom-domain     Add custom domain (realm DNS alias).
-  describe|details      Describe realms.
+  describe              Describe realms.
   export                Export realms.
   help                  display help for command
   import                Import realms.

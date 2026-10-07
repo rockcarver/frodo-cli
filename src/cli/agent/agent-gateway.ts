@@ -8,7 +8,7 @@ import ListCmd from './agent-gateway-list.js';
 export default function setup() {
   const program = new FrodoStubCommand('frodo agent gateway');
 
-  program.description('Manage gateway agents.').alias('ig');
+  program.description('Manage gateway agents.');
 
   program.addCommand(ListCmd().name('list'));
 

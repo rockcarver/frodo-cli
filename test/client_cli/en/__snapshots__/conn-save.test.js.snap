@@ -28,63 +28,7 @@ Options:
 "
 `;
 
-exports[`CLI help interface for 'add' should be expected english 2`] = `
-"Usage: frodo conn save|add [options] [host] [username] [password]
-
-Save connection profiles.
-
-Arguments:
-  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
-  username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees. If given without a password, and it matches the username already stored in the connection profile for the target host, frodo uses that profile's stored password instead of requiring it on the command line.
-  password                                     Password.
-
-Options:
-  --alias [name]                               Alias name for this connection profile.
-  --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
-  --authentication-service [service]           Name of the authentication service/tree to use.
-  --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
-  --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
-  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.
-  --no-log-api                                 Do not create and add log API key and secret.
-  --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
-  --no-sa                                      Do not create and add service account.
-  --no-validate                                Do not validate connection.
-  --preferred-device-flow                      Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.
-  -h, --help                                   Help
-  -hh, --help-more                             Help with all options.
-  -hhh, --help-all                             Help with all options, environment variables, and usage examples.
-"
-`;
-
 exports[`CLI help interface for 'save' should be expected english 1`] = `
-"Usage: frodo conn save|add [options] [host] [username] [password]
-
-Save connection profiles.
-
-Arguments:
-  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
-  username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees. If given without a password, and it matches the username already stored in the connection profile for the target host, frodo uses that profile's stored password instead of requiring it on the command line.
-  password                                     Password.
-
-Options:
-  --alias [name]                               Alias name for this connection profile.
-  --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
-  --authentication-service [service]           Name of the authentication service/tree to use.
-  --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
-  --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
-  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.
-  --no-log-api                                 Do not create and add log API key and secret.
-  --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
-  --no-sa                                      Do not create and add service account.
-  --no-validate                                Do not validate connection.
-  --preferred-device-flow                      Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.
-  -h, --help                                   Help
-  -hh, --help-more                             Help with all options.
-  -hhh, --help-all                             Help with all options, environment variables, and usage examples.
-"
-`;
-
-exports[`CLI help interface for 'save' should be expected english 2`] = `
 "Usage: frodo conn save|add [options] [host] [username] [password]
 
 Save connection profiles.

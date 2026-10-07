@@ -13,12 +13,7 @@ export default function setup() {
 
   program.addCommand(ListCmd().name('list'));
 
-  program.addCommand(
-    DescribeCmd()
-      .name('describe')
-      // for backwards compatibility
-      .alias('details')
-  );
+  program.addCommand(DescribeCmd().name('describe'));
 
   program.addCommand(AddCustomDomainCmd().name('add-custom-domain'));
 
