@@ -24,6 +24,7 @@ Commands:
   endpoints         [Experimental] Delete custom endpoint objects.
   scripts           [Experimental] Delete AM scripts. Default scripts are never
                     deleted.
+  secrets           [Experimental] [Cloud-only] Delete secrets.
   test              [Experimental] Test connection and authentication.
   themes            [Experimental] Delete themes by name or delete all themes in
                     the selected realms.
