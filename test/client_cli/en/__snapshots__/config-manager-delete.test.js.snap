@@ -28,6 +28,7 @@ Commands:
   schedules             [Experimental] Delete schedules.
   scripts               [Experimental] Delete AM scripts. Default scripts are
                         never deleted.
+  secret-mappings       [Experimental] [Cloud-only] Delete secret mappings.
   secrets               [Experimental] [Cloud-only] Delete secrets.
   terms-and-conditions  [Experimental] Delete terms and conditions versions.
   test                  [Experimental] Test connection and authentication.

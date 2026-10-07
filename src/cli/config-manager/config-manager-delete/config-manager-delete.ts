@@ -10,6 +10,7 @@ import CustomNodes from './config-manager-delete-custom-nodes';
 import OauthIssuers from './config-manager-delete-oauth-issuers';
 import Schedules from './config-manager-delete-schedules';
 import Scripts from './config-manager-delete-scripts';
+import SecretMappings from './config-manager-delete-secret-mappings';
 import Secrets from './config-manager-delete-secrets';
 import TermsConditions from './config-manager-delete-terms-and-conditions';
 import Variables from './config-manager-delete-variables';
@@ -32,5 +33,6 @@ export default function setup() {
   program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
   program.addCommand(OauthIssuers().name('oauth-issuers'));
   program.addCommand(Schedules().name('schedules'));
+  program.addCommand(SecretMappings().name('secret-mappings'));
   return program;
 }

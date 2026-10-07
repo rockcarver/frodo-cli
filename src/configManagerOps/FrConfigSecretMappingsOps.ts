@@ -11,7 +11,13 @@ import { realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 
 const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
-const { readSecretStoreMappings, updateSecretStoreMapping } = frodo.secretStore;
+const {
+  readSecretStoreMappings,
+  updateSecretStoreMapping,
+  deleteSecretStoreMapping,
+  readSecretStoreMapping,
+  deleteSecretStoreMappings,
+} = frodo.secretStore;
 
 const constants = frodo.utils.constants;
 const { DEFAULT_REALM_KEY } = constants;
@@ -175,6 +181,104 @@ export async function configManagerImportSecretMappings(
     return run.finish() && !missingNamedFolder && !notFound;
   } catch (error) {
     printError(error, `Error importing secret mappings`);
+    return false;
+  }
+}
+
+/**
+ * Delete secret mappings from the ESV secret store.
+ * @param {string} name Optional exact mapping ID. If omitted, targets all mappings.
+ * @param {string} realm Optional realm to target. If omitted, processes non-root realms.
+ * @param {boolean} dryRun Show matching mappings without deleting them.
+ * @param {boolean} allowFailures Allow individual deletion failures without failing the command.
+ * @returns {Promise<boolean>} True if the run succeeds; false if it fails.
+ */
+export async function configManagerDeleteSecretMappings(
+  name?: string,
+  realm?: string,
+  dryRun = false,
+  allowFailures = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'secret mapping', allowFailures });
+  try {
+    const realms =
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    for (const currentRealm of realms) {
+      if (currentRealm === '/') continue;
+      state.setRealm(currentRealm);
+      if (dryRun) {
+        const mappings = name
+          ? [
+              await readSecretStoreMapping(
+                ESV_SECRET_STORE_ID,
+                ESV_SECRET_STORE_TYPE,
+                name,
+                false
+              ),
+            ]
+          : await readSecretStoreMappings(
+              ESV_SECRET_STORE_ID,
+              ESV_SECRET_STORE_TYPE,
+              false
+            );
+        if (mappings.length === 0) {
+          printMessage(
+            `No secret mappings found to delete in realm '${currentRealm}'.`,
+            'warn'
+          );
+        }
+
+        for (const mapping of mappings) {
+          printMessage(
+            `Dry run: Deleting secret ID mapping '${mapping._id}' in realm '${currentRealm}'`
+          );
+        }
+      } else if (name) {
+        try {
+          await deleteSecretStoreMapping(
+            ESV_SECRET_STORE_ID,
+            ESV_SECRET_STORE_TYPE,
+            name,
+            false
+          );
+          run.recordSuccess();
+          printMessage(
+            `Deleting secret ID mapping '${name}' in realm '${currentRealm}'`
+          );
+        } catch (error) {
+          printError(error);
+          run.recordFailure(name, causeOf(error));
+        }
+      } else {
+        const deletedMappings = await deleteSecretStoreMappings(
+          ESV_SECRET_STORE_ID,
+          ESV_SECRET_STORE_TYPE,
+          false,
+          (error, mapping) => {
+            if (error) {
+              printError(error);
+              run.recordFailure(currentRealm, causeOf(error));
+            } else if (mapping) {
+              run.recordSuccess();
+              printMessage(
+                `Deleting secret ID mapping '${mapping._id}' in realm '${currentRealm}'`
+              );
+            }
+          }
+        );
+
+        if (deletedMappings.length === 0) {
+          printMessage(
+            `No secret mappings found to delete in realm '${currentRealm}'.`,
+            'warn'
+          );
+        }
+      }
+    }
+    return run.finish();
+  } catch (error) {
+    printError(error, 'Error deleting secret mappings');
+    run.finish();
     return false;
   }
 }

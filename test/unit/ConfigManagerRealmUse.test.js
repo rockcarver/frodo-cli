@@ -31,6 +31,7 @@ const USES_REALM = [
   'frodo config-manager delete applications',
   'frodo config-manager delete oauth-cimd-profiles',
   'frodo config-manager delete scripts',
+  'frodo config-manager delete secret-mappings',
   'frodo config-manager delete themes',
   'frodo config-manager delete oauth-issuers',
   'frodo config-manager migrate applications',
