@@ -1,10 +1,10 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { FrodoStubCommand } from '../FrodoCommand';
 import AllCmd from './debug-all';
 import JourneyCmd from './debug-journey';
 import OAuthCmd from './debug-oauth';
 import SamlCmd from './debug-saml';
 import SyncCmd from './debug-sync';
-import { frodo } from '@rockcarver/frodo-lib';
 
 export default function setup() {
   const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;

@@ -1,6 +1,6 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { FrodoStubCommand } from '../FrodoCommand';
 import SessionCmd from './dcc-session.js';
-import { frodo } from '@rockcarver/frodo-lib';
 
 export default function setup() {
   const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;

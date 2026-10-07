@@ -1,10 +1,10 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { FrodoStubCommand } from '../FrodoCommand';
 import FetchCmd from './log-fetch';
 import KeyCmd from './log-key.js';
 import ListCmd from './log-list.js';
 import TailCmd from './log-tail.js';
-import { frodo } from '@rockcarver/frodo-lib';
 
 export const sourcesOptionM = new Option(
   '-c, --sources <sources>',
