@@ -12,9 +12,11 @@ Options:
                     examples.
 
 Commands:
-  help              display help for command
   policy            Manages authorization policies.
   set               Manage authorization policy sets.
   type              Manage authorization resource types.
+
+Utilities:
+  help              display help for command
 "
 `;

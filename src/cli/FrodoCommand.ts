@@ -2532,7 +2532,12 @@ class FrodoStubHelp extends Help {
     const commandGroups = this.groupItems(
       [...cmd.commands],
       [...helper.visibleCommands(cmd)],
-      (sub) => sub.helpGroup() || 'Commands:'
+      (sub) =>
+        sub.helpGroup() ||
+        // Commander's implicit help command is created lazily, too late for
+        // an explicit helpGroup assignment at registration — route it to
+        // Utilities here, matching the README's placement.
+        (sub.name() === 'help' ? 'Utilities:' : 'Commands:')
     );
     commandGroups.forEach((commands, group) => {
       // Single-deployment-type commands stay inline with their group, marked

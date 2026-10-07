@@ -14,7 +14,9 @@ Options:
                     examples.
 
 Commands:
-  help              display help for command
   session           [Preview] [Cloud-only] Manage direct configuration sessions.
+
+Utilities:
+  help              display help for command
 "
 `;

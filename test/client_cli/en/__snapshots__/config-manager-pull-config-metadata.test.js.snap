@@ -29,7 +29,6 @@ Commands:
   email-provider         [Experimental] Export email provider configuration.
   email-templates        [Experimental] Export email-templates objects.
   endpoints              [Experimental] Export custom endpoints objects.
-  help                   display help for command
   idm-authentication     [Experimental] Export idm authentication config.
   iga-workflows          [Experimental] [Cloud-only] Export iga-workflows.
   internal-roles         [Experimental] Export internal roles.
@@ -56,5 +55,8 @@ Commands:
   themes                 [Experimental] Export themes.
   ui-config              [Experimental] Export ui-configuration objects.
   variables              [Experimental] [Cloud-only] Export variables objects.
+
+Utilities:
+  help                   display help for command
 "
 `;

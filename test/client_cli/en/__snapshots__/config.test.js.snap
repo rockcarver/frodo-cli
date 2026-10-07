@@ -23,7 +23,9 @@ Commands:
                     specified realm, a flag to export only global config, and
                     many other flags to customize the export. Use the -h or
                     --help to see them all and to also see usage examples.
-  help              display help for command
   import            Import full cloud configuration.
+
+Utilities:
+  help              display help for command
 "
 `;

@@ -36,7 +36,6 @@ Commands:
   email-provider         [Experimental] Import email provider configuration.
   email-templates        [Experimental] Import email template objects.
   endpoints              [Experimental] Import custom endpoints objects.
-  help                   display help for command
   idm-authentication     [Experimental] Import idm authentication.
   iga-workflows          [Experimental] [Cloud-only] Import iga-workflows.
   internal-roles         [Experimental] Import internal roles.
@@ -63,5 +62,8 @@ Commands:
   themes                 [Experimental] Import themes.
   ui-config              [Experimental] Import UI configuration.
   variables              [Experimental] [Cloud-only] Import variables.
+
+Utilities:
+  help                   display help for command
 "
 `;

@@ -20,9 +20,11 @@ Commands:
                     begin and end time period.  WARNING: depending on filters
                     and time period specified, this could take substantial time
                     to complete.
-  help              display help for command
   key               [Cloud-only] Manage Identity Cloud log API keys.
   list              [Cloud-only] List available ID Cloud log sources.
   tail              [Cloud-only] Tail Identity Cloud logs.
+
+Utilities:
+  help              display help for command
 "
 `;

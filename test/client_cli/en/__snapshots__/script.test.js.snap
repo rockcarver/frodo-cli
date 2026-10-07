@@ -15,9 +15,11 @@ Commands:
   delete            Delete scripts.
   describe          Describe script.
   export            Export scripts.
-  help              display help for command
   import            Import scripts.
   list              List scripts.
   type              Manage scripting contexts (script types).
+
+Utilities:
+  help              display help for command
 "
 `;

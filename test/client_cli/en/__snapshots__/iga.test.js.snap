@@ -14,7 +14,9 @@ Options:
                     examples.
 
 Commands:
-  help              display help for command
   workflow          [Cloud-only] Manage workflows.
+
+Utilities:
+  help              display help for command
 "
 `;

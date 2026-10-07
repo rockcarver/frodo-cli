@@ -15,8 +15,10 @@ Commands:
   delete            Delete authorization policies.
   describe          Describe authorization policies.
   export            Export authorization policies.
-  help              display help for command
   import            Import authorization policies.
   list              List authorization policies.
+
+Utilities:
+  help              display help for command
 "
 `;

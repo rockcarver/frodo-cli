@@ -17,10 +17,12 @@ Commands:
   describe          Describe agents.
   export            Export agents.
   gateway           Manage gateway agents.
-  help              display help for command
   import            Import agents.
   java              Manage java agents.
   list              List agents.
   web               Manage web agents.
+
+Utilities:
+  help              display help for command
 "
 `;

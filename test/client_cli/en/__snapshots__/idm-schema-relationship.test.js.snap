@@ -16,9 +16,11 @@ Commands:
   delete            Delete IDM managed object relationship schema definition.
   describe          Describe IDM managed object relationship schema definition.
   export            Export IDM managed object relationship schema definition.
-  help              display help for command
   import            Import IDM managed object relationship schema definition.
   list              List IDM managed object relationship schema definitions.
   update            Update IDM managed object relationship schema definition.
+
+Utilities:
+  help              display help for command
 "
 `;

@@ -14,7 +14,9 @@ Options:
 Commands:
   delete            Delete the session(s) for a particular host.
   describe          Describe the session(s) for a particular host.
-  help              display help for command
   list              List authenticated sessions across all hosts.
+
+Utilities:
+  help              display help for command
 "
 `;

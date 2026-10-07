@@ -15,8 +15,10 @@ Commands:
   delete            Delete java agents.
   describe          Describe java agents.
   export            Export java agents.
-  help              display help for command
   import            Import java agents.
   list              List java agents.
+
+Utilities:
+  help              display help for command
 "
 `;

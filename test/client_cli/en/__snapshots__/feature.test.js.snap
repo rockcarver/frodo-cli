@@ -15,11 +15,13 @@ Options:
 
 Commands:
   describe          [Cloud-only] Describe feature.
-  help              display help for command
   install           [Cloud-only] Install a feature. IRREVERSIBLE: uninstalling
                     or disabling a feature once installed requires contacting
                     Ping support and rolling back the tenant.
   list              [Cloud-only] List features.
   validate          [Cloud-only] Validate whether a feature is installable.
+
+Utilities:
+  help              display help for command
 "
 `;

@@ -15,8 +15,10 @@ Commands:
   delete            Delete identity gateway agents.
   describe          Describe gateway agents.
   export            Export gateway agents.
-  help              display help for command
   import            Import gateway agents.
   list              List gateway agents.
+
+Utilities:
+  help              display help for command
 "
 `;

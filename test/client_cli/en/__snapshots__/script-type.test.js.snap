@@ -15,7 +15,9 @@ Commands:
   describe          Describe the bindings (available objects/APIs, e.g.
                     httpClient, idRepository) exposed to scripts running in a
                     given scripting context.
-  help              display help for command
   list              List scripting contexts.
+
+Utilities:
+  help              display help for command
 "
 `;

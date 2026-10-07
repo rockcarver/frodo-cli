@@ -12,9 +12,11 @@ Options:
                     examples.
 
 Commands:
-  help              display help for command
   object            Manage IDM managed object schema definitions.
   property          Manage IDM managed object property schema definitions.
   relationship      Manage IDM relationship schema definitions.
+
+Utilities:
+  help              display help for command
 "
 `;

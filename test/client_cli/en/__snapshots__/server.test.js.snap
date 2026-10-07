@@ -13,8 +13,10 @@ Options:
 
 Commands:
   export            Export servers.
-  help              display help for command
   import            Import servers.
   list              List servers.
+
+Utilities:
+  help              display help for command
 "
 `;

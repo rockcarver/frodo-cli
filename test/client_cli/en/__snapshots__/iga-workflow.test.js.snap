@@ -17,9 +17,11 @@ Commands:
   delete            [Cloud-only] Delete workflows.
   describe          [Cloud-only] Describe workflow.
   export            [Cloud-only] Export workflows.
-  help              display help for command
   import            [Cloud-only] Import workflows.
   list              [Cloud-only] List workflows.
   publish           [Cloud-only] Publish workflow.
+
+Utilities:
+  help              display help for command
 "
 `;

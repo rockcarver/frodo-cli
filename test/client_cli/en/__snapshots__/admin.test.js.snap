@@ -18,7 +18,6 @@ Commands:
   generate-rfc7523-authz-grant-artefacts      Generate RFC7523 authorization grant artefacts.
   get-access-token                            Get an access token using client credentials grant type.
   grant-oauth2-client-admin-privileges        Grant an oauth2 client admin privileges.
-  help                                        display help for command
   hide-generic-extension-attributes           [Cloud-only] Hide generic extension attributes.
   list-oauth2-clients-with-admin-privileges   List oauth2 clients with admin privileges.
   list-oauth2-clients-with-custom-privileges  List oauth2 clients with custom privileges.
@@ -27,5 +26,8 @@ Commands:
   repair-org-model                            Repair org model.
   revoke-oauth2-client-admin-privileges       Revoke admin privileges from an oauth2 client.
   show-generic-extension-attributes           [Cloud-only] Show generic extension attributes.
+
+Utilities:
+  help                                        display help for command
 "
 `;

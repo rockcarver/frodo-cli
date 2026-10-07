@@ -13,8 +13,10 @@ Options:
 
 Commands:
   export            Export internal roles.
-  help              display help for command
   import            Import internal roles.
   list              List roles.
+
+Utilities:
+  help              display help for command
 "
 `;

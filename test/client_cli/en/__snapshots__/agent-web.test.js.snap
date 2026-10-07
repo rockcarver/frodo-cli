@@ -15,8 +15,10 @@ Commands:
   delete            Delete web agents.
   describe          Describe web agents.
   export            Export web agents.
-  help              display help for command
   import            Import web agents.
   list              List web agents.
+
+Utilities:
+  help              display help for command
 "
 `;

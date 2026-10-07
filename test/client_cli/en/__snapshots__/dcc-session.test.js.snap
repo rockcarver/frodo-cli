@@ -17,10 +17,12 @@ Commands:
   abort             [Preview] [Cloud-only] Abort a direct configuration session.
   apply             [Preview] [Cloud-only] Apply configuration and end a direct
                     configuration session.
-  help              display help for command
   init              [Preview] [Cloud-only] Initialize a direct configuration
                     session.
   state             [Preview] [Cloud-only] Retrieve the state of the direct
                     configuration session.
+
+Utilities:
+  help              display help for command
 "
 `;

@@ -14,8 +14,10 @@ Options:
 Commands:
   delete            Delete AM services.
   export            Export AM services.
-  help              display help for command
   import            Import AM services.
   list              List AM services.
+
+Utilities:
+  help              display help for command
 "
 `;

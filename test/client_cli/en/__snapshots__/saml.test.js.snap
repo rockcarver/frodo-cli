@@ -16,9 +16,11 @@ Commands:
   delete            Delete SAML entity providers.
   describe          Describe the configuration of an entity provider.
   export            Export SAML entity providers.
-  help              display help for command
   import            Import SAML entity providers.
   list              List SAML entity providers.
   metadata          SAML metadata operations.
+
+Utilities:
+  help              display help for command
 "
 `;
