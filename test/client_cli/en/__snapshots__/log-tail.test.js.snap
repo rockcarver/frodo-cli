@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'log tail' should be expected english 1`] = `
 "Usage: frodo log tail [options] [host] [username] [password]
 
-Tail Identity Cloud logs.
+[Cloud-only] Tail Identity Cloud logs.
 
 Arguments:
   host                         AM base URL, e.g.:

@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager pull iga-workflows' should be expected english 1`] = `
 "Usage: frodo config-manager pull iga-workflows [options] [host] [realm] [username] [password]
 
-[Experimental] Export iga-workflows.
+[Experimental] [Cloud-only] Export iga-workflows.
 
 Arguments:
   host                      AM base URL, e.g.: https://cdk.iam.example.com/am.

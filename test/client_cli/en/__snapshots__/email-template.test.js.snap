@@ -14,8 +14,10 @@ Options:
 Commands:
   delete            Delete email templates.
   export            Export email templates.
-  help              display help for command
   import            Import email templates.
   list              List email templates.
+
+Utilities:
+  help              display help for command
 "
 `;

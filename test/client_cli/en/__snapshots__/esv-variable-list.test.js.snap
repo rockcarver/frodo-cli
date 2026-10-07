@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'esv variable list' should be expected english 1`] = `
 "Usage: frodo esv variable list [options] [host] [username] [password]
 
-List variables.
+[Cloud-only] List variables.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

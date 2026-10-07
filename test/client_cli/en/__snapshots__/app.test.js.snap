@@ -14,8 +14,10 @@ Options:
 Commands:
   delete            Delete applications.
   export            Export applications.
-  help              display help for command
   import            Import applications.
   list              List applications.
+
+Utilities:
+  help              display help for command
 "
 `;

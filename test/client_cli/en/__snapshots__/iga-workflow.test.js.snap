@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'iga workflow' should be expected english 1`] = `
 "Usage: frodo iga workflow [options] [command]
 
-Manage workflows.
+[Cloud-only] Manage workflows.
 
 Deployment: Cloud-only
 
@@ -14,14 +14,14 @@ Options:
                     examples.
 
 Commands:
-  help              display help for command
+  delete            [Cloud-only] Delete workflows.
+  describe          [Cloud-only] Describe workflow.
+  export            [Cloud-only] Export workflows.
+  import            [Cloud-only] Import workflows.
+  list              [Cloud-only] List workflows.
+  publish           [Cloud-only] Publish workflow.
 
-  (Cloud-only):
-  delete            Delete workflows.
-  describe          Describe workflow.
-  export            Export workflows.
-  import            Import workflows.
-  list              List workflows.
-  publish           Publish workflow.
+Utilities:
+  help              display help for command
 "
 `;

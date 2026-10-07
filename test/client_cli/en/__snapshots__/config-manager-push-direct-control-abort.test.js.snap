@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager push direct-control-abort' should be expected english 1`] = `
 "Usage: frodo config-manager push direct-control-abort [options] [host] [realm] [username] [password]
 
-[Experimental] Aborts the current direct configuration session.
+[Experimental] [Cloud-only] Aborts the current direct configuration session.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

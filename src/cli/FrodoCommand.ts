@@ -410,6 +410,41 @@ function colorizeStabilityBadge(
  * @param target Annotated command, option, or argument.
  * @returns Decorated description.
  */
+/**
+ * ANSI color for deployment-scope badges ([Cloud-only] etc.). Magenta is the
+ * one free hue that clears normal-text AA (4.5:1) on both dark and light
+ * terminal backgrounds without bolding, and it reads as an informational
+ * qualifier rather than a status: the stability palette already claims
+ * yellow (preview), red (experimental), gray (deprecated), green (stable),
+ * and cyan (opt-in).
+ */
+const DEPLOYMENT_BADGE_COLOR = '\x1b[35m';
+
+/**
+ * Returns the deployment badge text for a command, or undefined when the
+ * command supports more than one deployment type (or none are declared).
+ * Mirrors getSingleTypeScopeForCommand but keeps the display label instead
+ * of the scope token.
+ */
+function getDeploymentBadge(command: Command): string | undefined {
+  const typedCommand = command as CommandWithTypes;
+  if (!typedCommand.types || typedCommand.types.length !== 1) {
+    return undefined;
+  }
+  return `[${toDeploymentOnlyLabel(typedCommand.types[0])}]`;
+}
+
+/**
+ * Colorizes a deployment badge. Same TTY/NO_COLOR gating as the stability
+ * badges.
+ */
+function colorizeDeploymentBadge(text: string): string {
+  if (!shouldUseStabilityColors()) {
+    return text;
+  }
+  return `${DEPLOYMENT_BADGE_COLOR}${text}\x1b[0m`;
+}
+
 function decorateDescriptionWithStability(
   description: string,
   target: Command | Option | Argument
@@ -418,20 +453,40 @@ function decorateDescriptionWithStability(
     target instanceof Command
       ? getEffectiveCommandStabilityMetadata(target)
       : getStabilityMetadata(target);
-  if (metadata.level === 'stable') {
-    return description;
+
+  const badges: string[] = [];
+
+  // Stability badges first — a property of the command itself — then the
+  // deployment badge, a property of the environment the command runs
+  // against.
+  if (metadata.level !== 'stable') {
+    badges.push(
+      colorizeStabilityBadge(
+        `[${formatStabilityLevel(metadata.level)}]`,
+        metadata.level
+      )
+    );
+    if (metadata.gate?.requiredOptIn) {
+      badges.push(
+        colorizeStabilityBadge('[Opt-in required]', metadata.level, true)
+      );
+    }
   }
 
-  const badges = [
-    colorizeStabilityBadge(
-      `[${formatStabilityLevel(metadata.level)}]`,
-      metadata.level
-    ),
-  ];
-  if (metadata.gate?.requiredOptIn) {
-    badges.push(
-      colorizeStabilityBadge('[Opt-in required]', metadata.level, true)
-    );
+  // Deployment badge: commands only (options/arguments never carry types),
+  // and only when the command is single-deployment-type. The direct lookup
+  // on the target (not the parent chain) is correct here: the Help overrides
+  // call this for the exact command being listed, and getEffectiveCommand-
+  // StabilityMetadata has already resolved inherited stability above.
+  if (target instanceof Command) {
+    const deploymentBadge = getDeploymentBadge(target);
+    if (deploymentBadge) {
+      badges.push(colorizeDeploymentBadge(deploymentBadge));
+    }
+  }
+
+  if (badges.length === 0) {
+    return description;
   }
 
   return description ? `${badges.join(' ')} ${description}` : badges.join(' ');
@@ -1493,11 +1548,6 @@ type OptionGroupData = {
   unscoped: Option[];
   scoped: Map<DeploymentScope, Option[]>;
 };
-
-type CommandGroupData = {
-  unscoped: Command[];
-  scoped: Map<DeploymentScope, Command[]>;
-};
 type CommandWithTypes = Command & { types?: string[] };
 
 /**
@@ -1857,43 +1907,6 @@ function collectOptionGroupsByScope(
  * @param command Subcommand to classify.
  * @returns Scope token when subcommand is single-type constrained.
  */
-function getSingleTypeScopeForCommand(
-  command: Command
-): DeploymentScope | undefined {
-  const typedCommand = command as CommandWithTypes;
-  if (!typedCommand.types || typedCommand.types.length !== 1) {
-    return undefined;
-  }
-
-  return getScopeForDeploymentType(typedCommand.types[0]);
-}
-
-/**
- * Splits subcommands into unscoped and scoped subsets for inline scoped
- * command sections in stub help.
- * @param commands Command list for one heading.
- * @returns Command groups partitioned by scope.
- */
-function collectCommandGroupsByScope(commands: Command[]): CommandGroupData {
-  const grouped: CommandGroupData = {
-    unscoped: [],
-    scoped: new Map<DeploymentScope, Command[]>(),
-  };
-
-  for (const command of commands) {
-    const scope = getSingleTypeScopeForCommand(command);
-    if (!scope) {
-      grouped.unscoped.push(command);
-      continue;
-    }
-
-    const entries = grouped.scoped.get(scope) || [];
-    entries.push(command);
-    grouped.scoped.set(scope, entries);
-  }
-
-  return grouped;
-}
 
 /**
  * Declares which deployment types each default option applies to.
@@ -2519,37 +2532,25 @@ class FrodoStubHelp extends Help {
     const commandGroups = this.groupItems(
       [...cmd.commands],
       [...helper.visibleCommands(cmd)],
-      (sub) => sub.helpGroup() || 'Commands:'
+      (sub) =>
+        sub.helpGroup() ||
+        // Commander's implicit help command is created lazily, too late for
+        // an explicit helpGroup assignment at registration — route it to
+        // Utilities here, matching the README's placement.
+        (sub.name() === 'help' ? 'Utilities:' : 'Commands:')
     );
     commandGroups.forEach((commands, group) => {
-      const scopedGroups = collectCommandGroupsByScope(commands);
-      const commandList = scopedGroups.unscoped.map((sub) => {
+      // Single-deployment-type commands stay inline with their group, marked
+      // by a [Cloud-only]-style badge in their description (see
+      // decorateDescriptionWithStability). The former (<Type>-only):
+      // sub-sections are gone — they broke alphabetical order and mixed
+      // grouping concepts.
+      const commandList = commands.map((sub) => {
         return callFormatItem(
           helper.styleSubcommandTerm(helper.subcommandTerm(sub)),
           helper.styleSubcommandDescription(helper.subcommandDescription(sub))
         );
       });
-
-      for (const scope of environmentVariableScopeOrder) {
-        const scopedCommands = scopedGroups.scoped.get(scope);
-        if (!scopedCommands || scopedCommands.length === 0) {
-          continue;
-        }
-
-        const deploymentType = getDeploymentTypeForScope(scope);
-        commandList.push('');
-        commandList.push(`  (${toDeploymentOnlyLabel(deploymentType)}):`);
-        commandList.push(
-          ...scopedCommands.map((sub) =>
-            callFormatItem(
-              helper.styleSubcommandTerm(helper.subcommandTerm(sub)),
-              helper.styleSubcommandDescription(
-                helper.subcommandDescription(sub)
-              )
-            )
-          )
-        );
-      }
 
       output = output.concat(this.formatItemList(group, commandList, helper));
     });
@@ -2696,7 +2697,31 @@ class FrodoStubHelp extends Help {
   ): Map<string, T[]> {
     // Seed group order from visible items so filtered and transformed sections
     // keep stable ordering with custom help rendering.
-    return super.groupItems(visibleItems, visibleItems, getGroup);
+    const grouped = super.groupItems(visibleItems, visibleItems, getGroup);
+
+    // Root command groups render in the README's table order (the help
+    // grouping mirrors the docs): Commands, then Utilities, then Continuous
+    // integration — NOT first-member registration order, which would put
+    // Utilities first (admin registers before agent).
+    if (visibleItems.length > 0 && visibleItems[0] instanceof Command) {
+      const preferred = ['Commands:', 'Utilities:', 'Continuous integration:'];
+      for (const heading of preferred.reverse()) {
+        if (!grouped.has(heading)) {
+          continue;
+        }
+        const items = grouped.get(heading);
+        grouped.delete(heading);
+        if (items) {
+          const rebuilt = new Map([[heading, items], ...grouped]);
+          grouped.clear();
+          for (const [k, v] of rebuilt) {
+            grouped.set(k, v);
+          }
+        }
+      }
+    }
+
+    return grouped;
   }
 
   /**

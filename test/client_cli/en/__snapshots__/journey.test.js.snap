@@ -20,11 +20,13 @@ Commands:
   disable           Disable journeys/trees.
   enable            Enable journeys/trees.
   export            Export journeys/trees.
-  help              display help for command
   import            Import journey/tree.
   list              List journeys/trees.
   prune             Prune orphaned configuration artifacts left behind after
                     deleting authentication trees. You will be prompted before
                     any destructive operations are performed.
+
+Utilities:
+  help              display help for command
 "
 `;

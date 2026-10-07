@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'log list' should be expected english 1`] = `
 "Usage: frodo log list [options] [host] [username] [password]
 
-List available ID Cloud log sources.
+[Cloud-only] List available ID Cloud log sources.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

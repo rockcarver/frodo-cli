@@ -3,8 +3,9 @@
 exports[`CLI help interface for 'feature install' should be expected english 1`] = `
 "Usage: frodo feature install [options] [host] [username] [password]
 
-Install a feature. IRREVERSIBLE: uninstalling or disabling a feature once
-installed requires contacting Ping support and rolling back the tenant.
+[Cloud-only] Install a feature. IRREVERSIBLE: uninstalling or disabling a
+feature once installed requires contacting Ping support and rolling back the
+tenant.
 
 Arguments:
   host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To

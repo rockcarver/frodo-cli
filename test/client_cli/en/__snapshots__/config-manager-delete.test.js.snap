@@ -13,7 +13,9 @@ Options:
                     examples.
 
 Commands:
-  help              display help for command
   test              [Experimental] Test connection and authentication.
+
+Utilities:
+  help              display help for command
 "
 `;

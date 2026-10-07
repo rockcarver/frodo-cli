@@ -15,10 +15,12 @@ Options:
 Commands:
   delete            [Experimental] Delete configuration optimized for CI/CD
                     pipelines (format compatible with fr-config-manager).
-  help              display help for command
   pull              [Experimental] Export configuration optimized for CI/CD
                     pipelines (format compatible with fr-config-manager).
   push              [Experimental] Import configuration optimized for CI/CD
                     pipelines (format compatible with fr-config-manager).
+
+Utilities:
+  help              display help for command
 "
 `;

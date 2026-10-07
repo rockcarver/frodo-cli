@@ -14,7 +14,9 @@ Options:
 Commands:
   describe          Describe authentication settings.
   export            Export authentication settings.
-  help              display help for command
   import            Import authentication settings.
+
+Utilities:
+  help              display help for command
 "
 `;

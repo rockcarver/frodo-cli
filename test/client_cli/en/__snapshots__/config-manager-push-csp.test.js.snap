@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager push csp' should be expected english 1`] = `
 "Usage: frodo config-manager push csp [options] [host] [realm] [username] [password]
 
-[Experimental] Import content security policy.
+[Experimental] [Cloud-only] Import content security policy.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'iga workflow import' should be expected english 1`] = `
 "Usage: frodo iga workflow import [options] [host] [realm] [username] [password]
 
-Import workflows.
+[Cloud-only] Import workflows.
 
 Arguments:
   host                             AM base URL, e.g.:

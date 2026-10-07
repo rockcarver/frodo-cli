@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'esv variable delete' should be expected english 1`] = `
 "Usage: frodo esv variable delete [options] [host] [username] [password]
 
-Delete variables.
+[Cloud-only] Delete variables.
 
 Arguments:
   host                             AM base URL, e.g.:

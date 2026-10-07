@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull variables [options] [host] [realm] [username] [password]
 
-[Experimental] Export variables objects.
+[Experimental] [Cloud-only] Export variables objects.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

@@ -12,7 +12,9 @@ Options:
                     examples.
 
 Commands:
-  help              display help for command
   template          Manage email templates.
+
+Utilities:
+  help              display help for command
 "
 `;

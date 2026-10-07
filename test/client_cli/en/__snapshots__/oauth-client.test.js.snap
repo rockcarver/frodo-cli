@@ -14,8 +14,10 @@ Options:
 Commands:
   delete            Delete OAuth2 clients.
   export            Export OAuth2 clients.
-  help              display help for command
   import            Import OAuth2 clients.
   list              List OAuth2 clients.
+
+Utilities:
+  help              display help for command
 "
 `;

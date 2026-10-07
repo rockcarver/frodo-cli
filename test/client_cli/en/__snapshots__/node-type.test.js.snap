@@ -14,7 +14,9 @@ Options:
 Commands:
   describe          Describe a node type's configurable-property schema
                     (standard or custom).
-  help              display help for command
   list              List available node types.
+
+Utilities:
+  help              display help for command
 "
 `;

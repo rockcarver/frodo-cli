@@ -14,8 +14,10 @@ Options:
 Commands:
   delete            Delete themes.
   export            Export themes.
-  help              display help for command
   import            Import themes.
   list              List themes.
+
+Utilities:
+  help              display help for command
 "
 `;

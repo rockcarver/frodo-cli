@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'esv variable import' should be expected english 1`] = `
 "Usage: frodo esv variable import [options] [host] [username] [password]
 
-Import variables.
+[Cloud-only] Import variables.
 
 Arguments:
   host                             AM base URL, e.g.:

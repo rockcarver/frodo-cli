@@ -13,8 +13,10 @@ Options:
 
 Commands:
   export            Export SAML circles of trust.
-  help              display help for command
   import            Import SAML circles of trust.
   list              List SAML circles of trust.
+
+Utilities:
+  help              display help for command
 "
 `;

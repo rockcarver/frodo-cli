@@ -15,8 +15,10 @@ Commands:
   delete            Delete authorization resource types.
   describe          Describe authorization resource types.
   export            Export authorization resource types.
-  help              display help for command
   import            Import authorization resource types.
   list              List authorization resource types.
+
+Utilities:
+  help              display help for command
 "
 `;

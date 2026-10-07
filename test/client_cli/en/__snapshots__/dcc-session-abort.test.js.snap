@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'frodo dcc session abort' should be expected english 1`] = `
 "Usage: frodo dcc session abort [options] [host] [realm] [username] [password]
 
-[Preview] Abort a direct configuration session.
+[Preview] [Cloud-only] Abort a direct configuration session.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

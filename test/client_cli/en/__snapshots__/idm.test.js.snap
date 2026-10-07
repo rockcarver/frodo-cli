@@ -15,9 +15,11 @@ Commands:
   count             Count managed objects.
   delete            Delete AM services.
   export            Export IDM configuration objects.
-  help              display help for command
   import            Import IDM configuration objects.
   list              List IDM configuration objects.
   schema            Manage IDM schema.
+
+Utilities:
+  help              display help for command
 "
 `;

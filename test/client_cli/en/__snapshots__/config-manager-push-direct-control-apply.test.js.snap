@@ -3,7 +3,8 @@
 exports[`CLI help interface for 'config-manager push direct-control-apply' should be expected english 1`] = `
 "Usage: frodo config-manager push direct-control-apply [options] [host] [realm] [username] [password]
 
-[Experimental] Apply changes made during a direct configuration session.
+[Experimental] [Cloud-only] Apply changes made during a direct configuration
+session.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

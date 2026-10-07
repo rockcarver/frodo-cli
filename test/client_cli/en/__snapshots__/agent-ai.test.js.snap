@@ -15,8 +15,10 @@ Commands:
   delete            Delete AI agents.
   describe          Describe AI agents.
   export            Export AI agents.
-  help              display help for command
   import            Import AI agents.
   list              List AI agents.
+
+Utilities:
+  help              display help for command
 "
 `;

@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'iga workflow publish' should be expected english 1`] = `
 "Usage: frodo iga workflow publish [options] [host] [realm] [username] [password]
 
-Publish workflow.
+[Cloud-only] Publish workflow.
 
 Arguments:
   host                             AM base URL, e.g.:

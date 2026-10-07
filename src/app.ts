@@ -78,6 +78,7 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
       '-v, --version'
     );
     const utilitiesCommandsHeading = 'Utilities:';
+    const ciCommandsHeading = 'Continuous integration:';
 
     program.addHelpText('after', () =>
       isFullHelpRequested() ? formatGlobalEnvironmentVariables() : ''
@@ -88,31 +89,31 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     await initConnectionProfiles();
     await initTokenCache();
 
-    program.addCommand(admin());
+    program.addCommand(admin().helpGroup(utilitiesCommandsHeading));
     program.addCommand(agent());
     program.addCommand(authn());
     program.addCommand(authz());
     program.addCommand(app());
     program.addCommand(config());
-    program.addCommand(configManager());
+    program.addCommand(configManager().helpGroup(ciCommandsHeading));
     program.addCommand(conn().helpGroup(utilitiesCommandsHeading));
-    program.addCommand(debug());
-    program.addCommand(directConfigSession());
+    program.addCommand(debug().helpGroup(utilitiesCommandsHeading));
+    program.addCommand(directConfigSession().helpGroup(ciCommandsHeading));
     program.addCommand(email());
     program.addCommand(esv());
     program.addCommand(feature());
     program.addCommand(idm());
     program.addCommand(idp());
     program.addCommand(iga());
-    program.addCommand(info());
+    program.addCommand(info().helpGroup(utilitiesCommandsHeading));
     program.addCommand(journey());
-    program.addCommand(log());
-    program.addCommand(login());
+    program.addCommand(log().helpGroup(utilitiesCommandsHeading));
+    program.addCommand(login().helpGroup(utilitiesCommandsHeading));
     program.addCommand(mapping());
     program.addCommand(mcp().helpGroup(utilitiesCommandsHeading));
     program.addCommand(node());
     program.addCommand(oauth());
-    program.addCommand(promote());
+    program.addCommand(promote().helpGroup(ciCommandsHeading));
     program.addCommand(realm());
     program.addCommand(role());
     program.addCommand(saml());

@@ -3,9 +3,9 @@
 exports[`CLI help interface for 'esv apply' should be expected english 1`] = `
 "Usage: frodo esv apply [options] [host] [username] [password]
 
-Apply pending changes to secrets and variables. Applying pending changes
-requires a restart of the AM and IDM pods and can take up to 10 minutes to
-complete.
+[Cloud-only] Apply pending changes to secrets and variables. Applying pending
+changes requires a restart of the AM and IDM pods and can take up to 10 minutes
+to complete.
 
 Arguments:
   host                 AM base URL, e.g.: https://cdk.iam.example.com/am. To use

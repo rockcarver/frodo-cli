@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'admin show-generic-extension-attributes' should be expected english 1`] = `
 "Usage: frodo admin show-generic-extension-attributes [options] [host] [realm] [username] [password]
 
-Show generic extension attributes.
+[Cloud-only] Show generic extension attributes.
 
 Arguments:
   host                  AM base URL, e.g.: https://cdk.iam.example.com/am. To
