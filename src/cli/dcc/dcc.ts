@@ -9,8 +9,6 @@ export default function setup() {
     .withStability('preview')
     .description('Direct Configuration Control (DCC) commands.');
 
-  program.alias('direct-configuration-control');
-
   program.addCommand(SessionCmd().name('session'));
 
   return program;

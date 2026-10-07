@@ -8,9 +8,3 @@ test("CLI help interface for 'frodo dcc session init' should be expected english
   const { stdout } = await exec(CMD);
   expect(stdout).toMatchSnapshot();
 });
-
-test("CLI help interface for 'frodo direct-configuration-control session init' should be expected english", async () => {
-  const CMD = 'frodo direct-configuration-control session init --help';
-  const { stdout } = await exec(CMD);
-  expect(stdout).toMatchSnapshot();
-});

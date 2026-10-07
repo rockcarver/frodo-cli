@@ -14,7 +14,7 @@ Options:
 Commands:
   help              display help for command
   policy            Manages authorization policies.
-  set|policyset     Manage authorization policy sets.
+  set               Manage authorization policy sets.
   type              Manage authorization resource types.
 "
 `;
