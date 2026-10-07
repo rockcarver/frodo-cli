@@ -18,7 +18,7 @@ import { countItems, recordImportOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
-const { readVariables, importVariables } = frodo.cloud.variable;
+const { readVariables, importVariables, deleteVariable } = frodo.cloud.variable;
 
 /**
  * Format a variable as a shell assignment, `NAME='value'`, that can be sourced.
@@ -287,4 +287,54 @@ export async function configManagerImportVariables(
     if (run.hasFailures) run.finish();
     return false;
   }
+}
+
+/**
+ * Delete variables from the tenant.
+ * @param {string} name Optional exact variable ID. If omitted, targets all variables.
+ * @param {boolean} dryRun Show matching variables without deleting them.
+ * @param {boolean} allowFailures True to succeed although some scripts could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} False if reading or any deletion fails, or if a
+ * named variable is not found; otherwise true.
+ */
+export async function configManagerDeleteVariables(
+  name?: string,
+  dryRun = false,
+  allowFailures = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'variable', allowFailures });
+  let variables: VariableSkeleton[];
+  try {
+    variables = await readVariables();
+  } catch (error) {
+    printError(error);
+    return false;
+  }
+  const selectedVariables = variables.filter(
+    (variable) => !name || variable._id === name
+  );
+  if (selectedVariables.length === 0) {
+    printMessage(
+      name
+        ? `Warning: Variable '${name}' not found.`
+        : 'No variables found to delete.',
+      'warn'
+    );
+    return true;
+  }
+  for (const variable of selectedVariables) {
+    if (dryRun) {
+      printMessage(`Dry run: Deleting variable: ${variable._id}`);
+      continue;
+    }
+    try {
+      await deleteVariable(variable._id);
+      printMessage(`Deleted variable: ${variable._id}`);
+      run.recordSuccess();
+    } catch (error) {
+      printError(error, `Failed to delete variable ${variable._id}`);
+      run.recordFailure(variable._id, causeOf(error));
+    }
+  }
+  return run.finish();
 }
