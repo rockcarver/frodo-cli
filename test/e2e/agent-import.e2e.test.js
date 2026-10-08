@@ -19,12 +19,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo agent import -gaf test/e2e/exports/all/allGlobalAgents.agent.json -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo agent import --global -AD test/e2e/exports/all-separate/classic/global/agent --type classic
 */
-import cp from 'child_process';
-import { promisify } from 'util';
-import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
+import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c, classic_connection as cc } from './utils/TestConfig';
 
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =

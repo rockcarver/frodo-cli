@@ -3,16 +3,13 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo log list
  */
-import cp from 'child_process';
-import { promisify } from 'util';
 import { connection as c } from './utils/TestConfig';
-import { normalizeSnapshotText } from './utils/TestUtils';
+import { normalizeSnapshotText, exec } from './utils/TestUtils';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const { ensureFrodoArtifact, getTestBinaryPath } = require('./utils/FrodoBinary.cjs');
 
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] = './test/e2e/env/Connections.json';

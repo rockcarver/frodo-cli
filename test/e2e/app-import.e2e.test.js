@@ -20,12 +20,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaBravoNoPrefix' FRODO_REALM=alpha/bravo frodo app import -af test/e2e/exports/all/forgeops/forgeopsRootApps.application.json -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaBravoPrefix' FRODO_REALM=alpha/bravo frodo app import --all --file test/e2e/exports/all/forgeops/forgeopsBravoApps.application.json --use-realm-prefix-on-managed-objects --type forgeops
 */
-import cp from 'child_process';
-import { promisify } from 'util';
-import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
+import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
 
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);

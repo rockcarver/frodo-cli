@@ -7,12 +7,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node describe --json --node-id c605506774a848f7877b4d17a453bd39-1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node describe --json --node-name 'Display Callback'
 */
-import cp from 'child_process';
-import { promisify } from 'util';
-import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
+import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);

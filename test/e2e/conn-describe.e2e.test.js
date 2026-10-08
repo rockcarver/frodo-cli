@@ -1,12 +1,9 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
-import cp from 'child_process';
-import { promisify } from 'util';
 import path from 'path';
 import fs from 'fs';
-import { getEnv, testif, normalizeSnapshotText } from './utils/TestUtils';
+import { getEnv, testif, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c, amster_connection as cc } from './utils/TestConfig';
 
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =

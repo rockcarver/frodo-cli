@@ -13,17 +13,15 @@
  * neither was available in the environment these tests were authored in.
  * See the plan doc's Phase F addendum.
  */
-import cp from 'child_process';
-import { promisify } from 'util';
 import path from 'path';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { connection as c } from './utils/TestConfig';
+import { exec } from './utils/TestUtils';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const { ensureFrodoArtifact, getTestBinaryPath } = require('./utils/FrodoBinary.cjs');
 
-const exec = promisify(cp.exec);
 
 const TMP_DIR = path.resolve('./test/fs_tmp/login-errors-e2e');
 const connectionProfilesPath = path.join(TMP_DIR, 'Connections.json');
