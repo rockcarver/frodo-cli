@@ -11,12 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Introduced inline deployment badges in place of cloud-only help sections, aligning root help groups with README command tables. This change enhances the clarity and usability of command groupings. (#767)
+- Added `MIGRATION.md`, a per-major migration guide for the CLI. The 5.x section lists the removed command aliases and their canonical replacements. (#764)
 
 ### Changed
 - Root help groups now mirror the README's command tables, with a new structure: "Commands," "Utilities," and "Continuous integration." This reorganization improves navigation and accessibility. (#767)
+- Redesigned the README command reference: the long command table is replaced by three focused tables (Commands, Utility commands, Continuous integration commands) with per-operation checkmark columns and `[Cloud-only]` badges. The Node.js version matrix now reflects the tested CI matrix of each release line and includes a 0.x column. (#764)
+- The cloud-only command families (`log`, `dcc`, `esv`, `debug`, `feature`, `iga`) now declare their deployment types explicitly instead of inheriting them from their sub-commands, so a future sub-command cannot silently drop a family from the cloud-only marking. Internal; no change in behavior. (#765)
 
 ### Removed
-- Removed legacy command aliases, including `direct-configuration-control`, `logs`, `connection`, `connections`, `policyset`, `details`, and `ig`. Users should now use the canonical commands like `frodo dcc`, `frodo log`, `frodo conn`, `frodo authz set`, `frodo realm describe`, and `frodo agent gateway`. This change may require users to update their scripts and workflows. (#766)
+- **Breaking:** Removed legacy command aliases, including `direct-configuration-control`, `logs`, `connection`, `connections`, `policyset`, `details`, and `ig`. Users should now use the canonical commands like `frodo dcc`, `frodo log`, `frodo conn`, `frodo authz set`, `frodo realm describe`, and `frodo agent gateway`. The `add` alias of `frodo conn save` is retained. This change may require users to update their scripts and workflows. (#766)
 
 ### Fixed
 - Updated e2e tests to use a shared 50MB exec helper, addressing issues with `stderr maxBuffer length exceeded` errors. This change improves test reliability and unblocks the release process. (#768)
