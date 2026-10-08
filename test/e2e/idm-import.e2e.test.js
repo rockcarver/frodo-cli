@@ -19,12 +19,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import --entity-id sync -f test/e2e/exports/all-separate/forgeops/global/sync/sync.idm.json -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import -i managed -f test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json --type forgeops
 */
-import cp from 'child_process';
-import { promisify } from 'util';
-import { getEnv,  testFail,  testSuccess } from './utils/TestUtils';
+import { getEnv, testFail, testSuccess, exec } from './utils/TestUtils';
 import { connection as c , forgeops_connection as fc} from './utils/TestConfig';
 
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);

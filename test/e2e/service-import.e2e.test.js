@@ -18,12 +18,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --global --all-separate --directory test/e2e/exports/all-separate/cloud/global/service
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean --global --all-separate --directory test/e2e/exports/all-separate/cloud/global/service
 */
-import cp from 'child_process';
-import { promisify } from 'util';
-import { getEnv, normalizeSnapshotText } from './utils/TestUtils';
+import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
-const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);

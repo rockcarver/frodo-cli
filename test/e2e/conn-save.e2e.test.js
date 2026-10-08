@@ -1,12 +1,9 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
-import cp from 'child_process';
-import { promisify } from 'util';
 import path from 'path';
-import { getEnv, testif, normalizeSnapshotText } from './utils/TestUtils';
+import { getEnv, testif, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c, amster_connection as cc } from './utils/TestConfig';
 import { writeFileSync, rmSync } from 'fs';
 
-const exec = promisify(cp.exec);
 
 const connectionsSaveFile = './test/e2e/env/ConnectionsSave.json';
 

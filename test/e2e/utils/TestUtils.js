@@ -16,7 +16,7 @@ const execRaw = promisify(cp.exec);
 // dump full object bodies (e.g. `journey describe` with no filter) against a
 // shared dev tenant that accumulates objects over time.
 const EXEC_MAX_BUFFER = 50 * 1024 * 1024;
-const exec = (command, options = {}) =>
+export const exec = (command, options = {}) =>
   execRaw(command, { maxBuffer: EXEC_MAX_BUFFER, ...options });
 const fspromise = fs.promises
 
