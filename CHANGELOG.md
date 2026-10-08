@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-4] - 2026-10-08
+
+### Added
+- Introduced inline deployment badges in place of cloud-only help sections, aligning root help groups with README command tables. This change enhances the clarity and usability of command groupings. (#767)
+
+### Changed
+- Root help groups now mirror the README's command tables, with a new structure: "Commands," "Utilities," and "Continuous integration." This reorganization improves navigation and accessibility. (#767)
+
+### Removed
+- Removed legacy command aliases, including `direct-configuration-control`, `logs`, `connection`, `connections`, `policyset`, `details`, and `ig`. Users should now use the canonical commands like `frodo dcc`, `frodo log`, `frodo conn`, `frodo authz set`, `frodo realm describe`, and `frodo agent gateway`. This change may require users to update their scripts and workflows. (#766)
+
+### Fixed
+- Updated e2e tests to use a shared 50MB exec helper, addressing issues with `stderr maxBuffer length exceeded` errors. This change improves test reliability and unblocks the release process. (#768)
+
 ## [v5.0.0-3] - 2026-10-06
 
 ### Added
@@ -2970,6 +2984,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-4]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-3...v5.0.0-4
 [v5.0.0-3]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-2...v5.0.0-3
 [v5.0.0-2]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-1...v5.0.0-2
 [v5.0.0-1]: https://github.com/rockcarver/frodo-cli/compare/v4.18.0...v5.0.0-1
