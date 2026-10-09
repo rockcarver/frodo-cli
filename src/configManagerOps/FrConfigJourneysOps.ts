@@ -1,7 +1,9 @@
 import fs from 'fs';
 import {
   frodo,
+  FrodoError,
   state,
+  type DeleteJourneysStatus,
   type NodeSkeleton,
   type ScriptSkeleton,
   type SingleTreeExportInterface,
@@ -11,6 +13,7 @@ import {
   printJourneyFindingsHint,
   wantsJourneyFindingsHint,
 } from '../ops/JourneyFindingsHint';
+import { errorHandler } from '../ops/utils/OpsUtils';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -25,9 +28,19 @@ import { OperationRun } from '../utils/OperationRun';
 
 const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
 const { exportScript } = frodo.script;
-const { exportJourneys, importJourneys, createSingleTreeExportTemplate } =
-  frodo.authn.journey;
-const { DEFAULT_REALM_KEY } = frodo.utils.constants;
+const {
+  exportJourneys,
+  importJourneys,
+  createSingleTreeExportTemplate,
+  readJourneys,
+  deleteJourney,
+  readJourney,
+  deleteJourneys,
+} = frodo.authn.journey;
+const { findOrphanedNodes, removeOrphanedNodes, readNode } = frodo.authn.node;
+const { DEFAULT_REALM_KEY, CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+
+const JOURNEY_CONTAINER_NODE_TYPES = ['PageNode', 'CustomPageNode'];
 
 /**
  * Export journeys in fr-config-manager format
@@ -475,4 +488,162 @@ export async function configManagerImportJourneys(
     if (run.hasFailures) run.finish();
   }
   return false;
+}
+
+/**
+ * Delete journeys in the specified realm, or across eligible realms if omitted.
+ * Skips the root realm on Cloud deployments.
+ * @param {string} name Exact journey ID. Named operations require a single realm.
+ * @param {string} realm Realm to process. Omit to use the eligible realms.
+ * @param {boolean} dryRun Preview the selected journeys without deleting them.
+ * @param {boolean} allowFailures Report realm failures without failing the run.
+ * @returns {Promise<boolean>} False on validation or setup errors, or on realm failures unless allowFailures is true.
+ */
+export async function configManagerDeleteJourneys(
+  name?: string,
+  realm?: string,
+  dryRun = false,
+  allowFailures = false
+): Promise<boolean> {
+  try {
+    if (name === '') {
+      printMessage('The journey name (-n) must not be empty.', 'error');
+      return false;
+    }
+
+    const realms =
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+
+    const run = new OperationRun({ unit: 'realm', allowFailures });
+
+    let deletedJourneyCount = 0;
+    let deletedNodeCount = 0;
+    let deletedOrphanNodeCount = 0;
+
+    for (const currentRealm of realms) {
+      if (
+        currentRealm === '/' &&
+        state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+      ) {
+        continue;
+      }
+      state.setRealm(currentRealm);
+
+      const failures: FrodoError[] = [];
+      try {
+        let deleteJourneysStatus: DeleteJourneysStatus = {};
+        if (dryRun) {
+          for (const journey of name
+            ? [await readJourney(name)]
+            : await readJourneys()) {
+            const journeyStatus = {
+              // All returned journeys will be considered a success since we can't predict if there will be errors
+              status: 'success',
+              nodes: {},
+            };
+            for (const [nodeId, nodeObject] of Object.entries(journey.nodes)) {
+              if (
+                JOURNEY_CONTAINER_NODE_TYPES.includes(nodeObject['nodeType'])
+              ) {
+                try {
+                  const containerNode = await readNode(
+                    nodeId,
+                    nodeObject['nodeType'],
+                    nodeObject['version'] || '1.0'
+                  );
+                  for (const innerNodeObject of containerNode.nodes) {
+                    journeyStatus.nodes[innerNodeObject._id] = {
+                      status: 'success',
+                    };
+                  }
+                } catch (e) {
+                  const errorMessage = `Failed to read node ${nodeId} from journey ${journey._id} in realm '${currentRealm}'.`;
+                  printMessage(errorMessage, 'error');
+                  failures.push(new FrodoError(errorMessage, e));
+                }
+              }
+              journeyStatus.nodes[nodeId] = { status: 'success' };
+            }
+            deleteJourneysStatus[journey._id] = journeyStatus;
+          }
+        } else {
+          // Note that deep is false because deleteJourney without deep still deletes all the nodes in the journey (if deep is true, it says 0 nodes were deleted because it fails to delete non-existing nodes).
+          // And if for some reason any are missed, the orphaned node cleanup will take care of the rest.
+          const deleteOptions = {
+            deep: false,
+            verbose: false,
+            progress: false,
+          };
+          deleteJourneysStatus = name
+            ? { [name]: await deleteJourney(name, deleteOptions) }
+            : await deleteJourneys(deleteOptions, errorHandler);
+        }
+        for (const [id, status] of Object.entries(deleteJourneysStatus)) {
+          if (status.status === 'success') {
+            printMessage(
+              `${dryRun ? 'Dry run: ' : ''}Deleting journey ${id} in realm ${currentRealm}.`
+            );
+            deletedJourneyCount += 1;
+            deletedNodeCount += Object.keys(status.nodes).length;
+          } else {
+            const errorMessage = `Failed to delete journey ${id} in realm '${currentRealm}'.`;
+            printMessage(errorMessage, 'error');
+            failures.push(new FrodoError(errorMessage));
+          }
+        }
+        if (!name) {
+          try {
+            printMessage('Cleanup orphaned nodes');
+            let orphanedNodes = await findOrphanedNodes();
+            const errorNodes = new Set(
+              (await removeOrphanedNodes(orphanedNodes, errorHandler)).map(
+                (n) => n._id
+              )
+            );
+            orphanedNodes = orphanedNodes.filter((n) => !errorNodes.has(n._id));
+            for (const node of orphanedNodes) {
+              printMessage(
+                `${dryRun ? 'Dry run: ' : ''}Deleting orphan node ${node._id} of type ${node._type._id} version ${node._type.version}.`
+              );
+            }
+            deletedOrphanNodeCount += orphanedNodes.length;
+          } catch (e) {
+            const errorMessage = `Failed to delete orphaned nodes in realm '${currentRealm}'.`;
+            printMessage(errorMessage, 'error');
+            failures.push(new FrodoError(errorMessage, e));
+            continue;
+          }
+        }
+        if (Object.keys(failures).length) {
+          run.recordFailure(
+            currentRealm,
+            causeOf(
+              new FrodoError(
+                `Errors occurred while deleting journeys in realm ${currentRealm}`,
+                failures
+              )
+            )
+          );
+        } else {
+          run.recordSuccess();
+        }
+        continue;
+      } catch (e) {
+        printError(e, `Error deleting journeys of realm ${currentRealm}`);
+        run.recordFailure(currentRealm, causeOf(e));
+      }
+    }
+
+    if (!name && dryRun) {
+      printMessage('--- Journey and Nodes Deletion Summary ---');
+      printMessage(`Journeys deleted: ${deletedJourneyCount}`);
+      printMessage(`Nodes deleted: ${deletedNodeCount}`);
+      printMessage(`Orphan Nodes deleted: ${deletedOrphanNodeCount}`);
+    }
+
+    return run.finish();
+  } catch (error) {
+    printError(error);
+    return false;
+  }
 }
