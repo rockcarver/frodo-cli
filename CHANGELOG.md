@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-5] - 2026-10-09
+
+### Security
+- Pinned `@rockcarver/frodo-lib` to version 5.0.0-5, incorporating the dev-dependency audit clear-up from frodo-lib, which resolves critical and moderate advisories related to `handlebars` and `braces`. This change ensures improved security and stability. (#771)
+
 ## [v5.0.0-4] - 2026-10-08
 
 ### Added
@@ -2987,6 +2992,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-5]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-4...v5.0.0-5
 [v5.0.0-4]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-3...v5.0.0-4
 [v5.0.0-3]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-2...v5.0.0-3
 [v5.0.0-2]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-1...v5.0.0-2
