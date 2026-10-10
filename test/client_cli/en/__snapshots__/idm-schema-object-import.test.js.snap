@@ -32,7 +32,7 @@ Options:
                         examples.
 
 Rule:
-  one of -f, --file [file] | -o, --managed-object | -y, --yes is required -- choose what to import
+  one of -D, --directory <directory> | -f, --file [file] is required -- choose where to import from
 
 "
 `;
