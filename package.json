@@ -124,9 +124,6 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "4.7.1",
-    "@inquirer/confirm": "6.3.2",
-    "@inquirer/core": "^12.0.1",
-    "@inquirer/select": "^5.2.3",
     "@modelcontextprotocol/client": "^2.0.0",
     "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/server": "^2.0.0",
@@ -176,5 +173,10 @@
   },
   "overrides": {
     "argparse": "^2.0.1"
+  },
+  "dependencies": {
+    "@inquirer/confirm": "6.3.2",
+    "@inquirer/core": "^12.0.1",
+    "@inquirer/select": "^5.2.3"
   }
 }

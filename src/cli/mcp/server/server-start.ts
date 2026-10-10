@@ -36,6 +36,7 @@ import {
 } from '../../../ops/McpServerOps.js';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
+import { setNeverPrompt } from '../../../utils/interactive/PromptGate';
 import { FrodoCommand } from '../../FrodoCommand';
 import { resolveMcpAuthTokenValue } from './server-auth';
 import {
@@ -387,6 +388,14 @@ export default function setup() {
         throw new Error('--json is only supported with --dry-run.');
       }
       const transport = opts.transport ?? 'stdio';
+      if (transport === 'stdio') {
+        // Belt and braces: a stdio MCP server's stdin/stdout ARE the
+        // protocol channel, so nothing in this process may ever prompt.
+        // (Pipes are non-TTY anyway, so the PromptGate's natural check
+        // already refuses; this makes the guarantee explicit rather than
+        // relying on the environment.) See PromptGate.
+        setNeverPrompt();
+      }
       const authToken =
         transport === 'http' ? resolveMcpAuthToken(opts) : undefined;
       if (opts.oauthResourceServer) {

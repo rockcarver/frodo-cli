@@ -25,7 +25,12 @@ import {
   updateProgressIndicator,
   verboseMessage,
 } from '../utils/Console.js';
+import { setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
+import {
+  deferMissingMandatoryOption,
+  resolveInteractiveInputs,
+} from './ResolveInteractiveInputs.js';
 
 // Frodo constants
 const constants = frodo.utils.constants;
@@ -867,6 +872,25 @@ const forceUpdateOption = withHelpGroup(
   OptionCategory.Runtime
 );
 
+// Opt-out of the interactive gap-fill (INTERACTIVE-COMMANDS-PLAN.md,
+// Phase 1): with this flag, missing mandatory options/connection args
+// fail with the classic errors instead of prompting, even on a TTY.
+// Categorized as Runtime (it is a per-invocation behavior control) and
+// also honored process-wide via FRODO_NO_PROMPT (see PromptGate).
+// Commander negation semantics: the lone `--no-prompt` flag's attribute
+// name is `prompt`, defaults to true (prompting allowed), and passing
+// --no-prompt sets it false. Do NOT chain .default(false) here -- that
+// would read as "prompting disabled by default" and disable the whole
+// feature (caught in review of the first cut).
+const promptOption = withHelpGroup(
+  new Option(
+    '--no-prompt',
+    'Never prompt for missing input; fail with the usual errors instead (same as setting FRODO_NO_PROMPT).'
+  ).default(true, 'Prompt for missing input where supported'),
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
+);
+
 const insecureOption = withHelpGroup(
   new Option(
     '-k, --insecure',
@@ -1001,6 +1025,7 @@ const defaultOpts = [
   envOption,
   envFileOption,
   forceUpdateOption,
+  promptOption,
 ];
 
 /**
@@ -2005,6 +2030,13 @@ export function normalizeExpandedHelpArgv(argv: string[] = process.argv) {
 }
 
 const warnedStabilityCommands = new Set<string>();
+// Leaf commands whose interactive input resolution already ran (or is
+// running) this process. The preAction hook is registered on every
+// FrodoCommand in the ancestry and all receive the same actionCommand, so
+// without this the resolution would run once per ancestor. Also guards
+// against a re-entrant double-run if a hook ever fires twice for the same
+// command instance.
+const resolvedActionCommands = new WeakSet<Command>();
 const warnedStabilityOptions = new Set<string>();
 
 /**
@@ -2308,8 +2340,52 @@ export class FrodoStubCommand extends Command {
       cleanupProgressIndicators();
     });
 
+    // Async preAction hook: commander's hook chain awaits returned
+    // promises (_chainOrCall), so the action handler below only starts
+    // after interactive input resolution finished. The hook is registered
+    // on every FrodoCommand in the ancestry and all receive the same
+    // actionCommand, so dedupe on the executing command.
     this.hook('preAction', (_thisCommand, actionCommand) => {
       enforceStabilityAndWarn(actionCommand);
+      // Commander negation: `prompt` defaults to true; --no-prompt sets
+      // it false. Set once per process, before the resolution hook below
+      // (hook order = registration order).
+      if (
+        actionCommand.getOptionValue(promptOption.attributeName()) === false
+      ) {
+        setNeverPrompt();
+      }
+    });
+
+    this.hook('preAction', async (_thisCommand, actionCommand) => {
+      // Only leaf FrodoCommands get the resolution pass. Stub commands'
+      // own bare actions (conn, settings, login -- all already
+      // interactive by design) must not run it, or they would
+      // double-prompt.
+      if (!(actionCommand instanceof FrodoCommand)) return;
+      if (resolvedActionCommands.has(actionCommand)) return;
+      resolvedActionCommands.add(actionCommand);
+      await resolveInteractiveInputs(actionCommand);
+    });
+  }
+
+  /**
+   * Commander calls this during parsing, BEFORE the preAction hook chain,
+   * when a `makeOptionMandatory()` option is missing. Reimplemented here
+   * (verbatim from commander's own implementation, whose typings omit the
+   * method -- so an override below cannot `super` into it) as the shared
+   * declaration point both subclasses control: stub commands keep this
+   * verbatim throw (today's behavior, unchanged), and FrodoCommand
+   * replaces it with deferral (see ResolveInteractiveInputs) so the
+   * preAction resolution pass can prompt for the value on an interactive
+   * session, or re-throw this exact error on a non-interactive one. That
+   * is what makes all existing `makeOptionMandatory()` call sites
+   * prompt-capable with zero syntax change.
+   * @param option The mandatory option that is missing.
+   */
+  missingMandatoryOptionValue(option: Option): void {
+    this.error(`error: required option '${option.flags}' not specified`, {
+      code: 'commander.missingMandatoryOptionValue',
     });
   }
 
@@ -2743,6 +2819,18 @@ export class FrodoCommand extends FrodoStubCommand {
    * Explicit deployment types for this concrete command instance.
    */
   types: string[];
+
+  /**
+   * Deferred mandatory handling (see FrodoStubCommand's implementation
+   * for the verbatim-commander default): record the violation instead of
+   * throwing, so the preAction resolution pass can prompt for the value
+   * on an interactive session, or re-throw this exact error on a
+   * non-interactive one.
+   * @param option The mandatory option that is missing.
+   */
+  missingMandatoryOptionValue(option: Option): void {
+    deferMissingMandatoryOption(this, option.flags);
+  }
 
   /**
    * Creates a new FrodoCommand instance
