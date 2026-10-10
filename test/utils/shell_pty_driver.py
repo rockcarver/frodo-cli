@@ -18,6 +18,8 @@ KEYS = {
     "enter": "\r",
     "ctrl_e": "\x05",
     "ctrl_u": "\x15",
+    "backspace": "\x7f",
+    "escape": "\x1b",
 }
 
 

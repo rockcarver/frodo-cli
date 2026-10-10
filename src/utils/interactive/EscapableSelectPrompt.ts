@@ -3,6 +3,7 @@ import {
   isDownKey,
   isEnterKey,
   isUpKey,
+  useEffect,
   useKeypress,
   useMemo,
   usePagination,
@@ -25,16 +26,38 @@ export type EscapableSelectChoice<Value> = {
   description?: string;
 };
 
+/**
+ * Matches a choice against the current search query. `query` is the raw
+ * (not lowercased) buffer content -- the predicate decides on casing
+ * itself, so e.g. the connection-profile pickers can do case-insensitive
+ * substring matching across BOTH host and alias while an entity picker
+ * can demand a prefix match on `name` only. When no predicate is
+ * configured, filtering falls back to a case-insensitive substring match
+ * on `name`.
+ */
+export type EscapableSelectMatch<Value> = (
+  choice: EscapableSelectChoice<Value>,
+  query: string
+) => boolean;
+
 export type EscapableSelectConfig<Value> = {
   message: string;
   choices: EscapableSelectChoice<Value>[];
   default?: Value;
   pageSize?: number;
+  /**
+   * Custom match predicate for type-to-search (see the class doc for the
+   * full interaction contract). Omitted, every list is still filterable --
+   * the name-only fallback applies -- so callers only reach for this when
+   * the match must span more than the visible label (host + alias) or use
+   * different casing rules.
+   */
+  search?: EscapableSelectMatch<Value>;
 };
 
 /**
  * A small, deliberately reimplemented sibling of the packaged
- * `@inquirer/select` prompt, differing in exactly one way: Escape resolves
+ * `@inquirer/select` prompt, differing in one core way: Escape resolves
  * the prompt with the `ESCAPE` sentinel instead of doing nothing.
  *
  * The packaged `select` prompt has no Escape keybinding at all -- confirmed
@@ -42,9 +65,15 @@ export type EscapableSelectConfig<Value> = {
  * only `@inquirer/core`'s lower-level `createPrompt`/`useKeypress` expose
  * the raw keypress needed to detect it (Node's `readline` keypress events
  * carry `key.name === 'escape'`, standard `emitKeypressEvents` behavior).
- * Deliberately omits `select`'s type-to-search and number-jump features to
- * keep this small -- every menu in this CLI is short enough not to need
- * them.
+ *
+ * Type-to-search is built in rather than adopting `@inquirer/search` for
+ * the same reason: the packaged prompt throws on Escape, can't express
+ * "clear query first, back out second", and offers no pluggable match
+ * predicate -- all three are required by the connection-profile pickers
+ * (host + alias, case-insensitive) and the escape-as-back menu loops this
+ * CLI is built around. It is a universal capability, not an opt-in: every
+ * list filters as you type (predicate or name fallback), short enums and
+ * long pickers alike -- consistent muscle memory beats one more knob.
  */
 // `createPrompt`'s view function can't itself be generic (its `Value` type
 // parameter is inferred once, at the `createPrompt(view)` call site, from a
@@ -71,6 +100,35 @@ const escapableSelectImpl = createPrompt(
       status: status === 'escaped' ? 'done' : status,
     });
 
+    // The search query mirrors the readline buffer (`rl.line`) on every
+    // keystroke -- the same pattern `textPrompt` (PromptGate) uses, for
+    // the same reason: readline does the editing (typing, backspace,
+    // paste, ctrl+u), the prompt only mirrors and reads. Nothing here
+    // reads `rl.line` on Enter/Escape, so the buffer-consumption
+    // subtlety textPrompt works around doesn't apply.
+    const [query, setQuery] = useState('');
+
+    const filtered = useMemo(() => {
+      if (!config.search) {
+        if (query.length === 0) return choices;
+        const needle = query.toLowerCase();
+        return choices.filter((choice) =>
+          choice.name.toLowerCase().includes(needle)
+        );
+      }
+      return choices.filter((choice) => config.search!(choice, query));
+    }, [choices, query, config.search]);
+
+    // The cursor resets to the top of the FILTERED list whenever the
+    // query changes -- predictable ("my text takes me to the first
+    // match"). `useEffect` (not a render-time write) because the setter
+    // must exist first and inquirer re-renders on every state change
+    // anyway; a render-time `setActive` here would either run before
+    // `useState` declared it (TDZ crash) or loop the render.
+    useEffect(() => {
+      setActive(0);
+    }, [query]);
+
     const defaultIndex = useMemo(() => {
       if (!('default' in config)) return 0;
       const index = choices.findIndex(
@@ -79,18 +137,38 @@ const escapableSelectImpl = createPrompt(
       return index === -1 ? 0 : index;
     }, [config.default, choices]);
     const [active, setActive] = useState(defaultIndex);
-    const selected = choices[active];
+    const selected = filtered[active];
 
-    useKeypress((key) => {
+    useKeypress((key, rl) => {
       if (key.name === 'escape') {
+        // Two-stage escape with an active query (see `search` docs).
+        if (rl.line.length > 0) {
+          rl.clearLine(0);
+          setQuery('');
+          return;
+        }
         setStatus('escaped');
         done(ESCAPE);
       } else if (isEnterKey(key)) {
+        if (!selected) {
+          // Filtered to nothing: Enter does nothing rather than crashing
+          // (the view shows an explicit "no matches" state).
+          return;
+        }
         setStatus('done');
         done(selected.value);
       } else if (isUpKey(key) || isDownKey(key)) {
+        if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
-        setActive((active + offset + choices.length) % choices.length);
+        setActive((active + offset + filtered.length) % filtered.length);
+      } else {
+        // Everything else is readline's business (typing, paste, backspace,
+        // ctrl+u, any unhandled key); the buffer holds the result -- there
+        // is no reliable "printable" predicate to read off the keypress
+        // event (a printable char's `name` IS the character). Mirroring it
+        // into state drives the filter; the same pattern textPrompt
+        // (PromptGate) uses.
+        setQuery(rl.line);
       }
     });
 
@@ -98,11 +176,11 @@ const escapableSelectImpl = createPrompt(
       return `${prefix} ${config.message} ${c.muted('(cancelled)')}`;
     }
     if (status === 'done') {
-      return `${prefix} ${config.message} ${c.positive(selected.name)}`;
+      return `${prefix} ${config.message} ${c.positive(selected!.name)}`;
     }
 
     const page = usePagination({
-      items: choices,
+      items: filtered,
       active,
       renderItem: ({ item, isActive }) => {
         const line = `${isActive ? '›' : ' '} ${item.name}`;
@@ -112,11 +190,19 @@ const escapableSelectImpl = createPrompt(
       loop: true,
     });
 
+    const searchHint = query.length === 0 ? c.muted('type to filter') : '';
+    const queryEcho =
+      config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
+
     const lines = [
-      `${prefix} ${config.message}`,
-      page,
-      selected.description ? c.muted(selected.description) : '',
-      c.muted('(↑↓ navigate · enter select · esc back)'),
+      `${prefix} ${config.message}${queryEcho}`,
+      filtered.length > 0
+        ? page
+        : c.muted(
+            '  (no matches -- backspace to edit, esc clears then backs out)'
+          ),
+      selected && selected.description ? c.muted(selected.description) : '',
+      searchHint || c.muted('(↑↓ navigate · enter select · esc back)'),
     ].filter(Boolean);
     return lines.join('\n');
   }

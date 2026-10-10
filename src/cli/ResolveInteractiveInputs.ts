@@ -310,6 +310,18 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
     } else if (profiles.length > 1) {
       const choice = await escapableSelect<string | typeof ENTER_MANUALLY>({
         message: 'Choose a connection profile:',
+        // Filter matches host AND alias (case-insensitive) -- typing part
+        // of a hostname or the alias both find the profile.
+        search: ({ value, name }, query) => {
+          const needle = query.toLowerCase();
+          if (value === ENTER_MANUALLY) return name.length === 0;
+          return (
+            value.toLowerCase().includes(needle) ||
+            (profiles.find((p) => p.host === value)?.alias ?? '')
+              .toLowerCase()
+              .includes(needle)
+          );
+        },
         choices: [
           {
             value: ENTER_MANUALLY,
