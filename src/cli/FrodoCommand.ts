@@ -25,12 +25,16 @@ import {
   updateProgressIndicator,
   verboseMessage,
 } from '../utils/Console.js';
-import { setNeverPrompt } from '../utils/interactive/PromptGate.js';
+import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
   deferMissingMandatoryOption,
   resolveInteractiveInputs,
 } from './ResolveInteractiveInputs.js';
+import {
+  escapableSelect,
+  ESCAPE,
+} from '../utils/interactive/EscapableSelectPrompt.js';
 
 // Frodo constants
 const constants = frodo.utils.constants;
@@ -2240,6 +2244,54 @@ function enforceStabilityAndWarn(actionCommand: Command): void {
 /**
  * Command with default options
  */
+/**
+ * Commander internals this file relies on: public at runtime (verified
+ * against commander's lib/command.js -- note visibility is `_hidden`,
+ * set via addCommand's `hidden` option, not a `hidden` property), absent
+ * from its typings. One declaration instead of scattered inline casts.
+ */
+interface CommandInternal extends Command {
+  _actionHandler: ((...args: unknown[]) => unknown) | null;
+  _getHelpCommand: () => Command | undefined;
+  _parseCommand: (operands: string[], unknown: string[]) => unknown;
+  _hidden: boolean;
+}
+
+/**
+ * Splits the raw `_parseCommand(operands, unknown)` argument lists into
+ * the leading positional words ("this command's arguments in intent") and
+ * everything else. The parent's parseOptions cannot classify command
+ * words -- `frodo journey` reaches the root with everything in `unknown`
+ * -- so the bare-invocation check re-classifies here: words before the
+ * first option-looking token (`-x`, `--long`, `--long=value`, or a lone
+ * `--` separator) are positional; that first token and the rest are
+ * options/option-values/sub-command options and stay out of the count.
+ */
+function splitPositionalArgs(
+  operands: string[],
+  unknown: string[]
+): { positional: string[] } {
+  const positional = [...operands];
+  for (const arg of unknown) {
+    if (arg === '--' || /^-{1,2}[^-]/.test(arg)) break;
+    positional.push(arg);
+  }
+  return { positional };
+}
+
+/**
+ * commander's own _parseCommand implementation, captured from the
+ * Command.prototype ONCE at module load -- before any subclass shadows
+ * it. Reaching it via prototype walking is wrong: a 2-level walk lands
+ * on FrodoStubCommand.prototype (this override itself) for FrodoCommand
+ * (leaf) instances -- FrodoCommand extends FrodoStubCommand extends
+ * Command -- causing infinite recursion (observed live as "Maximum call
+ * stack size exceeded" when a picked sub-command dispatched).
+ */
+const commanderParseCommand = (
+  Command.prototype as unknown as CommandInternal
+)._parseCommand as (this: Command, operands: string[], unknown: string[]) => unknown;
+
 export class FrodoStubCommand extends Command {
   /**
    * Command stability metadata. Defaults to stable.
@@ -2477,6 +2529,144 @@ export class FrodoStubCommand extends Command {
 
   createHelp() {
     return Object.assign(new FrodoStubHelp(), this.configureHelp());
+  }
+
+  /**
+   * Phase 1b of the interactive plan: when a stub command with
+   * sub-commands is invoked BARE (no sub-command word, no operands) on an
+   * interactive session, offer the sub-commands in a picker and dispatch
+   * to the picked one -- e.g. `frodo journey <enter>` proposes all journey
+   * sub-commands. A stub with a single child auto-descends to it
+   * (announced under --verbose), mirroring the single-saved-profile skip
+   * in the resolver.
+   *
+   * Backing out of the picker (Escape, or prompting disallowed) falls
+   * through to commander's own bare-stub behavior (`help({ error: true })`
+   * inside _parseCommand), so every existing path is byte-identical
+   * off-interactive.
+   *
+   * Implemented as an override rather than any hook because there is no
+   * hook at this point: commander calls `_parseCommand` directly on the
+   * stub and help-exits before any hook or action runs. Stubs that
+   * already have their own bare action (conn, settings, login, shell)
+   * never reach the interception -- their `_actionHandler` short-circuits
+   * the fallthrough in commander's _parseCommand, exactly as before. Per
+   * plan decision there is NO skip list beyond that: mcp, log, and every
+   * other stub get the picker ("the guided path through complex commands
+   * is the feature's purpose").
+   *
+   * `super._parseCommand` is re-entered with the picked name as the only
+   * operand, so commander dispatches normally: options in `unknown`
+   * (--no-prompt, --verbose, ...) re-parse in the sub-command's context
+   * exactly as if the user had typed them. Returning the promise is safe:
+   * the parent's dispatch wraps `_parseCommand` in `_chainOrCall`, which
+   * awaits results.
+   *
+   * Entry contract (verified against commander 15.0.0 lib/command.js and
+   * a live harness): `_parseCommand(operands, unknown)` receives raw
+   * split argv -- operand words the PARENT didn't consume arrive in
+   * `unknown` (the parent's parseOptions can't classify them; e.g.
+   * `frodo journey` calls the root's _parseCommand with operands=[] and
+   * unknown=['journey']). This override therefore classifies the leading
+   * words itself: everything before the first option-looking token is
+   * this command's positional operands; the bare-invocation case is
+   * "no operands AND nothing that classifies as a sub-command word".
+   *
+   * commander's typings omit `_parseCommand` entirely, so this is NOT
+   * marked `override` (TS4113 -- the modifier requires a declared base
+   * member) and the base implementation is reached through the prototype
+   * (baseParseCommand below) rather than `super` (TS2339 for the same
+   * reason). Runtime commander version: 15.0.0, verified against
+   * lib/command.js.
+   */
+  _parseCommand(
+    operands: string[],
+    unknown: string[]
+  ): Promise<unknown> | undefined {
+    const self = this as unknown as CommandInternal;
+    const { positional } = splitPositionalArgs(operands, unknown);
+    if (
+      self._actionHandler === null &&
+      positional.length === 0 &&
+      this.commands.length > 0
+    ) {
+      return this.pickAndDispatchSubCommand(unknown);
+    }
+    return this.baseParseCommand(operands, unknown);
+  }
+
+  /**
+   * commander's _parseCommand, reached through the prototype chain (see
+   * the _parseCommand override above for why not `super`).
+   */
+  private baseParseCommand(
+    operands: string[],
+    unknown: string[]
+  ): Promise<unknown> | undefined {
+    return commanderParseCommand.call(
+      this,
+      operands,
+      unknown
+    ) as Promise<unknown> | undefined;
+  }
+  /**
+   * Offers this command's sub-commands (skipping the synthetic help
+   * command) in the escape-as-back picker and re-enters the parser for
+   * the pick. Resolves to the super result -- a promise when the picked
+   * sub-command's action is async.
+   */
+  private async pickAndDispatchSubCommand(
+    unknown: string[]
+  ): Promise<unknown> {
+    const self = this as unknown as CommandInternal;
+    const candidates = this.commands.filter(
+      (command) =>
+        command !== self._getHelpCommand() &&
+        !(command as unknown as CommandInternal)._hidden
+    );
+    if (candidates.length === 0) {
+      // Nothing pickable: fall through with the ORIGINAL arguments --
+      // unknown may still carry --help/-h or options commander must see
+      // (discarding them would turn `frodo x --help` into a bare help
+      // dump with exit 1 instead of a clean help exit).
+      return this.baseParseCommand([], unknown);
+    }
+
+    if (candidates.length === 1) {
+      // Single child: no menu -- mirror the single-saved-profile
+      // convention (announced only under --verbose, this runs inside an
+      // otherwise-quiet command). Prompting disallowed (FRODO_TEST,
+      // --no-prompt, non-TTY): fall through to commander's own bare-stub
+      // help-exit -- auto-descend is an interactive affordance, and
+      // snapshot/help tests assert the command's OWN help text here.
+      if (!canPrompt()) {
+        return this.baseParseCommand([], unknown);
+      }
+      verboseMessage(
+        `No sub-command given; using the only one available: ${candidates[0].name()}`
+      );
+      return this.baseParseCommand([candidates[0].name()], unknown);
+    }
+
+    if (!canPrompt()) {
+      return this.baseParseCommand([], unknown);
+    }
+
+    const choice = await escapableSelect<string>({
+      message: `Choose a sub-command for '${this.name()}':`,
+      choices: candidates.map((command) => ({
+        value: command.name(),
+        name: command.summary()
+          ? `${command.name()} -- ${command.summary()}`
+          : command.name(),
+      })),
+    });
+    if (choice === ESCAPE) {
+      // Fall through to commander's bare-stub help-exit, preserving
+      // today's non-interactive behavior exactly.
+      return this.baseParseCommand([], unknown);
+    }
+    return this.baseParseCommand([choice], unknown);
   }
 }
 
