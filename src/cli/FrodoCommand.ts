@@ -25,16 +25,16 @@ import {
   updateProgressIndicator,
   verboseMessage,
 } from '../utils/Console.js';
+import {
+  escapableSelect,
+  ESCAPE,
+} from '../utils/interactive/EscapableSelectPrompt.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
   deferMissingMandatoryOption,
   resolveInteractiveInputs,
 } from './ResolveInteractiveInputs.js';
-import {
-  escapableSelect,
-  ESCAPE,
-} from '../utils/interactive/EscapableSelectPrompt.js';
 
 // Frodo constants
 const constants = frodo.utils.constants;
@@ -2288,9 +2288,12 @@ function splitPositionalArgs(
  * Command -- causing infinite recursion (observed live as "Maximum call
  * stack size exceeded" when a picked sub-command dispatched).
  */
-const commanderParseCommand = (
-  Command.prototype as unknown as CommandInternal
-)._parseCommand as (this: Command, operands: string[], unknown: string[]) => unknown;
+const commanderParseCommand = (Command.prototype as unknown as CommandInternal)
+  ._parseCommand as (
+  this: Command,
+  operands: string[],
+  unknown: string[]
+) => unknown;
 
 export class FrodoStubCommand extends Command {
   /**
@@ -2603,11 +2606,8 @@ export class FrodoStubCommand extends Command {
     operands: string[],
     unknown: string[]
   ): Promise<unknown> | undefined {
-    return commanderParseCommand.call(
-      this,
-      operands,
-      unknown
-    ) as Promise<unknown> | undefined;
+    return commanderParseCommand.call(this, operands, unknown) as
+      Promise<unknown> | undefined;
   }
   /**
    * Offers this command's sub-commands (skipping the synthetic help
@@ -2615,9 +2615,7 @@ export class FrodoStubCommand extends Command {
    * the pick. Resolves to the super result -- a promise when the picked
    * sub-command's action is async.
    */
-  private async pickAndDispatchSubCommand(
-    unknown: string[]
-  ): Promise<unknown> {
+  private async pickAndDispatchSubCommand(unknown: string[]): Promise<unknown> {
     const self = this as unknown as CommandInternal;
     const candidates = this.commands.filter(
       (command) =>

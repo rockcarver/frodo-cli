@@ -3,8 +3,8 @@ import {
   isDownKey,
   isEnterKey,
   isUpKey,
-  useKeypress,
   useEffect,
+  useKeypress,
   useMemo,
   usePagination,
   usePrefix,
@@ -190,21 +190,18 @@ const escapableSelectImpl = createPrompt(
       loop: true,
     });
 
-    const searchHint =
-      query.length === 0 ? c.muted('type to filter') : '';
+    const searchHint = query.length === 0 ? c.muted('type to filter') : '';
     const queryEcho =
-      config.search && query.length > 0
-        ? c.command(` query: ${query}`)
-        : '';
+      config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
 
     const lines = [
       `${prefix} ${config.message}${queryEcho}`,
       filtered.length > 0
         ? page
-        : c.muted('  (no matches -- backspace to edit, esc clears then backs out)'),
-      selected && selected.description
-        ? c.muted(selected.description)
-        : '',
+        : c.muted(
+            '  (no matches -- backspace to edit, esc clears then backs out)'
+          ),
+      selected && selected.description ? c.muted(selected.description) : '',
       searchHint || c.muted('(↑↓ navigate · enter select · esc back)'),
     ].filter(Boolean);
     return lines.join('\n');
