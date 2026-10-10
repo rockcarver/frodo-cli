@@ -16,7 +16,14 @@ export default defineConfig({
   outputOptions: { codeSplitting: false },
   // Self-contained by design (single SEA bundle); onlyBundle:false silences
   // tsdown's detected-dependencies hint and its long dep list.
-  deps: { onlyBundle: false },
+  // NOTE on placement: every bundled runtime package (including the
+  // inquirer prompts) lives in devDependencies -- tsdown inlines those
+  // automatically, while anything listed under `dependencies` is
+  // auto-externalized unless forced via deps.alwaysBundle, which would
+  // break this binary outright (no node_modules to resolve against).
+  deps: {
+    onlyBundle: false,
+  },
   define: {
     __CLI_BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
   },
