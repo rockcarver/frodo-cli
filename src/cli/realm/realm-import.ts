@@ -46,6 +46,10 @@ export default function setup() {
         'Import all realms from separate files (*.realm.json) in the current directory. Ignored with -i, -n, or -a.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'realmId', 'realmName'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

@@ -43,6 +43,10 @@ export default function setup() {
       )
     )
     .addOption(new Option('--no-deps', 'Do not include any dependencies.'))
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'mappingId'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

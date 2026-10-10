@@ -107,6 +107,10 @@ export default function setup() {
           `  $ frodo config import -a -f Alpha.everything.json --include-active-values --source ${s.connId} ${s.connId2}\n`
         )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

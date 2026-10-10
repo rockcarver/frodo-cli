@@ -47,6 +47,10 @@ export default function setup() {
         'Import all the providers from separate files (*.admin.federation.json) in the current directory. Ignored with -t or -i or -a.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'idpId'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {

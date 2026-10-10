@@ -33,5 +33,9 @@ Options:
   -hh, --help-more    Help with all options.
   -hhh, --help-all    Help with all options, environment variables, and usage
                       examples.
+
+Rule:
+  one of -a, --all | -A, --all-separate | -f, --file <file> | -i, --idp-id <id> is required -- choose what to import
+
 "
 `;

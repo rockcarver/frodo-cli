@@ -54,6 +54,10 @@ export default function setup() {
         'Import server(s) along with the default server properties.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'serverId', 'serverUrl'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

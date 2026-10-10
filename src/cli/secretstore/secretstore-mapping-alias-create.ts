@@ -56,6 +56,16 @@ export default function setup() {
         'Create aliases for global secret stores. For classic deployments only.'
       )
     )
+    .requireOneOf({
+      options: [
+        'alias',
+        'global',
+        'secretId',
+        'secretstoreId',
+        'secretstoreType',
+      ],
+      purpose: 'the target',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

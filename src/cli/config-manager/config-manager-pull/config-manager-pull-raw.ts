@@ -70,16 +70,9 @@ export default function setup() {
           );
           process.exitCode = 1;
         }
-      }
-
-      // unrecognized combination of options or no options
-      else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
+      } else {
+        // getTokens() failed (any option combination is valid here).
         process.exitCode = 1;
-        program.help();
       }
     });
 

@@ -58,6 +58,16 @@ export default function setup() {
         'Create mappings in global secret stores. For classic deployments only.'
       )
     )
+    .requireOneOf({
+      options: [
+        'aliases',
+        'global',
+        'secretId',
+        'secretstoreId',
+        'secretstoreType',
+      ],
+      purpose: 'the target',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

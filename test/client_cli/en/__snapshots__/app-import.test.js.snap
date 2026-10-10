@@ -37,5 +37,9 @@ Options:
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage
                          examples.
+
+Rule:
+  one of -a, --all | -A, --all-separate | -i, --app-id <id> | -n, --app-name <name> | -f, --file <file> is required -- choose what to import
+
 "
 `;

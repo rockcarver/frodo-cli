@@ -63,6 +63,10 @@ export default function setup() {
         'Import all IDM configuration objects from separate files in directory -D. Ignored with -i, and -a.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'entityId', 'file'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (

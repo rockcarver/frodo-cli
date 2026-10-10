@@ -35,19 +35,13 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // all policies
+        // all policies (no --set-id needed; the else is getTokens() failing)
         else if (await getTokens()) {
           verboseMessage(`Listing authorization policies...`);
           const outcome = await listPolicies(options.long);
           if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          verboseMessage(
-            'Unrecognized combination of options or no options...'
-          );
+        } else {
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

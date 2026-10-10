@@ -54,6 +54,10 @@ export default function setup() {
         'Import all the themes from separate files (*.json) in the current directory. Ignored with -n or -i or -a.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'themeId', 'themeName'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

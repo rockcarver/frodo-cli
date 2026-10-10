@@ -56,6 +56,16 @@ export default function setup() {
       )
     )
     .addOption(new Option('-a, --all', 'Delete all mappings. Ignored with -s.'))
+    .requireOneOf({
+      options: [
+        'all',
+        'global',
+        'secretId',
+        'secretstoreId',
+        'secretstoreType',
+      ],
+      purpose: 'what to delete',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

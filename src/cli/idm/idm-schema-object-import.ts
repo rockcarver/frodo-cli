@@ -96,6 +96,10 @@ export default function setup() {
           `  $ frodo idm schema object import -D ./managed-objects -y ${s.connId}\n`
         )
     )
+    .requireOneOf({
+      options: ['file', 'managedObject', 'yes'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

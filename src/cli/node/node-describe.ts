@@ -1,7 +1,7 @@
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeCustomNode } from '../../ops/NodeOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -25,6 +25,8 @@ export default function setup() {
         options,
         command
       );
+      // Any option combination is valid (id or name, --json optional);
+      // the else is getTokens() failing.
       if (await getTokens()) {
         verboseMessage(
           `Describing custom node ${options.nodeName ? options.nodeName : options.nodeId}...`
@@ -36,12 +38,7 @@ export default function setup() {
         );
         if (!outcome) process.exitCode = 1;
       } else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
         process.exitCode = 1;
-        program.help();
       }
     });
 

@@ -62,6 +62,10 @@ export default function setup() {
         'Import all secret stores from separate files (*.secretstore.json) in the current directory. Ignored with -i or -a.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'global', 'secretstoreId'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

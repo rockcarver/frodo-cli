@@ -898,6 +898,19 @@ const promptOption = withHelpGroup(
   OptionCategory.Runtime
 );
 
+// Opt-in invocation editor (Phase 2): --edit opens an interactive pass over
+// the command's unspecified optional options before the action runs.
+// Values apply to THIS invocation only; default runs keep today's
+// behavior (unset = built-in default, no prompt).
+const editOption = withHelpGroup(
+  new Option(
+    '--edit',
+    'Interactively review and set optional options for this invocation (unset options keep their defaults).'
+  ).default(false),
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
+);
+
 const insecureOption = withHelpGroup(
   new Option(
     '-k, --insecure',
@@ -1033,6 +1046,7 @@ const defaultOpts = [
   envFileOption,
   forceUpdateOption,
   promptOption,
+  editOption,
 ];
 
 /**

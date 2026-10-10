@@ -59,6 +59,17 @@ export default function setup() {
         'Delete aliases for global secret stores. For classic deployments only.'
       )
     )
+    .requireOneOf({
+      options: [
+        'alias',
+        'all',
+        'global',
+        'secretId',
+        'secretstoreId',
+        'secretstoreType',
+      ],
+      purpose: 'what to delete',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

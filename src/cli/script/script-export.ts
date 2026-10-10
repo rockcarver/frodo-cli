@@ -94,6 +94,10 @@ export default function setup() {
         'Filter scripts by evaluator version when using -a or -A. Combine with other filters to imply AND matching.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'script', 'scriptId', 'scriptName'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

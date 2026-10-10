@@ -41,6 +41,10 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
 import { verboseMessage } from '../utils/Console';
 import {
+  escapableMultiSelect,
+  MULTISEL_ESCAPE,
+} from '../utils/interactive/EscapableMultiSelectPrompt';
+import {
   escapableSelect,
   ESCAPE,
   type EscapableSelectChoice,
@@ -50,6 +54,7 @@ import {
   promptInput,
   promptPassword,
 } from '../utils/interactive/PromptGate';
+import { guidedModeEnabled } from '../utils/SettingsStore';
 
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
 
@@ -209,6 +214,17 @@ export async function resolveInteractiveInputs(
       throwOneOfUnsatisfied(command, unsatisfied[0]);
     }
   }
+  // --edit (opt-in invocation editor) runs LAST: by now gap-filled
+  // mandatory/one-of values are visible, so the editor only offers what is
+  // still unspecified. Backing out keeps every value resolved above.
+  // Trigger: the explicit --edit flag, or the persisted guided-mode
+  // settings toggle (frodo settings guided) -- both are opt-in; default
+  // runs keep today's behavior.
+  const editRequested =
+    command.getOptionValue('edit') === true || guidedModeEnabled();
+  if (editRequested) {
+    await runInvocationEditor(command);
+  }
 }
 
 /**
@@ -258,6 +274,30 @@ function throwOneOfUnsatisfied(
 export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
 
 /**
+ * Prompts for a value from a closed choice set. A ONE-item set auto-commits
+ * (a single choice is no choice; commander would accept only that value
+ * anyway -- the plan's single-option refinement); otherwise a searchable
+ * dropdown. Returns ESCAPE only from the interactive picker, so a
+ * single-choice set can never decline.
+ */
+async function selectFromChoices(
+  message: string,
+  choices: string[]
+): Promise<string | typeof ESCAPE> {
+  if (choices.length === 1) {
+    verboseMessage(`Only one value available: ${choices[0]}`);
+    return choices[0];
+  }
+  return escapableSelect<string>({
+    message,
+    choices: choices.map((choiceValue) => ({
+      name: choiceValue,
+      value: choiceValue,
+    })),
+  });
+}
+
+/**
  * Prompts for each deferred mandatory option violation. Options with a
  * closed value set (commander `choices()`) get a dropdown; everything
  * else free text. Returns false as soon as the user declines one (Escape
@@ -278,15 +318,10 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
 
     let value: string | undefined;
     if (option.argChoices && option.argChoices.length > 0) {
-      const choice = await escapableSelect<string>({
-        message: `Choose a value for ${option.flags}:`,
-        choices: option.argChoices.map(
-          (choiceValue): EscapableSelectChoice<string> => ({
-            name: choiceValue,
-            value: choiceValue,
-          })
-        ),
-      });
+      const choice = await selectFromChoices(
+        `Choose a value for ${option.flags}:`,
+        option.argChoices
+      );
       if (choice === ESCAPE) return false;
       value = choice;
     } else {
@@ -364,15 +399,10 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
 
     const chosen = memberOptions.find((member) => member.name === picked)!;
     if (chosen.option.argChoices && chosen.option.argChoices.length > 0) {
-      const value = await escapableSelect<string>({
-        message: `Choose a value for ${chosen.option.flags}:`,
-        choices: chosen.option.argChoices.map(
-          (choiceValue): EscapableSelectChoice<string> => ({
-            name: choiceValue,
-            value: choiceValue,
-          })
-        ),
-      });
+      const value = await selectFromChoices(
+        `Choose a value for ${chosen.option.flags}:`,
+        chosen.option.argChoices
+      );
       if (value === ESCAPE) return false;
       command.setOptionValueWithSource(chosen.name, value, 'cli');
     } else if (!/<[^>]+>|\[[^\]]+\]/.test(chosen.option.flags)) {
@@ -626,4 +656,84 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
   }
 
   return true;
+}
+
+/**
+ * The --edit invocation editor (Phase 2): lists the command's optional
+ * options that are NOT already specified on this invocation (gap-filled
+ * mandatory/one-of values from the earlier steps don't re-appear), with
+ * their help descriptions. Space toggles, enter commits; each selected
+ * option then gets a value step matched to its type (dropdown for
+ * commander choices(), free text otherwise -- booleans commit on toggle).
+ * Unselected options keep their built-in defaults; committed values apply
+ * to THIS invocation only (plain option values, no persistence -- that is
+ * Phase 4's Defaults.json).
+ *
+ * Escape backs out of the value step without committing that option; the
+ * multiselect's Escape backs out of the editor entirely (committed
+ * nothing beyond what the earlier steps resolved). No editor on a
+ * non-interactive session: --edit is meaningless there and the command
+ * must behave exactly as without it (FRODO_TEST e2e determinism).
+ */
+async function runInvocationEditor(command: Command): Promise<void> {
+  const candidates = command.options.filter((option) => {
+    // Help/version/prompt machinery is not an editable option.
+    if (
+      option.name() === 'help' ||
+      option.name() === 'version' ||
+      option.name() === 'prompt' ||
+      option.name() === 'edit'
+    ) {
+      return false;
+    }
+    // Only options NOT already valued on this invocation.
+    const value = command.getOptionValue(option.attributeName());
+    return value === undefined || value === false;
+  });
+  if (candidates.length === 0) {
+    verboseMessage('No optional options left to edit.');
+    return;
+  }
+
+  const picked = await escapableMultiSelect<string>({
+    message: `Optional options for '${command.name()}' (space to select):`,
+    choices: candidates.map((option) => ({
+      value: option.attributeName(),
+      name: option.flags,
+      description: option.description,
+    })),
+  });
+  if (picked === MULTISEL_ESCAPE) {
+    verboseMessage('Invocation editor dismissed; values unchanged.');
+    return;
+  }
+
+  for (const attributeName of picked) {
+    const option = command.options.find(
+      (candidate) => candidate.attributeName() === attributeName
+    )!;
+    if (option.argChoices && option.argChoices.length > 0) {
+      const value = await escapableSelect<string>({
+        message: `Choose a value for ${option.flags}:`,
+        choices: option.argChoices.map(
+          (choiceValue): EscapableSelectChoice<string> => ({
+            name: choiceValue,
+            value: choiceValue,
+          })
+        ),
+      });
+      if (value === ESCAPE) continue;
+      command.setOptionValueWithSource(attributeName, value, 'cli');
+    } else if (!/<[^>]+>|\[[^\]]+\]/.test(option.flags)) {
+      // Boolean flag: selected = true, no value step.
+      command.setOptionValueWithSource(attributeName, true, 'cli');
+    } else {
+      const answer = await promptInput({
+        message: `Enter a value for ${option.flags}:`,
+      });
+      if (!answer) continue;
+      command.setOptionValueWithSource(attributeName, answer, 'cli');
+    }
+    verboseMessage(`Using ${option.flags}.`);
+  }
 }

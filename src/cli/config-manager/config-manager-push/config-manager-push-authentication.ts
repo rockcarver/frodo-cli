@@ -2,7 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerImportAuthentication } from '../../../configManagerOps/FrConfigAuthenticationOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage, verboseMessage } from '../../../utils/Console';
+import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -41,15 +41,9 @@ export default function setup() {
         verboseMessage('Importing config entity authentication');
         const outcome = await configManagerImportAuthentication(options.realm);
         if (!outcome) process.exitCode = 1;
-      }
-      // unrecognized combination of options or no options
-      else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
+      } else {
+        // getTokens() failed (any option combination is valid here).
         process.exitCode = 1;
-        program.help();
       }
     });
 

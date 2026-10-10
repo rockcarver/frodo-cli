@@ -66,6 +66,10 @@ export default function setup() {
         'Import service(s) into the current realm. Use this flag if you exported a service from one realm and are importing into another realm.'
       ).default(false)
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'serviceId'],
+      purpose: 'what to import',
+    })
     .action(
       async (
         host: string,

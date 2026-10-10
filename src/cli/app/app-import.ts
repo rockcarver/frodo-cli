@@ -78,6 +78,10 @@ export default function setup() {
           `  $ frodo app import -i myApp -f ./allAlphaApplications.application.json ${s.connId}\n`
         )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'appId', 'appName', 'file'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

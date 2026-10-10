@@ -42,6 +42,10 @@ export default function setup() {
       )
     )
     .addOption(new Option('-g, --global', 'Import global agents.'))
+    .requireOneOf({
+      options: ['agentId', 'all', 'allSeparate', 'file', 'global'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

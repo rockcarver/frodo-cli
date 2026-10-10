@@ -48,6 +48,10 @@ export default function setup() {
         'Do not import any dependencies (email templates, request forms, events, etc.).'
       )
     )
+    .requireOneOf({
+      options: ['workflowId', 'all', 'allSeparate', 'file'],
+      purpose: 'what to import',
+    })
     .action(
       // implement program logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -63,20 +67,6 @@ export default function setup() {
         const isImportAll = options.all && options.file;
         const isImportAllSeparate = options.allSeparate && !options.file;
         const isImportFirst = !!options.file;
-        if (
-          !isImportById &&
-          !isImportAll &&
-          !isImportAllSeparate &&
-          !isImportFirst
-        ) {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          process.exitCode = 1;
-          program.help();
-          return;
-        }
         const getTokensIsSuccessful = await getTokens(
           false,
           true,

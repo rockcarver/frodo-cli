@@ -28,6 +28,10 @@ export default function setup() {
     .addOption(
       new Option('--set-id <set-id>', 'Policy set id/name. Ignored with -i.')
     )
+    .requireOneOf({
+      options: ['all', 'policyId', 'setId'],
+      purpose: 'what to delete',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

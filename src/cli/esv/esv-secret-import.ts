@@ -77,6 +77,10 @@ export default function setup() {
           `  $ frodo esv secret import -a -f allAlphaSecrets.secret.json --include-active-values --source ${s.connId} ${s.connId2}\n`
         )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'secretId'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {

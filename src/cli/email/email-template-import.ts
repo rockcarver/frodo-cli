@@ -52,6 +52,10 @@ export default function setup() {
         "Import raw email template files. Raw templates do not contain the id/name, therefore when using -A or -f without -i, the email template id/name is parsed from the file name; Make sure your template files are named 'emailTemplate-<id/name>.json' or use -f with -i. Ignored with -a."
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'templateId'],
+      purpose: 'what to import',
+    })
     .action(
       // implement program logic inside action handler
       async (host, realm, user, password, options, command) => {

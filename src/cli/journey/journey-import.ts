@@ -50,6 +50,10 @@ export default function setup() {
         'Do not include any dependencies (scripts, email templates, SAML entity providers and circles of trust, social identity providers, themes).'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'journeyId'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

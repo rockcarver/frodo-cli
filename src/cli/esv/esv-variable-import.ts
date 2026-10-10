@@ -41,6 +41,10 @@ export default function setup() {
         'Import all variables from separate files (*.variable.json) in the current directory. Ignored with -i or -a.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'variableId'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {

@@ -30,5 +30,9 @@ Options:
   -hh, --help-more      Help with all options.
   -hhh, --help-all      Help with all options, environment variables, and usage
                         examples.
+
+Rule:
+  one of -f, --file [file] | -o, --managed-object | -y, --yes is required -- choose what to import
+
 "
 `;

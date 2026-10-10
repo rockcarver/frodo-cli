@@ -45,5 +45,9 @@ Options:
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and
                                usage examples.
+
+Rule:
+  one of -a, --all | -A, --all-separate | -i, --node-id <node-id> | -n, --node-name <node-name> is required -- choose what to export
+
 "
 `;
