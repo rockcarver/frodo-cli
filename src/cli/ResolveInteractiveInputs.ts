@@ -62,25 +62,27 @@ const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
 const pendingMandatoryViolations = new WeakMap<Command, string[]>();
 
 /**
- * One-of rule registered on a command via `requireOneOf` (see
- * FrodoCommand). Weaker than `makeOptionMandatory`: instead of "this one
- * option must always be present", it says "one (or all, with mode 'all')
- * of these options must be present" -- the shape of the
- * `Unrecognized combination of options or no options...` dead-ends that
- * 113 command action bodies enforce only AFTER authenticating. Evaluated
- * in the resolution pass (below), where a violation becomes an
- * interactive prompt on a prompt-capable session and commander's own
- * error otherwise.
+ * Option-requiredness rule registered on a command via `requireOneOf`
+ * (at least one member present) or `requireAllOf` (every member present --
+ * pairwise-required members, e.g. esv secret version activate's `-i` +
+ * `-v`). Weaker than `makeOptionMandatory`: instead of "this one option
+ * must always be present", it says "one of / all of these options must be
+ * present" -- the shape of the `Unrecognized combination of options or no
+ * options...` dead-ends that 113 command action bodies enforce only AFTER
+ * authenticating. Evaluated in the resolution pass (below), where a
+ * violation becomes an interactive prompt on a prompt-capable session and
+ * commander's own error otherwise.
  */
-export type OneOfGroupSpec = {
+export type OptionRequirementSpec = {
   /** Long names (no dashes) of the group's member options. */
   options: string[];
   /**
-   * 'one' (default): at least one member must be present. 'all': every
-   * member must be present (pairwise-required members, e.g. esv secret
-   * version activate's `-i` + `-v`).
+   * Whether every member (true) or at least one member (false) must be
+   * present. OPTIONAL -- set by the requireOneOf/requireAllOf wrappers
+   * (requireOneOf defaults it to false, requireAllOf to true); callers
+   * never pass it.
    */
-  mode?: 'one' | 'all';
+  all?: boolean;
   /**
    * Human-readable purpose shown in prompts/errors, e.g. "what to
    * delete". Derived from the command description when omitted.
@@ -88,15 +90,24 @@ export type OneOfGroupSpec = {
   purpose?: string;
 };
 
-const pendingOneOfGroups = new WeakMap<Command, OneOfGroupSpec[]>();
+/**
+ * Pre-requireAllOf spelling kept as an alias so the part-1/part-2 call
+ * sites keep compiling while they migrate to the split methods.
+ */
+export type OneOfGroupSpec = OptionRequirementSpec;
+
+const pendingOneOfGroups = new WeakMap<
+  Command,
+  (OptionRequirementSpec & { all: boolean })[]
+>();
 
 /**
- * Registers one-of groups on a command for resolution-pass evaluation.
- * Called from FrodoCommand.requireOneOf.
+ * Registers option-requiredness groups on a command for resolution-pass
+ * evaluation. Called from FrodoCommand.requireOneOf/requireAllOf.
  */
 export function deferOneOfGroups(
   command: Command,
-  groups: OneOfGroupSpec[]
+  groups: (OptionRequirementSpec & { all: boolean })[]
 ): void {
   pendingOneOfGroups.set(command, [
     ...(pendingOneOfGroups.get(command) ?? []),
@@ -205,7 +216,10 @@ function throwMissingMandatory(command: Command, optionLabel: string): never {
  * also the UX the replaced `Unrecognized combination` else-branches had
  * (they printed, showed help, and exited 1).
  */
-function throwOneOfUnsatisfied(command: Command, group: OneOfGroupSpec): never {
+function throwOneOfUnsatisfied(
+  command: Command,
+  group: OptionRequirementSpec
+): never {
   const members = group.options
     .map((name) => {
       const option = command.options.find(
@@ -213,11 +227,13 @@ function throwOneOfUnsatisfied(command: Command, group: OneOfGroupSpec): never {
       );
       return option ? option.flags : `--${name}`;
     })
-    .join(' | ');
+    .join(group.all ? ' + ' : ' | ');
   command.error(
-    `error: one of '${members}' is required${
-      group.purpose ? ` to choose ${group.purpose}` : ''
-    }`,
+    `error: ${
+      group.all
+        ? `all of '${members}' are required`
+        : `one of '${members}' is required`
+    }${group.purpose ? ` to choose ${group.purpose}` : ''}`,
     { code: ONE_OF_UNSATISFIED_CODE }
   );
 }
@@ -276,24 +292,27 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
 }
 
 /**
- * Whether a one-of group is satisfied by the current option values. 'one'
- * mode needs at least one member present; 'all' mode every member. Values
- * are read via getOptionValue so injected gap-fills count.
+ * Whether an option-requiredness group is satisfied by the current option
+ * values: every member for requireAllOf groups, at least one for
+ * requireOneOf groups. Values are read via getOptionValue so injected
+ * gap-fills count.
  */
-function groupSatisfied(command: Command, group: OneOfGroupSpec): boolean {
+function groupSatisfied(
+  command: Command,
+  group: OptionRequirementSpec
+): boolean {
   const defined = (name: string): boolean => {
     const value = command.getOptionValue(name);
     return value !== undefined && value !== false && value !== '';
   };
-  return group.mode === 'all'
-    ? group.options.every(defined)
-    : group.options.some(defined);
+  return group.all ? group.options.every(defined) : group.options.some(defined);
 }
 
 /**
- * All registered one-of groups the current invocation does not satisfy.
+ * All registered option-requiredness groups the current invocation does
+ * not satisfy.
  */
-function findUnsatisfiedOneOfGroups(command: Command): OneOfGroupSpec[] {
+function findUnsatisfiedOneOfGroups(command: Command): OptionRequirementSpec[] {
   const groups = pendingOneOfGroups.get(command) ?? [];
   return groups.filter((group) => !groupSatisfied(command, group));
 }

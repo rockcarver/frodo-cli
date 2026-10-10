@@ -2,7 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deactivateVersionOfSecret } from '../../ops/cloud/SecretsOps';
-import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -20,6 +20,10 @@ export default function setup() {
     .description('Deactivate versions of secrets.')
     .addOption(new Option('-i, --secret-id <secret-id>', 'Secret id.'))
     .addOption(new Option('-v, --version <version>', 'Version of secret.'))
+    .requireAllOf({
+      options: ['secretId', 'version'],
+      purpose: 'which secret version',
+    })
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -30,7 +34,7 @@ export default function setup() {
           options,
           command
         );
-        // activate by id
+        // deactivate by id
         if (
           options.secretId &&
           options.version &&
@@ -43,9 +47,9 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way here is
+        // getTokens() failing -- keep the old exit-1 semantics.
         else {
-          printMessage('Unrecognized combination of options or no options...');
           process.exitCode = 1;
         }
       }

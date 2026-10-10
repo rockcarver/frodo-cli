@@ -35,7 +35,7 @@ import {
   deferMissingMandatoryOption,
   deferOneOfGroups,
   resolveInteractiveInputs,
-  type OneOfGroupSpec,
+  type OptionRequirementSpec,
 } from './ResolveInteractiveInputs.js';
 
 // Frodo constants
@@ -2501,14 +2501,13 @@ export class FrodoStubCommand extends Command {
   }
 
   /**
-   * Declares that this command needs at least one (mode 'one', the
-   * default) or all (mode 'all') of the named options -- the declarative
-   * replacement for the `Unrecognized combination of options or no
-   * options...` dead-ends that 113 command action bodies enforce only
-   * AFTER authenticating. Evaluated in the preAction resolution pass
-   * (ResolveInteractiveInputs): on an interactive session the user is
-   * prompted for a member and its value; otherwise commander's own
-   * error+help+exit-1 fires with code `frodo.oneOfUnsatisfied`.
+   * Declares that this command needs AT LEAST ONE of the named options --
+   * the declarative replacement for the `Unrecognized combination of
+   * options or no options...` dead-ends that 113 command action bodies
+   * enforce only AFTER authenticating. Evaluated in the preAction
+   * resolution pass (ResolveInteractiveInputs): on an interactive session
+   * the user is prompted for a member and its value; otherwise commander's
+   * own error+help+exit-1 fires with code `frodo.oneOfUnsatisfied`.
    *
    * Unlike makeOptionMandatory (which commander checks during parsing),
    * this runs later -- after connection-arg gap-fill -- so a command
@@ -2519,8 +2518,34 @@ export class FrodoStubCommand extends Command {
    * @param groups One or more group specs.
    * @returns This command for chaining.
    */
-  requireOneOf(...groups: [OneOfGroupSpec, ...OneOfGroupSpec[]]): this {
-    deferOneOfGroups(this, groups);
+  requireOneOf(
+    ...groups: [OptionRequirementSpec, ...OptionRequirementSpec[]]
+  ): this {
+    deferOneOfGroups(
+      this,
+      groups.map((group) => ({ ...group, all: false }))
+    );
+    return this;
+  }
+
+  /**
+   * Declares that this command needs ALL of the named options together --
+   * the pairwise-required shape (e.g. esv secret version activate needs
+   * `-i` AND `-v`; either alone dead-ended with `Unrecognized
+   * combination`). Same evaluation, prompting, and error semantics as
+   * requireOneOf (see that method), with the all-members check and an
+   * "all of ... are required" error message.
+   *
+   * @param groups One or more group specs.
+   * @returns This command for chaining.
+   */
+  requireAllOf(
+    ...groups: [OptionRequirementSpec, ...OptionRequirementSpec[]]
+  ): this {
+    deferOneOfGroups(
+      this,
+      groups.map((group) => ({ ...group, all: true }))
+    );
     return this;
   }
 

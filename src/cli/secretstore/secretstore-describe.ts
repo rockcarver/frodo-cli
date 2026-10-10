@@ -2,7 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeSecretStore } from '../../ops/SecretStoreOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const {
@@ -41,6 +41,7 @@ export default function setup() {
         'Describe global secret stores. For classic deployments only.'
       )
     )
+    .requireOneOf({ options: ['secretstoreId'], purpose: 'which secret store' })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -67,12 +68,10 @@ export default function setup() {
             options.global
           );
           if (!outcome) process.exitCode = 1;
-        } else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.outputHelp();
+        }
+        // No branch ran: with requireOneOf satisfied, the only way here is
+        // getTokens() failing -- keep the old exit-1 semantics.
+        else {
           process.exitCode = 1;
         }
       }

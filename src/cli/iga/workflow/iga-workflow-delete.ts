@@ -48,6 +48,10 @@ export default function setup() {
         'Force delete workflow(s), even if they are associated with request types.'
       )
     )
+    .requireOneOf({
+      options: ['workflowId', 'all'],
+      purpose: 'which workflows',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -59,15 +63,6 @@ export default function setup() {
           options,
           command
         );
-        if (!options.workflowId && !options.all) {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          process.exitCode = 1;
-          program.help();
-          return;
-        }
         const getTokensIsSuccessful = await getTokens(
           false,
           true,
