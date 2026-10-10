@@ -25,7 +25,7 @@ Arguments:
 
 Options:
   --json                       Output in JSON format.
-  -o, --managed-object <type>  Managed object type.
+  -o, --managed-object <type>  Managed object type. (prompts if missing)
   -r, --recursive              Expand nested object properties inline in the
                                table, named by dot-path (e.g.
                                "preferences.marketing").

@@ -49,7 +49,7 @@ Options:
                                      Requires --derive-from-relationship (on
                                      this call, or already configured).
   --not-viewable                     Hide this property in the UI.
-  -o, --managed-object <type>        Managed object type.
+  -o, --managed-object <type>        Managed object type. (prompts if missing)
   --on-retrieve-script <file>        Change this to a script-derived virtual
                                      property: compute its value on read from
                                      this local JavaScript file. Doesn't affect
@@ -58,7 +58,7 @@ Options:
                                      write from this local JavaScript file.
                                      Doesn't affect an existing
                                      --on-retrieve-script.
-  -p, --property <name>              Property name.
+  -p, --property <name>              Property name. (prompts if missing)
   --property-type <type>             Change the property type. Valid types:
                                      string, number, boolean, date, time,
                                      datetime, duration, object. (choices:

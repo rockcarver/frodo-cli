@@ -24,8 +24,8 @@ Arguments:
   password                      Password.
 
 Options:
-  -i, --client-id [id]          Client id.
-  -s, --client-secret [secret]  Client secret.
+  -i, --client-id [id]          Client id. (prompts if missing)
+  -s, --client-secret [secret]  Client secret. (prompts if missing)
   --scope [scope]               Request the following scope(s). (default:
                                 fr:idm:*)
   -h, --help                    Help

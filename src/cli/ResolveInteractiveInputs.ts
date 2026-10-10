@@ -116,6 +116,17 @@ export function deferOneOfGroups(
 }
 
 /**
+ * The option-requiredness groups registered on a command (empty when
+ * none). Read by FrodoStubHelp to render the rule in help output -- the
+ * help annotation and the resolver consume the same metadata.
+ */
+export function getOneOfGroups(
+  command: Command
+): (OptionRequirementSpec & { all: boolean })[] {
+  return pendingOneOfGroups.get(command) ?? [];
+}
+
+/**
  * Records a mandatory option that was missing at parse time, instead of
  * throwing. Called from FrodoCommand's `missingMandatoryOptionValue`
  * override. `optionLabel` is the option's full flags string (e.g.

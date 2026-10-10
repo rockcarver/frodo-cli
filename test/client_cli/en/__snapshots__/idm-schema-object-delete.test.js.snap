@@ -26,7 +26,7 @@ Arguments:
 Options:
   -f, --force                  Delete even if the type has existing records, or
                                if the record count can't be confirmed.
-  -o, --managed-object <type>  Managed object type.
+  -o, --managed-object <type>  Managed object type. (prompts if missing)
   -y, --yes                    Answer y/yes to all prompts.
   -h, --help                   Help
   -hh, --help-more             Help with all options.

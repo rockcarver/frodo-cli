@@ -37,10 +37,11 @@ Options:
                                   changes. Default: false.
   --notify-self                   Notify this object of relationship changes.
                                   Default: false.
-  -o, --managed-object <type>     Managed object type.
-  -p, --property <name>           Relationship property name.
+  -o, --managed-object <type>     Managed object type. (prompts if missing)
+  -p, --property <name>           Relationship property name. (prompts if
+                                  missing)
   --query-fields <csv>            Comma-separated list of fields to fetch from
-                                  the target object.
+                                  the target object. (prompts if missing)
   --query-filter <filter>         Query filter applied against the target
                                   object. Default: "true" (match all).
   --return-by-default             Return this property by default on reads.
@@ -66,7 +67,7 @@ Options:
   --single                        This is a to-one (single) relationship.
   --sort-keys <csv>               Comma-separated list of sort keys.
   --target-object <type>          Managed object type this relationship points
-                                  to.
+                                  to. (prompts if missing)
   --title <text>                  Display title. Defaults to a title-cased
                                   version of the property name.
   --user-editable                 Allow end users to edit this property.

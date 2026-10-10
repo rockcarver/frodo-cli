@@ -34,6 +34,7 @@ import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
   deferMissingMandatoryOption,
   deferOneOfGroups,
+  getOneOfGroups,
   resolveInteractiveInputs,
   type OptionRequirementSpec,
 } from './ResolveInteractiveInputs.js';
@@ -2844,6 +2845,34 @@ class FrodoStubHelp extends Help {
       );
     }
 
+    // Option-requiredness rules (requireOneOf/requireAllOf) declared on
+    // this command, rendered after the option lists: the declarative
+    // replacement for the old "Unrecognized combination" dead-ends, so
+    // help now says the rule the action body used to reveal only after
+    // authenticating.
+    for (const group of getOneOfGroups(cmd)) {
+      const members = group.options
+        .map((name) => {
+          const option = cmd.options.find(
+            (candidate) => candidate.attributeName() === name
+          );
+          return option ? option.flags : `--${name}`;
+        })
+        .join(group.all ? ' + ' : ' | ');
+      const ruleText = group.all
+        ? `all of ${members} are required together`
+        : `one of ${members} is required`;
+      output = output.concat(
+        this.formatItemList(
+          'Rule:',
+          [ruleText + (group.purpose ? ` -- choose ${group.purpose}` : '')]
+            .map((line) => `  ${line}`)
+            .concat(''),
+          helper
+        )
+      );
+    }
+
     const commandGroups = this.groupItems(
       [...cmd.commands],
       [...helper.visibleCommands(cmd)],
@@ -2912,10 +2941,19 @@ class FrodoStubHelp extends Help {
    * @returns Possibly decorated description.
    */
   override optionDescription(option: Option): string {
-    return decorateDescriptionWithStability(
+    // "(prompts if missing)": option mandatory-ness deferred to the
+    // resolution pass means the CLI prompts for it on an interactive
+    // session -- worth saying in help, where today mandatory-ness shows
+    // only as an error after the fact. Plain makeOptionMandatory has the
+    // same prompt behavior (FrodoCommand defers it too), so the
+    // annotation keys on the flag itself.
+    const description = decorateDescriptionWithStability(
       super.optionDescription(option),
       option
     );
+    return option.mandatory
+      ? `${description} (prompts if missing)`
+      : description;
   }
 
   /**

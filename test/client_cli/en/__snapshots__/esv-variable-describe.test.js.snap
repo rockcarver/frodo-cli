@@ -26,7 +26,7 @@ Options:
   -f, --file [file]                Optional export file to use to determine
                                    usage. Overrides -D, --directory. Only used
                                    if -u or --usage is provided as well.
-  -i, --variable-id <variable-id>  Variable id.
+  -i, --variable-id <variable-id>  Variable id. (prompts if missing)
   --json                           Output in JSON format.
   -u, --usage                      List all uses of the variable. If a file is
                                    provided with -f or --file, it will search

@@ -31,7 +31,7 @@ Options:
                                    in the past. If not specified, logs from one
                                    hour ago are fetched   (-e is ignored)
   -c, --sources <sources>          Comma separated list of log sources (default:
-                                   Log everything)
+                                   Log everything) (prompts if missing)
   -d, --defaults                   Use default logging noise filters (default:
                                    Use custom logging noise filters defined in
                                    $HOME/LoggingNoiseFilter.json)

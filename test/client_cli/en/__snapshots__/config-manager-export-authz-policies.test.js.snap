@@ -22,7 +22,7 @@ Arguments:
 
 Options:
   -f, --file <file>  *Required* The AUTHZ_POLICY_SETS_CONFIG json file. ex:
-                     "/Documents/policy-sets.json"
+                     "/Documents/policy-sets.json" (prompts if missing)
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

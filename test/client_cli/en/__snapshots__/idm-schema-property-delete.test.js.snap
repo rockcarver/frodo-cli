@@ -24,8 +24,8 @@ Arguments:
   password                     Password.
 
 Options:
-  -o, --managed-object <type>  Managed object type.
-  -p, --property <name>        Property name.
+  -o, --managed-object <type>  Managed object type. (prompts if missing)
+  -p, --property <name>        Property name. (prompts if missing)
   --sub-property <path>        Delete a nested property, as a dot-path relative
                                to -p.
   -y, --yes                    Answer y/yes to all prompts.

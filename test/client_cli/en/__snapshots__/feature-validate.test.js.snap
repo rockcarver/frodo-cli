@@ -21,7 +21,7 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -i, --feature-id <id>  Feature id.
+  -i, --feature-id <id>  Feature id. (prompts if missing)
   -h, --help             Help
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage
