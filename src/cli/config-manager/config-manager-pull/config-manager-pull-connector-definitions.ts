@@ -56,14 +56,10 @@ export default function setup() {
         }
         if (!outcome) process.exitCode = 1;
       }
-      // unrecognized combination of options or no options
+      // Any option combination is valid; the only way this branch runs
+      // is getTokens() failing.
       else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
         process.exitCode = 1;
-        program.help();
       }
     });
 

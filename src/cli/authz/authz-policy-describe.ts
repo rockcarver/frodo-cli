@@ -27,20 +27,16 @@ export default function setup() {
           options,
           command
         );
+        // policyId is mandatory (above); the only way no branch runs is
+        // getTokens() failing.
         if (options.policyId && (await getTokens())) {
           verboseMessage(
             `Describing authorization policy ${options.policyId}...`
           );
           const outcome = await describePolicy(options.policyId, options.json);
           if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          verboseMessage(
-            'Unrecognized combination of options or no options...'
-          );
+        } else {
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

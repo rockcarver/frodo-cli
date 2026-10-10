@@ -79,6 +79,7 @@ export default function setup() {
         '* -------------------------------------------------------------------------------------------- \n'
     )
 
+    .requireOneOf({ options: ['file'], purpose: 'the export file' })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -95,13 +96,10 @@ export default function setup() {
           options.file
         );
         if (!outcome) process.exitCode = 1;
+        // No branch ran: with requireOneOf satisfied, the only way here is
+        // getTokens() failing -- keep the old exit-1 semantics.
       } else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
         process.exitCode = 1;
-        program.help();
       }
     });
 
