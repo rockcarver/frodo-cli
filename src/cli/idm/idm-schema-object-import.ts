@@ -97,8 +97,8 @@ export default function setup() {
         )
     )
     .requireOneOf({
-      options: ['file', 'managedObject', 'yes'],
-      purpose: 'what to import',
+      options: ['directory', 'file'],
+      purpose: 'where to import from',
     })
     .action(
       // implement command logic inside action handler
