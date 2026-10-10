@@ -16,14 +16,13 @@ export default defineConfig({
   outputOptions: { codeSplitting: false },
   // Self-contained by design (single SEA bundle); onlyBundle:false silences
   // tsdown's detected-dependencies hint and its long dep list.
-  // The inquirer prompts MUST be bundled explicitly (deps.alwaysBundle): they moved from
-  // devDependencies to dependencies with the interactive-prompt feature,
-  // and tsdown auto-externalizes packages listed in `dependencies` unless
-  // named here -- which surfaced as ERR_UNKNOWN_BUILTIN_MODULE at SEA
-  // runtime (there is no node_modules inside a SEA binary to resolve to).
+  // NOTE on placement: every bundled runtime package (including the
+  // inquirer prompts) lives in devDependencies -- tsdown inlines those
+  // automatically, while anything listed under `dependencies` is
+  // auto-externalized unless forced via deps.alwaysBundle, which would
+  // break this binary outright (no node_modules to resolve against).
   deps: {
     onlyBundle: false,
-    alwaysBundle: ['@inquirer/confirm', '@inquirer/core', '@inquirer/select'],
   },
   define: {
     __CLI_BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
