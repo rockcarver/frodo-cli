@@ -289,6 +289,12 @@ export async function runInteractivePreferredCredentialPicker(
     } else {
       const choice = await escapableSelect<string>({
         message: 'Choose a connection profile:',
+        // Filter matches host AND alias (case-insensitive).
+        search: ({ value }, query) =>
+          value.toLowerCase().includes(query.toLowerCase()) ||
+          (connectionsData[value].alias ?? '')
+            .toLowerCase()
+            .includes(query.toLowerCase()),
         choices: hosts.map((h) => ({
           value: h,
           name: connectionsData[h].alias
