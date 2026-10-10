@@ -38,6 +38,17 @@ For how the build toolchain works — what each tool does and why, bundler
 configuration details, binary packaging and signing — see
 [BUILD-ENV.md](BUILD-ENV.md).
 
+> **Adding a package? Read this first.** This CLI ships as a
+> zero-dependency package: package.json's `dependencies` field stays
+> empty on purpose, and every package imported by shipped code —
+> including runtime prompt/library code — goes in **`devDependencies`**.
+> The bundler (tsdown; tsup had the same default) inlines
+> devDependencies into the bundle and externalizes anything listed under
+> `dependencies` — which breaks the SEA binary at runtime (no
+> `node_modules` inside the binary) and reopens the npm audit surface we
+> deliberately keep empty. Details and the verification one-liner:
+> [BUILD-ENV.md §2.2.1](BUILD-ENV.md).
+
 #### Full build (npm bundle + platform binary)
 
 The following command builds the CLI and creates a native SEA binary for

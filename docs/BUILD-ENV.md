@@ -74,6 +74,52 @@ loaded, then threw `SyntaxError: Unexpected token ','`. The workaround
 - `deps.neverBundle` lists every devDependency. tsdown (like tsup before it)
   otherwise bundles devDependencies — which is why our devDependencies are
   effectively the runtime dependency list of the binary.
+
+#### 2.2.1 The dependency-placement rule (read before adding any package)
+
+The published package is **zero-dep by design**: package.json's
+`dependencies` field stays empty, and everything the binary needs at
+runtime lives in **`devDependencies`** and is inlined into the bundle.
+This is what keeps `npm install` weight minimal, keeps
+`npm audit --omit=dev` empty (the audit surface we drove to zero in the
+zero-audit push and want to keep empty), and is what makes the SEA binary
+self-contained.
+
+Bundling is driven entirely by which bucket a package sits in — not by
+any explicit bundle list:
+
+| Bucket            | tsdown behavior (tsup had the same default)                                          |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| `devDependencies` | **inlined** into `dist/*.cjs` / SEA bundle                                           |
+| `dependencies`    | **externalized** to a bare `require()` — unless forced back with `deps.alwaysBundle` |
+
+So the npm-conventional instinct — "imported at runtime ⇒ declare as
+`dependencies`" — is **wrong in this repo**. It happened with the
+interactive-prompt feature (PR #772): moving the `@inquirer/*` packages
+to `dependencies` made tsdown externalize them, and the SEA binary (a
+single embedded file with no `node_modules` next to it) failed at runtime
+with `ERR_UNKNOWN_BUILTIN_MODULE` — caught by CI's SEA e2e leg only,
+because a stale locally built binary still contained the old inlined
+code. Declared deps would also have reopened the npm audit surface and
+made consumers install three packages whose code is inlined anyway.
+
+**Rule: a package imported by shipped code goes in `devDependencies`,
+and nothing ever goes in `dependencies`.** If a package genuinely cannot
+be bundled, that is a design problem to raise — not something to paper
+over with `alwaysBundle`.
+
+Verification one-liner after any dependency-graph change (both counts
+must be 0):
+
+```console
+grep -c 'require("@' dist/app.cjs dist-sea/app.cjs
+```
+
+(Non-`node:` external requires in a fresh bundle mean something got
+externalized; the SEA build is the one that breaks at runtime. Build the
+binary fresh first — `npm run build:binary` — a stale `dist-sea/` masks
+the problem exactly the way it did in #772.)
+
 - JSON imports (`src/ops/templates/*.json`) are inlined at build time; no
   runtime file reads, nothing to ship as assets.
 - `define: { __CLI_BUILD_TIMESTAMP__ }` stamps the build time that `-v` prints.
@@ -361,4 +407,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-10-05 | npm dev-dependency majors (Batch 2, merged sequentially with rebase discipline): @types/node 26, chokidar 5, uuid 14, commander 15 (SEA-validated on main before merge), properties-reader 3 (`propertiesReader({sourceFile})` object form; `.each` callback value widened to `Value` → env-file values coerced with `String()`)                                                                                                                                                                                                                                    | #740, #725, #720, #739, #738 |
 | 2026-10-05 | frodo-lib pinned to exact versions (4.11.1 → 4.12.0-1) after each lib release; lib pin is deliberate (exact, not caret) so cli CI always validates against the version it will ship with                                                                                                                                                                                                                                                                                                                                                                            | #754                         |
 | 2026-10-05 | Deep-import type migration: all 110 `@rockcarver/frodo-lib/types/*` statements (62 files) migrated to root-entry imports with inline `type` qualifiers — removes the node10-moduleResolution dependency (`./types/*` subpath is deprecated in TS 6, removed in TS 7) and gives IDEs the standard single-entry type surface. Requires frodo-lib ≥ 4.12 (#687 root type exports)                                                                                                                                                                                      | #755                         |
+| 2026-10-10 | Dependency-placement rule documented (§2.2.1): all bundled runtime packages live in `devDependencies` (tsdown inlines those; `dependencies` entries are externalized and break the SEA binary + reopen the npm audit surface). The `@inquirer/*` move to `dependencies` in #772 was reverted on this rule — `dependencies` stays empty by design. tsdown's `deps.alwaysBundle` exists as the escape hatch but should never be needed here. tsup equivalent: `noExternal`/`external`                                                                                 | #772                         |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |
