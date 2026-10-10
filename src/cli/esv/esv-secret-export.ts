@@ -8,7 +8,7 @@ import {
   exportSecretToFile,
 } from '../../ops/cloud/SecretsOps';
 import c from '../../utils/ColorTheme';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -90,6 +90,10 @@ export default function setup() {
           `  $ frodo esv secret export -a --include-active-values --target ${s.connId2} ${s.connId}\n`
         )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'secretId'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -143,11 +147,11 @@ export default function setup() {
             options.target
           );
           if (!outcome) process.exitCode = 1;
-        } else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
+        }
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
+        else {
           process.exitCode = 1;
         }
       }

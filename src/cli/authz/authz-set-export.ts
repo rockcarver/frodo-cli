@@ -53,6 +53,10 @@ export default function setup() {
     .addOption(
       new Option('--prereqs', 'Include prerequisites (resource types).')
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'setId'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -111,13 +115,11 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
         else {
-          verboseMessage(
-            'Unrecognized combination of options or no options...'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

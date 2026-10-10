@@ -6,7 +6,7 @@ import {
   exportAdminFederationProvidersToFiles,
   exportAdminFederationProviderToFile,
 } from '../../ops/cloud/AdminFederationOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -52,6 +52,10 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'idpId'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -90,15 +94,12 @@ export default function setup() {
             );
             if (!outcome) process.exitCode = 1;
           }
-          // unrecognized combination of options or no options
-          else {
-            printMessage(
-              'Unrecognized combination of options or no options...',
-              'error'
-            );
-            process.exitCode = 1;
-            program.help();
-          }
+        }
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
+        else {
+          process.exitCode = 1;
         }
       }
       // end command logic inside action handler

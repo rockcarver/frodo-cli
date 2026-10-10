@@ -19,6 +19,7 @@ export default function setup() {
     .addOption(
       new Option('-a, --all', 'Delete all AI agents. Ignored with -i.')
     )
+    .requireOneOf({ options: ['agentId', 'all'], purpose: 'what to delete' })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -46,14 +47,6 @@ export default function setup() {
             verboseMessage('Deleting all AI agents...');
             const outcome = await deleteAIAgents();
             if (!outcome) process.exitCode = 1;
-          }
-          // unrecognized combination of options or no options
-          else {
-            verboseMessage(
-              'Unrecognized combination of options or no options...'
-            );
-            process.exitCode = 1;
-            program.help();
           }
         } else {
           process.exitCode = 1;

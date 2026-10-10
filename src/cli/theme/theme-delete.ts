@@ -6,7 +6,7 @@ import {
   deleteThemeByName,
   deleteThemes,
 } from '../../ops/ThemeOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -40,6 +40,10 @@ export default function setup() {
         'Delete all the themes in the realm. Ignored with -n and -i.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'themeId', 'themeName'],
+      purpose: 'what to delete',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -88,14 +92,11 @@ export default function setup() {
           const outcome = await deleteThemes();
           if (!outcome) process.exitCode = 1;
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
         else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

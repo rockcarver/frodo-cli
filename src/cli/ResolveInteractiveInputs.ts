@@ -38,7 +38,7 @@
 
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
-import type { Command } from 'commander';
+import type { Command, Option } from 'commander';
 import { verboseMessage } from '../utils/Console';
 import {
   escapableSelect,
@@ -60,6 +60,49 @@ const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
  * commander clones or nests commands.
  */
 const pendingMandatoryViolations = new WeakMap<Command, string[]>();
+
+/**
+ * One-of rule registered on a command via `requireOneOf` (see
+ * FrodoCommand). Weaker than `makeOptionMandatory`: instead of "this one
+ * option must always be present", it says "one (or all, with mode 'all')
+ * of these options must be present" -- the shape of the
+ * `Unrecognized combination of options or no options...` dead-ends that
+ * 113 command action bodies enforce only AFTER authenticating. Evaluated
+ * in the resolution pass (below), where a violation becomes an
+ * interactive prompt on a prompt-capable session and commander's own
+ * error otherwise.
+ */
+export type OneOfGroupSpec = {
+  /** Long names (no dashes) of the group's member options. */
+  options: string[];
+  /**
+   * 'one' (default): at least one member must be present. 'all': every
+   * member must be present (pairwise-required members, e.g. esv secret
+   * version activate's `-i` + `-v`).
+   */
+  mode?: 'one' | 'all';
+  /**
+   * Human-readable purpose shown in prompts/errors, e.g. "what to
+   * delete". Derived from the command description when omitted.
+   */
+  purpose?: string;
+};
+
+const pendingOneOfGroups = new WeakMap<Command, OneOfGroupSpec[]>();
+
+/**
+ * Registers one-of groups on a command for resolution-pass evaluation.
+ * Called from FrodoCommand.requireOneOf.
+ */
+export function deferOneOfGroups(
+  command: Command,
+  groups: OneOfGroupSpec[]
+): void {
+  pendingOneOfGroups.set(command, [
+    ...(pendingOneOfGroups.get(command) ?? []),
+    ...groups,
+  ]);
+}
 
 /**
  * Records a mandatory option that was missing at parse time, instead of
@@ -114,12 +157,19 @@ export async function resolveInteractiveInputs(
     if (violations.length > 0) {
       throwMissingMandatory(command, violations[0]);
     }
+    const unsatisfiedGroups = findUnsatisfiedOneOfGroups(command);
+    if (unsatisfiedGroups.length > 0) {
+      throwOneOfUnsatisfied(command, unsatisfiedGroups[0]);
+    }
     return;
   }
 
   // Interactive: connection args first (they give the mandatory-option
-  // prompts their tenant context), then mandatory options. Either step
-  // bailing out falls back to the pre-Phase-1 error semantics.
+  // prompts their tenant context), then mandatory options, then one-of
+  // groups (which may prompt for a member option; after that step the
+  // action's getTokens may still fail on auth, exactly as before).
+  // Either step bailing out falls back to the pre-Phase-1 error
+  // semantics.
   const connectionResolved = await resolveConnectionArgs(command);
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
@@ -127,6 +177,14 @@ export async function resolveInteractiveInputs(
   if (!connectionResolved || !mandatoryResolved) {
     if (violations.length > 0) {
       throwMissingMandatory(command, violations[0]);
+    }
+    return;
+  }
+  const oneOfResolved = await resolveOneOfGroups(command);
+  if (!oneOfResolved) {
+    const unsatisfied = findUnsatisfiedOneOfGroups(command);
+    if (unsatisfied.length > 0) {
+      throwOneOfUnsatisfied(command, unsatisfied[0]);
     }
   }
 }
@@ -140,6 +198,37 @@ function throwMissingMandatory(command: Command, optionLabel: string): never {
     code: MISSING_MANDATORY_OPTION_CODE,
   });
 }
+
+/**
+ * Commander-style failure for an unsatisfied one-of group. The message
+ * mirrors commander's own error shape (message + help + exit 1), which is
+ * also the UX the replaced `Unrecognized combination` else-branches had
+ * (they printed, showed help, and exited 1).
+ */
+function throwOneOfUnsatisfied(command: Command, group: OneOfGroupSpec): never {
+  const members = group.options
+    .map((name) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === name
+      );
+      return option ? option.flags : `--${name}`;
+    })
+    .join(' | ');
+  command.error(
+    `error: one of '${members}' is required${
+      group.purpose ? ` to choose ${group.purpose}` : ''
+    }`,
+    { code: ONE_OF_UNSATISFIED_CODE }
+  );
+}
+
+/**
+ * The CommanderError code for an unsatisfied one-of group. Namespaced like
+ * commander's own codes (`commander.missingArgument`,
+ * `commander.missingMandatoryOptionValue`) so scripts can match on it, but
+ * distinct from any commander code since this rule is frodo-specific.
+ */
+export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
 
 /**
  * Prompts for each deferred mandatory option violation. Options with a
@@ -182,6 +271,92 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
     }
     command.setOptionValueWithSource(attributeName, value, 'cli');
     verboseMessage(`Using ${value} for ${option.flags}.`);
+  }
+  return true;
+}
+
+/**
+ * Whether a one-of group is satisfied by the current option values. 'one'
+ * mode needs at least one member present; 'all' mode every member. Values
+ * are read via getOptionValue so injected gap-fills count.
+ */
+function groupSatisfied(command: Command, group: OneOfGroupSpec): boolean {
+  const defined = (name: string): boolean => {
+    const value = command.getOptionValue(name);
+    return value !== undefined && value !== false && value !== '';
+  };
+  return group.mode === 'all'
+    ? group.options.every(defined)
+    : group.options.some(defined);
+}
+
+/**
+ * All registered one-of groups the current invocation does not satisfy.
+ */
+function findUnsatisfiedOneOfGroups(command: Command): OneOfGroupSpec[] {
+  const groups = pendingOneOfGroups.get(command) ?? [];
+  return groups.filter((group) => !groupSatisfied(command, group));
+}
+
+/**
+ * Interactive resolution of unsatisfied one-of groups: the user picks WHICH
+ * member to supply (dropdown over the group's members, defaulting to the
+ * first), then a value step matched to the member's type -- dropdown for
+ * commander `choices()`, free text otherwise (booleans resolve by the pick
+ * itself). Mirrors resolveMandatoryOptions' decline semantics: Escape or
+ * empty Enter returns false and the caller restores the error.
+ */
+async function resolveOneOfGroups(command: Command): Promise<boolean> {
+  const unsatisfied = findUnsatisfiedOneOfGroups(command);
+  for (const group of unsatisfied) {
+    const memberOptions = group.options
+      .map((name) => {
+        const option = command.options.find(
+          (candidate) => candidate.attributeName() === name
+        );
+        return option ? { name, option } : undefined;
+      })
+      .filter(
+        (member): member is { name: string; option: Option } =>
+          member !== undefined
+      );
+    if (memberOptions.length === 0) continue;
+
+    const subject = group.purpose ?? 'what to act on';
+    const picked = await escapableSelect<string>({
+      message: `Choose ${subject}:`,
+      choices: memberOptions.map((member): EscapableSelectChoice<string> => ({
+        value: member.name,
+        name: `${member.option.flags}${member.option.description ? ` -- ${member.option.description}` : ''}`,
+      })),
+    });
+    if (picked === ESCAPE) return false;
+
+    const chosen = memberOptions.find((member) => member.name === picked)!;
+    if (chosen.option.argChoices && chosen.option.argChoices.length > 0) {
+      const value = await escapableSelect<string>({
+        message: `Choose a value for ${chosen.option.flags}:`,
+        choices: chosen.option.argChoices.map(
+          (choiceValue): EscapableSelectChoice<string> => ({
+            name: choiceValue,
+            value: choiceValue,
+          })
+        ),
+      });
+      if (value === ESCAPE) return false;
+      command.setOptionValueWithSource(chosen.name, value, 'cli');
+    } else if (!/<[^>]+>|\[[^\]]+\]/.test(chosen.option.flags)) {
+      // Boolean flag: the flags carry no value placeholder (<value> /
+      // [value]), so the pick itself is the value -- no second prompt.
+      command.setOptionValueWithSource(chosen.name, true, 'cli');
+    } else {
+      const answer = await promptInput({
+        message: `Enter a value for ${chosen.option.flags}:`,
+      });
+      if (!answer) return false;
+      command.setOptionValueWithSource(chosen.name, answer, 'cli');
+    }
+    verboseMessage(`Using ${chosen.option.flags}.`);
   }
   return true;
 }

@@ -33,7 +33,9 @@ import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
   deferMissingMandatoryOption,
+  deferOneOfGroups,
   resolveInteractiveInputs,
+  type OneOfGroupSpec,
 } from './ResolveInteractiveInputs.js';
 
 // Frodo constants
@@ -2495,6 +2497,30 @@ export class FrodoStubCommand extends Command {
    */
   suppressStabilityWarning(): this {
     this[SUPPRESS_STABILITY_WARNING_KEY] = true;
+    return this;
+  }
+
+  /**
+   * Declares that this command needs at least one (mode 'one', the
+   * default) or all (mode 'all') of the named options -- the declarative
+   * replacement for the `Unrecognized combination of options or no
+   * options...` dead-ends that 113 command action bodies enforce only
+   * AFTER authenticating. Evaluated in the preAction resolution pass
+   * (ResolveInteractiveInputs): on an interactive session the user is
+   * prompted for a member and its value; otherwise commander's own
+   * error+help+exit-1 fires with code `frodo.oneOfUnsatisfied`.
+   *
+   * Unlike makeOptionMandatory (which commander checks during parsing),
+   * this runs later -- after connection-arg gap-fill -- so a command
+   * whose one-of members need tenant context first still prompts
+   * sensibly. Option names are long names without dashes (`agentId`,
+   * `all`), matching commander's attributeName.
+   *
+   * @param groups One or more group specs.
+   * @returns This command for chaining.
+   */
+  requireOneOf(...groups: [OneOfGroupSpec, ...OneOfGroupSpec[]]): this {
+    deferOneOfGroups(this, groups);
     return this;
   }
 

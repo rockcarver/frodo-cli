@@ -28,6 +28,10 @@ export default function setup() {
     //     'Export all the providers in a realm as separate files <provider name>.saml.json. Ignored with -t, -i, and -a.'
     //   )
     // )
+    .requireOneOf({
+      options: ['allSeparate', 'entityId'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -57,14 +61,11 @@ export default function setup() {
         //   printMessage('Exporting all providers to separate files...');
         //   exportProvidersToFiles();
         // }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
         else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

@@ -2,7 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteSecret, deleteSecrets } from '../../ops/cloud/SecretsOps';
-import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -27,6 +27,7 @@ export default function setup() {
     .addOption(
       new Option('-a, --all', 'Delete all secrets in a realm. Ignored with -i.')
     )
+    .requireOneOf({ options: ['secretId', 'all'], purpose: 'which secrets' })
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -55,9 +56,10 @@ export default function setup() {
           const outcome = await deleteSecrets();
           if (!outcome) process.exitCode = 1;
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
         else {
-          printMessage('Unrecognized combination of options or no options...');
           process.exitCode = 1;
         }
       }

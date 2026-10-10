@@ -6,7 +6,7 @@ import {
   exportSaml2ProvidersToFiles,
   exportSaml2ProviderToFile,
 } from '../../ops/Saml2Ops';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -47,6 +47,10 @@ export default function setup() {
     .addOption(
       new Option('--no-deps', 'Do not include any dependencies (scripts).')
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'entityId'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -95,14 +99,11 @@ export default function setup() {
           });
           if (!outcome) process.exitCode = 1;
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
         else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler
