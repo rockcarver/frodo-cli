@@ -40,5 +40,14 @@ export default defineConfig({
   // Bundling all production deps into dist/ is the design (zero-dep
   // published package); onlyBundle:false is tsdown's "we know" switch that
   // silences the detected-dependencies hint and its long dep list.
-  deps: { neverBundle: devDeps, onlyBundle: false },
+  // The inquirer prompts MUST be bundled explicitly (deps.alwaysBundle): they moved from
+  // devDependencies to dependencies with the interactive-prompt feature,
+  // and tsdown auto-externalizes packages listed in `dependencies` unless
+  // named here -- which surfaced as ERR_UNKNOWN_BUILTIN_MODULE at SEA
+  // runtime (there is no node_modules inside a SEA binary to resolve to).
+  deps: {
+    neverBundle: devDeps,
+    onlyBundle: false,
+    alwaysBundle: ['@inquirer/confirm', '@inquirer/core', '@inquirer/select'],
+  },
 });

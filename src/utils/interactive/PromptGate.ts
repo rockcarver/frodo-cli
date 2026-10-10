@@ -23,6 +23,7 @@
 
 import {
   createPrompt,
+  ExitPromptError,
   isEnterKey,
   useKeypress,
   usePrefix,
@@ -78,7 +79,7 @@ export async function promptInput(
   config: TextInputConfig
 ): Promise<TextInputResult> {
   if (!canPrompt()) return undefined;
-  return textPrompt(config, { suppress: false });
+  return runTextPrompt(config, { suppress: false });
 }
 
 /**
@@ -89,7 +90,28 @@ export async function promptPassword(
   config: TextInputConfig
 ): Promise<TextInputResult> {
   if (!canPrompt()) return undefined;
-  return textPrompt(config, { suppress: true });
+  return runTextPrompt(config, { suppress: true });
+}
+
+/**
+ * Terminal conditions outside the user's in-prompt choices: stdin EOF
+ * (Ctrl-D, e.g. the driver's shutdown write) and Ctrl-C both reject the
+ * prompt with @inquirer/core's ExitPromptError. For gap-fills both mean
+ * "no value supplied" and must degrade to the declined result (`''`) so
+ * the caller falls through to its pre-existing missing-input error --
+ * never a raw stack trace. (Escape is handled in-prompt, so it never
+ * reaches this wrapper.)
+ */
+async function runTextPrompt(
+  config: TextInputConfig,
+  opts: { suppress: boolean }
+): Promise<string> {
+  try {
+    return await textPrompt(config, opts);
+  } catch (error) {
+    if (error instanceof ExitPromptError) return EMPTY_INPUT;
+    throw error;
+  }
 }
 
 function textPrompt(
