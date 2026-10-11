@@ -39,6 +39,11 @@ export type ConnectionPageConfig = {
   message: string;
   rows: ConnectionPageRow[];
   /**
+   * Phase 5 command preview: the command being authored, rendered as a
+   * footer line (pre-rendered by CommandPreview.ts).
+   */
+  preview?: string;
+  /**
    * Called when the user commits an edit to the host row -- the
    * credential rows' profile context keys on the host, so the caller
    * re-resolves their annotations. Receives the new host, returns the
@@ -209,6 +214,7 @@ const connectionPageImpl = createPrompt(
       }),
       `${active === doneIndex ? '›' : ' '} ${c.command('Done — run with these values')}`,
       c.muted('(↑↓ rows · enter edit/done · esc cancel)'),
+      config.preview,
     ];
     return lines.join('\n');
   }

@@ -105,9 +105,12 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   // loop's exit type is string | typeof ESCAPE (the RIGHT case loops).
   let choice: string | typeof ESCAPE;
   for (;;) {
+    const { commandPreviewFor } =
+      await import('../../cli/ResolveInteractiveInputs');
     const answer = await escapableSelect<string>({
       message: `Choose a realm (default: ${current}):`,
       hint: editableOptionsHint(command),
+      preview: commandPreviewFor(command),
       choices: realms.map((realm) => ({
         value: realm.name,
         name: realm.name,

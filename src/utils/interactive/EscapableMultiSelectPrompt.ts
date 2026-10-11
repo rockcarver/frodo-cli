@@ -37,6 +37,11 @@ export type EscapableMultiSelectConfig<Value> = {
   /** Members pre-selected when the prompt opens. */
   defaultValues?: Value[];
   pageSize?: number;
+  /**
+   * Phase 5 command preview: the command being authored, rendered as a
+   * footer line (pre-rendered by CommandPreview.ts).
+   */
+  preview?: string;
 };
 
 /**
@@ -179,6 +184,7 @@ const escapableMultiSelectImpl = createPrompt(
         ? c.muted(highlighted.description)
         : '',
       c.muted('(↑↓ navigate · space toggles · enter commits · esc backs out)'),
+      config.preview,
     ].filter(Boolean);
     return lines.join('\n');
   }
