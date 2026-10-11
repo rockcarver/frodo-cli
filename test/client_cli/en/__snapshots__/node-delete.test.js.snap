@@ -27,7 +27,8 @@ Options:
   -a, --all                    Delete all custom nodes. Ignored with -i or -n.
   -i, --node-id <node-id>      Custom node id or service name. If specified,
                                only one custom node is deleted and the options
-                               -n, -a and -A are ignored.
+                               -n, -a and -A are ignored. (pick from custom
+                               node)
   -n, --node-name <node-name>  Custom node display name. If specified, only one
                                custom node is deleted and the options -a and -A
                                are ignored.

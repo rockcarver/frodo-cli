@@ -28,7 +28,7 @@ Options:
   --deep                      Deep delete. Also delete journey node artifacts
                               (for older AM versions).
   -i, --journey-id <journey>  Name of a journey/tree. If specified, -a is
-                              ignored.
+                              ignored. (pick from journey)
   -h, --help                  Help
   -hh, --help-more            Help with all options.
   -hhh, --help-all            Help with all options, environment variables, and

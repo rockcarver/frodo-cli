@@ -23,6 +23,7 @@ Arguments:
 Options:
   -a, --all          Delete all cmds in a realm. Ignored with -i.
   -i, --app-id <id>  OAuth2 client id/name. If specified, -a and -A are ignored.
+                     (pick from OAuth2 client)
   --no-deep          No deep delete. This leaves orphaned configuration
                      artifacts behind.
   -h, --help         Help

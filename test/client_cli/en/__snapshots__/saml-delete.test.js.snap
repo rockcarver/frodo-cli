@@ -25,7 +25,8 @@ Arguments:
 
 Options:
   -a, --all                    Delete all entity providers. Ignored with -i.
-  -i, --entity-id <entity-id>  Entity id. If specified, -a is ignored.
+  -i, --entity-id <entity-id>  Entity id. If specified, -a is ignored. (pick
+                               from entity provider)
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

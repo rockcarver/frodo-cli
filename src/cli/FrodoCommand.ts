@@ -25,6 +25,7 @@ import {
   updateProgressIndicator,
   verboseMessage,
 } from '../utils/Console.js';
+import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import {
   escapableSelect,
   ESCAPE,
@@ -36,6 +37,7 @@ import {
   deferOneOfGroups,
   getOneOfGroups,
   resolveInteractiveInputs,
+  setActiveActionCommand,
   type OptionRequirementSpec,
 } from './ResolveInteractiveInputs.js';
 
@@ -2437,6 +2439,7 @@ export class FrodoStubCommand extends Command {
       if (!(actionCommand instanceof FrodoCommand)) return;
       if (resolvedActionCommands.has(actionCommand)) return;
       resolvedActionCommands.add(actionCommand);
+      setActiveActionCommand(actionCommand);
       await resolveInteractiveInputs(actionCommand);
     });
   }
@@ -2742,6 +2745,12 @@ class FrodoStubHelp extends Help {
   };
 
   /**
+   * The command currently being rendered (set by formatHelp). The entity
+   * pick annotation in optionDescription reads the pick registry off it.
+   */
+  private renderedCommand?: Command;
+
+  /**
    * Custom help renderer that extends Commander output with deployment-aware
    * inline sub-sections for options and subcommands.
    *
@@ -2753,6 +2762,10 @@ class FrodoStubHelp extends Help {
    * @returns Fully rendered help text for the command.
    */
   override formatHelp(cmd: Command, helper: Help): string {
+    // optionDescription is called from inside formatHelp with no command
+    // context of its own -- remember which command is being rendered so
+    // the entity-pick annotation can consult that command's registry.
+    this.renderedCommand = cmd;
     const termWidth = helper.padWidth(cmd, helper);
     const helpWidth = helper.helpWidth ?? 80;
 
@@ -2965,9 +2978,15 @@ class FrodoStubHelp extends Help {
       super.optionDescription(option),
       option
     );
-    return option.mandatory
-      ? `${description} (prompts if missing)`
-      : description;
+    // "(pick from <kind>)": the option has an entity picker registered
+    // (deferEntityPicks), so an interactive session offers a dropdown of
+    // the live system's entities for it.
+    const pick = (
+      this.renderedCommand ? getEntityPicks(this.renderedCommand) : []
+    ).find((candidate) => candidate.name === option.attributeName());
+    const pickSuffix = pick ? ` (pick from ${pick.kind})` : '';
+    const mandatorySuffix = option.mandatory ? ' (prompts if missing)' : '';
+    return `${description}${pickSuffix}${mandatorySuffix}`;
   }
 
   /**

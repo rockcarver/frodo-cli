@@ -23,7 +23,8 @@ Arguments:
 
 Options:
   -a, --all                  Delete all agents. Ignored with -i.
-  -i, --agent-id <agent-id>  Agent id. If specified, -a is ignored.
+  -i, --agent-id <agent-id>  Agent id. If specified, -a is ignored. (pick from
+                             agent)
   -h, --help                 Help
   -hh, --help-more           Help with all options.
   -hhh, --help-all           Help with all options, environment variables, and
