@@ -3,7 +3,19 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteMapping, deleteMappings } from '../../ops/MappingOps';
 import { verboseMessage } from '../../utils/Console';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
+
+/**
+ * The mapping skeleton type isn't exported from frodo-lib's root; derive
+ * it from the read function instead of importing an unexported name.
+ */
+type MappingSkeleton = Awaited<
+  ReturnType<typeof frodo.idm.mapping.readMappings>
+>[number];
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -58,21 +70,43 @@ export default function setup() {
           const outcome = await deleteMapping(options.mappingId);
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a
+        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
+        // outside the prompt gate, so a non-interactive run with neither
+        // option never reaches deleteMappings here -- same as before
+        // Phase 3, where the error branch below handled that case).
         else if (
-          options.all &&
+          (options.all ||
+            (await resolveEntityPicks(command, [
+              entityPick<MappingSkeleton>({
+                name: 'mappingId',
+                kind: 'mapping',
+                load: () =>
+                  frodo.idm.mapping.readMappings(
+                    options.connectorId,
+                    options.managedObjectType
+                  ),
+                label: (mapping) => mapping.displayName || mapping.name,
+                description: (mapping) => mapping._id ?? '',
+              }),
+            ]))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
-          verboseMessage(`Deleting all mappings...`);
-          const outcome = await deleteMappings(
-            options.connectorId,
-            options.managedObjectType
-          );
-          if (!outcome) process.exitCode = 1;
+          if (options.mappingId) {
+            verboseMessage(`Deleting mapping ${options.mappingId}...`);
+            const outcome = await deleteMapping(options.mappingId);
+            if (!outcome) process.exitCode = 1;
+          } else {
+            verboseMessage(`Deleting all mappings...`);
+            const outcome = await deleteMappings(
+              options.connectorId,
+              options.managedObjectType
+            );
+            if (!outcome) process.exitCode = 1;
+          }
         }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
+        // No branch ran: with requireOneOf satisfied, the only ways here
+        // are getTokens() failing (keep the old exit-1 semantics) or the
+        // user escaping the entity picker (declined to run).
         else {
           process.exitCode = 1;
         }
