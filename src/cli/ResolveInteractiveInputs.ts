@@ -40,6 +40,10 @@ import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
 import { verboseMessage } from '../utils/Console';
+import {
+  editableOptionalOptions,
+  editableOptionsHint,
+} from '../utils/interactive/EditableOptions';
 import { hasEntityPick } from '../utils/interactive/EntityPickers';
 import {
   escapableMultiSelect,
@@ -48,7 +52,9 @@ import {
 import {
   escapableSelect,
   ESCAPE,
+  RIGHT,
   type EscapableSelectChoice,
+  type EscapableSelectConfig,
 } from '../utils/interactive/EscapableSelectPrompt';
 import {
   canPrompt,
@@ -290,6 +296,32 @@ function throwOneOfUnsatisfied(
 export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
 
 /**
+ * The Phase 5 `→` routing for pickers inside the resolution pass: runs
+ * `escapableSelect` with the command's discoverability hint attached,
+ * and when the user presses → (resolve `RIGHT`), opens the invocation
+ * editor, then re-prompts -- so a user who landed in a mandatory/one-of/
+ * profile picker can discover and edit everything else from there
+ * (INTERACTIVE-COMMANDS-PLAN.md, Phase 5). Without a hint (nothing to
+ * configure) this is exactly `escapableSelect`: the → key stays
+ * readline's business and the loop never engages.
+ *
+ * Re-prompting after the editor keeps the picker's own contract intact
+ * (the caller sees a plain value or ESCAPE); the editor's ←/Esc re-enter
+ * this loop, where the user can still decline with Escape.
+ */
+async function selectWithEditorRouting<Value>(
+  command: Command,
+  config: EscapableSelectConfig<Value>
+): Promise<Value | typeof ESCAPE> {
+  const hint = editableOptionsHint(command);
+  for (;;) {
+    const choice = await escapableSelect<Value>({ ...config, hint });
+    if (choice !== RIGHT) return choice;
+    await runInvocationEditor(command);
+  }
+}
+
+/**
  * Prompts for a value from a closed choice set. A ONE-item set auto-commits
  * (a single choice is no choice; commander would accept only that value
  * anyway -- the plan's single-option refinement); otherwise a searchable
@@ -297,6 +329,7 @@ export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
  * single-choice set can never decline.
  */
 async function selectFromChoices(
+  command: Command,
   message: string,
   choices: string[]
 ): Promise<string | typeof ESCAPE> {
@@ -304,7 +337,7 @@ async function selectFromChoices(
     verboseMessage(`Only one value available: ${choices[0]}`);
     return choices[0];
   }
-  return escapableSelect<string>({
+  return selectWithEditorRouting(command, {
     message,
     choices: choices.map((choiceValue) => ({
       name: choiceValue,
@@ -346,6 +379,7 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
     let value: string | undefined;
     if (option.argChoices && option.argChoices.length > 0) {
       const choice = await selectFromChoices(
+        command,
         `Choose a value for ${option.flags}:`,
         option.argChoices
       );
@@ -415,7 +449,7 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     if (memberOptions.length === 0) continue;
 
     const subject = group.purpose ?? 'what to act on';
-    const picked = await escapableSelect<string>({
+    const picked = await selectWithEditorRouting(command, {
       message: `Choose ${subject}:`,
       choices: memberOptions.map((member): EscapableSelectChoice<string> => ({
         value: member.name,
@@ -437,6 +471,7 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
 
     if (chosen.option.argChoices && chosen.option.argChoices.length > 0) {
       const value = await selectFromChoices(
+        command,
         `Choose a value for ${chosen.option.flags}:`,
         chosen.option.argChoices
       );
@@ -580,7 +615,9 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
         `No host given; using the only saved connection profile: ${picked}`
       );
     } else if (profiles.length > 1) {
-      const choice = await escapableSelect<string | typeof ENTER_MANUALLY>({
+      const choice = await selectWithEditorRouting<
+        string | typeof ENTER_MANUALLY
+      >(command, {
         message: 'Choose a connection profile:',
         // Filter matches host AND alias (case-insensitive) -- typing part
         // of a hostname or the alias both find the profile.
@@ -707,26 +744,36 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
  * Phase 4's Defaults.json).
  *
  * Escape backs out of the value step without committing that option; the
- * multiselect's Escape backs out of the editor entirely (committed
+ * multiselect's Escape (or ←) backs out of the editor entirely (committed
  * nothing beyond what the earlier steps resolved). No editor on a
  * non-interactive session: --edit is meaningless there and the command
  * must behave exactly as without it (FRODO_TEST e2e determinism).
  */
+
+// The editor's candidate list + the Phase 5 hint live in a zero-import
+// module (EditableOptions) so picker modules in utils/interactive/ can
+// attach the same hint without importing this file's graph (see the
+// ActiveActionCommandState split for the layering rationale). Re-exported
+// for the editor's own use.
+export {
+  editableOptionalOptions,
+  editableOptionsHint,
+} from '../utils/interactive/EditableOptions';
+
+/**
+ * Public entry for utils/interactive picker modules (EntityPickers,
+ * RealmPickers): their `→` key opens this editor, then re-prompts. Kept
+ * as a named export because those modules import this file lazily (the
+ * cycle is otherwise static: this file imports their registries).
+ */
+export async function runInvocationEditorForCommand(
+  command: Command
+): Promise<void> {
+  await runInvocationEditor(command);
+}
+
 async function runInvocationEditor(command: Command): Promise<void> {
-  const candidates = command.options.filter((option) => {
-    // Help/version/prompt machinery is not an editable option.
-    if (
-      option.name() === 'help' ||
-      option.name() === 'version' ||
-      option.name() === 'prompt' ||
-      option.name() === 'edit'
-    ) {
-      return false;
-    }
-    // Only options NOT already valued on this invocation.
-    const value = command.getOptionValue(option.attributeName());
-    return value === undefined || value === false;
-  });
+  const candidates = editableOptionalOptions(command);
   if (candidates.length === 0) {
     verboseMessage('No optional options left to edit.');
     return;
@@ -734,11 +781,26 @@ async function runInvocationEditor(command: Command): Promise<void> {
 
   const picked = await escapableMultiSelect<string>({
     message: `Optional options for '${command.name()}' (space to select):`,
-    choices: candidates.map((option) => ({
-      value: option.attributeName(),
-      name: option.flags,
-      description: option.description,
-    })),
+    choices: candidates.map((option) => {
+      // Phase 5 widening: already-valued options are editable too --
+      // shown with their current value so the user can tell them apart.
+      // Distinguish a commander default (never user-typed) from a value
+      // that came from this invocation's CLI/env.
+      const current = command.getOptionValue(option.attributeName());
+      const sourced =
+        current === undefined || current === false
+          ? undefined
+          : command.getOptionValueSource(option.attributeName()) === 'default'
+            ? ` (default: ${current})`
+            : ` (current: ${current})`;
+      return {
+        value: option.attributeName(),
+        name: option.flags,
+        description: option.description
+          ? `${option.description}${sourced ?? ''}`
+          : sourced?.trim(),
+      };
+    }),
   });
   if (picked === MULTISEL_ESCAPE) {
     verboseMessage('Invocation editor dismissed; values unchanged.');
@@ -749,6 +811,12 @@ async function runInvocationEditor(command: Command): Promise<void> {
     const option = command.options.find(
       (candidate) => candidate.attributeName() === attributeName
     )!;
+    // Phase 5: re-editing a valued option pre-fills the value step with
+    // the current value (Escape keeps it) -- "just wanted to peek" costs
+    // one Esc, not a retyping session.
+    const current = command.getOptionValue(attributeName);
+    const currentText =
+      current === undefined || current === false ? undefined : String(current);
     if (option.argChoices && option.argChoices.length > 0) {
       const value = await escapableSelect<string>({
         message: `Choose a value for ${option.flags}:`,
@@ -758,8 +826,9 @@ async function runInvocationEditor(command: Command): Promise<void> {
             value: choiceValue,
           })
         ),
+        default: currentText,
       });
-      if (value === ESCAPE) continue;
+      if (value === ESCAPE || value === RIGHT) continue;
       command.setOptionValueWithSource(attributeName, value, 'cli');
     } else if (!/<[^>]+>|\[[^\]]+\]/.test(option.flags)) {
       // Boolean flag: selected = true, no value step.
@@ -767,6 +836,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
     } else {
       const answer = await promptInput({
         message: `Enter a value for ${option.flags}:`,
+        default: currentText,
       });
       if (!answer) continue;
       command.setOptionValueWithSource(attributeName, answer, 'cli');

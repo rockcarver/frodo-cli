@@ -13,6 +13,7 @@ import {
 import {
   escapableSelect,
   ESCAPE,
+  RIGHT,
   type EscapableSelectChoice,
 } from '../utils/interactive/EscapableSelectPrompt';
 import type { CredentialOverrideType } from './AuthenticateOps';
@@ -302,7 +303,7 @@ export async function runInteractivePreferredCredentialPicker(
             : h,
         })),
       });
-      if (choice === ESCAPE) return false;
+      if (choice === ESCAPE || choice === RIGHT) return false; // RIGHT: no hint here
       resolvedHost = choice;
     }
   }
@@ -355,7 +356,7 @@ export async function runInteractivePreferredCredentialPicker(
     choices: credentialChoices,
     default: currentPreference,
   });
-  if (selected === ESCAPE) return false;
+  if (selected === ESCAPE || selected === RIGHT) return false; // RIGHT: no hint here
 
   state.setHost(profile.tenant);
   state.setPreferredCredential(selected);

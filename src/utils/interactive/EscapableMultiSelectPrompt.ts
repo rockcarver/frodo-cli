@@ -19,6 +19,9 @@ import c from '../ColorTheme';
  * out (skip the editor entirely) instead of treating it as a real
  * selection. Nothing selected + Enter commits the empty set (a deliberate
  * "run with defaults"), distinct from Escape's "don't touch this step".
+ * The ← key (query empty) is an alias for Escape -- the Phase 5 "return
+ * to the segment that invoked this editor" key; with text typed it stays
+ * readline cursor movement.
  */
 export const MULTISEL_ESCAPE = Symbol('escapableMultiSelect:escape');
 
@@ -95,7 +98,13 @@ const escapableMultiSelectImpl = createPrompt(
     const highlighted = filtered[active];
 
     useKeypress((key, rl) => {
-      if (key.name === 'escape') {
+      if (
+        key.name === 'escape' ||
+        (key.name === 'left' &&
+          // Phase 5 segment navigation only when the filter query is
+          // empty; with text typed, ←/→ stay readline cursor movement.
+          rl.line.length === 0)
+      ) {
         // Two-stage escape with an active query.
         if (rl.line.length > 0) {
           rl.clearLine(0);

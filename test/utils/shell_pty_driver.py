@@ -14,6 +14,8 @@ KEYS = {
     "tab": "\t",
     "up": "\x1b[A",
     "down": "\x1b[B",
+    "right": "\x1b[C",
+    "left": "\x1b[D",
     "ctrl_d": "\x04",
     "enter": "\r",
     "ctrl_e": "\x05",

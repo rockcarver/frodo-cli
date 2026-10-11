@@ -8,6 +8,7 @@ import {
   useMemo,
   usePagination,
   usePrefix,
+  useRef,
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
@@ -19,6 +20,18 @@ import c from '../ColorTheme';
  * treating it as a real selection.
  */
 export const ESCAPE = Symbol('escapableSelect:escape');
+
+/**
+ * Distinct return value `escapableSelect` resolves with when the user
+ * presses → (right arrow) instead of choosing something -- the Phase 5
+ * "enter the next editor segment" key (INTERACTIVE-COMMANDS-PLAN.md).
+ * Only fires when the prompt is configured with a `hint` (the caller's
+ * promise that something more to configure exists); without a hint the
+ * key is left to readline, so plain pickers keep today's behavior.
+ * Callers branch on this to open the options editor / connection page
+ * and then re-run the picker.
+ */
+export const RIGHT = Symbol('escapableSelect:right');
 
 export type EscapableSelectChoice<Value> = {
   value: Value;
@@ -53,6 +66,15 @@ export type EscapableSelectConfig<Value> = {
    * different casing rules.
    */
   search?: EscapableSelectMatch<Value>;
+  /**
+   * Phase 5 discoverability hint: when set, the prompt renders it as a
+   * muted line under the list and arms the → key (resolving with the
+   * `RIGHT` sentinel). Callers pass a counted, truthful promise --
+   * e.g. "→ 4 options to configure" -- derived from the same candidate
+   * filter the offered segment uses; omit it when there is nothing more
+   * to configure (silence = done).
+   */
+  hint?: string;
 };
 
 /**
@@ -82,9 +104,14 @@ export type EscapableSelectConfig<Value> = {
 // given a precise, hand-written generic type instead. This is the same
 // split `@inquirer/select` itself relies on (its compiled `.js` is
 // similarly untyped; a separate `.d.ts` declares the generic public type).
+// The promise resolves with the chosen value, `ESCAPE`, or -- only when
+// the config carried a `hint`, which the type system cannot see -- the
+// `RIGHT` sentinel. Hint-less callers therefore see RIGHT in the type
+// though it can never resolve for them; a `=== RIGHT` check compiles
+// everywhere and is simply dead at runtime there.
 type EscapableSelectFn = <Value>(
   config: EscapableSelectConfig<Value>
-) => Promise<Value | typeof ESCAPE>;
+) => Promise<Value | typeof ESCAPE | typeof RIGHT>;
 
 const escapableSelectImpl = createPrompt(
   (config: EscapableSelectConfig<unknown>, done: (value: unknown) => void) => {
@@ -125,7 +152,16 @@ const escapableSelectImpl = createPrompt(
     // must exist first and inquirer re-renders on every state change
     // anyway; a render-time `setActive` here would either run before
     // `useState` declared it (TDZ crash) or loop the render.
+    // Reset to the first match whenever the query changes -- but NOT on
+    // mount: the initial cursor belongs on the configured default (e.g.
+    // the editor's pre-filled current value), and this effect would
+    // otherwise clobber it immediately after the first render.
+    const firstRender = useRef(true);
     useEffect(() => {
+      if (firstRender.current) {
+        firstRender.current = false;
+        return;
+      }
       setActive(0);
     }, [query]);
 
@@ -149,6 +185,16 @@ const escapableSelectImpl = createPrompt(
         }
         setStatus('escaped');
         done(ESCAPE);
+      } else if (
+        key.name === 'right' &&
+        config.hint &&
+        // Segment navigation only when the filter query is empty; with
+        // text typed, ←/→ stay readline cursor movement (same pattern as
+        // the two-stage escape above).
+        rl.line.length === 0
+      ) {
+        setStatus('done');
+        done(RIGHT);
       } else if (isEnterKey(key)) {
         if (!selected) {
           // Filtered to nothing: Enter does nothing rather than crashing
@@ -193,6 +239,7 @@ const escapableSelectImpl = createPrompt(
     const searchHint = query.length === 0 ? c.muted('type to filter') : '';
     const queryEcho =
       config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
+    const hintLine = config.hint ? c.muted(config.hint) : '';
 
     const lines = [
       `${prefix} ${config.message}${queryEcho}`,
@@ -202,6 +249,7 @@ const escapableSelectImpl = createPrompt(
             '  (no matches -- backspace to edit, esc clears then backs out)'
           ),
       selected && selected.description ? c.muted(selected.description) : '',
+      hintLine,
       searchHint || c.muted('(↑↓ navigate · enter select · esc back)'),
     ].filter(Boolean);
     return lines.join('\n');

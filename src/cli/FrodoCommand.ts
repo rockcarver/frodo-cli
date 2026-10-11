@@ -29,6 +29,7 @@ import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import {
   escapableSelect,
   ESCAPE,
+  RIGHT,
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
@@ -2770,9 +2771,10 @@ export class FrodoStubCommand extends Command {
           : command.name(),
       })),
     });
-    if (choice === ESCAPE) {
+    if (choice === ESCAPE || choice === RIGHT) {
       // Fall through to commander's bare-stub help-exit, preserving
-      // today's non-interactive behavior exactly.
+      // today's non-interactive behavior exactly. (RIGHT cannot resolve
+      // here -- no hint -- but the widened select type includes it.)
       return this.baseParseCommand([], unknown);
     }
     return this.baseParseCommand([choice], unknown);
