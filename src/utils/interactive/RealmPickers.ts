@@ -31,7 +31,8 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 import { verboseMessage } from '../Console';
-import { escapableSelect, ESCAPE } from './EscapableSelectPrompt';
+import { editableOptionsHint } from './EditableOptions';
+import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { canPrompt } from './PromptGateState';
 
 /** frodo-lib's sentinel default for "no realm chosen yet". */
@@ -99,14 +100,28 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   if (realms.length <= 1) return;
 
   const current = state.getRealm();
-  const choice = await escapableSelect<string>({
-    message: `Choose a realm (default: ${current}):`,
-    choices: realms.map((realm) => ({
-      value: realm.name,
-      name: realm.name,
-      description: realm.active ? undefined : 'inactive',
-    })),
-  });
+  // Phase 5: → (armed by the hint) opens the invocation editor, then
+  // re-prompts this picker; ESCAPE keeps the default as before. The
+  // loop's exit type is string | typeof ESCAPE (the RIGHT case loops).
+  let choice: string | typeof ESCAPE;
+  for (;;) {
+    const answer = await escapableSelect<string>({
+      message: `Choose a realm (default: ${current}):`,
+      hint: editableOptionsHint(command),
+      choices: realms.map((realm) => ({
+        value: realm.name,
+        name: realm.name,
+        description: realm.active ? undefined : 'inactive',
+      })),
+    });
+    if (answer !== RIGHT) {
+      choice = answer;
+      break;
+    }
+    const { runInvocationEditorForCommand } =
+      await import('../../cli/ResolveInteractiveInputs');
+    await runInvocationEditorForCommand(command);
+  }
   if (choice === ESCAPE || !choice || choice === current) return;
   state.setRealm(choice);
   verboseMessage(`Using realm ${choice}.`);

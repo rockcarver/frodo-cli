@@ -2,6 +2,7 @@ import { errorMessage, successMessage, warnMessage } from '../../utils/Console';
 import {
   escapableSelect,
   ESCAPE,
+  RIGHT,
 } from '../../utils/interactive/EscapableSelectPrompt';
 import {
   activatePersistedTheme,
@@ -79,10 +80,13 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       ],
       default: currentBackground,
     });
-    if (backgroundChoice === ESCAPE) return false;
+    if (backgroundChoice === ESCAPE || backgroundChoice === RIGHT) return false; // RIGHT can't resolve here (no hint)
+    // Narrows RIGHT out of backgroundChoice for the value use below.
+    const pickedBackground = backgroundChoice as
+      Background | typeof AUTO_DETECT;
 
     let background: Background;
-    if (backgroundChoice === AUTO_DETECT) {
+    if (pickedBackground === AUTO_DETECT) {
       const matched = await detectAndPersistTheme();
       if (!matched) {
         warnMessage(
@@ -92,7 +96,7 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       }
       background = matched;
     } else {
-      background = backgroundChoice;
+      background = pickedBackground;
       setActiveBackground(background);
     }
     activatePersistedTheme();
@@ -107,7 +111,7 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       })),
       default: currentContrast,
     });
-    if (contrastChoice === ESCAPE) continue; // back to the background step
+    if (contrastChoice === ESCAPE || contrastChoice === RIGHT) continue; // back to the background step (RIGHT can't resolve: no hint)
 
     setActiveContrast(contrastChoice);
     activatePersistedTheme();

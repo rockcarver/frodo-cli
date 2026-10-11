@@ -232,6 +232,23 @@ configuration for promotion into another (e.g. dev -> uat -> prod).
 
 **Key:** `[Cloud-only]` runs only against Identity Cloud.
 
+#### Frodo in CI pipelines: guarantee non-interactive runs
+
+Frodo is interactive by design: on a terminal it can prompt for missing
+input and offer pickers for the tenant's live configuration. In an
+automated pipeline that is exactly what you do NOT want -- a command that
+would prompt should instead fail fast with a clear error. Always make
+your pipeline invocations explicitly non-interactive:
+
+- set the environment variable `FRODO_NO_PROMPT=1` for the whole job (one
+  line covers every frodo invocation), or
+- append `--no-prompt` to each frodo command.
+
+Either way, any command that would have prompted errors immediately and
+non-interactively instead of blocking on a prompt editor no pipeline can
+answer. (Piped/non-TTY runs are non-interactive regardless, but CI
+runners with pseudo-TTYs do present a terminal -- do not rely on it.)
+
 ### Node.js Versions
 
 | Node.js |        0.x         |        1.x         |        2.x         |        3.x.        |    . _**4.x**_     |        5.x         |

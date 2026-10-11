@@ -38,7 +38,8 @@
  */
 
 import { Command } from 'commander';
-import { escapableSelect, ESCAPE } from './EscapableSelectPrompt';
+import { editableOptionsHint } from './EditableOptions';
+import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { canPrompt } from './PromptGateState';
 
 /**
@@ -146,17 +147,28 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
       apply(command, pick, entities[0]);
       continue;
     }
-    const chosen = await escapableSelect<unknown>({
-      message: pick.message ?? `Select ${pick.kind} to act on:`,
-      choices: entities.map((entity) => {
-        const description = pick.description?.(entity);
-        return {
-          value: entity,
-          name: pick.label(entity),
-          ...(description !== undefined ? { description } : {}),
-        };
-      }),
-    });
+    // Phase 5: the → key (armed by the hint) opens the invocation
+    // editor, then re-prompts this picker -- discover-and-edit without
+    // leaving the flow. Editorial loop, ESCAPE still declines the pick.
+    let chosen: unknown | typeof ESCAPE | typeof RIGHT;
+    for (;;) {
+      chosen = await escapableSelect<unknown>({
+        message: pick.message ?? `Select ${pick.kind} to act on:`,
+        hint: editableOptionsHint(command),
+        choices: entities.map((entity) => {
+          const description = pick.description?.(entity);
+          return {
+            value: entity,
+            name: pick.label(entity),
+            ...(description !== undefined ? { description } : {}),
+          };
+        }),
+      });
+      if (chosen !== RIGHT) break;
+      const { runInvocationEditorForCommand } =
+        await import('../../cli/ResolveInteractiveInputs');
+      await runInvocationEditorForCommand(command);
+    }
     if (chosen === ESCAPE) return false;
     apply(command, pick, chosen);
   }

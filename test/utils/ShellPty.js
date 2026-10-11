@@ -56,7 +56,11 @@ export function runShellScenario({
             FRODO_TEST: allowPrompting ? '' : '1',
             FRODO_NO_CACHE: 'true',
             TERM: 'xterm-256color',
-            FRODO_CONNECTION_PROFILES_PATH: '',
+            // Blank only when the caller didn't supply a profiles path
+            // (e.g. mock-tenant scenarios need the repo's Connections.json).
+            ...(env.FRODO_CONNECTION_PROFILES_PATH
+                ? {}
+                : { FRODO_CONNECTION_PROFILES_PATH: '' }),
             // Clear Jest's NODE_OPTIONS so --experimental-vm-modules and
             // similar flags don't interfere with the shell's own loader setup.
             NODE_OPTIONS: '',
