@@ -41,6 +41,59 @@ describe('phase 5 slice 1: hint + segment routing', () => {
     };
 
     test(
+        'editor lists provided options with (current: x) and pre-fills the value step',
+        async () => {
+            const homeDir = createShellTestHome();
+            try {
+                const result = runShellScenario({
+                    homeDir,
+                    allowPrompting: true,
+                    args: ['esv', 'secret', 'delete', '-k', '--retry', 'network'],
+                    env: ENV,
+                    actions: [
+                        { type: 'wait_plain', regex: 'Choose which secrets', timeoutMs: 30000 },
+                        { type: 'key', name: 'right' },
+                        { type: 'wait_plain', regex: 'Optional options for', timeoutMs: 15000 },
+                        { type: 'sleep', ms: 400 },
+                        { type: 'send', text: 'retry' },
+                        // The description wraps mid-token in a narrow PTY,
+                        // so anchor on the unambiguous prefix.
+                        { type: 'wait_plain', regex: '\\(current: net', timeoutMs: 15000 },
+                        { type: 'sleep', ms: 300 },
+                        { type: 'capture', label: 'description' },
+                        { type: 'key', name: 'space' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'wait_plain', regex: 'Choose a value for --retry', timeoutMs: 15000 },
+                        { type: 'capture', label: 'valuestep' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'sleep', ms: 400 },
+                        { type: 'capture', label: 'committed' },
+                    ],
+                });
+
+                // The provided value shows as current in its description
+                // (highlighted row).
+                expect(result.captures.description.plain).toMatch(
+                    /\(current: net[\s\S]*?work\)/
+                );
+
+                const valuestep = result.captures.valuestep.plain;
+                // The value step PRE-HIGHLIGHTS it (mount-skip:
+                // the cursor-reset-on-query-change must not clobber the
+                // configured default on the first render).
+                expect(valuestep).toMatch(/› network/);
+                // Enter commits the pre-filled value as-is.
+                expect(result.captures.committed.plain).toMatch(
+                    /Choose a value for --retry <strategy>: network/
+                );
+            } finally {
+                removeShellTestHome(homeDir);
+            }
+        },
+        TIMEOUT
+    );
+
+    test(
         'one-of picker shows the hint; → opens the editor; ← returns',
         async () => {
             const homeDir = createShellTestHome();
@@ -52,6 +105,10 @@ describe('phase 5 slice 1: hint + segment routing', () => {
                     env: ENV,
                     actions: [
                         { type: 'wait_plain', regex: 'Choose which secrets', timeoutMs: 30000 },
+                        // The prompt renders its frames over a few paint
+                        // cycles; capture after the frame settles or the
+                        // hint line races (seen on fast CI runners).
+                        { type: 'sleep', ms: 400 },
                         { type: 'capture', label: 'picker' },
                         { type: 'key', name: 'right' },
                         { type: 'wait_plain', regex: 'Optional options for', timeoutMs: 15000 },

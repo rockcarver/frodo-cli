@@ -781,11 +781,26 @@ async function runInvocationEditor(command: Command): Promise<void> {
 
   const picked = await escapableMultiSelect<string>({
     message: `Optional options for '${command.name()}' (space to select):`,
-    choices: candidates.map((option) => ({
-      value: option.attributeName(),
-      name: option.flags,
-      description: option.description,
-    })),
+    choices: candidates.map((option) => {
+      // Phase 5 widening: already-valued options are editable too --
+      // shown with their current value so the user can tell them apart.
+      // Distinguish a commander default (never user-typed) from a value
+      // that came from this invocation's CLI/env.
+      const current = command.getOptionValue(option.attributeName());
+      const sourced =
+        current === undefined || current === false
+          ? undefined
+          : command.getOptionValueSource(option.attributeName()) === 'default'
+            ? ` (default: ${current})`
+            : ` (current: ${current})`;
+      return {
+        value: option.attributeName(),
+        name: option.flags,
+        description: option.description
+          ? `${option.description}${sourced ?? ''}`
+          : sourced?.trim(),
+      };
+    }),
   });
   if (picked === MULTISEL_ESCAPE) {
     verboseMessage('Invocation editor dismissed; values unchanged.');
@@ -796,6 +811,12 @@ async function runInvocationEditor(command: Command): Promise<void> {
     const option = command.options.find(
       (candidate) => candidate.attributeName() === attributeName
     )!;
+    // Phase 5: re-editing a valued option pre-fills the value step with
+    // the current value (Escape keeps it) -- "just wanted to peek" costs
+    // one Esc, not a retyping session.
+    const current = command.getOptionValue(attributeName);
+    const currentText =
+      current === undefined || current === false ? undefined : String(current);
     if (option.argChoices && option.argChoices.length > 0) {
       const value = await escapableSelect<string>({
         message: `Choose a value for ${option.flags}:`,
@@ -805,8 +826,9 @@ async function runInvocationEditor(command: Command): Promise<void> {
             value: choiceValue,
           })
         ),
+        default: currentText,
       });
-      if (value === ESCAPE) continue;
+      if (value === ESCAPE || value === RIGHT) continue;
       command.setOptionValueWithSource(attributeName, value, 'cli');
     } else if (!/<[^>]+>|\[[^\]]+\]/.test(option.flags)) {
       // Boolean flag: selected = true, no value step.
@@ -814,6 +836,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
     } else {
       const answer = await promptInput({
         message: `Enter a value for ${option.flags}:`,
+        default: currentText,
       });
       if (!answer) continue;
       command.setOptionValueWithSource(attributeName, answer, 'cli');

@@ -8,6 +8,7 @@ import {
   useMemo,
   usePagination,
   usePrefix,
+  useRef,
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
@@ -151,7 +152,16 @@ const escapableSelectImpl = createPrompt(
     // must exist first and inquirer re-renders on every state change
     // anyway; a render-time `setActive` here would either run before
     // `useState` declared it (TDZ crash) or loop the render.
+    // Reset to the first match whenever the query changes -- but NOT on
+    // mount: the initial cursor belongs on the configured default (e.g.
+    // the editor's pre-filled current value), and this effect would
+    // otherwise clobber it immediately after the first render.
+    const firstRender = useRef(true);
     useEffect(() => {
+      if (firstRender.current) {
+        firstRender.current = false;
+        return;
+      }
       setActive(0);
     }, [query]);
 

@@ -15,9 +15,12 @@
 import type { Command, Option } from 'commander';
 
 /**
- * The command's optional options that are not valued on this invocation
- * -- the exact candidate list the invocation editor offers. Non-editable
- * machinery (help/version/prompt/edit) never counts.
+ * The command's editable options for this invocation -- the exact
+ * candidate list the invocation editor offers: options not yet valued,
+ * PLUS already-valued ones (Phase 5 widening -- editing what was given
+ * is the point of an editor; the value step pre-fills the current
+ * value). Non-editable machinery (help/version/prompt/edit) never
+ * counts.
  */
 export function editableOptionalOptions(command: Command): Option[] {
   return command.options.filter((option) => {
@@ -32,9 +35,7 @@ export function editableOptionalOptions(command: Command): Option[] {
     ) {
       return false;
     }
-    // Only options NOT already valued on this invocation.
-    const value = command.getOptionValue(option.attributeName());
-    return value === undefined || value === false;
+    return true;
   });
 }
 
