@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type VariableSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -6,6 +6,10 @@ import {
   deleteVariables,
 } from '../../ops/cloud/VariablesOps';
 import { verboseMessage } from '../../utils/Console.js';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -59,14 +63,32 @@ export default function setup() {
           const outcome = await deleteVariableById(options.variableId);
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a
+        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
+        // outside the prompt gate, so a non-interactive run with neither
+        // option never reaches deleteVariables here -- same as before
+        // Phase 3, where the resolver's error handled that case).
         else if (
-          options.all &&
+          (options.all ||
+            (await resolveEntityPicks(command, [
+              entityPick<VariableSkeleton>({
+                name: 'variableId',
+                kind: 'variable',
+                load: () => frodo.cloud.variable.readVariables(),
+                label: (variable) => variable._id ?? '',
+                description: (variable) => variable.description,
+              }),
+            ]))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
-          verboseMessage('Deleting all variables...');
-          const outcome = await deleteVariables();
-          if (!outcome) process.exitCode = 1;
+          if (options.variableId) {
+            verboseMessage(`Deleting variable ${options.variableId}...`);
+            const outcome = await deleteVariableById(options.variableId);
+            if (!outcome) process.exitCode = 1;
+          } else {
+            verboseMessage('Deleting all variables...');
+            const outcome = await deleteVariables();
+            if (!outcome) process.exitCode = 1;
+          }
         }
         // No branch ran: with requireOneOf satisfied, the only way
         // here is getTokens() failing -- keep the old exit-1 semantics

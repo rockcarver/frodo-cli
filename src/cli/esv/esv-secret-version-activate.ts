@@ -1,8 +1,12 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { activateVersionOfSecret } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -34,9 +38,20 @@ export default function setup() {
           options,
           command
         );
-        // activate by id
+        // An unspecified secretId (version is still asked for by the
+        // requireAllOf resolver) prompts for a secret from the live system
+        // (no-op outside the prompt gate) before getTokens.
         if (
-          options.secretId &&
+          (options.secretId ||
+            (await resolveEntityPicks(command, [
+              entityPick<SecretSkeleton>({
+                name: 'secretId',
+                kind: 'secret',
+                load: frodo.cloud.secret.readSecrets,
+                label: (secret) => secret._id ?? '',
+                description: (secret) => secret.description,
+              }),
+            ]))) &&
           options.version &&
           (await getTokens(false, true, deploymentTypes))
         ) {
@@ -47,8 +62,9 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // No branch ran: with requireOneOf satisfied, the only way here is
-        // getTokens() failing -- keep the old exit-1 semantics.
+        // No branch ran: with requireAllOf satisfied, the only ways here
+        // are getTokens() failing or the user escaping the entity picker --
+        // keep the old exit-1 semantics.
         else {
           process.exitCode = 1;
         }
