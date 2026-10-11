@@ -26,6 +26,7 @@ Options:
   -a, --all                        Delete all variable in a realm. Ignored with
                                    -i.
   -i, --variable-id <variable-id>  Variable id. If specified, -a is ignored.
+                                   (pick from variable)
   --no-deep                        No deep delete. This leaves orphaned
                                    configuration artifacts behind.
   -h, --help                       Help

@@ -34,12 +34,41 @@ const {
 } = frodo.utils;
 
 /**
+ * Per-invocation cache of the realm list. The realm picker (Phase 3) reads
+ * realms right after auth, and commands like `frodo realm list` read them
+ * again moments later -- two HTTP calls to the same endpoint that would
+ * (a) double the latency and (b) break Polly's order-matched replay in e2e
+ * recordings, which have one entry for the endpoint. Sharing one memoized
+ * read keeps both callers on a single fetch.
+ */
+let realmsCache: Awaited<ReturnType<typeof readRealms>> | undefined;
+
+/**
+ * Reads all realms, memoized for the remainder of this invocation. Callers
+ * that need fresh data (import/export mutations) call frodo.realm
+ * .readRealms directly.
+ */
+export async function readRealmsCached() {
+  if (!realmsCache) {
+    realmsCache = await readRealms();
+  }
+  return realmsCache;
+}
+
+/**
+ * Clears the memoized realm list (test hygiene between invocations).
+ */
+export function resetRealmsCacheForTests(): void {
+  realmsCache = undefined;
+}
+
+/**
  * List realms
  * @param {boolean} long Long list format with details
  */
 export async function listRealms(long = false) {
   try {
-    const realms = await readRealms();
+    const realms = await readRealmsCached();
     if (long) {
       const table = createTable([
         c.heading('Id'),

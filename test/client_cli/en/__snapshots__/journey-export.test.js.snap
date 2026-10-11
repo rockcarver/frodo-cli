@@ -31,7 +31,7 @@ Options:
   -f, --file <file>           Name of the file to write the exported journey(s)
                               to. Ignored with -A.
   -i, --journey-id <journey>  Name of a journey/tree. If specified, -a and -A
-                              are ignored.
+                              are ignored. (pick from journey)
   -N, --no-metadata           Does not include metadata in the export file.
   --no-coords                 Do not include the x and y coordinate positions of
                               the journey/tree nodes.

@@ -23,7 +23,7 @@ Arguments:
 Options:
   -a, --all         Delete all services. Ignored with -i.
   -g, --global      Delete global services.
-  -i, --id <id>     Id of Service to be deleted.
+  -i, --id <id>     Id of Service to be deleted. (pick from service)
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

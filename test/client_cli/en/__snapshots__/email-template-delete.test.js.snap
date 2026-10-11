@@ -28,7 +28,7 @@ Options:
   -a, --all                        Delete all policies in a realm. Ignored with
                                    -i.
   -i, --template-id <template-id>  Email template id/name. If specified, -a and
-                                   -A are ignored.
+                                   -A are ignored. (pick from email template)
   -h, --help                       Help
   -hh, --help-more                 Help with all options.
   -hhh, --help-all                 Help with all options, environment variables,

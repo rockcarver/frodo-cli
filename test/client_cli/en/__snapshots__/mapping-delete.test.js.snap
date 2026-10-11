@@ -14,7 +14,7 @@ Arguments:
 Options:
   -a, --all                                        Delete all mappings. Ignored with -i.
   -c, --connector-id <connector-id>                Connector id. If specified, limits mappings to that particular connector; Ignored with -i.
-  -i, --mapping-id <mapping-id>                    Mapping id. If specified, -a is ignored.
+  -i, --mapping-id <mapping-id>                    Mapping id. If specified, -a is ignored. (pick from mapping)
   -t, --managed-object-type <managed-object-type>  Managed object type. If specified, limits mappings to that particular managed object type. Ignored with -i.
   -h, --help                                       Help
   -hh, --help-more                                 Help with all options.

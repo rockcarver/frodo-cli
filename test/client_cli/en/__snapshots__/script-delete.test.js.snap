@@ -33,7 +33,7 @@ Options:
                                  -a. Combine with other filters to imply AND
                                  matching.
   -i, --script-id <uuid>         Uuid of the script. If specified, -a and -A are
-                                 ignored.
+                                 ignored. (pick from script)
   --language <language>          Filter scripts by language when using -a. Use
                                  lowercase values such as javascript or groovy.
                                  (choices: "javascript", "groovy")

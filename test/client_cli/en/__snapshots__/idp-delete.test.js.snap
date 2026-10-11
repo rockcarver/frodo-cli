@@ -22,7 +22,7 @@ Arguments:
   password               Password.
 
 Options:
-  -i, --idp-id <idp-id>  Id/name of a provider.
+  -i, --idp-id <idp-id>  Id/name of a provider. (pick from identity provider)
   -h, --help             Help
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage

@@ -10,6 +10,11 @@ import {
 } from '@rockcarver/frodo-lib';
 import open from 'open';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
+// The active-command registry, not ResolveInteractiveInputs itself: that
+// file's graph reaches the frodo-lib-importing interactive prompts, which
+// breaks tests that mock frodo-lib wholesale (see ActiveActionCommandState).
+import { getActiveActionCommand } from '../utils/interactive/ActiveActionCommandState';
+import { canPrompt } from '../utils/interactive/PromptGateState';
 import { question } from '../utils/Prompt';
 
 const { getTokens: _getTokens, getTokensInteractive: _getTokensInteractive } =
@@ -198,6 +203,23 @@ export async function getTokens(
         state.getRealm() ? state.getRealm() : 'root'
       }] as ${tokens.subject}`
     );
+    // Post-auth realm picker (Phase 3): offers the target system's realms
+    // when the command has a realm argument, the user left it at its
+    // default, and the system has more than one realm. Never throws; a
+    // declined offer or an unlistable realm set keeps the default. The
+    // active command is recorded by the resolution pass (preAction), so
+    // commands that bypass it (login/conn's own stub actions) naturally
+    // never see a picker.
+    //
+    // Gated on canPrompt() and lazy-imported: this module must stay
+    // loadable in tests that mock frodo-lib wholesale (the picker's graph
+    // reaches ColorTheme's `theme` import, which such mocks don't carry),
+    // and a non-interactive session never needs the picker's machinery.
+    if (canPrompt()) {
+      const { resolveRealmPick } =
+        await import('../utils/interactive/RealmPickers');
+      await resolveRealmPick(getActiveActionCommand());
+    }
     return true;
   } catch (error) {
     printError(error);

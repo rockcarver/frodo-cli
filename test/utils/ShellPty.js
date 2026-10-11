@@ -27,7 +27,13 @@ export function removeShellTestHome(homeDir) {
     fs.rmSync(homeDir, { recursive: true, force: true });
 }
 
-export function runShellScenario({ actions, homeDir, env = {}, args = ['shell'] }) {
+export function runShellScenario({
+    actions,
+    homeDir,
+    env = {},
+    args = ['shell'],
+    allowPrompting = false,
+}) {
     // The shell tests exercise the interactive shell of THIS checkout's build.
     // The SEA binary is the artifact customers run, so prefer it; build it on
     // demand if missing. The npm dist build stays as a fallback so the shell
@@ -40,7 +46,14 @@ export function runShellScenario({ actions, homeDir, env = {}, args = ['shell'] 
         homeDir: scenarioHomeDir,
         env: {
             ...env,
-            FRODO_TEST: '1',
+            // FRODO_TEST=1 disables interactive prompting (canPrompt()); the
+            // shell scenarios pin it for determinism. Opt-in escape hatch for
+            // tests that must exercise a real prompt (e.g. the bare-stub
+            // sub-command picker) -- set allowPrompting to blank it. The
+            // blank is load-bearing: the PTY driver merges the runner's
+            // environment (jest sets FRODO_TEST=1) under the scenario env,
+            // so an omitted key would LEAK the runner's value into the child.
+            FRODO_TEST: allowPrompting ? '' : '1',
             FRODO_NO_CACHE: 'true',
             TERM: 'xterm-256color',
             FRODO_CONNECTION_PROFILES_PATH: '',

@@ -25,6 +25,7 @@ import {
   updateProgressIndicator,
   verboseMessage,
 } from '../utils/Console.js';
+import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import {
   escapableSelect,
   ESCAPE,
@@ -36,6 +37,7 @@ import {
   deferOneOfGroups,
   getOneOfGroups,
   resolveInteractiveInputs,
+  setActiveActionCommand,
   type OptionRequirementSpec,
 } from './ResolveInteractiveInputs.js';
 
@@ -2297,6 +2299,40 @@ function splitPositionalArgs(
 }
 
 /**
+ * Options the bare-stub sub-command picker must not swallow -- when one
+ * of these is present the interception falls through to commander's own
+ * parse:
+ *
+ * - the help family and version make commander act and EXIT where they
+ *   appear, and the picker replaces parseOptions wholesale, so
+ *   intercepting around them would never fire them (`frodo -v` and
+ *   `frodo -h` on a TTY would show the picker instead of their own
+ *   output);
+ * - `--no-prompt` is the explicit prompting opt-out -- showing a prompt
+ *   against it would defeat its meaning (its value is only read during
+ *   parseOptions, which the picker bypasses, and in a stub's bare
+ *   invocation no preAction runs to set the gate).
+ *
+ * Other pass-down options (--verbose, --debug, ...) keep the picker and
+ * re-parse in the picked sub-command's context as designed.
+ */
+const BARE_PICKER_BLOCKING_OPTION_TOKENS = new Set([
+  '-h',
+  '--help',
+  HELP_MORE_FLAG,
+  HELP_MORE_SHORT_FLAG,
+  HELP_ALL_FLAG,
+  HELP_ALL_SHORT_FLAG,
+  '-v',
+  '--version',
+  '--no-prompt',
+]);
+
+function isBarePickerBlockingOptionToken(token: string): boolean {
+  return BARE_PICKER_BLOCKING_OPTION_TOKENS.has(token);
+}
+
+/**
  * commander's own _parseCommand implementation, captured from the
  * Command.prototype ONCE at module load -- before any subclass shadows
  * it. Reaching it via prototype walking is wrong: a 2-level walk lands
@@ -2437,6 +2473,7 @@ export class FrodoStubCommand extends Command {
       if (!(actionCommand instanceof FrodoCommand)) return;
       if (resolvedActionCommands.has(actionCommand)) return;
       resolvedActionCommands.add(actionCommand);
+      setActiveActionCommand(actionCommand);
       await resolveInteractiveInputs(actionCommand);
     });
   }
@@ -2657,7 +2694,15 @@ export class FrodoStubCommand extends Command {
     if (
       self._actionHandler === null &&
       positional.length === 0 &&
-      this.commands.length > 0
+      this.commands.length > 0 &&
+      // Root-exiting options (help family, version) must reach
+      // commander's own parse: the picker replaces parseOptions
+      // wholesale, so intercepting around them would turn `frodo -v` and
+      // `frodo -h` into the sub-command picker instead of their own
+      // output. Pass-down options (--verbose, --no-prompt, ...) don't
+      // exit and re-parse in the picked sub-command's context, so they
+      // keep the picker.
+      !unknown.some(isBarePickerBlockingOptionToken)
     ) {
       return this.pickAndDispatchSubCommand(unknown);
     }
@@ -2742,6 +2787,12 @@ class FrodoStubHelp extends Help {
   };
 
   /**
+   * The command currently being rendered (set by formatHelp). The entity
+   * pick annotation in optionDescription reads the pick registry off it.
+   */
+  private renderedCommand?: Command;
+
+  /**
    * Custom help renderer that extends Commander output with deployment-aware
    * inline sub-sections for options and subcommands.
    *
@@ -2753,6 +2804,10 @@ class FrodoStubHelp extends Help {
    * @returns Fully rendered help text for the command.
    */
   override formatHelp(cmd: Command, helper: Help): string {
+    // optionDescription is called from inside formatHelp with no command
+    // context of its own -- remember which command is being rendered so
+    // the entity-pick annotation can consult that command's registry.
+    this.renderedCommand = cmd;
     const termWidth = helper.padWidth(cmd, helper);
     const helpWidth = helper.helpWidth ?? 80;
 
@@ -2965,9 +3020,15 @@ class FrodoStubHelp extends Help {
       super.optionDescription(option),
       option
     );
-    return option.mandatory
-      ? `${description} (prompts if missing)`
-      : description;
+    // "(pick from <kind>)": the option has an entity picker registered
+    // (deferEntityPicks), so an interactive session offers a dropdown of
+    // the live system's entities for it.
+    const pick = (
+      this.renderedCommand ? getEntityPicks(this.renderedCommand) : []
+    ).find((candidate) => candidate.name === option.attributeName());
+    const pickSuffix = pick ? ` (pick from ${pick.kind})` : '';
+    const mandatorySuffix = option.mandatory ? ' (prompts if missing)' : '';
+    return `${description}${pickSuffix}${mandatorySuffix}`;
   }
 
   /**

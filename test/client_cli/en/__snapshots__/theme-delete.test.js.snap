@@ -25,7 +25,7 @@ Options:
   -a, --all                Delete all the themes in the realm. Ignored with -n
                            and -i.
   -i, --theme-id <uuid>    Uuid of the theme. If specified, -a and -A are
-                           ignored.
+                           ignored. (pick from theme)
   -n, --theme-name <name>  Name of the theme. If specified, -a and -A are
                            ignored.
   -h, --help               Help

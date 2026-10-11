@@ -55,9 +55,20 @@ import {
   promptInput,
   promptPassword,
 } from '../utils/interactive/PromptGate';
+import { noteRealmProvenance } from '../utils/interactive/RealmPickers';
 import { guidedModeEnabled } from '../utils/SettingsStore';
 
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
+
+// The active-action-command registry lives in its own zero-import module
+// (ActiveActionCommandState) so ops-layer importers (AuthenticateOps's
+// post-auth realm picker) don't drag this file's frodo-lib-importing
+// graph into tests that mock frodo-lib wholesale. Re-exported here for
+// the resolution pass's own use.
+export {
+  setActiveActionCommand,
+  getActiveActionCommand,
+} from '../utils/interactive/ActiveActionCommandState';
 
 /**
  * A mandatory-option violation that commander's parse recorded instead of
@@ -198,6 +209,10 @@ export async function resolveInteractiveInputs(
   // action's getTokens may still fail on auth, exactly as before).
   // Either step bailing out falls back to the pre-Phase-1 error
   // semantics.
+  // The realm provenance MUST be noted before any prompt: frodo-lib maps
+  // the sentinel default to the deployment type's realm during auth, so
+  // "user chose" is only distinguishable from "mapped default" here.
+  noteRealmProvenance();
   const connectionResolved = await resolveConnectionArgs(command);
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
