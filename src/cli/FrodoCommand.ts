@@ -2299,6 +2299,40 @@ function splitPositionalArgs(
 }
 
 /**
+ * Options the bare-stub sub-command picker must not swallow -- when one
+ * of these is present the interception falls through to commander's own
+ * parse:
+ *
+ * - the help family and version make commander act and EXIT where they
+ *   appear, and the picker replaces parseOptions wholesale, so
+ *   intercepting around them would never fire them (`frodo -v` and
+ *   `frodo -h` on a TTY would show the picker instead of their own
+ *   output);
+ * - `--no-prompt` is the explicit prompting opt-out -- showing a prompt
+ *   against it would defeat its meaning (its value is only read during
+ *   parseOptions, which the picker bypasses, and in a stub's bare
+ *   invocation no preAction runs to set the gate).
+ *
+ * Other pass-down options (--verbose, --debug, ...) keep the picker and
+ * re-parse in the picked sub-command's context as designed.
+ */
+const BARE_PICKER_BLOCKING_OPTION_TOKENS = new Set([
+  '-h',
+  '--help',
+  HELP_MORE_FLAG,
+  HELP_MORE_SHORT_FLAG,
+  HELP_ALL_FLAG,
+  HELP_ALL_SHORT_FLAG,
+  '-v',
+  '--version',
+  '--no-prompt',
+]);
+
+function isBarePickerBlockingOptionToken(token: string): boolean {
+  return BARE_PICKER_BLOCKING_OPTION_TOKENS.has(token);
+}
+
+/**
  * commander's own _parseCommand implementation, captured from the
  * Command.prototype ONCE at module load -- before any subclass shadows
  * it. Reaching it via prototype walking is wrong: a 2-level walk lands
@@ -2660,7 +2694,15 @@ export class FrodoStubCommand extends Command {
     if (
       self._actionHandler === null &&
       positional.length === 0 &&
-      this.commands.length > 0
+      this.commands.length > 0 &&
+      // Root-exiting options (help family, version) must reach
+      // commander's own parse: the picker replaces parseOptions
+      // wholesale, so intercepting around them would turn `frodo -v` and
+      // `frodo -h` into the sub-command picker instead of their own
+      // output. Pass-down options (--verbose, --no-prompt, ...) don't
+      // exit and re-parse in the picked sub-command's context, so they
+      // keep the picker.
+      !unknown.some(isBarePickerBlockingOptionToken)
     ) {
       return this.pickAndDispatchSubCommand(unknown);
     }
