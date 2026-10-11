@@ -30,9 +30,14 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
-import { canPrompt } from './PromptGateState';
+import { canPrompt, notePromptRendered } from './PromptGateState';
 
-export { canPrompt, setNeverPrompt } from './PromptGateState';
+export {
+  canPrompt,
+  notePromptRendered,
+  promptsRendered,
+  setNeverPrompt,
+} from './PromptGateState';
 
 /**
  * The empty-string result of `promptInput`/`promptPassword`. The prompts
@@ -106,6 +111,7 @@ async function runTextPrompt(
   config: TextInputConfig,
   opts: { suppress: boolean }
 ): Promise<string> {
+  notePromptRendered();
   try {
     return await textPrompt(config, opts);
   } catch (error) {

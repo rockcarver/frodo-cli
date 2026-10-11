@@ -16,13 +16,75 @@
 import type { Command, Option } from 'commander';
 import c from '../ColorTheme';
 
+/**
+ * frodo-lib's sentinel default for "no realm chosen yet" and its
+ * per-deployment-type translations (the same mapping frodo-lib's
+ * determineDefaultRealm applies during auth). Zero-import constraint:
+ * the map is duplicated here rather than imported from frodo-lib --
+ * if the lib map ever changes, this copy MUST change with it (the test
+ * below pins the values).
+ */
+const DEFAULT_REALM_KEY = '__default__realm__';
+const DEPLOYMENT_TYPE_REALM_MAP: Record<string, string> = {
+  classic: '/',
+  cloud: 'alpha',
+  forgeops: '/',
+};
+
+/**
+ * The deployment type the resolver knows for this process (set from the
+ * CLI side via setDeploymentTypeForPreview -- the resolution pass and
+ * profile loading may resolve it in either order relative to the first
+ * prompt render). Undefined = not yet known; the sentinel then prints
+ * untranslated rather than as a wrong realm.
+ */
+let previewDeploymentType: string | undefined;
+
+/**
+ * Records the deployment type for sentinel translation in the preview.
+ * Called by the resolution pass when the deployment type is (or becomes)
+ * known: CLI-provided (-m/--type), connection-profile-carried, or
+ * persisted.
+ */
+export function setDeploymentTypeForPreview(type: string | undefined): void {
+  previewDeploymentType = type;
+}
+
+/**
+ * Translates a positional value for serialization: the realm sentinel
+ * becomes the deployment type's default realm (alpha on cloud, / on
+ * classic/forgeops) -- the SAME translation frodo-lib applies during
+ * auth, so the printed command is exactly what the run will execute.
+ * Printing the TRANSLATED value (not omitting it, not the sentinel) is
+ * deliberate: defaults can change between frodo versions, and a CI
+ * pipeline that copy-pasted the printed command must keep reading and
+ * writing the realm it was authored against -- pinning the value now
+ * beats a silent realm change on the next upgrade. Unknown deployment
+ * type (not yet resolved): the sentinel prints as-is -- it is still a
+ * valid re-runnable token (frodo-lib translates it at auth time).
+ */
+function serializePositionalValue(argumentName: string, value: string): string {
+  if (argumentName === 'password') return '********';
+  if (argumentName === 'realm' && value === DEFAULT_REALM_KEY) {
+    return (
+      (previewDeploymentType &&
+        DEPLOYMENT_TYPE_REALM_MAP[previewDeploymentType]) ||
+      value
+    );
+  }
+  return value;
+}
+
 /** Options that are machinery, not configuration -- never serialized. */
 const NON_SERIALIZABLE_OPTIONS = new Set([
   'help',
   'help-more',
   'help-all',
   'version',
+  // The prompting switch is a dual option pair (--prompt + --no-prompt)
+  // sharing the `prompt` attribute -- both name() spellings excluded.
   'prompt',
+  'no-prompt',
   'edit',
 ]);
 
@@ -59,7 +121,7 @@ export function serializeCommand(command: Command): string {
   command.registeredArguments.forEach((argument, index) => {
     const value = command.processedArgs?.[index];
     if (typeof value !== 'string' || value.length === 0) return;
-    args.push(argument.name() === 'password' ? '********' : value);
+    args.push(serializePositionalValue(argument.name(), value));
   });
   // Positionals come after the command word, before options -- but
   // commander's own usage puts them at the end of the token stream as

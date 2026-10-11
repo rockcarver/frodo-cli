@@ -17,18 +17,18 @@ export default function setup() {
 
   program
     .description(
-      'Show or set guided mode: run the optional-options invocation editor (the --edit flow) by default on every interactive command.'
+      'Show or set guided mode: run the full interactive flow (connection page, options editor) by default on every interactive command.'
     )
     .addOption(
       new Option(
         '--on',
-        'Enable guided mode (same as passing --edit on every command).'
+        'Enable guided mode (same as passing --prompt on every command).'
       ).default(false)
     )
     .addOption(
       new Option(
         '--off',
-        'Disable guided mode; --edit stays available per-invocation.'
+        'Disable guided mode; --prompt stays available per-invocation.'
       ).default(false)
     )
     .action(async (options, command) => {
@@ -50,8 +50,8 @@ export default function setup() {
         printMessage(
           `Guided mode is ${state}. ${
             state === 'enabled'
-              ? 'Every interactive command opens the optional-options editor; pass --no-prompt to skip all prompting.'
-              : 'Pass --edit on a command to edit its optional options for that invocation.'
+              ? 'Every interactive command opens the options editor after resolving missing input; pass --no-prompt to skip all prompting.'
+              : 'Pass --prompt on a command to edit its optional options for that invocation.'
           }`
         );
       } catch (error) {

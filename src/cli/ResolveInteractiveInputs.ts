@@ -40,7 +40,10 @@ import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
 import { printMessage, verboseMessage } from '../utils/Console';
-import { renderCommandPreview } from '../utils/interactive/CommandPreview';
+import {
+  renderCommandPreview,
+  setDeploymentTypeForPreview,
+} from '../utils/interactive/CommandPreview';
 import {
   connectionPage,
   PAGE_ESCAPE,
@@ -65,6 +68,7 @@ import {
   canPrompt,
   promptInput,
   promptPassword,
+  promptsRendered,
 } from '../utils/interactive/PromptGate';
 import { noteRealmProvenance } from '../utils/interactive/RealmPickers';
 import { guidedModeEnabled } from '../utils/SettingsStore';
@@ -235,15 +239,27 @@ export async function resolveInteractiveInputs(
   // the sentinel default to the deployment type's realm during auth, so
   // "user chose" is only distinguishable from "mapped default" here.
   noteRealmProvenance();
+  // Sentinel translation for the command preview: the realm positional's
+  // sentinel default must print as the deployment type's default realm
+  // (alpha on cloud, / otherwise -- the same mapping frodo-lib applies at
+  // auth). Known eagerly from -m/--type / FRODO_DEPLOYMENT (state) and
+  // re-set after profile resolution (the profile may carry the type).
+  setDeploymentTypeForPreview(state.getDeploymentType());
+  // The editor trigger (explicit --prompt or guided mode) also flags the
+  // session as explicitly interactive for the print gate below: the user
+  // ASKED for the flow even when nothing was pending. Value must be
+  // true, not merely source 'cli' -- --no-prompt also carries source
+  // 'cli' (and is already filtered out by the !canPrompt() early return,
+  // but the value check keeps this independent of that ordering).
+  const explicitlyInteractive =
+    (command.getOptionValue('prompt') === true &&
+      command.getOptionValueSource('prompt') === 'cli') ||
+    guidedModeEnabled();
   const connectionResolved = await resolveConnectionArgs(command);
   connectionReadiness.set(command, connectionResolved);
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
     : false;
-  // Any interactive resolution completed: the final command print below
-  // is earned (its values may all be defaults, but the session WAS
-  // interactive and the preview is that session's payoff).
-  const interactiveResolutionHappened = connectionResolved && mandatoryResolved;
   if (!connectionResolved || !mandatoryResolved) {
     if (violations.length > 0) {
       throwMissingMandatory(command, violations[0]);
@@ -257,23 +273,26 @@ export async function resolveInteractiveInputs(
       throwOneOfUnsatisfied(command, unsatisfied[0]);
     }
   }
-  // --edit (opt-in invocation editor) runs LAST: by now gap-filled
+  // The invocation editor (Phase 2/5) runs LAST: by now gap-filled
   // mandatory/one-of values are visible, so the editor only offers what is
   // still unspecified. Backing out keeps every value resolved above.
-  // Trigger: the explicit --edit flag, or the persisted guided-mode
+  // Trigger (Phase 5 slice 5): an explicit --prompt (commander source
+  // 'cli' -- the default true doesn't count) or the persisted guided-mode
   // settings toggle (frodo settings guided) -- both are opt-in; default
-  // runs keep today's behavior.
-  const editRequested =
-    command.getOptionValue('edit') === true || guidedModeEnabled();
-  if (editRequested) {
+  // runs keep today's behavior. (--edit retired: commander rejects it as
+  // an unknown option.)
+  if (explicitlyInteractive) {
     await runInvocationEditor(command);
   }
 
-  // Phase 5 authoring-tool moment: after a fully interactive resolution,
-  // print the command as it will run -- once, NOT cleaned away, so it
-  // stays scrollable/copyable and users can lift it into scripts. Only
-  // on interactive sessions; the serialized form masks secrets.
-  if (interactiveResolutionHappened) {
+  // Phase 5 authoring-tool moment: after an interactive-assisted
+  // resolution, print the command as it will run -- once, NOT cleaned
+  // away, so it stays scrollable/copyable and users can lift it into
+  // scripts. The print belongs to sessions where a prompt actually
+  // rendered (the payoff of the prompts' concluding <enter>) or the user
+  // explicitly requested the flow (--prompt / guided mode) -- NOT to
+  // fully-specified TTY runs where the pass found nothing to do.
+  if (promptsRendered() > 0 || explicitlyInteractive) {
     printMessage(
       renderCommandPreview(command, {
         missingMandatoryOptionLabels: [],
@@ -732,6 +751,25 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
       picked = answer;
     }
     setPositionalValue(command, 'host', picked);
+    // The picked profile's deployment type feeds the preview's sentinel
+    // translation (frodo-lib itself only loads the profile into state
+    // later, during auth). The lookup below covers all host origins.
+  }
+  // Refresh the preview's deployment type when the host is known but the
+  // type isn't yet: the saved profile may carry it (the user didn't pass
+  // -m/--type, and lib loads the profile into state only during auth --
+  // too late for the preview).
+  {
+    const host = positionalValue(command, 'host') ?? state.getHost();
+    if (!state.getDeploymentType() && host) {
+      try {
+        const profile = await getConnectionProfileByHost(host);
+        setDeploymentTypeForPreview(profile.deploymentType);
+      } catch {
+        // No profile for this host: preview keeps the untranslated
+        // sentinel (still a valid re-runnable token).
+      }
+    }
   }
 
   // -- username / password ----------------------------------------------

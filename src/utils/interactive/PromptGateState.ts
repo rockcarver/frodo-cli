@@ -26,6 +26,33 @@
 let neverPrompt = false;
 
 /**
+ * Prompts actually rendered this process (incremented by the prompt
+ * modules as they open). The resolution pass consults this to tell an
+ * interactive-assisted run (at least one prompt concluded) from a fully
+ * specified TTY run where the pass found nothing to do -- the command
+ * preview's final print belongs to the former (its payoff is the
+ * prompts' concluding <enter>), not the latter. Counter, not flag: a
+ * connection page + picker session must not lose the fact because the
+ * FIRST prompt of the session renders before the print gate could read a
+ * boolean.
+ */
+let promptSessionCount = 0;
+
+/**
+ * Records that an interactive prompt is being shown. Called by the
+ * prompt modules (textPrompt, escapableSelect, escapableMultiSelect,
+ * connectionPage) at open time.
+ */
+export function notePromptRendered(): void {
+  promptSessionCount += 1;
+}
+
+/** How many prompts have rendered this process. */
+export function promptsRendered(): number {
+  return promptSessionCount;
+}
+
+/**
  * Permanently disables prompting for the remainder of this process. Used
  * by surfaces whose stdin/stdout are a protocol channel by construction
  * (e.g. the MCP server's stdio transport) as belt-and-braces alongside
