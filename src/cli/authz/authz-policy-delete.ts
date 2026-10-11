@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -5,8 +6,20 @@ import {
   deletePoliciesByPolicySet,
   deletePolicyById,
 } from '../../ops/PolicyOps';
-import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
+
+/**
+ * The policy skeleton type isn't exported from frodo-lib's root; derive it
+ * from the read function instead of importing an unexported name.
+ */
+type PolicySkeleton = Awaited<
+  ReturnType<typeof frodo.authz.policy.readPolicies>
+>[number];
 
 export default function setup() {
   const program = new FrodoCommand('frodo authz policy delete');
@@ -57,17 +70,37 @@ export default function setup() {
           const outcome = await deletePoliciesByPolicySet(options.setId);
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a
-        else if (options.all && (await getTokens())) {
-          verboseMessage('Deleting all authorization policies...');
-          const outcome = await deletePolicies();
-          if (!outcome) process.exitCode = 1;
+        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
+        // outside the prompt gate, so a non-interactive run with neither
+        // option never reaches deletePolicies here -- same as before
+        // Phase 3, where the error branch below handled that case).
+        else if (
+          (options.all ||
+            (await resolveEntityPicks(command, [
+              entityPick<PolicySkeleton>({
+                name: 'policyId',
+                kind: 'authorization policy',
+                load: () => frodo.authz.policy.readPolicies(),
+                label: (policy) => policy.name || policy._id || '',
+              }),
+            ]))) &&
+          (await getTokens())
+        ) {
+          if (options.policyId) {
+            verboseMessage('Deleting authorization policy...');
+            const outcome = await deletePolicyById(options.policyId);
+            if (!outcome) process.exitCode = 1;
+          } else {
+            verboseMessage('Deleting all authorization policies...');
+            const outcome = await deletePolicies();
+            if (!outcome) process.exitCode = 1;
+          }
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only ways here
+        // are getTokens() failing (keep the old exit-1 semantics) or the
+        // user escaping the entity picker (declined to run).
         else {
-          printMessage('Unrecognized combination of options or no options...');
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler
