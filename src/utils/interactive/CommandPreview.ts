@@ -35,8 +35,7 @@ const DEPLOYMENT_TYPE_REALM_MAP: Record<string, string> = {
  * The deployment type the resolver knows for this process (set from the
  * CLI side via setDeploymentTypeForPreview -- the resolution pass and
  * profile loading may resolve it in either order relative to the first
- * prompt render). Undefined = not yet known; the sentinel then prints
- * untranslated rather than as a wrong realm.
+ * prompt render). Undefined = not yet known.
  */
 let previewDeploymentType: string | undefined;
 
@@ -51,26 +50,28 @@ export function setDeploymentTypeForPreview(type: string | undefined): void {
 }
 
 /**
- * Translates a positional value for serialization: the realm sentinel
- * becomes the deployment type's default realm (alpha on cloud, / on
- * classic/forgeops) -- the SAME translation frodo-lib applies during
- * auth, so the printed command is exactly what the run will execute.
- * Printing the TRANSLATED value (not omitting it, not the sentinel) is
- * deliberate: defaults can change between frodo versions, and a CI
+ * Translates a positional value for serialization. The realm sentinel
+ * NEVER displays: with a known deployment type it becomes that type's
+ * default realm (alpha on cloud, / on classic/forgeops -- the SAME
+ * translation frodo-lib applies during auth, so the printed command is
+ * exactly what the run will execute; printing the TRANSLATED value is
+ * deliberate -- defaults can change between frodo versions, and a CI
  * pipeline that copy-pasted the printed command must keep reading and
- * writing the realm it was authored against -- pinning the value now
- * beats a silent realm change on the next upgrade. Unknown deployment
- * type (not yet resolved): the sentinel prints as-is -- it is still a
- * valid re-runnable token (frodo-lib translates it at auth time).
+ * writing the realm it was authored against, pinning the value now
+ * beats a silent realm change on upgrade). Before the type is known
+ * (e.g. the profile picker footer, where no host has been picked yet)
+ * the positional is OMITTED entirely -- the sentinel is an
+ * implementation detail no user ever typed or should ever see, and the
+ * live footer is a status display, not a copy-paste surface; by the
+ * final authoring print the type is always resolved, so the pipeline
+ * guarantee is unaffected.
  */
 function serializePositionalValue(argumentName: string, value: string): string {
   if (argumentName === 'password') return '********';
   if (argumentName === 'realm' && value === DEFAULT_REALM_KEY) {
-    return (
-      (previewDeploymentType &&
-        DEPLOYMENT_TYPE_REALM_MAP[previewDeploymentType]) ||
-      value
-    );
+    const translated =
+      previewDeploymentType && DEPLOYMENT_TYPE_REALM_MAP[previewDeploymentType];
+    return translated ?? '';
   }
   return value;
 }
@@ -121,7 +122,12 @@ export function serializeCommand(command: Command): string {
   command.registeredArguments.forEach((argument, index) => {
     const value = command.processedArgs?.[index];
     if (typeof value !== 'string' || value.length === 0) return;
-    args.push(serializePositionalValue(argument.name(), value));
+    const serialized = serializePositionalValue(argument.name(), value);
+    // A positional the serializer declines (the realm sentinel before
+    // the deployment type is known) drops out entirely -- never a bare
+    // placeholder in the token stream.
+    if (serialized.length === 0) return;
+    args.push(serialized);
   });
   // Positionals come after the command word, before options -- but
   // commander's own usage puts them at the end of the token stream as
