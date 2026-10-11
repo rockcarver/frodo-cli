@@ -1,3 +1,4 @@
+import { frodo, type TreeSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -6,6 +7,10 @@ import {
   exportJourneyToFile,
 } from '../../ops/JourneyOps';
 import { verboseMessage } from '../../utils/Console';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -100,19 +105,48 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a
-        else if (options.all && (await getTokens())) {
-          verboseMessage('Exporting all journeys to a single file...');
-          const outcome = await exportJourneysToFile(
-            options.file,
-            options.metadata,
-            {
-              useStringArrays: options.useStringArrays,
-              deps: options.deps,
-              coords: options.coords,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
+        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
+        // outside the prompt gate, so a non-interactive run with neither
+        // option never reaches exportJourneysToFile here -- same as before
+        // Phase 3, where the resolver's error handled that case).
+        else if (
+          (options.all ||
+            (await resolveEntityPicks(command, [
+              entityPick<TreeSkeleton>({
+                name: 'journeyId',
+                kind: 'journey',
+                load: () => frodo.authn.journey.readJourneys(),
+                label: (journey) => journey._id ?? '',
+              }),
+            ]))) &&
+          (await getTokens())
+        ) {
+          if (options.journeyId) {
+            verboseMessage('Exporting journey...');
+            const outcome = await exportJourneyToFile(
+              options.journeyId,
+              options.file,
+              options.metadata,
+              {
+                useStringArrays: options.useStringArrays,
+                deps: options.deps,
+                coords: options.coords,
+              }
+            );
+            if (!outcome) process.exitCode = 1;
+          } else {
+            verboseMessage('Exporting all journeys to a single file...');
+            const outcome = await exportJourneysToFile(
+              options.file,
+              options.metadata,
+              {
+                useStringArrays: options.useStringArrays,
+                deps: options.deps,
+                coords: options.coords,
+              }
+            );
+            if (!outcome) process.exitCode = 1;
+          }
         }
         // --all-separate -A
         else if (options.allSeparate && (await getTokens())) {
