@@ -9,19 +9,27 @@
  * function the command family's ops layer provides (`frodo.authn.journey
  * .readJourneys` for PingAM, `frodo.cloud.secret.readSecrets` for cloud,
  * and so on), so each picker is deployment-type-correct by construction;
- * nothing here assumes a particular deployment type. The pick fires AFTER
- * authentication succeeds (the loaders need tokens) and before the action
- * body uses the option -- the command calls `resolveEntityPicks(command,
- * picks)` in its authenticated branch. A prompt only happens when
+ * nothing here assumes a particular deployment type.
  *
- * - the gate allows prompting (canPrompt()),
- * - the option is still unspecified, and
- * - the loader returns at least one entity.
+ * The flow spans two stages:
  *
- * Every other path is a no-op, so non-interactive behavior stays
- * byte-identical: no TTY, `--no-prompt`, FRODO_NO_PROMPT, FRODO_TEST, or an
- * empty system all leave `options.<name>` untouched and the action proceeds
- * exactly as before (usually to its existing "required" error).
+ * 1. SETUP: the command declares its specs with `deferEntityPicks(command,
+ *    [...])`. The resolver (ResolveInteractiveInputs) reads the registry to
+ *    learn which options are entity-pickable, and when such an option is
+ *    the missing half of a mandatory/one-of rule, it SKIPS the free-text
+ *    value step for it (asking the user to type an id by hand would defeat
+ *    the picker's purpose) and leaves the option unset.
+ *
+ * 2. ACTION BODY: after `getTokens()` succeeds (the loaders need tokens),
+ *    the command calls `resolveEntityPicks(command)`, which runs the
+ *    dropdown for every still-unspecified pickable option. A prompt only
+ *    happens when the gate allows prompting (canPrompt()), the option is
+ *    still unspecified, and the loader returned at least one entity. Every
+ *    other path is a no-op, so non-interactive behavior stays
+ *    byte-identical: no TTY, `--no-prompt`, FRODO_NO_PROMPT, FRODO_TEST,
+ *    or an empty system all leave `options.<name>` untouched and the
+ *    action proceeds exactly as before (usually to its existing "required"
+ *    error).
  *
  * Escape backs out of a picker without setting anything -- callers treat
  * that as "declined to run" and return (same shape as a failed
@@ -42,7 +50,13 @@ import { canPrompt } from './PromptGateState';
  */
 export type EntityPickLoader<T> = () => Promise<T[]>;
 
-export type EntityPickSpec<T> = {
+/**
+ * The registry-facing shape of an entity pick spec: the entity type is
+ * erased (functions accept `any`) so heterogenous spec lists type-check.
+ * `entityPick<T>` keeps the typed surface for call sites; the erasure only
+ * widens what the registry stores.
+ */
+export type EntityPickSpec<T = any> = {
   /**
    * Attribute name of the option being filled (e.g. `secretId`). The value
    * written back is the entity's rendered label -- for every current
@@ -62,31 +76,63 @@ export type EntityPickSpec<T> = {
   kind: string;
 };
 
+const pendingEntityPicks = new WeakMap<Command, EntityPickSpec<unknown>[]>();
+
 /**
- * Defines an entity picker for one option. The returned spec is passed to
- * `resolveEntityPicks` by the command's action body.
+ * Registers entity pickers on a command. Called from the command's setup
+ * (module scope of the command file) so the resolver can consult the
+ * registry and the action body can run the picks with one bare call.
+ * `T` defaults to unknown, so heterogenous spec lists type-check.
+ */
+export function deferEntityPicks(
+  command: Command,
+  picks: EntityPickSpec[]
+): void {
+  pendingEntityPicks.set(command, [
+    ...(pendingEntityPicks.get(command) ?? []),
+    ...picks,
+  ]);
+}
+
+/**
+ * The entity pickers registered on a command (empty when none). Read by
+ * ResolveInteractiveInputs to know which options it should NOT free-text
+ * prompt for -- those belong to the post-auth dropdown.
+ */
+export function getEntityPicks(command: Command): EntityPickSpec<unknown>[] {
+  return pendingEntityPicks.get(command) ?? [];
+}
+
+/**
+ * Whether the named option has an entity picker registered on this
+ * command. Convenience for the resolver's value steps.
+ */
+export function hasEntityPick(command: Command, name: string): boolean {
+  return getEntityPicks(command).some((pick) => pick.name === name);
+}
+
+/**
+ * Defines an entity picker for one option. The returned spec is registered
+ * via `deferEntityPicks`.
  */
 export function entityPick<T>(spec: EntityPickSpec<T>): EntityPickSpec<T> {
   return spec;
 }
 
 /**
- * Runs every entity pick declared for this command whose option is still
+ * Runs every entity pick registered for this command whose option is still
  * unspecified. No-op when prompting is disallowed. Returns false when the
  * user escaped the picker -- the caller should return without running the
  * action's body (same shape as a failed getTokens()).
  */
-export async function resolveEntityPicks<T>(
-  command: Command,
-  picks: EntityPickSpec<T>[]
-): Promise<boolean> {
-  if (!canPrompt() || picks.length === 0) return true;
-  for (const pick of picks) {
+export async function resolveEntityPicks(command: Command): Promise<boolean> {
+  if (!canPrompt()) return true;
+  for (const pick of getEntityPicks(command)) {
     // Commands branch on the RAW option value (options.secretId); writing
     // through setOptionValueWithSource keeps both that object and the
     // resolver's own getOptionValue reads consistent.
     if (command.getOptionValue(pick.name)) continue;
-    let entities: T[];
+    let entities: unknown[];
     try {
       entities = await pick.load();
     } catch {
@@ -100,7 +146,7 @@ export async function resolveEntityPicks<T>(
       apply(command, pick, entities[0]);
       continue;
     }
-    const chosen = await escapableSelect<T>({
+    const chosen = await escapableSelect<unknown>({
       message: pick.message ?? `Select ${pick.kind} to act on:`,
       choices: entities.map((entity) => {
         const description = pick.description?.(entity);
@@ -117,6 +163,10 @@ export async function resolveEntityPicks<T>(
   return true;
 }
 
-function apply<T>(command: Command, pick: EntityPickSpec<T>, entity: T): void {
+function apply(
+  command: Command,
+  pick: EntityPickSpec<unknown>,
+  entity: unknown
+): void {
   command.setOptionValueWithSource(pick.name, pick.label(entity), 'cli');
 }

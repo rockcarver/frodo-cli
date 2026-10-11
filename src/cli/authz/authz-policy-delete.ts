@@ -8,6 +8,7 @@ import {
 } from '../../ops/PolicyOps';
 import { verboseMessage } from '../../utils/Console.js';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -75,15 +76,7 @@ export default function setup() {
         // option never reaches deletePolicies here -- same as before
         // Phase 3, where the error branch below handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<PolicySkeleton>({
-                name: 'policyId',
-                kind: 'authorization policy',
-                load: () => frodo.authz.policy.readPolicies(),
-                label: (policy) => policy.name || policy._id || '',
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens())
         ) {
           if (options.policyId) {
@@ -105,6 +98,15 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<PolicySkeleton>({
+      name: 'policyId',
+      kind: 'authorization policy',
+      load: () => frodo.authz.policy.readPolicies(),
+      label: (policy) => policy.name || policy._id || '',
+    }),
+  ]);
 
   return program;
 }

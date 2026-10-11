@@ -7,6 +7,7 @@ import {
 } from '../../ops/SecretStoreOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -91,93 +92,88 @@ export default function setup() {
           );
           process.exitCode = 1;
         } else if (
-          (options.secretstoreId && options.all) ||
-          // Interactive pick: an unspecified secret store + secret pair
-          // offers mappings from the live system (no-op outside the prompt
-          // gate). Pickers are only consulted when neither the pair nor
-          // -a/--all was given, so a non-interactive run with neither
-          // option falls through to the error branch below, same as
-          // before Phase 3.
-          (!options.secretstoreId &&
-            !options.secretId &&
-            !options.all &&
-            (await resolveEntityPicks(command, [
-              entityPick<SecretStoreMappingSkeleton>({
-                name: 'secretId',
-                kind: 'secret store mapping',
-                // Mappings live under a secret store; the spec list is
-                // per-store, so this picker covers the single-store case
-                // (one store exists -> auto-selected; several -> the
-                // --secretstore-id option is the right invocation and the
-                // resolver's requireOneOf member picker already asks for
-                // it).
-                load: () =>
-                  options.secretstoreId
-                    ? frodo.secretStore.readSecretStoreMappings(
-                        options.secretstoreId,
-                        options.secretstoreType,
-                        options.global ?? false
-                      )
-                    : Promise.resolve([]),
-                label: (mapping) => mapping.secretId ?? '',
-                description: (mapping) => mapping.aliases?.join(', '),
-              }),
-            ]))) ||
-          (options.secretstoreId && !options.secretId && !options.all)
+          options.secretstoreId &&
+          options.secretId &&
+          (await getTokens(
+            false,
+            true,
+            options.global ? globalDeploymentTypes : deploymentTypes
+          ))
         ) {
-          // The pairs that reach the deletes:
-          //   store+secret -> delete one mapping
-          //   store+all    -> delete all mappings of the store
-          // Anything else falls through to the error branch.
-          if (
-            options.secretstoreId &&
-            options.secretId &&
-            (await getTokens(
-              false,
-              true,
-              options.global ? globalDeploymentTypes : deploymentTypes
-            ))
-          ) {
-            verboseMessage(
-              `Deleting secret store mapping ${options.secretId} from secret store ${options.secretstoreId}...`
-            );
-            const outcome = await deleteSecretStoreMapping(
-              options.secretstoreId,
-              options.secretstoreType,
-              options.secretId,
-              options.global
-            );
-            if (!outcome) process.exitCode = 1;
-          } else if (
-            options.secretstoreId &&
-            options.all &&
-            (await getTokens(
-              false,
-              true,
-              options.global ? globalDeploymentTypes : deploymentTypes
-            ))
-          ) {
-            verboseMessage(
-              `Deleting secret store mappings from secret store ${options.secretstoreId}...`
-            );
-            const outcome = await deleteSecretStoreMappings(
-              options.secretstoreId,
-              options.secretstoreType,
-              options.global
-            );
-            if (!outcome) process.exitCode = 1;
-          } else {
-            // A pick was made but the store it belongs to wasn't
-            // identified, or getTokens failed -- declined to run.
-            process.exitCode = 1;
-          }
+          verboseMessage(
+            `Deleting secret store mapping ${options.secretId} from secret store ${options.secretstoreId}...`
+          );
+          const outcome = await deleteSecretStoreMapping(
+            options.secretstoreId,
+            options.secretstoreType,
+            options.secretId,
+            options.global
+          );
+          if (!outcome) process.exitCode = 1;
+        } else if (
+          options.secretstoreId &&
+          options.all &&
+          (await getTokens(
+            false,
+            true,
+            options.global ? globalDeploymentTypes : deploymentTypes
+          ))
+        ) {
+          verboseMessage(
+            `Deleting secret store mappings from secret store ${options.secretstoreId}...`
+          );
+          const outcome = await deleteSecretStoreMappings(
+            options.secretstoreId,
+            options.secretstoreType,
+            options.global
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // No pair given: offer the mappings of a secret store from the live
+        // system (resolveEntityPicks is a no-op outside the prompt gate, so
+        // a non-interactive run falls through to the error branch below,
+        // same as before Phase 3). Escape or an unresolved store = declined
+        // to run.
+        else if (await resolveEntityPicks(command)) {
+          // A mapping was picked, but the store it belongs to wasn't
+          // identified (the requireOneOf member picker asks for the store
+          // interactively; without it the mapping has no target).
+          printMessage(
+            '-i, --secretstore-id required to act on a secret store mapping',
+            'error'
+          );
+          process.exitCode = 1;
         } else {
-          // No branch ran: nothing specified (or the user escaped the
-          // entity picker) -- declined to run.
+          // User escaped the entity picker (or nothing to pick) --
+          // declined to run.
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
+  deferEntityPicks(program, [
+    // Mappings live under a secret store; the loader reads the option
+    // values at pick time, so -i/--secretstore-id (and -t/-g) scope the
+    // dropdown. With no store identified, the picker stays empty and the
+    // action falls through to its error branch -- the requireOneOf member
+    // picker is what asks for the store interactively.
+    entityPick<SecretStoreMappingSkeleton>({
+      name: 'secretId',
+      kind: 'secret store mapping',
+      load: () => {
+        const secretstoreId = program.getOptionValue('secretstoreId');
+        return secretstoreId
+          ? frodo.secretStore.readSecretStoreMappings(
+              secretstoreId,
+              program.getOptionValue('secretstoreType'),
+              program.getOptionValue('global') ?? false
+            )
+          : Promise.resolve([]);
+      },
+      label: (mapping) => mapping.secretId ?? '',
+      description: (mapping) => mapping.aliases?.join(', '),
+    }),
+  ]);
+
   return program;
 }

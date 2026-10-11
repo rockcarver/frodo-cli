@@ -40,6 +40,7 @@ import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
 import { verboseMessage } from '../utils/Console';
+import { hasEntityPick } from '../utils/interactive/EntityPickers';
 import {
   escapableMultiSelect,
   MULTISEL_ESCAPE,
@@ -316,6 +317,17 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
     }
     const attributeName = option.attributeName();
 
+    // Entity-pickable options are deferred to the action body's post-auth
+    // dropdown (resolveEntityPicks) -- free-texting an id here would defeat
+    // the picker's purpose. Leave the violation unresolved; the action
+    // resolves it after getTokens (or errors non-interactively).
+    if (hasEntityPick(command, attributeName)) {
+      verboseMessage(
+        `${option.flags} will be offered from the target system after login.`
+      );
+      continue;
+    }
+
     let value: string | undefined;
     if (option.argChoices && option.argChoices.length > 0) {
       const choice = await selectFromChoices(
@@ -398,6 +410,16 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     if (picked === ESCAPE) return false;
 
     const chosen = memberOptions.find((member) => member.name === picked)!;
+
+    // Entity-pickable members are deferred to the action body's post-auth
+    // dropdown (resolveEntityPicks) -- see resolveMandatoryOptions.
+    if (hasEntityPick(command, chosen.name)) {
+      verboseMessage(
+        `${chosen.option.flags} will be offered from the target system after login.`
+      );
+      continue;
+    }
+
     if (chosen.option.argChoices && chosen.option.argChoices.length > 0) {
       const value = await selectFromChoices(
         `Choose a value for ${chosen.option.flags}:`,

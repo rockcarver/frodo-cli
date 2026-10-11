@@ -7,6 +7,7 @@ import {
 } from '../../ops/EmailTemplateOps';
 import { verboseMessage } from '../../utils/Console.js';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -60,16 +61,7 @@ export default function setup() {
         // option never reaches deleteAllEmailTemplates here -- same as
         // before Phase 3, where the error branch below handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<EmailTemplateSkeleton>({
-                name: 'templateId',
-                kind: 'email template',
-                load: () => frodo.email.template.readEmailTemplates(false),
-                label: (template) =>
-                  template._id?.replace('emailTemplate/', '') ?? '',
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens())
         ) {
           if (options.templateId) {
@@ -91,6 +83,15 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<EmailTemplateSkeleton>({
+      name: 'templateId',
+      kind: 'email template',
+      load: () => frodo.email.template.readEmailTemplates(false),
+      label: (template) => template._id?.replace('emailTemplate/', '') ?? '',
+    }),
+  ]);
 
   return program;
 }

@@ -8,6 +8,7 @@ import {
 } from '../../ops/JourneyOps';
 import { verboseMessage } from '../../utils/Console';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -111,14 +112,7 @@ export default function setup() {
         // Phase 3, where the resolver's error handled that case).
         else if (
           (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<TreeSkeleton>({
-                name: 'journeyId',
-                kind: 'journey',
-                load: () => frodo.authn.journey.readJourneys(),
-                label: (journey) => journey._id ?? '',
-              }),
-            ]))) &&
+            (!options.allSeparate && (await resolveEntityPicks(command)))) &&
           (await getTokens())
         ) {
           if (options.journeyId) {
@@ -167,6 +161,15 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<TreeSkeleton>({
+      name: 'journeyId',
+      kind: 'journey',
+      load: () => frodo.authn.journey.readJourneys(),
+      label: (journey) => journey._id ?? '',
+    }),
+  ]);
 
   return program;
 }

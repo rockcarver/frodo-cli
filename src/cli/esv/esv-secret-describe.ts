@@ -4,6 +4,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { describeSecret } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -54,16 +55,7 @@ export default function setup() {
         // An unspecified mandatory secretId prompts for a secret from the
         // live system (no-op outside the prompt gate) before getTokens.
         if (
-          (options.secretId ||
-            (await resolveEntityPicks(command, [
-              entityPick<SecretSkeleton>({
-                name: 'secretId',
-                kind: 'secret',
-                load: frodo.cloud.secret.readSecrets,
-                label: (secret) => secret._id ?? '',
-                description: (secret) => secret.description,
-              }),
-            ]))) &&
+          (options.secretId || (await resolveEntityPicks(command))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage(`Describing secret ${options.secretId}...`);
@@ -83,6 +75,16 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<SecretSkeleton>({
+      name: 'secretId',
+      kind: 'secret',
+      load: frodo.cloud.secret.readSecrets,
+      label: (secret) => secret._id ?? '',
+      description: (secret) => secret.description,
+    }),
+  ]);
 
   return program;
 }

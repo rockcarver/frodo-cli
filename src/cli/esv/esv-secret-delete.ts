@@ -4,6 +4,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteSecret, deleteSecrets } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -51,21 +52,13 @@ export default function setup() {
           const outcome = await deleteSecret(options.secretId);
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deleteSecrets here -- same as before Phase
-        // 3, where the resolver's error handled that case).
+        // --all -a, or an interactive pick of the secret to delete
+        // (resolveEntityPicks is a no-op outside the prompt gate, so a
+        // non-interactive run with neither option never reaches
+        // deleteSecrets here -- same as before Phase 3, where the error
+        // branch below handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<SecretSkeleton>({
-                name: 'secretId',
-                kind: 'secret',
-                load: frodo.cloud.secret.readSecrets,
-                label: (secret) => secret._id ?? '',
-                description: (secret) => secret.description,
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
           if (options.secretId) {
@@ -88,6 +81,16 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<SecretSkeleton>({
+      name: 'secretId',
+      kind: 'secret',
+      load: frodo.cloud.secret.readSecrets,
+      label: (secret) => secret._id ?? '',
+      description: (secret) => secret.description,
+    }),
+  ]);
 
   return program;
 }

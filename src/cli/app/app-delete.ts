@@ -9,6 +9,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -101,17 +102,7 @@ export default function setup() {
         // option never reaches deleteApplications here -- same as before
         // Phase 3, where the error branch below handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<ApplicationSkeleton>({
-                name: 'appId',
-                kind: 'application',
-                load: () => frodo.app.readApplications(),
-                label: (application) =>
-                  application.name || application._id || '',
-                description: (application) => application.description,
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
           if (options.appId || options.appName) {
@@ -137,6 +128,16 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<ApplicationSkeleton>({
+      name: 'appId',
+      kind: 'application',
+      load: () => frodo.app.readApplications(),
+      label: (application) => application.name || application._id || '',
+      description: (application) => application.description,
+    }),
+  ]);
 
   return program;
 }

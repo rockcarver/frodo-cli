@@ -8,6 +8,7 @@ import {
 } from '../../ops/ScriptOps';
 import { verboseMessage } from '../../utils/Console';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -91,16 +92,7 @@ export default function setup() {
         // option never reaches deleteAllScripts here -- same as before
         // Phase 3, where the error branch below handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<ScriptSkeleton>({
-                name: 'scriptId',
-                kind: 'script',
-                load: () => frodo.script.readScripts(),
-                label: (script) => script.name,
-                description: (script) => script.description,
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens())
         ) {
           if (options.scriptId) {
@@ -138,6 +130,16 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<ScriptSkeleton>({
+      name: 'scriptId',
+      kind: 'script',
+      load: () => frodo.script.readScripts(),
+      label: (script) => script.name,
+      description: (script) => script.description,
+    }),
+  ]);
 
   return program;
 }

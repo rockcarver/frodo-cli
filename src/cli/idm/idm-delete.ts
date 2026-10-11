@@ -3,6 +3,7 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteConfigEntityById } from '../../ops/IdmOps';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -52,15 +53,7 @@ export default function setup() {
         // An unspecified id prompts for a config entity from the live
         // system (no-op outside the prompt gate) before getTokens.
         if (
-          (options.id ||
-            (await resolveEntityPicks(command, [
-              entityPick<IdObjectSkeletonInterface>({
-                name: 'id',
-                kind: 'config entity',
-                load: () => frodo.idm.config.readConfigEntities(),
-                label: (entity) => entity._id ?? '',
-              }),
-            ]))) &&
+          (options.id || (await resolveEntityPicks(command))) &&
           (await getTokens())
         ) {
           const outcome = await deleteConfigEntityById(options.id);
@@ -73,6 +66,15 @@ export default function setup() {
         }
       }
     );
+
+  deferEntityPicks(program, [
+    entityPick<IdObjectSkeletonInterface>({
+      name: 'id',
+      kind: 'config entity',
+      load: () => frodo.idm.config.readConfigEntities(),
+      label: (entity) => entity._id ?? '',
+    }),
+  ]);
 
   return program;
 }

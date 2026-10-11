@@ -8,6 +8,7 @@ import {
 } from '../../ops/ThemeOps';
 import { verboseMessage } from '../../utils/Console';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -90,17 +91,7 @@ export default function setup() {
         // option never reaches deleteThemes here -- same as before Phase
         // 3, where the error branch below handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<ThemeSkeleton>({
-                name: 'themeId',
-                kind: 'theme',
-                load: () => frodo.theme.readThemes(),
-                label: (theme) => theme.name ?? '',
-                description: (theme) =>
-                  theme.isDefault ? 'default theme' : undefined,
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
           if (options.themeName) {
@@ -136,6 +127,16 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<ThemeSkeleton>({
+      name: 'themeId',
+      kind: 'theme',
+      load: () => frodo.theme.readThemes(),
+      label: (theme) => theme.name ?? '',
+      description: (theme) => (theme.isDefault ? 'default theme' : undefined),
+    }),
+  ]);
 
   return program;
 }

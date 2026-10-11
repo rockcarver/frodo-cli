@@ -3,6 +3,7 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteOauth2ClientById } from '../../ops/OAuth2ClientOps';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -50,15 +51,7 @@ export default function setup() {
         // An unspecified appId prompts for a client from the live system
         // (no-op outside the prompt gate) before getTokens.
         if (
-          (options.appId ||
-            (await resolveEntityPicks(command, [
-              entityPick<OAuth2ClientSkeleton>({
-                name: 'appId',
-                kind: 'OAuth2 client',
-                load: () => frodo.oauth2oidc.client.readOAuth2Clients(),
-                label: (client) => client._id ?? '',
-              }),
-            ]))) &&
+          (options.appId || (await resolveEntityPicks(command))) &&
           (await getTokens())
         ) {
           const outcome = deleteOauth2ClientById(options.appId);
@@ -72,6 +65,15 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<OAuth2ClientSkeleton>({
+      name: 'appId',
+      kind: 'OAuth2 client',
+      load: () => frodo.oauth2oidc.client.readOAuth2Clients(),
+      label: (client) => client._id ?? '',
+    }),
+  ]);
 
   return program;
 }

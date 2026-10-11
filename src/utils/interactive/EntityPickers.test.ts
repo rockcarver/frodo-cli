@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import { Command, Option } from 'commander';
-import { entityPick, resolveEntityPicks } from './EntityPickers';
+import {
+  deferEntityPicks,
+  entityPick,
+  getEntityPicks,
+  hasEntityPick,
+  resolveEntityPicks,
+} from './EntityPickers';
 
 // resolveEntityPicks is gated by canPrompt(), and the jest harness is
 // never a TTY, so every prompt path here collapses to the "no-op" result
@@ -25,6 +31,15 @@ const loaders = {
   },
 };
 
+function secretPick() {
+  return entityPick<Entity>({
+    name: 'secretId',
+    kind: 'secret',
+    load: loaders.never,
+    label: (entity) => entity._id,
+  });
+}
+
 afterEach(() => {
   delete process.env.FRODO_TEST;
   delete process.env.FRODO_NO_PROMPT;
@@ -34,14 +49,8 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
   it('is a no-op under FRODO_TEST=1: loader never called, option untouched, true returned', async () => {
     process.env.FRODO_TEST = '1';
     const { command } = makeCommand();
-    const result = await resolveEntityPicks(command, [
-      entityPick<Entity>({
-        name: 'secretId',
-        kind: 'secret',
-        load: loaders.never,
-        label: (entity) => entity._id,
-      }),
-    ]);
+    deferEntityPicks(command, [secretPick()]);
+    const result = await resolveEntityPicks(command);
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
   });
@@ -50,14 +59,8 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
     process.env.FRODO_NO_PROMPT = '1';
     const { command } = makeCommand();
     command.setOptionValue('all', true);
-    const result = await resolveEntityPicks(command, [
-      entityPick<Entity>({
-        name: 'secretId',
-        kind: 'secret',
-        load: loaders.never,
-        label: (entity) => entity._id,
-      }),
-    ]);
+    deferEntityPicks(command, [secretPick()]);
+    const result = await resolveEntityPicks(command);
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
   });
@@ -65,23 +68,38 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
   it('does not load or bail when the option is already specified', async () => {
     const { command } = makeCommand();
     command.setOptionValue('secretId', 'explicit');
-    const result = await resolveEntityPicks(command, [
-      entityPick<Entity>({
-        name: 'secretId',
-        kind: 'secret',
-        load: loaders.never,
-        label: (entity) => entity._id,
-      }),
-    ]);
+    deferEntityPicks(command, [secretPick()]);
+    const result = await resolveEntityPicks(command);
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBe('explicit');
   });
 
-  it('with no picks declared it returns true without touching the command', async () => {
+  it('with no picks registered it returns true without touching the command', async () => {
     const { command } = makeCommand();
-    const result = await resolveEntityPicks(command, []);
+    const result = await resolveEntityPicks(command);
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
+  });
+});
+
+describe('entity pick registry', () => {
+  it('deferEntityPicks registers and accumulates; getEntityPicks/hasEntityPick read it back', () => {
+    const { command } = makeCommand();
+    expect(getEntityPicks(command)).toEqual([]);
+    expect(hasEntityPick(command, 'secretId')).toBe(false);
+    deferEntityPicks(command, [secretPick()]);
+    expect(hasEntityPick(command, 'secretId')).toBe(true);
+    expect(getEntityPicks(command)).toHaveLength(1);
+    deferEntityPicks(command, [secretPick()]);
+    expect(getEntityPicks(command)).toHaveLength(2);
+  });
+
+  it('registries are per-command (WeakMap isolation)', () => {
+    const a = makeCommand().command;
+    const b = makeCommand().command;
+    deferEntityPicks(a, [secretPick()]);
+    expect(hasEntityPick(a, 'secretId')).toBe(true);
+    expect(hasEntityPick(b, 'secretId')).toBe(false);
   });
 });
 

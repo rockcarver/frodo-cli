@@ -3,6 +3,7 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console.js';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -55,16 +56,7 @@ export default function setup() {
         // option never reaches deleteSaml2Providers here -- same as before
         // Phase 3, where the error branch below handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<Saml2ProviderStub>({
-                name: 'entityId',
-                kind: 'entity provider',
-                load: () => frodo.saml2.entityProvider.readSaml2ProviderStubs(),
-                label: (provider) => provider.entityId,
-                description: (provider) => provider.location,
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens())
         ) {
           if (options.entityId) {
@@ -84,6 +76,16 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<Saml2ProviderStub>({
+      name: 'entityId',
+      kind: 'entity provider',
+      load: () => frodo.saml2.entityProvider.readSaml2ProviderStubs(),
+      label: (provider) => provider.entityId,
+      description: (provider) => provider.location,
+    }),
+  ]);
 
   return program;
 }

@@ -7,6 +7,7 @@ import {
 } from '../../ops/cloud/VariablesOps';
 import { verboseMessage } from '../../utils/Console.js';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -68,16 +69,7 @@ export default function setup() {
         // option never reaches deleteVariables here -- same as before
         // Phase 3, where the resolver's error handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<VariableSkeleton>({
-                name: 'variableId',
-                kind: 'variable',
-                load: () => frodo.cloud.variable.readVariables(),
-                label: (variable) => variable._id ?? '',
-                description: (variable) => variable.description,
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
           if (options.variableId) {
@@ -99,6 +91,16 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<VariableSkeleton>({
+      name: 'variableId',
+      kind: 'variable',
+      load: () => frodo.cloud.variable.readVariables(),
+      label: (variable) => variable._id ?? '',
+      description: (variable) => variable.description,
+    }),
+  ]);
 
   return program;
 }

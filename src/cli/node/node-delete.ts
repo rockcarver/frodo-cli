@@ -4,6 +4,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteCustomNode, deleteCustomNodes } from '../../ops/NodeOps';
 import { verboseMessage } from '../../utils/Console';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -57,16 +58,7 @@ export default function setup() {
       // option never reaches deleteCustomNodes here -- same as before
       // Phase 3, where the error branch below handled that case).
       else if (
-        (options.all ||
-          (await resolveEntityPicks(command, [
-            entityPick<CustomNodeSkeleton>({
-              name: 'nodeId',
-              kind: 'custom node',
-              load: () => frodo.authn.node.readCustomNodes(),
-              label: (node) => node.displayName || node._id || '',
-              description: (node) => node.description,
-            }),
-          ]))) &&
+        (options.all || (await resolveEntityPicks(command))) &&
         (await getTokens())
       ) {
         if (options.nodeId || options.nodeName) {
@@ -90,6 +82,16 @@ export default function setup() {
         process.exitCode = 1;
       }
     });
+
+  deferEntityPicks(program, [
+    entityPick<CustomNodeSkeleton>({
+      name: 'nodeId',
+      kind: 'custom node',
+      load: () => frodo.authn.node.readCustomNodes(),
+      label: (node) => node.displayName || node._id || '',
+      description: (node) => node.description,
+    }),
+  ]);
 
   return program;
 }

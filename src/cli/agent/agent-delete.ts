@@ -4,6 +4,7 @@ import { deleteAgent, deleteAgents } from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console.js';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -54,18 +55,7 @@ export default function setup() {
           // outside the prompt gate, so a non-interactive run with neither
           // option never reaches deleteAgents here -- same as before Phase
           // 3, where the old else handled that case).
-          else if (
-            options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<AgentSkeleton>({
-                name: 'agentId',
-                kind: 'agent',
-                load: () => frodo.agent.readAgents(false),
-                label: (agent) => agent._id ?? '',
-                description: (agent) => agent._type?.name,
-              }),
-            ]))
-          ) {
+          else if (options.all || (await resolveEntityPicks(command))) {
             if (options.agentId) {
               verboseMessage(
                 `Deleting agent '${
@@ -95,6 +85,16 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<AgentSkeleton>({
+      name: 'agentId',
+      kind: 'agent',
+      load: () => frodo.agent.readAgents(false),
+      label: (agent) => agent._id ?? '',
+      description: (agent) => agent._type?.name,
+    }),
+  ]);
 
   return program;
 }

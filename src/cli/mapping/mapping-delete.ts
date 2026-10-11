@@ -4,6 +4,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteMapping, deleteMappings } from '../../ops/MappingOps';
 import { verboseMessage } from '../../utils/Console';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -75,20 +76,7 @@ export default function setup() {
         // option never reaches deleteMappings here -- same as before
         // Phase 3, where the error branch below handled that case).
         else if (
-          (options.all ||
-            (await resolveEntityPicks(command, [
-              entityPick<MappingSkeleton>({
-                name: 'mappingId',
-                kind: 'mapping',
-                load: () =>
-                  frodo.idm.mapping.readMappings(
-                    options.connectorId,
-                    options.managedObjectType
-                  ),
-                label: (mapping) => mapping.displayName || mapping.name,
-                description: (mapping) => mapping._id ?? '',
-              }),
-            ]))) &&
+          (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
           if (options.mappingId) {
@@ -113,6 +101,22 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    // The loader reads the option values at pick time, so -c/--connector-id
+    // and -t/--managed-object-type still scope the dropdown.
+    entityPick<MappingSkeleton>({
+      name: 'mappingId',
+      kind: 'mapping',
+      load: () =>
+        frodo.idm.mapping.readMappings(
+          program.getOptionValue('connectorId'),
+          program.getOptionValue('managedObjectType')
+        ),
+      label: (mapping) => mapping.displayName || mapping.name,
+      description: (mapping) => mapping._id ?? '',
+    }),
+  ]);
 
   return program;
 }

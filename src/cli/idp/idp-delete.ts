@@ -4,6 +4,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteSocialIdentityProviderById } from '../../ops/IdpOps';
 import { verboseMessage } from '../../utils/Console';
 import {
+  deferEntityPicks,
   entityPick,
   resolveEntityPicks,
 } from '../../utils/interactive/EntityPickers';
@@ -30,16 +31,7 @@ export default function setup() {
         // An unspecified idpId prompts for a provider from the live system
         // (no-op outside the prompt gate) before getTokens.
         if (
-          (options.idpId ||
-            (await resolveEntityPicks(command, [
-              entityPick<SocialIdpSkeleton>({
-                name: 'idpId',
-                kind: 'identity provider',
-                load: () =>
-                  frodo.oauth2oidc.external.readSocialIdentityProviders(),
-                label: (idp) => idp._id ?? '',
-              }),
-            ]))) &&
+          (options.idpId || (await resolveEntityPicks(command))) &&
           (await getTokens())
         ) {
           verboseMessage(
@@ -56,6 +48,15 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<SocialIdpSkeleton>({
+      name: 'idpId',
+      kind: 'identity provider',
+      load: () => frodo.oauth2oidc.external.readSocialIdentityProviders(),
+      label: (idp) => idp._id ?? '',
+    }),
+  ]);
 
   return program;
 }
