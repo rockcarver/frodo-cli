@@ -100,6 +100,13 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   if (realms.length <= 1) return;
 
   const current = state.getRealm();
+  // The picker runs POST-AUTH, so `current` is already frodo-lib's mapped
+  // deployment default (alpha on cloud, / on classic/forgeops) -- passing
+  // it as the select's default pre-highlights the TRUE default instead of
+  // the first row, so a bare <enter> means "keep the deployment default".
+  // The default may legitimately be absent from the list (the realms
+  // endpoint never returns the root realm, so on classic/forgeops "/" has
+  // no row): escapableSelect falls back to the first row in that case.
   // Phase 5: → (armed by the hint) opens the invocation editor, then
   // re-prompts this picker; ESCAPE keeps the default as before. The
   // loop's exit type is string | typeof ESCAPE (the RIGHT case loops).
@@ -109,6 +116,7 @@ export async function resolveRealmPick(command: Command): Promise<void> {
       await import('../../cli/ResolveInteractiveInputs');
     const answer = await escapableSelect<string>({
       message: `Choose a realm (default: ${current}):`,
+      default: current,
       hint: editableOptionsHint(command),
       preview: commandPreviewFor(command),
       choices: realms.map((realm) => ({

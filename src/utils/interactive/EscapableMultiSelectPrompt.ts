@@ -12,6 +12,7 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import { notePromptRendered } from './PromptGateState';
 
 /**
  * Distinct return value `escapableMultiSelect` resolves with when the user
@@ -190,5 +191,7 @@ const escapableMultiSelectImpl = createPrompt(
   }
 );
 
-export const escapableMultiSelect =
-  escapableMultiSelectImpl as EscapableMultiSelectFn;
+export const escapableMultiSelect = ((config) => {
+  notePromptRendered();
+  return escapableMultiSelectImpl(config);
+}) as unknown as EscapableMultiSelectFn;

@@ -327,3 +327,145 @@ describe('phase 5 slice 4: command preview', () => {
         TIMEOUT
     );
 });
+
+/**
+ * Phase 5 slice 5 (INTERACTIVE-COMMANDS-PLAN.md): the --prompt/--no-prompt
+ * trigger pair and the --edit retirement.
+ *
+ * - An explicit --prompt runs the interactive flow even when nothing is
+ *   mandatory pending: the options editor opens (and, via slice 4, the
+ *   authoring print follows).
+ * - The SAME command without --prompt stays quiet on a fully-specified
+ *   run: no prompts, no editor, no print (default behavior unchanged).
+ * - --no-prompt keeps the classic errors (no prompts) even on a TTY.
+ * - --edit is retired: commander rejects it as an unknown option.
+ *
+ * `frodo esv secret list` is the probe command: nothing mandatory, so the
+ * difference between "--prompt opens the editor" and "default stays
+ * quiet" shows cleanly.
+ */
+describe('phase 5 slice 5: prompt trigger flags', () => {
+    const TIMEOUT = 90000;
+
+    const ENV = {
+        FRODO_MOCK: '1',
+        FRODO_HOST: 'https://openam-frodo-dev.forgeblocks.com/am',
+        FRODO_USERNAME: 'runUser1',
+        FRODO_PASSWORD: 'runUser1p',
+        FRODO_MOCK_DEPLOYMENT: 'cloud',
+        FRODO_CONNECTION_PROFILES_PATH: new URL(
+            '../e2e/env/Connections.json',
+            import.meta.url
+        ).pathname,
+        FRODO_MASTER_KEY_PATH: new URL(
+            '../e2e/env/masterkey.key',
+            import.meta.url
+        ).pathname,
+    };
+
+    test(
+        '--prompt opens the options editor on a fully-specified run',
+        async () => {
+            const homeDir = createShellTestHome();
+            try {
+                const result = runShellScenario({
+                    homeDir,
+                    allowPrompting: true,
+                    args: ['esv', 'secret', 'list', '--prompt'],
+                    env: ENV,
+                    actions: [
+                        { type: 'wait_plain', regex: 'Optional options', timeoutMs: 30000 },
+                        // Frame-settle sleep (slice-1 lesson).
+                        { type: 'sleep', ms: 400 },
+                        { type: 'capture', label: 'editor' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'sleep', ms: 800 },
+                        { type: 'capture', label: 'after' },
+                    ],
+                });
+
+                // The editor opened with the command's optional options
+                // (nothing was pending; --prompt forced the flow).
+                expect(result.captures.editor.plain).toMatch(
+                    /Optional options for 'list'/
+                );
+
+                // Type-to-filter narrows to --long (it sits beyond the
+                // 20-item pagination window: shared options render
+                // before the leaf's own).
+                const filtered = runShellScenario({
+                    homeDir,
+                    allowPrompting: true,
+                    args: ['esv', 'secret', 'list', '--prompt'],
+                    env: ENV,
+                    actions: [
+                        { type: 'wait_plain', regex: 'Optional options', timeoutMs: 30000 },
+                        { type: 'send', text: 'long' },
+                        { type: 'sleep', ms: 400 },
+                        { type: 'capture', label: 'filtered' },
+                    ],
+                });
+                expect(filtered.captures.filtered.plain).toMatch(
+                    /-l, --long/
+                );
+
+                // Enter committed the empty set; the authoring print fired.
+                expect(result.captures.after.plain).toMatch(
+                    /\(none -- run with defaults\)/
+                );
+                expect(result.captures.after.plain).toMatch(
+                    /frodo esv secret list/
+                );
+            } finally {
+                removeShellTestHome(homeDir);
+            }
+        },
+        TIMEOUT
+    );
+
+    test(
+        'fully-specified run without --prompt stays quiet; --edit is retired',
+        async () => {
+            const homeDir = createShellTestHome();
+            try {
+                const quiet = runShellScenario({
+                    homeDir,
+                    allowPrompting: true,
+                    args: ['esv', 'secret', 'list'],
+                    env: ENV,
+                    actions: [
+                        { type: 'sleep', ms: 2500 },
+                        { type: 'capture', label: 'out' },
+                    ],
+                });
+
+                // No editor, no prompts, no authoring print: the
+                // fully-specified default run is byte-identical to
+                // pre-Phase-5 behavior.
+                expect(quiet.captures.out.plain).not.toMatch(/Optional options/);
+                expect(quiet.captures.out.plain).not.toMatch(/Choose which/);
+                expect(quiet.captures.out.plain).not.toMatch(/Connection:/);
+
+                // --edit retired: commander rejects it as an unknown option
+                // (same exit path for stub-level help snapshots).
+                const retired = runShellScenario({
+                    homeDir,
+                    allowPrompting: true,
+                    args: ['esv', 'secret', 'list', '--edit'],
+                    env: ENV,
+                    actions: [
+                        { type: 'wait_plain', regex: "unknown option", timeoutMs: 15000 },
+                        { type: 'sleep', ms: 300 },
+                        { type: 'capture', label: 'err' },
+                    ],
+                });
+                expect(retired.captures.err.plain).toMatch(
+                    /error: unknown option '--edit'/
+                );
+            } finally {
+                removeShellTestHome(homeDir);
+            }
+        },
+        TIMEOUT
+    );
+});

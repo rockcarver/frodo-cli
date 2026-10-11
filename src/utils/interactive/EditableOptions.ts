@@ -19,18 +19,20 @@ import type { Command, Option } from 'commander';
  * candidate list the invocation editor offers: options not yet valued,
  * PLUS already-valued ones (Phase 5 widening -- editing what was given
  * is the point of an editor; the value step pre-fills the current
- * value). Non-editable machinery (help/version/prompt/edit) never
- * counts.
+ * value). Non-editable machinery (help/version/prompting) never counts.
  */
 export function editableOptionalOptions(command: Command): Option[] {
   return command.options.filter((option) => {
-    // Help/version/prompt machinery is not an editable option.
+    // Help/version/prompt machinery is not an editable option. The
+    // prompting switch is a dual option pair (--prompt + --no-prompt)
+    // sharing the `prompt` attribute -- BOTH name() spellings excluded.
     if (
       option.name() === 'help' ||
       option.name() === 'help-more' ||
       option.name() === 'help-all' ||
       option.name() === 'version' ||
       option.name() === 'prompt' ||
+      option.name() === 'no-prompt' ||
       option.name() === 'edit'
     ) {
       return false;

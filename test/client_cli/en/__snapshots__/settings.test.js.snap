@@ -12,9 +12,9 @@ Options:
                     examples.
 
 Commands:
-  guided            Show or set guided mode: run the optional-options invocation
-                    editor (the --edit flow) by default on every interactive
-                    command.
+  guided            Show or set guided mode: run the full interactive flow
+                    (connection page, options editor) by default on every
+                    interactive command.
   theme             Manage the CLI color theme.
 "
 `;

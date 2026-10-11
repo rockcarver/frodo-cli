@@ -10,6 +10,7 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import { notePromptRendered } from './PromptGateState';
 
 /**
  * Resolved by `connectionPage` when the user presses Escape on the page
@@ -220,4 +221,7 @@ const connectionPageImpl = createPrompt(
   }
 );
 
-export const connectionPage = connectionPageImpl as ConnectionPageFn;
+export const connectionPage = ((config) => {
+  notePromptRendered();
+  return connectionPageImpl(config);
+}) as unknown as ConnectionPageFn;

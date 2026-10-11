@@ -882,37 +882,41 @@ const forceUpdateOption = withHelpGroup(
   OptionCategory.Runtime
 );
 
-// Opt-out of the interactive gap-fill (INTERACTIVE-COMMANDS-PLAN.md,
-// Phase 1): with this flag, missing mandatory options/connection args
-// fail with the classic errors instead of prompting, even on a TTY.
-// Categorized as Runtime (it is a per-invocation behavior control) and
-// also honored process-wide via FRODO_NO_PROMPT (see PromptGate).
-// Commander negation semantics: the lone `--no-prompt` flag's attribute
-// name is `prompt`, defaults to true (prompting allowed), and passing
-// --no-prompt sets it false. Do NOT chain .default(false) here -- that
-// would read as "prompting disabled by default" and disable the whole
-// feature (caught in review of the first cut).
+// The prompting switch (INTERACTIVE-COMMANDS-PLAN.md Phase 5 slice 5):
+// commander's dual negation pair -- TWO options sharing the `prompt`
+// attribute: --prompt sets it true (and, per the resolver, marks the
+// session explicitly interactive: the flow runs even when nothing is
+// missing, opening the options editor), --no-prompt sets it false (the
+// opt-out: fail with the classic errors instead of prompting, even on a
+// TTY). Unset (undefined) = prompting allowed when input is missing, as
+// since Phase 1. FRODO_NO_PROMPT is honored process-wide alongside (see
+// PromptGate).
+// Do NOT chain .default(false) here -- that would read as "prompting
+// disabled by default" and disable the whole feature (caught in review
+// of the first cut).
 const promptOption = withHelpGroup(
+  new Option(
+    '--prompt',
+    'Run the interactive flow even when nothing is missing: open the options editor for this invocation (unset options keep their defaults).'
+  ),
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
+);
+const noPromptOption = withHelpGroup(
   new Option(
     '--no-prompt',
     'Never prompt for missing input; fail with the usual errors instead (same as setting FRODO_NO_PROMPT).'
-  ).default(true, 'Prompt for missing input where supported'),
+  ),
   RUNTIME_OPTIONS_HEADING,
   OptionCategory.Runtime
 );
 
-// Opt-in invocation editor (Phase 2): --edit opens an interactive pass over
-// the command's unspecified optional options before the action runs.
-// Values apply to THIS invocation only; default runs keep today's
-// behavior (unset = built-in default, no prompt).
-const editOption = withHelpGroup(
-  new Option(
-    '--edit',
-    'Interactively review and set optional options for this invocation (unset options keep their defaults).'
-  ).default(false),
-  RUNTIME_OPTIONS_HEADING,
-  OptionCategory.Runtime
-);
+// --edit RETIRED (Phase 5 slice 5): the invocation editor now triggers on
+// an explicit --prompt (or the persisted guided-mode toggle,
+// `frodo settings guided`) instead of its own flag. commander rejects
+// --edit as an unknown option on its own; the 'edit' entries in the
+// editor/serializer machinery lists (EditableOptions, CommandPreview)
+// stay as defense-in-depth.
 
 const insecureOption = withHelpGroup(
   new Option(
@@ -1049,7 +1053,7 @@ const defaultOpts = [
   envFileOption,
   forceUpdateOption,
   promptOption,
-  editOption,
+  noPromptOption,
 ];
 
 /**
@@ -2456,9 +2460,10 @@ export class FrodoStubCommand extends Command {
     // actionCommand, so dedupe on the executing command.
     this.hook('preAction', (_thisCommand, actionCommand) => {
       enforceStabilityAndWarn(actionCommand);
-      // Commander negation: `prompt` defaults to true; --no-prompt sets
-      // it false. Set once per process, before the resolution hook below
-      // (hook order = registration order).
+      // The prompting switch is a dual option pair sharing the `prompt`
+      // attribute (undefined = prompting allowed when input is missing);
+      // --no-prompt sets it false. Set once per process, before the
+      // resolution hook below (hook order = registration order).
       if (
         actionCommand.getOptionValue(promptOption.attributeName()) === false
       ) {
