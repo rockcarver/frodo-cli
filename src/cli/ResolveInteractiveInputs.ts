@@ -39,7 +39,8 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
-import { verboseMessage } from '../utils/Console';
+import { printMessage, verboseMessage } from '../utils/Console';
+import { renderCommandPreview } from '../utils/interactive/CommandPreview';
 import {
   connectionPage,
   PAGE_ESCAPE,
@@ -87,6 +88,17 @@ export {
  * commander clones or nests commands.
  */
 const pendingMandatoryViolations = new WeakMap<Command, string[]>();
+
+/**
+ * Whether the connection level (host/username/password) resolved for this
+ * command this session -- set by resolveConnectionArgs, whether the values
+ * came from argv, env fallbacks, saved profiles, or the prompts. The
+ * preview's readiness keys on THIS, not on the positionals: env/profile
+ * resolution leaves the command object's positionals empty while the
+ * connection is fully resolved. Lives beside pendingMandatoryViolations
+ * for the same parse->hook handoff reasons.
+ */
+const connectionReadiness = new WeakMap<Command, boolean>();
 
 /**
  * Option-requiredness rule registered on a command via `requireOneOf`
@@ -224,9 +236,14 @@ export async function resolveInteractiveInputs(
   // "user chose" is only distinguishable from "mapped default" here.
   noteRealmProvenance();
   const connectionResolved = await resolveConnectionArgs(command);
+  connectionReadiness.set(command, connectionResolved);
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
     : false;
+  // Any interactive resolution completed: the final command print below
+  // is earned (its values may all be defaults, but the session WAS
+  // interactive and the preview is that session's payoff).
+  const interactiveResolutionHappened = connectionResolved && mandatoryResolved;
   if (!connectionResolved || !mandatoryResolved) {
     if (violations.length > 0) {
       throwMissingMandatory(command, violations[0]);
@@ -250,6 +267,20 @@ export async function resolveInteractiveInputs(
     command.getOptionValue('edit') === true || guidedModeEnabled();
   if (editRequested) {
     await runInvocationEditor(command);
+  }
+
+  // Phase 5 authoring-tool moment: after a fully interactive resolution,
+  // print the command as it will run -- once, NOT cleaned away, so it
+  // stays scrollable/copyable and users can lift it into scripts. Only
+  // on interactive sessions; the serialized form masks secrets.
+  if (interactiveResolutionHappened) {
+    printMessage(
+      renderCommandPreview(command, {
+        missingMandatoryOptionLabels: [],
+        oneOfUnsatisfied: false,
+      }),
+      'text'
+    );
   }
 }
 
@@ -319,10 +350,38 @@ async function selectWithEditorRouting<Value>(
 ): Promise<Value | typeof ESCAPE> {
   const hint = editableOptionsHint(command);
   for (;;) {
-    const choice = await escapableSelect<Value>({ ...config, hint });
+    const choice = await escapableSelect<Value>({
+      ...config,
+      hint,
+      preview: commandPreviewFor(command),
+    });
     if (choice !== RIGHT) return choice;
     await runInvocationEditor(command);
   }
+}
+
+/**
+ * The Phase 5 command preview footer for `command`'s prompts: the
+ * command-so-far, red + cursive while mandatory input is missing, green/
+ * white when validated and ready. Readiness derives from this module's
+ * registries (deferred mandatory violations, one-of groups, connection
+ * resolution); undefined when prompting is disallowed (the preview is an
+ * interactive affordance only).
+ */
+export function commandPreviewFor(command: Command): string | undefined {
+  if (!canPrompt()) return undefined;
+  const missingMandatoryOptionLabels =
+    pendingMandatoryViolations.get(command) ?? [];
+  const oneOfUnsatisfied = findUnsatisfiedOneOfGroups(command).length > 0;
+  // Before resolveConnectionArgs has run there is no connection truth yet
+  // (the map is empty) -- leave it unset: readiness then hinges on the
+  // mandatory/one-of state alone, which is exactly what's knowable then.
+  const connectionResolved = connectionReadiness.get(command);
+  return renderCommandPreview(command, {
+    missingMandatoryOptionLabels: [...missingMandatoryOptionLabels],
+    oneOfUnsatisfied,
+    ...(connectionResolved !== undefined ? { connectionResolved } : {}),
+  });
 }
 
 /**
@@ -730,6 +789,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
   // falls back to today's sequential prompts (unchanged behavior).
   const result = await connectionPage({
     message: 'Connection:',
+    preview: commandPreviewFor(command),
     rows: [
       {
         key: 'host',
@@ -855,6 +915,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
 
   const picked = await escapableMultiSelect<string>({
     message: `Optional options for '${command.name()}' (space to select):`,
+    preview: commandPreviewFor(command),
     choices: candidates.map((option) => {
       // Phase 5 widening: already-valued options are editable too --
       // shown with their current value so the user can tell them apart.
@@ -894,6 +955,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
     if (option.argChoices && option.argChoices.length > 0) {
       const value = await escapableSelect<string>({
         message: `Choose a value for ${option.flags}:`,
+        preview: commandPreviewFor(command),
         choices: option.argChoices.map(
           (choiceValue): EscapableSelectChoice<string> => ({
             name: choiceValue,

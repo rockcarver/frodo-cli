@@ -207,7 +207,7 @@ function boldHeadingIntent(): {
   };
 }
 
-const theme = themeTag as CliThemeApi;
+const theme = themeTag as CliThemeApi & { italic: (text: unknown) => string };
 Object.defineProperties(theme, {
   error: intent('error', () => libTheme(state).error),
   warning: intent('warning', () => libTheme(state).warning),
@@ -218,6 +218,13 @@ Object.defineProperties(theme, {
   negative: intent('negative', () => currentCliAdditions().negative),
   muted: intent('muted', () => currentCliAdditions().muted),
   debug: intent('debug', () => currentCliAdditions().debug),
+  // Raw weight/vertical-style modifiers are not theme-dependent -- a
+  // fixed formatter, not an overridable intent (same reasoning as
+  // heading's unconditional bold above).
+  italic: {
+    get: () => c.italic,
+    enumerable: true,
+  },
 });
 
 export default theme;

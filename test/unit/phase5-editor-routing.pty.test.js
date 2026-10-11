@@ -197,3 +197,133 @@ describe('phase 5 slice 1: hint + segment routing', () => {
         TIMEOUT
     );
 });
+
+/**
+ * Phase 5 slice 4 (INTERACTIVE-COMMANDS-PLAN.md): the command preview --
+ * the command being authored rendered live in the prompt footers (red +
+ * cursive while mandatory input is missing, green/white upright when
+ * validated), and the final authoring print on the concluding <enter>
+ * (the copy-paste moment).
+ *
+ * Readiness is the RESOLVER's truth, not positional sniffing: with the
+ * connection resolved from env/profile (FRODO_HOST/FRODO_USERNAME/
+ * FRODO_PASSWORD set), the host/username/password positionals stay empty
+ * yet the final print is green -- the case that drove the readiness
+ * refactor (isCommandReady no longer inspects the command object for
+ * connection state).
+ */
+describe('phase 5 slice 4: command preview', () => {
+    const TIMEOUT = 90000;
+
+    const ENV = {
+        FRODO_MOCK: '1',
+        FRODO_HOST: 'https://openam-frodo-dev.forgeblocks.com/am',
+        FRODO_USERNAME: 'runUser1',
+        FRODO_PASSWORD: 'runUser1p',
+        FRODO_MOCK_DEPLOYMENT: 'cloud',
+        FRODO_CONNECTION_PROFILES_PATH: new URL(
+            '../e2e/env/Connections.json',
+            import.meta.url
+        ).pathname,
+        FRODO_MASTER_KEY_PATH: new URL(
+            '../e2e/env/masterkey.key',
+            import.meta.url
+        ).pathname,
+    };
+
+    test(
+        'footer red+cursive while incomplete; final print green with the user token',
+        async () => {
+            const homeDir = createShellTestHome();
+            try {
+                const result = runShellScenario({
+                    homeDir,
+                    allowPrompting: true,
+                    args: ['esv', 'secret', 'delete'],
+                    env: ENV,
+                    actions: [
+                        { type: 'wait_plain', regex: 'Choose which secrets', timeoutMs: 30000 },
+                        // Frame-settle sleep: capture-at-match-time grabs
+                        // mid-frame on fast runners (slice-1 lesson).
+                        { type: 'sleep', ms: 400 },
+                        { type: 'capture', label: 'incomplete' },
+                        { type: 'key', name: 'down' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'sleep', ms: 600 },
+                        { type: 'capture', label: 'final' },
+                    ],
+                });
+
+                // While the one-of group is unsatisfied, the footer shows
+                // the bare command path. (Color is verified by manual PTY
+                // probe -- the jest run sets NO_COLOR=1, so raw captures
+                // carry no SGR sequences here.)
+                expect(result.captures.incomplete.plain).toMatch(
+                    /type to filter\nfrodo esv secret delete/
+                );
+
+                // After the user's `-a` selection resolves the one-of
+                // group, the concluding authoring print shows exactly the
+                // command with the user's token -- the copy-paste moment.
+                expect(result.captures.final.plain).toMatch(
+                    /frodo esv secret delete -a/
+                );
+            } finally {
+                removeShellTestHome(homeDir);
+            }
+        },
+        TIMEOUT
+    );
+
+    test(
+        'serializer: provided tokens appear; defaults and empty values stay out',
+        async () => {
+            const homeDir = createShellTestHome();
+            try {
+                const result = runShellScenario({
+                    homeDir,
+                    allowPrompting: true,
+                    // --env (not a one-of member) keeps the picker up so the
+                    // footer can be captured; the value must be well-formed
+                    // (key=value) or the command errors before prompting.
+                    // --no-cache covers the negatable-option shape (typed
+                    // negative form, value false, source cli).
+                    args: [
+                        'esv',
+                        'secret',
+                        'delete',
+                        '--no-cache',
+                        '--env',
+                        'a=1',
+                        '--env',
+                        'b=2',
+                    ],
+                    env: ENV,
+                    actions: [
+                        { type: 'wait_plain', regex: 'Choose which secrets', timeoutMs: 30000 },
+                        { type: 'sleep', ms: 400 },
+                        { type: 'capture', label: 'footer' },
+                    ],
+                });
+
+                const footer = result.captures.footer.plain;
+                // Every serialized token must be re-typable: the negatable
+                // flag alone (NOT "--no-cache false") and repeated flags
+                // for array-valued options (NOT a joined "a=1,b=2").
+                expect(footer).toMatch(
+                    /frodo esv secret delete --no-cache --env a=1 --env b=2/
+                );
+                // Commander defaults (--retry nothing, --no-open) never
+                // serialize -- the preview is a copy-paste source of
+                // exactly what the user would type.
+                expect(footer).not.toMatch(/--retry nothing/);
+                expect(footer).not.toMatch(/--no-open/);
+                // Unset array/valued options don't appear as bare flags.
+                expect(footer).not.toMatch(/--env-file/);
+            } finally {
+                removeShellTestHome(homeDir);
+            }
+        },
+        TIMEOUT
+    );
+});

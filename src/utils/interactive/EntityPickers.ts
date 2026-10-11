@@ -152,9 +152,12 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
     // leaving the flow. Editorial loop, ESCAPE still declines the pick.
     let chosen: unknown | typeof ESCAPE | typeof RIGHT;
     for (;;) {
+      const { commandPreviewFor } =
+        await import('../../cli/ResolveInteractiveInputs');
       chosen = await escapableSelect<unknown>({
         message: pick.message ?? `Select ${pick.kind} to act on:`,
         hint: editableOptionsHint(command),
+        preview: commandPreviewFor(command),
         choices: entities.map((entity) => {
           const description = pick.description?.(entity);
           return {

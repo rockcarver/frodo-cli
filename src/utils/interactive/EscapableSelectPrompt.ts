@@ -75,6 +75,13 @@ export type EscapableSelectConfig<Value> = {
    * to configure (silence = done).
    */
   hint?: string;
+  /**
+   * Phase 5 command preview: the command being authored, rendered as a
+   * footer line (red + cursive while mandatory input is missing, green/
+   * white when ready). Callers pass the pre-rendered string from
+   * CommandPreview.ts.
+   */
+  preview?: string;
 };
 
 /**
@@ -240,6 +247,7 @@ const escapableSelectImpl = createPrompt(
     const queryEcho =
       config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
     const hintLine = config.hint ? c.muted(config.hint) : '';
+    const previewLine = config.preview;
 
     const lines = [
       `${prefix} ${config.message}${queryEcho}`,
@@ -251,6 +259,7 @@ const escapableSelectImpl = createPrompt(
       selected && selected.description ? c.muted(selected.description) : '',
       hintLine,
       searchHint || c.muted('(↑↓ navigate · enter select · esc back)'),
+      previewLine,
     ].filter(Boolean);
     return lines.join('\n');
   }
