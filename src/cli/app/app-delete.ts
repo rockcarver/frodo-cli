@@ -8,7 +8,20 @@ import {
 import { getTokens } from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
+
+/**
+ * The application skeleton type isn't exported from frodo-lib's root;
+ * derive it from the read function instead of importing an unexported
+ * name.
+ */
+type ApplicationSkeleton = Awaited<
+  ReturnType<typeof frodo.app.readApplications>
+>[number];
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -83,22 +96,43 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // -a/--all
+        // -a/--all, or an interactive pick (resolveEntityPicks is a no-op
+        // outside the prompt gate, so a non-interactive run with neither
+        // option never reaches deleteApplications here -- same as before
+        // Phase 3, where the error branch below handled that case).
         else if (
-          options.all &&
+          (options.all ||
+            (await resolveEntityPicks(command, [
+              entityPick<ApplicationSkeleton>({
+                name: 'appId',
+                kind: 'application',
+                load: () => frodo.app.readApplications(),
+                label: (application) =>
+                  application.name || application._id || '',
+                description: (application) => application.description,
+              }),
+            ]))) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
-          verboseMessage('Deleting all applications...');
-          const outcome = await deleteApplications(options.deep);
-          if (!outcome) process.exitCode = 1;
+          if (options.appId || options.appName) {
+            verboseMessage('Deleting application...');
+            const outcome = await deleteApplication(
+              options.appId,
+              options.appName,
+              options.deep
+            );
+            if (!outcome) process.exitCode = 1;
+          } else {
+            verboseMessage('Deleting all applications...');
+            const outcome = await deleteApplications(options.deep);
+            if (!outcome) process.exitCode = 1;
+          }
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only ways here
+        // are getTokens() failing (keep the old exit-1 semantics) or the
+        // user escaping the entity picker (declined to run).
         else {
-          verboseMessage(
-            'Unrecognized combination of options or no options...'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler
