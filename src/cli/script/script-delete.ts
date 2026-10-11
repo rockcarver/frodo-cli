@@ -1,4 +1,4 @@
-import { state } from '@rockcarver/frodo-lib';
+import { frodo, state, type ScriptSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -7,6 +7,10 @@ import {
   deleteScriptName,
 } from '../../ops/ScriptOps';
 import { verboseMessage } from '../../utils/Console';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -81,18 +85,53 @@ export default function setup() {
           );
           const outcome = await deleteScriptName(options.scriptName);
           if (!outcome) process.exitCode = 1;
-        } else if (options.all && (await getTokens())) {
-          verboseMessage('Deleting all non-default scripts...');
-          const outcome = await deleteAllScripts({
-            context: options.context,
-            evaluatorVersion: options.evaluatorVersion,
-            language: options.language,
-          });
-          if (!outcome) process.exitCode = 1;
         }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
+        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
+        // outside the prompt gate, so a non-interactive run with neither
+        // option never reaches deleteAllScripts here -- same as before
+        // Phase 3, where the error branch below handled that case).
+        else if (
+          (options.all ||
+            (await resolveEntityPicks(command, [
+              entityPick<ScriptSkeleton>({
+                name: 'scriptId',
+                kind: 'script',
+                load: () => frodo.script.readScripts(),
+                label: (script) => script.name,
+                description: (script) => script.description,
+              }),
+            ]))) &&
+          (await getTokens())
+        ) {
+          if (options.scriptId) {
+            verboseMessage(
+              `Deleting script ${
+                options.scriptId
+              } in realm "${state.getRealm()}"...`
+            );
+            const outcome = await deleteScriptId(options.scriptId);
+            if (!outcome) process.exitCode = 1;
+          } else if (options.scriptName) {
+            verboseMessage(
+              `Deleting script ${
+                options.scriptName
+              } in realm "${state.getRealm()}"...`
+            );
+            const outcome = await deleteScriptName(options.scriptName);
+            if (!outcome) process.exitCode = 1;
+          } else {
+            verboseMessage('Deleting all non-default scripts...');
+            const outcome = await deleteAllScripts({
+              context: options.context,
+              evaluatorVersion: options.evaluatorVersion,
+              language: options.language,
+            });
+            if (!outcome) process.exitCode = 1;
+          }
+        }
+        // No branch ran: with requireOneOf satisfied, the only ways here
+        // are getTokens() failing (keep the old exit-1 semantics) or the
+        // user escaping the entity picker (declined to run).
         else {
           process.exitCode = 1;
         }

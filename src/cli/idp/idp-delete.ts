@@ -1,8 +1,12 @@
-import { state } from '@rockcarver/frodo-lib';
+import { frodo, state, type SocialIdpSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteSocialIdentityProviderById } from '../../ops/IdpOps';
 import { verboseMessage } from '../../utils/Console';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -23,16 +27,29 @@ export default function setup() {
           options,
           command
         );
-        if ((await getTokens()) && options.idpId) {
+        // An unspecified idpId prompts for a provider from the live system
+        // (no-op outside the prompt gate) before getTokens.
+        if (
+          (options.idpId ||
+            (await resolveEntityPicks(command, [
+              entityPick<SocialIdpSkeleton>({
+                name: 'idpId',
+                kind: 'identity provider',
+                load: () =>
+                  frodo.oauth2oidc.external.readSocialIdentityProviders(),
+                label: (idp) => idp._id ?? '',
+              }),
+            ]))) &&
+          (await getTokens())
+        ) {
           verboseMessage(
             `Deleting idp ${options.idpId} in realm "${state.getRealm()}"...`
           );
           const outcome = await deleteSocialIdentityProviderById(options.idpId);
           if (!outcome) process.exitCode = 1;
         }
-        // No branch ran: with requireOneOf satisfied, the only way here is
-        // getTokens() failing -- keep the old exit-1 semantics (the removed
-        // else handled auth failure too).
+        // The only ways no branch runs are getTokens() failing (keep the
+        // old exit-1 semantics) or the user escaping the entity picker.
         else {
           process.exitCode = 1;
         }
