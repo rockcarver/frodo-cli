@@ -2,7 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteLogApiKey, deleteLogApiKeys } from '../../ops/LogOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -27,6 +27,7 @@ export default function setup() {
         'Delete all keys. Optionally specify regex filter -i.'
       )
     )
+    .requireOneOf({ options: ['all', 'keyId'], purpose: 'what to delete' })
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -50,14 +51,11 @@ export default function setup() {
           verboseMessage('Deleting keys...');
           deleteLogApiKeys();
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
         else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

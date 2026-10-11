@@ -24,6 +24,10 @@ export default function setup() {
     .addOption(
       new Option('-a, --all', 'Delete all custom nodes. Ignored with -i or -n.')
     )
+    .requireOneOf({
+      options: ['all', 'nodeId', 'nodeName'],
+      purpose: 'what to delete',
+    })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,

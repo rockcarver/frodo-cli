@@ -25,8 +25,8 @@ Arguments:
 
 Options:
   --json                       Output in JSON format.
-  -o, --managed-object <type>  Managed object type.
-  -p, --property <name>        Relationship property name.
+  -o, --managed-object <type>  Managed object type. (prompts if missing)
+  -p, --property <name>        Relationship property name. (prompts if missing)
   --with-reverse               Also read and display the reverse side, inferred
                                from the forward property's own definition.
                                Errors if the property has no reverse

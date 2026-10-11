@@ -33,6 +33,10 @@ export default function setup() {
         'Import all agents from separate files (*.identitygatewayagent.json) in the current directory. Ignored with -i or -a.'
       )
     )
+    .requireOneOf({
+      options: ['agentId', 'all', 'allSeparate', 'file'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

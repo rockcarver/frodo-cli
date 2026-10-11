@@ -42,6 +42,10 @@ export default function setup() {
     .addOption(
       new Option('--no-deps', 'Do not include any dependencies (scripts).')
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'entityId', 'file'],
+      purpose: 'what to import',
+    })
     .action(
       // implement program logic inside action handler
       async (host, realm, user, password, options, command) => {

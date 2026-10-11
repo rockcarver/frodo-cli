@@ -1,7 +1,7 @@
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeScript } from '../../ops/ScriptOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -24,6 +24,10 @@ export default function setup() {
       ).default(false, 'false')
     )
     .addOption(new Option('--json', 'Output in JSON format.'))
+    .requireOneOf({
+      options: ['scriptName', 'scriptId'],
+      purpose: 'which script',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -48,14 +52,10 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way here is
+        // getTokens() failing -- keep the old exit-1 semantics.
         else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

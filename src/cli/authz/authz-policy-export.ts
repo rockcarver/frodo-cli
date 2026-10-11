@@ -61,6 +61,10 @@ export default function setup() {
         'Include prerequisites (policy sets, resource types).'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'policyId', 'setId'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

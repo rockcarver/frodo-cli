@@ -88,6 +88,10 @@ export default function setup() {
         'Do not include any dependencies (email templates, request forms, events, etc.).'
       )
     )
+    .requireOneOf({
+      options: ['workflowId', 'all', 'allSeparate'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -99,15 +103,6 @@ export default function setup() {
           options,
           command
         );
-        if (!options.workflowId && !options.all && !options.allSeparate) {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          process.exitCode = 1;
-          program.help();
-          return;
-        }
         const getTokensIsSuccessful = await getTokens(
           false,
           true,

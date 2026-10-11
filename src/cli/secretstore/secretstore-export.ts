@@ -6,7 +6,7 @@ import {
   exportSecretStoresToFiles,
   exportSecretStoreToFile,
 } from '../../ops/SecretStoreOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const {
@@ -67,6 +67,10 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'secretstoreId'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -132,12 +136,11 @@ export default function setup() {
             options.metadata
           );
           if (!outcome) process.exitCode = 1;
-        } else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.outputHelp();
+        }
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
+        else {
           process.exitCode = 1;
         }
       }

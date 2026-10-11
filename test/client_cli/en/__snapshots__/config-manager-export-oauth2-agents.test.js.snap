@@ -23,7 +23,7 @@ Arguments:
 Options:
   -f, --file <file>  The OAUTH2_AGENTS_CONFIG json file. ex:
                      "/home/trivir/Documents/oauth2-agents.json", or
-                     "oauth2-agents.json"
+                     "oauth2-agents.json" (prompts if missing)
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

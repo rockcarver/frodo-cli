@@ -56,6 +56,10 @@ export default function setup() {
         'Where applicable, use string arrays to store scripts.'
       ).default(false, 'off')
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'nodeId', 'nodeName'],
+      purpose: 'what to export',
+    })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,

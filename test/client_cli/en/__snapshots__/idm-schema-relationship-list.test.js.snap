@@ -26,7 +26,7 @@ Arguments:
 Options:
   --json                       Output in JSON format.
   -l, --long                   Long with all fields. (default: false)
-  -o, --managed-object <type>  Managed object type.
+  -o, --managed-object <type>  Managed object type. (prompts if missing)
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

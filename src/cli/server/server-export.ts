@@ -65,6 +65,10 @@ export default function setup() {
         'Export server(s) along with the default server properties.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'serverId', 'serverUrl'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

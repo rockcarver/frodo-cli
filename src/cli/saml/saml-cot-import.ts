@@ -39,6 +39,10 @@ export default function setup() {
         'Import all circles of trust from separate files (*.cot.saml.json) in the current directory. Ignored with -i or -a.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'cotId', 'file'],
+      purpose: 'what to import',
+    })
     .action(
       // implement program logic inside action handler
       async (host, realm, user, password, options, command) => {

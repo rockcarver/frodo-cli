@@ -5,7 +5,7 @@ import {
   exportServicesToFiles,
   exportServiceToFile,
 } from '../../ops/ServiceOps.js';
-import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -48,6 +48,10 @@ export default function setup() {
       )
     )
     .addOption(new Option('-g, --global', 'Export global services.'))
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'serviceId'],
+      purpose: 'what to export',
+    })
     .action(
       async (
         host: string,
@@ -98,14 +102,11 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
         else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

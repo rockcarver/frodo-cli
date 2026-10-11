@@ -27,5 +27,9 @@ Options:
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage
                          examples.
+
+Rule:
+  one of -i, --idp-id <idp-id> is required -- choose what to delete
+
 "
 `;

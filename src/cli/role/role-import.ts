@@ -47,6 +47,10 @@ export default function setup() {
         'Import all internal roles from separate files (*.internalRole.json) in the current directory. Ignored with -i or -a.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'roleId', 'roleName'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

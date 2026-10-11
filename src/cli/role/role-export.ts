@@ -53,6 +53,10 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'roleId', 'roleName'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

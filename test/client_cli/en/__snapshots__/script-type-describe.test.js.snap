@@ -23,7 +23,7 @@ Arguments:
   password                 Password.
 
 Options:
-  -c, --context <context>  Scripting context id.
+  -c, --context <context>  Scripting context id. (prompts if missing)
   --json                   Output in JSON format.
   -h, --help               Help
   -hh, --help-more         Help with all options.

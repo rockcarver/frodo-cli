@@ -23,7 +23,7 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -i, --feature-id <id>  Feature id.
+  -i, --feature-id <id>  Feature id. (prompts if missing)
   -y, --yes              Answer y/yes to all prompts.
   -h, --help             Help
   -hh, --help-more       Help with all options.

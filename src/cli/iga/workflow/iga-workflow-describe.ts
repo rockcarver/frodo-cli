@@ -30,6 +30,10 @@ export default function setup() {
         'Name of the workflow export file to describe. If not specified, will automatically pull the workflow export data of the provided id from the tenant.'
       )
     )
+    .requireOneOf({
+      options: ['workflowId', 'file'],
+      purpose: 'which workflow',
+    })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -39,15 +43,6 @@ export default function setup() {
         options,
         command
       );
-      if (!options.workflowId && !options.file) {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
-        process.exitCode = 1;
-        program.help();
-        return;
-      }
       const getTokensIsSuccessful = await getTokens(
         false,
         true,

@@ -150,4 +150,47 @@ describe('CLI command wiring', () => {
     expect(checkedCount).toBeGreaterThan(300);
     expect(mismatches).toEqual([]);
   });
+
+  it("every command that still strips an 'Unrecognized combination' else-branch carries a requireOneOf/requireAllOf declaration", () => {
+    // Phase 2 conversion invariant: the `Unrecognized combination of
+    // options or no options...` dead-ends were replaced by declarative
+    // requireOneOf/requireAllOf rules on the command (see
+    // INTERACTIVE-COMMANDS-PLAN.md). A file that still BOTH carries the
+    // dead-end AND no rule is a half-finished conversion -- the action
+    // body rejects option combinations the rule was supposed to catch
+    // (or prompt for) before the action ever runs.
+    const { filesWithDeadEndAndNoRule } = checkOneOfCoverage();
+    expect(filesWithDeadEndAndNoRule).toEqual([]);
+  });
 });
+
+/**
+ * Cross-checks the Phase 2 conversion: any cli command file whose action
+ * body still contains the `Unrecognized combination of options or no
+ * options...` dead-end must also declare a requireOneOf/requireAllOf
+ * rule -- otherwise the conversion is half-done (the rule should have
+ * replaced the dead-end, or the dead-end is a legitimate auth-failure
+ * handler and the message should read accordingly). Auth-failure-only
+ * guards (config-manager style) legitimately keep the else but WITHOUT
+ * the dead-end message, so requiring "dead-end present => rule present"
+ * catches exactly the incomplete cases.
+ */
+function checkOneOfCoverage(): { filesWithDeadEndAndNoRule: string[] } {
+  const cliDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'cli');
+  const offenders: string[] = [];
+
+  for (const file of walkTsFiles(cliDir)) {
+    const relativePath = path.relative(cliDir, file);
+    const text = fs.readFileSync(file, 'utf8');
+    const hasDeadEnd = text.includes(
+      'Unrecognized combination of options or no options...'
+    );
+    const hasRule =
+      /\.requireOneOf\(/.test(text) || /\.requireAllOf\(/.test(text);
+    if (hasDeadEnd && !hasRule) {
+      offenders.push(relativePath);
+    }
+  }
+
+  return { filesWithDeadEndAndNoRule: offenders };
+}

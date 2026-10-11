@@ -77,6 +77,10 @@ export default function setup() {
         `  Export the application 'myApp' to a file with an auto-generated filename of 'myApp.application.json':\n` +
         c.command(`  $ frodo app export -i myApp ${s.connId}\n`)
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'appId', 'appName'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

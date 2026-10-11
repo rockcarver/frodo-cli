@@ -47,6 +47,10 @@ export default function setup() {
       )
     )
     .addOption(new Option('-g, --global', 'Export global agents.'))
+    .requireOneOf({
+      options: ['agentId', 'all', 'allSeparate', 'global'],
+      purpose: 'what to export',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -95,14 +99,12 @@ export default function setup() {
             );
             if (!outcome) process.exitCode = 1;
           }
-          // unrecognized combination of options or no options
-          else {
-            verboseMessage(
-              'Unrecognized combination of options or no options...'
-            );
-            process.exitCode = 1;
-            program.help();
-          }
+        }
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
+        else {
+          process.exitCode = 1;
         }
       }
       // end command logic inside action handler

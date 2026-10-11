@@ -27,8 +27,8 @@ Options:
   --description <text>         Object type description.
   --icon <icon>                Google Material Icon to use for this managed
                                object. Defaults to a generic icon.
-  -o, --managed-object <type>  Managed object type.
-  --title <text>               Display title.
+  -o, --managed-object <type>  Managed object type. (prompts if missing)
+  --title <text>               Display title. (prompts if missing)
   -y, --yes                    Answer y/yes to all prompts.
   -h, --help                   Help
   -hh, --help-more             Help with all options.

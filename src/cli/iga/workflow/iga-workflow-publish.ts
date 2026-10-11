@@ -19,6 +19,7 @@ export default function setup() {
   program
     .description('Publish workflows.')
     .addOption(new Option('-i, --workflow-id <workflow-id>', 'Workflow id.'))
+    .requireOneOf({ options: ['workflowId'], purpose: 'which workflow' })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -28,15 +29,6 @@ export default function setup() {
         options,
         command
       );
-      if (!options.workflowId) {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
-        process.exitCode = 1;
-        program.help();
-        return;
-      }
       const getTokensIsSuccessful = await getTokens(
         false,
         true,

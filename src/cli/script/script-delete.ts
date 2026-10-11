@@ -6,7 +6,7 @@ import {
   deleteScriptId,
   deleteScriptName,
 } from '../../ops/ScriptOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -50,6 +50,10 @@ export default function setup() {
         'Filter scripts by evaluator version when using -a. Combine with other filters to imply AND matching.'
       )
     )
+    .requireOneOf({
+      options: ['all', 'scriptId', 'scriptName'],
+      purpose: 'what to delete',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -86,14 +90,11 @@ export default function setup() {
           });
           if (!outcome) process.exitCode = 1;
         }
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way
+        // here is getTokens() failing -- keep the old exit-1 semantics
+        // (the removed else handled auth failure too).
         else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

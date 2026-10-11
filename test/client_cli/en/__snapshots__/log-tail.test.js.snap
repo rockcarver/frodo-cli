@@ -23,7 +23,7 @@ Deployment: Cloud-only
 
 Options:
   -c, --sources <sources>      Comma separated list of log sources (default: Log
-                               everything)
+                               everything) (prompts if missing)
   -d, --defaults               Use default logging noise filters (default: Use
                                custom logging noise filters defined in
                                $HOME/LoggingNoiseFilter.json)

@@ -4,6 +4,7 @@ import {
   ESCAPE,
 } from '../../utils/interactive/EscapableSelectPrompt';
 import { FrodoStubCommand } from '../FrodoCommand';
+import GuidedCmd from './settings-guided';
 import ThemeCmd, { runInteractiveThemePicker } from './settings-theme';
 
 /**
@@ -24,6 +25,7 @@ export default function setup() {
   );
 
   program.addCommand(ThemeCmd().name('theme'));
+  program.addCommand(GuidedCmd().name('guided'));
 
   program.action(async () => {
     try {

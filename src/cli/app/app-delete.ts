@@ -55,6 +55,10 @@ export default function setup() {
         `  Delete all applications:\n` +
         c.command(`  $ frodo app delete -a ${s.connId}\n`)
     )
+    .requireOneOf({
+      options: ['all', 'appId', 'appName'],
+      purpose: 'what to delete',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

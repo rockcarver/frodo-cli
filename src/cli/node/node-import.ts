@@ -44,6 +44,10 @@ export default function setup() {
         'Re-UUID. Create a new UUID (and service name) for the custom node upon import. Use this to duplicate a custom node or create a new version of the same custom node. Note that you must also choose a new display name using -n/--node-name to avoid import errors.'
       ).default(false, 'false')
     )
+    .requireOneOf({
+      options: ['all', 'allSeparate', 'file', 'nodeId', 'nodeName'],
+      purpose: 'what to import',
+    })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,

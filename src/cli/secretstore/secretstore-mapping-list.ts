@@ -49,6 +49,10 @@ export default function setup() {
         'List mappings from global secret stores. For classic deployments only.'
       )
     )
+    .requireOneOf({
+      options: ['global', 'secretstoreId', 'secretstoreType'],
+      purpose: 'what to list',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

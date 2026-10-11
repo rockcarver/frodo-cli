@@ -33,8 +33,9 @@ Options:
   --notify                        Notify the target object of relationship
                                   changes.
   --notify-self                   Notify this object of relationship changes.
-  -o, --managed-object <type>     Managed object type.
-  -p, --property <name>           Relationship property name.
+  -o, --managed-object <type>     Managed object type. (prompts if missing)
+  -p, --property <name>           Relationship property name. (prompts if
+                                  missing)
   --query-fields <csv>            Change the comma-separated list of fields
                                   fetched from the target object.
   --query-filter <filter>         Change the query filter applied against the

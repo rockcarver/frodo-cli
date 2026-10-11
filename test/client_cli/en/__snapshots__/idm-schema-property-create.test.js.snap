@@ -52,18 +52,19 @@ Options:
                                      --derive-from-relationship.
   --not-viewable                     Hide this property in the UI. Default:
                                      viewable.
-  -o, --managed-object <type>        Managed object type.
+  -o, --managed-object <type>        Managed object type. (prompts if missing)
   --on-retrieve-script <file>        Make this a script-derived virtual
                                      property: compute its value on read from
                                      this local JavaScript file.
   --on-store-script <file>           Compute this property's stored value on
                                      write from this local JavaScript file.
-  -p, --property <name>              Property name.
+  -p, --property <name>              Property name. (prompts if missing)
   --property-type <type>             Type of the property to create. Valid
                                      types: string, number, boolean, date, time,
                                      datetime, duration, object. (choices:
                                      "string", "number", "boolean", "date",
                                      "time", "datetime", "duration", "object")
+                                     (prompts if missing)
   --required                         Require a value for this property. Default:
                                      false.
   --return-by-default                Return this property by default on reads.

@@ -33,7 +33,10 @@ import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
   deferMissingMandatoryOption,
+  deferOneOfGroups,
+  getOneOfGroups,
   resolveInteractiveInputs,
+  type OptionRequirementSpec,
 } from './ResolveInteractiveInputs.js';
 
 // Frodo constants
@@ -895,6 +898,19 @@ const promptOption = withHelpGroup(
   OptionCategory.Runtime
 );
 
+// Opt-in invocation editor (Phase 2): --edit opens an interactive pass over
+// the command's unspecified optional options before the action runs.
+// Values apply to THIS invocation only; default runs keep today's
+// behavior (unset = built-in default, no prompt).
+const editOption = withHelpGroup(
+  new Option(
+    '--edit',
+    'Interactively review and set optional options for this invocation (unset options keep their defaults).'
+  ).default(false),
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
+);
+
 const insecureOption = withHelpGroup(
   new Option(
     '-k, --insecure',
@@ -1030,6 +1046,7 @@ const defaultOpts = [
   envFileOption,
   forceUpdateOption,
   promptOption,
+  editOption,
 ];
 
 /**
@@ -2498,6 +2515,55 @@ export class FrodoStubCommand extends Command {
     return this;
   }
 
+  /**
+   * Declares that this command needs AT LEAST ONE of the named options --
+   * the declarative replacement for the `Unrecognized combination of
+   * options or no options...` dead-ends that 113 command action bodies
+   * enforce only AFTER authenticating. Evaluated in the preAction
+   * resolution pass (ResolveInteractiveInputs): on an interactive session
+   * the user is prompted for a member and its value; otherwise commander's
+   * own error+help+exit-1 fires with code `frodo.oneOfUnsatisfied`.
+   *
+   * Unlike makeOptionMandatory (which commander checks during parsing),
+   * this runs later -- after connection-arg gap-fill -- so a command
+   * whose one-of members need tenant context first still prompts
+   * sensibly. Option names are long names without dashes (`agentId`,
+   * `all`), matching commander's attributeName.
+   *
+   * @param groups One or more group specs.
+   * @returns This command for chaining.
+   */
+  requireOneOf(
+    ...groups: [OptionRequirementSpec, ...OptionRequirementSpec[]]
+  ): this {
+    deferOneOfGroups(
+      this,
+      groups.map((group) => ({ ...group, all: false }))
+    );
+    return this;
+  }
+
+  /**
+   * Declares that this command needs ALL of the named options together --
+   * the pairwise-required shape (e.g. esv secret version activate needs
+   * `-i` AND `-v`; either alone dead-ended with `Unrecognized
+   * combination`). Same evaluation, prompting, and error semantics as
+   * requireOneOf (see that method), with the all-members check and an
+   * "all of ... are required" error message.
+   *
+   * @param groups One or more group specs.
+   * @returns This command for chaining.
+   */
+  requireAllOf(
+    ...groups: [OptionRequirementSpec, ...OptionRequirementSpec[]]
+  ): this {
+    deferOneOfGroups(
+      this,
+      groups.map((group) => ({ ...group, all: true }))
+    );
+    return this;
+  }
+
   override addCommand(
     command: Command,
     opts?: Parameters<Command['addCommand']>[1]
@@ -2793,6 +2859,34 @@ class FrodoStubHelp extends Help {
       );
     }
 
+    // Option-requiredness rules (requireOneOf/requireAllOf) declared on
+    // this command, rendered after the option lists: the declarative
+    // replacement for the old "Unrecognized combination" dead-ends, so
+    // help now says the rule the action body used to reveal only after
+    // authenticating.
+    for (const group of getOneOfGroups(cmd)) {
+      const members = group.options
+        .map((name) => {
+          const option = cmd.options.find(
+            (candidate) => candidate.attributeName() === name
+          );
+          return option ? option.flags : `--${name}`;
+        })
+        .join(group.all ? ' + ' : ' | ');
+      const ruleText = group.all
+        ? `all of ${members} are required together`
+        : `one of ${members} is required`;
+      output = output.concat(
+        this.formatItemList(
+          'Rule:',
+          [ruleText + (group.purpose ? ` -- choose ${group.purpose}` : '')]
+            .map((line) => `  ${line}`)
+            .concat(''),
+          helper
+        )
+      );
+    }
+
     const commandGroups = this.groupItems(
       [...cmd.commands],
       [...helper.visibleCommands(cmd)],
@@ -2861,10 +2955,19 @@ class FrodoStubHelp extends Help {
    * @returns Possibly decorated description.
    */
   override optionDescription(option: Option): string {
-    return decorateDescriptionWithStability(
+    // "(prompts if missing)": option mandatory-ness deferred to the
+    // resolution pass means the CLI prompts for it on an interactive
+    // session -- worth saying in help, where today mandatory-ness shows
+    // only as an error after the fact. Plain makeOptionMandatory has the
+    // same prompt behavior (FrodoCommand defers it too), so the
+    // annotation keys on the flag itself.
+    const description = decorateDescriptionWithStability(
       super.optionDescription(option),
       option
     );
+    return option.mandatory
+      ? `${description} (prompts if missing)`
+      : description;
   }
 
   /**

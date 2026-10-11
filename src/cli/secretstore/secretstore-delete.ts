@@ -5,7 +5,7 @@ import {
   deleteSecretStore,
   deleteSecretStores,
 } from '../../ops/SecretStoreOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLASSIC_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -41,6 +41,10 @@ export default function setup() {
     .addOption(
       new Option('-a, --all', 'Delete all secret stores. Ignored with -i.')
     )
+    .requireOneOf({
+      options: ['all', 'secretstoreId'],
+      purpose: 'what to delete',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -72,12 +76,11 @@ export default function setup() {
           );
           const outcome = await deleteSecretStores(options.global);
           if (!outcome) process.exitCode = 1;
-        } else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.outputHelp();
+        }
+        // No branch ran: with requireOneOf satisfied above, the only way
+        // here is getTokens() failing -- preserve the old exit-1 semantics
+        // (the removed else also handled auth failure).
+        else {
           process.exitCode = 1;
         }
       }

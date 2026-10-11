@@ -24,8 +24,8 @@ Arguments:
   password                     Password.
 
 Options:
-  -o, --managed-object <type>  Managed object type.
-  -p, --property <name>        Relationship property name.
+  -o, --managed-object <type>  Managed object type. (prompts if missing)
+  -p, --property <name>        Relationship property name. (prompts if missing)
   --with-reverse               Also delete the reverse side, inferred from this
                                property's own current definition. Errors if no
                                reverse relationship is configured.

@@ -3,7 +3,7 @@ import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeScriptBindings } from '../../ops/ScriptOps';
 import c from '../../utils/ColorTheme';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -43,6 +43,7 @@ export default function setup() {
           options,
           command
         );
+        // context is mandatory (above); the else is getTokens() failing.
         if (await getTokens()) {
           verboseMessage(
             `Describing script bindings for context ${options.context}...`
@@ -53,12 +54,7 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         } else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler
