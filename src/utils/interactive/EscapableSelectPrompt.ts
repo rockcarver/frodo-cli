@@ -268,5 +268,11 @@ const escapableSelectImpl = createPrompt(
 
 export const escapableSelect = ((config) => {
   notePromptRendered();
-  return escapableSelectImpl(config);
+  // Erase-on-conclude: the frame (question, list, footer, committed or
+  // cancelled answer) disappears entirely when the prompt settles -- the
+  // caller's own follow-up output (the eventual-command print, the action's
+  // real output) is the only trace. Runs on every exit path: @inquirer/core
+  // fires screen.done({ clearContent }) from the prompt promise's .finally()
+  // (create-prompt.js), so enter, escape, ->, SIGINT and EOF all erase.
+  return escapableSelectImpl(config, { clearPromptOnDone: true });
 }) as unknown as EscapableSelectFn;

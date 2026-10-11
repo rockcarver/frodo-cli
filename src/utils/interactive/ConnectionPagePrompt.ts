@@ -223,5 +223,6 @@ const connectionPageImpl = createPrompt(
 
 export const connectionPage = ((config) => {
   notePromptRendered();
-  return connectionPageImpl(config);
+  // Erase-on-conclude: see EscapableSelectPrompt's wrapper comment.
+  return connectionPageImpl(config, { clearPromptOnDone: true });
 }) as unknown as ConnectionPageFn;

@@ -193,5 +193,6 @@ const escapableMultiSelectImpl = createPrompt(
 
 export const escapableMultiSelect = ((config) => {
   notePromptRendered();
-  return escapableMultiSelectImpl(config);
+  // Erase-on-conclude: see EscapableSelectPrompt's wrapper comment.
+  return escapableMultiSelectImpl(config, { clearPromptOnDone: true });
 }) as unknown as EscapableMultiSelectFn;

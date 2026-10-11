@@ -25,6 +25,7 @@ import {
   updateProgressIndicator,
   verboseMessage,
 } from '../utils/Console.js';
+import { flushAuthoringPrint } from '../utils/interactive/AuthoringPrintState.js';
 import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import {
   escapableSelect,
@@ -2451,6 +2452,15 @@ export class FrodoStubCommand extends Command {
         `FrodoCommand: running postAction hook: this command: ${thisCommand.name()}, action command: ${actionCommand.name()}`
       );
       cleanupProgressIndicators();
+      // The deferred authoring print (Phase 5): the only point where
+      // nothing can change the command anymore -- resolution pass, realm
+      // pick, entity picks, and the action's output have all concluded.
+      // Flushed LAST so the printed command is the final line of the run,
+      // adjacent to the next shell prompt. Flows that never reach the
+      // action (cancelled pickers, missing-input throws) skip this hook:
+      // an abandoned authoring session leaves nothing behind. No-op when
+      // the session never armed (no prompts, not explicitly interactive).
+      flushAuthoringPrint();
     });
 
     // Async preAction hook: commander's hook chain awaits returned

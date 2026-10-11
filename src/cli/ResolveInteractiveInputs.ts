@@ -41,6 +41,10 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
 import { printMessage, verboseMessage } from '../utils/Console';
 import {
+  armAuthoringPrint,
+  setAuthoringPrintFlush,
+} from '../utils/interactive/AuthoringPrintState';
+import {
   renderCommandPreview,
   setDeploymentTypeForPreview,
 } from '../utils/interactive/CommandPreview';
@@ -285,21 +289,32 @@ export async function resolveInteractiveInputs(
     await runInvocationEditor(command);
   }
 
-  // Phase 5 authoring-tool moment: after an interactive-assisted
-  // resolution, print the command as it will run -- once, NOT cleaned
-  // away, so it stays scrollable/copyable and users can lift it into
-  // scripts. The print belongs to sessions where a prompt actually
-  // rendered (the payoff of the prompts' concluding <enter>) or the user
-  // explicitly requested the flow (--prompt / guided mode) -- NOT to
-  // fully-specified TTY runs where the pass found nothing to do.
+  // Phase 5 authoring-tool moment, DEFERRED to the action's completion:
+  // after an interactive-assisted resolution, the command as it ran prints
+  // exactly once -- at the postAction hook (FrodoCommand), the only point
+  // where NOTHING can change the command anymore: the resolution pass,
+  // the post-auth realm pick (inside getTokens), the action body's entity
+  // picks, and the action's own output have all concluded. Printing there
+  // makes the print the LAST line of the run -- adjacent to the next shell
+  // prompt, maximally copyable, and never stale (a realm pick or editor
+  // change between here and the action is reflected: the closure re-reads
+  // the command object at flush time). Flows that never reach the action
+  // (cancelled pickers, unsatisfied one-of groups, failed auth errors that
+  // throw) skip postAction entirely -- an abandoned authoring session
+  // leaves nothing behind. Arming-only sessions with no prompts rendered
+  // never arm, so fully-specified non-TTY runs (e2e snapshots) are
+  // unchanged.
   if (promptsRendered() > 0 || explicitlyInteractive) {
-    printMessage(
-      renderCommandPreview(command, {
-        missingMandatoryOptionLabels: [],
-        oneOfUnsatisfied: false,
-      }),
-      'text'
-    );
+    armAuthoringPrint();
+    setAuthoringPrintFlush(() => {
+      printMessage(
+        renderCommandPreview(command, {
+          missingMandatoryOptionLabels: [],
+          oneOfUnsatisfied: false,
+        }),
+        'text'
+      );
+    });
   }
 }
 
@@ -573,64 +588,6 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     verboseMessage(`Using ${chosen.option.flags}.`);
   }
   return true;
-}
-
-/**
- * Index of the default positional argument of that name on this command
- * (commands omit default args via the FrodoCommand omits list, so the
- * index differs per command), or -1 when the command doesn't declare it.
- */
-function positionalIndex(command: Command, name: string): number {
-  return command.registeredArguments.findIndex(
-    (argument) => argument.name() === name
-  );
-}
-
-function positionalValue(command: Command, name: string): string | undefined {
-  const index = positionalIndex(command, name);
-  if (index === -1) return undefined;
-  const value = command.processedArgs?.[index];
-  return typeof value === 'string' && value.length > 0 ? value : undefined;
-}
-
-function setPositionalValue(
-  command: Command,
-  name: string,
-  value: string
-): void {
-  const index = positionalIndex(command, name);
-  if (index === -1) return;
-  // Two surfaces must see the injected value:
-  //
-  // - `processedArgs` is what the action handler's positional parameters
-  //   are sliced from (commander's action() wrapper slices
-  //   this.processedArgs).
-  // - `args` (raw, options-removed user args) is what
-  //   handleDefaultArgsAndOpts iterates to copy default arguments into
-  //   frodo-lib state INSIDE the action body -- it does NOT read
-  //   processedArgs, so a processedArgs-only injection would be
-  //   overwritten with `undefined` the moment the action starts.
-  // Verified against commander's _processArguments (fills processedArgs
-  // from args, never writes back) and this repo's
-  // handleDefaultArgsAndOpts (iterates command.args).
-  if (command.processedArgs) {
-    command.processedArgs[index] = value;
-  }
-  // `args` holds only user-supplied positional values; a gap-fill by
-  // definition fills a position the user left empty, so extending/padding
-  // with the injected value is safe. Pad with nulls for any inner
-  // positions the user skipped (rare: inner default args are optional),
-  // since args is positional.
-  if (Array.isArray(command.args)) {
-    while (command.args.length < index) {
-      command.args.push(null);
-    }
-    if (index === command.args.length) {
-      command.args.push(value);
-    } else if (command.args[index] == null) {
-      command.args[index] = value;
-    }
-  }
 }
 
 /**
@@ -931,6 +888,16 @@ export {
   editableOptionalOptions,
   editableOptionsHint,
 } from '../utils/interactive/EditableOptions';
+
+// The positional read/write helpers live in a zero-import module
+// (PositionalArgs) shared with the post-auth realm picker's write-back;
+// re-exported here under the historical name for any other consumers.
+export { setPositionalValue as setPositionalValueForCommand } from '../utils/interactive/PositionalArgs';
+import {
+  positionalIndex,
+  positionalValue,
+  setPositionalValue,
+} from '../utils/interactive/PositionalArgs';
 
 /**
  * Public entry for utils/interactive picker modules (EntityPickers,
