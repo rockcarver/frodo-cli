@@ -94,6 +94,65 @@ describe('phase 5 slice 1: hint + segment routing', () => {
     );
 
     test(
+        'connection page: rows, masked password edit, Done concludes',
+        async () => {
+            const homeDir = createShellTestHome();
+            try {
+                const result = runShellScenario({
+                    homeDir,
+                    allowPrompting: true,
+                    args: [
+                        'esv',
+                        'secret',
+                        'delete',
+                        'https://page-probe.example.com/am',
+                    ],
+                    env: { FRODO_MOCK: '1', FRODO_MOCK_DEPLOYMENT: 'cloud' },
+                    actions: [
+                        { type: 'wait_plain', regex: 'Connection:', timeoutMs: 30000 },
+                        { type: 'capture', label: 'page' },
+                        { type: 'key', name: 'down' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'send', text: 'probeuser' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'key', name: 'down' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'send', text: 'probesecret' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'sleep', ms: 400 },
+                        { type: 'capture', label: 'filled' },
+                        { type: 'key', name: 'down' },
+                        { type: 'key', name: 'enter' },
+                        { type: 'wait_plain', regex: 'Choose which secrets', timeoutMs: 30000 },
+                        { type: 'capture', label: 'after' },
+                    ],
+                });
+
+                const page = result.captures.page.plain;
+                expect(page).toMatch(/host: https:\/\/page-probe\.example\.com\/am/);
+                expect(page).toMatch(/username: \(not set\)/);
+                expect(page).toMatch(/password: \(not set\)/);
+                expect(page).toMatch(/Done/);
+
+                const filled = result.captures.filled.plain;
+                expect(filled).toMatch(/username: probeuser/);
+                // The committed password renders masked, never plaintext.
+                expect(filled).toMatch(/password: ••••••••/);
+                expect(filled).not.toMatch(/probesecret/);
+
+                // Done concluded and the flow continued to the one-of
+                // picker with the values applied.
+                expect(result.captures.after.plain).toMatch(
+                    /Choose which secrets/
+                );
+            } finally {
+                removeShellTestHome(homeDir);
+            }
+        },
+        TIMEOUT
+    );
+
+    test(
         'one-of picker shows the hint; → opens the editor; ← returns',
         async () => {
             const homeDir = createShellTestHome();
