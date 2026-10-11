@@ -1,7 +1,12 @@
+import { frodo, type CustomNodeSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteCustomNode, deleteCustomNodes } from '../../ops/NodeOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
+import {
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -46,17 +51,43 @@ export default function setup() {
           options.nodeName
         );
         if (!outcome) process.exitCode = 1;
-      } else if (options.all && (await getTokens())) {
-        verboseMessage(`Deleting all custom nodes...`);
-        const outcome = await deleteCustomNodes();
-        if (!outcome) process.exitCode = 1;
+      }
+      // --all -a, or an interactive pick (resolveEntityPicks is a no-op
+      // outside the prompt gate, so a non-interactive run with neither
+      // option never reaches deleteCustomNodes here -- same as before
+      // Phase 3, where the error branch below handled that case).
+      else if (
+        (options.all ||
+          (await resolveEntityPicks(command, [
+            entityPick<CustomNodeSkeleton>({
+              name: 'nodeId',
+              kind: 'custom node',
+              load: () => frodo.authn.node.readCustomNodes(),
+              label: (node) => node.displayName || node._id || '',
+              description: (node) => node.description,
+            }),
+          ]))) &&
+        (await getTokens())
+      ) {
+        if (options.nodeId || options.nodeName) {
+          verboseMessage(
+            `Deleting custom node ${options.nodeName ? options.nodeName : options.nodeId}...`
+          );
+          const outcome = await deleteCustomNode(
+            options.nodeId,
+            options.nodeName
+          );
+          if (!outcome) process.exitCode = 1;
+        } else {
+          verboseMessage(`Deleting all custom nodes...`);
+          const outcome = await deleteCustomNodes();
+          if (!outcome) process.exitCode = 1;
+        }
       } else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
+        // No branch ran: with requireOneOf satisfied, the only ways here
+        // are getTokens() failing (keep the old exit-1 semantics) or the
+        // user escaping the entity picker (declined to run).
         process.exitCode = 1;
-        program.help();
       }
     });
 
