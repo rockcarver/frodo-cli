@@ -1,7 +1,17 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteService, deleteServices } from '../../ops/ServiceOps.js';
+import {
+  deferEntityPicks,
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
+
+type AmServiceSkeleton = Awaited<
+  ReturnType<typeof frodo.service.getListOfServices>
+>[number];
 
 export default function setup() {
   const program = new FrodoCommand('frodo service delete');
@@ -45,15 +55,45 @@ export default function setup() {
         if (options.id && (await getTokens())) {
           const outcome = await deleteService(options.id, globalConfig);
           if (!outcome) process.exitCode = 1;
-        } else if (options.all && (await getTokens())) {
-          const outcome = await deleteServices(globalConfig);
-          if (!outcome) process.exitCode = 1;
-        } else {
+        }
+        // -a/--all, or an interactive pick (resolveEntityPicks is a no-op
+        // outside the prompt gate, so a non-interactive run with neither
+        // option never reaches deleteServices here -- same as before
+        // Phase 3, where the error branch below handled that case).
+        else if (
+          (options.all || (await resolveEntityPicks(command))) &&
+          (await getTokens())
+        ) {
+          if (options.id) {
+            const outcome = await deleteService(options.id, globalConfig);
+            if (!outcome) process.exitCode = 1;
+          } else {
+            const outcome = await deleteServices(globalConfig);
+            if (!outcome) process.exitCode = 1;
+          }
+        }
+        // No branch ran: with requireOneOf satisfied, the only ways here
+        // are getTokens() failing (keep the old exit-1 semantics) or the
+        // user escaping the entity picker (declined to run).
+        else {
           process.exitCode = 1;
-          program.help();
         }
       }
     );
+
+  deferEntityPicks(program, [
+    // The loader reads the option value at pick time, so -g/--global still
+    // scopes the dropdown.
+    entityPick<AmServiceSkeleton>({
+      name: 'id',
+      kind: 'service',
+      load: () =>
+        frodo.service.getListOfServices(
+          program.getOptionValue('global') ?? false
+        ),
+      label: (service) => service._id ?? '',
+    }),
+  ]);
 
   return program;
 }

@@ -1,7 +1,12 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { setSecretDescription } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
+import {
+  deferEntityPicks,
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -29,19 +34,37 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens(false, true, deploymentTypes)) {
+        // An unspecified mandatory secretId prompts for a secret from the
+        // live system (no-op outside the prompt gate) before getTokens.
+        if (
+          (options.secretId || (await resolveEntityPicks(command))) &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Setting secret description...');
           const outcome = await setSecretDescription(
             options.secretId,
             options.description
           );
           if (!outcome) process.exitCode = 1;
-        } else {
+        }
+        // The only ways no branch runs are getTokens() failing or the user
+        // escaping the entity picker.
+        else {
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
+
+  deferEntityPicks(program, [
+    entityPick<SecretSkeleton>({
+      name: 'secretId',
+      kind: 'secret',
+      load: frodo.cloud.secret.readSecrets,
+      label: (secret) => secret._id ?? '',
+      description: (secret) => secret.description,
+    }),
+  ]);
 
   return program;
 }

@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type SecretStoreMappingSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -6,6 +6,11 @@ import {
   deleteSecretStoreMappings,
 } from '../../ops/SecretStoreOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
+import {
+  deferEntityPicks,
+  entityPick,
+  resolveEntityPicks,
+} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const {
@@ -123,16 +128,52 @@ export default function setup() {
             options.global
           );
           if (!outcome) process.exitCode = 1;
-        } else {
+        }
+        // No pair given: offer the mappings of a secret store from the live
+        // system (resolveEntityPicks is a no-op outside the prompt gate, so
+        // a non-interactive run falls through to the error branch below,
+        // same as before Phase 3). Escape or an unresolved store = declined
+        // to run.
+        else if (await resolveEntityPicks(command)) {
+          // A mapping was picked, but the store it belongs to wasn't
+          // identified (the requireOneOf member picker asks for the store
+          // interactively; without it the mapping has no target).
           printMessage(
-            'Unrecognized combination of options or no options...',
+            '-i, --secretstore-id required to act on a secret store mapping',
             'error'
           );
-          program.outputHelp();
+          process.exitCode = 1;
+        } else {
+          // User escaped the entity picker (or nothing to pick) --
+          // declined to run.
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
+  deferEntityPicks(program, [
+    // Mappings live under a secret store; the loader reads the option
+    // values at pick time, so -i/--secretstore-id (and -t/-g) scope the
+    // dropdown. With no store identified, the picker stays empty and the
+    // action falls through to its error branch -- the requireOneOf member
+    // picker is what asks for the store interactively.
+    entityPick<SecretStoreMappingSkeleton>({
+      name: 'secretId',
+      kind: 'secret store mapping',
+      load: () => {
+        const secretstoreId = program.getOptionValue('secretstoreId');
+        return secretstoreId
+          ? frodo.secretStore.readSecretStoreMappings(
+              secretstoreId,
+              program.getOptionValue('secretstoreType'),
+              program.getOptionValue('global') ?? false
+            )
+          : Promise.resolve([]);
+      },
+      label: (mapping) => mapping.secretId ?? '',
+      description: (mapping) => mapping.aliases?.join(', '),
+    }),
+  ]);
+
   return program;
 }
