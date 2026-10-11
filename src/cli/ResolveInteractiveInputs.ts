@@ -41,6 +41,10 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
 import { verboseMessage } from '../utils/Console';
 import {
+  connectionPage,
+  PAGE_ESCAPE,
+} from '../utils/interactive/ConnectionPagePrompt';
+import {
   editableOptionalOptions,
   editableOptionsHint,
 } from '../utils/interactive/EditableOptions';
@@ -695,6 +699,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
   if (!host) return true; // host unresolved; the action fails on it as before
 
   let savedUsername: string | undefined;
+  let profileNote: string | undefined;
   try {
     const profile = await getConnectionProfileByHost(host);
     // frodo-lib will authenticate from the profile alone when it carries
@@ -710,25 +715,94 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
       return true;
     }
     savedUsername = profile.username ?? undefined;
+    profileNote = profile.alias
+      ? `from profile ${profile.alias}`
+      : 'from profile';
   } catch {
     // No profile for this host (or unreadable): fall through to prompts.
   }
 
-  if (usernameNeeded) {
-    const answer = await promptInput({
-      message: 'Username:',
-      default: savedUsername,
-    });
-    if (!answer) return false;
-    setPositionalValue(command, 'username', answer);
+  // Phase 5: the connection PAGE replaces the sequential username-then-
+  // password prompts. Rows carry the resolved current values + provenance
+  // (a username-only profile prefills the username row as before; env
+  // fallbacks show as "(from FRODO_USERNAME)" etc.); an empty commit on
+  // the masked password row keeps the stored value. Escape on the page
+  // falls back to today's sequential prompts (unchanged behavior).
+  const result = await connectionPage({
+    message: 'Connection:',
+    rows: [
+      {
+        key: 'host',
+        label: 'host',
+        value: host,
+        note: profileNote ?? undefined,
+      },
+      {
+        key: 'username',
+        label: 'username',
+        value: positionalValue(command, 'username') ?? state.getUsername(),
+        note: state.getUsername()
+          ? 'from FRODO_USERNAME'
+          : (profileNote ?? undefined),
+      },
+      {
+        key: 'password',
+        label: 'password',
+        value: positionalValue(command, 'password') ?? state.getPassword(),
+        note: state.getPassword()
+          ? 'from FRODO_PASSWORD'
+          : (profileNote ?? undefined),
+      },
+    ],
+    onHostChange: async (newHost) => {
+      setPositionalValue(command, 'host', newHost);
+      // Re-resolve the credential rows' profile context for the new host
+      // (the lookup keys on the host).
+      let note: string | undefined;
+      let savedUser: string | undefined;
+      try {
+        const profile = await getConnectionProfileByHost(newHost);
+        note = profile.alias ? `from profile ${profile.alias}` : 'from profile';
+        savedUser = profile.username ?? undefined;
+      } catch {
+        note = undefined;
+      }
+      return [
+        { key: 'host', label: 'host', value: newHost, note },
+        {
+          key: 'username',
+          label: 'username',
+          value: positionalValue(command, 'username') ?? savedUser,
+          note,
+        },
+        {
+          key: 'password',
+          label: 'password',
+          value: undefined,
+          note,
+        },
+      ];
+    },
+  });
+  if (result === PAGE_ESCAPE) {
+    // Page declined: fall back to the pre-page sequential prompts.
+    if (usernameNeeded) {
+      const answer = await promptInput({
+        message: 'Username:',
+        default: savedUsername,
+      });
+      if (!answer) return false;
+      setPositionalValue(command, 'username', answer);
+    }
+    if (passwordNeeded) {
+      const answer = await promptPassword({ message: 'Password:' });
+      if (!answer) return false;
+      setPositionalValue(command, 'password', answer);
+    }
+    return true;
   }
-
-  if (passwordNeeded) {
-    const answer = await promptPassword({ message: 'Password:' });
-    if (!answer) return false;
-    setPositionalValue(command, 'password', answer);
-  }
-
+  if (result.username) setPositionalValue(command, 'username', result.username);
+  if (result.password) setPositionalValue(command, 'password', result.password);
   return true;
 }
 
