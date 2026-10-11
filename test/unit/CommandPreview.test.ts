@@ -60,13 +60,15 @@ describe('serializeCommand (positional translation)', () => {
     expect(serializeCommand(command)).toBe('list host1 bravo');
   });
 
-  it('keeps the sentinel untranslated when the deployment type is unknown', () => {
+  it('omits the realm positional entirely when the deployment type is unknown', () => {
     // No setDeploymentTypeForPreview call: the resolver hasn't learned
-    // the type yet. The sentinel is still a valid re-runnable token
-    // (frodo-lib translates it at auth time), so it prints as-is.
+    // the type yet (e.g. the profile-picker footer, where no host has
+    // been picked). The sentinel NEVER displays -- it is an
+    // implementation detail no user ever typed or should ever see; the
+    // positional drops out instead.
     const command = makeJourneyListCommand();
     command.parse([], { from: 'user' });
-    expect(serializeCommand(command)).toBe('list __default__realm__');
+    expect(serializeCommand(command)).toBe('list');
   });
 });
 
