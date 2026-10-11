@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import { Command, Option } from 'commander';
-import {
-  entityPick,
-  resolveEntityPicks,
-} from './EntityPickers';
+import { entityPick, resolveEntityPicks } from './EntityPickers';
 
 // resolveEntityPicks is gated by canPrompt(), and the jest harness is
 // never a TTY, so every prompt path here collapses to the "no-op" result
