@@ -33,6 +33,15 @@ export default function setup() {
         'No deep delete. This leaves orphaned configuration artifacts behind.'
       )
     )
+    // Declare which option combinations select a target. Commands with an
+    // "Unrecognized combination of options..." else-branch MUST carry one of
+    // these (enforced by src/cli/app.commandWiring.test.ts). The resolver
+    // prompts interactively when the rule is unsatisfied and errors + help
+    // + exit 1 otherwise.
+    .requireOneOf({
+      options: ['somethingId', 'all'],
+      purpose: 'which [somethings]',
+    })
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -62,7 +71,10 @@ export default function setup() {
         );
         if (await getTokens(false, true, deploymentTypes)) {
           // code goes here
-        } else {
+        }
+        // No branch ran: with requireOneOf satisfied, the only way here is
+        // getTokens() failing -- keep the old exit-1 semantics.
+        else {
           process.exitCode = 1;
         }
       }

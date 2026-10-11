@@ -20,6 +20,7 @@ KEYS = {
     "ctrl_u": "\x15",
     "backspace": "\x7f",
     "escape": "\x1b",
+    "space": " ",
 }
 
 
