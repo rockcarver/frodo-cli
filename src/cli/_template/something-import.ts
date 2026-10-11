@@ -53,6 +53,13 @@ export default function setup() {
           `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`
         )
     )
+    // Declare which option combinations select what to import. Commands
+    // with an "Unrecognized combination of options..." else-branch MUST
+    // carry one of these (enforced by src/cli/app.commandWiring.test.ts).
+    .requireOneOf({
+      options: ['somethingId', 'all', 'allSeparate', 'file'],
+      purpose: 'what to import',
+    })
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -66,7 +73,10 @@ export default function setup() {
         );
         if (await getTokens(false, true, deploymentTypes)) {
           // code goes here
-        } else {
+        }
+        // No branch ran: with requireOneOf satisfied, the only way here is
+        // getTokens() failing -- keep the old exit-1 semantics.
+        else {
           process.exitCode = 1;
         }
       }
