@@ -241,6 +241,13 @@ difference visible in help and behavior:
   browse mode on demand) and `--no-prompt` (the action is
   gate-respecting: declines without prompting, exactly like ESC) list
   in its help.
+  An action stub's field edits go through ONE set-verb sub-command,
+  never a sub-command per field (`frodo conn set <host> --field
+value ...`; bare `frodo conn set` lists the settable fields). A new
+  profile field is a new OPTION in that command's registry, never a
+  new command — and every interactive field edit must have a
+  non-interactive equivalent, so the set verb is that equivalent for
+  the bare interactive mode.
 - **Live command** — everything as before: the resolution pass, the
   `--prompt` options editor, `--no-prompt` legacy failure.
 

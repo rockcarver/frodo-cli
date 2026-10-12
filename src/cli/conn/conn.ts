@@ -14,6 +14,7 @@ import DescribeCmd from './conn-describe.js';
 import ListCmd from './conn-list.js';
 import SaveCmd from './conn-save.js';
 import ServiceAccountCmd from './conn-service-account.js';
+import SetCmd from './conn-set.js';
 import TestCmd from './conn-test.js';
 
 export default function setup() {
@@ -54,6 +55,8 @@ export default function setup() {
   });
 
   program.addCommand(SaveCmd().name('save'));
+
+  program.addCommand(SetCmd().name('set'));
 
   program.addCommand(AliasCmd().name('alias'));
 
