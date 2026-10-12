@@ -3,7 +3,8 @@ import {
   escapableSelect,
   ESCAPE,
 } from '../../utils/interactive/EscapableSelectPrompt';
-import { FrodoStubCommand } from '../FrodoCommand';
+import { canPrompt } from '../../utils/interactive/PromptGateState';
+import { FrodoStubCommand, STEP_BACK_FROM_ACTION } from '../FrodoCommand';
 import DefaultsCmd from './settings-defaults';
 import GuidedCmd from './settings-guided';
 import ThemeCmd, { runInteractiveThemePicker } from './settings-theme';
@@ -21,9 +22,15 @@ const CATEGORIES: { name: string; run: () => Promise<boolean> }[] = [
 ];
 
 export default function setup() {
-  const program = new FrodoStubCommand('settings').description(
-    'Manage CLI settings.'
-  );
+  const program = new FrodoStubCommand('settings')
+    // Summary/description split (same pattern as login-setup and conn):
+    // one line in the parent's list, full detail (with the bare-
+    // invocation behavior) on this command's own -h.
+    .summary('Manage CLI settings.')
+    .description(
+      'Manage CLI settings.\n\n' +
+        'Run without a sub-command to open the interactive settings menu.'
+    );
 
   program.addCommand(ThemeCmd().name('theme'));
   program.addCommand(GuidedCmd().name('guided'));
@@ -31,12 +38,18 @@ export default function setup() {
 
   program.action(async () => {
     try {
+      // Gate-respecting: --no-prompt, FRODO_NO_PROMPT, FRODO_TEST, and
+      // non-TTY sessions leave the bare invocation a no-op -- the bare
+      // action must not prompt when prompting is disallowed.
+      if (!canPrompt()) throw STEP_BACK_FROM_ACTION;
       // With only one category, there's nothing to actually choose --
       // skip straight into it. Its own Escape then has no real "category
-      // menu" to go back up to, so it exits the whole command instead of
-      // looping back to a single-item menu that would just reopen itself.
+      // menu" to go back up to, so it climbs OUT of the bare mode (the
+      // framework re-opens this stub's sub-command picker, Run row
+      // first) instead of exiting the session.
       if (CATEGORIES.length === 1) {
-        await CATEGORIES[0].run();
+        const applied = await CATEGORIES[0].run();
+        if (!applied) throw STEP_BACK_FROM_ACTION;
         return;
       }
 
@@ -48,13 +61,14 @@ export default function setup() {
             value: cat.name,
           })),
         });
-        if (category === ESCAPE) return;
+        if (category === ESCAPE) throw STEP_BACK_FROM_ACTION;
         const chosen = CATEGORIES.find((cat) => cat.name === category);
         const applied = await chosen.run();
         if (applied) return;
         // user escaped back out of the category -- loop, show the menu again
       }
     } catch (error) {
+      if (error === STEP_BACK_FROM_ACTION) throw error;
       errorMessage(`${error}`);
       process.exitCode = 1;
     }

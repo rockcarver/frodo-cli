@@ -2389,6 +2389,62 @@ const commanderParseCommand = (Command.prototype as unknown as CommandInternal)
  */
 const STEP_BACK = Symbol('interactive:stepBack');
 
+/**
+ * Thrown by an ACTION-BEARING stub's bare action (conn, settings) when
+ * its own interactive mode was DECLINED (ESC / gate-blocked / esc×2):
+ * the framework's picker machinery catches it and re-opens the stub's
+ * sub-command picker (the Run row) -- bare-invocation interactive modes
+ * are one level of the navigable command tree, not session endpoints.
+ * Exported so command files can throw it from their actions; catching
+ * lives exclusively in pickAndDispatchSubCommand.
+ */
+export const STEP_BACK_FROM_ACTION = STEP_BACK;
+
+/**
+ * The sub-command picker's synthetic "run this stub's own action" row
+ * (action-bearing stubs only, first row): distinct from any real
+ * sub-command name so it can't collide with one.
+ */
+const RUN_ROW_VALUE = Symbol('interactive:runOwnAction');
+
+/**
+ * The stub prompting pair (user decision 2026-10-12 -- stubs list ONLY
+ * these, never the live commands' full option set), registered LAZILY
+ * on ACTION-BEARING stubs only (conn, settings; plus the root's own
+ * picker machinery): --prompt shows the sub-command picker instead of
+ * the action (browse mode); --no-prompt makes the bare action
+ * gate-respecting (declines). Pure containers never carry the pair --
+ * registering it there would let an ANCESTOR consume a flag a
+ * descendant leaf also declares (commander's parse assigns the value to
+ * the first command in the chain that declares it, verified live: with
+ * --prompt on both, `frodo esv secret list --prompt` landed on the ESV
+ * stub and left the leaf's getOptionValue('prompt') undefined, so the
+ * resolver skipped the editor). FrodoCommand leaves get the pair from
+ * defaultOpts with live semantics; the defaultOpts loop's replace
+ * branch exists for the same reason and now never fires (stubs no
+ * longer pre-register), but is kept as a safety net.
+ */
+function stubPromptPair(): Option[] {
+  return [
+    withHelpGroup(
+      new Option(
+        '--prompt',
+        'Show the interactive sub-command picker instead of running this command.'
+      ),
+      RUNTIME_OPTIONS_HEADING,
+      OptionCategory.Runtime
+    ),
+    withHelpGroup(
+      new Option(
+        '--no-prompt',
+        'Never prompt or pick; behave as before the interactive framework (same as setting FRODO_NO_PROMPT).'
+      ),
+      RUNTIME_OPTIONS_HEADING,
+      OptionCategory.Runtime
+    ),
+  ];
+}
+
 export class FrodoStubCommand extends Command {
   /**
    * Command stability metadata. Defaults to stable.
@@ -2449,6 +2505,17 @@ export class FrodoStubCommand extends Command {
       sortSubcommands: true,
       sortOptions: true,
     });
+    // The stub prompting pair (user decision 2026-10-12 -- stubs list
+    // ONLY these, never the live commands' full option set), registered
+    // LAZILY by the help/pick machinery (see registerPromptingPair)
+    // rather than here: registering in the CONSTRUCTOR would put the
+    // pair on EVERY stub, and commander's parse lets an ANCESTOR
+    // consume a flag the leaf also declares (verified live: with --prompt
+    // on both, `frodo esv secret list --prompt` assigned the value to
+    // the ESV stub and left the leaf's getOptionValue('prompt')
+    // undefined -- the resolver then saw prompt!==true and skipped the
+    // editor). Pure containers must NOT carry the pair at all; only
+    // action-bearing stubs (conn, settings) and the root do.
     this.options
       .find((option) => option.name() === 'help')
       ?.helpGroup(HELP_OPTIONS_HEADING);
@@ -2742,8 +2809,24 @@ export class FrodoStubCommand extends Command {
   ): Promise<unknown> | undefined {
     const self = this as unknown as CommandInternal;
     const { positional } = splitPositionalArgs(operands, unknown);
+    // Action-bearing stubs own the prompting pair (see
+    // registerPromptingPair): ensure it exists before any parse of this
+    // command so --prompt/--no-prompt parse onto it.
+    this.registerPromptingPair();
+    // An action-bearing stub (conn, settings) intercepted with --prompt
+    // routes to the sub-command picker INSTEAD of running its action:
+    // --prompt means "show me the tree" on these, while bare (no --prompt)
+    // keeps the command's own interactive mode. The action stub's picker
+    // carries a Run row to re-enter it (see pickAndDispatchSubCommand).
+    const promptAsBrowse =
+      self._actionHandler !== null &&
+      unknown.some(
+        (token) =>
+          token === '--prompt' ||
+          token === `${promptOption.attributeName()}=true`
+      );
     if (
-      self._actionHandler === null &&
+      (self._actionHandler === null || promptAsBrowse) &&
       positional.length === 0 &&
       this.commands.length > 0 &&
       // Root-exiting options (help family, version) must reach
@@ -2757,7 +2840,65 @@ export class FrodoStubCommand extends Command {
     ) {
       return this.pickAndDispatchSubCommand(unknown);
     }
-    return this.baseParseCommand(operands, unknown);
+    // PURE stub + --no-prompt: the user's legacy escape hatch (user
+    // decision 2026-10-12). The option is deliberately NOT registered on
+    // pure containers (an ancestor registration would consume the token
+    // a descendant leaf also declares, silently defeating the leaf's
+    // own --no-prompt), so commander would reject it as unknown --
+    // handle it HERE as the legacy bare-stub behavior instead: print
+    // this command's help and exit 0 (no picker, no action).
+    if (
+      self._actionHandler === null &&
+      positional.length === 0 &&
+      unknown.some((token) => token === '--no-prompt')
+    ) {
+      this.outputHelp();
+      process.exit(0);
+    }
+    // Action path (bare invocation of an action-bearing stub): the
+    // action may throw STEP_BACK (its interactive mode was DECLINED) --
+    // route that into the sub-command picker, exactly like ESC out of a
+    // nested picker. Everything else propagates (errors, exits). The
+    // result may be a promise (async actions) -- chain the STEP_BACK
+    // recovery onto it rather than awaiting (this method is sync, like
+    // commander's own _parseCommand).
+    try {
+      const result = this.baseParseCommand(operands, unknown);
+      if (result instanceof Promise) {
+        return result.catch((error) => {
+          if (error === STEP_BACK) {
+            return this.pickAndDispatchSubCommand(unknown);
+          }
+          throw error;
+        });
+      }
+      return result;
+    } catch (error) {
+      if (error === STEP_BACK) return this.pickAndDispatchSubCommand(unknown);
+      throw error;
+    }
+  }
+
+  /**
+   * Registers the stub prompting pair (--prompt/--no-prompt) on this
+   * command when it is an ACTION-BEARING STUB (has its own action, is
+   * not a live FrodoCommand -- leaves get the pair from defaultOpts
+   * with live semantics). Idempotent; called from _parseCommand (before
+   * any parse of this command) and from the help renderer (so the
+   * stub's -h lists the pair even when parse never ran, e.g.
+   * `frodo conn -h`). Never called for pure containers: an ancestor
+   * registration would consume the flag a descendant leaf also
+   * declares (see stubPromptPair's doc).
+   */
+  registerPromptingPair(): void {
+    const self = this as unknown as CommandInternal;
+    if (self._actionHandler === null) return; // pure container
+    if (this instanceof FrodoCommand) return; // live leaf: defaultOpts
+    for (const opt of stubPromptPair()) {
+      if (!this.options.some((option) => option.name() === opt.name())) {
+        this.addOption(opt);
+      }
+    }
   }
 
   /**
@@ -2819,15 +2960,35 @@ export class FrodoStubCommand extends Command {
     // picker surfaces here as STEP_BACK, this picker re-opens, and the
     // user picks another branch. Only the ROOT picker's ESC leaves the
     // session (nothing above it).
+    //
+    // The Run row (user decision 2026-10-12): a stub with its OWN
+    // action (conn, settings) lists that action FIRST -- "Run 'conn'
+    // (its own description)" -- so bare `frodo conn --prompt` shows the
+    // tree AND the action stays reachable, and ESC from the action
+    // climbs here (navigation restored; the pre-Run-row behavior
+    // exited the session). The row is synthetic: it dispatches by
+    // re-entering the parser with NO sub-command operand, which falls
+    // through to the stub's own action.
+    const runRow = self._actionHandler
+      ? [
+          {
+            value: RUN_ROW_VALUE as unknown as string,
+            name: `Run '${this.name()}'${this.description() ? ` -- ${this.description().split('\n')[0]}` : ''}`,
+          },
+        ]
+      : [];
     for (;;) {
       const choice = await escapableSelect<string>({
         message: `Choose a sub-command for '${this.name()}':`,
-        choices: candidates.map((command) => ({
-          value: command.name(),
-          name: command.summary()
-            ? `${command.name()} -- ${command.summary()}`
-            : command.name(),
-        })),
+        choices: [
+          ...runRow,
+          ...candidates.map((command) => ({
+            value: command.name(),
+            name: command.summary()
+              ? `${command.name()} -- ${command.summary()}`
+              : command.name(),
+          })),
+        ],
       });
       if (choice === RIGHT) {
         // Unreachable (no hint), kept for the widened type.
@@ -2845,6 +3006,19 @@ export class FrodoStubCommand extends Command {
         }
         // Root picker: ESC exits as it always has.
         return this.baseParseCommand([], unknown);
+      }
+      if (choice === (RUN_ROW_VALUE as unknown as string)) {
+        // Re-enter the parser with NO sub-command operand: the stub's
+        // own action runs. The action may throw STEP_BACK (it DECLINED
+        // its interactive mode -- ESC / --no-prompt / esc×2): catch and
+        // LOOP, re-offering this picker (Run row first), so the bare
+        // mode is one level of the navigable tree, not a dead end.
+        try {
+          return await this.baseParseCommand([], unknown);
+        } catch (error) {
+          if (error === STEP_BACK) continue;
+          throw error;
+        }
       }
       // Descend: the child's own dispatch may throw STEP_BACK (its
       // picker's ESC) -- catch it and LOOP, re-offering this level's
@@ -2888,6 +3062,12 @@ class FrodoStubHelp extends Help {
     // context of its own -- remember which command is being rendered so
     // the entity-pick annotation can consult that command's registry.
     this.renderedCommand = cmd;
+    // Action-bearing stubs list the prompting pair even when parse never
+    // ran (`frodo conn -h` help-exits without parsing options) -- see
+    // registerPromptingPair's doc. Idempotent.
+    if (cmd instanceof FrodoStubCommand) {
+      (cmd as FrodoStubCommand).registerPromptingPair();
+    }
     const termWidth = helper.padWidth(cmd, helper);
     const helpWidth = helper.helpWidth ?? 80;
 
@@ -2928,9 +3108,36 @@ class FrodoStubHelp extends Help {
       output.push(`Deployment: ${typeLabel}`, '');
     }
 
+    // --prompt/--no-prompt per class (user decision 2026-10-12):
+    // - PURE container stub: --no-prompt only (legacy help-exit;
+    //   --prompt is a no-op there and is hidden). The option is NOT
+    //   registered (an ancestor registration would consume the token a
+    //   descendant leaf also declares), so formatHelp renders it
+    //   VIRTUALLY from the shared stub wording.
+    // - Action-bearing stub: both, registered (registerPromptingPair).
+    // - Live commands: both via defaultOpts, live wording.
+    const isStub = cmd instanceof FrodoStubCommand;
+    const isActionStub =
+      isStub && (cmd as unknown as CommandInternal)._actionHandler !== null;
+    const isPureStub = isStub && !isActionStub;
+    const virtualNoPrompt = isPureStub
+      ? [
+          withHelpGroup(
+            new Option(
+              '--no-prompt',
+              'Never prompt or pick; behave as before the interactive framework (same as setting FRODO_NO_PROMPT).'
+            ),
+            RUNTIME_OPTIONS_HEADING,
+            OptionCategory.Runtime
+          ),
+        ]
+      : [];
+    const visibleOptions = helper
+      .visibleOptions(cmd)
+      .filter((option) => !(isPureStub && option.name() === 'prompt'));
     const optionGroups = this.groupItems(
-      [...cmd.options],
-      [...helper.visibleOptions(cmd)],
+      [...cmd.options, ...virtualNoPrompt],
+      [...visibleOptions, ...virtualNoPrompt],
       (option) => option.helpGroupHeading ?? 'Options:'
     );
     const orderedOptionGroups = [...optionGroups.entries()].sort(
@@ -3047,6 +3254,27 @@ class FrodoStubHelp extends Help {
 
       output = output.concat(this.formatItemList(group, commandList, helper));
     });
+
+    // The bare-invocation marker (user decision 2026-10-12): PURE
+    // containers (stubs without their own action) get the framework's
+    // standard line -- bare invocation enters the sub-command picker.
+    // Action-bearing stubs (conn, settings) are full commands of their
+    // own and declare the bare behavior in their DESCRIPTION instead
+    // (their -h shows no marker line).
+    const isActionBearingStub =
+      (cmd as unknown as CommandInternal)._actionHandler !== null &&
+      !(cmd instanceof FrodoCommand);
+    if (
+      cmd instanceof FrodoStubCommand &&
+      !(cmd instanceof FrodoCommand) &&
+      !isActionBearingStub &&
+      helper.visibleCommands(cmd).length > 0
+    ) {
+      output = output.concat([
+        '',
+        'Run without a sub-command to enter interactive mode.',
+      ]);
+    }
 
     return output.join('\n');
   }
@@ -3336,8 +3564,37 @@ export class FrodoCommand extends FrodoStubCommand {
 
     // register default options
     // This is the primary extension point for adding CLI-wide options.
+    // The --prompt/--no-prompt pair needs special care: the STUB base
+    // class registered them first (stub wording), but a live command's
+    // semantics differ (--prompt opens the options editor), so the
+    // singleton is REPLACED in place rather than skipped (commander
+    // throws on re-registration; direct array replacement keeps the
+    // parse-time lookup working). Every other option: existence-guarded
+    // skip (none overlap today, the guard is for future safety).
     for (const opt of defaultOpts) {
-      if (!commandOmits.has(opt.name())) this.addOption(opt);
+      const existingIndex = this.options.findIndex(
+        (option) =>
+          option.name() === opt.name() ||
+          option.flags === opt.flags ||
+          // BOTH defined before comparing: undefined === undefined would
+          // match EVERY short-less option (verified live -- it made the
+          // replace branch clobber the array's first option).
+          (opt.short !== undefined &&
+            opt.short !== null &&
+            option.short === opt.short)
+      );
+      if (commandOmits.has(opt.name())) continue;
+      if (existingIndex === -1) {
+        this.addOption(opt);
+      } else if (
+        (opt === promptOption || opt === noPromptOption) &&
+        this.options[existingIndex] !== opt
+      ) {
+        // commander's .options is readonly-TYPED but a plain array at
+        // runtime (verified: direct splice keeps the parse-time lookup
+        // working).
+        (this.options as Option[]).splice(existingIndex, 1, opt);
+      }
     }
 
     this.options

@@ -25,6 +25,7 @@ import {
   type EscapableSelectChoice,
 } from './EscapableSelectPrompt';
 import { EXIT_ALL } from './ExitAll';
+import { canPrompt } from './PromptGateState';
 
 const {
   getConnectionProfilesPath,
@@ -62,6 +63,12 @@ export type CredentialOverrideType = 'user' | 'svcacct' | 'amster' | 'browser';
 export async function runInteractivePreferredCredentialPicker(
   host?: string
 ): Promise<boolean> {
+  // Gate-respecting (docs/INTERACTIVE-COMMANDS.md): --no-prompt,
+  // FRODO_NO_PROMPT, FRODO_TEST, and non-TTY sessions decline the picker
+  // exactly as an ESC would -- the bare action must not prompt when
+  // prompting is disallowed, or --no-prompt on this stub would be a
+  // dead flag.
+  if (!canPrompt()) return false;
   let resolvedHost: string;
   if (host) {
     resolvedHost = host;

@@ -13,6 +13,10 @@ Options:
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
 
+Runtime Options:
+  --no-prompt       Never prompt or pick; behave as before the interactive
+                    framework (same as setting FRODO_NO_PROMPT).
+
 Commands:
   describe          [Cloud-only] Describe feature.
   install           [Cloud-only] Install a feature. IRREVERSIBLE: uninstalling
@@ -23,5 +27,7 @@ Commands:
 
 Utilities:
   help              display help for command
-"
+
+
+Run without a sub-command to enter interactive mode."
 `;

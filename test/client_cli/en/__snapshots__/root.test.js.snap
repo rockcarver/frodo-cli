@@ -10,6 +10,10 @@ Options:
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
 
+Runtime Options:
+  --no-prompt       Never prompt or pick; behave as before the interactive
+                    framework (same as setting FRODO_NO_PROMPT).
+
 Commands:
   agent             Manage agents.
   app               Manage applications.
@@ -59,5 +63,7 @@ Continuous integration:
   dcc               [Preview] [Cloud-only] Direct Configuration Control (DCC)
                     commands.
   promote           Prepares a tenant to be promoted
-"
+
+
+Run without a sub-command to enter interactive mode."
 `;

@@ -5,6 +5,8 @@ exports[`CLI help interface for 'conn' should be expected english 1`] = `
 
 Manage connection profiles.
 
+Run without a sub-command to interactively set a profile's preferred credential.
+
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
                     connection profile, just specify a unique substring or
