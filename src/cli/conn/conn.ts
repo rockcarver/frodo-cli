@@ -1,5 +1,8 @@
-import { runInteractivePreferredCredentialPicker } from '../../ops/ConnectionProfileOps.js';
 import { errorMessage } from '../../utils/Console';
+// The bare-invocation picker lives in the interactive layer (the
+// framework is ambient: command files call INTO it, ops carries no
+// prompting code -- see docs/INTERACTIVE-COMMANDS.md).
+import { runInteractivePreferredCredentialPicker } from '../../utils/interactive/ConnectionProfilePickers';
 import { FrodoStubCommand, hostArgument } from '../FrodoCommand';
 import AliasCmd from './conn-alias.js';
 import DeleteCmd from './conn-delete.js';
