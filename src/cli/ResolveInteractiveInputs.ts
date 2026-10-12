@@ -69,6 +69,11 @@ import {
   type EscapableSelectConfig,
 } from '../utils/interactive/EscapableSelectPrompt';
 import {
+  positionalIndex,
+  positionalValue,
+  setPositionalValue,
+} from '../utils/interactive/PositionalArgs';
+import {
   canPrompt,
   promptInput,
   promptPassword,
@@ -893,11 +898,6 @@ export {
 // (PositionalArgs) shared with the post-auth realm picker's write-back;
 // re-exported here under the historical name for any other consumers.
 export { setPositionalValue as setPositionalValueForCommand } from '../utils/interactive/PositionalArgs';
-import {
-  positionalIndex,
-  positionalValue,
-  setPositionalValue,
-} from '../utils/interactive/PositionalArgs';
 
 /**
  * Public entry for utils/interactive picker modules (EntityPickers,

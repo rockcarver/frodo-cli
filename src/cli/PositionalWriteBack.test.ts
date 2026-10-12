@@ -66,9 +66,7 @@ describe('setPositionalValue (realm pick write-back)', () => {
   it('is a no-op for a command without that positional', () => {
     const command = makeCommand();
     command.parse([], { from: 'user' });
-    expect(() =>
-      setPositionalValue(command, 'nonexistent', 'x')
-    ).not.toThrow();
+    expect(() => setPositionalValue(command, 'nonexistent', 'x')).not.toThrow();
     expect(command.processedArgs).toEqual([undefined, undefined]);
   });
 });
