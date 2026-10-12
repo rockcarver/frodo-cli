@@ -49,6 +49,16 @@ class PtyScenarioRunner:
         if pid == 0:
             os.chdir(self.cwd)
             os.execvpe(self.command[0], self.command, self.env)
+        # Pin the terminal size: under jest the driver has no controlling
+        # tty, so the forked pty would inherit a default (e.g. 80x24 from
+        # the runner); prompts then wrap lines differently than on a
+        # developer terminal and captures become width-dependent. A fixed
+        # 120x40 keeps scenario frames deterministic everywhere.
+        import fcntl
+        import struct
+        import termios
+
+        fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 120, 0, 0))
         self.child_pid = pid
         self.fd = fd
 

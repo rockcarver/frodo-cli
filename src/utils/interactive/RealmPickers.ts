@@ -135,5 +135,20 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   }
   if (choice === ESCAPE || !choice || choice === current) return;
   state.setRealm(choice);
+  // Write the picked realm back into the command's realm positional so the
+  // deferred authoring print (flushed at the action's postAction hook, see
+  // FrodoCommand/AuthoringPrintState) shows the command EXACTLY as it ran
+  // -- the printed realm token matches state.getRealm() token for token.
+  // Without this, a non-default pick would print the (sentinel-translated)
+  // positional while the action actually runs in `choice`. The CLI
+  // positional convention is the plain name (no leading slash) -- the
+  // exact value the user would type -- and handleDefaultArgsAndOpts
+  // re-feeds it into state.setRealm inside the action body, so the value
+  // must be positional-shaped, not state-shaped.
+  {
+    const { setPositionalValueForCommand } =
+      await import('../../cli/ResolveInteractiveInputs');
+    setPositionalValueForCommand(command, 'realm', choice.replace(/^\//, ''));
+  }
   verboseMessage(`Using realm ${choice}.`);
 }

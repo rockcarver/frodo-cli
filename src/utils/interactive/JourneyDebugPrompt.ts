@@ -795,5 +795,10 @@ const journeyDebugPromptImpl = createPrompt<void, JourneyDebugPromptConfig>(
 export async function runJourneyDebugPrompt(
   config: JourneyDebugPromptConfig = {}
 ): Promise<void> {
-  await journeyDebugPromptImpl(config);
+  // Erase-on-conclude: the whole debug session (list, drill-ins, the
+  // final "Journey debugging ended." line) disappears when the user
+  // leaves -- the debug transcript is a live view, not an artifact to
+  // keep in scrollback. Same every-exit-path guarantee as the other
+  // prompts (see EscapableSelectPrompt's wrapper comment).
+  await journeyDebugPromptImpl(config, { clearPromptOnDone: true });
 }
