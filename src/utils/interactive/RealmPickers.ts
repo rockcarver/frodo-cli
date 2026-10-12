@@ -33,6 +33,7 @@ import { Command } from 'commander';
 import { verboseMessage } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
+import { EXIT_ALL } from './ExitAll';
 import { canPrompt } from './PromptGateState';
 
 /** frodo-lib's sentinel default for "no realm chosen yet". */
@@ -108,9 +109,12 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   // endpoint never returns the root realm, so on classic/forgeops "/" has
   // no row): escapableSelect falls back to the first row in that case.
   // → (armed by the hint) opens the invocation editor, then
-  // re-prompts this picker; ESCAPE keeps the default as before. The
-  // loop's exit type is string | typeof ESCAPE (the RIGHT case loops).
-  let choice: string | typeof ESCAPE;
+  // re-prompts this picker; ESCAPE keeps the default as before; EXIT_ALL
+  // keeps it too -- the realm pick's caller has nothing to unwind past
+  // (auth already succeeded; "everything" here is just this picker).
+  // The loop's exit type is string | typeof ESCAPE | typeof EXIT_ALL
+  // (the RIGHT case loops).
+  let choice: string | typeof ESCAPE | typeof EXIT_ALL;
   for (;;) {
     const { livePositionalPreviewFor } =
       await import('../../cli/ResolveInteractiveInputs');
@@ -128,7 +132,7 @@ export async function resolveRealmPick(command: Command): Promise<void> {
         description: realm.active ? undefined : 'inactive',
       })),
     });
-    if (answer !== RIGHT) {
+    if (answer === EXIT_ALL || answer !== RIGHT) {
       choice = answer;
       break;
     }
@@ -136,7 +140,14 @@ export async function resolveRealmPick(command: Command): Promise<void> {
       await import('../../cli/ResolveInteractiveInputs');
     await runInvocationEditorForCommand(command);
   }
-  if (choice === ESCAPE || !choice || choice === current) return;
+  if (
+    choice === EXIT_ALL ||
+    choice === ESCAPE ||
+    !choice ||
+    choice === current
+  ) {
+    return;
+  }
   state.setRealm(choice);
   // Write the picked realm back into the command's realm positional so the
   // deferred authoring print (flushed at the action's postAction hook, see

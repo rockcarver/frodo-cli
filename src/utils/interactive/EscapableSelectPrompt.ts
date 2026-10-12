@@ -12,6 +12,7 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import { EXIT_ALL, isDoubleEscape } from './ExitAll';
 import {
   navigationMenuItems,
   renderFramedBox,
@@ -132,7 +133,7 @@ export type EscapableSelectConfig<Value> = {
 // everywhere and is simply dead at runtime there.
 type EscapableSelectFn = <Value>(
   config: EscapableSelectConfig<Value>
-) => Promise<Value | typeof ESCAPE | typeof RIGHT>;
+) => Promise<Value | typeof ESCAPE | typeof RIGHT | typeof EXIT_ALL>;
 
 const escapableSelectImpl = createPrompt(
   (config: EscapableSelectConfig<unknown>, done: (value: unknown) => void) => {
@@ -201,6 +202,10 @@ const escapableSelectImpl = createPrompt(
     }, [config.default, choices]);
     const [active, setActive] = useState(defaultIndex);
     const selected = filtered[active];
+    // The double-ESC detector's timestamp (see ExitAll.ts): undefined
+    // whenever the previous key was NOT an escape, so only CONSECUTIVE
+    // presses count.
+    const lastEscapeRef = useRef<number | undefined>(undefined);
 
     useKeypress((key, rl) => {
       if (key.name === 'escape') {
@@ -208,8 +213,20 @@ const escapableSelectImpl = createPrompt(
         if (rl.line.length > 0) {
           rl.clearLine(0);
           setQuery('');
+          lastEscapeRef.current = undefined;
           return;
         }
+        // Double-ESC (user feedback 2026-10-12): two consecutive
+        // presses within the window exit ALL the way out, from any
+        // nesting depth; a single press stays "back one level".
+        const now = Date.now();
+        if (isDoubleEscape(lastEscapeRef.current, now)) {
+          lastEscapeRef.current = undefined;
+          setStatus('escaped');
+          done(EXIT_ALL);
+          return;
+        }
+        lastEscapeRef.current = now;
         setStatus('escaped');
         done(ESCAPE);
       } else if (
@@ -220,9 +237,11 @@ const escapableSelectImpl = createPrompt(
         // the two-stage escape above).
         rl.line.length === 0
       ) {
+        lastEscapeRef.current = undefined;
         setStatus('done');
         done(RIGHT);
       } else if (isEnterKey(key)) {
+        lastEscapeRef.current = undefined;
         if (!selected) {
           // Filtered to nothing: Enter does nothing rather than crashing
           // (the view shows an explicit "no matches" state).
@@ -231,6 +250,7 @@ const escapableSelectImpl = createPrompt(
         setStatus('done');
         done(selected.value);
       } else if (isUpKey(key) || isDownKey(key)) {
+        lastEscapeRef.current = undefined;
         if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
         // Clamp at the ends -- a list with a beginning and an end, not
@@ -249,7 +269,9 @@ const escapableSelectImpl = createPrompt(
         // is no reliable "printable" predicate to read off the keypress
         // event (a printable char's `name` IS the character). Mirroring it
         // into state drives the filter; the same pattern textPrompt
-        // (PromptGate) uses.
+        // (PromptGate) uses. Any non-ESC key breaks the double-ESC
+        // streak.
+        lastEscapeRef.current = undefined;
         setQuery(rl.line);
       }
     });
@@ -272,8 +294,15 @@ const escapableSelectImpl = createPrompt(
       loop: false,
     });
 
-    const queryEcho =
-      config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
+    // The query echo renders whenever a query exists -- not only for
+    // custom-search pickers. The bare-stub picker uses the name
+    // fallback (no config.search), and its panel WAS the proof the
+    // echo was lying by omission: the list visibly narrowed while the
+    // title said nothing (and the conditional echo's divergence between
+    // the colored and measured title forms skewed the top wall by the
+    // query's length -- see renderFramedBox, which now measures the
+    // drawn text itself).
+    const queryEcho = query.length > 0 ? c.command(` query: ${query}`) : '';
     // PANEL PER SURFACE (user feedback 2026-10-12): every prompt frame
     // is built from the same three boxes -- the Navigate menu (top,
     // permanent), a framed panel for question + list + description, and
@@ -286,7 +315,7 @@ const escapableSelectImpl = createPrompt(
         filter: true,
         enter: 'select',
         right: config.hint ? config.hint.replace(/^→\s*/, '') : undefined,
-        escape: 'back out',
+        escape: 'back · esc×2 exit all',
       })
     );
     const panelLines: { text: string; plain: string }[] = [];
@@ -309,7 +338,7 @@ const escapableSelectImpl = createPrompt(
     const panel = renderFramedBox({
       title: {
         text: `${prefix} ${config.message}${queryEcho}`,
-        plain: `? ${config.message}${query.length > 0 ? ` query: ${query}` : ''}`,
+        plain: `? ${config.message}${queryEcho}`,
       },
       lines: panelLines,
     });

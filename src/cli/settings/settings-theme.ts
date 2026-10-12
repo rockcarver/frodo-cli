@@ -4,6 +4,7 @@ import {
   ESCAPE,
   RIGHT,
 } from '../../utils/interactive/EscapableSelectPrompt';
+import { EXIT_ALL } from '../../utils/interactive/ExitAll';
 import {
   activatePersistedTheme,
   BACKGROUNDS,
@@ -80,7 +81,16 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       ],
       default: currentBackground,
     });
-    if (backgroundChoice === ESCAPE || backgroundChoice === RIGHT) return false; // RIGHT can't resolve here (no hint)
+    if (
+      backgroundChoice === EXIT_ALL ||
+      backgroundChoice === ESCAPE ||
+      backgroundChoice === RIGHT
+    ) {
+      // Single ESC exits the theme picker; double-ESC likewise -- the
+      // settings menus are their own top level (RIGHT can't resolve: no
+      // hint).
+      return false;
+    }
     // Narrows RIGHT out of backgroundChoice for the value use below.
     const pickedBackground = backgroundChoice as
       Background | typeof AUTO_DETECT;
@@ -111,7 +121,16 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       })),
       default: currentContrast,
     });
-    if (contrastChoice === ESCAPE || contrastChoice === RIGHT) continue; // back to the background step (RIGHT can't resolve: no hint)
+    if (
+      contrastChoice === EXIT_ALL ||
+      contrastChoice === ESCAPE ||
+      contrastChoice === RIGHT
+    ) {
+      // Single ESC: back to the background step (RIGHT can't resolve:
+      // no hint). Double-ESC: leaving settings entirely -- the settings
+      // menus are their own top level, so exit-all = the same exit.
+      return false;
+    }
 
     setActiveContrast(contrastChoice);
     activatePersistedTheme();

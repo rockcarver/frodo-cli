@@ -40,6 +40,7 @@
 import { Command } from 'commander';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
+import { EXIT_ALL } from './ExitAll';
 import { canPrompt } from './PromptGateState';
 
 /**
@@ -179,11 +180,12 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
         await import('../../cli/ResolveInteractiveInputs');
       await runInvocationEditorForCommand(command);
     }
-    if (chosen === ESCAPE) {
-      // User declined to run: revoke the deferred authoring print so the
-      // postAction fallback (non-auth commands' flush site) leaves
-      // nothing behind for an abandoned flow -- same contract as the
-      // one-of error path skipping postAction entirely.
+    if (chosen === ESCAPE || chosen === EXIT_ALL) {
+      // User declined to run (single ESC) or left everything (double
+      // ESC): revoke the deferred authoring print so the postAction
+      // fallback (non-auth commands' flush site) leaves nothing behind
+      // for an abandoned flow -- same contract as the one-of error path
+      // skipping postAction entirely.
       const { revokeAuthoringPrint } = await import('./AuthoringPrintState');
       revokeAuthoringPrint();
       return false;

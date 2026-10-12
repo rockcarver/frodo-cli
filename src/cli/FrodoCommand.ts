@@ -32,6 +32,7 @@ import {
   ESCAPE,
   RIGHT,
 } from '../utils/interactive/EscapableSelectPrompt.js';
+import { EXIT_ALL } from '../utils/interactive/ExitAll.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
@@ -1409,6 +1410,12 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
     group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
+    name: 'FRODO_NO_PROMPT',
+    description:
+      "Never prompt for missing input; fail with the usual errors instead (same as '--no-prompt').",
+    group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
+  },
+  {
     name: 'FRODO_LOG_KEY',
     description: 'Log API key.',
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
@@ -2370,6 +2377,16 @@ const commanderParseCommand = (Command.prototype as unknown as CommandInternal)
   unknown: string[]
 ) => unknown;
 
+/**
+ * Thrown by a nested sub-command picker when its user pressed ESC (see
+ * pickAndDispatchSubCommand's tree-climb loop): the PARENT's picker
+ * catches it and re-opens, so ESC climbs one command-tree level instead
+ * of leaving the session. Escapes commander's dispatch (which awaits
+ * _parseCommand results) as a plain exception; every catch site
+ * re-throws anything that is not this symbol.
+ */
+const STEP_BACK = Symbol('interactive:stepBack');
+
 export class FrodoStubCommand extends Command {
   /**
    * Command stability metadata. Defaults to stable.
@@ -2793,22 +2810,50 @@ export class FrodoStubCommand extends Command {
       return this.baseParseCommand([], unknown);
     }
 
-    const choice = await escapableSelect<string>({
-      message: `Choose a sub-command for '${this.name()}':`,
-      choices: candidates.map((command) => ({
-        value: command.name(),
-        name: command.summary()
-          ? `${command.name()} -- ${command.summary()}`
-          : command.name(),
-      })),
-    });
-    if (choice === ESCAPE || choice === RIGHT) {
-      // Fall through to commander's bare-stub help-exit, preserving
-      // today's non-interactive behavior exactly. (RIGHT cannot resolve
-      // here -- no hint -- but the widened select type includes it.)
-      return this.baseParseCommand([], unknown);
+    // Tree-climb loop (user feedback 2026-10-12: ESC in a nested
+    // picker exited the session instead of stepping back one command
+    // level -- "frodo" > config-manager > push > ESC should re-offer
+    // config-manager's picker, not leave frodo): ESC from a CHILD
+    // picker surfaces here as STEP_BACK, this picker re-opens, and the
+    // user picks another branch. Only the ROOT picker's ESC leaves the
+    // session (nothing above it).
+    for (;;) {
+      const choice = await escapableSelect<string>({
+        message: `Choose a sub-command for '${this.name()}':`,
+        choices: candidates.map((command) => ({
+          value: command.name(),
+          name: command.summary()
+            ? `${command.name()} -- ${command.summary()}`
+            : command.name(),
+        })),
+      });
+      if (choice === RIGHT) {
+        // Unreachable (no hint), kept for the widened type.
+        return this.baseParseCommand([], unknown);
+      }
+      if (choice === EXIT_ALL) {
+        // From any depth: leave the session the way a root ESC always
+        // has (commander's bare-stub help-exit).
+        return this.baseParseCommand([], unknown);
+      }
+      if (choice === ESCAPE) {
+        if (this.parent) {
+          // One level up: re-open the PARENT's sub-command picker.
+          throw STEP_BACK;
+        }
+        // Root picker: ESC exits as it always has.
+        return this.baseParseCommand([], unknown);
+      }
+      // Descend: the child's own dispatch may throw STEP_BACK (its
+      // picker's ESC) -- catch it and LOOP, re-offering this level's
+      // picker. Everything else propagates.
+      try {
+        return await this.baseParseCommand([choice], unknown);
+      } catch (error) {
+        if (error === STEP_BACK) continue;
+        throw error;
+      }
     }
-    return this.baseParseCommand([choice], unknown);
   }
 }
 

@@ -77,6 +77,7 @@ import {
   type EscapableSelectChoice,
   type EscapableSelectConfig,
 } from '../utils/interactive/EscapableSelectPrompt';
+import { EXIT_ALL, EXIT_ALL_WINDOW_MS } from '../utils/interactive/ExitAll';
 import {
   positionalIndex,
   positionalValue,
@@ -426,21 +427,55 @@ export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
 async function selectWithEditorRouting<Value>(
   command: Command,
   config: EscapableSelectConfig<Value>
-): Promise<Value | typeof ESCAPE> {
+): Promise<Value | typeof ESCAPE | typeof EXIT_ALL> {
   const hint = editableOptionsHint(command);
   // Preview discipline: callers pass their own (a LIVE callback when the
   // pick maps onto a command token); the default stays the static
   // committed-state render, refreshed per picker OPEN so it reflects
   // values filled since the last prompt.
   const preview = config.preview ?? commandPreviewFor(command);
+  // Cross-prompt double-ESC: the in-prompt detector only sees keys that
+  // arrive within ONE prompt instance -- but the gesture's real target
+  // is "back out fast from deep", where the first ESC resolves this
+  // picker and the SECOND lands in whatever prompt re-opens next. The
+  // loop therefore also matches two consecutive ESCAPE RESOLUTIONS
+  // within the window and promotes them to EXIT_ALL (a re-opened
+  // picker is a fresh instance; only the wall-clock pairs the presses).
+  let lastEscapeAt: number | undefined;
   for (;;) {
     const choice = await escapableSelect<Value>({
       ...config,
       hint,
       preview,
     });
+    if (choice === EXIT_ALL) return EXIT_ALL;
+    if (choice === ESCAPE) {
+      // This loop RESOLVES on ESCAPE (returning it to the caller), and
+      // it seeds the clock only at editor dismissal, so the only
+      // cross-prompt pair that can exist is: editor dismissed with its
+      // ESC, then the re-opened picker's ESC within the window.
+      const now = Date.now();
+      if (
+        lastEscapeAt !== undefined &&
+        now - lastEscapeAt <= EXIT_ALL_WINDOW_MS
+      ) {
+        return EXIT_ALL;
+      }
+      return ESCAPE;
+    }
     if (choice !== RIGHT) return choice;
-    await runInvocationEditor(command);
+    const editorResult = await runInvocationEditor(command);
+    // The editor dismissed with its own ESC: the NEXT loop iteration
+    // re-prompts this picker, whose ESCAPE (within the window of the
+    // editor's) pairs into EXIT_ALL -- the gesture crosses the prompt
+    // boundary. Seed the pair clock with the editor's dismissal time so
+    // the picker's single ESC completes it.
+    if (editorResult === false) {
+      // Editor resolved EXIT_ALL in its own prompt (double-ESC inside
+      // the editor): unwind here.
+      return EXIT_ALL;
+    }
+    lastEscapeAt = Date.now();
   }
 }
 
@@ -537,7 +572,7 @@ async function selectFromChoices(
   message: string,
   choices: string[],
   optionName?: string
-): Promise<string | typeof ESCAPE> {
+): Promise<string | typeof ESCAPE | typeof EXIT_ALL> {
   if (choices.length === 1) {
     verboseMessage(`Only one value available: ${choices[0]}`);
     return choices[0];
@@ -592,7 +627,13 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
         option.argChoices,
         option.attributeName()
       );
-      if (choice === ESCAPE) return false;
+      if (choice === ESCAPE || choice === EXIT_ALL) {
+        // Exit-all aborts the whole interactive resolution: unwind out
+        // of this prompt pass (the caller rethrows commander's
+        // missing-input error, which is the "top" of a leaf command's
+        // chain).
+        return false;
+      }
       value = choice;
     } else {
       const answer = await promptInput({
@@ -694,7 +735,7 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
         name: `${member.option.flags}${member.option.description ? ` -- ${member.option.description}` : ''}`,
       })),
     });
-    if (picked === ESCAPE) return false;
+    if (picked === ESCAPE || picked === EXIT_ALL) return false;
 
     const chosen = memberOptions.find((member) => member.name === picked)!;
 
@@ -838,6 +879,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
           ),
         ],
       });
+      if (choice === EXIT_ALL) return false;
       if (choice === ESCAPE) return false;
       if (choice === ENTER_MANUALLY) {
         const answer = await promptInput({
@@ -989,6 +1031,11 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
       ];
     },
   });
+  if (result === EXIT_ALL) {
+    // Exit-all unwinds the whole interactive resolution -- no fallback
+    // prompts, the command does not run.
+    return false;
+  }
   if (result === PAGE_ESCAPE) {
     // Page declined: fall back to the pre-page sequential prompts.
     if (usernameNeeded) {
@@ -1089,7 +1136,9 @@ function applyPersistedDefaults(command: Command): void {
   }
 }
 
-async function runInvocationEditor(command: Command): Promise<void> {
+async function runInvocationEditor(command: Command): Promise<void | false> {
+  // Resolves `false` when the user double-ESCed (EXIT_ALL): every
+  // caller in the routing loops unwinds the whole interactive pass.
   const candidates = editableOptionalOptions(command);
   if (candidates.length === 0) {
     verboseMessage('No optional options left to edit.');
@@ -1115,7 +1164,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
   // value actually written, for the --save-defaults partial save.
   const runValueStep = async (
     attributeName: string
-  ): Promise<string | true | undefined> => {
+  ): Promise<string | true | typeof EXIT_ALL | undefined> => {
     const option = command.options.find(
       (candidate) => candidate.attributeName() === attributeName
     );
@@ -1138,6 +1187,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
         ),
         default: currentText,
       });
+      if (value === EXIT_ALL) return EXIT_ALL;
       if (value === ESCAPE || value === RIGHT) return undefined;
       command.setOptionValueWithSource(attributeName, value, 'cli');
       return value;
@@ -1261,11 +1311,15 @@ async function runInvocationEditor(command: Command): Promise<void> {
         };
       }),
   });
+  if (picked === EXIT_ALL) {
+    // Exit-all unwinds the whole interactive resolution (see the
+    // runInvocationEditor contract below).
+    return false;
+  }
   if (picked === MULTISEL_ESCAPE) {
     verboseMessage('Invocation editor dismissed; values unchanged.');
     return;
   }
-
   // With --save-defaults, every value committed in THIS editor
   // session (set/changed below) persists as the command's defaults. Only
   // options actually committed are saved -- a dismissed editor or an
@@ -1292,6 +1346,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
       continue;
     }
     const value = await runValueStep(attributeName);
+    if (value === EXIT_ALL) return false;
     if (value === undefined) continue;
     committed[attributeName] = value;
     const option = command.options.find(

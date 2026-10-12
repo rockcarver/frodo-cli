@@ -94,7 +94,7 @@ renders them all through one shared `renderFramedBox`):
 
 ```
 ┌ Navigate ────────────────────────────────────────────┐
-│ ↑↓ move · type filter · space select · esc back out  │
+│ ↑↓ move · type to filter · space select · esc back   │
 └──────────────────────────────────────────────────────┘
 ┌ ? Optional options for 'list' (space to select) ─────┐
 │ ○ -E, --env <key=value>                              │
@@ -192,8 +192,15 @@ unsatisfied groups, failed auth) print nothing.
   with a counted hint ("→ 4 options to configure"); only armed when a
   hint exists, and only when the filter query is empty (with text
   typed, ←/→ stay readline cursor movement).
-- `←`/`Esc` — back out. Two-stage with an active filter: first Esc
-  clears the query, second backs out.
+- `←`/`Esc` — back ONE level (see the tree-climb below). Two-stage with
+  an active filter: first Esc clears the query, second backs out.
+- `Esc` `Esc` (double-press, 400ms window) — exit all the way. Two
+  consecutive Escapes within 400ms resolve the current prompt with the
+  exit-all sentinel, which unwinds to the very top of the session from
+  any nesting depth — no matter how many pickers or editors are stacked.
+  Any other key between the two presses resets the pair (the mouse
+  double-click analogy: the presses must be consecutive). A single Esc
+  at the ROOT picker still prints help and exits, as always.
 
 The invocation editor orders its candidates the way `-h`/`-hh` orders
 help: the command's OWN options first, then connection options, then
@@ -206,6 +213,13 @@ on an already-marked row. After a value editor closes, the cursor
 returns to the option that was just edited or rejected, and re-opening
 the editor (via `→` from a picker) shows previously committed
 selections pre-marked.
+
+Command-tree navigation also respects the key language: `Esc` inside a
+nested sub-command picker backs out ONE level — the parent's picker
+re-opens with the child still filterable — instead of ending the
+session. Only the ROOT picker's Esc exits (help-exit), and the
+double-ESC exit-all works from any depth (`Esc` `Esc` inside the
+config-manager picker, for example, lands straight back at the shell).
 
 ## Zero-import modules and the frodo-lib Jest constraint
 

@@ -10,6 +10,7 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import { EXIT_ALL, isDoubleEscape } from './ExitAll';
 import {
   navigationMenuItems,
   renderFramedBox,
@@ -86,7 +87,9 @@ export type ConnectionPageConfig = {
 type ConnectionPageFn = (
   config: ConnectionPageConfig
 ) => Promise<
-  { host?: string; username?: string; password?: string } | typeof PAGE_ESCAPE
+  | { host?: string; username?: string; password?: string }
+  | typeof PAGE_ESCAPE
+  | typeof EXIT_ALL
 >;
 
 const connectionPageImpl = createPrompt(
@@ -107,6 +110,10 @@ const connectionPageImpl = createPrompt(
     // readline consumes its buffer when Enter fires (verified pattern in
     // textPrompt); the draft mirror is the source of truth for commits.
     const draftRef = useRef('');
+    // The double-ESC detector's timestamp (see ExitAll.ts): undefined
+    // whenever the previous key was NOT an escape, so only CONSECUTIVE
+    // presses count.
+    const lastEscapeRef = useRef<number | undefined>(undefined);
     const resolvingRef = useRef(false);
 
     useEffect(() => {
@@ -160,18 +167,40 @@ const connectionPageImpl = createPrompt(
             void commitRow(editing, line);
           }
         } else if (key.name === 'escape') {
+          const now = Date.now();
+          if (isDoubleEscape(lastEscapeRef.current, now)) {
+            lastEscapeRef.current = undefined;
+            setEditing(null);
+            setDraft('');
+            setStatus('escaped');
+            done(EXIT_ALL);
+            return;
+          }
+          lastEscapeRef.current = now;
           setEditing(null);
           setDraft('');
           rl.clearLine(0);
         } else {
+          lastEscapeRef.current = undefined;
           setDraft(rl.line);
         }
         return;
       }
       if (key.name === 'escape') {
+        // Double-ESC exits all the way (see ExitAll.ts); a single press
+        // declines the page as before.
+        const now = Date.now();
+        if (isDoubleEscape(lastEscapeRef.current, now)) {
+          lastEscapeRef.current = undefined;
+          setStatus('escaped');
+          done(EXIT_ALL);
+          return;
+        }
+        lastEscapeRef.current = now;
         setStatus('escaped');
         done(PAGE_ESCAPE);
       } else if (isEnterKey(key)) {
+        lastEscapeRef.current = undefined;
         if (active === doneIndex) {
           conclude();
         } else {
@@ -243,7 +272,7 @@ const connectionPageImpl = createPrompt(
     const panel = renderFramedBox({
       title: {
         text: `${prefix} ${config.message}${resolvingNote}`,
-        plain: `? ${config.message}${resolving ? ' (re-resolving credentials...)' : ''}`,
+        plain: `? ${config.message}${resolvingNote}`,
       },
       lines: rowLines,
     });
