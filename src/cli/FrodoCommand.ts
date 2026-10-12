@@ -3054,8 +3054,7 @@ class FrodoStubHelp extends Help {
     // stubs, so their --prompt (options editor) always shows.
     const isStub = cmd instanceof FrodoStubCommand;
     const isActionStub =
-      isStub &&
-      (cmd as unknown as CommandInternal)._actionHandler !== null;
+      isStub && (cmd as unknown as CommandInternal)._actionHandler !== null;
     const hidePrompt = isStub && !isActionStub;
     const visibleOptions = helper
       .visibleOptions(cmd)

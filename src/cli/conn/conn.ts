@@ -3,7 +3,11 @@ import { errorMessage } from '../../utils/Console';
 // framework is ambient: command files call INTO it, ops carries no
 // prompting code -- see docs/INTERACTIVE-COMMANDS.md).
 import { runInteractivePreferredCredentialPicker } from '../../utils/interactive/ConnectionProfilePickers';
-import { FrodoStubCommand, STEP_BACK_FROM_ACTION, hostArgument } from '../FrodoCommand';
+import {
+  FrodoStubCommand,
+  hostArgument,
+  STEP_BACK_FROM_ACTION,
+} from '../FrodoCommand';
 import AliasCmd from './conn-alias.js';
 import DeleteCmd from './conn-delete.js';
 import DescribeCmd from './conn-describe.js';
