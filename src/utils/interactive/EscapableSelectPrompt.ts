@@ -173,16 +173,22 @@ const escapableSelectImpl = createPrompt(
     // must exist first and inquirer re-renders on every state change
     // anyway; a render-time `setActive` here would either run before
     // `useState` declared it (TDZ crash) or loop the render.
-    // Reset to the first match whenever the query changes -- but NOT on
-    // mount: the initial cursor belongs on the configured default (e.g.
-    // the editor's pre-filled current value), and this effect would
-    // otherwise clobber it immediately after the first render.
+    // Reset to the first match whenever the query TEXT changes -- but
+    // NOT on mount: the initial cursor belongs on the configured
+    // default (e.g. the editor's pre-filled current value), and this
+    // effect would otherwise clobber it immediately after the first
+    // render. Text-compared, not reference-compared: a setQuery to the
+    // SAME text (e.g. a programmatic reset) must not yank the cursor.
     const firstRender = useRef(true);
+    const lastQueryRef = useRef(query);
     useEffect(() => {
       if (firstRender.current) {
         firstRender.current = false;
+        lastQueryRef.current = query;
         return;
       }
+      if (lastQueryRef.current === query) return;
+      lastQueryRef.current = query;
       setActive(0);
     }, [query]);
 
@@ -230,8 +236,13 @@ const escapableSelectImpl = createPrompt(
         // Clamp at the ends -- a list with a beginning and an end, not
         // an endless loop (user feedback 2026-10-12; the cursor stops
         // at the first/last row and further keys in that direction do
-        // nothing).
-        setActive(Math.min(filtered.length - 1, Math.max(0, active + offset)));
+        // nothing). FUNCTIONAL update: several keypresses can arrive
+        // inside one render cycle (paste, fast typing around a
+        // keystroke) -- a closure over `active` would compute every
+        // step from the same stale value and eat the extra moves.
+        setActive((previous) =>
+          Math.min(filtered.length - 1, Math.max(0, previous + offset))
+        );
       } else {
         // Everything else is readline's business (typing, paste, backspace,
         // ctrl+u, any unhandled key); the buffer holds the result -- there

@@ -63,6 +63,7 @@ import {
 import {
   editableOptionalOptions,
   editableOptionsHint,
+  sortEditableOptions,
 } from '../utils/interactive/EditableOptions';
 import { hasEntityPick } from '../utils/interactive/EntityPickers';
 import {
@@ -1232,13 +1233,13 @@ async function runInvocationEditor(command: Command): Promise<void> {
       committed[attributeName] = command.getOptionValue(attributeName);
       verboseMessage(`Using ${option.flags} ${value}.`);
     },
-    choices: candidates
-      // Alphabetical by the option WORD (user feedback 2026-10-12:
-      // registration order read as arbitrary, and sorting by the raw
-      // flags string ranked short flags after ALL long ones -- sort on
-      // the name after the dashes: "directory" under D, not "--directory"
-      // after every double-dash).
-      .sort((a, b) => optionSortKey(a).localeCompare(optionSortKey(b)))
+    choices: sortEditableOptions(candidates)
+      // Bucketed by help-group category (user feedback 2026-10-12: a
+      // flat alphabetical list buries the command's own options among
+      // global/connection machinery -- the same split -h/-hh makes in
+      // help): command-specific first, connection, then the rest.
+      // sortEditableOptions keeps the dash-insensitive word sort
+      // INSIDE each bucket.
       .map((option) => {
         // Already-valued options are editable too --
         // shown with their current value so the user can tell them apart.
@@ -1326,21 +1327,4 @@ function commandStorePath(command: Command): string {
     names.unshift(cursor.name());
   }
   return names.join(' ');
-}
-
-/**
- * The editor list's sort key for an option: the option WORD after the
- * dashes (`--env-file` -> "env-file", `-k, --insecure` -> "insecure"),
- * so dash count never ranks (`-D, --directory` sorts under D among the
- * long flags, not after every double-dash) -- user feedback 2026-10-12.
- * Value placeholders are dropped; short flags sort by their letter
- * after the word.
- */
-function optionSortKey(option: Option): string {
-  const words = option.flags
-    .split(/[, ]+/)
-    .filter((token) => token.startsWith('-'))
-    .map((token) => token.replace(/^-+/, ''))
-    .filter((word) => !/^[<[]/.test(word));
-  return words.join(' ').toLowerCase();
 }

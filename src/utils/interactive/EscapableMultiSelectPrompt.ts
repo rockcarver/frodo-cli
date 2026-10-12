@@ -9,6 +9,7 @@ import {
   useMemo,
   usePagination,
   usePrefix,
+  useRef,
   useState,
 } from '@inquirer/core';
 import type { InquirerReadline } from '@inquirer/type';
@@ -141,24 +142,47 @@ const escapableMultiSelectImpl = createPrompt(
     }, [choices, query]);
 
     // Cursor resets to the top of the FILTERED list whenever the query
-    // changes (useEffect, not a render-time write -- see
-    // EscapableSelectPrompt's TDZ note).
+    // TEXT changes (useEffect, not a render-time write -- see
+    // EscapableSelectPrompt's TDZ note). Text-compared, not
+    // reference-compared: closeInlineEditor's setQuery('') after a
+    // value commit must NOT yank the cursor to the top when the query
+    // was already empty (that was the "cursor is nowhere" report --
+    // the cursor flew to row 0 on every value commit, and with the
+    // color-only cursor nothing showed where it went).
+    const lastQueryRef = useRef(query);
     useEffect(() => {
+      if (lastQueryRef.current === query) return;
+      lastQueryRef.current = query;
       setActive(0);
     }, [query]);
 
     const [active, setActive] = useState(0);
     const highlighted = filtered[active];
 
-    // Leaving the inline value editor: clear editing state AND scrub the
-    // readline buffer -- the editor swaps key semantics (picker) or
-    // hands the buffer to a value, and a surviving filter query would
-    // prefix the next value or filter the next navigation.
-    const closeInlineEditor = (rl: InquirerReadline) => {
+    // Leaving the inline value editor: clear editing state, reset the
+    // filter query (the buffer was scrubbed -- the query MIRROR must go
+    // with it, or the list stays filtered by a query that no longer
+    // exists -- the "cannot navigate anywhere" report: a one-row
+    // filtered list clamps the cursor no matter what the arrows do),
+    // scrub the readline buffer, and put the cursor BACK on the option
+    // that was just edited or rejected -- the user's question "where am
+    // I" must have a visible, correct answer (the › glyph + the option's
+    // description in the panel).
+    const closeInlineEditor = (rl: InquirerReadline, returnTo?: unknown) => {
       setEditing(null);
       setEditingChoices([]);
       setDraft('');
       setPickerActive(0);
+      // Pre-seed the query-ref so the cursor-reset effect sees the
+      // reset as already-applied and does not clobber the setActive
+      // below (a query 'retry' -> '' change would otherwise fire the
+      // effect AFTER this handler and yank the cursor to row 0).
+      lastQueryRef.current = '';
+      setQuery('');
+      if (returnTo !== undefined) {
+        const index = choices.findIndex((choice) => choice.value === returnTo);
+        if (index >= 0) setActive(index);
+      }
       // Replay readline's own ctrl+u binding: buffer + cursor + display
       // all clear together (the declared InquirerReadline type only
       // lists write(data: string), but the runtime object is a real
@@ -186,13 +210,13 @@ const escapableMultiSelectImpl = createPrompt(
               next.add(editing);
               return next;
             });
-            closeInlineEditor(rl);
+            closeInlineEditor(rl, editing);
             return;
           }
           if (key.name === 'escape') {
             // Reject: an option that needs a value cannot be marked
             // without one. Nothing changes.
-            closeInlineEditor(rl);
+            closeInlineEditor(rl, editing);
             return;
           }
           if (isUpKey(key) || isDownKey(key)) {
@@ -218,13 +242,13 @@ const escapableMultiSelectImpl = createPrompt(
             next.add(editing);
             return next;
           });
-          closeInlineEditor(rl);
+          closeInlineEditor(rl, editing);
           return;
         }
         if (key.name === 'escape') {
           // Reject: an option that needs a value cannot be marked
           // without one. Nothing changes.
-          closeInlineEditor(rl);
+          closeInlineEditor(rl, editing);
           return;
         }
         setDraft(rl.line);
@@ -295,8 +319,13 @@ const escapableMultiSelectImpl = createPrompt(
         if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
         // Clamp at the ends -- a list with a beginning and an end, not
-        // an endless loop (matches EscapableSelectPrompt).
-        setActive(Math.min(filtered.length - 1, Math.max(0, active + offset)));
+        // an endless loop (matches EscapableSelectPrompt). FUNCTIONAL
+        // update: several keypresses can arrive inside one render
+        // cycle -- a closure over `active` would compute every step
+        // from the same stale value and eat the extra moves.
+        setActive((previous) =>
+          Math.min(filtered.length - 1, Math.max(0, previous + offset))
+        );
       } else {
         // Everything else is readline's business (typing, paste,
         // backspace, ctrl+u); mirror the buffer into the query -- same
@@ -322,7 +351,13 @@ const escapableMultiSelectImpl = createPrompt(
       active,
       renderItem: ({ item, isActive }) => {
         const marker = selected.has(item.value) ? '◉' : '○';
-        const line = `${marker} ${item.name}`;
+        // The cursor gets a GLYPH (› between marker and name), not just
+        // color -- color alone is invisible when the cursor sits on an
+        // already-marked row (user feedback 2026-10-12: after the value
+        // editor closed, "the cursor is nowhere"). The single-select's
+        // '› ' pattern, married to the multiselect's ◉/○ column.
+        const cursor = isActive ? '› ' : '  ';
+        const line = `${marker} ${cursor}${item.name}`;
         return isActive ? c.command(line) : line;
       },
       pageSize,

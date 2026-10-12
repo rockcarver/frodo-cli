@@ -568,7 +568,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         // the command state, not an empty slate.
         const reopened = result.captures.reopened.plain;
         expect(reopened).toMatch(/frodo esv secret delete -k --verbose/);
-        expect(reopened).toMatch(/◉ --debug/);
+        expect(reopened).toMatch(/◉ (?:› )?--debug/);
       } finally {
         removeShellTestHome(homeDir);
       }
@@ -646,7 +646,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         // serializes the REAL value (the filter query "env-file" did
         // not leak into the buffer as a prefix of the value).
         const afterCommit = result.captures.afterCommit.plain;
-        expect(afterCommit).toMatch(/◉ --env-file/);
+        expect(afterCommit).toMatch(/◉ (?:› )?--env-file/);
         expect(afterCommit).toMatch(
           /frodo esv secret delete -k --retry network --env-file FOO=bar/
         );
@@ -662,8 +662,8 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         // a non-word char and \b would match inside the committed
         // option's name).
         const afterReject = result.captures.afterReject.plain;
-        expect(afterReject).not.toMatch(/◉ --env /);
-        expect(afterReject).not.toMatch(/◉ --env$/m);
+        expect(afterReject).not.toMatch(/◉ (?:› )?--env /);
+        expect(afterReject).not.toMatch(/◉ (?:› )?--env$/m);
         expect(afterReject).toMatch(/--env-file/);
       } finally {
         removeShellTestHome(homeDir);
@@ -757,12 +757,76 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         // (The list ROW keeps showing the flag spec -- `--retry
         // <strategy>` is the option's label; the footer is where the
         // real value belongs.)
-        expect(afterPickFrame).toMatch(/◉ --retry/);
+        expect(afterPickFrame).toMatch(/◉ (?:› )?--retry/);
         expect(afterPickFrame).toMatch(
           /frodo esv secret delete -k --retry everything/
         );
         // Navigate menu back to the LIST hints once the editor closed.
         expect(afterPickFrame).toMatch(/space select · enter commit/);
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
+
+  test(
+    'debug output does not appear during the editor; appears only in action output',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          // --debug BEFORE the prompt flag; editor still must be clean.
+          args: ['esv', 'secret', 'delete', '-k', '--debug', '--prompt'],
+          env: ENV,
+          actions: [
+            {
+              type: 'wait_plain',
+              regex: 'Choose which secrets',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 500 },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 600 },
+            { type: 'capture', label: 'editorWithDebug' },
+            { type: 'key', name: 'escape' },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'space' },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'enter' },
+            { type: 'sleep', ms: 4000 },
+            { type: 'capture', label: 'afterRun' },
+          ],
+        });
+
+        const editor = result.captures.editorWithDebug.plain;
+        // Editor frame is CLEAN: no debug chatter between Navigate box
+        // and the footer. (Debug output, if any, would be raw state
+        // dumps interleaved with the frame.)
+        expect(editor).toMatch(/┌ Navigate ─/);
+        expect(editor).toMatch(/Optional options for 'delete'/);
+        // Any debugMessage lines carry the FrodoCommand: prefix; the
+        // editor frame must not contain them.
+        expect(editor).not.toMatch(/FrodoCommand:/);
+
+        const after = result.captures.afterRun.plain;
+        // The run concludes (delete-all via the one-of -a pick): the
+        // debug lines DO appear -- but only in the ACTION output, never
+        // inside the prompt frames. Find the LAST Navigate box and
+        // confirm every debug line comes after it.
+        const lastNav = after.lastIndexOf('┌ Navigate ─');
+        const firstDebug = after.indexOf('FrodoCommand:');
+        if (firstDebug !== -1) {
+          expect(firstDebug).toBeGreaterThan(lastNav);
+        }
+        expect(after).toMatch(/frodo esv secret delete -k --debug/);
       } finally {
         removeShellTestHome(homeDir);
       }

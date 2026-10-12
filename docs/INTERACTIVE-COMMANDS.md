@@ -195,8 +195,16 @@ unsatisfied groups, failed auth) print nothing.
 - `←`/`Esc` — back out. Two-stage with an active filter: first Esc
   clears the query, second backs out.
 
-The invocation editor lists its candidates alphabetically by flag, and
-re-opening it (via `→` from a picker) shows previously committed
+The invocation editor orders its candidates the way `-h`/`-hh` orders
+help: the command's OWN options first, then connection options, then
+everything else (authentication, runtime, output) — alphabetical by
+option word within each bucket (`sortEditableOptions`; the bucket
+derives from the option's help-group heading, so help and the editor
+can never disagree about where an option belongs). The cursor carries
+a GLYPH (`›`), not just color — color alone is invisible when it sits
+on an already-marked row. After a value editor closes, the cursor
+returns to the option that was just edited or rejected, and re-opening
+the editor (via `→` from a picker) shows previously committed
 selections pre-marked.
 
 ## Zero-import modules and the frodo-lib Jest constraint

@@ -52,3 +52,43 @@ export function editableOptionsHint(command: Command): string | undefined {
   const count = editableOptionalOptions(command).length;
   return count > 0 ? `→ ${count} options to configure` : undefined;
 }
+
+/**
+ * The editor's candidate ORDER (user feedback 2026-10-12: a flat
+ * alphabetical list buries the command's own options among global/
+ * connection machinery the user rarely wants -- the same split -h/-hh
+ * makes in help): command-specific options FIRST, then connection,
+ * then everything else (authentication, runtime, output), alphabetical
+ * within each bucket. The bucket derives from the option's help-group
+ * heading -- the same data the help layout already uses -- so no
+ * option is ever listed under two different buckets in help vs the
+ * editor. Options without a heading (a leaf command's own options) are
+ * command-specific by definition.
+ *
+ * Zero-import: `helpGroupHeading` is commander's own Option property;
+ * no frodo-lib.
+ */
+const COMMAND_SPECIFIC_HEADINGS = new Set(['Options:', '']);
+
+export function sortEditableOptions(options: Option[]): Option[] {
+  const bucketOf = (option: Option): number => {
+    const heading = option.helpGroupHeading ?? '';
+    if (COMMAND_SPECIFIC_HEADINGS.has(heading)) return 0;
+    if (heading === 'Connection Options:') return 1;
+    return 2; // Authentication / Runtime / Output
+  };
+  const label = (option: Option): string => {
+    const words = option.flags
+      .split(/[, ]+/)
+      .filter((token) => token.startsWith('-'))
+      .map((token) => token.replace(/^-+/, ''))
+      .filter((word) => !/^[<[]/.test(word));
+    return words.join(' ').toLowerCase();
+  };
+  return [...options].sort((a, b) => {
+    const bucketA = bucketOf(a);
+    const bucketB = bucketOf(b);
+    if (bucketA !== bucketB) return bucketA - bucketB;
+    return label(a).localeCompare(label(b));
+  });
+}
