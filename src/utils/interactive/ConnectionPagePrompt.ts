@@ -10,7 +10,12 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
-import { navigationMenuItems, renderNavigationMenu } from './NavigationMenu';
+import {
+  navigationMenuItems,
+  renderFramedBox,
+  renderNavigationMenu,
+  stripAnsi,
+} from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
 /**
@@ -207,27 +212,43 @@ const connectionPageImpl = createPrompt(
       : '';
     // The navigation menu (see NavigationMenu.ts): framed box at the
     // TOP; the page's enter has two roles (edit a row / conclude on
-    // Done), so the item names both.
+    // Done), so the item names both. The rows + Done form the page's
+    // framed panel (panel per surface -- see EscapableSelectPrompt).
     const menu = renderNavigationMenu(
       navigationMenuItems({
         enter: 'edit / done',
         escape: 'cancel page',
       })
     );
-    const lines = [
-      menu,
-      `${prefix} ${config.message}${resolvingNote}`,
+    const rowLines = [
       ...rows.map((row, index) => {
         const isEditing = editing === row.key;
         const cursor = isEditing ? '›' : index === active ? '›' : ' ';
         const note = !isEditing && row.note ? c.muted(` (${row.note})`) : '';
         const line = `${cursor} ${row.label}: ${renderValue(row, isEditing)}${note}`;
-        return index === active || isEditing ? c.command(line) : line;
+        return {
+          text: index === active || isEditing ? c.command(line) : line,
+          plain: `${cursor} ${row.label}: ${stripAnsi(renderValue(row, isEditing))}${row.note && !isEditing ? ` (${row.note})` : ''}`,
+        };
       }),
-      `${active === doneIndex ? '›' : ' '} ${c.command('Done — run with these values')}`,
-      config.preview,
+      (() => {
+        const cursor = active === doneIndex ? '›' : ' ';
+        const line = `${cursor} Done — run with these values`;
+        return {
+          text: c.command(line),
+          plain: line,
+        };
+      })(),
     ];
-    return lines.join('\n');
+    const panel = renderFramedBox({
+      title: {
+        text: `${prefix} ${config.message}${resolvingNote}`,
+        plain: `? ${config.message}${resolving ? ' (re-resolving credentials...)' : ''}`,
+      },
+      lines: rowLines,
+    });
+    const lines = [menu, panel, config.preview];
+    return lines.filter(Boolean).join('\n');
   }
 );
 

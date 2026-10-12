@@ -84,24 +84,44 @@ const INTENT_COLOR: Record<
 };
 
 /**
+ * The ANSI-stripped width input for the box math: every SGR sequence
+ * (ESC [ ... m) carries no cells, everything the frames render is plain
+ * UTF-8 or SGR -- the same assumption the wall alignment already makes.
+ */
+export function stripAnsi(text: string): string {
+  // eslint-disable-next-line no-control-regex -- the control character IS the point
+  return text.replace(/\x1b\[[0-9;]*m/g, '');
+}
+
+/**
  * One framed box renderer for all prompt-frame furniture (the Navigate
- * menu, the inline value editor's Value box): the title, the body lines
- * (pre-colored), and the width the frame is drawn at -- so every box in
- * a frame shares the same silhouette and the same wrap/measure
- * discipline (ANSI excluded from every measurement).
+ * menu, every prompt's question+list panel, the inline value editor's
+ * Value box): the title (a plain string, or a {text, plain} pair when it
+ * carries colored content -- e.g. the question line with its prefix and
+ * query echo), the body lines (pre-colored), and the width the frame is
+ * drawn at -- so every box in a frame shares the same silhouette and the
+ * same wrap/measure discipline (ANSI excluded from every measurement).
  */
 export function renderFramedBox(options: {
-  title: string;
+  title: string | { text: string; plain: string };
   /** Body lines, already colored; measured on their plain text. */
   lines: { text: string; plain: string }[];
   width?: number;
 }): string {
-  const { title, lines } = options;
+  const { lines } = options;
+  const title =
+    typeof options.title === 'string'
+      ? { text: options.title, plain: options.title }
+      : options.title;
+  // One space between wall and title content on both sides -- the
+  // Navigate menu's ' Navigate ' convention, applied to every box.
+  const titleText = ` ${title.text} `;
+  const titlePlain = ` ${title.plain} `;
   const width = options.width ?? 120;
   const PADDING = 1;
   const BORDER = 2;
   const innerWidth = Math.max(10, width - BORDER - PADDING * 2);
-  const top = `┌${title}${'─'.repeat(Math.max(0, innerWidth + PADDING * 2 - title.length))}┐`;
+  const top = `┌${titleText}${'─'.repeat(Math.max(0, innerWidth + PADDING * 2 - titlePlain.length))}┐`;
   const bottom = `└${'─'.repeat(innerWidth + PADDING * 2)}┘`;
   const body = lines
     .map((line) => {
@@ -156,7 +176,7 @@ export function renderNavigationMenu(
   }
   if (current.length > 0) rows.push(current);
 
-  const title = ' Navigate ';
+  const title = 'Navigate';
   return renderFramedBox({
     title,
     lines: rows.map((row) => {

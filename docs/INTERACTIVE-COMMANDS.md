@@ -87,16 +87,39 @@ tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
 Both inherit type-to-search. Escape declines; single-candidate lists
 auto-select.
 
-## The navigation menu
+## Panel per surface (the frame layout)
 
-Every prompt frame opens with a framed box at the TOP (`NavigationMenu.ts`,
-whose `renderFramedBox` is the shared renderer for every box in a frame):
+Every prompt frame is built from the same boxes (`NavigationMenu.ts`
+renders them all through one shared `renderFramedBox`):
 
 ```
-┌ Navigate ─────────────────────────────────────────────┐
-│ ↑↓ move · type filter · enter select · esc back out   │
-└───────────────────────────────────────────────────────┘
+┌ Navigate ────────────────────────────────────────────┐
+│ ↑↓ move · type filter · space select · esc back out  │
+└──────────────────────────────────────────────────────┘
+┌ ? Optional options for 'list' (space to select) ─────┐
+│ ○ -E, --env <key=value>                              │
+│ ◉ -k, --insecure                                     │
+│ ○ --retry <strategy>                                 │
+│                                                      │
+│ Retry failed operations. Valid values for strategy:  │
+│ everything / network / nothing                       │
+└──────────────────────────────────────────────────────┘
+frodo journey list alpha
 ```
+
+1. **The Navigate box** — PERMANENT at the top, in the same slot for
+   every prompt and every surface. It never disappears; when a
+   different surface becomes active (the inline value editor over one
+   of the list's members), the box SWAPS its key hints to that
+   surface's keys, so the layout never jumps and the keys never lie.
+2. **The question panel** — question line (with prefix and filter
+   echo) as the title, list rows + the highlighted entry's description
+   inside. EVERY list surface gets one: single-select pickers,
+   multi-selects, the connection page's rows — the panel is what makes
+   them all read as the same kind of object.
+3. **Transient editors** (the value box) — their own framed box
+   directly UNDER the panel they edit, so the input sits next to the
+   list it belongs to and the description stays beside its list.
 
 Only keys that apply to the current prompt appear (silence = that key
 does nothing here), and each renders in its role's theme color:
@@ -108,16 +131,13 @@ renders inside the menu.
 
 ## The inline value editor
 
-In the invocation editor, `<space>` on a valued option opens a FRAMED
-VALUE BOX in the same top slot (the Navigate menu's place — where the
-eye already looks; the first collector sat at the frame bottom where it
-was invisible). While it is open the box REPLACES the Navigate menu,
-because the menu would lie about the keys; its rows state the keys that
-actually apply:
+In the invocation editor, `<space>` on a valued option opens the
+framed VALUE BOX under the panel:
 
-- An option with commander `.choices()` gets a PICKER (`↑↓ move · enter
-pick · esc rejects`) — an enum value is picked, never typed. The
-  cursor starts on the option's current value when it has one.
+- An option with commander `.choices()` gets a PICKER (the Navigate
+  box's hints swap to `enter pick · esc rejects`) — an enum value is
+  picked, never typed. The cursor starts on the option's current value
+  when it has one.
 - Everything else gets free text (`enter commits · esc rejects`), the
   draft pre-filled with the current value.
 

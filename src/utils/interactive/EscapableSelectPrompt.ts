@@ -12,7 +12,12 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
-import { navigationMenuItems, renderNavigationMenu } from './NavigationMenu';
+import {
+  navigationMenuItems,
+  renderFramedBox,
+  renderNavigationMenu,
+  stripAnsi,
+} from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
 /**
@@ -258,10 +263,13 @@ const escapableSelectImpl = createPrompt(
 
     const queryEcho =
       config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
-    // The navigation menu replaces the old muted one-liner AND the
-    // "type to filter" hint (the menu's `type filter` item covers it): a
-    // framed box at the TOP of the frame, colored per key role, listing
-    // only the keys that apply here (see NavigationMenu.ts).
+    // PANEL PER SURFACE (user feedback 2026-10-12): every prompt frame
+    // is built from the same three boxes -- the Navigate menu (top,
+    // permanent), a framed panel for question + list + description, and
+    // any transient editor box UNDER the panel. The panel is what makes
+    // the pick selectors and the multi-select consistent: same
+    // silhouette, same measure discipline (ANSI excluded), description
+    // trailing INSIDE the panel right under its list.
     const menu = renderNavigationMenu(
       navigationMenuItems({
         filter: true,
@@ -270,6 +278,31 @@ const escapableSelectImpl = createPrompt(
         escape: 'back out',
       })
     );
+    const panelLines: { text: string; plain: string }[] = [];
+    if (filtered.length > 0) {
+      for (const row of page.split('\n')) {
+        panelLines.push({ text: row, plain: stripAnsi(row) });
+      }
+    } else {
+      panelLines.push({
+        text: c.muted('(no matches -- backspace to edit)'),
+        plain: '(no matches -- backspace to edit)',
+      });
+    }
+    if (selected?.description) {
+      panelLines.push({ text: '', plain: '' });
+      for (const row of selected.description.split('\n')) {
+        panelLines.push({ text: c.muted(row), plain: row });
+      }
+    }
+    const panel = renderFramedBox({
+      title: {
+        text: `${prefix} ${config.message}${queryEcho}`,
+        plain: `? ${config.message}${query.length > 0 ? ` query: ${query}` : ''}`,
+      },
+      lines: panelLines,
+    });
+
     // Live preview: a function form is re-invoked on EVERY render with
     // the currently highlighted choice's value (undefined when filtered
     // to no matches) -- arrowing through a list updates the footer
@@ -279,17 +312,7 @@ const escapableSelectImpl = createPrompt(
         ? config.preview(selected?.value)
         : config.preview;
 
-    const lines = [
-      menu,
-      `${prefix} ${config.message}${queryEcho}`,
-      filtered.length > 0
-        ? page
-        : c.muted(
-            '  (no matches -- backspace to edit, esc clears then backs out)'
-          ),
-      selected && selected.description ? c.muted(selected.description) : '',
-      previewLine,
-    ].filter(Boolean);
+    const lines = [menu, panel, previewLine].filter(Boolean);
     return lines.join('\n');
   }
 );

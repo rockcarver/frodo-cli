@@ -108,10 +108,12 @@ describe('phase 4: persistent per-command defaults', () => {
         // The saved default is visible in the footer AND as the
         // option's current value in the editor list. (--long sits
         // beyond the editor's 20-row page, so the filter is what brings
-        // its row into the frame.)
+        // its row into the frame. The description trails inside the
+        // panel after a blank separator row -- panel per surface -- so
+        // the pattern tolerates the panel wall + padding between them.)
         expect(editorPlain).toMatch(/frodo journey list alpha -l/);
         expect(editorPlain).toMatch(
-          /-l, --long\nLong with all fields\. \(current: true\)/
+          /-l, --long[^\n]*\n[^\n]*\n[^\n]*Long with all fields\. \(current: true\)/
         );
       } finally {
         removeShellTestHome(homeDir);

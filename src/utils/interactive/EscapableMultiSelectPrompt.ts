@@ -17,6 +17,7 @@ import {
   navigationMenuItems,
   renderFramedBox,
   renderNavigationMenu,
+  stripAnsi,
 } from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
@@ -329,79 +330,98 @@ const escapableMultiSelectImpl = createPrompt(
     });
 
     const queryEcho = query.length > 0 ? c.command(` query: ${query}`) : '';
-    // The inline value editor takes the TOP slot of the frame -- the
-    // same visual position as the Navigate menu, where the eye already
-    // looks first (user feedback: the value collector at the bottom was
-    // hard to see). While it is open the Navigate menu would lie about
-    // the keys (typing filters nothing; space does not toggle), so the
-    // Value box REPLACES it, and its rows state the keys that actually
-    // apply. An enum option renders its choices as a picker list; a free
-    // text option renders the draft with readline's echo muted.
+    // PANEL PER SURFACE (user feedback 2026-10-12): the Navigate box is
+    // PERMANENT at the top -- it swaps its key hints to the active
+    // surface (list vs value editor) instead of disappearing, so the
+    // frame layout never jumps and the keys never lie. The question +
+    // list + description form one framed panel; the inline value editor
+    // is its own framed box UNDER the panel (the old bottom collector
+    // was easy to miss; directly beneath the list it edits is where the
+    // eye finds it -- and the description stays beside its list).
     const editingName =
       editing !== null
         ? (choices.find((choice) => choice.value === editing)?.name ??
           String(editing))
         : '';
+    const menu = renderNavigationMenu(
+      navigationMenuItems(
+        editing !== null
+          ? {
+              // Value-editor surface: typing does not filter (a picker
+              // owns the values; a text draft IS the value).
+              enter: editingChoices.length > 0 ? 'pick' : 'commit value',
+              escape: 'rejects',
+            }
+          : {
+              filter: true,
+              space: 'select',
+              enter: 'commit',
+              left: true,
+              escape: 'back out',
+            }
+      )
+    );
+
+    // The question+list panel: list rows, then the highlighted option's
+    // description trailing INSIDE the panel (description at the bottom,
+    // option at the top = the two halves of the decision frames apart).
+    const panelLines: { text: string; plain: string }[] = [];
+    if (filtered.length > 0) {
+      for (const row of page.split('\n')) {
+        panelLines.push({ text: row, plain: stripAnsi(row) });
+      }
+    } else {
+      panelLines.push({
+        text: c.muted('(no matches -- backspace to edit)'),
+        plain: '(no matches -- backspace to edit)',
+      });
+    }
+    if (highlighted?.description) {
+      panelLines.push({ text: '', plain: '' });
+      for (const row of highlighted.description.split('\n')) {
+        panelLines.push({ text: c.muted(row), plain: row });
+      }
+    }
+    const panel = renderFramedBox({
+      title: {
+        text: `${prefix} ${config.message}${queryEcho}`,
+        plain: `? ${config.message}${query.length > 0 ? ` query: ${query}` : ''}`,
+      },
+      lines: panelLines,
+    });
+
+    // The inline value editor: its own framed box directly under the
+    // panel. An enum option renders its choices as a picker list; a
+    // free text option renders the draft with readline's echo muted.
     const valueBox =
       editing === null
         ? ''
         : editingChoices.length > 0
           ? renderFramedBox({
-              title: ` Value for ${editingName} `,
-              lines: [
-                ...editingChoices.map((choice, index) => {
-                  const marker = index === pickerActive ? '›' : ' ';
-                  const line = `${marker} ${choice}`;
-                  return {
-                    text: index === pickerActive ? c.command(line) : line,
-                    plain: line,
-                  };
-                }),
-                {
-                  text: c.muted('↑↓ move · enter pick · esc rejects'),
-                  plain: '↑↓ move · enter pick · esc rejects',
-                },
-              ],
+              title: `Value for ${editingName}`,
+              lines: editingChoices.map((choice, index) => {
+                const marker = index === pickerActive ? '›' : ' ';
+                const line = `${marker} ${choice}`;
+                return {
+                  text: index === pickerActive ? c.command(line) : line,
+                  plain: line,
+                };
+              }),
             })
           : renderFramedBox({
-              title: ` Value for ${editingName} `,
+              title: `Value for ${editingName}`,
               lines: [
                 {
                   text: c.command(draft || '(type a value)'),
                   plain: draft || '(type a value)',
                 },
-                {
-                  text: c.muted('enter commits · esc rejects'),
-                  plain: 'enter commits · esc rejects',
-                },
               ],
             });
 
-    // The navigation menu (see NavigationMenu.ts): framed box at the
-    // TOP of the frame; the multi-select's space/enter roles and the
-    // editor's <- back alias are its extra affordances. The inline
-    // value editor replaces it while open (see valueBox).
-    const menu = renderNavigationMenu(
-      navigationMenuItems({
-        filter: true,
-        space: 'select',
-        enter: 'commit',
-        left: true,
-        escape: 'back out',
-      })
-    );
-
     const lines = [
-      editing !== null ? valueBox : menu,
-      `${prefix} ${config.message}${queryEcho}`,
-      filtered.length > 0
-        ? page
-        : c.muted(
-            '  (no matches -- backspace to edit, esc clears then backs out)'
-          ),
-      highlighted && highlighted.description
-        ? c.muted(highlighted.description)
-        : '',
+      menu,
+      panel,
+      ...(editing !== null ? [valueBox] : []),
       typeof config.preview === 'function'
         ? config.preview(
             choices

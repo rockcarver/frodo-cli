@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import {
   navigationMenuItems,
+  renderFramedBox,
   renderNavigationMenu,
+  stripAnsi,
 } from '../../src/utils/interactive/NavigationMenu';
 
 /**
@@ -95,6 +97,53 @@ describe('renderNavigationMenu (box layout)', () => {
 
   it('empty items render as an empty string', () => {
     expect(renderNavigationMenu([], 120)).toBe('');
+  });
+});
+
+describe('renderFramedBox (the shared panel renderer)', () => {
+  it('pads the title on both sides and aligns walls', () => {
+    const box = renderFramedBox({
+      title: { text: '? question', plain: '? question' },
+      lines: [{ text: 'row', plain: 'row' }],
+      width: 40,
+    });
+    const plain = box.split('\n').map(stripAnsi);
+    const widths = plain.map((line) => [...line].length);
+    expect(widths[0]).toBe(widths[1]);
+    expect(widths[1]).toBe(widths[2]);
+    // One space between wall and title content on BOTH sides -- the
+    // Navigate menu's convention, uniform across every box.
+    expect(plain[0]).toMatch(/^┌ \? question ─+┐$/);
+    expect(plain[1]).toMatch(/^│ row\s+│$/);
+  });
+
+  it('measures a colored title on its PLAIN text (walls stay aligned)', () => {
+    const colored = '\x1b[36m? colored\x1b[39m';
+    const box = renderFramedBox({
+      title: { text: colored, plain: '? colored' },
+      lines: [],
+      width: 30,
+    });
+    const plain = box.split('\n').map(stripAnsi);
+    const widths = plain.map((line) => [...line].length);
+    expect(widths[0]).toBe(widths[2]);
+    expect(plain[0]).toMatch(/^┌ \? colored ─+┐$/);
+  });
+
+  it('accepts a plain-string title', () => {
+    const box = renderFramedBox({
+      title: 'Value for --retry',
+      lines: [{ text: '› nothing', plain: '› nothing' }],
+      width: 40,
+    });
+    expect(stripAnsi(box.split('\n')[0])).toMatch(
+      /^┌ Value for --retry ─+┐$/
+    );
+  });
+
+  it('stripAnsi removes SGR sequences only', () => {
+    expect(stripAnsi('\x1b[36mtext\x1b[39m more')).toBe('text more');
+    expect(stripAnsi('plain')).toBe('plain');
   });
 });
 

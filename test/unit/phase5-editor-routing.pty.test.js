@@ -126,7 +126,15 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'key', name: 'enter' },
             { type: 'send', text: 'probesecret' },
             { type: 'key', name: 'enter' },
-            { type: 'sleep', ms: 400 },
+            // GATE on the committed mask, then settle -- a blind sleep
+            // raced the render and captured the password row mid-editing
+            // ('password: •', one bullet of a still-open editor).
+            {
+              type: 'wait_plain',
+              regex: 'password: ••••••••',
+              timeoutMs: 8000,
+            },
+            { type: 'sleep', ms: 300 },
             { type: 'capture', label: 'filled' },
             { type: 'key', name: 'down' },
             { type: 'key', name: 'enter' },
@@ -723,9 +731,16 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         expect(pickerFrame).toMatch(/› nothing/);
         expect(pickerFrame).toMatch(/  everything/);
         expect(pickerFrame).toMatch(/  network/);
-        expect(pickerFrame).toMatch(/↑↓ move · enter pick · esc rejects/);
-        // Picker replaces the Navigate menu while open.
-        expect(pickerFrame).not.toMatch(/┌ Navigate ─/);
+        // PANEL PER SURFACE: the Navigate box stays on top while the
+        // picker is open -- it swaps its hints to the picker's keys
+        // (slice the Navigate box out of the same capture and assert it
+        // shows the picker hints, not the list hints).
+        const navWhilePicker = pickerOpen.slice(
+          pickerOpen.lastIndexOf('┌ Navigate ─'),
+          pickerOpen.lastIndexOf('┌ Value for --retry')
+        );
+        expect(navWhilePicker).toMatch(/enter pick · esc rejects/);
+        expect(navWhilePicker).not.toMatch(/space select/);
 
         const pickerMoved = result.captures.pickerMoved.plain;
         const movedFrame = pickerMoved.slice(
@@ -746,8 +761,8 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         expect(afterPickFrame).toMatch(
           /frodo esv secret delete -k --retry everything/
         );
-        // Navigate menu back once the editor closed.
-        expect(afterPickFrame).toMatch(/┌ Navigate ─/);
+        // Navigate menu back to the LIST hints once the editor closed.
+        expect(afterPickFrame).toMatch(/space select · enter commit/);
       } finally {
         removeShellTestHome(homeDir);
       }
