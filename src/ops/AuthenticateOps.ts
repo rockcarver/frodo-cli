@@ -220,9 +220,47 @@ export async function getTokens(
         await import('../utils/interactive/RealmPickers');
       await resolveRealmPick(getActiveActionCommand());
     }
+    // The deferred authoring print (Phase 5, prompt-erase slice): flushed
+    // HERE so the eventual command lands directly above the action's
+    // results (the print is a header for the output, not a footer after
+    // it) -- every auth command's action prints its results only after
+    // getTokens returns true, and the realm pick (which can still change
+    // the command) has concluded by now. SKIPPED when the command has
+    // entity picks still PENDING (registered and their option unset --
+    // they run later in the action body and may still change the
+    // command): resolveEntityPicks flushes after its picks conclude
+    // instead. Picks already applied before auth (the pick-first pattern)
+    // do NOT block this flush -- their option is set, nothing pending.
+    // Arming-only sessions (no prompts, not explicitly interactive) flush
+    // as a no-op via the closure's gate.
+    {
+      const { noteAuthSucceeded, flushAuthoringPrint } =
+        await import('../utils/interactive/AuthoringPrintState');
+      noteAuthSucceeded();
+      const activeCommand = getActiveActionCommand();
+      const hasPendingPicks = await (async () => {
+        if (!activeCommand) return false;
+        const { getEntityPicks } =
+          await import('../utils/interactive/EntityPickers');
+        return getEntityPicks(activeCommand).some(
+          (pick) => !activeCommand.getOptionValue(pick.name)
+        );
+      })();
+      if (!hasPendingPicks) {
+        flushAuthoringPrint();
+      }
+    }
     return true;
   } catch (error) {
     printError(error);
+    // Auth failed: the command never ran -- revoke the deferred print so
+    // the postAction fallback (whose only remaining purpose is non-auth
+    // commands) leaves nothing behind for a failed auth attempt.
+    {
+      const { revokeAuthoringPrint } =
+        await import('../utils/interactive/AuthoringPrintState');
+      revokeAuthoringPrint();
+    }
   }
   return false;
 }

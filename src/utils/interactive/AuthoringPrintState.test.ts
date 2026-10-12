@@ -2,7 +2,9 @@ import { afterEach, describe, expect, it } from '@jest/globals';
 import {
   armAuthoringPrint,
   authoringPrintPendingState,
+  authSucceededForFlush,
   flushAuthoringPrint,
+  noteAuthSucceeded,
   resetAuthoringPrintForTests,
   setAuthoringPrintFlush,
 } from './AuthoringPrintState';
@@ -59,5 +61,17 @@ describe('AuthoringPrintState', () => {
     current = 'fresh after realm pick';
     flushAuthoringPrint();
     expect(rendered).toBe('fresh after realm pick');
+  });
+
+  it('authSucceeded starts false (pick-first flows must not print pre-auth)', () => {
+    expect(authSucceededForFlush()).toBe(false);
+    noteAuthSucceeded();
+    expect(authSucceededForFlush()).toBe(true);
+  });
+
+  it('reset clears the auth flag', () => {
+    noteAuthSucceeded();
+    resetAuthoringPrintForTests();
+    expect(authSucceededForFlush()).toBe(false);
   });
 });

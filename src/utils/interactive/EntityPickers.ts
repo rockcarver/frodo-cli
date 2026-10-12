@@ -172,8 +172,35 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
         await import('../../cli/ResolveInteractiveInputs');
       await runInvocationEditorForCommand(command);
     }
-    if (chosen === ESCAPE) return false;
+    if (chosen === ESCAPE) {
+      // User declined to run: revoke the deferred authoring print so the
+      // postAction fallback (non-auth commands' flush site) leaves
+      // nothing behind for an abandoned flow -- same contract as the
+      // one-of error path skipping postAction entirely.
+      const { revokeAuthoringPrint } = await import('./AuthoringPrintState');
+      revokeAuthoringPrint();
+      return false;
+    }
     apply(command, pick, chosen);
+  }
+  // The deferred authoring print (Phase 5, prompt-erase slice): this
+  // function is the flush site for commands whose entity picks are the
+  // last command-mutating interactive step. Two shapes exist: pick-first
+  // (`(pick) && (await getTokens())` -- picks run BEFORE auth) and
+  // pick-after-auth (esv variable set, secret store mapping delete --
+  // picks run AFTER auth). In both, flushing HERE puts the eventual
+  // command directly above the action's results. Gated on auth already
+  // having succeeded: a pick-first flow whose auth then fails must not
+  // print (the command never ran). When auth has NOT succeeded yet, the
+  // getTokens wrapper flushes instead (no picks pending -> it doesn't
+  // skip). Non-interactive sessions (canPrompt false, early return)
+  // never reach this.
+  {
+    const { authSucceededForFlush, flushAuthoringPrint } =
+      await import('./AuthoringPrintState');
+    if (authSucceededForFlush()) {
+      flushAuthoringPrint();
+    }
   }
   return true;
 }
