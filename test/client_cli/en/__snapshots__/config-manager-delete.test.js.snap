@@ -44,6 +44,30 @@ Commands:
 
 Utilities:
   help                       display help for command
+  -h, --help          Help
+  -hh, --help-more    Help with all options.
+  -hhh, --help-all    Help with all options, environment variables, and usage
+                      examples.
+
+Runtime Options:
+  --no-prompt         Never prompt interactively (same as setting
+                      FRODO_NO_PROMPT).
+
+Commands:
+  applications        [Experimental] Delete applications together with the
+                      objects they own.
+  connector-mappings  [Experimental] Delete connector mappings.
+  custom-nodes        [Experimental] Delete custom nodes.
+  email-templates     [Experimental] Delete email template objects.
+  endpoints           [Experimental] Delete custom endpoint objects.
+  scripts             [Experimental] Delete AM scripts. Default scripts are
+                      never deleted.
+  test                [Experimental] Test connection and authentication.
+  themes              [Experimental] Delete themes by name or delete all themes
+                      in the selected realms.
+
+Utilities:
+  help                display help for command
 
 
 Run without a sub-command to enter interactive mode."

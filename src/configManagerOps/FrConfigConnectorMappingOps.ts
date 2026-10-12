@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type SyncSkeleton } from '@rockcarver/frodo-lib';
 import {
   objectNameInFile,
   ownedObjectMessage,
@@ -14,7 +14,7 @@ import {
   referencedFilePath,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
-import { isNotFoundError } from '../utils/ErrorCause';
+import { causeOf, isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 
@@ -268,4 +268,62 @@ export function readMappingFromDirectory(
   return getConnectorMappingImportData(
     getFilePath(objectFilePath(mappingPath, name))
   );
+}
+
+/**
+ * Delete mapping(s)
+ * @param {string} name optional mapping name to delete
+ * @param {boolean} dryRun preview deletions without deleting connector mappings
+ * @param {boolean} allowFailures continue after individual mapping failures
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function configManagerDeleteMappings(
+  name?: string,
+  dryRun: boolean = false,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'mapping', allowFailures });
+
+  try {
+    const sync = (await readConfigEntity('sync')) as SyncSkeleton;
+    const mappings = sync.mappings.filter((m) => !name || name === m.name);
+
+    if (!mappings.length) {
+      printMessage(
+        name
+          ? `Warning: mapping ${name} not found`
+          : 'No mappings found to delete',
+        'warn'
+      );
+      return true;
+    }
+
+    for (const mapping of mappings) {
+      try {
+        sync.mappings = sync.mappings.filter((m) => m.name !== mapping.name);
+
+        if (!dryRun) {
+          await importConfigEntities({
+            idm: { sync },
+          });
+        }
+
+        printMessage(
+          `${dryRun ? 'Dry run: ' : ''}Deleting mapping: ${mapping.name}`
+        );
+
+        run.recordSuccess();
+      } catch (error) {
+        printError(error, `Error deleting mapping ${mapping.name}`);
+        run.recordFailure(mapping.name, causeOf(error));
+      }
+    }
+
+    return run.finish();
+  } catch (error) {
+    printError(error, 'Error deleting mappings');
+    run.finish();
+  }
+
+  return false;
 }

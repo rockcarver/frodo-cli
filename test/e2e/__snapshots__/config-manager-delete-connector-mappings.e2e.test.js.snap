@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete connector mappings "frodo config-manager delete connector-mappings -d": should show the connector mappings that are able to be deleted in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager delete connector mappings "frodo config-manager delete connector-mappings -d": should show the connector mappings that are able to be deleted in fr-config manager style. 2`] = `
+"Experimental feature in use: 'frodo config-manager delete connector-mappings'. This feature may change without notice.
+Dry run: Deleting mapping: AlphaUser2GoogleApps
+Dry run: Deleting mapping: managedAlpha_application_managedBravo_application
+Dry run: Deleting mapping: managedAlpha_assignment_managedBravo_assignment
+Dry run: Deleting mapping: managedAlpha_user_managedBravo_user
+Dry run: Deleting mapping: managedAlpha_user_systemAzureUser
+Dry run: Deleting mapping: managedBravo_group_managedBravo_group
+Dry run: Deleting mapping: managedBravo_user_managedAlpha_user
+Dry run: Deleting mapping: managedBravo_user_managedBravo_user
+Dry run: Deleting mapping: managedBravo_user_managedBravo_user0
+Dry run: Deleting mapping: mapping12
+Dry run: Deleting mapping: systemAzureDirectoryrole_managedAlpha_assignment
+Dry run: Deleting mapping: systemAzureServiceplan_managedAlpha_assignment
+Dry run: Deleting mapping: systemAzureUser_managedAlpha_user
+Dry run: Deleting mapping: systemAzure__group___managedAlpha_assignment
+Dry run: Deleting mapping: test_mapping
+"
+`;
+
+exports[`frodo config-manager delete connector mappings "frodo config-manager delete connector-mappings -n test_mapping": should delete the named connector mapping in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager delete connector mappings "frodo config-manager delete connector-mappings -n test_mapping": should delete the named connector mapping in fr-config manager style. 2`] = `
+"Experimental feature in use: 'frodo config-manager delete connector-mappings'. This feature may change without notice.
+Deleting mapping: test_mapping
+"
+`;
+
+exports[`frodo config-manager delete connector mappings "frodo config-manager delete connector-mappings -y": should delete all connector mappings in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager delete connector mappings "frodo config-manager delete connector-mappings -y": should delete all connector mappings in fr-config manager style. 2`] = `
+"Experimental feature in use: 'frodo config-manager delete connector-mappings'. This feature may change without notice.
+Deleting mapping: AlphaUser2GoogleApps
+Deleting mapping: managedAlpha_application_managedBravo_application
+Deleting mapping: managedAlpha_assignment_managedBravo_assignment
+Deleting mapping: managedAlpha_user_managedBravo_user
+Deleting mapping: managedAlpha_user_systemAzureUser
+Deleting mapping: managedBravo_group_managedBravo_group
+Deleting mapping: managedBravo_user_managedAlpha_user
+Deleting mapping: managedBravo_user_managedBravo_user
+Deleting mapping: managedBravo_user_managedBravo_user0
+Deleting mapping: mapping12
+Deleting mapping: systemAzureDirectoryrole_managedAlpha_assignment
+Deleting mapping: systemAzureServiceplan_managedAlpha_assignment
+Deleting mapping: systemAzureUser_managedAlpha_user
+Deleting mapping: systemAzure__group___managedAlpha_assignment
+Deleting mapping: test_mapping
+"
+`;
