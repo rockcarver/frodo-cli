@@ -225,3 +225,92 @@ export function renderCommandPreview(
   }
   return c.italic(c.negative(serialized));
 }
+
+/**
+ * The default highlighted-value→option-value mapping: pass-through for
+ * strings (value pickers), otherwise undefined (entity objects, the
+ * "enter manually" sentinel -- the callback renders the committed state).
+ */
+function defaultToValue(highlighted: unknown): string | undefined {
+  return typeof highlighted === 'string' ? highlighted : undefined;
+}
+
+/**
+ * LIVE preview footer (Phase 5 refinement: the footer shows what the
+ * user is INFLUENCING, not what they last committed). Returns a callback
+ * for a prompt's `preview` config that re-renders on every highlight
+ * change: the highlighted value is serialized into a SHADOW copy of the
+ * command's positional (the real command object is untouched -- only
+ * <enter> commits), so arrowing through e.g. a realm list moves the
+ * footer's realm token in real time. When nothing is highlighted
+ * (filtered to no matches) the callback falls back to the command's
+ * committed state.
+ *
+ * Options picks pass `undefined` as the positional name and use the
+ * option-name variant below instead; this helper is for positionals
+ * (realm, host...).
+ */
+export function livePositionalPreview(
+  command: Command,
+  positionalName: string,
+  readiness: CommandReadiness
+): (highlighted: unknown) => string {
+  const index = command.registeredArguments.findIndex(
+    (argument) => argument.name() === positionalName
+  );
+  return (highlighted) => {
+    const value = defaultToValue(highlighted);
+    if (index !== -1 && command.processedArgs && value) {
+      // Shadow the positional for THIS render only. The committed value
+      // is restored implicitly: the next render re-invokes with the new
+      // highlight, and the command object itself is never written.
+      const committed = command.processedArgs[index];
+      command.processedArgs[index] = value;
+      try {
+        return renderCommandPreview(command, readiness);
+      } finally {
+        command.processedArgs[index] = committed;
+      }
+    }
+    return renderCommandPreview(command, readiness);
+  };
+}
+
+/**
+ * LIVE preview for an entity/option/value picker: the highlighted
+ * choice's value (after `toValue`) is serialized into a SHADOW copy of
+ * the named OPTION (source 'cli', the same source the real apply uses)
+ * for this render only. Restoring writes the previous value+source back
+ * verbatim: for a never-set option that is (undefined, undefined), which
+ * is exactly commander's pristine state (getOptionValue -> undefined,
+ * serializer skips it). `toValue` maps the highlighted choice to the
+ * option's value form -- identity for value pickers, the entity's label
+ * for entity pickers (whose choice values are the raw entities, exactly
+ * what the real apply writes); a mapping to undefined/empty renders the
+ * committed state.
+ */
+export function liveOptionPreview(
+  command: Command,
+  optionName: string,
+  readiness: CommandReadiness,
+  toValue: (highlighted: unknown) => string | undefined = defaultToValue
+): (highlighted: unknown) => string {
+  return (highlighted) => {
+    const value = toValue(highlighted);
+    if (value && value.length > 0) {
+      const committed = command.getOptionValue(optionName);
+      const committedSource = command.getOptionValueSource(optionName);
+      command.setOptionValueWithSource(optionName, value, 'cli');
+      try {
+        return renderCommandPreview(command, readiness);
+      } finally {
+        command.setOptionValueWithSource(
+          optionName,
+          committed as never,
+          committedSource as never
+        );
+      }
+    }
+    return renderCommandPreview(command, readiness);
+  };
+}

@@ -264,11 +264,27 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
             { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
             { type: 'sleep', ms: 400 },
             { type: 'key', name: 'down' },
+            { type: 'sleep', ms: 400 },
+            // Mid-prompt capture: the footer must already show the
+            // HIGHLIGHTED realm (live preview), before <enter> commits.
+            { type: 'capture', label: 'midPrompt' },
             { type: 'key', name: 'enter' },
             { type: 'sleep', ms: 2500 },
             { type: 'capture', label: 'final' },
           ],
         });
+
+        // LIVE footer: with bravo highlighted (cursor moved down), the
+        // footer's realm token reads bravo BEFORE enter.
+        const midScreen = replayScreen(result.captures.midPrompt.raw);
+        expect(
+          midScreen.filter((line) => /^frodo realm list bravo$/.test(line))
+            .length
+        ).toBe(1);
+        expect(
+          midScreen.filter((line) => /^frodo realm list alpha$/.test(line))
+            .length
+        ).toBe(0);
 
         const screen = replayScreen(result.captures.final.raw);
         const printLines = screen.filter((line) =>
@@ -289,6 +305,17 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
         expect(joined).not.toMatch(/options to configure/);
         expect(joined).not.toMatch(/type to filter/);
         expect(joined).not.toMatch(/esc backs out/);
+
+        // The final print is PLAIN shell text (user decision
+        // 2026-10-11): no SGR color sequence wraps it. The erased
+        // footer frames also carry the string but colored, and they
+        // persist in the RAW stream -- so check the LAST occurrence
+        // (the print, the final write of the session) only.
+        const raw = result.captures.final.raw;
+        const lastIdx = raw.lastIndexOf('frodo realm list bravo');
+        expect(lastIdx).toBeGreaterThan(-1);
+        const before = raw.slice(Math.max(0, lastIdx - 12), lastIdx);
+        expect(/\x1b\[[0-9;]*m$/.test(before)).toBe(false);
       } finally {
         removeShellTestHome(homeDir);
       }
