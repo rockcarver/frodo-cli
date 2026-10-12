@@ -1,3 +1,4 @@
+import { connection } from '../e2e/utils/TestConfig.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -239,50 +240,55 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
   );
 
   test(
-    'completed flow: prompts erase; the eventual command prints once and last',
+    'completed flow: prompts erase; the eventual command prints once, above the results',
     async () => {
       const homeDir = createShellTestHome();
       try {
-        // Pick `-a` from the one-of picker (2nd row: boolean flag,
-        // no value step, no entity pick) -- the same shape the
-        // slice-4 preview test uses. The command then runs (the
-        // mock cassette fails on auth, which still reaches
-        // postAction), and the deferred print lands LAST.
+        // `frodo realm list`: env-resolved connection (no profile
+        // picker), auth SUCCEEDS on the mock cassette (service-account
+        // credentials -- TestConfig's connection is what the cassettes
+        // recorded), then the post-auth realm picker offers alpha/bravo.
+        // Pick bravo (2nd row): the frames erase, the print fires in the
+        // getTokens wrapper -- directly above the listing -- with the
+        // picked realm in it (the realm write-back).
         const result = runShellScenario({
           homeDir,
           allowPrompting: true,
-          args: ['esv', 'secret', 'delete'],
-          env: ENV,
+          args: ['realm', 'list'],
+          env: {
+            ...ENV,
+            FRODO_SA_ID: connection.saId,
+            FRODO_SA_JWK: connection.saJwk,
+          },
           actions: [
-            {
-              type: 'wait_plain',
-              regex: 'Choose which secrets',
-              timeoutMs: 30000,
-            },
+            { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
             { type: 'sleep', ms: 400 },
             { type: 'key', name: 'down' },
             { type: 'key', name: 'enter' },
-            { type: 'sleep', ms: 1500 },
+            { type: 'sleep', ms: 2500 },
             { type: 'capture', label: 'final' },
           ],
         });
 
         const screen = replayScreen(result.captures.final.raw);
         const printLines = screen.filter((line) =>
-          /^frodo esv secret delete -a$/.test(line)
+          /^frodo realm list bravo$/.test(line)
         );
-        // Exactly one authoring print, with the picked token in it.
+        // Exactly one authoring print, with the PICKED realm in it.
         expect(printLines.length).toBe(1);
-        // It is the LAST line of the run.
-        expect(screen[screen.length - 1]).toBe(printLines[0]);
+        // It is NOT the last line: the realm listing follows it -- the
+        // print is a header for the results, not a footer after them.
+        expect(screen[screen.length - 1]).not.toBe(printLines[0]);
+        expect(screen.indexOf(printLines[0])).toBeLessThan(
+          screen.indexOf('/alpha')
+        );
         // No prompt residue: neither the open frame (question, list,
         // hint, footer) nor a committed/cancelled answer survived.
         const joined = screen.join('\n');
-        expect(joined).not.toMatch(/Choose which secrets/);
+        expect(joined).not.toMatch(/Choose a realm/);
         expect(joined).not.toMatch(/options to configure/);
         expect(joined).not.toMatch(/type to filter/);
         expect(joined).not.toMatch(/esc backs out/);
-        expect(joined).not.toMatch(/-a, --all/);
       } finally {
         removeShellTestHome(homeDir);
       }

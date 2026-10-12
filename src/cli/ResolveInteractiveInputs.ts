@@ -294,18 +294,28 @@ export async function resolveInteractiveInputs(
     await runInvocationEditor(command);
   }
 
-  // Phase 5 authoring-tool moment, DEFERRED to the action's completion:
-  // after an interactive-assisted resolution, the command as it ran prints
-  // exactly once -- at the postAction hook (FrodoCommand), the only point
-  // where NOTHING can change the command anymore: the resolution pass,
-  // the post-auth realm pick (inside getTokens), the action body's entity
-  // picks, and the action's own output have all concluded. Printing there
-  // makes the print the LAST line of the run -- adjacent to the next shell
-  // prompt, maximally copyable, and never stale (a realm pick or editor
-  // change between here and the action is reflected: the closure re-reads
-  // the command object at flush time). Flows that never reach the action
-  // (cancelled pickers, unsatisfied one-of groups, failed auth errors that
-  // throw) skip postAction entirely -- an abandoned authoring session
+  // Phase 5 authoring-tool moment, DEFERRED to just before the command's
+  // own output: after an interactive-assisted resolution, the command as
+  // it will run prints exactly once, directly ABOVE the action's results
+  // (user: the print is a header for the results, not a footer after
+  // them). Flush sites, chosen so every flow's print lands at its last
+  // command-mutating moment:
+  //
+  // - getTokens wrapper (AuthenticateOps): after the post-auth realm pick
+  //   concludes -- every auth command's action output starts after its
+  //   getTokens returns, so the print sits directly above the results.
+  //   SKIPPED when the command has entity picks pending (the picks may
+  //   still change the command; resolveEntityPicks flushes instead).
+  // - resolveEntityPicks (EntityPickers): after the last entity pick
+  //   concludes -- the pick-after-auth commands (esv variable set, secret
+  //   store mapping delete) print here, with the picked values in.
+  // - postAction hook (FrodoCommand): the fallback for commands whose
+  //   interactive flow ends elsewhere (settings/conn/stub commands -- no
+  //   auth, no picks); a no-op for anything the first two sites already
+  //   flushed.
+  //
+  // Flows that never reach a flush site (cancelled pickers, unsatisfied
+  // one-of groups, failed auth) print nothing -- an abandoned session
   // leaves nothing behind.
   //
   // Armed UNCONDITIONALLY (registration is free); the PRINT GATE lives in
