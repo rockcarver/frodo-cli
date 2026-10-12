@@ -8,7 +8,6 @@ import {
 import { AddHelpTextContext, Argument, Command, Help, Option } from 'commander';
 import propertiesReader from 'properties-reader';
 import {
-  CredentialOverrideType,
   setCredentialOverride,
   setForceLoginAsUser,
   setOpenBrowser,
@@ -26,6 +25,9 @@ import {
   verboseMessage,
 } from '../utils/Console.js';
 import { flushAuthoringPrint } from '../utils/interactive/AuthoringPrintState.js';
+// Type-only: the credential vocabulary lives in the interactive layer
+// (see docs/INTERACTIVE-COMMANDS.md, layering).
+import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
 import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import {
   escapableSelect,

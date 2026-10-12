@@ -5,6 +5,10 @@ import {
   type ScriptSkeleton,
 } from '@rockcarver/frodo-lib';
 import { printMessage } from '../utils/Console';
+// In-flow transaction gate ("Apply these changes?"): the confirm is part
+// of the operation itself, not resolver prompting -- ops modules may
+// gate their own destructive steps (docs/INTERACTIVE-COMMANDS.md,
+// layering).
 import { escapableSelect } from '../utils/interactive/EscapableSelectPrompt';
 import OAUTH2_CLIENT_TEMPLATE from './templates/OAuth2ClientTemplate.json';
 import { cloneDeep } from './utils/OpsUtils';

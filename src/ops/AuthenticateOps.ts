@@ -14,8 +14,16 @@ import { printError, printMessage, verboseMessage } from '../utils/Console';
 // file's graph reaches the frodo-lib-importing interactive prompts, which
 // breaks tests that mock frodo-lib wholesale (see ActiveActionCommandState).
 import { getActiveActionCommand } from '../utils/interactive/ActiveActionCommandState';
+// The credential vocabulary lives in the interactive layer
+// (ConnectionProfilePickers -- both the profile preference picker and
+// this per-invocation override speak the same words); imported for use
+// below AND re-exported so ops/ and cli/ consumers keep their
+// established import path.
+import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
 import { canPrompt } from '../utils/interactive/PromptGateState';
 import { question } from '../utils/Prompt';
+
+export type { CredentialOverrideType };
 
 const { getTokens: _getTokens, getTokensInteractive: _getTokensInteractive } =
   frodo.login;
@@ -79,18 +87,15 @@ export function getForceLoginAsUserOverride(): boolean {
   return forceLoginAsUserOverride ?? !!process.env.FRODO_FORCE_LOGIN_AS_USER;
 }
 
-export type CredentialOverrideType = 'user' | 'svcacct' | 'amster' | 'browser';
-
 /**
  * Which configured credential type this one invocation should use,
  * overriding ambient browser-session cache reuse and any saved
  * defaultCredential/forceLoginAsUser preference — set by
- * `--credential`/`FRODO_CREDENTIAL` (see `FrodoCommand.ts`). The
- * generalized successor to `forceLoginAsUserOverride` above (which only
- * ever forces 'user'): same reasoning for living here rather than on
- * frodo-lib's `state` — a one-shot, per-invocation choice, not session
- * identity. Threads straight through to frodo-lib's own
- * `getTokens({credentialOverride})` parameter.
+ * `--credential`/`FRODO_CREDENTIAL` (see `FrodoCommand.ts`). The union
+ * itself lives in the interactive layer (ConnectionProfilePickers --
+ * both the profile preference picker and this per-invocation override
+ * speak the same credential vocabulary), re-exported here so ops/ and
+ * cli/ consumers keep their established import path.
  */
 let credentialOverride: CredentialOverrideType | undefined;
 
