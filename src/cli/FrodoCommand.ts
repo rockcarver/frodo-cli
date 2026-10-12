@@ -2407,6 +2407,44 @@ export const STEP_BACK_FROM_ACTION = STEP_BACK;
  */
 const RUN_ROW_VALUE = Symbol('interactive:runOwnAction');
 
+/**
+ * The stub prompting pair (user decision 2026-10-12 -- stubs list ONLY
+ * these, never the live commands' full option set), registered LAZILY
+ * on ACTION-BEARING stubs only (conn, settings; plus the root's own
+ * picker machinery): --prompt shows the sub-command picker instead of
+ * the action (browse mode); --no-prompt makes the bare action
+ * gate-respecting (declines). Pure containers never carry the pair --
+ * registering it there would let an ANCESTOR consume a flag a
+ * descendant leaf also declares (commander's parse assigns the value to
+ * the first command in the chain that declares it, verified live: with
+ * --prompt on both, `frodo esv secret list --prompt` landed on the ESV
+ * stub and left the leaf's getOptionValue('prompt') undefined, so the
+ * resolver skipped the editor). FrodoCommand leaves get the pair from
+ * defaultOpts with live semantics; the defaultOpts loop's replace
+ * branch exists for the same reason and now never fires (stubs no
+ * longer pre-register), but is kept as a safety net.
+ */
+function stubPromptPair(): Option[] {
+  return [
+    withHelpGroup(
+      new Option(
+        '--prompt',
+        'Show the interactive sub-command picker instead of running this command.'
+      ),
+      RUNTIME_OPTIONS_HEADING,
+      OptionCategory.Runtime
+    ),
+    withHelpGroup(
+      new Option(
+        '--no-prompt',
+        'Never prompt or pick; behave as before the interactive framework (same as setting FRODO_NO_PROMPT).'
+      ),
+      RUNTIME_OPTIONS_HEADING,
+      OptionCategory.Runtime
+    ),
+  ];
+}
+
 export class FrodoStubCommand extends Command {
   /**
    * Command stability metadata. Defaults to stable.
@@ -2468,39 +2506,16 @@ export class FrodoStubCommand extends Command {
       sortOptions: true,
     });
     // The stub prompting pair (user decision 2026-10-12 -- stubs list
-    // ONLY these, never the live commands' full option set):
-    // - --no-prompt on a PURE stub (no own action): the bare invocation
-    //   shows the sub-command picker; --no-prompt restores the legacy
-    //   behavior (help-exit) instead.
-    // - BOTH on an ACTION-bearing stub (conn, settings): --prompt shows
-    //   the sub-command picker instead of the action (browse mode);
-    //   --no-prompt makes the bare action gate-respecting (declines).
-    // Existence-checked because FrodoCommand (live commands) re-registers
-    // both via defaultOpts -- same flags, same names, live semantics.
-    if (!this.options.some((option) => option.name() === 'prompt')) {
-      this.addOption(
-        withHelpGroup(
-          new Option(
-            '--prompt',
-            'Show the interactive sub-command picker instead of running this command.'
-          ),
-          RUNTIME_OPTIONS_HEADING,
-          OptionCategory.Runtime
-        )
-      );
-    }
-    if (!this.options.some((option) => option.name() === 'no-prompt')) {
-      this.addOption(
-        withHelpGroup(
-          new Option(
-            '--no-prompt',
-            'Never prompt or pick; behave as before the interactive framework (same as setting FRODO_NO_PROMPT).'
-          ),
-          RUNTIME_OPTIONS_HEADING,
-          OptionCategory.Runtime
-        )
-      );
-    }
+    // ONLY these, never the live commands' full option set), registered
+    // LAZILY by the help/pick machinery (see registerPromptingPair)
+    // rather than here: registering in the CONSTRUCTOR would put the
+    // pair on EVERY stub, and commander's parse lets an ANCESTOR
+    // consume a flag the leaf also declares (verified live: with --prompt
+    // on both, `frodo esv secret list --prompt` assigned the value to
+    // the ESV stub and left the leaf's getOptionValue('prompt')
+    // undefined -- the resolver then saw prompt!==true and skipped the
+    // editor). Pure containers must NOT carry the pair at all; only
+    // action-bearing stubs (conn, settings) and the root do.
     this.options
       .find((option) => option.name() === 'help')
       ?.helpGroup(HELP_OPTIONS_HEADING);
@@ -2794,6 +2809,10 @@ export class FrodoStubCommand extends Command {
   ): Promise<unknown> | undefined {
     const self = this as unknown as CommandInternal;
     const { positional } = splitPositionalArgs(operands, unknown);
+    // Action-bearing stubs own the prompting pair (see
+    // registerPromptingPair): ensure it exists before any parse of this
+    // command so --prompt/--no-prompt parse onto it.
+    this.registerPromptingPair();
     // An action-bearing stub (conn, settings) intercepted with --prompt
     // routes to the sub-command picker INSTEAD of running its action:
     // --prompt means "show me the tree" on these, while bare (no --prompt)
@@ -2821,6 +2840,21 @@ export class FrodoStubCommand extends Command {
     ) {
       return this.pickAndDispatchSubCommand(unknown);
     }
+    // PURE stub + --no-prompt: the user's legacy escape hatch (user
+    // decision 2026-10-12). The option is deliberately NOT registered on
+    // pure containers (an ancestor registration would consume the token
+    // a descendant leaf also declares, silently defeating the leaf's
+    // own --no-prompt), so commander would reject it as unknown --
+    // handle it HERE as the legacy bare-stub behavior instead: print
+    // this command's help and exit 0 (no picker, no action).
+    if (
+      self._actionHandler === null &&
+      positional.length === 0 &&
+      unknown.some((token) => token === '--no-prompt')
+    ) {
+      this.outputHelp();
+      process.exit(0);
+    }
     // Action path (bare invocation of an action-bearing stub): the
     // action may throw STEP_BACK (its interactive mode was DECLINED) --
     // route that into the sub-command picker, exactly like ESC out of a
@@ -2842,6 +2876,28 @@ export class FrodoStubCommand extends Command {
     } catch (error) {
       if (error === STEP_BACK) return this.pickAndDispatchSubCommand(unknown);
       throw error;
+    }
+  }
+
+  /**
+   * Registers the stub prompting pair (--prompt/--no-prompt) on this
+   * command when it is an ACTION-BEARING STUB (has its own action, is
+   * not a live FrodoCommand -- leaves get the pair from defaultOpts
+   * with live semantics). Idempotent; called from _parseCommand (before
+   * any parse of this command) and from the help renderer (so the
+   * stub's -h lists the pair even when parse never ran, e.g.
+   * `frodo conn -h`). Never called for pure containers: an ancestor
+   * registration would consume the flag a descendant leaf also
+   * declares (see stubPromptPair's doc).
+   */
+  registerPromptingPair(): void {
+    const self = this as unknown as CommandInternal;
+    if (self._actionHandler === null) return; // pure container
+    if (this instanceof FrodoCommand) return; // live leaf: defaultOpts
+    for (const opt of stubPromptPair()) {
+      if (!this.options.some((option) => option.name() === opt.name())) {
+        this.addOption(opt);
+      }
     }
   }
 
@@ -3006,6 +3062,12 @@ class FrodoStubHelp extends Help {
     // context of its own -- remember which command is being rendered so
     // the entity-pick annotation can consult that command's registry.
     this.renderedCommand = cmd;
+    // Action-bearing stubs list the prompting pair even when parse never
+    // ran (`frodo conn -h` help-exits without parsing options) -- see
+    // registerPromptingPair's doc. Idempotent.
+    if (cmd instanceof FrodoStubCommand) {
+      (cmd as FrodoStubCommand).registerPromptingPair();
+    }
     const termWidth = helper.padWidth(cmd, helper);
     const helpWidth = helper.helpWidth ?? 80;
 
@@ -3046,22 +3108,36 @@ class FrodoStubHelp extends Help {
       output.push(`Deployment: ${typeLabel}`, '');
     }
 
-    // --prompt on a PURE stub (no own action) is a no-op (nothing to
-    // skip) -- hide it there. On an action-bearing stub and on live
-    // commands it does something, so it shows. --no-prompt does
-    // something on every class, so it always shows. The filter keys on
-    // "stub AND no action": live commands (FrodoCommand) are never
-    // stubs, so their --prompt (options editor) always shows.
+    // --prompt/--no-prompt per class (user decision 2026-10-12):
+    // - PURE container stub: --no-prompt only (legacy help-exit;
+    //   --prompt is a no-op there and is hidden). The option is NOT
+    //   registered (an ancestor registration would consume the token a
+    //   descendant leaf also declares), so formatHelp renders it
+    //   VIRTUALLY from the shared stub wording.
+    // - Action-bearing stub: both, registered (registerPromptingPair).
+    // - Live commands: both via defaultOpts, live wording.
     const isStub = cmd instanceof FrodoStubCommand;
     const isActionStub =
       isStub && (cmd as unknown as CommandInternal)._actionHandler !== null;
-    const hidePrompt = isStub && !isActionStub;
+    const isPureStub = isStub && !isActionStub;
+    const virtualNoPrompt = isPureStub
+      ? [
+          withHelpGroup(
+            new Option(
+              '--no-prompt',
+              'Never prompt or pick; behave as before the interactive framework (same as setting FRODO_NO_PROMPT).'
+            ),
+            RUNTIME_OPTIONS_HEADING,
+            OptionCategory.Runtime
+          ),
+        ]
+      : [];
     const visibleOptions = helper
       .visibleOptions(cmd)
-      .filter((option) => !(hidePrompt && option.name() === 'prompt'));
+      .filter((option) => !(isPureStub && option.name() === 'prompt'));
     const optionGroups = this.groupItems(
-      [...cmd.options],
-      visibleOptions,
+      [...cmd.options, ...virtualNoPrompt],
+      [...visibleOptions, ...virtualNoPrompt],
       (option) => option.helpGroupHeading ?? 'Options:'
     );
     const orderedOptionGroups = [...optionGroups.entries()].sort(

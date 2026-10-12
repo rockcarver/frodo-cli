@@ -11,6 +11,10 @@ Options:
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
 
+Runtime Options:
+  --no-prompt       Never prompt or pick; behave as before the interactive
+                    framework (same as setting FRODO_NO_PROMPT).
+
 Commands:
   delete            Delete custom nodes.
   describe          Describe custom nodes.

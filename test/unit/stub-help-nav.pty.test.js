@@ -123,7 +123,15 @@ describe('stub help and navigation round', () => {
           args: ['journey', '--no-prompt'],
           env: ENV,
           actions: [
-            { type: 'sleep', ms: 2500 },
+            // GATE on the help text itself (a blind sleep races the
+            // boot under parallel load): the legacy help-exit prints
+            // usage and exits.
+            {
+              type: 'wait_plain',
+              regex: 'Usage: frodo journey',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 500 },
             { type: 'capture', label: 'end' },
           ],
         });
@@ -150,7 +158,11 @@ describe('stub help and navigation round', () => {
           args: ['conn', '--no-prompt'],
           env: ENV,
           actions: [
-            { type: 'sleep', ms: 2500 },
+            // The bare action declines under the gate and exits; a
+            // fixed settle sleep then captures the final state (the
+            // decline prints nothing, so there is no positive marker
+            // to wait for).
+            { type: 'sleep', ms: 5000 },
             { type: 'capture', label: 'end' },
           ],
         });
