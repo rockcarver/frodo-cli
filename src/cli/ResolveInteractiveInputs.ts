@@ -306,21 +306,29 @@ export async function resolveInteractiveInputs(
   // the command object at flush time). Flows that never reach the action
   // (cancelled pickers, unsatisfied one-of groups, failed auth errors that
   // throw) skip postAction entirely -- an abandoned authoring session
-  // leaves nothing behind. Arming-only sessions with no prompts rendered
-  // never arm, so fully-specified non-TTY runs (e2e snapshots) are
-  // unchanged.
-  if (promptsRendered() > 0 || explicitlyInteractive) {
-    armAuthoringPrint();
-    setAuthoringPrintFlush(() => {
-      printMessage(
-        renderCommandPreview(command, {
-          missingMandatoryOptionLabels: [],
-          oneOfUnsatisfied: false,
-        }),
-        'text'
-      );
-    });
-  }
+  // leaves nothing behind.
+  //
+  // Armed UNCONDITIONALLY (registration is free); the PRINT GATE lives in
+  // the flush closure, evaluated at flush time -- NOT here. It must be
+  // evaluated late: the post-auth realm picker renders AFTER this pass
+  // ends, so a gate evaluated now would miss a session whose only prompt
+  // was that picker (env-resolved connection + realm pick -- the exact
+  // frodo journey list flow that motivated the deferral). The gate itself
+  // is unchanged: at least one prompt rendered this process, or the user
+  // explicitly requested the flow (--prompt / guided mode). Fully
+  // specified non-TTY runs (e2e snapshots) render no prompts and never
+  // pass the gate, so output is byte-identical.
+  armAuthoringPrint();
+  setAuthoringPrintFlush(() => {
+    if (promptsRendered() === 0 && !explicitlyInteractive) return;
+    printMessage(
+      renderCommandPreview(command, {
+        missingMandatoryOptionLabels: [],
+        oneOfUnsatisfied: false,
+      }),
+      'text'
+    );
+  });
 }
 
 /**
