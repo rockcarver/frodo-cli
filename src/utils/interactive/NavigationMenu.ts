@@ -51,7 +51,7 @@ export function navigationMenuItems(options: {
   const items: NavigationMenuItem[] = [];
   items.push({ keys: '↑↓', action: 'move', intent: 'muted' });
   if (options.filter) {
-    items.push({ keys: 'type', action: 'filter', intent: 'muted' });
+    items.push({ keys: 'type', action: 'to filter', intent: 'muted' });
   }
   if (options.space) {
     items.push({ keys: 'space', action: options.space, intent: 'muted' });
@@ -101,6 +101,15 @@ export function stripAnsi(text: string): string {
  * query echo), the body lines (pre-colored), and the width the frame is
  * drawn at -- so every box in a frame shares the same silhouette and the
  * same wrap/measure discipline (ANSI excluded from every measurement).
+ *
+ * The {text, plain} pair exists for ONE historical reason -- the query
+ * echo used to be conditional on the caller's search configuration, so
+ * the colored and measured forms could diverge (the bare-stub picker's
+ * panel top wall came out short by the query's length: the renderer
+ * drew to a text WITHOUT the echo, the walls measured a plain WITH it).
+ * The renderer now measures the title on stripAnsi(title.text) itself,
+ * so the pair is belt-and-braces: callers may still pass plain for
+ * clarity, but a divergent plain can no longer skew the walls.
  */
 export function renderFramedBox(options: {
   title: string | { text: string; plain: string };
@@ -111,12 +120,14 @@ export function renderFramedBox(options: {
   const { lines } = options;
   const title =
     typeof options.title === 'string'
-      ? { text: options.title, plain: options.title }
+      ? { text: options.title }
       : options.title;
   // One space between wall and title content on both sides -- the
   // Navigate menu's ' Navigate ' convention, applied to every box.
+  // Measured on the STRIPPED TEXT: one source of truth, the walls can
+  // never drift from what is drawn.
   const titleText = ` ${title.text} `;
-  const titlePlain = ` ${title.plain} `;
+  const titlePlain = ` ${stripAnsi(title.text)} `;
   const width = options.width ?? 120;
   const PADDING = 1;
   const BORDER = 2;

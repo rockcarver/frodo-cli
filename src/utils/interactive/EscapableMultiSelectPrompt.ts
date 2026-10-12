@@ -14,6 +14,7 @@ import {
 } from '@inquirer/core';
 import type { InquirerReadline } from '@inquirer/type';
 import c from '../ColorTheme';
+import { EXIT_ALL, isDoubleEscape } from './ExitAll';
 import {
   navigationMenuItems,
   renderFramedBox,
@@ -106,7 +107,7 @@ export type EscapableMultiSelectConfig<Value> = {
 // hand-written generic type.
 type EscapableMultiSelectFn = <Value>(
   config: EscapableMultiSelectConfig<Value>
-) => Promise<Value[] | typeof MULTISEL_ESCAPE>;
+) => Promise<Value[] | typeof MULTISEL_ESCAPE | typeof EXIT_ALL>;
 
 const escapableMultiSelectImpl = createPrompt(
   (
@@ -168,6 +169,12 @@ const escapableMultiSelectImpl = createPrompt(
     // that was just edited or rejected -- the user's question "where am
     // I" must have a visible, correct answer (the › glyph + the option's
     // description in the panel).
+    // The double-ESC detector's timestamp (see ExitAll.ts): undefined
+    // whenever the previous key was NOT an escape, so only CONSECUTIVE
+    // presses count. Works from inside the value editor too -- two fast
+    // ESCs there reject the value AND leave everything.
+    const lastEscapeRef = useRef<number | undefined>(undefined);
+
     const closeInlineEditor = (rl: InquirerReadline, returnTo?: unknown) => {
       setEditing(null);
       setEditingChoices([]);
@@ -203,6 +210,7 @@ const escapableMultiSelectImpl = createPrompt(
           // choices -- free typing is not an input here, so the keys are
           // the list's, not readline's.
           if (isEnterKey(key)) {
+            lastEscapeRef.current = undefined;
             const value = editingChoices[pickerActive] ?? editingChoices[0];
             config.onValue?.(editing, value);
             setSelected((previous) => {
@@ -214,12 +222,24 @@ const escapableMultiSelectImpl = createPrompt(
             return;
           }
           if (key.name === 'escape') {
+            // Double-ESC leaves everything (reject + unwind); a single
+            // press rejects the value ("back one level").
+            const now = Date.now();
+            if (isDoubleEscape(lastEscapeRef.current, now)) {
+              lastEscapeRef.current = undefined;
+              closeInlineEditor(rl, editing);
+              setStatus('escaped');
+              done(EXIT_ALL);
+              return;
+            }
+            lastEscapeRef.current = now;
             // Reject: an option that needs a value cannot be marked
             // without one. Nothing changes.
             closeInlineEditor(rl, editing);
             return;
           }
           if (isUpKey(key) || isDownKey(key)) {
+            lastEscapeRef.current = undefined;
             const offset = isUpKey(key) ? -1 : 1;
             setPickerActive((previous) =>
               Math.min(
@@ -232,6 +252,7 @@ const escapableMultiSelectImpl = createPrompt(
           return;
         }
         if (isEnterKey(key)) {
+          lastEscapeRef.current = undefined;
           // readline already consumed its buffer (textPrompt pattern);
           // read the mirror.
           const line = draft || rl.line || '';
@@ -246,11 +267,23 @@ const escapableMultiSelectImpl = createPrompt(
           return;
         }
         if (key.name === 'escape') {
+          // Double-ESC leaves everything (reject + unwind); a single
+          // press rejects the value ("back one level").
+          const now = Date.now();
+          if (isDoubleEscape(lastEscapeRef.current, now)) {
+            lastEscapeRef.current = undefined;
+            closeInlineEditor(rl, editing);
+            setStatus('escaped');
+            done(EXIT_ALL);
+            return;
+          }
+          lastEscapeRef.current = now;
           // Reject: an option that needs a value cannot be marked
           // without one. Nothing changes.
           closeInlineEditor(rl, editing);
           return;
         }
+        lastEscapeRef.current = undefined;
         setDraft(rl.line);
         return;
       }
@@ -265,17 +298,34 @@ const escapableMultiSelectImpl = createPrompt(
         if (rl.line.length > 0) {
           rl.clearLine(0);
           setQuery('');
+          lastEscapeRef.current = undefined;
           return;
+        }
+        // Double-ESC exits ALL the way out (see EscapableSelectPrompt);
+        // ← and single ESC keep "back one level".
+        if (key.name === 'escape') {
+          const now = Date.now();
+          if (isDoubleEscape(lastEscapeRef.current, now)) {
+            lastEscapeRef.current = undefined;
+            setStatus('escaped');
+            done(EXIT_ALL);
+            return;
+          }
+          lastEscapeRef.current = now;
+        } else {
+          lastEscapeRef.current = undefined;
         }
         setStatus('escaped');
         done(MULTISEL_ESCAPE);
       } else if (isEnterKey(key)) {
+        lastEscapeRef.current = undefined;
         // Commit whatever is selected -- an empty set is a valid outcome
         // ("run with defaults"), unlike select where nothing-picked is a
         // no-op.
         setStatus('done');
         done([...selected]);
       } else if (isSpaceKey(key)) {
+        lastEscapeRef.current = undefined;
         if (!highlighted) return;
         const togglingOn = !selected.has(highlighted.value);
         if (togglingOn && config.needsValue?.(highlighted.value)) {
@@ -316,6 +366,7 @@ const escapableMultiSelectImpl = createPrompt(
           return next;
         });
       } else if (isUpKey(key) || isDownKey(key)) {
+        lastEscapeRef.current = undefined;
         if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
         // Clamp at the ends -- a list with a beginning and an end, not
@@ -329,7 +380,9 @@ const escapableMultiSelectImpl = createPrompt(
       } else {
         // Everything else is readline's business (typing, paste,
         // backspace, ctrl+u); mirror the buffer into the query -- same
-        // pattern as EscapableSelectPrompt.
+        // pattern as EscapableSelectPrompt. Any non-ESC key breaks the
+        // double-ESC streak.
+        lastEscapeRef.current = undefined;
         setQuery(rl.line);
       }
     });
@@ -392,7 +445,7 @@ const escapableMultiSelectImpl = createPrompt(
               space: 'select',
               enter: 'commit',
               left: true,
-              escape: 'back out',
+              escape: 'back · esc×2 exit all',
             }
       )
     );
@@ -420,7 +473,7 @@ const escapableMultiSelectImpl = createPrompt(
     const panel = renderFramedBox({
       title: {
         text: `${prefix} ${config.message}${queryEcho}`,
-        plain: `? ${config.message}${query.length > 0 ? ` query: ${query}` : ''}`,
+        plain: `? ${config.message}${queryEcho}`,
       },
       lines: panelLines,
     });

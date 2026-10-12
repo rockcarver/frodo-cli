@@ -20,7 +20,7 @@ describe('navigationMenuItems (affordance-driven)', () => {
     });
     expect(items.map((item) => `${item.keys} ${item.action}`)).toEqual([
       '↑↓ move',
-      'type filter',
+      'type to filter',
       'enter select',
       'esc back out',
     ]);
@@ -68,7 +68,7 @@ describe('renderNavigationMenu (box layout)', () => {
     expect(widths[1]).toBe(widths[2]);
     expect(plain[0]).toMatch(/^┌ Navigate ─+┐$/);
     expect(plain[1]).toMatch(
-      /^│ ↑↓ move · type filter · enter select · esc back out\s+│$/
+      /^│ ↑↓ move · type to filter · enter select · esc back out\s+│$/
     );
     expect(plain[2]).toMatch(/^└─+┘$/);
   });
@@ -128,6 +128,27 @@ describe('renderFramedBox (the shared panel renderer)', () => {
     const widths = plain.map((line) => [...line].length);
     expect(widths[0]).toBe(widths[2]);
     expect(plain[0]).toMatch(/^┌ \? colored ─+┐$/);
+  });
+
+  it('measures the title on its own TEXT even when plain diverges', () => {
+    // THE BARE-STUB PICKER BUG (user report 2026-10-12): the colored
+    // title lacked the query echo while the measured plain carried it,
+    // so the top wall came out 14 short (' query: config' long). The
+    // renderer now measures the DRAWN text -- a divergent plain can no
+    // longer skew the walls.
+    const box = renderFramedBox({
+      title: {
+        text: `\x1b[36m?\x1b[39m Choose: \x1b[36m query: config\x1b[39m`,
+        plain: `? Choose:`,
+      },
+      lines: [{ text: '› config', plain: '› config' }],
+      width: 60,
+    });
+    const plain = box.split('\n').map(stripAnsi);
+    const widths = plain.map((line) => [...line].length);
+    expect(widths[0]).toBe(widths[1]);
+    expect(widths[1]).toBe(widths[2]);
+    expect(plain[0]).toMatch(/^┌ \? Choose:  query: config ─+┐$/);
   });
 
   it('accepts a plain-string title', () => {

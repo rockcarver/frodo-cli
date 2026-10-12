@@ -16,6 +16,7 @@ import {
   RIGHT,
   type EscapableSelectChoice,
 } from '../utils/interactive/EscapableSelectPrompt';
+import { EXIT_ALL } from '../utils/interactive/ExitAll';
 import type { CredentialOverrideType } from './AuthenticateOps';
 
 const { validateServiceAccount } = frodo.cloud.serviceAccount;
@@ -303,7 +304,14 @@ export async function runInteractivePreferredCredentialPicker(
             : h,
         })),
       });
-      if (choice === ESCAPE || choice === RIGHT) return false; // RIGHT: no hint here
+      if (
+        choice === EXIT_ALL ||
+        choice === ESCAPE ||
+        choice === RIGHT // RIGHT: no hint here
+      ) {
+        // Double-ESC or ESC: the credential picker is its own top level.
+        return false;
+      }
       resolvedHost = choice;
     }
   }
@@ -356,7 +364,14 @@ export async function runInteractivePreferredCredentialPicker(
     choices: credentialChoices,
     default: currentPreference,
   });
-  if (selected === ESCAPE || selected === RIGHT) return false; // RIGHT: no hint here
+  if (
+    selected === EXIT_ALL ||
+    selected === ESCAPE ||
+    selected === RIGHT // RIGHT: no hint here
+  ) {
+    // Double-ESC or ESC: this picker is its own top level.
+    return false;
+  }
 
   state.setHost(profile.tenant);
   state.setPreferredCredential(selected);
