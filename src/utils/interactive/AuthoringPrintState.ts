@@ -1,22 +1,26 @@
 /**
  * The Phase 5 authoring print's deferred state, split from
  * ResolveInteractiveInputs.ts into a zero-import module (the
- * ActiveActionCommandState pattern) so the prompt-adjacent modules that
- * conclude the interactive flow (AuthenticateOps' getTokens wrapper, the
- * entity pickers) can flush the print without importing the resolver's
- * heavy graph (frodo-lib, commander trees).
+ * ActiveActionCommandState pattern) so FrodoCommand's postAction hook can
+ * flush the print without importing the resolver's heavy graph
+ * (frodo-lib, commander trees).
  *
  * With erase-on-conclude prompts (clearPromptOnDone on every prompt), the
  * only trace of an interactive session is what frodo prints AFTER the last
  * prompt concluded. The eventual-command print is that trace, so it must
  * fire at the LAST moment the command can still change -- not at the end
  * of the resolution pass (pre-auth, pre-realm-pick, pre-entity-pick: three
- * later steps can still alter the command, and a print there can be stale).
+ * later steps can still alter the command, and a print there can be
+ * stale). The single flush site is FrodoCommand's postAction hook: the
+ * resolution pass ARMS (unconditionally -- registration is free; the
+ * print gate is evaluated inside the flush closure at flush time), the
+ * hook flushes after the action's output concludes, and flows that never
+ * reach the action (cancelled pickers, unsatisfied one-of throws) skip
+ * the hook, leaving nothing behind.
  */
 
 /**
- * Whether the resolution pass finished with interactive assistance and
- * wants the eventual-command print once everything interactive concludes.
+ * Whether the eventual-command print is armed and not yet flushed.
  */
 let authoringPrintPending = false;
 
@@ -37,14 +41,12 @@ export function authoringPrintPendingState(): boolean {
 }
 
 /**
- * Prints the eventual command once, if armed. Callers: the getTokens
- * wrapper (after the realm pick concludes -- auth commands' last
- * resolver-side interactive step) and resolveEntityPicks (after the last
- * entity pick concludes -- the action body's picks come after auth). The
- * print callback is injected by the resolver at arm time so this module
- * stays zero-import; the callback itself re-reads the command object
- * (a closure over it), so it always renders the CURRENT state -- a realm
- * pick or editor change between arming and flushing is reflected.
+ * The print closure, injected by the resolution pass at arm time so this
+ * module stays zero-import. The closure re-reads the command object (a
+ * closure over it) AND evaluates the print gate (promptsRendered /
+ * explicitlyInteractive) at flush time -- both must be late: the
+ * post-auth realm picker renders after the pass ends, so both a
+ * gate-at-arm-time and a snapshot-of-the-command would go stale.
  */
 let flushImpl: (() => void) | undefined;
 
@@ -52,6 +54,11 @@ export function setAuthoringPrintFlush(impl: () => void): void {
   flushImpl = impl;
 }
 
+/**
+ * Prints the eventual command once, if armed. Sole caller:
+ * FrodoCommand's postAction hook. No-op when never armed (help/version
+ * paths, stubs without the resolution pass).
+ */
 export function flushAuthoringPrint(): void {
   if (!authoringPrintPending) return;
   authoringPrintPending = false;
