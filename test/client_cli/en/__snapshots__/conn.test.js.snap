@@ -27,6 +27,10 @@ Commands:
   service-account   Manage named, independently-addressable additional service
                     accounts on a connection profile (alongside its own single
                     primary service account).
+  set               Set fields of an existing connection profile. Only the
+                    fields given on the command line change; everything else
+                    stays as-is. Run 'frodo conn set' without any field option
+                    to list the settable fields.
   test              Test connection and authentication.
 "
 `;
