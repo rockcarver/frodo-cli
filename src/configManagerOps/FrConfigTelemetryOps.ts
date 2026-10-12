@@ -15,7 +15,8 @@ import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 
 const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
-const { exportTelemetry, importTelemetry } = frodo.cloud.telemetry;
+const { exportTelemetry, importTelemetry, readTelemetry, deleteTelemetry } =
+  frodo.cloud.telemetry;
 
 /**
  * Exports telemetry configuration in config manager format
@@ -197,6 +198,60 @@ export async function configManagerImportTelemetry(
   } catch (error) {
     stopProgressIndicator(indicatorId, `Failed to import Telemetry.`, 'fail');
     printError(error, 'Error importing telemetry configuration');
+    return false;
+  }
+}
+
+/**
+ * Deletes telemetry exporters in config manager format
+ * @param {TelemetryExporterCategory} category optional exporter category
+ * @param {string} name optional exporter name
+ * @param {boolean} dryRun whether to simulate deletion
+ * @returns {Promise<boolean>} true if deletion succeeded
+ */
+export async function configManagerDeleteTelemetry(
+  category?: TelemetryExporterCategory,
+  name?: string,
+  dryRun = false,
+  allowFailures = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'telemetry', allowFailures });
+  try {
+    const matches = Object.entries(await readTelemetry())
+      .filter(([cat]) => category === undefined || category === cat)
+      .flatMap(([cat, exporters]) =>
+        Object.values(exporters)
+          .filter((exporter) => name === undefined || name === exporter.id)
+          .map((exporter: LogExporterSkeleton) => ({
+            category: cat as TelemetryExporterCategory,
+            id: exporter.id,
+          }))
+      );
+    if (matches.length === 0) {
+      printMessage('Warning: telemetry config not found', 'warn');
+      return true;
+    }
+    for (const { id, category: exporterCategory } of matches) {
+      const label = `${exporterCategory}/${id}`;
+      if (!dryRun) {
+        try {
+          await deleteTelemetry(id, exporterCategory);
+        } catch (error) {
+          printError(error, `Failed to delete telemetry config: ${label}`);
+          run.recordFailure(label, causeOf(error));
+          continue;
+        }
+      }
+
+      printMessage(
+        `${dryRun ? 'Dry run: ' : ''}Deleted telemetry config: ${label}`
+      );
+      run.recordSuccess();
+    }
+    return run.finish();
+  } catch (error) {
+    printError(error, 'Failed to delete telemetry config');
+    run.finish();
     return false;
   }
 }
