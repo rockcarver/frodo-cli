@@ -55,7 +55,7 @@ export default function setup() {
         // --all -a, or an interactive pick of the secret to delete
         // (resolveEntityPicks is a no-op outside the prompt gate, so a
         // non-interactive run with neither option never reaches
-        // deleteSecrets here -- same as before Phase 3, where the error
+        // deleteSecrets here -- same as in the pre-picker layout, where the error
         // branch below handled that case).
         else if (
           (options.all || (await resolveEntityPicks(command))) &&

@@ -100,7 +100,7 @@ export default function setup() {
         // -a/--all, or an interactive pick (resolveEntityPicks is a no-op
         // outside the prompt gate, so a non-interactive run with neither
         // option never reaches deleteApplications here -- same as before
-        // Phase 3, where the error branch below handled that case).
+        // (the error branch below handled that case in the pre-picker layout).
         else if (
           (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens(false, true, deploymentTypes))

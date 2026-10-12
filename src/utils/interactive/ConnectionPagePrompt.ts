@@ -10,6 +10,12 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import {
+  navigationMenuItems,
+  renderFramedBox,
+  renderNavigationMenu,
+  stripAnsi,
+} from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
 /**
@@ -40,7 +46,7 @@ export type ConnectionPageConfig = {
   message: string;
   rows: ConnectionPageRow[];
   /**
-   * Phase 5 command preview: the command being authored, rendered as a
+   * Command preview: the command being authored, rendered as a
    * footer line (pre-rendered by CommandPreview.ts).
    */
   preview?: string;
@@ -54,13 +60,13 @@ export type ConnectionPageConfig = {
 };
 
 /**
- * The Phase 5 connection page (INTERACTIVE-COMMANDS-PLAN.md): a
+ * The connection page (docs/INTERACTIVE-COMMANDS.md): a
  * single-page form for host + username + password showing RESOLVED
  * current values with their provenance, replacing the sequential
  * prompts when connection input is missing and reachable via → when
  * everything is already resolved.
  *
- * Key language (Phase 5): ↑↓ between rows, `<enter>` on a row opens its
+ * Key language (docs/INTERACTIVE-COMMANDS.md): ↑↓ between rows, `<enter>` on a row opens its
  * inline editor (typing edits; `<enter>` commits, `<esc>` cancels the
  * edit), `<enter>` on the Done row concludes the page, `<esc>` on the
  * page declines it entirely (PAGE_ESCAPE). The password row masks its
@@ -204,20 +210,45 @@ const connectionPageImpl = createPrompt(
     const resolvingNote = resolving
       ? c.muted(' (re-resolving credentials...)')
       : '';
-    const lines = [
-      `${prefix} ${config.message}${resolvingNote}`,
+    // The navigation menu (see NavigationMenu.ts): framed box at the
+    // TOP; the page's enter has two roles (edit a row / conclude on
+    // Done), so the item names both. The rows + Done form the page's
+    // framed panel (panel per surface -- see EscapableSelectPrompt).
+    const menu = renderNavigationMenu(
+      navigationMenuItems({
+        enter: 'edit / done',
+        escape: 'cancel page',
+      })
+    );
+    const rowLines = [
       ...rows.map((row, index) => {
         const isEditing = editing === row.key;
         const cursor = isEditing ? '›' : index === active ? '›' : ' ';
         const note = !isEditing && row.note ? c.muted(` (${row.note})`) : '';
         const line = `${cursor} ${row.label}: ${renderValue(row, isEditing)}${note}`;
-        return index === active || isEditing ? c.command(line) : line;
+        return {
+          text: index === active || isEditing ? c.command(line) : line,
+          plain: `${cursor} ${row.label}: ${stripAnsi(renderValue(row, isEditing))}${row.note && !isEditing ? ` (${row.note})` : ''}`,
+        };
       }),
-      `${active === doneIndex ? '›' : ' '} ${c.command('Done — run with these values')}`,
-      c.muted('(↑↓ rows · enter edit/done · esc cancel)'),
-      config.preview,
+      (() => {
+        const cursor = active === doneIndex ? '›' : ' ';
+        const line = `${cursor} Done — run with these values`;
+        return {
+          text: c.command(line),
+          plain: line,
+        };
+      })(),
     ];
-    return lines.join('\n');
+    const panel = renderFramedBox({
+      title: {
+        text: `${prefix} ${config.message}${resolvingNote}`,
+        plain: `? ${config.message}${resolving ? ' (re-resolving credentials...)' : ''}`,
+      },
+      lines: rowLines,
+    });
+    const lines = [menu, panel, config.preview];
+    return lines.filter(Boolean).join('\n');
   }
 );
 

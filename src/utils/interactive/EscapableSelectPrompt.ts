@@ -12,6 +12,12 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import {
+  navigationMenuItems,
+  renderFramedBox,
+  renderNavigationMenu,
+  stripAnsi,
+} from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
 /**
@@ -24,8 +30,9 @@ export const ESCAPE = Symbol('escapableSelect:escape');
 
 /**
  * Distinct return value `escapableSelect` resolves with when the user
- * presses → (right arrow) instead of choosing something -- the Phase 5
- * "enter the next editor segment" key (INTERACTIVE-COMMANDS-PLAN.md).
+ * presses → (right arrow) instead of choosing something -- the
+ * "enter the next editor segment" key of the segment navigation
+ * described in docs/INTERACTIVE-COMMANDS.md.
  * Only fires when the prompt is configured with a `hint` (the caller's
  * promise that something more to configure exists); without a hint the
  * key is left to readline, so plain pickers keep today's behavior.
@@ -68,7 +75,7 @@ export type EscapableSelectConfig<Value> = {
    */
   search?: EscapableSelectMatch<Value>;
   /**
-   * Phase 5 discoverability hint: when set, the prompt renders it as a
+   * Discoverability hint: when set, the prompt renders it as a
    * muted line under the list and arms the → key (resolving with the
    * `RIGHT` sentinel). Callers pass a counted, truthful promise --
    * e.g. "→ 4 options to configure" -- derived from the same candidate
@@ -77,10 +84,10 @@ export type EscapableSelectConfig<Value> = {
    */
   hint?: string;
   /**
-   * Phase 5 command preview: the command being authored, rendered as a
+   * Command preview: the command being authored, rendered as a
    * footer line (red + cursive while mandatory input is missing, green/
    * white when ready). Callers pass the pre-rendered string from
-   * CommandPreview.ts -- or, for LIVE preview (Phase 5 refinement: the
+   * CommandPreview.ts -- or, for LIVE preview (the
    * footer reflects what the user is INFLUENCING, not what they last
    * committed), a function of the currently HIGHLIGHTED choice's value,
    * re-invoked on every render: arrowing through a realm list updates
@@ -166,16 +173,22 @@ const escapableSelectImpl = createPrompt(
     // must exist first and inquirer re-renders on every state change
     // anyway; a render-time `setActive` here would either run before
     // `useState` declared it (TDZ crash) or loop the render.
-    // Reset to the first match whenever the query changes -- but NOT on
-    // mount: the initial cursor belongs on the configured default (e.g.
-    // the editor's pre-filled current value), and this effect would
-    // otherwise clobber it immediately after the first render.
+    // Reset to the first match whenever the query TEXT changes -- but
+    // NOT on mount: the initial cursor belongs on the configured
+    // default (e.g. the editor's pre-filled current value), and this
+    // effect would otherwise clobber it immediately after the first
+    // render. Text-compared, not reference-compared: a setQuery to the
+    // SAME text (e.g. a programmatic reset) must not yank the cursor.
     const firstRender = useRef(true);
+    const lastQueryRef = useRef(query);
     useEffect(() => {
       if (firstRender.current) {
         firstRender.current = false;
+        lastQueryRef.current = query;
         return;
       }
+      if (lastQueryRef.current === query) return;
+      lastQueryRef.current = query;
       setActive(0);
     }, [query]);
 
@@ -220,7 +233,16 @@ const escapableSelectImpl = createPrompt(
       } else if (isUpKey(key) || isDownKey(key)) {
         if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
-        setActive((active + offset + filtered.length) % filtered.length);
+        // Clamp at the ends -- a list with a beginning and an end, not
+        // an endless loop (user feedback 2026-10-12; the cursor stops
+        // at the first/last row and further keys in that direction do
+        // nothing). FUNCTIONAL update: several keypresses can arrive
+        // inside one render cycle (paste, fast typing around a
+        // keystroke) -- a closure over `active` would compute every
+        // step from the same stale value and eat the extra moves.
+        setActive((previous) =>
+          Math.min(filtered.length - 1, Math.max(0, previous + offset))
+        );
       } else {
         // Everything else is readline's business (typing, paste, backspace,
         // ctrl+u, any unhandled key); the buffer holds the result -- there
@@ -247,13 +269,51 @@ const escapableSelectImpl = createPrompt(
         return isActive ? c.command(line) : line;
       },
       pageSize,
-      loop: true,
+      loop: false,
     });
 
-    const searchHint = query.length === 0 ? c.muted('type to filter') : '';
     const queryEcho =
       config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
-    const hintLine = config.hint ? c.muted(config.hint) : '';
+    // PANEL PER SURFACE (user feedback 2026-10-12): every prompt frame
+    // is built from the same three boxes -- the Navigate menu (top,
+    // permanent), a framed panel for question + list + description, and
+    // any transient editor box UNDER the panel. The panel is what makes
+    // the pick selectors and the multi-select consistent: same
+    // silhouette, same measure discipline (ANSI excluded), description
+    // trailing INSIDE the panel right under its list.
+    const menu = renderNavigationMenu(
+      navigationMenuItems({
+        filter: true,
+        enter: 'select',
+        right: config.hint ? config.hint.replace(/^→\s*/, '') : undefined,
+        escape: 'back out',
+      })
+    );
+    const panelLines: { text: string; plain: string }[] = [];
+    if (filtered.length > 0) {
+      for (const row of page.split('\n')) {
+        panelLines.push({ text: row, plain: stripAnsi(row) });
+      }
+    } else {
+      panelLines.push({
+        text: c.muted('(no matches -- backspace to edit)'),
+        plain: '(no matches -- backspace to edit)',
+      });
+    }
+    if (selected?.description) {
+      panelLines.push({ text: '', plain: '' });
+      for (const row of selected.description.split('\n')) {
+        panelLines.push({ text: c.muted(row), plain: row });
+      }
+    }
+    const panel = renderFramedBox({
+      title: {
+        text: `${prefix} ${config.message}${queryEcho}`,
+        plain: `? ${config.message}${query.length > 0 ? ` query: ${query}` : ''}`,
+      },
+      lines: panelLines,
+    });
+
     // Live preview: a function form is re-invoked on EVERY render with
     // the currently highlighted choice's value (undefined when filtered
     // to no matches) -- arrowing through a list updates the footer
@@ -263,18 +323,7 @@ const escapableSelectImpl = createPrompt(
         ? config.preview(selected?.value)
         : config.preview;
 
-    const lines = [
-      `${prefix} ${config.message}${queryEcho}`,
-      filtered.length > 0
-        ? page
-        : c.muted(
-            '  (no matches -- backspace to edit, esc clears then backs out)'
-          ),
-      selected && selected.description ? c.muted(selected.description) : '',
-      hintLine,
-      searchHint || c.muted('(↑↓ navigate · enter select · esc back)'),
-      previewLine,
-    ].filter(Boolean);
+    const lines = [menu, panel, previewLine].filter(Boolean);
     return lines.join('\n');
   }
 );

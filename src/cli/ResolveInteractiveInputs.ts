@@ -1,8 +1,8 @@
 /**
- * The Phase 1 "zero-touch" resolution pass: fills missing command input
- * interactively before the action body runs (INTERACTIVE-COMMANDS-PLAN.md,
- * Phase 1). Wired from FrodoCommand's preAction hook; never modifies
- * frodo-lib.
+ * The "zero-touch" resolution pass: fills missing command input
+ * interactively before the action body runs (see
+ * docs/INTERACTIVE-COMMANDS.md). Wired from FrodoCommand's preAction
+ * hook; never modifies frodo-lib.
  *
  * Two resolver kinds run here, connection arguments first (the host gives
  * the later prompts their context), then deferred mandatory options:
@@ -39,16 +39,16 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
-import { printMessage, verboseMessage } from '../utils/Console';
+import { printMessage, successMessage, verboseMessage } from '../utils/Console';
 import {
   armAuthoringPrint,
   setAuthoringPrintFlush,
 } from '../utils/interactive/AuthoringPrintState';
 import {
+  liveMultiOptionPreview,
   liveOptionPreview,
   livePositionalPreview,
   renderCommandPreview,
-  serializeCommand,
   setDeploymentTypeForPreview,
   type CommandReadiness,
 } from '../utils/interactive/CommandPreview';
@@ -57,8 +57,13 @@ import {
   PAGE_ESCAPE,
 } from '../utils/interactive/ConnectionPagePrompt';
 import {
+  applicableCommandDefaults,
+  optionMissingUserValue,
+} from '../utils/interactive/DefaultsStore';
+import {
   editableOptionalOptions,
   editableOptionsHint,
+  sortEditableOptions,
 } from '../utils/interactive/EditableOptions';
 import { hasEntityPick } from '../utils/interactive/EntityPickers';
 import {
@@ -248,6 +253,13 @@ export async function resolveInteractiveInputs(
   // action's getTokens may still fail on auth, exactly as before).
   // Either step bailing out falls back to the pre-Phase-1 error
   // semantics.
+  // Persisted per-command defaults fill in BEFORE any prompt or
+  // resolution -- a saved value reads as authored input (source 'cli')
+  // for everything downstream (the editor's (current: x) display, the
+  // preview footer, the serializer's copy-paste tokens), while an
+  // explicit flag or env var on THIS invocation keeps precedence (the
+  // gate skips options that already carry a non-default source).
+  applyPersistedDefaults(command);
   // The realm provenance MUST be noted before any prompt: frodo-lib maps
   // the sentinel default to the deployment type's realm during auth, so
   // "user chose" is only distinguishable from "mapped default" here.
@@ -286,10 +298,10 @@ export async function resolveInteractiveInputs(
       throwOneOfUnsatisfied(command, unsatisfied[0]);
     }
   }
-  // The invocation editor (Phase 2/5) runs LAST: by now gap-filled
+  // The invocation editor runs LAST: by now gap-filled
   // mandatory/one-of values are visible, so the editor only offers what is
   // still unspecified. Backing out keeps every value resolved above.
-  // Trigger (Phase 5 slice 5): an explicit --prompt (commander source
+  // Trigger: an explicit --prompt (commander source
   // 'cli' -- the default true doesn't count) or the persisted guided-mode
   // settings toggle (frodo settings guided) -- both are opt-in; default
   // runs keep today's behavior. (--edit retired: commander rejects it as
@@ -298,7 +310,7 @@ export async function resolveInteractiveInputs(
     await runInvocationEditor(command);
   }
 
-  // Phase 5 authoring-tool moment, DEFERRED to just before the command's
+  // The authoring-tool moment, DEFERRED to just before the command's
   // own output: after an interactive-assisted resolution, the command as
   // it will run prints exactly once, directly ABOVE the action's results
   // (user: the print is a header for the results, not a footer after
@@ -335,11 +347,19 @@ export async function resolveInteractiveInputs(
   armAuthoringPrint();
   setAuthoringPrintFlush(() => {
     if (promptsRendered() === 0 && !explicitlyInteractive) return;
-    // Plain serialization, NO theme color: the red->green readiness
-    // contrast belongs to the live footer while authoring; the final
-    // print is the record of what ran -- regular shell text (user
-    // decision 2026-10-11).
-    printMessage(serializeCommand(command), 'text');
+    // Green (theme `positive`): the print sits directly above the
+    // action's results and must be distinguishable from them at a
+    // glance (user decision 2026-10-12, reversing #793's plain-color
+    // experiment -- plain text read as more output). Ready-state green
+    // is semantically right too: the flushed command is by definition
+    // validated and about to run.
+    printMessage(
+      renderCommandPreview(command, {
+        missingMandatoryOptionLabels: [],
+        oneOfUnsatisfied: false,
+      }),
+      'text'
+    );
   });
 }
 
@@ -390,14 +410,14 @@ function throwOneOfUnsatisfied(
 export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
 
 /**
- * The Phase 5 `→` routing for pickers inside the resolution pass: runs
+ * The `→` routing for pickers inside the resolution pass: runs
  * `escapableSelect` with the command's discoverability hint attached,
  * and when the user presses → (resolve `RIGHT`), opens the invocation
  * editor, then re-prompts -- so a user who landed in a mandatory/one-of/
- * profile picker can discover and edit everything else from there
- * (INTERACTIVE-COMMANDS-PLAN.md, Phase 5). Without a hint (nothing to
- * configure) this is exactly `escapableSelect`: the → key stays
- * readline's business and the loop never engages.
+ * profile picker can discover and edit everything else from there (the
+ * segment navigation described in docs/INTERACTIVE-COMMANDS.md). Without
+ * a hint (nothing to configure) this is exactly `escapableSelect`: the
+ * → key stays readline's business and the loop never engages.
  *
  * Re-prompting after the editor keeps the picker's own contract intact
  * (the caller sees a plain value or ESCAPE); the editor's ←/Esc re-enter
@@ -425,7 +445,7 @@ async function selectWithEditorRouting<Value>(
 }
 
 /**
- * The Phase 5 command preview footer for `command`'s prompts: the
+ * The command preview footer for `command`'s prompts: the
  * command-so-far, red + cursive while mandatory input is missing, green/
  * white when validated and ready. Readiness derives from this module's
  * registries (deferred mandatory violations, one-of groups, connection
@@ -906,7 +926,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
     // No profile for this host (or unreadable): fall through to prompts.
   }
 
-  // Phase 5: the connection PAGE replaces the sequential username-then-
+  // The connection PAGE replaces the sequential username-then-
   // password prompts. Rows carry the resolved current values + provenance
   // (a username-only profile prefills the username row as before; env
   // fallbacks show as "(from FRODO_USERNAME)" etc.); an empty commit on
@@ -992,7 +1012,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
 }
 
 /**
- * The --edit invocation editor (Phase 2): lists the command's optional
+ * The invocation editor: lists the command's optional
  * options that are NOT already specified on this invocation (gap-filled
  * mandatory/one-of values from the earlier steps don't re-appear), with
  * their help descriptions. Space toggles, enter commits; each selected
@@ -1000,7 +1020,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
  * commander choices(), free text otherwise -- booleans commit on toggle).
  * Unselected options keep their built-in defaults; committed values apply
  * to THIS invocation only (plain option values, no persistence -- that is
- * Phase 4's Defaults.json).
+ * Defaults.json -- see DefaultsStore).
  *
  * Escape backs out of the value step without committing that option; the
  * multiselect's Escape (or ←) backs out of the editor entirely (committed
@@ -1009,7 +1029,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
  * must behave exactly as without it (FRODO_TEST e2e determinism).
  */
 
-// The editor's candidate list + the Phase 5 hint live in a zero-import
+// The editor's candidate list + the discoverability hint live in a zero-import
 // module (EditableOptions) so picker modules in utils/interactive/ can
 // attach the same hint without importing this file's graph (see the
 // ActiveActionCommandState split for the layering rationale). Re-exported
@@ -1036,6 +1056,39 @@ export async function runInvocationEditorForCommand(
   await runInvocationEditor(command);
 }
 
+/**
+ * Applies the command's persisted defaults (~/.frodo/
+ * Defaults.json) to every option the user did NOT provide this
+ * invocation (flag or env -- the precedence gate is
+ * optionMissingUserValue: source undefined or 'default'). Values land
+ * with source 'cli': persisted defaults are user-authored
+ * configuration, and everything downstream (editor display, preview
+ * footer, the eventual-command serializer) must treat them as real
+ * input. Interactive only -- non-interactive runs keep byte-identical
+ * behavior (built-in defaults).
+ */
+function applyPersistedDefaults(command: Command): void {
+  if (!canPrompt()) return;
+  const persisted = applicableCommandDefaults(command);
+  for (const option of command.options) {
+    const value = persisted[option.attributeName()];
+    if (value === undefined) continue;
+    if (!optionMissingUserValue(command, option)) continue;
+    // Type guard: a persisted value must fit the option's collector
+    // shape -- arrays only for repeat-collecting options (ListOption
+    // family), everything else scalar. A mismatched entry (the option's
+    // definition changed since the save) is skipped, not applied.
+    const collectsArrays =
+      Array.isArray(command.getOptionValue(option.attributeName())) ||
+      Array.isArray(option.defaultValue);
+    if (Array.isArray(value) !== collectsArrays) continue;
+    command.setOptionValueWithSource(option.attributeName(), value, 'cli');
+    verboseMessage(
+      `Using saved default ${option.flags} ${String(value)} (frodo settings defaults to change).`
+    );
+  }
+}
+
 async function runInvocationEditor(command: Command): Promise<void> {
   const candidates = editableOptionalOptions(command);
   if (candidates.length === 0) {
@@ -1043,40 +1096,31 @@ async function runInvocationEditor(command: Command): Promise<void> {
     return;
   }
 
-  const picked = await escapableMultiSelect<string>({
-    message: `Optional options for '${command.name()}' (space to select):`,
-    preview: commandPreviewFor(command),
-    choices: candidates.map((option) => {
-      // Phase 5 widening: already-valued options are editable too --
-      // shown with their current value so the user can tell them apart.
-      // Distinguish a commander default (never user-typed) from a value
-      // that came from this invocation's CLI/env.
-      const current = command.getOptionValue(option.attributeName());
-      const sourced =
-        current === undefined || current === false
-          ? undefined
-          : command.getOptionValueSource(option.attributeName()) === 'default'
-            ? ` (default: ${current})`
-            : ` (current: ${current})`;
-      return {
-        value: option.attributeName(),
-        name: option.flags,
-        description: option.description
-          ? `${option.description}${sourced ?? ''}`
-          : sourced?.trim(),
-      };
-    }),
-  });
-  if (picked === MULTISEL_ESCAPE) {
-    verboseMessage('Invocation editor dismissed; values unchanged.');
-    return;
-  }
+  // Pre-select every option that already holds a user-authored value
+  // (CLI/env/persisted-default source 'cli', or a previous commit in
+  // this same editor loop): re-opening the editor via → must show the
+  // selections that are already in the command, not an empty slate --
+  // the user's markers ARE the command state. Commander defaults stay
+  // unmarked (they are not the user's input).
+  const preselected = candidates
+    .filter(
+      (option) => command.getOptionValueSource(option.attributeName()) === 'cli'
+    )
+    .map((option) => option.attributeName());
 
-  for (const attributeName of picked) {
+  // The per-option value step, shared by both paths that can collect a
+  // value: the <space> side step (below) and the post-commit loop.
+  // Returns undefined when the user declines (escape / empty enter) --
+  // the caller leaves the option untouched. `committed` records every
+  // value actually written, for the --save-defaults partial save.
+  const runValueStep = async (
+    attributeName: string
+  ): Promise<string | true | undefined> => {
     const option = command.options.find(
       (candidate) => candidate.attributeName() === attributeName
-    )!;
-    // Phase 5: re-editing a valued option pre-fills the value step with
+    );
+    if (!option) return undefined;
+    // Re-editing a valued option pre-fills the value step with
     // the current value (Escape keeps it) -- "just wanted to peek" costs
     // one Esc, not a retyping session.
     const current = command.getOptionValue(attributeName);
@@ -1094,19 +1138,193 @@ async function runInvocationEditor(command: Command): Promise<void> {
         ),
         default: currentText,
       });
-      if (value === ESCAPE || value === RIGHT) continue;
+      if (value === ESCAPE || value === RIGHT) return undefined;
       command.setOptionValueWithSource(attributeName, value, 'cli');
-    } else if (!/<[^>]+>|\[[^\]]+\]/.test(option.flags)) {
+      return value;
+    }
+    if (!/<[^>]+>|\[[^\]]+\]/.test(option.flags)) {
       // Boolean flag: selected = true, no value step.
       command.setOptionValueWithSource(attributeName, true, 'cli');
-    } else {
-      const answer = await promptInput({
-        message: `Enter a value for ${option.flags}:`,
-        default: currentText,
-      });
-      if (!answer) continue;
-      command.setOptionValueWithSource(attributeName, answer, 'cli');
+      return true;
     }
+    const answer = await promptInput({
+      message: `Enter a value for ${option.flags}:`,
+      default: currentText,
+    });
+    if (!answer) return undefined;
+    command.setOptionValueWithSource(attributeName, answer, 'cli');
+    return answer;
+  };
+
+  const committed: Record<string, unknown> = {};
+
+  const picked = await escapableMultiSelect<string>({
+    message: `Optional options for '${command.name()}' (space to select):`,
+    defaultValues: preselected,
+    // LIVE footer over the SELECTION (not the cursor): every space-
+    // toggled option renders as its flag -- booleans as the flag alone,
+    // valued options as flag + value placeholder while being valued.
+    // The committed state shows when nothing is selected.
+    preview: (() => {
+      const readiness = commandReadinessFor(command);
+      if (!readiness) return undefined;
+      return liveMultiOptionPreview(command, readiness);
+    })(),
+    // Space on a VALUED option opens the prompt's INLINE value editor
+    // (user feedback 2026-10-12: marking --retry showed a <placeholder>
+    // and required a second enter to reach the value menu -- and the
+    // first nested-prompt design froze the frame: two readlines over
+    // stdin). The option is marked only once a real value is committed;
+    // esc rejects the mark. Booleans have no value step and toggle
+    // directly.
+    needsValue: (attributeName) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      return !!option && /<[^>]+>|\[[^\]]+\]/.test(option.flags);
+    },
+    // Enum options (commander `.choices()`, e.g. --retry <strategy>)
+    // get an in-frame PICKER instead of free text (user feedback
+    // 2026-10-12: free-typing an enum value is both wrong-shaped and
+    // invisible).
+    choicesFor: (attributeName) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      return option?.argChoices && option.argChoices.length > 0
+        ? option.argChoices.map(String)
+        : undefined;
+    },
+    // The value editor starts at the option's current value (a picker
+    // cursor lands on it; the text draft pre-fills) -- same
+    // "pre-fill the value step" contract runValueStep's re-edit
+    // already honors.
+    currentValueFor: (attributeName) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      if (!option) return undefined;
+      const current = command.getOptionValue(attributeName);
+      // Array collectors have no single current text to start from --
+      // a repeated mark APPENDS (mirroring repeated flags), so the
+      // editor starts empty every time.
+      if (current === undefined || current === false || Array.isArray(current))
+        return undefined;
+      return String(current);
+    },
+    onValue: (attributeName, value) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      if (!option) return;
+      // Array-collecting options (ListOption family) accumulate:
+      // a repeated mark appends, mirroring repeated CLI flags.
+      const collectsArrays = Array.isArray(option.defaultValue);
+      if (collectsArrays) {
+        const existing = command.getOptionValue(attributeName);
+        command.setOptionValueWithSource(
+          attributeName,
+          [...(Array.isArray(existing) ? existing : []), value],
+          'cli'
+        );
+      } else {
+        command.setOptionValueWithSource(attributeName, value, 'cli');
+      }
+      committed[attributeName] = command.getOptionValue(attributeName);
+      verboseMessage(`Using ${option.flags} ${value}.`);
+    },
+    choices: sortEditableOptions(candidates)
+      // Bucketed by help-group category (user feedback 2026-10-12: a
+      // flat alphabetical list buries the command's own options among
+      // global/connection machinery -- the same split -h/-hh makes in
+      // help): command-specific first, connection, then the rest.
+      // sortEditableOptions keeps the dash-insensitive word sort
+      // INSIDE each bucket.
+      .map((option) => {
+        // Already-valued options are editable too --
+        // shown with their current value so the user can tell them apart.
+        // Distinguish a commander default (never user-typed) from a value
+        // that came from this invocation's CLI/env.
+        const current = command.getOptionValue(option.attributeName());
+        const sourced =
+          current === undefined || current === false
+            ? undefined
+            : command.getOptionValueSource(option.attributeName()) === 'default'
+              ? ` (default: ${current})`
+              : ` (current: ${current})`;
+        return {
+          value: option.attributeName(),
+          name: option.flags,
+          description: option.description
+            ? `${option.description}${sourced ?? ''}`
+            : sourced?.trim(),
+        };
+      }),
+  });
+  if (picked === MULTISEL_ESCAPE) {
+    verboseMessage('Invocation editor dismissed; values unchanged.');
+    return;
+  }
+
+  // With --save-defaults, every value committed in THIS editor
+  // session (set/changed below) persists as the command's defaults. Only
+  // options actually committed are saved -- a dismissed editor or an
+  // untouched option changes nothing on disk.
+  const savingDefaults =
+    command.getOptionValue('saveDefaults') === true &&
+    command.getOptionValueSource('saveDefaults') === 'cli';
+
+  for (const attributeName of picked) {
+    // Options valued INLINE (the multiselect's onValue committed the
+    // value AND marked the option, source 'cli') are done -- running
+    // the value step again would ask twice for the same value. A
+    // boolean flag also sets source 'cli' at toggle time, so the
+    // source check covers both; the value step is only for options
+    // still without a user value.
+    const alreadyValued =
+      command.getOptionValueSource(attributeName) === 'cli' &&
+      command.getOptionValue(attributeName) !== undefined;
+    if (alreadyValued) {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      )!;
+      verboseMessage(`Using ${option.flags}.`);
+      continue;
+    }
+    const value = await runValueStep(attributeName);
+    if (value === undefined) continue;
+    committed[attributeName] = value;
+    const option = command.options.find(
+      (candidate) => candidate.attributeName() === attributeName
+    )!;
     verboseMessage(`Using ${option.flags}.`);
   }
+
+  // Persist what this session committed (partial save -- only
+  // the editor's own commits; gap-filled mandatory values and
+  // connection args are per-invocation, not preferences).
+  if (savingDefaults && Object.keys(committed).length > 0) {
+    const { saveCommandDefaults } =
+      await import('../utils/interactive/DefaultsStore');
+    saveCommandDefaults(command, committed);
+    successMessage(
+      `Saved ${Object.keys(committed).length} option${
+        Object.keys(committed).length === 1 ? '' : 's'
+      } as defaults for '${commandStorePath(command)}'.`
+    );
+  }
+}
+
+/** The `frodo x y z` path -- the store's key (DefaultsStore's own helper,
+ * re-imported lazily beside its save call). */
+function commandStorePath(command: Command): string {
+  const names: string[] = [];
+  for (
+    let cursor: Command | undefined = command;
+    cursor;
+    cursor = cursor.parent
+  ) {
+    names.unshift(cursor.name());
+  }
+  return names.join(' ');
 }
