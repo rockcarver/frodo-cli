@@ -84,6 +84,35 @@ const INTENT_COLOR: Record<
 };
 
 /**
+ * One framed box renderer for all prompt-frame furniture (the Navigate
+ * menu, the inline value editor's Value box): the title, the body lines
+ * (pre-colored), and the width the frame is drawn at -- so every box in
+ * a frame shares the same silhouette and the same wrap/measure
+ * discipline (ANSI excluded from every measurement).
+ */
+export function renderFramedBox(options: {
+  title: string;
+  /** Body lines, already colored; measured on their plain text. */
+  lines: { text: string; plain: string }[];
+  width?: number;
+}): string {
+  const { title, lines } = options;
+  const width = options.width ?? 120;
+  const PADDING = 1;
+  const BORDER = 2;
+  const innerWidth = Math.max(10, width - BORDER - PADDING * 2);
+  const top = `┌${title}${'─'.repeat(Math.max(0, innerWidth + PADDING * 2 - title.length))}┐`;
+  const bottom = `└${'─'.repeat(innerWidth + PADDING * 2)}┘`;
+  const body = lines
+    .map((line) => {
+      const pad = ' '.repeat(Math.max(0, innerWidth - line.plain.length));
+      return `│ ${line.text}${pad} │`;
+    })
+    .join('\n');
+  return `${top}\n${body}\n${bottom}`;
+}
+
+/**
  * Renders the framed box, wrapped to `width` columns (the prompt frames
  * live in a real terminal -- the PTY pins 120; the box respects the
  * caller's width so narrow terminals wrap the ITEMS, not the border).
@@ -128,18 +157,20 @@ export function renderNavigationMenu(
   if (current.length > 0) rows.push(current);
 
   const title = ' Navigate ';
-  const top = `┌${title}${'─'.repeat(Math.max(0, innerWidth + PADDING * 2 - title.length))}┐`;
-  const bottom = `└${'─'.repeat(innerWidth + PADDING * 2)}┘`;
-  const body = rows
-    .map((row) => {
+  return renderFramedBox({
+    title,
+    lines: rows.map((row) => {
       const plainWidth = row.reduce(
         (sum, item, index) =>
           sum + item.plainWidth + (index > 0 ? GAP_WIDTH : 0),
         0
       );
       const pad = ' '.repeat(Math.max(0, innerWidth - plainWidth));
-      return `│ ${row.map((item) => item.text).join(GAP)}${pad} │`;
-    })
-    .join('\n');
-  return `${top}\n${body}\n${bottom}`;
+      return {
+        text: `${row.map((item) => item.text).join(GAP)}${pad}`,
+        plain: `${row.map((item) => item.plain).join(GAP)}${pad}`,
+      };
+    }),
+    width,
+  });
 }

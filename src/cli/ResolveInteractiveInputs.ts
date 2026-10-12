@@ -1162,39 +1162,83 @@ async function runInvocationEditor(command: Command): Promise<void> {
     defaultValues: preselected,
     // LIVE footer over the SELECTION (not the cursor): every space-
     // toggled option renders as its flag -- booleans as the flag alone,
-    // valued options as flag + value placeholder (their value step
-    // follows the editor). The committed state shows when nothing is
-    // selected.
+    // valued options as flag + value placeholder while being valued.
+    // The committed state shows when nothing is selected.
     preview: (() => {
       const readiness = commandReadinessFor(command);
       if (!readiness) return undefined;
       return liveMultiOptionPreview(command, readiness);
     })(),
-    // Space on a VALUED option side-steps straight into its value
-    // prompt (user feedback 2026-10-12: marking --retry showed a
-    // <placeholder> and required a second enter to reach the menu --
-    // unintuitive). The option joins the selection only when a real
-    // value is collected; escaping the value prompt rejects the
-    // toggle. Booleans have no value step and toggle directly.
-    onToggleOn: async (attributeName) => {
+    // Space on a VALUED option opens the prompt's INLINE value editor
+    // (user feedback 2026-10-12: marking --retry showed a <placeholder>
+    // and required a second enter to reach the value menu -- and the
+    // first nested-prompt design froze the frame: two readlines over
+    // stdin). The option is marked only once a real value is committed;
+    // esc rejects the mark. Booleans have no value step and toggle
+    // directly.
+    needsValue: (attributeName) => {
       const option = command.options.find(
         (candidate) => candidate.attributeName() === attributeName
       );
-      if (!option || !/<[^>]+>|\[[^\]]+\]/.test(option.flags)) {
-        return true; // boolean (or unknown): plain toggle
+      return !!option && /<[^>]+>|\[[^\]]+\]/.test(option.flags);
+    },
+    // Enum options (commander `.choices()`, e.g. --retry <strategy>)
+    // get an in-frame PICKER instead of free text (user feedback
+    // 2026-10-12: free-typing an enum value is both wrong-shaped and
+    // invisible).
+    choicesFor: (attributeName) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      return option?.argChoices && option.argChoices.length > 0
+        ? option.argChoices.map(String)
+        : undefined;
+    },
+    // The value editor starts at the option's current value (a picker
+    // cursor lands on it; the text draft pre-fills) -- same
+    // "pre-fill the value step" contract runValueStep's re-edit
+    // already honors.
+    currentValueFor: (attributeName) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      if (!option) return undefined;
+      const current = command.getOptionValue(attributeName);
+      // Array collectors have no single current text to start from --
+      // a repeated mark APPENDS (mirroring repeated flags), so the
+      // editor starts empty every time.
+      if (current === undefined || current === false || Array.isArray(current))
+        return undefined;
+      return String(current);
+    },
+    onValue: (attributeName, value) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      if (!option) return;
+      // Array-collecting options (ListOption family) accumulate:
+      // a repeated mark appends, mirroring repeated CLI flags.
+      const collectsArrays = Array.isArray(option.defaultValue);
+      if (collectsArrays) {
+        const existing = command.getOptionValue(attributeName);
+        command.setOptionValueWithSource(
+          attributeName,
+          [...(Array.isArray(existing) ? existing : []), value],
+          'cli'
+        );
+      } else {
+        command.setOptionValueWithSource(attributeName, value, 'cli');
       }
-      const value = await runValueStep(attributeName);
-      if (value === undefined) return false; // declined: no mark
-      committed[attributeName] = value;
-      verboseMessage(`Using ${option.flags}.`);
-      return true;
+      committed[attributeName] = command.getOptionValue(attributeName);
+      verboseMessage(`Using ${option.flags} ${value}.`);
     },
     choices: candidates
-      // Alphabetical by the displayed flag (user feedback 2026-10-12:
-      // registration order reads as arbitrary). localeCompare keeps it
-      // stable and human-ordered; the long flag sorts by its option
-      // word regardless of short-flag presence.
-      .sort((a, b) => a.flags.localeCompare(b.flags))
+      // Alphabetical by the option WORD (user feedback 2026-10-12:
+      // registration order read as arbitrary, and sorting by the raw
+      // flags string ranked short flags after ALL long ones -- sort on
+      // the name after the dashes: "directory" under D, not "--directory"
+      // after every double-dash).
+      .sort((a, b) => optionSortKey(a).localeCompare(optionSortKey(b)))
       .map((option) => {
         // Already-valued options are editable too --
         // shown with their current value so the user can tell them apart.
@@ -1230,6 +1274,22 @@ async function runInvocationEditor(command: Command): Promise<void> {
     command.getOptionValueSource('saveDefaults') === 'cli';
 
   for (const attributeName of picked) {
+    // Options valued INLINE (the multiselect's onValue committed the
+    // value AND marked the option, source 'cli') are done -- running
+    // the value step again would ask twice for the same value. A
+    // boolean flag also sets source 'cli' at toggle time, so the
+    // source check covers both; the value step is only for options
+    // still without a user value.
+    const alreadyValued =
+      command.getOptionValueSource(attributeName) === 'cli' &&
+      command.getOptionValue(attributeName) !== undefined;
+    if (alreadyValued) {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      )!;
+      verboseMessage(`Using ${option.flags}.`);
+      continue;
+    }
     const value = await runValueStep(attributeName);
     if (value === undefined) continue;
     committed[attributeName] = value;
@@ -1266,4 +1326,21 @@ function commandStorePath(command: Command): string {
     names.unshift(cursor.name());
   }
   return names.join(' ');
+}
+
+/**
+ * The editor list's sort key for an option: the option WORD after the
+ * dashes (`--env-file` -> "env-file", `-k, --insecure` -> "insecure"),
+ * so dash count never ranks (`-D, --directory` sorts under D among the
+ * long flags, not after every double-dash) -- user feedback 2026-10-12.
+ * Value placeholders are dropped; short flags sort by their letter
+ * after the word.
+ */
+function optionSortKey(option: Option): string {
+  const words = option.flags
+    .split(/[, ]+/)
+    .filter((token) => token.startsWith('-'))
+    .map((token) => token.replace(/^-+/, ''))
+    .filter((word) => !/^[<[]/.test(word));
+  return words.join(' ').toLowerCase();
 }

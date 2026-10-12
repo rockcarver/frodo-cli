@@ -346,17 +346,30 @@ export function liveMultiOptionPreview(
       );
       if (!option) continue;
       // Booleans serialize as the flag alone; valued options as the
-      // flag + placeholder (the value step follows the editor -- the
-      // footer must not invent a value that is not chosen yet).
+      // flag + placeholder -- but ONLY while no user value stands: an
+      // option whose value IS committed this invocation (source 'cli',
+      // inline editor or the command line) serializes its REAL value --
+      // the footer must not un-see a value the user already gave (it
+      // would render `--retry <strategy>` beside a committed `network`).
       const boolean = !/<[^>]+>|\[[^\]]+\]/.test(option.flags);
+      const committed = command.getOptionValue(attributeName);
+      const committedSource = command.getOptionValueSource(attributeName);
+      const hasUserValue =
+        committedSource === 'cli' &&
+        committed !== undefined &&
+        (!Array.isArray(committed) || committed.length > 0);
       shadows.push({
         optionName: attributeName,
-        committed: command.getOptionValue(attributeName),
-        committedSource: command.getOptionValueSource(attributeName),
+        committed,
+        committedSource,
       });
+      // A valued option with a real user value: leave it as-is (the
+      // serializer renders the value, arrays as repeated flags).
+      if (!boolean && hasUserValue) continue;
       // The placeholder token straight from the flags spec ("<type>",
       // "[file]") -- the serializer emits `${longFlag} ${value}`, so a
       // value of "<type>" renders "--type <type>": the flag with the
+      // value slot the user is about to fill.
       // value slot the user is about to fill.
       const placeholder =
         option.flags

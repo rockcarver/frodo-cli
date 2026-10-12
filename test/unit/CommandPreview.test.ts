@@ -276,6 +276,20 @@ describe('liveMultiOptionPreview (invocation editor selection footer)', () => {
     expect(serializeCommand(command)).toBe('list');
   });
 
+  it('serializes the REAL value for an option the user already provided (no placeholder shadow)', () => {
+    const command = makeEditorCommand();
+    command.parse(['-t', 'x'], { from: 'user' });
+    const preview = liveMultiOptionPreview(command, ALWAYS_READY);
+    // The user's value stands: re-marking --type (editing it) must not
+    // un-see the committed value in the footer.
+    expect(preview(['type'])).toContain('list --type x');
+    expect(preview(['type'])).not.toContain('list --type <type>');
+    // The shadow-restore round-trip keeps the user's value (the
+    // "untouched after every render" guarantee covers values the
+    // preview INVENTED -- a user-provided value is legitimately there).
+    expect(serializeCommand(command)).toBe('list --type x');
+  });
+
   it('renders the committed state for an empty selection', () => {
     const command = makeEditorCommand();
     command.parse(['-t', 'x'], { from: 'user' });

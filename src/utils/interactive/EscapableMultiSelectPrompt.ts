@@ -11,8 +11,13 @@ import {
   usePrefix,
   useState,
 } from '@inquirer/core';
+import type { InquirerReadline } from '@inquirer/type';
 import c from '../ColorTheme';
-import { navigationMenuItems, renderNavigationMenu } from './NavigationMenu';
+import {
+  navigationMenuItems,
+  renderFramedBox,
+  renderNavigationMenu,
+} from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
 /**
@@ -50,17 +55,29 @@ export type EscapableMultiSelectConfig<Value> = {
    */
   preview?: string | ((selected: unknown[]) => string);
   /**
-   * Async side step for a just-toggled-ON member (the invocation
-   * editor's value steps): when set, <space> on a member the caller
-   * declines to accept as-is resolves this promise FIRST -- the prompt
-   * pauses (further keypresses ignored), the hook collects the value
-   * (typically a nested prompt), and the member is only added to the
-   * selection when it resolves. The hook may also CANCEL the toggle by
-   * resolving with `false` (e.g. the user escaped the nested value
-   * prompt -- a valued option cannot be marked without a real value).
-   * Toggle-OFF never consults the hook.
+   * Members that need a VALUE before they can be marked (the invocation
+   * editor's valued options): <space> on one switches this prompt into
+   * an INLINE value editor (same readline-mirror pattern as the
+   * connection page -- no nested prompt, no second readline over stdin;
+   * the previous async-hook design nested a second @inquirer prompt
+   * inside the keypress handler and the two readlines fought over stdin,
+   * freezing the frame). An option that declares commander `.choices()`
+   * (`choicesFor`) gets an in-frame PICKER (↑↓ + enter); the rest get
+   * free text. The option is marked only once a real value is committed;
+   * <esc> rejects (an option that needs a value cannot be marked without
+   * one). `onValue` receives the member and its collected value as soon
+   * as <enter> commits it.
    */
-  onToggleOn?: (value: Value) => Promise<boolean | void>;
+  needsValue?: (value: Value) => boolean;
+  /** The enum members of a valued option, when it has any. */
+  choicesFor?: (value: Value) => string[] | undefined;
+  /**
+   * The option's current value (commander's, as text) -- the inline
+   * editor starts there (picker cursor on it, text draft pre-filled)
+   * instead of from empty.
+   */
+  currentValueFor?: (value: Value) => string | undefined;
+  onValue?: (value: Value, collected: string) => void;
 };
 
 /**
@@ -72,8 +89,10 @@ export type EscapableMultiSelectConfig<Value> = {
  * prompt family).
  *
  * Interaction contract (the user's stated paradigm):
- * - ↑/↓ navigate
- * - <space> toggles the highlighted entry
+ * - ↑/↓ navigate (clamped at the ends -- a list with a beginning and an
+ *   end, not an endless loop)
+ * - <space> toggles the highlighted entry; on a member that needs a
+ *   value, it opens the inline value editor instead
  * - <enter> commits the currently-selected set (possibly empty)
  * - Escape backs out without committing (MULTISEL_ESCAPE)
  * - type-to-search filters live, cursor resets to top on query change,
@@ -94,19 +113,23 @@ const escapableMultiSelectImpl = createPrompt(
   ) => {
     const { pageSize = 20, choices } = config;
     const [status, setStatus] = useState<'idle' | 'done' | 'escaped'>('idle');
-    // While a just-toggled member's side step (onToggleOn) runs, every
-    // keypress is ignored -- the nested prompt owns the keyboard. The
-    // prefix shows the working state (usePrefix 'loading') so the pause
-    // reads as intentional, not frozen.
-    const [sideStepping, setSideStepping] = useState(false);
     const prefix = usePrefix({
-      status: sideStepping ? 'loading' : status === 'escaped' ? 'done' : status,
+      status: status === 'escaped' ? 'done' : status,
     });
 
     const [query, setQuery] = useState('');
     const [selected, setSelected] = useState<Set<unknown>>(
       () => new Set(config.defaultValues ?? [])
     );
+    // INLINE value editing (see the needsValue config doc for why NOT a
+    // nested prompt): the highlighted member being valued right now, the
+    // mode it edits in (a PICKER for options with commander `.choices()`,
+    // free TEXT otherwise), the readline-mirror draft, and the picker's
+    // cursor.
+    const [editing, setEditing] = useState<unknown>(null);
+    const [editingChoices, setEditingChoices] = useState<string[]>([]);
+    const [draft, setDraft] = useState('');
+    const [pickerActive, setPickerActive] = useState(0);
 
     const filtered = useMemo(() => {
       if (query.length === 0) return choices;
@@ -126,8 +149,86 @@ const escapableMultiSelectImpl = createPrompt(
     const [active, setActive] = useState(0);
     const highlighted = filtered[active];
 
+    // Leaving the inline value editor: clear editing state AND scrub the
+    // readline buffer -- the editor swaps key semantics (picker) or
+    // hands the buffer to a value, and a surviving filter query would
+    // prefix the next value or filter the next navigation.
+    const closeInlineEditor = (rl: InquirerReadline) => {
+      setEditing(null);
+      setEditingChoices([]);
+      setDraft('');
+      setPickerActive(0);
+      // Replay readline's own ctrl+u binding: buffer + cursor + display
+      // all clear together (the declared InquirerReadline type only
+      // lists write(data: string), but the runtime object is a real
+      // readline.Interface -- see create-prompt's createInterface).
+      (
+        rl.write as InquirerReadline['write'] & {
+          (data: null, key: { ctrl: boolean; name: string }): void;
+        }
+      )(null, { ctrl: true, name: 'u' });
+      rl.clearLine(0);
+    };
+
     useKeypress((key, rl) => {
-      if (sideStepping) return; // the nested value prompt owns the keyboard
+      if (editing !== null) {
+        // The inline value editor owns every key until it concludes.
+        if (editingChoices.length > 0) {
+          // PICKER mode: an enum option's value comes from its declared
+          // choices -- free typing is not an input here, so the keys are
+          // the list's, not readline's.
+          if (isEnterKey(key)) {
+            const value = editingChoices[pickerActive] ?? editingChoices[0];
+            config.onValue?.(editing, value);
+            setSelected((previous) => {
+              const next = new Set(previous);
+              next.add(editing);
+              return next;
+            });
+            closeInlineEditor(rl);
+            return;
+          }
+          if (key.name === 'escape') {
+            // Reject: an option that needs a value cannot be marked
+            // without one. Nothing changes.
+            closeInlineEditor(rl);
+            return;
+          }
+          if (isUpKey(key) || isDownKey(key)) {
+            const offset = isUpKey(key) ? -1 : 1;
+            setPickerActive((previous) =>
+              Math.min(
+                editingChoices.length - 1,
+                Math.max(0, previous + offset)
+              )
+            );
+            return;
+          }
+          return;
+        }
+        if (isEnterKey(key)) {
+          // readline already consumed its buffer (textPrompt pattern);
+          // read the mirror.
+          const line = draft || rl.line || '';
+          if (line.trim().length === 0) return; // empty = no value yet
+          config.onValue?.(editing, line);
+          setSelected((previous) => {
+            const next = new Set(previous);
+            next.add(editing);
+            return next;
+          });
+          closeInlineEditor(rl);
+          return;
+        }
+        if (key.name === 'escape') {
+          // Reject: an option that needs a value cannot be marked
+          // without one. Nothing changes.
+          closeInlineEditor(rl);
+          return;
+        }
+        setDraft(rl.line);
+        return;
+      }
       if (
         key.name === 'escape' ||
         (key.name === 'left' &&
@@ -152,25 +253,32 @@ const escapableMultiSelectImpl = createPrompt(
       } else if (isSpaceKey(key)) {
         if (!highlighted) return;
         const togglingOn = !selected.has(highlighted.value);
-        if (togglingOn && config.onToggleOn) {
-          // Side step FIRST (typically the value prompt for a valued
-          // option): the member joins the selection only if the hook
-          // accepts it. A rejected toggle (nested escape) changes
-          // nothing -- a valued option cannot be marked without its
-          // real value.
-          setSideStepping(true);
-          void config
-            .onToggleOn(highlighted.value)
-            .then((accepted) => {
-              if (accepted !== false) {
-                setSelected((previous) => {
-                  const next = new Set(previous);
-                  next.add(highlighted.value);
-                  return next;
-                });
-              }
-            })
-            .finally(() => setSideStepping(false));
+        if (togglingOn && config.needsValue?.(highlighted.value)) {
+          // A valued option cannot be marked without its real value:
+          // switch into the inline value editor instead of marking.
+          // A PICKER for options with declared choices, free text
+          // otherwise. The value starts at the option's current value
+          // (picker cursor on it; text draft pre-filled) -- "just wanted
+          // to change one thing" costs an edit, not a retyping session.
+          // The readline buffer is scrubbed too: the filter query that
+          // brought the cursor here would otherwise survive as a
+          // prefix of the typed value (see closeInlineEditor for the
+          // replay mechanism).
+          const choicesFor =
+            config.choicesFor?.(highlighted.value) ?? undefined;
+          const current = config.currentValueFor?.(highlighted.value) ?? '';
+          setEditing(highlighted.value);
+          setEditingChoices(choicesFor ?? []);
+          setPickerActive(
+            choicesFor ? Math.max(0, choicesFor.indexOf(current)) : 0
+          );
+          setDraft(current);
+          (
+            rl.write as InquirerReadline['write'] & {
+              (data: null, key: { ctrl: boolean; name: string }): void;
+            }
+          )(null, { ctrl: true, name: 'u' });
+          rl.clearLine(0);
           return;
         }
         setSelected((previous) => {
@@ -221,10 +329,58 @@ const escapableMultiSelectImpl = createPrompt(
     });
 
     const queryEcho = query.length > 0 ? c.command(` query: ${query}`) : '';
+    // The inline value editor takes the TOP slot of the frame -- the
+    // same visual position as the Navigate menu, where the eye already
+    // looks first (user feedback: the value collector at the bottom was
+    // hard to see). While it is open the Navigate menu would lie about
+    // the keys (typing filters nothing; space does not toggle), so the
+    // Value box REPLACES it, and its rows state the keys that actually
+    // apply. An enum option renders its choices as a picker list; a free
+    // text option renders the draft with readline's echo muted.
+    const editingName =
+      editing !== null
+        ? (choices.find((choice) => choice.value === editing)?.name ??
+          String(editing))
+        : '';
+    const valueBox =
+      editing === null
+        ? ''
+        : editingChoices.length > 0
+          ? renderFramedBox({
+              title: ` Value for ${editingName} `,
+              lines: [
+                ...editingChoices.map((choice, index) => {
+                  const marker = index === pickerActive ? '›' : ' ';
+                  const line = `${marker} ${choice}`;
+                  return {
+                    text: index === pickerActive ? c.command(line) : line,
+                    plain: line,
+                  };
+                }),
+                {
+                  text: c.muted('↑↓ move · enter pick · esc rejects'),
+                  plain: '↑↓ move · enter pick · esc rejects',
+                },
+              ],
+            })
+          : renderFramedBox({
+              title: ` Value for ${editingName} `,
+              lines: [
+                {
+                  text: c.command(draft || '(type a value)'),
+                  plain: draft || '(type a value)',
+                },
+                {
+                  text: c.muted('enter commits · esc rejects'),
+                  plain: 'enter commits · esc rejects',
+                },
+              ],
+            });
 
     // The navigation menu (see NavigationMenu.ts): framed box at the
     // TOP of the frame; the multi-select's space/enter roles and the
-    // editor's <- back alias are its extra affordances.
+    // editor's <- back alias are its extra affordances. The inline
+    // value editor replaces it while open (see valueBox).
     const menu = renderNavigationMenu(
       navigationMenuItems({
         filter: true,
@@ -236,7 +392,7 @@ const escapableMultiSelectImpl = createPrompt(
     );
 
     const lines = [
-      menu,
+      editing !== null ? valueBox : menu,
       `${prefix} ${config.message}${queryEcho}`,
       filtered.length > 0
         ? page

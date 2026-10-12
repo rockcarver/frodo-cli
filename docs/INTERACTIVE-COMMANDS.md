@@ -89,7 +89,8 @@ auto-select.
 
 ## The navigation menu
 
-Every prompt frame opens with a framed box at the TOP (`NavigationMenu.ts`):
+Every prompt frame opens with a framed box at the TOP (`NavigationMenu.ts`,
+whose `renderFramedBox` is the shared renderer for every box in a frame):
 
 ```
 ┌ Navigate ─────────────────────────────────────────────┐
@@ -104,6 +105,29 @@ spotting), `enter` positive (committing), `esc` negative (backing out).
 The box wraps its items within the terminal width. The multi-select's
 `space` and the editor's `←` are additional items; the `→` hint count
 renders inside the menu.
+
+## The inline value editor
+
+In the invocation editor, `<space>` on a valued option opens a FRAMED
+VALUE BOX in the same top slot (the Navigate menu's place — where the
+eye already looks; the first collector sat at the frame bottom where it
+was invisible). While it is open the box REPLACES the Navigate menu,
+because the menu would lie about the keys; its rows state the keys that
+actually apply:
+
+- An option with commander `.choices()` gets a PICKER (`↑↓ move · enter
+pick · esc rejects`) — an enum value is picked, never typed. The
+  cursor starts on the option's current value when it has one.
+- Everything else gets free text (`enter commits · esc rejects`), the
+  draft pre-filled with the current value.
+
+Either way the option joins the selection only when a real value is
+committed; `<esc>` rejects the mark. Opening or closing the editor
+scrubs the readline buffer (replaying its own ctrl+u binding) — the
+filter query that positioned the cursor must not leak into the value
+as a prefix. All of it stays in ONE prompt: the earlier design that
+nested a second @inquirer prompt inside the keypress handler had two
+readlines fighting over stdin and froze the frame.
 
 ## The command preview
 
@@ -140,9 +164,10 @@ unsatisfied groups, failed auth) print nothing.
   type-to-filter narrows it.
 - `<enter>` — conclude/advance.
 - `<space>` — multi-value select only (the invocation editor). Marking
-  an option that needs a value side-steps straight into its value
-  prompt; the option joins the selection only when a real value is
-  collected (escaping the value prompt rejects the mark).
+  an option that needs a value side-steps straight into its inline
+  value box (a picker for `.choices()` options, free text otherwise);
+  the option joins the selection only when a real value is collected
+  (escaping the box rejects the mark).
 - `→` — enter the next editor segment, where the prompt advertises one
   with a counted hint ("→ 4 options to configure"); only armed when a
   hint exists, and only when the filter query is empty (with text
