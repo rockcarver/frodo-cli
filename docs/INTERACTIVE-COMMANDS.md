@@ -241,26 +241,33 @@ command files and ops modules therefore carry no prompting code of
 their own — `conn.ts` is one import line, `ConnectionProfileOps` has
 none.
 
-- `src/utils/interactive/` — the framework: prompt components, gate
-  state, the pickers that fire on the framework's behalf
-  (RealmPickers, EntityPickers, ConnectionProfilePickers). These may
-  import frodo-lib directly (RealmPickers' `state`,
-  ConnectionProfilePickers' `frodo.conn`) but NEVER import from
-  `src/ops/` — the command/resolver layer calls INTO them.
+- `src/utils/interactive/` — THE interactive folder: the framework
+  (prompt components, gate state, resolver-adjacent machinery) AND
+  every reusable picker built on its prompts, including the pickers of
+  natively-interactive commands (ConnectionProfilePickers behind
+  `frodo conn`, JourneyDebugPrompt behind `frodo debug journey`,
+  RealmPickers, EntityPickers). Single-use today does not mean
+  single-use tomorrow — the theme picker already gained a second
+  consumer — so command implementations that prompt centralize HERE,
+  next to the machinery they compose. These modules may import frodo-lib
+  directly (RealmPickers' `state`, ConnectionProfilePickers'
+  `frodo.conn`) but NEVER import from `src/ops/` — the command/resolver
+  layer calls INTO them.
 - `src/cli/` — command files reach the interactive layer with a plain
-  import (conn.ts → ConnectionProfilePickers) or not at all.
-- `src/ops/` — non-interactive operations. OPS MODULES MUST NOT PROMPT.
-  Two sanctioned exceptions, both documented at the import site:
-  1. `src/ops/interactive/` — self-contained ops modules whose flow
-     includes one interaction as part of the operation itself
-     (LoginSetupOps's "Apply these changes?" transaction gate). A gate
-     is proceed/abort only: never value collection, never resolver
-     prompting, never a standalone picker.
-  2. `AuthenticateOps`'s zero-import state imports
-     (`ActiveActionCommandState`, `PromptGateState`) — pure state, no
-     prompting; its prompt-bearing machinery is reached via
-     lazy `await import()` so the frodo-lib graph stays clean for the
-     Jest mocks.
+  import (conn.ts → ConnectionProfilePickers, debug-journey.ts →
+  JourneyDebugPrompt) or not at all. Even a natively-interactive
+  command's file contains no prompt code — just the import.
+- `src/ops/` — operations, including natively-interactive ones whose
+  flow embeds ONE interaction as part of the operation itself
+  (LoginSetupOps's "Apply these changes?" transaction gate). A gate is
+  proceed/abort only: never value collection, never resolver
+  prompting, never a standalone picker. The ONE exception to
+  "ops modules must not prompt" — documented at the import site.
+  Otherwise: `AuthenticateOps`'s zero-import state imports
+  (`ActiveActionCommandState`, `PromptGateState`) are pure state, no
+  prompting; its prompt-bearing machinery is reached via
+  lazy `await import()` so the frodo-lib graph stays clean for the
+  Jest mocks.
 - Shared vocabulary (e.g. `CredentialOverrideType`) lives in
   `src/utils/interactive/` so neither layer imports a type across the
   ops boundary; ops re-exports (`AuthenticateOps`) keep established

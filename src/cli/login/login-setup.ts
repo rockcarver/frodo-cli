@@ -2,7 +2,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { setupBrowserLogin } from '../../ops/interactive/LoginSetupOps';
+import { setupBrowserLogin } from '../../ops/LoginSetupOps';
 import c from '../../utils/ColorTheme';
 import { AUTHENTICATION_OPTIONS_HEADING, FrodoCommand } from '../FrodoCommand';
 

@@ -4,14 +4,14 @@ import {
   type OAuth2ClientSkeleton,
   type ScriptSkeleton,
 } from '@rockcarver/frodo-lib';
-import { printMessage } from '../../utils/Console';
-// In-flow transaction gate ("Apply these changes?"): this module is a
-// self-contained interactive ops module (docs/INTERACTIVE-COMMANDS.md,
-// layering) -- the confirm is part of the operation, not resolver
-// prompting, so it may prompt directly.
-import { escapableSelect } from '../../utils/interactive/EscapableSelectPrompt';
-import OAUTH2_CLIENT_TEMPLATE from '../templates/OAuth2ClientTemplate.json';
-import { cloneDeep } from '../utils/OpsUtils';
+import { printMessage } from '../utils/Console';
+// In-flow transaction gate ("Apply these changes?"): the confirm is part
+// of the operation itself, not resolver prompting -- ops modules may
+// gate their own destructive steps (docs/INTERACTIVE-COMMANDS.md,
+// layering).
+import { escapableSelect } from '../utils/interactive/EscapableSelectPrompt';
+import OAUTH2_CLIENT_TEMPLATE from './templates/OAuth2ClientTemplate.json';
+import { cloneDeep } from './utils/OpsUtils';
 
 const constants = frodo.utils.constants;
 const {
