@@ -3,7 +3,7 @@ import { errorMessage } from '../../utils/Console';
 // framework is ambient: command files call INTO it, ops carries no
 // prompting code -- see docs/INTERACTIVE-COMMANDS.md).
 import { runInteractivePreferredCredentialPicker } from '../../utils/interactive/ConnectionProfilePickers';
-import { FrodoStubCommand, hostArgument } from '../FrodoCommand';
+import { FrodoStubCommand, STEP_BACK_FROM_ACTION, hostArgument } from '../FrodoCommand';
 import AliasCmd from './conn-alias.js';
 import DeleteCmd from './conn-delete.js';
 import DescribeCmd from './conn-describe.js';
@@ -14,7 +14,16 @@ import TestCmd from './conn-test.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('conn')
-    .description('Manage connection profiles.')
+    // .summary() is what the PARENT's Commands list shows (one line);
+    // .description() is what this command's own -h shows. The bare-
+    // invocation behavior lives in the DESCRIPTION (not a framework
+    // marker line): conn is a full command of its own, and its bare
+    // mode is part of its contract -- same pattern as login-setup.
+    .summary('Manage connection profiles.')
+    .description(
+      'Manage connection profiles.\n\n' +
+        "Run without a sub-command to interactively set a profile's preferred credential."
+    )
     .addArgument(hostArgument);
 
   // A subcommand alongside `conn`'s own default action -- typing `frodo
@@ -28,8 +37,13 @@ export default function setup() {
   // profile browsing/creation/deletion.
   program.action(async (host) => {
     try {
-      await runInteractivePreferredCredentialPicker(host);
+      const applied = await runInteractivePreferredCredentialPicker(host);
+      // Declined (ESC / --no-prompt / esc×2): climb into the sub-command
+      // picker instead of ending the session -- the bare mode is one
+      // level of the navigable tree (see FrodoCommand's Run row).
+      if (!applied) throw STEP_BACK_FROM_ACTION;
     } catch (error) {
+      if (error === STEP_BACK_FROM_ACTION) throw error;
       errorMessage(`${error}`);
       process.exitCode = 1;
     }

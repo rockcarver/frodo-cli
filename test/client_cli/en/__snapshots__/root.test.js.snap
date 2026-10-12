@@ -59,5 +59,7 @@ Continuous integration:
   dcc               [Preview] [Cloud-only] Direct Configuration Control (DCC)
                     commands.
   promote           Prepares a tenant to be promoted
-"
+
+
+Run without a sub-command to enter interactive mode."
 `;

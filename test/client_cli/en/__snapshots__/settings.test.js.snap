@@ -5,6 +5,8 @@ exports[`CLI help interface for 'settings' should be expected english 1`] = `
 
 Manage CLI settings.
 
+Run without a sub-command to open the interactive settings menu.
+
 Options:
   -h, --help        Help
   -hh, --help-more  Help with all options.

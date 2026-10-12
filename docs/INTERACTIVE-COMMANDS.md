@@ -221,6 +221,34 @@ session. Only the ROOT picker's Esc exits (help-exit), and the
 double-ESC exit-all works from any depth (`Esc` `Esc` inside the
 config-manager picker, for example, lands straight back at the shell).
 
+## Stubs: containers, action stubs, and the Run row
+
+Every command is one of two classes (`FrodoCommand` = live,
+`FrodoStubCommand` = container), and the framework makes the
+difference visible in help and behavior:
+
+- **Pure container** (`journey`, `esv`, `log`, ...) — bare invocation
+  opens the sub-command picker; its help carries the framework's
+  standard line ("Run without a sub-command to enter interactive
+  mode.") and lists `--no-prompt` only (legacy help-exit restored).
+- **Action stub** (`conn`, `settings`) — a full command of its own
+  whose bare invocation runs its own interactive mode (declared in its
+  DESCRIPTION, not a marker line; one-line `.summary()` keeps the
+  parent's list short). Its sub-command picker carries a **Run row
+  first** ("Run 'conn' — <description>"), so the tree stays browsable:
+  bare mode → ESC → picker (Run row re-offers the action) → ESC →
+  parent. Both `--prompt` (sub-command picker instead of the action —
+  browse mode on demand) and `--no-prompt` (the action is
+  gate-respecting: declines without prompting, exactly like ESC) list
+  in its help.
+- **Live command** — everything as before: the resolution pass, the
+  `--prompt` options editor, `--no-prompt` legacy failure.
+
+An action stub's bare interactive mode is one level of the navigable
+tree, not a session endpoint: declining it (ESC, gate-blocked, esc×2)
+throws the framework's STEP_BACK sentinel (`STEP_BACK_FROM_ACTION` for
+command files) and the sub-command picker re-opens.
+
 ## Zero-import modules and the frodo-lib Jest constraint
 
 Jest cannot import the resolution pass (its frodo-lib import graph
@@ -272,4 +300,3 @@ none.
   `src/utils/interactive/` so neither layer imports a type across the
   ops boundary; ops re-exports (`AuthenticateOps`) keep established
   import paths stable.
-

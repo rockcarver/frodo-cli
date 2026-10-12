@@ -21,5 +21,7 @@ Commands:
 
 Utilities:
   help              display help for command
-"
+
+
+Run without a sub-command to enter interactive mode."
 `;
