@@ -1136,9 +1136,7 @@ function applyPersistedDefaults(command: Command): void {
   }
 }
 
-async function runInvocationEditor(
-  command: Command
-): Promise<void | false> {
+async function runInvocationEditor(command: Command): Promise<void | false> {
   // Resolves `false` when the user double-ESCed (EXIT_ALL): every
   // caller in the routing loops unwinds the whole interactive pass.
   const candidates = editableOptionalOptions(command);

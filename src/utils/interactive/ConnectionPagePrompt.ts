@@ -10,13 +10,13 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import { EXIT_ALL, isDoubleEscape } from './ExitAll';
 import {
   navigationMenuItems,
   renderFramedBox,
   renderNavigationMenu,
   stripAnsi,
 } from './NavigationMenu';
-import { EXIT_ALL, isDoubleEscape } from './ExitAll';
 import { notePromptRendered } from './PromptGateState';
 
 /**

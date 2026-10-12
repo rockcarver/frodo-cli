@@ -119,9 +119,7 @@ export function renderFramedBox(options: {
 }): string {
   const { lines } = options;
   const title =
-    typeof options.title === 'string'
-      ? { text: options.title }
-      : options.title;
+    typeof options.title === 'string' ? { text: options.title } : options.title;
   // One space between wall and title content on both sides -- the
   // Navigate menu's ' Navigate ' convention, applied to every box.
   // Measured on the STRIPPED TEXT: one source of truth, the walls can
