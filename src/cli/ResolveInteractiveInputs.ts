@@ -45,8 +45,12 @@ import {
   setAuthoringPrintFlush,
 } from '../utils/interactive/AuthoringPrintState';
 import {
+  liveOptionPreview,
+  livePositionalPreview,
   renderCommandPreview,
+  serializeCommand,
   setDeploymentTypeForPreview,
+  type CommandReadiness,
 } from '../utils/interactive/CommandPreview';
 import {
   connectionPage,
@@ -331,13 +335,11 @@ export async function resolveInteractiveInputs(
   armAuthoringPrint();
   setAuthoringPrintFlush(() => {
     if (promptsRendered() === 0 && !explicitlyInteractive) return;
-    printMessage(
-      renderCommandPreview(command, {
-        missingMandatoryOptionLabels: [],
-        oneOfUnsatisfied: false,
-      }),
-      'text'
-    );
+    // Plain serialization, NO theme color: the red->green readiness
+    // contrast belongs to the live footer while authoring; the final
+    // print is the record of what ran -- regular shell text (user
+    // decision 2026-10-11).
+    printMessage(serializeCommand(command), 'text');
   });
 }
 
@@ -406,11 +408,16 @@ async function selectWithEditorRouting<Value>(
   config: EscapableSelectConfig<Value>
 ): Promise<Value | typeof ESCAPE> {
   const hint = editableOptionsHint(command);
+  // Preview discipline: callers pass their own (a LIVE callback when the
+  // pick maps onto a command token); the default stays the static
+  // committed-state render, refreshed per picker OPEN so it reflects
+  // values filled since the last prompt.
+  const preview = config.preview ?? commandPreviewFor(command);
   for (;;) {
     const choice = await escapableSelect<Value>({
       ...config,
       hint,
-      preview: commandPreviewFor(command),
+      preview,
     });
     if (choice !== RIGHT) return choice;
     await runInvocationEditor(command);
@@ -427,18 +434,73 @@ async function selectWithEditorRouting<Value>(
  */
 export function commandPreviewFor(command: Command): string | undefined {
   if (!canPrompt()) return undefined;
-  const missingMandatoryOptionLabels =
-    pendingMandatoryViolations.get(command) ?? [];
+  const readiness = commandReadinessFor(command);
+  return readiness ? renderCommandPreview(command, readiness) : undefined;
+}
+
+/**
+ * The resolver's current readiness input for `command` (the data behind
+ * commandPreviewFor's render), for callers building LIVE preview
+ * callbacks (livePositionalPreview/liveOptionPreview need the readiness
+ * at every re-render, not a one-shot string). Undefined when prompting
+ * is disallowed -- same gate as commandPreviewFor.
+ */
+export function commandReadinessFor(
+  command: Command
+): CommandReadiness | undefined {
+  if (!canPrompt()) return undefined;
+  // Freshness: the deferred-mandatory registry records what parser time
+  // found -- a value filled SINCE (by this pass's own prompts or the
+  // invocation editor) must not keep the footer red. Recompute per call:
+  // an option is "still missing" only when its label is registered AND
+  // the option still holds no value.
+  const registered = pendingMandatoryViolations.get(command) ?? [];
+  const missingMandatoryOptionLabels = registered.filter((label) => {
+    const option = command.options.find(
+      (candidate) => candidate.flags === label
+    );
+    if (!option) return true;
+    const value = command.getOptionValue(option.attributeName());
+    return value === undefined || value === false || value === '';
+  });
   const oneOfUnsatisfied = findUnsatisfiedOneOfGroups(command).length > 0;
   // Before resolveConnectionArgs has run there is no connection truth yet
   // (the map is empty) -- leave it unset: readiness then hinges on the
   // mandatory/one-of state alone, which is exactly what's knowable then.
   const connectionResolved = connectionReadiness.get(command);
-  return renderCommandPreview(command, {
-    missingMandatoryOptionLabels: [...missingMandatoryOptionLabels],
+  return {
+    missingMandatoryOptionLabels,
     oneOfUnsatisfied,
     ...(connectionResolved !== undefined ? { connectionResolved } : {}),
-  });
+  };
+}
+
+/**
+ * LIVE preview callbacks for `command`'s pickers (the footer shows what
+ * the user is INFLUENCING -- arrowing through a list re-renders the
+ * command with the highlighted value shadowed in). Built fresh per
+ * picker open so the readiness snapshot (mandatory/one-of state at that
+ * moment) is current; the callbacks stay valid across the picker's
+ * renders. Undefined when prompting is disallowed -- same gate as
+ * commandPreviewFor.
+ */
+export function livePositionalPreviewFor(
+  command: Command,
+  positionalName: string
+): ((highlighted: unknown) => string) | undefined {
+  const readiness = commandReadinessFor(command);
+  if (!readiness) return undefined;
+  return livePositionalPreview(command, positionalName, readiness);
+}
+
+export function liveOptionPreviewFor(
+  command: Command,
+  optionName: string,
+  toValue?: (highlighted: unknown) => string | undefined
+): ((highlighted: unknown) => string) | undefined {
+  const readiness = commandReadinessFor(command);
+  if (!readiness) return undefined;
+  return liveOptionPreview(command, optionName, readiness, toValue);
 }
 
 /**
@@ -446,12 +508,15 @@ export function commandPreviewFor(command: Command): string | undefined {
  * (a single choice is no choice; commander would accept only that value
  * anyway -- the plan's single-option refinement); otherwise a searchable
  * dropdown. Returns ESCAPE only from the interactive picker, so a
- * single-choice set can never decline.
+ * single-choice set can never decline. With `optionName`, the picker's
+ * footer is LIVE: arrowing through the values re-renders the command with
+ * the highlighted value shadowed into that option.
  */
 async function selectFromChoices(
   command: Command,
   message: string,
-  choices: string[]
+  choices: string[],
+  optionName?: string
 ): Promise<string | typeof ESCAPE> {
   if (choices.length === 1) {
     verboseMessage(`Only one value available: ${choices[0]}`);
@@ -459,6 +524,9 @@ async function selectFromChoices(
   }
   return selectWithEditorRouting(command, {
     message,
+    ...(optionName
+      ? { preview: liveOptionPreviewFor(command, optionName) }
+      : {}),
     choices: choices.map((choiceValue) => ({
       name: choiceValue,
       value: choiceValue,
@@ -501,7 +569,8 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
       const choice = await selectFromChoices(
         command,
         `Choose a value for ${option.flags}:`,
-        option.argChoices
+        option.argChoices,
+        option.attributeName()
       );
       if (choice === ESCAPE) return false;
       value = choice;
@@ -569,8 +638,37 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     if (memberOptions.length === 0) continue;
 
     const subject = group.purpose ?? 'what to act on';
+    // LIVE footer: each row IS an option of the group, so the shadow
+    // dispatches per highlight -- the highlighted member's own option
+    // gains a placeholder showing the flag as present. The pick itself
+    // is a boolean-resolution (selecting the member satisfies the group);
+    // the value step below fills it for valued members. `true` shadowed
+    // with source 'cli' serializes the flag alone -- exactly the token
+    // the committed pick produces for boolean members.
+    const readiness = commandReadinessFor(command);
     const picked = await selectWithEditorRouting(command, {
       message: `Choose ${subject}:`,
+      ...(readiness
+        ? {
+            preview: (highlighted: unknown) => {
+              const member = memberOptions.find(
+                (candidate) => candidate.name === highlighted
+              );
+              if (!member) return renderCommandPreview(command, readiness);
+              // Boolean members shadow `true` (the flag alone serializes
+              // -- the exact committed token); valued members shadow
+              // nothing (their flag needs a value the NEXT step collects
+              // -- a fake value would lie in the footer).
+              const isBoolean = !/<[^>]+>|\[[^\]]+\]/.test(member.option.flags);
+              return liveOptionPreview(
+                command,
+                member.name,
+                readiness,
+                isBoolean ? () => 'true' : () => undefined
+              )(highlighted);
+            },
+          }
+        : {}),
       choices: memberOptions.map((member): EscapableSelectChoice<string> => ({
         value: member.name,
         name: `${member.option.flags}${member.option.description ? ` -- ${member.option.description}` : ''}`,
@@ -593,7 +691,8 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
       const value = await selectFromChoices(
         command,
         `Choose a value for ${chosen.option.flags}:`,
-        chosen.option.argChoices
+        chosen.option.argChoices,
+        chosen.name
       );
       if (value === ESCAPE) return false;
       command.setOptionValueWithSource(chosen.name, value, 'cli');
@@ -677,10 +776,18 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
         `No host given; using the only saved connection profile: ${picked}`
       );
     } else if (profiles.length > 1) {
+      // LIVE footer: the highlighted profile's host shadows the host
+      // positional -- the footer shows the command's host token (and the
+      // connection page's later prompts) moving with the cursor. The
+      // "enter manually" sentinel maps to undefined (committed state).
+      const readiness = commandReadinessFor(command);
       const choice = await selectWithEditorRouting<
         string | typeof ENTER_MANUALLY
       >(command, {
         message: 'Choose a connection profile:',
+        ...(readiness
+          ? { preview: livePositionalPreview(command, 'host', readiness) }
+          : {}),
         // Filter matches host AND alias (case-insensitive) -- typing part
         // of a hostname or the alias both find the profile.
         search: ({ value, name }, query) => {
@@ -978,7 +1085,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
     if (option.argChoices && option.argChoices.length > 0) {
       const value = await escapableSelect<string>({
         message: `Choose a value for ${option.flags}:`,
-        preview: commandPreviewFor(command),
+        preview: liveOptionPreviewFor(command, attributeName),
         choices: option.argChoices.map(
           (choiceValue): EscapableSelectChoice<string> => ({
             name: choiceValue,

@@ -152,12 +152,19 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
     // leaving the flow. Editorial loop, ESCAPE still declines the pick.
     let chosen: unknown | typeof ESCAPE | typeof RIGHT;
     for (;;) {
-      const { commandPreviewFor } =
+      const { liveOptionPreviewFor } =
         await import('../../cli/ResolveInteractiveInputs');
       chosen = await escapableSelect<unknown>({
         message: pick.message ?? `Select ${pick.kind} to act on:`,
         hint: editableOptionsHint(command),
-        preview: commandPreviewFor(command),
+        // LIVE footer: the highlighted entity's label (the exact value
+        // the real apply writes) shadows the target option per render,
+        // so the footer shows the command gaining that pick BEFORE
+        // <enter> commits. `pick.label` maps entity -> option value --
+        // the same mapping the committed apply uses.
+        preview: liveOptionPreviewFor(command, pick.name, (entity) =>
+          pick.label(entity)
+        ),
         choices: entities.map((entity) => {
           const description = pick.description?.(entity);
           return {

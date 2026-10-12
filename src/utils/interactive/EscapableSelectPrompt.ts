@@ -80,9 +80,15 @@ export type EscapableSelectConfig<Value> = {
    * Phase 5 command preview: the command being authored, rendered as a
    * footer line (red + cursive while mandatory input is missing, green/
    * white when ready). Callers pass the pre-rendered string from
-   * CommandPreview.ts.
+   * CommandPreview.ts -- or, for LIVE preview (Phase 5 refinement: the
+   * footer reflects what the user is INFLUENCING, not what they last
+   * committed), a function of the currently HIGHLIGHTED choice's value,
+   * re-invoked on every render: arrowing through a realm list updates
+   * the footer before <enter> commits. When nothing is highlighted
+   * (filtered to no matches) the function receives undefined and should
+   * fall back to the committed state.
    */
-  preview?: string;
+  preview?: string | ((highlighted: unknown) => string);
 };
 
 /**
@@ -248,7 +254,14 @@ const escapableSelectImpl = createPrompt(
     const queryEcho =
       config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
     const hintLine = config.hint ? c.muted(config.hint) : '';
-    const previewLine = config.preview;
+    // Live preview: a function form is re-invoked on EVERY render with
+    // the currently highlighted choice's value (undefined when filtered
+    // to no matches) -- arrowing through a list updates the footer
+    // before <enter> commits. A string form stays static as before.
+    const previewLine =
+      typeof config.preview === 'function'
+        ? config.preview(selected?.value)
+        : config.preview;
 
     const lines = [
       `${prefix} ${config.message}${queryEcho}`,

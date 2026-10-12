@@ -40,9 +40,12 @@ export type EscapableMultiSelectConfig<Value> = {
   pageSize?: number;
   /**
    * Phase 5 command preview: the command being authored, rendered as a
-   * footer line (pre-rendered by CommandPreview.ts).
+   * footer line (pre-rendered by CommandPreview.ts) -- or a function of
+   * the currently HIGHLIGHTED choice's value for LIVE preview (re-invoked
+   * every render; undefined when filtered to no matches), mirroring
+   * escapableSelect's contract.
    */
-  preview?: string;
+  preview?: string | ((highlighted: unknown) => string);
 };
 
 /**
@@ -185,7 +188,9 @@ const escapableMultiSelectImpl = createPrompt(
         ? c.muted(highlighted.description)
         : '',
       c.muted('(↑↓ navigate · space toggles · enter commits · esc backs out)'),
-      config.preview,
+      typeof config.preview === 'function'
+        ? config.preview(highlighted?.value)
+        : config.preview,
     ].filter(Boolean);
     return lines.join('\n');
   }

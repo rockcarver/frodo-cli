@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it } from '@jest/globals';
 import { Argument, Command, Option } from 'commander';
 import {
   isCommandReady,
+  liveOptionPreview,
+  livePositionalPreview,
   serializeCommand,
   setDeploymentTypeForPreview,
 } from '../../src/utils/interactive/CommandPreview';
@@ -134,5 +136,108 @@ describe('isCommandReady', () => {
         connectionResolved: false,
       })
     ).toBe(false);
+  });
+});
+
+describe('livePositionalPreview (shadow-restore discipline)', () => {
+  const ALWAYS_READY = {
+    missingMandatoryOptionLabels: [] as string[],
+    oneOfUnsatisfied: false,
+  };
+
+  it('renders with the highlighted value shadowed in', () => {
+    setDeploymentTypeForPreview('cloud');
+    const command = makeJourneyListCommand();
+    command.parse(['--', 'host1', 'bravo'], { from: 'user' });
+    const preview = livePositionalPreview(command, 'realm', ALWAYS_READY);
+    // The callback renders the HIGHLIGHTED realm; the committed positional
+    // still says bravo.
+    expect(preview('charlie')).toContain('list host1 charlie');
+    expect(command.processedArgs[1]).toBe('bravo');
+  });
+
+  it('restores the committed positional after every render', () => {
+    setDeploymentTypeForPreview('cloud');
+    const command = makeJourneyListCommand();
+    command.parse(['--', 'host1', 'bravo'], { from: 'user' });
+    const preview = livePositionalPreview(command, 'realm', ALWAYS_READY);
+    preview('charlie');
+    preview('delta');
+    preview(undefined); // filtered to no matches
+    expect(command.processedArgs[1]).toBe('bravo');
+    // And serialization (the eventual-command print's source) is unaffected.
+    expect(serializeCommand(command)).toBe('list host1 bravo');
+  });
+
+  it('never writes when the command has no such positional', () => {
+    setDeploymentTypeForPreview('cloud');
+    const command = makeJourneyListCommand();
+    command.parse(['--', 'host1', 'bravo'], { from: 'user' });
+    const preview = livePositionalPreview(command, 'tree', ALWAYS_READY);
+    // No 'tree' positional: the callback renders committed state and
+    // writes nothing anywhere.
+    expect(preview('charlie')).toContain('list host1 bravo');
+    expect(command.processedArgs[0]).toBe('host1');
+    expect(command.processedArgs[1]).toBe('bravo');
+  });
+});
+
+describe('liveOptionPreview (shadow-restore discipline)', () => {
+  function makePickCommand(): Command {
+    const command = new Command('delete');
+    command.addOption(new Option('-i, --secret-id <id>', 'Secret id'));
+    command.action(async () => {});
+    return command;
+  }
+
+  const ALWAYS_READY = {
+    missingMandatoryOptionLabels: [] as string[],
+    oneOfUnsatisfied: false,
+  };
+
+  it('renders with the highlighted value shadowed into the option', () => {
+    const command = makePickCommand();
+    command.parse(['-i', 'alpha'], { from: 'user' });
+    const preview = liveOptionPreview(command, 'secretId', ALWAYS_READY);
+    expect(preview('beta')).toContain('delete --secret-id beta');
+    // Pristine restore: committed value and source untouched.
+    expect(command.getOptionValue('secretId')).toBe('alpha');
+    expect(command.getOptionValueSource('secretId')).toBe('cli');
+  });
+
+  it('restores a NEVER-set option to pristine (undefined, undefined)', () => {
+    const command = makePickCommand();
+    command.parse([], { from: 'user' });
+    const preview = liveOptionPreview(command, 'secretId', ALWAYS_READY);
+    preview('beta');
+    expect(command.getOptionValue('secretId')).toBeUndefined();
+    expect(command.getOptionValueSource('secretId')).toBeUndefined();
+    expect(serializeCommand(command)).toBe('delete');
+  });
+
+  it('maps entity choices through toValue (entity pickers)', () => {
+    const command = makePickCommand();
+    command.parse([], { from: 'user' });
+    const preview = liveOptionPreview(
+      command,
+      'secretId',
+      ALWAYS_READY,
+      (highlighted) =>
+        typeof highlighted === 'object' && highlighted !== null
+          ? (highlighted as { name: string }).name
+          : undefined
+    );
+    expect(preview({ name: 'esv-from-entity' })).toContain(
+      'delete --secret-id esv-from-entity'
+    );
+    expect(command.getOptionValue('secretId')).toBeUndefined();
+  });
+
+  it('renders committed state for non-string highlights without toValue', () => {
+    const command = makePickCommand();
+    command.parse(['-i', 'alpha'], { from: 'user' });
+    const preview = liveOptionPreview(command, 'secretId', ALWAYS_READY);
+    expect(preview({ not: 'a string' })).toContain('delete --secret-id alpha');
+    expect(command.getOptionValue('secretId')).toBe('alpha');
   });
 });

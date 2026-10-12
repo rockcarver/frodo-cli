@@ -112,13 +112,16 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   // loop's exit type is string | typeof ESCAPE (the RIGHT case loops).
   let choice: string | typeof ESCAPE;
   for (;;) {
-    const { commandPreviewFor } =
+    const { livePositionalPreviewFor } =
       await import('../../cli/ResolveInteractiveInputs');
     const answer = await escapableSelect<string>({
       message: `Choose a realm (default: ${current}):`,
       default: current,
       hint: editableOptionsHint(command),
-      preview: commandPreviewFor(command),
+      // LIVE footer: the highlighted realm shadows the realm positional
+      // per render, so the footer's realm token moves with the cursor
+      // BEFORE <enter> commits (Phase 5 refinement).
+      preview: livePositionalPreviewFor(command, 'realm'),
       choices: realms.map((realm) => ({
         value: realm.name,
         name: realm.name,
