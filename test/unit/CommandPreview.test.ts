@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from '@jest/globals';
 import { Argument, Command, Option } from 'commander';
 import {
   isCommandReady,
+  liveMultiOptionPreview,
   liveOptionPreview,
   livePositionalPreview,
   serializeCommand,
@@ -239,5 +240,54 @@ describe('liveOptionPreview (shadow-restore discipline)', () => {
     const preview = liveOptionPreview(command, 'secretId', ALWAYS_READY);
     expect(preview({ not: 'a string' })).toContain('delete --secret-id alpha');
     expect(command.getOptionValue('secretId')).toBe('alpha');
+  });
+});
+
+describe('liveMultiOptionPreview (invocation editor selection footer)', () => {
+  function makeEditorCommand(): Command {
+    const command = new Command('list');
+    command.addOption(new Option('-l, --long', 'Long listing'));
+    command.addOption(new Option('-t, --type <type>', 'Type'));
+    command.addOption(new Option('--no-cache', 'Disable cache'));
+    command.action(async () => {});
+    return command;
+  }
+
+  const ALWAYS_READY = {
+    missingMandatoryOptionLabels: [] as string[],
+    oneOfUnsatisfied: false,
+  };
+
+  it('renders selected booleans as their flags', () => {
+    const command = makeEditorCommand();
+    command.parse([], { from: 'user' });
+    const preview = liveMultiOptionPreview(command, ALWAYS_READY);
+    expect(preview(['long'])).toContain('list -l');
+    expect(preview(['long', 'cache'])).toContain('list -l --no-cache');
+    // The real command is untouched after every render.
+    expect(serializeCommand(command)).toBe('list');
+  });
+
+  it('renders selected valued options as flag + placeholder', () => {
+    const command = makeEditorCommand();
+    command.parse([], { from: 'user' });
+    const preview = liveMultiOptionPreview(command, ALWAYS_READY);
+    expect(preview(['type'])).toContain('list --type <type>');
+    expect(serializeCommand(command)).toBe('list');
+  });
+
+  it('renders the committed state for an empty selection', () => {
+    const command = makeEditorCommand();
+    command.parse(['-t', 'x'], { from: 'user' });
+    const preview = liveMultiOptionPreview(command, ALWAYS_READY);
+    expect(preview([])).toContain('list --type x');
+  });
+
+  it('skips unknown attribute names and non-strings', () => {
+    const command = makeEditorCommand();
+    command.parse([], { from: 'user' });
+    const preview = liveMultiOptionPreview(command, ALWAYS_READY);
+    expect(preview(['nonexistent', 42, 'long'])).toContain('list -l');
+    expect(serializeCommand(command)).toBe('list');
   });
 });

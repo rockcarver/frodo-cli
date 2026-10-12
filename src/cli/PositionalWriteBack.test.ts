@@ -9,7 +9,7 @@ import { setPositionalValue } from '../utils/interactive/PositionalArgs';
 // real commander trees without mocks.
 
 /**
- * The post-auth realm picker's write-back (Phase 5, prompt-erase slice):
+ * The post-auth realm picker's write-back:
  * the picked realm must land in BOTH surfaces the CLI reads --
  * processedArgs (the action handler's positional parameter) and args
  * (handleDefaultArgsAndOpts's iteration, which re-feeds

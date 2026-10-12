@@ -1,6 +1,6 @@
 /**
- * The invocation editor's candidate list and the Phase 5 discoverability
- * hint derived from it (INTERACTIVE-COMMANDS-PLAN.md), split into a
+ * The invocation editor's candidate list and the discoverability
+ * hint derived from it (docs/INTERACTIVE-COMMANDS.md), split into a
  * zero-import module the same way PromptGateState/ActiveActionCommandState
  * are: pickers in this directory (EntityPickers, RealmPickers) attach the
  * hint to their prompts, and the editor in cli/ResolveInteractiveInputs
@@ -17,7 +17,7 @@ import type { Command, Option } from 'commander';
 /**
  * The command's editable options for this invocation -- the exact
  * candidate list the invocation editor offers: options not yet valued,
- * PLUS already-valued ones (Phase 5 widening -- editing what was given
+ * PLUS already-valued ones (editing what was given
  * is the point of an editor; the value step pre-fills the current
  * value). Non-editable machinery (help/version/prompting) never counts.
  */
@@ -33,7 +33,8 @@ export function editableOptionalOptions(command: Command): Option[] {
       option.name() === 'version' ||
       option.name() === 'prompt' ||
       option.name() === 'no-prompt' ||
-      option.name() === 'edit'
+      option.name() === 'edit' ||
+      option.name() === 'save-defaults'
     ) {
       return false;
     }
@@ -42,7 +43,7 @@ export function editableOptionalOptions(command: Command): Option[] {
 }
 
 /**
- * The Phase 5 discoverability hint for `command`'s pickers: a counted
+ * The discoverability hint for `command`'s pickers: a counted
  * promise of what pressing → opens. Undefined when there is nothing to
  * configure -- silence means done, so pickers without a hint keep the
  * → key unclaimed.

@@ -6,8 +6,9 @@ import path from 'path';
  * CLI-level settings persisted at ~/.frodo/Settings.json. Deliberately
  * tiny and separate from connection profiles (frodo-lib's encrypted
  * Connections.json): these are plain user preferences, not secrets.
- * Currently one setting -- the invocation editor's guided mode (Phase 2
- * of INTERACTIVE-COMMANDS-PLAN.md). Missing/corrupt file = defaults, so
+ * Currently two settings -- the invocation editor's guided mode and the
+ * per-command defaults store's neighbors live here (see
+ * docs/INTERACTIVE-COMMANDS.md). Missing/corrupt file = defaults, so
  * the CLI never fails over a bad settings file.
  */
 export type FrodoSettings = {

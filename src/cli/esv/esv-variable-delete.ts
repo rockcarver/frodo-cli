@@ -67,7 +67,7 @@ export default function setup() {
         // --all -a, or an interactive pick (resolveEntityPicks is a no-op
         // outside the prompt gate, so a non-interactive run with neither
         // option never reaches deleteVariables here -- same as before
-        // Phase 3, where the resolver's error handled that case).
+        // in the pre-picker layout, where the resolver's error handled that case).
         else if (
           (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens(false, true, deploymentTypes))

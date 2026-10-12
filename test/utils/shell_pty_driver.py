@@ -35,7 +35,17 @@ class PtyScenarioRunner:
         self.command = scenario["command"]
         self.cwd = scenario["cwd"]
         self.home_dir = scenario["homeDir"]
-        self.env = {**os.environ, **scenario.get("env", {})}
+        # The runner's env merges UNDER the scenario env (jest's
+        # FRODO_TEST/NO_COLOR must be overridable), but some color
+        # detectors (tinyrainbow) disable on mere PRESENCE of NO_COLOR --
+        # an empty value does not re-enable color. A scenario value of
+        # the DELETE sentinel removes the key from the child's env
+        # entirely (unset, not blank).
+        self.env = {
+            key: value
+            for key, value in {**os.environ, **scenario.get("env", {})}.items()
+            if value != "__FRODO_PTY_DELETE__"
+        }
         self.env["HOME"] = self.home_dir
         self.env["USERPROFILE"] = self.home_dir
         self.actions = scenario["actions"]
@@ -75,6 +85,16 @@ class PtyScenarioRunner:
         self.output += data.decode("utf-8", errors="replace")
         return True
 
+    def _write(self, data):
+        # The child may exit mid-scenario (e.g. the flow concluded before
+        # every scripted key was spent) -- a write to the closed pty raises
+        # EIO. Absorb it like the read path does: the keys are lost, but
+        # the capture already reflects the concluded run.
+        try:
+            os.write(self.fd, data)
+        except OSError:
+            pass
+
     def _wait_for_match(self, matcher, plain=False, timeout_ms=10000):
         deadline = time.time() + timeout_ms / 1000.0
         compiled = re.compile(matcher)
@@ -103,11 +123,11 @@ class PtyScenarioRunner:
             elif kind == "clear_output":
                 self.output = ""
             elif kind == "send":
-                os.write(self.fd, action["text"].encode("utf-8"))
+                self._write(action["text"].encode("utf-8"))
             elif kind == "send_line":
-                os.write(self.fd, (action["text"] + "\r").encode("utf-8"))
+                self._write((action["text"] + "\r").encode("utf-8"))
             elif kind == "key":
-                os.write(self.fd, KEYS[action["name"]].encode("utf-8"))
+                self._write(KEYS[action["name"]].encode("utf-8"))
             elif kind == "sleep":
                 self._drain_for(action.get("ms", 100))
             elif kind == "capture":

@@ -203,7 +203,7 @@ export async function getTokens(
         state.getRealm() ? state.getRealm() : 'root'
       }] as ${tokens.subject}`
     );
-    // Post-auth realm picker (Phase 3): offers the target system's realms
+    // Post-auth realm picker: offers the target system's realms
     // when the command has a realm argument, the user left it at its
     // default, and the system has more than one realm. Never throws; a
     // declined offer or an unlistable realm set keeps the default. The
@@ -220,7 +220,7 @@ export async function getTokens(
         await import('../utils/interactive/RealmPickers');
       await resolveRealmPick(getActiveActionCommand());
     }
-    // The deferred authoring print (Phase 5, prompt-erase slice): flushed
+    // The deferred authoring print: flushed
     // HERE so the eventual command lands directly above the action's
     // results (the print is a header for the output, not a footer after
     // it) -- every auth command's action prints its results only after

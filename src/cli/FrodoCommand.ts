@@ -883,14 +883,14 @@ const forceUpdateOption = withHelpGroup(
   OptionCategory.Runtime
 );
 
-// The prompting switch (INTERACTIVE-COMMANDS-PLAN.md Phase 5 slice 5):
+// The prompting switch (see docs/INTERACTIVE-COMMANDS.md):
 // commander's dual negation pair -- TWO options sharing the `prompt`
 // attribute: --prompt sets it true (and, per the resolver, marks the
 // session explicitly interactive: the flow runs even when nothing is
 // missing, opening the options editor), --no-prompt sets it false (the
 // opt-out: fail with the classic errors instead of prompting, even on a
 // TTY). Unset (undefined) = prompting allowed when input is missing, as
-// since Phase 1. FRODO_NO_PROMPT is honored process-wide alongside (see
+// since the interactive layer landed. FRODO_NO_PROMPT is honored process-wide alongside (see
 // PromptGate).
 // Do NOT chain .default(false) here -- that would read as "prompting
 // disabled by default" and disable the whole feature (caught in review
@@ -912,7 +912,22 @@ const noPromptOption = withHelpGroup(
   OptionCategory.Runtime
 );
 
-// --edit RETIRED (Phase 5 slice 5): the invocation editor now triggers on
+// Persistent per-command defaults (docs/INTERACTIVE-COMMANDS.md):
+// pairs with --prompt -- after the options editor commits values, they
+// are saved to ~/.frodo/Defaults.json under this command's path and
+// become the starting values for FUTURE runs (precedence: an explicit
+// flag or env var on a later invocation still wins). A no-op without
+// the editor (--prompt or guided mode) -- there is nothing to save.
+const saveDefaultsOption = withHelpGroup(
+  new Option(
+    '--save-defaults',
+    "With --prompt: save the options you commit in the editor as this command's defaults for future runs (~/.frodo/Defaults.json)."
+  ).default(false),
+  RUNTIME_OPTIONS_HEADING,
+  OptionCategory.Runtime
+);
+
+// --edit RETIRED: the invocation editor now triggers on
 // an explicit --prompt (or the persisted guided-mode toggle,
 // `frodo settings guided`) instead of its own flag. commander rejects
 // --edit as an unknown option on its own; the 'edit' entries in the
@@ -1055,6 +1070,7 @@ const defaultOpts = [
   forceUpdateOption,
   promptOption,
   noPromptOption,
+  saveDefaultsOption,
 ];
 
 /**
@@ -2452,7 +2468,7 @@ export class FrodoStubCommand extends Command {
         `FrodoCommand: running postAction hook: this command: ${thisCommand.name()}, action command: ${actionCommand.name()}`
       );
       cleanupProgressIndicators();
-      // The deferred authoring print (Phase 5): the only point where
+      // The deferred authoring print: the only point where
       // nothing can change the command anymore -- resolution pass, realm
       // pick, entity picks, and the action's output have all concluded.
       // Flushed LAST so the printed command is the final line of the run,
@@ -2654,7 +2670,7 @@ export class FrodoStubCommand extends Command {
   }
 
   /**
-   * Phase 1b of the interactive plan: when a stub command with
+   * When a stub command with
    * sub-commands is invoked BARE (no sub-command word, no operands) on an
    * interactive session, offer the sub-commands in a picker and dispatch
    * to the picked one -- e.g. `frodo journey <enter>` proposes all journey

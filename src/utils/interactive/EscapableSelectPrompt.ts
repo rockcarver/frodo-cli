@@ -12,6 +12,7 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import { navigationMenuItems, renderNavigationMenu } from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
 /**
@@ -24,8 +25,9 @@ export const ESCAPE = Symbol('escapableSelect:escape');
 
 /**
  * Distinct return value `escapableSelect` resolves with when the user
- * presses → (right arrow) instead of choosing something -- the Phase 5
- * "enter the next editor segment" key (INTERACTIVE-COMMANDS-PLAN.md).
+ * presses → (right arrow) instead of choosing something -- the
+ * "enter the next editor segment" key of the segment navigation
+ * described in docs/INTERACTIVE-COMMANDS.md.
  * Only fires when the prompt is configured with a `hint` (the caller's
  * promise that something more to configure exists); without a hint the
  * key is left to readline, so plain pickers keep today's behavior.
@@ -68,7 +70,7 @@ export type EscapableSelectConfig<Value> = {
    */
   search?: EscapableSelectMatch<Value>;
   /**
-   * Phase 5 discoverability hint: when set, the prompt renders it as a
+   * Discoverability hint: when set, the prompt renders it as a
    * muted line under the list and arms the → key (resolving with the
    * `RIGHT` sentinel). Callers pass a counted, truthful promise --
    * e.g. "→ 4 options to configure" -- derived from the same candidate
@@ -77,10 +79,10 @@ export type EscapableSelectConfig<Value> = {
    */
   hint?: string;
   /**
-   * Phase 5 command preview: the command being authored, rendered as a
+   * Command preview: the command being authored, rendered as a
    * footer line (red + cursive while mandatory input is missing, green/
    * white when ready). Callers pass the pre-rendered string from
-   * CommandPreview.ts -- or, for LIVE preview (Phase 5 refinement: the
+   * CommandPreview.ts -- or, for LIVE preview (the
    * footer reflects what the user is INFLUENCING, not what they last
    * committed), a function of the currently HIGHLIGHTED choice's value,
    * re-invoked on every render: arrowing through a realm list updates
@@ -220,7 +222,11 @@ const escapableSelectImpl = createPrompt(
       } else if (isUpKey(key) || isDownKey(key)) {
         if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
-        setActive((active + offset + filtered.length) % filtered.length);
+        // Clamp at the ends -- a list with a beginning and an end, not
+        // an endless loop (user feedback 2026-10-12; the cursor stops
+        // at the first/last row and further keys in that direction do
+        // nothing).
+        setActive(Math.min(filtered.length - 1, Math.max(0, active + offset)));
       } else {
         // Everything else is readline's business (typing, paste, backspace,
         // ctrl+u, any unhandled key); the buffer holds the result -- there
@@ -247,13 +253,23 @@ const escapableSelectImpl = createPrompt(
         return isActive ? c.command(line) : line;
       },
       pageSize,
-      loop: true,
+      loop: false,
     });
 
-    const searchHint = query.length === 0 ? c.muted('type to filter') : '';
     const queryEcho =
       config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
-    const hintLine = config.hint ? c.muted(config.hint) : '';
+    // The navigation menu replaces the old muted one-liner AND the
+    // "type to filter" hint (the menu's `type filter` item covers it): a
+    // framed box at the TOP of the frame, colored per key role, listing
+    // only the keys that apply here (see NavigationMenu.ts).
+    const menu = renderNavigationMenu(
+      navigationMenuItems({
+        filter: true,
+        enter: 'select',
+        right: config.hint ? config.hint.replace(/^→\s*/, '') : undefined,
+        escape: 'back out',
+      })
+    );
     // Live preview: a function form is re-invoked on EVERY render with
     // the currently highlighted choice's value (undefined when filtered
     // to no matches) -- arrowing through a list updates the footer
@@ -264,6 +280,7 @@ const escapableSelectImpl = createPrompt(
         : config.preview;
 
     const lines = [
+      menu,
       `${prefix} ${config.message}${queryEcho}`,
       filtered.length > 0
         ? page
@@ -271,8 +288,6 @@ const escapableSelectImpl = createPrompt(
             '  (no matches -- backspace to edit, esc clears then backs out)'
           ),
       selected && selected.description ? c.muted(selected.description) : '',
-      hintLine,
-      searchHint || c.muted('(↑↓ navigate · enter select · esc back)'),
       previewLine,
     ].filter(Boolean);
     return lines.join('\n');

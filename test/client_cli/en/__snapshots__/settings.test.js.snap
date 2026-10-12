@@ -12,6 +12,9 @@ Options:
                     examples.
 
 Commands:
+  defaults          Show or clear per-command defaults saved with --prompt
+                    --save-defaults (~/.frodo/Defaults.json). Values apply to
+                    future runs whenever the option isn't given explicitly.
   guided            Show or set guided mode: run the full interactive flow
                     (connection page, options editor) by default on every
                     interactive command.

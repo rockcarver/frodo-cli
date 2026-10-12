@@ -90,7 +90,7 @@ export default function setup() {
         // --all -a, or an interactive pick (resolveEntityPicks is a no-op
         // outside the prompt gate, so a non-interactive run with neither
         // option never reaches deleteAllScripts here -- same as before
-        // Phase 3, where the error branch below handled that case).
+        // in the pre-picker layout, where the error branch below handled that case).
         else if (
           (options.all || (await resolveEntityPicks(command))) &&
           (await getTokens())

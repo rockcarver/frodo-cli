@@ -1,5 +1,5 @@
 /**
- * Entity pickers (interactive commands plan, Phase 3).
+ * Entity pickers (docs/INTERACTIVE-COMMANDS.md, post-auth pickers).
  *
  * A command whose target-entity option (`-i/--secret-id`, `-i/--tree-id`
  * etc.) was left unspecified can offer a dropdown populated from the live
@@ -147,7 +147,7 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
       apply(command, pick, entities[0]);
       continue;
     }
-    // Phase 5: the → key (armed by the hint) opens the invocation
+    // The → key (armed by the hint) opens the invocation
     // editor, then re-prompts this picker -- discover-and-edit without
     // leaving the flow. Editorial loop, ESCAPE still declines the pick.
     let chosen: unknown | typeof ESCAPE | typeof RIGHT;
@@ -190,7 +190,7 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
     }
     apply(command, pick, chosen);
   }
-  // The deferred authoring print (Phase 5, prompt-erase slice): this
+  // The deferred authoring print: this
   // function is the flush site for commands whose entity picks are the
   // last command-mutating interactive step. Two shapes exist: pick-first
   // (`(pick) && (await getTokens())` -- picks run BEFORE auth) and

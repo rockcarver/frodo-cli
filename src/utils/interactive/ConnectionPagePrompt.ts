@@ -10,6 +10,7 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import { navigationMenuItems, renderNavigationMenu } from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
 /**
@@ -40,7 +41,7 @@ export type ConnectionPageConfig = {
   message: string;
   rows: ConnectionPageRow[];
   /**
-   * Phase 5 command preview: the command being authored, rendered as a
+   * Command preview: the command being authored, rendered as a
    * footer line (pre-rendered by CommandPreview.ts).
    */
   preview?: string;
@@ -54,13 +55,13 @@ export type ConnectionPageConfig = {
 };
 
 /**
- * The Phase 5 connection page (INTERACTIVE-COMMANDS-PLAN.md): a
+ * The connection page (docs/INTERACTIVE-COMMANDS.md): a
  * single-page form for host + username + password showing RESOLVED
  * current values with their provenance, replacing the sequential
  * prompts when connection input is missing and reachable via → when
  * everything is already resolved.
  *
- * Key language (Phase 5): ↑↓ between rows, `<enter>` on a row opens its
+ * Key language (docs/INTERACTIVE-COMMANDS.md): ↑↓ between rows, `<enter>` on a row opens its
  * inline editor (typing edits; `<enter>` commits, `<esc>` cancels the
  * edit), `<enter>` on the Done row concludes the page, `<esc>` on the
  * page declines it entirely (PAGE_ESCAPE). The password row masks its
@@ -204,7 +205,17 @@ const connectionPageImpl = createPrompt(
     const resolvingNote = resolving
       ? c.muted(' (re-resolving credentials...)')
       : '';
+    // The navigation menu (see NavigationMenu.ts): framed box at the
+    // TOP; the page's enter has two roles (edit a row / conclude on
+    // Done), so the item names both.
+    const menu = renderNavigationMenu(
+      navigationMenuItems({
+        enter: 'edit / done',
+        escape: 'cancel page',
+      })
+    );
     const lines = [
+      menu,
       `${prefix} ${config.message}${resolvingNote}`,
       ...rows.map((row, index) => {
         const isEditing = editing === row.key;
@@ -214,7 +225,6 @@ const connectionPageImpl = createPrompt(
         return index === active || isEditing ? c.command(line) : line;
       }),
       `${active === doneIndex ? '›' : ' '} ${c.command('Done — run with these values')}`,
-      c.muted('(↑↓ rows · enter edit/done · esc cancel)'),
       config.preview,
     ];
     return lines.join('\n');

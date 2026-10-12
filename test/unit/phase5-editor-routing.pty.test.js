@@ -67,7 +67,10 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'wait_plain', regex: '\\(current: net', timeoutMs: 15000 },
             { type: 'sleep', ms: 300 },
             { type: 'capture', label: 'description' },
-            { type: 'key', name: 'space' },
+            // --retry arrives PRE-MARKED (it holds a user value, source
+            // 'cli'): <enter> alone commits the selection with it in,
+            // which opens its value step. (The old flow needed space
+            // first; pre-marking made that space an UN-mark.)
             { type: 'key', name: 'enter' },
             {
               type: 'wait_plain',
@@ -285,7 +288,7 @@ describe('phase 5 slice 4: command preview', () => {
         // probe -- the jest run sets NO_COLOR=1, so raw captures
         // carry no SGR sequences here.)
         expect(result.captures.incomplete.plain).toMatch(
-          /type to filter\nfrodo esv secret delete/
+          /^frodo esv secret delete$/m
         );
 
         // After the user's `-a` selection resolves the one-of
@@ -493,6 +496,76 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         expect(retired.captures.err.plain).toMatch(
           /error: unknown option '--edit'/
         );
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
+
+  test(
+    'editor selections: the footer shows the space-toggled set live, and re-opening the editor keeps prior selections marked',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          args: ['esv', 'secret', 'delete', '-k', '--retry', 'network'],
+          env: ENV,
+          actions: [
+            {
+              type: 'wait_plain',
+              regex: 'Choose which secrets',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 15000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'send', text: 'verbose' },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'space' },
+            { type: 'sleep', ms: 200 },
+            { type: 'key', name: 'ctrl_u' },
+            { type: 'sleep', ms: 300 },
+            { type: 'send', text: 'debug' },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'space' },
+            { type: 'sleep', ms: 200 },
+            { type: 'capture', label: 'twoMarked' },
+            { type: 'key', name: 'enter' },
+            { type: 'sleep', ms: 1200 },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 15000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'reopened' },
+          ],
+        });
+
+        // The footer follows the space-toggled SET, live -- both flags
+        // visible before <enter> commits the set. (--retry is part of
+        // the command already; valued options render with their value
+        // placeholder until the value step fills them.)
+        const two = result.captures.twoMarked.plain;
+        expect(two).toMatch(
+          /frodo esv secret delete -k --verbose --debug --retry <strategy>/
+        );
+
+        // Re-opened editor (via the one-of picker's ->): previously
+        // committed selections are PRE-MARKED -- the user's markers are
+        // the command state, not an empty slate.
+        const reopened = result.captures.reopened.plain;
+        expect(reopened).toMatch(/frodo esv secret delete -k --verbose/);
+        expect(reopened).toMatch(/◉ --debug/);
       } finally {
         removeShellTestHome(homeDir);
       }
