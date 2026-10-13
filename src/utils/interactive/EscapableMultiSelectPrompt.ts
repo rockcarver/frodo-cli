@@ -14,6 +14,14 @@ import {
 } from '@inquirer/core';
 import type { InquirerReadline } from '@inquirer/type';
 import c from '../ColorTheme';
+import {
+  buildSectionRows,
+  initialExpanded,
+  rowIndexOf,
+  type SectionChoice,
+  type SectionGroup,
+  type SectionRow,
+} from './ChoiceSections';
 import { armEscapeGrace, EXIT_ALL } from './ExitAll';
 import {
   descriptionPanelLines,
@@ -40,11 +48,24 @@ export type EscapableMultiSelectChoice<Value> = {
   value: Value;
   name: string;
   description?: string;
+  /**
+   * The collapsible section this choice folds under (the invocation
+   * editor's shared-option groups). Absent = the command's own options,
+   * which render flat and always visible. Sections only engage when the
+   * config also passes `groups` -- a lone group id changes nothing.
+   */
+  group?: string;
 };
 
 export type EscapableMultiSelectConfig<Value> = {
   message: string;
   choices: EscapableMultiSelectChoice<Value>[];
+  /**
+   * The collapsible sections, in render order (the invocation editor
+   * passes the -hh help order). Omitted: the exact pre-grouping flat
+   * list -- grouping is strictly opt-in per config.
+   */
+  groups?: SectionGroup[];
   /** Members pre-selected when the prompt opens. */
   defaultValues?: Value[];
   pageSize?: number;
@@ -122,6 +143,19 @@ const escapableMultiSelectImpl = createPrompt(
     });
 
     const [query, setQuery] = useState('');
+    // Which sections are expanded right now. Starts from the config's
+    // defaultValues: a group holding an option the user already set
+    // (CLI/env/saved default) opens expanded -- state never hides
+    // behind a collapsed header.
+    const [expandedState, setExpandedState] = useState<Set<string>>(() =>
+      (config.groups?.length ?? 0) > 0
+        ? initialExpanded(
+            config.groups ?? [],
+            choices,
+            config.defaultValues ?? []
+          )
+        : new Set<string>()
+    );
     const [selected, setSelected] = useState<Set<unknown>>(
       () => new Set(config.defaultValues ?? [])
     );
@@ -135,13 +169,24 @@ const escapableMultiSelectImpl = createPrompt(
     const [draft, setDraft] = useState('');
     const [pickerActive, setPickerActive] = useState(0);
 
-    const filtered = useMemo(() => {
-      if (query.length === 0) return choices;
-      const needle = query.toLowerCase();
-      return choices.filter((choice) =>
-        choice.name.toLowerCase().includes(needle)
-      );
-    }, [choices, query]);
+    // The sectioned row model (ChoiceSections.ts): with a query the
+    // list FLATTENS to the cross-group name matches (type-to-find must
+    // reach into collapsed groups); without one, own options then
+    // header rows + the expanded groups' children. When the config
+    // passes no groups this is the pre-grouping flat list.
+    const rows = useMemo(
+      () =>
+        buildSectionRows({
+          choices: choices as SectionChoice<unknown>[],
+          groups: config.groups,
+          expanded: expandedState,
+          query,
+          selected,
+        }) as SectionRow<unknown>[],
+      // `selected` intentionally re-derives rows: a collapsed header's
+      // "N selected" badge must update on every toggle.
+      [choices, config.groups, query, selected, expandedState]
+    );
 
     // Cursor resets to the top of the FILTERED list whenever the query
     // TEXT changes (useEffect, not a render-time write -- see
@@ -158,8 +203,16 @@ const escapableMultiSelectImpl = createPrompt(
       setActive(0);
     }, [query]);
 
+    // A render-time mirror for the keypress closure (hooks state is
+    // otherwise stale there); re-assigned every render, read-only in
+    // handlers.
+    const expandedRef2 = expandedState;
     const [active, setActive] = useState(0);
-    const highlighted = filtered[active];
+    // Headers are cursor stops; a "highlighted choice" exists only when
+    // the cursor sits on a choice row.
+    const highlighted = rows[active];
+    const highlightedChoice =
+      highlighted?.kind === 'choice' ? highlighted.choice : undefined;
 
     // Leaving the inline value editor: clear editing state, reset the
     // filter query (the buffer was scrubbed -- the query MIRROR must go
@@ -179,6 +232,9 @@ const escapableMultiSelectImpl = createPrompt(
       ReturnType<typeof armEscapeGrace> | undefined
     >(undefined);
     const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
+    // The [LEFT]-with-uncommitted-selections guard's inline explanation
+    // (see the keypress handler). Any other key clears it.
+    const [leftGuard, setLeftGuard] = useState('');
 
     // Grace teardown on unmount (a timer firing after the prompt
     // resolved would call a stale handler).
@@ -196,7 +252,33 @@ const escapableMultiSelectImpl = createPrompt(
       lastQueryRef.current = '';
       setQuery('');
       if (returnTo !== undefined) {
-        const index = choices.findIndex((choice) => choice.value === returnTo);
+        // Row-model lookup, not raw choices.findIndex: with sections the
+        // choice may sit under a header, so its group must be expanded
+        // for a row to exist to land on. (Without groups the flat rows
+        // make this exactly the old behavior.)
+        const groupId = choices.find(
+          (choice) => choice.value === returnTo
+        )?.group;
+        if (groupId !== undefined && !expandedRef2.has(groupId)) {
+          setExpandedState((previous) => {
+            const next = new Set(previous);
+            next.add(groupId);
+            return next;
+          });
+        }
+        const index = rowIndexOf(
+          buildSectionRows({
+            choices: choices as SectionChoice<unknown>[],
+            groups: config.groups,
+            expanded:
+              groupId !== undefined && !expandedRef2.has(groupId)
+                ? new Set([...expandedRef2, groupId])
+                : expandedRef2,
+            query: '',
+            selected,
+          }) as SectionRow<unknown>[],
+          returnTo
+        );
         if (index >= 0) setActive(index);
       }
       // Replay readline's own ctrl+u binding: buffer + cursor + display
@@ -330,6 +412,53 @@ const escapableMultiSelectImpl = createPrompt(
           escapeGraceRef.current = undefined;
           return;
         }
+        // UNCOMMITTED SELECTIONS GUARD (user rule 2026-10-13: "LEFT
+        // navigation disabled if options are selected but not
+        // committed"): selections marked in this editor session that
+        // are NOT part of the command's pre-editor state are
+        // uncommitted -- leaving now would either silently discard
+        // them (the dismissed-editor report) or leak them as if
+        // committed. [LEFT] does nothing (an inline hint says why);
+        // [ESC] still backs out, and it RESETS: every uncommitted mark
+        // is cleared before resolving (dismiss = nothing authored).
+        const uncommitted = [...selected].filter(
+          (value) => !config.defaultValues?.includes(value as never)
+        );
+        if (uncommitted.length > 0) {
+          if (key.name === 'left') {
+            setLeftGuard(
+              `select or reset first -- ${uncommitted.length} option${uncommitted.length === 1 ? '' : 's'} not committed ([ESC] resets, [ENTER] commits)`
+            );
+            return;
+          }
+          // ESC: open the normal grace window, but its single-ESC
+          // action resets the uncommitted marks before resolving.
+          const resetThenResolve = () => {
+            setSelected((previous) => {
+              const next = new Set(previous);
+              for (const value of uncommitted) next.delete(value);
+              return next;
+            });
+            setStatus('escaped');
+            done(MULTISEL_ESCAPE);
+          };
+          if (escapeGraceRef.current) {
+            const grace = escapeGraceRef.current;
+            escapeGraceRef.current = undefined;
+            grace.secondEscape();
+            return;
+          }
+          setEscapeGraceOpen(true);
+          escapeGraceRef.current = armEscapeGrace({
+            onSecondEscape: () => {
+              setEscapeGraceOpen(false);
+              setStatus('escaped');
+              done(EXIT_ALL);
+            },
+            onGraceExpire: resetThenResolve,
+          });
+          return;
+        }
         // Double-ESC exits ALL the way out (see ExitAll.ts grace); ← and
         // single ESC keep "back one level" (single ESC after the grace
         // expires).
@@ -363,6 +492,7 @@ const escapableMultiSelectImpl = createPrompt(
       } else if (isEnterKey(key)) {
         escapeGraceRef.current?.otherKey();
         escapeGraceRef.current = undefined;
+        setLeftGuard('');
         // Commit whatever is selected -- an empty set is a valid outcome
         // ("run with defaults"), unlike select where nothing-picked is a
         // no-op.
@@ -371,9 +501,47 @@ const escapableMultiSelectImpl = createPrompt(
       } else if (isSpaceKey(key)) {
         escapeGraceRef.current?.otherKey();
         escapeGraceRef.current = undefined;
+        setLeftGuard('');
         if (!highlighted) return;
-        const togglingOn = !selected.has(highlighted.value);
-        if (togglingOn && config.needsValue?.(highlighted.value)) {
+        // The toggle is not text input: scrub the buffer so the space
+        // never leaks into the filter query (or blocks the [LEFT]
+        // buffer-empty check -- user report 2026-10-13: after marking,
+        // LEFT mirrored a polluted buffer and the guard never fired;
+        // typing 'curl' filtered on ' curl' and found nothing).
+        // Same replay mechanism as closeInlineEditor.
+        (
+          rl.write as InquirerReadline['write'] & {
+            (data: null, key: { ctrl: boolean; name: string }): void;
+          }
+        )(null, { ctrl: true, name: 'u' });
+        rl.clearLine(0);
+        if (highlighted.kind === 'header') {
+          // [space] on a section header expands/collapses it in place;
+          // the cursor stays on the header either way.
+          const id = highlighted.group.id;
+          setExpandedState((previous) => {
+            const next = new Set(previous);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+          });
+          return;
+        }
+        const togglingOn = !selected.has(highlighted.choice.value);
+        if (togglingOn) {
+          // Selecting an option expands its section, so clearing the
+          // filter (or scrolling up) never hides what was just picked.
+          const groupId = highlighted.choice.group;
+          if (groupId !== undefined && !expandedRef2.has(groupId)) {
+            setExpandedState((previous) => {
+              const next = new Set(previous);
+              next.add(groupId);
+              return next;
+            });
+          }
+        }
+        const togglingOnValue = !selected.has(highlighted.choice.value);
+        if (togglingOnValue && config.needsValue?.(highlighted.choice.value)) {
           // A valued option cannot be marked without its real value:
           // switch into the inline value editor instead of marking.
           // A PICKER for options with declared choices, free text
@@ -385,9 +553,10 @@ const escapableMultiSelectImpl = createPrompt(
           // prefix of the typed value (see closeInlineEditor for the
           // replay mechanism).
           const choicesFor =
-            config.choicesFor?.(highlighted.value) ?? undefined;
-          const current = config.currentValueFor?.(highlighted.value) ?? '';
-          setEditing(highlighted.value);
+            config.choicesFor?.(highlighted.choice.value) ?? undefined;
+          const current =
+            config.currentValueFor?.(highlighted.choice.value) ?? '';
+          setEditing(highlighted.choice.value);
           setEditingChoices(choicesFor ?? []);
           setPickerActive(
             choicesFor ? Math.max(0, choicesFor.indexOf(current)) : 0
@@ -403,17 +572,18 @@ const escapableMultiSelectImpl = createPrompt(
         }
         setSelected((previous) => {
           const next = new Set(previous);
-          if (next.has(highlighted.value)) {
-            next.delete(highlighted.value);
+          if (next.has(highlighted.choice.value)) {
+            next.delete(highlighted.choice.value);
           } else {
-            next.add(highlighted.value);
+            next.add(highlighted.choice.value);
           }
           return next;
         });
       } else if (isUpKey(key) || isDownKey(key)) {
         escapeGraceRef.current?.otherKey();
         escapeGraceRef.current = undefined;
-        if (filtered.length === 0) return;
+        setLeftGuard('');
+        if (rows.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
         // Clamp at the ends -- a list with a beginning and an end, not
         // an endless loop (matches EscapableSelectPrompt). FUNCTIONAL
@@ -421,7 +591,7 @@ const escapableMultiSelectImpl = createPrompt(
         // cycle -- a closure over `active` would compute every step
         // from the same stale value and eat the extra moves.
         setActive((previous) =>
-          Math.min(filtered.length - 1, Math.max(0, previous + offset))
+          Math.min(rows.length - 1, Math.max(0, previous + offset))
         );
       } else {
         // Everything else is readline's business (typing, paste,
@@ -430,6 +600,7 @@ const escapableMultiSelectImpl = createPrompt(
         // double-ESC streak.
         escapeGraceRef.current?.otherKey();
         escapeGraceRef.current = undefined;
+        setLeftGuard('');
         setQuery(rl.line);
       }
     });
@@ -447,17 +618,29 @@ const escapableMultiSelectImpl = createPrompt(
     }
 
     const page = usePagination({
-      items: filtered,
+      items: rows,
       active,
       renderItem: ({ item, isActive }) => {
-        const marker = selected.has(item.value) ? '◉' : '○';
+        if (item.kind === 'header') {
+          // The twisty sits in the marker column so the cursor column
+          // (›) stays aligned with the choice rows; a collapsed header
+          // with selections shows the badge -- nothing readable hides.
+          const twisty = item.expanded ? '▾' : '▸';
+          const badge =
+            !item.expanded && item.selectedCount > 0
+              ? ` · ${item.selectedCount} selected`
+              : '';
+          const line = `${twisty} ${item.group.label} (${item.count})${badge}`;
+          return isActive ? c.command(line) : line;
+        }
+        const marker = selected.has(item.choice.value) ? '◉' : '○';
         // The cursor gets a GLYPH (› between marker and name), not just
         // color -- color alone is invisible when the cursor sits on an
         // already-marked row (user feedback 2026-10-12: after the value
         // editor closed, "the cursor is nowhere"). The single-select's
         // '› ' pattern, married to the multiselect's ◉/○ column.
         const cursor = isActive ? '› ' : '  ';
-        const line = `${marker} ${cursor}${item.name}`;
+        const line = `${marker} ${cursor}${item.indent ? '  ' : ''}${item.choice.name}`;
         return isActive ? c.command(line) : line;
       },
       pageSize,
@@ -489,7 +672,12 @@ const escapableMultiSelectImpl = createPrompt(
             }
           : {
               filter: true,
-              space: 'select',
+              space:
+                highlighted?.kind === 'header'
+                  ? highlighted.expanded
+                    ? 'collapse'
+                    : 'expand'
+                  : 'select',
               enter: 'commit',
               left: true,
               escape: 'back · [ESC]×2 exit all',
@@ -501,13 +689,18 @@ const escapableMultiSelectImpl = createPrompt(
     // description trailing INSIDE the panel (description at the bottom,
     // option at the top = the two halves of the decision frames apart).
     const panelLines: { text: string; plain: string }[] = [];
-    if (escapeGraceOpen) {
+    if (leftGuard) {
+      panelLines.push({
+        text: c.negative(leftGuard),
+        plain: leftGuard,
+      });
+    } else if (escapeGraceOpen) {
       panelLines.push({
         text: c.muted('esc again to exit all -- or wait to go back one level'),
         plain: 'esc again to exit all -- or wait to go back one level',
       });
     }
-    if (filtered.length > 0) {
+    if (rows.length > 0) {
       for (const row of page.split('\n')) {
         panelLines.push({ text: row, plain: stripAnsi(row) });
       }
@@ -517,9 +710,24 @@ const escapableMultiSelectImpl = createPrompt(
         plain: '(no matches -- backspace to edit)',
       });
     }
-    if (highlighted?.description) {
+    if (highlighted?.kind === 'header') {
+      // A header's panel description: the group's options as flags, so
+      // "what is inside?" costs one cursor move, not an expand.
+      const members = choices.filter(
+        (choice) =>
+          (choice as { group?: string }).group === highlighted.group.id
+      );
       panelLines.push({ text: '', plain: '' });
-      panelLines.push(...descriptionPanelLines(highlighted.description));
+      panelLines.push(
+        ...descriptionPanelLines(
+          `${highlighted.group.label}: ${members
+            .map((choice) => choice.name)
+            .join(', ')}`
+        )
+      );
+    } else if (highlightedChoice?.description) {
+      panelLines.push({ text: '', plain: '' });
+      panelLines.push(...descriptionPanelLines(highlightedChoice.description));
     }
     const panel = renderFramedBox({
       title: {

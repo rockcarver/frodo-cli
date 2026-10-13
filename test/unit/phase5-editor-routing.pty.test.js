@@ -797,7 +797,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         // the command state, not an empty slate.
         const reopened = result.captures.reopened.plain;
         expect(reopened).toMatch(/frodo esv secret delete -k --verbose/);
-        expect(reopened).toMatch(/◉ (?:› )?--debug/);
+        expect(reopened).toMatch(/◉ (?:› )?\s*--debug/);
       } finally {
         removeShellTestHome(homeDir);
       }
@@ -875,7 +875,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         // serializes the REAL value (the filter query "env-file" did
         // not leak into the buffer as a prefix of the value).
         const afterCommit = result.captures.afterCommit.plain;
-        expect(afterCommit).toMatch(/◉ (?:› )?--env-file/);
+        expect(afterCommit).toMatch(/◉ (?:› )?\s*--env-file/);
         expect(afterCommit).toMatch(
           /frodo esv secret delete -k --retry network --env-file FOO=bar/
         );
@@ -986,7 +986,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         // (The list ROW keeps showing the flag spec -- `--retry
         // <strategy>` is the option's label; the footer is where the
         // real value belongs.)
-        expect(afterPickFrame).toMatch(/◉ (?:› )?--retry/);
+        expect(afterPickFrame).toMatch(/◉ (?:› )?\s*--retry/);
         expect(afterPickFrame).toMatch(
           /frodo esv secret delete -k --retry everything/
         );
@@ -1062,4 +1062,338 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
     },
     TIMEOUT
   );
+
+  /**
+   * GROUPED OPTIONS EDITOR (user decision 2026-10-13): the invocation
+   * editor renders the command's own options flat and every shared help
+   * group as a collapsible section (the -hh order). Through the real
+   * prompt stack: initial collapse, [space] expand/collapse on a header,
+   * filter flattening, auto-expand on selection, and the nav bar's
+   * context-dependent [space] label.
+   */
+  describe('grouped options editor: collapsible sections', () => {
+    const TIMEOUT = 90000;
+
+    const openEditor = async (homeDir, args = [], extraActions = []) => {
+      const result = runShellScenario({
+        homeDir,
+        allowPrompting: true,
+        args: ['esv', 'secret', 'delete', ...args],
+        env: ENV,
+        actions: [
+          {
+            type: 'wait_plain',
+            regex: 'Choose which secrets',
+            timeoutMs: 30000,
+          },
+          { type: 'sleep', ms: 400 },
+          { type: 'key', name: 'right' },
+          {
+            type: 'wait_plain',
+            regex: 'Optional options for',
+            timeoutMs: 15000,
+          },
+          { type: 'sleep', ms: 400 },
+          ...extraActions,
+        ],
+      });
+      return result;
+    };
+
+    test(
+      'opens with own options + collapsed group headers; no shared flags visible',
+      async () => {
+        const homeDir = createShellTestHome();
+        try {
+          const result = await openEditor(
+            homeDir,
+            [],
+            [{ type: 'capture', label: 'editor' }]
+          );
+          const editor = result.captures.editor.plain;
+          // Own options flat on top...
+          expect(editor).toMatch(/○ › -a, --all/);
+          expect(editor).toMatch(/○   -i, --secret-id/);
+          // ...each shared group a COLLAPSED header in the -hh order...
+          expect(editor).toMatch(/▸ Authentication options \(9\)/);
+          expect(editor).toMatch(/▸ Connection options \(4\)/);
+          expect(editor).toMatch(/▸ Output options \(3\)/);
+          expect(editor).toMatch(/▸ Runtime options \(7\)/);
+          // ...with none of the shared flags visible while collapsed.
+          expect(editor).not.toMatch(/--debug/);
+          expect(editor).not.toMatch(/--env-file/);
+          expect(editor).not.toMatch(/--idm-host/);
+          expect(editor).not.toMatch(/--browser/);
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      '[space] on a header expands in place; again collapses; badge counts selections',
+      async () => {
+        const homeDir = createShellTestHome();
+        try {
+          const result = await openEditor(
+            homeDir,
+            ['-k'],
+            [
+              // Cursor starts on the first row (-a). Down to the
+              // Authentication header (3rd row), expand it.
+              { type: 'key', name: 'down' },
+              { type: 'key', name: 'down' },
+              { type: 'sleep', ms: 300 },
+              { type: 'capture', label: 'onHeader' },
+              { type: 'key', name: 'space' },
+              { type: 'sleep', ms: 400 },
+              { type: 'capture', label: 'expanded' },
+              // Collapse again. clear_output drops the expanded frame
+              // from the accumulated stream; the next capture only has
+              // content after a repaint, so nudge the cursor (up+down
+              // = same position, fresh frame).
+              { type: 'key', name: 'space' },
+              { type: 'sleep', ms: 400 },
+              { type: 'clear_output' },
+              { type: 'key', name: 'up' },
+              { type: 'key', name: 'down' },
+              { type: 'sleep', ms: 400 },
+              { type: 'capture', label: 'collapsed' },
+            ]
+          );
+          const onHeader = result.captures.onHeader.plain;
+          // The nav bar's [space] label follows the row kind.
+          expect(onHeader).toMatch(/\[space\] expand/);
+          const expanded = result.captures.expanded.plain;
+          expect(expanded).toMatch(/▾ Authentication options \(9\)/);
+          expect(expanded).toMatch(/--login-client-id/);
+          expect(expanded).toMatch(/\[space\] collapse/);
+          const collapsed = result.captures.collapsed.plain;
+          expect(collapsed).toMatch(/▸ Authentication options \(9\)/);
+          // The option ROW is gone (the panel description legitimately
+          // still lists the group's flags while the cursor is on the
+          // collapsed header), so anchor on the row shape.
+          expect(collapsed).not.toMatch(/○ +--login-client-id/);
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'typing a filter flattens across groups: --debug found inside a collapsed group',
+      async () => {
+        const homeDir = createShellTestHome();
+        try {
+          const result = await openEditor(
+            homeDir,
+            [],
+            [
+              // The initial sectioned frame advertises the collapsed
+              // headers; drop it from the accumulated stream so the
+              // filtered capture's negative assertion (no headers while
+              // flattened) reads only the filtered frame.
+              { type: 'clear_output' },
+              { type: 'send', text: 'debug' },
+              { type: 'sleep', ms: 500 },
+              { type: 'capture', label: 'filtered' },
+              // Select it; the group must re-appear expanded when the
+              // filter clears (auto-expand + commit below proves the
+              // selection survived outside the flattened view).
+              { type: 'key', name: 'space' },
+              { type: 'sleep', ms: 200 },
+              { type: 'key', name: 'ctrl_u' },
+              { type: 'sleep', ms: 300 },
+              { type: 'capture', label: 'selected' },
+            ]
+          );
+          const filtered = result.captures.filtered.plain;
+          expect(filtered).toMatch(/query: debug/);
+          expect(filtered).toMatch(/--debug/);
+          expect(filtered).not.toMatch(/▸ Output options/);
+          const selected = result.captures.selected.plain;
+          // Back on the sectioned list, Output is expanded and --debug marked.
+          expect(selected).toMatch(/▾ Output options/);
+          expect(selected).toMatch(/◉ (?:› )?\s*--debug/);
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a pre-set shared option (flag/env) starts its group expanded and marked',
+      async () => {
+        const homeDir = createShellTestHome();
+        try {
+          const result = await openEditor(
+            homeDir,
+            ['--debug'],
+            [{ type: 'capture', label: 'editor' }]
+          );
+          const editor = result.captures.editor.plain;
+          expect(editor).toMatch(/▾ Output options \(3\)/);
+          expect(editor).toMatch(/◉ (?:› )?\s*--debug/);
+          // The other groups stay collapsed.
+          expect(editor).toMatch(/▸ Runtime options \(7\)/);
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+  });
+
+  /**
+   * UNCOMMITTED-SELECTIONS GUARD (user rule 2026-10-13): [LEFT] is
+   * disabled while the editor holds selections not yet committed
+   * ([ENTER] commits, [ESC] resets them and backs out) -- the old
+   * behavior silently discarded them. Also pins the [space]-toggle
+   * buffer scrub: a toggle must not leak a space into the filter query
+   * (it used to pollute it -- " curl" matched nothing -- and made the
+   * buffer non-empty so [LEFT] was swallowed as cursor movement).
+   */
+  describe('grouped options editor: uncommitted-selections guard', () => {
+    const TIMEOUT = 90000;
+
+    test(
+      '[LEFT] with uncommitted selections does nothing but shows the guard hint',
+      async () => {
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: ENV,
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 400 },
+              { type: 'key', name: 'right' },
+              {
+                type: 'wait_plain',
+                regex: 'Optional options for',
+                timeoutMs: 15000,
+              },
+              { type: 'sleep', ms: 400 },
+              { type: 'key', name: 'space' },
+              { type: 'sleep', ms: 300 },
+              { type: 'key', name: 'left' },
+              { type: 'sleep', ms: 600 },
+              { type: 'capture', label: 'guarded' },
+            ],
+          });
+          const guarded = result.captures.guarded.plain;
+          // The guard hint renders ONLY on an open editor frame, so its
+          // presence proves the editor is still up (the done/cancelled
+          // summaries never render it). Still the sectioned list, not a
+          // concluded summary.
+          expect(guarded).toMatch(/not committed/);
+          expect(guarded).toMatch(/\[ESC\] resets, \[ENTER\] commits/);
+          expect(guarded).toMatch(/▸ Authentication options/);
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      '[ESC] with uncommitted selections resets them (nothing survives a reopen)',
+      async () => {
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: ENV,
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 400 },
+              { type: 'key', name: 'right' },
+              {
+                type: 'wait_plain',
+                regex: 'Optional options for',
+                timeoutMs: 15000,
+              },
+              { type: 'sleep', ms: 400 },
+              { type: 'key', name: 'space' },
+              { type: 'sleep', ms: 300 },
+              { type: 'key', name: 'escape' },
+              { type: 'sleep', ms: 1000 },
+              { type: 'key', name: 'right' },
+              { type: 'sleep', ms: 2000 },
+              { type: 'capture', label: 'reopened' },
+            ],
+          });
+          // The LAST editor frame: the reopened editor's title is the
+          // final occurrence, so the segment after it holds that
+          // frame's rows. The first row (-a, --all) was toggled before
+          // ESC; after the reset it must be UNMARKED there.
+          const reopened = result.captures.reopened.plain
+            .replace(/\x1b/g, '')
+            .split('Optional options for')
+            .pop();
+          expect(reopened).not.toMatch(/◉[^│]*-a,/);
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      '[space] toggle scrubs the buffer: filtering after a toggle still matches',
+      async () => {
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: ENV,
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 400 },
+              { type: 'key', name: 'right' },
+              {
+                type: 'wait_plain',
+                regex: 'Optional options for',
+                timeoutMs: 15000,
+              },
+              { type: 'sleep', ms: 400 },
+              { type: 'key', name: 'space' },
+              { type: 'sleep', ms: 300 },
+              { type: 'send', text: 'retry' },
+              { type: 'sleep', ms: 500 },
+              { type: 'capture', label: 'filtered' },
+            ],
+          });
+          // ' retry' (leading space) matched nothing before the scrub.
+          expect(result.captures.filtered.plain).toMatch(
+            /-F, --force-update|--retry <strategy>/
+          );
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+  });
 });

@@ -145,7 +145,21 @@ export async function resolveRealmPick(command: Command): Promise<void> {
     choice = answer;
     break;
   }
-  if (choice === ESCAPE || !choice || choice === current) {
+  if (choice === ESCAPE) {
+    // Backed out: keep the deployment default (the pre-interactive
+    // behavior), AND say so -- a silent return after the frame erased
+    // left the terminal idle with no explanation (user report
+    // 2026-10-13: "the picker wasn't active" -- the prompt had actually
+    // concluded; nothing showed why nothing then happened).
+    verboseMessage(`Keeping the default realm ${current}.`);
+    return;
+  }
+  if (!choice || choice === current) {
+    // <enter> on the already-highlighted default: an explicit "keep
+    // it". The pick is DONE -- do NOT loop back into another picker
+    // instance (the old silent re-prompt read as a dead screen: the
+    // prompt concluded and nothing re-appeared).
+    verboseMessage(`Keeping the default realm ${current}.`);
     return;
   }
   state.setRealm(choice);

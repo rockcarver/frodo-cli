@@ -1210,6 +1210,35 @@ const stateMap = {
 };
 
 /**
+ * Re-applies the stateMap handlers for the options the invocation
+ * editor committed AFTER the action body's own
+ * handleDefaultArgsAndOpts copy ran -- the editor can open from inside
+ * getTokens (a picker's -> key), which is after that copy, so options
+ * like --curlirize/--debug/--verbose committed there reached the
+ * command object but never frodo-lib's state (user report 2026-10-13:
+ * --curlirize selected in the editor produced no curl output). Called
+ * from the resolution pass (lazy import -- the cycle resolver ->
+ * FrodoCommand is otherwise static). Only options carrying a
+ * user-authored value (source 'cli') replay; the host/realm/user/
+ * password entries are SKIPPED -- the resolver owns connection state
+ * and re-feeding those would clobber a resolved connection.
+ */
+export function replayEditorOptionStates(command: Command): void {
+  const skip = new Set(['host', 'realm', 'username', 'password']);
+  for (const option of command.options) {
+    const name = option.attributeName();
+    if (skip.has(name)) continue;
+    if (Object.keys(stateMap).includes(name)) {
+      const value = command.getOptionValue(name);
+      if (value === undefined || value === false || value === '') continue;
+      if (command.getOptionValueSource(name) !== 'cli') continue;
+      const handler: any = stateMap[name];
+      handler(value, command.opts());
+    }
+  }
+}
+
+/**
  * Registry of environment variables shown in `-hhh` help.
  *
  * This list drives display only; runtime behavior is still controlled by

@@ -1,11 +1,15 @@
 import { describe, expect, it } from '@jest/globals';
 import { Command, Option } from 'commander';
-import { sortEditableOptions } from '../../src/utils/interactive/EditableOptions';
+import {
+  editableOptionGroupOf,
+  editableOptionGroups,
+  sortEditableOptions,
+} from '../../src/utils/interactive/EditableOptions';
 
 /**
- * The editor's candidate ORDER (bucketed by help-group category --
- * command-specific first, then connection, then the rest): pins the
- * -h/-hh-consistent split the editor list now makes.
+ * The editor's candidate ORDER (command-specific first, then the shared
+ * groups alphabetically by heading -- the -hh order): pins the split the
+ * grouped editor renders, plus the grouping helpers behind it.
  */
 describe('sortEditableOptions (bucketed candidate order)', () => {
   function makeCommand(): Command {
@@ -31,20 +35,43 @@ describe('sortEditableOptions (bucketed candidate order)', () => {
     return command;
   }
 
-  it('command-specific options sort before connection, then the rest', () => {
+  it('own options first, then the shared groups in -hh order', () => {
     const command = makeCommand();
     const sorted = sortEditableOptions(command.options);
     const names = sorted.map((option) => option.name());
-    // Within buckets: alphabetical (all < long; deploy; username <
-    // color?? no -- bucket 2 is auth/runtime/output alphabetized by
-    // option word: color < retry < username).
+    // Groups alphabetical by heading: Authentication, Connection,
+    // Output, Runtime; the dash-insensitive word sort INSIDE each.
     expect(names).toEqual([
       'all',
       'long',
+      'username',
       'deploy',
       'color',
       'retry',
-      'username',
+    ]);
+  });
+
+  it('editableOptionGroupOf: own options undefined, shared options keyed by heading', () => {
+    const command = makeCommand();
+    const own = command.options.find((option) => option.name() === 'long')!;
+    const connection = command.options.find(
+      (option) => option.name() === 'deploy'
+    )!;
+    expect(editableOptionGroupOf(own)).toBeUndefined();
+    expect(editableOptionGroupOf(connection)).toBe('Connection Options:');
+  });
+
+  it('editableOptionGroups: -hh order, labels, own options produce no group', () => {
+    const command = makeCommand();
+    const own = command.options.filter(
+      (option) => editableOptionGroupOf(option) === undefined
+    );
+    expect(editableOptionGroups(own)).toEqual([]);
+    expect(editableOptionGroups(command.options)).toEqual([
+      { id: 'Authentication Options:', label: 'Authentication options' },
+      { id: 'Connection Options:', label: 'Connection options' },
+      { id: 'Output Options:', label: 'Output options' },
+      { id: 'Runtime Options:', label: 'Runtime options' },
     ]);
   });
 

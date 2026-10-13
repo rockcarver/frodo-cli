@@ -85,7 +85,10 @@ tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   indistinguishable afterwards.
 
 Both inherit type-to-search. Escape declines; single-candidate lists
-auto-select.
+auto-select. `<enter>` on the already-highlighted default realm keeps
+it and CONCLUDES the pick (a verbose note says so) — the pick does not
+re-prompt (user report 2026-10-13: the old silent re-open read as a
+dead screen).
 
 ## Panel per surface (the frame layout)
 
@@ -195,6 +198,12 @@ unsatisfied groups, failed auth) print nothing.
   value box (a picker for `.choices()` options, free text otherwise);
   the option joins the selection only when a real value is collected
   (escaping the box rejects the mark).
+- `[⏴]` is DISABLED while the editor holds selections not yet committed
+  (user rule 2026-10-13): the panel shows the count and the way out
+  ("N options not committed — [ESC] resets, [ENTER] commits"). `[ENTER]`
+  commits the set; `[ESC]` with uncommitted selections RESETS them and
+  backs out (dismiss = nothing authored). A `[space]` toggle scrubs the
+  readline buffer, so it never leaks into the filter query.
 - `→` — enter the next editor segment, where the prompt advertises one
   with a counted hint ("[⏵] 4 options" in the Navigate bar); only armed when a
   hint exists, and only when the filter query is empty (with text
@@ -229,12 +238,25 @@ unsatisfied groups, failed auth) print nothing.
   as contiguous multi-byte bursts well under 50ms apart), so sequence
   parsing stays correct.
 
-The invocation editor orders its candidates the way `-h`/`-hh` orders
-help: the command's OWN options first, then connection options, then
-everything else (authentication, runtime, output) — alphabetical by
-option word within each bucket (`sortEditableOptions`; the bucket
-derives from the option's help-group heading, so help and the editor
-can never disagree about where an option belongs). The cursor carries
+The invocation editor mirrors the `-h`/`-hh` split as COLLAPSIBLE
+SECTIONS (user decision 2026-10-13): the command's OWN options render
+flat on top, every shared help group (Authentication, Connection,
+Output, Runtime — the `-hh` alphabetical order) renders as one header
+row `▸ Connection options (4)`. `[space]` on a header expands/collapses
+it in place (the Navigate bar's `[space]` label follows: select on
+options, expand/collapse on headers); a collapsed header with marked
+members shows `· N selected`. A group holding an option the user
+already set (flag, env, saved default) starts expanded — authored
+state never hides. Typing a filter flattens the list to the cross-group
+name matches (headers drop out): type-to-find reaches into collapsed
+groups, and selecting a match re-expands its group. The grouping
+derives from the option's help-group heading (`editableOptionGroupOf`/
+`buildSectionRows` in `utils/interactive/`), so help and the editor can
+never disagree about where an option belongs. Options committed in the
+editor AFTER the resolution pass (the editor can open from inside auth
+via a picker's `[⏵]`) are re-applied to frodo-lib's state
+(`replayEditorOptionStates`), so `--curlirize`/`--debug`/`--verbose`
+picked there take effect. The cursor carries
 a GLYPH (`›`), not just color — color alone is invisible when it sits
 on an already-marked row. After a value editor closes, the cursor
 returns to the option that was just edited or rejected, and re-opening

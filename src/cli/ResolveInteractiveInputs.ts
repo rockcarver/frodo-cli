@@ -62,6 +62,8 @@ import {
 } from '../utils/interactive/DefaultsStore';
 import {
   editableOptionalOptions,
+  editableOptionGroupOf,
+  editableOptionGroups,
   editableOptionsHint,
   sortEditableOptions,
 } from '../utils/interactive/EditableOptions';
@@ -1089,6 +1091,8 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
 // ActiveActionCommandState split for the layering rationale). Re-exported
 // for the editor's own use.
 export {
+  editableOptionGroupOf,
+  editableOptionGroups,
   editableOptionalOptions,
   editableOptionsHint,
 } from '../utils/interactive/EditableOptions';
@@ -1291,33 +1295,33 @@ async function runInvocationEditor(command: Command): Promise<void> {
       committed[attributeName] = command.getOptionValue(attributeName);
       verboseMessage(`Using ${option.flags} ${value}.`);
     },
-    choices: sortEditableOptions(candidates)
-      // Bucketed by help-group category (user feedback 2026-10-12: a
-      // flat alphabetical list buries the command's own options among
-      // global/connection machinery -- the same split -h/-hh makes in
-      // help): command-specific first, connection, then the rest.
-      // sortEditableOptions keeps the dash-insensitive word sort
-      // INSIDE each bucket.
-      .map((option) => {
-        // Already-valued options are editable too --
-        // shown with their current value so the user can tell them apart.
-        // Distinguish a commander default (never user-typed) from a value
-        // that came from this invocation's CLI/env.
-        const current = command.getOptionValue(option.attributeName());
-        const sourced =
-          current === undefined || current === false
-            ? undefined
-            : command.getOptionValueSource(option.attributeName()) === 'default'
-              ? ` (default: ${current})`
-              : ` (current: ${current})`;
-        return {
-          value: option.attributeName(),
-          name: option.flags,
-          description: option.description
-            ? `${option.description}${sourced ?? ''}`
-            : sourced?.trim(),
-        };
-      }),
+    // The GROUPED editor (user decision 2026-10-13): the command's own
+    // options flat on top, every shared help group a collapsible
+    // section (the -hh order). A group holding an option the user
+    // already set (defaultValues below, source 'cli') starts expanded,
+    // so authored state never hides behind a collapsed header.
+    groups: editableOptionGroups(candidates),
+    choices: sortEditableOptions(candidates).map((option) => {
+      // Already-valued options are editable too --
+      // shown with their current value so the user can tell them apart.
+      // Distinguish a commander default (never user-typed) from a value
+      // that came from this invocation's CLI/env.
+      const current = command.getOptionValue(option.attributeName());
+      const sourced =
+        current === undefined || current === false
+          ? undefined
+          : command.getOptionValueSource(option.attributeName()) === 'default'
+            ? ` (default: ${current})`
+            : ` (current: ${current})`;
+      return {
+        value: option.attributeName(),
+        name: option.flags,
+        group: editableOptionGroupOf(option),
+        description: option.description
+          ? `${option.description}${sourced ?? ''}`
+          : sourced?.trim(),
+      };
+    }),
   });
   if (picked === EXIT_ALL) {
     // Exit-all unwinds the whole interactive resolution (see the
@@ -1363,6 +1367,20 @@ async function runInvocationEditor(command: Command): Promise<void> {
       (candidate) => candidate.attributeName() === attributeName
     )!;
     verboseMessage(`Using ${option.flags}.`);
+  }
+
+  // The editor can open from INSIDE getTokens (a picker's [⏵] key),
+  // which is after the action body's handleDefaultArgsAndOpts copy ran
+  // -- so options committed here (--curlirize/--debug/--verbose...)
+  // reached the command object but never frodo-lib's state (user report
+  // 2026-10-13: --curlirize selected in the editor produced no curl
+  // output). Replay the state handlers for everything the editor left
+  // authored. Host/realm/user/password are skipped (the resolver owns
+  // connection state; re-feeding it would clobber a resolved
+  // connection).
+  if (picked.length > 0) {
+    const { replayEditorOptionStates } = await import('./FrodoCommand');
+    replayEditorOptionStates(command);
   }
 
   // Persist what this session committed (partial save -- only
