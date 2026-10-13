@@ -93,6 +93,8 @@ import { noteRealmProvenance } from '../utils/interactive/RealmPickers';
 import { guidedModeEnabled } from '../utils/SettingsStore';
 
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
+const { probeDeploymentType } = frodo.login;
+const { isValidUrl } = frodo.utils;
 
 // The active-action-command registry lives in its own zero-import module
 // (ActiveActionCommandState) so ops-layer importers (AuthenticateOps's
@@ -907,7 +909,20 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
   // Refresh the preview's deployment type when the host is known but the
   // type isn't yet: the saved profile may carry it (the user didn't pass
   // -m/--type, and lib loads the profile into state only during auth --
-  // too late for the preview).
+  // too late for the preview). No profile: probe the host ANONYMOUSLY
+  // (frodo.login.probeDeploymentType -- two unauthenticated POSTs to
+  // /oauth2/authorize, ~200ms) so new-host flows (frodo login <host>,
+  // frodo conn save <host>, env-var connections) get the type BEFORE any
+  // login: the realm sentinel translates in the preview/footer, realm
+  // pickers pre-highlight the right default, cloud-only gating reads
+  // correctly. The probed type is written into state (not just the
+  // preview) because pre-auth prompt machinery reads
+  // state.getDeploymentType(); it MUST match what auth later determines,
+  // and the probe's evidence (built-in admin client existence) is the
+  // same signal determineDeploymentType uses post-auth, so they agree by
+  // construction. Probe failure (unreachable host, non-AM endpoint)
+  // keeps the current behavior: preview keeps the untranslated sentinel,
+  // and the run proceeds exactly as before the probe existed.
   {
     const host = positionalValue(command, 'host') ?? state.getHost();
     if (!state.getDeploymentType() && host) {
@@ -915,8 +930,19 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
         const profile = await getConnectionProfileByHost(host);
         setDeploymentTypeForPreview(profile.deploymentType);
       } catch {
-        // No profile for this host: preview keeps the untranslated
-        // sentinel (still a valid re-runnable token).
+        // No profile for this host: the anonymous probe is the only
+        // remaining signal. Only probe under the prompting gate (non-
+        // interactive runs must stay byte-identical AND latency-free).
+        if (canPrompt() && isValidUrl(host)) {
+          try {
+            const probe = await probeDeploymentType(host);
+            state.setDeploymentType(probe.deploymentType);
+            setDeploymentTypeForPreview(probe.deploymentType);
+          } catch {
+            // Unreachable / not an AM host: as if the probe didn't
+            // exist -- untranslated sentinel, pre-existing semantics.
+          }
+        }
       }
     }
   }
