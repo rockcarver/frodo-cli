@@ -2429,7 +2429,7 @@ function stubPromptPair(): Option[] {
     withHelpGroup(
       new Option(
         '--prompt',
-        'Show the interactive sub-command picker instead of running this command.'
+        'Show the interactive sub-command selector instead of running this command.'
       ),
       RUNTIME_OPTIONS_HEADING,
       OptionCategory.Runtime
@@ -2437,7 +2437,7 @@ function stubPromptPair(): Option[] {
     withHelpGroup(
       new Option(
         '--no-prompt',
-        'Never prompt or pick; behave as before the interactive framework (same as setting FRODO_NO_PROMPT).'
+        'Never prompt interactively (same as setting FRODO_NO_PROMPT).'
       ),
       RUNTIME_OPTIONS_HEADING,
       OptionCategory.Runtime
@@ -3134,11 +3134,12 @@ class FrodoStubHelp extends Help {
     const isPureStub = isStub && !isActionStub;
     const virtualOptions = isPureStub
       ? [
-          // Pure stub: --no-prompt only (as before).
+          // Pure stub: --no-prompt only (as before). Wording must stay in
+          // sync with stubPromptPair.
           withHelpGroup(
             new Option(
               '--no-prompt',
-              'Never prompt or pick; behave as before the interactive framework (same as setting FRODO_NO_PROMPT).'
+              'Never prompt interactively (same as setting FRODO_NO_PROMPT).'
             ),
             RUNTIME_OPTIONS_HEADING,
             OptionCategory.Runtime
