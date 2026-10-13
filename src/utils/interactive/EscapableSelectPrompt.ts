@@ -14,6 +14,7 @@ import {
 import c from '../ColorTheme';
 import { armEscapeGrace, EXIT_ALL } from './ExitAll';
 import {
+  descriptionPanelLines,
   navigationMenuItems,
   renderFramedBox,
   renderNavigationMenu,
@@ -79,7 +80,7 @@ export type EscapableSelectConfig<Value> = {
    * Discoverability hint: when set, the prompt renders it as a
    * muted line under the list and arms the → key (resolving with the
    * `RIGHT` sentinel). Callers pass a counted, truthful promise --
-   * e.g. "→ 4 options to configure" -- derived from the same candidate
+   * e.g. "→ 4 options" -- derived from the same candidate
    * filter the offered segment uses; omit it when there is nothing more
    * to configure (silence = done).
    */
@@ -340,7 +341,7 @@ const escapableSelectImpl = createPrompt(
         filter: true,
         enter: 'select',
         right: config.hint ? config.hint.replace(/^→\s*/, '') : undefined,
-        escape: 'back · esc×2 exit all',
+        escape: 'back · [ESC]×2 exit all',
       })
     );
     const panelLines: { text: string; plain: string }[] = [];
@@ -364,9 +365,7 @@ const escapableSelectImpl = createPrompt(
     }
     if (selected?.description) {
       panelLines.push({ text: '', plain: '' });
-      for (const row of selected.description.split('\n')) {
-        panelLines.push({ text: c.muted(row), plain: row });
-      }
+      panelLines.push(...descriptionPanelLines(selected.description));
     }
     const panel = renderFramedBox({
       title: {

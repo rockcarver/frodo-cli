@@ -5,7 +5,7 @@
  * are: pickers in this directory (EntityPickers, RealmPickers) attach the
  * hint to their prompts, and the editor in cli/ResolveInteractiveInputs
  * consumes the same list -- one shared source of truth, so the
- * "(→ N options to configure)" count is always the truthful promise the
+ * "(→ N options)" count is always the truthful promise the
  * editor delivers on.
  *
  * Pure commander logic, no frodo-lib: importable from anywhere without
@@ -50,7 +50,7 @@ export function editableOptionalOptions(command: Command): Option[] {
  */
 export function editableOptionsHint(command: Command): string | undefined {
   const count = editableOptionalOptions(command).length;
-  return count > 0 ? `→ ${count} options to configure` : undefined;
+  return count > 0 ? `→ ${count} options` : undefined;
 }
 
 /**

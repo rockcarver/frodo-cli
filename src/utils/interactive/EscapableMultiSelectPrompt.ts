@@ -16,6 +16,7 @@ import type { InquirerReadline } from '@inquirer/type';
 import c from '../ColorTheme';
 import { armEscapeGrace, EXIT_ALL } from './ExitAll';
 import {
+  descriptionPanelLines,
   navigationMenuItems,
   renderFramedBox,
   renderNavigationMenu,
@@ -491,7 +492,7 @@ const escapableMultiSelectImpl = createPrompt(
               space: 'select',
               enter: 'commit',
               left: true,
-              escape: 'back · esc×2 exit all',
+              escape: 'back · [ESC]×2 exit all',
             }
       )
     );
@@ -518,9 +519,7 @@ const escapableMultiSelectImpl = createPrompt(
     }
     if (highlighted?.description) {
       panelLines.push({ text: '', plain: '' });
-      for (const row of highlighted.description.split('\n')) {
-        panelLines.push({ text: c.muted(row), plain: row });
-      }
+      panelLines.push(...descriptionPanelLines(highlighted.description));
     }
     const panel = renderFramedBox({
       title: {

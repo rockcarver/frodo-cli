@@ -283,6 +283,14 @@ export async function resolveInteractiveInputs(
     (command.getOptionValue('prompt') === true &&
       command.getOptionValueSource('prompt') === 'cli') ||
     guidedModeEnabled();
+  // The connection is UNRESOLVED while its own prompts are open (the
+  // profile picker, the credentials page): record that BEFORE they run so
+  // their footers render red. Recording only the outcome left every
+  // connection-stage gap green -- an unset flag reads as "ready", and
+  // nothing else is mandatory for most commands, so the footer was never
+  // red there. When nothing needs prompting the flag flips to its real
+  // value immediately, with no frame in between.
+  connectionReadiness.set(command, false);
   const connectionResolved = await resolveConnectionArgs(command);
   connectionReadiness.set(command, connectionResolved);
   const mandatoryResolved = connectionResolved
@@ -497,9 +505,11 @@ export function commandReadinessFor(
     return value === undefined || value === false || value === '';
   });
   const oneOfUnsatisfied = findUnsatisfiedOneOfGroups(command).length > 0;
-  // Before resolveConnectionArgs has run there is no connection truth yet
-  // (the map is empty) -- leave it unset: readiness then hinges on the
-  // mandatory/one-of state alone, which is exactly what's knowable then.
+  // Before the resolution pass has reached the connection step there is
+  // no connection truth yet (the map is empty) -- leave it unset:
+  // readiness then hinges on the mandatory/one-of state alone. From the
+  // step onward the map holds false while the connection's own prompts
+  // are open, then the outcome.
   const connectionResolved = connectionReadiness.get(command);
   return {
     missingMandatoryOptionLabels,

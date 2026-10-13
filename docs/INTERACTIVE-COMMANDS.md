@@ -93,17 +93,17 @@ Every prompt frame is built from the same boxes (`NavigationMenu.ts`
 renders them all through one shared `renderFramedBox`):
 
 ```
-┌ Navigate ────────────────────────────────────────────┐
-│ ↑↓ move · type to filter · space select · esc back   │
-└──────────────────────────────────────────────────────┘
-┌ ? Optional options for 'list' (space to select) ─────┐
-│ ○ -E, --env <key=value>                              │
-│ ◉ -k, --insecure                                     │
-│ ○ --retry <strategy>                                 │
-│                                                      │
-│ Retry failed operations. Valid values for strategy:  │
-│ everything / network / nothing                       │
-└──────────────────────────────────────────────────────┘
+┌ Navigate ──────────────────────────────────────────────────────┐
+│ [⏶⏷] move · type to filter · [space] select · [ESC] back       │
+└────────────────────────────────────────────────────────────────┘
+┌ ? Optional options for 'list' (space to select) ───────────────┐
+│ ○ -E, --env <key=value>                                        │
+│ ◉ -k, --insecure                                               │
+│ ○ --retry <strategy>                                           │
+│                                                                │
+│ Retry failed operations. Valid values for strategy:            │
+│ everything / network / nothing                                 │
+└────────────────────────────────────────────────────────────────┘
 frodo journey list alpha
 ```
 
@@ -124,10 +124,13 @@ frodo journey list alpha
 Only keys that apply to the current prompt appear (silence = that key
 does nothing here), and each renders in its role's theme color:
 movement muted (furniture), `→`/`←` command (segment navigation worth
-spotting), `enter` positive (committing), `esc` negative (backing out).
-The box wraps its items within the terminal width. The multi-select's
-`space` and the editor's `←` are additional items; the `→` hint count
-renders inside the menu.
+spotting), `ENTER` positive (committing), `ESC` negative (backing out).
+Every key label is bracketed (`[ENTER]`, `[ESC]`), the common key
+notation, and the direction keys are drawn as Unicode medium triangles
+(`[⏶⏷]` move, `[⏴]` back, `[⏵]` forward) — heavier than slim arrows, no
+shaft. The box wraps its items within the terminal width. The
+multi-select's `[space]` and the editor's `[⏴]` are additional items;
+the `[⏵]` hint count (`[⏵] 4 options`) renders inside the menu.
 
 ## The inline value editor
 
@@ -135,10 +138,10 @@ In the invocation editor, `<space>` on a valued option opens the
 framed VALUE BOX under the panel:
 
 - An option with commander `.choices()` gets a PICKER (the Navigate
-  box's hints swap to `enter pick · esc rejects`) — an enum value is
+  box's hints swap to `[ENTER] pick · [ESC] rejects`) — an enum value is
   picked, never typed. The cursor starts on the option's current value
   when it has one.
-- Everything else gets free text (`enter commits · esc rejects`), the
+- Everything else gets free text (`[ENTER] commit value · [ESC] rejects`), the
   draft pre-filled with the current value.
 
 Either way the option joins the selection only when a real value is
@@ -157,7 +160,11 @@ LIVE — a function-form `preview` config is re-invoked on every render
 with the highlighted choice, and the pickers shadow the highlighted
 value into a throwaway copy of the command's positional/option for that
 render only. Red + cursive while mandatory input is missing, green when
-ready. On conclusion the resolved command prints once, in green,
+ready. The color reflects the COMMITTED state; the highlight only moves
+the shown token — so the connection profile picker and the credentials
+page stay red until the connection resolves (the resolver records it as
+unresolved before those prompts open), and the footer turns green on
+the first prompt after. On conclusion the resolved command prints once, in green,
 directly above the action's results — the copy-paste moment.
 
 Serialization rules (`serializeCommand`): exactly the tokens a user
@@ -189,7 +196,7 @@ unsatisfied groups, failed auth) print nothing.
   the option joins the selection only when a real value is collected
   (escaping the box rejects the mark).
 - `→` — enter the next editor segment, where the prompt advertises one
-  with a counted hint ("→ 4 options to configure"); only armed when a
+  with a counted hint ("[⏵] 4 options" in the Navigate bar); only armed when a
   hint exists, and only when the filter query is empty (with text
   typed, ←/→ stay readline cursor movement).
 - `←`/`Esc` — back ONE level (see the tree-climb below). Two-stage with

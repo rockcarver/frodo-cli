@@ -226,7 +226,7 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
         // answer, no footer.
         expect(joined).not.toMatch(/Choose which secrets/);
         expect(joined).not.toMatch(/Optional options for/);
-        expect(joined).not.toMatch(/options to configure/);
+        expect(joined).not.toMatch(/\] \d+ options/);
         expect(joined).not.toMatch(/type to filter/);
         expect(joined).not.toMatch(/esc backs out/);
         // And no authoring print: the flow never reached the action,
@@ -318,7 +318,7 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
         // hint, footer) nor a committed/cancelled answer survived.
         const joined = screen.join('\n');
         expect(joined).not.toMatch(/Choose a realm/);
-        expect(joined).not.toMatch(/options to configure/);
+        expect(joined).not.toMatch(/\] \d+ options/);
         expect(joined).not.toMatch(/type to filter/);
         expect(joined).not.toMatch(/esc backs out/);
 

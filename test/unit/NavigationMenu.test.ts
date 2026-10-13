@@ -1,9 +1,12 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import {
+  descriptionPanelLines,
+  frameInnerWidth,
   navigationMenuItems,
   renderFramedBox,
   renderNavigationMenu,
   stripAnsi,
+  wrapLine,
 } from '../../src/utils/interactive/NavigationMenu';
 
 /**
@@ -19,21 +22,21 @@ describe('navigationMenuItems (affordance-driven)', () => {
       escape: 'back out',
     });
     expect(items.map((item) => `${item.keys} ${item.action}`)).toEqual([
-      '↑↓ move',
+      '[⏶⏷] move',
       'type to filter',
-      'enter select',
-      'esc back out',
+      '[ENTER] select',
+      '[ESC] back out',
     ]);
   });
 
-  it('right hint adds the segment item, arrow prefix stripped', () => {
+  it('right hint adds the segment item, bracketed', () => {
     const items = navigationMenuItems({
       filter: true,
       enter: 'select',
-      right: '3 options to configure',
+      right: '3 options',
     });
     expect(items.map((item) => `${item.keys} ${item.action}`)).toContain(
-      '→ 3 options to configure'
+      '[⏵] 3 options'
     );
   });
 
@@ -45,9 +48,9 @@ describe('navigationMenuItems (affordance-driven)', () => {
       left: true,
     });
     const labels = items.map((item) => `${item.keys} ${item.action}`);
-    expect(labels).toContain('space select');
-    expect(labels).toContain('enter commit');
-    expect(labels).toContain('← back');
+    expect(labels).toContain('[space] select');
+    expect(labels).toContain('[ENTER] commit');
+    expect(labels).toContain('[⏴] back');
   });
 });
 
@@ -68,7 +71,7 @@ describe('renderNavigationMenu (box layout)', () => {
     expect(widths[1]).toBe(widths[2]);
     expect(plain[0]).toMatch(/^┌ Navigate ─+┐$/);
     expect(plain[1]).toMatch(
-      /^│ ↑↓ move · type to filter · enter select · esc back out\s+│$/
+      /^│ \[⏶⏷\] move · type to filter · \[ENTER\] select · \[ESC\] back out\s+│$/
     );
     expect(plain[2]).toMatch(/^└─+┘$/);
   });
@@ -157,14 +160,91 @@ describe('renderFramedBox (the shared panel renderer)', () => {
       lines: [{ text: '› nothing', plain: '› nothing' }],
       width: 40,
     });
-    expect(stripAnsi(box.split('\n')[0])).toMatch(
-      /^┌ Value for --retry ─+┐$/
-    );
+    expect(stripAnsi(box.split('\n')[0])).toMatch(/^┌ Value for --retry ─+┐$/);
   });
 
   it('stripAnsi removes SGR sequences only', () => {
     expect(stripAnsi('\x1b[36mtext\x1b[39m more')).toBe('text more');
     expect(stripAnsi('plain')).toBe('plain');
+  });
+});
+
+describe('wrapLine / descriptionPanelLines (long descriptions)', () => {
+  // The --type description that overflowed the options editor panel
+  // (user report 2026-10-13): short enumerated rows, then one ~300-char
+  // paragraph that pushed past the right wall.
+  const DEPLOYMENT_TYPE_DESCRIPTION = [
+    'Override auto-detected deployment type. Valid values for type:',
+    'classic:  A classic Access Management-only deployment with custom layout and configuration.',
+    'cloud:    A ForgeRock Identity Cloud environment.',
+    'forgeops: A ForgeOps CDK or CDM deployment.',
+    'The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA',
+  ].join('\n');
+
+  it('keeps a line that fits untouched', () => {
+    expect(wrapLine('short line', 40)).toEqual(['short line']);
+  });
+
+  it('wraps on word boundaries, every row within the width', () => {
+    const rows = wrapLine('one two three four five six seven eight', 15);
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows) expect(row.length).toBeLessThanOrEqual(15);
+    expect(rows.join(' ')).toBe('one two three four five six seven eight');
+  });
+
+  it('repeats leading indentation on continuation rows', () => {
+    const rows = wrapLine('    alpha beta gamma delta epsilon', 16);
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows) {
+      expect(row.startsWith('    ')).toBe(true);
+      expect(row.length).toBeLessThanOrEqual(16);
+    }
+  });
+
+  it('keeps aligned spacing between words across a wrap', () => {
+    const rows = wrapLine(
+      'cloud:    A ForgeRock Identity Cloud environment.',
+      24
+    );
+    expect(rows[0]).toMatch(/^cloud:    A /);
+  });
+
+  it('hard-splits a word longer than a whole row', () => {
+    const rows = wrapLine(`see ${'x'.repeat(30)} end`, 12);
+    for (const row of rows) expect(row.length).toBeLessThanOrEqual(12);
+    expect(rows.join('').replace(/\s+/g, '')).toBe(`see${'x'.repeat(30)}end`);
+  });
+
+  it('measures the drawn text: ANSI is stripped before wrapping', () => {
+    expect(wrapLine('\x1b[36mcolored\x1b[39m text', 40)).toEqual([
+      'colored text',
+    ]);
+  });
+
+  it('a long description keeps the panel walls aligned (the reported bug)', () => {
+    const box = renderFramedBox({
+      title: "? Optional options for 'list' (space to select):",
+      lines: [
+        { text: '○ › -m, --type <type>', plain: '○ › -m, --type <type>' },
+        { text: '', plain: '' },
+        ...descriptionPanelLines(DEPLOYMENT_TYPE_DESCRIPTION),
+      ],
+    });
+    const plain = box.split('\n').map(stripAnsi);
+    const widths = new Set(plain.map((line) => [...line].length));
+    expect([...widths]).toEqual([120]);
+    // Nothing was dropped: every word of the long paragraph survives.
+    const body = plain.map((line) => line.replace(/^│ | *│$/g, '')).join(' ');
+    expect(body.replace(/\s+/g, ' ')).toContain(
+      'tenant admin login flow of Identity Cloud and handle MFA'
+    );
+  });
+
+  it('wraps to a narrower frame width too', () => {
+    const rows = descriptionPanelLines(DEPLOYMENT_TYPE_DESCRIPTION, 60);
+    for (const row of rows) {
+      expect(row.plain.length).toBeLessThanOrEqual(frameInnerWidth(60));
+    }
   });
 });
 

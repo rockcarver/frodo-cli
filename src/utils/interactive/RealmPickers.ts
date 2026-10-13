@@ -117,7 +117,7 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   // EXIT_ALL never resolves out of the loop -- it throws).
   let choice: string | typeof ESCAPE;
   for (;;) {
-    const { livePositionalPreviewFor } =
+    const { livePositionalPreviewFor, runInvocationEditorForCommand } =
       await import('../../cli/ResolveInteractiveInputs');
     const answer = await escapableSelect<string>({
       message: `Choose a realm (default: ${current}):`,
@@ -134,7 +134,14 @@ export async function resolveRealmPick(command: Command): Promise<void> {
       })),
     });
     if (answer === EXIT_ALL) throw EXIT_ALL_SIGNAL;
-    if (answer === RIGHT) continue;
+    if (answer === RIGHT) {
+      // The hint advertised the editor, so → must open it (this branch
+      // used to just re-prompt, making the key look dead). The editor
+      // throws EXIT_ALL_SIGNAL on a double-ESC; a plain return loops
+      // back here and the user can still ESC the picker.
+      await runInvocationEditorForCommand(command);
+      continue;
+    }
     choice = answer;
     break;
   }
