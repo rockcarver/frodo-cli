@@ -39,6 +39,26 @@ Commands:
   themes                     [Experimental] Delete themes by name or delete all
                              themes in the selected realms.
   variables                  [Experimental] [Cloud-only] Delete variables.
+  applications          [Experimental] Delete applications together with the
+                        objects they own.
+  custom-nodes          [Experimental] Delete custom nodes.
+  email-templates       [Experimental] Delete email template objects.
+  endpoints             [Experimental] Delete custom endpoint objects.
+  locales               [Experimental] Delete locale objects.
+  oauth-cimd-profiles   [Experimental] Delete CIMD profiles.
+  oauth-issuers         [Experimental] Delete trusted JWT issuers.
+  schedules             [Experimental] Delete schedules.
+  scripts               [Experimental] Delete AM scripts. Default scripts are
+                        never deleted.
+  secrets               [Experimental] [Cloud-only] Delete secrets.
+  terms-and-conditions  [Experimental] Delete terms and conditions versions.
+  test                  [Experimental] Test connection and authentication.
+  themes                [Experimental] Delete themes by name or delete all
+                        themes in the selected realms.
+  variables             [Experimental] [Cloud-only] Delete variables.
+  custom-nodes      [Experimental] Delete custom nodes.
+  services          [Experimental] Delete authentication services.
+  test              [Experimental] Test connection and authentication.
 
 Utilities:
   help                       display help for command

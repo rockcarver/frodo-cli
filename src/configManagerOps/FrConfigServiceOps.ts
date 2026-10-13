@@ -20,7 +20,13 @@ import { OperationRun } from '../utils/OperationRun';
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const { getFilePath, saveJsonToFile, getWorkingDirectory, readJsonFile } =
   frodo.utils;
-const { getFullServices, importServices } = frodo.service;
+const {
+  deleteFullService,
+  deleteFullServices,
+  getFullServices,
+  getListOfServices,
+  importServices,
+} = frodo.service;
 const { DEFAULT_REALM_KEY } = frodo.utils.constants;
 
 const EXCLUDE_SERVICES = ['DataStoreService'];
@@ -301,4 +307,74 @@ export async function configManagerImportServices(
     printError(error, 'Error importing services');
   }
   return false;
+}
+/**
+ * Delete services. Skips the root realm on cloud deployments.
+ * @param {string} name optional service name to delete, deletes all services if omitted
+ * @param {boolean} dryRun preview deletions without deleting services
+ * @param {string} realm optional realm to delete services from
+ * @param {boolean} allowFailures true to succeed although some realms fail
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function configManagerDeleteServices(
+  name?: string,
+  dryRun = false,
+  realm?: string,
+  allowFailures = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'service', allowFailures });
+
+  try {
+    const realmsToProcess =
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+
+    for (const currentRealm of realmsToProcess) {
+      if (
+        currentRealm === '/' &&
+        state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+      ) {
+        continue;
+      }
+
+      state.setRealm(currentRealm);
+
+      try {
+        const deletedServices = dryRun
+          ? (await getListOfServices(false)).filter(
+              (service) => !name || service._id === name
+            )
+          : name
+            ? [await deleteFullService(name)]
+            : await deleteFullServices();
+
+        run.recordSuccess();
+
+        if (!deletedServices.length) {
+          printMessage(
+            `Warning: No service(s) found to delete in realm ${currentRealm}.`,
+            'warn'
+          );
+          continue;
+        }
+
+        if (dryRun) {
+          for (const service of deletedServices) {
+            printMessage(
+              `Dry run: Would delete service '${service._id}' in realm '${currentRealm}'.`
+            );
+          }
+        }
+      } catch (error) {
+        printError(error, `Failed to delete services in realm ${currentRealm}`);
+        run.recordFailure(currentRealm, causeOf(error));
+        continue;
+      }
+    }
+
+    return run.finish();
+  } catch (error) {
+    printError(error, 'Error deleting services');
+    // what failed before the read that failed is still summarised
+    return run.finish();
+  }
 }

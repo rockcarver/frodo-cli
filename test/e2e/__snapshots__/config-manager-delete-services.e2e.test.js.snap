@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete "frodo config-manager delete services --dry-run  -m forgeops": should show a dry run of which services would be deleted in alpha realm" 1`] = `""`;
+
+exports[`frodo config-manager delete "frodo config-manager delete services --dry-run  -m forgeops": should show a dry run of which services would be deleted in alpha realm" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete services'. This feature may change without notice.
+Dry run: Would delete service 'session' in realm '/alpha'.
+Dry run: Would delete service 'email' in realm '/alpha'.
+Dry run: Would delete service 'dashboard' in realm '/alpha'.
+Dry run: Would delete service 'policyconfiguration' in realm '/alpha'.
+Dry run: Would delete service 'user' in realm '/alpha'.
+Dry run: Would delete service 'selfServiceTrees' in realm '/alpha'.
+Dry run: Would delete service 'SocialIdentityProviders' in realm '/alpha'.
+Dry run: Would delete service 'oauth-oidc' in realm '/alpha'.
+Dry run: Would delete service 'id-repositories' in realm '/alpha'.
+Dry run: Would delete service 'pingOneWorkerService' in realm '/alpha'.
+Dry run: Would delete service 'baseurl' in realm '/alpha'.
+Dry run: Would delete service 'validation' in realm '/alpha'.
+Dry run: Would delete service 'IdentityAssertionService' in realm '/alpha'.
+Dry run: Would delete service 'httpclient' in realm '/alpha'.
+"
+`;
+
+exports[`frodo config-manager delete "frodo config-manager delete services -m forgeops": should delete all the allowed services" 1`] = `
+"Experimental feature in use: 'frodo config-manager delete services'. This feature may change without notice.
+Refusing to delete all services without confirmation: there is no interactive terminal to ask. Pass -y/--yes to delete without asking, or --dry-run to only show what would be deleted.
+"
+`;
+
+exports[`frodo config-manager delete "frodo config-manager delete services -m forgeops": should delete all the allowed services" 2`] = `1`;
+
+exports[`frodo config-manager delete "frodo config-manager delete services -n email  -m forgeops": should delete the named service in alpha realm" 1`] = `""`;
+
+exports[`frodo config-manager delete "frodo config-manager delete services -n email  -m forgeops": should delete the named service in alpha realm" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete services'. This feature may change without notice.
+"
+`;
