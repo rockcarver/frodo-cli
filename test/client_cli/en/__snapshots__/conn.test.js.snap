@@ -18,6 +18,12 @@ Options:
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
 
+Runtime Options:
+  --prompt          Show the interactive sub-command selector instead of running
+                    this command.
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
 Commands:
   alias             Manage connection aliases.
   delete            Delete connection profiles.
