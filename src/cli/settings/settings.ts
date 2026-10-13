@@ -3,6 +3,7 @@ import {
   escapableSelect,
   ESCAPE,
 } from '../../utils/interactive/EscapableSelectPrompt';
+import { EXIT_ALL_SIGNAL } from '../../utils/interactive/ExitAll';
 import { canPrompt } from '../../utils/interactive/PromptGateState';
 import { FrodoStubCommand, STEP_BACK_FROM_ACTION } from '../FrodoCommand';
 import DefaultsCmd from './settings-defaults';
@@ -68,7 +69,11 @@ export default function setup() {
         // user escaped back out of the category -- loop, show the menu again
       }
     } catch (error) {
-      if (error === STEP_BACK_FROM_ACTION) throw error;
+      if (
+        error === STEP_BACK_FROM_ACTION ||
+        error === EXIT_ALL_SIGNAL // exit-all unwinds to the shell
+      )
+        throw error;
       errorMessage(`${error}`);
       process.exitCode = 1;
     }

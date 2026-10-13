@@ -20,6 +20,7 @@ import { getActiveActionCommand } from '../utils/interactive/ActiveActionCommand
 // below AND re-exported so ops/ and cli/ consumers keep their
 // established import path.
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
+import { EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
 import { canPrompt } from '../utils/interactive/PromptGateState';
 import { question } from '../utils/Prompt';
 
@@ -257,6 +258,10 @@ export async function getTokens(
     }
     return true;
   } catch (error) {
+    // The exit-all unwind is not an auth failure -- rethrow it so it
+    // reaches app.ts's top-level handler (the realm/entity pickers throw
+    // the signal from inside this try).
+    if (error === EXIT_ALL_SIGNAL) throw error;
     printError(error);
     // Auth failed: the command never ran -- revoke the deferred print so
     // the postAction fallback (whose only remaining purpose is non-auth

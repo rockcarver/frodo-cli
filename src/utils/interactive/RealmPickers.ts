@@ -33,7 +33,7 @@ import { Command } from 'commander';
 import { verboseMessage } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
-import { EXIT_ALL } from './ExitAll';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { canPrompt } from './PromptGateState';
 
 /** frodo-lib's sentinel default for "no realm chosen yet". */
@@ -110,11 +110,12 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   // no row): escapableSelect falls back to the first row in that case.
   // → (armed by the hint) opens the invocation editor, then
   // re-prompts this picker; ESCAPE keeps the default as before; EXIT_ALL
-  // keeps it too -- the realm pick's caller has nothing to unwind past
-  // (auth already succeeded; "everything" here is just this picker).
-  // The loop's exit type is string | typeof ESCAPE | typeof EXIT_ALL
-  // (the RIGHT case loops).
-  let choice: string | typeof ESCAPE | typeof EXIT_ALL;
+  // THROWS the unwind signal (the session ends even though auth already
+  // succeeded -- the gesture means "leave everything", from any depth,
+  // per docs/INTERACTIVE-COMMANDS.md).
+  // The loop's exit type is string | typeof ESCAPE (the RIGHT case loops;
+  // EXIT_ALL never resolves out of the loop -- it throws).
+  let choice: string | typeof ESCAPE;
   for (;;) {
     const { livePositionalPreviewFor } =
       await import('../../cli/ResolveInteractiveInputs');
@@ -132,20 +133,12 @@ export async function resolveRealmPick(command: Command): Promise<void> {
         description: realm.active ? undefined : 'inactive',
       })),
     });
-    if (answer === EXIT_ALL || answer !== RIGHT) {
-      choice = answer;
-      break;
-    }
-    const { runInvocationEditorForCommand } =
-      await import('../../cli/ResolveInteractiveInputs');
-    await runInvocationEditorForCommand(command);
+    if (answer === EXIT_ALL) throw EXIT_ALL_SIGNAL;
+    if (answer === RIGHT) continue;
+    choice = answer;
+    break;
   }
-  if (
-    choice === EXIT_ALL ||
-    choice === ESCAPE ||
-    !choice ||
-    choice === current
-  ) {
+  if (choice === ESCAPE || !choice || choice === current) {
     return;
   }
   state.setRealm(choice);

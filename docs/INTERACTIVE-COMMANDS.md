@@ -194,13 +194,33 @@ unsatisfied groups, failed auth) print nothing.
   typed, ←/→ stay readline cursor movement).
 - `←`/`Esc` — back ONE level (see the tree-climb below). Two-stage with
   an active filter: first Esc clears the query, second backs out.
-- `Esc` `Esc` (double-press, 400ms window) — exit all the way. Two
-  consecutive Escapes within 400ms resolve the current prompt with the
-  exit-all sentinel, which unwinds to the very top of the session from
-  any nesting depth — no matter how many pickers or editors are stacked.
-  Any other key between the two presses resets the pair (the mouse
-  double-click analogy: the presses must be consecutive). A single Esc
-  at the ROOT picker still prints help and exits, as always.
+- `Esc` `Esc` (double-press, 400ms window) — exit all the way. The
+  first Esc does NOT resolve the prompt: it opens a 400ms grace window
+  (the frame shows a "esc again to exit all" hint so the gesture is
+  discoverable). A second Esc inside the window resolves the prompt
+  with the exit-all sentinel; when the window expires with no second
+  press, the single-Esc action (back one level) runs — both presses are
+  processed by the SAME prompt instance, so the gesture can never fall
+  into the gap between a closing prompt and whatever re-opens next. Any
+  other key between the two presses ends the gesture immediately (the
+  presses must be consecutive — the mouse double-click analogy). The
+  exit-all sentinel THROWS the framework's unwind signal, which ends
+  the session (clean shell return) from any nesting depth — no matter
+  how many pickers or editors are stacked.
+  A single Esc at the ROOT picker still prints help and exits, as
+  always.
+
+  Supporting machinery: readline's escape-sequence horizon (the time a
+  lone ESC byte is held as a potential escape-sequence prefix before
+  delivering a keypress) defaults to 500ms — within it, a second ESC
+  byte merely RESTARTS the pending sequence, so a fast double-press
+  yields ONE keypress ~500ms later and the gesture is physically
+  impossible. frodo patches `createInterface` once at startup (see
+  `src/utils/interactive/EscapeSequenceTimeout.ts`) to inject a 50ms
+  horizon: an order of magnitude below a human double-tap (~80-150ms),
+  comfortably above real escape sequences (arrow/function keys arrive
+  as contiguous multi-byte bursts well under 50ms apart), so sequence
+  parsing stays correct.
 
 The invocation editor orders its candidates the way `-h`/`-hh` orders
 help: the command's OWN options first, then connection options, then
@@ -220,6 +240,18 @@ re-opens with the child still filterable — instead of ending the
 session. Only the ROOT picker's Esc exits (help-exit), and the
 double-ESC exit-all works from any depth (`Esc` `Esc` inside the
 config-manager picker, for example, lands straight back at the shell).
+
+The unwind is a thrown symbol (`EXIT_ALL_SIGNAL`), not a threaded
+return value: every EXIT_ALL consumer throws it, and the signal
+traverses commander's async action/hooks and every intermediate loop
+untouched (the per-surface STEP_BACK catches already let non-STEP_BACK
+errors propagate) until app.ts's top-level handler converts it into a
+clean exit. Throwing is what makes the unwind work from pickers called
+INSIDE nested loops (realm/entity pickers inside the action body,
+editors inside routing loops) — each of those would otherwise need its
+own EXIT_ALL branch. Catch-all handlers between a throw site and the
+top (`getTokens`, the settings/conn/theme bare actions) rethrow the
+signal before their own error reporting.
 
 ## Stubs: containers, action stubs, and the Run row
 
@@ -252,9 +284,11 @@ value ...`; bare `frodo conn set` lists the settable fields). A new
   `--prompt` options editor, `--no-prompt` legacy failure.
 
 An action stub's bare interactive mode is one level of the navigable
-tree, not a session endpoint: declining it (ESC, gate-blocked, esc×2)
-throws the framework's STEP_BACK sentinel (`STEP_BACK_FROM_ACTION` for
-command files) and the sub-command picker re-opens.
+tree, not a session endpoint: declining it (ESC, gate-blocked) throws
+the framework's STEP_BACK sentinel (`STEP_BACK_FROM_ACTION` for
+command files) and the sub-command picker re-opens. A double-ESC never
+declines — it throws the exit-all unwind instead (see the key
+language above).
 
 ## Zero-import modules and the frodo-lib Jest constraint
 

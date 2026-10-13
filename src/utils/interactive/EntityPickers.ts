@@ -40,7 +40,7 @@
 import { Command } from 'commander';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
-import { EXIT_ALL } from './ExitAll';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { canPrompt } from './PromptGateState';
 
 /**
@@ -180,12 +180,20 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
         await import('../../cli/ResolveInteractiveInputs');
       await runInvocationEditorForCommand(command);
     }
-    if (chosen === ESCAPE || chosen === EXIT_ALL) {
-      // User declined to run (single ESC) or left everything (double
-      // ESC): revoke the deferred authoring print so the postAction
-      // fallback (non-auth commands' flush site) leaves nothing behind
-      // for an abandoned flow -- same contract as the one-of error path
-      // skipping postAction entirely.
+    if (chosen === EXIT_ALL) {
+      // Exit-all: revoke the deferred authoring print (nothing may be
+      // left behind for an abandoned flow) and THROW the unwind signal
+      // -- it propagates through the action body to app.ts's top-level
+      // handler, ending the session from any nesting depth.
+      const { revokeAuthoringPrint } = await import('./AuthoringPrintState');
+      revokeAuthoringPrint();
+      throw EXIT_ALL_SIGNAL;
+    }
+    if (chosen === ESCAPE) {
+      // User declined to run (single ESC): revoke the deferred authoring
+      // print so the postAction fallback (non-auth commands' flush site)
+      // leaves nothing behind for an abandoned flow -- same contract as
+      // the one-of error path skipping postAction entirely.
       const { revokeAuthoringPrint } = await import('./AuthoringPrintState');
       revokeAuthoringPrint();
       return false;

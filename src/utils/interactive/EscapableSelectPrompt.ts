@@ -12,7 +12,7 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
-import { EXIT_ALL, isDoubleEscape } from './ExitAll';
+import { armEscapeGrace, EXIT_ALL } from './ExitAll';
 import {
   navigationMenuItems,
   renderFramedBox,
@@ -202,10 +202,26 @@ const escapableSelectImpl = createPrompt(
     }, [config.default, choices]);
     const [active, setActive] = useState(defaultIndex);
     const selected = filtered[active];
-    // The double-ESC detector's timestamp (see ExitAll.ts): undefined
-    // whenever the previous key was NOT an escape, so only CONSECUTIVE
-    // presses count.
-    const lastEscapeRef = useRef<number | undefined>(undefined);
+    // The double-ESC grace (see ExitAll.ts): the first ESC opens a short
+    // window instead of resolving; a second ESC inside it exits all, and
+    // an expired window resolves the single-ESC action. Ref (not state)
+    // -- the handler reads/mutates it synchronously.
+    const escapeGraceRef = useRef<
+      ReturnType<typeof armEscapeGrace> | undefined
+    >(undefined);
+    // True while the grace window is open: the view renders the exit-all
+    // hint so the gesture is discoverable.
+    const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
+
+    // Grace teardown on unmount: a timer firing after the prompt resolved
+    // would call a stale handler (the prompt's hooks are gone).
+    useEffect(() => () => escapeGraceRef.current?.dispose(), []);
+
+    const resolveEscapeGrace = (kind: 'escape' | 'all') => {
+      setEscapeGraceOpen(false);
+      setStatus('escaped');
+      done(kind === 'all' ? EXIT_ALL : ESCAPE);
+    };
 
     useKeypress((key, rl) => {
       if (key.name === 'escape') {
@@ -213,22 +229,27 @@ const escapableSelectImpl = createPrompt(
         if (rl.line.length > 0) {
           rl.clearLine(0);
           setQuery('');
-          lastEscapeRef.current = undefined;
+          escapeGraceRef.current?.otherKey();
+          escapeGraceRef.current = undefined;
           return;
         }
-        // Double-ESC (user feedback 2026-10-12): two consecutive
-        // presses within the window exit ALL the way out, from any
-        // nesting depth; a single press stays "back one level".
-        const now = Date.now();
-        if (isDoubleEscape(lastEscapeRef.current, now)) {
-          lastEscapeRef.current = undefined;
-          setStatus('escaped');
-          done(EXIT_ALL);
+        if (escapeGraceRef.current) {
+          // Second ESC inside the grace window: exit all the way out
+          // (user feedback 2026-10-12; mechanism per user design
+          // 2026-10-13 -- both presses stay in THIS instance).
+          const grace = escapeGraceRef.current;
+          escapeGraceRef.current = undefined;
+          grace.secondEscape();
           return;
         }
-        lastEscapeRef.current = now;
-        setStatus('escaped');
-        done(ESCAPE);
+        // First ESC: open the grace window. When it expires, the
+        // single-ESC action ("back one level") resolves.
+        setEscapeGraceOpen(true);
+        escapeGraceRef.current = armEscapeGrace({
+          onSecondEscape: () => resolveEscapeGrace('all'),
+          onGraceExpire: () => resolveEscapeGrace('escape'),
+        });
+        return;
       } else if (
         key.name === 'right' &&
         config.hint &&
@@ -237,11 +258,13 @@ const escapableSelectImpl = createPrompt(
         // the two-stage escape above).
         rl.line.length === 0
       ) {
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         setStatus('done');
         done(RIGHT);
       } else if (isEnterKey(key)) {
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         if (!selected) {
           // Filtered to nothing: Enter does nothing rather than crashing
           // (the view shows an explicit "no matches" state).
@@ -250,7 +273,8 @@ const escapableSelectImpl = createPrompt(
         setStatus('done');
         done(selected.value);
       } else if (isUpKey(key) || isDownKey(key)) {
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
         // Clamp at the ends -- a list with a beginning and an end, not
@@ -271,7 +295,8 @@ const escapableSelectImpl = createPrompt(
         // into state drives the filter; the same pattern textPrompt
         // (PromptGate) uses. Any non-ESC key breaks the double-ESC
         // streak.
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         setQuery(rl.line);
       }
     });
@@ -319,6 +344,14 @@ const escapableSelectImpl = createPrompt(
       })
     );
     const panelLines: { text: string; plain: string }[] = [];
+    if (escapeGraceOpen) {
+      // The grace window is open (first ESC seen): make the gesture's
+      // second half obvious -- this line lives until the grace resolves.
+      panelLines.push({
+        text: c.muted('esc again to exit all -- or wait to go back one level'),
+        plain: 'esc again to exit all -- or wait to go back one level',
+      });
+    }
     if (filtered.length > 0) {
       for (const row of page.split('\n')) {
         panelLines.push({ text: row, plain: stripAnsi(row) });
