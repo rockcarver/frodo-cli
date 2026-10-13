@@ -10,20 +10,9 @@ import {
   showSpinner,
   succeedSpinner,
 } from '../utils/Console';
-import {
-  escapableSelect,
-  ESCAPE,
-  RIGHT,
-  type EscapableSelectChoice,
-} from '../utils/interactive/EscapableSelectPrompt';
-import type { CredentialOverrideType } from './AuthenticateOps';
 
 const { validateServiceAccount } = frodo.cloud.serviceAccount;
-const {
-  getConnectionProfilesPath,
-  getConnectionProfileByHost,
-  saveConnectionProfile,
-} = frodo.conn;
+const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
 
 /**
  * List connection profiles
@@ -249,123 +238,8 @@ export async function addExistingServiceAccount(
 }
 
 /**
- * The interactive picker behind bare `frodo conn [host]` -- lets the user
- * view and set one profile's preferred credential, mirroring `frodo
- * settings`'s bare-invocation pattern (see `settings.ts`/
- * `runInteractiveThemePicker` in `settings-theme.ts`). v1 scope only:
- * viewing/setting the preferred credential for one already-existing
- * profile -- no profile creation, deletion, or alias management here.
- * @param {string} host Optional host URL, unique substring, or alias. When
- * omitted, offers a picker across every saved profile (skipping straight to
- * it if there's only one), the same way `settings.ts` skips its own
- * category picker when there's only one category.
- * @returns {Promise<boolean>} true if a preference was actually set and
- * saved; false if the user escaped without choosing, or no profile could be
- * resolved.
+ * The interactive picker behind bare `frodo conn [host]` lives in the
+ * interactive layer (see ConnectionProfilePickers.ts): the framework is
+ * ambient, so ops carries no prompting code. This module keeps only the
+ * non-interactive profile operations.
  */
-export async function runInteractivePreferredCredentialPicker(
-  host?: string
-): Promise<boolean> {
-  let resolvedHost: string;
-  if (host) {
-    resolvedHost = host;
-  } else {
-    const filename = getConnectionProfilesPath();
-    let connectionsData: Record<string, { alias?: string }>;
-    try {
-      connectionsData = JSON.parse(fs.readFileSync(filename, 'utf8'));
-    } catch {
-      connectionsData = {};
-    }
-    const hosts = Object.keys(connectionsData);
-    if (hosts.length === 0) {
-      printMessage(
-        `No connection profiles found in ${filename}. Create one first with 'frodo conn save' or 'frodo login --save'.`,
-        'info'
-      );
-      return false;
-    }
-    if (hosts.length === 1) {
-      resolvedHost = hosts[0];
-    } else {
-      const choice = await escapableSelect<string>({
-        message: 'Choose a connection profile:',
-        // Filter matches host AND alias (case-insensitive).
-        search: ({ value }, query) =>
-          value.toLowerCase().includes(query.toLowerCase()) ||
-          (connectionsData[value].alias ?? '')
-            .toLowerCase()
-            .includes(query.toLowerCase()),
-        choices: hosts.map((h) => ({
-          value: h,
-          name: connectionsData[h].alias
-            ? `${h} (${connectionsData[h].alias})`
-            : h,
-        })),
-      });
-      if (choice === ESCAPE || choice === RIGHT) return false; // RIGHT: no hint here
-      resolvedHost = choice;
-    }
-  }
-
-  let profile;
-  try {
-    profile = await getConnectionProfileByHost(resolvedHost);
-  } catch (error) {
-    printError(error);
-    return false;
-  }
-
-  // Only offer what's actually configured on this profile -- 'browser' is
-  // always offerable, since any profile can do a fresh interactive login
-  // regardless of what else is configured.
-  const credentialChoices: EscapableSelectChoice<CredentialOverrideType>[] = [];
-  if (profile.username && profile.password) {
-    credentialChoices.push({
-      value: 'user',
-      name: 'user (plain username/password)',
-    });
-  }
-  if (profile.svcacctId) {
-    credentialChoices.push({
-      value: 'svcacct',
-      name: 'svcacct (service account)',
-    });
-  }
-  if (profile.amsterPrivateKey) {
-    credentialChoices.push({
-      value: 'amster',
-      name: 'amster (Amster private key)',
-    });
-  }
-  credentialChoices.push({
-    value: 'browser',
-    name: 'browser (interactive login)',
-  });
-
-  // Default the cursor to whatever's already in effect -- the explicit
-  // preferredCredential if this profile has one, else (for a profile that
-  // predates that field) whatever its legacy authMode implies, else no
-  // default at all.
-  const currentPreference: CredentialOverrideType | undefined =
-    profile.defaultCredential ??
-    (profile.authMode === 'interactive' ? 'browser' : undefined);
-
-  const selected = await escapableSelect<CredentialOverrideType>({
-    message: `Preferred credential for ${profile.tenant}:`,
-    choices: credentialChoices,
-    default: currentPreference,
-  });
-  if (selected === ESCAPE || selected === RIGHT) return false; // RIGHT: no hint here
-
-  state.setHost(profile.tenant);
-  state.setPreferredCredential(selected);
-  try {
-    await saveConnectionProfile(profile.tenant);
-  } catch (error) {
-    printError(error);
-    return false;
-  }
-  printMessage(`Saved connection profile ${state.getHost()}`);
-  return true;
-}

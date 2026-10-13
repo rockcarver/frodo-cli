@@ -132,7 +132,7 @@ export default function setup() {
         // No pair given: offer the mappings of a secret store from the live
         // system (resolveEntityPicks is a no-op outside the prompt gate, so
         // a non-interactive run falls through to the error branch below,
-        // same as before Phase 3). Escape or an unresolved store = declined
+        // same as in the pre-picker layout). Escape or an unresolved store = declined
         // to run.
         else if (await resolveEntityPicks(command)) {
           // A mapping was picked, but the store it belongs to wasn't

@@ -1,5 +1,5 @@
 /**
- * The Phase 5 authoring print's deferred state, split from
+ * The deferred authoring print's state, split from
  * ResolveInteractiveInputs.ts into a zero-import module (the
  * ActiveActionCommandState pattern) so the flush sites (AuthenticateOps'
  * getTokens wrapper, EntityPickers, FrodoCommand's postAction hook) can

@@ -5,6 +5,8 @@ exports[`CLI help interface for 'conn' should be expected english 1`] = `
 
 Manage connection profiles.
 
+Run without a sub-command to interactively set a profile's preferred credential.
+
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
                     connection profile, just specify a unique substring or
@@ -16,6 +18,12 @@ Options:
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
 
+Runtime Options:
+  --prompt          Show the interactive sub-command selector instead of running
+                    this command.
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
 Commands:
   alias             Manage connection aliases.
   delete            Delete connection profiles.
@@ -25,6 +33,10 @@ Commands:
   service-account   Manage named, independently-addressable additional service
                     accounts on a connection profile (alongside its own single
                     primary service account).
+  set               Set fields of an existing connection profile. Only the
+                    fields given on the command line change; everything else
+                    stays as-is. Run 'frodo conn set' without any field option
+                    to list the settable fields.
   test              Test connection and authentication.
 "
 `;

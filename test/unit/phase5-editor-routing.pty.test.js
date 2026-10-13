@@ -67,16 +67,14 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'wait_plain', regex: '\\(current: net', timeoutMs: 15000 },
             { type: 'sleep', ms: 300 },
             { type: 'capture', label: 'description' },
-            { type: 'key', name: 'space' },
+            // --retry arrives PRE-MARKED (it holds a user value, source
+            // 'cli'): <enter> commits the selection WITH it -- and the
+            // post-commit loop SKIPS its value step (the value already
+            // stands from the command line; the skip rule keeps
+            // already-valued members from being asked twice -- the
+            // inline editor's onValue commits set the same source).
             { type: 'key', name: 'enter' },
-            {
-              type: 'wait_plain',
-              regex: 'Choose a value for --retry',
-              timeoutMs: 15000,
-            },
-            { type: 'capture', label: 'valuestep' },
-            { type: 'key', name: 'enter' },
-            { type: 'sleep', ms: 400 },
+            { type: 'sleep', ms: 600 },
             { type: 'capture', label: 'committed' },
           ],
         });
@@ -87,15 +85,13 @@ describe('phase 5 slice 1: hint + segment routing', () => {
           /\(current: net[\s\S]*?work\)/
         );
 
-        const valuestep = result.captures.valuestep.plain;
-        // The value step PRE-HIGHLIGHTS it (mount-skip:
-        // the cursor-reset-on-query-change must not clobber the
-        // configured default on the first render).
-        expect(valuestep).toMatch(/› network/);
-        // Enter commits the pre-filled value as-is.
-        expect(result.captures.committed.plain).toMatch(
-          /Choose a value for --retry <strategy>: network/
+        const committed = result.captures.committed.plain;
+        // Enter committed straight away -- no second prompt for the
+        // value the command line already provided.
+        expect(committed).toMatch(
+          /Choose which secrets: -i, --secret-id <secret-id>/
         );
+        expect(committed).not.toMatch(/Choose a value for --retry/);
       } finally {
         removeShellTestHome(homeDir);
       }
@@ -120,6 +116,7 @@ describe('phase 5 slice 1: hint + segment routing', () => {
           env: { FRODO_MOCK: '1', FRODO_MOCK_DEPLOYMENT: 'cloud' },
           actions: [
             { type: 'wait_plain', regex: 'Connection:', timeoutMs: 30000 },
+            { type: 'sleep', ms: 500 },
             { type: 'capture', label: 'page' },
             { type: 'key', name: 'down' },
             { type: 'key', name: 'enter' },
@@ -129,7 +126,15 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'key', name: 'enter' },
             { type: 'send', text: 'probesecret' },
             { type: 'key', name: 'enter' },
-            { type: 'sleep', ms: 400 },
+            // GATE on the committed mask, then settle -- a blind sleep
+            // raced the render and captured the password row mid-editing
+            // ('password: •', one bullet of a still-open editor).
+            {
+              type: 'wait_plain',
+              regex: 'password: ••••••••',
+              timeoutMs: 8000,
+            },
+            { type: 'sleep', ms: 300 },
             { type: 'capture', label: 'filled' },
             { type: 'key', name: 'down' },
             { type: 'key', name: 'enter' },
@@ -285,7 +290,7 @@ describe('phase 5 slice 4: command preview', () => {
         // probe -- the jest run sets NO_COLOR=1, so raw captures
         // carry no SGR sequences here.)
         expect(result.captures.incomplete.plain).toMatch(
-          /type to filter\nfrodo esv secret delete/
+          /^frodo esv secret delete$/m
         );
 
         // After the user's `-a` selection resolves the one-of
@@ -493,6 +498,335 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         expect(retired.captures.err.plain).toMatch(
           /error: unknown option '--edit'/
         );
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
+
+  test(
+    'editor selections: the footer shows the space-toggled set live, and re-opening the editor keeps prior selections marked',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          args: ['esv', 'secret', 'delete', '-k', '--retry', 'network'],
+          env: ENV,
+          actions: [
+            {
+              type: 'wait_plain',
+              regex: 'Choose which secrets',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 15000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'send', text: 'verbose' },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'space' },
+            { type: 'sleep', ms: 200 },
+            { type: 'key', name: 'ctrl_u' },
+            { type: 'sleep', ms: 300 },
+            { type: 'send', text: 'debug' },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'space' },
+            { type: 'sleep', ms: 200 },
+            { type: 'capture', label: 'twoMarked' },
+            { type: 'key', name: 'enter' },
+            { type: 'sleep', ms: 1200 },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 15000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'reopened' },
+          ],
+        });
+
+        // The footer follows the space-toggled SET, live -- both flags
+        // visible before <enter> commits the set. (--retry was provided
+        // on the command line, so it serializes its REAL value; the
+        // placeholder shadow now stands down for options that already
+        // hold a user value.)
+        const two = result.captures.twoMarked.plain;
+        expect(two).toMatch(
+          /frodo esv secret delete -k --verbose --debug --retry network/
+        );
+
+        // Re-opened editor (via the one-of picker's ->): previously
+        // committed selections are PRE-MARKED -- the user's markers are
+        // the command state, not an empty slate.
+        const reopened = result.captures.reopened.plain;
+        expect(reopened).toMatch(/frodo esv secret delete -k --verbose/);
+        expect(reopened).toMatch(/◉ (?:› )?--debug/);
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
+
+  test(
+    'inline value editor: framed box, filter-query leak guard, esc rejects (no nested prompt freeze)',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          args: ['esv', 'secret', 'delete', '-k', '--retry', 'network'],
+          env: ENV,
+          actions: [
+            {
+              type: 'wait_plain',
+              regex: 'Choose which secrets',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 15000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'send', text: 'env-file' },
+            {
+              type: 'wait_plain',
+              regex: 'query: env-file',
+              timeoutMs: 15000,
+            },
+            { type: 'sleep', ms: 300 },
+            // Space on a valued-unset option: the INLINE value editor
+            // opens IN THE SAME FRAME, as a FRAMED box in the top slot
+            // (the previous async-hook design nested a second prompt
+            // and froze the outer one; the pre-framed collector sat at
+            // the frame bottom where it was hard to see).
+            { type: 'key', name: 'space' },
+            {
+              type: 'wait_plain',
+              regex: 'Value for --env-file',
+              timeoutMs: 8000,
+            },
+            { type: 'sleep', ms: 300 },
+            { type: 'send_line', text: 'FOO=bar' },
+            { type: 'sleep', ms: 500 },
+            { type: 'capture', label: 'afterCommit' },
+            // Reject path: space on another valued option, then esc --
+            // the option stays unmarked.
+            { type: 'key', name: 'ctrl_u' },
+            { type: 'sleep', ms: 300 },
+            { type: 'send', text: 'env' },
+            { type: 'sleep', ms: 500 },
+            { type: 'key', name: 'space' },
+            {
+              type: 'wait_plain',
+              regex: 'Value for -E, --env',
+              timeoutMs: 8000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'rejectOpen' },
+            { type: 'key', name: 'escape' },
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'afterReject' },
+          ],
+        });
+
+        // The committed value marked the option, and the footer
+        // serializes the REAL value (the filter query "env-file" did
+        // not leak into the buffer as a prefix of the value).
+        const afterCommit = result.captures.afterCommit.plain;
+        expect(afterCommit).toMatch(/◉ (?:› )?--env-file/);
+        expect(afterCommit).toMatch(
+          /frodo esv secret delete -k --retry network --env-file FOO=bar/
+        );
+        // The reject path opens the same framed box for -E/--env...
+        const rejectOpen = result.captures.rejectOpen.plain;
+        const rejectFrame = rejectOpen.slice(
+          rejectOpen.lastIndexOf('┌ Value for')
+        );
+        expect(rejectFrame).toMatch(/┌ Value for -E, --env <key=value> ─/);
+        // ...and escaping it leaves the option UNMARKED (the committed
+        // --env-file stands; "--env" is a PREFIX of "--env-file", so the
+        // boundary assertions anchor on a space/end, never \b -- dash is
+        // a non-word char and \b would match inside the committed
+        // option's name).
+        const afterReject = result.captures.afterReject.plain;
+        expect(afterReject).not.toMatch(/◉ (?:› )?--env /);
+        expect(afterReject).not.toMatch(/◉ (?:› )?--env$/m);
+        expect(afterReject).toMatch(/--env-file/);
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
+
+  test(
+    'enum option gets an in-frame PICKER (not free text): cursor moves, commit serializes the real value',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          args: ['esv', 'secret', 'delete', '-k'],
+          env: ENV,
+          actions: [
+            {
+              type: 'wait_plain',
+              regex: 'Choose which secrets',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 15000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'send', text: 'retry' },
+            // Gate on the FILTERED frame (the option is on-page and
+            // highlighted) before toggling -- racing the filter echo
+            // toggles whichever row the half-typed query highlighted.
+            { type: 'wait_plain', regex: 'query: retry', timeoutMs: 15000 },
+            { type: 'sleep', ms: 300 },
+            { type: 'key', name: 'space' },
+            {
+              type: 'wait_plain',
+              regex: 'Value for --retry',
+              timeoutMs: 8000,
+            },
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'pickerOpen' },
+            // RETRY_STRATEGIES order [nothing, everything, network]:
+            // one down moves the cursor nothing -> everything.
+            { type: 'key', name: 'down' },
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'pickerMoved' },
+            { type: 'key', name: 'enter' },
+            { type: 'sleep', ms: 600 },
+            { type: 'capture', label: 'afterPick' },
+          ],
+        });
+
+        const pickerOpen = result.captures.pickerOpen.plain;
+        // Captures ACCUMULATE all prior frames -- assertions on the
+        // CURRENT frame must slice from the marker onward.
+        const pickerFrame = pickerOpen.slice(
+          pickerOpen.lastIndexOf('┌ Value for --retry')
+        );
+        expect(pickerFrame).toMatch(/┌ Value for --retry <strategy> ─/);
+        expect(pickerFrame).toMatch(/› nothing/);
+        expect(pickerFrame).toMatch(/  everything/);
+        expect(pickerFrame).toMatch(/  network/);
+        // PANEL PER SURFACE: the Navigate box stays on top while the
+        // picker is open -- it swaps its hints to the picker's keys
+        // (slice the Navigate box out of the same capture and assert it
+        // shows the picker hints, not the list hints).
+        const navWhilePicker = pickerOpen.slice(
+          pickerOpen.lastIndexOf('┌ Navigate ─'),
+          pickerOpen.lastIndexOf('┌ Value for --retry')
+        );
+        expect(navWhilePicker).toMatch(/enter pick · esc rejects/);
+        expect(navWhilePicker).not.toMatch(/space select/);
+
+        const pickerMoved = result.captures.pickerMoved.plain;
+        const movedFrame = pickerMoved.slice(
+          pickerMoved.lastIndexOf('┌ Value for --retry')
+        );
+        expect(movedFrame).toMatch(/› everything/);
+        expect(movedFrame).toMatch(/  nothing/);
+
+        const afterPick = result.captures.afterPick.plain;
+        const afterPickFrame = afterPick.slice(
+          afterPick.lastIndexOf('┌ Navigate ─')
+        );
+        // everything picked -> marked, footer carries the REAL value.
+        // (The list ROW keeps showing the flag spec -- `--retry
+        // <strategy>` is the option's label; the footer is where the
+        // real value belongs.)
+        expect(afterPickFrame).toMatch(/◉ (?:› )?--retry/);
+        expect(afterPickFrame).toMatch(
+          /frodo esv secret delete -k --retry everything/
+        );
+        // Navigate menu back to the LIST hints once the editor closed.
+        expect(afterPickFrame).toMatch(/space select · enter commit/);
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
+
+  test(
+    'debug output does not appear during the editor; appears only in action output',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          // --debug BEFORE the prompt flag; editor still must be clean.
+          args: ['esv', 'secret', 'delete', '-k', '--debug', '--prompt'],
+          env: ENV,
+          actions: [
+            {
+              type: 'wait_plain',
+              regex: 'Choose which secrets',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 500 },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 600 },
+            { type: 'capture', label: 'editorWithDebug' },
+            { type: 'key', name: 'escape' },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'space' },
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'enter' },
+            { type: 'sleep', ms: 4000 },
+            { type: 'capture', label: 'afterRun' },
+          ],
+        });
+
+        const editor = result.captures.editorWithDebug.plain;
+        // Editor frame is CLEAN: no debug chatter between Navigate box
+        // and the footer. (Debug output, if any, would be raw state
+        // dumps interleaved with the frame.)
+        expect(editor).toMatch(/┌ Navigate ─/);
+        expect(editor).toMatch(/Optional options for 'delete'/);
+        // Any debugMessage lines carry the FrodoCommand: prefix; the
+        // editor frame must not contain them.
+        expect(editor).not.toMatch(/FrodoCommand:/);
+
+        const after = result.captures.afterRun.plain;
+        // The run concludes (delete-all via the one-of -a pick): the
+        // debug lines DO appear -- but only in the ACTION output, never
+        // inside the prompt frames. Find the LAST Navigate box and
+        // confirm every debug line comes after it.
+        const lastNav = after.lastIndexOf('┌ Navigate ─');
+        const firstDebug = after.indexOf('FrodoCommand:');
+        if (firstDebug !== -1) {
+          expect(firstDebug).toBeGreaterThan(lastNav);
+        }
+        expect(after).toMatch(/frodo esv secret delete -k --debug/);
       } finally {
         removeShellTestHome(homeDir);
       }

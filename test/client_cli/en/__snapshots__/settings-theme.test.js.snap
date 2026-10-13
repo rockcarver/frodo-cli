@@ -124,6 +124,12 @@ Options:
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
 
+Runtime Options:
+  --prompt          Show the interactive sub-command selector instead of running
+                    this command.
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
 Commands:
   autodetect        Enable or disable one-time terminal-background
                     auto-detection on first run. Run with no argument to show

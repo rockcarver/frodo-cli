@@ -1,5 +1,5 @@
 /**
- * Entity pickers (interactive commands plan, Phase 3).
+ * Entity pickers (docs/INTERACTIVE-COMMANDS.md, post-auth pickers).
  *
  * A command whose target-entity option (`-i/--secret-id`, `-i/--tree-id`
  * etc.) was left unspecified can offer a dropdown populated from the live
@@ -40,6 +40,7 @@
 import { Command } from 'commander';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { canPrompt } from './PromptGateState';
 
 /**
@@ -147,7 +148,7 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
       apply(command, pick, entities[0]);
       continue;
     }
-    // Phase 5: the → key (armed by the hint) opens the invocation
+    // The → key (armed by the hint) opens the invocation
     // editor, then re-prompts this picker -- discover-and-edit without
     // leaving the flow. Editorial loop, ESCAPE still declines the pick.
     let chosen: unknown | typeof ESCAPE | typeof RIGHT;
@@ -179,18 +180,27 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
         await import('../../cli/ResolveInteractiveInputs');
       await runInvocationEditorForCommand(command);
     }
+    if (chosen === EXIT_ALL) {
+      // Exit-all: revoke the deferred authoring print (nothing may be
+      // left behind for an abandoned flow) and THROW the unwind signal
+      // -- it propagates through the action body to app.ts's top-level
+      // handler, ending the session from any nesting depth.
+      const { revokeAuthoringPrint } = await import('./AuthoringPrintState');
+      revokeAuthoringPrint();
+      throw EXIT_ALL_SIGNAL;
+    }
     if (chosen === ESCAPE) {
-      // User declined to run: revoke the deferred authoring print so the
-      // postAction fallback (non-auth commands' flush site) leaves
-      // nothing behind for an abandoned flow -- same contract as the
-      // one-of error path skipping postAction entirely.
+      // User declined to run (single ESC): revoke the deferred authoring
+      // print so the postAction fallback (non-auth commands' flush site)
+      // leaves nothing behind for an abandoned flow -- same contract as
+      // the one-of error path skipping postAction entirely.
       const { revokeAuthoringPrint } = await import('./AuthoringPrintState');
       revokeAuthoringPrint();
       return false;
     }
     apply(command, pick, chosen);
   }
-  // The deferred authoring print (Phase 5, prompt-erase slice): this
+  // The deferred authoring print: this
   // function is the flush site for commands whose entity picks are the
   // last command-mutating interactive step. Two shapes exist: pick-first
   // (`(pick) && (await getTokens())` -- picks run BEFORE auth) and

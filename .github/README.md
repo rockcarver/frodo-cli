@@ -617,6 +617,7 @@ Environment Variables:
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
   FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
+  FRODO_NO_PROMPT: Never prompt for missing input; fail with the usual errors instead (same as '--no-prompt').
 ```
 
 ## MCP Server

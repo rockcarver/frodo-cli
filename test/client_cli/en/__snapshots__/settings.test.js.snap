@@ -5,13 +5,24 @@ exports[`CLI help interface for 'settings' should be expected english 1`] = `
 
 Manage CLI settings.
 
+Run without a sub-command to open the interactive settings menu.
+
 Options:
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
 
+Runtime Options:
+  --prompt          Show the interactive sub-command selector instead of running
+                    this command.
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
 Commands:
+  defaults          Show or clear per-command defaults saved with --prompt
+                    --save-defaults (~/.frodo/Defaults.json). Values apply to
+                    future runs whenever the option isn't given explicitly.
   guided            Show or set guided mode: run the full interactive flow
                     (connection page, options editor) by default on every
                     interactive command.

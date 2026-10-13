@@ -11,6 +11,10 @@ Options:
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
 
+Runtime Options:
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
 Commands:
   export            Export SAML circles of trust.
   import            Import SAML circles of trust.
@@ -18,5 +22,7 @@ Commands:
 
 Utilities:
   help              display help for command
-"
+
+
+Run without a sub-command to enter interactive mode."
 `;

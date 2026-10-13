@@ -34,7 +34,7 @@ const {
 } = frodo.utils;
 
 /**
- * Per-invocation cache of the realm list. The realm picker (Phase 3) reads
+ * Per-invocation cache of the realm list. The realm picker reads
  * realms right after auth, and commands like `frodo realm list` read them
  * again moments later -- two HTTP calls to the same endpoint that would
  * (a) double the latency and (b) break Polly's order-matched replay in e2e

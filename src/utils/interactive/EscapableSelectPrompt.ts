@@ -12,6 +12,13 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
+import { armEscapeGrace, EXIT_ALL } from './ExitAll';
+import {
+  navigationMenuItems,
+  renderFramedBox,
+  renderNavigationMenu,
+  stripAnsi,
+} from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
 
 /**
@@ -24,8 +31,9 @@ export const ESCAPE = Symbol('escapableSelect:escape');
 
 /**
  * Distinct return value `escapableSelect` resolves with when the user
- * presses → (right arrow) instead of choosing something -- the Phase 5
- * "enter the next editor segment" key (INTERACTIVE-COMMANDS-PLAN.md).
+ * presses → (right arrow) instead of choosing something -- the
+ * "enter the next editor segment" key of the segment navigation
+ * described in docs/INTERACTIVE-COMMANDS.md.
  * Only fires when the prompt is configured with a `hint` (the caller's
  * promise that something more to configure exists); without a hint the
  * key is left to readline, so plain pickers keep today's behavior.
@@ -68,7 +76,7 @@ export type EscapableSelectConfig<Value> = {
    */
   search?: EscapableSelectMatch<Value>;
   /**
-   * Phase 5 discoverability hint: when set, the prompt renders it as a
+   * Discoverability hint: when set, the prompt renders it as a
    * muted line under the list and arms the → key (resolving with the
    * `RIGHT` sentinel). Callers pass a counted, truthful promise --
    * e.g. "→ 4 options to configure" -- derived from the same candidate
@@ -77,10 +85,10 @@ export type EscapableSelectConfig<Value> = {
    */
   hint?: string;
   /**
-   * Phase 5 command preview: the command being authored, rendered as a
+   * Command preview: the command being authored, rendered as a
    * footer line (red + cursive while mandatory input is missing, green/
    * white when ready). Callers pass the pre-rendered string from
-   * CommandPreview.ts -- or, for LIVE preview (Phase 5 refinement: the
+   * CommandPreview.ts -- or, for LIVE preview (the
    * footer reflects what the user is INFLUENCING, not what they last
    * committed), a function of the currently HIGHLIGHTED choice's value,
    * re-invoked on every render: arrowing through a realm list updates
@@ -125,7 +133,7 @@ export type EscapableSelectConfig<Value> = {
 // everywhere and is simply dead at runtime there.
 type EscapableSelectFn = <Value>(
   config: EscapableSelectConfig<Value>
-) => Promise<Value | typeof ESCAPE | typeof RIGHT>;
+) => Promise<Value | typeof ESCAPE | typeof RIGHT | typeof EXIT_ALL>;
 
 const escapableSelectImpl = createPrompt(
   (config: EscapableSelectConfig<unknown>, done: (value: unknown) => void) => {
@@ -166,16 +174,22 @@ const escapableSelectImpl = createPrompt(
     // must exist first and inquirer re-renders on every state change
     // anyway; a render-time `setActive` here would either run before
     // `useState` declared it (TDZ crash) or loop the render.
-    // Reset to the first match whenever the query changes -- but NOT on
-    // mount: the initial cursor belongs on the configured default (e.g.
-    // the editor's pre-filled current value), and this effect would
-    // otherwise clobber it immediately after the first render.
+    // Reset to the first match whenever the query TEXT changes -- but
+    // NOT on mount: the initial cursor belongs on the configured
+    // default (e.g. the editor's pre-filled current value), and this
+    // effect would otherwise clobber it immediately after the first
+    // render. Text-compared, not reference-compared: a setQuery to the
+    // SAME text (e.g. a programmatic reset) must not yank the cursor.
     const firstRender = useRef(true);
+    const lastQueryRef = useRef(query);
     useEffect(() => {
       if (firstRender.current) {
         firstRender.current = false;
+        lastQueryRef.current = query;
         return;
       }
+      if (lastQueryRef.current === query) return;
+      lastQueryRef.current = query;
       setActive(0);
     }, [query]);
 
@@ -188,6 +202,26 @@ const escapableSelectImpl = createPrompt(
     }, [config.default, choices]);
     const [active, setActive] = useState(defaultIndex);
     const selected = filtered[active];
+    // The double-ESC grace (see ExitAll.ts): the first ESC opens a short
+    // window instead of resolving; a second ESC inside it exits all, and
+    // an expired window resolves the single-ESC action. Ref (not state)
+    // -- the handler reads/mutates it synchronously.
+    const escapeGraceRef = useRef<
+      ReturnType<typeof armEscapeGrace> | undefined
+    >(undefined);
+    // True while the grace window is open: the view renders the exit-all
+    // hint so the gesture is discoverable.
+    const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
+
+    // Grace teardown on unmount: a timer firing after the prompt resolved
+    // would call a stale handler (the prompt's hooks are gone).
+    useEffect(() => () => escapeGraceRef.current?.dispose(), []);
+
+    const resolveEscapeGrace = (kind: 'escape' | 'all') => {
+      setEscapeGraceOpen(false);
+      setStatus('escaped');
+      done(kind === 'all' ? EXIT_ALL : ESCAPE);
+    };
 
     useKeypress((key, rl) => {
       if (key.name === 'escape') {
@@ -195,10 +229,27 @@ const escapableSelectImpl = createPrompt(
         if (rl.line.length > 0) {
           rl.clearLine(0);
           setQuery('');
+          escapeGraceRef.current?.otherKey();
+          escapeGraceRef.current = undefined;
           return;
         }
-        setStatus('escaped');
-        done(ESCAPE);
+        if (escapeGraceRef.current) {
+          // Second ESC inside the grace window: exit all the way out
+          // (user feedback 2026-10-12; mechanism per user design
+          // 2026-10-13 -- both presses stay in THIS instance).
+          const grace = escapeGraceRef.current;
+          escapeGraceRef.current = undefined;
+          grace.secondEscape();
+          return;
+        }
+        // First ESC: open the grace window. When it expires, the
+        // single-ESC action ("back one level") resolves.
+        setEscapeGraceOpen(true);
+        escapeGraceRef.current = armEscapeGrace({
+          onSecondEscape: () => resolveEscapeGrace('all'),
+          onGraceExpire: () => resolveEscapeGrace('escape'),
+        });
+        return;
       } else if (
         key.name === 'right' &&
         config.hint &&
@@ -207,9 +258,13 @@ const escapableSelectImpl = createPrompt(
         // the two-stage escape above).
         rl.line.length === 0
       ) {
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         setStatus('done');
         done(RIGHT);
       } else if (isEnterKey(key)) {
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         if (!selected) {
           // Filtered to nothing: Enter does nothing rather than crashing
           // (the view shows an explicit "no matches" state).
@@ -218,16 +273,30 @@ const escapableSelectImpl = createPrompt(
         setStatus('done');
         done(selected.value);
       } else if (isUpKey(key) || isDownKey(key)) {
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
-        setActive((active + offset + filtered.length) % filtered.length);
+        // Clamp at the ends -- a list with a beginning and an end, not
+        // an endless loop (user feedback 2026-10-12; the cursor stops
+        // at the first/last row and further keys in that direction do
+        // nothing). FUNCTIONAL update: several keypresses can arrive
+        // inside one render cycle (paste, fast typing around a
+        // keystroke) -- a closure over `active` would compute every
+        // step from the same stale value and eat the extra moves.
+        setActive((previous) =>
+          Math.min(filtered.length - 1, Math.max(0, previous + offset))
+        );
       } else {
         // Everything else is readline's business (typing, paste, backspace,
         // ctrl+u, any unhandled key); the buffer holds the result -- there
         // is no reliable "printable" predicate to read off the keypress
         // event (a printable char's `name` IS the character). Mirroring it
         // into state drives the filter; the same pattern textPrompt
-        // (PromptGate) uses.
+        // (PromptGate) uses. Any non-ESC key breaks the double-ESC
+        // streak.
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         setQuery(rl.line);
       }
     });
@@ -247,13 +316,66 @@ const escapableSelectImpl = createPrompt(
         return isActive ? c.command(line) : line;
       },
       pageSize,
-      loop: true,
+      loop: false,
     });
 
-    const searchHint = query.length === 0 ? c.muted('type to filter') : '';
-    const queryEcho =
-      config.search && query.length > 0 ? c.command(` query: ${query}`) : '';
-    const hintLine = config.hint ? c.muted(config.hint) : '';
+    // The query echo renders whenever a query exists -- not only for
+    // custom-search pickers. The bare-stub picker uses the name
+    // fallback (no config.search), and its panel WAS the proof the
+    // echo was lying by omission: the list visibly narrowed while the
+    // title said nothing (and the conditional echo's divergence between
+    // the colored and measured title forms skewed the top wall by the
+    // query's length -- see renderFramedBox, which now measures the
+    // drawn text itself).
+    const queryEcho = query.length > 0 ? c.command(` query: ${query}`) : '';
+    // PANEL PER SURFACE (user feedback 2026-10-12): every prompt frame
+    // is built from the same three boxes -- the Navigate menu (top,
+    // permanent), a framed panel for question + list + description, and
+    // any transient editor box UNDER the panel. The panel is what makes
+    // the pick selectors and the multi-select consistent: same
+    // silhouette, same measure discipline (ANSI excluded), description
+    // trailing INSIDE the panel right under its list.
+    const menu = renderNavigationMenu(
+      navigationMenuItems({
+        filter: true,
+        enter: 'select',
+        right: config.hint ? config.hint.replace(/^→\s*/, '') : undefined,
+        escape: 'back · esc×2 exit all',
+      })
+    );
+    const panelLines: { text: string; plain: string }[] = [];
+    if (escapeGraceOpen) {
+      // The grace window is open (first ESC seen): make the gesture's
+      // second half obvious -- this line lives until the grace resolves.
+      panelLines.push({
+        text: c.muted('esc again to exit all -- or wait to go back one level'),
+        plain: 'esc again to exit all -- or wait to go back one level',
+      });
+    }
+    if (filtered.length > 0) {
+      for (const row of page.split('\n')) {
+        panelLines.push({ text: row, plain: stripAnsi(row) });
+      }
+    } else {
+      panelLines.push({
+        text: c.muted('(no matches -- backspace to edit)'),
+        plain: '(no matches -- backspace to edit)',
+      });
+    }
+    if (selected?.description) {
+      panelLines.push({ text: '', plain: '' });
+      for (const row of selected.description.split('\n')) {
+        panelLines.push({ text: c.muted(row), plain: row });
+      }
+    }
+    const panel = renderFramedBox({
+      title: {
+        text: `${prefix} ${config.message}${queryEcho}`,
+        plain: `? ${config.message}${queryEcho}`,
+      },
+      lines: panelLines,
+    });
+
     // Live preview: a function form is re-invoked on EVERY render with
     // the currently highlighted choice's value (undefined when filtered
     // to no matches) -- arrowing through a list updates the footer
@@ -263,18 +385,7 @@ const escapableSelectImpl = createPrompt(
         ? config.preview(selected?.value)
         : config.preview;
 
-    const lines = [
-      `${prefix} ${config.message}${queryEcho}`,
-      filtered.length > 0
-        ? page
-        : c.muted(
-            '  (no matches -- backspace to edit, esc clears then backs out)'
-          ),
-      selected && selected.description ? c.muted(selected.description) : '',
-      hintLine,
-      searchHint || c.muted('(↑↓ navigate · enter select · esc back)'),
-      previewLine,
-    ].filter(Boolean);
+    const lines = [menu, panel, previewLine].filter(Boolean);
     return lines.join('\n');
   }
 );

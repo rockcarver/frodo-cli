@@ -1,5 +1,5 @@
 /**
- * Realm picker (interactive commands plan, Phase 3).
+ * Realm picker (docs/INTERACTIVE-COMMANDS.md, post-auth pickers).
  *
  * After authentication succeeds, a command whose realm argument was left
  * at its default can offer a dropdown of the target system's realms --
@@ -25,7 +25,7 @@
  * The loader failing (permission denied on realm listing, older servers,
  * classic deployments where the endpoint differs) is swallowed and the
  * default kept: the command is about to run against the default realm
- * exactly as it did before Phase 3.
+ * exactly as it did before the interactive layer existed.
  */
 
 import { state } from '@rockcarver/frodo-lib';
@@ -33,6 +33,7 @@ import { Command } from 'commander';
 import { verboseMessage } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { canPrompt } from './PromptGateState';
 
 /** frodo-lib's sentinel default for "no realm chosen yet". */
@@ -107,9 +108,13 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   // The default may legitimately be absent from the list (the realms
   // endpoint never returns the root realm, so on classic/forgeops "/" has
   // no row): escapableSelect falls back to the first row in that case.
-  // Phase 5: → (armed by the hint) opens the invocation editor, then
-  // re-prompts this picker; ESCAPE keeps the default as before. The
-  // loop's exit type is string | typeof ESCAPE (the RIGHT case loops).
+  // → (armed by the hint) opens the invocation editor, then
+  // re-prompts this picker; ESCAPE keeps the default as before; EXIT_ALL
+  // THROWS the unwind signal (the session ends even though auth already
+  // succeeded -- the gesture means "leave everything", from any depth,
+  // per docs/INTERACTIVE-COMMANDS.md).
+  // The loop's exit type is string | typeof ESCAPE (the RIGHT case loops;
+  // EXIT_ALL never resolves out of the loop -- it throws).
   let choice: string | typeof ESCAPE;
   for (;;) {
     const { livePositionalPreviewFor } =
@@ -120,7 +125,7 @@ export async function resolveRealmPick(command: Command): Promise<void> {
       hint: editableOptionsHint(command),
       // LIVE footer: the highlighted realm shadows the realm positional
       // per render, so the footer's realm token moves with the cursor
-      // BEFORE <enter> commits (Phase 5 refinement).
+      // BEFORE <enter> commits (live preview).
       preview: livePositionalPreviewFor(command, 'realm'),
       choices: realms.map((realm) => ({
         value: realm.name,
@@ -128,15 +133,14 @@ export async function resolveRealmPick(command: Command): Promise<void> {
         description: realm.active ? undefined : 'inactive',
       })),
     });
-    if (answer !== RIGHT) {
-      choice = answer;
-      break;
-    }
-    const { runInvocationEditorForCommand } =
-      await import('../../cli/ResolveInteractiveInputs');
-    await runInvocationEditorForCommand(command);
+    if (answer === EXIT_ALL) throw EXIT_ALL_SIGNAL;
+    if (answer === RIGHT) continue;
+    choice = answer;
+    break;
   }
-  if (choice === ESCAPE || !choice || choice === current) return;
+  if (choice === ESCAPE || !choice || choice === current) {
+    return;
+  }
   state.setRealm(choice);
   // Write the picked realm back into the command's realm positional so the
   // deferred authoring print (flushed at the action's postAction hook, see

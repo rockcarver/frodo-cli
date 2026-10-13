@@ -14,8 +14,17 @@ import { printError, printMessage, verboseMessage } from '../utils/Console';
 // file's graph reaches the frodo-lib-importing interactive prompts, which
 // breaks tests that mock frodo-lib wholesale (see ActiveActionCommandState).
 import { getActiveActionCommand } from '../utils/interactive/ActiveActionCommandState';
+// The credential vocabulary lives in the interactive layer
+// (ConnectionProfilePickers -- both the profile preference picker and
+// this per-invocation override speak the same words); imported for use
+// below AND re-exported so ops/ and cli/ consumers keep their
+// established import path.
+import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
+import { EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
 import { canPrompt } from '../utils/interactive/PromptGateState';
 import { question } from '../utils/Prompt';
+
+export type { CredentialOverrideType };
 
 const { getTokens: _getTokens, getTokensInteractive: _getTokensInteractive } =
   frodo.login;
@@ -79,18 +88,15 @@ export function getForceLoginAsUserOverride(): boolean {
   return forceLoginAsUserOverride ?? !!process.env.FRODO_FORCE_LOGIN_AS_USER;
 }
 
-export type CredentialOverrideType = 'user' | 'svcacct' | 'amster' | 'browser';
-
 /**
  * Which configured credential type this one invocation should use,
  * overriding ambient browser-session cache reuse and any saved
  * defaultCredential/forceLoginAsUser preference — set by
- * `--credential`/`FRODO_CREDENTIAL` (see `FrodoCommand.ts`). The
- * generalized successor to `forceLoginAsUserOverride` above (which only
- * ever forces 'user'): same reasoning for living here rather than on
- * frodo-lib's `state` — a one-shot, per-invocation choice, not session
- * identity. Threads straight through to frodo-lib's own
- * `getTokens({credentialOverride})` parameter.
+ * `--credential`/`FRODO_CREDENTIAL` (see `FrodoCommand.ts`). The union
+ * itself lives in the interactive layer (ConnectionProfilePickers --
+ * both the profile preference picker and this per-invocation override
+ * speak the same credential vocabulary), re-exported here so ops/ and
+ * cli/ consumers keep their established import path.
  */
 let credentialOverride: CredentialOverrideType | undefined;
 
@@ -203,7 +209,7 @@ export async function getTokens(
         state.getRealm() ? state.getRealm() : 'root'
       }] as ${tokens.subject}`
     );
-    // Post-auth realm picker (Phase 3): offers the target system's realms
+    // Post-auth realm picker: offers the target system's realms
     // when the command has a realm argument, the user left it at its
     // default, and the system has more than one realm. Never throws; a
     // declined offer or an unlistable realm set keeps the default. The
@@ -220,7 +226,7 @@ export async function getTokens(
         await import('../utils/interactive/RealmPickers');
       await resolveRealmPick(getActiveActionCommand());
     }
-    // The deferred authoring print (Phase 5, prompt-erase slice): flushed
+    // The deferred authoring print: flushed
     // HERE so the eventual command lands directly above the action's
     // results (the print is a header for the output, not a footer after
     // it) -- every auth command's action prints its results only after
@@ -252,6 +258,10 @@ export async function getTokens(
     }
     return true;
   } catch (error) {
+    // The exit-all unwind is not an auth failure -- rethrow it so it
+    // reaches app.ts's top-level handler (the realm/entity pickers throw
+    // the signal from inside this try).
+    if (error === EXIT_ALL_SIGNAL) throw error;
     printError(error);
     // Auth failed: the command never ran -- revoke the deferred print so
     // the postAction fallback (whose only remaining purpose is non-auth

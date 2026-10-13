@@ -143,6 +143,14 @@ function replayScreen(rawInput, { cols = 120, rows = 200 } = {}) {
         pendingWrap = false;
         break; // columns are flat in this model
       }
+      case 'm':
+        // SGR (color/attributes): no cell effect in a line-structure
+        // model. Modeled (rather than skipped) so the color assertions
+        // in the raw stream stay the color layer's business -- and so
+        // unknown SGR codes still surface via the sequence-regex, not
+        // silently. The captures DO carry SGR now that the scenario
+        // blanks NO_COLOR (the binary's theme colors its output).
+        break;
       case 'H': // absolute position (row;col) -- not emitted by inquirer
       case 'J': // erase in display -- not emitted by inquirer
       default:
@@ -257,6 +265,14 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
           args: ['realm', 'list'],
           env: {
             ...ENV,
+            // The color assertion below needs the binary's real theme
+            // output -- jest sets NO_COLOR=1 and the PTY driver merges
+            // the RUNNER's env under the scenario env. A blank does NOT
+            // work: tinyrainbow disables color on mere PRESENCE of
+            // NO_COLOR (checked after the #793 plain-print experiment
+            // failed the color assertion). The DELETE sentinel removes
+            // the key from the child's env entirely.
+            NO_COLOR: '__FRODO_PTY_DELETE__',
             FRODO_SA_ID: connection.saId,
             FRODO_SA_JWK: connection.saJwk,
           },
@@ -306,16 +322,18 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
         expect(joined).not.toMatch(/type to filter/);
         expect(joined).not.toMatch(/esc backs out/);
 
-        // The final print is PLAIN shell text (user decision
-        // 2026-10-11): no SGR color sequence wraps it. The erased
-        // footer frames also carry the string but colored, and they
-        // persist in the RAW stream -- so check the LAST occurrence
-        // (the print, the final write of the session) only.
+        // The final print IS colored (user decision 2026-10-12,
+        // reversing #793's plain-color experiment: green distinguishes
+        // the print from the action's results below it). The erased
+        // footer frames also carry the string (colored red or green by
+        // readiness) and persist in the RAW stream -- so check the LAST
+        // occurrence (the print, the final write of the session) only:
+        // an SGR sequence must directly precede the print's text.
         const raw = result.captures.final.raw;
         const lastIdx = raw.lastIndexOf('frodo realm list bravo');
         expect(lastIdx).toBeGreaterThan(-1);
-        const before = raw.slice(Math.max(0, lastIdx - 12), lastIdx);
-        expect(/\x1b\[[0-9;]*m$/.test(before)).toBe(false);
+        const before = raw.slice(Math.max(0, lastIdx - 24), lastIdx);
+        expect(/\x1b\[[0-9;]*m$/.test(before)).toBe(true);
       } finally {
         removeShellTestHome(homeDir);
       }

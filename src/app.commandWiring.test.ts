@@ -152,10 +152,10 @@ describe('CLI command wiring', () => {
   });
 
   it("every command that still strips an 'Unrecognized combination' else-branch carries a requireOneOf/requireAllOf declaration", () => {
-    // Phase 2 conversion invariant: the `Unrecognized combination of
+    // Conversion invariant: the `Unrecognized combination of
     // options or no options...` dead-ends were replaced by declarative
     // requireOneOf/requireAllOf rules on the command (see
-    // INTERACTIVE-COMMANDS-PLAN.md). A file that still BOTH carries the
+    // docs/INTERACTIVE-COMMANDS.md). A file that still BOTH carries the
     // dead-end AND no rule is a half-finished conversion -- the action
     // body rejects option combinations the rule was supposed to catch
     // (or prompt for) before the action ever runs.
@@ -165,7 +165,7 @@ describe('CLI command wiring', () => {
 });
 
 /**
- * Cross-checks the Phase 2 conversion: any cli command file whose action
+ * Cross-checks the one-of conversion: any cli command file whose action
  * body still contains the `Unrecognized combination of options or no
  * options...` dead-end must also declare a requireOneOf/requireAllOf
  * rule -- otherwise the conversion is half-done (the rule should have

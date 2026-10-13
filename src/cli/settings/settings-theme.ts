@@ -4,6 +4,7 @@ import {
   ESCAPE,
   RIGHT,
 } from '../../utils/interactive/EscapableSelectPrompt';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../../utils/interactive/ExitAll';
 import {
   activatePersistedTheme,
   BACKGROUNDS,
@@ -80,7 +81,16 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       ],
       default: currentBackground,
     });
-    if (backgroundChoice === ESCAPE || backgroundChoice === RIGHT) return false; // RIGHT can't resolve here (no hint)
+    if (backgroundChoice === EXIT_ALL) {
+      // Exit-all: the session ends (the throw travels through settings'
+      // bare action to the top-level handler).
+      throw EXIT_ALL_SIGNAL;
+    }
+    if (backgroundChoice === ESCAPE || backgroundChoice === RIGHT) {
+      // Single ESC exits the theme picker (RIGHT can't resolve: no
+      // hint).
+      return false;
+    }
     // Narrows RIGHT out of backgroundChoice for the value use below.
     const pickedBackground = backgroundChoice as
       Background | typeof AUTO_DETECT;
@@ -111,7 +121,15 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       })),
       default: currentContrast,
     });
-    if (contrastChoice === ESCAPE || contrastChoice === RIGHT) continue; // back to the background step (RIGHT can't resolve: no hint)
+    if (contrastChoice === EXIT_ALL) {
+      // Exit-all: the session ends.
+      throw EXIT_ALL_SIGNAL;
+    }
+    if (contrastChoice === ESCAPE || contrastChoice === RIGHT) {
+      // Single ESC: back to the background step (RIGHT can't resolve:
+      // no hint).
+      return false;
+    }
 
     setActiveContrast(contrastChoice);
     activatePersistedTheme();
@@ -139,6 +157,9 @@ export default function setup() {
     try {
       await runInteractiveThemePicker();
     } catch (error) {
+      // The exit-all unwind is not an error -- rethrow it (the top-level
+      // handler ends the session cleanly); everything else reports.
+      if (error === EXIT_ALL_SIGNAL) throw error;
       errorMessage(`${error}`);
       process.exitCode = 1;
     }

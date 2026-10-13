@@ -1,7 +1,7 @@
 /**
  * Central gate deciding whether frodo may prompt interactively, plus the
  * terminal prompts built on `@inquirer/core` for gap-filling missing
- * command input (INTERACTIVE-COMMANDS-PLAN.md, Phase 1).
+ * command input (docs/INTERACTIVE-COMMANDS.md).
  *
  * ## The gate
  *

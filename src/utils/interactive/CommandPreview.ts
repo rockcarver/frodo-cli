@@ -1,5 +1,5 @@
 /**
- * The Phase 5 command preview (INTERACTIVE-COMMANDS-PLAN.md): the
+ * The command preview (docs/INTERACTIVE-COMMANDS.md): the
  * command being authored, rendered live inside the interactive prompts
  * as a footer line -- red + cursive while mandatory input is missing,
  * green/white upright when validated and ready. On the final `<enter>`
@@ -87,6 +87,7 @@ const NON_SERIALIZABLE_OPTIONS = new Set([
   'prompt',
   'no-prompt',
   'edit',
+  'save-defaults',
 ]);
 
 /**
@@ -236,7 +237,7 @@ function defaultToValue(highlighted: unknown): string | undefined {
 }
 
 /**
- * LIVE preview footer (Phase 5 refinement: the footer shows what the
+ * LIVE preview footer (the footer shows what the
  * user is INFLUENCING, not what they last committed). Returns a callback
  * for a prompt's `preview` config that re-renders on every highlight
  * change: the highlighted value is serialized into a SHADOW copy of the
@@ -312,5 +313,85 @@ export function liveOptionPreview(
       }
     }
     return renderCommandPreview(command, readiness);
+  };
+}
+
+/**
+ * LIVE preview for the invocation editor (a MULTI-select): the callback
+ * receives the currently SELECTED attribute names (the space-toggled
+ * set), and the footer renders each as its flag -- booleans commit `true`
+ * on the editor's pick, valued options still need their value step, so
+ * they serialize as the flag with the value placeholder the user is
+ * about to fill ("--type <type>"). The real command object is never
+ * written here: every shadow is applied for THIS render and restored in
+ * the finally. An empty selection renders the committed state.
+ */
+export function liveMultiOptionPreview(
+  command: Command,
+  readiness: CommandReadiness
+): (selectedAttributeNames: unknown[]) => string {
+  return (selectedAttributeNames) => {
+    if (!Array.isArray(selectedAttributeNames)) {
+      return renderCommandPreview(command, readiness);
+    }
+    const shadows: {
+      optionName: string;
+      committed: unknown;
+      committedSource: string | undefined;
+    }[] = [];
+    for (const attributeName of selectedAttributeNames) {
+      if (typeof attributeName !== 'string') continue;
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      if (!option) continue;
+      // Booleans serialize as the flag alone; valued options as the
+      // flag + placeholder -- but ONLY while no user value stands: an
+      // option whose value IS committed this invocation (source 'cli',
+      // inline editor or the command line) serializes its REAL value --
+      // the footer must not un-see a value the user already gave (it
+      // would render `--retry <strategy>` beside a committed `network`).
+      const boolean = !/<[^>]+>|\[[^\]]+\]/.test(option.flags);
+      const committed = command.getOptionValue(attributeName);
+      const committedSource = command.getOptionValueSource(attributeName);
+      const hasUserValue =
+        committedSource === 'cli' &&
+        committed !== undefined &&
+        (!Array.isArray(committed) || committed.length > 0);
+      shadows.push({
+        optionName: attributeName,
+        committed,
+        committedSource,
+      });
+      // A valued option with a real user value: leave it as-is (the
+      // serializer renders the value, arrays as repeated flags).
+      if (!boolean && hasUserValue) continue;
+      // The placeholder token straight from the flags spec ("<type>",
+      // "[file]") -- the serializer emits `${longFlag} ${value}`, so a
+      // value of "<type>" renders "--type <type>": the flag with the
+      // value slot the user is about to fill.
+      // value slot the user is about to fill.
+      const placeholder =
+        option.flags
+          .split(/[, ]+/)
+          .filter((token) => /^[<[].*>?\]?$/.test(token))
+          .join(' ') || 'value';
+      command.setOptionValueWithSource(
+        attributeName,
+        boolean ? true : placeholder,
+        'cli'
+      );
+    }
+    try {
+      return renderCommandPreview(command, readiness);
+    } finally {
+      for (const shadow of shadows.reverse()) {
+        command.setOptionValueWithSource(
+          shadow.optionName,
+          shadow.committed as never,
+          shadow.committedSource as never
+        );
+      }
+    }
   };
 }

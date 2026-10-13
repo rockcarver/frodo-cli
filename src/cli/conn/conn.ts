@@ -1,17 +1,35 @@
-import { runInteractivePreferredCredentialPicker } from '../../ops/ConnectionProfileOps.js';
 import { errorMessage } from '../../utils/Console';
-import { FrodoStubCommand, hostArgument } from '../FrodoCommand';
+// The bare-invocation picker lives in the interactive layer (the
+// framework is ambient: command files call INTO it, ops carries no
+// prompting code -- see docs/INTERACTIVE-COMMANDS.md).
+import { runInteractivePreferredCredentialPicker } from '../../utils/interactive/ConnectionProfilePickers';
+import { EXIT_ALL_SIGNAL } from '../../utils/interactive/ExitAll';
+import {
+  FrodoStubCommand,
+  hostArgument,
+  STEP_BACK_FROM_ACTION,
+} from '../FrodoCommand';
 import AliasCmd from './conn-alias.js';
 import DeleteCmd from './conn-delete.js';
 import DescribeCmd from './conn-describe.js';
 import ListCmd from './conn-list.js';
 import SaveCmd from './conn-save.js';
 import ServiceAccountCmd from './conn-service-account.js';
+import SetCmd from './conn-set.js';
 import TestCmd from './conn-test.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('conn')
-    .description('Manage connection profiles.')
+    // .summary() is what the PARENT's Commands list shows (one line);
+    // .description() is what this command's own -h shows. The bare-
+    // invocation behavior lives in the DESCRIPTION (not a framework
+    // marker line): conn is a full command of its own, and its bare
+    // mode is part of its contract -- same pattern as login-setup.
+    .summary('Manage connection profiles.')
+    .description(
+      'Manage connection profiles.\n\n' +
+        "Run without a sub-command to interactively set a profile's preferred credential."
+    )
     .addArgument(hostArgument);
 
   // A subcommand alongside `conn`'s own default action -- typing `frodo
@@ -25,14 +43,27 @@ export default function setup() {
   // profile browsing/creation/deletion.
   program.action(async (host) => {
     try {
-      await runInteractivePreferredCredentialPicker(host);
+      const applied = await runInteractivePreferredCredentialPicker(host);
+      // Declined (ESC / --no-prompt): climb into the sub-command
+      // picker instead of ending the session -- the bare mode is one
+      // level of the navigable tree (see FrodoCommand's Run row).
+      // (A double-ESC never returns: the picker throws the exit-all
+      // signal, which this catch rethrows below.)
+      if (!applied) throw STEP_BACK_FROM_ACTION;
     } catch (error) {
+      if (
+        error === STEP_BACK_FROM_ACTION ||
+        error === EXIT_ALL_SIGNAL // exit-all unwinds to the shell
+      )
+        throw error;
       errorMessage(`${error}`);
       process.exitCode = 1;
     }
   });
 
   program.addCommand(SaveCmd().name('save'));
+
+  program.addCommand(SetCmd().name('set'));
 
   program.addCommand(AliasCmd().name('alias'));
 
