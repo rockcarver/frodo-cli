@@ -3115,13 +3115,26 @@ class FrodoStubHelp extends Help {
     //   descendant leaf also declares), so formatHelp renders it
     //   VIRTUALLY from the shared stub wording.
     // - Action-bearing stub: both, registered (registerPromptingPair).
-    // - Live commands: both via defaultOpts, live wording.
-    const isStub = cmd instanceof FrodoStubCommand;
+    //   Both are ALSO rendered virtually: at help level 1 visibleOptions()
+    //   filters out everything under Runtime Options: (stub pair included),
+    //   so the registered pair would vanish from -h -- the very surface
+    //   that must advertise it (caught by the user on `frodo conn -h`).
+    // - Live commands: both via defaultOpts, live wording; at level 1 the
+    //   runtime groups stay hidden (deliberate - machinery, not contract).
+    //   A stub's pair IS its contract (bare invocation behavior), hence
+    //   the virtual render there and only there.
+    // FrodoCommand EXTENDS FrodoStubCommand, so instanceof alone also
+    // matches live leaves -- a leaf's pair comes from defaultOpts and stays
+    // under the level-1 runtime filter (machinery, not contract). Only the
+    // two STUB classes take the virtual render.
+    const isStub =
+      cmd instanceof FrodoStubCommand && !(cmd instanceof FrodoCommand);
     const isActionStub =
       isStub && (cmd as unknown as CommandInternal)._actionHandler !== null;
     const isPureStub = isStub && !isActionStub;
-    const virtualNoPrompt = isPureStub
+    const virtualOptions = isPureStub
       ? [
+          // Pure stub: --no-prompt only (as before).
           withHelpGroup(
             new Option(
               '--no-prompt',
@@ -3131,13 +3144,28 @@ class FrodoStubHelp extends Help {
             OptionCategory.Runtime
           ),
         ]
-      : [];
-    const visibleOptions = helper
-      .visibleOptions(cmd)
-      .filter((option) => !(isPureStub && option.name() === 'prompt'));
+      : isActionStub
+        ? [
+            // Action stub: the pair, registered AND virtually rendered
+            // (identical instances would double-list through groupItems'
+            // all+visible split, so render from fresh copies; the wording
+            // must stay in sync with stubPromptPair).
+            ...stubPromptPair(),
+          ]
+        : [];
+    const visibleOptions = helper.visibleOptions(cmd).filter(
+      (option) =>
+        !(isPureStub && option.name() === 'prompt') &&
+        // The action stub's registered pair renders virtually (level-1
+        // runtime filter would drop it) -- dedupe against the copies.
+        !(
+          isActionStub &&
+          (option.name() === 'prompt' || option.name() === 'no-prompt')
+        )
+    );
     const optionGroups = this.groupItems(
-      [...cmd.options, ...virtualNoPrompt],
-      [...visibleOptions, ...virtualNoPrompt],
+      [...cmd.options, ...virtualOptions],
+      [...visibleOptions, ...virtualOptions],
       (option) => option.helpGroupHeading ?? 'Options:'
     );
     const orderedOptionGroups = [...optionGroups.entries()].sort(
