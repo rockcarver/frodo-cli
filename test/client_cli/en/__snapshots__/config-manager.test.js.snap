@@ -19,6 +19,9 @@ Runtime Options:
 Commands:
   delete            [Experimental] Delete configuration optimized for CI/CD
                     pipelines (format compatible with fr-config-manager).
+  promote           [Experimental] [Cloud-only] Promote configuration optimized
+                    for CI/CD pipelines (format compatible with
+                    fr-config-manager).
   pull              [Experimental] Export configuration optimized for CI/CD
                     pipelines (format compatible with fr-config-manager).
   push              [Experimental] Import configuration optimized for CI/CD

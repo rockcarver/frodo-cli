@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports -i 9b827cbd-d19b-4a5c-a78e-1d383b811d95": Will check a report by ID" 1`] = `
+"{
+  createdDate: '2026-10-26T15:27:12Z',
+  dryRun: true,
+  promoter: 'test@trivir.com',
+  promotionId: 'ffd23bba-4da0-49a6-b025-f1f0adb573b5',
+  report: {
+    AMConfig: [
+      {
+        configChange: { added: [ { name: 'PromotionTest', realm: '/alpha' } ] },
+        configItem: 'Scripts'
+      }
+    ],
+    IDMConfig: [
+      {
+        configChange: { added: [ { name: 'endpoint-PromotionTest' } ] },
+        configItem: 'IDM Custom Endpoints'
+      }
+    ]
+  },
+  reportId: '9b827cbd-d19b-4a5c-a78e-1d383b811d95',
+  reportName: 'Report_2026-10-26T15-27+00Z_dryrun=true_ffd23bba-4da0-49a6-b025-f1f0adb573b5',
+  type: 'promotion'
+}
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports -i 9b827cbd-d19b-4a5c-a78e-1d383b811d95": Will check a report by ID" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote check-promotion-reports'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports -l": Will list all reports avaliable" 1`] = `
+"[
+  {
+    createdDate: '2026-10-26T15:52:03Z',
+    dryRun: false,
+    promoter: 'test@trivir.com',
+    promotionId: '3f3f8781-b7a2-4ad8-8275-2d790b84c9e7',
+    reportId: '5d24292f-922d-4c63-95c2-3980fb7d7909',
+    type: 'promotion'
+  },
+  {
+    createdDate: '2026-10-26T15:27:12Z',
+    dryRun: true,
+    promoter: 'test@trivir.com',
+    promotionId: 'ffd23bba-4da0-49a6-b025-f1f0adb573b5',
+    reportId: '9b827cbd-d19b-4a5c-a78e-1d383b811d95',
+    type: 'promotion'
+  }
+]
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports -l": Will list all reports avaliable" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote check-promotion-reports'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports -p": Will check the provisional promotion report" 1`] = `
+"{
+  createdDate: '2026-10-22T21:19:36Z',
+  promoter: 'provisional-report',
+  promotionDescription: 'provisional report',
+  promotionId: 'provisional-report',
+  report: {
+    AMConfig: [
+      {
+        configChange: { added: [ { name: 'PromotionTest', realm: '/alpha' } ] },
+        configItem: 'Scripts'
+      }
+    ],
+    IDMConfig: [
+      {
+        configChange: { added: [ { name: 'endpoint-PromotionTest' } ] },
+        configItem: 'IDM Custom Endpoints'
+      }
+    ]
+  },
+  reportId: '4439e840-3a1d-4a9b-9044-90e04bedf939',
+  reportName: 'Report_2026-10-22T21-19+00Z_dryrun=false_provisional-report',
+  type: 'provisional'
+}
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports -p": Will check the provisional promotion report" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote check-promotion-reports'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports -r": Will check the provisional rollback report" 1`] = `
+"{
+  createdDate: '2026-10-26T16:32:29Z',
+  promoter: 'provisional-rollback-report',
+  promotionDescription: 'Provisional rollback report',
+  promotionId: 'provisional-rollback-report',
+  report: {
+    AMConfig: [
+      {
+        configChange: {
+          deleted: [ { name: '0c04af69-f1e7-4288-a0e6-cefbbc1dbdd3' } ]
+        },
+        configItem: 'Scripts'
+      }
+    ],
+    IDMConfig: [
+      {
+        configChange: { deleted: [ { name: 'endpoint-PromotionTest' } ] },
+        configItem: 'IDM Custom Endpoints'
+      }
+    ]
+  },
+  reportId: '91173390-7c4e-427e-b1dc-e5a9ff0babed',
+  reportName: 'Report_2026-10-26T16-32+00Z_dryrun=false_provisional-rollback-report',
+  type: 'provisional-rollback'
+}
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports -r": Will check the provisional rollback report" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote check-promotion-reports'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports": Will check last report" 1`] = `
+"{
+  createdDate: '2026-10-26T15:52:03Z',
+  promoter: 'test@trivir.com',
+  promotionId: '3f3f8781-b7a2-4ad8-8275-2d790b84c9e7',
+  report: {
+    AMConfig: [
+      {
+        configChange: { added: [ { name: 'PromotionTest', realm: '/alpha' } ] },
+        configItem: 'Scripts'
+      }
+    ],
+    IDMConfig: [
+      {
+        configChange: { added: [ { name: 'endpoint-PromotionTest' } ] },
+        configItem: 'IDM Custom Endpoints'
+      }
+    ]
+  },
+  reportId: '5d24292f-922d-4c63-95c2-3980fb7d7909',
+  reportName: 'Report_2026-10-26T15-52+00Z_dryrun=false_3f3f8781-b7a2-4ad8-8275-2d790b84c9e7',
+  type: 'promotion'
+}
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-reports "frodo config-manager promote check-promotion-reports": Will check last report" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote check-promotion-reports'. This feature may change without notice.
+"
+`;

@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager promote check-promotion-status "frodo config-manager promote check-promotion-status": Will check the current promotion status" 1`] = `
+"{
+  blockingError: false,
+  globalLock: 'UNLOCKED',
+  message: 'Environment unlocked',
+  status: 'UNLOCKED',
+  timeStamp: '2026-10-21T16:11:56Z'
+}
+"
+`;
+
+exports[`frodo config-manager promote check-promotion-status "frodo config-manager promote check-promotion-status": Will check the current promotion status" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote check-promotion-status'. This feature may change without notice.
+"
+`;

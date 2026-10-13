@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 1`] = `
+"{ result: 'Promotion process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
+✔ Dry-run promotion in progress.
+"
+`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion": Will run promotion" 1`] = `
+"{ result: 'Promotion process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion": Will run promotion" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
+✔ Dry-run promotion in progress.
+"
+`;

@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 1`] = `
+"{ result: 'Promotion process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote run-promotion'. This feature may change without notice.
+✔ Promotion in progress.
+"
+`;
+
+exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion": Will run promotion with promoter name" 1`] = `
+"{ result: 'Promotion process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion": Will run promotion with promoter name" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote run-promotion'. This feature may change without notice.
+✔ Promotion in progress.
+"
+`;
