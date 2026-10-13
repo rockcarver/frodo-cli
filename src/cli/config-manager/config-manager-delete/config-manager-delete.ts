@@ -5,6 +5,7 @@ import EmailTemplates from '../config-manager-delete/config-manager-delete-email
 import Endpoints from '../config-manager-delete/config-manager-delete-endpoints';
 import Locales from '../config-manager-delete/config-manager-delete-locales';
 import OauthCimdProfiles from '../config-manager-delete/config-manager-delete-oauth-cimd-profiles';
+import Services from '../config-manager-delete/config-manager-delete-services';
 import Themes from '../config-manager-delete/config-manager-delete-themes';
 import CustomNodes from './config-manager-delete-custom-nodes';
 import Journeys from './config-manager-delete-journeys';
@@ -46,5 +47,6 @@ export default function setup() {
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(TenantConfig().name('tenant-config'));
   program.addCommand(Journeys().name('journeys'));
+  program.addCommand(Services().name('services'));
   return program;
 }
