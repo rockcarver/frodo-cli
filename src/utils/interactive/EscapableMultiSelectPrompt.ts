@@ -14,7 +14,7 @@ import {
 } from '@inquirer/core';
 import type { InquirerReadline } from '@inquirer/type';
 import c from '../ColorTheme';
-import { EXIT_ALL, isDoubleEscape } from './ExitAll';
+import { armEscapeGrace, EXIT_ALL } from './ExitAll';
 import {
   navigationMenuItems,
   renderFramedBox,
@@ -169,11 +169,19 @@ const escapableMultiSelectImpl = createPrompt(
     // that was just edited or rejected -- the user's question "where am
     // I" must have a visible, correct answer (the › glyph + the option's
     // description in the panel).
-    // The double-ESC detector's timestamp (see ExitAll.ts): undefined
-    // whenever the previous key was NOT an escape, so only CONSECUTIVE
-    // presses count. Works from inside the value editor too -- two fast
-    // ESCs there reject the value AND leave everything.
-    const lastEscapeRef = useRef<number | undefined>(undefined);
+    // The double-ESC grace (see ExitAll.ts): the first ESC opens a short
+    // window instead of acting; a second ESC inside it exits all, an
+    // expired window (or any other key) performs the per-branch
+    // single-ESC action. Works from inside the value editor too -- two
+    // fast ESCs there reject the value AND leave everything.
+    const escapeGraceRef = useRef<
+      ReturnType<typeof armEscapeGrace> | undefined
+    >(undefined);
+    const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
+
+    // Grace teardown on unmount (a timer firing after the prompt
+    // resolved would call a stale handler).
+    useEffect(() => () => escapeGraceRef.current?.dispose(), []);
 
     const closeInlineEditor = (rl: InquirerReadline, returnTo?: unknown) => {
       setEditing(null);
@@ -210,7 +218,8 @@ const escapableMultiSelectImpl = createPrompt(
           // choices -- free typing is not an input here, so the keys are
           // the list's, not readline's.
           if (isEnterKey(key)) {
-            lastEscapeRef.current = undefined;
+            escapeGraceRef.current?.otherKey();
+            escapeGraceRef.current = undefined;
             const value = editingChoices[pickerActive] ?? editingChoices[0];
             config.onValue?.(editing, value);
             setSelected((previous) => {
@@ -222,24 +231,34 @@ const escapableMultiSelectImpl = createPrompt(
             return;
           }
           if (key.name === 'escape') {
-            // Double-ESC leaves everything (reject + unwind); a single
-            // press rejects the value ("back one level").
-            const now = Date.now();
-            if (isDoubleEscape(lastEscapeRef.current, now)) {
-              lastEscapeRef.current = undefined;
-              closeInlineEditor(rl, editing);
-              setStatus('escaped');
-              done(EXIT_ALL);
+            // Double-ESC inside the value editor: exit all the way out
+            // (reject + unwind) via the shared grace (see ExitAll.ts);
+            // a single press (grace expiry or another key) rejects the
+            // value ("back one level" -- nothing changes).
+            if (escapeGraceRef.current) {
+              const grace = escapeGraceRef.current;
+              escapeGraceRef.current = undefined;
+              grace.secondEscape();
               return;
             }
-            lastEscapeRef.current = now;
-            // Reject: an option that needs a value cannot be marked
-            // without one. Nothing changes.
-            closeInlineEditor(rl, editing);
+            setEscapeGraceOpen(true);
+            escapeGraceRef.current = armEscapeGrace({
+              onSecondEscape: () => {
+                closeInlineEditor(rl, editing);
+                setStatus('escaped');
+                done(EXIT_ALL);
+              },
+              // Grace expired with no second press: reject the value.
+              onGraceExpire: () => {
+                setEscapeGraceOpen(false);
+                closeInlineEditor(rl, editing);
+              },
+            });
             return;
           }
           if (isUpKey(key) || isDownKey(key)) {
-            lastEscapeRef.current = undefined;
+            escapeGraceRef.current?.otherKey();
+            escapeGraceRef.current = undefined;
             const offset = isUpKey(key) ? -1 : 1;
             setPickerActive((previous) =>
               Math.min(
@@ -252,7 +271,8 @@ const escapableMultiSelectImpl = createPrompt(
           return;
         }
         if (isEnterKey(key)) {
-          lastEscapeRef.current = undefined;
+          escapeGraceRef.current?.otherKey();
+          escapeGraceRef.current = undefined;
           // readline already consumed its buffer (textPrompt pattern);
           // read the mirror.
           const line = draft || rl.line || '';
@@ -267,23 +287,30 @@ const escapableMultiSelectImpl = createPrompt(
           return;
         }
         if (key.name === 'escape') {
-          // Double-ESC leaves everything (reject + unwind); a single
-          // press rejects the value ("back one level").
-          const now = Date.now();
-          if (isDoubleEscape(lastEscapeRef.current, now)) {
-            lastEscapeRef.current = undefined;
-            closeInlineEditor(rl, editing);
-            setStatus('escaped');
-            done(EXIT_ALL);
+          // Double-ESC inside the value editor: exit all (see the picker
+          // branch above); a single press rejects the value.
+          if (escapeGraceRef.current) {
+            const grace = escapeGraceRef.current;
+            escapeGraceRef.current = undefined;
+            grace.secondEscape();
             return;
           }
-          lastEscapeRef.current = now;
-          // Reject: an option that needs a value cannot be marked
-          // without one. Nothing changes.
-          closeInlineEditor(rl, editing);
+          setEscapeGraceOpen(true);
+          escapeGraceRef.current = armEscapeGrace({
+            onSecondEscape: () => {
+              closeInlineEditor(rl, editing);
+              setStatus('escaped');
+              done(EXIT_ALL);
+            },
+            onGraceExpire: () => {
+              setEscapeGraceOpen(false);
+              closeInlineEditor(rl, editing);
+            },
+          });
           return;
         }
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         setDraft(rl.line);
         return;
       }
@@ -298,34 +325,51 @@ const escapableMultiSelectImpl = createPrompt(
         if (rl.line.length > 0) {
           rl.clearLine(0);
           setQuery('');
-          lastEscapeRef.current = undefined;
+          escapeGraceRef.current?.otherKey();
+          escapeGraceRef.current = undefined;
           return;
         }
-        // Double-ESC exits ALL the way out (see EscapableSelectPrompt);
-        // ← and single ESC keep "back one level".
+        // Double-ESC exits ALL the way out (see ExitAll.ts grace); ← and
+        // single ESC keep "back one level" (single ESC after the grace
+        // expires).
         if (key.name === 'escape') {
-          const now = Date.now();
-          if (isDoubleEscape(lastEscapeRef.current, now)) {
-            lastEscapeRef.current = undefined;
-            setStatus('escaped');
-            done(EXIT_ALL);
+          if (escapeGraceRef.current) {
+            const grace = escapeGraceRef.current;
+            escapeGraceRef.current = undefined;
+            grace.secondEscape();
             return;
           }
-          lastEscapeRef.current = now;
-        } else {
-          lastEscapeRef.current = undefined;
+          setEscapeGraceOpen(true);
+          escapeGraceRef.current = armEscapeGrace({
+            onSecondEscape: () => {
+              setEscapeGraceOpen(false);
+              setStatus('escaped');
+              done(EXIT_ALL);
+            },
+            onGraceExpire: () => {
+              setEscapeGraceOpen(false);
+              setStatus('escaped');
+              done(MULTISEL_ESCAPE);
+            },
+          });
+          return;
         }
+        // ←: not part of the gesture.
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         setStatus('escaped');
         done(MULTISEL_ESCAPE);
       } else if (isEnterKey(key)) {
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         // Commit whatever is selected -- an empty set is a valid outcome
         // ("run with defaults"), unlike select where nothing-picked is a
         // no-op.
         setStatus('done');
         done([...selected]);
       } else if (isSpaceKey(key)) {
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         if (!highlighted) return;
         const togglingOn = !selected.has(highlighted.value);
         if (togglingOn && config.needsValue?.(highlighted.value)) {
@@ -366,7 +410,8 @@ const escapableMultiSelectImpl = createPrompt(
           return next;
         });
       } else if (isUpKey(key) || isDownKey(key)) {
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         if (filtered.length === 0) return;
         const offset = isUpKey(key) ? -1 : 1;
         // Clamp at the ends -- a list with a beginning and an end, not
@@ -382,7 +427,8 @@ const escapableMultiSelectImpl = createPrompt(
         // backspace, ctrl+u); mirror the buffer into the query -- same
         // pattern as EscapableSelectPrompt. Any non-ESC key breaks the
         // double-ESC streak.
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         setQuery(rl.line);
       }
     });
@@ -454,6 +500,12 @@ const escapableMultiSelectImpl = createPrompt(
     // description trailing INSIDE the panel (description at the bottom,
     // option at the top = the two halves of the decision frames apart).
     const panelLines: { text: string; plain: string }[] = [];
+    if (escapeGraceOpen) {
+      panelLines.push({
+        text: c.muted('esc again to exit all -- or wait to go back one level'),
+        plain: 'esc again to exit all -- or wait to go back one level',
+      });
+    }
     if (filtered.length > 0) {
       for (const row of page.split('\n')) {
         panelLines.push({ text: row, plain: stripAnsi(row) });

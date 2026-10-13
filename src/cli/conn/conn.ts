@@ -3,6 +3,7 @@ import { errorMessage } from '../../utils/Console';
 // framework is ambient: command files call INTO it, ops carries no
 // prompting code -- see docs/INTERACTIVE-COMMANDS.md).
 import { runInteractivePreferredCredentialPicker } from '../../utils/interactive/ConnectionProfilePickers';
+import { EXIT_ALL_SIGNAL } from '../../utils/interactive/ExitAll';
 import {
   FrodoStubCommand,
   hostArgument,
@@ -43,12 +44,18 @@ export default function setup() {
   program.action(async (host) => {
     try {
       const applied = await runInteractivePreferredCredentialPicker(host);
-      // Declined (ESC / --no-prompt / esc×2): climb into the sub-command
+      // Declined (ESC / --no-prompt): climb into the sub-command
       // picker instead of ending the session -- the bare mode is one
       // level of the navigable tree (see FrodoCommand's Run row).
+      // (A double-ESC never returns: the picker throws the exit-all
+      // signal, which this catch rethrows below.)
       if (!applied) throw STEP_BACK_FROM_ACTION;
     } catch (error) {
-      if (error === STEP_BACK_FROM_ACTION) throw error;
+      if (
+        error === STEP_BACK_FROM_ACTION ||
+        error === EXIT_ALL_SIGNAL // exit-all unwinds to the shell
+      )
+        throw error;
       errorMessage(`${error}`);
       process.exitCode = 1;
     }

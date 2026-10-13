@@ -1,3 +1,11 @@
+// Patch node:readline's createInterface (short escape-sequence horizon
+// -- see EscapeSequenceTimeout.ts) BEFORE any prompt mounts: the apply
+// call sits after the imports (prettier's import sort) but before
+// parseAsync, and no createInterface call happens until a prompt mounts
+// during parse -- import TIME is irrelevant, first CALL is what counts.
+// (The eslint rule that wants imports first is disabled for the call's
+// placement, not the imports.)
+/* eslint-disable import-x/first */
 import { frodo, state } from '@rockcarver/frodo-lib';
 // commands
 import admin from './cli/admin/admin';
@@ -50,11 +58,17 @@ import {
   printMessage,
   verboseMessage,
 } from './utils/Console';
+import { applyEscapeSequenceTimeout } from './utils/interactive/EscapeSequenceTimeout';
+// The double-ESC exit-all unwind signal (consumers throw it; the
+// top-level catch below ends the session on it).
+import { EXIT_ALL_SIGNAL } from './utils/interactive/ExitAll';
 import {
   activatePersistedTheme,
   ensureThemeDetectedIfNeeded,
 } from './utils/ThemeConfig';
 import { getVersions } from './utils/Version';
+
+applyEscapeSequenceTimeout();
 
 const { initConnectionProfiles } = frodo.conn;
 const { initTokenCache } = frodo.cache;
@@ -134,6 +148,12 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     // most or all frodo commands use async action handlers
     await program.parseAsync();
   } catch (e) {
+    // The double-ESC exit-all unwind (docs/INTERACTIVE-COMMANDS.md): the
+    // gesture's consumers throw EXIT_ALL_SIGNAL from any nesting depth;
+    // reaching this handler IS the unwind -- the session simply ends
+    // (nothing printed: every frame the gesture passed through erased
+    // itself; a clean shell return is the whole point of the gesture).
+    if (e === EXIT_ALL_SIGNAL) return;
     process.exitCode = 1;
     printError(e);
   }

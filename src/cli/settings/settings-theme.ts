@@ -4,7 +4,7 @@ import {
   ESCAPE,
   RIGHT,
 } from '../../utils/interactive/EscapableSelectPrompt';
-import { EXIT_ALL } from '../../utils/interactive/ExitAll';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../../utils/interactive/ExitAll';
 import {
   activatePersistedTheme,
   BACKGROUNDS,
@@ -81,13 +81,13 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       ],
       default: currentBackground,
     });
-    if (
-      backgroundChoice === EXIT_ALL ||
-      backgroundChoice === ESCAPE ||
-      backgroundChoice === RIGHT
-    ) {
-      // Single ESC exits the theme picker; double-ESC likewise -- the
-      // settings menus are their own top level (RIGHT can't resolve: no
+    if (backgroundChoice === EXIT_ALL) {
+      // Exit-all: the session ends (the throw travels through settings'
+      // bare action to the top-level handler).
+      throw EXIT_ALL_SIGNAL;
+    }
+    if (backgroundChoice === ESCAPE || backgroundChoice === RIGHT) {
+      // Single ESC exits the theme picker (RIGHT can't resolve: no
       // hint).
       return false;
     }
@@ -121,14 +121,13 @@ export async function runInteractiveThemePicker(): Promise<boolean> {
       })),
       default: currentContrast,
     });
-    if (
-      contrastChoice === EXIT_ALL ||
-      contrastChoice === ESCAPE ||
-      contrastChoice === RIGHT
-    ) {
+    if (contrastChoice === EXIT_ALL) {
+      // Exit-all: the session ends.
+      throw EXIT_ALL_SIGNAL;
+    }
+    if (contrastChoice === ESCAPE || contrastChoice === RIGHT) {
       // Single ESC: back to the background step (RIGHT can't resolve:
-      // no hint). Double-ESC: leaving settings entirely -- the settings
-      // menus are their own top level, so exit-all = the same exit.
+      // no hint).
       return false;
     }
 
@@ -158,6 +157,9 @@ export default function setup() {
     try {
       await runInteractiveThemePicker();
     } catch (error) {
+      // The exit-all unwind is not an error -- rethrow it (the top-level
+      // handler ends the session cleanly); everything else reports.
+      if (error === EXIT_ALL_SIGNAL) throw error;
       errorMessage(`${error}`);
       process.exitCode = 1;
     }

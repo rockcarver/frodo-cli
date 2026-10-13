@@ -10,7 +10,7 @@ import {
   useState,
 } from '@inquirer/core';
 import c from '../ColorTheme';
-import { EXIT_ALL, isDoubleEscape } from './ExitAll';
+import { armEscapeGrace, EXIT_ALL } from './ExitAll';
 import {
   navigationMenuItems,
   renderFramedBox,
@@ -110,11 +110,17 @@ const connectionPageImpl = createPrompt(
     // readline consumes its buffer when Enter fires (verified pattern in
     // textPrompt); the draft mirror is the source of truth for commits.
     const draftRef = useRef('');
-    // The double-ESC detector's timestamp (see ExitAll.ts): undefined
-    // whenever the previous key was NOT an escape, so only CONSECUTIVE
-    // presses count.
-    const lastEscapeRef = useRef<number | undefined>(undefined);
+    // The double-ESC grace (see ExitAll.ts): the first ESC opens a short
+    // window instead of acting; a second ESC inside it exits all, an
+    // expired window (or any other key) performs the single-ESC action.
+    const escapeGraceRef = useRef<
+      ReturnType<typeof armEscapeGrace> | undefined
+    >(undefined);
+    const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
     const resolvingRef = useRef(false);
+
+    // Grace teardown on unmount.
+    useEffect(() => () => escapeGraceRef.current?.dispose(), []);
 
     useEffect(() => {
       draftRef.current = draft;
@@ -154,6 +160,8 @@ const connectionPageImpl = createPrompt(
       if (resolvingRef.current) return; // host re-resolution in flight
       if (editing !== null) {
         if (isEnterKey(key)) {
+          escapeGraceRef.current?.otherKey();
+          escapeGraceRef.current = undefined;
           // readline already consumed its buffer (textPrompt pattern);
           // read the mirror.
           const line = draft || rl.line || '';
@@ -167,40 +175,63 @@ const connectionPageImpl = createPrompt(
             void commitRow(editing, line);
           }
         } else if (key.name === 'escape') {
-          const now = Date.now();
-          if (isDoubleEscape(lastEscapeRef.current, now)) {
-            lastEscapeRef.current = undefined;
-            setEditing(null);
-            setDraft('');
-            setStatus('escaped');
-            done(EXIT_ALL);
+          // Double-ESC inside the row editor: exit all (see ExitAll.ts
+          // grace); a single press closes the editor ("back one level").
+          if (escapeGraceRef.current) {
+            const grace = escapeGraceRef.current;
+            escapeGraceRef.current = undefined;
+            grace.secondEscape();
             return;
           }
-          lastEscapeRef.current = now;
-          setEditing(null);
-          setDraft('');
-          rl.clearLine(0);
+          setEscapeGraceOpen(true);
+          escapeGraceRef.current = armEscapeGrace({
+            onSecondEscape: () => {
+              setEditing(null);
+              setDraft('');
+              setStatus('escaped');
+              done(EXIT_ALL);
+            },
+            onGraceExpire: () => {
+              setEscapeGraceOpen(false);
+              setEditing(null);
+              setDraft('');
+              rl.clearLine(0);
+            },
+          });
+          return;
         } else {
-          lastEscapeRef.current = undefined;
+          escapeGraceRef.current?.otherKey();
+          escapeGraceRef.current = undefined;
           setDraft(rl.line);
         }
         return;
       }
       if (key.name === 'escape') {
-        // Double-ESC exits all the way (see ExitAll.ts); a single press
-        // declines the page as before.
-        const now = Date.now();
-        if (isDoubleEscape(lastEscapeRef.current, now)) {
-          lastEscapeRef.current = undefined;
-          setStatus('escaped');
-          done(EXIT_ALL);
+        // Double-ESC exits all the way (see ExitAll.ts grace); a single
+        // press (after the grace expires) declines the page as before.
+        if (escapeGraceRef.current) {
+          const grace = escapeGraceRef.current;
+          escapeGraceRef.current = undefined;
+          grace.secondEscape();
           return;
         }
-        lastEscapeRef.current = now;
-        setStatus('escaped');
-        done(PAGE_ESCAPE);
+        setEscapeGraceOpen(true);
+        escapeGraceRef.current = armEscapeGrace({
+          onSecondEscape: () => {
+            setEscapeGraceOpen(false);
+            setStatus('escaped');
+            done(EXIT_ALL);
+          },
+          onGraceExpire: () => {
+            setEscapeGraceOpen(false);
+            setStatus('escaped');
+            done(PAGE_ESCAPE);
+          },
+        });
+        return;
       } else if (isEnterKey(key)) {
-        lastEscapeRef.current = undefined;
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         if (active === doneIndex) {
           conclude();
         } else {
@@ -210,6 +241,8 @@ const connectionPageImpl = createPrompt(
           rl.clearLine(0);
         }
       } else if (isUpKey(key) || isDownKey(key)) {
+        escapeGraceRef.current?.otherKey();
+        escapeGraceRef.current = undefined;
         const offset = isUpKey(key) ? -1 : 1;
         setActive(
           active + offset < 0 ? doneIndex : (active + offset) % (doneIndex + 1)
@@ -269,6 +302,12 @@ const connectionPageImpl = createPrompt(
         };
       })(),
     ];
+    if (escapeGraceOpen) {
+      rowLines.push({
+        text: c.muted('esc again to exit all -- or wait to cancel the page'),
+        plain: 'esc again to exit all -- or wait to cancel the page',
+      });
+    }
     const panel = renderFramedBox({
       title: {
         text: `${prefix} ${config.message}${resolvingNote}`,

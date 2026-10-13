@@ -77,7 +77,7 @@ import {
   type EscapableSelectChoice,
   type EscapableSelectConfig,
 } from '../utils/interactive/EscapableSelectPrompt';
-import { EXIT_ALL, EXIT_ALL_WINDOW_MS } from '../utils/interactive/ExitAll';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
 import {
   positionalIndex,
   positionalValue,
@@ -429,55 +429,31 @@ export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
 async function selectWithEditorRouting<Value>(
   command: Command,
   config: EscapableSelectConfig<Value>
-): Promise<Value | typeof ESCAPE | typeof EXIT_ALL> {
+): Promise<Value | typeof ESCAPE> {
   const hint = editableOptionsHint(command);
   // Preview discipline: callers pass their own (a LIVE callback when the
   // pick maps onto a command token); the default stays the static
   // committed-state render, refreshed per picker OPEN so it reflects
   // values filled since the last prompt.
   const preview = config.preview ?? commandPreviewFor(command);
-  // Cross-prompt double-ESC: the in-prompt detector only sees keys that
-  // arrive within ONE prompt instance -- but the gesture's real target
-  // is "back out fast from deep", where the first ESC resolves this
-  // picker and the SECOND lands in whatever prompt re-opens next. The
-  // loop therefore also matches two consecutive ESCAPE RESOLUTIONS
-  // within the window and promotes them to EXIT_ALL (a re-opened
-  // picker is a fresh instance; only the wall-clock pairs the presses).
-  let lastEscapeAt: number | undefined;
   for (;;) {
     const choice = await escapableSelect<Value>({
       ...config,
       hint,
       preview,
     });
-    if (choice === EXIT_ALL) return EXIT_ALL;
-    if (choice === ESCAPE) {
-      // This loop RESOLVES on ESCAPE (returning it to the caller), and
-      // it seeds the clock only at editor dismissal, so the only
-      // cross-prompt pair that can exist is: editor dismissed with its
-      // ESC, then the re-opened picker's ESC within the window.
-      const now = Date.now();
-      if (
-        lastEscapeAt !== undefined &&
-        now - lastEscapeAt <= EXIT_ALL_WINDOW_MS
-      ) {
-        return EXIT_ALL;
-      }
-      return ESCAPE;
-    }
+    // EXIT_ALL resolves INSIDE the prompt (the grace window holds both
+    // presses in one instance) and THROWS straight out of this loop --
+    // it never reaches the caller (the resolver's callers branch on
+    // ESCAPE only).
+    if (choice === EXIT_ALL) throw EXIT_ALL_SIGNAL;
+    if (choice === ESCAPE) return ESCAPE;
     if (choice !== RIGHT) return choice;
-    const editorResult = await runInvocationEditor(command);
-    // The editor dismissed with its own ESC: the NEXT loop iteration
-    // re-prompts this picker, whose ESCAPE (within the window of the
-    // editor's) pairs into EXIT_ALL -- the gesture crosses the prompt
-    // boundary. Seed the pair clock with the editor's dismissal time so
-    // the picker's single ESC completes it.
-    if (editorResult === false) {
-      // Editor resolved EXIT_ALL in its own prompt (double-ESC inside
-      // the editor): unwind here.
-      return EXIT_ALL;
-    }
-    lastEscapeAt = Date.now();
+    // The editor THROWS EXIT_ALL_SIGNAL on a double-ESC inside it (the
+    // signal propagates through this loop untouched); its plain return
+    // (values committed or the value step declined) just loops back into
+    // this picker -- the user can still ESC it to leave the segment.
+    await runInvocationEditor(command);
   }
 }
 
@@ -574,7 +550,7 @@ async function selectFromChoices(
   message: string,
   choices: string[],
   optionName?: string
-): Promise<string | typeof ESCAPE | typeof EXIT_ALL> {
+): Promise<string | typeof ESCAPE> {
   if (choices.length === 1) {
     verboseMessage(`Only one value available: ${choices[0]}`);
     return choices[0];
@@ -629,13 +605,7 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
         option.argChoices,
         option.attributeName()
       );
-      if (choice === ESCAPE || choice === EXIT_ALL) {
-        // Exit-all aborts the whole interactive resolution: unwind out
-        // of this prompt pass (the caller rethrows commander's
-        // missing-input error, which is the "top" of a leaf command's
-        // chain).
-        return false;
-      }
+      if (choice === ESCAPE) return false;
       value = choice;
     } else {
       const answer = await promptInput({
@@ -737,7 +707,7 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
         name: `${member.option.flags}${member.option.description ? ` -- ${member.option.description}` : ''}`,
       })),
     });
-    if (picked === ESCAPE || picked === EXIT_ALL) return false;
+    if (picked === ESCAPE) return false;
 
     const chosen = memberOptions.find((member) => member.name === picked)!;
 
@@ -881,7 +851,6 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
           ),
         ],
       });
-      if (choice === EXIT_ALL) return false;
       if (choice === ESCAPE) return false;
       if (choice === ENTER_MANUALLY) {
         const answer = await promptInput({
@@ -1059,8 +1028,10 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
   });
   if (result === EXIT_ALL) {
     // Exit-all unwinds the whole interactive resolution -- no fallback
-    // prompts, the command does not run.
-    return false;
+    // prompts, the command does not run. THROW: the session ends (the
+    // signal travels through the resolver, the preAction hook chain and
+    // the action body to app.ts's top-level catch).
+    throw EXIT_ALL_SIGNAL;
   }
   if (result === PAGE_ESCAPE) {
     // Page declined: fall back to the pre-page sequential prompts.
@@ -1162,9 +1133,10 @@ function applyPersistedDefaults(command: Command): void {
   }
 }
 
-async function runInvocationEditor(command: Command): Promise<void | false> {
-  // Resolves `false` when the user double-ESCed (EXIT_ALL): every
-  // caller in the routing loops unwinds the whole interactive pass.
+async function runInvocationEditor(command: Command): Promise<void> {
+  // THROWS EXIT_ALL_SIGNAL on a double-ESC inside the editor (either the
+  // multiselect's list escape or a value step's) -- the signal propagates
+  // through every caller to app.ts's top-level handler.
   const candidates = editableOptionalOptions(command);
   if (candidates.length === 0) {
     verboseMessage('No optional options left to edit.');
@@ -1339,8 +1311,10 @@ async function runInvocationEditor(command: Command): Promise<void | false> {
   });
   if (picked === EXIT_ALL) {
     // Exit-all unwinds the whole interactive resolution (see the
-    // runInvocationEditor contract below).
-    return false;
+    // runInvocationEditor contract below). THROW the signal -- the
+    // editor can be opened from inside any routing loop or the action
+    // body, so only a throw reaches the top-level handler.
+    throw EXIT_ALL_SIGNAL;
   }
   if (picked === MULTISEL_ESCAPE) {
     verboseMessage('Invocation editor dismissed; values unchanged.');
@@ -1372,7 +1346,7 @@ async function runInvocationEditor(command: Command): Promise<void | false> {
       continue;
     }
     const value = await runValueStep(attributeName);
-    if (value === EXIT_ALL) return false;
+    if (value === EXIT_ALL) throw EXIT_ALL_SIGNAL; // exit-all unwinds to the shell
     if (value === undefined) continue;
     committed[attributeName] = value;
     const option = command.options.find(

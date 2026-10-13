@@ -24,7 +24,7 @@ import {
   RIGHT,
   type EscapableSelectChoice,
 } from './EscapableSelectPrompt';
-import { EXIT_ALL } from './ExitAll';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { canPrompt } from './PromptGateState';
 
 const {
@@ -49,9 +49,9 @@ export type CredentialOverrideType = 'user' | 'svcacct' | 'amster' | 'browser';
  * Mirrors `frodo settings`'s bare-invocation pattern (see
  * `runInteractiveThemePicker` in `settings-theme.ts`, the template for
  * fully-interactive command types). ESCAPE and RIGHT both decline
- * without saving (RIGHT: no editor hint here), and the double-ESC
- * EXIT_ALL gesture lands in the same "declined" branch -- this picker
- * is its own top level, so there is nothing to unwind past.
+ * without saving (RIGHT: no editor hint here); the double-ESC EXIT_ALL
+ * gesture THROWS the unwind signal -- the session ends (the picker may
+ * be its own top level, but exit-all means the shell, not this command).
  * @param {string} host Optional host URL, unique substring, or alias. When
  * omitted, offers a picker across every saved profile (skipping straight to
  * it if there's only one), the same way `settings.ts` skips its own
@@ -106,12 +106,10 @@ export async function runInteractivePreferredCredentialPicker(
             : h,
         })),
       });
-      if (
-        choice === EXIT_ALL ||
-        choice === ESCAPE ||
-        choice === RIGHT // RIGHT: no hint here
-      ) {
-        // Double-ESC or ESC: the profile picker is its own top level.
+      if (choice === EXIT_ALL) throw EXIT_ALL_SIGNAL; // exit-all unwinds to the shell
+      if (choice === ESCAPE || choice === RIGHT) {
+        // Single ESC (or the RIGHT sentinel, which can't resolve here):
+        // the profile picker is conn's bare mode's top level.
         return false;
       }
       resolvedHost = choice;
@@ -166,12 +164,11 @@ export async function runInteractivePreferredCredentialPicker(
     choices: credentialChoices,
     default: currentPreference,
   });
-  if (
-    selected === EXIT_ALL ||
-    selected === ESCAPE ||
-    selected === RIGHT // RIGHT: no hint here
-  ) {
-    // Double-ESC or ESC: this picker is its own top level.
+  if (selected === EXIT_ALL) throw EXIT_ALL_SIGNAL; // exit-all unwinds to the shell
+  if (selected === ESCAPE || selected === RIGHT) {
+    // Single ESC (or the RIGHT sentinel, which can't resolve here):
+    // back to conn's bare mode's top level (the credential pick was the
+    // last step).
     return false;
   }
 

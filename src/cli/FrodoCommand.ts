@@ -34,7 +34,7 @@ import {
   ESCAPE,
   RIGHT,
 } from '../utils/interactive/EscapableSelectPrompt.js';
-import { EXIT_ALL } from '../utils/interactive/ExitAll.js';
+import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
@@ -2995,9 +2995,10 @@ export class FrodoStubCommand extends Command {
         return this.baseParseCommand([], unknown);
       }
       if (choice === EXIT_ALL) {
-        // From any depth: leave the session the way a root ESC always
-        // has (commander's bare-stub help-exit).
-        return this.baseParseCommand([], unknown);
+        // From any depth: THROW the exit-all signal (docs/
+        // INTERACTIVE-COMMANDS.md: "lands straight back at the shell")
+        // -- app.ts's top-level handler ends the session cleanly.
+        throw EXIT_ALL_SIGNAL;
       }
       if (choice === ESCAPE) {
         if (this.parent) {
