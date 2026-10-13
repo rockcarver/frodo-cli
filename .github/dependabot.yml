@@ -35,6 +35,12 @@ updates:
       - dependency-name: "typescript"
         update-types:
           - "version-update:semver-major"
+      # typescript-eslint publishes plugin/parser/utils as one strictly
+      # peer-coupled set; single-package bumps break `npm ci` with ERESOLVE
+      # (see #780). Only the meta-package `typescript-eslint` (not ignored,
+      # above) is tracked, which pulls the whole set in lockstep.
+      - dependency-name: "@typescript-eslint/eslint-plugin"
+      - dependency-name: "@typescript-eslint/parser"
 
   - package-ecosystem: "github-actions"
     directory: "/"
