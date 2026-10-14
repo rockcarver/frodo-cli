@@ -32,13 +32,8 @@
   },
   "main": "dist/launch.cjs",
   "files": [
-    "dist/app.cjs",
-    "dist/app.cjs.map",
-    "dist/launch.cjs",
-    "dist/launch.cjs.map",
-    "dist/loader.cjs",
-    "dist/loader.cjs.map",
-    "dist/rolldown-runtime-*.cjs",
+    "dist/*.cjs",
+    "dist/*.cjs.map",
     "LICENSE",
     "README.md",
     "CHANGELOG.md"
