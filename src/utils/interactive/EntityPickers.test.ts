@@ -80,6 +80,38 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
   });
+
+  it('a failing loader declines the pick (false), never a satisfied group', async () => {
+    // Regression pin for the 2026-10-14 incident: resolveEntityPicks used to
+    // return true on loader failure, and the delete-family actions'
+    // `(options.all || (await resolveEntityPicks(command)))` then fell
+    // through to the DESTRUCTIVE --all branch. A failing loader must
+    // behave like escape: false, option untouched.
+    // The gate needs a TTY; fake it for this one test (jest stdio is not).
+    const stdin = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY');
+    const stdout = Object.getOwnPropertyDescriptor(process.stdout, 'isTTY');
+    Object.defineProperty(process.stdin, 'isTTY', { value: true });
+    Object.defineProperty(process.stdout, 'isTTY', { value: true });
+    const { command } = makeCommand();
+    deferEntityPicks(command, [
+      entityPick<Entity>({
+        name: 'secretId',
+        kind: 'secret',
+        load: async () => {
+          throw new Error('transient 400');
+        },
+        label: (entity) => entity._id,
+      }),
+    ]);
+    try {
+      const result = await resolveEntityPicks(command);
+      expect(result).toBe(false);
+      expect(command.getOptionValue('secretId')).toBeUndefined();
+    } finally {
+      if (stdin) Object.defineProperty(process.stdin, 'isTTY', stdin);
+      if (stdout) Object.defineProperty(process.stdout, 'isTTY', stdout);
+    }
+  });
 });
 
 describe('entity pick registry', () => {
