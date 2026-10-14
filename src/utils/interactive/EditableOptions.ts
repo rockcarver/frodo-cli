@@ -5,7 +5,7 @@
  * are: pickers in this directory (EntityPickers, RealmPickers) attach the
  * hint to their prompts, and the editor in cli/ResolveInteractiveInputs
  * consumes the same list -- one shared source of truth, so the
- * "(→ N options to configure)" count is always the truthful promise the
+ * "(→ N options)" count is always the truthful promise the
  * editor delivers on.
  *
  * Pure commander logic, no frodo-lib: importable from anywhere without
@@ -50,32 +50,85 @@ export function editableOptionalOptions(command: Command): Option[] {
  */
 export function editableOptionsHint(command: Command): string | undefined {
   const count = editableOptionalOptions(command).length;
-  return count > 0 ? `→ ${count} options to configure` : undefined;
+  return count > 0 ? `→ ${count} options` : undefined;
 }
 
 /**
- * The editor's candidate ORDER (user feedback 2026-10-12: a flat
- * alphabetical list buries the command's own options among global/
- * connection machinery the user rarely wants -- the same split -h/-hh
- * makes in help): command-specific options FIRST, then connection,
- * then everything else (authentication, runtime, output), alphabetical
- * within each bucket. The bucket derives from the option's help-group
- * heading -- the same data the help layout already uses -- so no
- * option is ever listed under two different buckets in help vs the
- * editor. Options without a heading (a leaf command's own options) are
- * command-specific by definition.
- *
+ * One collapsible section in the grouped editor: the help-group id
+ * (commander's heading string) and the human label the header renders
+ * (`Authentication Options:` -> `Authentication options`).
+ */
+export type EditableOptionGroup = {
+  /** The help-group heading this section folds (the grouping key). */
+  id: string;
+  /** The header label, e.g. 'Connection options'. */
+  label: string;
+};
+
+/**
  * Zero-import: `helpGroupHeading` is commander's own Option property;
- * no frodo-lib.
+ * no frodo-lib. Headings 'Options:' and '' mean the command's OWN
+ * options -- the group every leaf option lands in unless FrodoCommand
+ * assigned a shared heading (the same data the -h/-hh layout uses, so
+ * help and the editor can never disagree about where an option
+ * belongs).
  */
 const COMMAND_SPECIFIC_HEADINGS = new Set(['Options:', '']);
 
+/**
+ * The option's editable-group id in the invocation editor:
+ * `undefined` = the command's own options (rendered flat, always
+ * visible), a heading string = a collapsible shared section.
+ */
+export function editableOptionGroupOf(option: Option): string | undefined {
+  const heading = option.helpGroupHeading ?? '';
+  return COMMAND_SPECIFIC_HEADINGS.has(heading) ? undefined : heading;
+}
+
+/**
+ * The collapsible sections `options` actually populate, ordered
+ * alphabetically by heading -- the same order `-hh` help prints the
+ * groups in, so the editor and expanded help read alike. Empty groups
+ * never render (silence = this command carries no such options).
+ */
+export function editableOptionGroups(options: Option[]): EditableOptionGroup[] {
+  const present = new Set<string>();
+  for (const option of options) {
+    const group = editableOptionGroupOf(option);
+    if (group !== undefined) present.add(group);
+  }
+  return [...present]
+    .sort((a, b) => a.localeCompare(b))
+    .map((heading) => ({
+      id: heading,
+      label: groupLabel(heading),
+    }));
+}
+
+/** 'Authentication Options:' -> 'Authentication options'. */
+function groupLabel(heading: string): string {
+  const words = heading.replace(/:$/, '').trim();
+  if (words.length === 0) return 'Options';
+  // Lowercase the trailing group word only ('options'), never the
+  // distinguishing first word ('authentication').
+  const parts = words.split(' ');
+  parts[parts.length - 1] = parts[parts.length - 1].toLowerCase();
+  return parts.join(' ');
+}
+
+/**
+ * The editor's candidate ORDER: the command's own options first, then
+ * the shared groups alphabetically by heading (the -hh order), the
+ * dash-insensitive word sort INSIDE each (user feedback 2026-10-12: a
+ * flat alphabetical list buries the command's own options among global/
+ * connection machinery). Derived from the same grouping helpers the
+ * grouped editor renders, so order and sections can never drift apart.
+ */
 export function sortEditableOptions(options: Option[]): Option[] {
-  const bucketOf = (option: Option): number => {
-    const heading = option.helpGroupHeading ?? '';
-    if (COMMAND_SPECIFIC_HEADINGS.has(heading)) return 0;
-    if (heading === 'Connection Options:') return 1;
-    return 2; // Authentication / Runtime / Output
+  const groups = editableOptionGroups(options);
+  const rankOf = (option: Option): number => {
+    const group = editableOptionGroupOf(option);
+    return group === undefined ? -1 : groups.findIndex((g) => g.id === group);
   };
   const label = (option: Option): string => {
     const words = option.flags
@@ -86,9 +139,9 @@ export function sortEditableOptions(options: Option[]): Option[] {
     return words.join(' ').toLowerCase();
   };
   return [...options].sort((a, b) => {
-    const bucketA = bucketOf(a);
-    const bucketB = bucketOf(b);
-    if (bucketA !== bucketB) return bucketA - bucketB;
+    const rankA = rankOf(a);
+    const rankB = rankOf(b);
+    if (rankA !== rankB) return rankA - rankB;
     return label(a).localeCompare(label(b));
   });
 }

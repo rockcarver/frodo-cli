@@ -19,8 +19,15 @@ import c from '../ColorTheme';
  * graphs into tests that mock frodo-lib wholesale.
  */
 
+/**
+ * The direction keys as the bar draws them: Unicode medium triangles
+ * (heavier than the slim arrows, no arrow shaft), shown in [] like every
+ * key label.
+ */
+const DIRECTION_KEYS = { upDown: '⏶⏷', left: '⏴', right: '⏵' } as const;
+
 export type NavigationMenuItem = {
-  /** The key labels, e.g. '↑↓' or 'enter'. */
+  /** The key labels, in [] (key notation), e.g. '[⏶⏷]' or '[ENTER]'. */
   keys: string;
   /** What the keys do, e.g. 'move'. */
   action: string;
@@ -39,7 +46,7 @@ export function navigationMenuItems(options: {
   space?: string;
   /** enter concludes (the label varies: 'conclude', 'commit'). */
   enter?: string;
-  /** The -> hint, e.g. '3 options to configure' (segments exist). */
+  /** The -> hint, e.g. '3 options' (segments exist). */
   right?: string;
   /** A <- segment exists (the editor's back navigation). */
   left?: boolean;
@@ -49,24 +56,40 @@ export function navigationMenuItems(options: {
   escape?: string;
 }): NavigationMenuItem[] {
   const items: NavigationMenuItem[] = [];
-  items.push({ keys: '↑↓', action: 'move', intent: 'muted' });
+  items.push({
+    keys: `[${DIRECTION_KEYS.upDown}]`,
+    action: 'move',
+    intent: 'muted',
+  });
   if (options.filter) {
     items.push({ keys: 'type', action: 'to filter', intent: 'muted' });
   }
   if (options.space) {
-    items.push({ keys: 'space', action: options.space, intent: 'muted' });
+    items.push({ keys: '[space]', action: options.space, intent: 'muted' });
   }
   if (options.enter) {
-    items.push({ keys: 'enter', action: options.enter, intent: 'positive' });
+    items.push({
+      keys: '[ENTER]',
+      action: options.enter,
+      intent: 'positive',
+    });
   }
   if (options.right) {
-    items.push({ keys: '→', action: options.right, intent: 'command' });
+    items.push({
+      keys: `[${DIRECTION_KEYS.right}]`,
+      action: options.right,
+      intent: 'command',
+    });
   }
   if (options.left) {
-    items.push({ keys: '←', action: 'back', intent: 'command' });
+    items.push({
+      keys: `[${DIRECTION_KEYS.left}]`,
+      action: 'back',
+      intent: 'command',
+    });
   }
   items.push({
-    keys: 'esc',
+    keys: '[ESC]',
     action: options.escape ?? 'back out',
     intent: 'negative',
   });
@@ -91,6 +114,72 @@ const INTENT_COLOR: Record<
 export function stripAnsi(text: string): string {
   // eslint-disable-next-line no-control-regex -- the control character IS the point
   return text.replace(/\x1b\[[0-9;]*m/g, '');
+}
+
+/** The columns every frame is drawn at unless the caller says otherwise. */
+const DEFAULT_FRAME_WIDTH = 120;
+const FRAME_BORDER = 2; // the │ ... │ walls
+const FRAME_PADDING = 1; // one space inside each border
+
+/**
+ * The text width available INSIDE a frame drawn at `width` columns --
+ * the one place the wall + padding math lives, so box renderers and the
+ * wrappers feeding them can never disagree about where the wall is.
+ */
+export function frameInnerWidth(width = DEFAULT_FRAME_WIDTH): number {
+  return Math.max(10, width - FRAME_BORDER - FRAME_PADDING * 2);
+}
+
+/**
+ * Word-wraps ONE logical line to `width` columns (ANSI stripped first, so
+ * the measured text is the drawn text). Spacing between words is kept
+ * (aligned "key:   text" columns survive a wrap), leading indentation
+ * repeats on continuation rows, and a word longer than a whole row is
+ * hard-split rather than pushed through the right wall.
+ */
+export function wrapLine(line: string, width: number): string[] {
+  const text = stripAnsi(line).trimEnd();
+  if (text.length <= width) return [text];
+  const indent = /^\s*/.exec(text)?.[0] ?? '';
+  const room = Math.max(1, width - indent.length);
+  const rows: string[] = [];
+  let current = '';
+  for (const chunk of text.slice(indent.length).match(/\S+\s*/g) ?? []) {
+    let piece = chunk;
+    while (piece.trimEnd().length > room) {
+      if (current) {
+        rows.push(indent + current.trimEnd());
+        current = '';
+      }
+      rows.push(indent + piece.slice(0, room));
+      piece = piece.slice(room);
+    }
+    if (current && current.length + piece.trimEnd().length > room) {
+      rows.push(indent + current.trimEnd());
+      current = piece;
+    } else {
+      current += piece;
+    }
+  }
+  if (current.trim()) rows.push(indent + current.trimEnd());
+  return rows.length > 0 ? rows : [''];
+}
+
+/**
+ * A highlighted entry's description as muted panel rows, wrapped to the
+ * frame so a long description can never push past the right wall (a
+ * multi-line description keeps its own line breaks; each line wraps on
+ * its own).
+ */
+export function descriptionPanelLines(
+  description: string,
+  width = DEFAULT_FRAME_WIDTH
+): { text: string; plain: string }[] {
+  const inner = frameInnerWidth(width);
+  return description
+    .split('\n')
+    .flatMap((row) => wrapLine(row, inner))
+    .map((row) => ({ text: c.muted(row), plain: row }));
 }
 
 /**
@@ -126,10 +215,9 @@ export function renderFramedBox(options: {
   // never drift from what is drawn.
   const titleText = ` ${title.text} `;
   const titlePlain = ` ${stripAnsi(title.text)} `;
-  const width = options.width ?? 120;
-  const PADDING = 1;
-  const BORDER = 2;
-  const innerWidth = Math.max(10, width - BORDER - PADDING * 2);
+  const width = options.width ?? DEFAULT_FRAME_WIDTH;
+  const PADDING = FRAME_PADDING;
+  const innerWidth = frameInnerWidth(width);
   const top = `┌${titleText}${'─'.repeat(Math.max(0, innerWidth + PADDING * 2 - titlePlain.length))}┐`;
   const bottom = `└${'─'.repeat(innerWidth + PADDING * 2)}┘`;
   const body = lines
@@ -149,7 +237,7 @@ export function renderFramedBox(options: {
  */
 export function renderNavigationMenu(
   items: NavigationMenuItem[],
-  width = 120
+  width = DEFAULT_FRAME_WIDTH
 ): string {
   if (items.length === 0) return '';
 
@@ -164,9 +252,7 @@ export function renderNavigationMenu(
   // Separator between items inside a row.
   const GAP = ' · ';
   const GAP_WIDTH = GAP.length;
-  const PADDING = 1; // one space inside each border
-  const BORDER = 2; // the │ ... │ walls
-  const innerWidth = Math.max(10, width - BORDER - PADDING * 2);
+  const innerWidth = frameInnerWidth(width);
 
   const rows: (typeof rendered)[] = [];
   let current: typeof rendered = [];

@@ -85,7 +85,10 @@ tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   indistinguishable afterwards.
 
 Both inherit type-to-search. Escape declines; single-candidate lists
-auto-select.
+auto-select. `<enter>` on the already-highlighted default realm keeps
+it and CONCLUDES the pick (a verbose note says so) — the pick does not
+re-prompt (user report 2026-10-13: the old silent re-open read as a
+dead screen).
 
 ## Panel per surface (the frame layout)
 
@@ -93,17 +96,17 @@ Every prompt frame is built from the same boxes (`NavigationMenu.ts`
 renders them all through one shared `renderFramedBox`):
 
 ```
-┌ Navigate ────────────────────────────────────────────┐
-│ ↑↓ move · type to filter · space select · esc back   │
-└──────────────────────────────────────────────────────┘
-┌ ? Optional options for 'list' (space to select) ─────┐
-│ ○ -E, --env <key=value>                              │
-│ ◉ -k, --insecure                                     │
-│ ○ --retry <strategy>                                 │
-│                                                      │
-│ Retry failed operations. Valid values for strategy:  │
-│ everything / network / nothing                       │
-└──────────────────────────────────────────────────────┘
+┌ Navigate ──────────────────────────────────────────────────────┐
+│ [⏶⏷] move · type to filter · [space] select · [ESC] back       │
+└────────────────────────────────────────────────────────────────┘
+┌ ? Optional options for 'list' (space to select) ───────────────┐
+│ ○ -E, --env <key=value>                                        │
+│ ◉ -k, --insecure                                               │
+│ ○ --retry <strategy>                                           │
+│                                                                │
+│ Retry failed operations. Valid values for strategy:            │
+│ everything / network / nothing                                 │
+└────────────────────────────────────────────────────────────────┘
 frodo journey list alpha
 ```
 
@@ -124,10 +127,13 @@ frodo journey list alpha
 Only keys that apply to the current prompt appear (silence = that key
 does nothing here), and each renders in its role's theme color:
 movement muted (furniture), `→`/`←` command (segment navigation worth
-spotting), `enter` positive (committing), `esc` negative (backing out).
-The box wraps its items within the terminal width. The multi-select's
-`space` and the editor's `←` are additional items; the `→` hint count
-renders inside the menu.
+spotting), `ENTER` positive (committing), `ESC` negative (backing out).
+Every key label is bracketed (`[ENTER]`, `[ESC]`), the common key
+notation, and the direction keys are drawn as Unicode medium triangles
+(`[⏶⏷]` move, `[⏴]` back, `[⏵]` forward) — heavier than slim arrows, no
+shaft. The box wraps its items within the terminal width. The
+multi-select's `[space]` and the editor's `[⏴]` are additional items;
+the `[⏵]` hint count (`[⏵] 4 options`) renders inside the menu.
 
 ## The inline value editor
 
@@ -135,10 +141,10 @@ In the invocation editor, `<space>` on a valued option opens the
 framed VALUE BOX under the panel:
 
 - An option with commander `.choices()` gets a PICKER (the Navigate
-  box's hints swap to `enter pick · esc rejects`) — an enum value is
+  box's hints swap to `[ENTER] pick · [ESC] rejects`) — an enum value is
   picked, never typed. The cursor starts on the option's current value
   when it has one.
-- Everything else gets free text (`enter commits · esc rejects`), the
+- Everything else gets free text (`[ENTER] commit value · [ESC] rejects`), the
   draft pre-filled with the current value.
 
 Either way the option joins the selection only when a real value is
@@ -157,7 +163,11 @@ LIVE — a function-form `preview` config is re-invoked on every render
 with the highlighted choice, and the pickers shadow the highlighted
 value into a throwaway copy of the command's positional/option for that
 render only. Red + cursive while mandatory input is missing, green when
-ready. On conclusion the resolved command prints once, in green,
+ready. The color reflects the COMMITTED state; the highlight only moves
+the shown token — so the connection profile picker and the credentials
+page stay red until the connection resolves (the resolver records it as
+unresolved before those prompts open), and the footer turns green on
+the first prompt after. On conclusion the resolved command prints once, in green,
 directly above the action's results — the copy-paste moment.
 
 Serialization rules (`serializeCommand`): exactly the tokens a user
@@ -188,8 +198,14 @@ unsatisfied groups, failed auth) print nothing.
   value box (a picker for `.choices()` options, free text otherwise);
   the option joins the selection only when a real value is collected
   (escaping the box rejects the mark).
+- `[⏴]` is DISABLED while the editor holds selections not yet committed
+  (user rule 2026-10-13): the panel shows the count and the way out
+  ("N options not committed — [ESC] resets, [ENTER] commits"). `[ENTER]`
+  commits the set; `[ESC]` with uncommitted selections RESETS them and
+  backs out (dismiss = nothing authored). A `[space]` toggle scrubs the
+  readline buffer, so it never leaks into the filter query.
 - `→` — enter the next editor segment, where the prompt advertises one
-  with a counted hint ("→ 4 options to configure"); only armed when a
+  with a counted hint ("[⏵] 4 options" in the Navigate bar); only armed when a
   hint exists, and only when the filter query is empty (with text
   typed, ←/→ stay readline cursor movement).
 - `←`/`Esc` — back ONE level (see the tree-climb below). Two-stage with
@@ -222,12 +238,25 @@ unsatisfied groups, failed auth) print nothing.
   as contiguous multi-byte bursts well under 50ms apart), so sequence
   parsing stays correct.
 
-The invocation editor orders its candidates the way `-h`/`-hh` orders
-help: the command's OWN options first, then connection options, then
-everything else (authentication, runtime, output) — alphabetical by
-option word within each bucket (`sortEditableOptions`; the bucket
-derives from the option's help-group heading, so help and the editor
-can never disagree about where an option belongs). The cursor carries
+The invocation editor mirrors the `-h`/`-hh` split as COLLAPSIBLE
+SECTIONS (user decision 2026-10-13): the command's OWN options render
+flat on top, every shared help group (Authentication, Connection,
+Output, Runtime — the `-hh` alphabetical order) renders as one header
+row `▸ Connection options (4)`. `[space]` on a header expands/collapses
+it in place (the Navigate bar's `[space]` label follows: select on
+options, expand/collapse on headers); a collapsed header with marked
+members shows `· N selected`. A group holding an option the user
+already set (flag, env, saved default) starts expanded — authored
+state never hides. Typing a filter flattens the list to the cross-group
+name matches (headers drop out): type-to-find reaches into collapsed
+groups, and selecting a match re-expands its group. The grouping
+derives from the option's help-group heading (`editableOptionGroupOf`/
+`buildSectionRows` in `utils/interactive/`), so help and the editor can
+never disagree about where an option belongs. Options committed in the
+editor AFTER the resolution pass (the editor can open from inside auth
+via a picker's `[⏵]`) are re-applied to frodo-lib's state
+(`replayEditorOptionStates`), so `--curlirize`/`--debug`/`--verbose`
+picked there take effect. The cursor carries
 a GLYPH (`›`), not just color — color alone is invisible when it sits
 on an already-marked row. After a value editor closes, the cursor
 returns to the option that was just edited or rejected, and re-opening

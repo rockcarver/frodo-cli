@@ -117,7 +117,7 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   // EXIT_ALL never resolves out of the loop -- it throws).
   let choice: string | typeof ESCAPE;
   for (;;) {
-    const { livePositionalPreviewFor } =
+    const { livePositionalPreviewFor, runInvocationEditorForCommand } =
       await import('../../cli/ResolveInteractiveInputs');
     const answer = await escapableSelect<string>({
       message: `Choose a realm (default: ${current}):`,
@@ -134,11 +134,32 @@ export async function resolveRealmPick(command: Command): Promise<void> {
       })),
     });
     if (answer === EXIT_ALL) throw EXIT_ALL_SIGNAL;
-    if (answer === RIGHT) continue;
+    if (answer === RIGHT) {
+      // The hint advertised the editor, so → must open it (this branch
+      // used to just re-prompt, making the key look dead). The editor
+      // throws EXIT_ALL_SIGNAL on a double-ESC; a plain return loops
+      // back here and the user can still ESC the picker.
+      await runInvocationEditorForCommand(command);
+      continue;
+    }
     choice = answer;
     break;
   }
-  if (choice === ESCAPE || !choice || choice === current) {
+  if (choice === ESCAPE) {
+    // Backed out: keep the deployment default (the pre-interactive
+    // behavior), AND say so -- a silent return after the frame erased
+    // left the terminal idle with no explanation (user report
+    // 2026-10-13: "the picker wasn't active" -- the prompt had actually
+    // concluded; nothing showed why nothing then happened).
+    verboseMessage(`Keeping the default realm ${current}.`);
+    return;
+  }
+  if (!choice || choice === current) {
+    // <enter> on the already-highlighted default: an explicit "keep
+    // it". The pick is DONE -- do NOT loop back into another picker
+    // instance (the old silent re-prompt read as a dead screen: the
+    // prompt concluded and nothing re-appeared).
+    verboseMessage(`Keeping the default realm ${current}.`);
     return;
   }
   state.setRealm(choice);
