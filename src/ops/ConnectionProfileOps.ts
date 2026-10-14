@@ -76,7 +76,15 @@ export async function describeConnectionProfile(
   debugMessage(`ConnectionProfileOps.describeConnectionProfile: start`);
   const profile = await getConnectionProfileByHost(host);
   if (profile) {
-    debugMessage(profile);
+    // NEVER dump the raw profile in debug output: it is DECRYPTED at this
+    // point, so the dump would leak the password, logApiSecret, and the
+    // full private RSA JWK into every FRODO_DEBUG/--debug log (real
+    // incident 2026-10-14; issue #813). Debug prints the non-secret
+    // routing fields only -- the (optionally redacted) full profile is
+    // what this function returns/renders below.
+    debugMessage(
+      `ConnectionProfileOps.describeConnectionProfile: profile for host '${profile.tenant ?? host}', username '${profile.username ?? ''}', svcacctId '${profile.svcacctId ?? ''}', logApiKey '${profile.logApiKey ?? ''}'`
+    );
     const present = '[present]';
     const jwk = profile.svcacctJwk;
     const privateKey = profile.amsterPrivateKey;
