@@ -725,7 +725,7 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
                 command,
                 member.name,
                 () => commandReadinessFor(command),
-                isBoolean ? () => 'true' : () => undefined
+                isBoolean ? () => true : () => undefined
               )(highlighted);
             },
           }

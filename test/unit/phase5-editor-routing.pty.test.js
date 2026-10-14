@@ -358,8 +358,13 @@ describe('phase 5 slice 4: command preview', () => {
         // print behind. The print's presence + placement is
         // covered by prompt-erase.pty.test.js's realm-list flow
         // (auth succeeds there).
+        // The LIVE footer legitimately shows `-a` while the picker's
+        // boolean member is highlighted (green-when-valid semantics);
+        // the authoring print is a STANDALONE line, so anchor on the
+        // line start -- a mid-frame footer fragment carries the panel
+        // wall directly before it and does not match.
         expect(result.captures.final.plain).not.toMatch(
-          /frodo esv secret delete -a/
+          /^frodo esv secret delete -a$/m
         );
       } finally {
         removeShellTestHome(homeDir);
@@ -481,6 +486,48 @@ describe('phase 5 slice 4: command preview', () => {
           const footer = colorOf(footerOf(result.captures.picker.raw));
           expect(footer.text).toBe('frodo esv secret delete');
           expect(footer).toMatchObject({ red: true, italic: true });
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'one-of picker boolean member HIGHLIGHT: green, flag alone (copy-paste-faithful)',
+      async () => {
+        // The boolean shadow maps to real `true` (what the committed pick
+        // writes), so serializeCommand renders the flag ALONE -- the
+        // re-typable short spelling `-a`, not `--all true` (regression pin
+        // for the shadow-as-string bug, 2026-10-14). Green per the
+        // valid-as-committed-now rule: the shadowed flag satisfies the
+        // one-of group before any [ENTER].
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: { ...ENV, ...COLOR_ENV },
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 400 },
+              { type: 'key', name: 'down' }, // highlight -a, NO enter
+              { type: 'sleep', ms: 400 },
+              { type: 'capture', label: 'highlighted' },
+            ],
+          });
+          const footer = colorOf(footerOf(result.captures.highlighted.raw));
+          expect(footer.text).toBe('frodo esv secret delete -a');
+          expect(footer).toMatchObject({
+            green: true,
+            red: false,
+            italic: false,
+          });
         } finally {
           removeShellTestHome(homeDir);
         }

@@ -334,11 +334,15 @@ export function liveOptionPreview(
   command: Command,
   optionName: string,
   readiness: ReadinessInput,
-  toValue: (highlighted: unknown) => string | undefined = defaultToValue
+  toValue: (highlighted: unknown) => string | true | undefined = defaultToValue
 ): (highlighted: unknown) => string {
   return (highlighted) => {
     const value = toValue(highlighted);
-    if (value && value.length > 0) {
+    // A real boolean `true` shadows the flag exactly as the committed
+    // pick would write it (setOptionValueWithSource(name, true)) --
+    // serializeCommand renders flag-alone, keeping the footer copy-
+    // paste-faithful ("--all", not "--all true").
+    if (value === true || (value && value.length > 0)) {
       const committed = command.getOptionValue(optionName);
       const committedSource = command.getOptionValueSource(optionName);
       command.setOptionValueWithSource(optionName, value, 'cli');
