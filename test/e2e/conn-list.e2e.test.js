@@ -10,6 +10,7 @@ FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record F
  */
 import path from 'path';
 import { getEnv, testif, normalizeSnapshotText, exec } from './utils/TestUtils';
+import { checkMasterKeyUsable } from './utils/MasterKeyGate';
 import { connection as c } from './utils/TestConfig';
 
 
@@ -18,6 +19,10 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   path.resolve('./test/e2e/env/Connections.json');
 process.env['FRODO_MASTER_KEY_PATH'] =
   path.resolve('./test/e2e/env/masterkey.key');
+// Key-dependent tests run only when the available key actually decrypts the
+// committed fixture -- without a usable key the suites skip instead of
+// racing frodo-lib's auto-generated key (Oct 2026 CI failures).
+const hasUsableMasterKey = checkMasterKeyUsable();
 const env = getEnv(c, { preserveProfilePaths: true });
 
 beforeAll(() => {
@@ -28,7 +33,7 @@ beforeAll(() => {
 });
 
 describe('frodo conn list', () => {
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     '"frodo conn list": should list the connection hosts',
     async () => {
       const CMD = `frodo conn list`;
@@ -37,7 +42,7 @@ describe('frodo conn list', () => {
     }
   );
 
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     '"frodo conn list -l": should list the connection hosts, service accounts, usernames, and log API keys.',
     async () => {
       const CMD = `frodo conn list -l`;
@@ -46,7 +51,7 @@ describe('frodo conn list', () => {
     }
   );
 
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     '"frodo conn list --long": should list the connection hosts, service accounts, usernames, and log API keys.',
     async () => {
       const CMD = `frodo conn list --long`;

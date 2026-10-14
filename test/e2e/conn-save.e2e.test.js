@@ -1,6 +1,7 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 import path from 'path';
 import { getEnv, testif, normalizeSnapshotText, exec } from './utils/TestUtils';
+import { checkMasterKeyUsable } from './utils/MasterKeyGate';
 import { connection as c, amster_connection as cc } from './utils/TestConfig';
 import { writeFileSync, rmSync } from 'fs';
 
@@ -12,6 +13,10 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   path.resolve('./test/e2e/env/ConnectionsSave.json');
 process.env['FRODO_MASTER_KEY_PATH'] =
   path.resolve('./test/e2e/env/masterkey.key');
+// Key-dependent tests run only when the available key actually decrypts the
+// committed fixture -- without a usable key the suites skip instead of
+// racing frodo-lib's auto-generated key (Oct 2026 CI failures).
+const hasUsableMasterKey = checkMasterKeyUsable();
 const env = getEnv(c, { preserveProfilePaths: true });
 const classicEnv = getEnv(cc, { preserveProfilePaths: true });
 
@@ -35,7 +40,7 @@ afterAll(() => {
 });
 
 describe('frodo conn save', () => {
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     `"frodo conn save --no-validate ${c.host} ${c.user} ${c.pass}": save new connection profile using an admin account.`,
     async () => {
       const CMD = `frodo conn save --no-validate ${c.host} ${c.user} ${c.pass}`;
@@ -44,7 +49,7 @@ describe('frodo conn save', () => {
     }
   );
 
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     `"frodo conn save --no-validate --sa-id ${c.saId} --sa-jwk-file ${jwkFile} ${c.host}": save new connection profile with existing service account and without admin account.`,
     async () => {
       const CMD = `frodo conn save --no-validate --sa-id ${c.saId} --sa-jwk-file ${jwkFile} ${c.host}`;
@@ -53,7 +58,7 @@ describe('frodo conn save', () => {
     }
   );
 
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     `"frodo conn save --no-validate ${cc.host} ${cc.user} ${cc.pass}": save new classic connection profile using an admin account.`,
     async () => {
       const CMD = `frodo conn save --no-validate ${cc.host} ${cc.user} ${cc.pass}`;
@@ -62,7 +67,7 @@ describe('frodo conn save', () => {
     }
   );
 
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     `"frodo conn save --no-validate --private-key ${pkFile} --authentication-service ${cc.authService} ${cc.host}": save new classic connection profile with private key and custom authentication service.`,
     async () => {
       const CMD = `frodo conn save --no-validate --private-key ${pkFile} --authentication-service ${cc.authService} ${cc.host}`;

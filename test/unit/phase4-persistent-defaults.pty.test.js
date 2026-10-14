@@ -20,11 +20,13 @@
 
 import fs from 'fs';
 import { connection } from '../e2e/utils/TestConfig.js';
+import { checkMasterKeyUsable } from '../e2e/utils/MasterKeyGate.js';
 import {
   createShellTestHome,
   removeShellTestHome,
   runShellScenario,
 } from '../utils/ShellPty.js';
+import { testif } from '../e2e/utils/TestUtils.js';
 
 const TIMEOUT = 90000;
 
@@ -43,8 +45,13 @@ const ENV = {
   FRODO_SA_JWK: connection.saJwk,
 };
 
+// Both tests drive `frodo journey list --prompt` end to end, which reads the
+// profile's encrypted credentials on the Connection page: without a usable
+// key the run stalls there, so gate on the fixture actually decrypting.
+const hasUsableMasterKey = checkMasterKeyUsable();
+
 describe('phase 4: persistent per-command defaults', () => {
-  test(
+  testif(hasUsableMasterKey)(
     '--prompt --save-defaults persists committed options; the next run applies them',
     async () => {
       const homeDir = createShellTestHome();
@@ -122,7 +129,7 @@ describe('phase 4: persistent per-command defaults', () => {
     TIMEOUT
   );
 
-  test(
+  testif(hasUsableMasterKey)(
     'the editor footer reflects the SPACE-TOGGLED selection, not just the cursor',
     async () => {
       const homeDir = createShellTestHome();
