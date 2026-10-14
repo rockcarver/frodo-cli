@@ -31,8 +31,8 @@ export default function setup() {
         // An unspecified idpId prompts for a provider from the live system
         // (no-op outside the prompt gate) before getTokens.
         if (
-          (options.idpId || (await resolveEntityPicks(command))) &&
-          (await getTokens())
+          (await getTokens()) &&
+          (options.idpId || (await resolveEntityPicks(command)))
         ) {
           verboseMessage(
             `Deleting idp ${options.idpId} in realm "${state.getRealm()}"...`

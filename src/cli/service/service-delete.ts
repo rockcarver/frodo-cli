@@ -61,8 +61,8 @@ export default function setup() {
         // option never reaches deleteServices here -- same as before
         // in the pre-picker layout, where the error branch below handled that case).
         else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens())
+          (await getTokens()) &&
+          (options.all || (await resolveEntityPicks(command)))
         ) {
           if (options.id) {
             const outcome = await deleteService(options.id, globalConfig);

@@ -69,8 +69,8 @@ export default function setup() {
         // option never reaches deleteVariables here -- same as before
         // in the pre-picker layout, where the resolver's error handled that case).
         else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
+          (await getTokens(false, true, deploymentTypes)) &&
+          (options.all || (await resolveEntityPicks(command)))
         ) {
           if (options.variableId) {
             verboseMessage(`Deleting variable ${options.variableId}...`);

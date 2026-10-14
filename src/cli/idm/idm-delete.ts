@@ -53,8 +53,8 @@ export default function setup() {
         // An unspecified id prompts for a config entity from the live
         // system (no-op outside the prompt gate) before getTokens.
         if (
-          (options.id || (await resolveEntityPicks(command))) &&
-          (await getTokens())
+          (await getTokens()) &&
+          (options.id || (await resolveEntityPicks(command)))
         ) {
           const outcome = await deleteConfigEntityById(options.id);
           if (!outcome) process.exitCode = 1;

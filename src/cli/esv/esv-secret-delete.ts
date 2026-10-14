@@ -58,8 +58,8 @@ export default function setup() {
         // deleteSecrets here -- same as in the pre-picker layout, where the error
         // branch below handled that case).
         else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
+          (await getTokens(false, true, deploymentTypes)) &&
+          (options.all || (await resolveEntityPicks(command)))
         ) {
           if (options.secretId) {
             verboseMessage(`Deleting secret ${options.secretId}...`);

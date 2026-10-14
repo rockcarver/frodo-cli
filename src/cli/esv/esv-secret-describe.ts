@@ -55,8 +55,8 @@ export default function setup() {
         // An unspecified mandatory secretId prompts for a secret from the
         // live system (no-op outside the prompt gate) before getTokens.
         if (
-          (options.secretId || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
+          (await getTokens(false, true, deploymentTypes)) &&
+          (options.secretId || (await resolveEntityPicks(command)))
         ) {
           verboseMessage(`Describing secret ${options.secretId}...`);
           const outcome = await describeSecret(
