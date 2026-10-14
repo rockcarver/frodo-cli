@@ -97,6 +97,18 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
 }
 `;
 
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Contrast/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Contrast/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Contrast/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Copy of Zardoz/Copy of Zardoz.json 1`] = `
 {
   "_id": "e47838b5-48c9-4dea-8a84-43f4b4ea8e04",
@@ -243,6 +255,61 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
 }
 `;
 
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Copy of Zardoz/accountFooter.html 1`] = `
+"<footer>
+  <div class="container-md">
+    <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+      <div class="text-nowrap">
+        <span class="pr-1">© 2022</span>
+        <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+      </div>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Privacy Policy</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Terms of Use</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Copy of Zardoz/journeyFooter.html 1`] = `
+"<footer>
+            <div class="container-md">
+            <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+              <div class="text-nowrap">
+                <span class="pr-1">© 2022</span>
+                <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+              </div>
+              <ul class="nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Terms of Use</a>
+                </li>
+              </ul>
+            </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Copy of Zardoz/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Copy of Zardoz/journeyJustifiedContent.html 1`] = `
+"<div style="display: flex; background-color: black; height: 100vh;">
+    <div class="d-none d-md-flex justify-content-center align-items-center p-5" style="background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);
+    background-size: cover;"><h1 class="text-center display-3" style="color: rgb(255, 255, 255);">Uptime &amp; Performance Benchmarking Made Easy</h1></div>
+</div>
+
+"
+`;
+
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Highlander/Highlander.json 1`] = `
 {
   "_id": "00203891-dde0-4114-b27a-219ae0b43a61",
@@ -334,6 +401,160 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
 }
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Highlander/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6" style="color: #5e6d82">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self" style="color: #5e6d82">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Highlander/journeyFooter.html 1`] = `
+"<footer class="w-100">
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+        <div class="container w-100">
+            <div class="mt-5 py-4 border-top border-darkened">
+                <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Company
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">About Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Support
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Docs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Community
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Forum</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                            <span class="pr-1">&copy; 2021</span>
+                            <a href="#" class="text-decoration-none" target="_self">Highlander, Inc.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Highlander/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
 `;
 
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/NoAccess/NoAccess.json 1`] = `
@@ -465,6 +686,18 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
 }
 `;
 
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/NoAccess/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#"target="_blank"class="text-body">My Company, Inc</a><a href="#"target="_blank"style="color:#0000ee"class="pl-3 text-body">Privacy Policy</a><a href="#"target="_blank"style="color:#0000ee"class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/NoAccess/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#"target="_blank"class="text-body">My Company, Inc</a><a href="#"target="_blank"style="color:#0000ee"class="pl-3 text-body">Privacy Policy</a><a href="#"target="_blank"style="color:#0000ee"class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/NoAccess/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Robroy/Robroy.json 1`] = `
 {
   "_id": "b82755e8-fe9a-4d27-b66b-45e37ae12345",
@@ -560,6 +793,196 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
 }
 `;
 
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Robroy/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Robroy/journeyFooter.html 1`] = `
+"<footer class="w-100">
+            <div
+              class="
+                d-flex
+                flex-column flex-md-row
+                justify-content-center
+                align-items-center
+                py-4
+              "
+            >
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Company
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >About Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Contact Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Support
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Help Center</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Docs</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Community
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Facebook</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Twitter</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Forum</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div
+                        class="
+                          d-flex
+                          align-items-center
+                          justify-content-lg-end
+                          py-4 py-lg-0
+                        "
+                      >
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self"
+                          >Rob Roy Markets, Inc</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Robroy/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Robroy/journeyJustifiedContent.html 1`] = `"<img src="https://cdn.forgerock.com/platform/themes/robroy/illustration-robroy.svg" class="w-100">"`;
+
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Starter Theme/Starter Theme.json 1`] = `
 {
   "_id": "86ce2f64-586d-44fe-8593-b12a85aac68d",
@@ -651,6 +1074,18 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
   "textColor": "#ffffff",
 }
 `;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Starter Theme/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Starter Theme/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Starter Theme/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
 
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Zardoz/Zardoz.json 1`] = `
 {
@@ -747,6 +1182,61 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
 }
 `;
 
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Zardoz/accountFooter.html 1`] = `
+"<footer>
+  <div class="container-md">
+    <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+      <div class="text-nowrap">
+        <span class="pr-1">© 2022</span>
+        <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+      </div>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Privacy Policy</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Terms of Use</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Zardoz/journeyFooter.html 1`] = `
+"<footer>
+            <div class="container-md">
+            <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+              <div class="text-nowrap">
+                <span class="pr-1">© 2022</span>
+                <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+              </div>
+              <ul class="nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Terms of Use</a>
+                </li>
+              </ul>
+            </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Zardoz/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/alpha/themes/Zardoz/journeyJustifiedContent.html 1`] = `
+"<div style="display: flex; background-color: black; height: 100vh;">
+    <div class="d-none d-md-flex justify-content-center align-items-center p-5" style="background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);
+    background-size: cover;"><h1 class="text-center display-3" style="color: rgb(255, 255, 255);">Uptime &amp; Performance Benchmarking Made Easy</h1></div>
+</div>
+
+"
+`;
+
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Contrast/Contrast.json 1`] = `
 {
   "_id": "bf4828bd-6e24-41ba-8773-0a4a349399d3",
@@ -840,6 +1330,18 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
 }
 `;
 
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Contrast/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Contrast/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Contrast/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Highlander/Highlander.json 1`] = `
 {
   "_id": "f2bdd040-2e46-4602-a0ab-24ed52103cdc",
@@ -931,6 +1433,160 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
 }
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Highlander/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6" style="color: #5e6d82">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self" style="color: #5e6d82">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Highlander/journeyFooter.html 1`] = `
+"<footer class="w-100">
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+        <div class="container w-100">
+            <div class="mt-5 py-4 border-top border-darkened">
+                <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Company
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">About Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Support
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Docs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Community
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Forum</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                            <span class="pr-1">&copy; 2021</span>
+                            <a href="#" class="text-decoration-none" target="_self">Highlander, Inc.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Highlander/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
 `;
 
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Robroy/Robroy.json 1`] = `
@@ -1028,6 +1684,196 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
 }
 `;
 
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Robroy/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Robroy/journeyFooter.html 1`] = `
+"<footer class="w-100">
+            <div
+              class="
+                d-flex
+                flex-column flex-md-row
+                justify-content-center
+                align-items-center
+                py-4
+              "
+            >
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Company
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >About Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Contact Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Support
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Help Center</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Docs</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Community
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Facebook</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Twitter</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Forum</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div
+                        class="
+                          d-flex
+                          align-items-center
+                          justify-content-lg-end
+                          py-4 py-lg-0
+                        "
+                      >
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self"
+                          >Rob Roy Markets, Inc</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Robroy/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Robroy/journeyJustifiedContent.html 1`] = `"<img src="https://cdn.forgerock.com/platform/themes/robroy/illustration-robroy.svg" class="w-100">"`;
+
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Starter Theme/Starter Theme.json 1`] = `
 {
   "_id": "b7d8de5a-f788-4ac8-b80a-3220a5f977ec",
@@ -1119,6 +1965,18 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
   "textColor": "#ffffff",
 }
 `;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Starter Theme/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Starter Theme/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Starter Theme/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
 
 exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Zardoz/Zardoz.json 1`] = `
 {
@@ -1213,4 +2071,59 @@ exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-man
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
 }
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Zardoz/accountFooter.html 1`] = `
+"<footer>
+  <div class="container-md">
+    <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+      <div class="text-nowrap">
+        <span class="pr-1">© 2022</span>
+        <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+      </div>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Privacy Policy</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Terms of Use</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Zardoz/journeyFooter.html 1`] = `
+"<footer>
+            <div class="container-md">
+            <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+              <div class="text-nowrap">
+                <span class="pr-1">© 2022</span>
+                <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+              </div>
+              <ul class="nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Terms of Use</a>
+                </li>
+              </ul>
+            </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Zardoz/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
+exports[`frodo config-manager pull themes -D cmThemesExportDir "frodo config-manager pull test": should receive access tokens": cmThemesExportDir/realms/bravo/themes/Zardoz/journeyJustifiedContent.html 1`] = `
+"<div style="display: flex; background-color: black; height: 100vh;">
+    <div class="d-none d-md-flex justify-content-center align-items-center p-5" style="background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);
+    background-size: cover;"><h1 class="text-center display-3" style="color: rgb(255, 255, 255);">Uptime &amp; Performance Benchmarking Made Easy</h1></div>
+</div>
+
+"
 `;

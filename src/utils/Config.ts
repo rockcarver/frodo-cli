@@ -22,6 +22,7 @@ import {
 } from '../ops/MappingOps';
 import { getCustomNodeExportFromFile } from '../ops/NodeOps';
 import { getScriptExportByScriptFile } from '../ops/ScriptOps';
+import { getThemeExportFromFile } from '../ops/ThemeOps';
 import { errorHandler } from '../ops/utils/OpsUtils';
 import { printMessage } from './Console';
 
@@ -175,6 +176,7 @@ export async function getConfig(
   const customNodefiles = jsonFiles.filter((f) =>
     f.path.endsWith('.nodeTypes.json')
   );
+  const themeFiles = jsonFiles.filter((f) => f.path.endsWith('.theme.json'));
   const workflowFiles = jsonFiles.filter((f) =>
     f.path.endsWith('.workflow.json')
   );
@@ -313,6 +315,19 @@ export async function getConfig(
     const nodeExport = getCustomNodeExportFromFile(f.path);
     Object.entries(nodeExport.nodeTypes).forEach(([id, node]) => {
       (exportConfig as FullGlobalExportInterface).nodeTypes[id] = node;
+    });
+  }
+  // Handle extracted theme HTML
+  if (
+    themeFiles.length > 0 &&
+    !(exportConfig as FullRealmExportInterface).theme
+  ) {
+    (exportConfig as FullRealmExportInterface).theme = {};
+  }
+  for (const f of themeFiles) {
+    const themeExport = getThemeExportFromFile(f.path);
+    Object.entries(themeExport.theme).forEach(([id, theme]) => {
+      (exportConfig as FullRealmExportInterface).theme[id] = theme;
     });
   }
   // Handle extracted workflow scripts

@@ -1,4 +1,11 @@
 {
+  "meta": {
+    "exportDate": "2026-09-29T19:05:07.178Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.9.1 [v24.18.0]",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
   "theme": {
     "63e19668-909f-479e-83d7-be7a01cd8187": {
       "_id": "63e19668-909f-479e-83d7-be7a01cd8187",
@@ -15,7 +22,7 @@
       "accountCardTabActiveBorderColor": "#109cf1",
       "accountCardTabActiveColor": "#e4f4fd",
       "accountCardTextColor": "#5e6d82",
-      "accountFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2021</span>\n<a href=\"#\"target=\"_blank\"class=\"text-body\">My Company, Inc</a><a href=\"#\"target=\"_blank\"style=\"color:#0000ee\"class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\"target=\"_blank\"style=\"color:#0000ee\"class=\"pl-3 text-body\">Terms & Conditions</a></div>",
+      "accountFooter": "file://accountFooter.theme.html",
       "accountFooterEnabled": false,
       "accountNavigationBackgroundColor": "#ffffff",
       "accountNavigationTextColor": "#455469",
@@ -74,9 +81,9 @@
       "journeyCardShadow": 3,
       "journeyCardTextColor": "#5e6d82",
       "journeyCardTitleColor": "#23282e",
-      "journeyFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2021</span>\n<a href=\"#\"target=\"_blank\"class=\"text-body\">My Company, Inc</a><a href=\"#\"target=\"_blank\"style=\"color:#0000ee\"class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\"target=\"_blank\"style=\"color:#0000ee\"class=\"pl-3 text-body\">Terms & Conditions</a></div>",
+      "journeyFooter": "file://journeyFooter.theme.html",
       "journeyFooterEnabled": false,
-      "journeyHeader": "<div class=\"d-flex justify-content-center py-4 flex-grow-1\">Header Content</div>",
+      "journeyHeader": "file://journeyHeader.theme.html",
       "journeyHeaderEnabled": false,
       "journeyInputBackgroundColor": "#ffffff",
       "journeyInputBorderColor": "#c0c9d5",
