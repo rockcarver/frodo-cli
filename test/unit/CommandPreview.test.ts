@@ -140,6 +140,95 @@ describe('isCommandReady', () => {
   });
 });
 
+describe('live previews with a readiness THUNK (footer color 2026-10-14)', () => {
+  /**
+   * User decision 2026-10-14 (reversing "green only after commit"):
+   * green = the command as-committed-now would be VALID, including while
+   * the user is merely HIGHLIGHTING an entity -- before any commit. The
+   * live previews therefore re-derive readiness per render, AFTER the
+   * highlight shadow is applied: a pick that satisfies the last gap
+   * (e.g. the one-of member) flips the footer green in the same frame.
+   * A snapshot taken at picker-open would go stale the moment the shadow
+   * lands -- these pins force the thunk through the shadow order.
+   */
+  function makeOneOfCommand(): Command {
+    const command = new Command('delete');
+    command.addOption(new Option('-i, --secret-id <id>', 'Secret id'));
+    command.action(async () => {});
+    return command;
+  }
+
+  it('liveOptionPreview re-derives readiness AFTER the shadow lands', () => {
+    const command = makeOneOfCommand();
+    command.parse([], { from: 'user' });
+    // The thunk reads the command's LIVE state -- exactly what
+    // commandReadinessFor does (jest's NO_COLOR strips SGR, so the pin
+    // observes the SHADOW ORDER instead of the color bytes: did the
+    // thunk run with the highlighted value already applied?).
+    let seenOptionValue: string | undefined;
+    const preview = liveOptionPreview(
+      command,
+      'secretId',
+      () => {
+        seenOptionValue = command.getOptionValue('secretId');
+        return { missingMandatoryOptionLabels: [], oneOfUnsatisfied: false };
+      }
+    );
+    preview('esv-beta');
+    // The thunk saw the SHADOWED command (the value in place), not the
+    // picker-open pristine state -- readiness is evaluated on the
+    // command as-shown, per the 2026-10-14 footer-color decision.
+    expect(seenOptionValue).toBe('esv-beta');
+    // And the committed state stays untouched after the render.
+    expect(command.getOptionValue('secretId')).toBeUndefined();
+  });
+
+  it('livePositionalPreview re-derives readiness AFTER the shadow lands', () => {
+    setDeploymentTypeForPreview('cloud');
+    const command = makeJourneyListCommand();
+    command.parse([], { from: 'user' });
+    // Same shadow-order pin for the positional variant: the thunk must
+    // observe the shadowed positional, and a readiness flip between
+    // renders must reach the SAME callback (no picker-open snapshot).
+    const seen: (string | undefined)[] = [];
+    let ready = false;
+    const preview = livePositionalPreview(command, 'realm', () => {
+      seen.push(command.processedArgs?.[1]);
+      return {
+        missingMandatoryOptionLabels: [],
+        oneOfUnsatisfied: false,
+        ...(ready ? {} : { connectionResolved: false }),
+      };
+    });
+    preview('bravo');
+    ready = true;
+    preview('charlie');
+    // Both renders re-derived through the thunk, each seeing its own
+    // highlight shadowed in.
+    expect(seen).toEqual(['bravo', 'charlie']);
+    // The committed positional is untouched after both renders (the
+    // realm sentinel default commander filled at parse).
+    expect(command.processedArgs[1]).toBe('__default__realm__');
+  });
+
+  it('a static snapshot input still renders (ad-hoc callers, tests)', () => {
+    const command = makeOneOfCommand();
+    command.parse(['-i', 'alpha'], { from: 'user' });
+    const preview = liveOptionPreview(command, 'secretId', {
+      missingMandatoryOptionLabels: [],
+      oneOfUnsatisfied: false,
+    });
+    expect(preview('beta')).toContain('delete --secret-id beta');
+  });
+
+  it('a thunk returning undefined renders nothing (prompting declined mid-flight)', () => {
+    const command = makeOneOfCommand();
+    command.parse([], { from: 'user' });
+    const preview = liveOptionPreview(command, 'secretId', () => undefined);
+    expect(preview('beta')).toBe('');
+  });
+});
+
 describe('livePositionalPreview (shadow-restore discipline)', () => {
   const ALWAYS_READY = {
     missingMandatoryOptionLabels: [] as string[],

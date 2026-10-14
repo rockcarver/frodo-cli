@@ -596,6 +596,59 @@ describe('phase 5 slice 4: command preview', () => {
       },
       TIMEOUT
     );
+
+    test(
+      'entity picker HIGHLIGHT (valid as-committed-now, before enter): green, upright',
+      async () => {
+        // User decision 2026-10-14 (reversing "green only after commit"):
+        // green = the command as-committed-now would be VALID, including
+        // while the user is merely HIGHLIGHTING an entity. Arrowing
+        // through the secret list shadows --secret-id into the footer;
+        // that shadow satisfies the one-of group, so the footer flips
+        // green BEFORE any [ENTER] -- a valid-looking command reads
+        // valid. (The one-of PICKER stays red while a valued member is
+        // highlighted: its value step is still owed -- no fake commit.)
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: { ...ENV, ...COLOR_ENV },
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'key', name: 'enter' }, // -i: defers to the entity pick
+              {
+                type: 'wait_plain',
+                regex: 'Select secret to act on',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 500 }, // frame settle (slice-1 lesson)
+              { type: 'key', name: 'down' }, // highlight, NO enter
+              { type: 'sleep', ms: 500 },
+              { type: 'capture', label: 'highlighted' },
+            ],
+          });
+          const footer = colorOf(footerOf(result.captures.highlighted.raw));
+          // The highlighted secret's id is shadowed into --secret-id.
+          expect(footer.text).toMatch(
+            /^frodo esv secret delete --secret-id \S+/
+          );
+          expect(footer).toMatchObject({
+            green: true,
+            red: false,
+            italic: false,
+          });
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
   });
 });
 
