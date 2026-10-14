@@ -80,6 +80,54 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
   });
+
+  it('a failing loader declines the pick (false), never a satisfied group', async () => {
+    // Regression pin for the 2026-10-14 incident: resolveEntityPicks used to
+    // return true on loader failure, and the delete-family actions'
+    // `(options.all || (await resolveEntityPicks(command)))` then fell
+    // through to the DESTRUCTIVE --all branch. A failing loader must
+    // behave like escape: false, option untouched.
+    // The gate needs a TTY; fake it for this one test (jest stdio is not).
+    const stdin = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY');
+    const stdout = Object.getOwnPropertyDescriptor(process.stdout, 'isTTY');
+    Object.defineProperty(process.stdin, 'isTTY', { value: true });
+    Object.defineProperty(process.stdout, 'isTTY', { value: true });
+    const { command } = makeCommand();
+    deferEntityPicks(command, [
+      entityPick<Entity>({
+        name: 'secretId',
+        kind: 'secret',
+        load: async () => {
+          throw new Error('transient 400');
+        },
+        label: (entity) => entity._id,
+      }),
+    ]);
+    try {
+      const result = await resolveEntityPicks(command);
+      expect(result).toBe(false);
+      expect(command.getOptionValue('secretId')).toBeUndefined();
+    } finally {
+      // isTTY handling differs per stream object: restore the original
+      // descriptor when there was one; otherwise delete the faked own
+      // property so true cannot leak into later suites in this worker
+      // (the CI PromptGateState failure). Either way, never let a restore
+      // failure mask the test result.
+      const restore = (
+        stream: NodeJS.Process['stdin'] | NodeJS.Process['stdout'],
+        descriptor: PropertyDescriptor | undefined
+      ) => {
+        try {
+          if (descriptor) Object.defineProperty(stream, 'isTTY', descriptor);
+          else delete (stream as { isTTY?: boolean }).isTTY;
+        } catch {
+          /* non-configurable stream mock: leave as-is */
+        }
+      };
+      restore(process.stdin, stdin);
+      restore(process.stdout, stdout);
+    }
+  });
 });
 
 describe('entity pick registry', () => {

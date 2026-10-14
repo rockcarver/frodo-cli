@@ -97,6 +97,14 @@ const NON_SERIALIZABLE_OPTIONS = new Set([
  * (env/profile/interactive all count -- the connection positionals can
  * legitimately stay empty while the connection is fully resolved, so the
  * resolver owns this truth; see isCommandReady).
+ *
+ * FOOTER COLOR (user decision 2026-10-14, reversing the "green only after
+ * commit" rule): green = the command as-committed-now would be VALID --
+ * including while the user is merely HIGHLIGHTING an entity in a picker,
+ * before any <enter> commits (the live shadow makes the footer a preview
+ * of what the command WOULD be); red = genuinely incomplete (no host, no
+ * credentials, a missing mandatory option, an unsatisfied one-of group).
+ * Evaluated live on every render -- hence the readiness thunk below.
  */
 export type CommandReadiness = {
   missingMandatoryOptionLabels: string[];
@@ -108,6 +116,22 @@ export type CommandReadiness = {
    */
   connectionResolved?: boolean;
 };
+
+/**
+ * A readiness snapshot, or a provider re-deriving it per render. The
+ * static form is for ad-hoc callers whose readiness genuinely can't
+ * change (the final print, tests); the LIVE pickers take the thunk form
+ * so a highlighted value that completes the command reads green in the
+ * same frame -- a snapshot taken at picker-open would go stale the
+ * moment the shadow satisfies the last gap (user decision 2026-10-14).
+ */
+export type ReadinessInput =
+  CommandReadiness | (() => CommandReadiness | undefined);
+
+/** Resolves a ReadinessInput to a snapshot (undefined when the provider declines). */
+function resolveReadiness(input: ReadinessInput): CommandReadiness | undefined {
+  return typeof input === 'function' ? input() : input;
+}
 
 /**
  * Serializes the command as it would be typed on the command line today
@@ -254,7 +278,7 @@ function defaultToValue(highlighted: unknown): string | undefined {
 export function livePositionalPreview(
   command: Command,
   positionalName: string,
-  readiness: CommandReadiness
+  readiness: ReadinessInput
 ): (highlighted: unknown) => string {
   const index = command.registeredArguments.findIndex(
     (argument) => argument.name() === positionalName
@@ -268,13 +292,29 @@ export function livePositionalPreview(
       const committed = command.processedArgs[index];
       command.processedArgs[index] = value;
       try {
-        return renderCommandPreview(command, readiness);
+        return renderWithCurrentReadiness(command, readiness);
       } finally {
         command.processedArgs[index] = committed;
       }
     }
-    return renderCommandPreview(command, readiness);
+    return renderWithCurrentReadiness(command, readiness);
   };
+}
+
+/**
+ * Renders the preview with readiness derived NOW: the thunk form
+ * re-derives after the caller's highlight shadow is in place, so the
+ * color answers "is the command valid as shown right now?" (user
+ * decision 2026-10-14). A provider that declines (no prompting)
+ * renders nothing.
+ */
+function renderWithCurrentReadiness(
+  command: Command,
+  readiness: ReadinessInput
+): string {
+  const current = resolveReadiness(readiness);
+  if (!current) return '';
+  return renderCommandPreview(command, current);
 }
 
 /**
@@ -293,17 +333,21 @@ export function livePositionalPreview(
 export function liveOptionPreview(
   command: Command,
   optionName: string,
-  readiness: CommandReadiness,
-  toValue: (highlighted: unknown) => string | undefined = defaultToValue
+  readiness: ReadinessInput,
+  toValue: (highlighted: unknown) => string | true | undefined = defaultToValue
 ): (highlighted: unknown) => string {
   return (highlighted) => {
     const value = toValue(highlighted);
-    if (value && value.length > 0) {
+    // A real boolean `true` shadows the flag exactly as the committed
+    // pick would write it (setOptionValueWithSource(name, true)) --
+    // serializeCommand renders flag-alone, keeping the footer copy-
+    // paste-faithful ("--all", not "--all true").
+    if (value === true || (value && value.length > 0)) {
       const committed = command.getOptionValue(optionName);
       const committedSource = command.getOptionValueSource(optionName);
       command.setOptionValueWithSource(optionName, value, 'cli');
       try {
-        return renderCommandPreview(command, readiness);
+        return renderWithCurrentReadiness(command, readiness);
       } finally {
         command.setOptionValueWithSource(
           optionName,
@@ -312,7 +356,7 @@ export function liveOptionPreview(
         );
       }
     }
-    return renderCommandPreview(command, readiness);
+    return renderWithCurrentReadiness(command, readiness);
   };
 }
 
@@ -328,11 +372,11 @@ export function liveOptionPreview(
  */
 export function liveMultiOptionPreview(
   command: Command,
-  readiness: CommandReadiness
+  readiness: ReadinessInput
 ): (selectedAttributeNames: unknown[]) => string {
   return (selectedAttributeNames) => {
     if (!Array.isArray(selectedAttributeNames)) {
-      return renderCommandPreview(command, readiness);
+      return renderWithCurrentReadiness(command, readiness);
     }
     const shadows: {
       optionName: string;
@@ -383,7 +427,7 @@ export function liveMultiOptionPreview(
       );
     }
     try {
-      return renderCommandPreview(command, readiness);
+      return renderWithCurrentReadiness(command, readiness);
     } finally {
       for (const shadow of shadows.reverse()) {
         command.setOptionValueWithSource(

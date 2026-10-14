@@ -358,8 +358,13 @@ describe('phase 5 slice 4: command preview', () => {
         // print behind. The print's presence + placement is
         // covered by prompt-erase.pty.test.js's realm-list flow
         // (auth succeeds there).
+        // The LIVE footer legitimately shows `-a` while the picker's
+        // boolean member is highlighted (green-when-valid semantics);
+        // the authoring print is a STANDALONE line, so anchor on the
+        // line start -- a mid-frame footer fragment carries the panel
+        // wall directly before it and does not match.
         expect(result.captures.final.plain).not.toMatch(
-          /frodo esv secret delete -a/
+          /^frodo esv secret delete -a$/m
         );
       } finally {
         removeShellTestHome(homeDir);
@@ -489,6 +494,48 @@ describe('phase 5 slice 4: command preview', () => {
     );
 
     test(
+      'one-of picker boolean member HIGHLIGHT: green, flag alone (copy-paste-faithful)',
+      async () => {
+        // The boolean shadow maps to real `true` (what the committed pick
+        // writes), so serializeCommand renders the flag ALONE -- the
+        // re-typable short spelling `-a`, not `--all true` (regression pin
+        // for the shadow-as-string bug, 2026-10-14). Green per the
+        // valid-as-committed-now rule: the shadowed flag satisfies the
+        // one-of group before any [ENTER].
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: { ...ENV, ...COLOR_ENV },
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 400 },
+              { type: 'key', name: 'down' }, // highlight -a, NO enter
+              { type: 'sleep', ms: 400 },
+              { type: 'capture', label: 'highlighted' },
+            ],
+          });
+          const footer = colorOf(footerOf(result.captures.highlighted.raw));
+          expect(footer.text).toBe('frodo esv secret delete -a');
+          expect(footer).toMatchObject({
+            green: true,
+            red: false,
+            italic: false,
+          });
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
       'connection profile picker with no host chosen: red + italic',
       async () => {
         const homeDir = createShellTestHome();
@@ -590,6 +637,119 @@ describe('phase 5 slice 4: command preview', () => {
             red: false,
             italic: false,
           });
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'entity picker HIGHLIGHT (valid as-committed-now, before enter): green, upright',
+      async () => {
+        // User decision 2026-10-14 (reversing "green only after commit"):
+        // green = the command as-committed-now would be VALID, including
+        // while the user is merely HIGHLIGHTING an entity. Arrowing
+        // through the secret list shadows --secret-id into the footer;
+        // that shadow satisfies the one-of group, so the footer flips
+        // green BEFORE any [ENTER] -- a valid-looking command reads
+        // valid. (The one-of PICKER stays red while a valued member is
+        // highlighted: its value step is still owed -- no fake commit.)
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: { ...ENV, ...COLOR_ENV },
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'key', name: 'enter' }, // -i: defers to the entity pick
+              {
+                type: 'wait_plain',
+                regex: 'Select secret to act on',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 500 }, // frame settle (slice-1 lesson)
+              { type: 'key', name: 'down' }, // highlight, NO enter
+              { type: 'sleep', ms: 500 },
+              { type: 'capture', label: 'highlighted' },
+            ],
+          });
+          const footer = colorOf(footerOf(result.captures.highlighted.raw));
+          // The highlighted secret's id is shadowed into --secret-id.
+          expect(footer.text).toMatch(
+            /^frodo esv secret delete --secret-id \S+/
+          );
+          expect(footer).toMatchObject({
+            green: true,
+            red: false,
+            italic: false,
+          });
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'entity picker EMPTY FILTER: preview renders committed state, no crash',
+      async () => {
+        // Regression pin (2026-10-14): typing a filter that matches zero
+        // rows used to crash the live footer preview with "Cannot read
+        // properties of undefined (reading '_id')" -- the highlighted
+        // entity is undefined on an empty list and the label callback
+        // dereferenced it. Now the callback maps undefined -> undefined
+        // (committed-state render) and the prompt shows its no-matches
+        // hint. The process must survive, still on the picker.
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: ENV,
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'key', name: 'enter' }, // -i: defers to the entity pick
+              {
+                type: 'wait_plain',
+                regex: 'Select secret to act on',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 500 }, // frame settle (slice-1 lesson)
+              // Scrollback holds earlier frames (the one-of picker's
+              // highlighted-member footer shadow, the commit echo) that
+              // would trip the footer-line assertions -- clear it, then
+              // type the zero-match filter so the capture holds only the
+              // empty-filter frame (the send's re-render repopulates).
+              { type: 'clear_output' },
+              { type: 'send', text: '9no-match-9' }, // '9' matches no secret id: zero rows on the FIRST keystroke
+              { type: 'sleep', ms: 700 },
+              { type: 'capture', label: 'empty' },
+            ],
+          });
+          const empty = result.captures.empty;
+          // The no-matches hint renders (list is empty, not crashed).
+          expect(empty.plain).toMatch(/no matches -- backspace to edit/);
+          // The crash string must never appear.
+          expect(empty.plain).not.toMatch(/Cannot read properties/);
+          // With nothing highlighted, the footer shows the COMMITTED
+          // state: the bare command line, with no --secret-id shadow on
+          // it. (A bare substring ban would trip over the one-of picker
+          // rows' "--secret-id <secret-id>" help text still in the
+          // scrollback -- anchor on the footer line itself instead.)
+          expect(empty.plain).toMatch(/^frodo esv secret delete$/m);
+          expect(empty.plain).not.toMatch(/^frodo esv secret delete --secret-id/m);
         } finally {
           removeShellTestHome(homeDir);
         }

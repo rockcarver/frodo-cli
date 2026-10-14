@@ -162,12 +162,18 @@ the command being authored as a footer in every prompt. The footer is
 LIVE — a function-form `preview` config is re-invoked on every render
 with the highlighted choice, and the pickers shadow the highlighted
 value into a throwaway copy of the command's positional/option for that
-render only. Red + cursive while mandatory input is missing, green when
-ready. The color reflects the COMMITTED state; the highlight only moves
-the shown token — so the connection profile picker and the credentials
-page stay red until the connection resolves (the resolver records it as
-unresolved before those prompts open), and the footer turns green on
-the first prompt after. On conclusion the resolved command prints once, in green,
+render only. Red + cursive while the command is genuinely incomplete
+(no host, no credentials, a missing mandatory option, an unsatisfied
+one-of group), green when the command as-committed-now would be valid.
+The color is evaluated per render against the SHADOWED command — user
+decision 2026-10-14, reversing the earlier "green only after commit"
+rule: a valid-looking command must read valid, so highlighting a secret
+in the entity picker flips the footer green before any [ENTER] (the
+readiness thunk re-derives after the shadow is applied). Genuinely
+incomplete stages stay red — the connection profile picker and the
+credentials page (the resolver records the connection as unresolved
+before those prompts open, and no highlight can resolve it). On
+conclusion the resolved command prints once, in green,
 directly above the action's results — the copy-paste moment.
 
 Serialization rules (`serializeCommand`): exactly the tokens a user

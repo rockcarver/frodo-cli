@@ -442,10 +442,11 @@ async function selectWithEditorRouting<Value>(
 ): Promise<Value | typeof ESCAPE> {
   const hint = editableOptionsHint(command);
   // Preview discipline: callers pass their own (a LIVE callback when the
-  // pick maps onto a command token); the default stays the static
-  // committed-state render, refreshed per picker OPEN so it reflects
-  // values filled since the last prompt.
-  const preview = config.preview ?? commandPreviewFor(command);
+  // pick maps onto a command token); the default is a static-committed-
+  // state render wrapped as a callback, re-rendered on EVERY redraw --
+  // so values filled since the last prompt (including by the editor's
+  // return loop above) show immediately instead of one picker-open late.
+  const preview = config.preview ?? (() => commandPreviewFor(command) ?? '');
   for (;;) {
     const choice = await escapableSelect<Value>({
       ...config,
@@ -524,18 +525,21 @@ export function commandReadinessFor(
  * LIVE preview callbacks for `command`'s pickers (the footer shows what
  * the user is INFLUENCING -- arrowing through a list re-renders the
  * command with the highlighted value shadowed in). Built fresh per
- * picker open so the readiness snapshot (mandatory/one-of state at that
- * moment) is current; the callbacks stay valid across the picker's
- * renders. Undefined when prompting is disallowed -- same gate as
- * commandPreviewFor.
+ * picker open; the readiness THUNK re-derives per render (footer color
+ * answers "valid as shown right now" -- user decision 2026-10-14: a
+ * highlighted value that completes the command reads green before any
+ * commit), so the callbacks stay valid across the picker's renders even
+ * as mandatory/one-of state moves. Undefined when prompting is
+ * disallowed -- same gate as commandPreviewFor.
  */
 export function livePositionalPreviewFor(
   command: Command,
   positionalName: string
 ): ((highlighted: unknown) => string) | undefined {
-  const readiness = commandReadinessFor(command);
-  if (!readiness) return undefined;
-  return livePositionalPreview(command, positionalName, readiness);
+  if (!commandReadinessFor(command)) return undefined;
+  return livePositionalPreview(command, positionalName, () =>
+    commandReadinessFor(command)
+  );
 }
 
 export function liveOptionPreviewFor(
@@ -543,9 +547,13 @@ export function liveOptionPreviewFor(
   optionName: string,
   toValue?: (highlighted: unknown) => string | undefined
 ): ((highlighted: unknown) => string) | undefined {
-  const readiness = commandReadinessFor(command);
-  if (!readiness) return undefined;
-  return liveOptionPreview(command, optionName, readiness, toValue);
+  if (!commandReadinessFor(command)) return undefined;
+  return liveOptionPreview(
+    command,
+    optionName,
+    () => commandReadinessFor(command),
+    toValue
+  );
 }
 
 /**
@@ -689,17 +697,25 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     // is a boolean-resolution (selecting the member satisfies the group);
     // the value step below fills it for valued members. `true` shadowed
     // with source 'cli' serializes the flag alone -- exactly the token
-    // the committed pick produces for boolean members.
-    const readiness = commandReadinessFor(command);
+    // the committed pick produces for boolean members. Readiness re-
+    // derives per render: with a boolean member highlighted the group
+    // reads SATISFIED in the same frame (green before any commit).
     const picked = await selectWithEditorRouting(command, {
       message: `Choose ${subject}:`,
-      ...(readiness
+      ...(commandReadinessFor(command)
         ? {
             preview: (highlighted: unknown) => {
               const member = memberOptions.find(
                 (candidate) => candidate.name === highlighted
               );
-              if (!member) return renderCommandPreview(command, readiness);
+              // The gate above ran commandReadinessFor once; it can only
+              // have become truthier since (values fill, none clear), so
+              // the render-time re-derive is always defined here.
+              const readiness = commandReadinessFor(command);
+              if (!member || !readiness)
+                return readiness
+                  ? renderCommandPreview(command, readiness)
+                  : '';
               // Boolean members shadow `true` (the flag alone serializes
               // -- the exact committed token); valued members shadow
               // nothing (their flag needs a value the NEXT step collects
@@ -708,8 +724,8 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
               return liveOptionPreview(
                 command,
                 member.name,
-                readiness,
-                isBoolean ? () => 'true' : () => undefined
+                () => commandReadinessFor(command),
+                isBoolean ? () => true : () => undefined
               )(highlighted);
             },
           }
@@ -825,6 +841,10 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
       // positional -- the footer shows the command's host token (and the
       // connection page's later prompts) moving with the cursor. The
       // "enter manually" sentinel maps to undefined (committed state).
+      // Readiness stays SNAPSHOT here on purpose: the connection flag is
+      // false while this picker is open (nothing is resolved yet), and
+      // no highlight can change that -- the footer reads red until a
+      // host commits, which is exactly the incomplete state it is.
       const readiness = commandReadinessFor(command);
       const choice = await selectWithEditorRouting<
         string | typeof ENTER_MANUALLY
@@ -1226,11 +1246,14 @@ async function runInvocationEditor(command: Command): Promise<void> {
     // LIVE footer over the SELECTION (not the cursor): every space-
     // toggled option renders as its flag -- booleans as the flag alone,
     // valued options as flag + value placeholder while being valued.
-    // The committed state shows when nothing is selected.
+    // The committed state shows when nothing is selected. Readiness
+    // re-derives per render: a boolean toggle that satisfies the last
+    // mandatory/one-of gap flips the footer green in the same frame.
     preview: (() => {
-      const readiness = commandReadinessFor(command);
-      if (!readiness) return undefined;
-      return liveMultiOptionPreview(command, readiness);
+      if (!commandReadinessFor(command)) return undefined;
+      return liveMultiOptionPreview(command, () =>
+        commandReadinessFor(command)
+      );
     })(),
     // Space on a VALUED option opens the prompt's INLINE value editor
     // (user feedback 2026-10-12: marking --retry showed a <placeholder>

@@ -34,10 +34,14 @@
  * Escape backs out of a picker without setting anything -- callers treat
  * that as "declined to run" and return (same shape as a failed
  * getTokens()). A returned `false` from `resolveEntityPicks` is the
- * caller's signal to stop.
+ * caller's signal to stop -- that includes a failing loader, which must
+ * never read as "picks satisfied" (the delete-family actions'
+ * `(options.all || (await resolveEntityPicks(command)))` would otherwise
+ * fall through to delete-all on a transient read error).
  */
 
 import { Command } from 'commander';
+import { printError } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
@@ -45,10 +49,10 @@ import { canPrompt } from './PromptGateState';
 
 /**
  * Loads the candidate entities for a picker. Returns the raw skeletons;
- * `label`/`description` turn an entity into the picker row. Errors
- * (host unreachable, permission denied) resolve to an empty list rather
- * than throwing -- the action's own error path handles a failing
- * connection better than a picker-side stack trace.
+ * `label`/`description` turn an entity into the picker row. A failing load
+ * (host unreachable, permission denied) DECLINES the pick: resolveEntityPicks
+ * returns false so the command stops instead of falling through to its
+ * destructive --all branch.
  */
 export type EntityPickLoader<T> = () => Promise<T[]>;
 
@@ -137,8 +141,15 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
     let entities: unknown[];
     try {
       entities = await pick.load();
-    } catch {
-      return true; // loader failure: leave the action's own error path
+    } catch (error) {
+      // Loader failure is a DECLINED pick, not a satisfied one: returning
+      // true here lets `(options.all || (await resolveEntityPicks(...)))`
+      // fall through to the destructive --all branch (real incident
+      // 2026-10-14: a transient 400 on the secrets-list read made
+      // `esv secret delete` run delete-all on a live tenant). False =
+      // "stop without running the action body", same contract as escape.
+      printError(error as Error, `Error reading ${pick.kind}s`);
+      return false;
     }
     if (entities.length === 0) return true;
     if (entities.length === 1) {
@@ -162,9 +173,12 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
         // the real apply writes) shadows the target option per render,
         // so the footer shows the command gaining that pick BEFORE
         // <enter> commits. `pick.label` maps entity -> option value --
-        // the same mapping the committed apply uses.
+        // the same mapping the committed apply uses. An empty filtered
+        // list highlights nothing: the callback then renders the
+        // committed state (undefined -> undefined) instead of crashing
+        // on the spec's `entity._id`-style label.
         preview: liveOptionPreviewFor(command, pick.name, (entity) =>
-          pick.label(entity)
+          entity === undefined ? undefined : pick.label(entity)
         ),
         choices: entities.map((entity) => {
           const description = pick.description?.(entity);
