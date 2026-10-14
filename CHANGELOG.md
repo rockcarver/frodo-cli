@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-7] - 2026-10-14
+
+### Fixed
+- Fixed an issue where a fresh install of `@rockcarver/frodo-cli@5.0.0-6` from npm failed on first run due to missing dynamically-imported chunks. All necessary dist chunks are now included in the npm package, ensuring successful execution. This issue did not affect SEA binaries like Homebrew or release zips. (#810)
+
 ## [v5.0.0-6] - 2026-10-14
 
 ### Added
@@ -3015,6 +3020,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-7]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-6...v5.0.0-7
 [v5.0.0-6]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-5...v5.0.0-6
 [v5.0.0-5]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-4...v5.0.0-5
 [v5.0.0-4]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-3...v5.0.0-4
