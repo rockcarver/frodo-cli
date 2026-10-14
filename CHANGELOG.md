@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-6] - 2026-10-14
+
+### Added
+- Introduced a grouped options editor with collapsible sections, allowing users to view command options in a structured manner. The editor mirrors the `-h`/`-hh` help split, with collapsible headers for shared help groups like Authentication and Connection. Pressing `[space]` expands or collapses these sections. (#804)
+- Added an entity picker feature across various delete commands, enabling users to select entities interactively. This includes entity pickers for ESV secrets, OAuth clients, and more. (#784)
+- Implemented interactive gap-fill prompts for missing command input, prompting users for mandatory options and connection arguments during interactive sessions. Non-interactive environments remain unchanged. (#772)
+- Introduced a connection page that consolidates host, username, and password prompts into a single form, improving the user experience during connection setup. (#787)
+- Added a `--prompt` / `--no-prompt` trigger pair to explicitly control interactive flows, ensuring users can opt into or out of interactive mode as needed. (#789)
+- Implemented a live command-preview footer in interactive prompts, displaying the command being influenced by user selections. The final command is printed once more upon conclusion for easy script integration. (#788)
+
+### Changed
+- Modified the help system to make command-vs-stub differences visible and restored sub-command navigation for action-bearing stubs. (#798)
+- Re-homed interactive flows to align with ambient-framework layering, allowing commands to automatically adopt interactivity without additional prompting code. (#796)
+- Enhanced the interactive select feature with type-to-search functionality, enabling users to filter select lists by typing. This applies universally across all select lists. (#773)
+
+### Removed
+- Removed the display of unused realm sentinels in command previews, aligning with user expectations for cleaner outputs. (#790)
+
+### Fixed
+- Resolved an issue where the double-ESC "exit all the way out" gesture did not work as expected. The gesture now correctly exits the interactive session from any depth. (#803)
+- Fixed the action-stub help to correctly list `--prompt/--no-prompt` options, ensuring users are aware of these flags in help outputs. (#800)
+- Corrected the display of the realm sentinel in command previews, ensuring it does not appear untranslated. (#790)
+
 ## [v5.0.0-5] - 2026-10-09
 
 ### Security
@@ -2992,6 +3015,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-6]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-5...v5.0.0-6
 [v5.0.0-5]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-4...v5.0.0-5
 [v5.0.0-4]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-3...v5.0.0-4
 [v5.0.0-3]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-2...v5.0.0-3
