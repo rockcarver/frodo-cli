@@ -108,8 +108,24 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
       expect(result).toBe(false);
       expect(command.getOptionValue('secretId')).toBeUndefined();
     } finally {
-      if (stdin) Object.defineProperty(process.stdin, 'isTTY', stdin);
-      if (stdout) Object.defineProperty(process.stdout, 'isTTY', stdout);
+      // isTTY handling differs per stream object: restore the original
+      // descriptor when there was one; otherwise delete the faked own
+      // property so true cannot leak into later suites in this worker
+      // (the CI PromptGateState failure). Either way, never let a restore
+      // failure mask the test result.
+      const restore = (
+        stream: NodeJS.Process['stdin'] | NodeJS.Process['stdout'],
+        descriptor: PropertyDescriptor | undefined
+      ) => {
+        try {
+          if (descriptor) Object.defineProperty(stream, 'isTTY', descriptor);
+          else delete (stream as { isTTY?: boolean }).isTTY;
+        } catch {
+          /* non-configurable stream mock: leave as-is */
+        }
+      };
+      restore(process.stdin, stdin);
+      restore(process.stdout, stdout);
     }
   });
 });
