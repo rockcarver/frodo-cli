@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-8] - 2026-10-14
+
+### Fixed
+- Resolved an issue in the interactive entity-picker where loader failures could authorize destructive defaults. The entity-picker now correctly declines picks when loader errors occur, ensuring safer command execution. Additionally, the footer now indicates validity with a green status when inputs are valid as committed. (#812)
+
 ## [v5.0.0-7] - 2026-10-14
 
 ### Fixed
@@ -3020,6 +3025,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-8]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-7...v5.0.0-8
 [v5.0.0-7]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-6...v5.0.0-7
 [v5.0.0-6]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-5...v5.0.0-6
 [v5.0.0-5]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-4...v5.0.0-5
