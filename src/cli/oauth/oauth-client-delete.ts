@@ -51,8 +51,8 @@ export default function setup() {
         // An unspecified appId prompts for a client from the live system
         // (no-op outside the prompt gate) before getTokens.
         if (
-          (await getTokens()) &&
-          (options.appId || (await resolveEntityPicks(command)))
+          (options.appId || (await resolveEntityPicks(command))) &&
+          (await getTokens())
         ) {
           const outcome = deleteOauth2ClientById(options.appId);
           if (!outcome) process.exitCode = 1;

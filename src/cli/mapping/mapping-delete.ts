@@ -76,8 +76,8 @@ export default function setup() {
         // option never reaches deleteMappings here -- same as before
         // (the error branch below handled that case in the pre-picker layout).
         else if (
-          (await getTokens(false, true, deploymentTypes)) &&
-          (options.all || (await resolveEntityPicks(command)))
+          (options.all || (await resolveEntityPicks(command))) &&
+          (await getTokens(false, true, deploymentTypes))
         ) {
           if (options.mappingId) {
             verboseMessage(`Deleting mapping ${options.mappingId}...`);

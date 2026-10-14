@@ -76,8 +76,8 @@ export default function setup() {
         // option never reaches deletePolicies here -- same as before
         // in the pre-picker layout, where the error branch below handled that case).
         else if (
-          (await getTokens()) &&
-          (options.all || (await resolveEntityPicks(command)))
+          (options.all || (await resolveEntityPicks(command))) &&
+          (await getTokens())
         ) {
           if (options.policyId) {
             verboseMessage('Deleting authorization policy...');

@@ -91,8 +91,8 @@ export default function setup() {
         // option never reaches deleteThemes here -- same as before Phase
         // 3, where the error branch below handled that case).
         else if (
-          (await getTokens(false, true, deploymentTypes)) &&
-          (options.all || (await resolveEntityPicks(command)))
+          (options.all || (await resolveEntityPicks(command))) &&
+          (await getTokens(false, true, deploymentTypes))
         ) {
           if (options.themeName) {
             verboseMessage(

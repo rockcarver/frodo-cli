@@ -74,8 +74,8 @@ export default function setup() {
         // option never reaches deleteJourneys here -- same as before
         // in the pre-picker layout, where the resolver's error handled that case).
         else if (
-          (await getTokens()) &&
-          (options.all || (await resolveEntityPicks(command)))
+          (options.all || (await resolveEntityPicks(command))) &&
+          (await getTokens())
         ) {
           if (options.journeyId) {
             verboseMessage(

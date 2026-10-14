@@ -111,9 +111,9 @@ export default function setup() {
         // option never reaches exportJourneysToFile here -- same as before
         // in the pre-picker layout, where the resolver's error handled that case).
         else if (
-          (await getTokens()) &&
           (options.all ||
-            (!options.allSeparate && (await resolveEntityPicks(command))))
+            (!options.allSeparate && (await resolveEntityPicks(command)))) &&
+          (await getTokens())
         ) {
           if (options.journeyId) {
             verboseMessage('Exporting journey...');

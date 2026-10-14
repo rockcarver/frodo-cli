@@ -51,9 +51,9 @@ export default function setup() {
         // requireAllOf resolver) prompts for a secret from the live system
         // (no-op outside the prompt gate) before getTokens.
         if (
-          (await getTokens(false, true, deploymentTypes)) &&
           (options.secretId || (await resolveEntityPicks(command))) &&
-          options.version
+          options.version &&
+          (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage(`Deleting version of secret...`);
           const outcome = await deleteVersionOfSecret(

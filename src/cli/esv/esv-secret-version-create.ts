@@ -47,8 +47,8 @@ export default function setup() {
         // An unspecified secretId prompts for a secret from the live
         // system (no-op outside the prompt gate) before getTokens.
         if (
-          (await getTokens(false, true, deploymentTypes)) &&
-          (options.secretId || (await resolveEntityPicks(command)))
+          (options.secretId || (await resolveEntityPicks(command))) &&
+          (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Creating new version of secret...');
           let outcome;
