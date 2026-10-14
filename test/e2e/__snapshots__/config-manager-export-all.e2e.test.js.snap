@@ -470,6 +470,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/baselineDemoEmailVerification/baselineDemoEmailVerification.en.html 1`] = `
+"<div class="content"><h1 id="emailverification">Email Verification</h1><p><br></p><p>Hello,</p><p>Great to have you on board.</p><p><br></p><hr><h5 id="verifyyouraccount">Verify Your Account</h5><p>Finish the steps of verification for the account by clicking the button below. <br></p><p><br></p><p><row><a href="{{object.resumeURI}}" title="" class="button">Click Here to Verify Your Account</a></row></p><p>This link will expire in 24 hours.</p><p><br></p><p>-- The ForgeRock Team</p><p><a href="https://www.forgerock.com">www.forgerock.com</a></p><p>201 Mission St Suite 2900</p><p>San Francisco, CA 94105</p><p><a href="mailto:support@forgerock.com">support@forgerock.com</a></p><hr><p>If you did not request for this email, please ignore and we won't email you again.</p><p>ForgeRock | <a href="https: www.forgerock.com=">Privacy Policy</a></p></div>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/baselineDemoEmailVerification/baselineDemoEmailVerification.json 1`] = `
 {
   "_id": "emailTemplate/baselineDemoEmailVerification",
@@ -498,6 +503,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/baselineDemoMagicLink/baselineDemoMagicLink.en.html 1`] = `
+"<div class="content"><h1 id="welcomeback">Welcome back</h1><p><br></p><p>Hello,</p><p>You're receiving this email because you requested a link to sign you into your account.</p><p><br></p><hr><p><row><a href="{{object.resumeURI}}" title="" class="button">Finish Signing In</a></row></p><p>This link will expire in 24 hours.</p><p><br></p><p>-- The ForgeRock Team</p><p><a href="https://www.forgerock.com">www.forgerock.com</a></p><p>201 Mission St Suite 2900</p><p>San Francisco, CA 94105</p><p><a href="mailto:support@forgerock.com">support@forgerock.com</a></p><hr><p>If you did not request for this email, please ignore and we won't email you again.</p><p>ForgeRock | <a href="https: www.forgerock.com=">Privacy Policy</a></p></div>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/baselineDemoMagicLink/baselineDemoMagicLink.json 1`] = `
 {
   "_id": "emailTemplate/baselineDemoMagicLink",
@@ -524,6 +534,16 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   },
   "templateId": "baselineDemoMagicLink",
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/forgottenUsername/forgottenUsername.en.html 1`] = `
+"<html><body>{{#if object.userName}}<p>Your username is '{{object.userName}}'.</p>{{else}}If you received this email in error, please disregard.{{/if}}<p><a href="{{object.resumeURI}}">Click here to login</a></p></body></html>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/forgottenUsername/forgottenUsername.fr.html 1`] = `
+"<html><body>{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<p><a href="{{object.resumeURI}}">Cliquez ici pour vous connecter</a></p></body></html>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/forgottenUsername/forgottenUsername.json 1`] = `
@@ -557,6 +577,16 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "fr": "Informations sur le compte - nom d'utilisateur",
   },
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/idv/idv.en.html 1`] = `
+"<div class="content"><h3 id="clickthelinkbelowtoverifyyouridentity">Click the link below to verify your identity:</h3><p><a href="{{object.resumeURI}}">Verify my identity now</a></p></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/idv/idv.fr.html 1`] = `
+"<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/idv/idv.json 1`] = `
@@ -596,6 +626,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/joiner/joiner.en.html 1`] = `
+"
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/joiner/joiner.json 1`] = `
 {
   "_id": "emailTemplate/joiner",
@@ -626,6 +661,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/registerPasswordlessDevice/registerPasswordlessDevice.en.html 1`] = `
+"<div class="content"><h1 id="welcomeback">Welcome back</h1><p><img src="https://tinyurl.com/3mwewu3v" alt="alt text" title="Passwordless Registration"></p><p><br></p><p>Hello,</p><p>You're receiving this email because you requested a link to register a new passwordless device.</p><p><br></p><hr><p><a href="{{object.resumeURI}}">Register New Device</a></p><p>This link will expire in 24 hours.</p><p><br></p><p>-- The ForgeRock Team</p><p><a href="https://www.forgerock.com">www.forgerock.com</a></p><p>201 Mission St Suite 2900</p><p>San Francisco, CA 94105</p><p><a href="mailto:support@forgerock.com">support@forgerock.com</a></p><hr><p>If you did not request for this email, please ignore and we won't email you again.</p><p>ForgeRock | <a href="https: www.forgerock.com=">Privacy Policy</a></p></div>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/registerPasswordlessDevice/registerPasswordlessDevice.json 1`] = `
 {
   "_id": "emailTemplate/registerPasswordlessDevice",
@@ -653,6 +693,16 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   },
   "templateId": "registerPasswordlessDevice",
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/registration/registration.en.html 1`] = `
+"<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/registration/registration.fr.html 1`] = `
+"<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/registration/registration.json 1`] = `
@@ -710,6 +760,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/updatePassword/updatePassword.en.html 1`] = `
+"<h3>Verify email to update password</h3><p><a href="{{object.resumeURI}}">Update password link</a></p>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/updatePassword/updatePassword.json 1`] = `
 {
   "_id": "emailTemplate/updatePassword",
@@ -734,6 +789,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "en": "Update your password",
   },
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/welcome/welcome.en.html 1`] = `
+"<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/email-templates/welcome/welcome.json 1`] = `
@@ -35521,6 +35581,23 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Contrast/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Contrast/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Contrast/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Copy of Zardoz/Copy of Zardoz.json 1`] = `
 {
   "_id": "e47838b5-48c9-4dea-8a84-43f4b4ea8e04",
@@ -35667,6 +35744,61 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Copy of Zardoz/accountFooter.html 1`] = `
+"<footer>
+  <div class="container-md">
+    <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+      <div class="text-nowrap">
+        <span class="pr-1">© 2022</span>
+        <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+      </div>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Privacy Policy</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Terms of Use</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Copy of Zardoz/journeyFooter.html 1`] = `
+"<footer>
+            <div class="container-md">
+            <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+              <div class="text-nowrap">
+                <span class="pr-1">© 2022</span>
+                <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+              </div>
+              <ul class="nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Terms of Use</a>
+                </li>
+              </ul>
+            </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Copy of Zardoz/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Copy of Zardoz/journeyJustifiedContent.html 1`] = `
+"<div style="display: flex; background-color: black; height: 100vh;">
+    <div class="d-none d-md-flex justify-content-center align-items-center p-5" style="background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);
+    background-size: cover;"><h1 class="text-center display-3" style="color: rgb(255, 255, 255);">Uptime &amp; Performance Benchmarking Made Easy</h1></div>
+</div>
+
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Highlander/Highlander.json 1`] = `
 {
   "_id": "00203891-dde0-4114-b27a-219ae0b43a61",
@@ -35758,6 +35890,160 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Highlander/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6" style="color: #5e6d82">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self" style="color: #5e6d82">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Highlander/journeyFooter.html 1`] = `
+"<footer class="w-100">
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+        <div class="container w-100">
+            <div class="mt-5 py-4 border-top border-darkened">
+                <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Company
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">About Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Support
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Docs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Community
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Forum</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                            <span class="pr-1">&copy; 2021</span>
+                            <a href="#" class="text-decoration-none" target="_self">Highlander, Inc.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Highlander/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/NoAccess/NoAccess.json 1`] = `
@@ -35889,6 +36175,23 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/NoAccess/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#"target="_blank"class="text-body">My Company, Inc</a><a href="#"target="_blank"style="color:#0000ee"class="pl-3 text-body">Privacy Policy</a><a href="#"target="_blank"style="color:#0000ee"class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/NoAccess/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#"target="_blank"class="text-body">My Company, Inc</a><a href="#"target="_blank"style="color:#0000ee"class="pl-3 text-body">Privacy Policy</a><a href="#"target="_blank"style="color:#0000ee"class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/NoAccess/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Robroy/Robroy.json 1`] = `
 {
   "_id": "b82755e8-fe9a-4d27-b66b-45e37ae12345",
@@ -35984,6 +36287,199 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Robroy/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Robroy/journeyFooter.html 1`] = `
+"<footer class="w-100">
+            <div
+              class="
+                d-flex
+                flex-column flex-md-row
+                justify-content-center
+                align-items-center
+                py-4
+              "
+            >
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Company
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >About Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Contact Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Support
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Help Center</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Docs</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Community
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Facebook</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Twitter</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Forum</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div
+                        class="
+                          d-flex
+                          align-items-center
+                          justify-content-lg-end
+                          py-4 py-lg-0
+                        "
+                      >
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self"
+                          >Rob Roy Markets, Inc</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Robroy/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Robroy/journeyJustifiedContent.html 1`] = `
+"<img src="https://cdn.forgerock.com/platform/themes/robroy/illustration-robroy.svg" class="w-100">
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Starter Theme/Starter Theme.json 1`] = `
 {
   "_id": "86ce2f64-586d-44fe-8593-b12a85aac68d",
@@ -36074,6 +36570,23 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Starter Theme/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Starter Theme/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Starter Theme/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test No HTML/Test No HTML.json 1`] = `
@@ -36368,6 +36881,36 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test Single HTML/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test Single HTML/accountFooterScriptTag.html 1`] = `"����(��%zZ �e�j+���r����+��\\�{(��h�z%h˧v��r��"`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test Single HTML/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test Single HTML/journeyFooterScriptTag.html 1`] = `"����(��%zZ �e�j+���r����+��\\�{(��h�z%h˧v��r��"`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test Single HTML/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hello World!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test Single HTML/journeyJustifiedContent.html 1`] = `
+"<p>
+    Hello World!
+</p>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/Test.json 1`] = `
 {
   "_id": "27d96c03-d55e-48a6-ba8b-ad2b144ab732",
@@ -36548,6 +37091,70 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/accountFooter/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/accountFooter/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100">
+  <span class="pr-1">© 2026</span>
+  <a href="#" target="_blank" class="text-body">Mi Empresa, Inc</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Política de Privacidad</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Términos &amp; Condiciones</a>
+</div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/accountFooterScriptTag.html 1`] = `"����(��%zZ �e�j+���r����+��\\�{(��h�z%h˧v��r��"`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/journeyFooter/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/journeyFooter/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100">
+  <span class="pr-1">© 2026</span>
+  <a href="#" target="_blank" class="text-body">Mi Empresa, Inc</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Política de Privacidad</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Términos &amp; Condiciones</a>
+</div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/journeyFooterScriptTag.html 1`] = `"����(��%zZ �e�j+���r����+��\\�{(��h�z%h˧v��r��"`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/journeyHeader/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hello World!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/journeyHeader/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hola Mundo!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/journeyJustifiedContent/en.html 1`] = `
+"<p>
+    Hello World!
+</p>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Test/journeyJustifiedContent/es.html 1`] = `
+"<p>
+    Hola Mundo!
+</p>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Zardoz/Zardoz.json 1`] = `
 {
   "_id": "4ded6d91-ceea-400a-ae3f-42209f1b0e06",
@@ -36641,6 +37248,64 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Zardoz/accountFooter.html 1`] = `
+"<footer>
+  <div class="container-md">
+    <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+      <div class="text-nowrap">
+        <span class="pr-1">© 2022</span>
+        <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+      </div>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Privacy Policy</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Terms of Use</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Zardoz/journeyFooter.html 1`] = `
+"<footer>
+            <div class="container-md">
+            <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+              <div class="text-nowrap">
+                <span class="pr-1">© 2022</span>
+                <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+              </div>
+              <ul class="nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Terms of Use</a>
+                </li>
+              </ul>
+            </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Zardoz/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/themes/Zardoz/journeyJustifiedContent.html 1`] = `
+"<div style="display: flex; background-color: black; height: 100vh;">
+    <div class="d-none d-md-flex justify-content-center align-items-center p-5" style="background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);
+    background-size: cover;"><h1 class="text-center display-3" style="color: rgb(255, 255, 255);">Uptime &amp; Performance Benchmarking Made Easy</h1></div>
+</div>
+
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/authorization/policy-sets/oauth2Scopes/oauth2Scopes.json 1`] = `
@@ -48090,6 +48755,18 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Contrast/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Contrast/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Contrast/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Highlander/Highlander.json 1`] = `
 {
   "_id": "f2bdd040-2e46-4602-a0ab-24ed52103cdc",
@@ -48181,6 +48858,160 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Highlander/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6" style="color: #5e6d82">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self" style="color: #5e6d82">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Highlander/journeyFooter.html 1`] = `
+"<footer class="w-100">
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+        <div class="container w-100">
+            <div class="mt-5 py-4 border-top border-darkened">
+                <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Company
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">About Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Support
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Docs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Community
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Forum</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                            <span class="pr-1">&copy; 2021</span>
+                            <a href="#" class="text-decoration-none" target="_self">Highlander, Inc.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Highlander/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Robroy/Robroy.json 1`] = `
@@ -48278,6 +49109,196 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Robroy/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Robroy/journeyFooter.html 1`] = `
+"<footer class="w-100">
+            <div
+              class="
+                d-flex
+                flex-column flex-md-row
+                justify-content-center
+                align-items-center
+                py-4
+              "
+            >
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Company
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >About Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Contact Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Support
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Help Center</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Docs</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Community
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Facebook</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Twitter</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Forum</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div
+                        class="
+                          d-flex
+                          align-items-center
+                          justify-content-lg-end
+                          py-4 py-lg-0
+                        "
+                      >
+                        <span class="pr-1">&copy; 2021</span>
+                        <a href="#" class="text-decoration-none" target="_self"
+                          >Rob Roy Markets, Inc</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Robroy/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Robroy/journeyJustifiedContent.html 1`] = `"<img src="https://cdn.forgerock.com/platform/themes/robroy/illustration-robroy.svg" class="w-100">"`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Starter Theme/Starter Theme.json 1`] = `
 {
   "_id": "b7d8de5a-f788-4ac8-b80a-3220a5f977ec",
@@ -48369,6 +49390,18 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "textColor": "#ffffff",
 }
 `;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Starter Theme/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Starter Theme/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2021</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Starter Theme/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Zardoz/Zardoz.json 1`] = `
 {
@@ -48463,6 +49496,61 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "secondaryColor": "#69788b",
   "textColor": "#ffffff",
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Zardoz/accountFooter.html 1`] = `
+"<footer>
+  <div class="container-md">
+    <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+      <div class="text-nowrap">
+        <span class="pr-1">© 2022</span>
+        <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+      </div>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Privacy Policy</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Terms of Use</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Zardoz/journeyFooter.html 1`] = `
+"<footer>
+            <div class="container-md">
+            <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+              <div class="text-nowrap">
+                <span class="pr-1">© 2022</span>
+                <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+              </div>
+              <ul class="nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Terms of Use</a>
+                </li>
+              </ul>
+            </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Zardoz/journeyHeader.html 1`] = `"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>"`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/themes/Zardoz/journeyJustifiedContent.html 1`] = `
+"<div style="display: flex; background-color: black; height: 100vh;">
+    <div class="d-none d-md-flex justify-content-center align-items-center p-5" style="background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);
+    background-size: cover;"><h1 class="text-center display-3" style="color: rgb(255, 255, 255);">Uptime &amp; Performance Benchmarking Made Easy</h1></div>
+</div>
+
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/iPlanetAMWebAgentService/iPlanetAMWebAgentService.json 1`] = `
@@ -51845,6 +52933,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/terms-conditions/0.0/en.html 1`] = `
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/terms-conditions/terms-conditions.json 1`] = `
 {
   "_id": "selfservice.terms",
@@ -52460,6 +53553,16 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/forgottenUsername/forgottenUsername.en.html 1`] = `
+"<html><body>{{#if object.userName}}<p>Your username is '{{object.userName}}'.</p>{{else}}If you received this email in error, please disregard.{{/if}}<p><a href="{{object.resumeURI}}">Click here to login</a></p></body></html>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/forgottenUsername/forgottenUsername.fr.html 1`] = `
+"<html><body>{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<p><a href="{{object.resumeURI}}">Cliquez ici pour vous connecter</a></p></body></html>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/forgottenUsername/forgottenUsername.json 1`] = `
 {
   "_id": "emailTemplate/forgottenUsername",
@@ -52491,6 +53594,16 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "fr": "Informations sur le compte - nom d'utilisateur",
   },
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/registration/registration.en.html 1`] = `
+"<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/registration/registration.fr.html 1`] = `
+"<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/registration/registration.json 1`] = `
@@ -52526,6 +53639,16 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/resetPassword/resetPassword.en.html 1`] = `
+"<html><body><h3>Click to reset your password</h3><p><a href="{{object.resumeURI}}">Password reset link</a></p></body></html>
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/resetPassword/resetPassword.fr.html 1`] = `
+"<html><body><h3>Cliquez pour réinitialiser votre mot de passe</h3><p><a href="{{object.resumeURI}}">Mot de passe lien de réinitialisation</a></p></body></html>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/resetPassword/resetPassword.json 1`] = `
 {
   "_id": "emailTemplate/resetPassword",
@@ -52559,6 +53682,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/updatePassword/updatePassword.en.html 1`] = `
+"<h3>Verify email to update password</h3><p><a href="{{object.resumeURI}}">Update password link</a></p>
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/updatePassword/updatePassword.json 1`] = `
 {
   "_id": "emailTemplate/updatePassword",
@@ -52583,6 +53711,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "en": "Update your password",
   },
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/welcome/welcome.en.html 1`] = `
+"<html><body><p>Welcome to OpenIDM. Your username is '{{object.userName}}'.</p></body></html>
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/email-templates/welcome/welcome.json 1`] = `
@@ -63465,6 +64598,11 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "repeatInterval": 86400000,
   "type": "simple",
 }
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/terms-conditions/0.0/en.html 1`] = `
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+"
 `;
 
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/terms-conditions/terms-conditions.json 1`] = `

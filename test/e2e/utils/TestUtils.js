@@ -246,8 +246,8 @@ export async function testExport(
     fileName
       ? fileName
       : type
-        ? `.*\\.${type}\\.(json|js|groovy|xml)`
-        : `.*\\.(json|js|groovy|xml)`
+        ? `.*\\.${type}\\.(json|js|groovy|xml|html)`
+        : `.*\\.(json|js|groovy|xml|html)`
   );
   let stdout;
   let stderr;

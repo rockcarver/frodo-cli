@@ -4,6 +4,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style" 2`] = `""`;
 
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/baselineDemoEmailVerification/baselineDemoEmailVerification.en.html 1`] = `
+"<div class="content"><h1 id="emailverification">Email Verification</h1><p><br></p><p>Hello,</p><p>Great to have you on board.</p><p><br></p><hr><h5 id="verifyyouraccount">Verify Your Account</h5><p>Finish the steps of verification for the account by clicking the button below. <br></p><p><br></p><p><row><a href="{{object.resumeURI}}" title="" class="button">Click Here to Verify Your Account</a></row></p><p>This link will expire in 24 hours.</p><p><br></p><p>-- The ForgeRock Team</p><p><a href="https://www.forgerock.com">www.forgerock.com</a></p><p>201 Mission St Suite 2900</p><p>San Francisco, CA 94105</p><p><a href="mailto:support@forgerock.com">support@forgerock.com</a></p><hr><p>If you did not request for this email, please ignore and we won't email you again.</p><p>ForgeRock | <a href="https: www.forgerock.com=">Privacy Policy</a></p></div>
+"
+`;
+
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/baselineDemoEmailVerification/baselineDemoEmailVerification.json 1`] = `
 {
   "_id": "emailTemplate/baselineDemoEmailVerification",
@@ -30,6 +35,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
   },
   "templateId": "baselineDemoEmailVerification",
 }
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/baselineDemoMagicLink/baselineDemoMagicLink.en.html 1`] = `
+"<div class="content"><h1 id="welcomeback">Welcome back</h1><p><br></p><p>Hello,</p><p>You're receiving this email because you requested a link to sign you into your account.</p><p><br></p><hr><p><row><a href="{{object.resumeURI}}" title="" class="button">Finish Signing In</a></row></p><p>This link will expire in 24 hours.</p><p><br></p><p>-- The ForgeRock Team</p><p><a href="https://www.forgerock.com">www.forgerock.com</a></p><p>201 Mission St Suite 2900</p><p>San Francisco, CA 94105</p><p><a href="mailto:support@forgerock.com">support@forgerock.com</a></p><hr><p>If you did not request for this email, please ignore and we won't email you again.</p><p>ForgeRock | <a href="https: www.forgerock.com=">Privacy Policy</a></p></div>
+"
 `;
 
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/baselineDemoMagicLink/baselineDemoMagicLink.json 1`] = `
@@ -60,6 +70,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/deleteTemplate/deleteTemplate.en.html 1`] = `
+"<div class="content"><p><img src="https://tinyurl.com/3mwewu3v" alt="alt text" title="Email Title Text"></p><h1 id="emailtitle">Email Title</h1><p>Message text lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod tempor.</p></div>
+"
+`;
+
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/deleteTemplate/deleteTemplate.json 1`] = `
 {
   "_id": "emailTemplate/deleteTemplate",
@@ -86,6 +101,16 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
     "en": "",
   },
 }
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/forgottenUsername/forgottenUsername.en.html 1`] = `
+"<html><body>{{#if object.userName}}<p>Your username is '{{object.userName}}'.</p>{{else}}If you received this email in error, please disregard.{{/if}}<p><a href="{{object.resumeURI}}">Click here to login</a></p></body></html>
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/forgottenUsername/forgottenUsername.fr.html 1`] = `
+"<html><body>{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<p><a href="{{object.resumeURI}}">Cliquez ici pour vous connecter</a></p></body></html>
+"
 `;
 
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/forgottenUsername/forgottenUsername.json 1`] = `
@@ -119,6 +144,16 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
     "fr": "Informations sur le compte - nom d'utilisateur",
   },
 }
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/idv/idv.en.html 1`] = `
+"<div class="content"><h3 id="clickthelinkbelowtoverifyyouridentity">Click the link below to verify your identity:</h3><p><a href="{{object.resumeURI}}">Verify my identity now</a></p></div>
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/idv/idv.fr.html 1`] = `
+"<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>
+"
 `;
 
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/idv/idv.json 1`] = `
@@ -158,6 +193,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/joiner/joiner.en.html 1`] = `
+"
+"
+`;
+
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/joiner/joiner.json 1`] = `
 {
   "_id": "emailTemplate/joiner",
@@ -188,6 +228,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/registerPasswordlessDevice/registerPasswordlessDevice.en.html 1`] = `
+"<div class="content"><h1 id="welcomeback">Welcome back</h1><p><img src="https://tinyurl.com/3mwewu3v" alt="alt text" title="Passwordless Registration"></p><p><br></p><p>Hello,</p><p>You're receiving this email because you requested a link to register a new passwordless device.</p><p><br></p><hr><p><a href="{{object.resumeURI}}">Register New Device</a></p><p>This link will expire in 24 hours.</p><p><br></p><p>-- The ForgeRock Team</p><p><a href="https://www.forgerock.com">www.forgerock.com</a></p><p>201 Mission St Suite 2900</p><p>San Francisco, CA 94105</p><p><a href="mailto:support@forgerock.com">support@forgerock.com</a></p><hr><p>If you did not request for this email, please ignore and we won't email you again.</p><p>ForgeRock | <a href="https: www.forgerock.com=">Privacy Policy</a></p></div>
+"
+`;
+
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/registerPasswordlessDevice/registerPasswordlessDevice.json 1`] = `
 {
   "_id": "emailTemplate/registerPasswordlessDevice",
@@ -215,6 +260,16 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
   },
   "templateId": "registerPasswordlessDevice",
 }
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/registration/registration.en.html 1`] = `
+"<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/registration/registration.fr.html 1`] = `
+"<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>
+"
 `;
 
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/registration/registration.json 1`] = `
@@ -272,6 +327,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 }
 `;
 
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/updatePassword/updatePassword.en.html 1`] = `
+"<h3>Verify email to update password</h3><p><a href="{{object.resumeURI}}">Update password link</a></p>
+"
+`;
+
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/updatePassword/updatePassword.json 1`] = `
 {
   "_id": "emailTemplate/updatePassword",
@@ -296,6 +356,11 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
     "en": "Update your password",
   },
 }
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/welcome/welcome.en.html 1`] = `
+"<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>
+"
 `;
 
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style": cmEmailTemplatesExportDir/email-templates/welcome/welcome.json 1`] = `
@@ -329,6 +394,16 @@ exports[`frodo config-manager pulls "frodo config-manager pull email-templates -
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style" 1`] = `0`;
 
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style": testDir6/email-templates/registration/registration.en.html 1`] = `
+"<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style": testDir6/email-templates/registration/registration.fr.html 1`] = `
+"<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>
+"
+`;
 
 exports[`frodo config-manager pulls "frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style": testDir6/email-templates/registration/registration.json 1`] = `
 {

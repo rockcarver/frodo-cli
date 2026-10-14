@@ -1,8 +1,15 @@
 {
+  "meta": {
+    "exportDate": "2026-09-29T19:05:07.181Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.9.1 [v24.18.0]",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
   "theme": {
     "4ded6d91-ceea-400a-ae3f-42209f1b0e06": {
       "_id": "4ded6d91-ceea-400a-ae3f-42209f1b0e06",
-      "accountFooter": "<footer>\n  <div class=\"container-md\">\n    <div class=\"py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100\">\n      <div class=\"text-nowrap\">\n        <span class=\"pr-1\">© 2022</span>\n        <a href=\"#\" target=\"_blank\" class=\"notranslate text-body\">Zardoz, Inc</a>\n      </div>\n      <ul class=\"nav\">\n        <li class=\"nav-item\">\n          <a href=\"#\" class=\"nav-link\">Privacy Policy</a>\n        </li>\n        <li class=\"nav-item\">\n          <a href=\"#\" class=\"nav-link\">Terms of Use</a>\n        </li>\n      </ul>\n    </div>\n  </div>\n</footer>\n",
+      "accountFooter": "file://accountFooter.theme.html",
       "accountFooterEnabled": true,
       "accountPageSections": {
         "accountControls": {
@@ -51,11 +58,11 @@
       "dangerColor": "#f7685b",
       "favicon": "",
       "isDefault": false,
-      "journeyFooter": "<footer>\n            <div class=\"container-md\">\n            <div class=\"py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100\">\n              <div class=\"text-nowrap\">\n                <span class=\"pr-1\">© 2022</span>\n                <a href=\"#\" target=\"_blank\" class=\"notranslate text-body\">Zardoz, Inc</a>\n              </div>\n              <ul class=\"nav\">\n                <li class=\"nav-item\">\n                  <a href=\"#\" class=\"nav-link\">Privacy Policy</a>\n                </li>\n                <li class=\"nav-item\">\n                  <a href=\"#\" class=\"nav-link\">Terms of Use</a>\n                </li>\n              </ul>\n            </div>\n            </div>\n          </footer>\n",
+      "journeyFooter": "file://journeyFooter.theme.html",
       "journeyFooterEnabled": true,
-      "journeyHeader": "<div class=\"d-flex justify-content-center py-4 flex-grow-1\">Header Content</div>",
+      "journeyHeader": "file://journeyHeader.theme.html",
       "journeyHeaderEnabled": false,
-      "journeyJustifiedContent": "<div style=\"display: flex; background-color: black; height: 100vh;\">\n    <div class=\"d-none d-md-flex justify-content-center align-items-center p-5\" style=\"background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);\n    background-size: cover;\"><h1 class=\"text-center display-3\" style=\"color: rgb(255, 255, 255);\">Uptime &amp; Performance Benchmarking Made Easy</h1></div>\n</div>\n\n",
+      "journeyJustifiedContent": "file://journeyJustifiedContent.theme.html",
       "journeyJustifiedContentEnabled": true,
       "journeyLayout": "justified-right",
       "journeyTheaterMode": true,

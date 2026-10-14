@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import {
   frodo,
-  FrodoError,
   type ThemeExportInterface,
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib';
 import { v4 as uuidv4 } from 'uuid';
 import c from '../utils/ColorTheme';
+import { extractDataToFile, getExtractedData } from '../utils/Config';
 import {
   createProgressIndicator,
   createTable,
@@ -36,6 +36,15 @@ const {
   deleteThemeByName: _deleteThemeByName,
   deleteThemes: _deleteThemes,
 } = frodo.theme;
+
+const THEME_HTML_PROPERTIES = [
+  'accountFooter',
+  'journeyFooter',
+  'journeyHeader',
+  'journeyJustifiedContent',
+  'accountFooterScriptTag',
+  'journeyFooterScriptTag',
+];
 
 /**
  * Get a one-line description of the theme
@@ -117,20 +126,17 @@ export async function listThemes(long: boolean = false): Promise<boolean> {
  * @param {string} name theme name
  * @param {string} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} extract extracts HTML into separate files if true. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportThemeByName(
   name: string,
   file: string,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  extract: boolean = true
 ): Promise<boolean> {
   let indicatorId: string;
   try {
-    let fileName = getTypedFilename(name, 'theme');
-    if (file) {
-      fileName = file;
-    }
-    const filePath = getFilePath(fileName, true);
     indicatorId = createProgressIndicator(
       'determinate',
       1,
@@ -138,7 +144,19 @@ export async function exportThemeByName(
     );
     const themeData = await readThemeByName(name);
     if (!themeData._id) themeData._id = uuidv4();
-    updateProgressIndicator(indicatorId, `Writing file to ${filePath}`);
+    let fileName = getTypedFilename(name, 'theme');
+    if (extract) {
+      extractThemeHTMLToFiles(
+        { theme: { [themeData._id]: themeData } },
+        themeData._id,
+        name
+      );
+      fileName = `${name}/${fileName}`;
+    } else if (file) {
+      fileName = file;
+    }
+    const filePath = getFilePath(fileName, true);
+    updateProgressIndicator(indicatorId, `Writing JSON file to ${filePath}`);
     saveToFile('theme', [themeData], '_id', filePath, includeMeta);
     stopProgressIndicator(indicatorId, `Successfully exported theme ${name}.`);
     return true;
@@ -154,23 +172,28 @@ export async function exportThemeByName(
  * @param {String} id theme uuid
  * @param {String} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} extract extracts HTML into separate files if true. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportThemeById(
   id: string,
   file: string,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  extract: boolean = true
 ): Promise<boolean> {
   let indicatorId: string;
   try {
+    indicatorId = createProgressIndicator('determinate', 1, `Exporting ${id}`);
+    const themeData = await readTheme(id);
     let fileName = getTypedFilename(id, 'theme');
-    if (file) {
+    if (extract) {
+      extractThemeHTMLToFiles({ theme: { [id]: themeData } }, id, id);
+      fileName = `${id}/${fileName}`;
+    } else if (file) {
       fileName = file;
     }
     const filePath = getFilePath(fileName, true);
-    indicatorId = createProgressIndicator('determinate', 1, `Exporting ${id}`);
-    const themeData = await readTheme(id);
-    updateProgressIndicator(indicatorId, `Writing file to ${filePath}`);
+    updateProgressIndicator(indicatorId, `Writing JSON file to ${filePath}`);
     saveToFile('theme', [themeData], '_id', filePath, includeMeta);
     stopProgressIndicator(indicatorId, `Successfully exported theme ${id}.`);
     return true;
@@ -209,9 +232,13 @@ export async function exportThemesToFile(
 /**
  * Export all themes to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} extract extracts HTML into separate files if true. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportThemesToFiles(includeMeta = true) {
+export async function exportThemesToFiles(
+  includeMeta: boolean = true,
+  extract: boolean = true
+) {
   let barId: string;
   try {
     const themes = await readThemes();
@@ -220,19 +247,37 @@ export async function exportThemesToFiles(includeMeta = true) {
       themes.length,
       'Exporting themes'
     );
+
     for (const theme of themes) {
       if (!theme._id) theme._id = uuidv4();
+
       const fileBarId = createProgressIndicator(
         'determinate',
         1,
         `Exporting theme ${theme.name}...`
       );
+
       updateProgressIndicator(barId, `Exporting theme ${theme.name}`);
-      const file = getFilePath(getTypedFilename(theme.name, 'theme'), true);
+
+      let fileName = getTypedFilename(theme.name, 'theme');
+
+      if (extract) {
+        extractThemeHTMLToFiles(
+          { theme: { [theme._id]: theme } },
+          theme._id,
+          theme.name
+        );
+        fileName = `${theme.name}/${fileName}`;
+      }
+
+      const file = getFilePath(fileName, true);
+
       saveToFile('theme', theme, '_id', file, includeMeta);
+
       updateProgressIndicator(fileBarId, `${theme.name} saved to ${file}`);
       stopProgressIndicator(fileBarId, `${theme.name} saved to ${file}.`);
     }
+
     return true;
   } catch (error) {
     stopProgressIndicator(barId, `Error exporting themes`, 'fail');
@@ -258,8 +303,7 @@ export async function importThemeByName(
       1,
       'Importing theme...'
     );
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const themeExport: ThemeExportInterface = JSON.parse(data);
+    const themeExport = getThemeExportFromFile(getFilePath(file));
     for (const id of Object.keys(themeExport.theme)) {
       if (themeExport.theme[id].name === name) {
         updateProgressIndicator(
@@ -299,8 +343,7 @@ export async function importThemeById(
       1,
       'Importing theme...'
     );
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const themeExport: ThemeExportInterface = JSON.parse(data);
+    const themeExport = getThemeExportFromFile(getFilePath(file));
     for (const themeId of Object.keys(themeExport.theme)) {
       if (themeId === id) {
         updateProgressIndicator(
@@ -337,12 +380,11 @@ export async function importThemesFromFile(file: string): Promise<boolean> {
       0,
       `Importing themes from ${filePath}...`
     );
-    const data = fs.readFileSync(filePath, 'utf8');
-    const themeExport: ThemeExportInterface = JSON.parse(data);
+    const themeExport = getThemeExportFromFile(filePath);
     await importThemes(themeExport);
     stopProgressIndicator(
       indicatorId,
-      `Successfully imported ${Object.keys(themeExport.theme).length} themes.`
+      `Successfully imported ${Object.keys(themeExport.theme).length} themes from ${filePath}.`
     );
     return true;
   } catch (error) {
@@ -358,44 +400,45 @@ export async function importThemesFromFile(file: string): Promise<boolean> {
  */
 export async function importThemesFromFiles(): Promise<boolean> {
   let indicatorId: string;
-  const errors: Error[] = [];
   try {
     const names = fs.readdirSync(getWorkingDirectory());
-    const jsonFiles = names
-      .filter((name) => name.toLowerCase().endsWith('.theme.json'))
-      .map((name) => getFilePath(name));
-
+    const jsonFiles: string[] = [];
+    for (const name of names) {
+      const filePath = getFilePath(name);
+      if (
+        fs.statSync(filePath).isFile() &&
+        name.toLowerCase().endsWith('.theme.json')
+      ) {
+        jsonFiles.push(name);
+        continue;
+      }
+      if (fs.statSync(filePath).isDirectory()) {
+        const files = fs.readdirSync(filePath);
+        const themeFile = files.find(
+          (file) =>
+            fs.statSync(`${filePath}/${file}`).isFile() &&
+            file.toLowerCase().endsWith('.theme.json')
+        );
+        if (themeFile) {
+          jsonFiles.push(`${name}/${themeFile}`);
+        }
+      }
+    }
     indicatorId = createProgressIndicator(
       'determinate',
       jsonFiles.length,
       'Importing themes...'
     );
-    let fileData = null;
-    let count = 0;
-    let total = 0;
-    let files = 0;
+    let numFiles = 0;
     for (const file of jsonFiles) {
-      try {
-        const data = fs.readFileSync(file, 'utf8');
-        fileData = JSON.parse(data);
-        count = Object.keys(fileData.theme).length;
-        await importThemes(fileData);
-        files += 1;
-        total += count;
-        updateProgressIndicator(
-          indicatorId,
-          `Imported ${count} theme(s) from ${file}`
-        );
-      } catch (error) {
-        errors.push(error);
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing themes`, errors);
+      const success = await importThemesFromFile(file);
+      if (!success) continue;
+      numFiles += 1;
+      updateProgressIndicator(indicatorId, `Imported theme(s) from ${file}`);
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} theme(s) from ${files} file(s).`
+      `Finished importing themes from ${numFiles} file(s).`
     );
     return true;
   } catch (error) {
@@ -413,8 +456,7 @@ export async function importThemesFromFiles(): Promise<boolean> {
 export async function importFirstThemeFromFile(file: string): Promise<boolean> {
   let indicatorId: string;
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const themeExport = JSON.parse(data);
+    const themeExport = getThemeExportFromFile(getFilePath(file));
     indicatorId = createProgressIndicator(
       'determinate',
       1,
@@ -500,4 +542,112 @@ export async function deleteThemes(): Promise<boolean> {
     stopProgressIndicator(indicatorId, `Error: ${error.message}`, 'fail');
   }
   return false;
+}
+
+/**
+ * Extract a theme HTML property to a file
+ * @param {ThemeSkeleton} theme theme object containing the property
+ * @param {string} property theme property to extract
+ * @param {string} directory directory within the base directory to save the HTML file
+ */
+function extractHTMLToFile(
+  theme: ThemeSkeleton,
+  property: string,
+  directory?: string
+): void {
+  const htmlData = theme[property];
+  if (!htmlData) return;
+
+  if (typeof htmlData === 'object') {
+    for (const [language, html] of Object.entries(htmlData)) {
+      htmlData[language] = extractDataToFile(
+        html,
+        `${property}/${getTypedFilename(language, 'theme', 'html')}`,
+        directory
+      );
+    }
+  } else {
+    theme[property] = extractDataToFile(
+      htmlData,
+      getTypedFilename(property, 'theme', 'html'),
+      directory
+    );
+  }
+}
+
+/**
+ * Extracts HTML from a theme export into separate files
+ * @param {ThemeExportInterface} exportData theme export
+ * @param {string} themeId theme id to extract a specific theme from. If undefined, extracts HTML from all themes
+ * @param {string} directory directory within the base directory to save the HTML files
+ * @returns {boolean} true if successful, false otherwise
+ */
+export function extractThemeHTMLToFiles(
+  exportData: ThemeExportInterface,
+  themeId?: string,
+  directory?: string
+): boolean {
+  try {
+    const themes = themeId
+      ? [exportData.theme[themeId]]
+      : Object.values(exportData.theme);
+    for (const theme of themes) {
+      for (const property of THEME_HTML_PROPERTIES) {
+        extractHTMLToFile(theme, property, directory);
+      }
+    }
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Read an extracted theme HTML property from a file
+ * @param {ThemeSkeleton} theme theme object containing the property
+ * @param {string} property theme property to read
+ * @param {string} [directory] directory containing the extracted HTML file
+ */
+function readHTMLFromFile(
+  theme: ThemeSkeleton,
+  property: string,
+  directory?: string
+): void {
+  if (!theme[property]) return;
+
+  if (typeof theme[property] === 'object') {
+    for (const [language, filePath] of Object.entries(theme[property])) {
+      const fileContent = getExtractedData(filePath, directory);
+      if (fileContent !== null) {
+        theme[property][language] = fileContent;
+      }
+    }
+  } else {
+    const fileContent = getExtractedData(theme[property] as string, directory);
+    if (fileContent !== null) {
+      theme[property] = fileContent;
+    }
+  }
+}
+
+/**
+ * Get a theme export from json file
+ * @param {string} file path to the theme export file
+ * @returns {ThemeExportInterface} theme export
+ */
+export function getThemeExportFromFile(file: string): ThemeExportInterface {
+  const exportData = JSON.parse(
+    fs.readFileSync(file, 'utf8')
+  ) as ThemeExportInterface;
+
+  const directory = file.substring(0, file.lastIndexOf('/'));
+
+  for (const theme of Object.values(exportData.theme)) {
+    for (const property of THEME_HTML_PROPERTIES) {
+      readHTMLFromFile(theme, property, directory);
+    }
+  }
+
+  return exportData;
 }
