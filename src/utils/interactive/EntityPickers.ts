@@ -173,9 +173,12 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
         // the real apply writes) shadows the target option per render,
         // so the footer shows the command gaining that pick BEFORE
         // <enter> commits. `pick.label` maps entity -> option value --
-        // the same mapping the committed apply uses.
+        // the same mapping the committed apply uses. An empty filtered
+        // list highlights nothing: the callback then renders the
+        // committed state (undefined -> undefined) instead of crashing
+        // on the spec's `entity._id`-style label.
         preview: liveOptionPreviewFor(command, pick.name, (entity) =>
-          pick.label(entity)
+          entity === undefined ? undefined : pick.label(entity)
         ),
         choices: entities.map((entity) => {
           const description = pick.description?.(entity);

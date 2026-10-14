@@ -696,6 +696,66 @@ describe('phase 5 slice 4: command preview', () => {
       },
       TIMEOUT
     );
+
+    test(
+      'entity picker EMPTY FILTER: preview renders committed state, no crash',
+      async () => {
+        // Regression pin (2026-10-14): typing a filter that matches zero
+        // rows used to crash the live footer preview with "Cannot read
+        // properties of undefined (reading '_id')" -- the highlighted
+        // entity is undefined on an empty list and the label callback
+        // dereferenced it. Now the callback maps undefined -> undefined
+        // (committed-state render) and the prompt shows its no-matches
+        // hint. The process must survive, still on the picker.
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['esv', 'secret', 'delete'],
+            env: ENV,
+            actions: [
+              {
+                type: 'wait_plain',
+                regex: 'Choose which secrets',
+                timeoutMs: 30000,
+              },
+              { type: 'key', name: 'enter' }, // -i: defers to the entity pick
+              {
+                type: 'wait_plain',
+                regex: 'Select secret to act on',
+                timeoutMs: 30000,
+              },
+              { type: 'sleep', ms: 500 }, // frame settle (slice-1 lesson)
+              // Scrollback holds earlier frames (the one-of picker's
+              // highlighted-member footer shadow, the commit echo) that
+              // would trip the footer-line assertions -- clear it, then
+              // type the zero-match filter so the capture holds only the
+              // empty-filter frame (the send's re-render repopulates).
+              { type: 'clear_output' },
+              { type: 'send', text: '9no-match-9' }, // '9' matches no secret id: zero rows on the FIRST keystroke
+              { type: 'sleep', ms: 700 },
+              { type: 'capture', label: 'empty' },
+            ],
+          });
+          const empty = result.captures.empty;
+          // The no-matches hint renders (list is empty, not crashed).
+          expect(empty.plain).toMatch(/no matches -- backspace to edit/);
+          // The crash string must never appear.
+          expect(empty.plain).not.toMatch(/Cannot read properties/);
+          // With nothing highlighted, the footer shows the COMMITTED
+          // state: the bare command line, with no --secret-id shadow on
+          // it. (A bare substring ban would trip over the one-of picker
+          // rows' "--secret-id <secret-id>" help text still in the
+          // scrollback -- anchor on the footer line itself instead.)
+          expect(empty.plain).toMatch(/^frodo esv secret delete$/m);
+          expect(empty.plain).not.toMatch(/^frodo esv secret delete --secret-id/m);
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
   });
 });
 
