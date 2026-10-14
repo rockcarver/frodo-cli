@@ -1,6 +1,7 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 import path from 'path';
 import { getEnv, testif, normalizeSnapshotText, exec } from './utils/TestUtils';
+import { checkMasterKeyUsable } from './utils/MasterKeyGate';
 import { connection as c } from './utils/TestConfig';
 import { readFileSync, rmSync, writeFileSync } from 'fs';
 
@@ -11,6 +12,10 @@ process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] = connectionsAliasFile;
 process.env['FRODO_MASTER_KEY_PATH'] =
   path.resolve('./test/e2e/env/masterkey.key');
+// Key-dependent tests run only when the available key actually decrypts the
+// committed fixture -- without a usable key the suites skip instead of
+// racing frodo-lib's auto-generated key (Oct 2026 CI failures).
+const hasUsableMasterKey = checkMasterKeyUsable();
 const env = getEnv(undefined, { preserveProfilePaths: true });
 
 beforeAll(() => {
@@ -34,7 +39,7 @@ afterAll(() => {
 });
 
 describe('frodo conn alias delete', () => {
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     `"frodo conn alias delete ${c.host}": should delete the alias of the connection profile`,
     async () => {
       const CMD = `frodo conn alias delete ${c.host}`;
@@ -43,7 +48,7 @@ describe('frodo conn alias delete', () => {
       expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
     }
   );
-  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
+  testif(hasUsableMasterKey)(
     `"frodo conn alias delete ${c.host}": should fail to delete the nonexistent alias of the connection profile`,
     async () => {
       const profiles = JSON.parse(readFileSync(connectionsAliasFile, 'utf-8'));

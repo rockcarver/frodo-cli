@@ -1,7 +1,7 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 import path from 'path';
-import fs from 'fs';
 import { getEnv, testif, normalizeSnapshotText, exec } from './utils/TestUtils';
+import { checkMasterKeyUsable } from './utils/MasterKeyGate';
 import { connection as c, amster_connection as cc } from './utils/TestConfig';
 
 
@@ -9,15 +9,16 @@ process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     path.resolve('./test/e2e/env/Connections.json');
 
-const hasInlineMasterKey = Boolean(process.env['FRODO_MASTER_KEY']?.trim());
-const candidateMasterKeyPath = process.env['FRODO_MASTER_KEY_PATH'] ||
-    path.resolve('./test/e2e/env/masterkey.key');
-const hasMasterKeyFile = fs.existsSync(candidateMasterKeyPath);
-const hasUsableMasterKey = hasInlineMasterKey || hasMasterKeyFile;
+// Default the key path to the fixture (unset in a fresh checkout) BEFORE the
+// gate and getEnv so both the check and the child use the same material.
+process.env['FRODO_MASTER_KEY_PATH'] ||= path.resolve('./test/e2e/env/masterkey.key');
 
-if (!hasInlineMasterKey && hasMasterKeyFile) {
-    process.env['FRODO_MASTER_KEY_PATH'] = candidateMasterKeyPath;
-}
+// Key-dependent tests run only when the available key (inline
+// FRODO_MASTER_KEY, else the file at FRODO_MASTER_KEY_PATH) actually
+// decrypts the committed fixture -- a stale/rotated/auto-generated key
+// skips the suite instead of failing mid-run with raw crypto errors.
+const hasUsableMasterKey = checkMasterKeyUsable();
+
 const cloudEnv = getEnv(c, { preserveProfilePaths: true });
 const classicEnv = getEnv(cc, { preserveProfilePaths: true });
 
