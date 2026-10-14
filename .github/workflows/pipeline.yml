@@ -403,7 +403,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md package.json package-lock.json
-          git commit --message "Updated changelog and version for release ${{ needs.build.outputs.newTag }}"
+          # [skip ci]: this commit only bumps the version + changelog of a
+          # tree whose content was fully validated by THIS release run; the
+          # push would otherwise re-trigger the pipeline on main for a
+          # no-op validation. See docs/PIPELINE.md.
+          git commit --message "Updated changelog and version for release ${{ needs.build.outputs.newTag }} [skip ci]"
           git push
 
       - name: Release
