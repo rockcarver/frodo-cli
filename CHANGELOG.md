@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-9] - 2026-10-15
+
+### Added
+- Unified all debug commands under the interactive frame design, enhancing user interaction with a consistent Navigate bar and framed panels across all `frodo debug` commands. This update ensures a fully interactive experience for users. (#815)
+
+### Security
+- Redacted decrypted connection profiles from `FRODO_DEBUG` output to prevent the leakage of sensitive information such as passwords and private RSA JWKs. Debug output now only includes non-secret routing fields, enhancing security during debugging sessions. (#814)
+
 ## [v5.0.0-8] - 2026-10-14
 
 ### Fixed
@@ -3025,6 +3033,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-9]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-8...v5.0.0-9
 [v5.0.0-8]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-7...v5.0.0-8
 [v5.0.0-7]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-6...v5.0.0-7
 [v5.0.0-6]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-5...v5.0.0-6
