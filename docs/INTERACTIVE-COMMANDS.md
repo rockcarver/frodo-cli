@@ -135,6 +135,51 @@ shaft. The box wraps its items within the terminal width. The
 multi-select's `[space]` and the editor's `[⏴]` are additional items;
 the `[⏵]` hint count (`[⏵] 4 options`) renders inside the menu.
 
+## Live dashboards (`frodo debug`)
+
+The debug commands are the frame design applied to LIVE VIEWS (not
+question-then-answer flows): the Navigate bar sits on top as always,
+and the question panel becomes a self-updating dashboard panel. Both
+prompts poll on a 5-second interval (`useEffect`, inFlight/cancelled
+guards — a failed poll degrades to a transient warning line inside the
+panel, never a crash), erase on conclude, and exit through the shared
+key language (single ESC backs out through the 400ms grace; fast
+double-ESC exits the whole session; Ctrl+C is a silent clean exit).
+
+![The journey debugger](./images/debug-journey.gif)
+
+`frodo debug journey` (`JourneyDebugPrompt.ts`) keeps its three-view
+model — session list, journey detail, event detail — as three renders
+of one prompt: Enter drills down, ESC climbs back, the Navigate bar
+swaps its key hints per view (list: `[ENTER]` drill-down, `[space]`
+pin/unpin; detail: `[ENTER]` view event; event: ESC only). The panel
+title carries the ambient state via the `frameStatusTitle` convention:
+`? Debugging journeys (3 tracked) [filter label]`. The list itself is
+a hand-rolled table (stable column widths measured across ALL tracked
+sessions, not just the visible page) clamped to the frame's inner
+width; detail/event property values AND the detail table's OUTCOME
+column wrap past it (continuation rows indented to their column,
+rendered muted) — a live tree-completed failure reason confirmed past
+190 chars, and honest walls beat one long row.
+
+![The debug tail](./images/debug-tail.gif)
+
+`frodo debug oauth|saml|sync|all` (`DebugTailPrompt.ts`) is a
+follow-mode tail: events append at the BOTTOM (newest last, a
+`tail -f`), buffered in a ring of the last 200 (drop-oldest — the
+panel always shows the latest, no matter how busy the tenant). The
+cursor carries a follow sentinel; scrolling up detaches to review
+history — the visible window pins to the reviewed event (new events
+append below, unseen; the title shows `row N/M`), the panel says
+`(reviewing history -- scroll down to re-follow)`, and scrolling
+back down re-arms the follow. The panel title shows the target —
+`? Debugging oauth (volker-dev · alpha)` — with the host resolved
+from what the user typed (alias/substring, captured before
+credential resolution overwrites it). The prompt imports no ops
+module: the cli action injects a `readEvents` loader (the
+EntityPickers injection pattern) that owns the log stream and maps
+events through `DebugLogOps`'s formatters.
+
 ## The inline value editor
 
 In the invocation editor, `<space>` on a valued option opens the
@@ -367,6 +412,14 @@ none.
   proceed/abort only: never value collection, never resolver
   prompting, never a standalone picker. The ONE exception to
   "ops modules must not prompt" — documented at the import site.
+  The mirror-image exception on the interactive side:
+  `JourneyDebugPrompt` imports `JourneyDebugAggregator` from
+  `src/ops/` directly — the aggregator IS the prompt's data model
+  (its session/event types are the prompt's vocabulary), so splitting
+  engine and model across layers would buy nothing; this is the ONE
+  sanctioned `utils/interactive → src/ops` import. New interactive
+  surfaces follow the injected-loader rule instead — `DebugTailPrompt`
+  takes its event loader as a parameter, the cli action injects it.
   Otherwise: `AuthenticateOps`'s zero-import state imports
   (`ActiveActionCommandState`, `PromptGateState`) are pure state, no
   prompting; its prompt-bearing machinery is reached via

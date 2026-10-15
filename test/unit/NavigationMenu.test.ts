@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from '@jest/globals';
 import {
   descriptionPanelLines,
   frameInnerWidth,
+  frameStatusTitle,
   navigationMenuItems,
   renderFramedBox,
   renderNavigationMenu,
@@ -51,6 +52,48 @@ describe('navigationMenuItems (affordance-driven)', () => {
     expect(labels).toContain('[space] select');
     expect(labels).toContain('[ENTER] commit');
     expect(labels).toContain('[⏴] back');
+  });
+});
+
+describe('frameStatusTitle (the live dashboards’ title convention)', () => {
+  it('joins heading main + muted suffixes with single spaces', () => {
+    const { text, plain } = frameStatusTitle('Debugging journeys', [
+      '(3 tracked)',
+      '[journey~"demo"]',
+    ]);
+    expect(plain).toBe('Debugging journeys (3 tracked) [journey~"demo"]');
+    // Jest runs NO_COLOR: the drawn text IS the plain text.
+    expect(stripAnsi(text)).toBe(plain);
+  });
+
+  it('measures honest: the {text, plain} pair renders equal under stripAnsi', () => {
+    // Force a non-NO_COLOR path by composing through the helper -- the
+    // plain must always equal the stripped text, the invariant
+    // renderFramedBox's wall math relies on (belt-and-braces per its
+    // docs, but the helper's own contract is to keep them equal).
+    const { text, plain } = frameStatusTitle('? Debugging oauth', [
+      '(volker-dev · alpha)',
+    ]);
+    expect(stripAnsi(text)).toBe(plain);
+  });
+
+  it('empty suffixes yield just the main label', () => {
+    const { text, plain } = frameStatusTitle('Event detail');
+    expect(plain).toBe('Event detail');
+    expect(stripAnsi(text)).toBe('Event detail');
+  });
+
+  it('feeds renderFramedBox with aligned walls', () => {
+    const box = renderFramedBox({
+      title: frameStatusTitle('Debugging journeys', ['(3 tracked)']),
+      lines: [{ text: 'row', plain: 'row' }],
+      width: 60,
+    });
+    const plain = box.split('\n').map(stripAnsi);
+    const widths = plain.map((line) => [...line].length);
+    expect(widths[0]).toBe(widths[1]);
+    expect(widths[1]).toBe(widths[2]);
+    expect(plain[0]).toMatch(/^┌ Debugging journeys \(3 tracked\) ─+┐$/);
   });
 });
 

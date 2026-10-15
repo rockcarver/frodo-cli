@@ -1,11 +1,14 @@
 /**
- * `frodo debug` — AIC-only, topic-scoped smart log tail (item 25).
+ * `frodo debug` — AIC-only, topic-scoped event classification.
  *
  * @remarks
  * Reuses the existing `frodo.cloud.log.createLogTailStream()` polling
- * primitive (the same one `frodo log tail` already uses) — the new part is
- * classifying each raw audit-log event by topic and rendering it as a
- * short, human-readable line instead of dumping the full raw JSON payload.
+ * primitive (the same one `frodo log tail` already uses). The PRESENTATION
+ * SHELL (the interactive framed panel, polling loop, ring buffer) lives in
+ * `src/utils/interactive/DebugTailPrompt.ts` -- this module is the
+ * classification + formatting layer: each raw audit-log event is
+ * classified by topic and rendered as a short, human-readable line instead
+ * of dumping the full raw JSON payload.
  *
  * Journey and OAuth transforms below were built against real, live event
  * payloads captured this session against a real AIC tenant (including a
@@ -24,15 +27,10 @@
  * (never silently dropped, never raw JSON) — it just isn't specially
  * compacted the way journey/OAuth events are.
  */
-import {
-  frodo,
-  type LogEventPayloadSkeleton,
-  type LogEventSkeleton,
-  type LogTailStream,
+import type {
+  LogEventPayloadSkeleton,
+  LogEventSkeleton,
 } from '@rockcarver/frodo-lib';
-import { printError, printMessage } from '../utils/Console';
-
-const { createLogTailStream } = frodo.cloud.log;
 
 export type DebugTopic = 'journey' | 'oauth' | 'saml' | 'sync' | 'all';
 
@@ -317,6 +315,34 @@ function formatGenericAuditEvent(payload: AuditPayload): string {
 }
 
 /**
+ * Renders one `am-core`/`idm-access` debug-log line (the `-everything`
+ * sources carry them; they have no `component`/`eventName`, so they fall
+ * through every audit classifier above and used to hit the generic
+ * fallback as a contentless bare "event" — confirmed live in the
+ * debug-tail recording). Follows the aggregator's discipline: only
+ * WARN/ERROR/FATAL am-core lines are worth a row (INFO/DEBUG/TRACE is
+ * high-volume routine traffic); `idm-access` lines are always audit
+ * events (`eventName: 'access'`) and never reach here. The Java logger
+ * FQCN is shortened to its last segment, the message compacted through
+ * `compactFailureReason` (strips the ScriptException wrapper chain,
+ * decodes HTML entities) and truncated — a tail row, not a stack dump.
+ */
+function formatDebugLogLine(payload: DebugLogPayload): string | undefined {
+  if (!payload.level || !['WARN', 'ERROR', 'FATAL'].includes(payload.level))
+    return undefined;
+  const logger = payload.logger?.split('.').pop() ?? 'am-core';
+  const message = payload.message
+    ? truncateLine(compactFailureReason(payload.message), 160)
+    : (payload.exception ?? '');
+  return `${payload.level} ${logger}: ${message}`.trimEnd();
+}
+
+/** Hard-truncates a line past `max` chars with an ellipsis (last resort — the formatters above already compact). */
+function truncateLine(line: string, max: number): string {
+  return line.length <= max ? line : `${line.slice(0, max - 1)}…`;
+}
+
+/**
  * Classifies and formats one raw log event for the given topic. Returns
  * `undefined` when the event doesn't belong to the topic at all (filtered
  * out); otherwise always returns a short, human-readable line — either
@@ -328,6 +354,22 @@ export function formatDebugEvent(
 ): string | undefined {
   const payload = getAuditPayload(event);
   if (!payload) return undefined;
+
+  // Not every parsed event is an AUDIT event: the `-everything` sources
+  // also carry raw debug-log lines (am-core) -- no `component`, no
+  // `eventName`, just `level`/`logger`/`message` (see
+  // `getDebugLogPayload`/`DebugLogPayload`). Shape-discriminated (the
+  // same parse succeeds for both shapes), and routed to their own
+  // formatter rather than the audit fallback's bare "event" line.
+  // `idm-access` lines always carry `eventName: 'access'`, so they stay
+  // on the audit path.
+  if (
+    !payload.component &&
+    !payload.eventName &&
+    typeof payload.level === 'string'
+  ) {
+    return formatDebugLogLine(payload as unknown as DebugLogPayload);
+  }
 
   const isJourney = payload.component === 'Authentication';
   const isOAuth = payload.component === 'OAuth';
@@ -361,38 +403,5 @@ export function formatDebugEvent(
     }
     default:
       return undefined;
-  }
-}
-
-/**
- * Continuously tails and smart-renders logs for one topic, matching
- * `frodo log tail`'s existing recursive-poll pattern (a 5-second interval)
- * — this is not new polling machinery, just a new rendering layer on top
- * of `frodo.cloud.log.createLogTailStream()`, the deduped `tail()` wrapper
- * (cookie-tracking and redelivery-dedup both live centrally in frodo-lib
- * now -- see its own remarks on why raw `tail()` needs a wrapper at all).
- * `stream` is only ever passed by this function's own recursive call, to
- * carry the same stream (and its dedup state) forward across polls rather
- * than starting a fresh one — external callers always omit it.
- */
-export async function debugTail(
-  topic: DebugTopic,
-  stream?: LogTailStream
-): Promise<void> {
-  try {
-    const source = DEBUG_TOPIC_SOURCES[topic];
-    const tailStream = stream ?? createLogTailStream(source);
-    const events = await tailStream.poll();
-    for (const event of events) {
-      const line = formatDebugEvent(event, topic);
-      if (line) {
-        printMessage(line, 'data');
-      }
-    }
-    setTimeout(() => {
-      debugTail(topic, tailStream);
-    }, 5000);
-  } catch (error) {
-    printError(error);
   }
 }

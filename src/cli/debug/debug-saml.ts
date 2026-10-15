@@ -4,8 +4,8 @@ export default function setup() {
   return createDebugTailTopicCommand(
     'frodo debug saml',
     'saml',
-    'Debug SAML activity — a best-effort passive log tail.',
+    'Debug SAML activity — a best-effort live event tail.',
     `Notes:\n` +
-      `  A best-effort passive tail: recognized by naming convention only, not yet verified against a real SAML SSO flow. Unrecognized events still print a short generic summary — never silently dropped, never raw JSON.\n`
+      `  A best-effort tail: events recognized by naming convention only, not yet verified against a real SAML SSO flow. Unrecognized events still render a short generic summary — never silently dropped, never raw JSON.\n`
   );
 }

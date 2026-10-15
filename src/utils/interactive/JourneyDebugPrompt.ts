@@ -23,6 +23,7 @@
  */
 import {
   createPrompt,
+  ExitPromptError,
   isDownKey,
   isEnterKey,
   isSpaceKey,
@@ -31,6 +32,7 @@ import {
   useKeypress,
   usePagination,
   usePrefix,
+  useRef,
   useState,
 } from '@inquirer/core';
 import {
@@ -40,6 +42,38 @@ import {
   type JourneySessionStatus,
 } from '../../ops/JourneyDebugAggregator';
 import c from '../ColorTheme';
+import { armEscapeGrace, EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
+import {
+  frameInnerWidth,
+  frameStatusTitle,
+  navigationMenuItems,
+  renderFramedBox,
+  renderNavigationMenu,
+  stripAnsi,
+  wrapLine,
+} from './NavigationMenu';
+
+/** `stripAnsi` as a single-argument helper for the panelRow discipline: every framed row carries its honest {text, plain} pair. */
+function stripAnsiOf(text: string): string {
+  return stripAnsi(text);
+}
+
+/** Panel-row width discipline applied at the top: the list's page rows must also fit the frame's inner width (a very wide terminal is not a license to draw past 120 -- same default as every box). */
+function clampListWidthToFrame(widths: ListColumnWidths): ListColumnWidths {
+  // Hand-rolled budget: markers(4) + status(9) + 5 separators + the three
+  // measured columns + a 20-floor for DETAIL. Anything over the budget
+  // comes off JOURNEY/USER (their caps are already applied upstream).
+  const fixed = 4 + STATUS_COL_WIDTH + 5;
+  const detailFloor = 20;
+  const budget = frameInnerWidth() - fixed - detailFloor;
+  const measured = widths.journey + widths.user + widths.age;
+  if (measured <= budget) return widths;
+  const overflow = measured - budget;
+  const takeJourney = Math.min(overflow, widths.journey - 7);
+  const journey = Math.max(7, widths.journey - takeJourney);
+  const user = Math.max(4, widths.user - (overflow - takeJourney));
+  return { journey, user, age: widths.age };
+}
 
 const POLL_INTERVAL_MS = 5000;
 // Raised from an original 20 -- a long-running journey's event history is
@@ -157,7 +191,10 @@ function statusLabel(session: JourneySession): string {
   return statusColorFn(session.status)(session.status);
 }
 
-function renderListHeader(widths: ListColumnWidths): string {
+/** One panel body row: what draws plus its ANSI-free measure (renderFramedBox's row discipline). */
+type PanelRow = { text: string; plain: string };
+
+function renderListHeader(widths: ListColumnWidths): PanelRow {
   const cells = [
     '    ', // pin marker + cursor marker, blank
     padCell('STATUS', STATUS_COL_WIDTH),
@@ -166,17 +203,21 @@ function renderListHeader(widths: ListColumnWidths): string {
     padCell('AGE', widths.age),
     'DETAIL',
   ];
-  return c.heading(cells.join(' '));
+  const plain = cells.join(' ');
+  return { text: c.heading(plain), plain };
 }
 
 function renderListRow(
   session: JourneySession,
   isActive: boolean,
   widths: ListColumnWidths
-): string {
+): PanelRow {
   const now = Date.now();
   const pin = session.pinned ? '\u{1F4CC} ' : '  ';
   const cursor = isActive ? '› ' : '  ';
+  // The leading cells are part of the MEASURED row (cursor + pin markers
+  // included) -- a plain that omitted them would let the right wall drift.
+  const marker = cursor + pin;
 
   const statusCell = statusColorFn(session.status)(
     padCell(session.status, STATUS_COL_WIDTH)
@@ -207,10 +248,11 @@ function renderListRow(
         ? c.muted(`@ ${truncate(session.lastNode, MAX_DETAIL_COL_WIDTH)}`)
         : '';
 
-  const line = [cursor + pin, statusCell, journeyCell, userCell, ageCell]
+  const body = [statusCell, journeyCell, userCell, ageCell]
     .join(' ')
     .concat(detailCell ? ` ${detailCell}` : '');
-  return isActive ? c.command(line) : line;
+  const line = `${marker}${body}`;
+  return { text: isActive ? c.command(line) : line, plain: stripAnsi(line) };
 }
 
 interface PropertyRow {
@@ -220,10 +262,41 @@ interface PropertyRow {
   labelColor?: (text: unknown) => string;
 }
 
+/**
+ * Property rows for the two detail views: `Label:` in the label color
+ * followed by the value, wrapped to the frame's inner width when the
+ * value runs long (a raw AM exception message alone confirmed live past
+ * 190 chars) -- one PanelRow per VISUAL row, continuation lines indented
+ * past the label column. wrapLine strips ANSI before measuring, so the
+ * wrap goes over the plain value and the drawn text re-colors per row
+ * (continuation rows render plain -- losing a colored value's ANSI on
+ * its wrapped tail is the accepted trade for honest walls).
+ */
+function propertyPanelRows(properties: PropertyRow[]): PanelRow[] {
+  const labelWidth = Math.max(...properties.map((p) => p.label.length)) + 1;
+  const innerWidth = frameInnerWidth();
+  const rows: PanelRow[] = [];
+  for (const p of properties) {
+    const label = padCell(`${p.label}:`, labelWidth);
+    const colorFn = p.labelColor ?? c.emphasis;
+    const plainValue = stripAnsi(p.value);
+    const wrapped = wrapLine(plainValue, innerWidth - label.length - 1);
+    wrapped.forEach((part, index) => {
+      const plain =
+        index === 0 ? `${label} ${part}` : `${' '.repeat(labelWidth)} ${part}`;
+      rows.push({
+        text: index === 0 ? `${colorFn(label)} ${part}` : c.muted(plain),
+        plain,
+      });
+    });
+  }
+  return rows;
+}
+
 function renderDetail(
   session: JourneySession,
   activeEventIndex: number
-): string {
+): PanelRow[] {
   const now = Date.now();
 
   const properties: PropertyRow[] = [
@@ -284,18 +357,21 @@ function renderDetail(
     });
   }
 
-  const labelWidth = Math.max(...properties.map((p) => p.label.length)) + 1;
-  const lines = properties.map((p) => {
-    const colorFn = p.labelColor ?? c.emphasis;
-    return `${colorFn(padCell(`${p.label}:`, labelWidth))} ${p.value}`;
-  });
+  const lines: PanelRow[] = propertyPanelRows(properties);
 
-  lines.push('', c.emphasis('Recent events:'));
+  lines.push(
+    { text: '', plain: '' },
+    { text: c.emphasis('Recent events:'), plain: 'Recent events:' }
+  );
   const shown = session.events.slice(-MAX_DETAIL_EVENTS);
   const omitted = session.events.length - shown.length;
-  if (omitted > 0) lines.push(c.muted(`  (${omitted} earlier events omitted)`));
+  if (omitted > 0)
+    lines.push({
+      text: c.muted(`  (${omitted} earlier events omitted)`),
+      plain: `  (${omitted} earlier events omitted)`,
+    });
   if (shown.length === 0) {
-    lines.push(c.muted('  (none yet)'));
+    lines.push({ text: c.muted('  (none yet)'), plain: '  (none yet)' });
   } else {
     // Column widths measured across just the shown (already-capped) slice
     // -- unlike the list view's widths, this never scrolls, so there's no
@@ -322,41 +398,68 @@ function renderDetail(
         );
       }
     }
-    lines.push(
-      c.heading(
+    lines.push({
+      text: c.heading(
         `    ${padCell('TIME', elapsedWidth)} ${padCell('SRC', SRC_COL_WIDTH)} ${padCell('STEP', stepWidth)} ${padCell('TYPE', typeWidth)} OUTCOME`
-      )
-    );
+      ),
+      plain: `    ${padCell('TIME', elapsedWidth)} ${padCell('SRC', SRC_COL_WIDTH)} ${padCell('STEP', stepWidth)} ${padCell('TYPE', typeWidth)} OUTCOME`,
+    });
     shown.forEach((event, index) => {
       const isActive = index === activeEventIndex;
       const cursor = isActive ? '› ' : '  ';
-      const elapsedCell = c.muted(
-        padCell(`+${formatElapsed(event.at - session.startedAt)}`, elapsedWidth)
+      // Cells composed PLAIN first: the prefix doubles as the wrap
+      // continuation indent below, so it must be honest (cursor included)
+      // and ANSI-free -- then colored per row.
+      const elapsedPlain = padCell(
+        `+${formatElapsed(event.at - session.startedAt)}`,
+        elapsedWidth
       );
-      const srcCell = c.muted(padCell(event.source, SRC_COL_WIDTH));
-      const stepCell = padCell(
+      const srcPlain = padCell(event.source, SRC_COL_WIDTH);
+      const stepPlain = padCell(
         truncate(event.step, MAX_STEP_COL_WIDTH),
         stepWidth
       );
-      const typeCell = padCell(
+      const typePlain = padCell(
         event.type ? truncate(event.type, MAX_TYPE_COL_WIDTH) : '',
         typeWidth
       );
+      const prefixPlain = `  ${cursor}${elapsedPlain} ${srcPlain} ${stepPlain} ${typePlain}`;
       // `repeatCount` > 1 means `JourneyDebugAggregator`'s dedup collapsed a
       // run of exact repeats into this one row (see `dedupeAppend`) -- the
       // same "message repeated N times" convention syslog-style loggers
       // use, so a burst of identical noise takes one row instead of N.
-      const repeatSuffix =
+      const outcomePlain = `${event.outcome ?? ''}${
         event.repeatCount && event.repeatCount > 1
-          ? c.muted(` (×${event.repeatCount})`)
-          : '';
-      const outcomeCell = `${event.outcome ?? ''}${repeatSuffix}`;
-      const row =
-        `  ${cursor}${elapsedCell} ${srcCell} ${stepCell} ${typeCell} ${outcomeCell}`.trimEnd();
-      lines.push(isActive ? c.command(row) : row);
+          ? ` (×${event.repeatCount})`
+          : ''
+      }`;
+      // OUTCOME has no fixed width -- a long failure reason (a live
+      // tree-completed row confirmed past 190 chars) WRAPS past the fixed
+      // columns instead of crossing the frame's right wall, continuation
+      // rows indented to the outcome column start (same honesty rule as
+      // propertyPanelRows above; continuation rows render muted).
+      const outcomeWidth = Math.max(
+        10,
+        frameInnerWidth() - prefixPlain.length - 1
+      );
+      wrapLine(outcomePlain, outcomeWidth).forEach((part, partIndex) => {
+        const plain =
+          partIndex === 0
+            ? `${prefixPlain} ${part}`.trimEnd()
+            : `${' '.repeat(prefixPlain.length + 1)}${part}`;
+        lines.push({
+          text:
+            partIndex === 0
+              ? isActive
+                ? c.command(plain)
+                : plain
+              : c.muted(plain),
+          plain,
+        });
+      });
     });
   }
-  return lines.join('\n');
+  return lines;
 }
 
 /** Turns a camelCase raw-field key into a human label, e.g. `authIndexValue` -> `Auth Index Value`. */
@@ -387,7 +490,7 @@ function formatRawValue(value: unknown): string {
 function renderEventDetail(
   session: JourneySession,
   event: JourneyDebugEventEntry
-): string {
+): PanelRow[] {
   const properties: PropertyRow[] = [
     { label: 'Step', value: event.step },
     { label: 'Source', value: event.source },
@@ -414,10 +517,7 @@ function renderEventDetail(
     }
   }
 
-  const labelWidth = Math.max(...properties.map((p) => p.label.length)) + 1;
-  return properties
-    .map((p) => `${c.emphasis(padCell(`${p.label}:`, labelWidth))} ${p.value}`)
-    .join('\n');
+  return propertyPanelRows(properties);
 }
 
 type ViewMode = 'list' | 'detail' | 'event';
@@ -502,295 +602,420 @@ function describeFilter(
   return parts.length ? parts.join(', ') : undefined;
 }
 
-const journeyDebugPromptImpl = createPrompt<void, JourneyDebugPromptConfig>(
-  (config, done) => {
-    const aggregator = useState(() => new JourneyDebugAggregator(config))[0];
-    const [sessions, setSessions] = useState<JourneySession[]>([]);
-    const [warning, setWarning] = useState<string | undefined>(undefined);
-    const [viewMode, setViewMode] = useState<ViewMode>('list');
-    // Tracked by transactionId, not array index -- `sessions` is freshly
-    // sorted by most-recent-activity on every poll, so a plain index would
-    // silently start pointing at a different row the instant any other
-    // session's activity resorted the list out from under it. Confirmed
-    // live: this could pin/drill into the wrong session if a poll landed
-    // between rendering and a keypress.
-    const [activeId, setActiveId] = useState<string | undefined>(undefined);
-    const [detailId, setDetailId] = useState<string | undefined>(undefined);
-    // Same stable-key reasoning as `activeId` above, keyed off the event's
-    // own raw log-event `_id` (see `JourneyDebugEventEntry.id`) rather than
-    // its position in the (fixed, non-resorting, but window-sliding as new
-    // events arrive) `shown` slice.
-    const [selectedEventId, setSelectedEventId] = useState<string | undefined>(
-      undefined
-    );
-    const [done_, setDone] = useState(false);
-    const prefix = usePrefix({ status: done_ ? 'done' : 'idle' });
+const journeyDebugPromptImpl = createPrompt<
+  void | typeof EXIT_ALL,
+  JourneyDebugPromptConfig
+>((config, done) => {
+  const aggregator = useState(() => new JourneyDebugAggregator(config))[0];
+  const [sessions, setSessions] = useState<JourneySession[]>([]);
+  const [warning, setWarning] = useState<string | undefined>(undefined);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  // Tracked by transactionId, not array index -- `sessions` is freshly
+  // sorted by most-recent-activity on every poll, so a plain index would
+  // silently start pointing at a different row the instant any other
+  // session's activity resorted the list out from under it. Confirmed
+  // live: this could pin/drill into the wrong session if a poll landed
+  // between rendering and a keypress.
+  const [activeId, setActiveId] = useState<string | undefined>(undefined);
+  const [detailId, setDetailId] = useState<string | undefined>(undefined);
+  // Same stable-key reasoning as `activeId` above, keyed off the event's
+  // own raw log-event `_id` (see `JourneyDebugEventEntry.id`) rather than
+  // its position in the (fixed, non-resorting, but window-sliding as new
+  // events arrive) `shown` slice.
+  const [selectedEventId, setSelectedEventId] = useState<string | undefined>(
+    undefined
+  );
+  const [done_, setDone] = useState(false);
+  const prefix = usePrefix({ status: done_ ? 'done' : 'idle' });
 
-    useEffect(() => {
-      let cancelled = false;
-      let inFlight = false;
-      const runPoll = async () => {
-        if (inFlight || cancelled) return;
-        inFlight = true;
-        try {
-          // Reset to this cycle's outcome only -- a warning is a
-          // transient "something went wrong just now" signal, not a
-          // permanent banner. Without this, a single early hiccup (e.g.
-          // one export failure) would stay pinned on screen forever
-          // even once later polls succeed cleanly.
-          let latestWarning: string | undefined;
-          await aggregator.poll((message) => {
-            latestWarning = message;
-          });
-          if (!cancelled) {
-            setWarning(latestWarning);
-            setSessions(aggregator.getSessions());
-          }
-        } catch (error) {
-          // aggregator.poll() itself is documented never to throw, but
-          // this is the last line of defense before an uncaught
-          // rejection from this `void`-called, un-awaited function would
-          // otherwise go completely unhandled -- confirmed live that a
-          // long-running debug session left open against real traffic
-          // went totally unresponsive to every key except Escape (which
-          // resolves the prompt directly and needs no re-render to be
-          // visible, unlike every other key, which only updates state
-          // for a re-render this same interval loop drives).
-          if (!cancelled) {
-            setWarning(
-              `debug: unexpected error, will retry -- ${error instanceof Error ? error.message : String(error)}`
-            );
-          }
-        } finally {
-          // In `finally`, not just as the last line of the try block --
-          // otherwise an exception above would leave this stuck `true`
-          // forever, silently no-op-ing every future poll via the guard
-          // at the top even once the error itself stopped recurring.
-          inFlight = false;
-        }
-      };
-      void runPoll();
-      const interval = setInterval(() => void runPoll(), POLL_INTERVAL_MS);
-      return () => {
-        cancelled = true;
-        clearInterval(interval);
-      };
-    }, [aggregator]);
+  // The double-ESC grace (see ExitAll.ts and EscapableSelectPrompt --
+  // same mechanism, one instance per view here): the first ESC opens a
+  // short window instead of acting; a second ESC inside it resolves the
+  // prompt with EXIT_ALL (exit-all unwinds to the shell from ANY view);
+  // an expired window performs the CURRENT view's single-ESC action
+  // (event -> detail -> list -> exit). The callbacks are created fresh
+  // inside this render pass's keypress closure, so the viewMode they
+  // capture is the one on screen when the grace armed -- never stale.
+  const escapeGraceRef = useRef<ReturnType<typeof armEscapeGrace> | undefined>(
+    undefined
+  );
+  // True while the grace window is open: the view renders the exit-all
+  // hint inside the panel so the gesture is discoverable.
+  const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
 
-    // Computed through a try/catch, not inline -- @inquirer/core's own
-    // render loop wraps the whole render call in exactly one try/catch and
-    // *rejects the entire prompt* on any exception (confirmed by reading
-    // its source, create-prompt.js): the promise settles, cleanup runs
-    // (readline listeners removed, terminal restored), and whatever key
-    // the user happened to press right around then just goes to their
-    // now-restored shell -- easily mistaken for "Escape got me out",
-    // when actually the app had already silently exited via a rejected
-    // promise. Confirmed live: a long-running session against real
-    // admin-console traffic became unresponsive to every key this way.
-    // useKeypress below needs `clampedActive`/`shownEvents`/etc for its
-    // closure, so if computing them throws, useKeypress must still be
-    // reached with *some* (degraded) values -- never skipped -- since a
-    // render pass that never reaches useKeypress leaves its internal
-    // keypress-handler ref stale, and every later render hitting the same
-    // throw at the same point means it never gets refreshed again.
-    // A caught error is carried in this plain local, not via setState --
-    // setState synchronously re-enters render() (confirmed by reading
-    // use-state.js), so calling it from within the render pass itself
-    // (as opposed to from inside the useKeypress callback below, which is
-    // an event handler and batches updates safely) risks reentrant/
-    // recursive rendering. The error surfaces via the plain fallback
-    // return near the bottom of this same render pass instead.
-    let derived: DerivedPromptState;
-    let derivedError: string | undefined;
-    try {
-      derived = computeDerivedState(
-        sessions,
-        activeId,
-        detailId,
-        selectedEventId
-      );
-    } catch (error) {
-      derived = EMPTY_DERIVED_STATE;
-      derivedError = error instanceof Error ? error.message : String(error);
-    }
-    const {
-      clampedActive,
-      detailSession,
-      shownEvents,
-      clampedEventIndex,
-      activeEvent,
-    } = derived;
+  // Grace teardown on unmount: a timer firing after the prompt resolved
+  // would call a stale handler (the prompt's hooks are gone).
+  useEffect(() => () => escapeGraceRef.current?.dispose(), []);
 
-    useKeypress((key) => {
-      try {
-        if (done_) return;
-        if (viewMode === 'event') {
-          if (key.name === 'escape') {
-            setViewMode('detail');
-          } else if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
-            const offset = isUpKey(key) ? -1 : 1;
-            const nextIndex =
-              (clampedEventIndex + offset + shownEvents.length) %
-              shownEvents.length;
-            const nextEvent = shownEvents[nextIndex];
-            setSelectedEventId(nextEvent.id);
-          }
-          return;
-        }
-        if (viewMode === 'detail') {
-          if (key.name === 'escape') {
-            setViewMode('list');
-          } else if (isSpaceKey(key) && detailSession) {
-            aggregator.togglePin(detailSession.transactionId);
-            setSessions(aggregator.getSessions());
-          } else if (isEnterKey(key) && shownEvents.length) {
-            setSelectedEventId(activeEvent?.id);
-            setViewMode('event');
-          } else if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
-            const offset = isUpKey(key) ? -1 : 1;
-            const nextIndex =
-              (clampedEventIndex + offset + shownEvents.length) %
-              shownEvents.length;
-            const nextEvent = shownEvents[nextIndex];
-            setSelectedEventId(nextEvent.id);
-          }
-          return;
-        }
-        // list mode
-        if (key.name === 'escape') {
+  /** Cancels any open grace (every non-ESC key breaks the streak). */
+  const cancelEscapeGrace = () => {
+    escapeGraceRef.current?.otherKey();
+    escapeGraceRef.current = undefined;
+    setEscapeGraceOpen(false);
+  };
+
+  /** First ESC from the CURRENT view: arm the grace window. */
+  const armViewEscapeGrace = () => {
+    setEscapeGraceOpen(true);
+    escapeGraceRef.current = armEscapeGrace({
+      onSecondEscape: () => {
+        setEscapeGraceOpen(false);
+        setDone(true);
+        done(EXIT_ALL);
+      },
+      onGraceExpire: () => {
+        setEscapeGraceOpen(false);
+        // The single-ESC action of the view on screen when the grace
+        // armed -- recreated per render, so this closure is current.
+        if (viewMode === 'event') setViewMode('detail');
+        else if (viewMode === 'detail') setViewMode('list');
+        else {
           setDone(true);
           done();
-        } else if (isEnterKey(key) && sessions.length) {
-          setDetailId(sessions[clampedActive].transactionId);
-          setSelectedEventId(undefined);
-          setViewMode('detail');
-        } else if (isSpaceKey(key) && sessions.length) {
-          aggregator.togglePin(sessions[clampedActive].transactionId);
+        }
+      },
+    });
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    let inFlight = false;
+    const runPoll = async () => {
+      if (inFlight || cancelled) return;
+      inFlight = true;
+      try {
+        // Reset to this cycle's outcome only -- a warning is a
+        // transient "something went wrong just now" signal, not a
+        // permanent banner. Without this, a single early hiccup (e.g.
+        // one export failure) would stay pinned on screen forever
+        // even once later polls succeed cleanly.
+        let latestWarning: string | undefined;
+        await aggregator.poll((message) => {
+          latestWarning = message;
+        });
+        if (!cancelled) {
+          setWarning(latestWarning);
           setSessions(aggregator.getSessions());
-        } else if ((isUpKey(key) || isDownKey(key)) && sessions.length) {
-          const offset = isUpKey(key) ? -1 : 1;
-          const nextIndex =
-            (clampedActive + offset + sessions.length) % sessions.length;
-          setActiveId(sessions[nextIndex].transactionId);
         }
       } catch (error) {
-        // Safe to setState here (unlike the two render-pass try/catches
-        // above/below) -- this callback runs inside @inquirer/core's own
-        // withUpdates() batching, the same mechanism every other
-        // setState call in this handler already relies on.
-        setWarning(
-          `debug: unexpected error handling key, ignoring -- ${error instanceof Error ? error.message : String(error)}`
-        );
+        // aggregator.poll() itself is documented never to throw, but
+        // this is the last line of defense before an uncaught
+        // rejection from this `void`-called, un-awaited function would
+        // otherwise go completely unhandled -- confirmed live that a
+        // long-running debug session left open against real traffic
+        // went totally unresponsive to every key except Escape (which
+        // resolves the prompt directly and needs no re-render to be
+        // visible, unlike every other key, which only updates state
+        // for a re-render this same interval loop drives).
+        if (!cancelled) {
+          setWarning(
+            `debug: unexpected error, will retry -- ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      } finally {
+        // In `finally`, not just as the last line of the try block --
+        // otherwise an exception above would leave this stuck `true`
+        // forever, silently no-op-ing every future poll via the guard
+        // at the top even once the error itself stopped recurring.
+        inFlight = false;
       }
+    };
+    void runPoll();
+    const interval = setInterval(() => void runPoll(), POLL_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [aggregator]);
+
+  // Computed through a try/catch, not inline -- @inquirer/core's own
+  // render loop wraps the whole render call in exactly one try/catch and
+  // *rejects the entire prompt* on any exception (confirmed by reading
+  // its source, create-prompt.js): the promise settles, cleanup runs
+  // (readline listeners removed, terminal restored), and whatever key
+  // the user happened to press right around then just goes to their
+  // now-restored shell -- easily mistaken for "Escape got me out",
+  // when actually the app had already silently exited via a rejected
+  // promise. Confirmed live: a long-running session against real
+  // admin-console traffic became unresponsive to every key this way.
+  // useKeypress below needs `clampedActive`/`shownEvents`/etc for its
+  // closure, so if computing them throws, useKeypress must still be
+  // reached with *some* (degraded) values -- never skipped -- since a
+  // render pass that never reaches useKeypress leaves its internal
+  // keypress-handler ref stale, and every later render hitting the same
+  // throw at the same point means it never gets refreshed again.
+  // A caught error is carried in this plain local, not via setState --
+  // setState synchronously re-enters render() (confirmed by reading
+  // use-state.js), so calling it from within the render pass itself
+  // (as opposed to from inside the useKeypress callback below, which is
+  // an event handler and batches updates safely) risks reentrant/
+  // recursive rendering. The error surfaces via the plain fallback
+  // return near the bottom of this same render pass instead.
+  let derived: DerivedPromptState;
+  let derivedError: string | undefined;
+  try {
+    derived = computeDerivedState(
+      sessions,
+      activeId,
+      detailId,
+      selectedEventId
+    );
+  } catch (error) {
+    derived = EMPTY_DERIVED_STATE;
+    derivedError = error instanceof Error ? error.message : String(error);
+  }
+  const {
+    clampedActive,
+    detailSession,
+    shownEvents,
+    clampedEventIndex,
+    activeEvent,
+  } = derived;
+
+  useKeypress((key) => {
+    try {
+      if (done_) return;
+      if (key.name === 'escape') {
+        // Two-stage escape (see ExitAll.ts): second ESC inside the
+        // window exits all the way out; expiry performs this view's
+        // single-ESC action (armed in armViewEscapeGrace above).
+        if (escapeGraceRef.current) {
+          const grace = escapeGraceRef.current;
+          escapeGraceRef.current = undefined;
+          grace.secondEscape();
+          return;
+        }
+        armViewEscapeGrace();
+        return;
+      }
+      // Any other key breaks the double-ESC streak (consecutive
+      // presses only -- the mouse double-click analogy).
+      cancelEscapeGrace();
+      if (viewMode === 'event') {
+        if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
+          const offset = isUpKey(key) ? -1 : 1;
+          const nextIndex =
+            (clampedEventIndex + offset + shownEvents.length) %
+            shownEvents.length;
+          const nextEvent = shownEvents[nextIndex];
+          setSelectedEventId(nextEvent.id);
+        }
+        return;
+      }
+      if (viewMode === 'detail') {
+        if (isSpaceKey(key) && detailSession) {
+          aggregator.togglePin(detailSession.transactionId);
+          setSessions(aggregator.getSessions());
+        } else if (isEnterKey(key) && shownEvents.length) {
+          setSelectedEventId(activeEvent?.id);
+          setViewMode('event');
+        } else if ((isUpKey(key) || isDownKey(key)) && shownEvents.length) {
+          const offset = isUpKey(key) ? -1 : 1;
+          const nextIndex =
+            (clampedEventIndex + offset + shownEvents.length) %
+            shownEvents.length;
+          const nextEvent = shownEvents[nextIndex];
+          setSelectedEventId(nextEvent.id);
+        }
+        return;
+      }
+      // list mode
+      if (isEnterKey(key) && sessions.length) {
+        setDetailId(sessions[clampedActive].transactionId);
+        setSelectedEventId(undefined);
+        setViewMode('detail');
+      } else if (isSpaceKey(key) && sessions.length) {
+        aggregator.togglePin(sessions[clampedActive].transactionId);
+        setSessions(aggregator.getSessions());
+      } else if ((isUpKey(key) || isDownKey(key)) && sessions.length) {
+        const offset = isUpKey(key) ? -1 : 1;
+        const nextIndex =
+          (clampedActive + offset + sessions.length) % sessions.length;
+        setActiveId(sessions[nextIndex].transactionId);
+      }
+    } catch (error) {
+      // Safe to setState here (unlike the two render-pass try/catches
+      // above/below) -- this callback runs inside @inquirer/core's own
+      // withUpdates() batching, the same mechanism every other
+      // setState call in this handler already relies on.
+      setWarning(
+        `debug: unexpected error handling key, ignoring -- ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  });
+
+  if (done_) {
+    return `${prefix} Journey debugging ended.`;
+  }
+
+  const warningLine = warning ? c.warning(warning) : '';
+
+  /**
+   * One panel body row from a rendered (colored) string -- plain
+   * mirrors it ANSI-free so `renderFramedBox`'s measure stays honest.
+   * `stripAnsi` is imported for exactly this discipline.
+   */
+  const panelRow = (row: string): { text: string; plain: string } => ({
+    text: row,
+    plain: stripAnsiOf(row),
+  });
+
+  // The grace hint renders INSIDE the panel (first line, like the
+  // pickers) so the gesture's second half is obvious.
+  const graceLine = escapeGraceOpen
+    ? panelRow(c.muted('esc again to exit all -- or wait to go back'))
+    : undefined;
+
+  // Same reasoning as the derived-state try/catch above: any of these
+  // render helpers throwing (a malformed session, a raw event field that
+  // doesn't stringify the way `formatRawValue` expects, ...) must not be
+  // allowed to propagate out of the render call, or @inquirer/core's
+  // `cycle()` rejects the whole prompt promise instead of just this one
+  // frame. Falls back to a framed error panel and keeps the prompt alive
+  // for the next poll/keypress to re-render from, rather than exiting.
+  try {
+    if (derivedError) {
+      throw new Error(derivedError);
+    }
+
+    if (viewMode === 'event' && detailSession && activeEvent) {
+      const panelLines = [];
+      if (graceLine) panelLines.push(graceLine);
+      panelLines.push(...renderEventDetail(detailSession, activeEvent));
+      return [
+        renderNavigationMenu(
+          navigationMenuItems({ escape: 'back · [ESC]×2 exit all' })
+        ),
+        renderFramedBox({
+          title: frameStatusTitle(`${prefix} Event detail`),
+          lines: panelLines,
+        }),
+        warningLine,
+      ]
+        .filter(Boolean)
+        .join('\n');
+    }
+
+    if (viewMode === 'detail' && detailSession) {
+      const panelLines = [];
+      if (graceLine) panelLines.push(graceLine);
+      panelLines.push(...renderDetail(detailSession, clampedEventIndex));
+      return [
+        renderNavigationMenu(
+          navigationMenuItems({
+            enter: 'view event',
+            space: 'pin/unpin',
+            escape: 'back · [ESC]×2 exit all',
+          })
+        ),
+        renderFramedBox({
+          title: frameStatusTitle(`${prefix} Journey detail`),
+          lines: panelLines,
+        }),
+        warningLine,
+      ]
+        .filter(Boolean)
+        .join('\n');
+    }
+
+    const filterLabel = describeFilter(
+      config,
+      aggregator.getResolvedUserIdAlias()
+    );
+
+    const title = frameStatusTitle(`${prefix} Debugging journeys`, [
+      ...(sessions.length ? [`(${sessions.length} tracked)`] : []),
+      ...(filterLabel ? [`[${filterLabel}]`] : []),
+    ]);
+
+    if (sessions.length === 0) {
+      const waitingLine = filterLabel
+        ? `No journey activity matching [${filterLabel}] detected yet -- waiting for a match (or check the filter for a typo)...`
+        : 'No journey activity detected yet -- waiting for a journey to start...';
+      return [
+        renderNavigationMenu(
+          navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' })
+        ),
+        renderFramedBox({
+          title,
+          lines: [
+            ...(graceLine ? [graceLine] : []),
+            panelRow(c.muted(waitingLine)),
+            ...(warningLine ? [panelRow(warningLine)] : []),
+          ],
+        }),
+      ]
+        .filter(Boolean)
+        .join('\n');
+    }
+
+    // Measured across every tracked session, not just the visible page --
+    // otherwise columns would visibly resize every time paging brought a
+    // wider (or narrower) value into view. Then clamped to the frame:
+    // the DETAIL cell truncates harder when the measured columns eat the
+    // budget (its floor lives in clampListWidthToFrame).
+    const listWidths = clampListWidthToFrame(computeListColumnWidths(sessions));
+    const page = usePagination({
+      items: sessions,
+      active: clampedActive,
+      // usePagination composes STRINGS; the drawn side of the row is
+      // what lands in the page -- the plain measure is taken per row
+      // below (panelRow), keeping the honest {text, plain} discipline.
+      renderItem: ({ item, isActive }) =>
+        renderListRow(item, isActive, listWidths).text,
+      pageSize: 15,
+      loop: true,
     });
 
-    if (done_) {
-      return `${prefix} Journey debugging ended.`;
+    const panelLines = [];
+    if (graceLine) panelLines.push(graceLine);
+    panelLines.push(renderListHeader(listWidths));
+    for (const row of page.split('\n')) {
+      panelLines.push(panelRow(row));
     }
+    if (warningLine) panelLines.push(panelRow(warningLine));
 
-    const warningLine = warning ? c.warning(warning) : '';
-
-    // Same reasoning as the derived-state try/catch above: any of these
-    // render helpers throwing (a malformed session, a raw event field that
-    // doesn't stringify the way `formatRawValue` expects, ...) must not be
-    // allowed to propagate out of the render call, or @inquirer/core's
-    // `cycle()` rejects the whole prompt promise instead of just this one
-    // frame. Falls back to a plain error line and keeps the prompt alive
-    // for the next poll/keypress to re-render from, rather than exiting.
-    try {
-      if (derivedError) {
-        throw new Error(derivedError);
-      }
-
-      if (viewMode === 'event' && detailSession && activeEvent) {
-        return [
-          `${prefix} ${c.heading('Event detail')}`,
-          renderEventDetail(detailSession, activeEvent),
-          '',
-          c.muted('(↑↓ select another event · esc back to journey detail)'),
-          warningLine,
-        ]
-          .filter(Boolean)
-          .join('\n');
-      }
-
-      if (viewMode === 'detail' && detailSession) {
-        return [
-          `${prefix} ${c.heading('Journey detail')}`,
-          renderDetail(detailSession, clampedEventIndex),
-          '',
-          c.muted(
-            '(↑↓ select event · enter view event · space pin/unpin · esc back to list)'
+    return [
+      renderNavigationMenu(
+        navigationMenuItems({
+          enter: 'drill down',
+          space: 'pin/unpin',
+          escape: 'exit · [ESC]×2 exit all',
+        })
+      ),
+      renderFramedBox({ title, lines: panelLines }),
+    ]
+      .filter(Boolean)
+      .join('\n');
+  } catch (error) {
+    return [
+      renderNavigationMenu(
+        navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' })
+      ),
+      renderFramedBox({
+        title: frameStatusTitle(`${prefix} Debugging journeys`),
+        lines: [
+          ...(graceLine ? [graceLine] : []),
+          panelRow(
+            c.negative(
+              `Internal error rendering this view, will retry on the next update -- ${error instanceof Error ? error.message : String(error)}`
+            )
           ),
-          warningLine,
-        ]
-          .filter(Boolean)
-          .join('\n');
-      }
-
-      const filterLabel = describeFilter(
-        config,
-        aggregator.getResolvedUserIdAlias()
-      );
-
-      if (sessions.length === 0) {
-        return [
-          `${prefix} ${c.heading('Debugging journeys')}`,
-          c.muted(
-            filterLabel
-              ? `No journey activity matching [${filterLabel}] detected yet -- waiting for a match (or check the filter for a typo)...`
-              : 'No journey activity detected yet -- waiting for a journey to start (this can take a few minutes)...'
-          ),
-          c.muted('(esc exit)'),
-          warningLine,
-        ]
-          .filter(Boolean)
-          .join('\n');
-      }
-
-      // Measured across every tracked session, not just the visible page --
-      // otherwise columns would visibly resize every time paging brought a
-      // wider (or narrower) value into view.
-      const listWidths = computeListColumnWidths(sessions);
-      const page = usePagination({
-        items: sessions,
-        active: clampedActive,
-        renderItem: ({ item, isActive }) =>
-          renderListRow(item, isActive, listWidths),
-        pageSize: 15,
-        loop: true,
-      });
-
-      return [
-        `${prefix} ${c.heading('Debugging journeys')} ${c.muted(`(${sessions.length} tracked)`)}${filterLabel ? ` ${c.muted(`[${filterLabel}]`)}` : ''}`,
-        renderListHeader(listWidths),
-        page,
-        c.muted(
-          '(↑↓ navigate · enter drill-down · space pin/unpin · esc exit)'
-        ),
-        warningLine,
-      ]
-        .filter(Boolean)
-        .join('\n');
-    } catch (error) {
-      return [
-        `${prefix} ${c.heading('Debugging journeys')}`,
-        c.negative(
-          `Internal error rendering this view, will retry on the next update -- ${error instanceof Error ? error.message : String(error)}`
-        ),
-        c.muted('(esc exit)'),
-        warningLine,
-      ]
-        .filter(Boolean)
-        .join('\n');
-    }
+          ...(warningLine ? [panelRow(warningLine)] : []),
+        ],
+      }),
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
-);
+});
 
 /**
- * Runs the interactive journey-debugging session until the user presses
- * Escape from the top-level list. Assumes `state`/credentials are already
- * set up by the caller (same convention as `frodo debug`'s other topics).
+ * Runs the interactive journey-debugging session until the user backs out
+ * (single ESC from the top-level list, 400ms grace) or exits all the way
+ * out (fast double-ESC from any view). Assumes `state`/credentials are
+ * already set up by the caller (same convention as `frodo debug`'s other
+ * topics).
  */
 export async function runJourneyDebugPrompt(
   config: JourneyDebugPromptConfig = {}
@@ -800,5 +1025,21 @@ export async function runJourneyDebugPrompt(
   // leaves -- the debug transcript is a live view, not an artifact to
   // keep in scrollback. Same every-exit-path guarantee as the other
   // prompts (see EscapableSelectPrompt's wrapper comment).
-  await journeyDebugPromptImpl(config, { clearPromptOnDone: true });
+  try {
+    const result = await journeyDebugPromptImpl(config, {
+      clearPromptOnDone: true,
+    });
+    // Double-ESC resolved with the exit-all sentinel: throw the unwind
+    // signal so app.ts's top-level handler exits the whole session
+    // cleanly (same convention as the pickers' wrappers).
+    if (result === EXIT_ALL) throw EXIT_ALL_SIGNAL;
+  } catch (error) {
+    // Ctrl+C (SIGINT) rejects the prompt with @inquirer/core's
+    // ExitPromptError; with erase-on-conclude having already restored the
+    // screen, the clean exit is silence -- not app.ts's error print +
+    // exit 1 (same treatment as PromptGate's gap-fill wrappers, which
+    // degrade ExitPromptError instead of surfacing it).
+    if (error instanceof ExitPromptError) return;
+    throw error;
+  }
 }

@@ -96,6 +96,25 @@ export function navigationMenuItems(options: {
   return items;
 }
 
+/**
+ * The status-title convention for the live dashboards (the debug
+ * prompts): a `heading` main label followed by muted suffixes carrying
+ * the ambient state -- '(3 tracked)', '[filter label]',
+ * '(volker-dev · alpha)'. Returns the {text, plain} pair
+ * `renderFramedBox` wants as its title: text is what draws, plain
+ * mirrors it ANSI-free (the suffixes' brackets/parens belong to the
+ * caller, so the composition stays verbatim).
+ */
+export function frameStatusTitle(
+  main: string,
+  suffixes: string[] = []
+): { text: string; plain: string } {
+  return {
+    text: [c.heading(main), ...suffixes.map((s) => c.muted(s))].join(' '),
+    plain: [main, ...suffixes].join(' '),
+  };
+}
+
 const INTENT_COLOR: Record<
   NavigationMenuItem['intent'],
   (text: string) => string

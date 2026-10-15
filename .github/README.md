@@ -60,6 +60,30 @@ the SEA binary, which is what CI enforces.) See
 [CONTRIBUTE.md](../docs/CONTRIBUTE.md) and
 [BUILD-ENV.md](../docs/BUILD-ENV.md) for the full toolchain.
 
+### Interactive commands
+
+Missing command input no longer fails with a usage error: interactive
+commands fill the gaps conversationally and author the exact command that
+will run — pick a connection profile, choose options from grouped
+editors, select entities from live-searchable lists, and watch the
+command preview update (green = valid as shown) before anything commits.
+
+![Deleting a secret interactively: connection picker, entity list with live command preview, and the completed run](../docs/images/interactive-flagship.gif)
+
+![The grouped options editor with uncommitted-selections guard](../docs/images/grouped-options-editor.gif)
+
+Debugging a journey live: executions appear as they run, drill into a
+failed login to see the node-by-node events behind the failure. Tail
+any debug topic (`frodo debug all`) the same way — a live, self-updating
+framed event feed; scroll up to review history, back down to re-follow.
+
+![Live journey debugging with drill-down into a failed login](../docs/images/debug-journey.gif)
+
+![The framed debug tail following live events](../docs/images/debug-tail.gif)
+
+See [docs/INTERACTIVE-COMMANDS.md](../docs/INTERACTIVE-COMMANDS.md) for the
+architecture behind these surfaces.
+
 ### Based on Frodo Library 5.x
 
 [Frodo Library 5.x](https://github.com/rockcarver/frodo-lib?tab=readme-ov-file#frodo-library-5x---rockcarverfrodo-lib)
