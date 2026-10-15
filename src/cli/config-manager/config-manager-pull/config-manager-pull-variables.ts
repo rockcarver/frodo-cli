@@ -19,6 +19,9 @@ export default function setup() {
   program
     .description('Export variables objects.')
     .addOption(new Option('-r, --report', 'Output variables as a CSV report.'))
+    .addOption(
+      new Option('-d, --dump', 'Dump decoded variable values to the console.')
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -31,7 +34,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting variables');
-        const outcome = await configManagerExportVariables(options.report);
+        const outcome = await configManagerExportVariables(
+          options.report,
+          options.dump
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

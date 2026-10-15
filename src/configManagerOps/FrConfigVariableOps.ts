@@ -20,10 +20,12 @@ const { readVariables, importVariables } = frodo.cloud.variable;
 /**
  * Export all variables to individual files in fr-config-manager format
  * @param {boolean} report true to report in csv format
+ * @param {boolean} dump true to dump variable values to the console
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportVariables(
-  report?: boolean
+  report?: boolean,
+  dump?: boolean
 ): Promise<boolean> {
   let spinnerId: string;
   let variableList: VariableSkeleton[];
@@ -84,6 +86,11 @@ export async function configManagerExportVariables(
         getFilePath(`esvs/variables/${variable._id}.json`, true),
         false
       );
+
+      if (dump) {
+        printMessage(`${envVariable}='${variable.value}'`, 'data');
+      }
+
       updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
     }
     stopProgressIndicator(
