@@ -68,9 +68,8 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   verboseMessage: () => {},
 }));
 
-const { JourneyDebugAggregator } = await import(
-  '../../src/ops/JourneyDebugAggregator.ts'
-);
+const { JourneyDebugAggregator } =
+  await import('../../src/ops/JourneyDebugAggregator.ts');
 
 function nodeEvent({
   transactionId,
@@ -88,9 +87,7 @@ function nodeEvent({
       transactionId,
       principal: principal ? [principal] : undefined,
       trackingIds,
-      entries: [
-        { info: { treeName, displayName, nodeType, nodeOutcome } },
-      ],
+      entries: [{ info: { treeName, displayName, nodeType, nodeOutcome } }],
     }),
   };
 }
@@ -115,9 +112,7 @@ function treeCompletedEvent({
         {
           info: {
             treeName,
-            ...(failureReason
-              ? { nodeExtraLogging: { failureReason } }
-              : {}),
+            ...(failureReason ? { nodeExtraLogging: { failureReason } } : {}),
           },
         },
       ],
@@ -125,7 +120,11 @@ function treeCompletedEvent({
   };
 }
 
-function loginCompletedEvent({ transactionId, principal, result = 'SUCCESSFUL' }) {
+function loginCompletedEvent({
+  transactionId,
+  principal,
+  result = 'SUCCESSFUL',
+}) {
   return {
     payload: JSON.stringify({
       component: 'Authentication',
@@ -341,7 +340,7 @@ describe('JourneyDebugAggregator - classification', () => {
     // covers, and HTML-encodes quotes/equals signs in the message.
     const aggregator = new JourneyDebugAggregator();
     const rawFailure =
-      "Wrapped org.forgerock.openam.scripting.wrappers.ResourceExceptionScriptAdapter: No Such Entry: The search base entry &#39;fr-idm-uuid&#61;frodo-debug-does-not-exist-12345,ou&#61;user,o&#61;alpha,o&#61;root,ou&#61;identities&#39; does not exist (FrodoDebugBrokenScript:2)";
+      'Wrapped org.forgerock.openam.scripting.wrappers.ResourceExceptionScriptAdapter: No Such Entry: The search base entry &#39;fr-idm-uuid&#61;frodo-debug-does-not-exist-12345,ou&#61;user,o&#61;alpha,o&#61;root,ou&#61;identities&#39; does not exist (FrodoDebugBrokenScript:2)';
     mockTailResult = {
       result: [
         treeCompletedEvent({
@@ -464,7 +463,41 @@ describe('JourneyDebugAggregator - abandoned detection', () => {
     expect(aggregator.getSessions()[0].status).toBe('running');
   });
 
-  test("an UpdateJourneyTimeoutNode SET override extends the abandoned threshold for that tree", async () => {
+  test('a node event after a FAILED tree self-heals the session back to running (and drops the stale failure reason)', async () => {
+    // Captured live while recording the debug-journey GIF (2026-10-15):
+    // the error.demo walk failed -- `Tree completed FAILED` set
+    // status='failed' + failureReason -- yet AM kept streaming
+    // AM-NODE-LOGIN-COMPLETED events for the same transaction (the
+    // broken script's error handling continues the flow server-side),
+    // and the detail header stayed `Status: running` with no Failure
+    // row while the events table still showed the FAILED tree row.
+    const aggregator = new JourneyDebugAggregator();
+    mockTailResult = {
+      result: [
+        nodeEvent({ transactionId: 'tx-fail-heal' }),
+        treeCompletedEvent({
+          transactionId: 'tx-fail-heal',
+          treeName: 'frodo-debug-demo',
+          result: 'FAILED',
+          failureReason: 'Simulated secret-store outage',
+        }),
+      ],
+    };
+    await aggregator.poll();
+    const failed = aggregator.getSessions()[0];
+    expect(failed.status).toBe('failed');
+    expect(failed.failureReason).toContain('Simulated secret-store outage');
+
+    mockTailResult = {
+      result: [nodeEvent({ transactionId: 'tx-fail-heal' })],
+    };
+    await aggregator.poll();
+    const healed = aggregator.getSessions()[0];
+    expect(healed.status).toBe('running');
+    expect(healed.failureReason).toBeUndefined();
+  });
+
+  test('an UpdateJourneyTimeoutNode SET override extends the abandoned threshold for that tree', async () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-01-01T00:00:00Z'));
     mockReadAuthenticationSettings = async () => ({
@@ -520,9 +553,9 @@ describe('JourneyDebugAggregator - abandoned detection', () => {
     mockTailResult = { result: [] };
     await aggregator.poll((m) => warnings.push(m));
     expect(aggregator.getSessions()[0].status).toBe('abandoned');
-    expect(
-      warnings.some((w) => w.includes('403 insufficient privilege'))
-    ).toBe(true);
+    expect(warnings.some((w) => w.includes('403 insufficient privilege'))).toBe(
+      true
+    );
   });
 });
 
@@ -843,7 +876,10 @@ describe('JourneyDebugAggregator - event entry structure', () => {
     };
     await aggregator.poll();
     const events = aggregator.getSessions()[0].events;
-    expect(events[1]).toMatchObject({ step: 'Tree completed', type: 'SUCCESSFUL' });
+    expect(events[1]).toMatchObject({
+      step: 'Tree completed',
+      type: 'SUCCESSFUL',
+    });
     expect(events[1].outcome).toBeUndefined();
   });
 
@@ -866,7 +902,9 @@ describe('JourneyDebugAggregator - event entry structure', () => {
     await aggregator.poll();
     const session = aggregator.getSessions()[0];
     expect(session.events[1].outcome).toBe(session.failureReason);
-    expect(session.events[1].outcome).toContain('Login Page → socialAuthentication');
+    expect(session.events[1].outcome).toContain(
+      'Login Page → socialAuthentication'
+    );
   });
 
   // Regression test: `id` used to come from the raw log event's own `_id`,
@@ -888,9 +926,9 @@ describe('JourneyDebugAggregator - event entry structure', () => {
     };
     await aggregator.poll();
     const { events } = aggregator.getSessions()[0];
-    expect(events.every((e) => typeof e.id === 'string' && e.id.length > 0)).toBe(
-      true
-    );
+    expect(
+      events.every((e) => typeof e.id === 'string' && e.id.length > 0)
+    ).toBe(true);
     expect(new Set(events.map((e) => e.id)).size).toBe(events.length);
   });
 
@@ -926,7 +964,10 @@ describe('JourneyDebugAggregator - am-core debug-event correlation', () => {
     const aggregator = new JourneyDebugAggregator();
     mockTailResult = {
       result: [
-        nodeEvent({ transactionId: 'tx-core-1/0', displayName: 'Scripted Decision' }),
+        nodeEvent({
+          transactionId: 'tx-core-1/0',
+          displayName: 'Scripted Decision',
+        }),
         debugLogEvent({
           transactionId: 'tx-core-1/0',
           level: 'WARN',
@@ -1078,7 +1119,10 @@ describe('JourneyDebugAggregator - idm-access debug-event correlation', () => {
     mockTailResult = {
       result: [
         nodeEvent({ transactionId: 'tx-idm-ok/0' }),
-        idmAccessEvent({ transactionId: 'tx-idm-ok/0/0', status: 'SUCCESSFUL' }),
+        idmAccessEvent({
+          transactionId: 'tx-idm-ok/0/0',
+          status: 'SUCCESSFUL',
+        }),
       ],
     };
     await aggregator.poll();
@@ -1157,7 +1201,10 @@ describe('JourneyDebugAggregator - -i/--journey-id and -u/--user-id filtering', 
     const aggregator = new JourneyDebugAggregator({ journeyId: 'login' });
     mockTailResult = {
       result: [
-        treeCompletedEvent({ transactionId: 'tx-a', treeName: 'CustomerLoginFlow' }),
+        treeCompletedEvent({
+          transactionId: 'tx-a',
+          treeName: 'CustomerLoginFlow',
+        }),
         treeCompletedEvent({ transactionId: 'tx-b', treeName: 'Registration' }),
       ],
     };
@@ -1236,7 +1283,9 @@ describe('JourneyDebugAggregator - -i/--journey-id and -u/--user-id filtering', 
     // internal session map -- see JourneyDebugFilter's own remarks.
     const aggregator = new JourneyDebugAggregator({ journeyId: 'nomatch' });
     mockTailResult = {
-      result: [treeCompletedEvent({ transactionId: 'tx-hidden', treeName: 'Login' })],
+      result: [
+        treeCompletedEvent({ transactionId: 'tx-hidden', treeName: 'Login' }),
+      ],
     };
     await aggregator.poll();
     expect(aggregator.getSessions()).toHaveLength(0);
@@ -1265,7 +1314,11 @@ describe('JourneyDebugAggregator - -i/--journey-id and -u/--user-id filtering', 
 
     mockTailResult = {
       result: [
-        treeCompletedEvent({ transactionId: 'tx-a', treeName: 'Login', principal: 'amos' }),
+        treeCompletedEvent({
+          transactionId: 'tx-a',
+          treeName: 'Login',
+          principal: 'amos',
+        }),
       ],
     };
     await aggregator.poll();
@@ -1318,7 +1371,13 @@ describe('JourneyDebugAggregator - -i/--journey-id and -u/--user-id filtering', 
     expect(aggregator.getResolvedUserIdAlias()).toBeUndefined();
 
     mockTailResult = {
-      result: [treeCompletedEvent({ transactionId: 'tx-a', treeName: 'Login', principal: 'someone' })],
+      result: [
+        treeCompletedEvent({
+          transactionId: 'tx-a',
+          treeName: 'Login',
+          principal: 'someone',
+        }),
+      ],
     };
     await aggregator.poll();
     expect(aggregator.getSessions()).toHaveLength(0);
@@ -1329,7 +1388,10 @@ describe('JourneyDebugAggregator - -i/--journey-id and -u/--user-id filtering', 
       throw new Error('simulated network failure');
     };
     expect(
-      () => new JourneyDebugAggregator({ userId: '03f4f90e-d1fa-433d-bc67-6349a8a6ca77' })
+      () =>
+        new JourneyDebugAggregator({
+          userId: '03f4f90e-d1fa-433d-bc67-6349a8a6ca77',
+        })
     ).not.toThrow();
     await flush();
   });

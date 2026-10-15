@@ -12,7 +12,7 @@ export default function setup() {
   const program = new FrodoStubCommand('debug', [CLOUD_DEPLOYMENT_TYPE_KEY])
     .summary('Interactively debug Identity Cloud activity')
     .description(
-      'Interactively debug Identity Cloud activity for one functional area — for journeys, this launches a live, self-updating list of in-flight/recent journey executions (detected from the log stream) to drill into; other topics print a smart-filtered log tail instead.'
+      'Interactively debug Identity Cloud activity for one functional area — for journeys, this launches a live, self-updating list of in-flight/recent journey executions (detected from the log stream) to drill into; other topics run a live, self-updating tail of smart-filtered log events.'
     )
     // Declared once, here, rather than on each subcommand below --
     // FrodoCommand's stability resolution walks the parent chain (see
