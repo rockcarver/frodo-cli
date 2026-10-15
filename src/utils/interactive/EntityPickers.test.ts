@@ -90,8 +90,13 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
     // The gate needs a TTY; fake it for this one test (jest stdio is not).
     const stdin = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY');
     const stdout = Object.getOwnPropertyDescriptor(process.stdout, 'isTTY');
-    Object.defineProperty(process.stdin, 'isTTY', { value: true });
-    Object.defineProperty(process.stdout, 'isTTY', { value: true });
+    // configurable: a bare `{ value: true }` on a stream with no own isTTY
+    // creates a NON-configurable property, so the `finally` below could
+    // neither delete nor redefine it -- the fake leaked into later suites
+    // sharing this jest worker (PromptGateState failed on main).
+    const fakeTTY = { value: true, configurable: true, writable: true };
+    Object.defineProperty(process.stdin, 'isTTY', fakeTTY);
+    Object.defineProperty(process.stdout, 'isTTY', fakeTTY);
     const { command } = makeCommand();
     deferEntityPicks(command, [
       entityPick<Entity>({
