@@ -322,7 +322,9 @@ describe('phase 5 slice 4: command preview', () => {
           homeDir,
           allowPrompting: true,
           args: ['esv', 'secret', 'delete'],
-          env: ENV,
+          // DIAGNOSTIC ONLY (do not merge): trace deployment detection and
+          // every replayed request in CI.
+          env: { ...ENV, FRODO_DEBUG: '1', FRODO_POLLY_LOG_LEVEL: 'info' },
           actions: [
             {
               type: 'wait_plain',
@@ -339,6 +341,11 @@ describe('phase 5 slice 4: command preview', () => {
             { type: 'capture', label: 'final' },
           ],
         });
+
+        // DIAGNOSTIC ONLY (do not merge)
+        process.stdout.write(
+          `\n===== DIAG-PHASE5-BEGIN =====\n${result.captures.final.plain}\n===== DIAG-PHASE5-END =====\n`
+        );
 
         // While the one-of group is unsatisfied, the footer shows
         // the bare command path. (Color is verified by manual PTY
