@@ -3,6 +3,7 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull managed-objects -D testDir17
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull managed-objects -n alpha_user -D testDir18
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull managed-objects -u -D testDir19
 
 */
 
@@ -24,6 +25,11 @@ describe('frodo config-manager pulls', () => {
   test('"frodo config-manager pull managed-objects -n alpha_user -D testDir18": should export the managed-object named: alpha_user in fr-config-manager style"', async () => {
     const dirName = 'testDir18';
     const CMD = `frodo config-manager pull managed-objects -n alpha_user -D ${dirName}`;
+    await testExport(CMD, env, undefined, undefined, dirName, false);
+  });
+  test('"frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style"', async () => {
+    const dirName = 'testDir19';
+    const CMD = `frodo config-manager pull managed-objects -u -D ${dirName}`;
     await testExport(CMD, env, undefined, undefined, dirName, false);
   });
 });

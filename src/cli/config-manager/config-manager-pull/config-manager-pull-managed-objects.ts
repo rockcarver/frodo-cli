@@ -28,6 +28,13 @@ export default function setup() {
         'Endpoint name, It only export the endpoint with the name'
       )
     )
+    .addOption(
+      new Option(
+        '-u, --custom-relationships',
+        'Export custom relationship schemas.'
+      )
+    )
+
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -40,7 +47,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting config entity managed-objects');
-        const outcome = await configManagerExportManagedObjects(options.name);
+        const outcome = await configManagerExportManagedObjects(
+          options.name,
+          options.customRelationships
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).
