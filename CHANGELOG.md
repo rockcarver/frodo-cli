@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-10] - 2026-10-19
+
+### Changed
+- Updated `frodo-lib` to version 5.0.0-9, fixing an issue where `frodo idm export` with extraction dropped a managed object's top-level `meta` property. This update ensures the `meta` property is retained, addressing issue #757. (#819)
+
+### Fixed
+- Made the phase 5 command-preview authentication failure deterministic in tests, improving test reliability and unblocking CI on `main`-based PRs. (#820)
+
 ## [v5.0.0-9] - 2026-10-15
 
 ### Added
@@ -3033,6 +3041,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-10]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-9...v5.0.0-10
 [v5.0.0-9]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-8...v5.0.0-9
 [v5.0.0-8]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-7...v5.0.0-8
 [v5.0.0-7]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-6...v5.0.0-7
