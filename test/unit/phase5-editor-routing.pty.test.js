@@ -322,7 +322,13 @@ describe('phase 5 slice 4: command preview', () => {
           homeDir,
           allowPrompting: true,
           args: ['esv', 'secret', 'delete'],
-          env: ENV,
+          // The assertions below need auth to FAIL deterministically. On the
+          // shared cloud login cassette the outcome depends on which
+          // order-indexed /oauth2/authorize entry deployment detection
+          // replays (cloud -> auth succeeds and the command runs; forgeops
+          // -> auth fails). Bypass the cassette: the per-command recording
+          // has no login entries, so auth always fails.
+          env: { ...ENV, FRODO_MOCK_DEDICATED_AUTH: '1' },
           actions: [
             {
               type: 'wait_plain',
