@@ -9450,6 +9450,7 @@ exports[`frodo idm export "frodo idm export -AD idmExportDir1": should export al
     "effectiveAssignmentsProperty": "effectiveAssignments",
     "lastSyncProperty": "lastSync",
   },
+  "meta": Any<Object>,
   "name": "alpha_user",
   "notifications": {},
   "schema": {
@@ -12294,6 +12295,7 @@ exports[`frodo idm export "frodo idm export -AD idmExportDir1": should export al
     "effectiveAssignmentsProperty": "effectiveAssignments",
     "lastSyncProperty": "lastSync",
   },
+  "meta": Any<Object>,
   "name": "bravo_user",
   "notifications": {},
   "schema": {

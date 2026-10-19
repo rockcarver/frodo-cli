@@ -142855,6 +142855,7 @@ exports[`frodo config export Cloud "frodo config export -RAD exportAllTestDir5 -
     "effectiveAssignmentsProperty": "effectiveAssignments",
     "lastSyncProperty": "lastSync",
   },
+  "meta": Any<Object>,
   "name": "alpha_user",
   "notifications": {},
   "schema": {
@@ -146706,6 +146707,7 @@ exports[`frodo config export Cloud "frodo config export -RAD exportAllTestDir5 -
     "effectiveAssignmentsProperty": "effectiveAssignments",
     "lastSyncProperty": "lastSync",
   },
+  "meta": Any<Object>,
   "name": "bravo_user",
   "notifications": {},
   "schema": {
