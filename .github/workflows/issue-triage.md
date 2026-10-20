@@ -7,6 +7,11 @@ on:
   issues:
     types: [labeled]
     names: [issue-worker-ready]
+  skip-if-match: "label:related-repo OR label:duplicate OR label:spam"
+engine:
+  id: copilot
+  model: small
+max-turns: 8
 permissions:
   contents: read
   issues: read
@@ -40,7 +45,6 @@ safe-outputs:
     continue-on-error: false
 max-ai-credits: 8
 timeout-minutes: 3
-engine: copilot
 ---
 
 # Issue Triage
