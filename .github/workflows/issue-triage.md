@@ -2,6 +2,7 @@
 description: |
   Issue gate triage. Applies internal quality and priority labels.
   Any comment posted for the reporter uses plain language only.
+  Skips planning when the issue is marked related-repo.
 on:
   issues:
     types: [labeled]
@@ -45,6 +46,10 @@ engine: copilot
 
 Triggered when an issue receives `issue-worker-ready`.
 Read the latest analysis comment produced by the issue worker.
+
+## Related-repo issues
+If the issue already has the label `related-repo`, do nothing.
+It is a non-canonical pointer; planning happens only on the linked canonical issue.
 
 ## Internal labels (never mentioned to the reporter)
 Apply only quality and priority labels. Do **not** apply complexity or risk labels.

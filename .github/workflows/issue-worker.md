@@ -3,7 +3,7 @@ description: |
   Issue gate worker. Analyzes completeness and actionability.
   Guides reporters only through comments; never mentions internal labels.
   Prefers the repository issue template as the definition of a complete issue.
-  Can suggest transferring an issue to a related repository.
+  For split-repo projects, creates a linked canonical issue and marks the original with related-repo.
 on:
   issues:
     types: [opened, reopened, edited]
@@ -17,19 +17,22 @@ on:
         type: string
 permissions:
   contents: read
-  issues: read
+  issues: write
 safe-outputs:
   add-comment:
-    max: 1
+    max: 2
   add-labels:
     allowed:
       - issue-worker-ready
+      - related-repo
+    max: 2
+  create-issue:
     max: 1
   threat-detection:
     enabled: true
     continue-on-error: false
-max-ai-credits: 8
-timeout-minutes: 4
+max-ai-credits: 10
+timeout-minutes: 5
 engine: copilot
 ---
 
@@ -48,15 +51,25 @@ Determine what makes an issue meaningful by reading, in order:
 2. Issue templates under `.github/ISSUE_TEMPLATE/` or `.github/ISSUE_TEMPLATE.md`
 3. Generic fallback: reproduction steps, expected vs actual behavior, environment
 
-## Related repositories (split-repo projects)
+## Related repositories (linked-issue flow)
 If `.github/agentic-workflows/related-repos.md` exists, read it.
-When the current issue is clearly about the library (or another related repo) rather than this repository:
 
-- In the reporter-facing comment, explain in plain language that the problem belongs in the other repository.
-- Provide the direct link to open an issue there (or note that a maintainer can transfer it).
-- Do not apply `issue-worker-ready` if the recommendation is to move the issue; stop so the wrong repo does not continue into planning.
+When the current issue clearly belongs in a related repository (per the `when` text):
 
-If the issue belongs here, continue normally.
+1. Create a new issue in that related repository (the canonical issue).
+   - Title: same as the original, or a clear summary.
+   - Body: include the original report and a line `Reported from {owner}/{repo}#{number}`.
+2. On the original (non-canonical) issue:
+   - Post a plain-language comment: "This is being tracked in {owner}/{repo}#{number}. We will update this issue when that work is finished."
+   - Add the internal label `related-repo`.
+   - Do **not** add `issue-worker-ready`.
+3. On the new canonical issue, post a short comment: "Opened from {owner}/{repo}#{number}."
+
+The original issue stays open. It will be closed only after the canonical issue is implemented and closed.
+
+If a link already exists (comment already points at a canonical issue, or `related-repo` is present), do not create another issue. Just ensure the comment and label are in place.
+
+If the issue belongs in this repository, continue with the normal analysis below.
 
 ## Analysis comment (reporter-facing)
 Read the issue body **and every comment**.
@@ -66,7 +79,6 @@ Cover, in ordinary language:
 - Whether the report is clear enough to act on
 - Apparent duplicates
 - Age and recent activity if relevant
-- If applicable, that the issue should be filed in a related repository (with link)
 
 ### Missing information
 If required details are absent and the issue belongs here, end with a direct request that lists only the items still needed.
@@ -78,5 +90,5 @@ If required details are absent and the issue belongs here, end with a direct req
 If the repository defines an environment agent and a quick reproduction check would help, you may request it. Otherwise proceed without it.
 
 ## Signaling (internal)
-After posting the comment, add (or re-add) the label `issue-worker-ready` **only if the issue should stay in this repository**.
-If you recommended a transfer, do not add the label.
+- If the issue stays here: add `issue-worker-ready`.
+- If you created or confirmed a linked canonical issue: add `related-repo` and do **not** add `issue-worker-ready`.
