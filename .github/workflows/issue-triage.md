@@ -21,6 +21,7 @@ tools:
     min-integrity: none
 safe-outputs:
   add-labels:
+    github-token: ${{ secrets.SIGNAL_TOKEN }}
     allowed:
       - bug
       - feature
