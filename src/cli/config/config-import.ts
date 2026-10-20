@@ -88,6 +88,8 @@ export default function setup() {
         'Import global entity. Cannot be used with -a or -A.'
       ).conflicts(['all', 'allSeparate'])
     )
+    .addOption(new Option('--static', 'Import only static configuration.'))
+    .addOption(new Option('--dynamic', 'Import only dynamic configuration.'))
     .addHelpText(
       'after',
       c.positive(`How Frodo handles secrets:\n`) +
@@ -149,6 +151,8 @@ export default function setup() {
             source: options.source,
             onlyCustom: options.onlyCustom,
             validateJourneys: options.validate,
+            includeStatic: options.static || !options.dynamic,
+            includeDynamic: options.dynamic || !options.static,
           });
           if (!outcome) process.exitCode = 1;
         }
@@ -174,6 +178,8 @@ export default function setup() {
             source: options.source,
             onlyCustom: options.onlyCustom,
             validateJourneys: options.validate,
+            includeStatic: options.static || !options.dynamic,
+            includeDynamic: options.dynamic || !options.static,
           });
           if (!outcome) process.exitCode = 1;
         }
@@ -193,6 +199,8 @@ export default function setup() {
               source: options.source,
               onlyCustom: options.onlyCustom,
               validateJourneys: options.validate,
+              includeStatic: options.static || !options.dynamic,
+              includeDynamic: options.dynamic || !options.static,
             }
           );
           if (!outcome) process.exitCode = 1;

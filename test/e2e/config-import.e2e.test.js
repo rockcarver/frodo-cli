@@ -55,22 +55,28 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -gf test/e2e/exports/all-separate/classic/global/server/01.server.json -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic
+// Forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config import --all --static --file test/e2e/exports/all/forgeops/all.forgeops.json --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config import --all --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config import --all --static --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json --type forgeops
 */
 import {
   getEnv,
   testFail,
   testSuccess
 } from './utils/TestUtils';
-import { connection as c, iga_connection as ic, classic_connection as cc } from './utils/TestConfig';
+import { connection as c, iga_connection as ic, classic_connection as cc, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
 const cloudEnv = getEnv(c);
 const igaEnv = getEnv(ic);
 const classicEnv = getEnv(cc);
+const forgeopsEnv = getEnv(fc);
 
 const allDirectory = 'test/e2e/exports/all';
 const allCloudFileName = 'all.cloud.json';
 const allClassicFileName = 'all.classic.json';
+const allForgeopsExport = 'test/e2e/exports/all/forgeops/all.forgeops.json';
 const allCloudExport = `${allDirectory}/${allCloudFileName}`;
 const allClassicExport = `${allDirectory}/${allClassicFileName}`;
 const allSeparateCloudDirectory = `test/e2e/exports/all-separate/cloud`;
@@ -202,6 +208,21 @@ describe('frodo config import', () => {
     test(`"frodo config import -f ${allSeparateClassicDirectory}/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic" Import the webhook service with no errors`, async () => {
       const CMD = `frodo config import -f ${allSeparateClassicDirectory}/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic`;
       await testSuccess(CMD, classicEnv);
+    });
+  });
+  // ForgeOps env tests
+  describe('Forgeops', () => {
+    test(`"frodo config import --all --static --file ${allForgeopsExport}": should import only static configurations.`, async () => {
+      const CMD = `frodo config import --all --static --file ${allForgeopsExport} --type forgeops`;
+      await testFail(CMD, forgeopsEnv);
+    });
+    test(`"frodo config import --all --dynamic --file ${allForgeopsExport}": should import only dynamic configurations.`, async () => {
+      const CMD = `frodo config import --all --dynamic --file ${allForgeopsExport} --type forgeops`;
+      await testSuccess(CMD, forgeopsEnv);
+    });
+    test(`"frodo config import --all --static --dynamic --file ${allForgeopsExport}": should import both static and dynamic configurations.`, async () => {
+      const CMD = `frodo config import --all --static --dynamic --file ${allForgeopsExport} --type forgeops`;
+      await testFail(CMD, forgeopsEnv);
     });
   });
 });
