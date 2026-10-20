@@ -9,6 +9,7 @@ on:
     types: [opened, reopened, edited]
   issue_comment:
     types: [created]
+  skip-if-match: "label:related-repo OR label:duplicate OR label:spam"
   workflow_dispatch:
     inputs:
       issue_number:
@@ -17,6 +18,14 @@ on:
         type: string
 concurrency:
   job-discriminator: ${{ github.run_id }}
+user-rate-limit:
+  max-runs-per-window: 3
+  window: 30
+  events: [issue_comment]
+engine:
+  id: copilot
+  model: small
+max-turns: 10
 permissions:
   contents: read
   issues: read
@@ -33,9 +42,8 @@ safe-outputs:
   threat-detection:
     enabled: true
     continue-on-error: false
-max-ai-credits: 10
+max-ai-credits: 16
 timeout-minutes: 5
-engine: copilot
 ---
 
 # Issue Worker

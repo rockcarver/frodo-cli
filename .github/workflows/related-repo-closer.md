@@ -5,6 +5,10 @@ description: |
 on:
   issues:
     types: [closed]
+engine:
+  id: copilot
+  model: small
+max-turns: 6
 permissions:
   contents: read
   issues: read
@@ -16,9 +20,8 @@ safe-outputs:
   threat-detection:
     enabled: true
     continue-on-error: false
-max-ai-credits: 4
+max-ai-credits: 6
 timeout-minutes: 3
-engine: copilot
 ---
 
 # Related-repo closer

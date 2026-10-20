@@ -7,6 +7,10 @@ on:
   issues:
     types: [labeled]
     names: [plan-worker-ready]
+engine:
+  id: copilot
+  model: small
+max-turns: 8
 permissions:
   contents: read
   issues: read
@@ -27,9 +31,8 @@ safe-outputs:
   threat-detection:
     enabled: true
     continue-on-error: false
-max-ai-credits: 8
+max-ai-credits: 12
 timeout-minutes: 4
-engine: copilot
 ---
 
 # Plan Triage
