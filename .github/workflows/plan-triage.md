@@ -2,6 +2,7 @@
 description: |
   Plan gate triage. Assigns complexity and risk.
   Adds plan-approval-required when human approval is needed; does not hand off while that label is present.
+  Reads repository-local complexity and risk definitions when present.
 on:
   issues:
     types: [labeled]
@@ -45,6 +46,11 @@ Ignore every other comment. If no such comment exists, do nothing.
 
 ## Classification
 Assign exactly one complexity label and one risk label.
+
+Read definitions in this order:
+1. `.github/agentic-workflows/complexity.md` (if present)
+2. `.github/agentic-workflows/risk.md` (if present)
+3. Built-in defaults (low / medium / high as commonly understood for design impact and blast radius)
 
 ## Approval gate
 If complexity is high:
