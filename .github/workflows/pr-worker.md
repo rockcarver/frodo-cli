@@ -17,6 +17,7 @@ safe-outputs:
     name: copilot
     max: 1
     target: triggering
+    github-token: ${{ secrets.GH_AW_AGENT_TOKEN }}
   threat-detection:
     enabled: true
     continue-on-error: false

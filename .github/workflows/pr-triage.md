@@ -11,6 +11,7 @@ permissions:
   issues: read
 safe-outputs:
   add-labels:
+    issue-intent: false
     github-token: ${{ secrets.SIGNAL_TOKEN }}
     allowed:
       - complexity/low
@@ -30,6 +31,11 @@ max-ai-credits: 16
 timeout-minutes: 6
 engine: copilot
 ---
+
+## Label application
+Apply labels as plain strings. Do not include rationale, confidence, or suggest.
+Handoff and classification labels must be applied, not suggested.
+
 
 # PR Triage
 
