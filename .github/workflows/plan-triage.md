@@ -21,6 +21,7 @@ tools:
     min-integrity: none
 safe-outputs:
   add-labels:
+    issue-intent: false
     github-token: ${{ secrets.SIGNAL_TOKEN }}
     allowed:
       - complexity/low
@@ -40,6 +41,11 @@ safe-outputs:
 max-ai-credits: 12
 timeout-minutes: 4
 ---
+
+## Label application
+Apply labels as plain strings. Do not include rationale, confidence, or suggest.
+Handoff and classification labels must be applied, not suggested.
+
 
 # Plan Triage
 

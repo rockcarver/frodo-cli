@@ -6,6 +6,9 @@ related:
   - role: library
     repo: rockcarver/frodo-lib
     secret: FRODO_LIB_ISSUES_TOKEN
+    release:
+      requires_consumer_release: true
+      pins: "@rockcarver/frodo-lib"
     when: |
       Functional bugs, API behavior, authentication flows, data handling,
       configuration management, and anything that is not purely CLI surface
