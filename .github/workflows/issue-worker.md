@@ -15,6 +15,8 @@ on:
         description: "Issue number to analyze (leave empty to skip)"
         required: false
         type: string
+concurrency:
+  job-discriminator: ${{ github.run_id }}
 permissions:
   contents: read
   issues: read
