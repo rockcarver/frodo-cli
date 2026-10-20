@@ -6,6 +6,7 @@ description: |
 on:
   issues:
     types: [labeled]
+    names: [plan-worker-ready]
 permissions:
   contents: read
   issues: read
@@ -33,7 +34,7 @@ engine: copilot
 
 # Plan Triage
 
-Triggered when an issue receives `plan-worker-ready`.
+Triggered only when an issue receives `plan-worker-ready`.
 
 ## Which comment is the plan
 Locate the comment that contains the exact marker:

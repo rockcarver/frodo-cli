@@ -5,6 +5,7 @@ description: |
 on:
   issues:
     types: [labeled]
+    names: [plan-triage-handoff]
 permissions:
   contents: read
   issues: read
@@ -26,7 +27,7 @@ engine: copilot
 
 # PR Worker
 
-Triggered when an issue receives `plan-triage-handoff`.
+Triggered only when an issue receives `plan-triage-handoff`.
 Assign the Copilot cloud agent with these instructions:
 
 - Implement the change described in the plan.

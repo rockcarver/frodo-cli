@@ -4,6 +4,7 @@ description: |
 on:
   pull_request:
     types: [labeled]
+    names: [pr-worker-ready]
 permissions:
   contents: read
   pull-requests: read
@@ -31,7 +32,7 @@ engine: copilot
 
 # PR Triage
 
-Triggered when a pull request receives the label `pr-worker-ready`.
+Triggered only when a pull request receives the label `pr-worker-ready`.
 
 Examine the pull request diff.
 Re-assign complexity and risk labels based on the actual changes.

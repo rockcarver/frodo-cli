@@ -6,6 +6,7 @@ description: |
 on:
   issues:
     types: [labeled]
+    names: [issue-worker-ready]
 permissions:
   contents: read
   issues: read
@@ -44,7 +45,7 @@ engine: copilot
 
 # Issue Triage
 
-Triggered when an issue receives `issue-worker-ready`.
+Triggered only when an issue receives `issue-worker-ready`.
 Read the latest analysis comment produced by the issue worker.
 
 ## Related-repo issues

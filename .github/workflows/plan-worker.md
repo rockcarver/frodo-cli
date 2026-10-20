@@ -5,6 +5,7 @@ description: |
 on:
   issues:
     types: [labeled]
+    names: [issue-triage-handoff]
 permissions:
   contents: read
   issues: read
@@ -25,7 +26,7 @@ engine: copilot
 
 # Plan Worker
 
-Triggered when an issue receives `issue-triage-handoff`.
+Triggered only when an issue receives `issue-triage-handoff`.
 Produce a short, rough plan only. No code.
 This plan exists so plan triage can assign complexity and risk. It is not a collaborative design document.
 
