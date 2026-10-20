@@ -14,6 +14,11 @@ max-turns: 8
 permissions:
   contents: read
   issues: read
+tools:
+  bash: false
+  cli-proxy: false
+  github:
+    min-integrity: none
 safe-outputs:
   add-labels:
     allowed:

@@ -28,6 +28,11 @@ max-turns: 10
 permissions:
   contents: read
   issues: read
+tools:
+  bash: false
+  cli-proxy: false
+  github:
+    min-integrity: none
 safe-outputs:
   add-comment:
     max: 2
