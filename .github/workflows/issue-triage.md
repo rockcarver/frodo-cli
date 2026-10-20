@@ -7,7 +7,6 @@ on:
   issues:
     types: [labeled]
     names: [issue-worker-ready]
-  skip-if-match: "label:related-repo,duplicate,spam"
 engine:
   id: copilot
   model: small
