@@ -46,6 +46,7 @@ safe-outputs:
   create-issue:
     max: 1
     allowed-repos: ["rockcarver/frodo-lib"]
+    github-token: ${{ secrets.HARNESS_CROSS_REPO_TOKEN }}
   threat-detection:
     enabled: true
     continue-on-error: false
