@@ -17,7 +17,7 @@ on:
         type: string
 permissions:
   contents: read
-  issues: write
+  issues: read
 safe-outputs:
   add-comment:
     max: 2
@@ -56,7 +56,7 @@ If `.github/agentic-workflows/related-repos.md` exists, read it.
 
 When the current issue clearly belongs in a related repository (per the `when` text):
 
-1. Create a new issue in that related repository (the canonical issue).
+1. Create a new issue in that related repository (the canonical issue) via the create-issue safe-output.
    - Title: same as the original, or a clear summary.
    - Body: include the original report and a line `Reported from {owner}/{repo}#{number}`.
 2. On the original (non-canonical) issue:
