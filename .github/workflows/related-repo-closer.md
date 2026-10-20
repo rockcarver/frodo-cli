@@ -7,7 +7,7 @@ on:
     types: [closed]
 permissions:
   contents: read
-  issues: write
+  issues: read
 safe-outputs:
   add-comment:
     max: 1
@@ -33,10 +33,10 @@ Look at the closed issue body and comments for a line of the form:
 or a comment that says it was opened from another issue.
 
 If such a link exists:
-1. Open that original issue.
+1. Locate that original issue.
 2. If it has the label `related-repo` and is still open, post a plain-language comment:
    "The work tracked in {this-repo}#{this-number} is complete. Closing this issue."
-3. Close the original issue.
+3. Close the original issue via the close-issue safe-output.
 
 If no such link exists, do nothing.
 
