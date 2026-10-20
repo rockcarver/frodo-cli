@@ -27,7 +27,7 @@ safe-outputs:
   threat-detection:
     enabled: true
     continue-on-error: false
-max-ai-credits: 8
+max-ai-credits: 12
 timeout-minutes: 4
 engine: copilot
 ---
