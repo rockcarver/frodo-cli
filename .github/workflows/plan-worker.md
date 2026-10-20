@@ -18,6 +18,7 @@ safe-outputs:
   add-comment:
     max: 1
   add-labels:
+    github-token: ${{ secrets.SIGNAL_TOKEN }}
     allowed:
       - plan-worker-ready
     max: 1
