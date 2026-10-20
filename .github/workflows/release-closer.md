@@ -1,6 +1,6 @@
 ---
 description: |
-  When a release is published, close related-repo issues whose fix is in this release.
+  When a release is published, close issues whose fix shipped in this release.
 on:
   release:
     types: [published]
@@ -38,21 +38,31 @@ timeout-minutes: 4
 
 Triggered when a release is published. This repository does not create releases. A maintainer does.
 
-## Task
-Read `.github/agentic-workflows/related-repos.md`.
-If it does not set `release.requires_consumer_release: true` on any entry, do nothing.
+Two close rules. Apply only the one that fits this repository.
 
-Otherwise:
+## This repository owns the fix
+
+Example: a library release.
+
+Close an open issue in this repository when the release notes mention that issue.
+Post: "This is included in {tag}. Closing."
+Then close it.
+
+Do not close an issue in another repository from here.
+
+## This repository consumes the fix
+
+Read `.github/agentic-workflows/related-repos.md`.
+Apply this only when an entry sets `release.requires_consumer_release: true`.
 
 1. Read the published release notes and the version of each pinned package (`release.pins`).
-2. Find open issues in this repository with the label `awaiting-release`.
-3. For each, find the canonical issue it points at.
-4. This release includes the fix only if one of these is true:
-   - The release notes mention this issue number.
-   - The pinned package version's release notes mention the canonical issue.
-   Be conservative. If the link is not clear, leave the issue open.
-5. When it is included:
-   - Post a plain-language comment: "This is included in {tag}. Closing."
+2. Find open issues here with the label `awaiting-release`.
+3. For each, find the canonical issue and the related-repository version that contains that fix.
+4. Close this issue only when this release pins that version, or a newer one.
+   The release notes mentioning this issue is also sufficient.
+   If the pin does not include the fix, leave the issue open.
+5. When closing:
+   - Post: "This is included in {tag}, which pins {package} {version}. Closing."
    - Remove `awaiting-release`.
    - Close the issue.
 

@@ -54,7 +54,8 @@ If such a link exists:
    - Do **not** close the original issue.
    - Add the label `awaiting-release`.
    - Post a plain-language comment:
-     "The fix is in {this-repo}#{this-number}. This stays open until a release of {original-repo} includes that fix."
+     "The fix is in {this-repo}#{this-number}. This stays open until a release of {original-repo} pins a {this-repo} version that contains that fix."
+     If this close is from a release, name the version.
 4. Otherwise, if the original issue has `related-repo` and is still open:
    - Post: "The work tracked in {this-repo}#{this-number} is complete. Closing this issue."
    - Close it.
