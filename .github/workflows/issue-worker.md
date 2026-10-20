@@ -9,7 +9,7 @@ on:
     types: [opened, reopened, edited]
   issue_comment:
     types: [created]
-  skip-if-match: "label:related-repo OR label:duplicate OR label:spam"
+  skip-if-match: "label:related-repo,duplicate,spam"
   workflow_dispatch:
     inputs:
       issue_number:
