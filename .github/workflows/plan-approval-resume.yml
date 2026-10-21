@@ -1,0 +1,44 @@
+# Plan approval resume. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md.
+#
+# When a maintainer removes `plan-approval-required`, hand the issue to the PR
+# gate. A manual run does the same for an issue whose label was already removed.
+#
+# Install: copy this file to .github/workflows/plan-approval-resume.yml and
+# scripts/plan-approval-resume.mjs to .github/scripts/plan-approval-resume.mjs.
+name: Plan approval resume
+
+on:
+  issues:
+    types: [unlabeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue to hand to implementation (its plan-approval-required label must already be removed)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: plan-approval-resume-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  resume:
+    # On a label event, run only for the approval label.
+    if: github.event_name != 'issues' || github.event.label.name == 'plan-approval-required'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Hand off to the PR gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Label changes made with this token start the PR gate.
+          SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          REMOVED_LABEL: ${{ github.event.label.name }}
+          ACTOR: ${{ github.actor }}
+        run: node .github/scripts/plan-approval-resume.mjs
