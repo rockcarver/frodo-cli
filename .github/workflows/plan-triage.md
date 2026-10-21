@@ -3,6 +3,7 @@ description: |
   Plan gate triage. Assigns complexity and risk.
   Adds plan-approval-required when human approval is needed; does not hand off while that label is present.
   Reads repository-local complexity and risk definitions when present.
+if: ${{ github.event.issue.user.type != 'Bot' }}
 on:
   issues:
     types: [labeled]
