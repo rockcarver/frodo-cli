@@ -124,6 +124,7 @@ Then say one of these, plainly:
 - Still present: the current code still matches the report. Continue as usual.
 
 Do not use age or inactivity as a reason to call an issue fixed.
+An open pull request, or one closed without merging, is never evidence that something is fixed.
 
 ### Missing information
 If required details are absent and the issue belongs here, end with a direct request that lists only the items still needed.

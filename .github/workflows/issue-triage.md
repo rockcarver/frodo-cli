@@ -37,6 +37,7 @@ safe-outputs:
       - already-fixed
       - spam
       - backlog
+      - dependency-required
       - issue-triage-handoff
     max: 5
   remove-labels:
@@ -78,10 +79,23 @@ Apply only quality and priority labels. Do **not** apply complexity or risk labe
 - Worker says the behavior cannot be found, nothing relevant changed after the issue was opened, and the report had enough detail to look for it → `invalid`, then close the issue
 - Worker asked for more details before it could decide → `needs-info` (do not emit hand-off, do not close)
 - Invalid or spam → corresponding label
+- Declares a dependency that has not been cleared (see Dependencies below) → `dependency-required`. Do not emit `issue-triage-handoff`, do not apply `backlog` or `needs-info`, do not close the issue, and do not post a comment about it.
 - Valid but not urgent → `backlog`
 - Complete, actionable, and worth doing now → remove `needs-info` if present, then emit `issue-triage-handoff`
 
 Do not emit `issue-triage-handoff` for `already-fixed` or `invalid`.
+
+## Dependencies
+Detect, do not resolve. A separate watcher decides when a dependency is finished.
+
+An issue declares a dependency only with a line that starts with `Depends on:`, `Blocked by:`, or `Requires:`, followed by one or more issue or pull request references (`#N`, `owner/repo#N`, or a GitHub URL). Read the issue body and every comment. A reference in ordinary prose, or after `Fixes`, `Closes`, `Resolves`, or `Reported from`, is not a dependency. Do not infer dependencies from free text.
+
+- No declaration → no dependency gate. Continue as usual.
+- A declaration, and the issue has the label `dependency-satisfied` → the watcher or a maintainer has cleared it. Continue as usual.
+- A declaration, and no `dependency-satisfied` label → apply `dependency-required` and stop here.
+- The issue is marked `related-repo` → never gate it.
+
+The needs-info, duplicate, invalid, and already-fixed outcomes above take precedence over the dependency gate. An open pull request, or one closed without merging, is never evidence that something is fixed.
 
 `backlog` keeps the issue open but does not enter the plan gate.
 `issue-triage-handoff` is the signal that the plan worker may run.
