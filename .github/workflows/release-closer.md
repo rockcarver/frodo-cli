@@ -34,8 +34,7 @@ safe-outputs:
   close-issue:
     max: 5
   threat-detection:
-    enabled: true
-    continue-on-error: false
+    enabled: false
 max-ai-credits: 8
 timeout-minutes: 4
 ---

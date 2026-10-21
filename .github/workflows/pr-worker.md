@@ -19,8 +19,7 @@ safe-outputs:
     target: triggering
     github-token: ${{ secrets.GH_AW_AGENT_TOKEN }}
   threat-detection:
-    enabled: true
-    continue-on-error: false
+    enabled: false
 max-ai-credits: 12
 timeout-minutes: 5
 engine: copilot

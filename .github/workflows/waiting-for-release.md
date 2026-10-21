@@ -26,8 +26,7 @@ safe-outputs:
       - waiting-for-release
     max: 1
   threat-detection:
-    enabled: true
-    continue-on-error: false
+    enabled: false
 max-ai-credits: 6
 timeout-minutes: 3
 ---

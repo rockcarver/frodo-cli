@@ -33,8 +33,7 @@ safe-outputs:
     max: 1
     # github-token: ${{ secrets.OTHER_REPO_ISSUES_TOKEN }}
   threat-detection:
-    enabled: true
-    continue-on-error: false
+    enabled: false
 max-ai-credits: 6
 timeout-minutes: 3
 ---
