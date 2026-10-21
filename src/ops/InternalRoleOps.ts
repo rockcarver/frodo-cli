@@ -230,11 +230,17 @@ export async function importInternalRolesFromFiles(): Promise<boolean> {
   try {
     const names = fs.readdirSync(getWorkingDirectory());
     const roleFiles = names.filter((name) =>
-      name.toLowerCase().endsWith('.internalRole.json')
+      name.toLowerCase().endsWith('.internalrole.json')
     );
+    if (roleFiles.length === 0) {
+      printMessage('No internal role files found to import.', 'error');
+      return false;
+    }
     for (const file of roleFiles) {
       try {
-        await importInternalRolesFromFile(file);
+        if (!(await importInternalRolesFromFile(file))) {
+          throw new FrodoError(`Error importing internal roles from ${file}`);
+        }
       } catch (error) {
         errors.push(
           new FrodoError(`Error importing internal roles from ${file}`, error)
