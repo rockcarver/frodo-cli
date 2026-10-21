@@ -33,6 +33,7 @@ safe-outputs:
     target: "*"
   close-issue:
     max: 5
+    target: "*"
   threat-detection:
     enabled: false
 max-ai-credits: 8
