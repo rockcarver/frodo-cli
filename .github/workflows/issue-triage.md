@@ -34,6 +34,7 @@ safe-outputs:
       - priority/p2
       - duplicate
       - invalid
+      - already-fixed
       - spam
       - backlog
       - issue-triage-handoff
@@ -43,6 +44,8 @@ safe-outputs:
       - needs-info
     max: 1
   add-comment:
+    max: 1
+  close-issue:
     max: 1
   set-issue-type:
     max: 1
@@ -72,9 +75,13 @@ Apply only quality and priority labels. Do **not** apply complexity or risk labe
 
 - Missing details → `needs-info` (do not emit hand-off)
 - Strong duplicate → `duplicate`
+- Worker says already fixed, and names a later pull request or commit → `already-fixed`, then close the issue
+- Worker says the behavior cannot be found and nothing relevant changed after the issue was opened → `invalid`, then close the issue
 - Invalid or spam → corresponding label
 - Valid but not urgent → `backlog`
 - Complete, actionable, and worth doing now → remove `needs-info` if present, then emit `issue-triage-handoff`
+
+Do not emit `issue-triage-handoff` for `already-fixed` or `invalid`.
 
 `backlog` keeps the issue open but does not enter the plan gate.
 `issue-triage-handoff` is the signal that the plan worker may run.
