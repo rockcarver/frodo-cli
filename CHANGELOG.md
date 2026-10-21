@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-11] - 2026-10-21
+
+### Added
+- Implemented failure reporting for `frodo role import -A`, which now returns a failure when no files match or any file fails, while continuing to process remaining files. This improves feedback during bulk internal role imports. (#852)
+- Introduced label-based tracking for release states, ensuring issues are marked `released` only when a CLI release includes the relevant library fix. (#848)
+- Implemented the use of `SIGNAL_TOKEN` for starting the next gate, addressing issues with workflow initiation by `github-actions[bot]`. (#846)
+
+### Changed
+- Updated `frodo-lib` to version 5.0.0-10, which includes updates to `idm-export` snapshots. (commit 7b002f69)
+- Enhanced the issue worker to treat unimplemented features as enhancements rather than marking them as cannot-reproduce or invalid. (#853)
+- Adjusted threat detection to remain only on `issue-worker` and `pr-triage`, optimizing resource usage by removing it from other gates. (#851)
+- Improved issue triage by detecting already-fixed and cannot-reproduce issues, applying appropriate labels and closing them when necessary. (#850)
+- Modified release processes to use `RELEASE_TOKEN` instead of `GITHUB_TOKEN` for triggering workflows, ensuring proper release closure. (#849)
+- Updated issue handling to keep CLI issues open until a CLI release includes the necessary library fix, ensuring accurate release tracking. (#847)
+- Enabled workflow dispatch to target specific issues, improving flexibility in issue management. (#842)
+- Allowed issue readers to access unapproved content, ensuring comprehensive issue triage. (#840)
+
+### Removed
+- Dropped the repo-wide `skip-if-match` filter to prevent unintended run cancellations, refining issue management processes. (#838)
+
+### Fixed
+- Corrected filename matching for `frodo role import -A`, ensuring case-insensitive comparison against `.internalrole.json` to prevent silent skips of role files. (#852)
+- Resolved an issue with `skip-if-match` label query by using a comma-separated form, preventing pre-activation failures. (#837)
+
 ## [v5.0.0-10] - 2026-10-19
 
 ### Changed
@@ -3041,6 +3065,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-11]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-10...v5.0.0-11
 [v5.0.0-10]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-9...v5.0.0-10
 [v5.0.0-9]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-8...v5.0.0-9
 [v5.0.0-8]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-7...v5.0.0-8
