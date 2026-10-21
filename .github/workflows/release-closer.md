@@ -3,7 +3,7 @@ description: |
   When a release is published, mark included issues as released.
 on:
   release:
-    types: [published]
+    types: [published, prereleased]
 engine:
   id: copilot
   model: small
@@ -47,7 +47,10 @@ Triggered when a release is published. This repository does not create releases.
 ## This repository owns the fix
 
 Find issues with `waiting-for-release` that this release includes.
-The release notes mentioning the issue is enough.
+
+A mention counts when:
+- The release notes mention the issue number, or
+- The release notes mention a pull request, and that pull request closes the issue (`Fixes`, `Closes`, or `Resolves`).
 
 For each:
 1. Remove `waiting-for-release`.

@@ -427,7 +427,7 @@ jobs:
             frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
             frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
             frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_TOKEN }}
 
   npm-release:
     if: github.event_name == 'workflow_dispatch'
