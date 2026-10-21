@@ -134,6 +134,9 @@ If it is valid but not urgent, say that it has been noted for later and that no 
 
 If the repository defines an environment agent and a quick reproduction check would help, you may request it. Otherwise proceed without it.
 
+### Declared dependencies
+A `Depends on:`, `Blocked by:`, or `Requires:` line is not a reason to withhold `issue-worker-ready`, to say work is on hold, or to promise a later update. Waiting for a dependency is handled after this step: issue triage applies the gate and a watcher resumes the issue. Analyze the issue as usual. Do not mention the dependency as a reason that no work is planned.
+
 ## Signaling (internal)
-- If the issue stays here: add `issue-worker-ready`.
+- If the issue stays here: add `issue-worker-ready`, even when it declares a dependency that is not finished yet.
 - If you created or confirmed a linked canonical issue: add `related-repo` and do **not** add `issue-worker-ready`.
