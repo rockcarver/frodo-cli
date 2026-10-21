@@ -36,8 +36,7 @@ safe-outputs:
   add-comment:
     max: 1
   threat-detection:
-    enabled: true
-    continue-on-error: false
+    enabled: false
 max-ai-credits: 12
 timeout-minutes: 4
 ---

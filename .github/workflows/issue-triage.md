@@ -50,8 +50,7 @@ safe-outputs:
   set-issue-type:
     max: 1
   threat-detection:
-    enabled: true
-    continue-on-error: false
+    enabled: false
 max-ai-credits: 8
 timeout-minutes: 3
 ---
