@@ -1,6 +1,6 @@
 ---
 description: |
-  When a release is published, close issues whose fix shipped in this release.
+  When a release is published, mark included issues as released.
 on:
   release:
     types: [published]
@@ -20,9 +20,15 @@ safe-outputs:
   add-comment:
     max: 5
     target: "*"
+  add-labels:
+    github-token: ${{ secrets.SIGNAL_TOKEN }}
+    allowed:
+      - released
+    max: 5
+    target: "*"
   remove-labels:
     allowed:
-      - awaiting-release
+      - waiting-for-release
     max: 5
     target: "*"
   close-issue:
@@ -38,17 +44,17 @@ timeout-minutes: 4
 
 Triggered when a release is published. This repository does not create releases. A maintainer does.
 
-Two close rules. Apply only the one that fits this repository.
-
 ## This repository owns the fix
 
-Example: a library release.
+Find issues with `waiting-for-release` that this release includes.
+The release notes mentioning the issue is enough.
 
-Close an open issue in this repository when the release notes mention that issue.
-Post: "This is included in {tag}. Closing."
-Then close it.
+For each:
+1. Remove `waiting-for-release`.
+2. Add `released`.
+3. Post: "Included in {tag}."
 
-Do not close an issue in another repository from here.
+Do not reopen a closed issue.
 
 ## This repository consumes the fix
 
@@ -56,14 +62,13 @@ Read `.github/agentic-workflows/related-repos.md`.
 Apply this only when an entry sets `release.requires_consumer_release: true`.
 
 1. Read the published release notes and the version of each pinned package (`release.pins`).
-2. Find open issues here with the label `awaiting-release`.
-3. For each, find the canonical issue and the related-repository version that contains that fix.
-4. Close this issue only when this release pins that version, or a newer one.
-   The release notes mentioning this issue is also sufficient.
-   If the pin does not include the fix, leave the issue open.
-5. When closing:
-   - Post: "This is included in {tag}, which pins {package} {version}. Closing."
-   - Remove `awaiting-release`.
-   - Close the issue.
+2. Find issues here with `waiting-for-release`.
+3. This release includes the fix only when it pins the related version that contains it, or the notes mention this issue.
+   If the pin does not include the fix, leave the issue as it is.
+4. When it is included:
+   - Remove `waiting-for-release`.
+   - Add `released`.
+   - Post: "Included in {tag}, which pins {package} {version}."
+   - Close the issue if it is still open.
 
 Do not mention labels or internal terms in the comment.
