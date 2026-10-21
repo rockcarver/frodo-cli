@@ -119,6 +119,7 @@ Then say one of these, plainly:
 
 - Already fixed: a change after the issue date addresses the reported behavior. Name the pull request or commit. This is not a guess. If you cannot point at that later change, do not call it fixed.
 - Cannot reproduce: the current code does not show the reported behavior, and nothing relevant changed after the issue was opened. Do not call this fixed.
+  Only say this when the report is complete enough to look for. If reproduction steps, environment, or the expected behavior are missing, ask for those details instead. Do not call an incomplete report invalid.
 - Still present: the current code still matches the report. Continue as usual.
 
 Do not use age or inactivity as a reason to call an issue fixed.

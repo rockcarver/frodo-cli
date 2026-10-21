@@ -76,7 +76,8 @@ Apply only quality and priority labels. Do **not** apply complexity or risk labe
 - Missing details → `needs-info` (do not emit hand-off)
 - Strong duplicate → `duplicate`
 - Worker says already fixed, and names a later pull request or commit → `already-fixed`, then close the issue
-- Worker says the behavior cannot be found and nothing relevant changed after the issue was opened → `invalid`, then close the issue
+- Worker says the behavior cannot be found, nothing relevant changed after the issue was opened, and the report had enough detail to look for it → `invalid`, then close the issue
+- Worker asked for more details before it could decide → `needs-info` (do not emit hand-off, do not close)
 - Invalid or spam → corresponding label
 - Valid but not urgent → `backlog`
 - Complete, actionable, and worth doing now → remove `needs-info` if present, then emit `issue-triage-handoff`
