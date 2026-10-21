@@ -77,3 +77,6 @@ If `plan-approval-required` is absent (or has been removed by a human):
 - Emit `plan-triage-handoff`.
 
 The presence of `plan-approval-required` blocks the PR gate. Removing it is the human signal to continue.
+
+## Dependency gate
+If the issue has the label `dependency-required`, do **not** emit `plan-triage-handoff`, whatever the classification. Say nothing about it in a comment. A watcher removes the label when the work the issue depends on is finished, and the issue then runs through the gates again.

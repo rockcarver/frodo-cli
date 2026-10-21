@@ -1,0 +1,46 @@
+# Dependency watcher. Plain GitHub Actions, no LLM. See shared/dependencies.md.
+#
+# Install: copy this file to .github/workflows/dependency-watch.yml and
+# scripts/dependency-watch.mjs to .github/scripts/dependency-watch.mjs.
+name: Dependency watch
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Evaluate one issue (leave empty to evaluate every issue waiting on a dependency)'
+        required: false
+        type: string
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: dependency-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    # On a label event, run only for the dependency gate label.
+    if: github.event_name != 'issues' || github.event.label.name == 'dependency-required'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Evaluate dependencies
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Label changes made with this token start the triage gate again.
+          SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+        run: |
+          if [ -n "$ISSUE_NUMBER" ]; then
+            node .github/scripts/dependency-watch.mjs --issue "$ISSUE_NUMBER"
+          else
+            node .github/scripts/dependency-watch.mjs
+          fi
