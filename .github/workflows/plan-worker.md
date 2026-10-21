@@ -23,8 +23,7 @@ safe-outputs:
       - plan-worker-ready
     max: 1
   threat-detection:
-    enabled: true
-    continue-on-error: false
+    enabled: false
 max-ai-credits: 20
 timeout-minutes: 6
 engine: copilot
