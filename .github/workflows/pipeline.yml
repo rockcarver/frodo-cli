@@ -51,6 +51,43 @@ permissions:
   id-token: write
 
 jobs:
+  # Classifies a PR as code or non-code so the long test jobs can be skipped
+  # for docs and automation-only changes. This cannot be done with
+  # `paths-ignore` on the pull_request trigger: the required checks would stay
+  # "expected" forever. Skipped jobs count as passing for required checks.
+  # Fails safe: anything not on the allowlist, any API error, and every
+  # non-PR event (push, workflow_dispatch, releases) is treated as code.
+  changes:
+    name: 'Detect code changes'
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.classify.outputs.code }}
+    steps:
+      - name: Classify changed files
+        id: classify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          code=true
+          if [ "${EVENT}" = "pull_request" ]; then
+            if files=$(gh api "repos/${REPO}/pulls/${PR}/files" --paginate \
+                --jq '.[] | .filename, (.previous_filename // empty)'); then
+              count=$(printf '%s\n' "${files}" | grep -c . || true)
+              # The files API caps at 3000 entries; treat that as "unknown".
+              if [ "${count}" -gt 0 ] && [ "${count}" -lt 3000 ]; then
+                safe='^(docs/|[^/]+\.md$|LICENSE|\.github/(ISSUE_TEMPLATE/|agentic-workflows/|scripts/|CODEOWNERS$|dependabot\.yml$|copilot-instructions\.md$)|\.github/workflows/([^/]+\.(md|lock\.yml)|dependency-watch\.yml|dependabot-auto-merge\.yml)$)'
+                if ! printf '%s\n' "${files}" | grep -Ev "${safe}" | grep -q .; then
+                  code=false
+                fi
+              fi
+            fi
+          fi
+          echo "code=${code}"
+          echo "code=${code}" >> "$GITHUB_OUTPUT"
+
   build:
     name: 'Build'
     runs-on: ubuntu-latest
@@ -162,7 +199,8 @@ jobs:
 
   test:
     name: 'Test'
-    needs: build
+    needs: [build, changes]
+    if: needs.changes.outputs.code == 'true'
     # You must use a Linux environment when using service containers or container jobs
     runs-on: ubuntu-latest
     strategy:
@@ -236,16 +274,34 @@ jobs:
   # cancelled/skipped unexpectedly.
   test-gate:
     name: 'Test gate'
-    needs: [test]
+    needs: [build, changes, test]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Fail if any test matrix leg did not succeed
         run: |
+          build='${{ needs.build.result }}'
+          changes='${{ needs.changes.result }}'
+          code='${{ needs.changes.outputs.code }}'
           result='${{ needs.test.result }}'
-          echo "test matrix result: ${result}"
-          if [ "${result}" != "success" ]; then
-            echo "::error::Not all test matrix legs succeeded"
+          echo "build=${build} changes=${changes} code=${code} test=${result}"
+          if [ "${changes}" != "success" ]; then
+            echo "::error::Change detection did not succeed"
+            exit 1
+          fi
+          if [ "${code}" = "true" ]; then
+            expected=success
+          else
+            # Non-code PR: the tests are skipped on purpose, but Build must
+            # still have passed (a skipped Build would also skip the tests).
+            expected=skipped
+            if [ "${build}" != "success" ]; then
+              echo "::error::Build did not succeed"
+              exit 1
+            fi
+          fi
+          if [ "${result}" != "${expected}" ]; then
+            echo "::error::Expected test result '${expected}', got '${result}'"
             exit 1
           fi
 
