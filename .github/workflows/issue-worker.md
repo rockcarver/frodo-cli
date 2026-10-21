@@ -106,14 +106,29 @@ Post a short, plain-language comment. Do not mention labels, gates, workflows, o
 Cover, in ordinary language:
 - Whether the report is clear enough to act on
 - Apparent duplicates
-- Age and recent activity if relevant
+- Whether the reported behavior is already fixed, or cannot be found in the current code
+
+### Already fixed or cannot reproduce
+Use the issue's creation date as the line.
+
+1. From the report, name the files or subsystem that would have to change.
+2. Look at commits and merged pull requests that touch those files after the issue was opened.
+3. Read the current code for the reported behavior.
+
+Then say one of these, plainly:
+
+- Already fixed: a change after the issue date addresses the reported behavior. Name the pull request or commit. This is not a guess. If you cannot point at that later change, do not call it fixed.
+- Cannot reproduce: the current code does not show the reported behavior, and nothing relevant changed after the issue was opened. Do not call this fixed.
+  Only say this when the report is complete enough to look for. If reproduction steps, environment, or the expected behavior are missing, ask for those details instead. Do not call an incomplete report invalid.
+- Still present: the current code still matches the report. Continue as usual.
+
+Do not use age or inactivity as a reason to call an issue fixed.
 
 ### Missing information
 If required details are absent and the issue belongs here, end with a direct request that lists only the items still needed.
 
-### Not actionable or not urgent
-- If the issue looks stale or no longer relevant, say so plainly and note that it may be closed.
-- If it is valid but not urgent, say that it has been noted for later and that no immediate work is planned.
+### Not urgent
+If it is valid but not urgent, say that it has been noted for later and that no immediate work is planned.
 
 If the repository defines an environment agent and a quick reproduction check would help, you may request it. Otherwise proceed without it.
 
