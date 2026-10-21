@@ -76,8 +76,8 @@ the admin bypass admits. The GitHub Actions app cannot be a bypass actor —
 `Detect code changes` runs first on every event. For pull requests it lists the
 changed files through the API and sets `code=false` only when **every** file is
 on a docs-and-automation allowlist (root `*.md`, `docs/`, `LICENSE`, issue
-templates, the agentic-workflow definitions, scripts and lock files under
-`.github/`, and a few non-pipeline workflow files). Anything else counts as
+templates, the agentic-workflow definitions, scripts and every workflow file under
+`.github/workflows/` except `pipeline.yml` itself). Anything else counts as
 code, including `pipeline.yml`, `package.json` and the lockfile. API errors,
 more than 3000 changed files, pushes, `workflow_dispatch` and release runs all
 resolve to `code=true`, so the filter can only ever skip work, never hide it.
