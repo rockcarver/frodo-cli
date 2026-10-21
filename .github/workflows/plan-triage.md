@@ -70,13 +70,12 @@ Read definitions in this order:
 ## Approval gate
 If complexity is high:
 - Add the label `plan-approval-required`.
-- Do **not** emit `plan-triage-handoff` while that label is present.
+- Do **not** emit `plan-triage-handoff`.
 - Post a short comment: "High complexity. Remove the plan-approval-required label to resume."
 
-If `plan-approval-required` is absent (or has been removed by a human):
-- Emit `plan-triage-handoff`.
+Otherwise emit `plan-triage-handoff`.
 
-The presence of `plan-approval-required` blocks the PR gate. Removing it is the human signal to continue.
+You never resume a high-complexity issue yourself. When a maintainer removes `plan-approval-required`, a separate workflow (`plan-approval-resume`, no LLM) applies `plan-triage-handoff`.
 
 ## Dependency gate
 If the issue has the label `dependency-required`, do **not** emit `plan-triage-handoff`, whatever the classification. Say nothing about it in a comment. A watcher removes the label when the work the issue depends on is finished, and the issue then runs through the gates again.
