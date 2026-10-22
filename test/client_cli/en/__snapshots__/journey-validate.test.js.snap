@@ -24,6 +24,8 @@ Arguments:
 
 Options:
   -a, --all                   Validate all journeys/trees.
+  -A, --all-separate          Validate journeys/trees from separate files in a
+                              directory.
   -f, --file <file>           Name of the journey export file to validate.
   -i, --journey-id <journey>  Name of a journey/tree. If specified, -a is
                               ignored.
@@ -32,5 +34,9 @@ Options:
   -hh, --help-more            Help with all options.
   -hhh, --help-all            Help with all options, environment variables, and
                               usage examples.
+
+Rule:
+  one of -i, --journey-id <journey> | -a, --all is required -- choose which journeys to validate
+
 "
 `;

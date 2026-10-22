@@ -83,6 +83,9 @@ export default function setup() {
       ).default(false, 'false')
     )
     .addOption(
+      new Option('--no-validate', 'Do not validate journeys during promotion.')
+    )
+    .addOption(
       new Option(
         '--target <host url>',
         'Host URL of the environment to perform secret value encryption. The URL must resolve to an existing connection profile. Use this option to generate an export that can be imported into the target environment without requiring admin access to the source environment.'
@@ -113,7 +116,8 @@ export default function setup() {
             options.waitSecrets,
             options.promptPrune,
             options.noPrune,
-            options.printDiff
+            options.printDiff,
+            options.validate
           );
           verboseMessage('done');
           if (!outcome) process.exitCode = 1;

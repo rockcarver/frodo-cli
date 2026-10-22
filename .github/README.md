@@ -189,12 +189,12 @@ which sub-commands each family offers.
 
 ### Journey reference validation
 
-`frodo journey validate` checks all journeys in the selected tenant or export
-file; use `-i` to validate one journey, `-a` to explicitly select all, and
-`--strict` to treat warnings as failures. Journey imports, config-manager journey
-pushes, and full configuration imports validate by default; pass `--no-validate`
-to skip validation. Journey exports always report findings as warnings and are
-not blocked by them.
+`frodo journey validate` checks journeys in the selected tenant, export file, or
+all-separate directory (`-A -D`); use `-i` to validate one journey, `-a` to
+explicitly select all, and `--strict` to treat warnings as failures. Journey
+imports, config-manager journey pushes, full configuration imports, and
+`frodo promote` validate by default; pass `--no-validate` to skip validation.
+Journey exports always report findings as warnings and are not blocked by them.
 
 ### Utility commands
 

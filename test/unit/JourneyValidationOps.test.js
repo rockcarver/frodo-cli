@@ -5,11 +5,13 @@ import { jest } from '@jest/globals';
 
 let workingDirectory;
 let realm;
+let verbose;
 const validateJourneys = jest.fn();
 const printMessage = jest.fn();
 const printError = jest.fn();
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
+  FrodoError: class FrodoError extends Error {},
   frodo: {
     authn: { journey: { validateJourneys } },
     utils: {
@@ -19,6 +21,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   },
   state: {
     getRealm: () => realm,
+    getVerbose: () => verbose,
     setRealm: (value) => {
       realm = value;
     },
@@ -30,12 +33,14 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage,
 }));
 
-const { validateJourneys: validateJourneyExports } =
-  await import('../../src/ops/JourneyValidationOps');
+const { validateJourneyExports } = await import(
+  '../../src/ops/JourneyValidationOps'
+);
 
-describe('validateJourneys', () => {
+describe('validateJourneyExports', () => {
   beforeEach(() => {
     realm = undefined;
+    verbose = false;
     workingDirectory = fs.mkdtempSync(
       path.join(os.tmpdir(), 'frodo-journey-validation-')
     );
@@ -65,6 +70,25 @@ describe('validateJourneys', () => {
       '1 warning in journey login',
       'warn'
     );
+    expect(printMessage).not.toHaveBeenCalledWith(
+      expect.stringContaining('[UNREACHABLE_NODE]'),
+      'warn'
+    );
+  });
+
+  test('prints finding details in verbose mode', async () => {
+    verbose = true;
+    validateJourneys.mockResolvedValue([
+      {
+        code: 'UNREACHABLE_NODE',
+        severity: 'warning',
+        journeyId: 'login',
+        message: 'Node debug is unreachable',
+      },
+    ]);
+
+    await expect(validateJourneyExports(['login'])).resolves.toBe(true);
+
     expect(printMessage).toHaveBeenCalledWith(
       '  [UNREACHABLE_NODE] Node debug is unreachable',
       'warn'
@@ -82,6 +106,10 @@ describe('validateJourneys', () => {
     ]);
     await expect(validateJourneyExports(undefined, undefined, true)).resolves
       .toBe(false);
+    expect(printMessage).toHaveBeenCalledWith(
+      '1 warning in journey login (strict mode treats warnings as errors)',
+      'warn'
+    );
 
     validateJourneys.mockResolvedValue([
       {
@@ -147,5 +175,28 @@ describe('validateJourneys', () => {
     ).resolves.toBe(true);
 
     expect(validateJourneys).toHaveBeenCalledWith(['cloud'], journeys);
+  });
+
+  test('combines journeys from separate export files', async () => {
+    const journeys = {
+      first: { tree: { _id: 'first' } },
+      second: { tree: { _id: 'second' } },
+    };
+    fs.writeFileSync(
+      path.join(workingDirectory, 'first.journey.json'),
+      JSON.stringify(journeys.first)
+    );
+    fs.writeFileSync(
+      path.join(workingDirectory, 'second.journey.json'),
+      JSON.stringify(journeys.second)
+    );
+
+    await expect(
+      validateJourneyExports(undefined, undefined, false, '.')
+    ).resolves.toBe(true);
+
+    expect(validateJourneys).toHaveBeenCalledWith(undefined, {
+      trees: journeys,
+    });
   });
 });

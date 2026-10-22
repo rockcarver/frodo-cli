@@ -74,7 +74,7 @@ export default function setup() {
       )
     )
     .addOption(
-      new Option('--no-validate', 'Skip journey validation during import.')
+      new Option('--no-validate', 'Do not validate journeys during import.')
     )
     .addOption(
       new Option(

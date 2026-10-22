@@ -6,32 +6,33 @@ import {
   type MultiTreeExportInterface,
 } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
+import { readJourneyExportFromFile } from './utils/JourneyExportUtils';
 
-const { getFilePath } = frodo.utils;
-
-export async function validateJourneys(
+export async function validateJourneyExports(
   journeyIds?: string[],
   file?: string,
-  strict: boolean = false
+  strict: boolean = false,
+  directory?: string
 ): Promise<boolean> {
   try {
     if (!state.getRealm()) {
-      state.setRealm(frodo.utils.constants.DEFAULT_REALM_KEY);
+      state.setRealm(file || directory ? '/' : frodo.utils.constants.DEFAULT_REALM_KEY);
     }
 
     let journeysExport: MultiTreeExportInterface | undefined;
     if (file) {
-      const fileData = JSON.parse(fs.readFileSync(getFilePath(file), 'utf8'));
-      if (fileData.trees && typeof fileData.trees === 'object') {
-        journeysExport = fileData;
-      } else if (fileData.tree && typeof fileData.tree === 'object') {
-        const journeyId = fileData.tree._id;
-        if (!journeyId) {
-          throw new Error(`No journey ID found in ${file}`);
-        }
-        journeysExport = { trees: { [journeyId]: fileData } };
-      } else {
-        throw new Error(`No journeys found in ${file}`);
+      journeysExport = readJourneyExportFromFile(file);
+    } else if (directory) {
+      const { getFilePath } = frodo.utils;
+      journeysExport = { trees: {} };
+      for (const name of fs
+        .readdirSync(getFilePath(''))
+        .filter((entry) => entry.toLowerCase().endsWith('.journey.json'))) {
+        const journeyFile = readJourneyExportFromFile(name);
+        Object.assign(journeysExport.trees, journeyFile.trees);
+      }
+      if (Object.keys(journeysExport.trees).length === 0) {
+        throw new Error(`No journeys found in ${directory}`);
       }
     }
 
@@ -61,16 +62,22 @@ export async function validateJourneys(
         warnings && `${warnings} warning${warnings === 1 ? '' : 's'}`,
       ]
         .filter(Boolean)
-        .join(', ');
+        .join(' and ');
+      const strictMessage =
+        strict && warnings
+          ? ' (strict mode treats warnings as errors)'
+          : '';
       printMessage(
-        `${summary} in journey ${journeyId}`,
+        `${summary} in journey ${journeyId}${strictMessage}`,
         errors ? 'error' : 'warn'
       );
-      for (const finding of journeyFindings) {
-        printMessage(
-          `  [${finding.code}] ${finding.message}`,
-          finding.severity === 'error' ? 'error' : 'warn'
-        );
+      if (state.getVerbose()) {
+        for (const finding of journeyFindings) {
+          printMessage(
+            `  [${finding.code}] ${finding.message}`,
+            finding.severity === 'error' ? 'error' : 'warn'
+          );
+        }
       }
     }
 

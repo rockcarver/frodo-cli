@@ -30,7 +30,8 @@ import * as Node from './NodeOps';
 import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
 import * as Theme from './ThemeOps';
-import { cloneDeep, errorHandler } from './utils/OpsUtils';
+import { errorHandler } from './utils/OpsUtils';
+import { readJourneyExportFromFile } from './utils/JourneyExportUtils';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -298,14 +299,8 @@ export async function importJourneyFromFile(
 ): Promise<boolean> {
   const verbose = state.getVerbose();
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    let journeyData = JSON.parse(data);
-    // check if this is a file with multiple trees and get journey by id
-    if (journeyData.trees && journeyData.trees[journeyId]) {
-      journeyData = journeyData.trees[journeyId];
-    } else if (journeyData.trees) {
-      journeyData = null;
-    }
+    const journeysExport = readJourneyExportFromFile(file);
+    const journeyData = journeysExport.trees[journeyId];
 
     // if a journeyId was specified, only import the matching journey
     if (journeyData && journeyId === journeyData.tree._id) {
@@ -397,23 +392,9 @@ export async function importFirstJourneyFromFile(
 ): Promise<boolean> {
   const verbose = state.getVerbose();
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    let journeyData = cloneDeep(JSON.parse(data));
-    let journeyId = null;
-    // single tree
-    if (journeyData.tree) {
-      journeyId = cloneDeep(journeyData.tree._id);
-    }
-    // multiple trees, so get the first tree
-    else if (journeyData.trees) {
-      for (const treeId in journeyData.trees) {
-        if (Object.hasOwnProperty.call(journeyData.trees, treeId)) {
-          journeyId = treeId;
-          journeyData = journeyData.trees[treeId];
-          break;
-        }
-      }
-    }
+    const journeysExport = readJourneyExportFromFile(file);
+    const [journeyId, journeyData] =
+      Object.entries(journeysExport.trees)[0] ?? [];
 
     // if a journeyId was specified, only import the matching journey
     if (journeyData && journeyId) {
@@ -509,9 +490,7 @@ export async function importJourneysFromFile(
   options: TreeImportOptions
 ): Promise<boolean> {
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const fileData = JSON.parse(data);
-    await importJourneys(fileData, options, errorHandler);
+    await importJourneys(readJourneyExportFromFile(file), options, errorHandler);
     return true;
   } catch (error) {
     printError(error);

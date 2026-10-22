@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { validateJourneys } from '../../src/ops/JourneyValidationOps';
+import { validateJourneyExports } from '../../src/ops/JourneyValidationOps';
 
 const classicFile =
   'test/e2e/exports/all-separate/classic/realm/root/journey/Agent.journey.json';
@@ -12,7 +12,9 @@ describe('journey validation export fixtures', () => {
       .Agent;
     expect(journey.tree).not.toHaveProperty('staticNodes');
 
-    await expect(validateJourneys(['Agent'], classicFile)).resolves.toBe(true);
+    await expect(validateJourneyExports(['Agent'], classicFile)).resolves.toBe(
+      true
+    );
   });
 
   test('validates a cloud journey with Page Node inner outcomes', async () => {
@@ -24,6 +26,8 @@ describe('journey validation export fixtures', () => {
     ).toBe(true);
     expect(Object.keys(journey.innerNodes).length).toBeGreaterThan(0);
 
-    await expect(validateJourneys(['Login'], cloudFile)).resolves.toBe(true);
+    await expect(validateJourneyExports(['Login'], cloudFile)).resolves.toBe(
+      true
+    );
   });
 });

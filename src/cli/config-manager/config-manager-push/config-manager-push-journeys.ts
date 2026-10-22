@@ -20,7 +20,7 @@ export default function setup() {
       new Option('-d, --push-dependencies', 'Push scripts and inner journeys')
     )
     .addOption(
-      new Option('--no-validate', 'Skip journey validation before import.')
+      new Option('--no-validate', 'Do not validate journeys before import.')
     )
 
     .action(async (host, realm, user, password, options, command) => {

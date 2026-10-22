@@ -36,10 +36,10 @@ FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config exp
 To record, run these:
 
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json --no-validate
+FRODO_TEST_NAME=0_adf FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json --no-validate
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file test/e2e/exports/all/all.cloud.json --no-validate
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory test/e2e/exports/all-separate/cloud --no-validate
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/cloud-full-import --no-validate
+FRODO_TEST_NAME=0_AD FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/cloud-full-import --no-validate
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -gf test/e2e/exports/all-separate/cloud/global/sync/sync.idm.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all -f test/e2e/exports/all/all.empty.json
@@ -83,6 +83,7 @@ const allCloudFullImportFileName = 'all.cloud-full-import.json';
 const allCloudFullImportExport = `${allDirectory}/${allCloudFullImportFileName}`;
 const allSeparateCloudFullImportDirectory = `test/e2e/exports/all-separate/cloud-full-import`;
 
+// Preserve the pre-validation cassette ids: --no-validate does not change HTTP traffic.
 describe('frodo config import', () => {
 
   describe('Cloud', () => {
@@ -98,7 +99,11 @@ describe('frodo config import', () => {
     // non-zero overall.
     test(`"frodo config import -adf ${allCloudFullImportExport} --no-validate" Import everything from "${allCloudFullImportFileName}", including default scripts.`, async () => {
       const CMD = `frodo config import -adf ${allCloudFullImportExport} --no-validate`;
-      await testFail(CMD, cloudEnv);
+      const testEnv = {
+        ...cloudEnv,
+        env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_adf' },
+      };
+      await testFail(CMD, testEnv);
     });
 
     // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
@@ -119,7 +124,11 @@ describe('frodo config import', () => {
     // into the recorded cassette.
     test(`"frodo config import -AD ${allSeparateCloudFullImportDirectory} --no-validate" Import everything from directory "${allSeparateCloudFullImportDirectory}"`, async () => {
       const CMD = `frodo config import -AD ${allSeparateCloudFullImportDirectory} --no-validate`;
-      await testFail(CMD, cloudEnv);
+      const testEnv = {
+        ...cloudEnv,
+        env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_AD' },
+      };
+      await testFail(CMD, testEnv);
     });
 
     // TODO: Re-record test

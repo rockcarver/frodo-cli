@@ -85,7 +85,8 @@ export async function compareExportToDirectory(
   wait: boolean = false,
   promptPrune: boolean = false,
   noPrune: boolean = false,
-  printDiff: boolean = false
+  printDiff: boolean = false,
+  validateJourneys: boolean = true
 ): Promise<boolean> {
   try {
     PromptPrune = promptPrune;
@@ -155,14 +156,25 @@ export async function compareExportToDirectory(
       };
       verboseMessage(compObj);
       if (!whatIf) {
-        await effectDifferences(compObj, masterDir, exportDir, effectSecrets);
+        await effectDifferences(
+          compObj,
+          masterDir,
+          exportDir,
+          effectSecrets,
+          validateJourneys
+        );
       }
     }
 
     if (!whatIf) {
       const globalSync = changed.find((val) => val === 'global/idm/sync.json');
       if (globalSync) {
-        await changeFile('global/idm/sync.json', masterDir);
+        await changeFile(
+          'global/idm/sync.json',
+          masterDir,
+          effectSecrets,
+          validateJourneys
+        );
       }
       if (enviornmentChanged(compareObj) && effectSecrets) {
         await applyUpdates(wait);
@@ -229,13 +241,14 @@ export async function effectDifferences(
   compObj: CompareObj,
   masterDir: string,
   exportDir: string,
-  effectSecrets: boolean = false
+  effectSecrets: boolean = false,
+  validateJourneys: boolean = true
 ) {
   for (const add of compObj.added) {
-    await addFile(add, masterDir, effectSecrets);
+    await addFile(add, masterDir, effectSecrets, validateJourneys);
   }
   for (const change of compObj.changed) {
-    await changeFile(change, masterDir, effectSecrets);
+    await changeFile(change, masterDir, effectSecrets, validateJourneys);
   }
   for (const del of compObj.deleted) {
     await deleteFile(del, exportDir, effectSecrets);
@@ -465,11 +478,12 @@ function checkChange(path: string, dir: string, counterpartPath: string) {
 async function changeFile(
   path: string,
   dir: string,
-  effectSecrets: boolean = false
+  effectSecrets: boolean = false,
+  validateJourneys: boolean = true
 ) {
   logmessages.push('file changed:');
   verboseMessage('File Changed: ');
-  await addFile(path, dir, effectSecrets);
+  await addFile(path, dir, effectSecrets, validateJourneys);
 }
 
 /**
@@ -481,7 +495,8 @@ async function changeFile(
 async function addFile(
   path: string,
   dir: string,
-  effectSecrets: boolean = false
+  effectSecrets: boolean = false,
+  validateJourneys: boolean = true
 ) {
   const type = getTypeFromPath(path);
   const importFilePath = dir + '/' + path;
@@ -489,7 +504,14 @@ async function addFile(
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   setRealmFromPath(path, inRealm);
 
-  await addSwitch(importFilePath, type, global, inRealm, effectSecrets);
+  await addSwitch(
+    importFilePath,
+    type,
+    global,
+    inRealm,
+    effectSecrets,
+    validateJourneys
+  );
 }
 
 /**
@@ -506,7 +528,8 @@ async function addSwitch(
   type: string,
   global: boolean,
   inRealm: boolean,
-  effectSecrets: boolean = false
+  effectSecrets: boolean = false,
+  validateJourneys: boolean = true
 ) {
   switch (type) {
     case 'application': {
@@ -541,6 +564,7 @@ async function addSwitch(
       const outcome = await importJourneyFromFile(journeyId, importFilePath, {
         reUuid: false,
         deps: true,
+        validate: validateJourneys,
       });
       logmessages.push(`add journey ${importFilePath}`);
       verboseMessage(`add journey ${importFilePath}\n`);
