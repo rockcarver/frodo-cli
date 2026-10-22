@@ -8,7 +8,7 @@
 # Install: copy this file to .github/workflows/check-deployment.yml and
 # scripts/check-deployment.mjs (plus scripts/dependency-watch.mjs, which it
 # imports) to .github/scripts/.
-name: Check deployment
+name: "Concierge 4f ▸ Check Deployment"
 
 on:
   pull_request:

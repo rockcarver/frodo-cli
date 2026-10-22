@@ -8,9 +8,15 @@ import path from 'path';
 // Console/ColorTheme/Config modules. Mock them with the minimal surface
 // ThemeConfig actually uses.
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
-  detectTerminalBackgroundRgb: async () => null,
-  FRODO_COLOR_THEME_ENV_KEY: 'FRODO_COLOR_THEME',
-  matchBackgroundPreset: () => 'dark',
+  frodo: {
+    utils: {
+      terminal: {
+        detectTerminalBackgroundRgb: async () => null,
+        FRODO_COLOR_THEME_ENV_KEY: 'FRODO_COLOR_THEME',
+        matchBackgroundPreset: () => 'dark',
+      },
+    },
+  },
   state: { setColorTheme: () => undefined },
 }));
 

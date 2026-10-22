@@ -1,4 +1,5 @@
 ---
+name: "Concierge 3a PR Worker"
 description: |
   PR gate worker. Assigns a coding agent when plan triage has opened the gate.
   The coding agent must signal completion with the pr-worker-ready label.

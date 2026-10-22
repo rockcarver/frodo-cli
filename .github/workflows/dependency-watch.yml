@@ -6,7 +6,7 @@
 #
 # Install: copy this file to .github/workflows/dependency-watch.yml and
 # scripts/dependency-watch.mjs to .github/scripts/dependency-watch.mjs.
-name: Dependency watch
+name: "Concierge 1c ▸ Dependency Watch"
 
 on:
   schedule:

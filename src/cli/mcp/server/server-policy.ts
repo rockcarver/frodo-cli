@@ -9,7 +9,8 @@ export type McpServicePolicySelection = {
 };
 
 /**
- * Maps user-facing policy choices to a compatible createMcpService input.
+ * Maps user-facing policy choices to a compatible
+ * `frodo.mcp.createService` input.
  */
 export function resolvePolicySelection(
   policy: McpPolicyPreset

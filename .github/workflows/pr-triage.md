@@ -1,4 +1,5 @@
 ---
+name: "Concierge 3c PR Triage"
 description: |
   PR gate triage. Runs when the coding agent signals completion with pr-worker-ready.
 on:

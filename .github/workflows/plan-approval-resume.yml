@@ -5,7 +5,7 @@
 #
 # Install: copy this file to .github/workflows/plan-approval-resume.yml and
 # scripts/plan-approval-resume.mjs to .github/scripts/plan-approval-resume.mjs.
-name: Plan approval resume
+name: "Concierge 2c ▸ Plan Approval Resume"
 
 on:
   issues:

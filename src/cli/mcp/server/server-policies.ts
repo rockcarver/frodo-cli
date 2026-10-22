@@ -1,4 +1,4 @@
-import { MCP_POLICY_PRESETS } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
@@ -72,7 +72,7 @@ export default function setup() {
 
   program.action((options) => {
     const opts = options as McpPoliciesOptions;
-    const presets = Object.values(MCP_POLICY_PRESETS).map((preset) => {
+    const presets = Object.values(frodo.mcp.policyPresets).map((preset) => {
       const presentation =
         POLICY_PRESENTATION[preset.name] ||
         ({

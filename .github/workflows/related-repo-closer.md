@@ -1,4 +1,5 @@
 ---
+name: "Concierge 4b Related Repo Closer"
 description: |
   When a canonical issue is closed, close the linked non-canonical issue
   that carries the related-repo label.

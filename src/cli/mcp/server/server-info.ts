@@ -1,11 +1,4 @@
-import {
-  buildCapabilityInventory,
-  createMcpService,
-  frodo,
-  listMcpProfiles,
-  MCP_POLICY_PRESETS,
-  resolveMcpProfileSelection,
-} from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import packageJson from '../../../../package.json';
 import {
@@ -39,7 +32,7 @@ type McpInfoOptions = {
 };
 
 function buildEffectiveInventoryOptions(opts: McpInfoOptions) {
-  const profileSelection = resolveMcpProfileSelection(opts.profile);
+  const profileSelection = frodo.mcp.resolveProfileSelection(opts.profile);
   return {
     ...profileSelection.inventoryOptions,
     includeTopLevelDomains:
@@ -124,13 +117,13 @@ export default function setup() {
     const opts = options as McpInfoOptions;
     const policySelection = resolvePolicySelection(opts.policy);
     const inventoryOptions = buildEffectiveInventoryOptions(opts);
-    const service = createMcpService({
+    const service = frodo.mcp.createService({
       profileName: opts.profile,
       policyPreset: policySelection.policyPreset,
       policyOverride: policySelection.policyOverride,
       inventoryOptions,
     });
-    const inventory = buildCapabilityInventory(frodo, inventoryOptions);
+    const inventory = frodo.mcp.buildCapabilityInventory(inventoryOptions);
     const inventoryCapabilityCount = inventory.length;
     const specialInInventory = inventory.filter((c) => c.kind === 'special');
     const specialActive = service.capabilities.filter(
@@ -187,10 +180,10 @@ export default function setup() {
         domainCount: service.manifest.discoveryTool.domains.length,
       },
       profileRegistry: {
-        count: listMcpProfiles().length,
+        count: frodo.mcp.listProfiles().length,
       },
       policyRegistry: {
-        count: Object.keys(MCP_POLICY_PRESETS).length,
+        count: Object.keys(frodo.mcp.policyPresets).length,
       },
     };
 

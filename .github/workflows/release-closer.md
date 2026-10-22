@@ -1,4 +1,5 @@
 ---
+name: "Concierge 4d Release Closer"
 description: |
   When a release is published, mark included issues as released.
 on:
