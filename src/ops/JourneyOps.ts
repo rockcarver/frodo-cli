@@ -30,8 +30,8 @@ import * as Node from './NodeOps';
 import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
 import * as Theme from './ThemeOps';
-import { errorHandler } from './utils/OpsUtils';
 import { readJourneyExportFromFile } from './utils/JourneyExportUtils';
+import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -490,7 +490,11 @@ export async function importJourneysFromFile(
   options: TreeImportOptions
 ): Promise<boolean> {
   try {
-    await importJourneys(readJourneyExportFromFile(file), options, errorHandler);
+    await importJourneys(
+      readJourneyExportFromFile(file),
+      options,
+      errorHandler
+    );
     return true;
   } catch (error) {
     printError(error);

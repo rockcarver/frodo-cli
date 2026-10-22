@@ -16,7 +16,9 @@ export async function validateJourneyExports(
 ): Promise<boolean> {
   try {
     if (!state.getRealm()) {
-      state.setRealm(file || directory ? '/' : frodo.utils.constants.DEFAULT_REALM_KEY);
+      state.setRealm(
+        file || directory ? '/' : frodo.utils.constants.DEFAULT_REALM_KEY
+      );
     }
 
     let journeysExport: MultiTreeExportInterface | undefined;
@@ -64,9 +66,7 @@ export async function validateJourneyExports(
         .filter(Boolean)
         .join(' and ');
       const strictMessage =
-        strict && warnings
-          ? ' (strict mode treats warnings as errors)'
-          : '';
+        strict && warnings ? ' (strict mode treats warnings as errors)' : '';
       printMessage(
         `${summary} in journey ${journeyId}${strictMessage}`,
         errors ? 'error' : 'warn'
