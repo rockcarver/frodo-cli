@@ -154,6 +154,22 @@ describe('resolveFrodoForMcpRequest', () => {
     ).resolves.toBe(singleton);
     expect(resolveRequestScopedFrodo).not.toHaveBeenCalled();
   });
+
+  test('reuses the singleton when the requested realm matches its realm', async () => {
+    const context = { realm: 'default' };
+    const resolveRequestScopedFrodo = jest.fn();
+    const singleton = {
+      mcp: {
+        getRealmFromContext: jest.fn(() => 'default'),
+        resolveRequestScopedFrodo,
+      },
+    };
+
+    await expect(
+      resolveFrodoForMcpRequest(context, singleton, 'default')
+    ).resolves.toBe(singleton);
+    expect(resolveRequestScopedFrodo).not.toHaveBeenCalled();
+  });
 });
 
 // ---------------------------------------------------------------------------

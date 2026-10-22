@@ -2,6 +2,19 @@ import js from '@eslint/js';
 import importX from 'eslint-plugin-import-x';
 import tseslint from 'typescript-eslint';
 
+const frodoLibRootRestriction = {
+  name: '@rockcarver/frodo-lib',
+  allowImportNames: ['frodo', 'state', 'FrodoError'],
+  allowTypeImports: true,
+  message:
+    "Import library values through the 'frodo' facade; only 'frodo', 'state', 'FrodoError', and type imports may come from the package root.",
+};
+const frodoLibSubpathRestriction = {
+  group: ['@rockcarver/frodo-lib/*'],
+  message:
+    "Import library values through the 'frodo' facade instead of importing from a package subpath.",
+};
+
 export default tseslint.config(
   {
     ignores: [
@@ -32,24 +45,24 @@ export default tseslint.config(
       'dot-notation': 'off',
       'no-console': 'warn',
       'no-underscore-dangle': 'off',
-      'no-restricted-syntax': ['error', 'LabeledStatement', 'WithStatement'],
+      'no-restricted-syntax': [
+        'error',
+        'LabeledStatement',
+        'WithStatement',
+        "ImportExpression[source.value='@rockcarver/frodo-lib']",
+      ],
       'no-restricted-imports': [
         'error',
         {
           paths: [
-            {
-              name: '@rockcarver/frodo-lib',
-              allowImportNames: ['frodo', 'state', 'FrodoError'],
-              allowTypeImports: true,
-              message:
-                "Import library values through the 'frodo' facade; only 'frodo', 'state', 'FrodoError', and type imports may come from the package root.",
-            },
+            frodoLibRootRestriction,
             {
               name: 'tinyrainbow',
               message:
                 "Import color from './utils/ColorTheme' (relative path may vary) instead of 'tinyrainbow' directly, so the color palette stays centralized in one place.",
             },
           ],
+          patterns: [frodoLibSubpathRestriction],
         },
       ],
       'no-multi-str': 'off',
@@ -60,7 +73,13 @@ export default tseslint.config(
   {
     files: ['src/utils/ColorTheme.ts'],
     rules: {
-      'no-restricted-imports': 'off',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [frodoLibRootRestriction],
+          patterns: [frodoLibSubpathRestriction],
+        },
+      ],
     },
   }
 );

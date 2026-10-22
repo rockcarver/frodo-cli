@@ -499,7 +499,7 @@ export function registerServerCrashHandlers(
  * Tools are registered once and the server instance is reused across
  * transport connections (important for the multi-session HTTP transport).
  *
- * @param service Fully composed MCP service from `createMcpService`.
+ * @param service Fully composed MCP service from `frodo.mcp.createService`.
  * @returns Configured `McpServer` ready to connect to a transport.
  */
 export function buildMcpServer(
@@ -3590,7 +3590,8 @@ type FrodoInstance = ReturnType<typeof frodo.mcp.resolveRequestScopedFrodo>;
  * frodo-lib's `ToolRuntime.ts`) — handing back the shared singleton
  * unconditionally would silently ignore it, since the singleton's own
  * realm was fixed once at startup and never changes. This falls back to a
- * genuinely realm-scoped instance (via {@link resolveRequestScopedFrodo})
+ * genuinely realm-scoped instance (via
+ * {@link frodo.mcp.resolveRequestScopedFrodo})
  * only when `context` actually asks for a realm different from the
  * singleton's, and is otherwise a plain passthrough.
  *
