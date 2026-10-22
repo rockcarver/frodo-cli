@@ -9,7 +9,7 @@
 # Install: copy this file to .github/workflows/label-janitor.yml and
 # scripts/label-janitor.mjs to .github/scripts/label-janitor.mjs. No secret is needed:
 # removing a label starts nothing, so the default token is enough.
-name: Label janitor
+name: "Concierge 4a ▸ Label Janitor"
 
 on:
   issues:
