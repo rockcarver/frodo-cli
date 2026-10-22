@@ -1,0 +1,64 @@
+# Concierge updater. Plain GitHub Actions, no LLM. See docs/updater.md.
+#
+# Keeps this repository on a released version of Repo Concierge: when a newer
+# release exists it rebuilds the update on the branch concierge/update and opens
+# or updates ONE pull request. The branch is rebuilt every run and never merged
+# into, so lock-file conflicts between updates cannot happen.
+#
+# Install: this file is delivered by Repo Concierge itself. For the first
+# adoption follow docs/updater.md.
+name: Concierge updater
+
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Release tag to update to (default: the latest release of the pinned channel)'
+        required: false
+        type: string
+      dry-run:
+        description: 'Show what would change without changing anything'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  # Creates the labels a release needs when they are missing.
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: concierge-updater
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          # The token that pushes the update branch (it must be allowed to
+          # change workflow files). Without it the updater only reports.
+          token: ${{ secrets.CONCIERGE_TOKEN || github.token }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Update
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONCIERGE_TOKEN: ${{ secrets.CONCIERGE_TOKEN }}
+          TARGET: ${{ inputs.target }}
+          DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          args=()
+          if [ -n "${TARGET}" ]; then args+=(--target "${TARGET}"); fi
+          if [ "${DRY_RUN}" = "true" ]; then args+=(--dry-run); fi
+          node .github/scripts/concierge-updater.mjs "${args[@]}"

@@ -1,4 +1,4 @@
-// Deployment check for the agentic-workflows harness.
+// Deployment check for Repo Concierge.
 //
 // Deterministic: no LLM, no network. Verifies that the compiled workflows can
 // do what .github/agentic-workflows/related-repos.md promises: for every
