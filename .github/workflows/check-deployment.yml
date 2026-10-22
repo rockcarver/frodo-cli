@@ -1,0 +1,32 @@
+# Deployment check. Plain GitHub Actions, no LLM. See docs/deployment.md.
+#
+# Fails when the compiled workflows cannot do what
+# .github/agentic-workflows/related-repos.md promises: for every related
+# repository that names a secret, the issue worker must be able to create
+# issues there and the related-repo closer to comment, label and close there.
+#
+# Install: copy this file to .github/workflows/check-deployment.yml and
+# scripts/check-deployment.mjs (plus scripts/dependency-watch.mjs, which it
+# imports) to .github/scripts/.
+name: Check deployment
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/*.md'
+      - '.github/workflows/*.lock.yml'
+      - '.github/agentic-workflows/**'
+      - '.github/scripts/check-deployment.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check cross-repository configuration
+        run: node .github/scripts/check-deployment.mjs

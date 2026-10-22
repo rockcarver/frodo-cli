@@ -40,11 +40,12 @@ export function parseRelatedRepos(text) {
   for (const raw of text.split('\n')) {
     const line = raw.replace(/\s+#.*$/, '');
     if (/^\s*-\s+role:/.test(line)) {
-      current = { repo: null, requiresConsumerRelease: false, pins: null };
+      current = { repo: null, secret: null, requiresConsumerRelease: false, pins: null };
       out.related.push(current);
     } else if (current) {
       let m;
       if ((m = line.match(/^\s+repo:\s*(\S+)/))) current.repo = m[1];
+      else if ((m = line.match(/^\s+secret:\s*(\S+)/))) current.secret = m[1];
       else if (/^\s+requires_consumer_release:\s*true\b/.test(line))
         current.requiresConsumerRelease = true;
       else if ((m = line.match(/^\s+pins:\s*["']?([^"'\s]+)["']?/)))
