@@ -38,6 +38,13 @@ export default tseslint.config(
         {
           paths: [
             {
+              name: '@rockcarver/frodo-lib',
+              allowImportNames: ['frodo', 'state', 'FrodoError'],
+              allowTypeImports: true,
+              message:
+                "Import library values through the 'frodo' facade; only 'frodo', 'state', 'FrodoError', and type imports may come from the package root.",
+            },
+            {
               name: 'tinyrainbow',
               message:
                 "Import color from './utils/ColorTheme' (relative path may vary) instead of 'tinyrainbow' directly, so the color palette stays centralized in one place.",

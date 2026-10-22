@@ -1,4 +1,4 @@
-import { listMcpProfiles } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
 import { FrodoStubCommand } from '../../FrodoCommand';
@@ -26,7 +26,7 @@ export default function setup() {
     .withStability('experimental');
 
   program.action(() => {
-    const profiles = listMcpProfiles();
+    const profiles = frodo.mcp.listProfiles();
     printMessage(`MCP profiles (${profiles.length}):`, 'info');
     for (const profile of profiles) {
       printMessage(`- ${profile.name}: ${profile.description}`);

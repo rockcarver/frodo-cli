@@ -41,8 +41,6 @@ let mockGetAdditionalServiceAccount = async () => {
 };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
-  getRealmFromContext: () => undefined,
-  resolveRequestScopedFrodo: async (_context, frodoSingleton) => frodoSingleton,
   // Pulled in transitively via ./AuthenticateOps.js's getUseDeviceFlow
   // import (frodo-cli's own AuthenticateOps.ts destructures frodo.login/
   // frodo.utils.constants at module top level) — only needs to exist, this
@@ -114,6 +112,7 @@ const {
   computeHttpAllowedHosts,
   isLoopbackBindHost,
   registerServerCrashHandlers,
+  resolveFrodoForMcpRequest,
   resolveForwardedResourceValue,
   resolveResourceServerUrl,
   startHttpTransport,
@@ -121,6 +120,41 @@ const {
   verifyMcpBearerAuthorization,
   verifyMcpOAuthBearerToken,
 } = await import('../../src/ops/McpServerOps.ts');
+
+describe('resolveFrodoForMcpRequest', () => {
+  test('uses the singleton facade to resolve a different request realm', async () => {
+    const scopedInstance = {};
+    const context = { realm: 'other-realm' };
+    const resolveRequestScopedFrodo = jest.fn(() => scopedInstance);
+    const singleton = {
+      mcp: {
+        getRealmFromContext: jest.fn(() => 'other-realm'),
+        resolveRequestScopedFrodo,
+      },
+    };
+
+    await expect(
+      resolveFrodoForMcpRequest(context, singleton, 'default')
+    ).resolves.toBe(scopedInstance);
+    expect(resolveRequestScopedFrodo).toHaveBeenCalledWith(context);
+  });
+
+  test('reuses the singleton when no different realm is requested', async () => {
+    const context = {};
+    const resolveRequestScopedFrodo = jest.fn();
+    const singleton = {
+      mcp: {
+        getRealmFromContext: jest.fn(() => undefined),
+        resolveRequestScopedFrodo,
+      },
+    };
+
+    await expect(
+      resolveFrodoForMcpRequest(context, singleton, 'default')
+    ).resolves.toBe(singleton);
+    expect(resolveRequestScopedFrodo).not.toHaveBeenCalled();
+  });
+});
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -53,8 +53,6 @@ import {
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import {
   frodo,
-  getRealmFromContext,
-  resolveRequestScopedFrodo,
   state,
   type McpRuntimeRequestContext,
   type McpService,
@@ -3579,7 +3577,7 @@ function buildErrorResult(err: unknown): {
   };
 }
 
-type FrodoInstance = ReturnType<typeof resolveRequestScopedFrodo>;
+type FrodoInstance = ReturnType<typeof frodo.mcp.resolveRequestScopedFrodo>;
 
 /**
  * Resolves the Frodo instance to use for one MCP request.
@@ -3614,11 +3612,11 @@ export async function resolveFrodoForMcpRequest(
   frodoSingleton: FrodoInstance,
   singletonRealm: string | undefined
 ): Promise<FrodoInstance> {
-  const requestedRealm = getRealmFromContext(context);
+  const requestedRealm = frodoSingleton.mcp.getRealmFromContext(context);
   if (!requestedRealm || requestedRealm === singletonRealm) {
     return frodoSingleton;
   }
-  return resolveRequestScopedFrodo(context, frodoSingleton);
+  return frodoSingleton.mcp.resolveRequestScopedFrodo(context);
 }
 
 /**

@@ -1,10 +1,7 @@
-import {
-  theme as libTheme,
-  resolveThemeMode,
-  state,
-  type Intent as LibIntent,
-} from '@rockcarver/frodo-lib';
+import { frodo, state, type Intent as LibIntent } from '@rockcarver/frodo-lib';
 import c from 'tinyrainbow';
+
+const { theme: libTheme, resolveThemeMode } = frodo.utils.terminal;
 
 /**
  * frodo-cli's own semantic intents, layered on top of frodo-lib's base set

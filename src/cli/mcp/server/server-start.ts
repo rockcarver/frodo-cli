@@ -1,9 +1,5 @@
 import {
-  createMcpService,
   frodo,
-  hydrateMcpDiscoveryContext,
-  listMcpProfiles,
-  resolveRequestScopedFrodo,
   state,
   type McpDiscoveryHydrationEvent,
   type McpProfileName,
@@ -48,16 +44,16 @@ import { resolvePolicySelection, type McpPolicyPreset } from './server-policy';
 
 /**
  * `--profile`'s selectable values: the same "user-facing" set frodo-lib's
- * own `listMcpProfiles()` returns (also what `frodo mcp server profiles`
+ * own `frodo.mcp.listProfiles()` returns (also what `frodo mcp server profiles`
  * lists) — deliberately excludes `'platform-admin'`/`'disabled'`, frodo-lib's
  * own internal/composition-only profiles (`listAllMcpProfiles()`'s superset).
  * Derived at module load rather than hand-listed, so this can't drift out of
  * sync with the registry again — a real bug fixed here: `.choices()` used to
  * hardcode a stale list that was missing `'self-service'` after it shipped.
  */
-const CLI_SELECTABLE_PROFILES = listMcpProfiles().map(
-  (profile) => profile.name
-);
+const CLI_SELECTABLE_PROFILES = frodo.mcp
+  .listProfiles()
+  .map((profile) => profile.name);
 type McpStartProfileName = (typeof CLI_SELECTABLE_PROFILES)[number];
 
 /** Parsed options for `frodo mcp server start`. */
@@ -560,8 +556,8 @@ export default function setup() {
       }
       const activeHost = sanitizeHost(state.getHost());
       // TODO(oauth-resource-server): confirmed live that both hydration
-      // catalogs unconditionally fail in this mode -- `frodoInstance: frodo`
-      // below is the process singleton, deliberately never authenticated
+      // catalogs unconditionally fail in this mode -- the facade used below
+      // is bound to the process singleton, deliberately never authenticated
       // when `opts.oauthResourceServer` is set (see the comment above), so
       // `readManagedObjectTypes()`/`readConfigEntityStubs()` always hit an
       // unauthenticated session and always get rejected. Not a bug (the
@@ -570,8 +566,7 @@ export default function setup() {
       // skip hydration outright in this mode (skip the two guaranteed-401
       // startup calls entirely), or find some other way to hydrate (e.g.
       // once the first verified request resolves a real credential).
-      const discoveryContext = await hydrateMcpDiscoveryContext({
-        frodoInstance: frodo,
+      const discoveryContext = await frodo.mcp.hydrateDiscoveryContext({
         activeTarget: {
           host: activeHost,
           profile: opts.profile,
@@ -579,7 +574,7 @@ export default function setup() {
         onEvent: (event) => logDiscoveryHydrationEvent(logger, event),
       });
       const policySelection = resolvePolicySelection(opts.policy);
-      const service = createMcpService({
+      const service = frodo.mcp.createService({
         profileName: opts.profile,
         policyPreset: policySelection.policyPreset,
         policyOverride: policySelection.policyOverride,
@@ -604,7 +599,7 @@ export default function setup() {
           // request in this mode must construct its own scoped instance,
           // regardless of realm.
           resolveFrodoForRequest: opts.oauthResourceServer
-            ? (context) => resolveRequestScopedFrodo(context, frodo)
+            ? (context) => frodo.mcp.resolveRequestScopedFrodo(context)
             : (context) =>
                 resolveFrodoForMcpRequest(context, frodo, state.getRealm()),
           executeRecommendedByDefault: true,

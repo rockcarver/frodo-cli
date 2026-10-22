@@ -1,15 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import {
-  detectTerminalBackgroundRgb,
-  FRODO_COLOR_THEME_ENV_KEY,
-  matchBackgroundPreset,
-  state,
-  type BackgroundPreset,
-} from '@rockcarver/frodo-lib';
+import { frodo, state, type BackgroundPreset } from '@rockcarver/frodo-lib';
 import { applyCustomThemeOverrides, HUE_NAME_TO_FUNCTION } from './ColorTheme';
 import { getConfigPath } from './Config';
 import { printMessage } from './Console';
+
+const {
+  detectTerminalBackgroundRgb,
+  FRODO_COLOR_THEME_ENV_KEY,
+  matchBackgroundPreset,
+} = frodo.utils.terminal;
 
 export const FRODO_THEME_ACTIVE_FILENAME = 'Theme.json';
 export const FRODO_THEME_DEFINITIONS_DIRNAME = 'themes';
