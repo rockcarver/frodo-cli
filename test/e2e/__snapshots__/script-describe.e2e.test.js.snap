@@ -207,6 +207,8 @@ exports[`frodo script describe "frodo script describe -un shared": should descri
 • Exported 0 alpha realm agents.
 • Exported 17 alpha realm OAuth2 clients.
 • 8 alpha realm providers exported.
+1 warning in journey FrodoTest
+1 error in journey test
 • Exported 26 alpha realm journeys.
 • Exported 0 alpha realm applications
 • Exported 2 alpha realm policies.

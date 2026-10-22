@@ -14814,6 +14814,8 @@ Exporting journey...
     - 73cecbfc-dad0-4395-be6a-6858ee3a80e5 (Microsoft Profile Normalization)
   - Themes:
     - 63e19668-909f-479e-83d7-be7a01cd8187 (NoAccess)
+1 warning in journey FrodoTest
+[UNCONNECTED_OUTCOME] Declared outcome 'ERROR' on node '64157fca-bd5b-4405-a4c8-64ffd98a5461' has no connection
 ✔ Exported FrodoTest to FrodoTest.journey.json.
 "
 `;
