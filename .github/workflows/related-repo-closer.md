@@ -22,17 +22,19 @@ safe-outputs:
   add-comment:
     max: 1
     target: "*"
-    # Cross-repo writes need the related-repo secret from related-repos.md.
-    # github-token: ${{ secrets.OTHER_REPO_ISSUES_TOKEN }}
+    github-token: ${{ secrets.FRODO_LIB_ISSUES_TOKEN }}
+    allowed-repos: ["rockcarver/frodo-lib"]
   add-labels:
-    # github-token: ${{ secrets.OTHER_REPO_ISSUES_TOKEN }}
+    github-token: ${{ secrets.FRODO_LIB_ISSUES_TOKEN }}
+    allowed-repos: ["rockcarver/frodo-lib"]
     allowed:
       - waiting-for-release
     max: 1
     target: "*"
   close-issue:
     max: 1
-    # github-token: ${{ secrets.OTHER_REPO_ISSUES_TOKEN }}
+    github-token: ${{ secrets.FRODO_LIB_ISSUES_TOKEN }}
+    allowed-repos: ["rockcarver/frodo-lib"]
   threat-detection:
     enabled: false
 max-ai-credits: 6

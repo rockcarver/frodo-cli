@@ -1,5 +1,9 @@
 # Dependency watcher. Plain GitHub Actions, no LLM. See shared/dependencies.md.
 #
+# Runs hourly, on demand, when the gate label is added, and when something a
+# dependency may be waiting for happens: an issue closes, a pull request merges,
+# a release is published, or package.json changes on main.
+#
 # Install: copy this file to .github/workflows/dependency-watch.yml and
 # scripts/dependency-watch.mjs to .github/scripts/dependency-watch.mjs.
 name: Dependency watch
@@ -13,8 +17,20 @@ on:
         description: 'Evaluate one issue (leave empty to evaluate every issue waiting on a dependency)'
         required: false
         type: string
+  # Wake up when something a dependency can be waiting for happens, instead of
+  # relying on the hourly schedule (GitHub runs schedules on a best-effort
+  # basis and skips slots under load). pull_request_target gives the job the
+  # repository secrets for merges from forks; nothing from the pull request is
+  # checked out or run.
   issues:
-    types: [labeled]
+    types: [labeled, closed]
+  pull_request_target:
+    types: [closed]
+  release:
+    types: [published, prereleased]
+  push:
+    branches: [main]
+    paths: [package.json, package-lock.json]
 
 permissions:
   contents: read
@@ -26,8 +42,14 @@ concurrency:
 
 jobs:
   watch:
-    # On a label event, run only for the dependency gate label.
-    if: github.event_name != 'issues' || github.event.label.name == 'dependency-required'
+    # Label events matter only for the dependency gate label, pull requests
+    # only when merged. Closed issues, releases, pushes and the schedule
+    # evaluate every waiting issue.
+    if: >-
+      (github.event_name != 'issues' && github.event_name != 'pull_request_target')
+      || (github.event_name == 'issues'
+          && (github.event.action == 'closed' || github.event.label.name == 'dependency-required'))
+      || (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -37,7 +59,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           # Label changes made with this token start the triage gate again.
           SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          # Only a label event or a manual run targets one issue; every other
+          # event (a closed issue is the dependency, not the waiting issue)
+          # evaluates all waiting issues.
+          ISSUE_NUMBER: ${{ (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.issue.number) || inputs.issue_number }}
         run: |
           if [ -n "$ISSUE_NUMBER" ]; then
             node .github/scripts/dependency-watch.mjs --issue "$ISSUE_NUMBER"
