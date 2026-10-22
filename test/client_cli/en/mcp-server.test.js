@@ -222,7 +222,7 @@ test("'mcp server start --dry-run' validates service composition", async () => {
 
 test("'mcp server start --profile' accepts every profile 'mcp server profiles' lists, and rejects frodo-lib's internal-only 'platform-admin'/'disabled' profiles", async () => {
     // Regression guard: --profile's .choices() is derived from frodo-lib's
-    // own listMcpProfiles() rather than a hand-typed array, specifically so
+    // own frodo.mcp.listProfiles() rather than a hand-typed array, specifically so
     // it can't silently drift out of sync with the registry again (it did
     // once already — self-service shipped in frodo-lib before this option's
     // choices array was updated to include it).

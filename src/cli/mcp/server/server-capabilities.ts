@@ -1,4 +1,4 @@
-import { createMcpService } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
@@ -138,7 +138,7 @@ export default function setup() {
   program.action((options) => {
     const opts = options as McpSkillsOptions;
     const policySelection = resolvePolicySelection(opts.policy);
-    const service = createMcpService({
+    const service = frodo.mcp.createService({
       profileName: opts.profile,
       policyPreset: policySelection.policyPreset,
       policyOverride: policySelection.policyOverride,

@@ -1,10 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {
-  frodo,
-  FrodoError,
-  MANAGED_OBJECT_SCHEMA_CREATABLE_PROPERTY_TYPES as SCHEMA_PROPERTY_TYPES,
-} from '@rockcarver/frodo-lib';
+import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -15,6 +11,8 @@ import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
+const SCHEMA_PROPERTY_TYPES =
+  frodo.idm.managed.schema.MANAGED_OBJECT_SCHEMA_CREATABLE_PROPERTY_TYPES;
 
 const deploymentTypes = [
   CLOUD_DEPLOYMENT_TYPE_KEY,

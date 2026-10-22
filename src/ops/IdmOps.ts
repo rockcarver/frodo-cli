@@ -2,18 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import confirm from '@inquirer/confirm';
 import {
-  buildManagedObjectSchemaRelationshipPropertyPayload as buildRelationshipPropertyPayload,
-  buildManagedObjectSchemaPropertyPayload as buildSchemaPropertyPayload,
-  extractManagedObjectSchemaRelationshipPropertyFields as extractRelationshipFields,
-  extractManagedObjectSchemaPropertyFields as extractSchemaPropertyFields,
   frodo,
   FrodoError,
-  inferManagedObjectSchemaRelationshipReverseIdentity as inferReverseIdentity,
-  navigatePropertyPath,
-  navigateToPropertyContainer,
-  parseSubPropertyPath,
-  setSchemaProperty,
-  toManagedObjectSchemaRelationshipReverseFields as toReverseDescriptorFields,
   type ConfigEntityExportInterface,
   type IdObjectSkeletonInterface,
   type ManagedObjectSchema,
@@ -44,6 +34,21 @@ import {
   writeSyncJsonToDirectory,
 } from './MappingOps';
 import { errorHandler } from './utils/OpsUtils';
+
+const {
+  buildManagedObjectSchemaRelationshipPropertyPayload:
+    buildRelationshipPropertyPayload,
+  buildManagedObjectSchemaPropertyPayload: buildSchemaPropertyPayload,
+  extractManagedObjectSchemaRelationshipPropertyFields:
+    extractRelationshipFields,
+  extractManagedObjectSchemaPropertyFields: extractSchemaPropertyFields,
+  inferManagedObjectSchemaRelationshipReverseIdentity: inferReverseIdentity,
+  navigatePropertyPath,
+  navigateToPropertyContainer,
+  parseSubPropertyPath,
+  setSchemaProperty,
+  toManagedObjectSchemaRelationshipReverseFields: toReverseDescriptorFields,
+} = frodo.idm.managed.schema;
 
 const {
   getFilePath,
