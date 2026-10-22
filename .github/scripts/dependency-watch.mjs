@@ -1,4 +1,4 @@
-// Dependency watcher for the agentic-workflows harness.
+// Dependency watcher for Repo Concierge.
 //
 // Deterministic: no LLM. Resolves the dependencies an issue declares with
 // "Depends on:", "Blocked by:" or "Requires:" lines and resumes the issue's

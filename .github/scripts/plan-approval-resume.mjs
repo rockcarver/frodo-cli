@@ -1,4 +1,4 @@
-// Plan approval resume for the agentic-workflows harness.
+// Plan approval resume for Repo Concierge.
 //
 // Deterministic: no LLM. When a maintainer removes `plan-approval-required`
 // from a high-complexity issue, this hands the issue to the PR gate by

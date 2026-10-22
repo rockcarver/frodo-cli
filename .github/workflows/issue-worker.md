@@ -47,8 +47,8 @@ safe-outputs:
     target: "*"
   create-issue:
     max: 1
-    allowed-repos: ["rockcarver/frodo-lib"]
     github-token: ${{ secrets.FRODO_LIB_ISSUES_TOKEN }}
+    allowed-repos: ["rockcarver/frodo-lib"]
   threat-detection:
     enabled: true
     continue-on-error: false
