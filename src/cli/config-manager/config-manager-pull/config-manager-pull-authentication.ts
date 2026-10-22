@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportAuthentication } from '../../../configManagerOps/FrConfigAuthenticationOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
@@ -22,12 +21,6 @@ export default function setup() {
 
   program
     .description('Export authentication objects.')
-    .addOption(
-      new Option(
-        '-r, --realm <realm>',
-        'Specifies the realm to export from. Only the entity object from this realm will be exported.'
-      )
-    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -37,9 +30,6 @@ export default function setup() {
         options,
         command
       );
-      if (options.realm) {
-        realm = options.realm;
-      }
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting config entity authentication');
         const outcome = await configManagerExportAuthentication(realm);

@@ -1,10 +1,10 @@
 import fs from 'fs';
 import { frodo, state, type ThemeSkeleton } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
-import { decodeOrNot } from '../utils/FrConfig';
+import { decodeOrNot, realmList } from '../utils/FrConfig';
 
-const { saveJsonToFile, getFilePath } = frodo.utils;
-const { readRealms } = frodo.realm;
+const { saveJsonToFile, getFilePath, constants } = frodo.utils;
+const { readRealms, readRealmByName } = frodo.realm;
 const { readThemes, importThemes } = frodo.theme;
 
 const THEME_HTML_FIELDS = [
@@ -60,15 +60,20 @@ function extractHtmlFields(theme: ThemeSkeleton, themePath: string): void {
   }
 }
 
-export async function configManagerExportThemes(): Promise<boolean> {
+export async function configManagerExportThemes(
+  realm?: string
+): Promise<boolean> {
   try {
-    const realms = await readRealms();
-    for (const realm of realms) {
+    const realmNames =
+      realm && realm !== constants.DEFAULT_REALM_KEY
+        ? [realm]
+        : await realmList();
+    for (const realm of realmNames) {
       // fr-config-manager doesn't support root themes
-      if (realm.name === '/') continue;
-      state.setRealm(realm.name);
+      if (realm === '/') continue;
+      state.setRealm(realm);
       const themes = await readThemes();
-      const exportDir = getFilePath(`realms/${realm.name}/themes`, true);
+      const exportDir = getFilePath(`realms/${realm}/themes`, true);
       fs.mkdirSync(exportDir, { recursive: true });
       for (const theme of themes) {
         const themeDir = `${exportDir}/${theme.name}`;
@@ -84,9 +89,14 @@ export async function configManagerExportThemes(): Promise<boolean> {
   }
 }
 
-export async function configManagerImportThemes(): Promise<boolean> {
+export async function configManagerImportThemes(
+  realm?: string
+): Promise<boolean> {
   try {
-    const realms = await readRealms();
+    const realms =
+      realm && realm !== constants.DEFAULT_REALM_KEY
+        ? [await readRealmByName(realm)]
+        : await readRealms();
     for (const realm of realms) {
       // fr-config-manager doesn't support root themes
       if (realm.name === '/') continue;

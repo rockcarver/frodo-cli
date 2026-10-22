@@ -26,8 +26,6 @@ Options:
   -d, --pull-dependencies  Pull dependencies.
   -n, --name <name>        Journey name, It only export the journey with the
                            name.
-  -r, --realm <realm>      Specific realm to get journeys from (overrides
-                           environment)
   -h, --help               Help
   -hh, --help-more         Help with all options.
   -hhh, --help-all         Help with all options, environment variables, and

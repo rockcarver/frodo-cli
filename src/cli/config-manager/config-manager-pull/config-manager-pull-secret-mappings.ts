@@ -5,13 +5,9 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
+const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -28,12 +24,6 @@ export default function setup() {
         'Name of the secret mapping, It will only export secret mapping with the name. Works both with mapping._id or alias.  '
       )
     )
-    .addOption(
-      new Option(
-        '-r, --realm <realm>',
-        'Specific realm to get secret mappings from (overrides environment)'
-      )
-    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -43,9 +33,6 @@ export default function setup() {
         options,
         command
       );
-      if (options.realm) {
-        realm = options.realm;
-      }
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting config entity secret-mappings');

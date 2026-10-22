@@ -33,7 +33,7 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing themes');
-        const outcome = await configManagerImportThemes();
+        const outcome = await configManagerImportThemes(realm);
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

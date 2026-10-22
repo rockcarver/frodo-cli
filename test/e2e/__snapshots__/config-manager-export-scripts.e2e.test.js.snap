@@ -15,48 +15,10 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187894,
+  "lastModifiedDate": 1785876179281,
   "name": "Authentication Tree Decision Node Script",
   "script": {
     "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Authentication Tree Decision Node Script.js",
-  },
-}
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/alpha/scripts/scripts-config/0575fa2f-12cf-42e3-8fe3-0b45d99d3aa8.json 1`] = `
-{
-  "_id": "0575fa2f-12cf-42e3-8fe3-0b45d99d3aa8",
-  "context": "SCRIPTED_DECISION_NODE",
-  "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1784302526002,
-  "default": false,
-  "description": "null",
-  "evaluatorVersion": "2.0",
-  "language": "JAVASCRIPT",
-  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1787584230806,
-  "name": "PaseUsername",
-  "script": {
-    "file": "scripts-content/SCRIPTED_DECISION_NODE/PaseUsername.js",
-  },
-}
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/alpha/scripts/scripts-config/3d27b6d3-0f41-410a-9975-2e9df43d885e.json 1`] = `
-{
-  "_id": "3d27b6d3-0f41-410a-9975-2e9df43d885e",
-  "context": "SCRIPTED_DECISION_NODE",
-  "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1787584148855,
-  "default": false,
-  "description": "null",
-  "evaluatorVersion": "2.0",
-  "language": "JAVASCRIPT",
-  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1787584148855,
-  "name": "Test Next Gen",
-  "script": {
-    "file": "scripts-content/SCRIPTED_DECISION_NODE/Test Next Gen.js",
   },
 }
 `;
@@ -72,7 +34,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188230,
+  "lastModifiedDate": 1785876179556,
   "name": "OAuth2 Authorize Endpoint Data Provider Script",
   "script": {
     "file": "scripts-content/OAUTH2_AUTHORIZE_ENDPOINT_DATA_PROVIDER/OAuth2 Authorize Endpoint Data Provider Script.js",
@@ -91,7 +53,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188389,
+  "lastModifiedDate": 1785876179679,
   "name": "SAML2 NameID Mapper Script",
   "script": {
     "file": "scripts-content/SAML2_NAMEID_MAPPER/SAML2 NameID Mapper Script.js",
@@ -110,7 +72,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188243,
+  "lastModifiedDate": 1785876179570,
   "name": "OAuth2 Dynamic Client Registration Script",
   "script": {
     "file": "scripts-content/OAUTH2_DYNAMIC_CLIENT_REGISTRATION/OAuth2 Dynamic Client Registration Script.js",
@@ -129,7 +91,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187911,
+  "lastModifiedDate": 1785876179296,
   "name": "Config Provider",
   "script": {
     "file": "scripts-content/CONFIG_PROVIDER_NODE/Config Provider.js",
@@ -148,7 +110,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188077,
+  "lastModifiedDate": 1785876179436,
   "name": "Library Script",
   "script": {
     "file": "scripts-content/LIBRARY/Library Script.js",
@@ -167,29 +129,10 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188451,
+  "lastModifiedDate": 1785876179733,
   "name": "Scripted Module - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Scripted Module - Server Side.js",
-  },
-}
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/alpha/scripts/scripts-config/9b75654f-2553-4627-9938-b14a5f62ce81.json 1`] = `
-{
-  "_id": "9b75654f-2553-4627-9938-b14a5f62ce81",
-  "context": "AUTHENTICATION_TREE_DECISION_NODE",
-  "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1787584148876,
-  "default": false,
-  "description": "Debug script that prints the shared state",
-  "evaluatorVersion": "1.0",
-  "language": "JAVASCRIPT",
-  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1787584148876,
-  "name": "Debug",
-  "script": {
-    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Debug.js",
   },
 }
 `;
@@ -205,7 +148,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188462,
+  "lastModifiedDate": 1785876179745,
   "name": "Scripted Policy Condition",
   "script": {
     "file": "scripts-content/POLICY_CONDITION/Scripted Policy Condition.js",
@@ -224,7 +167,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188162,
+  "lastModifiedDate": 1785876179499,
   "name": "Next Generation Scripted Decision Node Script",
   "script": {
     "file": "scripts-content/SCRIPTED_DECISION_NODE/Next Generation Scripted Decision Node Script.js",
@@ -243,7 +186,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188149,
+  "lastModifiedDate": 1785876179486,
   "name": "Next Generation Device Match Node Script",
   "script": {
     "file": "scripts-content/DEVICE_MATCH_NODE/Next Generation Device Match Node Script.js",
@@ -262,7 +205,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187971,
+  "lastModifiedDate": 1785876179344,
   "name": "Device Profile Match Template - Decision Node Script",
   "script": {
     "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Device Profile Match Template - Decision Node Script.js",
@@ -281,7 +224,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188308,
+  "lastModifiedDate": 1785876179619,
   "name": "OAuth2 Validate Scope Script",
   "script": {
     "file": "scripts-content/OAUTH2_VALIDATE_SCOPE/OAuth2 Validate Scope Script.js",
@@ -300,7 +243,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188400,
+  "lastModifiedDate": 1785876179692,
   "name": "SAML2 SP Adapter Script",
   "script": {
     "file": "scripts-content/SAML2_SP_ADAPTER/SAML2 SP Adapter Script.js",
@@ -319,7 +262,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188349,
+  "lastModifiedDate": 1785876179649,
   "name": "SAML2 IDP Adapter Script",
   "script": {
     "file": "scripts-content/SAML2_IDP_ADAPTER/SAML2 IDP Adapter Script.js",
@@ -338,7 +281,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188281,
+  "lastModifiedDate": 1785876179594,
   "name": "OAuth2 JWT Issuer Script",
   "script": {
     "file": "scripts-content/OAUTH2_SCRIPTED_JWT_ISSUER/OAuth2 JWT Issuer Script.js",
@@ -357,7 +300,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187950,
+  "lastModifiedDate": 1785876179328,
   "name": "Device Id (Match) - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Device Id (Match) - Server Side.js",
@@ -376,7 +319,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188321,
+  "lastModifiedDate": 1785876179634,
   "name": "OIDC Claims Script",
   "script": {
     "file": "scripts-content/OIDC_CLAIMS/OIDC Claims Script.js",
@@ -395,29 +338,10 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187927,
+  "lastModifiedDate": 1785876179311,
   "name": "Device Id (Match) - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Device Id (Match) - Client Side.js",
-  },
-}
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/alpha/scripts/scripts-config/832807d9-fb5d-4810-88ef-6e0a1aa89924.json 1`] = `
-{
-  "_id": "832807d9-fb5d-4810-88ef-6e0a1aa89924",
-  "context": "SCRIPTED_DECISION_NODE",
-  "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1787584148830,
-  "default": false,
-  "description": "testing",
-  "evaluatorVersion": "2.0",
-  "language": "JAVASCRIPT",
-  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1789081051493,
-  "name": "testing",
-  "script": {
-    "file": "scripts-content/SCRIPTED_DECISION_NODE/testing.js",
   },
 }
 `;
@@ -433,7 +357,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188370,
+  "lastModifiedDate": 1785876179664,
   "name": "SAML2 IDP Attribute Mapper Script",
   "script": {
     "file": "scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER/SAML2 IDP Attribute Mapper Script.js",
@@ -452,7 +376,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188296,
+  "lastModifiedDate": 1785876179606,
   "name": "OAuth2 May Act Script",
   "script": {
     "file": "scripts-content/OAUTH2_MAY_ACT/OAuth2 May Act Script.js",
@@ -471,7 +395,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188432,
+  "lastModifiedDate": 1785876179720,
   "name": "Scripted Module - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Scripted Module - Client Side.js",
@@ -490,7 +414,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188218,
+  "lastModifiedDate": 1785876179541,
   "name": "OAuth2 Access Token Modification Script",
   "script": {
     "file": "scripts-content/OAUTH2_ACCESS_TOKEN_MODIFICATION/OAuth2 Access Token Modification Script.js",
@@ -509,7 +433,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188261,
+  "lastModifiedDate": 1785876179582,
   "name": "OAuth2 Evaluate Scope Script",
   "script": {
     "file": "scripts-content/OAUTH2_EVALUATE_SCOPE/OAuth2 Evaluate Scope Script.js",
@@ -1711,32 +1635,6 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
  */
 
 outcome = "true";
-"
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/alpha/scripts/scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Debug.js 1`] = `
-"var fr = JavaImporter(
-    org.forgerock.openam.auth.node.api.Action,
-    javax.security.auth.callback.TextOutputCallback,
-);
-
-var scriptOutcomes = {
-    OUTCOME: 'outcome',
-};
-
-function main() {
-    if (callbacks.isEmpty()) {
-        var debugState = {
-            sharedState: sharedState,
-            transientState: transientState
-        };
-        action = fr.Action.send(new fr.TextOutputCallback(0, \`<pre style="text-align: left;">\${JSON.stringify(debugState, null, 2)}</pre>\`)).build();
-        return;
-    }
-    outcome = scriptOutcomes.OUTCOME;
-}
-
-main();
 "
 `;
 
@@ -3920,50 +3818,6 @@ action.goTo("true");
 "
 `;
 
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/alpha/scripts/scripts-content/SCRIPTED_DECISION_NODE/PaseUsername.js 1`] = `
-"var SCRIPT_OUTCOMES = {
-    OUTCOME: 'outcome'
-};
-
-function main() {
-    var username = nodeState.get('username');
-    if (username.trim().toLowerCase().startsWith('fcpsedu\\\\')) {
-        username = username.substring(username.indexOf('\\\\') + 1);
-    }
-    if (username.trim().toLowerCase().endsWith('@fcpsschools.net')) {
-        username = username.substring(0, username.lastIndexOf('@'));
-    }
-    nodeState.putShared('username', username);
-    nodeState.putShared('objectAttributes', {
-        userName: username
-    });
-    action.goTo(SCRIPT_OUTCOMES.OUTCOME);
-}
-
-main();
-"
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/alpha/scripts/scripts-content/SCRIPTED_DECISION_NODE/Test Next Gen.js 1`] = `
-"/*
-  - Data made available by nodes that have already executed are available in the sharedState variable.
-  - The script should set outcome to either "true" or "false".
- */
-
-outcome = "true";
-"
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/alpha/scripts/scripts-content/SCRIPTED_DECISION_NODE/testing.js 1`] = `
-"/*
-  - Data made available by nodes that have already executed are available in the sharedState variable.
-  - The script should set outcome to either "true" or "false".
- */
-
-// outcome = "true";
-"
-`;
-
 exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/bravo/scripts/scripts-config/01e1a3c0-038b-4c16-956a-6c9d89328cff.json 1`] = `
 {
   "_id": "01e1a3c0-038b-4c16-956a-6c9d89328cff",
@@ -3975,7 +3829,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187894,
+  "lastModifiedDate": 1785876179281,
   "name": "Authentication Tree Decision Node Script",
   "script": {
     "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Authentication Tree Decision Node Script.js",
@@ -3994,7 +3848,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188230,
+  "lastModifiedDate": 1785876179556,
   "name": "OAuth2 Authorize Endpoint Data Provider Script",
   "script": {
     "file": "scripts-content/OAUTH2_AUTHORIZE_ENDPOINT_DATA_PROVIDER/OAuth2 Authorize Endpoint Data Provider Script.js",
@@ -4013,7 +3867,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188389,
+  "lastModifiedDate": 1785876179679,
   "name": "SAML2 NameID Mapper Script",
   "script": {
     "file": "scripts-content/SAML2_NAMEID_MAPPER/SAML2 NameID Mapper Script.js",
@@ -4032,7 +3886,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188243,
+  "lastModifiedDate": 1785876179570,
   "name": "OAuth2 Dynamic Client Registration Script",
   "script": {
     "file": "scripts-content/OAUTH2_DYNAMIC_CLIENT_REGISTRATION/OAuth2 Dynamic Client Registration Script.js",
@@ -4051,7 +3905,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187911,
+  "lastModifiedDate": 1785876179296,
   "name": "Config Provider",
   "script": {
     "file": "scripts-content/CONFIG_PROVIDER_NODE/Config Provider.js",
@@ -4070,7 +3924,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188077,
+  "lastModifiedDate": 1785876179436,
   "name": "Library Script",
   "script": {
     "file": "scripts-content/LIBRARY/Library Script.js",
@@ -4089,7 +3943,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188451,
+  "lastModifiedDate": 1785876179733,
   "name": "Scripted Module - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Scripted Module - Server Side.js",
@@ -4108,7 +3962,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188462,
+  "lastModifiedDate": 1785876179745,
   "name": "Scripted Policy Condition",
   "script": {
     "file": "scripts-content/POLICY_CONDITION/Scripted Policy Condition.js",
@@ -4127,7 +3981,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188162,
+  "lastModifiedDate": 1785876179499,
   "name": "Next Generation Scripted Decision Node Script",
   "script": {
     "file": "scripts-content/SCRIPTED_DECISION_NODE/Next Generation Scripted Decision Node Script.js",
@@ -4146,7 +4000,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188149,
+  "lastModifiedDate": 1785876179486,
   "name": "Next Generation Device Match Node Script",
   "script": {
     "file": "scripts-content/DEVICE_MATCH_NODE/Next Generation Device Match Node Script.js",
@@ -4165,7 +4019,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187971,
+  "lastModifiedDate": 1785876179344,
   "name": "Device Profile Match Template - Decision Node Script",
   "script": {
     "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Device Profile Match Template - Decision Node Script.js",
@@ -4184,7 +4038,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188308,
+  "lastModifiedDate": 1785876179619,
   "name": "OAuth2 Validate Scope Script",
   "script": {
     "file": "scripts-content/OAUTH2_VALIDATE_SCOPE/OAuth2 Validate Scope Script.js",
@@ -4203,7 +4057,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188400,
+  "lastModifiedDate": 1785876179692,
   "name": "SAML2 SP Adapter Script",
   "script": {
     "file": "scripts-content/SAML2_SP_ADAPTER/SAML2 SP Adapter Script.js",
@@ -4222,7 +4076,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188349,
+  "lastModifiedDate": 1785876179649,
   "name": "SAML2 IDP Adapter Script",
   "script": {
     "file": "scripts-content/SAML2_IDP_ADAPTER/SAML2 IDP Adapter Script.js",
@@ -4241,7 +4095,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188281,
+  "lastModifiedDate": 1785876179594,
   "name": "OAuth2 JWT Issuer Script",
   "script": {
     "file": "scripts-content/OAUTH2_SCRIPTED_JWT_ISSUER/OAuth2 JWT Issuer Script.js",
@@ -4260,7 +4114,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187950,
+  "lastModifiedDate": 1785876179328,
   "name": "Device Id (Match) - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Device Id (Match) - Server Side.js",
@@ -4279,7 +4133,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188321,
+  "lastModifiedDate": 1785876179634,
   "name": "OIDC Claims Script",
   "script": {
     "file": "scripts-content/OIDC_CLAIMS/OIDC Claims Script.js",
@@ -4298,7 +4152,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187927,
+  "lastModifiedDate": 1785876179311,
   "name": "Device Id (Match) - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Device Id (Match) - Client Side.js",
@@ -4317,7 +4171,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188370,
+  "lastModifiedDate": 1785876179664,
   "name": "SAML2 IDP Attribute Mapper Script",
   "script": {
     "file": "scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER/SAML2 IDP Attribute Mapper Script.js",
@@ -4336,7 +4190,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188296,
+  "lastModifiedDate": 1785876179606,
   "name": "OAuth2 May Act Script",
   "script": {
     "file": "scripts-content/OAUTH2_MAY_ACT/OAuth2 May Act Script.js",
@@ -4355,7 +4209,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188432,
+  "lastModifiedDate": 1785876179720,
   "name": "Scripted Module - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Scripted Module - Client Side.js",
@@ -4374,7 +4228,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188218,
+  "lastModifiedDate": 1785876179541,
   "name": "OAuth2 Access Token Modification Script",
   "script": {
     "file": "scripts-content/OAUTH2_ACCESS_TOKEN_MODIFICATION/OAuth2 Access Token Modification Script.js",
@@ -4393,7 +4247,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188261,
+  "lastModifiedDate": 1785876179582,
   "name": "OAuth2 Evaluate Scope Script",
   "script": {
     "file": "scripts-content/OAUTH2_EVALUATE_SCOPE/OAuth2 Evaluate Scope Script.js",
@@ -7789,29 +7643,10 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187894,
+  "lastModifiedDate": 1785876179281,
   "name": "Authentication Tree Decision Node Script",
   "script": {
     "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Authentication Tree Decision Node Script.js",
-  },
-}
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-config/0575fa2f-12cf-42e3-8fe3-0b45d99d3aa8.json 1`] = `
-{
-  "_id": "0575fa2f-12cf-42e3-8fe3-0b45d99d3aa8",
-  "context": "SCRIPTED_DECISION_NODE",
-  "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1784300727189,
-  "default": false,
-  "description": null,
-  "evaluatorVersion": "2.0",
-  "language": "JAVASCRIPT",
-  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1784300727189,
-  "name": "PaseUsername",
-  "script": {
-    "file": "scripts-content/SCRIPTED_DECISION_NODE/PaseUsername.js",
   },
 }
 `;
@@ -7821,13 +7656,13 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "_id": "3d27b6d3-0f41-410a-9975-2e9df43d885e",
   "context": "SCRIPTED_DECISION_NODE",
   "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1784906961115,
+  "creationDate": 1785525435763,
   "default": false,
   "description": "null",
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1789081005704,
+  "lastModifiedDate": 1785876169932,
   "name": "Test Next Gen",
   "script": {
     "file": "scripts-content/SCRIPTED_DECISION_NODE/Test Next Gen.js",
@@ -7846,7 +7681,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188230,
+  "lastModifiedDate": 1785876179556,
   "name": "OAuth2 Authorize Endpoint Data Provider Script",
   "script": {
     "file": "scripts-content/OAUTH2_AUTHORIZE_ENDPOINT_DATA_PROVIDER/OAuth2 Authorize Endpoint Data Provider Script.js",
@@ -7865,7 +7700,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188389,
+  "lastModifiedDate": 1785876179679,
   "name": "SAML2 NameID Mapper Script",
   "script": {
     "file": "scripts-content/SAML2_NAMEID_MAPPER/SAML2 NameID Mapper Script.js",
@@ -7884,7 +7719,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188243,
+  "lastModifiedDate": 1785876179570,
   "name": "OAuth2 Dynamic Client Registration Script",
   "script": {
     "file": "scripts-content/OAUTH2_DYNAMIC_CLIENT_REGISTRATION/OAuth2 Dynamic Client Registration Script.js",
@@ -7903,7 +7738,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187911,
+  "lastModifiedDate": 1785876179296,
   "name": "Config Provider",
   "script": {
     "file": "scripts-content/CONFIG_PROVIDER_NODE/Config Provider.js",
@@ -7922,7 +7757,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188077,
+  "lastModifiedDate": 1785876179436,
   "name": "Library Script",
   "script": {
     "file": "scripts-content/LIBRARY/Library Script.js",
@@ -7941,7 +7776,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188451,
+  "lastModifiedDate": 1785876179733,
   "name": "Scripted Module - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Scripted Module - Server Side.js",
@@ -7954,13 +7789,13 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "_id": "9b75654f-2553-4627-9938-b14a5f62ce81",
   "context": "AUTHENTICATION_TREE_DECISION_NODE",
   "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1784906960447,
+  "creationDate": 1785525434186,
   "default": false,
   "description": "Debug script that prints the shared state",
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1789081090354,
+  "lastModifiedDate": 1785876169391,
   "name": "Debug",
   "script": {
     "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Debug.js",
@@ -7979,7 +7814,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188462,
+  "lastModifiedDate": 1785876179745,
   "name": "Scripted Policy Condition",
   "script": {
     "file": "scripts-content/POLICY_CONDITION/Scripted Policy Condition.js",
@@ -7998,7 +7833,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188162,
+  "lastModifiedDate": 1785876179499,
   "name": "Next Generation Scripted Decision Node Script",
   "script": {
     "file": "scripts-content/SCRIPTED_DECISION_NODE/Next Generation Scripted Decision Node Script.js",
@@ -8017,7 +7852,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188149,
+  "lastModifiedDate": 1785876179486,
   "name": "Next Generation Device Match Node Script",
   "script": {
     "file": "scripts-content/DEVICE_MATCH_NODE/Next Generation Device Match Node Script.js",
@@ -8036,7 +7871,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187971,
+  "lastModifiedDate": 1785876179344,
   "name": "Device Profile Match Template - Decision Node Script",
   "script": {
     "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Device Profile Match Template - Decision Node Script.js",
@@ -8055,7 +7890,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188308,
+  "lastModifiedDate": 1785876179619,
   "name": "OAuth2 Validate Scope Script",
   "script": {
     "file": "scripts-content/OAUTH2_VALIDATE_SCOPE/OAuth2 Validate Scope Script.js",
@@ -8074,7 +7909,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188400,
+  "lastModifiedDate": 1785876179692,
   "name": "SAML2 SP Adapter Script",
   "script": {
     "file": "scripts-content/SAML2_SP_ADAPTER/SAML2 SP Adapter Script.js",
@@ -8093,7 +7928,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188349,
+  "lastModifiedDate": 1785876179649,
   "name": "SAML2 IDP Adapter Script",
   "script": {
     "file": "scripts-content/SAML2_IDP_ADAPTER/SAML2 IDP Adapter Script.js",
@@ -8112,7 +7947,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188281,
+  "lastModifiedDate": 1785876179594,
   "name": "OAuth2 JWT Issuer Script",
   "script": {
     "file": "scripts-content/OAUTH2_SCRIPTED_JWT_ISSUER/OAuth2 JWT Issuer Script.js",
@@ -8131,7 +7966,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187950,
+  "lastModifiedDate": 1785876179328,
   "name": "Device Id (Match) - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Device Id (Match) - Server Side.js",
@@ -8150,7 +7985,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188321,
+  "lastModifiedDate": 1785876179634,
   "name": "OIDC Claims Script",
   "script": {
     "file": "scripts-content/OIDC_CLAIMS/OIDC Claims Script.js",
@@ -8169,29 +8004,10 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552187927,
+  "lastModifiedDate": 1785876179311,
   "name": "Device Id (Match) - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Device Id (Match) - Client Side.js",
-  },
-}
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-config/c1f27192-7a40-4bc8-8bf7-362411f2bed3.json 1`] = `
-{
-  "_id": "c1f27192-7a40-4bc8-8bf7-362411f2bed3",
-  "context": "SCRIPTED_DECISION_NODE",
-  "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1784299359528,
-  "default": false,
-  "description": null,
-  "evaluatorVersion": "2.0",
-  "language": "JAVASCRIPT",
-  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1784299359528,
-  "name": "IsTrue",
-  "script": {
-    "file": "scripts-content/SCRIPTED_DECISION_NODE/IsTrue.js",
   },
 }
 `;
@@ -8207,7 +8023,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188370,
+  "lastModifiedDate": 1785876179664,
   "name": "SAML2 IDP Attribute Mapper Script",
   "script": {
     "file": "scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER/SAML2 IDP Attribute Mapper Script.js",
@@ -8226,7 +8042,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188296,
+  "lastModifiedDate": 1785876179606,
   "name": "OAuth2 May Act Script",
   "script": {
     "file": "scripts-content/OAUTH2_MAY_ACT/OAuth2 May Act Script.js",
@@ -8245,7 +8061,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188432,
+  "lastModifiedDate": 1785876179720,
   "name": "Scripted Module - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Scripted Module - Client Side.js",
@@ -8264,7 +8080,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188218,
+  "lastModifiedDate": 1785876179541,
   "name": "OAuth2 Access Token Modification Script",
   "script": {
     "file": "scripts-content/OAUTH2_ACCESS_TOKEN_MODIFICATION/OAuth2 Access Token Modification Script.js",
@@ -8283,48 +8099,10 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188261,
+  "lastModifiedDate": 1785876179582,
   "name": "OAuth2 Evaluate Scope Script",
   "script": {
     "file": "scripts-content/OAUTH2_EVALUATE_SCOPE/OAuth2 Evaluate Scope Script.js",
-  },
-}
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-config/e4678660-5c03-46f8-bcb8-41bc5202d5b0.json 1`] = `
-{
-  "_id": "e4678660-5c03-46f8-bcb8-41bc5202d5b0",
-  "context": "SCRIPTED_DECISION_NODE",
-  "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1784844569743,
-  "default": false,
-  "description": "test",
-  "evaluatorVersion": "2.0",
-  "language": "JAVASCRIPT",
-  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1784844569743,
-  "name": "TestScript",
-  "script": {
-    "file": "scripts-content/SCRIPTED_DECISION_NODE/TestScript.js",
-  },
-}
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-config/f0dbed5d-66a1-4164-9966-83b999c13be1.json 1`] = `
-{
-  "_id": "f0dbed5d-66a1-4164-9966-83b999c13be1",
-  "context": "SCRIPTED_DECISION_NODE",
-  "createdBy": "id=amadmin,ou=user,ou=am-config",
-  "creationDate": 1784300544562,
-  "default": false,
-  "description": null,
-  "evaluatorVersion": "2.0",
-  "language": "JAVASCRIPT",
-  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1784300544562,
-  "name": "VerifyUserName",
-  "script": {
-    "file": "scripts-content/SCRIPTED_DECISION_NODE/VerifyUserName.js",
   },
 }
 `;
@@ -11714,16 +11492,6 @@ function postSingleLogoutSuccess() {
 "
 `;
 
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-content/SCRIPTED_DECISION_NODE/IsTrue.js 1`] = `
-"/*
-  - Data made available by nodes that have already executed are available in the sharedState variable.
-  - The script should set outcome to either "true" or "false".
- */
-
-outcome = "true";
-"
-`;
-
 exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-content/SCRIPTED_DECISION_NODE/Next Generation Scripted Decision Node Script.js 1`] = `
 "/*
  * Copyright 2024-2025 Ping Identity Corporation. All Rights Reserved
@@ -11742,30 +11510,6 @@ action.goTo("true");
 "
 `;
 
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-content/SCRIPTED_DECISION_NODE/PaseUsername.js 1`] = `
-"var SCRIPT_OUTCOMES = {
-    OUTCOME: 'outcome'
-};
-
-function main() {
-    var username = nodeState.get('username');
-    if (username.trim().toLowerCase().startsWith('fcpsedu\\\\')) {
-        username = username.substring(username.indexOf('\\\\') + 1);
-    }
-    if (username.trim().toLowerCase().endsWith('@fcpsschools.net')) {
-        username = username.substring(0, username.lastIndexOf('@'));
-    }
-    nodeState.putShared('username', username);
-    nodeState.putShared('objectAttributes', {
-        userName: username
-    });
-    action.goTo(SCRIPT_OUTCOMES.OUTCOME);
-}
-
-main();
-"
-`;
-
 exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-content/SCRIPTED_DECISION_NODE/Test Next Gen.js 1`] = `
 "/*
   - Data made available by nodes that have already executed are available in the sharedState variable.
@@ -11773,43 +11517,6 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
  */
 
 outcome = "true";
-"
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-content/SCRIPTED_DECISION_NODE/TestScript.js 1`] = `
-"/*
-  - Data made available by nodes that have already executed are available in the sharedState variable.
-  - The script should set outcome to either "true" or "false".
- */
-
-outcome = "true";
-"
-`;
-
-exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops": should export all scripts from all realms in fr-config-manager style.: configManagerExportScriptsDir0/realms/root/scripts/scripts-content/SCRIPTED_DECISION_NODE/VerifyUserName.js 1`] = `
-"var scriptOutcomes = {
-    TRUE: 'true',
-    FALSE: 'false'
-};
-
-function getOldUsername() {
-    var id = nodeState.get('_id');
-    if (id) {
-        var user = openidm.read(\`managed/alpha_user/\${id}\`, null, ["userName"]);
-        return user.userName;
-    }
-    return null;
-}
-
-function main() {
-    var username = nodeState.get('username');
-    var member = nodeState.get('member');
-    var oldUsername = getOldUsername();
-    nodeState.putShared("oldUsername", oldUsername)
-    action.goTo(apiUtils.validateUsername(username, member, oldUsername) ? scriptOutcomes.TRUE : scriptOutcomes.FALSE);
-}
-
-main();
 "
 `;
 
@@ -11828,7 +11535,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188077,
+  "lastModifiedDate": 1785876179436,
   "name": "Library Script",
   "script": {
     "file": "scripts-content/LIBRARY/Library Script.js",
@@ -11847,7 +11554,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188451,
+  "lastModifiedDate": 1785876179733,
   "name": "Scripted Module - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Scripted Module - Server Side.js",
@@ -11866,7 +11573,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188462,
+  "lastModifiedDate": 1785876179745,
   "name": "Scripted Policy Condition",
   "script": {
     "file": "scripts-content/POLICY_CONDITION/Scripted Policy Condition.js",
@@ -11885,7 +11592,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188432,
+  "lastModifiedDate": 1785876179720,
   "name": "Scripted Module - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Scripted Module - Client Side.js",
@@ -12191,7 +11898,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188077,
+  "lastModifiedDate": 1785876179436,
   "name": "Library Script",
   "script": {
     "file": "scripts-content/LIBRARY/Library Script.js",
@@ -12210,7 +11917,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188451,
+  "lastModifiedDate": 1785876179733,
   "name": "Scripted Module - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Scripted Module - Server Side.js",
@@ -12229,7 +11936,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188462,
+  "lastModifiedDate": 1785876179745,
   "name": "Scripted Policy Condition",
   "script": {
     "file": "scripts-content/POLICY_CONDITION/Scripted Policy Condition.js",
@@ -12248,7 +11955,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188432,
+  "lastModifiedDate": 1785876179720,
   "name": "Scripted Module - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Scripted Module - Client Side.js",
@@ -12554,7 +12261,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188077,
+  "lastModifiedDate": 1785876179436,
   "name": "Library Script",
   "script": {
     "file": "scripts-content/LIBRARY/Library Script.js",
@@ -12573,7 +12280,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188451,
+  "lastModifiedDate": 1785876179733,
   "name": "Scripted Module - Server Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Scripted Module - Server Side.js",
@@ -12592,7 +12299,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188462,
+  "lastModifiedDate": 1785876179745,
   "name": "Scripted Policy Condition",
   "script": {
     "file": "scripts-content/POLICY_CONDITION/Scripted Policy Condition.js",
@@ -12611,7 +12318,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188432,
+  "lastModifiedDate": 1785876179720,
   "name": "Scripted Module - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Scripted Module - Client Side.js",
@@ -12921,7 +12628,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188389,
+  "lastModifiedDate": 1785876179679,
   "name": "SAML2 NameID Mapper Script",
   "script": {
     "file": "scripts-content/SAML2_NAMEID_MAPPER/SAML2 NameID Mapper Script.js",
@@ -12940,7 +12647,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188400,
+  "lastModifiedDate": 1785876179692,
   "name": "SAML2 SP Adapter Script",
   "script": {
     "file": "scripts-content/SAML2_SP_ADAPTER/SAML2 SP Adapter Script.js",
@@ -12959,7 +12666,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188349,
+  "lastModifiedDate": 1785876179649,
   "name": "SAML2 IDP Adapter Script",
   "script": {
     "file": "scripts-content/SAML2_IDP_ADAPTER/SAML2 IDP Adapter Script.js",
@@ -12978,7 +12685,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "1.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188370,
+  "lastModifiedDate": 1785876179664,
   "name": "SAML2 IDP Attribute Mapper Script",
   "script": {
     "file": "scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER/SAML2 IDP Attribute Mapper Script.js",
@@ -13567,7 +13274,7 @@ exports[`frodo config-manager pull scripts "frodo config-manager pull scripts -D
   "evaluatorVersion": "2.0",
   "language": "JAVASCRIPT",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1788552188077,
+  "lastModifiedDate": 1785876179436,
   "name": "Library Script",
   "script": {
     "file": "scripts-content/LIBRARY/Library Script.js",
