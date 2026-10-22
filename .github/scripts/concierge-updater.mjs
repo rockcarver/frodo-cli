@@ -242,6 +242,10 @@ export async function run(opts, ctx) {
   const release = opts.target ? releases.find((r) => r.tag_name === opts.target) : pickRelease(releases, channel);
   if (opts.target && !release) throw new Error(`release ${opts.target} not found in ${source}`);
   if (!release) {
+    // A pin means that release existed. An empty or unusable list is a bad read
+    // (an API incident answered with an empty list once) or a deleted release;
+    // reporting it as a clean "no release" would hide the failure.
+    if (cfg) throw new Error(`no ${channel} release of ${source} found, but ${cfg.version} is pinned; the release list may be unavailable or the release was removed`);
     log(`no ${channel} release of ${source} yet`);
     return { status: 'no-release' };
   }
