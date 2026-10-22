@@ -19,6 +19,7 @@ safe-outputs:
     max: 1
     target: triggering
     github-token: ${{ secrets.GH_AW_AGENT_TOKEN }}
+    issue-intent: false
   threat-detection:
     enabled: false
 max-ai-credits: 12
