@@ -387,7 +387,9 @@ export async function configManagerImportJourneys(
       }
 
       if (Object.keys(trees).length) {
-        await importJourneys({ trees }, options);
+        // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
+        // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
+        await importJourneys({ trees }, { ...options, validate: false });
         imported = true;
       }
     }
