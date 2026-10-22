@@ -4,6 +4,7 @@
 // from a high-complexity issue, this hands the issue to the PR gate by
 // applying `plan-triage-handoff`. Rules: docs/multi-phase-design.md.
 import { execFileSync } from 'node:child_process';
+import { isCodingAgent } from './label-janitor.mjs';
 
 export const MARKER = '<!-- plan-approval-resume -->';
 export const LABEL_APPROVAL = 'plan-approval-required';
@@ -26,7 +27,10 @@ export function decide(issue, removedLabel) {
   if (labels.has(LABEL_APPROVAL)) return { handoff: false, reason: 'approval is still required' };
   if (!labels.has(LABEL_HIGH)) return { handoff: false, reason: 'no high-complexity plan to approve' };
   if (labels.has(LABEL_DEPENDENCY)) return { handoff: false, reason: 'waiting on a dependency' };
-  if (labels.has(LABEL_HANDOFF)) return { handoff: false, reason: 'already handed off' };
+  // The label janitor removes `plan-triage-handoff` once the coding agent is assigned, so
+  // an assignee counts as handed off too.
+  const assignees = (issue.assignees || []).map((a) => a.login || a);
+  if (labels.has(LABEL_HANDOFF) || assignees.some(isCodingAgent)) return { handoff: false, reason: 'already handed off' };
   return { handoff: true, reason: 'approval removed' };
 }
 
