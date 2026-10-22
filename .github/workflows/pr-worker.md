@@ -2,6 +2,7 @@
 description: |
   PR gate worker. Assigns a coding agent when plan triage has opened the gate.
   The coding agent must signal completion with the pr-worker-ready label.
+if: ${{ github.event.issue.user.type != 'Bot' }}
 on:
   issues:
     types: [labeled]
@@ -22,7 +23,9 @@ safe-outputs:
     enabled: false
 max-ai-credits: 12
 timeout-minutes: 5
-engine: copilot
+engine:
+  id: copilot
+  model: small
 ---
 
 # PR Worker

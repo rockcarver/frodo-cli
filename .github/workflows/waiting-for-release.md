@@ -1,6 +1,7 @@
 ---
 description: |
   When an issue is closed by a merged pull request, mark it waiting for a release.
+if: ${{ github.event.issue.user.type != 'Bot' }}
 on:
   issues:
     types: [closed]
