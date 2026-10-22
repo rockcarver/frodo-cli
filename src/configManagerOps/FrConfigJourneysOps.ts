@@ -325,12 +325,13 @@ function processJourneyImport(
 export async function configManagerImportJourneys(
   name?: string,
   realm?: string,
-  dependencies: boolean = false
+  dependencies: boolean = false,
+  validate: boolean = true
 ): Promise<boolean> {
   try {
     const pushInnerJourneys = !name || dependencies;
     const pushScripts = dependencies;
-    const options = { deps: dependencies, reUuid: false };
+    const options = { deps: dependencies, reUuid: false, validate };
 
     const realmsDir = getFilePath('realms');
     if (!fs.existsSync(realmsDir)) {
@@ -387,9 +388,7 @@ export async function configManagerImportJourneys(
       }
 
       if (Object.keys(trees).length) {
-        // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-        // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-        await importJourneys({ trees }, { ...options, validate: false });
+        await importJourneys({ trees }, options);
         imported = true;
       }
     }

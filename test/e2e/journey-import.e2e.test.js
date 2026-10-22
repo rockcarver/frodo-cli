@@ -11,13 +11,13 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -f test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -f allAlphaJourneys.journey.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af test/e2e/exports/all/allAlphaJourneys.journey.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af allAlphaJourneys.journey.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/journey
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/journey --re-uuid
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/journey
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af test/e2e/exports/all/allAlphaJourneys.journey.json --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af allAlphaJourneys.journey.json -D test/e2e/exports/all --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/journey --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/journey --re-uuid --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/journey --no-validate
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -88,44 +88,44 @@ describe('frodo journey import', () => {
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test(`"frodo journey import -af ${allAlphaJourneysExport}": should import all journeys from the file "${allAlphaJourneysExport}"`, async () => {
-        const CMD = `frodo journey import -af ${allAlphaJourneysExport}`;
+    test(`"frodo journey import -af ${allAlphaJourneysExport} --no-validate": should import all journeys from the file "${allAlphaJourneysExport}"`, async () => {
+        const CMD = `frodo journey import -af ${allAlphaJourneysExport} --no-validate`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test.skip(`"frodo journey import -af ${allAlphaJourneysExport} --re-uuid": should import all journeys from the file "${allAlphaJourneysExport}" with new uuids`, async () => {
-        const CMD = `frodo journey import -af ${allAlphaJourneysExport} --re-uuid`;
+    test.skip(`"frodo journey import -af ${allAlphaJourneysExport} --re-uuid --no-validate": should import all journeys from the file "${allAlphaJourneysExport}" with new uuids`, async () => {
+        const CMD = `frodo journey import -af ${allAlphaJourneysExport} --re-uuid --no-validate`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test(`"frodo journey import --all --file ${allAlphaJourneysExport} --no-deps": should import all journeys from the file"${allAlphaJourneysExport}" with no deps`, async () => {
-        const CMD = `frodo journey import --all --file ${allAlphaJourneysExport} --no-deps`;
+    test(`"frodo journey import --all --file ${allAlphaJourneysExport} --no-deps --no-validate": should import all journeys from the file"${allAlphaJourneysExport}" with no deps`, async () => {
+        const CMD = `frodo journey import --all --file ${allAlphaJourneysExport} --no-deps --no-validate`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test(`"frodo journey import -af ${allAlphaJourneysFileName} -D ${allDirectory}": should import all journeys from the file "${allAlphaJourneysExport}"`, async () => {
-        const CMD = `frodo journey import -af ${allAlphaJourneysFileName} -D ${allDirectory}`;
+    test(`"frodo journey import -af ${allAlphaJourneysFileName} -D ${allDirectory} --no-validate": should import all journeys from the file "${allAlphaJourneysExport}"`, async () => {
+        const CMD = `frodo journey import -af ${allAlphaJourneysFileName} -D ${allDirectory} --no-validate`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test(`"frodo journey import -AD ${allSeparateJourneysDirectory}": should import all journeys from the ${allSeparateJourneysDirectory} directory"`, async () => {
-        const CMD = `frodo journey import -AD ${allSeparateJourneysDirectory}`;
+    test(`"frodo journey import -AD ${allSeparateJourneysDirectory} --no-validate": should import all journeys from the ${allSeparateJourneysDirectory} directory"`, async () => {
+        const CMD = `frodo journey import -AD ${allSeparateJourneysDirectory} --no-validate`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test.skip(`"frodo journey import -AD ${allSeparateJourneysDirectory} --re-uuid": should import all journeys from the ${allSeparateJourneysDirectory} directory with new uuids`, async () => {
-        const CMD = `frodo journey import -AD ${allSeparateJourneysDirectory} --re-uuid`;
+    test.skip(`"frodo journey import -AD ${allSeparateJourneysDirectory} --re-uuid --no-validate": should import all journeys from the ${allSeparateJourneysDirectory} directory with new uuids`, async () => {
+        const CMD = `frodo journey import -AD ${allSeparateJourneysDirectory} --re-uuid --no-validate`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test(`"frodo journey import --all-separate --no-deps --directory ${allSeparateJourneysDirectory}": should import all journeys from the ${allSeparateJourneysDirectory} directory with no deps`, async () => {
-        const CMD = `frodo journey import --all-separate --no-deps --directory ${allSeparateJourneysDirectory}`;
+    test(`"frodo journey import --all-separate --no-deps --directory ${allSeparateJourneysDirectory} --no-validate": should import all journeys from the ${allSeparateJourneysDirectory} directory with no deps`, async () => {
+        const CMD = `frodo journey import --all-separate --no-deps --directory ${allSeparateJourneysDirectory} --no-validate`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });

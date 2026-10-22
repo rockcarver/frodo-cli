@@ -7,6 +7,7 @@ import ExportCmd from './journey-export.js';
 import ImportCmd from './journey-import.js';
 import ListCmd from './journey-list.js';
 import PruneCmd from './journey-prune.js';
+import ValidateCmd from './journey-validate.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('journey').description(
@@ -20,6 +21,8 @@ export default function setup() {
   program.addCommand(ExportCmd().name('export'));
 
   program.addCommand(ImportCmd().name('import'));
+
+  program.addCommand(ValidateCmd().name('validate'));
 
   program.addCommand(DeleteCmd().name('delete'));
 

@@ -36,10 +36,10 @@ FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config exp
 To record, run these:
 
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file test/e2e/exports/all/all.cloud.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory test/e2e/exports/all-separate/cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/cloud-full-import
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file test/e2e/exports/all/all.cloud.json --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory test/e2e/exports/all-separate/cloud --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/cloud-full-import --no-validate
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -gf test/e2e/exports/all-separate/cloud/global/sync/sync.idm.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all -f test/e2e/exports/all/all.empty.json
@@ -48,10 +48,10 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -caf test/e2e/exports/all/all.iga.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/iga
 // Classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -adf test/e2e/exports/all/all.classic.json -m classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file test/e2e/exports/all/all.classic.json --type classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -AdD test/e2e/exports/all-separate/classic -m classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory test/e2e/exports/all-separate/classic --type classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -adf test/e2e/exports/all/all.classic.json -m classic --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file test/e2e/exports/all/all.classic.json --type classic --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -AdD test/e2e/exports/all-separate/classic -m classic --no-validate
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory test/e2e/exports/all-separate/classic --type classic --no-validate
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -gf test/e2e/exports/all-separate/classic/global/server/01.server.json -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic
@@ -96,20 +96,20 @@ describe('frodo config import', () => {
     // service, pushed by -a regardless of what's in the export) fail
     // validation against current Identity Cloud, so the command exits
     // non-zero overall.
-    test(`"frodo config import -adf ${allCloudFullImportExport}" Import everything from "${allCloudFullImportFileName}", including default scripts.`, async () => {
-      const CMD = `frodo config import -adf ${allCloudFullImportExport}`;
+    test(`"frodo config import -adf ${allCloudFullImportExport} --no-validate" Import everything from "${allCloudFullImportFileName}", including default scripts.`, async () => {
+      const CMD = `frodo config import -adf ${allCloudFullImportExport} --no-validate`;
       await testFail(CMD, cloudEnv);
     });
 
     // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
-    test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allCloudExport}" Import everything from "${allCloudFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
-      const CMD = `frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allCloudExport}`;
+    test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allCloudExport} --no-validate" Import everything from "${allCloudFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
+      const CMD = `frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allCloudExport} --no-validate`;
       await testSuccess(CMD, cloudEnv);
     });
 
     // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
-    test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateCloudDirectory}" Import everything from directory "${allSeparateCloudDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
-      const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateCloudDirectory}`;
+    test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateCloudDirectory} --no-validate" Import everything from directory "${allSeparateCloudDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
+      const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateCloudDirectory} --no-validate`;
       await testSuccess(CMD, cloudEnv);
     });
 
@@ -117,8 +117,8 @@ describe('frodo config import', () => {
     // form instead of a single file. --include-active-values is
     // intentionally not used here -- it would write real secret values
     // into the recorded cassette.
-    test(`"frodo config import -AD ${allSeparateCloudFullImportDirectory}" Import everything from directory "${allSeparateCloudFullImportDirectory}"`, async () => {
-      const CMD = `frodo config import -AD ${allSeparateCloudFullImportDirectory}`;
+    test(`"frodo config import -AD ${allSeparateCloudFullImportDirectory} --no-validate" Import everything from directory "${allSeparateCloudFullImportDirectory}"`, async () => {
+      const CMD = `frodo config import -AD ${allSeparateCloudFullImportDirectory} --no-validate`;
       await testFail(CMD, cloudEnv);
     });
 
@@ -157,26 +157,26 @@ describe('frodo config import', () => {
   // Classic Env Tests
   describe('Classic', () => {
     // TODO: Re-record test
-    test.skip(`"frodo config import -adf ${allClassicExport} -m classic" Import everything from "${allClassicFileName}", including default scripts.`, async () => {
-      const CMD = `frodo config import -adf ${allClassicExport} -m classic`;
+    test.skip(`"frodo config import -adf ${allClassicExport} -m classic --no-validate" Import everything from "${allClassicFileName}", including default scripts.`, async () => {
+      const CMD = `frodo config import -adf ${allClassicExport} -m classic --no-validate`;
       await testFail(CMD, classicEnv);
     }, 300000);
 
     // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
-    test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allClassicExport} --type classic" Import everything from "${allClassicFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
-      const CMD = `frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allClassicExport}--type classic`;
+    test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allClassicExport} --type classic --no-validate" Import everything from "${allClassicFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
+      const CMD = `frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allClassicExport}--type classic --no-validate`;
       await testSuccess(CMD, classicEnv);
     });
 
     // TODO: Re-record test
-    test.skip(`"frodo config import -AdD ${allSeparateClassicDirectory} -m classic" Import everything from directory "${allSeparateClassicDirectory}"`, async () => {
-      const CMD = `frodo config import -AdD ${allSeparateClassicDirectory} -m classic`;
+    test.skip(`"frodo config import -AdD ${allSeparateClassicDirectory} -m classic --no-validate" Import everything from directory "${allSeparateClassicDirectory}"`, async () => {
+      const CMD = `frodo config import -AdD ${allSeparateClassicDirectory} -m classic --no-validate`;
       await testFail(CMD, classicEnv);
     }, 300000);
 
     // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
-    test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateClassicDirectory} --type classic" Import everything from directory "${allSeparateClassicDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
-      const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateClassicDirectory} --type classic`;
+    test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateClassicDirectory} --type classic --no-validate" Import everything from directory "${allSeparateClassicDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
+      const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateClassicDirectory} --type classic --no-validate`;
       await testSuccess(CMD, classicEnv);
     });
 

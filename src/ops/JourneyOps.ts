@@ -339,9 +339,7 @@ export async function importJourneyFromFile(
             `Importing ${journeyId}...`
           );
         try {
-          // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-          // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-          await importJourney(journeyData, { ...options, validate: false });
+          await importJourney(journeyData, options);
           if (verbose)
             indicatorId2 = createProgressIndicator(
               'indeterminate',
@@ -449,9 +447,7 @@ export async function importFirstJourneyFromFile(
             `Importing ${journeyId}...`
           );
         try {
-          // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-          // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-          await importJourney(journeyData, { ...options, validate: false });
+          await importJourney(journeyData, options);
           if (verbose)
             importSpinnerId = createProgressIndicator(
               'indeterminate',
@@ -515,13 +511,7 @@ export async function importJourneysFromFile(
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-    // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-    await importJourneys(
-      fileData,
-      { ...options, validate: false },
-      errorHandler
-    );
+    await importJourneys(fileData, options, errorHandler);
     return true;
   } catch (error) {
     printError(error);
@@ -564,13 +554,7 @@ export async function importJourneysFromFiles(
         `No valid journeys found in ${getWorkingDirectory()}. Expected files with either a top-level "trees" object or a top-level "tree" object.`
       );
     }
-    // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-    // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-    await importJourneys(
-      allJourneysData,
-      { ...options, validate: false },
-      errorHandler
-    );
+    await importJourneys(allJourneysData, options, errorHandler);
     return true;
   } catch (error) {
     printError(error);

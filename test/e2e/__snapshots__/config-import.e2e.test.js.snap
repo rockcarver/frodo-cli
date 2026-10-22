@@ -44,7 +44,7 @@ No configuration was imported.
 "
 `;
 
-exports[`frodo config import Cloud "frodo config import -AD test/e2e/exports/all-separate/cloud-full-import" Import everything from directory "test/e2e/exports/all-separate/cloud-full-import" 1`] = `
+exports[`frodo config import Cloud "frodo config import -AD test/e2e/exports/all-separate/cloud-full-import --no-validate" Import everything from directory "test/e2e/exports/all-separate/cloud-full-import" 1`] = `
 "✔ Finished Importing Everything to global!
 ✔ Finished Importing Everything to root realm!
 Error updating alpha realm script
@@ -122,9 +122,9 @@ Error importing the bravo realm journey undefined
 "
 `;
 
-exports[`frodo config import Cloud "frodo config import -AD test/e2e/exports/all-separate/cloud-full-import" Import everything from directory "test/e2e/exports/all-separate/cloud-full-import" 2`] = `1`;
+exports[`frodo config import Cloud "frodo config import -AD test/e2e/exports/all-separate/cloud-full-import --no-validate" Import everything from directory "test/e2e/exports/all-separate/cloud-full-import" 2`] = `1`;
 
-exports[`frodo config import Cloud "frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json" Import everything from "all.cloud-full-import.json", including default scripts. 1`] = `
+exports[`frodo config import Cloud "frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json --no-validate" Import everything from "all.cloud-full-import.json", including default scripts. 1`] = `
 "✔ Finished Importing Everything to global!
 Error Importing Circles of Trust
   Error importing / realm circles of trust
@@ -172,4 +172,4 @@ Error updating bravo realm script
 "
 `;
 
-exports[`frodo config import Cloud "frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json" Import everything from "all.cloud-full-import.json", including default scripts. 2`] = `1`;
+exports[`frodo config import Cloud "frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json --no-validate" Import everything from "all.cloud-full-import.json", including default scripts. 2`] = `1`;
