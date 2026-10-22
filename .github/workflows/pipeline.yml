@@ -78,7 +78,7 @@ jobs:
               count=$(printf '%s\n' "${files}" | grep -c . || true)
               # The files API caps at 3000 entries; treat that as "unknown".
               if [ "${count}" -gt 0 ] && [ "${count}" -lt 3000 ]; then
-                safe='^(docs/|[^/]+\.md$|LICENSE|\.github/(ISSUE_TEMPLATE/|agentic-workflows/|scripts/|workflows/[^/]+\.(ya?ml|md)$|CODEOWNERS$|dependabot\.yml$|copilot-instructions\.md$))'
+                safe='^(docs/|[^/]+\.md$|LICENSE|\.github/(ISSUE_TEMPLATE/|agentic-workflows/|aw/|concierge\.yml$|scripts/|workflows/[^/]+\.(ya?ml|md)$|CODEOWNERS$|dependabot\.yml$|copilot-instructions\.md$))'
                 # Any workflow except this pipeline is non-code: it cannot change
                 # what these jobs build or test.
                 if ! printf '%s\n' "${files}" | grep -Ev "${safe}" | grep -q . \
