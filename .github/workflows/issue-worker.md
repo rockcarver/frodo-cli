@@ -4,6 +4,7 @@ description: |
   Guides reporters only through comments; never mentions internal labels.
   Prefers the repository issue template as the definition of a complete issue.
   For split-repo projects, creates a linked canonical issue and marks the original with related-repo.
+if: ${{ github.event.issue.user.type != 'Bot' && github.event.comment.user.type != 'Bot' && github.event.issue.pull_request == null }}
 on:
   issues:
     types: [opened, reopened, edited]
