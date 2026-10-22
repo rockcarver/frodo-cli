@@ -1,4 +1,5 @@
 ---
+name: "Concierge 1b Issue Triage"
 description: |
   Issue gate triage. Applies internal quality and priority labels.
   Any comment posted for the reporter uses plain language only.

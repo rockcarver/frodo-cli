@@ -7,7 +7,7 @@
 #
 # Install: this file is delivered by Repo Concierge itself. For the first
 # adoption follow docs/updater.md.
-name: Concierge updater
+name: "Concierge 4e ▸ Updater"
 
 on:
   schedule:

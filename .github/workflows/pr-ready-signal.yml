@@ -16,7 +16,7 @@
 # Install: copy this file to .github/workflows/pr-ready-signal.yml and
 # scripts/pr-ready-signal.mjs to .github/scripts/pr-ready-signal.mjs (it imports
 # label-janitor.mjs, so install that too). Needs the repository secret SIGNAL_TOKEN.
-name: PR ready signal
+name: "Concierge 3b ▸ PR Ready Signal"
 
 on:
   pull_request_target:
