@@ -100,12 +100,23 @@ If a link already exists (comment already points at a canonical issue, or `relat
 
 If the issue belongs in this repository, continue with the normal analysis below.
 
+## Scope
+Read `.github/agentic-workflows/scope.md` if it exists. If it does not exist, skip this section: every request counts as in scope.
+
+Judge the request against the file as written. Do not invent boundaries. Decide one of three things:
+- **In scope**: continue as usual.
+- **Out of scope**: the request matches an item under "Out of scope", or a plain statement that the project does not do this. Say so in the analysis comment: that this is not something the project will take on, a short reason in the file's own terms, and where to go instead if the file names a place. Say nothing about work being planned.
+- **Unclear**: the request is not on the exclusion list, but it matches an item under "Needs a maintainer", or you doubt that it fits the Purpose. Say that a maintainer will take a look. Do not decline it.
+
+When you hesitate between out of scope and unclear, choose unclear. Never call a request out of scope because it is large, hard, risky or unusual; only because the file excludes it. A bug in something the project already does is always in scope.
+
 ## Analysis comment (reporter-facing)
 Read the issue body **and every comment**.
 Post a short, plain-language comment. Do not mention labels, gates, workflows, or any internal harness terms.
 
 Cover, in ordinary language:
 - Whether the report is clear enough to act on
+- Whether the request fits the project's scope, only when a scope file exists and the answer is not simply yes
 - Apparent duplicates
 - Whether the reported behavior is already fixed, or cannot be found in the current code
 
@@ -131,12 +142,17 @@ An open pull request, or one closed without merging, is never evidence that some
 If required details are absent and the issue belongs here, end with a direct request that lists only the items still needed.
 
 ### Not urgent
-If it is valid but not urgent, say that it has been noted for later and that no immediate work is planned.
+Urgency is about the request itself. Judge it as if every declared dependency, pending release or other change it waits on were already finished. Waiting for something is never a reason to call an issue not urgent, and never a reason to say that no work is planned.
+
+If it is valid but not urgent, say that it has been noted for later and that no immediate work is planned. Then add one plain sentence on how big the change looks and how risky it is, so a maintainer can see at a glance whether it is a quick one:
+- Size: small (narrow scope, typically one to three files, little design judgment), medium (some design decisions, but a bounded space) or large (architectural, cross-cutting or poorly specified).
+- Risk: low (limited blast radius, such as documentation, tests, or internal refactors with strong coverage), medium (ordinary code changes) or high (security, authentication, authorization, data integrity, availability or public API surface).
+Use the definitions in `.github/agentic-workflows/complexity.md` and `.github/agentic-workflows/risk.md` when they exist; the wording above is the default. Say it only after you looked at the code that would change. If you cannot judge it, say that instead of guessing. Do not use the words "complexity", "risk label" or any other internal term.
 
 If the repository defines an environment agent and a quick reproduction check would help, you may request it. Otherwise proceed without it.
 
 ### Declared dependencies
-A `Depends on:`, `Blocked by:`, or `Requires:` line is not a reason to withhold `issue-worker-ready`, to say work is on hold, or to promise a later update. Waiting for a dependency is handled after this step: issue triage applies the gate and a watcher resumes the issue. Analyze the issue as usual. Do not mention the dependency as a reason that no work is planned.
+A `Depends on:`, `Blocked by:`, or `Requires:` line is not a reason to withhold `issue-worker-ready`, to say work is on hold, or to promise a later update. Waiting for a dependency is handled after this step: issue triage applies the gate and a watcher resumes the issue. Analyze the issue as usual. Do not mention the dependency as a reason that no work is planned or that the issue is not urgent.
 
 ## Signaling (internal)
 - If the issue stays here: add `issue-worker-ready`, even when it declares a dependency that is not finished yet.
