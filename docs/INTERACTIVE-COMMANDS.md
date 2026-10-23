@@ -135,6 +135,35 @@ shaft. The box wraps its items within the terminal width. The
 multi-select's `[space]` and the editor's `[⏴]` are additional items;
 the `[⏵]` hint count (`[⏵] 4 options`) renders inside the menu.
 
+### Frame integrity and width
+
+Frames are drawn only through `renderFramedBox`, `renderNavigationMenu`
+and `wrapLine` (`NavigationMenu.ts`); a prompt never assembles its own
+box characters. Together they make a frame unbreakable. `wrapLine`
+splits on line breaks, expands tabs and keeps each line's indentation.
+`renderFramedBox` re-wraps (plain, without colors) any body row that
+carries a control character or is wider than the box, and cuts a title
+that does not fit with an ellipsis; a row that already fits passes
+through untouched, colors included. So a raw log line, a stack trace or
+a tenant string can be handed over as a row without cleaning it first.
+A single-line cell (a list column) is still flattened with `singleLine`
+and cut with `truncate` from `src/utils/TextLayout.ts`, because wrapping
+it would add rows to a list that expects one per item.
+
+Width: frames are 120 columns by default (`DEFAULT_FRAME_WIDTH`). The
+live dashboards (`JourneyDebugPrompt`, `DebugTailPrompt`) follow the
+terminal instead: `useTerminalWidth()` (`TerminalWidth.ts`) returns the
+terminal's columns (never below 40; 120 when stdout is not a TTY) and
+re-reads them on resize. The prompt passes that width to
+`renderNavigationMenu` and `renderFramedBox` and sizes its own rows with
+`frameInnerWidth(width)`. The other prompts (pickers, connection page,
+command preview, options editor) still draw at 120 columns.
+
+Tests: every prompt's render test asserts frame integrity at several
+widths with hostile text, using `assertFrame`, `FRAME_WIDTHS` and
+`HOSTILE_TEXTS` from `test/utils/FrameAssertions.js` (see
+`JourneyDebugPrompt.test.js` and `DebugTailPromptFrame.test.js`).
+
 ## Live dashboards (`frodo debug`)
 
 The debug commands are the frame design applied to LIVE VIEWS (not
@@ -178,7 +207,10 @@ from what the user typed (alias/substring, captured before
 credential resolution overwrites it). The prompt imports no ops
 module: the cli action injects a `readEvents` loader (the
 EntityPickers injection pattern) that owns the log stream and maps
-events through `DebugLogOps`'s formatters.
+events through `DebugLogOps`'s formatters, which hand back one short
+line per event (an exception is cut to its headline). The frame follows
+the terminal width, and an event line that still carries line breaks or
+tabs wraps on them like any other row.
 
 ## The inline value editor
 
@@ -429,3 +461,8 @@ none.
   `src/utils/interactive/` so neither layer imports a type across the
   ops boundary; ops re-exports (`AuthenticateOps`) keep established
   import paths stable.
+- `src/utils/TextLayout.ts` — the plain-text layout helpers both layers
+  need (`truncate`, `padCell`, `singleLine`, `firstLine`). It has no
+  imports, so `src/ops/` (which must not import from
+  `utils/interactive/`) and the prompts share one copy; a helper like
+  these is never defined inside a prompt file.

@@ -36,12 +36,15 @@ import {
 import c from '../ColorTheme';
 import { armEscapeGrace, EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import {
+  frameInnerWidth,
   frameStatusTitle,
   navigationMenuItems,
   renderFramedBox,
   renderNavigationMenu,
   wrapLine,
+  type PanelRow,
 } from './NavigationMenu';
+import { useTerminalWidth } from './TerminalWidth';
 
 /** The ring-buffer capacity: a busy tenant's ~15s `am-everything` backlog can exceed 200 events, but the cap means the panel always shows the LATEST 200 -- correct tail semantics. */
 const MAX_TAIL_EVENTS = 200;
@@ -86,9 +89,6 @@ export function formatTailTimestamp(iso: string | undefined): string {
   return time ? time[1] : iso;
 }
 
-/** One rendered panel row (shared shape with JourneyDebugPrompt). */
-type PanelRow = { text: string; plain: string };
-
 /**
  * Builds the panel rows for the visible window: `HH:MM:SS` muted prefix +
  * the event line, word-wrapped to the frame with continuation rows
@@ -103,7 +103,7 @@ type PanelRow = { text: string; plain: string };
 export function buildTailRows(
   events: TailEvent[],
   limit: number = PAGE_SIZE,
-  innerWidth: number = 116,
+  innerWidth: number = frameInnerWidth(),
   endIndex: number = events.length - 1
 ): PanelRow[] {
   const TS_COL = 11; // 'HH:MM:SS' + one space -- continuation rows indent past it
@@ -163,6 +163,7 @@ const debugTailPromptImpl = createPrompt<
   const [warning, setWarning] = useState<string | undefined>(undefined);
   const [done_, setDone] = useState(false);
   const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
+  const width = useTerminalWidth();
   const prefix = usePrefix({ status: done_ ? 'done' : 'idle' });
 
   // Cursor is an INDEX into the ring buffer. -1 means "at bottom"
@@ -298,7 +299,7 @@ const debugTailPromptImpl = createPrompt<
     const rows = buildTailRows(
       events,
       PAGE_SIZE,
-      116,
+      frameInnerWidth(width),
       isFollowing ? events.length - 1 : cursorIndex
     );
     const graceLine = escapeGraceOpen
@@ -330,7 +331,8 @@ const debugTailPromptImpl = createPrompt<
 
     return [
       renderNavigationMenu(
-        navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' })
+        navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' }),
+        width
       ),
       renderFramedBox({
         title: frameStatusTitle(
@@ -343,12 +345,14 @@ const debugTailPromptImpl = createPrompt<
           ].filter((suffix): suffix is string => suffix !== undefined)
         ),
         lines: panelLines,
+        width,
       }),
     ].join('\n');
   } catch (error) {
     return [
       renderNavigationMenu(
-        navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' })
+        navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' }),
+        width
       ),
       renderFramedBox({
         title: frameStatusTitle(`${prefix} Debugging ${config.topic}`),
@@ -360,6 +364,7 @@ const debugTailPromptImpl = createPrompt<
             plain: `Internal error rendering this view, will retry -- ${error instanceof Error ? error.message : String(error)}`,
           },
         ],
+        width,
       }),
     ].join('\n');
   }

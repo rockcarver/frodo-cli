@@ -31,6 +31,7 @@ import type {
   LogEventPayloadSkeleton,
   LogEventSkeleton,
 } from '@rockcarver/frodo-lib';
+import { firstLine, singleLine, truncate } from '../utils/TextLayout';
 
 export type DebugTopic = 'journey' | 'oauth' | 'saml' | 'sync' | 'all';
 
@@ -335,26 +336,9 @@ function formatDebugLogLine(payload: DebugLogPayload): string | undefined {
   // tabs (a Java stack trace), so the message collapses to one line and
   // the exception falls back to its headline -- the first line.
   const message = payload.message
-    ? truncateLine(singleLine(compactFailureReason(payload.message)), 160)
-    : truncateLine(firstLine(payload.exception ?? ''), 160);
+    ? truncate(singleLine(compactFailureReason(payload.message)), 160)
+    : truncate(firstLine(payload.exception ?? ''), 160);
   return `${payload.level} ${logger}: ${message}`.trimEnd();
-}
-
-/** Hard-truncates a line past `max` chars with an ellipsis (last resort — the formatters above already compact). */
-function truncateLine(line: string, max: number): string {
-  return line.length <= max ? line : `${line.slice(0, max - 1)}…`;
-}
-
-/** Collapses every run of whitespace (line breaks and tabs included) to one space. */
-function singleLine(text: string): string {
-  return text.replace(/\s+/g, ' ').trim();
-}
-
-/** The first non-blank line of a multi-line text, as one line (a stack trace's headline). */
-function firstLine(text: string): string {
-  return singleLine(
-    text.split(/\r\n|\r|\n/).find((l) => l.trim() !== '') ?? ''
-  );
 }
 
 /**

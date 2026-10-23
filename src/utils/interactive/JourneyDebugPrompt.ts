@@ -42,6 +42,7 @@ import {
   type JourneySessionStatus,
 } from '../../ops/JourneyDebugAggregator';
 import c from '../ColorTheme';
+import { padCell, singleLine, truncate } from '../TextLayout';
 import { armEscapeGrace, EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import {
   frameInnerWidth,
@@ -51,7 +52,9 @@ import {
   renderNavigationMenu,
   stripAnsi,
   wrapLine,
+  type PanelRow,
 } from './NavigationMenu';
+import { useTerminalWidth } from './TerminalWidth';
 
 /** `stripAnsi` as a single-argument helper for the panelRow discipline: every framed row carries its honest {text, plain} pair. */
 function stripAnsiOf(text: string): string {
@@ -113,16 +116,6 @@ const MAX_USER_COL_WIDTH = 26;
 // can run well past any well-known node type's name length.
 const MAX_STEP_COL_WIDTH = 26;
 const MAX_TYPE_COL_WIDTH = 32;
-/** Truncates to `max` chars with a trailing ellipsis, never silently -- the reader can always tell a value was cut. */
-function truncate(text: string, max: number): string {
-  return text.length <= max ? text : `${text.slice(0, max - 1)}…`;
-}
-
-/** Pads plain (uncolored) text to `width` -- callers must pad *before* wrapping in a color function, since ANSI escape codes count toward `.length` and would otherwise throw the padding math off. */
-function padCell(text: string, width: number): string {
-  return text.length >= width ? text : text + ' '.repeat(width - text.length);
-}
-
 interface ListColumnWidths {
   journey: number;
   user: number;
@@ -184,9 +177,6 @@ function statusLabel(session: JourneySession): string {
   return statusColorFn(session.status)(session.status);
 }
 
-/** One panel body row: what draws plus its ANSI-free measure (renderFramedBox's row discipline). */
-type PanelRow = { text: string; plain: string };
-
 function renderListHeader(widths: ListColumnWidths): PanelRow {
   const cells = [
     '   ', // pin marker + cursor marker, including the joining space
@@ -244,8 +234,7 @@ function renderListRow(
       4 -
       2
   );
-  const detailText = (text: string) =>
-    truncate(text.replace(/\s+/g, ' ').trim(), detailWidth);
+  const detailText = (text: string) => truncate(singleLine(text), detailWidth);
   const detailCell =
     session.status === 'failed' && session.failureReason
       ? c.muted(`- ${detailText(session.failureReason)}`)
@@ -639,18 +628,7 @@ const journeyDebugPromptImpl = createPrompt<
     undefined
   );
   const [done_, setDone] = useState(false);
-  const terminalWidth = () =>
-    process.stdout.isTTY && process.stdout.columns
-      ? Math.max(40, process.stdout.columns)
-      : 120;
-  const [width, setWidth] = useState(terminalWidth);
-  useEffect(() => {
-    const onResize = () => setWidth(terminalWidth());
-    process.stdout.on('resize', onResize);
-    return () => {
-      process.stdout.off('resize', onResize);
-    };
-  }, []);
+  const width = useTerminalWidth();
   const prefix = usePrefix({ status: done_ ? 'done' : 'idle' });
 
   // The double-ESC grace (see ExitAll.ts and EscapableSelectPrompt --
@@ -880,7 +858,7 @@ const journeyDebugPromptImpl = createPrompt<
    * mirrors it ANSI-free so `renderFramedBox`'s measure stays honest.
    * `stripAnsi` is imported for exactly this discipline.
    */
-  const panelRow = (row: string): { text: string; plain: string } => ({
+  const panelRow = (row: string): PanelRow => ({
     text: row,
     plain: stripAnsiOf(row),
   });
