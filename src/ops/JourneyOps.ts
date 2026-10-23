@@ -1,4 +1,3 @@
-import fs from 'fs';
 import {
   frodo,
   FrodoError,
@@ -30,7 +29,11 @@ import * as Node from './NodeOps';
 import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
 import * as Theme from './ThemeOps';
-import { cloneDeep, errorHandler } from './utils/OpsUtils';
+import {
+  readJourneyExportFromFile,
+  readJourneyExportsFromDirectory,
+} from './utils/JourneyExportUtils';
+import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -298,14 +301,8 @@ export async function importJourneyFromFile(
 ): Promise<boolean> {
   const verbose = state.getVerbose();
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    let journeyData = JSON.parse(data);
-    // check if this is a file with multiple trees and get journey by id
-    if (journeyData.trees && journeyData.trees[journeyId]) {
-      journeyData = journeyData.trees[journeyId];
-    } else if (journeyData.trees) {
-      journeyData = null;
-    }
+    const journeysExport = readJourneyExportFromFile(file);
+    const journeyData = journeysExport.trees[journeyId];
 
     // if a journeyId was specified, only import the matching journey
     if (journeyData && journeyId === journeyData.tree._id) {
@@ -339,9 +336,7 @@ export async function importJourneyFromFile(
             `Importing ${journeyId}...`
           );
         try {
-          // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-          // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-          await importJourney(journeyData, { ...options, validate: false });
+          await importJourney(journeyData, options);
           if (verbose)
             indicatorId2 = createProgressIndicator(
               'indeterminate',
@@ -399,23 +394,9 @@ export async function importFirstJourneyFromFile(
 ): Promise<boolean> {
   const verbose = state.getVerbose();
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    let journeyData = cloneDeep(JSON.parse(data));
-    let journeyId = null;
-    // single tree
-    if (journeyData.tree) {
-      journeyId = cloneDeep(journeyData.tree._id);
-    }
-    // multiple trees, so get the first tree
-    else if (journeyData.trees) {
-      for (const treeId in journeyData.trees) {
-        if (Object.hasOwnProperty.call(journeyData.trees, treeId)) {
-          journeyId = treeId;
-          journeyData = journeyData.trees[treeId];
-          break;
-        }
-      }
-    }
+    const journeysExport = readJourneyExportFromFile(file);
+    const [journeyId, journeyData] =
+      Object.entries(journeysExport.trees)[0] ?? [];
 
     // if a journeyId was specified, only import the matching journey
     if (journeyData && journeyId) {
@@ -449,9 +430,7 @@ export async function importFirstJourneyFromFile(
             `Importing ${journeyId}...`
           );
         try {
-          // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-          // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-          await importJourney(journeyData, { ...options, validate: false });
+          await importJourney(journeyData, options);
           if (verbose)
             importSpinnerId = createProgressIndicator(
               'indeterminate',
@@ -513,13 +492,9 @@ export async function importJourneysFromFile(
   options: TreeImportOptions
 ): Promise<boolean> {
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const fileData = JSON.parse(data);
-    // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-    // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
     await importJourneys(
-      fileData,
-      { ...options, validate: false },
+      readJourneyExportFromFile(file),
+      options,
       errorHandler
     );
     return true;
@@ -538,39 +513,26 @@ export async function importJourneysFromFiles(
   options: TreeImportOptions
 ): Promise<boolean> {
   try {
-    const names = fs.readdirSync(getWorkingDirectory());
-    const jsonFiles = names
-      .filter((name) => name.toLowerCase().endsWith('.journey.json'))
-      .map((name) => getFilePath(name));
-    const allJourneysData: MultiTreeExportInterface = { trees: {} };
-    for (const file of jsonFiles) {
-      const fileObj = JSON.parse(fs.readFileSync(file, 'utf8'));
-      if (fileObj?.trees && typeof fileObj.trees === 'object') {
-        for (const [id, obj] of Object.entries(fileObj.trees)) {
-          allJourneysData.trees[id] = obj as SingleTreeExportInterface;
-        }
-      } else if (fileObj?.tree?._id) {
-        allJourneysData.trees[fileObj.tree._id] =
-          fileObj as SingleTreeExportInterface;
-      } else {
-        printMessage(
-          `Skipping unsupported journey file format: ${file}`,
-          'warn'
-        );
-      }
+    const {
+      journeysExport: allJourneysData,
+      duplicateJourneyIds,
+      unsupportedFiles,
+    } = readJourneyExportsFromDirectory();
+    for (const file of unsupportedFiles) {
+      printMessage(`Skipping unsupported journey file format: ${file}`, 'warn');
+    }
+    for (const duplicate of duplicateJourneyIds) {
+      printMessage(
+        `Duplicate journey ID "${duplicate.journeyId}" found in ${duplicate.firstFile} and ${duplicate.duplicateFile}.`,
+        'warn'
+      );
     }
     if (Object.keys(allJourneysData.trees).length === 0) {
       throw new FrodoError(
         `No valid journeys found in ${getWorkingDirectory()}. Expected files with either a top-level "trees" object or a top-level "tree" object.`
       );
     }
-    // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-    // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-    await importJourneys(
-      allJourneysData,
-      { ...options, validate: false },
-      errorHandler
-    );
+    await importJourneys(allJourneysData, options, errorHandler);
     return true;
   } catch (error) {
     printError(error);

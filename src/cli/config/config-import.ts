@@ -74,6 +74,9 @@ export default function setup() {
       )
     )
     .addOption(
+      new Option('--no-validate', 'Do not validate journeys during import.')
+    )
+    .addOption(
       new Option(
         '--source <host url>',
         'Host URL of the environment which performed secret value encryption. The URL must resolve to an existing connection profile. Use this option to import a file that was exported from a different source environment than the one you are importing to.'
@@ -140,6 +143,7 @@ export default function setup() {
             includeActiveValues: options.includeActiveValues,
             source: options.source,
             onlyCustom: options.onlyCustom,
+            validateJourneys: options.validate,
           });
           if (!outcome) process.exitCode = 1;
         }
@@ -164,6 +168,7 @@ export default function setup() {
             includeActiveValues: options.includeActiveValues,
             source: options.source,
             onlyCustom: options.onlyCustom,
+            validateJourneys: options.validate,
           });
           if (!outcome) process.exitCode = 1;
         }
@@ -182,6 +187,7 @@ export default function setup() {
               includeActiveValues: options.includeActiveValues,
               source: options.source,
               onlyCustom: options.onlyCustom,
+              validateJourneys: options.validate,
             }
           );
           if (!outcome) process.exitCode = 1;

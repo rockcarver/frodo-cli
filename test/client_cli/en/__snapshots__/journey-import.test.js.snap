@@ -35,6 +35,7 @@ Options:
   --no-deps                   Do not include any dependencies (scripts, email
                               templates, SAML entity providers and circles of
                               trust, social identity providers, themes).
+  --no-validate               Do not validate the journey before import.
   --re-uuid                   Generate new UUIDs for all nodes during import.
                               (default: off)
   -h, --help                  Help

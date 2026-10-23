@@ -24,6 +24,7 @@ Arguments:
 Options:
   -d, --push-dependencies  Push scripts and inner journeys
   -n, --name <name>        Journey name, imports the specified Journey.
+  --no-validate            Do not validate journeys before import.
   -h, --help               Help
   -hh, --help-more         Help with all options.
   -hhh, --help-all         Help with all options, environment variables, and

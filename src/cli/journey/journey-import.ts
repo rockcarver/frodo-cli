@@ -50,6 +50,9 @@ export default function setup() {
         'Do not include any dependencies (scripts, email templates, SAML entity providers and circles of trust, social identity providers, themes).'
       )
     )
+    .addOption(
+      new Option('--no-validate', 'Do not validate the journey before import.')
+    )
     .requireOneOf({
       options: ['all', 'allSeparate', 'file', 'journeyId'],
       purpose: 'what to import',
@@ -74,6 +77,7 @@ export default function setup() {
             {
               reUuid: options.reUuid,
               deps: options.deps,
+              validate: options.validate,
             }
           );
           if (!outcome) process.exitCode = 1;
@@ -86,6 +90,7 @@ export default function setup() {
           const outcome = await importJourneysFromFile(options.file, {
             reUuid: options.reUuid,
             deps: options.deps,
+            validate: options.validate,
           });
           if (!outcome) process.exitCode = 1;
         }
@@ -97,6 +102,7 @@ export default function setup() {
           const outcome = await importJourneysFromFiles({
             reUuid: options.reUuid,
             deps: options.deps,
+            validate: options.validate,
           });
           if (!outcome) process.exitCode = 1;
         }
@@ -106,6 +112,7 @@ export default function setup() {
           const outcome = await importFirstJourneyFromFile(options.file, {
             reUuid: options.reUuid,
             deps: options.deps,
+            validate: options.validate,
           });
           if (!outcome) process.exitCode = 1;
         }

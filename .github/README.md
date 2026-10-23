@@ -159,7 +159,7 @@ which sub-commands each family offers.
 | &emsp;&emsp;`property`     | 1.0.0 | Manage IDM managed object property schema definitions.                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `create, update`                          |
 | &emsp;&emsp;`relationship` | 1.0.0 | Manage IDM managed object relationship schema definitions.            | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `create, update`                          |
 | `frodo idp`                | 1.0.0 | Manage (social) identity providers.                                   | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
-| `frodo journey`            | 1.0.0 | Manage journeys/trees.                                                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `disable, enable, prune`                  |
+| `frodo journey`            | 1.0.0 | Manage journeys/trees.                                                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `disable, enable, prune, validate`        |
 | `frodo mapping`            | 2.0.0 | Manage IDM mappings.                                                  | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | `rename`                                  |
 | `frodo node`               | 4.0.0 | Manage custom nodes.                                                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`type`               | 4.0.0 | Manage node types.                                                    |                    | :white_check_mark: |                    |                    | :white_check_mark: |                                           |
@@ -186,6 +186,15 @@ which sub-commands each family offers.
 | &emsp;`workflow`           | 4.1.0 | [Cloud-only] Manage IGA workflows.                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `publish`                                 |
 
 **Key:** ✅ = the command offers that sub-operation · **Del** delete · **Des** describe · **Exp** export · **Imp** import · **Lst** list · **Other** = operations beyond those five (create, set, apply, rename, publish, version, ...) · `[Cloud-only]` runs only against Identity Cloud.
+
+### Journey reference validation
+
+`frodo journey validate` checks journeys in the selected tenant, export file, or
+all-separate directory (`-A -D`); use `-i` to validate one journey, `-a` to
+explicitly select all, and `--strict` to treat warnings as failures. Journey
+imports, config-manager journey pushes, full configuration imports, and
+`frodo promote` validate by default; pass `--no-validate` to skip validation.
+Journey exports always report findings as warnings and are not blocked by them.
 
 ### Utility commands
 
@@ -586,6 +595,7 @@ Commands:
   list            List journeys/trees.
   prune           Prune orphaned configuration artifacts left behind after deleting authentication trees. You will be prompted
                   before any destructive operations are performed.
+  validate        Validate journey references.
 ```
 
 ```console

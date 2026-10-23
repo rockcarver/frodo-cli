@@ -40,6 +40,7 @@ Options:
                            from. Use --source <host url> to import a file
                            exported from another environment than the one you
                            are importing to.
+  --no-validate            Do not validate journeys during import.
   --re-uuid-custom-nodes   Create new UUIDs for the custom nodes upon import.
                            Use this to duplicate custom nodes or create a new
                            versions of the same custom nodes. (default: off)

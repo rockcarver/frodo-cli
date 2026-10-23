@@ -30,6 +30,7 @@ Options:
   -M, --master-dir <directory>        The directory where the master
                                       configurations is located.
   --no-prune                          Will stop prune from running
+  --no-validate                       Do not validate journeys during promotion.
   -P --print-diff                     Outputs the diff to a file in the
                                       directory where the command was run.
                                       (default: false)

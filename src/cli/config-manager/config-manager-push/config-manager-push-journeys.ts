@@ -19,6 +19,9 @@ export default function setup() {
     .addOption(
       new Option('-d, --push-dependencies', 'Push scripts and inner journeys')
     )
+    .addOption(
+      new Option('--no-validate', 'Do not validate journeys before import.')
+    )
 
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
@@ -36,7 +39,8 @@ export default function setup() {
       const outcome = await configManagerImportJourneys(
         options.name,
         realm,
-        options.pushDependencies
+        options.pushDependencies,
+        options.validate
       );
       if (!outcome) process.exitCode = 1;
     });

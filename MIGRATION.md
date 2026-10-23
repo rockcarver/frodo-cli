@@ -25,6 +25,10 @@ canonical commands; use the canonical name):
 
 **Kept**: `frodo conn save` retains its `add` alias.
 
+**Journey import validation**: journey imports, full configuration imports,
+config-manager journey pushes, and `frodo promote` now validate journey
+references by default. Pass `--no-validate` to restore the previous behavior.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

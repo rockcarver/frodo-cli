@@ -397,11 +397,9 @@ export async function importEverythingFromFile(
 ): Promise<boolean> {
   try {
     const data = await getFullExportConfig(file);
-    // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-    // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
     const importedEntities = await importFullConfiguration(
       data,
-      { ...options, validateJourneys: false },
+      options,
       errorHandler
     );
     if (!importedEntities.length) {
@@ -434,11 +432,9 @@ export async function importEverythingFromFiles(
 ): Promise<boolean> {
   try {
     const data = await getFullExportConfigFromDirectory(getWorkingDirectory());
-    // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-    // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
     const importedEntities = await importFullConfiguration(
       data,
-      { ...options, validateJourneys: false },
+      options,
       errorHandler
     );
     if (!importedEntities.length) {
@@ -491,13 +487,7 @@ export async function importEntityfromFile(
       data.realm[realm] = {} as FullRealmExportInterface;
       await getConfig(data.realm[realm], file, undefined);
     }
-    // TODO(#857): replace with the --validate/--no-validate flags. Until then keep the
-    // behavior from before frodo-lib 5.0.0-11: do not validate journeys on import.
-    const imports = await importFullConfiguration(
-      data,
-      { ...options, validateJourneys: false },
-      errorHandler
-    );
+    const imports = await importFullConfiguration(data, options, errorHandler);
     if (imports.length === 0) {
       throw new FrodoError(`No imports were made`);
     }
