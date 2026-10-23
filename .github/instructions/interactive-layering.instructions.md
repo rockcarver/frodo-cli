@@ -1,5 +1,5 @@
 ---
-applyTo: 'src/utils/interactive/**/*.ts,src/utils/TextLayout.ts,src/ops/**/*.ts,test/unit/*Prompt*.test.js'
+applyTo: 'src/utils/interactive/**/*.ts,src/utils/TextLayout.ts,src/utils/StdinSync.ts,src/utils/Prompt.ts,src/ops/**/*.ts,src/configManagerOps/**/*.ts,test/unit/*Prompt*.test.js'
 ---
 
 # Where interactive code lives
@@ -19,3 +19,9 @@ The interactive framework is ambient: a command is written the usual way and int
 - **A single-line cell (a list column) is flattened and cut with `singleLine` and `truncate`** from `src/utils/TextLayout.ts`. Wrapping it would add rows.
 - **Text helpers live in `src/utils/TextLayout.ts`, never in a prompt file.** It has no imports, so `src/ops/` can use it too.
 - **Every prompt's render test asserts the frame at several widths with hostile text,** using `assertFrame`, `FRAME_WIDTHS` and `HOSTILE_TEXTS` from `test/utils/FrameAssertions.js` (examples: `JourneyDebugPrompt.test.js`, `DebugTailPromptFrame.test.js`).
+
+## Standard input
+
+- **Read stdin only through `src/utils/StdinSync.ts`:** `readStdinChunkSync` for a prompt, `readStdinToEndSync` for piped input. Once anything touches `process.stdin`, even `process.stdin.isTTY`, fd 0 is non-blocking and a direct `readSync(0)` throws `EAGAIN` whenever no data has arrived yet (the MFA code prompt, frodo-cli#887; `config-manager push raw --stdin` on a slow pipe). ESLint (`no-restricted-syntax` in `eslint.config.mjs`) rejects `process.stdin.fd`, `readSync(0, ...)`, `readFileSync(0, ...)` and `/dev/stdin` outside that module.
+- **Prompts are asynchronous inquirer widgets.** The one synchronous prompt is the MFA code (`src/utils/Prompt.ts`), because frodo-lib's `CallbackHandler` cannot await. Do not add another.
+- **`readJsonFile` takes a path, not stdin:** to parse piped text, read it with the helper first (see `readRawConfigFromStdin` in `src/configManagerOps/FrConfigRawOps.ts`); never pass it `process.stdin.fd`.

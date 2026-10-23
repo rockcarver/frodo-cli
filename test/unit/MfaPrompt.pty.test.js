@@ -3,21 +3,18 @@ import fs from 'fs';
 import { createRequire } from 'module';
 import os from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import {
   createShellTestHome,
   removeShellTestHome,
   runShellScenario,
 } from '../utils/ShellPty.js';
+import { startFakeAm } from '../utils/StartFakeAm.js';
 
 const require = createRequire(import.meta.url);
 const {
   binaryPath,
   ensureFrodoArtifact,
 } = require('../e2e/utils/FrodoBinary.cjs');
-const fakeAmPath = fileURLToPath(
-  new URL('../utils/FakeAm.mjs', import.meta.url)
-);
 
 /**
  * The MFA code prompt on a real terminal (frodo-cli#887, frodo-lib#783):
@@ -46,26 +43,6 @@ const CODE = '123456';
 // The terminal-background query the CLI sends when it auto-detects the theme
 // (OSC 11). It is one thing that touches process.stdin; the bug does not need it.
 const OSC_11_QUERY = '\x1b]11;?';
-
-async function startFakeAm(recordPath) {
-  const child = cp.spawn(process.execPath, [fakeAmPath], {
-    env: { ...process.env, FAKE_AM_RECORD: recordPath },
-    stdio: ['ignore', 'pipe', 'inherit'],
-  });
-  const port = await new Promise((resolve, reject) => {
-    let out = '';
-    child.stdout.on('data', (chunk) => {
-      out += chunk;
-      const match = out.match(/PORT=(\d+)/);
-      if (match) resolve(Number(match[1]));
-    });
-    child.once('error', reject);
-    child.once('exit', (code) =>
-      reject(new Error(`fake AM exited early with code ${code}`))
-    );
-  });
-  return { port, stop: () => child.kill('SIGTERM') };
-}
 
 /** `frodo ...` outside a terminal, in the given home (for pre-setting preferences). */
 function frodoQuiet(home, args) {
@@ -97,7 +74,7 @@ suite('MFA code prompt on a real terminal', () => {
       os.tmpdir(),
       `frodo-fake-am-${process.pid}-${Date.now()}.jsonl`
     );
-    fakeAm = await startFakeAm(recordPath);
+    fakeAm = await startFakeAm({ recordPath });
   });
 
   afterEach(() => {

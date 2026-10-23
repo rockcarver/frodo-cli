@@ -17,11 +17,18 @@
  * The session lookup that follows is answered with 401 on purpose: the
  * tests are about the prompt, and a deterministic failure afterwards keeps
  * the CLI's last words stable.
+ *
+ * FAKE_AM_JOURNEY=password selects a plain login instead (no code step,
+ * and the session lookup succeeds), for tests that need a command to get
+ * past login without anyone typing: step 2 returns the session token and
+ * everything after it is answered 404, so a command that goes on to write
+ * something fails deterministically on its first write.
  */
 import fs from 'node:fs';
 import http from 'node:http';
 
 const recordPath = process.env.FAKE_AM_RECORD;
+const plainLogin = process.env.FAKE_AM_JOURNEY === 'password';
 let step = 0;
 
 const nameCallback = (prompt) => ({
@@ -66,7 +73,7 @@ const server = http.createServer((req, res) => {
           callbacks: [nameCallback('User Name'), passwordCallback()],
         });
       }
-      if (step === 1) {
+      if (step === 1 && !plainLogin) {
         step = 2;
         return send(200, {
           authId: 'fake-auth-2',
@@ -76,6 +83,17 @@ const server = http.createServer((req, res) => {
       return send(200, { tokenId: 'fake-token', successUrl: '/', realm: '/' });
     }
     if (req.url.includes('getSessionInfo')) {
+      if (plainLogin) {
+        return send(200, {
+          username: 'someone@example.com',
+          universalId: 'id=someone@example.com,ou=user,dc=openam',
+          realm: '/',
+          latestAccessTime: '2026-10-23T22:00:00Z',
+          maxIdleExpirationTime: '2099-01-01T00:00:00Z',
+          maxSessionExpirationTime: '2099-01-01T00:00:00Z',
+          properties: { AMCtxId: 'fake' },
+        });
+      }
       return send(401, {
         code: 401,
         reason: 'Unauthorized',
