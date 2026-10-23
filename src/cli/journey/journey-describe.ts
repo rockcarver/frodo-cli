@@ -52,7 +52,9 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Describe one live journey using a connection profile:\n` +
-        c.command(`  $ frodo journey describe -i ${s.journeyId} ${s.connId}\n`) +
+        c.command(
+          `  $ frodo journey describe -i ${s.journeyId} ${s.connId}\n`
+        ) +
         `  Describe every live journey in a realm and log in with AM base URL, username, and password:\n` +
         c.command(
           `  $ frodo journey describe ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`

@@ -1,8 +1,8 @@
 import confirm from '@inquirer/confirm';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import * as s from '../../help/SampleData';
-import c from '../../utils/ColorTheme';
 import { getTokens } from '../../ops/AuthenticateOps';
+import c from '../../utils/ColorTheme';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
