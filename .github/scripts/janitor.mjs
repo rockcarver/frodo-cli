@@ -1,10 +1,14 @@
-// Label janitor for Repo Concierge.
+// Janitor for Repo Concierge.
 //
 // Deterministic: no LLM. Keeps an issue or pull request showing where it is, not
 // where it has been. A gate label is a signal: once the next signal exists, the
 // earlier one goes. When an issue closes, the labels that describe open work go
 // too. Classification and outcome labels (complexity, risk, duplicate, released,
 // and so on) are never touched. Rules: docs/multi-phase-design.md, "Label lifecycle".
+//
+// A second task, `--held-runs`, deletes the runs GitHub holds for approval that approving
+// could only turn into a skipped run (see DISPOSABLE_HELD_RUNS). Rules:
+// docs/multi-phase-design.md, "Held runs".
 import { execFileSync } from 'node:child_process';
 
 /** Gate labels in the order a work item passes through them, per object type. */
@@ -47,6 +51,25 @@ const CODING_AGENT = /^copilot(-swe-agent)?(\[bot\])?$/i;
 /** True for the account the PR worker assigns (the Copilot coding agent). */
 export function isCodingAgent(login) {
   return CODING_AGENT.test(String(login || ''));
+}
+
+/**
+ * Runs GitHub holds at `action_required` until a maintainer approves them, that approving can only turn
+ * into a skipped run. GitHub holds every run the coding agent causes before it evaluates any job
+ * condition, so a comment by the agent on its own pull request leaves a held `Issue Worker` run behind
+ * that `if:` would skip (a test pins the guard in workflows/issue-worker.md). Never add a workflow here
+ * that does real work: a held CI run is the approval that matters.
+ */
+export const DISPOSABLE_HELD_RUNS = [{ path: '.github/workflows/issue-worker.lock.yml', event: 'issue_comment' }];
+
+/** True for a held run the sweep may delete: finished as `action_required`, caused by the coding agent, and listed above. */
+export function isDisposableHeldRun(run) {
+  return (
+    run.status === 'completed' &&
+    run.conclusion === 'action_required' &&
+    isCodingAgent(run.actor?.login) &&
+    DISPOSABLE_HELD_RUNS.some((d) => d.path === run.path && d.event === run.event)
+  );
 }
 
 /**
@@ -139,6 +162,33 @@ export async function run(opts, ctx) {
   return changed;
 }
 
+// ------------------------------------------------------------- held runs
+
+/**
+ * ctx: { listHeldRuns() -> runs[], deleteRun(id), log(line) }. opts: { dryRun }.
+ * Deletes the held runs `isDisposableHeldRun` accepts and nothing else. A held pipeline run (the
+ * approval that matters) and a fork pull request's run are never touched. Returns the deleted ids.
+ */
+export async function sweepHeldRuns(opts, ctx) {
+  const deleted = [];
+  const failures = [];
+  for (const run of (await ctx.listHeldRuns()).filter(isDisposableHeldRun)) {
+    if (!opts.dryRun) {
+      try {
+        await ctx.deleteRun(run.id);
+      } catch (e) {
+        failures.push(`run ${run.id}: ${e.message}`);
+        continue;
+      }
+    }
+    deleted.push(run.id);
+    ctx.log(`run ${run.id} (${run.name}, ${run.event} by ${run.actor.login}, "${run.display_title}"): ${opts.dryRun ? 'would delete' : 'deleted'}`);
+  }
+  if (deleted.length === 0 && failures.length === 0) ctx.log('No held runs to delete.');
+  if (failures.length) throw new Error(`could not delete: ${failures.join('; ')}`);
+  return deleted;
+}
+
 // --------------------------------------------------------------------- main
 
 function gh(args, token) {
@@ -180,6 +230,20 @@ export function realContext(repo, token) {
         if (!e.notFound) throw e; // already gone: that is the goal
       }
     },
+    listHeldRuns: async () => {
+      const out = gh(
+        ['api', '--paginate', `repos/${repo}/actions/runs?status=action_required&per_page=100`, '--jq', '.workflow_runs[] | tojson'],
+        token
+      );
+      return out.split('\n').filter(Boolean).map((line) => JSON.parse(line));
+    },
+    deleteRun: async (id) => {
+      try {
+        gh(['api', '--method', 'DELETE', `repos/${repo}/actions/runs/${id}`], token);
+      } catch (e) {
+        if (!e.notFound) throw e; // already gone: that is the goal
+      }
+    },
     log: (line) => console.log(line),
   };
 }
@@ -191,15 +255,13 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
     console.error('GITHUB_REPOSITORY and GH_TOKEN are required');
     process.exit(1);
   }
+  const dryRun = argv.includes('--dry-run') || String(env.DRY_RUN) === 'true';
+  if (argv.includes('--held-runs')) {
+    await sweepHeldRuns({ dryRun }, realContext(repo, token));
+    return;
+  }
   const number = Number(env.ITEM_NUMBER) || 0;
-  await run(
-    {
-      number,
-      includeClosed: String(env.INCLUDE_CLOSED) === 'true',
-      dryRun: argv.includes('--dry-run') || String(env.DRY_RUN) === 'true',
-    },
-    realContext(repo, token)
-  );
+  await run({ number, includeClosed: String(env.INCLUDE_CLOSED) === 'true', dryRun }, realContext(repo, token));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
