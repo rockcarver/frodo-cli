@@ -1,5 +1,7 @@
 import confirm from '@inquirer/confirm';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import * as s from '../../help/SampleData';
+import c from '../../utils/ColorTheme';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
@@ -12,6 +14,16 @@ export default function setup() {
   program
     .description(
       'Prune orphaned configuration artifacts left behind after deleting authentication trees. You will be prompted before any destructive operations are performed.'
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Find and interactively confirm removal of orphaned nodes using a connection profile:\n` +
+        c.command(`  $ frodo journey prune ${s.connId}\n`) +
+        `  Find orphaned nodes and log in with AM base URL, username, and password:\n` +
+        c.command(
+          `  $ frodo journey prune ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        )
     )
     .action(
       // implement command logic inside action handler

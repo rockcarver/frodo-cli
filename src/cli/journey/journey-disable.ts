@@ -1,6 +1,8 @@
 import { Option } from 'commander';
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { disableJourney } from '../../ops/JourneyOps';
+import c from '../../utils/ColorTheme';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -18,6 +20,16 @@ export default function setup() {
     //   )
     // )
     .requireOneOf({ options: ['journeyId'], purpose: 'which journey' })
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Disable a journey using a connection profile:\n` +
+        c.command(`  $ frodo journey disable -i ${s.journeyId} ${s.connId}\n`) +
+        `  Disable a journey and log in with AM base URL, username, and password:\n` +
+        c.command(
+          `  $ frodo journey disable -i ${s.journeyId} ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+        )
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

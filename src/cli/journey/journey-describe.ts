@@ -1,8 +1,10 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
+import c from '../../utils/ColorTheme';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -45,6 +47,24 @@ export default function setup() {
         '-o, --override-version <version>',
         "Override version. Notation: '<major>.<minor>.<patch>' e.g. '7.2.0'. Override detected version with any version. This is helpful in order to check if journeys in one environment would be compatible running in another environment (e.g. in preparation of migrating from on-prem to ForgeRock Identity Cloud."
       )
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Describe one live journey using a connection profile:\n` +
+        c.command(`  $ frodo journey describe -i ${s.journeyId} ${s.connId}\n`) +
+        `  Describe every live journey in a realm and log in with AM base URL, username, and password:\n` +
+        c.command(
+          `  $ frodo journey describe ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        ) +
+        `  Describe a journey from an export file without logging in:\n` +
+        c.command(
+          `  $ frodo journey describe -i ${s.journeyId} -f ${s.journeyFile}\n`
+        ) +
+        `  Write a journey's description as Markdown to a file:\n` +
+        c.command(
+          `  $ frodo journey describe -i ${s.journeyId} --markdown -O ${s.journeyMarkdownFile} ${s.connId}\n`
+        )
     )
     .action(
       // implement command logic inside action handler
