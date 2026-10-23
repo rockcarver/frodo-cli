@@ -30,3 +30,6 @@ export const relationshipQueryFields = 'userName,givenName,sn';
 export const featureId = 'groups';
 export const loginClientId = 'zion-cli-client';
 export const journeyId = 'ZionLogin';
+export const journeyFile = 'ZionLogin.journey.json';
+export const allJourneysFile = 'allAlphaJourneys.journey.json';
+export const journeysDirectory = './journeys';
