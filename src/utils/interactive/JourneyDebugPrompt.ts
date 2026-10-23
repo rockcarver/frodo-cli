@@ -58,14 +58,17 @@ function stripAnsiOf(text: string): string {
   return stripAnsi(text);
 }
 
-/** Panel-row width discipline applied at the top: the list's page rows must also fit the frame's inner width (a very wide terminal is not a license to draw past 120 -- same default as every box). */
-function clampListWidthToFrame(widths: ListColumnWidths): ListColumnWidths {
+/** The list's measured columns share the same width budget as its frame. */
+function clampListWidthToFrame(
+  widths: ListColumnWidths,
+  width: number
+): ListColumnWidths {
   // Hand-rolled budget: markers(4) + status(9) + 5 separators + the three
   // measured columns + a 20-floor for DETAIL. Anything over the budget
   // comes off JOURNEY/USER (their caps are already applied upstream).
   const fixed = 4 + STATUS_COL_WIDTH + 5;
   const detailFloor = 20;
-  const budget = frameInnerWidth() - fixed - detailFloor;
+  const budget = frameInnerWidth(width) - fixed - detailFloor;
   const measured = widths.journey + widths.user + widths.age;
   if (measured <= budget) return widths;
   const overflow = measured - budget;
@@ -272,15 +275,21 @@ interface PropertyRow {
  * (continuation rows render plain -- losing a colored value's ANSI on
  * its wrapped tail is the accepted trade for honest walls).
  */
-function propertyPanelRows(properties: PropertyRow[]): PanelRow[] {
-  const labelWidth = Math.max(...properties.map((p) => p.label.length)) + 1;
-  const innerWidth = frameInnerWidth();
+function propertyPanelRows(
+  properties: PropertyRow[],
+  width: number
+): PanelRow[] {
+  const innerWidth = frameInnerWidth(width);
+  const labelWidth = Math.min(
+    innerWidth - 2,
+    Math.max(...properties.map((p) => p.label.length)) + 1
+  );
   const rows: PanelRow[] = [];
   for (const p of properties) {
-    const label = padCell(`${p.label}:`, labelWidth);
+    const label = padCell(truncate(`${p.label}:`, labelWidth), labelWidth);
     const colorFn = p.labelColor ?? c.emphasis;
-    const plainValue = stripAnsi(p.value);
-    const wrapped = wrapLine(plainValue, innerWidth - label.length - 1);
+    const valueWidth = innerWidth - label.length - 1;
+    const wrapped = wrapPanelText(p.value, valueWidth);
     wrapped.forEach((part, index) => {
       const plain =
         index === 0 ? `${label} ${part}` : `${' '.repeat(labelWidth)} ${part}`;
@@ -293,9 +302,21 @@ function propertyPanelRows(properties: PropertyRow[]): PanelRow[] {
   return rows;
 }
 
+/** Keep log line breaks and stack indentation without letting tabs escape the frame. */
+function wrapPanelText(text: string, width: number): string[] {
+  return stripAnsi(text)
+    .replace(/\t/g, '    ')
+    .split(/\r\n|\r|\n/)
+    .flatMap((line) => {
+      const indent = /^\s*/.exec(line)?.[0].length ?? 0;
+      return wrapLine(indent >= width ? line.trimStart() : line, width);
+    });
+}
+
 function renderDetail(
   session: JourneySession,
-  activeEventIndex: number
+  activeEventIndex: number,
+  width: number
 ): PanelRow[] {
   const now = Date.now();
 
@@ -357,7 +378,7 @@ function renderDetail(
     });
   }
 
-  const lines: PanelRow[] = propertyPanelRows(properties);
+  const lines: PanelRow[] = propertyPanelRows(properties, width);
 
   lines.push(
     { text: '', plain: '' },
@@ -440,9 +461,9 @@ function renderDetail(
       // propertyPanelRows above; continuation rows render muted).
       const outcomeWidth = Math.max(
         10,
-        frameInnerWidth() - prefixPlain.length - 1
+        frameInnerWidth(width) - prefixPlain.length - 1
       );
-      wrapLine(outcomePlain, outcomeWidth).forEach((part, partIndex) => {
+      wrapPanelText(outcomePlain, outcomeWidth).forEach((part, partIndex) => {
         const plain =
           partIndex === 0
             ? `${prefixPlain} ${part}`.trimEnd()
@@ -489,7 +510,8 @@ function formatRawValue(value: unknown): string {
  */
 function renderEventDetail(
   session: JourneySession,
-  event: JourneyDebugEventEntry
+  event: JourneyDebugEventEntry,
+  width: number
 ): PanelRow[] {
   const properties: PropertyRow[] = [
     { label: 'Step', value: event.step },
@@ -517,7 +539,7 @@ function renderEventDetail(
     }
   }
 
-  return propertyPanelRows(properties);
+  return propertyPanelRows(properties, width);
 }
 
 type ViewMode = 'list' | 'detail' | 'event';
@@ -626,6 +648,18 @@ const journeyDebugPromptImpl = createPrompt<
     undefined
   );
   const [done_, setDone] = useState(false);
+  const terminalWidth = () =>
+    process.stdout.isTTY && process.stdout.columns
+      ? Math.max(40, process.stdout.columns)
+      : 120;
+  const [width, setWidth] = useState(terminalWidth);
+  useEffect(() => {
+    const onResize = () => setWidth(terminalWidth());
+    process.stdout.on('resize', onResize);
+    return () => {
+      process.stdout.off('resize', onResize);
+    };
+  }, []);
   const prefix = usePrefix({ status: done_ ? 'done' : 'idle' });
 
   // The double-ESC grace (see ExitAll.ts and EscapableSelectPrompt --
@@ -859,6 +893,27 @@ const journeyDebugPromptImpl = createPrompt<
     text: row,
     plain: stripAnsiOf(row),
   });
+  const renderPanel = (
+    title: ReturnType<typeof frameStatusTitle>,
+    lines: PanelRow[]
+  ) =>
+    renderFramedBox({
+      title:
+        stripAnsi(title.text).length > width - 4
+          ? truncate(stripAnsi(title.text), width - 4)
+          : title,
+      lines: lines.flatMap((row) => {
+        if (
+          !/[\r\n\t]/.test(row.plain) &&
+          row.plain.length <= frameInnerWidth(width)
+        ) {
+          return [row];
+        }
+        const wrapped = wrapPanelText(row.text, frameInnerWidth(width));
+        return wrapped.map(panelRow);
+      }),
+      width,
+    });
 
   // The grace hint renders INSIDE the panel (first line, like the
   // pickers) so the gesture's second half is obvious.
@@ -881,15 +936,13 @@ const journeyDebugPromptImpl = createPrompt<
     if (viewMode === 'event' && detailSession && activeEvent) {
       const panelLines = [];
       if (graceLine) panelLines.push(graceLine);
-      panelLines.push(...renderEventDetail(detailSession, activeEvent));
+      panelLines.push(...renderEventDetail(detailSession, activeEvent, width));
       return [
         renderNavigationMenu(
-          navigationMenuItems({ escape: 'back · [ESC]×2 exit all' })
+          navigationMenuItems({ escape: 'back · [ESC]×2 exit all' }),
+          width
         ),
-        renderFramedBox({
-          title: frameStatusTitle(`${prefix} Event detail`),
-          lines: panelLines,
-        }),
+        renderPanel(frameStatusTitle(`${prefix} Event detail`), panelLines),
         warningLine,
       ]
         .filter(Boolean)
@@ -899,19 +952,17 @@ const journeyDebugPromptImpl = createPrompt<
     if (viewMode === 'detail' && detailSession) {
       const panelLines = [];
       if (graceLine) panelLines.push(graceLine);
-      panelLines.push(...renderDetail(detailSession, clampedEventIndex));
+      panelLines.push(...renderDetail(detailSession, clampedEventIndex, width));
       return [
         renderNavigationMenu(
           navigationMenuItems({
             enter: 'view event',
             space: 'pin/unpin',
             escape: 'back · [ESC]×2 exit all',
-          })
+          }),
+          width
         ),
-        renderFramedBox({
-          title: frameStatusTitle(`${prefix} Journey detail`),
-          lines: panelLines,
-        }),
+        renderPanel(frameStatusTitle(`${prefix} Journey detail`), panelLines),
         warningLine,
       ]
         .filter(Boolean)
@@ -934,16 +985,14 @@ const journeyDebugPromptImpl = createPrompt<
         : 'No journey activity detected yet -- waiting for a journey to start...';
       return [
         renderNavigationMenu(
-          navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' })
+          navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' }),
+          width
         ),
-        renderFramedBox({
-          title,
-          lines: [
-            ...(graceLine ? [graceLine] : []),
-            panelRow(c.muted(waitingLine)),
-            ...(warningLine ? [panelRow(warningLine)] : []),
-          ],
-        }),
+        renderPanel(title, [
+          ...(graceLine ? [graceLine] : []),
+          panelRow(c.muted(waitingLine)),
+          ...(warningLine ? [panelRow(warningLine)] : []),
+        ]),
       ]
         .filter(Boolean)
         .join('\n');
@@ -954,7 +1003,10 @@ const journeyDebugPromptImpl = createPrompt<
     // wider (or narrower) value into view. Then clamped to the frame:
     // the DETAIL cell truncates harder when the measured columns eat the
     // budget (its floor lives in clampListWidthToFrame).
-    const listWidths = clampListWidthToFrame(computeListColumnWidths(sessions));
+    const listWidths = clampListWidthToFrame(
+      computeListColumnWidths(sessions),
+      width
+    );
     const page = usePagination({
       items: sessions,
       active: clampedActive,
@@ -981,29 +1033,28 @@ const journeyDebugPromptImpl = createPrompt<
           enter: 'drill down',
           space: 'pin/unpin',
           escape: 'exit · [ESC]×2 exit all',
-        })
+        }),
+        width
       ),
-      renderFramedBox({ title, lines: panelLines }),
+      renderPanel(title, panelLines),
     ]
       .filter(Boolean)
       .join('\n');
   } catch (error) {
     return [
       renderNavigationMenu(
-        navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' })
+        navigationMenuItems({ escape: 'exit · [ESC]×2 exit all' }),
+        width
       ),
-      renderFramedBox({
-        title: frameStatusTitle(`${prefix} Debugging journeys`),
-        lines: [
-          ...(graceLine ? [graceLine] : []),
-          panelRow(
-            c.negative(
-              `Internal error rendering this view, will retry on the next update -- ${error instanceof Error ? error.message : String(error)}`
-            )
-          ),
-          ...(warningLine ? [panelRow(warningLine)] : []),
-        ],
-      }),
+      renderPanel(frameStatusTitle(`${prefix} Debugging journeys`), [
+        ...(graceLine ? [graceLine] : []),
+        panelRow(
+          c.negative(
+            `Internal error rendering this view, will retry on the next update -- ${error instanceof Error ? error.message : String(error)}`
+          )
+        ),
+        ...(warningLine ? [panelRow(warningLine)] : []),
+      ]),
     ]
       .filter(Boolean)
       .join('\n');
