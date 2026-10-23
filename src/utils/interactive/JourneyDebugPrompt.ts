@@ -291,7 +291,7 @@ function propertyPanelRows(
     const label = padCell(truncate(`${p.label}:`, labelWidth), labelWidth);
     const colorFn = p.labelColor ?? c.emphasis;
     const valueWidth = innerWidth - label.length - 1;
-    const wrapped = wrapPanelText(p.value, valueWidth);
+    const wrapped = wrapLine(p.value, valueWidth);
     wrapped.forEach((part, index) => {
       const plain =
         index === 0 ? `${label} ${part}` : `${' '.repeat(labelWidth)} ${part}`;
@@ -302,17 +302,6 @@ function propertyPanelRows(
     });
   }
   return rows;
-}
-
-/** Keep log line breaks and stack indentation without letting tabs escape the frame. */
-function wrapPanelText(text: string, width: number): string[] {
-  return stripAnsi(text)
-    .replace(/\t/g, '    ')
-    .split(/\r\n|\r|\n/)
-    .flatMap((line) => {
-      const indent = /^\s*/.exec(line)?.[0].length ?? 0;
-      return wrapLine(indent >= width ? line.trimStart() : line, width);
-    });
 }
 
 function renderDetail(
@@ -465,7 +454,7 @@ function renderDetail(
         10,
         frameInnerWidth(width) - prefixPlain.length - 1
       );
-      wrapPanelText(outcomePlain, outcomeWidth).forEach((part, partIndex) => {
+      wrapLine(outcomePlain, outcomeWidth).forEach((part, partIndex) => {
         const plain =
           partIndex === 0
             ? `${prefixPlain} ${part}`.trimEnd()
@@ -898,24 +887,7 @@ const journeyDebugPromptImpl = createPrompt<
   const renderPanel = (
     title: ReturnType<typeof frameStatusTitle>,
     lines: PanelRow[]
-  ) =>
-    renderFramedBox({
-      title:
-        stripAnsi(title.text).length > width - 4
-          ? truncate(stripAnsi(title.text), width - 4)
-          : title,
-      lines: lines.flatMap((row) => {
-        if (
-          !/[\r\n\t]/.test(row.plain) &&
-          row.plain.length <= frameInnerWidth(width)
-        ) {
-          return [row];
-        }
-        const wrapped = wrapPanelText(row.text, frameInnerWidth(width));
-        return wrapped.map(panelRow);
-      }),
-      width,
-    });
+  ) => renderFramedBox({ title, lines, width });
 
   // The grace hint renders INSIDE the panel (first line, like the
   // pickers) so the gesture's second half is obvious.

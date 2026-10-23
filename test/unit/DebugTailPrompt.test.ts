@@ -116,6 +116,30 @@ describe('buildTailRows (panel rendering)', () => {
     }
   });
 
+  it('a multi-line event (stack trace) never carries a control character into a row', () => {
+    const line =
+      'ERROR ScriptEvaluator: TypeError: boom\n\tat java.base/java.util.concurrent.FutureTask.report(FutureTask.java:124)\n\nCaused by: x';
+    const rows = buildTailRows(
+      [{ timestamp: '2026-10-15T01:23:45Z', line }],
+      20,
+      60
+    );
+    for (const row of rows) {
+      expect(row.plain).not.toMatch(/[\t\r\n]/);
+      expect(row.plain.length).toBeLessThanOrEqual(60);
+    }
+    expect(rows[0].plain).toBe(
+      '01:23:45 ERROR ScriptEvaluator: TypeError: boom'
+    );
+    // The tab-indented frame keeps its indentation past the timestamp column.
+    expect(rows.some((row) => /^ {11} {4}at(?: |$)/.test(row.plain))).toBe(
+      true
+    );
+    // The blank line survives as a blank row; the cause is not lost.
+    expect(rows.some((row) => row.plain.trim() === '')).toBe(true);
+    expect(rows.some((row) => row.plain.includes('Caused by: x'))).toBe(true);
+  });
+
   it('returns at most `limit` visual rows ending at the newest event', () => {
     const events = Array.from({ length: 30 }, (_, i) => ({
       line: `event ${i}`,

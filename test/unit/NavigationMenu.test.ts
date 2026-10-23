@@ -206,6 +206,90 @@ describe('renderFramedBox (the shared panel renderer)', () => {
     expect(stripAnsi(box.split('\n')[0])).toMatch(/^┌ Value for --retry ─+┐$/);
   });
 
+  const frameWidths = (box: string) => [
+    ...new Set(box.split('\n').map((line) => [...stripAnsi(line)].length)),
+  ];
+
+  it.each([20, 40, 120])(
+    'keeps the silhouette at %i columns for rows with line breaks, tabs and overflow',
+    (width) => {
+      const hostile = 'line one\n\tindented line two\r\nline three';
+      const box = renderFramedBox({
+        title: 'A title',
+        lines: [
+          { text: 'fits', plain: 'fits' },
+          { text: hostile, plain: hostile },
+          { text: 'x'.repeat(200), plain: 'x'.repeat(200) },
+          { text: '', plain: '' },
+        ],
+        width,
+      });
+      expect(frameWidths(box)).toEqual([width]);
+      expect(box).not.toMatch(/[\t\r]/);
+      for (const line of box.split('\n').slice(1, -1)) {
+        expect(line).toMatch(/^│ .* │$/);
+      }
+      // Nothing is lost: the three lines of the hostile row survive.
+      expect(box.replace(/[\s│]+/g, '')).toContain('lineone');
+      expect(box.replace(/[\s│]+/g, '')).toContain('linethree');
+    }
+  );
+
+  it('passes a row that fits through untouched, colors included', () => {
+    const colored = '\x1b[36mcolored\x1b[39m row';
+    const box = renderFramedBox({
+      title: 'T',
+      lines: [{ text: colored, plain: 'colored row' }],
+      width: 40,
+    });
+    expect(box.split('\n')[1]).toBe(
+      `│ ${colored}${' '.repeat(36 - 'colored row'.length)} │`
+    );
+  });
+
+  it('trusts the drawn text over a plain that understates it', () => {
+    const box = renderFramedBox({
+      title: 'T',
+      lines: [{ text: 'x'.repeat(100), plain: 'x' }],
+      width: 40,
+    });
+    expect(frameWidths(box)).toEqual([40]);
+  });
+
+  it('keeps the walls aligned when plain overstates the drawn text', () => {
+    const box = renderFramedBox({
+      title: 'T',
+      lines: [{ text: 'short', plain: 'y'.repeat(100) }],
+      width: 40,
+    });
+    expect(frameWidths(box)).toEqual([40]);
+  });
+
+  it('wraps an overlong colored row to plain rows inside the frame', () => {
+    const long = 'word '.repeat(20);
+    const box = renderFramedBox({
+      title: 'T',
+      lines: [{ text: `\x1b[36m${long}\x1b[39m`, plain: long }],
+      width: 40,
+    });
+    expect(box).not.toContain('\x1b');
+    expect(frameWidths(box)).toEqual([40]);
+  });
+
+  it('cuts a title wider than the top bar with an ellipsis', () => {
+    const box = renderFramedBox({
+      title: {
+        text: `\x1b[36m${'T'.repeat(100)}\x1b[39m`,
+        plain: 'T'.repeat(100),
+      },
+      lines: [],
+      width: 40,
+    });
+    const top = stripAnsi(box.split('\n')[0]);
+    expect([...top].length).toBe(40);
+    expect(top).toMatch(/^┌ T+… ┐$/);
+  });
+
   it('stripAnsi removes SGR sequences only', () => {
     expect(stripAnsi('\x1b[36mtext\x1b[39m more')).toBe('text more');
     expect(stripAnsi('plain')).toBe('plain');
@@ -262,6 +346,51 @@ describe('wrapLine / descriptionPanelLines (long descriptions)', () => {
     expect(wrapLine('\x1b[36mcolored\x1b[39m text', 40)).toEqual([
       'colored text',
     ]);
+  });
+
+  it('splits on line breaks (LF, CRLF, CR) and keeps blank lines', () => {
+    expect(wrapLine('one\r\ntwo\rthree\n\nfour', 40)).toEqual([
+      'one',
+      'two',
+      'three',
+      '',
+      'four',
+    ]);
+  });
+
+  it('expands tabs so no control character reaches a frame', () => {
+    expect(wrapLine('a\tb', 40)).toEqual(['a    b']);
+  });
+
+  it("keeps each line's own indentation (a stack trace)", () => {
+    expect(
+      wrapLine(
+        'TypeError: boom\n\tat a.b.C(D.java:1)\n\tat e.f.G(H.java:2)',
+        40
+      )
+    ).toEqual([
+      'TypeError: boom',
+      '    at a.b.C(D.java:1)',
+      '    at e.f.G(H.java:2)',
+    ]);
+  });
+
+  it('wraps a long indented stack frame with its indentation repeated', () => {
+    const rows = wrapLine('\tat ' + 'word '.repeat(10), 20);
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows) {
+      expect(row.startsWith('    ')).toBe(true);
+      expect(row.length).toBeLessThanOrEqual(20);
+    }
+  });
+
+  it('drops an indent as wide as the row instead of splitting every word', () => {
+    expect(wrapLine(`${' '.repeat(30)}alpha beta`, 20)).toEqual(['alpha beta']);
+  });
+
+  it('a trailing line break adds no row; empty text is one empty row', () => {
+    expect(wrapLine('text\n', 40)).toEqual(['text']);
+    expect(wrapLine('', 40)).toEqual(['']);
   });
 
   it('a long description keeps the panel walls aligned (the reported bug)', () => {
