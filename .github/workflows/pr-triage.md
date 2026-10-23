@@ -9,6 +9,13 @@ if: >-
   github.event.label.name == 'pr-worker-ready'
   && github.event.pull_request.head.repo.id == github.repository_id
 checkout: false
+# gh-aw's default group for pull-request triggers is one per pull request with cancel-in-progress. Triage's
+# own labels (complexity, risk, handoff) each start a run that the `if:` skips, but a skipped run still enters
+# the group and cancels the triage that is still finishing (seen on frodo-lib#775: safe_outputs cancelled
+# seconds after the labels landed). The label name in the key gives each label event its own group.
+concurrency:
+  group: gh-aw-${{ github.workflow }}-${{ github.event.pull_request.number }}-${{ github.event.label.name }}
+  cancel-in-progress: true
 permissions:
   contents: read
   pull-requests: read
