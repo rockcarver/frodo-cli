@@ -14,25 +14,22 @@ The full guide is [docs/CONTRIBUTE.md, "Writing a command"](../../docs/CONTRIBUT
 - **Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`,** not `console.log`.
 - **Name functions with CRUDQ verbs** (`createX`, `readX`, `updateX`, `deleteX`, `queryX`; `getX`/`setX` for one property; `enableX`/`disableX` for status). See CONTRIBUTE.md.
 
-## Usage examples are required
+## Usage examples: required, correct, and no prompts
 
 Every command has a `Usage Examples:` block, shown by `-hhh`. Model it on `src/cli/info/info.ts` and `src/cli/conn/conn-save.ts`:
 
 ```ts
-.addHelpText(
-  'after',
-  `Usage Examples:\n` +
-    `  List every scripting context:\n` +
-    c.command(`  $ frodo script type list ${s.amBaseUrl}\n`) +
-    `  List them with all fields:\n` +
-    c.command(`  $ frodo script type list --long ${s.connId}\n`)
-)
+.addHelpText('after', `Usage Examples:\n` +
+  `  List the journeys of a realm and log in with AM base URL, username, and password:\n` +
+  c.command(`  $ frodo journey list ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`) +
+  `  List them with all fields using a connection profile:\n` +
+  c.command(`  $ frodo journey list --long ${s.connId} ${s.realm}\n`))
 ```
 
-- One sentence on what the example does, then the command. One example per mode or option that matters, with a login variant (credentials, connection profile).
-- Values come from `src/help/SampleData.ts` (`import * as s from '../../help/SampleData'`). Add a constant there if you need one.
-- Run every example against a build (`npx tsdown`) before you finish. File-based modes can run against fixtures in `test/e2e/exports`.
-- `test/unit/UsageExamples.test.js` fails for a command without examples. Never add a command to `test/unit/UsageExamplesLegacyExceptions.js`; that list only shrinks. When you add examples to a command on it, delete its line.
+- One sentence, then the command. One example per mode or option that matters, with a login variant. Values come from `src/help/SampleData.ts`. Run every example against a build (`npx tsdown`) before you finish.
+- **An example runs as written and opens no picker or editor.** The realm goes right after the host or profile (`<connId> <realm>`, `<amBaseUrl> <realm> <username> '<password>'`): without it a terminal opens the realm picker, and with only host, user and password the user name is read as the realm. Name the target (`-i`, `-a`, ...) of a command that picks an entity, one member of every `requireOneOf` group, and only flags the command defines.
+- **Interactive by design is the one exception:** `frodo journey prune` asks to confirm with `@inquirer/confirm` directly, so no flag and no `--no-prompt` skips it; the sentence above its example says so.
+- `test/unit/UsageExamples.test.js` fails for a command without examples; `test/unit/UsageExampleOperands.test.js` fails for an example that breaks the rules above. Never add to `UsageExamplesLegacyExceptions.js` or `UsageExampleOperandsLegacyExceptions.js`: they only shrink, so delete a line when you fix its entry.
 
 ## Tests for a new command
 

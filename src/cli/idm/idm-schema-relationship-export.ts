@@ -42,7 +42,7 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Export the "${s.relationshipPropertyName}" relationship:\n` +
         c.command(
-          `  $ frodo idm schema relationship export -o ${s.managedObjectType} -p ${s.relationshipPropertyName} ${s.amBaseUrl}\n`
+          `  $ frodo idm schema relationship export -o ${s.managedObjectType} -p ${s.relationshipPropertyName} ${s.amBaseUrl} ${s.realm}\n`
         )
     )
     .action(

@@ -1,6 +1,11 @@
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
+import {
+  fullName,
+  groupModules,
+  loadLeafCommands,
+  registeredGroupCount,
+  renderFullHelp,
+} from '../utils/CommandExamples.js';
 import { LEGACY_COMMANDS_WITHOUT_EXAMPLES } from './UsageExamplesLegacyExceptions.js';
 
 /**
@@ -13,44 +18,10 @@ import { LEGACY_COMMANDS_WITHOUT_EXAMPLES } from './UsageExamplesLegacyException
 
 const LEGACY_FILE = 'test/unit/UsageExamplesLegacyExceptions.js';
 const HOW_TO_FIX =
-  'Add an `.addHelpText(\'after\', `Usage Examples:\\n` + ...)` block in the style of ' +
+  "Add an `.addHelpText('after', `Usage Examples:\\n` + ...)` block in the style of " +
   '`frodo info` (src/cli/info/info.ts) and `frodo conn save` (src/cli/conn/conn-save.ts): ' +
   'one sentence per scenario, then the command via c.command(...), with sample values from ' +
   'src/help/SampleData.ts. src/cli/_template/*.ts shows the shape.';
-
-const appSource = fs.readFileSync(
-  fileURLToPath(new URL('../../src/app.ts', import.meta.url)),
-  'utf8'
-);
-const groupModules = [
-  ...appSource.matchAll(/^import \w+ from '\.\/cli\/([\w-]+\/[\w-]+)';$/gm),
-].map((match) => match[1]);
-const registeredGroupCount = [
-  ...appSource.matchAll(/^\s*program\.addCommand\(/gm),
-].length;
-
-function leafCommands(command, leaves = []) {
-  const subcommands = command.commands.filter((c) => c.name() !== 'help');
-  if (subcommands.length === 0) leaves.push(command);
-  else subcommands.forEach((c) => leafCommands(c, leaves));
-  return leaves;
-}
-
-function fullName(command) {
-  const names = [];
-  for (let c = command; c; c = c.parent) names.unshift(c.name());
-  return `frodo ${names.join(' ')}`;
-}
-
-function renderFullHelp(command) {
-  let text = '';
-  command.configureOutput({
-    writeOut: (chunk) => (text += chunk),
-    writeErr: () => {},
-  });
-  command.outputHelp();
-  return text;
-}
 
 const originalArgv = process.argv;
 let leaves = [];
@@ -59,12 +30,7 @@ let hasExamples = new Map();
 beforeAll(async () => {
   // The examples are only rendered for -hhh (see FrodoCommand.addHelpText).
   process.argv = [...originalArgv, '--help-all'];
-  const groups = [];
-  for (const modulePath of groupModules) {
-    const module = await import(`../../src/cli/${modulePath}.ts`);
-    groups.push(module.default());
-  }
-  groups.forEach((group) => leafCommands(group, leaves));
+  leaves = await loadLeafCommands();
   hasExamples = new Map(
     leaves.map((leaf) => [
       fullName(leaf),

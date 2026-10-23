@@ -45,7 +45,7 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Import the "${s.propertyName}" property:\n` +
         c.command(
-          `  $ frodo idm schema property import -o ${s.managedObjectType} -p ${s.propertyName} -f ${s.managedObjectType}-${s.propertyName}.managed.property.json -y ${s.amBaseUrl}\n`
+          `  $ frodo idm schema property import -o ${s.managedObjectType} -p ${s.propertyName} -f ${s.managedObjectType}-${s.propertyName}.managed.property.json -y ${s.amBaseUrl} ${s.realm}\n`
         )
     )
     .action(

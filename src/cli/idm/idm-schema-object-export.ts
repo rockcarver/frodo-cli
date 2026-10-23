@@ -66,19 +66,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Export the "${s.managedObjectTitle}" managed object type:\n` +
         c.command(
-          `  $ frodo idm schema object export -o ${s.managedObjectType} ${s.amBaseUrl}\n`
+          `  $ frodo idm schema object export -o ${s.managedObjectType} ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Export it to a specific file:\n` +
         c.command(
-          `  $ frodo idm schema object export -o ${s.managedObjectType} -f ${s.managedObjectType}.managed.object.json ${s.connId}\n`
+          `  $ frodo idm schema object export -o ${s.managedObjectType} -f ${s.managedObjectType}.managed.object.json ${s.connId} ${s.realm}\n`
         ) +
         `  Export every managed object type into a single file:\n` +
         c.command(
-          `  $ frodo idm schema object export -a -f all-managed-objects.json ${s.connId}\n`
+          `  $ frodo idm schema object export -a -f all-managed-objects.json ${s.connId} ${s.realm}\n`
         ) +
         `  Export every managed object type into separate files, one per type:\n` +
         c.command(
-          `  $ frodo idm schema object export -A -D ./managed-objects ${s.connId}\n`
+          `  $ frodo idm schema object export -A -D ./managed-objects ${s.connId} ${s.realm}\n`
         )
     )
     .requireOneOf({

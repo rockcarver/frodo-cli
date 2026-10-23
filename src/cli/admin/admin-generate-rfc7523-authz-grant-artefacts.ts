@@ -51,19 +51,19 @@ export default function setup() {
         `  - Private Key as Json Web Key (JWK) - named '<clientId>_private.jwk.json'\n` +
         `  - Public Key as Json Web Key Set (JWKS) - named '<clientId>_public.jwks.json'\n` +
         c.command(
-          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d ${s.amBaseUrl}\n`
+          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Same as above but use an existing JWK file instead of creating one.\n` +
         c.command(
-          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --jwk-file rfc7523-client1_private.jwk.json ${s.amBaseUrl}\n`
+          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --jwk-file rfc7523-client1_private.jwk.json ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Generate and output to console all the artefacts for an RFC7523 authorization grant flow configuration but do not create any configuration or files.\n` +
         c.command(
-          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --no-save ${s.amBaseUrl}\n`
+          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --no-save ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Generate and output in json format all the artefacts for an RFC7523 authorization grant flow configuration.\n` +
         c.command(
-          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --json ${s.amBaseUrl}\n`
+          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --json ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `\nRelated Commands:\n` +
         `  Run ${c.command('frodo admin execute-rfc7523-authz-grant-flow --help')} to see how to test your configuration created with ${c.command('frodo admin generate-rfc7523-authz-grant-artefacts')}:\n`

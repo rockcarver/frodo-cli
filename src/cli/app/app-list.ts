@@ -31,12 +31,12 @@ export default function setup() {
         `Usage Examples:\n` +
         `  List applications using AM base URL, username, and password (note the quotes around password to allow special characters):\n` +
         c.command(
-          `  $ frodo app list ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+          `  $ frodo app list ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  List applications using a connection profile (identified by the full AM base URL):\n` +
-        c.command(`  $ frodo app list ${s.amBaseUrl}\n`) +
+        c.command(`  $ frodo app list ${s.amBaseUrl} ${s.realm}\n`) +
         `  List applications using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
-        c.command(`  $ frodo app list ${s.connId}\n`)
+        c.command(`  $ frodo app list ${s.connId} ${s.realm}\n`)
     )
     .action(
       // implement command logic inside action handler

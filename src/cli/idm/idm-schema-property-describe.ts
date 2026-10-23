@@ -47,19 +47,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Describe the "${s.propertyName}" property:\n` +
         c.command(
-          `  $ frodo idm schema property describe -o ${s.managedObjectType} -p ${s.propertyName} ${s.amBaseUrl}\n`
+          `  $ frodo idm schema property describe -o ${s.managedObjectType} -p ${s.propertyName} ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Describe it in JSON format:\n` +
         c.command(
-          `  $ frodo idm schema property describe -o ${s.managedObjectType} -p ${s.propertyName} --json ${s.connId}\n`
+          `  $ frodo idm schema property describe -o ${s.managedObjectType} -p ${s.propertyName} --json ${s.connId} ${s.realm}\n`
         ) +
         `  Describe the "${s.objectPropertyName}" object property -- its properties table renders automatically:\n` +
         c.command(
-          `  $ frodo idm schema property describe -o ${s.managedObjectType} -p ${s.objectPropertyName} ${s.connId}\n`
+          `  $ frodo idm schema property describe -o ${s.managedObjectType} -p ${s.objectPropertyName} ${s.connId} ${s.realm}\n`
         ) +
         `  Describe the "${s.subPropertyName}" sub-property directly, by dot-path:\n` +
         c.command(
-          `  $ frodo idm schema property describe -o ${s.managedObjectType} -p ${s.objectPropertyName} --sub-property ${s.subPropertyName} ${s.connId}\n`
+          `  $ frodo idm schema property describe -o ${s.managedObjectType} -p ${s.objectPropertyName} --sub-property ${s.subPropertyName} ${s.connId} ${s.realm}\n`
         )
     )
     .action(

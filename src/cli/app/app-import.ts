@@ -61,21 +61,21 @@ export default function setup() {
         `Usage Examples:\n` +
         `  Import all applications from a single export file using a connection profile:\n` +
         c.command(
-          `  $ frodo app import -a -f ./allAlphaApplications.application.json ${s.connId}\n`
+          `  $ frodo app import -a -f ./allAlphaApplications.application.json ${s.connId} ${s.realm}\n`
         ) +
         `  Import the first application from a single export file:\n` +
         c.command(
-          `  $ frodo app import -f ./allAlphaApplications.application.json ${s.connId}\n`
+          `  $ frodo app import -f ./allAlphaApplications.application.json ${s.connId} ${s.realm}\n`
         ) +
         `  Import all applications from separate export files:\n` +
-        c.command(`  $ frodo app import -A ${s.connId}\n`) +
+        c.command(`  $ frodo app import -A ${s.connId} ${s.realm}\n`) +
         `  Import all applications without dependencies from a single export file:\n` +
         c.command(
-          `  $ frodo app import --no-deps -a -f ./allAlphaApplications.application.json ${s.connId}\n`
+          `  $ frodo app import --no-deps -a -f ./allAlphaApplications.application.json ${s.connId} ${s.realm}\n`
         ) +
         `  Import only the application 'myApp' from a file with an export file containing multiple applications:\n` +
         c.command(
-          `  $ frodo app import -i myApp -f ./allAlphaApplications.application.json ${s.connId}\n`
+          `  $ frodo app import -i myApp -f ./allAlphaApplications.application.json ${s.connId} ${s.realm}\n`
         )
     )
     .requireOneOf({
