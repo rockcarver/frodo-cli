@@ -4,6 +4,8 @@
 # .github/agentic-workflows/related-repos.md promises: for every related
 # repository that names a secret, the issue worker must be able to create
 # issues there and the related-repo closer to comment, label and close there.
+# It also prints a notice, and never fails, when the repository has neither
+# AGENTS.md nor .github/copilot-instructions.md (template: shared/agents.md).
 #
 # Install: copy this file to .github/workflows/check-deployment.yml and
 # scripts/check-deployment.mjs (plus scripts/dependency-watch.mjs, which it

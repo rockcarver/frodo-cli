@@ -7,6 +7,9 @@
 // that secret. Reads the compiled .lock.yml files, because they are what runs.
 // It cannot tell whether the secret exists or what the token may do; that is a
 // manual check (docs/deployment.md).
+//
+// It also prints a notice, never a failure, when the repository gives coding
+// agents no guidance file (AGENTS.md or .github/copilot-instructions.md).
 import fs from 'node:fs';
 import { parseRelatedRepos } from './dependency-watch.mjs';
 
@@ -15,6 +18,20 @@ export const REQUIREMENTS = [
   { file: 'issue-worker.lock.yml', outputs: ['create_issue'] },
   { file: 'related-repo-closer.lock.yml', outputs: ['add_comment', 'add_labels', 'close_issue'] },
 ];
+
+/** The files that tell coding agents how to work on the repository; either one is enough. */
+export const GUIDANCE_FILES = ['AGENTS.md', '.github/copilot-instructions.md'];
+
+/**
+ * Notices (never errors) about optional files that make the harness work better.
+ * `exists` answers whether a path, relative to the repository root, is a file.
+ */
+export function checkGuidance(exists) {
+  if (GUIDANCE_FILES.some((f) => exists(f))) return [];
+  return [
+    'Coding agents get no repository guidance: neither AGENTS.md nor .github/copilot-instructions.md exists (template: shared/agents.md in the Repo Concierge repository; see docs/deployment.md)',
+  ];
+}
 
 /** Extract the compiled safe-outputs configuration from a .lock.yml, or null. */
 export function readSafeOutputsConfig(lockText) {
@@ -92,7 +109,16 @@ export function checkDeployment(relatedText, locks) {
   return { errors, warnings };
 }
 
+const isFile = (p) => {
+  try {
+    return fs.statSync(p).isFile();
+  } catch {
+    return false;
+  }
+};
+
 export function main(cwd = process.cwd()) {
+  for (const notice of checkGuidance((f) => isFile(`${cwd}/${f}`))) console.log(`::notice::${notice}`);
   const relatedPath = `${cwd}/.github/agentic-workflows/related-repos.md`;
   if (!fs.existsSync(relatedPath)) {
     console.log('No .github/agentic-workflows/related-repos.md: nothing to check.');
