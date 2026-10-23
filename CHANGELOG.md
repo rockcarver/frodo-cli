@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-12] - 2026-10-23
+
+### Added
+- Introduced `frodo journey validate` command for journey reference validation in tenant journeys and export files. Imports now validate by default and block on errors, with warnings remaining non-blocking unless `--strict` is used. (#871)
+
+### Changed
+- Updated `frodo-lib` to version 5.0.0-12, which removes all function and constant exports from the package root, retaining only `frodo`, `state`, and `FrodoError`. This change requires CLI adaptations to use the `frodo` facade for library APIs. (#877)
+- Transitioned MCP, terminal-theme, and managed-schema operations to use the `frodo` facade, ensuring compatibility with the updated `frodo-lib`. (#870)
+
 ## [v5.0.0-11] - 2026-10-21
 
 ### Added
@@ -3065,6 +3074,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-12]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-11...v5.0.0-12
 [v5.0.0-11]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-10...v5.0.0-11
 [v5.0.0-10]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-9...v5.0.0-10
 [v5.0.0-9]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-8...v5.0.0-9
