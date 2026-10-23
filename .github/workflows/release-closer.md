@@ -45,6 +45,20 @@ timeout-minutes: 4
 
 Triggered when a release is published. This repository does not create releases. A maintainer does.
 
+## Which release
+
+This run was started by the release tagged `${{ github.event.release.tag_name }}`. That release is the only one you check.
+
+- Read it with `get_release_by_tag` and exactly that tag, and use its notes. If the tool returns nothing, call `noop` and say so. Do not look at any other release.
+- Never use `get_latest_release`. It skips prereleases and returns the newest stable release, which is not the release that started this run.
+- A prerelease is a release. Check it the same way.
+
+## Which issues to check
+
+Issues that wait for a release are usually **closed**: the pipeline closes an issue when its pull request merges and then adds `waiting-for-release`. Open issues with the label are the ones that wait on a related repository.
+
+List issues with `waiting-for-release` in both states. Call `list_issues` with `state: CLOSED` and again with `state: OPEN`, and check every issue from both lists. Never search only open issues, and never skip an issue because it is closed.
+
 ## This repository owns the fix
 
 Find issues with `waiting-for-release` that this release includes.
