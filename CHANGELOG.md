@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v5.0.0-12] - 2026-10-23
 
 ### Added
-- Introduced `frodo journey validate` command for journey reference validation in tenant journeys and export files. Imports now validate by default and block on errors, with warnings remaining non-blocking unless `--strict` is used. (#871)
+- Added `frodo journey validate`, which checks journey references in tenant journeys (`-i` or `-a`) or in export files (`-f`, or `-A -D` for a directory of separate files). Every finding is reported. The command fails when there are errors; `--strict` makes warnings fail it too (#871).
+- Journey imports now validate journey references first. Errors stop the import; warnings are printed and do not. This applies to `frodo journey import`, `frodo config import`, `frodo config-manager push journeys` and `frodo promote`. Pass `--no-validate` to any of them to skip validation and restore the previous behavior; see [MIGRATION.md](https://github.com/rockcarver/frodo-cli/blob/v5.0.0-12/MIGRATION.md). Journey exports print a per-journey warning summary and are never blocked by validation findings (#871).
 
 ### Changed
 - Updated `frodo-lib` to version 5.0.0-12, which removes all function and constant exports from the package root, retaining only `frodo`, `state`, and `FrodoError`. This change requires CLI adaptations to use the `frodo` facade for library APIs. (#877)
