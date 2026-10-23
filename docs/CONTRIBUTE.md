@@ -114,18 +114,24 @@ Add the binary to your system path to make it easier to call from your terminal 
 
 ### Before submitting a PR
 
-Before you submit a PR, make sure your code follows the frodo code formatting conventions and all the existing and your new unit tests are passing.
+Before you submit a PR, make sure your code follows the frodo code formatting conventions, type checks, and all the existing and your new tests are passing.
 
 ```console
 npm run lint
+npx tsc --noEmit
+npm run build:only
 npm test
 ```
 
 `npm test` runs the full test suite against the npm build of this checkout
-(`node dist/launch.cjs`), building it on demand if missing — no platform
-binary or macOS signing step needed. CI additionally runs the same suite
-against the platform binary (`npm run test:binary`); if your change touches
-the binary packaging or startup path, you can run that locally too:
+(`node dist/launch.cjs`, started through the shim in `test/e2e/shims`). The
+test scripts do not build or rebuild it: run `npm run build:only` (or
+`npx tsdown`, about 2 seconds) first, and again after every change to
+`src/`, or the CLI-level tests (client_cli, e2e, PTY) run the old code. CI
+additionally runs the same suite against the platform binary
+(`npm run test:binary`, which builds `dist-sea/frodo` if it is missing); if
+your change touches the binary packaging or startup path, you can run that
+locally too:
 
 ```console
 npm run test:binary
@@ -135,38 +141,49 @@ npm run test:binary
 
 PRs merge into `main` through ordinary pull requests once the required CI checks pass; the previous `integration` batch-merge workflow has been retired.
 
+Do not edit `CHANGELOG.md` in a PR. It is generated at release time from what merged since the last release (the `Generate and promote AI changelog` step of `.github/workflows/pipeline.yml`), so give the PR a clear title and description. When a change removes or renames a command, alias or option, add it to [MIGRATION.md](../MIGRATION.md) (see "Maintaining This Guide" there).
+
 ### Code structure and conventions
 
 Frodo CLI adheres to the following folder and file structure:
 
 ```preformated
-├── dist                      Build output. CommonJS files go here.
+├── dist                      Build output (generated, gitignored). The bundled
+│                             CommonJS files; the entry point is dist/launch.cjs.
+├── dist-sea                  The native binary (generated, gitignored; npm run build).
 ├── docs                      Documentation files.
 ├── resources                 Resource files.
+├── scripts                   Build scripts (the native binary build).
 ├── src                       Source files.
-│   ├── cli                   CLI command files.
-│   │   ├── _template         Templates for new CLI commands.
-│   ├── help                  Help data files.
-│   ├── ops                   Ops layer modules. This is the library wrapper.
+│   ├── app.ts                The root program: registers the command groups.
+│   ├── cli                   CLI command files, one folder per command group.
+│   │   ├── _template         Templates for new CLI commands.
+│   ├── configManagerOps      Operations behind the config-manager commands.
+│   ├── help                  Sample values for the usage examples (SampleData.ts).
+│   ├── ops                   Ops layer modules. This is the library wrapper.
 │   │   │                     Business logic goes here.
-│   │   ├── cloud             Cloud ops layer modules.
-│   │   ├── templates         Templates of different object types and schema.
-│   │   └── utils             Ops layer utility modules.
-│   ├── storage               Global constants.
-│   └── utils                 Shared utility modules.
+│   │   ├── classic           Ops modules for classic deployments only.
+│   │   ├── cloud             Ops modules for cloud deployments only.
+│   │   ├── templates         Templates of different object types and schema.
+│   │   └── utils             Ops layer utility modules.
+│   └── utils                 Shared utility modules.
+│       └── interactive       Prompt components and pickers (the interactive layer).
 ├── test                      Tests and test resources.
-│   ├── client_cli            CLI output tests.
-│   │   └── en                English output tests.
-│   │       ├── __snapshots__ English output test snapshots.
-│   ├── e2e                   End-to-end tests.
-│   │   ├── __snapshots__     End-to-end test snapshots.
-│   │   ├── env               Test environment files.
-│   │   ├── exports           Export data for import tests.
-│   │   ├── mocks             Mock recordings (Polly.js).
-│   │   ├── test-data         Test data files.
-│   │   └── utils             Test utilities.
-│   ├── fs_tmp                Temp file directory for running tests.
-│   └── unit                  Unit tests.
+│   ├── client_cli            CLI output tests.
+│   │   └── en                English output tests.
+│   │       ├── __snapshots__ English output test snapshots.
+│   ├── e2e                   End-to-end tests.
+│   │   ├── __snapshots__     End-to-end test snapshots.
+│   │   ├── env               Test environment files.
+│   │   ├── exports           Export data for import tests.
+│   │   ├── mocks             Mock recordings (Polly.js).
+│   │   ├── shims             The frodo launcher the tests put on PATH (runs dist/).
+│   │   ├── test-data         Test data files.
+│   │   └── utils             Test utilities.
+│   ├── fs_tmp                Temp file directory for running tests.
+│   ├── unit                  Unit tests, PTY tests and the usage-examples check.
+│   └── utils                 Test harness for PTY tests.
+└── tools                     Test and release tooling.
 ```
 
 #### Code conventions
@@ -208,3 +225,19 @@ Some objects support status. Avoid using getters and setters for status if possi
 ##### Everything else
 
 Pick meaningful function names. It's OK for them to be long, as long as they convey their purpose.
+
+### Writing a command
+
+1. **Start from the template.** Copy `src/cli/_template/something.ts` (the command group) and the verb files you need (`something-list.ts`, `-describe`, `-export`, `-import`, `-delete`), rename them and delete what you do not need.
+2. **Use the usual verbs and options.** One kind of configuration artifact is one group with `list`, `describe`, `export`, `import` and `delete`. Export commands almost all use `-i, --<thing>-id`, `-f, --file`, `-a, --all`, `-A, --all-separate` and `-N, --no-metadata`; copy a neighbouring command rather than inventing new spellings.
+3. **Keep the command file thin.** A command is a `FrodoCommand('frodo <group> <verb>')`. Its action calls `command.handleDefaultArgsAndOpts(...)`, logs in with `getTokens()`, calls an ops function in `src/ops/` and sets `process.exitCode = 1` when the operation fails. Print through `src/utils/Console.ts` (`printMessage`, `verboseMessage`, `printError`) and take colors from `src/utils/ColorTheme.ts`.
+4. **Register it.** Add `program.addCommand(XxxCmd().name('xxx'))` to the group file (see `src/cli/journey/journey.ts`). A new group is imported and added in `src/app.ts`.
+5. **Add usage examples.** Every command has a `Usage Examples:` block, which `-hhh` shows. Add it with `.addHelpText('after', ...)` in the style of `frodo info` (`src/cli/info/info.ts`) and `frodo conn save` (`src/cli/conn/conn-save.ts`): one sentence saying what the example does, then the command, with one example per mode or option that matters and login variants (credentials, connection profile). Take the values from `src/help/SampleData.ts` and add constants there when you need them. Run every example against a build before you submit. `test/unit/UsageExamples.test.js` fails for a command without examples; commands that predate the rule are frozen in `test/unit/UsageExamplesLegacyExceptions.js`, a list that only shrinks: never add a command to it, and delete the line of a command you give examples.
+6. **Add tests.** `test/client_cli/en/<group>-<verb>.test.js` snapshots the `-h` output. A command that talks to a tenant also gets `test/e2e/<group>-<verb>.e2e.test.js` with recordings; see [test/e2e/README.md](../test/e2e/README.md). Logic in `src/ops/` that can be tested without a tenant gets a unit test in `test/unit`.
+7. **Document breaking changes** in [MIGRATION.md](../MIGRATION.md).
+
+If your command prompts the user, read "Layering: where interactive code lives" in [INTERACTIVE-COMMANDS.md](INTERACTIVE-COMMANDS.md) first.
+
+### Working with coding agents
+
+`AGENTS.md` at the repository root and the files in `.github/instructions/` give coding agents (GitHub Copilot and others) the short version of this guide: build and test commands, the hard rules, and checklists that load when a matching file is edited. They link back here; when a convention changes, change it here first and keep those files short.
