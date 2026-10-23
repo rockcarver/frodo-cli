@@ -87,7 +87,7 @@ describe('usage examples', () => {
     // Anchors: one command that has examples and one that is still legacy.
     expect(hasExamples.get('frodo info')).toBe(true);
     expect(hasExamples.get('frodo journey validate')).toBe(true);
-    expect(hasExamples.get('frodo journey export')).toBe(false);
+    expect(hasExamples.get('frodo journey export')).toBe(true);
   });
 
   it('gives every command that is not a legacy exception a Usage Examples block', () => {
