@@ -2,9 +2,9 @@
 name: "Concierge 2b Plan Triage"
 description: |
   Plan gate triage. Assigns complexity and risk.
-  Adds plan-approval-required when human approval is needed; does not hand off while that label is present.
+  Adds plan-approval-required for high complexity or high risk; does not hand off while that label is present.
   Reads repository-local complexity and risk definitions when present.
-if: ${{ github.event.issue.user.type != 'Bot' }}
+if: ${{ github.event.issue.state == 'open' && github.event.issue.user.type != 'Bot' }}
 on:
   issues:
     types: [labeled]
@@ -70,14 +70,17 @@ Read definitions in this order:
 3. Built-in defaults (low / medium / high as commonly understood for design impact and blast radius)
 
 ## Approval gate
-If complexity is high:
+If complexity is high, or risk is high, or both:
 - Add the label `plan-approval-required`.
 - Do **not** emit `plan-triage-handoff`.
-- Post a short comment: "High complexity. Remove the plan-approval-required label to resume."
+- Post a short comment that names the reason and then says how to resume:
+  - only complexity is high: "High complexity. Remove the plan-approval-required label to resume."
+  - only risk is high: "High risk. Remove the plan-approval-required label to resume."
+  - both are high: "High complexity and high risk. Remove the plan-approval-required label to resume."
 
 Otherwise emit `plan-triage-handoff`.
 
-You never resume a high-complexity issue yourself. When a maintainer removes `plan-approval-required`, a separate workflow (`plan-approval-resume`, no LLM) applies `plan-triage-handoff`.
+You never resume a high-complexity or high-risk issue yourself. When a maintainer removes `plan-approval-required`, a separate workflow (`plan-approval-resume`, no LLM) applies `plan-triage-handoff`.
 
 ## Dependency gate
 If the issue has the label `dependency-required`, do **not** emit `plan-triage-handoff`, whatever the classification. Say nothing about it in a comment. A watcher removes the label when the work the issue depends on is finished, and the issue then runs through the gates again.

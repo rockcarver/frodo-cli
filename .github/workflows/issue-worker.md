@@ -5,7 +5,7 @@ description: |
   Guides reporters only through comments; never mentions internal labels.
   Prefers the repository issue template as the definition of a complete issue.
   For split-repo projects, creates a linked canonical issue and marks the original with related-repo.
-if: ${{ github.event.issue.user.type != 'Bot' && github.event.comment.user.type != 'Bot' && github.event.issue.pull_request == null }}
+if: ${{ (github.event_name == 'workflow_dispatch' || github.event.issue.state == 'open') && github.event.issue.user.type != 'Bot' && github.event.comment.user.type != 'Bot' && github.event.issue.pull_request == null }}
 on:
   # Reporters are the audience of this gate and most of them have no write access, so gh-aw's
   # default role check (admin, maintainer, write) would skip their issues without a word. Every
@@ -147,6 +147,9 @@ An open pull request, or one closed without merging, is never evidence that some
 ### Missing information
 If required details are absent and the issue belongs here, end with a direct request that lists only the items still needed.
 
+### A fix is already in review
+Search the open pull requests for one that closes this issue (it names the issue with a closing keyword, or the issue lists it as linked). If there is one, say so plainly and link it: the change is waiting for review. That is not "already fixed", and the rule above still holds that an open pull request is no evidence of that. Add no gate label (see Signaling): something is already being implemented, so nothing should be planned or assigned. If that pull request is closed without merging, a later edit or comment starts the analysis again.
+
 ### Not urgent
 Urgency is about the request itself. Judge it as if every declared dependency, pending release or other change it waits on were already finished. Waiting for something is never a reason to call an issue not urgent, and never a reason to say that no work is planned.
 
@@ -162,4 +165,5 @@ A `Depends on:`, `Blocked by:`, or `Requires:` line is not a reason to withhold 
 
 ## Signaling (internal)
 - If the issue stays here: add `issue-worker-ready`, even when it declares a dependency that is not finished yet.
+- If an open pull request already closes the issue (see "A fix is already in review"): add no label at all, not even `issue-worker-ready`.
 - If you created or confirmed a linked canonical issue: add `related-repo` and do **not** add `issue-worker-ready`.
