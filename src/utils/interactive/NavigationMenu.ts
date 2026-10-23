@@ -150,14 +150,33 @@ export function frameInnerWidth(width = DEFAULT_FRAME_WIDTH): number {
 }
 
 /**
- * Word-wraps ONE logical line to `width` columns (ANSI stripped first, so
- * the measured text is the drawn text). Spacing between words is kept
- * (aligned "key:   text" columns survive a wrap), leading indentation
- * repeats on continuation rows, and a word longer than a whole row is
- * hard-split rather than pushed through the right wall.
+ * Word-wraps text to `width` columns (ANSI stripped first, so the measured
+ * text is the drawn text). Line breaks (LF, CRLF, CR) start a new logical
+ * line and tabs become four spaces, so log text, stack traces and other
+ * raw tenant strings can never carry a control character into a frame;
+ * blank lines and each line's own indentation survive. Within a logical
+ * line, spacing between words is kept (aligned "key:   text" columns
+ * survive a wrap), leading indentation repeats on continuation rows, and a
+ * word longer than a whole row is hard-split rather than pushed through
+ * the right wall. Always returns at least one row.
  */
 export function wrapLine(line: string, width: number): string[] {
-  const text = stripAnsi(line).trimEnd();
+  return stripAnsi(line)
+    .replace(/\t/g, '    ')
+    .trimEnd()
+    .split(/\r\n|\r|\n/)
+    .flatMap((logicalLine) => wrapLogicalLine(logicalLine, width));
+}
+
+/** The word-wrap for ONE logical line (no line breaks, no tabs, no ANSI). */
+function wrapLogicalLine(line: string, width: number): string[] {
+  // An indent as wide as the row leaves no room for text: drop it rather
+  // than hard-split every word into single characters.
+  const trimmed = line.trimEnd();
+  const text =
+    (/^\s*/.exec(trimmed)?.[0].length ?? 0) >= width
+      ? trimmed.trimStart()
+      : trimmed;
   if (text.length <= width) return [text];
   const indent = /^\s*/.exec(text)?.[0] ?? '';
   const room = Math.max(1, width - indent.length);
@@ -202,6 +221,26 @@ export function descriptionPanelLines(
 }
 
 /**
+ * One body row, made safe for the frame: a row that fits and carries no
+ * control character is returned as is; otherwise the drawn text is
+ * re-wrapped to `innerWidth` (see `wrapLine`) into plain rows.
+ */
+function fitFrameRow(
+  line: { text: string; plain: string },
+  innerWidth: number
+): { text: string; plain: string }[] {
+  const drawn = stripAnsi(line.text);
+  if (
+    !/[\r\n\t]/.test(drawn) &&
+    drawn.length <= innerWidth &&
+    line.plain.length <= innerWidth
+  ) {
+    return [line];
+  }
+  return wrapLine(drawn, innerWidth).map((row) => ({ text: row, plain: row }));
+}
+
+/**
  * One framed box renderer for all prompt-frame furniture (the Navigate
  * menu, every prompt's question+list panel, the inline value editor's
  * Value box): the title (a plain string, or a {text, plain} pair when it
@@ -218,6 +257,12 @@ export function descriptionPanelLines(
  * The renderer now measures the title on stripAnsi(title.text) itself,
  * so the pair is belt-and-braces: callers may still pass plain for
  * clarity, but a divergent plain can no longer skew the walls.
+ *
+ * No input can break the silhouette: a title wider than the top bar is cut
+ * with an ellipsis, and a body row that carries a line break or tab, or is
+ * wider than the box, is re-wrapped to rows that fit (plain -- a wrapped
+ * row cannot keep its colors). A row that already fits passes through
+ * untouched, colors included.
  */
 export function renderFramedBox(options: {
   title: string | { text: string; plain: string };
@@ -225,18 +270,24 @@ export function renderFramedBox(options: {
   lines: { text: string; plain: string }[];
   width?: number;
 }): string {
-  const { lines } = options;
-  const title =
+  const width = options.width ?? DEFAULT_FRAME_WIDTH;
+  const PADDING = FRAME_PADDING;
+  const innerWidth = frameInnerWidth(width);
+  const lines = options.lines.flatMap((line) => fitFrameRow(line, innerWidth));
+  const givenTitle =
     typeof options.title === 'string' ? { text: options.title } : options.title;
+  const title =
+    stripAnsi(givenTitle.text).length > innerWidth
+      ? {
+          text: `${stripAnsi(givenTitle.text).slice(0, innerWidth - 1)}…`,
+        }
+      : givenTitle;
   // One space between wall and title content on both sides -- the
   // Navigate menu's ' Navigate ' convention, applied to every box.
   // Measured on the STRIPPED TEXT: one source of truth, the walls can
   // never drift from what is drawn.
   const titleText = ` ${title.text} `;
   const titlePlain = ` ${stripAnsi(title.text)} `;
-  const width = options.width ?? DEFAULT_FRAME_WIDTH;
-  const PADDING = FRAME_PADDING;
-  const innerWidth = frameInnerWidth(width);
   const top = `┌${titleText}${'─'.repeat(Math.max(0, innerWidth + PADDING * 2 - titlePlain.length))}┐`;
   const bottom = `└${'─'.repeat(innerWidth + PADDING * 2)}┘`;
   const body = lines

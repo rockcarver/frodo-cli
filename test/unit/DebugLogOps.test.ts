@@ -43,6 +43,53 @@ describe('formatDebugEvent - debug-log lines (am-core, no component/eventName)',
     ).toBeUndefined();
   });
 
+  it('falls back to the exception headline, one line, when there is no message', () => {
+    const { message: _message, ...noMessage } = amCoreLine;
+    const line = formatDebugEvent(
+      event({
+        ...noMessage,
+        exception:
+          'TypeError: Cannot call method "get" of null (script#62)\n\tat java.base/java.util.concurrent.FutureTask.report(FutureTask.java:124)\n\tat org.forgerock.openam.scripting.ThreadPoolScriptEvaluator.evaluateScript(ThreadPoolScriptEvaluator.java:98)',
+      }),
+      'all'
+    );
+    expect(line).toBe(
+      'ERROR ScriptedDecisionNode: TypeError: Cannot call method "get" of null (script#62)'
+    );
+  });
+
+  it('skips leading blank lines when picking the exception headline', () => {
+    const { message: _message, ...noMessage } = amCoreLine;
+    expect(
+      formatDebugEvent(
+        event({ ...noMessage, exception: '\n  \nRealError: x\n\tat y' }),
+        'all'
+      )
+    ).toBe('ERROR ScriptedDecisionNode: RealError: x');
+  });
+
+  it('bounds a very long exception headline', () => {
+    const { message: _message, ...noMessage } = amCoreLine;
+    const line = formatDebugEvent(
+      event({ ...noMessage, exception: 'x'.repeat(500) }),
+      'all'
+    );
+    expect(line).toBe(`ERROR ScriptedDecisionNode: ${'x'.repeat(159)}…`);
+  });
+
+  it('collapses line breaks and tabs inside a message to one line', () => {
+    const line = formatDebugEvent(
+      event({
+        ...amCoreLine,
+        message: 'first problem\n\tsecond problem\r\nthird problem',
+      }),
+      'all'
+    );
+    expect(line).toBe(
+      'ERROR ScriptedDecisionNode: first problem second problem third problem'
+    );
+  });
+
   it('warns render too, with the same shape', () => {
     expect(
       formatDebugEvent(
