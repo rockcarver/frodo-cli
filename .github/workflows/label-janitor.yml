@@ -40,8 +40,14 @@ permissions:
   issues: write
   pull-requests: write
 
+# GitHub keeps one running and one pending run per group and cancels the older pending run when
+# a newer one arrives. Triage adds several labels in the same second (complexity, risk, handoff).
+# A run for a label that cannot change anything still takes its group's slot before its job is
+# skipped, so with one group per item it can cancel the run that does the work (seen on
+# frodo-lib#771). The label name in the key gives every label event its own group. The script
+# reads the item's current labels and every removal is idempotent, so runs may overlap.
 concurrency:
-  group: label-janitor-${{ github.event.issue.number || github.event.pull_request.number || inputs.issue_number || 'sweep' }}
+  group: label-janitor-${{ github.event.issue.number || github.event.pull_request.number || inputs.issue_number || 'sweep' }}-${{ github.event.label.name }}
   cancel-in-progress: false
 
 jobs:

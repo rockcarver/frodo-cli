@@ -3,13 +3,18 @@ name: "Concierge 3c PR Triage"
 description: |
   PR gate triage. Runs when the coding agent signals completion with pr-worker-ready.
 on:
-  pull_request:
+  pull_request_target:
     types: [labeled]
-    names: [pr-worker-ready]
+if: >-
+  github.event.label.name == 'pr-worker-ready'
+  && github.event.pull_request.head.repo.id == github.repository_id
+checkout: false
 permissions:
   contents: read
   pull-requests: read
   issues: read
+  checks: read
+  statuses: read
 safe-outputs:
   add-labels:
     issue-intent: false
@@ -49,6 +54,8 @@ Prefer concrete signals:
 - Paths touched (auth, security, migrations, public API → raise risk)
 - Number of files and size of the diff
 - Whether the change matches or exceeds the earlier plan
+
+Read the pull request's check results and review state if your tools provide them. If a check is failing or still running, say so in the comment and make fixing or awaiting it the recommended next action. Triage classifies size and risk, not whether CI has passed, so still emit `pr-triage-handoff`. If you cannot read the checks, write "CI state not checked". Never infer it.
 
 Emit `pr-triage-handoff` when triage is complete. That label signals that merge rules (branch protection, auto-merge, required reviews) may now act on the final classification.
 
