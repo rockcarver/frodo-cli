@@ -83,14 +83,15 @@ When the current issue clearly belongs in a related repository (per the `when` t
 The `secret` field on that entry names the Actions secret the workflow uses to create the issue. You do not use the secret. You only create the issue in the related repository.
 
 1. Create a new issue in that related repository (the canonical issue) via the create-issue safe-output.
+   - Set `temporary_id` to exactly `aw_canonical`. Do not choose another id and do not leave it out.
    - Title: same as the original, or a clear summary.
-   - Body: include the original report and a line `Reported from {owner}/{repo}#{number}`.
+   - Body: include the original report and a line `Reported from {owner}/{repo}#{number}`. This is the original issue, whose number you know.
 2. On the original (non-canonical) issue:
-   - Post a plain-language comment.
+   - Post a plain-language comment. You cannot know the new issue's number yet, so refer to it only as `#aw_canonical`. Write exactly that token: no owner or repository in front of it, no number of your own, and never another `#aw_` id. After the issue is created the system replaces `#aw_canonical` with the full reference (`owner/repo#number`).
      If the related entry has `release.requires_consumer_release: true`:
-     "This is being tracked in {owner}/{repo}#{number}. A release of this project that includes that fix will be needed before this is resolved."
+     "This is being tracked in #aw_canonical. A release of this project that includes that fix will be needed before this is resolved."
      Otherwise:
-     "This is being tracked in {owner}/{repo}#{number}. We will update this issue when that work is finished."
+     "This is being tracked in #aw_canonical. We will update this issue when that work is finished."
    - Add the internal label `related-repo`.
    - Do **not** add `issue-worker-ready`.
 3. On the new canonical issue, post a short comment: "Opened from {owner}/{repo}#{number}."
