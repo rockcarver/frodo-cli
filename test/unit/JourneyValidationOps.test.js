@@ -17,6 +17,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     utils: {
       constants: { DEFAULT_REALM_KEY: '__default__realm__' },
       getFilePath: (file) => path.join(workingDirectory, file),
+      getWorkingDirectory: () => workingDirectory,
     },
   },
   state: {
@@ -33,9 +34,8 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage,
 }));
 
-const { validateJourneyExports } = await import(
-  '../../src/ops/JourneyValidationOps'
-);
+const { validateJourneyExports } =
+  await import('../../src/ops/JourneyValidationOps');
 
 describe('validateJourneyExports', () => {
   beforeEach(() => {
@@ -70,25 +70,6 @@ describe('validateJourneyExports', () => {
       '1 warning in journey login',
       'warn'
     );
-    expect(printMessage).not.toHaveBeenCalledWith(
-      expect.stringContaining('[UNREACHABLE_NODE]'),
-      'warn'
-    );
-  });
-
-  test('prints finding details in verbose mode', async () => {
-    verbose = true;
-    validateJourneys.mockResolvedValue([
-      {
-        code: 'UNREACHABLE_NODE',
-        severity: 'warning',
-        journeyId: 'login',
-        message: 'Node debug is unreachable',
-      },
-    ]);
-
-    await expect(validateJourneyExports(['login'])).resolves.toBe(true);
-
     expect(printMessage).toHaveBeenCalledWith(
       '  [UNREACHABLE_NODE] Node debug is unreachable',
       'warn'
@@ -104,13 +85,15 @@ describe('validateJourneyExports', () => {
         message: 'Node debug is unreachable',
       },
     ]);
-    await expect(validateJourneyExports(undefined, undefined, true)).resolves
-      .toBe(false);
+    await expect(
+      validateJourneyExports(undefined, undefined, true)
+    ).resolves.toBe(false);
     expect(printMessage).toHaveBeenCalledWith(
       '1 warning in journey login (strict mode treats warnings as errors)',
       'warn'
     );
 
+    printMessage.mockClear();
     validateJourneys.mockResolvedValue([
       {
         code: 'MISSING_ENTRY_NODE',
@@ -118,8 +101,24 @@ describe('validateJourneyExports', () => {
         journeyId: 'broken',
         message: 'Entry node is missing',
       },
+      {
+        code: 'UNREACHABLE_NODE',
+        severity: 'warning',
+        journeyId: 'broken',
+        message: 'Debug node is unreachable',
+      },
     ]);
-    await expect(validateJourneyExports()).resolves.toBe(false);
+    await expect(
+      validateJourneyExports(undefined, undefined, true)
+    ).resolves.toBe(false);
+    expect(printMessage).toHaveBeenCalledWith(
+      '1 error and 1 warning in journey broken',
+      'error'
+    );
+    expect(printMessage).not.toHaveBeenCalledWith(
+      expect.stringContaining('strict mode treats warnings as errors'),
+      'error'
+    );
   });
 
   test.each([
@@ -143,20 +142,23 @@ describe('validateJourneyExports', () => {
         innerNodes: { inner: { _id: 'inner' } },
       },
     ],
-  ])('wraps a single %s journey export for offline validation', async (name, journey) => {
-    fs.writeFileSync(
-      path.join(workingDirectory, `${name}.json`),
-      JSON.stringify(journey)
-    );
+  ])(
+    'wraps a single %s journey export for offline validation',
+    async (name, journey) => {
+      fs.writeFileSync(
+        path.join(workingDirectory, `${name}.json`),
+        JSON.stringify(journey)
+      );
 
-    await expect(
-      validateJourneyExports(undefined, `${name}.json`)
-    ).resolves.toBe(true);
+      await expect(
+        validateJourneyExports(undefined, `${name}.json`)
+      ).resolves.toBe(true);
 
-    expect(validateJourneys).toHaveBeenCalledWith(undefined, {
-      trees: { [name]: journey },
-    });
-  });
+      expect(validateJourneys).toHaveBeenCalledWith(undefined, {
+        trees: { [name]: journey },
+      });
+    }
+  );
 
   test('passes multi-journey export files to the library unchanged', async () => {
     const journeys = {
@@ -198,5 +200,35 @@ describe('validateJourneyExports', () => {
     expect(validateJourneys).toHaveBeenCalledWith(undefined, {
       trees: journeys,
     });
+  });
+
+  test('reports duplicate journey IDs across separate files', async () => {
+    const journey = { tree: { _id: 'duplicate' } };
+    fs.writeFileSync(
+      path.join(workingDirectory, 'first.journey.json'),
+      JSON.stringify(journey)
+    );
+    fs.writeFileSync(
+      path.join(workingDirectory, 'second.journey.json'),
+      JSON.stringify(journey)
+    );
+
+    await expect(
+      validateJourneyExports(undefined, undefined, false, '.')
+    ).resolves.toBe(false);
+
+    expect(printMessage).toHaveBeenCalledWith(
+      expect.stringContaining('Duplicate journey ID "duplicate"'),
+      'error'
+    );
+    expect(printMessage).toHaveBeenCalledWith(
+      expect.stringContaining('first.journey.json'),
+      'error'
+    );
+    expect(printMessage).toHaveBeenCalledWith(
+      expect.stringContaining('second.journey.json'),
+      'error'
+    );
+    expect(validateJourneys).not.toHaveBeenCalled();
   });
 });

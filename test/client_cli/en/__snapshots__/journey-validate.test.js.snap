@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'journey validate' should be expected english 1`] = `
 "Usage: frodo journey validate [options] [host] [realm] [username] [password]
 
-Validate journey references.
+Validate journey references and report each finding.
 
 Arguments:
   host                        AM base URL, e.g.: https://cdk.iam.example.com/am.
@@ -24,8 +24,8 @@ Arguments:
 
 Options:
   -a, --all                   Validate all journeys/trees.
-  -A, --all-separate          Validate journeys/trees from separate files in a
-                              directory.
+  -A, --all-separate          Validate all journeys/trees from separate files in
+                              a directory.
   -f, --file <file>           Name of the journey export file to validate.
   -i, --journey-id <journey>  Name of a journey/tree. If specified, -a is
                               ignored.
@@ -34,9 +34,5 @@ Options:
   -hh, --help-more            Help with all options.
   -hhh, --help-all            Help with all options, environment variables, and
                               usage examples.
-
-Rule:
-  one of -i, --journey-id <journey> | -a, --all is required -- choose which journeys to validate
-
 "
 `;

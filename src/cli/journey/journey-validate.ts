@@ -1,14 +1,14 @@
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { validateJourneyExports } from '../../ops/JourneyValidationOps';
-import { verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
   const program = new FrodoCommand('frodo journey validate');
 
   program
-    .description('Validate journey references.')
+    .description('Validate journey references and report each finding.')
     .addOption(
       new Option(
         '-i, --journey-id <journey>',
@@ -25,14 +25,10 @@ export default function setup() {
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Validate journeys/trees from separate files in a directory.'
+        'Validate all journeys/trees from separate files in a directory.'
       )
     )
     .addOption(new Option('--strict', 'Treat warnings as validation failures.'))
-    .requireOneOf({
-      options: ['journeyId', 'all'],
-      purpose: 'which journeys to validate',
-    })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -43,11 +39,18 @@ export default function setup() {
         command
       );
 
-      if (
-        (options.allSeparate && !options.directory) ||
-        (options.directory && !options.allSeparate) ||
-        (options.file && options.allSeparate)
-      ) {
+      const invalidCombination =
+        options.allSeparate && !options.directory
+          ? '-A requires -D <directory>.'
+          : options.file && options.allSeparate
+            ? '-f cannot be combined with -A.'
+            : options.directory && !options.file && !options.allSeparate
+              ? '-D requires -f or -A.'
+              : !options.allSeparate && !options.journeyId && !options.all
+                ? 'Specify -i or -a to select journeys; -A -D validates all directory journeys.'
+                : undefined;
+      if (invalidCombination) {
+        printMessage(`Error: ${invalidCombination}`, 'error');
         process.exitCode = 1;
         return;
       }
@@ -64,7 +67,7 @@ export default function setup() {
         options.journeyId ? [options.journeyId] : undefined,
         options.file,
         options.strict,
-        options.directory
+        options.allSeparate ? options.directory : undefined
       );
       if (!outcome) process.exitCode = 1;
     });

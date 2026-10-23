@@ -1,4 +1,3 @@
-import fs from 'fs';
 import {
   frodo,
   FrodoError,
@@ -30,7 +29,10 @@ import * as Node from './NodeOps';
 import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
 import * as Theme from './ThemeOps';
-import { readJourneyExportFromFile } from './utils/JourneyExportUtils';
+import {
+  readJourneyExportFromFile,
+  readJourneyExportsFromDirectory,
+} from './utils/JourneyExportUtils';
 import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
@@ -511,26 +513,19 @@ export async function importJourneysFromFiles(
   options: TreeImportOptions
 ): Promise<boolean> {
   try {
-    const names = fs.readdirSync(getWorkingDirectory());
-    const jsonFiles = names
-      .filter((name) => name.toLowerCase().endsWith('.journey.json'))
-      .map((name) => getFilePath(name));
-    const allJourneysData: MultiTreeExportInterface = { trees: {} };
-    for (const file of jsonFiles) {
-      const fileObj = JSON.parse(fs.readFileSync(file, 'utf8'));
-      if (fileObj?.trees && typeof fileObj.trees === 'object') {
-        for (const [id, obj] of Object.entries(fileObj.trees)) {
-          allJourneysData.trees[id] = obj as SingleTreeExportInterface;
-        }
-      } else if (fileObj?.tree?._id) {
-        allJourneysData.trees[fileObj.tree._id] =
-          fileObj as SingleTreeExportInterface;
-      } else {
-        printMessage(
-          `Skipping unsupported journey file format: ${file}`,
-          'warn'
-        );
-      }
+    const {
+      journeysExport: allJourneysData,
+      duplicateJourneyIds,
+      unsupportedFiles,
+    } = readJourneyExportsFromDirectory();
+    for (const file of unsupportedFiles) {
+      printMessage(`Skipping unsupported journey file format: ${file}`, 'warn');
+    }
+    for (const duplicate of duplicateJourneyIds) {
+      printMessage(
+        `Duplicate journey ID "${duplicate.journeyId}" found in ${duplicate.firstFile} and ${duplicate.duplicateFile}.`,
+        'warn'
+      );
     }
     if (Object.keys(allJourneysData.trees).length === 0) {
       throw new FrodoError(

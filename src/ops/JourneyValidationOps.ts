@@ -1,4 +1,3 @@
-import fs from 'fs';
 import {
   frodo,
   state,
@@ -6,7 +5,10 @@ import {
   type MultiTreeExportInterface,
 } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
-import { readJourneyExportFromFile } from './utils/JourneyExportUtils';
+import {
+  readJourneyExportFromFile,
+  readJourneyExportsFromDirectory,
+} from './utils/JourneyExportUtils';
 
 export async function validateJourneyExports(
   journeyIds?: string[],
@@ -25,14 +27,25 @@ export async function validateJourneyExports(
     if (file) {
       journeysExport = readJourneyExportFromFile(file);
     } else if (directory) {
-      const { getFilePath } = frodo.utils;
-      journeysExport = { trees: {} };
-      for (const name of fs
-        .readdirSync(getFilePath(''))
-        .filter((entry) => entry.toLowerCase().endsWith('.journey.json'))) {
-        const journeyFile = readJourneyExportFromFile(name);
-        Object.assign(journeysExport.trees, journeyFile.trees);
+      const {
+        journeysExport: directoryExport,
+        duplicateJourneyIds,
+        unsupportedFiles,
+      } = readJourneyExportsFromDirectory();
+      for (const fileName of unsupportedFiles) {
+        printMessage(
+          `Skipping unsupported journey file format: ${fileName}`,
+          'warn'
+        );
       }
+      for (const duplicate of duplicateJourneyIds) {
+        printMessage(
+          `Duplicate journey ID "${duplicate.journeyId}" found in ${duplicate.firstFile} and ${duplicate.duplicateFile}.`,
+          'error'
+        );
+      }
+      if (duplicateJourneyIds.length) return false;
+      journeysExport = directoryExport;
       if (Object.keys(journeysExport.trees).length === 0) {
         throw new Error(`No journeys found in ${directory}`);
       }
@@ -48,6 +61,7 @@ export async function validateJourneyExports(
     }
 
     const findingsByJourney = new Map<string, JourneyValidationFinding[]>();
+    const hasErrors = findings.some((finding) => finding.severity === 'error');
     for (const finding of findings) {
       const journeyFindings = findingsByJourney.get(finding.journeyId) ?? [];
       journeyFindings.push(finding);
@@ -66,18 +80,18 @@ export async function validateJourneyExports(
         .filter(Boolean)
         .join(' and ');
       const strictMessage =
-        strict && warnings ? ' (strict mode treats warnings as errors)' : '';
+        strict && !hasErrors && warnings
+          ? ' (strict mode treats warnings as errors)'
+          : '';
       printMessage(
         `${summary} in journey ${journeyId}${strictMessage}`,
         errors ? 'error' : 'warn'
       );
-      if (state.getVerbose()) {
-        for (const finding of journeyFindings) {
-          printMessage(
-            `  [${finding.code}] ${finding.message}`,
-            finding.severity === 'error' ? 'error' : 'warn'
-          );
-        }
+      for (const finding of journeyFindings) {
+        printMessage(
+          `  [${finding.code}] ${finding.message}`,
+          finding.severity === 'error' ? 'error' : 'warn'
+        );
       }
     }
 
