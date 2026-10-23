@@ -7,6 +7,10 @@ description: |
   For split-repo projects, creates a linked canonical issue and marks the original with related-repo.
 if: ${{ github.event.issue.user.type != 'Bot' && github.event.comment.user.type != 'Bot' && github.event.issue.pull_request == null }}
 on:
+  # Reporters are the audience of this gate and most of them have no write access, so gh-aw's
+  # default role check (admin, maintainer, write) would skip their issues without a word. Every
+  # other gate keeps the default: they start from a label added with write access.
+  roles: all
   issues:
     types: [opened, reopened, edited]
   issue_comment:
@@ -20,9 +24,9 @@ on:
 concurrency:
   job-discriminator: ${{ github.run_id }}
 user-rate-limit:
-  max-runs-per-window: 3
+  max-runs-per-window: 5
   window: 30
-  events: [issue_comment]
+  events: [issues, issue_comment]
 engine:
   id: copilot
   model: small
