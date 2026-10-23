@@ -4,31 +4,34 @@
 # told to add it but its GitHub tools do not write labels, so this workflow adds it for
 # the agent, with SIGNAL_TOKEN so the label event starts PR triage.
 #
-# Three automatic triggers, and a manual one. They are deliberately redundant while it is
-# learned which of them reliably fires; each run logs which one it was, and the label is
-# only ever added once (adding a label that is already there starts nothing):
-#   review_requested  the coding agent asks for review when it finishes
-#   agent_run         the coding agent's own run completed. UNVERIFIED: the agent's runs are
-#                     "dynamic" workflows and GitHub may not deliver workflow_run for them
+# How it learns the agent has finished: a sweep every 15 minutes reads each open coding
+# agent pull request's timeline (`copilot_work_started` and `copilot_work_finished`) and
+# signals when the latest session has finished and no `pr-worker-ready` label has been
+# applied since. That needs no event from the agent. Why not events (measured on
+# frodo-lib#771): the agent's review request starts a run that waits for a maintainer's
+# approval like any run the agent causes, and `workflow_run` is never delivered for the
+# agent's own "dynamic" runs. Triggers:
+#   schedule          the sweep above (up to 15 minutes after the agent finishes)
 #   ready_for_review  a maintainer took the draft out of draft
-#   manual            workflow_dispatch with a pull request number
+#   workflow_dispatch a person runs it: with a pull request number for that one, without
+#                     one for a sweep (and dry_run to only report)
 #
 # Install: copy this file to .github/workflows/pr-ready-signal.yml and
 # scripts/pr-ready-signal.mjs to .github/scripts/pr-ready-signal.mjs (it imports
-# label-janitor.mjs, so install that too). Needs the repository secret SIGNAL_TOKEN.
+# label-janitor.mjs, so install that too). Needs the repository secret SIGNAL_TOKEN with
+# Issues and Pull requests: Read and write (a pull request is labelled through the issues API).
 name: "Concierge 3b ▸ PR Ready Signal"
 
 on:
   pull_request_target:
-    types: [review_requested, ready_for_review]
-  workflow_run:
-    workflows: ["Running Copilot cloud agent"]
-    types: [completed]
+    types: [ready_for_review]
+  schedule:
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       pr_number:
-        description: "Pull request to signal as ready for triage"
-        required: true
+        description: "Signal this pull request (leave empty to sweep every open coding agent pull request)"
+        required: false
         type: string
       dry_run:
         description: "Report what would happen, change nothing"
@@ -42,29 +45,21 @@ permissions:
   issues: read
 
 concurrency:
-  group: pr-ready-signal-${{ github.event.pull_request.number || github.event.workflow_run.head_branch || inputs.pr_number }}
+  group: pr-ready-signal-${{ github.event.pull_request.number || inputs.pr_number || 'sweep' }}
   cancel-in-progress: false
 
 jobs:
   signal:
-    # A review request starts the job only when the coding agent made it.
-    if: >-
-      github.event_name != 'pull_request_target'
-      || github.event.action != 'review_requested'
-      || startsWith(github.event.sender.login, 'copilot')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Signal that the pull request is ready for triage
+      - name: Signal that pull requests are ready for triage
         env:
           GH_TOKEN: ${{ github.token }}
           # Label changes made with this token start PR triage.
           SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
-          TRIGGER: ${{ github.event_name == 'workflow_run' && 'agent_run' || github.event_name == 'workflow_dispatch' && 'manual' || github.event.action }}
-          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number || github.event.workflow_run.pull_requests[0].number }}
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-          SENDER: ${{ github.event.sender.login }}
-          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          TRIGGER: ${{ github.event_name == 'workflow_dispatch' && 'manual' || github.event.action }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: node .github/scripts/pr-ready-signal.mjs
