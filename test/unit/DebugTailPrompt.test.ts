@@ -105,6 +105,16 @@ describe('buildTailRows (panel rendering)', () => {
     expect(rejoined).toContain('OAuth2 GET /very/long/path');
   });
 
+  it('defaults to the default frame width (116 columns inside the frame)', () => {
+    const fits = 'x'.repeat(116 - 11); // timestamp column + text exactly fills the row
+    expect(
+      buildTailRows([{ timestamp: '2026-10-15T01:23:45Z', line: fits }])
+    ).toHaveLength(1);
+    expect(
+      buildTailRows([{ timestamp: '2026-10-15T01:23:45Z', line: fits + 'y' }])
+    ).toHaveLength(2);
+  });
+
   it('keeps every row within the given inner width', () => {
     const events = Array.from({ length: 5 }, (_, i) => ({
       timestamp: '2026-10-15T01:23:4' + i + 'Z',

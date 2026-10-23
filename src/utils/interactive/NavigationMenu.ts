@@ -1,4 +1,5 @@
 import c from '../ColorTheme';
+import { truncate } from '../TextLayout';
 
 /**
  * The navigation menu (docs/INTERACTIVE-COMMANDS.md): a framed box at
@@ -14,10 +15,14 @@ import c from '../ColorTheme';
  *   `positive` (the committing action);
  * - exit (esc) -- `negative` (the backing-out action).
  *
- * Zero-import aside from the theme (same constraint as EditableOptions):
- * every prompt module renders this, so it must not drag frodo-lib
- * graphs into tests that mock frodo-lib wholesale.
+ * Zero-import aside from the theme and the pure text helpers in
+ * `../TextLayout` (same constraint as EditableOptions): every prompt
+ * module renders this, so it must not drag frodo-lib graphs into tests
+ * that mock frodo-lib wholesale.
  */
+
+/** One framed body row: `text` is what draws (colored), `plain` mirrors it ANSI-free -- the honest pair every renderer measures. */
+export type PanelRow = { text: string; plain: string };
 
 /**
  * The direction keys as the bar draws them: Unicode medium triangles
@@ -136,7 +141,7 @@ export function stripAnsi(text: string): string {
 }
 
 /** The columns every frame is drawn at unless the caller says otherwise. */
-const DEFAULT_FRAME_WIDTH = 120;
+export const DEFAULT_FRAME_WIDTH = 120;
 const FRAME_BORDER = 2; // the │ ... │ walls
 const FRAME_PADDING = 1; // one space inside each border
 
@@ -212,7 +217,7 @@ function wrapLogicalLine(line: string, width: number): string[] {
 export function descriptionPanelLines(
   description: string,
   width = DEFAULT_FRAME_WIDTH
-): { text: string; plain: string }[] {
+): PanelRow[] {
   const inner = frameInnerWidth(width);
   return description
     .split('\n')
@@ -225,10 +230,7 @@ export function descriptionPanelLines(
  * control character is returned as is; otherwise the drawn text is
  * re-wrapped to `innerWidth` (see `wrapLine`) into plain rows.
  */
-function fitFrameRow(
-  line: { text: string; plain: string },
-  innerWidth: number
-): { text: string; plain: string }[] {
+function fitFrameRow(line: PanelRow, innerWidth: number): PanelRow[] {
   const drawn = stripAnsi(line.text);
   if (
     !/[\r\n\t]/.test(drawn) &&
@@ -267,7 +269,7 @@ function fitFrameRow(
 export function renderFramedBox(options: {
   title: string | { text: string; plain: string };
   /** Body lines, already colored; measured on their plain text. */
-  lines: { text: string; plain: string }[];
+  lines: PanelRow[];
   width?: number;
 }): string {
   const width = options.width ?? DEFAULT_FRAME_WIDTH;
@@ -278,9 +280,7 @@ export function renderFramedBox(options: {
     typeof options.title === 'string' ? { text: options.title } : options.title;
   const title =
     stripAnsi(givenTitle.text).length > innerWidth
-      ? {
-          text: `${stripAnsi(givenTitle.text).slice(0, innerWidth - 1)}…`,
-        }
+      ? { text: truncate(stripAnsi(givenTitle.text), innerWidth) }
       : givenTitle;
   // One space between wall and title content on both sides -- the
   // Navigate menu's ' Navigate ' convention, applied to every box.

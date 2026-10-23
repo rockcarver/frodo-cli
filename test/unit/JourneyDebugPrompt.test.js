@@ -6,6 +6,7 @@ import {
   it,
   jest,
 } from '@jest/globals';
+import { assertFrame } from '../utils/FrameAssertions.js';
 
 let renderPrompt;
 let keypress;
@@ -90,14 +91,6 @@ function setTerminal(columns, isTTY = true) {
 function render(config = {}) {
   stateIndex = 0;
   return renderPrompt(config, () => {});
-}
-
-function assertFrame(output, width) {
-  expect(output).not.toContain('Internal error');
-  for (const line of output.split('\n')) {
-    expect(line.length).toBe(width);
-    expect(line).toMatch(/^[┌│└].*[┐│┘]$/);
-  }
 }
 
 const exception = [
