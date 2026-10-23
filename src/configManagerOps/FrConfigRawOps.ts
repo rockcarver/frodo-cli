@@ -1,6 +1,12 @@
 import fs from 'fs';
 import { readFile } from 'fs/promises';
-import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import os from 'os';
+import path from 'path';
+import {
+  frodo,
+  FrodoError,
+  type IdObjectSkeletonInterface,
+} from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printError,
@@ -8,6 +14,7 @@ import {
   verboseMessage,
 } from '../utils/Console';
 import { clearOperationalAttributes } from '../utils/FrConfig';
+import { readStdinToEndSync } from '../utils/StdinSync';
 
 const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
   frodo.utils;
@@ -41,6 +48,30 @@ export async function configManagerExportRaw(file: string): Promise<boolean> {
 }
 
 /**
+ * The raw configuration piped in on standard input.
+ *
+ * The text is read by the shared stdin helper (`utils/StdinSync.ts`), which
+ * waits for a slow producer instead of failing with EAGAIN, and then goes
+ * through frodo-lib's `readJsonFile` like any config file, so placeholders
+ * are resolved exactly as they are for files. `readJsonFile` only takes a
+ * path or a file descriptor, hence the short-lived private file (a 0700
+ * directory, a 0600 file, removed again in every case).
+ */
+function readRawConfigFromStdin(): IdObjectSkeletonInterface {
+  const text = readStdinToEndSync();
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-stdin-'));
+  try {
+    const file = path.join(dir, 'stdin.json');
+    fs.writeFileSync(file, text, { mode: 0o600 });
+    return readJsonFile(file) as IdObjectSkeletonInterface;
+  } catch (error) {
+    throw new FrodoError('Error reading JSON from stdin', error);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+/**
  * Import all raw configuration exported in fr-config-manager format
  * @param {string} path optional flag to import only the specific configuration
  * @param {boolean} stdin True to read config from stdin
@@ -57,7 +88,7 @@ export async function configManagerImportRaw(
   );
   try {
     if (stdin) {
-      const data = readJsonFile(process.stdin.fd) as IdObjectSkeletonInterface;
+      const data = readRawConfigFromStdin();
       clearOperationalAttributes(data);
       await importRawConfig({ path }, data);
       stopProgressIndicator(
