@@ -152,6 +152,96 @@ afterEach(() => {
 });
 
 describe('journey debug frames', () => {
+  it.each([156, 120, 100, 80, 60])(
+    'keeps realistic list entries to one aligned row per journey at %i columns',
+    (width) => {
+      setTerminal(width);
+      loadSession();
+      const session = states[1][0];
+      const reason =
+        'ReferenceError: "x" is not defined (Success URL - Goto:62) because something went wrong during script evaluation';
+      states[1] = [
+        {
+          ...session,
+          treeName: 'Registration-with-a-rather-long-name',
+          user: 'bob.jones@example.com',
+          failureReason: reason,
+        },
+        {
+          ...session,
+          transactionId: 'transaction-2',
+          treeName: 'Login',
+          user: 'volker.scheuber@example.com',
+          failureReason:
+            'java.lang.NullPointerException\n\tat com.example.Foo.bar(Foo.java:12)',
+        },
+      ];
+      const output = render();
+      assertFrame(output, width);
+      const lines = output.split('\n');
+      const headerIndex = lines.findIndex((line) => line.includes('STATUS'));
+      const header = lines[headerIndex];
+      const rows = lines.slice(headerIndex + 1, -1);
+      expect(rows).toHaveLength(states[1].length);
+      const journeyStart = header.indexOf('JOURNEY');
+      const userStart = header.indexOf('USER');
+      const ageStart = header.indexOf('AGE');
+      const detailStart = header.indexOf('DETAIL');
+      for (const [index, row] of rows.entries()) {
+        expect(row.slice(journeyStart, userStart).trim()).toBe(
+          index === 0
+            ? width >= 100
+              ? 'Registration-with-a-rather-…'
+              : width === 80
+                ? 'Registra…'
+                : 'Regist…'
+            : 'Login'
+        );
+        expect(row.slice(userStart, ageStart).trim()).toMatch(
+          index === 0 ? /^bob/ : /^vol/
+        );
+        expect(row.slice(ageStart, detailStart).trim()).toBe('0s');
+        expect(row.slice(detailStart, detailStart + 2)).toBe('- ');
+      }
+      expect(rows[1]).not.toMatch(/[\n\r\t]/);
+      if (width === 156) {
+        expect(rows[0]).toContain(reason.slice(0, 70));
+        expect(rows[1]).toContain(
+          'java.lang.NullPointerException at com.example.Foo.bar(Foo.java:12)'
+        );
+      }
+    }
+  );
+
+  it('aligns multiline event outcome continuations to OUTCOME at 80 columns', () => {
+    setTerminal(80);
+    loadSession();
+    const event = states[1][0].events[0];
+    event.step = 'Tree completed';
+    event.outcome =
+      'Script failed because a referenced value was missing during evaluation of the authentication journey.\n' +
+      '\tat com.example.Foo.bar(Foo.java:12)\n' +
+      'Caused by: java.lang.NullPointerException';
+    render();
+    keypress({ name: 'enter' });
+    const output = render();
+    assertFrame(output, 80);
+    const lines = output.split('\n');
+    const headerIndex = lines.findIndex((line) => line.includes('OUTCOME'));
+    const outcomeColumn = lines[headerIndex].indexOf('OUTCOME');
+    const rows = lines.slice(headerIndex + 1, -1);
+    expect(rows.length).toBeGreaterThan(3);
+    for (const row of rows.slice(1)) {
+      expect(row.slice(2, outcomeColumn)).toBe(' '.repeat(outcomeColumn - 2));
+    }
+    const values = rows.map((row) => row.slice(outcomeColumn, -2).trimEnd());
+    expect(values.join('').replace(/\s/g, '')).toBe(
+      event.outcome.replace(/\s/g, '')
+    );
+    expect(values.some((value) => value.startsWith('    at '))).toBe(true);
+    expect(values.some((value) => value.startsWith('Caused by:'))).toBe(true);
+  });
+
   it.each([40, 60, 80, 120, 156, 240])(
     'fits list, journey detail, and multiline event detail to %i columns',
     (width) => {
@@ -195,7 +285,9 @@ describe('journey debug frames', () => {
   it('redraws at the new terminal width after resize and removes the listener', () => {
     setTerminal(156);
     loadSession();
+    const initialListeners = process.stdout.listenerCount('resize');
     const cleanup = effects[0]();
+    expect(process.stdout.listenerCount('resize')).toBe(initialListeners + 1);
     try {
       setTerminal(60);
       process.stdout.emit('resize');
@@ -203,6 +295,12 @@ describe('journey debug frames', () => {
     } finally {
       cleanup();
     }
+    expect(process.stdout.listenerCount('resize')).toBe(initialListeners);
+  });
+
+  it('uses a 40-column minimum on a 30-column terminal', () => {
+    setTerminal(30);
+    assertFrame(render(), 40);
   });
 
   it('wraps empty-state text and bounds long filter titles', () => {
@@ -220,6 +318,12 @@ describe('journey debug frames', () => {
     keypress({ name: 'enter' });
     render();
     keypress({ name: 'enter' });
-    assertFrame(render(), 40);
+    const output = render();
+    assertFrame(output, 40);
+    const labelRow = output.split('\n').find((line) => line.includes('Long'));
+    const label = labelRow.slice(2, 36);
+    expect(label).toHaveLength(34);
+    expect(label).toBe('Long' + 'long'.repeat(7) + 'l…');
+    expect(labelRow[36]).toBe(' ');
   });
 });

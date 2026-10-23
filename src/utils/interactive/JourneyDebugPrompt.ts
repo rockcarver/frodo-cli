@@ -113,16 +113,6 @@ const MAX_USER_COL_WIDTH = 26;
 // can run well past any well-known node type's name length.
 const MAX_STEP_COL_WIDTH = 26;
 const MAX_TYPE_COL_WIDTH = 32;
-// The list row's trailing DETAIL cell (failure reason / last node) is the
-// only column with no fixed right-hand neighbor to bound it, so a long raw
-// AM exception message (confirmed live: a script-adapter failure's message
-// alone ran past 190 chars once its identifiers were spelled out) would
-// otherwise wrap the whole row across terminal lines. `compactFailureReason`
-// already strips the noisy wrapper-class prefix; this is just the last-mile
-// bound so one long outlier can't blow out list-view alignment -- the full,
-// untruncated text is always still one Enter-key away in the detail view.
-const MAX_DETAIL_COL_WIDTH = 60;
-
 /** Truncates to `max` chars with a trailing ellipsis, never silently -- the reader can always tell a value was cut. */
 function truncate(text: string, max: number): string {
   return text.length <= max ? text : `${text.slice(0, max - 1)}…`;
@@ -199,7 +189,7 @@ type PanelRow = { text: string; plain: string };
 
 function renderListHeader(widths: ListColumnWidths): PanelRow {
   const cells = [
-    '    ', // pin marker + cursor marker, blank
+    '   ', // pin marker + cursor marker, including the joining space
     padCell('STATUS', STATUS_COL_WIDTH),
     padCell('JOURNEY', widths.journey),
     padCell('USER', widths.user),
@@ -213,7 +203,8 @@ function renderListHeader(widths: ListColumnWidths): PanelRow {
 function renderListRow(
   session: JourneySession,
   isActive: boolean,
-  widths: ListColumnWidths
+  widths: ListColumnWidths,
+  width: number
 ): PanelRow {
   const now = Date.now();
   const pin = session.pinned ? '\u{1F4CC} ' : '  ';
@@ -226,29 +217,40 @@ function renderListRow(
     padCell(session.status, STATUS_COL_WIDTH)
   );
 
-  const treeNamePlain = session.treeName
-    ? truncate(session.treeName, MAX_JOURNEY_COL_WIDTH)
-    : '(unknown tree)';
+  const treeNamePlain = truncate(
+    session.treeName ?? '(unknown tree)',
+    widths.journey
+  );
   const treeCell = padCell(treeNamePlain, widths.journey);
   const journeyCell = session.treeName ? treeCell : c.muted(treeCell);
 
   const displayUser = session.userDisplayName ?? session.user;
   const userCell = c.muted(
-    padCell(
-      displayUser ? truncate(displayUser, MAX_USER_COL_WIDTH) : '',
-      widths.user
-    )
+    padCell(displayUser ? truncate(displayUser, widths.user) : '', widths.user)
   );
 
   const ageCell = c.muted(
     padCell(formatElapsed(now - session.startedAt), widths.age)
   );
 
+  const detailWidth = Math.max(
+    8,
+    frameInnerWidth(width) -
+      marker.length -
+      STATUS_COL_WIDTH -
+      widths.journey -
+      widths.user -
+      widths.age -
+      4 -
+      2
+  );
+  const detailText = (text: string) =>
+    truncate(text.replace(/\s+/g, ' ').trim(), detailWidth);
   const detailCell =
     session.status === 'failed' && session.failureReason
-      ? c.muted(`- ${truncate(session.failureReason, MAX_DETAIL_COL_WIDTH)}`)
+      ? c.muted(`- ${detailText(session.failureReason)}`)
       : session.lastNode
-        ? c.muted(`@ ${truncate(session.lastNode, MAX_DETAIL_COL_WIDTH)}`)
+        ? c.muted(`@ ${detailText(session.lastNode)}`)
         : '';
 
   const body = [statusCell, journeyCell, userCell, ageCell]
@@ -1014,7 +1016,7 @@ const journeyDebugPromptImpl = createPrompt<
       // what lands in the page -- the plain measure is taken per row
       // below (panelRow), keeping the honest {text, plain} discipline.
       renderItem: ({ item, isActive }) =>
-        renderListRow(item, isActive, listWidths).text,
+        renderListRow(item, isActive, listWidths, width).text,
       pageSize: 15,
       loop: true,
     });
