@@ -10,7 +10,7 @@
 // A sweep reads them, so it needs no event from the agent (an event it causes waits for
 // a maintainer's approval) and it repeats after every feedback round.
 import { execFileSync } from 'node:child_process';
-import { isCodingAgent } from './label-janitor.mjs';
+import { isCodingAgent } from './janitor.mjs';
 
 export const LABEL = 'pr-worker-ready';
 
