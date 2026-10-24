@@ -33,7 +33,8 @@ Lasting design decisions are recorded one per file in [docs/decisions/](docs/dec
 
 - **If your task conflicts with an accepted record, stop and say so** in the issue or pull request. Do not override it.
 - **A pull request that changes a decided behaviour adds or supersedes a record.**
-- Decisions that span repositories live once in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo) (`docs/decisions/`); those that bind this repository are listed in the decisions README (none yet).
+- **New capability goes into frodo-lib behind the `frodo` facade first; the CLI only wraps it for the terminal** (parsing, prompts, output, files and stdin, exit codes).
+- Decisions that span repositories live once in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo) (`docs/decisions/`). Binding here: [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
 
 ## Where things live
 

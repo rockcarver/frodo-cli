@@ -32,7 +32,7 @@ Accepted records are not edited, except to fix a typo. To change a decision, wri
 
 A decision that binds more than this repository is recorded once, in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo) (`docs/decisions/`). Those that bind this repository are listed here:
 
-- Placeholder: none recorded yet.
+- [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md). The link works once that record is merged in the umbrella repository.
 
 ## Index
 

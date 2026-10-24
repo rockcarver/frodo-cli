@@ -4,6 +4,8 @@ applyTo: 'src/cli/**/*.ts'
 
 # Writing or changing a CLI command
 
+**New capability goes into frodo-lib behind the `frodo` facade first; the CLI only wraps it for the terminal** (parsing, prompts, output, files and stdin, exit codes). Decision: [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
+
 The full guide is [docs/CONTRIBUTE.md, "Writing a command"](../../docs/CONTRIBUTE.md#writing-a-command).
 
 - **Start from `src/cli/_template/`.** Copy `something.ts` (the group) and the verb files you need, rename them and delete the rest.

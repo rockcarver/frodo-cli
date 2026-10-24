@@ -145,6 +145,8 @@ Do not edit `CHANGELOG.md` in a PR. It is generated at release time from what me
 
 ### Code structure and conventions
 
+The library is the brain and the CLI is a thin wrapper: new capability goes into frodo-lib behind the `frodo` facade first, and the CLI only wraps it for the terminal (parsing, prompts, output, files and stdin, exit codes). See [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
+
 Frodo CLI adheres to the following folder and file structure:
 
 ```preformated
