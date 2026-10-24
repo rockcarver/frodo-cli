@@ -21,6 +21,7 @@ import {
   stripAnsi,
 } from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
+import { useTerminalWidth } from './TerminalWidth';
 
 /**
  * Distinct return value `escapableSelect` resolves with when the user
@@ -213,6 +214,9 @@ const escapableSelectImpl = createPrompt(
     // True while the grace window is open: the view renders the exit-all
     // hint so the gesture is discoverable.
     const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
+    // The frame follows the terminal (re-drawn on resize). Declared after
+    // every other useState so their hook order is unchanged.
+    const width = useTerminalWidth();
 
     // Grace teardown on unmount: a timer firing after the prompt resolved
     // would call a stale handler (the prompt's hooks are gone).
@@ -342,7 +346,8 @@ const escapableSelectImpl = createPrompt(
         enter: 'select',
         right: config.hint ? config.hint.replace(/^→\s*/, '') : undefined,
         escape: 'back · [ESC]×2 exit all',
-      })
+      }),
+      width
     );
     const panelLines: { text: string; plain: string }[] = [];
     if (escapeGraceOpen) {
@@ -365,7 +370,7 @@ const escapableSelectImpl = createPrompt(
     }
     if (selected?.description) {
       panelLines.push({ text: '', plain: '' });
-      panelLines.push(...descriptionPanelLines(selected.description));
+      panelLines.push(...descriptionPanelLines(selected.description, width));
     }
     const panel = renderFramedBox({
       title: {
@@ -373,6 +378,7 @@ const escapableSelectImpl = createPrompt(
         plain: `? ${config.message}${queryEcho}`,
       },
       lines: panelLines,
+      width,
     });
 
     // Live preview: a function form is re-invoked on EVERY render with
