@@ -30,10 +30,6 @@ Up to 4.x a command line either ran or failed with an error. The interactive mod
 - A test for a new prompt names the 4.x command line that failed. A test for a case that must not prompt names the one that ran.
 - Not decided: which 4.x-invalid command lines get a prompt. That stays a choice per command and per resolution step (record 0015).
 
-### Known deviation
-
-`frodo conn add` and `frodo conn save` with `--sa-id` and `--sa-jwk-file` still open the Connection page on `main` (90e582e2) although the command line names a credential source. It is tracked in rockcarver/frodo-cli#886.
-
 ## Alternatives considered
 
 - Prompt for every optional input that is unset: rejected, it breaks scripts and the 4.x shorthand that record 0001 restored.
