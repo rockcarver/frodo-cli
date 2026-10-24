@@ -30,7 +30,9 @@ import { startFakeAm } from '../utils/StartFakeAm.js';
  * the claim is checked, not just quoted. The first case is the control: the
  * picker does open today when no realm is named. If cli#885 restores the
  * silent fallback to the deployment's default realm, that case changes with
- * it and goes away; the other two must keep passing either way.
+ * it and goes away; the other two must keep passing either way. The
+ * realm-missing rule of UsageExampleOperands.test.js (examples name the realm)
+ * rests on this control case and has to be re-evaluated with it.
  *
  * The credentials come from the environment in the first two cases because the
  * realm is the operand between the host and the user name: this is the only

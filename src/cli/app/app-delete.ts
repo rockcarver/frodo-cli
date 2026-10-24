@@ -65,9 +65,11 @@ export default function setup() {
         `  The ${c.command('frodo app')} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${c.command('frodo oauth client')} command.\n\n` +
         `Usage Examples:\n` +
         `  Delete application 'myApp':\n` +
-        c.command(`  $ frodo app delete -i 'myApp' ${s.amBaseUrl}\n`) +
+        c.command(
+          `  $ frodo app delete -i 'myApp' ${s.amBaseUrl} ${s.realm}\n`
+        ) +
         `  Delete all applications:\n` +
-        c.command(`  $ frodo app delete -a ${s.connId}\n`)
+        c.command(`  $ frodo app delete -a ${s.connId} ${s.realm}\n`)
     )
     .requireOneOf({
       options: ['all', 'appId', 'appName'],

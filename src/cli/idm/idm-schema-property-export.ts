@@ -42,7 +42,7 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Export the "${s.propertyName}" property:\n` +
         c.command(
-          `  $ frodo idm schema property export -o ${s.managedObjectType} -p ${s.propertyName} ${s.amBaseUrl}\n`
+          `  $ frodo idm schema property export -o ${s.managedObjectType} -p ${s.propertyName} ${s.amBaseUrl} ${s.realm}\n`
         )
     )
     .action(

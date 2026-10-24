@@ -97,17 +97,17 @@ export default function setup() {
         `Usage Examples:\n` +
         `  Restore global and active realm configuration including active secret values from a single file (Note: config export must have been performed using the --include-active-values option):\n` +
         c.command(
-          `  $ frodo config import -a -f Alpha.everything.json --include-active-values ${s.connId}\n`
+          `  $ frodo config import -a -f Alpha.everything.json --include-active-values ${s.connId} ${s.realm}\n`
         ) +
         `  Restore global and active realm configuration including active secret values from separate files in a directory structure (Note: config export must have been performed using the --include-active-values option):\n` +
         c.command(
-          `  $ frodo config import -A -D ${s.connId}-backup --include-active-values ${s.connId}\n`
+          `  $ frodo config import -A -D ${s.connId}-backup --include-active-values ${s.connId} ${s.realm}\n`
         ) +
         `  Import global and active realm configuration including active secret values, wich were exported from another environment using the --include-active-values option but without using the --target parameter, therefore requiring the --source parameter on import:\n` +
         `  The --source parameter instructs frodo to decrypt the secret values during import using the source environment, which was used to encrypt them.\n` +
         `  Using the --source parameter, the source environment must be available at the time of import and the person performing the import must have a connection profile for the source environment.\n` +
         c.command(
-          `  $ frodo config import -a -f Alpha.everything.json --include-active-values --source ${s.connId} ${s.connId2}\n`
+          `  $ frodo config import -a -f Alpha.everything.json --include-active-values --source ${s.connId} ${s.connId2} ${s.realm}\n`
         )
     )
     .requireOneOf({

@@ -28,9 +28,9 @@ export default function setup() {
           `  $ frodo dcc session abort ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Abort a direct configuration session with connection ID:\n` +
-        c.command(`  $ frodo dcc session abort ${s.connId}\n`) +
+        c.command(`  $ frodo dcc session abort ${s.connId} ${s.realm}\n`) +
         `  Abort a direct configuration session in JSON format with connection ID:\n` +
-        c.command(`  $ frodo dcc session abort --json ${s.connId}\n`)
+        c.command(`  $ frodo dcc session abort --json ${s.connId} ${s.realm}\n`)
     )
     .action(
       // implement command logic inside action handler

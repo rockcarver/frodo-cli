@@ -85,7 +85,8 @@ tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   indistinguishable afterwards. A realm typed as the `[realm]` argument
   counts (it is read from the command's processed arguments: the action
   copies it into the state only later), and so does `FRODO_REALM`, which
-  is that argument's default.
+  is that argument's default. Usage examples therefore name the realm right
+  after the host, so they open no picker.
 
 Both inherit type-to-search. Escape declines; single-candidate lists
 auto-select. `<enter>` on the already-highlighted default realm keeps

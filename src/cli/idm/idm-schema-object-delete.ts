@@ -42,11 +42,11 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Delete the "${s.managedObjectTitle}" managed object type:\n` +
         c.command(
-          `  $ frodo idm schema object delete -o ${s.managedObjectType} -y ${s.amBaseUrl}\n`
+          `  $ frodo idm schema object delete -o ${s.managedObjectType} -y ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Delete it even though its record count can't be confirmed:\n` +
         c.command(
-          `  $ frodo idm schema object delete -o ${s.managedObjectType} -y -F ${s.connId}\n`
+          `  $ frodo idm schema object delete -o ${s.managedObjectType} -y -F ${s.connId} ${s.realm}\n`
         )
     )
     .action(

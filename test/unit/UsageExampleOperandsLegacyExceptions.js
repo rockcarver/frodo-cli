@@ -14,13 +14,14 @@
  */
 export const LEGACY_EXAMPLE_VIOLATIONS = [
   {
-    example: 'frodo app export -f ./allMyApplications.application.json matrix',
+    example:
+      'frodo app export -f ./allMyApplications.application.json matrix /alpha',
     rule: 'one-of-missing',
     reason:
       '`-f` alone does not select an application any more (requireOneOf: -a, -A, -i, -n), so a terminal opens the options editor. The sentence above it says "first application"; decide what the example should show.',
   },
   {
-    example: 'frodo config export -sxAND . matrix',
+    example: 'frodo config export -sxAND . matrix /alpha',
     rule: 'unknown-option',
     reason:
       '`-s` is not an option of `config export` (commander rejects it). The note above the example still explains `-s`; decide what the example should show.',

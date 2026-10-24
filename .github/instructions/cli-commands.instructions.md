@@ -23,11 +23,11 @@ Every command has a `Usage Examples:` block, shown by `-hhh`. Model it on `src/c
   `  List the journeys of a realm and log in with AM base URL, username, and password:\n` +
   c.command(`  $ frodo journey list ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`) +
   `  List them with all fields using a connection profile:\n` +
-  c.command(`  $ frodo journey list --long ${s.connId}\n`))
+  c.command(`  $ frodo journey list --long ${s.connId} ${s.realm}\n`))
 ```
 
 - One sentence, then the command. One example per mode or option that matters, with a login variant. Values come from `src/help/SampleData.ts`. Run every example against a build (`npx tsdown`) before you finish.
-- **An example runs as written and opens no picker or editor.** Operands are positional: with a user name the realm comes second (`<amBaseUrl> <realm> <username> '<password>'`), otherwise the user name is read as the realm and the password as the user name. Name the target (`-i`, `-a`, ...) of a command that picks an entity and one member of every `requireOneOf` group, use only flags the command defines, and close every quote.
+- **An example runs as written and opens no picker or editor.** The realm goes right after the host or profile (`<connId> <realm>`, `<amBaseUrl> <realm> <username> '<password>'`): without it a terminal opens the realm picker, and with only host, user and password the user name is read as the realm. Name the target (`-i`, `-a`, ...) of a command that picks an entity, one member of every `requireOneOf` group, and only flags the command defines.
 - **Interactive by design is the one exception:** `frodo journey prune` asks to confirm with `@inquirer/confirm` directly, so no flag and no `--no-prompt` skips it; the sentence above its example says so.
 - `test/unit/UsageExamples.test.js` fails for a command without examples; `test/unit/UsageExampleOperands.test.js` fails for an example that breaks the rules above. Never add to `UsageExamplesLegacyExceptions.js` or `UsageExampleOperandsLegacyExceptions.js`: they only shrink, so delete a line when you fix its entry.
 

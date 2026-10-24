@@ -85,15 +85,15 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Import the "${s.managedObjectTitle}" managed object type, exported earlier with -o:\n` +
         c.command(
-          `  $ frodo idm schema object import -o -f ${s.managedObjectType}.managed.object.json -y ${s.amBaseUrl}\n`
+          `  $ frodo idm schema object import -o -f ${s.managedObjectType}.managed.object.json -y ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Import every managed object type from a single file, exported earlier with -a:\n` +
         c.command(
-          `  $ frodo idm schema object import -f all-managed-objects.json -y ${s.connId}\n`
+          `  $ frodo idm schema object import -f all-managed-objects.json -y ${s.connId} ${s.realm}\n`
         ) +
         `  Import every managed object type from a directory of separate files, exported earlier with -A:\n` +
         c.command(
-          `  $ frodo idm schema object import -D ./managed-objects -y ${s.connId}\n`
+          `  $ frodo idm schema object import -D ./managed-objects -y ${s.connId} ${s.realm}\n`
         )
     )
     .requireOneOf({

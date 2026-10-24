@@ -34,9 +34,9 @@ export default function setup() {
           `  $ frodo app list ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  List applications using a connection profile (identified by the full AM base URL):\n` +
-        c.command(`  $ frodo app list ${s.amBaseUrl}\n`) +
+        c.command(`  $ frodo app list ${s.amBaseUrl} ${s.realm}\n`) +
         `  List applications using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
-        c.command(`  $ frodo app list ${s.connId}\n`)
+        c.command(`  $ frodo app list ${s.connId} ${s.realm}\n`)
     )
     .action(
       // implement command logic inside action handler

@@ -40,12 +40,14 @@ export default function setup() {
         ) +
         `  Validate a journey in the tenant and login using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
         c.command(
-          `  $ frodo journey validate -i ${s.journeyId} ${s.connId}\n`
+          `  $ frodo journey validate -i ${s.journeyId} ${s.connId} ${s.realm}\n`
         ) +
         `  Validate all journeys in a realm of the tenant:\n` +
         c.command(`  $ frodo journey validate -a ${s.connId} ${s.realm}\n`) +
         `  Validate all journeys in the tenant and also fail (exit code 1) on warnings, for example in a CI job:\n` +
-        c.command(`  $ frodo journey validate -a --strict ${s.connId}\n`) +
+        c.command(
+          `  $ frodo journey validate -a --strict ${s.connId} ${s.realm}\n`
+        ) +
         `  Validate a journey in an export file (no login needed):\n` +
         c.command(
           `  $ frodo journey validate -i ${s.journeyId} -f ${s.journeyFile}\n`

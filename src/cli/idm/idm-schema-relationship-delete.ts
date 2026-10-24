@@ -48,11 +48,11 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Delete the "${s.relationshipPropertyName}" relationship:\n` +
         c.command(
-          `  $ frodo idm schema relationship delete -o ${s.managedObjectType} -p ${s.relationshipPropertyName} -y ${s.amBaseUrl}\n`
+          `  $ frodo idm schema relationship delete -o ${s.managedObjectType} -p ${s.relationshipPropertyName} -y ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Delete it on both sides, including the auto-created reverse "${s.reverseRelationshipPropertyName}" property:\n` +
         c.command(
-          `  $ frodo idm schema relationship delete -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --with-reverse -y ${s.connId}\n`
+          `  $ frodo idm schema relationship delete -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --with-reverse -y ${s.connId} ${s.realm}\n`
         )
     )
     .action(

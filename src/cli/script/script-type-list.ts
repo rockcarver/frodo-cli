@@ -18,9 +18,9 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  List every scripting context:\n` +
-        c.command(`  $ frodo script type list ${s.amBaseUrl}\n`) +
+        c.command(`  $ frodo script type list ${s.amBaseUrl} ${s.realm}\n`) +
         `  List them with all fields:\n` +
-        c.command(`  $ frodo script type list --long ${s.connId}\n`)
+        c.command(`  $ frodo script type list --long ${s.connId} ${s.realm}\n`)
     )
     .action(
       // implement command logic inside action handler

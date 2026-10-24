@@ -46,15 +46,15 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Create the "${s.managedObjectTitle}" managed object type:\n` +
         c.command(
-          `  $ frodo idm schema object create -o ${s.managedObjectType} --title "${s.managedObjectTitle}" --icon ${s.managedObjectIcon} -y ${s.amBaseUrl}\n`
+          `  $ frodo idm schema object create -o ${s.managedObjectType} --title "${s.managedObjectTitle}" --icon ${s.managedObjectIcon} -y ${s.amBaseUrl} ${s.realm}\n`
         ) +
         `  Create it without --icon, falling back to a generic icon:\n` +
         c.command(
-          `  $ frodo idm schema object create -o ${s.managedObjectType} --title "${s.managedObjectTitle}" -y ${s.connId}\n`
+          `  $ frodo idm schema object create -o ${s.managedObjectType} --title "${s.managedObjectTitle}" -y ${s.connId} ${s.realm}\n`
         ) +
         `  Create it with a description:\n` +
         c.command(
-          `  $ frodo idm schema object create -o ${s.managedObjectType} --title "${s.managedObjectTitle}" --description "A hovercraft owned by the fleet" -y ${s.connId}\n`
+          `  $ frodo idm schema object create -o ${s.managedObjectType} --title "${s.managedObjectTitle}" --description "A hovercraft owned by the fleet" -y ${s.connId} ${s.realm}\n`
         )
     )
     .action(
