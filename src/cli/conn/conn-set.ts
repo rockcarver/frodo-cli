@@ -114,10 +114,18 @@ export default function setup() {
       const given = SETTABLE_FIELDS.filter(
         (field) => options[camelCase(field.flag)] !== undefined
       );
-      // Bare invocation (no host, no field options): the settable-fields
-      // reference (the `gh config` pattern).
-      if (!host && given.length === 0) {
-        printMessage('Settable connection profile fields:\n');
+      // No field named, with or without a host: there is nothing to set.
+      // List the settable fields (the `gh config` pattern) instead of
+      // logging in and saving the profile unchanged under a success
+      // message. In a terminal the host may already have been filled in by
+      // the interactive connection step, so a bare `frodo conn set` can
+      // arrive here with one.
+      if (given.length === 0) {
+        printMessage(
+          host
+            ? `No field was named, so ${host} is unchanged. Settable connection profile fields:\n`
+            : 'Settable connection profile fields:\n'
+        );
         for (const field of SETTABLE_FIELDS) {
           printMessage(
             `  ${field.flag}${field.valuePlaceholder ? ` <${field.valuePlaceholder}>` : ''}  ${field.description}`
