@@ -1,0 +1,44 @@
+# Reporter notify. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "Split-repo routing".
+#
+# A linked issue in a related repository that is waiting for information has a different author
+# than the original report, so the person who reported it is never told. When issue triage
+# applies `needs-info` to such an issue, this posts one comment that @mentions the author of the
+# original report, which also subscribes them to the thread. The login comes from the original
+# issue as GitHub returns it, never from text, and only after the original issue confirms the link.
+#
+# Install: copy this file to .github/workflows/reporter-notify.yml and
+# scripts/reporter-notify.mjs to .github/scripts/reporter-notify.mjs (it imports janitor.mjs,
+# so install both together).
+name: "Concierge 1d ▸ Reporter Notify"
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Linked issue that is waiting for information (it must carry needs-info)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: reporter-notify-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    # On a label event, run only for `needs-info` on an open issue (not a pull request).
+    if: github.event_name == 'workflow_dispatch' || (github.event.label.name == 'needs-info' && github.event.issue.state == 'open' && github.event.issue.pull_request == null)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Mention the original reporter
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+        run: node .github/scripts/reporter-notify.mjs
