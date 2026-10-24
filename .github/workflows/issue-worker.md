@@ -147,6 +147,8 @@ An open pull request, or one closed without merging, is never evidence that some
 ### Missing information
 If required details are absent and the issue belongs here, end with a direct request that lists only the items still needed.
 
+Write the request so that it stands on its own, in the second person. Do not address anyone with an `@handle`: the system neutralizes a mention of anyone who is not part of this conversation, so it would reach nobody. When this issue was opened from another repository (it has a `Reported from {owner}/{repo}#{number}` line), the person who reported it is told separately by the system. Do not try to do that yourself, and do not name that person.
+
 ### A fix is already in review
 Search the open pull requests for one that closes this issue (it names the issue with a closing keyword, or the issue lists it as linked). If there is one, say so plainly and link it: the change is waiting for review. That is not "already fixed", and the rule above still holds that an open pull request is no evidence of that. Add no gate label (see Signaling): something is already being implemented, so nothing should be planned or assigned. If that pull request is closed without merging, a later edit or comment starts the analysis again.
 

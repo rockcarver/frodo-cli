@@ -74,9 +74,12 @@ If complexity is high, or risk is high, or both:
   - only risk is high: "High risk. Remove the plan-approval-required label to resume."
   - both are high: "High complexity and high risk. Remove the plan-approval-required label to resume."
 
-Otherwise emit `plan-triage-handoff`.
+Otherwise, and unless the issue already carries `plan-approval-required` (see "A hold that is already there"), emit `plan-triage-handoff`.
 
 You never resume a high-complexity or high-risk issue yourself. When a maintainer removes `plan-approval-required`, a separate workflow (`plan-approval-resume`, no LLM) applies `plan-triage-handoff`.
+
+## A hold that is already there
+If the issue already carries `plan-approval-required` when you run (a maintainer added it by hand to see the plan first, or an earlier run added it), classify as usual and apply the complexity and risk labels, but do **not** emit `plan-triage-handoff`, do **not** add `plan-approval-required` again, and post no comment, whatever the classification, even low complexity and low risk. The label is the maintainer's decision, not yours to lift: removing it is the approval, and `plan-approval-resume` hands the issue on.
 
 ## Dependency gate
 If the issue has the label `dependency-required`, do **not** emit `plan-triage-handoff`, whatever the classification. Say nothing about it in a comment. A watcher removes the label when the work the issue depends on is finished, and the issue then runs through the gates again.
