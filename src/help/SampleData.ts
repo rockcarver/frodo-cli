@@ -33,3 +33,4 @@ export const journeyId = 'ZionLogin';
 export const journeyFile = 'ZionLogin.journey.json';
 export const allJourneysFile = 'allAlphaJourneys.journey.json';
 export const journeysDirectory = './journeys';
+export const journeyMarkdownFile = 'ZionLogin.md';

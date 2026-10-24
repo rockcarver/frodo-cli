@@ -1,4 +1,5 @@
 import { Option } from 'commander';
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
   importFirstJourneyFromFile,
@@ -6,6 +7,7 @@ import {
   importJourneysFromFile,
   importJourneysFromFiles,
 } from '../../ops/JourneyOps';
+import c from '../../utils/ColorTheme';
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -57,6 +59,24 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'journeyId'],
       purpose: 'what to import',
     })
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Import the first journey in a file and log in with AM base URL, username, and password:\n` +
+        c.command(
+          `  $ frodo journey import -f ${s.journeyFile} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        ) +
+        `  Import a named journey from a file using a connection profile, reassigning node UUIDs:\n` +
+        c.command(
+          `  $ frodo journey import -i ${s.journeyId} -f ${s.journeyFile} --re-uuid ${s.connId}\n`
+        ) +
+        `  Import all journeys from one file:\n` +
+        c.command(
+          `  $ frodo journey import -a -f ${s.allJourneysFile} ${s.connId} ${s.realm}\n`
+        ) +
+        `  Import journeys from separate JSON files in the current directory:\n` +
+        c.command(`  $ frodo journey import -A ${s.connId} ${s.realm}\n`)
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

@@ -1,7 +1,9 @@
 import { frodo, state, type TreeSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteJourney, deleteJourneys } from '../../ops/JourneyOps';
+import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console';
 import {
   deferEntityPicks,
@@ -40,6 +42,20 @@ export default function setup() {
       ).hideHelp()
     )
     .requireOneOf({ options: ['all', 'journeyId'], purpose: 'what to delete' })
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Delete a journey using a connection profile:\n` +
+        c.command(`  $ frodo journey delete -i ${s.journeyId} ${s.connId}\n`) +
+        `  Delete all journeys in a realm and log in with AM base URL, username, and password:\n` +
+        c.command(
+          `  $ frodo journey delete -a ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        ) +
+        `  Deep-delete a journey and its node artifacts:\n` +
+        c.command(
+          `  $ frodo journey delete -i ${s.journeyId} --deep ${s.connId}\n`
+        )
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

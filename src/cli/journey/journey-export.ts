@@ -1,11 +1,13 @@
 import { frodo, type TreeSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
   exportJourneysToFile,
   exportJourneysToFiles,
   exportJourneyToFile,
 } from '../../ops/JourneyOps';
+import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console';
 import {
   deferEntityPicks,
@@ -80,6 +82,20 @@ export default function setup() {
       options: ['all', 'allSeparate', 'journeyId'],
       purpose: 'what to export',
     })
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Export one journey to a file, omitting its dependencies and coordinates:\n` +
+        c.command(
+          `  $ frodo journey export -i ${s.journeyId} -f ${s.journeyFile} --no-deps --no-coords ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        ) +
+        `  Export all journeys in a realm to one file without metadata:\n` +
+        c.command(
+          `  $ frodo journey export -a -f ${s.allJourneysFile} -N ${s.connId} ${s.realm}\n`
+        ) +
+        `  Export all journeys in a realm as separate files:\n` +
+        c.command(`  $ frodo journey export -A ${s.connId} ${s.realm}\n`)
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
