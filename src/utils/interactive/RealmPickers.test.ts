@@ -3,6 +3,7 @@ import { state } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 import {
   noteRealmProvenance,
+  realmUserSpecifiedForTests,
   resetRealmPickerStateForTests,
   resolveRealmPick,
 } from './RealmPickers';
@@ -71,5 +72,50 @@ describe('noteRealmProvenance', () => {
     state.setRealm('/parent/child');
     noteRealmProvenance();
     expect(state.getRealm()).toBe('/parent/child');
+  });
+});
+
+describe('noteRealmProvenance reads the realm positional', () => {
+  // The positional only reaches frodo-lib's state when the action body runs
+  // (handleDefaultArgsAndOpts), long after the resolution pass notes the
+  // provenance, so a realm the user typed has to be read from the command.
+  const SENTINEL = '__default__realm__';
+  async function parsed(
+    defaultRealm: string,
+    args: string[]
+  ): Promise<Command> {
+    const command = new Command('frodo journey list')
+      .argument('[host]')
+      .argument('[realm]', 'Realm.', defaultRealm)
+      .action(async () => {});
+    await command.parseAsync(args, { from: 'user' });
+    return command;
+  }
+
+  it('counts a realm typed after the host as user-specified, though the state still holds the sentinel', async () => {
+    state.setRealm(SENTINEL);
+    noteRealmProvenance(await parsed(SENTINEL, ['matrix', '/alpha']));
+    expect(realmUserSpecifiedForTests()).toBe(true);
+  });
+
+  it('does not count the sentinel default', async () => {
+    state.setRealm(SENTINEL);
+    noteRealmProvenance(await parsed(SENTINEL, ['matrix']));
+    expect(realmUserSpecifiedForTests()).toBe(false);
+  });
+
+  it('counts FRODO_REALM, which is the positional default', async () => {
+    state.setRealm(SENTINEL);
+    noteRealmProvenance(await parsed('bravo', ['matrix']));
+    expect(realmUserSpecifiedForTests()).toBe(true);
+  });
+
+  it('falls back to the state for a command without a realm positional', () => {
+    state.setRealm('bravo');
+    noteRealmProvenance(makeCommand(false));
+    expect(realmUserSpecifiedForTests()).toBe(true);
+    state.setRealm(SENTINEL);
+    noteRealmProvenance(makeCommand(false));
+    expect(realmUserSpecifiedForTests()).toBe(false);
   });
 });

@@ -11,14 +11,16 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {object} [options]
  * @param {string} [options.recordPath] file the fake appends one JSON line per request to
  * @param {string} [options.journey] `password` for a plain login that succeeds (default: the MFA journey)
+ * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @returns {Promise<{ port: number, stop: () => void }>}
  */
-export async function startFakeAm({ recordPath, journey } = {}) {
+export async function startFakeAm({ recordPath, journey, realms } = {}) {
   const child = cp.spawn(process.execPath, [fakeAmPath], {
     env: {
       ...process.env,
       ...(recordPath ? { FAKE_AM_RECORD: recordPath } : {}),
       ...(journey ? { FAKE_AM_JOURNEY: journey } : {}),
+      ...(realms ? { FAKE_AM_REALMS: realms.join(',') } : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });

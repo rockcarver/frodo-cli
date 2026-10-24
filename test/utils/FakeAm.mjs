@@ -18,6 +18,10 @@
  * tests are about the prompt, and a deterministic failure afterwards keeps
  * the CLI's last words stable.
  *
+ * FAKE_AM_REALMS=alpha,bravo makes the realm list endpoint answer with those
+ * realms (otherwise it answers 404, as every unknown path does): a system with
+ * more than one realm is what makes the CLI offer its realm picker.
+ *
  * FAKE_AM_JOURNEY=password selects a plain login instead (no code step,
  * and the session lookup succeeds), for tests that need a command to get
  * past login without anyone typing: step 2 returns the session token and
@@ -29,6 +33,7 @@ import http from 'node:http';
 
 const recordPath = process.env.FAKE_AM_RECORD;
 const plainLogin = process.env.FAKE_AM_JOURNEY === 'password';
+const realms = (process.env.FAKE_AM_REALMS ?? '').split(',').filter(Boolean);
 let step = 0;
 
 const nameCallback = (prompt) => ({
@@ -62,6 +67,23 @@ const server = http.createServer((req, res) => {
         realm: '/',
         domains: [],
         secureCookie: false,
+      });
+    }
+    if (realms.length > 0 && req.url.includes('/global-config/realms')) {
+      return send(200, {
+        result: realms.map((name) => ({
+          _id: name,
+          _type: { _id: 'realm', name: 'Realm', collection: true },
+          name,
+          active: true,
+          parentPath: '/',
+          aliases: [],
+        })),
+        resultCount: realms.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'NONE',
+        totalPagedResults: -1,
+        remainingPagedResults: -1,
       });
     }
     if (req.url.includes('/authenticate')) {

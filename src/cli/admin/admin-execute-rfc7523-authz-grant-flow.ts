@@ -45,11 +45,11 @@ export default function setup() {
         ) +
         `  Same as above but output raw json:\n` +
         c.command(
-          `  $ frodo admin execute-rfc7523-authz-grant-flow --client-id rfc7523-client1 --json ${s.amBaseUrl}'\n`
+          `  $ frodo admin execute-rfc7523-authz-grant-flow --client-id rfc7523-client1 --json ${s.amBaseUrl}\n`
         ) +
         `  Same as first command above but explicitly provide all parameters:\n` +
         c.command(
-          `  $ frodo admin execute-rfc7523-authz-grant-flow --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --jwk-file rfc7523-client1_private.jwk.json ${s.amBaseUrl}'\n`
+          `  $ frodo admin execute-rfc7523-authz-grant-flow --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --jwk-file rfc7523-client1_private.jwk.json ${s.amBaseUrl}\n`
         ) +
         `\nRelated Commands:\n` +
         `  Run ${c.command('frodo admin generate-rfc7523-authz-grant-artefacts --help')} to see how to create the required configuration artefacts for ${c.command('frodo admin execute-rfc7523-authz-grant-flow')}:\n`

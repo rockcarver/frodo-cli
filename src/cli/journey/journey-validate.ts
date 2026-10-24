@@ -36,7 +36,7 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Validate a journey in the tenant and login using AM base URL, username, and password (note the quotes around password to allow special characters):\n` +
         c.command(
-          `  $ frodo journey validate -i ${s.journeyId} ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+          `  $ frodo journey validate -i ${s.journeyId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Validate a journey in the tenant and login using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
         c.command(

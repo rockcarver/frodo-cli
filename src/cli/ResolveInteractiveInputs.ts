@@ -268,7 +268,7 @@ export async function resolveInteractiveInputs(
   // The realm provenance MUST be noted before any prompt: frodo-lib maps
   // the sentinel default to the deployment type's realm during auth, so
   // "user chose" is only distinguishable from "mapped default" here.
-  noteRealmProvenance();
+  noteRealmProvenance(command);
   // Sentinel translation for the command preview: the realm positional's
   // sentinel default must print as the deployment type's default realm
   // (alpha on cloud, / otherwise -- the same mapping frodo-lib applies at
