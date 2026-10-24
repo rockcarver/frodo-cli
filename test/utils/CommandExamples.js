@@ -309,3 +309,23 @@ export function exampleViolations(command, args) {
   });
   return found;
 }
+
+const keyOf = (entry) => `${entry.rule}\n${entry.example}`;
+
+/**
+ * The violations that are not on the legacy list: what makes the check fail.
+ * `found` and `legacy` are lists of `{ rule, example }`.
+ */
+export function unlistedViolations(found, legacy) {
+  const listed = new Set(legacy.map(keyOf));
+  return found.filter((violation) => !listed.has(keyOf(violation)));
+}
+
+/**
+ * The legacy entries that no longer match a violation (the example was fixed,
+ * changed or removed): they have to leave the list, so it cannot go stale.
+ */
+export function staleEntries(found, legacy) {
+  const broken = new Set(found.map(keyOf));
+  return legacy.filter((entry) => !broken.has(keyOf(entry)));
+}
