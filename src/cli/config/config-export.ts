@@ -113,8 +113,8 @@ export default function setup() {
         ) +
         `Usage Examples:\n` +
         `  Export global and realm configuration for version control (e.g. Git) into the current directory.\n` +
-        `  Note that -x and -s separates script and mapping config to better track changes made to them, and -N removes metadata since it changes every export (you may consider using --no-coords as well if you don't care to track node positions in journeys):\n` +
-        c.command(`  $ frodo config export -sxAND . ${s.connId} ${s.realm}\n`) +
+        `  Note that -A exports everything to separate files in the -D directory and, unless you add -x (--no-extract), scripts and server properties are extracted into files of their own, which makes changes to them easier to track, and -N removes metadata since it changes every export (you may consider using --no-coords as well if you don't care to track node positions in journeys):\n` +
+        c.command(`  $ frodo config export -AND . ${s.connId} ${s.realm}\n`) +
         `  Export global and realm configuration from cloud to be later imported into a classic, on-prem deployment.\n` +
         `  Note -dR is used for exporting all read-only config from cloud since certain cloud read-only config (like the realm config) can be imported into a classic on-prem deployment:\n` +
         c.command(`  $ frodo config export -adR ${s.connId} ${s.realm}\n`) +
