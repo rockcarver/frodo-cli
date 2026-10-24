@@ -74,7 +74,7 @@ If complexity is high, or risk is high, or both:
   - only risk is high: "High risk. Remove the plan-approval-required label to resume."
   - both are high: "High complexity and high risk. Remove the plan-approval-required label to resume."
 
-Otherwise, and unless the issue already carries `plan-approval-required` (see "A hold that is already there") or the plan reports a conflict with a decision record (see "A conflict with a decision record"), emit `plan-triage-handoff`.
+Otherwise, and unless the issue already carries `plan-approval-required` (see "A hold that is already there"), the plan reports a conflict with a decision record (see "A conflict with a decision record") or the plan reports a wrong layer (see "A wrong layer"), emit `plan-triage-handoff`.
 
 You never resume a high-complexity or high-risk issue yourself. When a maintainer removes `plan-approval-required`, a separate workflow (`plan-approval-resume`, no LLM) applies `plan-triage-handoff`.
 
@@ -83,6 +83,11 @@ If the issue already carries `plan-approval-required` when you run (a maintainer
 
 ## A conflict with a decision record
 If the plan has a line under a "Decisions that apply" heading that starts with "Conflicts with", the request goes against a decision the repository has taken. Classify as usual and apply the complexity and risk labels, add the label `plan-approval-required` unless the issue already carries it, and do **not** emit `plan-triage-handoff`, whatever the classification. Post this short comment, naming the record number the plan gives, unless the issue already carries `plan-approval-required` (then post no comment, as under "A hold that is already there"): "This conflicts with decision record NNNN. A maintainer has to decide: change the request, or supersede the record. Remove the plan-approval-required label to resume."
+
+You never lift this hold yourself: removing the label is the maintainer's decision, and `plan-approval-resume` hands the issue on.
+
+## A wrong layer
+If the plan starts with, or has a line that starts with, "Wrong layer:", the plan worker found that the code to change is in another repository than the one holding this issue. A coding agent started here would work in the wrong repository. Classify as usual and apply the complexity and risk labels, add the label `plan-approval-required` unless the issue already carries it, and do **not** emit `plan-triage-handoff`, whatever the classification. Post this short comment, unless the issue already carries `plan-approval-required` (then post no comment, as under "A hold that is already there"): "The plan found that the fix belongs in another repository. A maintainer has to move or re-route this issue. Remove the plan-approval-required label to resume."
 
 You never lift this hold yourself: removing the label is the maintainer's decision, and `plan-approval-resume` hands the issue on.
 

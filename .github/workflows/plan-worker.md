@@ -45,10 +45,20 @@ This plan exists so plan triage can assign complexity and risk. It is not a coll
 - Open questions, if any
 - Repository rules that apply, when the repository has guidance files (see "Repository guidance")
 - Decisions that apply, and any conflict with one, when the repository has decision records (see "Decision records")
+- A "Wrong layer:" line, when the code to change is in the related repository (see "Layer check")
 
 ## Reports with a runtime failure
 - If the report contains an error message or a stack trace, say in the plan how the likely cause was checked: the file and line you read, or "not verified".
 - Label a cause you did not check against the code "Hypothesis (unverified)".
+
+## Layer check
+Some repositories are one half of a split project: `.github/agentic-workflows/related-repos.md` names a related repository, and an issue here may have been opened there (it has a `Reported from {owner}/{repo}#{number}` line) or may be linked to one (it carries `related-repo`). If that file does not exist, skip this section without comment.
+
+When you read the code for the cause, also notice which repository holds the code that has to change. Take the innermost error, not the wrapper another layer put around it (a library's "Error getting tokens" around a terminal read error does not make it a library bug). Search the related repository too when the report could belong there. If the repository's `AGENTS.md` or an accepted decision record says which layer owns what, apply it.
+
+- If your reading shows that the code to change is in the related repository, or that an issue routed here belongs in the repository it came from, start the plan with one line: "Wrong layer: the fix belongs in {owner}/{repo}, see {file}", naming the file you read and what it does. Then plan for the repository where the fix belongs and say that a maintainer should move or re-route the issue. Never plan silently in the repository that happens to hold the issue.
+- If you did not read code that settles it, write "Layer: not verified" in the plan's open questions and do not guess.
+- If the code to change is in this repository, say nothing about layers.
 
 ## Repository guidance
 A repository may tell its contributors how to work on it: `AGENTS.md` at the root, `.github/copilot-instructions.md`, and files under `.github/instructions/` whose frontmatter `applyTo` globs name the paths they cover. If none of them exists, skip this section without comment.
