@@ -46,7 +46,7 @@ Write the pull request description the same way, and check it before you publish
 
 ## 5. Supersede or deprecate
 
-- Accepted records are not edited, except for a typo.
+- Accepted records are not edited, except for a typo and for a `Known deviations` section. That section is a status note, not part of the decision: name the tracking issue and the commit it was written against, and add, edit or remove it in the pull request that fixes the deviation or opens its tracking issue, saying so in the description ([core 0018](../../../docs/decisions/core/0018-core-decision-records-are-kept-in-each-repository.md)).
 - To change a decision, write a new record that says which one it replaces, and set the old record's status to `superseded by NNNN` (its only other edit). Update both index rows.
 - A superseded or deprecated record may keep `applies-to` paths that no longer exist; an accepted one may not.
 
@@ -57,7 +57,7 @@ Write the pull request description the same way, and check it before you publish
 - Add a row to the "Core decisions" table in `docs/decisions/README.md`: the number linked as `core NNNN`, the title and status exactly as in the record, every `applies-to` glob in backticks (`repository-wide` when there are none) and one sentence of the rule. Core records need no row anywhere else.
 - `applies-to` paths are not checked for existence in a core record, because one file serves repositories with different layouts, and a core record may name a tool when the decision is about it.
 - Cite it as "core NNNN" with a link to the local file, never as "NNNN" alone: each repository has its own 0001.
-- To supersede one, write a new core record; the old record's status line is the only change, made in every repository.
+- To supersede one, write a new core record; the old record's status line is the only change, made in every repository. The exception is a `## Known deviations` section: edit or remove it in the pull request that fixes the deviation, in every repository that holds the record.
 
 ## 7. Run the validator
 

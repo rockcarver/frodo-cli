@@ -345,6 +345,47 @@ describe('core decision records', () => {
     });
   });
 
+  describe('a Known deviations section is a status note (core 0018)', () => {
+    const rule18 = fs.readFileSync(
+      path.join(CORE_DIR, '0018-core-decision-records-are-kept-in-each-repository.md'),
+      'utf8'
+    );
+    const readme = fs.readFileSync(path.join(DIR, 'README.md'), 'utf8');
+    const skill = fs.readFileSync(
+      path.join(ROOT, '.claude/skills/record-a-decision/SKILL.md'),
+      'utf8'
+    );
+
+    it('core 0018 lets the pull request that fixes a deviation edit or remove it, without a new record', () => {
+      expect(rule18).toMatch(/status note, not part of the decision/);
+      expect(rule18).toMatch(/tracking issue and the commit it was written against/);
+      expect(rule18).toMatch(
+        /added, edited or removed, without a new record, in the pull request that fixes the deviation or opens its tracking issue/
+      );
+      expect(rule18).toMatch(/Nothing else in an accepted record changes\./);
+      expect(rule18).toMatch(/The one exception is a Known deviations section/);
+    });
+
+    it('the README rule names the exception and links core 0018', () => {
+      const rule = (readme.split(/^## Superseding$/m)[1] ?? '').split(/^## /m)[0];
+      expect(rule).toMatch(/except for a `Known deviations` section/);
+      expect(rule).toMatch(/\]\(core\/0018-core-decision-records-are-kept-in-each-repository\.md\)/);
+    });
+
+    it("the README index row of core 0018 says so in its rule sentence", () => {
+      const row = readme.split('\n').find((l) => /^\|\s*\[core 0018\]\(/.test(l)) ?? '';
+      expect(row).toMatch(/Known deviations section is a status note/);
+    });
+
+    it('the record-a-decision skill states the exception, with a link to core 0018', () => {
+      expect(skill).toMatch(/except for a typo and for a `Known deviations` section/);
+      expect(skill).toMatch(
+        /saying so in the description \(\[core 0018\]\(\.\.\/\.\.\/\.\.\/docs\/decisions\/core\/0018-core-decision-records-are-kept-in-each-repository\.md\)\)/
+      );
+      expect(skill).toMatch(/The exception is a `## Known deviations` section/);
+    });
+  });
+
   describe('living documents', () => {
     const living = [
       'AGENTS.md',
