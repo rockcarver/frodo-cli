@@ -76,6 +76,8 @@ classic:  "openid"'
         c.command(
           `  $ frodo login --browser --save --type cloud ${s.amBaseUrl}\n`
         ) +
+        `  Login via an interactive browser and let frodo detect the deployment type from the host:\n` +
+        c.command(`  $ frodo login --browser --save ${s.amBaseUrl}\n`) +
         `  Login via the OAuth2 Device Authorization Grant, for headless/SSH sessions:\n` +
         c.command(
           `  $ frodo login --device --save --type cloud ${s.amBaseUrl}\n`

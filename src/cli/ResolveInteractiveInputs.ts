@@ -51,7 +51,11 @@ import {
   setDeploymentTypeForPreview,
   type CommandReadiness,
 } from '../utils/interactive/CommandPreview';
-import { hasExplicitCredentialSource } from '../utils/interactive/ConnectionCredentials';
+import {
+  forcesUserLogin,
+  hasExplicitCredentialSource,
+  savedConnectionIsComplete,
+} from '../utils/interactive/ConnectionCredentials';
 import {
   connectionPage,
   PAGE_ESCAPE,
@@ -98,7 +102,7 @@ import {
 import { guidedModeEnabled } from '../utils/SettingsStore';
 
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
-const { probeDeploymentType } = frodo.login;
+const { probeDeploymentType, hasCachedBrowserSession } = frodo.login;
 const { isValidUrl } = frodo.utils;
 
 // The active-action-command registry lives in its own zero-import module
@@ -934,11 +938,16 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
         if (canPrompt() && isValidUrl(host)) {
           try {
             const probe = await probeDeploymentType(host);
-            state.setDeploymentType(probe.deploymentType);
-            setDeploymentTypeForPreview(probe.deploymentType);
+            // An unreachable or non-AM host is not classic: the probe
+            // answers 'classic' for it too, so only a conclusive answer
+            // counts. Otherwise as if the probe didn't exist --
+            // untranslated sentinel, pre-existing semantics.
+            if (probe.conclusive) {
+              state.setDeploymentType(probe.deploymentType);
+              setDeploymentTypeForPreview(probe.deploymentType);
+            }
           } catch {
-            // Unreachable / not an AM host: as if the probe didn't
-            // exist -- untranslated sentinel, pre-existing semantics.
+            // The probe itself failed: same as inconclusive.
           }
         }
       }
@@ -973,14 +982,18 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
   try {
     const profile = await getConnectionProfileByHost(host);
     // frodo-lib will authenticate from the profile alone when it carries
-    // any usable credential (user/svcacct/amster); a bare profile entry
-    // (host saved without credentials -- possible via earlier frodo
-    // versions and manual edits) answers nothing, so the prompts still
-    // run for it. A username-only entry prefills the username prompt.
+    // any usable credential (user/svcacct/amster), names one as its saved
+    // default (browser, svcacct, amster), or a fresh browser session is
+    // cached for the host (record 0031); a bare profile entry (host saved
+    // without credentials -- possible via earlier frodo versions and manual
+    // edits) answers nothing, so the prompts still run for it. A
+    // username-only entry prefills the username prompt.
     if (
-      (profile.username && profile.password) ||
-      profile.svcacctId ||
-      profile.amsterPrivateKey
+      savedConnectionIsComplete(
+        profile,
+        hasCachedBrowserSession(profile.tenant ?? host),
+        forcesUserLogin(command)
+      )
     ) {
       return true;
     }
@@ -989,7 +1002,10 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
       ? `from profile ${profile.alias}`
       : 'from profile';
   } catch {
-    // No profile for this host (or unreadable): fall through to prompts.
+    // No profile for this host (or unreadable): a fresh browser session
+    // cached for it still completes the connection (record 0031); otherwise
+    // fall through to prompts.
+    if (!forcesUserLogin(command) && hasCachedBrowserSession(host)) return true;
   }
 
   // The connection PAGE replaces the sequential username-then-

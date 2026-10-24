@@ -281,6 +281,69 @@ suite('credential-source audit, on a real terminal', () => {
     expect(result.plainOutput).toContain('password: (not set)');
   });
 
+  describe('a saved profile that names no password (record 0031)', () => {
+    // An empty FRODO_USERNAME or FRODO_PASSWORD still counts as given to the
+    // library, which then does not load the saved profile: remove them.
+    const unset = '__FRODO_PTY_DELETE__';
+    const profileEnv = (file) => ({
+      ...emptyCredentials,
+      FRODO_USERNAME: unset,
+      FRODO_PASSWORD: unset,
+      FRODO_CONNECTION_PROFILES_PATH: file,
+    });
+
+    function saveProfile(profile) {
+      const url = `http://127.0.0.1:${fakeAm.port}/am`;
+      const file = path.join(home, 'Connections.json');
+      fs.writeFileSync(
+        file,
+        JSON.stringify({
+          [url]: { tenant: url, deploymentType: 'classic', ...profile },
+        }),
+        { mode: 0o600 }
+      );
+      return { url, file };
+    }
+
+    test('a saved default credential of browser completes the connection: no Connection page', async () => {
+      fakeAm = await startFakeAm({ recordPath, journey: 'password' });
+      const { url, file } = saveProfile({
+        username: 'someone',
+        defaultCredential: 'browser',
+      });
+      const result = runShellScenario({
+        homeDir: home,
+        allowPrompting: true,
+        env: profileEnv(file),
+        args: ['journey', 'list', url],
+        actions: [
+          {
+            type: 'wait_plain',
+            regex: 'requires an OAuth2 client id',
+            timeoutMs: 10000,
+          },
+        ],
+      });
+      expect(result.plainOutput).not.toContain('Connection:');
+      expect(result.plainOutput).not.toMatch(/Username:|Password:/);
+    }, 30000);
+
+    test('a username alone still opens the Connection page', async () => {
+      fakeAm = await startFakeAm({ recordPath, journey: 'password' });
+      const { url, file } = saveProfile({ username: 'someone' });
+      const result = runShellScenario({
+        homeDir: home,
+        allowPrompting: true,
+        env: profileEnv(file),
+        args: ['journey', 'list', url],
+        actions: [
+          { type: 'wait_plain', regex: 'Connection:', timeoutMs: 10000 },
+        ],
+      });
+      expect(result.plainOutput).toContain('password: (not set)');
+    }, 30000);
+  });
+
   const userSelectors = [
     { name: '--credential user', args: ['--credential', 'user'] },
     { name: 'FRODO_CREDENTIAL=user', env: { FRODO_CREDENTIAL: 'user' } },

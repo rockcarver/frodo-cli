@@ -3815,8 +3815,9 @@ export class FrodoCommand extends FrodoStubCommand {
     // profile can be consulted, so it can't tell "genuinely unknown" apart
     // from "resolvable from a saved profile for this host" — the exact case
     // a bare `frodo login <alias> --browser` needs to work without a
-    // redundant --type. getTokensInteractive() (frodo-lib) now resolves
-    // deploymentType from the profile itself when one isn't already known,
-    // and throws its own clear error if it's still unresolvable there.
+    // redundant --type. getTokensInteractive() (frodo-lib) resolves
+    // deploymentType itself when one isn't already known: the saved profile
+    // for the host (alias or URL), then the anonymous probe, and it throws
+    // its own clear error if both come up empty.
   }
 }

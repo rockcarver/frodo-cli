@@ -13,8 +13,8 @@
 ## Quick start
 
 ```console
-# Cloud
-frodo login --browser --type cloud https://openam-example.forgeblocks.com/am --save
+# Cloud (the deployment type is detected from the host, see below)
+frodo login --browser https://openam-example.forgeblocks.com/am --save
 
 # ForgeOps, loopback redirect
 frodo login --browser --login-client-id my-browser-client --type forgeops https://openam.example.com/am --save
@@ -30,7 +30,19 @@ frodo login --browser --login-client-id my-browser-client --type classic https:/
 
 `--preferred-credential` (`user`/`svcacct`/`amster`/`browser`) is the one persisted preference for which credential type later implicit commands against a host should use — it replaces the old `--default-credential`, now also covering browser login. View or change it at any time with `frodo conn <host>` (an interactive picker offering only what that profile actually has configured) or `frodo conn save --preferred-credential <type> <host>` directly. For device flow specifically, `--preferred-device-flow`/`--no-preferred-device-flow` on `conn save` persists that choice too, so a headless/SSH profile doesn't need `--device` repeated on every command.
 
-Cloud uses a fixed, built-in OAuth2 client and needs no further setup — just `--browser`/`--device` and a `--type cloud` host. ForgeOps and classic are fully customer-controlled and need the setup below.
+Cloud uses a fixed, built-in OAuth2 client and needs no further setup — just `--browser`/`--device` and the host. ForgeOps and classic are fully customer-controlled and need the setup below.
+
+## How frodo finds the deployment type and your session
+
+`--type` is optional with `--browser`/`--device`. frodo takes the deployment type from, in this order:
+
+1. `--type` (or `-m`), which always wins and is never second-guessed;
+2. the connection profile saved for the host, whether you name the host by URL, alias or a unique part of it;
+3. an anonymous check of the host: two requests to `/oauth2/authorize` with the built-in admin client ids, no credentials. Cloud and ForgeOps are recognised by their built-in OAuth2 clients, classic when both clients are unknown to an AM. A host that does not answer, or does not look like an AM, gives no type, and the command fails with a message that says to pass `--type` or save a profile.
+
+The check is skipped whenever 1 or 2 give a type. It times out after 8 seconds. Pass `--type` when the host cannot be reached without credentials (a gateway that needs headers, for example) or when you prefer not to make the extra requests; a saved profile keeps the headers and the `--insecure` setting for the host.
+
+With `--browser`/`--device`, or for a profile that prefers browser login, every command except `frodo login` reuses a valid cached browser session for the host and opens the browser only when there is none. `frodo login --browser` always performs a fresh login. A session is valid while it has more than 30 seconds left, and it is found under the host's full URL, so naming the host by alias or by a unique part of it finds it as well. See [decision record 0031](decisions/0031-a-saved-credential-or-a-fresh-cached-session-completes-the-connection.md) for when a saved profile or a cached session counts as a complete connection in interactive mode.
 
 ## ForgeOps setup
 
