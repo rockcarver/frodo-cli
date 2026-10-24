@@ -19,9 +19,9 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * An omitted realm keeps the deployment's default instead of opening an
- * interactive picker, even when the target has multiple realms. This drives
- * the REAL CLI through a pseudo-terminal against the fake AM with two realms.
+ * The realm picker only opens if another required input prompted the user.
+ * This drives the REAL CLI through a pseudo-terminal against the fake AM
+ * with two realms.
  *
  * The credentials come from the environment in the first two cases because the
  * realm is the operand between the host and the user name: this is the only
@@ -63,13 +63,14 @@ suite('default realm behavior, on a real terminal', () => {
     fs.rmSync(recordPath, { force: true });
   });
 
-  function journeyList(operands, actions) {
+  function journeyList(operands, actions, env = {}) {
     return runShellScenario({
       homeDir: home,
       allowPrompting: true,
       env: {
         FRODO_USERNAME: 'someone@example.com',
         FRODO_PASSWORD: 'secret',
+        ...env,
       },
       args: ['journey', 'list', ...operands],
       actions,
@@ -85,13 +86,23 @@ suite('default realm behavior, on a real terminal', () => {
   }
 
   test(
-    'a host without a realm keeps the deployment default without prompting',
+    'a missing host prompts for completion, then the realm picker opens and Escape keeps the default',
     () => {
       const result = journeyList(
-        [`http://127.0.0.1:${fakeAm.port}/am`],
-        [{ type: 'sleep', ms: 6000 }]
+        [],
+        [
+          { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
+          { type: 'send', text: `http://127.0.0.1:${fakeAm.port}/am` },
+          { type: 'key', name: 'enter' },
+          { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
+          { type: 'sleep', ms: 300 },
+          { type: 'key', name: 'escape' },
+          { type: 'sleep', ms: 6000 },
+        ]
       );
-      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(result.plainOutput).toContain('Choose a realm (default: /)');
+      expect(result.plainOutput).toContain('alpha');
+      expect(result.plainOutput).toContain('bravo');
       expect(
         requestedUrls().some(
           (url) => url.includes('/realms/root/') && url.includes('/trees')
@@ -114,6 +125,24 @@ suite('default realm behavior, on a real terminal', () => {
       expect(result.plainOutput).not.toContain('Choose a realm');
       // The command ran past login: it asked the tenant for its journeys.
       expect(requestedUrls().some((url) => url.includes('/trees'))).toBe(true);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'FRODO_REALM opens no picker, and the command uses that realm',
+    () => {
+      const result = journeyList(
+        [`http://127.0.0.1:${fakeAm.port}/am`],
+        [{ type: 'sleep', ms: 6000 }],
+        { FRODO_REALM: 'alpha' }
+      );
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some(
+          (url) => url.includes('/realms/alpha/') && url.includes('/trees')
+        )
+      ).toBe(true);
     },
     TIMEOUT
   );

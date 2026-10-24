@@ -67,8 +67,16 @@ write would be invisible to one of the two consumers.
 
 ## Post-auth pickers
 
-Entity pickers fire after `getTokens()` succeeds (their loaders need
-tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
+The realm and entity pickers fire after `getTokens()` succeeds (their loaders
+need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
+
+- **The realm picker** (`RealmPickers.ts`) — offered only when the command
+  declares a `[realm]` argument, the user did not specify it (positionally or
+  with `FRODO_REALM`), the resolution pass prompted for another required
+  connection input (such as a missing host or credentials), and the target
+  system has multiple realms. If realm is the only omitted value, no picker
+  opens: frodo-lib uses the deployment default (`alpha` on Identity Cloud; `/`
+  on classic and ForgeOps). Escape from the picker also keeps that default.
 
 - **Entity pickers** (`EntityPickers.ts`) — a command whose
   target-entity option (`-i/--secret-id`, `-i/--tree-id`, ...) was left
@@ -77,11 +85,6 @@ tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   resolver skips the free-text value step for pickable options. The
   loader is per-deployment-type by construction (whatever read
   function the command family's ops layer provides).
-When a command omits its `[realm]` argument, frodo-lib resolves the
-deployment's default realm (for example, `alpha` on Identity Cloud or
-`/` on classic and ForgeOps deployments). The interactive fallback does
-not prompt for a realm; specify one explicitly when a different realm is
-needed.
 
 ## Panel per surface (the frame layout)
 
@@ -429,7 +432,7 @@ command wiring lazy-import whatever carries a frodo-lib graph.
 
 The framework is AMBIENT: a developer adds a command the way they
 always have and it picks interactivity up automatically (resolver,
-connection page, entity pickers, invocation editor). Regular
+connection page, realm/entity pickers, invocation editor). Regular
 command files and ops modules therefore carry no prompting code of
 their own — `conn.ts` is one import line, `ConnectionProfileOps` has
 none.
@@ -439,12 +442,12 @@ none.
   every reusable picker built on its prompts, including the pickers of
   natively-interactive commands (ConnectionProfilePickers behind
   `frodo conn`, JourneyDebugPrompt behind `frodo debug journey`,
-  EntityPickers). Single-use today does not mean
+  RealmPickers, EntityPickers). Single-use today does not mean
   single-use tomorrow — the theme picker already gained a second
   consumer — so command implementations that prompt centralize HERE,
   next to the machinery they compose. These modules may import frodo-lib
-  directly (ConnectionProfilePickers' `frodo.conn`) but NEVER import
-  from `src/ops/` — the command/resolver
+  directly (RealmPickers' `state`, ConnectionProfilePickers'
+  `frodo.conn`) but NEVER import from `src/ops/` — the command/resolver
   layer calls INTO them.
 - `src/cli/` — command files reach the interactive layer with a plain
   import (conn.ts → ConnectionProfilePickers, debug-journey.ts →

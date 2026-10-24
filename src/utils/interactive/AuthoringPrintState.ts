@@ -70,7 +70,7 @@ export function authSucceededForFlush(): boolean {
  * module stays zero-import. The closure re-reads the command object (a
  * closure over it) AND evaluates the print gate (promptsRendered /
  * explicitlyInteractive) at flush time -- both must be late: the
- * post-auth entity pickers render after the pass ends, so both a
+ * post-auth realm/entity pickers render after the pass ends, so both a
  * gate-at-arm-time and a snapshot-of-the-command would go stale.
  */
 let flushImpl: (() => void) | undefined;

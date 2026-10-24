@@ -91,6 +91,10 @@ import {
   promptPassword,
   promptsRendered,
 } from '../utils/interactive/PromptGate';
+import {
+  noteRealmProvenance,
+  noteRequiredInputPrompted,
+} from '../utils/interactive/RealmPickers';
 import { guidedModeEnabled } from '../utils/SettingsStore';
 
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
@@ -99,7 +103,7 @@ const { isValidUrl } = frodo.utils;
 
 // The active-action-command registry lives in its own zero-import module
 // (ActiveActionCommandState) so ops-layer importers (AuthenticateOps's
-// post-auth entity picker) don't drag this file's frodo-lib-importing
+// post-auth realm/entity pickers) don't drag this file's frodo-lib-importing
 // graph into tests that mock frodo-lib wholesale. Re-exported here for
 // the resolution pass's own use.
 export {
@@ -264,6 +268,11 @@ export async function resolveInteractiveInputs(
   // explicit flag or env var on THIS invocation keeps precedence (the
   // gate skips options that already carry a non-default source).
   applyPersistedDefaults(command);
+  // The realm picker is only an optional extension of an already-needed
+  // interactive completion. Keep the deployment default when realm is the
+  // sole omitted value.
+  noteRealmProvenance(command);
+  noteRequiredInputPrompted(false);
   // Sentinel translation for the command preview: the realm positional's
   // sentinel default must print as the deployment type's default realm
   // (alpha on cloud, / otherwise -- the same mapping frodo-lib applies at
@@ -288,11 +297,15 @@ export async function resolveInteractiveInputs(
   // red there. When nothing needs prompting the flag flips to its real
   // value immediately, with no frame in between.
   connectionReadiness.set(command, false);
+  const promptCountBeforeRequiredInputs = promptsRendered();
   const connectionResolved = await resolveConnectionArgs(command);
   connectionReadiness.set(command, connectionResolved);
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
     : false;
+  noteRequiredInputPrompted(
+    promptsRendered() > promptCountBeforeRequiredInputs
+  );
   if (!connectionResolved || !mandatoryResolved) {
     if (violations.length > 0) {
       throwMissingMandatory(command, violations[0]);
@@ -325,8 +338,8 @@ export async function resolveInteractiveInputs(
   // them). Flush sites, chosen so every flow's print lands at its last
   // command-mutating moment:
   //
-  // - getTokens wrapper (AuthenticateOps): after auth succeeds -- every
-  //   auth command's action output starts after its
+  // - getTokens wrapper (AuthenticateOps): after the post-auth realm pick
+  //   concludes -- every auth command's action output starts after its
   //   getTokens returns, so the print sits directly above the results.
   //   SKIPPED when the command has entity picks pending (the picks may
   //   still change the command; resolveEntityPicks flushes instead).
@@ -344,9 +357,9 @@ export async function resolveInteractiveInputs(
   //
   // Armed UNCONDITIONALLY (registration is free); the PRINT GATE lives in
   // the flush closure, evaluated at flush time -- NOT here. It must be
-  // evaluated late: post-auth entity pickers render AFTER this pass ends,
-  // so a gate evaluated now would miss a session whose only prompt was a
-  // picker (env-resolved connection + entity pick). The gate itself
+  // evaluated late: post-auth realm/entity pickers render AFTER this pass
+  // ends, so a gate evaluated now would miss a session whose only prompt
+  // was a picker. The gate itself
   // is unchanged: at least one prompt rendered this process, or the user
   // explicitly requested the flow (--prompt / guided mode). Fully
   // specified non-TTY runs (e2e snapshots) render no prompts and never

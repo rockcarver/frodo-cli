@@ -2,7 +2,7 @@
  * The invocation editor's candidate list and the discoverability
  * hint derived from it (docs/INTERACTIVE-COMMANDS.md), split into a
  * zero-import module the same way PromptGateState/ActiveActionCommandState
- * are: pickers in this directory (EntityPickers) attach the
+ * are: pickers in this directory (EntityPickers, RealmPickers) attach the
  * hint to their prompts, and the editor in cli/ResolveInteractiveInputs
  * consumes the same list -- one shared source of truth, so the
  * "(→ N options)" count is always the truthful promise the

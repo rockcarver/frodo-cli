@@ -21,6 +21,7 @@ import { getActiveActionCommand } from '../utils/interactive/ActiveActionCommand
 // established import path.
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
 import { EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
+import { canPrompt } from '../utils/interactive/PromptGateState';
 import { question } from '../utils/Prompt';
 
 export type { CredentialOverrideType };
@@ -208,6 +209,14 @@ export async function getTokens(
         state.getRealm() ? state.getRealm() : 'root'
       }] as ${tokens.subject}`
     );
+    // Realm selection is offered only when the resolution pass already had
+    // to prompt for required connection input. Otherwise an omitted realm
+    // retains frodo-lib's deployment default.
+    if (canPrompt()) {
+      const { resolveRealmPick } =
+        await import('../utils/interactive/RealmPickers');
+      await resolveRealmPick(getActiveActionCommand());
+    }
     // The deferred authoring print: flushed
     // HERE so the eventual command lands directly above the action's
     // results (the print is a header for the output, not a footer after

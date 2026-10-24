@@ -227,6 +227,64 @@ describe('phase 5 slice 1: hint + segment routing', () => {
     TIMEOUT
   );
 
+  test(
+    'realm picker: → opens the editor; ← returns to the realm picker',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        // `realm list` with env-resolved service-account credentials:
+        // auth succeeds on the mock cassette, then the post-auth realm
+        // picker (alpha/bravo) arms the → hint. REGRESSION (user report
+        // 2026-10-13): this picker answered → by re-prompting itself
+        // without ever opening the editor, so the key looked dead while
+        // the Navigate bar still advertised "N options".
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          args: ['realm', 'list'],
+          env: {
+            ...ENV,
+            FRODO_HOST: '__FRODO_PTY_DELETE__',
+            FRODO_CONNECTION_PROFILES_PATH: '',
+            FRODO_SA_ID: connection.saId,
+            FRODO_SA_JWK: connection.saJwk,
+          },
+          actions: [
+            { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
+            { type: 'send', text: ENV.FRODO_HOST },
+            { type: 'key', name: 'enter' },
+            { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'picker' },
+            { type: 'key', name: 'right' },
+            {
+              type: 'wait_plain',
+              regex: 'Optional options for',
+              timeoutMs: 15000,
+            },
+            { type: 'sleep', ms: 300 },
+            { type: 'capture', label: 'editor' },
+            // wait_plain scans ALL accumulated output, so drop it first:
+            // the next 'Choose a realm' must be the picker RE-OPENING.
+            { type: 'clear_output' },
+            { type: 'key', name: 'left' },
+            { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 15000 },
+            { type: 'sleep', ms: 300 },
+            { type: 'capture', label: 'back' },
+          ],
+        });
+
+        expect(result.captures.picker.plain).toMatch(/\] \d+ options/);
+        expect(result.captures.editor.plain).toMatch(
+          /Optional options for 'list'/
+        );
+        expect(result.captures.back.plain).toMatch(/Choose a realm/);
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
 });
 
 /**
@@ -554,6 +612,46 @@ describe('phase 5 slice 4: command preview', () => {
             red: true,
             green: false,
             italic: true,
+          });
+        } finally {
+          removeShellTestHome(homeDir);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'realm picker after prompting for the missing host: green, upright',
+      async () => {
+        const homeDir = createShellTestHome();
+        try {
+          const result = runShellScenario({
+            homeDir,
+            allowPrompting: true,
+            args: ['realm', 'list'],
+            env: {
+              ...ENV,
+              FRODO_HOST: '__FRODO_PTY_DELETE__',
+              FRODO_CONNECTION_PROFILES_PATH: '',
+              FRODO_SA_ID: connection.saId,
+              FRODO_SA_JWK: connection.saJwk,
+              ...COLOR_ENV,
+            },
+            actions: [
+              { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
+              { type: 'send', text: ENV.FRODO_HOST },
+              { type: 'key', name: 'enter' },
+              { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
+              { type: 'sleep', ms: 400 },
+              { type: 'capture', label: 'realm' },
+            ],
+          });
+          const footer = colorOf(footerOf(result.captures.realm.raw));
+          expect(footer.text).toMatch(/^frodo realm list /);
+          expect(footer).toMatchObject({
+            green: true,
+            red: false,
+            italic: false,
           });
         } finally {
           removeShellTestHome(homeDir);

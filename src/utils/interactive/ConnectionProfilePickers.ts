@@ -10,7 +10,7 @@
  * framework is ambient, so a regular command file picks interactivity up
  * automatically and neither ops modules nor command files carry prompting
  * code of their own (docs/INTERACTIVE-COMMANDS.md, layering). Like
- * EntityPickers, this module imports frodo-lib directly and
+ * RealmPickers/EntityPickers, this module imports frodo-lib directly and
  * never imports from ops/ -- the command layer calls INTO it, not the
  * other way around.
  */
