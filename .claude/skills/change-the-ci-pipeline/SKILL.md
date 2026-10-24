@@ -62,3 +62,4 @@ The pull request that changes the pipeline cannot show the skip, because it is c
 ## When to stop and ask
 
 A required check changes, a release or signing job is involved, a secret or permission is added, or you cannot tell which list a path belongs on. Say so in the issue or pull request.
+
