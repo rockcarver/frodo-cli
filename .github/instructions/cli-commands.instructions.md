@@ -4,7 +4,7 @@ applyTo: 'src/cli/**/*.ts'
 
 # Writing or changing a CLI command
 
-**New capability goes into frodo-lib behind the `frodo` facade first; the CLI wraps it for the terminal** (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI. Decision: [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
+**New capability goes into frodo-lib behind the `frodo` facade first; the CLI wraps it for the terminal** (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI. Decision: [core 0001 The library is the brain, the CLI is a thin wrapper](../../docs/decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
 
 The full guide is [docs/CONTRIBUTE.md, "Writing a command"](../../docs/CONTRIBUTE.md#writing-a-command).
 

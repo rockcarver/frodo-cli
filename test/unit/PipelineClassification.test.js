@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
  * depends on. Nothing here talks to GitHub.
  *
  * Wired in docs/PIPELINE.md ("Detect code changes", "Validate guidance",
- * "Test gate"); the umbrella records 0012 and 0016 say why.
+ * "Test gate"); core 0012 and core 0016 say why.
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');

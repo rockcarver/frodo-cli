@@ -34,7 +34,7 @@ const KEYS = ['name', 'description', 'disable-model-invocation', 'license'];
 const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 const STOP_LINE = /^\*\*Only run when a maintainer asks\./;
 const STOP_PHRASE = 'stop and say so in the issue or pull request';
-const UMBRELLA = 'https://github.com/rockcarver/frodo/blob/main/docs/decisions/';
+const CORE = 'docs/decisions/core/';
 // Repository locations a skill may name inline, and build output that exists
 // only after a build or an install.
 const REPO_ROOTS = /^(src|test|docs|tools|scripts|\.github|\.claude)\//;
@@ -165,21 +165,23 @@ describe('agent skills', () => {
       expect(missing).toEqual([]);
     });
 
-    it('cites only cli records that exist, and links every umbrella record it cites', () => {
+    it('cites only cli records that exist, and links every core record it cites', () => {
       const cited = [...text.matchAll(/\bcli records? ((?:\d{4}(?:,? (?:and )?)?)+)/g)].flatMap(
         (m) => m[1].match(/\d{4}/g)
       );
       const unknown = cited.filter((n) => !decisions.some((f) => f.startsWith(`${n}-`)));
       expect(unknown).toEqual([]);
 
-      // "record 0002" alone is ambiguous: both repositories have a 0001.
+      // "record 0002" alone is ambiguous: the repository and its core folder both have a 0001.
       const bare = [...text.matchAll(/(\w*)\W{0,2}\brecords? \d{4}/g)]
-        .filter((m) => !/^(cli|umbrella)$/i.test(m[1]))
+        .filter((m) => !/^(cli|core)$/i.test(m[1]))
         .map((m) => m[0]);
       expect(bare).toEqual([]);
 
-      const umbrella = [...text.matchAll(/\bumbrella (?:records? )?(\d{4})\b/g)].map((m) => m[1]);
-      const unlinked = umbrella.filter((n) => !text.includes(`${UMBRELLA}${n}-`));
+      const core = [...text.matchAll(/\bcore (?:records? )?(\d{4})\b/g)].map((m) => m[1]);
+      const coreFiles = fs.readdirSync(path.join(ROOT, CORE));
+      expect(core.filter((n) => !coreFiles.some((f) => f.startsWith(`${n}-`)))).toEqual([]);
+      const unlinked = core.filter((n) => !text.includes(`${CORE}${n}-`));
       expect(unlinked).toEqual([]);
     });
 

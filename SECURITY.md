@@ -31,7 +31,7 @@ Frodo is maintained by a small team of volunteers. We answer on a best-effort ba
 
 ## Unsolicited fix pull requests
 
-We read a pull request that claims to fix a security problem before we run any automated checks on it, and we may close it without merging. Please report the problem privately instead. How we handle reports is recorded in [rockcarver/frodo, record 0017](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0017-security-reports-and-fixes-are-handled-privately-by-a-maintainer.md).
+We read a pull request that claims to fix a security problem before we run any automated checks on it, and we may close it without merging. Please report the problem privately instead. How we handle reports is recorded in [core 0017](docs/decisions/core/0017-security-reports-and-fixes-are-handled-privately-by-a-maintainer.md).
 
 ## Supported versions
 

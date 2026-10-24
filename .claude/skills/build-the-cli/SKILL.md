@@ -55,7 +55,7 @@ npm run test:only -- test/unit/UsageExamples.test.js     # one file; the argumen
 
 ## Developing against a local frodo-lib
 
-Needed when your change also needs a library change (the library goes first, [umbrella 0001](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md); see the `add-a-cli-command` skill). Clone both repositories side by side. **The library directory must be named `frodo-lib`**: `npm run link` points at `../frodo-lib`, and the library's recording tests find their recordings by that path segment.
+Needed when your change also needs a library change (the library goes first, [core 0001](../../../docs/decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md); see the `add-a-cli-command` skill). Clone both repositories side by side. **The library directory must be named `frodo-lib`**: `npm run link` points at `../frodo-lib`, and the library's recording tests find their recordings by that path segment.
 
 ```console
 git clone https://github.com/rockcarver/frodo-lib.git
@@ -72,7 +72,7 @@ node dist/launch.cjs -v                     # the lib line now shows the time of
 ## Pitfalls
 
 - A **stale `dist/`** is the usual reason for a test that fails or passes unexpectedly. Rebuild first.
-- **Never add a package to `dependencies`.** Packages imported by shipped code go in `devDependencies`; `dependencies` stays empty (umbrella 0006, [published packages have no runtime dependencies](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0006-published-packages-have-no-runtime-dependencies.md); the check is in BUILD-ENV.md section 2.2.1).
+- **Never add a package to `dependencies`.** Packages imported by shipped code go in `devDependencies`; `dependencies` stays empty (core 0006, [published packages have no runtime dependencies](../../../docs/decisions/core/0006-published-packages-have-no-runtime-dependencies.md); the check is in BUILD-ENV.md section 2.2.1).
 - Do not edit `CHANGELOG.md`; it is generated at release time.
 
 Verified with Node 26.5.0 and npm 12.0.2 on macOS (arm64): `npm ci`, `npm run build:only`, running `dist/launch.cjs`, linking a sibling `frodo-lib`. Not verified: Windows and Linux.
