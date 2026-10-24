@@ -48,11 +48,11 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Delete the "${s.propertyName}" property:\n` +
         c.command(
-          `  $ frodo idm schema property delete -o ${s.managedObjectType} -p ${s.propertyName} -y ${s.amBaseUrl} ${s.realm}\n`
+          `  $ frodo idm schema property delete -o ${s.managedObjectType} -p ${s.propertyName} -y ${s.amBaseUrl}\n`
         ) +
         `  Delete just the "${s.subPropertyName}" sub-property nested inside "${s.objectPropertyName}":\n` +
         c.command(
-          `  $ frodo idm schema property delete -o ${s.managedObjectType} -p ${s.objectPropertyName} --sub-property ${s.subPropertyName} -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema property delete -o ${s.managedObjectType} -p ${s.objectPropertyName} --sub-property ${s.subPropertyName} -y ${s.connId}\n`
         )
     )
     .action(

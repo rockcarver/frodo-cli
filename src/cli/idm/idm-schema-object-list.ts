@@ -31,17 +31,11 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  List every managed object type:\n` +
-        c.command(
-          `  $ frodo idm schema object list ${s.amBaseUrl} ${s.realm}\n`
-        ) +
+        c.command(`  $ frodo idm schema object list ${s.amBaseUrl}\n`) +
         `  List them with all fields:\n` +
-        c.command(
-          `  $ frodo idm schema object list --long ${s.connId} ${s.realm}\n`
-        ) +
+        c.command(`  $ frodo idm schema object list --long ${s.connId}\n`) +
         `  List them in JSON format:\n` +
-        c.command(
-          `  $ frodo idm schema object list --json ${s.connId} ${s.realm}\n`
-        )
+        c.command(`  $ frodo idm schema object list --json ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler

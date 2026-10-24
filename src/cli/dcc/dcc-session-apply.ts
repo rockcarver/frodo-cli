@@ -28,9 +28,9 @@ export default function setup() {
           `  $ frodo dcc session apply ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Apply configuration and end a direct configuration session with connection ID:\n` +
-        c.command(`  $ frodo dcc session apply ${s.connId} ${s.realm}\n`) +
+        c.command(`  $ frodo dcc session apply ${s.connId}\n`) +
         `  Apply configuration and end a direct configuration session in JSON format with connection ID:\n` +
-        c.command(`  $ frodo dcc session apply --json ${s.connId} ${s.realm}\n`)
+        c.command(`  $ frodo dcc session apply --json ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler

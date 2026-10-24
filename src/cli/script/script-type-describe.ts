@@ -25,11 +25,11 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Describe the bindings available to scripted decision node scripts:\n` +
         c.command(
-          `  $ frodo script type describe -c SCRIPTED_DECISION_NODE ${s.amBaseUrl} ${s.realm}\n`
+          `  $ frodo script type describe -c SCRIPTED_DECISION_NODE ${s.amBaseUrl}\n`
         ) +
         `  Describe them in JSON format:\n` +
         c.command(
-          `  $ frodo script type describe -c SCRIPTED_DECISION_NODE --json ${s.connId} ${s.realm}\n`
+          `  $ frodo script type describe -c SCRIPTED_DECISION_NODE --json ${s.connId}\n`
         )
     )
     .action(

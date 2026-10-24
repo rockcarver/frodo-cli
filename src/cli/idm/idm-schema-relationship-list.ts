@@ -38,15 +38,15 @@ export default function setup() {
       `Usage Examples:\n` +
         `  List the "${s.managedObjectTitle}" type's relationship properties:\n` +
         c.command(
-          `  $ frodo idm schema relationship list -o ${s.managedObjectType} ${s.amBaseUrl} ${s.realm}\n`
+          `  $ frodo idm schema relationship list -o ${s.managedObjectType} ${s.amBaseUrl}\n`
         ) +
         `  List them with all fields:\n` +
         c.command(
-          `  $ frodo idm schema relationship list -o ${s.managedObjectType} --long ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship list -o ${s.managedObjectType} --long ${s.connId}\n`
         ) +
         `  List them in JSON format:\n` +
         c.command(
-          `  $ frodo idm schema relationship list -o ${s.managedObjectType} --json ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship list -o ${s.managedObjectType} --json ${s.connId}\n`
         )
     )
     .action(

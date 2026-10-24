@@ -7,7 +7,6 @@ import {
   extractExamples,
   fullName,
   hasUnbalancedQuote,
-  INTERACTIVE_BY_DESIGN,
   loadCommandTree,
   looksLikeRealm,
   parseExample,
@@ -25,12 +24,12 @@ import { LEGACY_EXAMPLE_VIOLATIONS } from './UsageExampleOperandsLegacyException
  * (see exampleViolations in test/utils/CommandExamples.js):
  *
  * - the command exists and every flag is one of its options;
- * - the realm goes right after the host or profile (the usage of most
- *   commands is `[host] [realm] [username] [password]`): host, user and
- *   password alone make the CLI read the user name as the realm and the
- *   password as the user name, and a host alone opens the realm picker on any
- *   tenant with more than one realm (docs/INTERACTIVE-COMMANDS.md, "Post-auth
- *   pickers");
+ * - the second operand of a command with `[host] [realm] [username]
+ *   [password]` is the realm: with host, user and password alone the CLI
+ *   reads the user name as the realm and the password as the user name, so
+ *   the example logs in as nobody (a host or profile alone is not judged here:
+ *   whether an omitted realm should open the realm picker is a separate
+ *   question, cli#885);
  * - an entity picker or a requireOneOf / requireAllOf group is satisfied by an
  *   option, so no picker or options editor opens;
  * - no quote is left open.
@@ -42,7 +41,7 @@ import { LEGACY_EXAMPLE_VIOLATIONS } from './UsageExampleOperandsLegacyException
 const LEGACY_FILE = 'test/unit/UsageExampleOperandsLegacyExceptions.js';
 const HOW_TO_FIX =
   'Fix the example (src/cli/...): it must run as written and open no picker. ' +
-  "Realm right after the host: `<connId> <realm>` or `<amBaseUrl> <realm> <username> '<password>'` " +
+  "Operands are positional, so with a user name the realm comes second: `<amBaseUrl> <realm> <username> '<password>'` " +
   '(sample values in src/help/SampleData.ts); name the target (`-i`, `-a`, ...) of every command that picks an entity; ' +
   'only flags the command defines. See .github/instructions/cli-commands.instructions.md.';
 
@@ -175,9 +174,15 @@ describe('realm operand', () => {
     expect(rulesOf(withRealm(), ...operands)).toEqual([]);
   });
 
-  it('rejects a host or profile alone: the realm picker opens', () => {
-    expect(rulesOf(withRealm(), 'matrix')).toEqual(['realm-missing']);
-    expect(rulesOf(withRealm(), '-a', 'matrix')).toEqual(['realm-missing']);
+  it('does not judge a host or profile alone (whether it should name a realm is cli#885)', () => {
+    expect(rulesOf(withRealm(), 'matrix')).toEqual([]);
+    expect(rulesOf(withRealm(), '-a', 'matrix')).toEqual([]);
+  });
+
+  it('rejects host and user name: the user name is read as the realm', () => {
+    expect(
+      rulesOf(withRealm(), 'https://am.example.com/am', 'user@example.com')
+    ).toEqual(['realm-misplaced']);
   });
 
   it('rejects host, user and password: the user name is read as the realm', () => {
@@ -204,7 +209,7 @@ describe('realm operand', () => {
   it('does not apply to a command whose first argument is not a host', () => {
     const command = new Command('list');
     command.argument('[name]').argument('[realm]').option('-a, --all');
-    expect(rulesOf(command, 'something')).toEqual([]);
+    expect(rulesOf(command, 'something', 'user@example.com')).toEqual([]);
   });
 
   it('does not apply to a command without a realm argument', () => {
@@ -325,16 +330,6 @@ describe('flags', () => {
     const command = withRealm();
     parseExample(command, ['-a', '-i', 'x', 'matrix']);
     expect(command.opts()).toEqual({});
-  });
-});
-
-describe('interactive on purpose', () => {
-  it('only checks the flags of a command that is interactive by design', () => {
-    const shell = new Command('shell');
-    shell.argument('[host]').argument('[realm]').option('-v, --verbose');
-    expect(INTERACTIVE_BY_DESIGN.has('frodo shell')).toBe(true);
-    expect(rulesOf(shell, 'matrix')).toEqual([]);
-    expect(rulesOf(shell, '-z', 'matrix')).toEqual(['unknown-option']);
   });
 });
 

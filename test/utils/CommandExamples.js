@@ -220,15 +220,6 @@ export function hasUnbalancedQuote(line) {
   return quote !== null;
 }
 
-/**
- * Commands that are interactive on purpose: an example of one may open a
- * prompt, so only its flags are checked. Add a command here only when
- * prompting is what it is for, and name that in the reason.
- */
-export const INTERACTIVE_BY_DESIGN = new Map([
-  ['frodo shell', 'the interactive shell'],
-]);
-
 const REALM = /^(\/|\/?[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*)$/;
 
 /** Whether an operand can be a realm (`/alpha`, `bravo`, `/parent/child`), not a user name or a password. */
@@ -244,13 +235,12 @@ export function looksLikeRealm(value) {
  * What is wrong with one usage example (an empty list when it is right). An
  * example must run as written without opening an interactive mode:
  * - `unknown-option`: a flag the command does not define.
- * - `realm-missing` / `realm-misplaced`: for a command with `[host] [realm]
- *   [username] [password]` the realm operand goes right after the host. With
- *   only host, user and password the user name is read as the realm and the
- *   password as the user name; with only a host or profile the realm picker
- *   opens on any tenant with more than one realm (docs/INTERACTIVE-COMMANDS.md,
- *   "Post-auth pickers"). Examples without a host operand do not talk to a
- *   tenant and are exempt.
+ * - `realm-misplaced`: for a command with `[host] [realm] [username]
+ *   [password]` the second operand is the realm. With only host, user and
+ *   password the user name is read as the realm and the password as the user
+ *   name, so the example logs in as nobody. An example with a host or profile
+ *   alone is not judged here (whether it should name a realm is a separate
+ *   question); examples without a host operand do not talk to a tenant.
  * - `target-missing`: the command has entity pickers and the example sets
  *   neither a picked option nor a member of its `requireOneOf` groups, so the
  *   entity picker opens.
@@ -269,26 +259,20 @@ export function exampleViolations(command, args) {
       message: `${flag} is not an option of ${fullName(command)}.`,
     })
   );
-  if (INTERACTIVE_BY_DESIGN.has(fullName(command))) return found;
-
   const names = command.registeredArguments.map((a) => a.name());
   const realmIndex = names.indexOf('realm');
-  if (names[0] === 'host' && realmIndex > 0 && operands.length > 0) {
-    if (operands.length <= realmIndex) {
-      found.push({
-        rule: 'realm-missing',
-        message:
-          `names no realm (usage: ${names.map((n) => `[${n}]`).join(' ')}). ` +
-          `Name it right after the host or profile: in a terminal the realm picker opens on any tenant with more than one realm.`,
-      });
-    } else if (!looksLikeRealm(operands[realmIndex])) {
-      found.push({
-        rule: 'realm-misplaced',
-        message:
-          `has "${operands[realmIndex]}" where the realm goes (usage: ${names.map((n) => `[${n}]`).join(' ')}). ` +
-          `Put the realm right after the host: <host> <realm> <username> '<password>'.`,
-      });
-    }
+  if (
+    names[0] === 'host' &&
+    realmIndex > 0 &&
+    operands.length > realmIndex &&
+    !looksLikeRealm(operands[realmIndex])
+  ) {
+    found.push({
+      rule: 'realm-misplaced',
+      message:
+        `has "${operands[realmIndex]}" where the realm goes (usage: ${names.map((n) => `[${n}]`).join(' ')}). ` +
+        `Put the realm right after the host: <host> <realm> <username> '<password>'.`,
+    });
   }
 
   const groups = getOneOfGroups(command);

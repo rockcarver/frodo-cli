@@ -65,19 +65,17 @@ export default function setup() {
         `  The ${c.command('frodo app')} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${c.command('frodo oauth client')} command.\n\n` +
         `Usage Examples:\n` +
         `  Export all applications to a single export file with an auto-generated filename using a connection profile:\n` +
-        c.command(`  $ frodo app export -a ${s.connId} ${s.realm}\n`) +
+        c.command(`  $ frodo app export -a ${s.connId}\n`) +
         `  Export the first application to a single export file with a custom filename:\n` +
         c.command(
-          `  $ frodo app export -f ./allMyApplications.application.json ${s.connId} ${s.realm}\n`
+          `  $ frodo app export -f ./allMyApplications.application.json ${s.connId}\n`
         ) +
         `  Export all applications to separate export files with an auto-generated filenames:\n` +
-        c.command(`  $ frodo app export -A ${s.connId} ${s.realm}\n`) +
+        c.command(`  $ frodo app export -A ${s.connId}\n`) +
         `  Export all applications without dependencies to a single export file:\n` +
-        c.command(
-          `  $ frodo app export --no-deps -a ${s.connId} ${s.realm}\n`
-        ) +
+        c.command(`  $ frodo app export --no-deps -a ${s.connId}\n`) +
         `  Export the application 'myApp' to a file with an auto-generated filename of 'myApp.application.json':\n` +
-        c.command(`  $ frodo app export -i myApp ${s.connId} ${s.realm}\n`)
+        c.command(`  $ frodo app export -i myApp ${s.connId}\n`)
     )
     .requireOneOf({
       options: ['all', 'allSeparate', 'appId', 'appName'],

@@ -140,23 +140,23 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Update the "${s.propertyName}" property's title:\n` +
         c.command(
-          `  $ frodo idm schema property update -o ${s.managedObjectType} -p ${s.propertyName} --title "Max Crew" -y ${s.amBaseUrl} ${s.realm}\n`
+          `  $ frodo idm schema property update -o ${s.managedObjectType} -p ${s.propertyName} --title "Max Crew" -y ${s.amBaseUrl}\n`
         ) +
         `  Make it both searchable and required in the same call:\n` +
         c.command(
-          `  $ frodo idm schema property update -o ${s.managedObjectType} -p ${s.propertyName} --searchable --required -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema property update -o ${s.managedObjectType} -p ${s.propertyName} --searchable --required -y ${s.connId}\n`
         ) +
         `  Update the "${s.subPropertyName}" sub-property nested inside "${s.objectPropertyName}":\n` +
         c.command(
-          `  $ frodo idm schema property update -o ${s.managedObjectType} -p ${s.objectPropertyName} --sub-property ${s.subPropertyName} --title "Seat Count" --required -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema property update -o ${s.managedObjectType} -p ${s.objectPropertyName} --sub-property ${s.subPropertyName} --title "Seat Count" --required -y ${s.connId}\n`
         ) +
         `  Change its allowed values and default:\n` +
         c.command(
-          `  $ frodo idm schema property update -o ${s.managedObjectType} -p custom_status --enum "active,retired,decommissioned" --default active -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema property update -o ${s.managedObjectType} -p custom_status --enum "active,retired,decommissioned" --default active -y ${s.connId}\n`
         ) +
         `  Point its on-retrieve script at an updated local file:\n` +
         c.command(
-          `  $ frodo idm schema property update -o ${s.managedObjectType} -p custom_isFlightworthy --on-retrieve-script isFlightworthy.onRetrieve.js -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema property update -o ${s.managedObjectType} -p custom_isFlightworthy --on-retrieve-script isFlightworthy.onRetrieve.js -y ${s.connId}\n`
         )
     )
     .action(

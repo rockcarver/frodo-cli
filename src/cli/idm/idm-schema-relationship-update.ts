@@ -127,23 +127,23 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Update the "${s.relationshipPropertyName}" relationship's description:\n` +
         c.command(
-          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --description "The user piloting this hovercraft" -y ${s.amBaseUrl} ${s.realm}\n`
+          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --description "The user piloting this hovercraft" -y ${s.amBaseUrl}\n`
         ) +
         `  Update it on both sides, including the auto-created reverse "${s.reverseRelationshipPropertyName}" property:\n` +
         c.command(
-          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --description "The user piloting this hovercraft" --with-reverse -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --description "The user piloting this hovercraft" --with-reverse -y ${s.connId}\n`
         ) +
         `  Change it from a to-one to a to-many relationship:\n` +
         c.command(
-          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --many -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --many -y ${s.connId}\n`
         ) +
         `  Update its query filter, sort order, and turn on change notifications, in one call:\n` +
         c.command(
-          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --query-filter 'accountStatus eq "active"' --sort-keys sn --notify -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --query-filter 'accountStatus eq "active"' --sort-keys sn --notify -y ${s.connId}\n`
         ) +
         `  Re-point it at a different managed object type:\n` +
         c.command(
-          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object alpha_role --query-fields name -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship update -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object alpha_role --query-fields name -y ${s.connId}\n`
         )
     )
     .action(

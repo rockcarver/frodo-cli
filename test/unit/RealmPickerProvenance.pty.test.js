@@ -19,18 +19,23 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * Why a usage example has to name the realm (UsageExampleOperands.test.js):
- * run in a terminal, `frodo journey list <host>` asks "Choose a realm" as soon
- * as the tenant has more than one realm, and `frodo journey list <host>
- * /alpha` does not. This drives the REAL CLI of this checkout through a
- * pseudo-terminal against the fake AM (test/utils/FakeAm.mjs, a separate
- * process) with two realms, so the claim in docs/INTERACTIVE-COMMANDS.md
- * ("Post-auth pickers") is checked, not just quoted.
+ * A realm the user typed counts as chosen, so the realm picker stays closed
+ * (docs/INTERACTIVE-COMMANDS.md, "Post-auth pickers"). It did not for a realm
+ * typed as the `[realm]` argument: the provenance was noted before the
+ * argument reached frodo-lib's state, so only FRODO_REALM counted and `frodo
+ * journey list <host> /alpha <user> <password>` still asked "Choose a realm".
  *
- * The credentials come from the environment because the realm is the operand
- * between the host and the user name: this is the only way to give a login
- * and still leave the realm out. Needs python3 with `pty` (Linux, macOS);
- * skipped on Windows.
+ * This drives the REAL CLI of this checkout through a pseudo-terminal against
+ * the fake AM (test/utils/FakeAm.mjs, a separate process) with two realms, so
+ * the claim is checked, not just quoted. The first case is the control: the
+ * picker does open today when no realm is named. If cli#885 restores the
+ * silent fallback to the deployment's default realm, that case changes with
+ * it and goes away; the other two must keep passing either way.
+ *
+ * The credentials come from the environment in the first two cases because the
+ * realm is the operand between the host and the user name: this is the only
+ * way to give a login and still leave the realm out. Needs python3 with `pty`
+ * (Linux, macOS); skipped on Windows.
  */
 const hasPty =
   process.platform !== 'win32' &&
@@ -89,7 +94,7 @@ suite('the realm picker, on a real terminal', () => {
   }
 
   test(
-    'a host without a realm opens the realm picker',
+    'control: a host without a realm opens the realm picker today',
     () => {
       const result = journeyList(
         [`http://127.0.0.1:${fakeAm.port}/am`],

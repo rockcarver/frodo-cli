@@ -172,23 +172,23 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Create the "${s.relationshipPropertyName}" relationship, pointing from "${s.managedObjectTitle}" at "${s.targetManagedObjectType}":\n` +
         c.command(
-          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object ${s.targetManagedObjectType} --single --query-fields "${s.relationshipQueryFields}" ${s.amBaseUrl} ${s.realm}\n`
+          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object ${s.targetManagedObjectType} --single --query-fields "${s.relationshipQueryFields}" ${s.amBaseUrl}\n`
         ) +
         `  Create it bidirectionally, auto-creating the reverse "${s.reverseRelationshipPropertyName}" property on "${s.targetManagedObjectType}":\n` +
         c.command(
-          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object ${s.targetManagedObjectType} --single --query-fields "${s.relationshipQueryFields}" --reverse-property ${s.reverseRelationshipPropertyName} --reverse-many --reverse-query-fields name ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object ${s.targetManagedObjectType} --single --query-fields "${s.relationshipQueryFields}" --reverse-property ${s.reverseRelationshipPropertyName} --reverse-many --reverse-query-fields name ${s.connId}\n`
         ) +
         `  Create a to-many relationship instead, one "${s.managedObjectTitle}" pointing at multiple "${s.targetManagedObjectType}" records:\n` +
         c.command(
-          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.manyRelationshipPropertyName} --target-object ${s.targetManagedObjectType} --many --query-fields "${s.relationshipQueryFields}" ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.manyRelationshipPropertyName} --target-object ${s.targetManagedObjectType} --many --query-fields "${s.relationshipQueryFields}" ${s.connId}\n`
         ) +
         `  Create it with a custom label, query filter, sort order, and change notifications on both sides:\n` +
         c.command(
-          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object ${s.targetManagedObjectType} --single --query-fields "${s.relationshipQueryFields}" --label "Pilot" --query-filter 'accountStatus eq "active"' --sort-keys sn --notify --notify-self ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object ${s.targetManagedObjectType} --single --query-fields "${s.relationshipQueryFields}" --label "Pilot" --query-filter 'accountStatus eq "active"' --sort-keys sn --notify --notify-self ${s.connId}\n`
         ) +
         `  Mark it as having a reverse property that already exists on "${s.targetManagedObjectType}", without creating it:\n` +
         c.command(
-          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object ${s.targetManagedObjectType} --single --query-fields "${s.relationshipQueryFields}" --reverse-property-name ${s.reverseRelationshipPropertyName} ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema relationship create -o ${s.managedObjectType} -p ${s.relationshipPropertyName} --target-object ${s.targetManagedObjectType} --single --query-fields "${s.relationshipQueryFields}" --reverse-property-name ${s.reverseRelationshipPropertyName} ${s.connId}\n`
         )
     )
     .action(

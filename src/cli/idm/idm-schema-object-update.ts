@@ -46,19 +46,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Update the "${s.managedObjectTitle}" managed object type's title:\n` +
         c.command(
-          `  $ frodo idm schema object update -o ${s.managedObjectType} --title "${s.managedObjectTitle} (Updated)" -y ${s.amBaseUrl} ${s.realm}\n`
+          `  $ frodo idm schema object update -o ${s.managedObjectType} --title "${s.managedObjectTitle} (Updated)" -y ${s.amBaseUrl}\n`
         ) +
         `  Update just its icon:\n` +
         c.command(
-          `  $ frodo idm schema object update -o ${s.managedObjectType} --icon sailing -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema object update -o ${s.managedObjectType} --icon sailing -y ${s.connId}\n`
         ) +
         `  Update both title and icon in one call:\n` +
         c.command(
-          `  $ frodo idm schema object update -o ${s.managedObjectType} --title "${s.managedObjectTitle} (Updated)" --icon sailing -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema object update -o ${s.managedObjectType} --title "${s.managedObjectTitle} (Updated)" --icon sailing -y ${s.connId}\n`
         ) +
         `  Update its description:\n` +
         c.command(
-          `  $ frodo idm schema object update -o ${s.managedObjectType} --description "A hovercraft owned by the fleet" -y ${s.connId} ${s.realm}\n`
+          `  $ frodo idm schema object update -o ${s.managedObjectType} --description "A hovercraft owned by the fleet" -y ${s.connId}\n`
         )
     )
     .action(
