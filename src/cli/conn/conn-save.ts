@@ -2,14 +2,16 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
+import {
+  addExistingServiceAccount,
+  findAliasConflict,
+} from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
 import c from '../../utils/ColorTheme';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand, preferredCredentialOption } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
-const { isServiceAccountsFeatureAvailable } = frodo.cloud.serviceAccount;
 const { addNewServiceAccount, saveConnectionProfile } = frodo.conn;
 
 export default function setup() {
@@ -134,6 +136,18 @@ export default function setup() {
           options,
           command
         );
+        // Refuse a taken alias now: the service account and the log API key
+        // are created in the tenant before the profile is saved, so a failed
+        // save would leave them behind.
+        const aliasOwner = findAliasConflict(host, options.alias);
+        if (aliasOwner) {
+          printMessage(
+            `Alias '${options.alias}' is already in use by connection profile '${aliasOwner}'. Please use a unique alias.`,
+            'error'
+          );
+          process.exitCode = 1;
+          return;
+        }
         state.setLogApiKey(options.logApiKey);
         state.setLogApiSecret(options.logApiSecret);
         if (options.authenticationService) {
@@ -179,12 +193,15 @@ export default function setup() {
           if (options.alias) {
             state.setAlias(options.alias);
           }
-          // if cloud deployment add service account
+          // if cloud deployment add service account. Every Identity Cloud
+          // tenant supports service accounts, so there is no feature check
+          // that could skip this step silently: a tenant or a login that
+          // cannot create one fails with the real error below, and
+          // --no-sa opts out.
           if (
             options.validate &&
             state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY &&
-            options.sa &&
-            (await isServiceAccountsFeatureAvailable())
+            options.sa
           ) {
             // validate and add existing service account
             if (options.saId && options.saJwkFile) {
@@ -229,8 +246,6 @@ export default function setup() {
             );
           }
           // if cloud deployment add log api key and secret
-          verboseMessage(options);
-          verboseMessage(state);
           if (
             options.validate &&
             state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY &&
@@ -255,17 +270,22 @@ export default function setup() {
             else if (!state.getLogApiKey()) {
               try {
                 const creds = await provisionCreds();
-                state.setLogApiKey(creds.api_key_id as string);
-                state.setLogApiSecret(creds.api_key_secret as string);
-                printMessage(
-                  `Created log API key ${creds.api_key_id} and secret.`
-                );
+                if (creds) {
+                  state.setLogApiKey(creds.api_key_id as string);
+                  state.setLogApiSecret(creds.api_key_secret as string);
+                  printMessage(
+                    `Created log API key ${creds.api_key_id} and secret.`
+                  );
+                } else {
+                  // provisionCreds() has printed the error already
+                  printMessage(
+                    'No log API key was created, see the error above.',
+                    'error'
+                  );
+                  process.exitCode = 1;
+                }
               } catch (error) {
-                printMessage(error.response?.data, 'error');
-                printMessage(
-                  `Error creating log API key and secret: ${error.response?.data?.message}`,
-                  'error'
-                );
+                printError(error);
                 process.exitCode = 1;
               }
             }

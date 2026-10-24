@@ -12,7 +12,39 @@ import {
 } from '../utils/Console';
 
 const { validateServiceAccount } = frodo.cloud.serviceAccount;
-const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
+const {
+  getConnectionProfilesPath,
+  getConnectionProfileByHost,
+  findConnectionProfiles,
+} = frodo.conn;
+
+/**
+ * Find the connection profile that already uses an alias, other than the one
+ * a save is for. Lets `conn save` refuse a taken alias before it creates
+ * anything in the tenant. The profile being saved may keep its own alias.
+ * @param {string} host Host URL for a new profile, unique substring or alias for an existing one
+ * @param {string} alias Alias the profile should get
+ * @returns {string | undefined} the host of the other profile using the alias, or undefined if there is none
+ */
+export function findAliasConflict(
+  host: string,
+  alias: string
+): string | undefined {
+  if (!host || !alias) return undefined;
+  try {
+    const filename = getConnectionProfilesPath();
+    if (!fs.existsSync(filename)) return undefined;
+    const profiles = JSON.parse(fs.readFileSync(filename, 'utf8'));
+    const found = findConnectionProfiles(profiles, host);
+    const own = found.length === 1 ? found[0].tenant : host;
+    return Object.keys(profiles).find(
+      (tenant) => tenant !== own && profiles[tenant]?.alias === alias
+    );
+  } catch {
+    // An unreadable profiles file is reported by the save itself.
+    return undefined;
+  }
+}
 
 /**
  * List connection profiles
