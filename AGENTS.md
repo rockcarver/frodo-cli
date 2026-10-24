@@ -36,6 +36,10 @@ Lasting design decisions are recorded one per file in [docs/decisions/](docs/dec
 - **New capability goes into frodo-lib behind the `frodo` facade first; the CLI wraps it for the terminal** (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI.
 - Decisions that span repositories live once in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo) (`docs/decisions/`). Binding here: [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
 
+## Procedures
+
+How to do a recurring task (add a command, record a decision, build the CLI or the binary, create test recordings, review an agent's pull request) is a skill in [.claude/skills/](.claude/skills/), read by Claude Code and by the GitHub Copilot cloud agent. A skill says how and links the records and rules it must obey; it never overrides them.
+
 ## Where things live
 
 | Path                                          | What                                                                                                            |
