@@ -53,13 +53,9 @@ Handoff and classification labels must be applied, not suggested.
 Triggered only when an issue receives `plan-worker-ready`.
 
 ## Which comment is the plan
-Locate the comment that contains the exact marker:
+The plan is the comment written by `github-actions[bot]` whose body contains the text `gh-aw-workflow-call-id: owner/repo/plan-worker`, where `owner/repo` is this repository. gh-aw appends that text to every comment the plan worker posts, as a hidden HTML comment at the end of the body. The GitHub API returns it in the raw body, so look for the text itself when you read the comments.
 
-```html
-<!-- gh-aw-workflow-id: plan-worker -->
-```
-
-Ignore every other comment. If no such comment exists, do nothing.
+Ignore every other comment, including a comment by anyone else that only repeats the text. If no such comment exists, do nothing.
 
 ## Classification
 Assign exactly one complexity label and one risk label.

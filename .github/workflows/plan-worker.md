@@ -2,7 +2,7 @@
 name: "Concierge 2a Plan Worker"
 description: |
   Plan gate worker. Produces a short, cheap, rough plan used only for classification.
-  The plan comment is uniquely identified by the gh-aw-workflow-id marker.
+  The plan comment is identified by the gh-aw-workflow-call-id marker that gh-aw appends to it.
 if: ${{ github.event.issue.state == 'open' && github.event.issue.user.type != 'Bot' }}
 on:
   issues:
@@ -60,13 +60,8 @@ A repository may tell its contributors how to work on it: `AGENTS.md` at the roo
 If the repository defines an environment agent and a quick check would improve the plan, you may request it. Otherwise proceed without it.
 
 ## Identity of the plan comment
-gh-aw automatically appends a hidden marker to every comment this workflow creates:
+gh-aw automatically appends hidden HTML comments to every comment this workflow creates. One of them names this repository and workflow: `gh-aw-workflow-call-id: owner/repo/plan-worker`, where `owner/repo` is this repository. Plan triage finds the plan by that text and by the author being `github-actions[bot]`.
 
-```html
-<!-- gh-aw-workflow-id: plan-worker -->
-```
-
-Do not try to add this marker yourself. The safe-outputs job inserts it.
-That marker is the unique, non-spoofable signature of the plan comment.
+Do not try to add it yourself. The safe-outputs job inserts it.
 
 Post the plan as a single comment and add the label `plan-worker-ready`.
