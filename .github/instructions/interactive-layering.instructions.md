@@ -4,6 +4,8 @@ applyTo: 'src/utils/interactive/**/*.ts,src/utils/TextLayout.ts,src/utils/StdinS
 
 # Where interactive code lives
 
+Accepted decision records are binding: [0001 realm picker](../../docs/decisions/0001-realm-picker-opens-only-when-the-command-is-incomplete.md), [0003 standard input](../../docs/decisions/0003-synchronous-stdin-reads-go-through-one-helper.md), [0004 terminal width](../../docs/decisions/0004-prompt-frames-follow-the-terminal-width.md), [0005 layering](../../docs/decisions/0005-interactive-layering.md). If your task conflicts with one, stop and say so.
+
 The interactive framework is ambient: a command is written the usual way and interactivity attaches to it. The rules for new code are in [docs/INTERACTIVE-COMMANDS.md, "Layering: where interactive code lives"](../../docs/INTERACTIVE-COMMANDS.md#layering-where-interactive-code-lives). In short:
 
 - **All prompt code lives in `src/utils/interactive/`:** prompt components, pickers and the prompts of natively interactive commands. Command files in `src/cli/` import it plainly or not at all; they contain no prompt code.
