@@ -31,6 +31,7 @@ import {
   stripAnsi,
 } from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
+import { useTerminalWidth } from './TerminalWidth';
 
 /**
  * Distinct return value `escapableMultiSelect` resolves with when the user
@@ -235,6 +236,9 @@ const escapableMultiSelectImpl = createPrompt(
     // The [LEFT]-with-uncommitted-selections guard's inline explanation
     // (see the keypress handler). Any other key clears it.
     const [leftGuard, setLeftGuard] = useState('');
+    // The frame follows the terminal (re-drawn on resize). Declared after
+    // every other useState so their hook order is unchanged.
+    const width = useTerminalWidth();
 
     // Grace teardown on unmount (a timer firing after the prompt
     // resolved would call a stale handler).
@@ -682,7 +686,8 @@ const escapableMultiSelectImpl = createPrompt(
               left: true,
               escape: 'back · [ESC]×2 exit all',
             }
-      )
+      ),
+      width
     );
 
     // The question+list panel: list rows, then the highlighted option's
@@ -722,12 +727,15 @@ const escapableMultiSelectImpl = createPrompt(
         ...descriptionPanelLines(
           `${highlighted.group.label}: ${members
             .map((choice) => choice.name)
-            .join(', ')}`
+            .join(', ')}`,
+          width
         )
       );
     } else if (highlightedChoice?.description) {
       panelLines.push({ text: '', plain: '' });
-      panelLines.push(...descriptionPanelLines(highlightedChoice.description));
+      panelLines.push(
+        ...descriptionPanelLines(highlightedChoice.description, width)
+      );
     }
     const panel = renderFramedBox({
       title: {
@@ -735,6 +743,7 @@ const escapableMultiSelectImpl = createPrompt(
         plain: `? ${config.message}${queryEcho}`,
       },
       lines: panelLines,
+      width,
     });
 
     // The inline value editor: its own framed box directly under the
@@ -754,6 +763,7 @@ const escapableMultiSelectImpl = createPrompt(
                   plain: line,
                 };
               }),
+              width,
             })
           : renderFramedBox({
               title: `Value for ${editingName}`,
@@ -763,6 +773,7 @@ const escapableMultiSelectImpl = createPrompt(
                   plain: draft || '(type a value)',
                 },
               ],
+              width,
             });
 
     const lines = [
