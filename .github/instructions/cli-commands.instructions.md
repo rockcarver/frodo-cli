@@ -12,7 +12,7 @@ The full guide is [docs/CONTRIBUTE.md, "Writing a command"](../../docs/CONTRIBUT
 - **Register the command.** In the group file add `program.addCommand(XxxCmd().name('xxx'))` (see `src/cli/journey/journey.ts`). A new group is imported and added in `src/app.ts`.
 - **One kind of artifact is one group with the usual verbs:** `list`, `describe`, `export`, `import`, `delete`. Export commands almost all share their options: `-i, --<thing>-id`, `-f, --file`, `-a, --all`, `-A, --all-separate`, `-N, --no-metadata`. Copy a neighbour, do not invent new spellings.
 - **A command is a `FrodoCommand('frodo <group> <verb>')`.** Its action starts with `command.handleDefaultArgsAndOpts(...)`, logs in with `getTokens()` and sets `process.exitCode = 1` when the operation fails.
-- **The work lives in `src/ops/<Thing>Ops.ts`.** The command file parses options and reports the outcome.
+- **The terminal-side work lives in `src/ops/<Thing>Ops.ts`:** argument mapping, output formatting, file and stdin handling, exit codes. Business logic belongs in frodo-lib behind the `frodo` facade. The command file parses options and reports the outcome.
 - **Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`,** not `console.log`.
 - **Name functions with CRUDQ verbs** (`createX`, `readX`, `updateX`, `deleteX`, `queryX`; `getX`/`setX` for one property; `enableX`/`disableX` for status). See CONTRIBUTE.md.
 

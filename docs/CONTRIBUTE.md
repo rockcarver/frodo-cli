@@ -162,8 +162,10 @@ Frodo CLI adheres to the following folder and file structure:
 │   │   ├── _template         Templates for new CLI commands.
 │   ├── configManagerOps      Operations behind the config-manager commands.
 │   ├── help                  Sample values for the usage examples (SampleData.ts).
-│   ├── ops                   Ops layer modules. This is the library wrapper.
-│   │   │                     Business logic goes here.
+│   ├── ops                   Ops layer modules. They adapt frodo-lib for the
+│   │   │                     terminal: argument mapping, output formatting,
+│   │   │                     file and stdin handling, exit codes. Business
+│   │   │                     logic belongs in frodo-lib.
 │   │   ├── classic           Ops modules for classic deployments only.
 │   │   ├── cloud             Ops modules for cloud deployments only.
 │   │   ├── templates         Templates of different object types and schema.
@@ -187,6 +189,8 @@ Frodo CLI adheres to the following folder and file structure:
 │   └── utils                 Test harness for PTY tests.
 └── tools                     Test and release tooling.
 ```
+
+`src/ops` adapts the library for the terminal; business logic belongs in frodo-lib behind the `frodo` facade ([0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md)).
 
 #### Code conventions
 
