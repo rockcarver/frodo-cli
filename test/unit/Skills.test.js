@@ -173,7 +173,7 @@ describe('agent skills', () => {
       expect(unknown).toEqual([]);
 
       // "record 0002" alone is ambiguous: both repositories have a 0001.
-      const bare = [...text.matchAll(/(\S+) records? \d{4}/g)]
+      const bare = [...text.matchAll(/(\w*)\W{0,2}\brecords? \d{4}/g)]
         .filter((m) => !/^(cli|umbrella)$/i.test(m[1]))
         .map((m) => m[0]);
       expect(bare).toEqual([]);

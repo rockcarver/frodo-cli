@@ -28,7 +28,7 @@ cp docs/decisions/template.md docs/decisions/NNNN-short-title.md
 - **Body:** a title and the sections `Context and problem statement`, `Decision`, `Consequences`, and optionally `Alternatives considered`, in that order and no others.
 - **Decision as rules**, in plain language: what is allowed, what is not, and the one or two exceptions. A reviewer must be able to check it.
 - **Keep it short:** at most 60 lines. Say what must be kept in sync (tests, lint rules, docs) under `Consequences`.
-- **Status:** `accepted` is for a decision the maintainers have made (the issue or the review says so). If nobody with that authority has decided it yet, write the record as `proposed` and say so in the pull request.
+- **Status:** `accepted` is for a decision the maintainers have made (the issue or the review says so). If nobody with that authority has decided it yet, write the record as `proposed` and say so in the pull request. `deprecated` marks a known deviation that is not extended and is to be rectified (see cli records 0023, 0024, 0025 and 0026 for how that reads).
 
 ## 3. Add it to the index
 

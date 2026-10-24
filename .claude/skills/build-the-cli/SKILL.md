@@ -9,7 +9,7 @@ How the toolchain works and why is in [docs/BUILD-ENV.md](../../../docs/BUILD-EN
 
 ## Requirements
 
-- **Node.js 26 or later** (`engines.node` in `package.json`) and npm. Check with `node --version`.
+- **Node.js 26 or later** (`engines.node` in `package.json`; cli record 0013) and npm. Check with `node --version`.
 - Python 3 with the `pty` module, only for the terminal (PTY) tests (macOS, Linux).
 - Nothing else. The tests need no network and no credentials, and the build writes only to `dist/` (gitignored).
 
@@ -67,7 +67,7 @@ node dist/launch.cjs -v                     # the lib line now shows the time of
 
 - **After every library change, rebuild the library (`npm run build` there) and then the CLI (`npx tsdown`).** `npm run dev` does not pick up library rebuilds.
 - **`npm ci` or `npm install` removes the link.** Run `npm run link` again.
-- The CLI pins an exact `@rockcarver/frodo-lib` version in `package.json`. A pull request that needs an unreleased library change cannot merge until that library is released and the pin updated; say so in the pull request instead of working around it.
+- The CLI pins an exact `@rockcarver/frodo-lib` version in `package.json` (cli record 0012). A pull request that needs an unreleased library change cannot merge until that library is released and the pin updated; say so in the pull request instead of working around it.
 
 ## Pitfalls
 

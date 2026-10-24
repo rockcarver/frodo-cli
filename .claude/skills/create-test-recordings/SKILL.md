@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 **Only run when a maintainer asks. If you are a coding agent without the needed access, stop and say so in the issue or pull request.** Recording talks to a real tenant with a maintainer's saved connection profile. Replaying does not, and anyone may do that.
 
-The authoritative text is [test/e2e/README.md](../../../test/e2e/README.md) (how this repository uses recordings) and frodo-lib's [record and replay developer guide](https://github.com/rockcarver/frodo-lib/blob/main/RECORD_REPLAY.md) (the mechanism, every `FRODO_MOCK*` variable). This skill is the order to do things in and what to check. Test rules: [.github/instructions/tests.instructions.md](../../../.github/instructions/tests.instructions.md).
+The authoritative text is [test/e2e/README.md](../../../test/e2e/README.md) (how this repository uses recordings) and frodo-lib's [record and replay developer guide](https://github.com/rockcarver/frodo-lib/blob/main/RECORD_REPLAY.md) (the mechanism, every `FRODO_MOCK*` variable). This skill is the order to do things in and what to check. Test rules: [.github/instructions/tests.instructions.md](../../../.github/instructions/tests.instructions.md) and cli record [0011](../../../docs/decisions/0011-tests-run-the-real-cli-against-recorded-traffic.md).
 
 ## What a recording is
 

@@ -5,7 +5,7 @@ description: Use when you need the native frodo binary (a Node.js single executa
 
 # Build the native binary
 
-The binary is the artifact users install: Node.js 26 with the CLI embedded as one file, built with `node --build-sea`. Why it is built this way, and the details per platform: "Binary packaging" in [docs/BUILD-ENV.md](../../../docs/BUILD-ENV.md) and [docs/PIPELINE.md](../../../docs/PIPELINE.md). You only need it to test packaging or startup, or to run the suite the way CI does. For everyday work the npm build is enough (see the `build-the-cli` skill).
+The binary is the artifact users install: Node.js 26 with the CLI embedded as one file, built with `node --build-sea` (cli record 0013). Why it is built this way, and the details per platform: "Binary packaging" in [docs/BUILD-ENV.md](../../../docs/BUILD-ENV.md) and [docs/PIPELINE.md](../../../docs/PIPELINE.md). You only need it to test packaging or startup, or to run the suite the way CI does. For everyday work the npm build is enough (see the `build-the-cli` skill).
 
 ## Build it locally
 

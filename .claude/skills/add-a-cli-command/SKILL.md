@@ -8,7 +8,7 @@ description: Use when adding a new frodo-cli command, command group or verb (for
 The rules live in other files; this skill is the order to do things in. Read them as you go, and do not restate them in your pull request.
 
 - [.github/instructions/cli-commands.instructions.md](../../../.github/instructions/cli-commands.instructions.md) and "Writing a command" in [docs/CONTRIBUTE.md](../../../docs/CONTRIBUTE.md)
-- cli records [0002](../../../docs/decisions/0002-usage-examples-run-as-written-and-open-no-prompt.md) and [0006](../../../docs/decisions/0006-every-new-command-ships-usage-examples.md) (usage examples)
+- cli records [0007](../../../docs/decisions/0007-layers-and-the-thin-wrapper-in-the-cli.md) (layers), [0008](../../../docs/decisions/0008-every-command-is-a-thin-frodocommand-file-with-the-usual-verbs.md) (a command is a thin `FrodoCommand` file), [0009](../../../docs/decisions/0009-ops-functions-are-named-after-the-command-verb.md) (ops names), [0010](../../../docs/decisions/0010-output-goes-through-console-and-colours-through-colortheme.md) (output), [0016](../../../docs/decisions/0016-option-requirements-are-declared-not-coded.md) (option requirements), [0002](../../../docs/decisions/0002-usage-examples-run-as-written-and-open-no-prompt.md) and [0006](../../../docs/decisions/0006-every-new-command-ships-usage-examples.md) (usage examples)
 - umbrella 0001, [the library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md), and umbrella 0007, [the public API is only the frodo facade](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0007-public-api-only-through-the-frodo-facade.md)
 
 ## 1. Check the library has what the command needs
@@ -34,13 +34,16 @@ Use the usual verbs (`list`, `describe`, `export`, `import`, `delete`) and copy 
 
 ## 3. Keep the command file thin
 
-The action of a verb does four things, in this order: `command.handleDefaultArgsAndOpts(host, realm, user, password, options, command)`, `await getTokens()`, one call to an ops function, and `process.exitCode = 1` when login or the operation fails. Read `src/cli/journey/journey-list.ts` for the shape. Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`, colours from `src/utils/ColorTheme.ts`, never `console.log`.
+A verb file exports `setup()` as its default. Its action does four things, in this order: `command.handleDefaultArgsAndOpts(host, realm, user, password, options, command)`, `await getTokens()`, one call to an ops function, and `process.exitCode = 1` when login or the operation fails. Read `src/cli/journey/journey-list.ts` for the shape. Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`, colours from `src/utils/ColorTheme.ts`, never `console.log` (cli record 0010).
+
+Declare what the command needs instead of coding it (cli record 0016): `requireOneOf({ options, purpose })` for "at least one of" and `requireAllOf(...)` for "all together". A new command needs no "unrecognized combination" branch, and a command file contains no prompt code: interactivity attaches to the command by itself (cli record 0014).
 
 ## 4. Write the ops function
 
 Put it in `src/ops/<Thing>Ops.ts`. It adapts the library for the terminal: map arguments, call the `frodo` facade, format the output, handle files and stdin, return `true` on success and `false` after printing the error (see `listJourneys` in `src/ops/JourneyOps.ts`). Business logic does not belong here.
 
-- Name functions with CRUDQ verbs: `createX`, `readX`, `updateX`, `deleteX`, `queryX`; `getX`/`setX` for one property; `enableX`/`disableX` for status (CONTRIBUTE.md, "Code conventions").
+- **Naming (cli record 0009):** an ops function that implements a command is named after the command's verb (`listJourneys`, `describeJourney`, `exportJourneyToFile`, `deleteJourney`). Any other ops function follows CRUDQ (`createX`, `readX`, `updateX`, `deleteX`, `queryX`; `getX`/`setX` for one property; `enableX`/`disableX` for status, see CONTRIBUTE.md, "Code conventions") or has a meaningful name.
+- **Do not copy the config-manager commands as a model.** Their separate `src/configManagerOps/` layer is deprecated and not extended (cli record 0023): new behaviour goes library first and is wrapped in `src/ops/`.
 - An ops module does not prompt and does not import from `src/utils/interactive/`. If the command needs a prompt of its own, read "Layering: where interactive code lives" in [docs/INTERACTIVE-COMMANDS.md](../../../docs/INTERACTIVE-COMMANDS.md) first (cli record [0005](../../../docs/decisions/0005-interactive-layering.md)).
 - Read standard input only through `src/utils/StdinSync.ts` (cli record [0003](../../../docs/decisions/0003-synchronous-stdin-reads-go-through-one-helper.md)).
 - Do not add a package to `dependencies`: shipped code's packages go in `devDependencies`.
