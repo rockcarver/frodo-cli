@@ -5,7 +5,7 @@ description: Use when a maintainer asks you to review a pull request made by a c
 
 # Review a pull request made by a coding agent
 
-You are writing a **draft review for a maintainer**. You do not post it, approve workflow runs, push to the pull request's branch or merge unless the maintainer tells you to do that specific thing. The maintainer is the last lever on agent work: umbrella 0002, [a maintainer stays the last lever on agent work](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0002-a-maintainer-stays-the-last-lever-on-agent-work.md).
+You are writing a **draft review for a maintainer**. You do not post it, approve workflow runs, push to the pull request's branch or merge unless the maintainer tells you to do that specific thing. The maintainer is the last lever on agent work: core 0002, [a maintainer stays the last lever on agent work](../../../docs/decisions/core/0002-a-maintainer-stays-the-last-lever-on-agent-work.md).
 
 A passing CI run and a green test list are not a review. The aim is to find what the author's own tests would not: a test that cannot fail, an example that does not run, a behaviour that is not the one the issue asked for.
 
@@ -50,7 +50,7 @@ Not the description, the diff: source, tests, docs, snapshots, lock files, workf
 - tests deleted or weakened, `.skip` added, a legacy-exceptions list that grew (`test/unit/UsageExamplesLegacyExceptions.js` and `UsageExampleOperandsLegacyExceptions.js` only shrink);
 - snapshot changes nobody explained;
 - a package added to `dependencies` (it must be `devDependencies`), edits to `CHANGELOG.md`, edits to the Repo Concierge's files (see `AGENTS.md`), anything that looks like a key or token;
-- business logic added to the CLI that frodo-lib should own ([umbrella 0001](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md), cli record 0007), new modules in the deprecated `src/configManagerOps/` layer (cli record 0023), code in `src/ops/` that prompts, prompt code outside `src/utils/interactive/`, direct reads of standard input outside `src/utils/StdinSync.ts`;
+- business logic added to the CLI that frodo-lib should own ([core 0001](../../../docs/decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md), cli record 0007), new modules in the deprecated `src/configManagerOps/` layer (cli record 0023), code in `src/ops/` that prompts, prompt code outside `src/utils/interactive/`, direct reads of standard input outside `src/utils/StdinSync.ts`;
 - docs that the change makes wrong (`docs/INTERACTIVE-COMMANDS.md`, the usage examples, MIGRATION.md for a removed option).
 
 ## 4. Build and run the checks

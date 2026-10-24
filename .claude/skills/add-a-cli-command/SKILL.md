@@ -9,14 +9,14 @@ The rules live in other files; this skill is the order to do things in. Read the
 
 - [.github/instructions/cli-commands.instructions.md](../../../.github/instructions/cli-commands.instructions.md) and "Writing a command" in [docs/CONTRIBUTE.md](../../../docs/CONTRIBUTE.md)
 - cli records [0007](../../../docs/decisions/0007-layers-and-the-thin-wrapper-in-the-cli.md) (layers), [0008](../../../docs/decisions/0008-every-command-is-a-thin-frodocommand-file-with-the-usual-verbs.md) (a command is a thin `FrodoCommand` file), [0009](../../../docs/decisions/0009-ops-functions-are-named-after-the-command-verb.md) (ops names), [0010](../../../docs/decisions/0010-output-goes-through-console-and-colours-through-colortheme.md) (output), [0016](../../../docs/decisions/0016-option-requirements-are-declared-not-coded.md) (option requirements), [0002](../../../docs/decisions/0002-usage-examples-run-as-written-and-open-no-prompt.md) and [0006](../../../docs/decisions/0006-every-new-command-ships-usage-examples.md) (usage examples)
-- umbrella 0001, [the library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md), and umbrella 0007, [the public API is only the frodo facade](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0007-public-api-only-through-the-frodo-facade.md)
+- core 0001, [the library is the brain, the CLI is a thin wrapper](../../../docs/decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md), and core 0007, [the public API is only the frodo facade](../../../docs/decisions/core/0007-public-api-only-through-the-frodo-facade.md)
 
 ## 1. Check the library has what the command needs
 
 A command wraps a method of the `frodo` facade. Look for it in the `@rockcarver/frodo-lib` version pinned in `package.json`: search the installed typings (`node_modules/@rockcarver/frodo-lib/types/lib/`), or the lib source, where facade methods are registered in the library's `FrodoLib.ts` (link your own lib clone as described in the `build-the-cli` skill).
 
 - **It exists:** go on.
-- **It does not:** stop. New capability is built in frodo-lib first, released, then wrapped here (umbrella 0001). Say so in the issue or pull request. Do not reimplement the logic in `src/ops/`, and do not import anything from the library except `frodo`, `state`, `FrodoError` and types (ESLint rejects it).
+- **It does not:** stop. New capability is built in frodo-lib first, released, then wrapped here (core 0001). Say so in the issue or pull request. Do not reimplement the logic in `src/ops/`, and do not import anything from the library except `frodo`, `state`, `FrodoError` and types (ESLint rejects it).
 
 ## 2. Copy the template
 

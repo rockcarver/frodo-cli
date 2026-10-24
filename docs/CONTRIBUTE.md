@@ -145,7 +145,7 @@ Do not edit `CHANGELOG.md` in a PR. It is generated at release time from what me
 
 ### Code structure and conventions
 
-The library is the brain and the CLI is a thin wrapper: new capability goes into frodo-lib behind the `frodo` facade first, and the CLI wraps it for the terminal (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI. See [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
+The library is the brain and the CLI is a thin wrapper: new capability goes into frodo-lib behind the `frodo` facade first, and the CLI wraps it for the terminal (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI. See [core 0001 The library is the brain, the CLI is a thin wrapper](decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
 
 Frodo CLI adheres to the following folder and file structure:
 
@@ -190,7 +190,7 @@ Frodo CLI adheres to the following folder and file structure:
 └── tools                     Test and release tooling.
 ```
 
-`src/ops` adapts the library for the terminal; business logic belongs in frodo-lib behind the `frodo` facade ([0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md)).
+`src/ops` adapts the library for the terminal; business logic belongs in frodo-lib behind the `frodo` facade ([core 0001 The library is the brain, the CLI is a thin wrapper](decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md)).
 
 #### Code conventions
 
@@ -246,7 +246,7 @@ If your command prompts the user, read "Layering: where interactive code lives" 
 
 ### Recording decisions
 
-When you decide something that will outlive your change (a rule contributors must follow, a behaviour users rely on, a design principle), record it in `docs/decisions/` in the same pull request. Accepted records are binding until a newer record supersedes them, and a pull request that changes a decided behaviour adds or supersedes one. How to write a record, and the index of the existing ones, is in [docs/decisions/README.md](decisions/README.md).
+When you decide something that will outlive your change (a rule contributors must follow, a behaviour users rely on, a design principle), record it in `docs/decisions/` in the same pull request. Accepted records are binding until a newer record supersedes them, and a pull request that changes a decided behaviour adds or supersedes one. How to write a record, and the index of the existing ones, is in [docs/decisions/README.md](decisions/README.md). A decision that also binds frodo-lib is a core record: the same file in `docs/decisions/core/` of both repositories ([core 0018](decisions/core/0018-core-decision-records-are-kept-in-each-repository.md)).
 
 ### Working with coding agents
 
