@@ -1,6 +1,7 @@
 ---
 name: change-the-ci-pipeline
 description: Use when a maintainer asks to change how pull requests are checked in CI, for example which files skip the long test matrix, what runs for a pull request that only changes docs or guidance files, the Validate guidance job, the Test gate, or anything in .github/workflows/pipeline.yml. Covers the change classifier and the rule that it is read from the base commit, how to add a path together with its test case, how to prove a change live, and the rules that must stay true (no paths-ignore on pull requests, a filter may skip work but never hide it, required checks keep their names). Maintainer only, coding agents stop and ask.
+allowed-tools: Bash
 ---
 
 # Change the CI pipeline
