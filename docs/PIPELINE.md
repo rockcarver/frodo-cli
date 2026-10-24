@@ -14,10 +14,12 @@ described in the job sections that follow.)
 ```mermaid
 flowchart TD
     PR["PR to main<br/>or push to main"] --> CH["Detect code changes<br/>(skips tests for docs-only PRs)"]
+    CH -->|"guidance files, no code"| G["Validate guidance<br/>(decision records, skills)"]
     PR --> B["Build<br/>(version bump, dist bundle)<br/>required check"]
     B --> T["Test (26)"]
     B --> X["Cross-Platform Tests<br/>(credential file permissions)"]
     T --> TG["Test gate<br/>required check"]
+    G --> TG
     PR -->|"workflow_dispatch only (release)"| RELPATH["Release path"]
 
     subgraph RELPATH ["Release path (manual workflow_dispatch only)"]
@@ -74,19 +76,59 @@ the admin bypass admits. The GitHub Actions app cannot be a bypass actor —
 ### Detect code changes
 
 `Detect code changes` runs first on every event. For pull requests it lists the
-changed files through the API and sets `code=false` only when **every** file is
-on a docs-and-automation allowlist (root `*.md`, `docs/`, `LICENSE`, issue
-templates, the agentic-workflow definitions, scripts and every workflow file under
-`.github/workflows/` except `pipeline.yml` itself). Anything else counts as
-code, including `pipeline.yml`, `package.json` and the lockfile. API errors,
-more than 3000 changed files, pushes, `workflow_dispatch` and release runs all
-resolve to `code=true`, so the filter can only ever skip work, never hide it.
+changed files through the API (for a renamed file, the new and the previous
+name) and gives them to the classifier,
+[../.github/scripts/classify-changes.sh](../.github/scripts/classify-changes.sh),
+which answers two questions:
+
+- `code`: is the long test matrix needed? `code=false` only when **every** file
+  is on the non-code list: root `*.md`, `docs/`, `LICENSE`, `.claude/skills/`,
+  `.github/instructions/`, issue templates, the agentic-workflow definitions,
+  scripts and every workflow file under `.github/workflows/` except
+  `pipeline.yml` itself. Anything else counts as code, including
+  `package.json` and the lockfile. The pipeline and the classifier
+  (`.github/scripts/classify-changes*`) are on that list too but count as code,
+  because they decide what judges a pull request. An empty list, API errors,
+  more than 3000 changed files, pushes, `workflow_dispatch` and release runs
+  all resolve to `code=true`, so the filter can only ever skip work, never hide
+  it.
+- `guidance`: does a file change that a guidance test reads? Only meaningful
+  with `code=false` (with code, `Test` runs the same tests). The list is
+  `GUIDANCE` in the script: `docs/decisions/`, `AGENTS.md`, `CLAUDE.md`,
+  `docs/CONTRIBUTE.md`, `.claude/skills/` and `.github/instructions/`.
+
+The script is read from the pull request's **base** commit (the contents API
+at `base.sha`), never from its head: a pull request does not choose the rules
+that judge it. A base without the script (the pull request that introduced it)
+falls back to `code=true`, as does any answer that is not exactly
+`true`/`false` for both outputs. The rules, their cases and the step's own
+fallbacks are tested in `test/unit/ClassifyChanges.test.js` and
+`test/unit/PipelineClassification.test.js`.
 
 When `code=false`, `Test` and the PR `linux-x64-binary-release` job are skipped. `Build` still runs (it is a
 required check and also lints and builds). Skipped required jobs count as
 passing, and the gate job(s) accept a skip only when `code=false` and `Build`
 succeeded. Filtering cannot use `paths-ignore` on the `pull_request` trigger,
 because required checks would stay "expected" forever.
+
+A path that a guidance test starts to read goes into `GUIDANCE` in the script
+(and a fixture into `ClassifyChanges.test.js`) in the same pull request. A
+known limit: deleting or renaming a file that a record or skill only *cites*
+(for example `docs/PIPELINE.md`) changes no guidance file, so the guidance
+tests do not run for it; the next pull request with code catches the stale
+citation. Change the citing record or skill in the same pull request to have
+it checked.
+
+### Validate guidance
+
+`Validate guidance` runs when `code=false` and `guidance=true`: a pull request
+that changes decision records, skills, the agent entry points or instruction
+files and nothing else. It checks out the pull request head, runs `npm ci` and
+`npm run test:guidance`
+([../tools/run-guidance-tests.mjs](../tools/run-guidance-tests.mjs)), which runs
+only `test/unit/DecisionRecords.test.js` and `test/unit/Skills.test.js` and
+fails if either file is missing. No build, no tenant, no binary: about a
+minute, most of it `npm ci`. The same command runs locally.
 
 ### Build
 
@@ -139,6 +181,9 @@ The job uses `if: ${{ !cancelled() }}` so it still runs (and fails) when a
 matrix leg is cancelled or skipped, which a plain `needs` alone would
 silently accept. A skip is only accepted when `Detect code changes` reported
 `code=false` and `Build` succeeded; otherwise the gate expects `success`.
+It also waits for `Validate guidance`: skipped is expected, except when no code
+changed and guidance files did, where it must have succeeded. The required
+checks stay `Build`, `Test gate` and `linux-x64-binary-release`.
 
 ### Binary Release Jobs
 
