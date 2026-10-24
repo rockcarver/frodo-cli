@@ -11,6 +11,8 @@
  *
  * - the gate allows prompting (canPrompt()),
  * - the command declares a realm positional argument,
+ * - a required connection input or option prompted the user to complete the
+ *   command,
  * - the user did not name a realm explicitly (argument value or
  *   FRODO_REALM -- recorded by `noteRealmProvenance` during the
  *   resolution pass, BEFORE frodo-lib maps the sentinel default to the
@@ -52,6 +54,17 @@ let cachedRealms: { name: string; active: boolean }[] | undefined;
  * indistinguishable afterwards.
  */
 let realmUserSpecified = false;
+let requiredInputPrompted = false;
+
+/** Records whether required input prompted during resolution. */
+export function noteRequiredInputPrompted(prompted: boolean): void {
+  requiredInputPrompted = prompted;
+}
+
+/** Whether required connection input prompted in the current invocation. */
+export function requiredInputPromptedForTests(): boolean {
+  return requiredInputPrompted;
+}
 
 /**
  * Records whether this invocation's realm came from the user (positional
@@ -83,6 +96,7 @@ export function realmUserSpecifiedForTests(): boolean {
 /** Test hygiene: clears the per-invocation provenance + realm cache. */
 export function resetRealmPickerStateForTests(): void {
   realmUserSpecified = false;
+  requiredInputPrompted = false;
   cachedRealms = undefined;
 }
 
@@ -96,6 +110,7 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   if (!canPrompt()) return;
   if (!command.registeredArguments.some((a) => a.name() === 'realm')) return;
   if (realmUserSpecified) return;
+  if (!requiredInputPrompted) return;
 
   let realms: { name: string; active: boolean }[];
   try {

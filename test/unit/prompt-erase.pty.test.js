@@ -265,6 +265,8 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
           args: ['realm', 'list'],
           env: {
             ...ENV,
+            FRODO_HOST: '__FRODO_PTY_DELETE__',
+            FRODO_CONNECTION_PROFILES_PATH: '',
             // The color assertion below needs the binary's real theme
             // output -- jest sets NO_COLOR=1 and the PTY driver merges
             // the RUNNER's env under the scenario env. A blank does NOT
@@ -277,6 +279,9 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
             FRODO_SA_JWK: connection.saJwk,
           },
           actions: [
+            { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
+            { type: 'send', text: ENV.FRODO_HOST },
+            { type: 'key', name: 'enter' },
             { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
             { type: 'sleep', ms: 400 },
             { type: 'key', name: 'down' },
@@ -294,17 +299,17 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
         // footer's realm token reads bravo BEFORE enter.
         const midScreen = replayScreen(result.captures.midPrompt.raw);
         expect(
-          midScreen.filter((line) => /^frodo realm list bravo$/.test(line))
+          midScreen.filter((line) => /^frodo realm list .*bravo$/.test(line))
             .length
         ).toBe(1);
         expect(
-          midScreen.filter((line) => /^frodo realm list alpha$/.test(line))
+          midScreen.filter((line) => /^frodo realm list .*alpha$/.test(line))
             .length
         ).toBe(0);
 
         const screen = replayScreen(result.captures.final.raw);
         const printLines = screen.filter((line) =>
-          /^frodo realm list bravo$/.test(line)
+          /^frodo realm list .*bravo$/.test(line)
         );
         // Exactly one authoring print, with the PICKED realm in it.
         expect(printLines.length).toBe(1);
@@ -330,9 +335,11 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
         // occurrence (the print, the final write of the session) only:
         // an SGR sequence must directly precede the print's text.
         const raw = result.captures.final.raw;
-        const lastIdx = raw.lastIndexOf('frodo realm list bravo');
+        const lastIdx = raw.lastIndexOf('bravo');
         expect(lastIdx).toBeGreaterThan(-1);
-        const before = raw.slice(Math.max(0, lastIdx - 24), lastIdx);
+        const printIdx = raw.lastIndexOf('frodo realm list');
+        expect(printIdx).toBeGreaterThan(-1);
+        const before = raw.slice(Math.max(0, printIdx - 24), printIdx);
         expect(/\x1b\[[0-9;]*m$/.test(before)).toBe(true);
       } finally {
         removeShellTestHome(homeDir);

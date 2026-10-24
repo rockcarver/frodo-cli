@@ -3,7 +3,9 @@ import { state } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 import {
   noteRealmProvenance,
+  noteRequiredInputPrompted,
   realmUserSpecifiedForTests,
+  requiredInputPromptedForTests,
   resetRealmPickerStateForTests,
   resolveRealmPick,
 } from './RealmPickers';
@@ -55,6 +57,15 @@ describe('resolveRealmPick (non-interactive preservation)', () => {
     state.setRealm('bravo');
     await resolveRealmPick(makeCommand(true));
     expect(state.getRealm()).toBe('bravo');
+  });
+
+  it('requires a prompted connection input and clears the gate between invocations', () => {
+    noteRequiredInputPrompted(true);
+    expect(requiredInputPromptedForTests()).toBe(true);
+    resetRealmPickerStateForTests();
+    expect(requiredInputPromptedForTests()).toBe(false);
+    noteRequiredInputPrompted(false);
+    expect(requiredInputPromptedForTests()).toBe(false);
   });
 });
 

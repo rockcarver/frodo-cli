@@ -67,8 +67,21 @@ write would be invisible to one of the two consumers.
 
 ## Post-auth pickers
 
-Two pickers fire after `getTokens()` succeeds (their loaders need
-tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
+The realm and entity pickers fire after `getTokens()` succeeds (their loaders
+need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
+
+- **The realm picker** (`RealmPickers.ts`) — offered only when the command
+  declares a `[realm]` argument, the user did not specify it (positionally or
+  with `FRODO_REALM`), the resolution pass prompted for another required
+  connection input (such as a missing host, credentials, or connection-profile
+  choice), and the target system has multiple realms. Realm provenance is
+  captured before auth because frodo-lib maps the sentinel default to the
+  deployment realm during authentication, making a user choice and mapped
+  default indistinguishable afterward. Both a positional realm and
+  `FRODO_REALM` count as user-specified. If realm is the only omitted value,
+  no picker opens: frodo-lib uses the deployment default (`alpha` on Identity
+  Cloud; `/` on classic and ForgeOps). Escape keeps that default; Enter on the
+  highlighted default also keeps it and concludes the picker.
 
 - **Entity pickers** (`EntityPickers.ts`) — a command whose
   target-entity option (`-i/--secret-id`, `-i/--tree-id`, ...) was left
@@ -77,21 +90,8 @@ tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   resolver skips the free-text value step for pickable options. The
   loader is per-deployment-type by construction (whatever read
   function the command family's ops layer provides).
-- **The realm picker** (`RealmPickers.ts`) — when the command declares
-  a `[realm]` argument, the user did not name a realm, and the target
-  system has more than one realm. Provenance (user-specified vs
-  sentinel default) is captured BEFORE auth, because frodo-lib maps the
-  sentinel to the deployment realm during auth, making the two
-  indistinguishable afterwards. A realm typed as the `[realm]` argument
-  counts (it is read from the command's processed arguments: the action
-  copies it into the state only later), and so does `FRODO_REALM`, which
-  is that argument's default.
 
-Both inherit type-to-search. Escape declines; single-candidate lists
-auto-select. `<enter>` on the already-highlighted default realm keeps
-it and CONCLUDES the pick (a verbose note says so) — the pick does not
-re-prompt (user report 2026-10-13: the old silent re-open read as a
-dead screen).
+Both pickers inherit type-to-search and auto-select a single candidate.
 
 ## Panel per surface (the frame layout)
 
@@ -439,7 +439,7 @@ command wiring lazy-import whatever carries a frodo-lib graph.
 
 The framework is AMBIENT: a developer adds a command the way they
 always have and it picks interactivity up automatically (resolver,
-connection page, entity/realm pickers, invocation editor). Regular
+connection page, realm/entity pickers, invocation editor). Regular
 command files and ops modules therefore carry no prompting code of
 their own — `conn.ts` is one import line, `ConnectionProfileOps` has
 none.

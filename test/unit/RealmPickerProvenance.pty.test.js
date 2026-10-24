@@ -19,18 +19,9 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * A realm the user typed counts as chosen, so the realm picker stays closed
- * (docs/INTERACTIVE-COMMANDS.md, "Post-auth pickers"). It did not for a realm
- * typed as the `[realm]` argument: the provenance was noted before the
- * argument reached frodo-lib's state, so only FRODO_REALM counted and `frodo
- * journey list <host> /alpha <user> <password>` still asked "Choose a realm".
- *
- * This drives the REAL CLI of this checkout through a pseudo-terminal against
- * the fake AM (test/utils/FakeAm.mjs, a separate process) with two realms, so
- * the claim is checked, not just quoted. The first case is the control: the
- * picker does open today when no realm is named. If cli#885 restores the
- * silent fallback to the deployment's default realm, that case changes with
- * it and goes away; the other two must keep passing either way.
+ * The realm picker only opens if another required input prompted the user.
+ * This drives the REAL CLI through a pseudo-terminal against the fake AM
+ * with two realms.
  *
  * The credentials come from the environment in the first two cases because the
  * realm is the operand between the host and the user name: this is the only
@@ -44,7 +35,7 @@ const suite = hasPty ? describe : describe.skip;
 
 const TIMEOUT = 120000;
 
-suite('the realm picker, on a real terminal', () => {
+suite('default realm behavior, on a real terminal', () => {
   let home;
   let recordPath;
   let fakeAm;
@@ -72,13 +63,14 @@ suite('the realm picker, on a real terminal', () => {
     fs.rmSync(recordPath, { force: true });
   });
 
-  function journeyList(operands, actions) {
+  function journeyList(operands, actions, env = {}) {
     return runShellScenario({
       homeDir: home,
       allowPrompting: true,
       env: {
         FRODO_USERNAME: 'someone@example.com',
         FRODO_PASSWORD: 'secret',
+        ...env,
       },
       args: ['journey', 'list', ...operands],
       actions,
@@ -94,24 +86,28 @@ suite('the realm picker, on a real terminal', () => {
   }
 
   test(
-    'control: a host without a realm opens the realm picker today',
+    'a missing host prompts for completion, then the realm picker opens and Escape keeps the default',
     () => {
       const result = journeyList(
-        [`http://127.0.0.1:${fakeAm.port}/am`],
+        [],
         [
-          {
-            type: 'wait_plain',
-            regex: 'Choose a realm',
-            timeoutMs: 60000,
-          },
+          { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
+          { type: 'send', text: `http://127.0.0.1:${fakeAm.port}/am` },
+          { type: 'key', name: 'enter' },
+          { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
           { type: 'sleep', ms: 300 },
-          // Escape keeps the default realm; the command then carries on.
           { type: 'key', name: 'escape' },
-          { type: 'sleep', ms: 1500 },
+          { type: 'sleep', ms: 6000 },
         ]
       );
       expect(result.plainOutput).toContain('Choose a realm (default: /)');
+      expect(result.plainOutput).toContain('alpha');
       expect(result.plainOutput).toContain('bravo');
+      expect(
+        requestedUrls().some(
+          (url) => url.includes('/realms/root/') && url.includes('/trees')
+        )
+      ).toBe(true);
     },
     TIMEOUT
   );
@@ -123,12 +119,130 @@ suite('the realm picker, on a real terminal', () => {
         [`http://127.0.0.1:${fakeAm.port}/am`, '/alpha'],
         // Nothing to wait for on screen: the fake AM has no journeys, so the
         // CLI reports an error. Give it time to get past login and the point
-        // where the picker would have opened.
+        // where a realm picker would have opened.
         [{ type: 'sleep', ms: 6000 }]
       );
       expect(result.plainOutput).not.toContain('Choose a realm');
       // The command ran past login: it asked the tenant for its journeys.
       expect(requestedUrls().some((url) => url.includes('/trees'))).toBe(true);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'FRODO_REALM opens no picker, and the command uses that realm',
+    () => {
+      const result = journeyList(
+        [`http://127.0.0.1:${fakeAm.port}/am`],
+        [{ type: 'sleep', ms: 6000 }],
+        { FRODO_REALM: 'alpha' }
+      );
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some(
+          (url) => url.includes('/realms/alpha/') && url.includes('/trees')
+        )
+      ).toBe(true);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'everything given except the realm: no picker, the default realm is used',
+    () => {
+      const result = journeyList(
+        [`http://127.0.0.1:${fakeAm.port}/am`],
+        [{ type: 'sleep', ms: 6000 }]
+      );
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      const urls = requestedUrls();
+      expect(
+        urls.some(
+          (url) => url.includes('/realms/root/') && url.includes('/trees')
+        )
+      ).toBe(true);
+      expect(urls.some((url) => url.includes('/realms/root/realms/'))).toBe(
+        false
+      );
+    },
+    TIMEOUT
+  );
+
+  test(
+    'a realm from FRODO_REALM but a missing host: the picker stays closed',
+    () => {
+      const result = journeyList(
+        [],
+        [
+          { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
+          { type: 'send', text: `http://127.0.0.1:${fakeAm.port}/am` },
+          { type: 'key', name: 'enter' },
+          { type: 'sleep', ms: 6000 },
+        ],
+        { FRODO_REALM: 'bravo' }
+      );
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some(
+          (url) => url.includes('/realms/bravo/') && url.includes('/trees')
+        )
+      ).toBe(true);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'a prompted mandatory command option does not open the realm picker',
+    () => {
+      const result = runShellScenario({
+        homeDir: home,
+        allowPrompting: true,
+        env: {
+          FRODO_HOST: `http://127.0.0.1:${fakeAm.port}/am`,
+          FRODO_USERNAME: 'someone@example.com',
+          FRODO_PASSWORD: 'secret',
+        },
+        args: ['realm', 'add-custom-domain'],
+        actions: [
+          {
+            type: 'wait_plain',
+            regex: 'Enter a value for -d, --domain <name>:',
+            timeoutMs: 60000,
+          },
+          { type: 'send', text: 'example.com' },
+          { type: 'key', name: 'enter' },
+          { type: 'sleep', ms: 6000 },
+        ],
+      });
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some((url) => url.includes('/realms/root'))
+      ).toBe(true);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'a single saved profile is selected without a prompt, so no realm picker opens',
+    () => {
+      const profilesPath = path.join(home, 'Connections.json');
+      fs.writeFileSync(
+        profilesPath,
+        JSON.stringify({
+          [`http://127.0.0.1:${fakeAm.port}/am`]: {},
+        })
+      );
+      const result = journeyList(
+        [],
+        [{ type: 'sleep', ms: 6000 }],
+        { FRODO_CONNECTION_PROFILES_PATH: profilesPath }
+      );
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some(
+          (url) => url.includes('/realms/root/') && url.includes('/trees')
+        )
+      ).toBe(true);
     },
     TIMEOUT
   );
