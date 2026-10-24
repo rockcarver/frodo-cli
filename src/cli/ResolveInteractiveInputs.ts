@@ -268,11 +268,15 @@ export async function resolveInteractiveInputs(
   // explicit flag or env var on THIS invocation keeps precedence (the
   // gate skips options that already carry a non-default source).
   applyPersistedDefaults(command);
-  // The realm picker is only an optional extension of an already-needed
-  // interactive completion. Keep the deployment default when realm is the
-  // sole omitted value.
+  // Realm provenance MUST be captured before any prompt: frodo-lib maps
+  // the sentinel default to the deployment's realm during auth, so a
+  // user choice and a mapped default are indistinguishable afterwards.
   noteRealmProvenance(command);
   noteRequiredInputPrompted(false);
+  // The realm picker is only an optional extension of a connection prompt.
+  // Track only resolveConnectionArgs below: missing mandatory command options
+  // are not connection gaps and must not trigger the realm picker.
+  // Keep the deployment default when realm is the sole omitted value.
   // Sentinel translation for the command preview: the realm positional's
   // sentinel default must print as the deployment type's default realm
   // (alpha on cloud, / otherwise -- the same mapping frodo-lib applies at
@@ -297,15 +301,13 @@ export async function resolveInteractiveInputs(
   // red there. When nothing needs prompting the flag flips to its real
   // value immediately, with no frame in between.
   connectionReadiness.set(command, false);
-  const promptCountBeforeRequiredInputs = promptsRendered();
+  const promptCountBeforeConnection = promptsRendered();
   const connectionResolved = await resolveConnectionArgs(command);
   connectionReadiness.set(command, connectionResolved);
+  noteRequiredInputPrompted(promptsRendered() > promptCountBeforeConnection);
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
     : false;
-  noteRequiredInputPrompted(
-    promptsRendered() > promptCountBeforeRequiredInputs
-  );
   if (!connectionResolved || !mandatoryResolved) {
     if (violations.length > 0) {
       throwMissingMandatory(command, violations[0]);
@@ -1130,8 +1132,8 @@ export {
 export { setPositionalValue as setPositionalValueForCommand } from '../utils/interactive/PositionalArgs';
 
 /**
- * Public entry for utils/interactive picker modules (EntityPickers): their
- * `→` key opens this editor, then re-prompts. Kept
+ * Public entry for utils/interactive picker modules (EntityPickers,
+ * RealmPickers): their `→` key opens this editor, then re-prompts. Kept
  * as a named export because those modules import this file lazily (the
  * cycle is otherwise static: this file imports their registries).
  */

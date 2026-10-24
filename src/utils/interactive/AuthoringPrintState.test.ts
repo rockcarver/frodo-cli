@@ -49,17 +49,18 @@ describe('AuthoringPrintState', () => {
   });
 
   it('the closure reads command state at FLUSH time, not arm time', () => {
-    // The resolver arms with a closure over the command object; a later
-    // interactive edit mutates it; the postAction flush must see the update.
+    // Mirrors the realm-pick-then-flush ordering: the resolver arms with a
+    // closure over the command object; the realm pick (or editor) mutates
+    // it afterwards; the postAction flush must see the mutation.
     let rendered = '';
     armAuthoringPrint();
     setAuthoringPrintFlush(() => {
       rendered = current;
     });
     let current = 'stale';
-    current = 'fresh after edit';
+    current = 'fresh after realm pick';
     flushAuthoringPrint();
-    expect(rendered).toBe('fresh after edit');
+    expect(rendered).toBe('fresh after realm pick');
   });
 
   it('authSucceeded starts false (pick-first flows must not print pre-auth)', () => {

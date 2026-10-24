@@ -19,7 +19,8 @@
  * the CLI's last words stable.
  *
  * FAKE_AM_REALMS=alpha,bravo makes the realm list endpoint answer with those
- * realms (otherwise it answers 404, as every unknown path does).
+ * realms (otherwise it answers 404, as every unknown path does): a system with
+ * more than one realm is what makes the CLI offer its realm picker.
  *
  * FAKE_AM_JOURNEY=password selects a plain login instead (no code step,
  * and the session lookup succeeds), for tests that need a command to get

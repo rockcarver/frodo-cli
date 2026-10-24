@@ -10,10 +10,10 @@
  * only trace of an interactive session is what frodo prints around the
  * action's output. The eventual-command print is that trace, and it is a
  * HEADER for the results (user: it must appear BEFORE them, not after), so
- * the primary flush site is the getTokens wrapper, directly above the
- * action's output, with resolveEntityPicks covering the pick-after-auth
- * commands and the postAction hook as the fallback for flows with neither
- * auth nor picks.
+ * the primary flush site is the getTokens wrapper -- right after the
+ * post-auth realm pick concludes, directly above the action's output --
+ * with resolveEntityPicks covering the pick-after-auth commands and the
+ * postAction hook as the fallback for flows with neither auth nor picks.
  * The resolution pass arms (unconditionally -- registration is free; the
  * print gate is evaluated inside the flush closure at flush time); flows
  * that never reach a flush site (cancelled pickers, unsatisfied one-of
@@ -70,7 +70,7 @@ export function authSucceededForFlush(): boolean {
  * module stays zero-import. The closure re-reads the command object (a
  * closure over it) AND evaluates the print gate (promptsRendered /
  * explicitlyInteractive) at flush time -- both must be late: the
- * post-auth realm/entity pickers render after the pass ends, so both a
+ * post-auth realm picker renders after the pass ends, so both a
  * gate-at-arm-time and a snapshot-of-the-command would go stale.
  */
 let flushImpl: (() => void) | undefined;

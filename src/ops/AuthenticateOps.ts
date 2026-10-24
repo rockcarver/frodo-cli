@@ -209,9 +209,16 @@ export async function getTokens(
         state.getRealm() ? state.getRealm() : 'root'
       }] as ${tokens.subject}`
     );
-    // Realm selection is offered only when the resolution pass already had
-    // to prompt for required connection input. Otherwise an omitted realm
-    // retains frodo-lib's deployment default.
+    // Post-auth realm picker: offers the target system's realms when the
+    // command has a realm argument, the user left it at its default, the
+    // resolution pass prompted for required connection input, and the system
+    // has multiple realms. The active command is recorded by the resolution
+    // pass (preAction), so commands that bypass it naturally skip the picker.
+    //
+    // Gated on canPrompt() and lazy-imported: this module must stay loadable
+    // in tests that mock frodo-lib wholesale (the picker's graph reaches
+    // ColorTheme's `theme` import), and a non-interactive session doesn't
+    // need the picker's machinery.
     if (canPrompt()) {
       const { resolveRealmPick } =
         await import('../utils/interactive/RealmPickers');
@@ -221,9 +228,10 @@ export async function getTokens(
     // HERE so the eventual command lands directly above the action's
     // results (the print is a header for the output, not a footer after
     // it) -- every auth command's action prints its results only after
-    // getTokens returns true. SKIPPED when the command has entity picks
-    // still PENDING (registered and their option unset -- they run later
-    // in the action body and may still change the command):
+    // getTokens returns true, and the realm pick (which can still change
+    // the command) has concluded by now. SKIPPED when the command has entity
+    // picks still PENDING (registered and their option unset -- they run
+    // later in the action body and may still change the command):
     // resolveEntityPicks flushes after its picks conclude instead. Picks
     // already applied before auth (the pick-first pattern) do NOT block
     // this flush -- their option is set, nothing pending.
@@ -249,8 +257,8 @@ export async function getTokens(
     return true;
   } catch (error) {
     // The exit-all unwind is not an auth failure -- rethrow it so it
-    // reaches app.ts's top-level handler (entity pickers throw the signal
-    // from inside this try).
+    // reaches app.ts's top-level handler (realm/entity pickers throw the
+    // signal from inside this try).
     if (error === EXIT_ALL_SIGNAL) throw error;
     printError(error);
     // Auth failed: the command never ran -- revoke the deferred print so

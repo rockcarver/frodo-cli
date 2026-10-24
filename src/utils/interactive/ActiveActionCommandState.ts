@@ -2,7 +2,7 @@
  * The active action command's registry, split from
  * `ResolveInteractiveInputs.ts` the same way PromptGateState is split from
  * PromptGate: a zero-import state module that heavier layers (ops/ --
- * specifically AuthenticateOps's post-auth realm/entity pickers) can import
+ * specifically AuthenticateOps's post-auth realm picker) can import
  * without dragging the resolution pass's graph along.
  *
  * That matters for tests that mock `@rockcarver/frodo-lib` wholesale

@@ -61,6 +61,11 @@ export function noteRequiredInputPrompted(prompted: boolean): void {
   requiredInputPrompted = prompted;
 }
 
+/** Whether required connection input prompted in the current invocation. */
+export function requiredInputPromptedForTests(): boolean {
+  return requiredInputPrompted;
+}
+
 /**
  * Records whether this invocation's realm came from the user (positional
  * argument value or FRODO_REALM) as opposed to the sentinel default.

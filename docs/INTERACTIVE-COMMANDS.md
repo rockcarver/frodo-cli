@@ -73,10 +73,15 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
 - **The realm picker** (`RealmPickers.ts`) — offered only when the command
   declares a `[realm]` argument, the user did not specify it (positionally or
   with `FRODO_REALM`), the resolution pass prompted for another required
-  connection input (such as a missing host or credentials), and the target
-  system has multiple realms. If realm is the only omitted value, no picker
-  opens: frodo-lib uses the deployment default (`alpha` on Identity Cloud; `/`
-  on classic and ForgeOps). Escape from the picker also keeps that default.
+  connection input (such as a missing host, credentials, or connection-profile
+  choice), and the target system has multiple realms. Realm provenance is
+  captured before auth because frodo-lib maps the sentinel default to the
+  deployment realm during authentication, making a user choice and mapped
+  default indistinguishable afterward. Both a positional realm and
+  `FRODO_REALM` count as user-specified. If realm is the only omitted value,
+  no picker opens: frodo-lib uses the deployment default (`alpha` on Identity
+  Cloud; `/` on classic and ForgeOps). Escape keeps that default; Enter on the
+  highlighted default also keeps it and concludes the picker.
 
 - **Entity pickers** (`EntityPickers.ts`) — a command whose
   target-entity option (`-i/--secret-id`, `-i/--tree-id`, ...) was left
@@ -85,6 +90,8 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   resolver skips the free-text value step for pickable options. The
   loader is per-deployment-type by construction (whatever read
   function the command family's ops layer provides).
+
+Both pickers inherit type-to-search and auto-select a single candidate.
 
 ## Panel per surface (the frame layout)
 

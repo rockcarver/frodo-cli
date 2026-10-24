@@ -148,6 +148,106 @@ suite('default realm behavior, on a real terminal', () => {
   );
 
   test(
+    'everything given except the realm: no picker, the default realm is used',
+    () => {
+      const result = journeyList(
+        [`http://127.0.0.1:${fakeAm.port}/am`],
+        [{ type: 'sleep', ms: 6000 }]
+      );
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      const urls = requestedUrls();
+      expect(
+        urls.some(
+          (url) => url.includes('/realms/root/') && url.includes('/trees')
+        )
+      ).toBe(true);
+      expect(urls.some((url) => url.includes('/realms/root/realms/'))).toBe(
+        false
+      );
+    },
+    TIMEOUT
+  );
+
+  test(
+    'a realm from FRODO_REALM but a missing host: the picker stays closed',
+    () => {
+      const result = journeyList(
+        [],
+        [
+          { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
+          { type: 'send', text: `http://127.0.0.1:${fakeAm.port}/am` },
+          { type: 'key', name: 'enter' },
+          { type: 'sleep', ms: 6000 },
+        ],
+        { FRODO_REALM: 'bravo' }
+      );
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some(
+          (url) => url.includes('/realms/bravo/') && url.includes('/trees')
+        )
+      ).toBe(true);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'a prompted mandatory command option does not open the realm picker',
+    () => {
+      const result = runShellScenario({
+        homeDir: home,
+        allowPrompting: true,
+        env: {
+          FRODO_HOST: `http://127.0.0.1:${fakeAm.port}/am`,
+          FRODO_USERNAME: 'someone@example.com',
+          FRODO_PASSWORD: 'secret',
+        },
+        args: ['realm', 'add-custom-domain'],
+        actions: [
+          {
+            type: 'wait_plain',
+            regex: 'Enter a value for -d, --domain <name>:',
+            timeoutMs: 60000,
+          },
+          { type: 'send', text: 'example.com' },
+          { type: 'key', name: 'enter' },
+          { type: 'sleep', ms: 6000 },
+        ],
+      });
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some((url) => url.includes('/realms/root'))
+      ).toBe(true);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'a single saved profile is selected without a prompt, so no realm picker opens',
+    () => {
+      const profilesPath = path.join(home, 'Connections.json');
+      fs.writeFileSync(
+        profilesPath,
+        JSON.stringify({
+          [`http://127.0.0.1:${fakeAm.port}/am`]: {},
+        })
+      );
+      const result = journeyList(
+        [],
+        [{ type: 'sleep', ms: 6000 }],
+        { FRODO_CONNECTION_PROFILES_PATH: profilesPath }
+      );
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some(
+          (url) => url.includes('/realms/root/') && url.includes('/trees')
+        )
+      ).toBe(true);
+    },
+    TIMEOUT
+  );
+
+  test(
     'an example as printed (host, realm, user, password) opens no picker either',
     () => {
       const result = runShellScenario({
