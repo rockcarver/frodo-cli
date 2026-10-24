@@ -64,7 +64,7 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Import the first journey in a file and log in with AM base URL, username, and password:\n` +
         c.command(
-          `  $ frodo journey import -f ${s.journeyFile} ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+          `  $ frodo journey import -f ${s.journeyFile} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Import a named journey from a file using a connection profile, reassigning node UUIDs:\n` +
         c.command(

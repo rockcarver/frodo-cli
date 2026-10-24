@@ -87,7 +87,7 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Export one journey to a file, omitting its dependencies and coordinates:\n` +
         c.command(
-          `  $ frodo journey export -i ${s.journeyId} -f ${s.journeyFile} --no-deps --no-coords ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+          `  $ frodo journey export -i ${s.journeyId} -f ${s.journeyFile} --no-deps --no-coords ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Export all journeys in a realm to one file without metadata:\n` +
         c.command(

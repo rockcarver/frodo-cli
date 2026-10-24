@@ -27,7 +27,7 @@ export default function setup() {
         c.command(`  $ frodo journey disable -i ${s.journeyId} ${s.connId}\n`) +
         `  Disable a journey and log in with AM base URL, username, and password:\n` +
         c.command(
-          `  $ frodo journey disable -i ${s.journeyId} ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+          `  $ frodo journey disable -i ${s.journeyId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         )
     )
     .action(
