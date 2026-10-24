@@ -114,7 +114,9 @@ suite('default realm behavior, on a real terminal', () => {
           '--type',
           'cloud',
         ],
-        actions: [{ type: 'sleep', ms: 6000 }],
+        actions: [
+          { type: 'wait_plain', regex: 'Error getting tokens', timeoutMs: 10000 },
+        ],
       });
       expect(result.plainOutput).not.toContain('Connection:');
       expect(result.plainOutput).not.toMatch(/username: \(not set\)|Username:/);
