@@ -13,7 +13,9 @@ import {
   renderFullHelp,
   resolveCommand,
   splitSegments,
+  staleEntries,
   tokenize,
+  unlistedViolations,
 } from '../utils/CommandExamples.js';
 import { LEGACY_EXAMPLE_VIOLATIONS } from './UsageExampleOperandsLegacyExceptions.js';
 
@@ -28,8 +30,8 @@ import { LEGACY_EXAMPLE_VIOLATIONS } from './UsageExampleOperandsLegacyException
  *   [password]` is the realm: with host, user and password alone the CLI
  *   reads the user name as the realm and the password as the user name, so
  *   the example logs in as nobody (a host or profile alone is not judged here:
- *   whether an omitted realm should open the realm picker is a separate
- *   question, cli#885);
+ *   an omitted realm uses the deployment default if no other required input
+ *   prompts for completion);
  * - an entity picker or a requireOneOf / requireAllOf group is satisfied by an
  *   option, so no picker or options editor opens;
  * - no quote is left open.
@@ -104,12 +106,7 @@ describe('usage examples of the real commands', () => {
   });
 
   it('runs every example as written, without opening an interactive mode', () => {
-    const legacy = new Set(
-      LEGACY_EXAMPLE_VIOLATIONS.map((e) => `${e.rule}\n${e.example}`)
-    );
-    const unexpected = found.filter(
-      (problem) => !legacy.has(`${problem.rule}\n${problem.example}`)
-    );
+    const unexpected = unlistedViolations(found, LEGACY_EXAMPLE_VIOLATIONS);
     if (unexpected.length > 0) {
       throw new Error(
         `${unexpected.length} usage example(s) are wrong or would open an interactive mode:\n\n` +
@@ -125,10 +122,7 @@ describe('usage examples of the real commands', () => {
   });
 
   it('keeps the legacy list honest', () => {
-    const stillBroken = new Set(found.map((p) => `${p.rule}\n${p.example}`));
-    const fixed = LEGACY_EXAMPLE_VIOLATIONS.filter(
-      (e) => !stillBroken.has(`${e.rule}\n${e.example}`)
-    );
+    const fixed = staleEntries(found, LEGACY_EXAMPLE_VIOLATIONS);
     if (fixed.length > 0) {
       throw new Error(
         `These examples no longer break the rule they are listed for (fixed, changed or gone). Remove them from ${LEGACY_FILE}:\n` +
@@ -140,6 +134,40 @@ describe('usage examples of the real commands', () => {
     );
     expect(new Set(keys).size).toBe(keys.length);
     expect(LEGACY_EXAMPLE_VIOLATIONS.every((e) => e.reason)).toBe(true);
+  });
+});
+
+describe('the legacy list (a ratchet that works when the list is empty)', () => {
+  const bad = { rule: 'unknown-option', example: 'frodo a -z' };
+  const other = { rule: 'one-of-missing', example: 'frodo b' };
+
+  it('lets the check pass when nothing is broken and nothing is listed', () => {
+    expect(unlistedViolations([], [])).toEqual([]);
+    expect(staleEntries([], [])).toEqual([]);
+  });
+
+  it('fails a broken example that is not listed, with an empty list too', () => {
+    expect(unlistedViolations([bad], [])).toEqual([bad]);
+    expect(unlistedViolations([bad, other], [bad])).toEqual([other]);
+  });
+
+  it('matches on the rule as well as the example', () => {
+    expect(
+      unlistedViolations([bad], [{ ...bad, rule: 'one-of-missing' }])
+    ).toEqual([bad]);
+  });
+
+  it('fails a listed example that is fixed, changed or gone', () => {
+    expect(staleEntries([], [bad])).toEqual([bad]);
+    expect(staleEntries([other], [bad, other])).toEqual([bad]);
+    expect(staleEntries([{ ...bad, example: 'frodo a -y' }], [bad])).toEqual([
+      bad,
+    ]);
+  });
+
+  it('accepts a listed example that is still broken', () => {
+    expect(unlistedViolations([bad], [bad])).toEqual([]);
+    expect(staleEntries([bad], [bad])).toEqual([]);
   });
 });
 

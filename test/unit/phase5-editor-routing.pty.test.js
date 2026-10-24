@@ -244,10 +244,15 @@ describe('phase 5 slice 1: hint + segment routing', () => {
           args: ['realm', 'list'],
           env: {
             ...ENV,
+            FRODO_HOST: '__FRODO_PTY_DELETE__',
+            FRODO_CONNECTION_PROFILES_PATH: '',
             FRODO_SA_ID: connection.saId,
             FRODO_SA_JWK: connection.saJwk,
           },
           actions: [
+            { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
+            { type: 'send', text: ENV.FRODO_HOST },
+            { type: 'key', name: 'enter' },
             { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
             { type: 'sleep', ms: 400 },
             { type: 'capture', label: 'picker' },
@@ -616,7 +621,7 @@ describe('phase 5 slice 4: command preview', () => {
     );
 
     test(
-      'realm picker (connection resolved, nothing missing): green, upright',
+      'realm picker after prompting for the missing host: green, upright',
       async () => {
         const homeDir = createShellTestHome();
         try {
@@ -626,11 +631,16 @@ describe('phase 5 slice 4: command preview', () => {
             args: ['realm', 'list'],
             env: {
               ...ENV,
+              FRODO_HOST: '__FRODO_PTY_DELETE__',
+              FRODO_CONNECTION_PROFILES_PATH: '',
               FRODO_SA_ID: connection.saId,
               FRODO_SA_JWK: connection.saJwk,
               ...COLOR_ENV,
             },
             actions: [
+              { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
+              { type: 'send', text: ENV.FRODO_HOST },
+              { type: 'key', name: 'enter' },
               { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
               { type: 'sleep', ms: 400 },
               { type: 'capture', label: 'realm' },

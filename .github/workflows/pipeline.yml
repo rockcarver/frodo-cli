@@ -6,8 +6,9 @@ on:
       - 'main'
     # No paths-ignore here: with required status checks on main, a PR whose
     # changes skip CI entirely could never merge (its required checks would
-    # stay "expected" forever). Docs-only PRs run the full pipeline. The push
-    # trigger keeps paths-ignore so docs-only pushes to main stay cheap.
+    # stay "expected" forever). Docs-only PRs still start the pipeline; the
+    # `changes` job below skips their test jobs. The push trigger keeps
+    # paths-ignore so docs-only pushes to main stay cheap.
   push:
     branches:
       - 'main'
@@ -52,16 +53,23 @@ permissions:
 
 jobs:
   # Classifies a PR as code or non-code so the long test jobs can be skipped
-  # for docs and automation-only changes. This cannot be done with
-  # `paths-ignore` on the pull_request trigger: the required checks would stay
-  # "expected" forever. Skipped jobs count as passing for required checks.
-  # Fails safe: anything not on the allowlist, any API error, and every
-  # non-PR event (push, workflow_dispatch, releases) is treated as code.
+  # for docs and automation-only changes, and flags the guidance files (decision
+  # records, skills, entry points) that the fast `guidance` job must still
+  # validate. This cannot be done with `paths-ignore` on the pull_request
+  # trigger: the required checks would stay "expected" forever. Skipped jobs
+  # count as passing for required checks.
+  # The rules are in .github/scripts/classify-changes.sh, which is read from the
+  # PR's BASE commit: a PR must not choose the rules that judge it (and the
+  # script and this file count as code, so changing them runs everything).
+  # Fails safe: anything not on the allowlist, any API error, a base without the
+  # script, and every non-PR event (push, workflow_dispatch, releases) is
+  # treated as code.
   changes:
     name: 'Detect code changes'
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.classify.outputs.code }}
+      guidance: ${{ steps.classify.outputs.guidance }}
     steps:
       - name: Classify changed files
         id: classify
@@ -70,26 +78,62 @@ jobs:
           EVENT: ${{ github.event_name }}
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           code=true
+          guidance=false
           if [ "${EVENT}" = "pull_request" ]; then
-            if files=$(gh api "repos/${REPO}/pulls/${PR}/files" --paginate \
-                --jq '.[] | .filename, (.previous_filename // empty)'); then
-              count=$(printf '%s\n' "${files}" | grep -c . || true)
-              # The files API caps at 3000 entries; treat that as "unknown".
-              if [ "${count}" -gt 0 ] && [ "${count}" -lt 3000 ]; then
-                safe='^(docs/|[^/]+\.md$|LICENSE|\.github/(ISSUE_TEMPLATE/|agentic-workflows/|aw/|concierge\.yml$|scripts/|workflows/[^/]+\.(ya?ml|md)$|CODEOWNERS$|dependabot\.yml$|copilot-instructions\.md$))'
-                # Any workflow except this pipeline is non-code: it cannot change
-                # what these jobs build or test.
-                if ! printf '%s\n' "${files}" | grep -Ev "${safe}" | grep -q . \
-                    && ! printf '%s\n' "${files}" | grep -qx '.github/workflows/pipeline.yml'; then
-                  code=false
-                fi
-              fi
+            script="${RUNNER_TEMP}/classify-changes.sh"
+            if gh api -H 'Accept: application/vnd.github.raw' \
+                "repos/${REPO}/contents/.github/scripts/classify-changes.sh?ref=${BASE_SHA}" > "${script}" \
+              && files=$(gh api "repos/${REPO}/pulls/${PR}/files" --paginate \
+                --jq '.[] | .filename, (.previous_filename // empty)') \
+              && result=$(printf '%s\n' "${files}" | bash "${script}"); then
+              answer_code=$(printf '%s\n' "${result}" | sed -n 's/^code=//p')
+              answer_guidance=$(printf '%s\n' "${result}" | sed -n 's/^guidance=//p')
+              case "${answer_code}/${answer_guidance}" in
+                true/true | true/false | false/true | false/false)
+                  code="${answer_code}"
+                  guidance="${answer_guidance}"
+                  ;;
+              esac
             fi
           fi
           echo "code=${code}"
+          echo "guidance=${guidance}"
           echo "code=${code}" >> "$GITHUB_OUTPUT"
+          echo "guidance=${guidance}" >> "$GITHUB_OUTPUT"
+
+  # The tests that validate the guidance files (decision records, skills, entry
+  # points), for a PR that changes no code. A PR with code runs the same suites
+  # in `Test`, so this job is skipped then. `Test gate` fails if it was needed
+  # and did not succeed. See docs/PIPELINE.md.
+  guidance:
+    name: 'Validate guidance'
+    needs: [changes]
+    if: needs.changes.outputs.code == 'false' && needs.changes.outputs.guidance == 'true'
+    runs-on: ubuntu-latest
+    # Runs the PR's own code (`npm ci`, the tests): read-only, no token to publish.
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          # The PR head, also for forked PRs.
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Guidance tests
+        run: npm run test:guidance
 
   build:
     name: 'Build'
@@ -274,10 +318,11 @@ jobs:
   # Single stable-named gate over the versioned test matrix. Required status
   # checks on main point at THIS job, so changing the matrix's Node versions
   # never touches repo settings. It fails if any matrix leg fails or is
-  # cancelled/skipped unexpectedly.
+  # cancelled/skipped unexpectedly, and if the guidance job was needed (no code
+  # changed, guidance files did) and did not succeed.
   test-gate:
     name: 'Test gate'
-    needs: [build, changes, test]
+    needs: [build, changes, test, guidance]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
@@ -286,12 +331,15 @@ jobs:
           build='${{ needs.build.result }}'
           changes='${{ needs.changes.result }}'
           code='${{ needs.changes.outputs.code }}'
+          guidance_needed='${{ needs.changes.outputs.guidance }}'
           result='${{ needs.test.result }}'
-          echo "build=${build} changes=${changes} code=${code} test=${result}"
+          guidance='${{ needs.guidance.result }}'
+          echo "build=${build} changes=${changes} code=${code} test=${result} guidance_needed=${guidance_needed} guidance=${guidance}"
           if [ "${changes}" != "success" ]; then
             echo "::error::Change detection did not succeed"
             exit 1
           fi
+          expected_guidance=skipped
           if [ "${code}" = "true" ]; then
             expected=success
           else
@@ -302,9 +350,17 @@ jobs:
               echo "::error::Build did not succeed"
               exit 1
             fi
+            # Guidance files changed: their validation must have run and passed.
+            if [ "${guidance_needed}" = "true" ]; then
+              expected_guidance=success
+            fi
           fi
           if [ "${result}" != "${expected}" ]; then
             echo "::error::Expected test result '${expected}', got '${result}'"
+            exit 1
+          fi
+          if [ "${guidance}" != "${expected_guidance}" ]; then
+            echo "::error::Expected guidance result '${expected_guidance}', got '${guidance}'"
             exit 1
           fi
 

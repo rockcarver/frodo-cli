@@ -27,12 +27,16 @@
  * past login without anyone typing: step 2 returns the session token and
  * everything after it is answered 404, so a command that goes on to write
  * something fails deterministically on its first write.
+ *
+ * FAKE_AM_JOURNEY=service-account also answers the token endpoint, so a
+ * service-account login can reach post-auth realm selection and commands.
  */
 import fs from 'node:fs';
 import http from 'node:http';
 
 const recordPath = process.env.FAKE_AM_RECORD;
 const plainLogin = process.env.FAKE_AM_JOURNEY === 'password';
+const serviceAccountLogin = process.env.FAKE_AM_JOURNEY === 'service-account';
 const realms = (process.env.FAKE_AM_REALMS ?? '').split(',').filter(Boolean);
 let step = 0;
 
@@ -61,6 +65,13 @@ const server = http.createServer((req, res) => {
       res.writeHead(status, { 'content-type': 'application/json' });
       res.end(JSON.stringify(payload));
     };
+    if (serviceAccountLogin && req.url.includes('/access_token')) {
+      return send(200, {
+        access_token: 'fake-service-account-token',
+        token_type: 'Bearer',
+        expires_in: 3600,
+      });
+    }
     if (req.url.includes('/json/serverinfo')) {
       return send(200, {
         cookieName: 'iPlanetDirectoryPro',

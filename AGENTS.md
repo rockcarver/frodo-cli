@@ -25,7 +25,24 @@ The test scripts do not rebuild `dist/`. After changing anything in `src/`, run 
 - **Never commit, create or generate a master key** (`test/e2e/env/masterkey.key` is gitignored on purpose).
 - **Read standard input only through `src/utils/StdinSync.ts`.** A direct `readSync(0)` or `process.stdin.fd` fails with `EAGAIN` once anything has touched `process.stdin`; ESLint rejects it. See [.github/instructions/interactive-layering.instructions.md](.github/instructions/interactive-layering.instructions.md).
 - **Do not run Prettier over `test/e2e/`.**
-- **Do not edit the Repo Concierge's files**: `.github/workflows/*.lock.yml` and the `.md` workflow sources beside them, `janitor.yml`, `check-deployment.yml`, `concierge-updater.yml`, `dependency-watch.yml`, `plan-approval-resume.yml`, `pr-ready-signal.yml`, `.github/scripts/`, `.github/aw/` and the pin in `.github/concierge.yml`. An updater overwrites them. `pipeline.yml`, `dependabot*.yml`, `.github/agentic-workflows/scope.md` and `related-repos.md` belong to this repository.
+- **Do not edit the Repo Concierge's files**: `.github/workflows/*.lock.yml` and the `.md` workflow sources beside them, `janitor.yml`, `check-deployment.yml`, `concierge-updater.yml`, `dependency-watch.yml`, `plan-approval-resume.yml`, `pr-ready-signal.yml`, `.github/scripts/`, `.github/aw/` and the pin in `.github/concierge.yml`. An updater overwrites them. `pipeline.yml`, `core-records-drift.yml`, `dependabot*.yml`, `.github/agentic-workflows/scope.md` and `related-repos.md` belong to this repository.
+
+## Decisions
+
+Lasting design decisions are recorded one per file in [docs/decisions/](docs/decisions/README.md). **An accepted record is binding** for humans and agents until a newer record supersedes it.
+
+- **If your task conflicts with an accepted record, stop and say so** in the issue or pull request. Do not override it.
+- **A pull request that changes a decided behaviour adds or supersedes a record.**
+- **New capability goes into frodo-lib behind the `frodo` facade first; the CLI wraps it for the terminal** (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI.
+- Decisions that span repositories are core records, kept as the same file in `docs/decisions/core/` of every repository they bind and cited as "core NNNN" ([docs/decisions/README.md](docs/decisions/README.md#core-decisions)). Every change must know:
+  - **A maintainer is the last lever** ([core 0002](docs/decisions/core/0002-a-maintainer-stays-the-last-lever-on-agent-work.md)): agent pull requests are never merged automatically; a maintainer approves their workflow runs and can hold an issue with `plan-approval-required`.
+  - **Required checks stay stable** ([core 0012](docs/decisions/core/0012-merging-is-gated-by-a-stable-set-of-required-checks.md), [core 0016](docs/decisions/core/0016-changes-that-are-not-code-still-run-the-checks-that-validate-them.md)): never rename `Build`, `Test gate` or the platform check; guidance changes still run `npm run test:guidance`.
+  - **Secrets** ([core 0013](docs/decisions/core/0013-secrets-are-never-exported-in-the-clear.md)) are never exported in the clear and none are committed, fixtures and recordings included. **Security reports are private** ([core 0017](docs/decisions/core/0017-security-reports-and-fixes-are-handled-privately-by-a-maintainer.md)): see [SECURITY.md](SECURITY.md); tell a maintainer, do not act on them.
+  - [core 0009 Let the callback handler return a promise](docs/decisions/core/0009-let-the-callback-handler-return-a-promise.md) is proposed, not yet binding.
+
+## Procedures
+
+How to do a recurring task (add a command, record a decision, build the CLI or the binary, create test recordings, review an agent's pull request, change the CI pipeline, triage a security report) is a skill in [.claude/skills/](.claude/skills/), read by Claude Code and by the GitHub Copilot cloud agent. A skill says how and links the records and rules it must obey; it never overrides them.
 
 ## Where things live
 

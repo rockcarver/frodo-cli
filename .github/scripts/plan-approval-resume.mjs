@@ -1,8 +1,9 @@
 // Plan approval resume for Repo Concierge.
 //
 // Deterministic: no LLM. When a maintainer removes `plan-approval-required`
-// from a high-complexity or high-risk issue, this hands the issue to the PR gate by
-// applying `plan-triage-handoff`. Rules: docs/multi-phase-design.md.
+// from an issue plan triage has classified (high complexity or high risk, which plan triage holds
+// itself, or any classification when a maintainer put the hold on by hand), this hands the issue
+// to the PR gate by applying `plan-triage-handoff`. Rules: docs/multi-phase-design.md.
 import { execFileSync } from 'node:child_process';
 import { isCodingAgent } from './janitor.mjs';
 
@@ -12,6 +13,15 @@ export const LABEL_HANDOFF = 'plan-triage-handoff';
 export const LABEL_HIGH = 'complexity/high';
 export const LABEL_RISK_HIGH = 'risk/high';
 export const LABEL_DEPENDENCY = 'dependency-required';
+
+/**
+ * Plan triage has classified the plan: it applies one complexity label and one risk label, whatever
+ * their values. An issue that has only one of them, or neither, has not been through plan triage.
+ */
+export function isClassified(labels) {
+  const names = [...labels];
+  return names.some((n) => n.startsWith('complexity/')) && names.some((n) => n.startsWith('risk/'));
+}
 
 /** True for a bot account: approval is a human decision, so a bot removing the label never counts. */
 export function isBot(login) {
@@ -33,8 +43,11 @@ export function decide(issue, removedLabel, actor) {
   }
   if (isBot(actor)) return { handoff: false, reason: `approval removed by a bot (${actor})` };
   if (labels.has(LABEL_APPROVAL)) return { handoff: false, reason: 'approval is still required' };
-  if (!labels.has(LABEL_HIGH) && !labels.has(LABEL_RISK_HIGH)) {
-    return { handoff: false, reason: 'no high-complexity or high-risk plan to approve' };
+  // A high label alone counts (plan triage held the issue itself, and the older flow applied only the
+  // complexity label). Any other plan needs both labels: a hold put on by hand before plan triage ran
+  // leaves nothing to approve yet, and that is plan triage's to do (re-add `plan-worker-ready`).
+  if (!labels.has(LABEL_HIGH) && !labels.has(LABEL_RISK_HIGH) && !isClassified(labels)) {
+    return { handoff: false, reason: 'plan triage has not classified the issue yet: nothing to approve' };
   }
   if (labels.has(LABEL_DEPENDENCY)) return { handoff: false, reason: 'waiting on a dependency' };
   // The janitor removes `plan-triage-handoff` once the coding agent is assigned, so

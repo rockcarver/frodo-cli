@@ -14,10 +14,9 @@
  *    profile can supply credentials for the resolved host, since frodo-lib
  *    already falls back to profile-stored credentials on its own
  *    (AuthenticateOps loadConnectionProfile); prompting when a profile
- *    would answer anyway would be pure friction. `--browser`/`--device`
- *    likewise suppress the username/password prompts (their flow is the
- *    interactive part) but not the host prompt, which those flows still
- *    need.
+ *    would answer anyway would be pure friction. Explicit credential
+ *    sources (service account, Amster key, browser/device auth) likewise
+ *    suppress username/password prompts, but not the host prompt.
  *
  * 2. Deferred mandatory options. Commander's
  *    `missingMandatoryOptionValue()` normally throws during parsing --
@@ -52,6 +51,7 @@ import {
   setDeploymentTypeForPreview,
   type CommandReadiness,
 } from '../utils/interactive/CommandPreview';
+import { hasExplicitCredentialSource } from '../utils/interactive/ConnectionCredentials';
 import {
   connectionPage,
   PAGE_ESCAPE,
@@ -91,7 +91,10 @@ import {
   promptPassword,
   promptsRendered,
 } from '../utils/interactive/PromptGate';
-import { noteRealmProvenance } from '../utils/interactive/RealmPickers';
+import {
+  noteRealmProvenance,
+  noteRequiredInputPrompted,
+} from '../utils/interactive/RealmPickers';
 import { guidedModeEnabled } from '../utils/SettingsStore';
 
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
@@ -100,7 +103,7 @@ const { isValidUrl } = frodo.utils;
 
 // The active-action-command registry lives in its own zero-import module
 // (ActiveActionCommandState) so ops-layer importers (AuthenticateOps's
-// post-auth realm picker) don't drag this file's frodo-lib-importing
+// post-auth realm/entity pickers) don't drag this file's frodo-lib-importing
 // graph into tests that mock frodo-lib wholesale. Re-exported here for
 // the resolution pass's own use.
 export {
@@ -265,10 +268,15 @@ export async function resolveInteractiveInputs(
   // explicit flag or env var on THIS invocation keeps precedence (the
   // gate skips options that already carry a non-default source).
   applyPersistedDefaults(command);
-  // The realm provenance MUST be noted before any prompt: frodo-lib maps
-  // the sentinel default to the deployment type's realm during auth, so
-  // "user chose" is only distinguishable from "mapped default" here.
+  // Realm provenance MUST be captured before any prompt: frodo-lib maps
+  // the sentinel default to the deployment's realm during auth, so a
+  // user choice and a mapped default are indistinguishable afterwards.
   noteRealmProvenance(command);
+  noteRequiredInputPrompted(false);
+  // The realm picker is only an optional extension of a connection prompt.
+  // Track only resolveConnectionArgs below: missing mandatory command options
+  // are not connection gaps and must not trigger the realm picker.
+  // Keep the deployment default when realm is the sole omitted value.
   // Sentinel translation for the command preview: the realm positional's
   // sentinel default must print as the deployment type's default realm
   // (alpha on cloud, / otherwise -- the same mapping frodo-lib applies at
@@ -293,8 +301,10 @@ export async function resolveInteractiveInputs(
   // red there. When nothing needs prompting the flag flips to its real
   // value immediately, with no frame in between.
   connectionReadiness.set(command, false);
+  const promptCountBeforeConnection = promptsRendered();
   const connectionResolved = await resolveConnectionArgs(command);
   connectionReadiness.set(command, connectionResolved);
+  noteRequiredInputPrompted(promptsRendered() > promptCountBeforeConnection);
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
     : false;
@@ -349,10 +359,9 @@ export async function resolveInteractiveInputs(
   //
   // Armed UNCONDITIONALLY (registration is free); the PRINT GATE lives in
   // the flush closure, evaluated at flush time -- NOT here. It must be
-  // evaluated late: the post-auth realm picker renders AFTER this pass
+  // evaluated late: post-auth realm/entity pickers render AFTER this pass
   // ends, so a gate evaluated now would miss a session whose only prompt
-  // was that picker (env-resolved connection + realm pick -- the exact
-  // frodo journey list flow that motivated the deferral). The gate itself
+  // was a picker. The gate itself
   // is unchanged: at least one prompt rendered this process, or the user
   // explicitly requested the flow (--prompt / guided mode). Fully
   // specified non-TTY runs (e2e snapshots) render no prompts and never
@@ -774,18 +783,6 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
 }
 
 /**
- * Whether the invocation carries an explicit interactive-auth mode
- * (--browser/--device). Read from the parsed option values, NOT from
- * frodo-lib state: `handleDefaultArgsAndOpts` sets authMode from these
- * same options inside the action body, i.e. after this pass runs.
- */
-function isInteractiveAuthMode(command: Command): boolean {
-  return (
-    !!command.getOptionValue('browser') || !!command.getOptionValue('device')
-  );
-}
-
-/**
  * Reads the saved connection profiles file directly (no auth, no network)
  * to enumerate candidates for the host dropdown. Returns a sorted list;
  * empty when the file is missing or unreadable.
@@ -815,7 +812,7 @@ const ENTER_MANUALLY = Symbol('resolveConnectionArgs:enterManually');
  *
  * Skipped per-argument when: the command doesn't declare the argument,
  * the value is already present (positional arg, or env var via frodo-lib
- * state's own env fallback), or --browser/--device makes the
+ * state's own env fallback), or an explicit credential source makes the
  * username/password prompts redundant.
  */
 async function resolveConnectionArgs(command: Command): Promise<boolean> {
@@ -959,12 +956,12 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
     positionalIndex(command, 'username') !== -1 &&
     !positionalValue(command, 'username') &&
     !state.getUsername() && // env fallback (FRODO_USERNAME)
-    !isInteractiveAuthMode(command);
+    !hasExplicitCredentialSource(command);
   const passwordNeeded =
     positionalIndex(command, 'password') !== -1 &&
     !positionalValue(command, 'password') &&
     !state.getPassword() && // env fallback (FRODO_PASSWORD)
-    !isInteractiveAuthMode(command);
+    !hasExplicitCredentialSource(command);
 
   if (!usernameNeeded && !passwordNeeded) return true;
 
@@ -1118,8 +1115,8 @@ export {
 } from '../utils/interactive/EditableOptions';
 
 // The positional read/write helpers live in a zero-import module
-// (PositionalArgs) shared with the post-auth realm picker's write-back;
-// re-exported here under the historical name for any other consumers.
+// (PositionalArgs); re-exported here under the historical name for any
+// other consumers.
 export { setPositionalValue as setPositionalValueForCommand } from '../utils/interactive/PositionalArgs';
 
 /**

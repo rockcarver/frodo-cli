@@ -1,0 +1,35 @@
+name: 'Core records drift'
+
+# Core decision records are one file kept identical in every repository they
+# bind (docs/decisions/core/0018-core-decision-records-are-kept-in-each-repository.md).
+# Once a week this compares docs/decisions/core/ with the same folder of
+# frodo-lib (decisions/core/) and fails the run on a missing file or a
+# difference. It opens no issue: a red run is the signal.
+#
+# Owned by this repository, not by the Repo Concierge. The logic and its test
+# are tools/check-core-records-drift.mjs and test/unit/CoreRecordsDrift.test.js.
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    name: Compare core records with frodo-lib
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # A fork has no sibling to compare with and no reason to run a schedule.
+    if: github.repository == 'rockcarver/frodo-cli'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+      - name: Compare
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node tools/check-core-records-drift.mjs
