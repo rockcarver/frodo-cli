@@ -9,14 +9,10 @@ import { setPositionalValue } from '../utils/interactive/PositionalArgs';
 // real commander trees without mocks.
 
 /**
- * The post-auth realm picker's write-back:
- * the picked realm must land in BOTH surfaces the CLI reads --
+ * Positional gap-fills must land in BOTH surfaces the CLI reads --
  * processedArgs (the action handler's positional parameter) and args
- * (handleDefaultArgsAndOpts's iteration, which re-feeds
- * state.setRealm inside the action body) -- or the deferred authoring
- * print would show a different realm than the action runs in. The
- * slash-strip (state convention -> positional convention) happens at the
- * picker's call site (RealmPickers), not in the generic writer.
+ * (handleDefaultArgsAndOpts's iteration) -- or the action body would see
+ * a different value than the resolver committed.
  */
 function makeCommand(): Command {
   const command = new Command('list');
@@ -30,7 +26,7 @@ afterEach(() => {
   delete process.env.FRODO_REALM;
 });
 
-describe('setPositionalValue (realm pick write-back)', () => {
+describe('setPositionalValue (positional gap-fill)', () => {
   it('writes the picked realm into both surfaces', () => {
     const command = makeCommand();
     command.parse([], { from: 'user' });

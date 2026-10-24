@@ -19,18 +19,9 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * A realm the user typed counts as chosen, so the realm picker stays closed
- * (docs/INTERACTIVE-COMMANDS.md, "Post-auth pickers"). It did not for a realm
- * typed as the `[realm]` argument: the provenance was noted before the
- * argument reached frodo-lib's state, so only FRODO_REALM counted and `frodo
- * journey list <host> /alpha <user> <password>` still asked "Choose a realm".
- *
- * This drives the REAL CLI of this checkout through a pseudo-terminal against
- * the fake AM (test/utils/FakeAm.mjs, a separate process) with two realms, so
- * the claim is checked, not just quoted. The first case is the control: the
- * picker does open today when no realm is named. If cli#885 restores the
- * silent fallback to the deployment's default realm, that case changes with
- * it and goes away; the other two must keep passing either way.
+ * An omitted realm keeps the deployment's default instead of opening an
+ * interactive picker, even when the target has multiple realms. This drives
+ * the REAL CLI through a pseudo-terminal against the fake AM with two realms.
  *
  * The credentials come from the environment in the first two cases because the
  * realm is the operand between the host and the user name: this is the only
@@ -44,7 +35,7 @@ const suite = hasPty ? describe : describe.skip;
 
 const TIMEOUT = 120000;
 
-suite('the realm picker, on a real terminal', () => {
+suite('default realm behavior, on a real terminal', () => {
   let home;
   let recordPath;
   let fakeAm;
@@ -94,24 +85,18 @@ suite('the realm picker, on a real terminal', () => {
   }
 
   test(
-    'control: a host without a realm opens the realm picker today',
+    'a host without a realm keeps the deployment default without prompting',
     () => {
       const result = journeyList(
         [`http://127.0.0.1:${fakeAm.port}/am`],
-        [
-          {
-            type: 'wait_plain',
-            regex: 'Choose a realm',
-            timeoutMs: 60000,
-          },
-          { type: 'sleep', ms: 300 },
-          // Escape keeps the default realm; the command then carries on.
-          { type: 'key', name: 'escape' },
-          { type: 'sleep', ms: 1500 },
-        ]
+        [{ type: 'sleep', ms: 6000 }]
       );
-      expect(result.plainOutput).toContain('Choose a realm (default: /)');
-      expect(result.plainOutput).toContain('bravo');
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      expect(
+        requestedUrls().some(
+          (url) => url.includes('/realms/root/') && url.includes('/trees')
+        )
+      ).toBe(true);
     },
     TIMEOUT
   );
@@ -123,7 +108,7 @@ suite('the realm picker, on a real terminal', () => {
         [`http://127.0.0.1:${fakeAm.port}/am`, '/alpha'],
         // Nothing to wait for on screen: the fake AM has no journeys, so the
         // CLI reports an error. Give it time to get past login and the point
-        // where the picker would have opened.
+        // where a realm picker would have opened.
         [{ type: 'sleep', ms: 6000 }]
       );
       expect(result.plainOutput).not.toContain('Choose a realm');

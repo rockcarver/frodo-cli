@@ -2,7 +2,7 @@
  * The active action command's registry, split from
  * `ResolveInteractiveInputs.ts` the same way PromptGateState is split from
  * PromptGate: a zero-import state module that heavier layers (ops/ --
- * specifically AuthenticateOps's post-auth realm picker) can import
+ * specifically AuthenticateOps's post-auth entity pickers) can import
  * without dragging the resolution pass's graph along.
  *
  * That matters for tests that mock `@rockcarver/frodo-lib` wholesale
@@ -18,9 +18,8 @@ import type { Command } from 'commander';
 /**
  * The leaf command whose action is about to run, recorded by the
  * resolution pass. Post-auth hooks that have no command reference of
- * their own (the getTokens wrapper consults the realm picker, which
- * needs the command to check for a realm argument) read this instead of
- * threading the command through every call site.
+ * their own read this instead of threading the command through every
+ * call site.
  */
 let activeActionCommand: Command | undefined;
 

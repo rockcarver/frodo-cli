@@ -91,7 +91,6 @@ import {
   promptPassword,
   promptsRendered,
 } from '../utils/interactive/PromptGate';
-import { noteRealmProvenance } from '../utils/interactive/RealmPickers';
 import { guidedModeEnabled } from '../utils/SettingsStore';
 
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
@@ -100,7 +99,7 @@ const { isValidUrl } = frodo.utils;
 
 // The active-action-command registry lives in its own zero-import module
 // (ActiveActionCommandState) so ops-layer importers (AuthenticateOps's
-// post-auth realm picker) don't drag this file's frodo-lib-importing
+// post-auth entity picker) don't drag this file's frodo-lib-importing
 // graph into tests that mock frodo-lib wholesale. Re-exported here for
 // the resolution pass's own use.
 export {
@@ -265,10 +264,6 @@ export async function resolveInteractiveInputs(
   // explicit flag or env var on THIS invocation keeps precedence (the
   // gate skips options that already carry a non-default source).
   applyPersistedDefaults(command);
-  // The realm provenance MUST be noted before any prompt: frodo-lib maps
-  // the sentinel default to the deployment type's realm during auth, so
-  // "user chose" is only distinguishable from "mapped default" here.
-  noteRealmProvenance(command);
   // Sentinel translation for the command preview: the realm positional's
   // sentinel default must print as the deployment type's default realm
   // (alpha on cloud, / otherwise -- the same mapping frodo-lib applies at
@@ -330,8 +325,8 @@ export async function resolveInteractiveInputs(
   // them). Flush sites, chosen so every flow's print lands at its last
   // command-mutating moment:
   //
-  // - getTokens wrapper (AuthenticateOps): after the post-auth realm pick
-  //   concludes -- every auth command's action output starts after its
+  // - getTokens wrapper (AuthenticateOps): after auth succeeds -- every
+  //   auth command's action output starts after its
   //   getTokens returns, so the print sits directly above the results.
   //   SKIPPED when the command has entity picks pending (the picks may
   //   still change the command; resolveEntityPicks flushes instead).
@@ -349,10 +344,9 @@ export async function resolveInteractiveInputs(
   //
   // Armed UNCONDITIONALLY (registration is free); the PRINT GATE lives in
   // the flush closure, evaluated at flush time -- NOT here. It must be
-  // evaluated late: the post-auth realm picker renders AFTER this pass
-  // ends, so a gate evaluated now would miss a session whose only prompt
-  // was that picker (env-resolved connection + realm pick -- the exact
-  // frodo journey list flow that motivated the deferral). The gate itself
+  // evaluated late: post-auth entity pickers render AFTER this pass ends,
+  // so a gate evaluated now would miss a session whose only prompt was a
+  // picker (env-resolved connection + entity pick). The gate itself
   // is unchanged: at least one prompt rendered this process, or the user
   // explicitly requested the flow (--prompt / guided mode). Fully
   // specified non-TTY runs (e2e snapshots) render no prompts and never
@@ -1118,13 +1112,13 @@ export {
 } from '../utils/interactive/EditableOptions';
 
 // The positional read/write helpers live in a zero-import module
-// (PositionalArgs) shared with the post-auth realm picker's write-back;
-// re-exported here under the historical name for any other consumers.
+// (PositionalArgs); re-exported here under the historical name for any
+// other consumers.
 export { setPositionalValue as setPositionalValueForCommand } from '../utils/interactive/PositionalArgs';
 
 /**
- * Public entry for utils/interactive picker modules (EntityPickers,
- * RealmPickers): their `→` key opens this editor, then re-prompts. Kept
+ * Public entry for utils/interactive picker modules (EntityPickers): their
+ * `→` key opens this editor, then re-prompts. Kept
  * as a named export because those modules import this file lazily (the
  * cycle is otherwise static: this file imports their registries).
  */

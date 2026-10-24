@@ -21,7 +21,6 @@ import { getActiveActionCommand } from '../utils/interactive/ActiveActionCommand
 // established import path.
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
 import { EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
-import { canPrompt } from '../utils/interactive/PromptGateState';
 import { question } from '../utils/Prompt';
 
 export type { CredentialOverrideType };
@@ -209,34 +208,16 @@ export async function getTokens(
         state.getRealm() ? state.getRealm() : 'root'
       }] as ${tokens.subject}`
     );
-    // Post-auth realm picker: offers the target system's realms
-    // when the command has a realm argument, the user left it at its
-    // default, and the system has more than one realm. Never throws; a
-    // declined offer or an unlistable realm set keeps the default. The
-    // active command is recorded by the resolution pass (preAction), so
-    // commands that bypass it (login/conn's own stub actions) naturally
-    // never see a picker.
-    //
-    // Gated on canPrompt() and lazy-imported: this module must stay
-    // loadable in tests that mock frodo-lib wholesale (the picker's graph
-    // reaches ColorTheme's `theme` import, which such mocks don't carry),
-    // and a non-interactive session never needs the picker's machinery.
-    if (canPrompt()) {
-      const { resolveRealmPick } =
-        await import('../utils/interactive/RealmPickers');
-      await resolveRealmPick(getActiveActionCommand());
-    }
     // The deferred authoring print: flushed
     // HERE so the eventual command lands directly above the action's
     // results (the print is a header for the output, not a footer after
     // it) -- every auth command's action prints its results only after
-    // getTokens returns true, and the realm pick (which can still change
-    // the command) has concluded by now. SKIPPED when the command has
-    // entity picks still PENDING (registered and their option unset --
-    // they run later in the action body and may still change the
-    // command): resolveEntityPicks flushes after its picks conclude
-    // instead. Picks already applied before auth (the pick-first pattern)
-    // do NOT block this flush -- their option is set, nothing pending.
+    // getTokens returns true. SKIPPED when the command has entity picks
+    // still PENDING (registered and their option unset -- they run later
+    // in the action body and may still change the command):
+    // resolveEntityPicks flushes after its picks conclude instead. Picks
+    // already applied before auth (the pick-first pattern) do NOT block
+    // this flush -- their option is set, nothing pending.
     // Arming-only sessions (no prompts, not explicitly interactive) flush
     // as a no-op via the closure's gate.
     {
@@ -259,8 +240,8 @@ export async function getTokens(
     return true;
   } catch (error) {
     // The exit-all unwind is not an auth failure -- rethrow it so it
-    // reaches app.ts's top-level handler (the realm/entity pickers throw
-    // the signal from inside this try).
+    // reaches app.ts's top-level handler (entity pickers throw the signal
+    // from inside this try).
     if (error === EXIT_ALL_SIGNAL) throw error;
     printError(error);
     // Auth failed: the command never ran -- revoke the deferred print so

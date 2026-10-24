@@ -28,8 +28,7 @@ import { LEGACY_EXAMPLE_VIOLATIONS } from './UsageExampleOperandsLegacyException
  *   [password]` is the realm: with host, user and password alone the CLI
  *   reads the user name as the realm and the password as the user name, so
  *   the example logs in as nobody (a host or profile alone is not judged here:
- *   whether an omitted realm should open the realm picker is a separate
- *   question, cli#885);
+ *   an omitted realm uses the deployment default and does not open a picker);
  * - an entity picker or a requireOneOf / requireAllOf group is satisfied by an
  *   option, so no picker or options editor opens;
  * - no quote is left open.
