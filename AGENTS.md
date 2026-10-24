@@ -27,6 +27,19 @@ The test scripts do not rebuild `dist/`. After changing anything in `src/`, run 
 - **Do not run Prettier over `test/e2e/`.**
 - **Do not edit the Repo Concierge's files**: `.github/workflows/*.lock.yml` and the `.md` workflow sources beside them, `janitor.yml`, `check-deployment.yml`, `concierge-updater.yml`, `dependency-watch.yml`, `plan-approval-resume.yml`, `pr-ready-signal.yml`, `.github/scripts/`, `.github/aw/` and the pin in `.github/concierge.yml`. An updater overwrites them. `pipeline.yml`, `dependabot*.yml`, `.github/agentic-workflows/scope.md` and `related-repos.md` belong to this repository.
 
+## Decisions
+
+Lasting design decisions are recorded one per file in [docs/decisions/](docs/decisions/README.md). **An accepted record is binding** for humans and agents until a newer record supersedes it.
+
+- **If your task conflicts with an accepted record, stop and say so** in the issue or pull request. Do not override it.
+- **A pull request that changes a decided behaviour adds or supersedes a record.**
+- **New capability goes into frodo-lib behind the `frodo` facade first; the CLI wraps it for the terminal** (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI.
+- Decisions that span repositories live once in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo) (`docs/decisions/`). Binding here: [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
+
+## Procedures
+
+How to do a recurring task (add a command, record a decision, build the CLI or the binary, create test recordings, review an agent's pull request) is a skill in [.claude/skills/](.claude/skills/), read by Claude Code and by the GitHub Copilot cloud agent. A skill says how and links the records and rules it must obey; it never overrides them.
+
 ## Where things live
 
 | Path                                          | What                                                                                                            |

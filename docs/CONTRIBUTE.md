@@ -145,6 +145,8 @@ Do not edit `CHANGELOG.md` in a PR. It is generated at release time from what me
 
 ### Code structure and conventions
 
+The library is the brain and the CLI is a thin wrapper: new capability goes into frodo-lib behind the `frodo` facade first, and the CLI wraps it for the terminal (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI. See [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
+
 Frodo CLI adheres to the following folder and file structure:
 
 ```preformated
@@ -160,8 +162,10 @@ Frodo CLI adheres to the following folder and file structure:
 │   │   ├── _template         Templates for new CLI commands.
 │   ├── configManagerOps      Operations behind the config-manager commands.
 │   ├── help                  Sample values for the usage examples (SampleData.ts).
-│   ├── ops                   Ops layer modules. This is the library wrapper.
-│   │   │                     Business logic goes here.
+│   ├── ops                   Ops layer modules. They adapt frodo-lib for the
+│   │   │                     terminal: argument mapping, output formatting,
+│   │   │                     file and stdin handling, exit codes. Business
+│   │   │                     logic belongs in frodo-lib.
 │   │   ├── classic           Ops modules for classic deployments only.
 │   │   ├── cloud             Ops modules for cloud deployments only.
 │   │   ├── templates         Templates of different object types and schema.
@@ -185,6 +189,8 @@ Frodo CLI adheres to the following folder and file structure:
 │   └── utils                 Test harness for PTY tests.
 └── tools                     Test and release tooling.
 ```
+
+`src/ops` adapts the library for the terminal; business logic belongs in frodo-lib behind the `frodo` facade ([0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md)).
 
 #### Code conventions
 
@@ -238,6 +244,12 @@ Pick meaningful function names. It's OK for them to be long, as long as they con
 
 If your command prompts the user, read "Layering: where interactive code lives" in [INTERACTIVE-COMMANDS.md](INTERACTIVE-COMMANDS.md) first.
 
+### Recording decisions
+
+When you decide something that will outlive your change (a rule contributors must follow, a behaviour users rely on, a design principle), record it in `docs/decisions/` in the same pull request. Accepted records are binding until a newer record supersedes them, and a pull request that changes a decided behaviour adds or supersedes one. How to write a record, and the index of the existing ones, is in [docs/decisions/README.md](decisions/README.md).
+
 ### Working with coding agents
 
 `AGENTS.md` at the repository root and the files in `.github/instructions/` give coding agents (GitHub Copilot and others) the short version of this guide: build and test commands, the hard rules, and checklists that load when a matching file is edited. They link back here; when a convention changes, change it here first and keep those files short.
+
+Step-by-step procedures for recurring tasks (adding a command, recording a decision, building the CLI and the binary, creating test recordings, reviewing an agent's pull request) are skills in `.claude/skills/`, which Claude Code and the GitHub Copilot cloud agent load on demand. A skill links the rules it must obey and does not restate them.
