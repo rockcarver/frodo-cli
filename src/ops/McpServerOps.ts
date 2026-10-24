@@ -946,10 +946,43 @@ export function buildAmTokenInfoVerifier(
  * stale if the external IDP rotates its signing keys before the server is
  * restarted) — flagged here rather than silently assumed away.
  */
+// Blocks loopback/link-local/private/metadata hosts to mitigate SSRF when
+// fetching attacker- or admin-configurable OIDC URLs (discovery, JWKS).
+function isPrivateOrReservedHost(host: string): boolean {
+  const version = isIP(host);
+  if (version === 0) return host.toLowerCase() === 'localhost';
+  if (version === 4) {
+    const [a, b] = host.split('.').map(Number);
+    return (
+      a === 0 ||
+      a === 10 ||
+      a === 127 ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 169 && b === 254)
+    );
+  }
+  const h = host.toLowerCase();
+  return h === '::1' || h.startsWith('fe80:') || h.startsWith('fc') || h.startsWith('fd');
+}
+
+function assertSafeExternalUrl(url: string): void {
+  const parsed = new URL(url);
+  if (parsed.protocol !== 'https:') {
+    throw new Error(`Refusing to fetch unsafe URL scheme: ${url}`);
+  }
+  if (isPrivateOrReservedHost(parsed.hostname)) {
+    throw new Error(
+      `Refusing to fetch URL pointing to a private or reserved address: ${url}`
+    );
+  }
+}
+
 export async function fetchExternalIdpMetadata(
   issuerUrl: string
 ): Promise<{ oauthMetadata: OAuthMetadata; jwks: JwksInterface }> {
   const discoveryUrl = `${issuerUrl.replace(/\/$/, '')}/.well-known/openid-configuration`;
+  assertSafeExternalUrl(discoveryUrl);
   const discoveryResponse = await fetch(discoveryUrl);
   if (!discoveryResponse.ok) {
     throw new Error(
@@ -964,6 +997,7 @@ export async function fetchExternalIdpMetadata(
       `OIDC discovery document at ${discoveryUrl} has no jwks_uri.`
     );
   }
+  assertSafeExternalUrl(oauthMetadata.jwks_uri);
   const jwksResponse = await fetch(oauthMetadata.jwks_uri);
   if (!jwksResponse.ok) {
     throw new Error(
