@@ -1,10 +1,19 @@
 # Reporter notify. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "Split-repo routing".
 #
-# A linked issue in a related repository that is waiting for information has a different author
-# than the original report, so the person who reported it is never told. When issue triage
-# applies `needs-info` to such an issue, this posts one comment that @mentions the author of the
-# original report, which also subscribes them to the thread. The login comes from the original
-# issue as GitHub returns it, never from text, and only after the original issue confirms the link.
+# A linked issue in a related repository is created by the harness, so its author is not the
+# person who reported the original, and that person is never told about it. This workflow mentions
+# the author of the original report, which also subscribes them to the thread, in two situations:
+#   - when the linked issue is first linked: one comment, "Original report: ..., reported by @...";
+#   - when the linked issue is waiting for information (`needs-info`): one comment per request.
+# The login comes from the original issue as GitHub returns it, never from text, and only after the
+# original issue confirms the link.
+#
+# It starts on an issue that has a `Reported from` line, when the issue is opened and when the
+# label that matters is applied: `plan-approval-required` (added at creation), `issue-worker-ready`
+# (minutes later) or `needs-info`. The harness labels and comments on the original a moment after
+# it creates the linked issue, so the first run may find the proof missing; the script waits a
+# few seconds for it (bounded), and the later label events are the second and third chance. A
+# comment written with the workflow token starts no workflow, so this cannot loop.
 #
 # Install: copy this file to .github/workflows/reporter-notify.yml and
 # scripts/reporter-notify.mjs to .github/scripts/reporter-notify.mjs (it imports janitor.mjs,
@@ -13,11 +22,11 @@ name: "Concierge 1d ▸ Reporter Notify"
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, labeled]
   workflow_dispatch:
     inputs:
       issue_number:
-        description: 'Linked issue that is waiting for information (it must carry needs-info)'
+        description: 'Linked issue (it must have a Reported from line)'
         required: true
         type: string
 
@@ -31,8 +40,9 @@ concurrency:
 
 jobs:
   notify:
-    # On a label event, run only for `needs-info` on an open issue (not a pull request).
-    if: github.event_name == 'workflow_dispatch' || (github.event.label.name == 'needs-info' && github.event.issue.state == 'open' && github.event.issue.pull_request == null)
+    # By hand: always. On an event: an open issue that is not a pull request and has a
+    # `Reported from` line, when it is opened or when one of the three labels is applied.
+    if: github.event_name == 'workflow_dispatch' || (github.event.issue.state == 'open' && github.event.issue.pull_request == null && contains(github.event.issue.body, 'Reported from ') && (github.event.action == 'opened' || github.event.label.name == 'plan-approval-required' || github.event.label.name == 'issue-worker-ready' || github.event.label.name == 'needs-info'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
