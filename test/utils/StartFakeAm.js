@@ -10,7 +10,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  *
  * @param {object} [options]
  * @param {string} [options.recordPath] file the fake appends one JSON line per request to
- * @param {string} [options.journey] `password` for a plain login that succeeds (default: the MFA journey)
+ * @param {string} [options.journey] `password` for plain login, `service-account` for bearer login (default: the MFA journey)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @returns {Promise<{ port: number, stop: () => void }>}
  */

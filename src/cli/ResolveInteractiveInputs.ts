@@ -14,10 +14,9 @@
  *    profile can supply credentials for the resolved host, since frodo-lib
  *    already falls back to profile-stored credentials on its own
  *    (AuthenticateOps loadConnectionProfile); prompting when a profile
- *    would answer anyway would be pure friction. `--browser`/`--device`
- *    likewise suppress the username/password prompts (their flow is the
- *    interactive part) but not the host prompt, which those flows still
- *    need.
+ *    would answer anyway would be pure friction. Explicit credential
+ *    sources (service account, Amster key, browser/device auth) likewise
+ *    suppress username/password prompts, but not the host prompt.
  *
  * 2. Deferred mandatory options. Commander's
  *    `missingMandatoryOptionValue()` normally throws during parsing --
@@ -52,6 +51,7 @@ import {
   setDeploymentTypeForPreview,
   type CommandReadiness,
 } from '../utils/interactive/CommandPreview';
+import { hasExplicitCredentialSource } from '../utils/interactive/ConnectionCredentials';
 import {
   connectionPage,
   PAGE_ESCAPE,
@@ -783,18 +783,6 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
 }
 
 /**
- * Whether the invocation carries an explicit interactive-auth mode
- * (--browser/--device). Read from the parsed option values, NOT from
- * frodo-lib state: `handleDefaultArgsAndOpts` sets authMode from these
- * same options inside the action body, i.e. after this pass runs.
- */
-function isInteractiveAuthMode(command: Command): boolean {
-  return (
-    !!command.getOptionValue('browser') || !!command.getOptionValue('device')
-  );
-}
-
-/**
  * Reads the saved connection profiles file directly (no auth, no network)
  * to enumerate candidates for the host dropdown. Returns a sorted list;
  * empty when the file is missing or unreadable.
@@ -824,7 +812,7 @@ const ENTER_MANUALLY = Symbol('resolveConnectionArgs:enterManually');
  *
  * Skipped per-argument when: the command doesn't declare the argument,
  * the value is already present (positional arg, or env var via frodo-lib
- * state's own env fallback), or --browser/--device makes the
+ * state's own env fallback), or an explicit credential source makes the
  * username/password prompts redundant.
  */
 async function resolveConnectionArgs(command: Command): Promise<boolean> {
@@ -968,12 +956,12 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
     positionalIndex(command, 'username') !== -1 &&
     !positionalValue(command, 'username') &&
     !state.getUsername() && // env fallback (FRODO_USERNAME)
-    !isInteractiveAuthMode(command);
+    !hasExplicitCredentialSource(command);
   const passwordNeeded =
     positionalIndex(command, 'password') !== -1 &&
     !positionalValue(command, 'password') &&
     !state.getPassword() && // env fallback (FRODO_PASSWORD)
-    !isInteractiveAuthMode(command);
+    !hasExplicitCredentialSource(command);
 
   if (!usernameNeeded && !passwordNeeded) return true;
 

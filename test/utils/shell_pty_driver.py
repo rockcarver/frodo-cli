@@ -120,6 +120,27 @@ class PtyScenarioRunner:
                 self._wait_for_match(r">\s$", plain=True, timeout_ms=action.get("timeoutMs", 10000))
             elif kind == "wait_plain":
                 self._wait_for_match(action["regex"], plain=True, timeout_ms=action.get("timeoutMs", 10000))
+            elif kind == "wait_request":
+                deadline = time.time() + action.get("timeoutMs", 10000) / 1000.0
+                matcher = re.compile(action["regex"])
+                while True:
+                    self._read_once()
+                    try:
+                        with open(action["path"]) as records:
+                            matched = any(
+                                matcher.search(json.loads(line)["url"])
+                                for line in records if line.strip()
+                            )
+                    except FileNotFoundError:
+                        matched = False
+                    if matched:
+                        break
+                    if time.time() >= deadline:
+                        raise TimeoutError(
+                            f"Timed out waiting for request {action['regex']}.\n"
+                            f"Captured output:\n{strip_ansi(self.output)}"
+                        )
+                    time.sleep(0.02)
             elif kind == "clear_output":
                 self.output = ""
             elif kind == "send":

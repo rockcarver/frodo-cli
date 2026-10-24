@@ -1,4 +1,5 @@
 import cp from 'child_process';
+import { generateKeyPairSync } from 'crypto';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -84,6 +85,84 @@ suite('default realm behavior, on a real terminal', () => {
       .split('\n')
       .map((line) => JSON.parse(line).url);
   }
+
+  test(
+    'an explicit service account opens no Connection page or credential prompt',
+    () => {
+      const keyFile = path.join(home, 'throwaway.jwk');
+      const { privateKey } = generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+      });
+      fs.writeFileSync(
+        keyFile,
+        JSON.stringify(privateKey.export({ format: 'jwk' })),
+        {
+          mode: 0o600,
+        }
+      );
+      const result = runShellScenario({
+        homeDir: home,
+        allowPrompting: true,
+        args: [
+          'conn',
+          'save',
+          `http://127.0.0.1:${fakeAm.port}/am`,
+          '--sa-id',
+          'test-account',
+          '--sa-jwk-file',
+          keyFile,
+          '--type',
+          'cloud',
+        ],
+        actions: [
+          { type: 'wait_plain', regex: 'Error getting tokens', timeoutMs: 10000 },
+        ],
+      });
+      expect(result.plainOutput).not.toContain('Connection:');
+      expect(result.plainOutput).not.toMatch(/username: \(not set\)|Username:/);
+      expect(result.plainOutput).not.toMatch(/password: \(not set\)|Password:/);
+      expect(result.plainOutput).not.toContain('Choose a realm');
+      // The CLI reached authentication, rather than waiting for credentials.
+      expect(requestedUrls().some((url) => url.includes('/access_token'))).toBe(
+        true
+      );
+    },
+    TIMEOUT
+  );
+
+  test(
+    'a given host but missing credentials opens the Connection page, then the realm picker',
+    () => {
+      const result = runShellScenario({
+        homeDir: home,
+        allowPrompting: true,
+        args: ['journey', 'list', `http://127.0.0.1:${fakeAm.port}/am`],
+        actions: [
+          { type: 'wait_plain', regex: 'Connection:', timeoutMs: 60000 },
+          { type: 'key', name: 'down' },
+          { type: 'key', name: 'enter' },
+          { type: 'send', text: 'someone@example.com' },
+          { type: 'key', name: 'enter' },
+          { type: 'key', name: 'down' },
+          { type: 'key', name: 'enter' },
+          { type: 'send', text: 'secret' },
+          { type: 'key', name: 'enter' },
+          { type: 'wait_plain', regex: 'password: ••••••••', timeoutMs: 10000 },
+          { type: 'key', name: 'down' },
+          { type: 'key', name: 'enter' },
+          { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
+          { type: 'sleep', ms: 300 },
+          { type: 'key', name: 'escape' },
+          { type: 'sleep', ms: 6000 },
+        ],
+      });
+      expect(result.plainOutput).toContain('Connection:');
+      expect(result.plainOutput).toContain('username: (not set)');
+      expect(result.plainOutput).toContain('Choose a realm (default: /)');
+      expect(requestedUrls().some((url) => url.includes('/trees'))).toBe(true);
+    },
+    TIMEOUT
+  );
 
   test(
     'a missing host prompts for completion, then the realm picker opens and Escape keeps the default',
