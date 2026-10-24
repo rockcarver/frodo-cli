@@ -5,6 +5,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import {
   addExistingServiceAccount,
   findAliasConflict,
+  findSavedProvisioning,
 } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
 import c from '../../utils/ColorTheme';
@@ -173,15 +174,27 @@ export default function setup() {
           state.setPreferredDeviceFlow(options.preferredDeviceFlow);
         }
         const needAmsterLogin = !!options.privateKey;
+        // A saved profile keeps the service account and the log API key it
+        // has. Its state is only loaded by some login paths, so ask the saved
+        // profile too: creating them again would replace them and leave the
+        // old ones behind in the tenant.
+        const saved = findSavedProvisioning(host);
         const needSa =
           options.sa &&
           !state.getServiceAccountId() &&
-          !state.getServiceAccountJwk();
+          !state.getServiceAccountJwk() &&
+          !saved.serviceAccount;
         const needLogApiKey =
           options.logApi &&
           !state.getLogApiKey() &&
           !state.getLogApiSecret() &&
+          !saved.logApiKey &&
           needSa;
+        if (saved.serviceAccount && options.sa) {
+          verboseMessage(
+            `The saved profile already has a service account, so none is created.`
+          );
+        }
         const forceLoginAsUser = !needAmsterLogin && (needSa || needLogApiKey);
         if (
           (options.validate && (await getTokens(forceLoginAsUser))) ||
@@ -219,7 +232,7 @@ export default function setup() {
               }
             }
             // add new service account if none already exists in the profile
-            else if (!state.getServiceAccountId()) {
+            else if (needSa && !state.getServiceAccountId()) {
               try {
                 verboseMessage(`Creating service account...`);
                 const sa = await addNewServiceAccount();

@@ -3,7 +3,10 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { state } from '@rockcarver/frodo-lib';
-import { findAliasConflict } from '../../src/ops/ConnectionProfileOps.ts';
+import {
+  findAliasConflict,
+  findSavedProvisioning,
+} from '../../src/ops/ConnectionProfileOps.ts';
 
 // `frodo conn save` creates a service account and a log API key in the tenant
 // before it saves the profile, so a taken alias has to be refused first.
@@ -67,6 +70,64 @@ describe('findAliasConflict()', () => {
     expect(findAliasConflict(hostB, 'taken')).toBeUndefined();
     fs.rmSync(profilesPath);
     expect(findAliasConflict(hostB, 'taken')).toBeUndefined();
+  });
+});
+
+describe('findSavedProvisioning()', () => {
+  // `conn save` must not create a second service account or log API key when
+  // the saved profile has them, whatever login path ran.
+  beforeEach(() => {
+    writeProfiles({
+      [hostA]: {
+        tenant: hostA,
+        alias: 'full',
+        svcacctId: 'a-service-account',
+        logApiKey: 'a-log-key',
+      },
+      [hostB]: { tenant: hostB, alias: 'bare', username: 'someone' },
+    });
+  });
+
+  test('1: reports what the saved profile holds, by URL, alias or substring', () => {
+    const both = { serviceAccount: true, logApiKey: true };
+    expect(findSavedProvisioning(hostA)).toEqual(both);
+    expect(findSavedProvisioning('full')).toEqual(both);
+    expect(findSavedProvisioning('openam-a')).toEqual(both);
+  });
+
+  test('2: a profile with neither, an unknown host, no file or a damaged file report nothing', () => {
+    const nothing = { serviceAccount: false, logApiKey: false };
+    expect(findSavedProvisioning(hostB)).toEqual(nothing);
+    expect(findSavedProvisioning('https://openam-c.example.com/am')).toEqual(
+      nothing
+    );
+    expect(findSavedProvisioning(undefined)).toEqual(nothing);
+    fs.writeFileSync(profilesPath, '{ not json');
+    expect(findSavedProvisioning(hostA)).toEqual(nothing);
+    fs.rmSync(profilesPath);
+    expect(findSavedProvisioning(hostA)).toEqual(nothing);
+  });
+
+  test('3: the two halves are independent', () => {
+    writeProfiles({
+      [hostA]: { tenant: hostA, svcacctId: 'a-service-account' },
+      [hostB]: { tenant: hostB, logApiKey: 'a-log-key' },
+    });
+    expect(findSavedProvisioning(hostA)).toEqual({
+      serviceAccount: true,
+      logApiKey: false,
+    });
+    expect(findSavedProvisioning(hostB)).toEqual({
+      serviceAccount: false,
+      logApiKey: true,
+    });
+  });
+
+  test('4: an ambiguous substring matches no single profile and reports nothing', () => {
+    expect(findSavedProvisioning('openam-')).toEqual({
+      serviceAccount: false,
+      logApiKey: false,
+    });
   });
 });
 
