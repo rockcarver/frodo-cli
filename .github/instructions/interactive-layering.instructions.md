@@ -15,10 +15,10 @@ The interactive framework is ambient: a command is written the usual way and int
 ## Frames and text
 
 - **Draw frames only through `renderFramedBox`, `renderNavigationMenu` and `wrapLine`** (`src/utils/interactive/NavigationMenu.ts`). They split on line breaks, expand tabs, re-wrap rows that do not fit and cut an over-wide title, so raw log or tenant text cannot break a frame. Never assemble box characters in a prompt.
-- **A dashboard's width comes from `useTerminalWidth()`** (`TerminalWidth.ts`). Pass it as `width` to `renderNavigationMenu` and `renderFramedBox`, and size your own rows with `frameInnerWidth(width)`. Do not hard-code 116 or 120.
+- **Every prompt's width comes from `useTerminalWidth()`** (`TerminalWidth.ts`), called after the view's other `useState` calls. Pass it as `width` to `renderNavigationMenu`, `renderFramedBox` and `descriptionPanelLines`, and size your own rows with `frameInnerWidth(width)`. Do not hard-code 116 or 120. ESLint rejects a call that leaves the width out.
 - **A single-line cell (a list column) is flattened and cut with `singleLine` and `truncate`** from `src/utils/TextLayout.ts`. Wrapping it would add rows.
 - **Text helpers live in `src/utils/TextLayout.ts`, never in a prompt file.** It has no imports, so `src/ops/` can use it too.
-- **Every prompt's render test asserts the frame at several widths with hostile text,** using `assertFrame`, `FRAME_WIDTHS` and `HOSTILE_TEXTS` from `test/utils/FrameAssertions.js` (examples: `JourneyDebugPrompt.test.js`, `DebugTailPromptFrame.test.js`).
+- **Every prompt's render test asserts the frame at several widths with hostile text,** using `assertFrame`, `FRAME_WIDTHS` and `HOSTILE_TEXTS` from `test/utils/FrameAssertions.js` and `createPromptHarness` from `test/utils/PromptHarness.js` (examples: `EscapableSelectPromptFrame.test.js`, `DebugTailPromptFrame.test.js`). Also assert one layout fact: `renderFramedBox` re-wraps overflow, so `assertFrame` alone cannot tell the wrong width from the right one.
 
 ## Standard input
 

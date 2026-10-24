@@ -40,6 +40,33 @@ const stdinRestrictions = [
     message: stdinHelperHint,
   },
 ];
+// Every prompt frame follows the terminal (src/utils/interactive/TerminalWidth.ts):
+// the renderers default to 120 columns, so a call that leaves the width out
+// silently draws a fixed-width frame.
+const frameWidthHint =
+  'A prompt frame follows the terminal: call useTerminalWidth() (src/utils/interactive/TerminalWidth.ts) in the prompt, pass its width to renderNavigationMenu, renderFramedBox and descriptionPanelLines, and size rows with frameInnerWidth(width). Do not rely on the 120-column default.';
+const frameWidthRestrictions = [
+  {
+    selector:
+      "CallExpression[callee.name='renderNavigationMenu'][arguments.length<2]",
+    message: frameWidthHint,
+  },
+  {
+    selector:
+      "CallExpression[callee.name='descriptionPanelLines'][arguments.length<2]",
+    message: frameWidthHint,
+  },
+  {
+    selector:
+      "CallExpression[callee.name='frameInnerWidth'][arguments.length=0]",
+    message: frameWidthHint,
+  },
+  {
+    selector:
+      "CallExpression[callee.name='renderFramedBox'] > ObjectExpression:not(:has(> Property[key.name='width']))",
+    message: frameWidthHint,
+  },
+];
 const syntaxRestrictions = [
   'LabeledStatement',
   'WithStatement',
@@ -80,6 +107,7 @@ export default tseslint.config(
         'error',
         ...syntaxRestrictions,
         ...stdinRestrictions,
+        ...frameWidthRestrictions,
       ],
       'no-restricted-imports': [
         'error',

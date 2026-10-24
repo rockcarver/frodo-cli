@@ -44,7 +44,7 @@ import {
   wrapLine,
   type PanelRow,
 } from './NavigationMenu';
-import { useTerminalWidth } from './TerminalWidth';
+import { terminalFrameWidth, useTerminalWidth } from './TerminalWidth';
 
 /** The ring-buffer capacity: a busy tenant's ~15s `am-everything` backlog can exceed 200 events, but the cap means the panel always shows the LATEST 200 -- correct tail semantics. */
 const MAX_TAIL_EVENTS = 200;
@@ -103,7 +103,7 @@ export function formatTailTimestamp(iso: string | undefined): string {
 export function buildTailRows(
   events: TailEvent[],
   limit: number = PAGE_SIZE,
-  innerWidth: number = frameInnerWidth(),
+  innerWidth: number = frameInnerWidth(terminalFrameWidth()),
   endIndex: number = events.length - 1
 ): PanelRow[] {
   const TS_COL = 11; // 'HH:MM:SS' + one space -- continuation rows indent past it

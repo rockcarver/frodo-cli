@@ -18,6 +18,7 @@ import {
   stripAnsi,
 } from './NavigationMenu';
 import { notePromptRendered } from './PromptGateState';
+import { useTerminalWidth } from './TerminalWidth';
 
 /**
  * Resolved by `connectionPage` when the user presses Escape on the page
@@ -117,6 +118,9 @@ const connectionPageImpl = createPrompt(
       ReturnType<typeof armEscapeGrace> | undefined
     >(undefined);
     const [escapeGraceOpen, setEscapeGraceOpen] = useState(false);
+    // The frame follows the terminal (re-drawn on resize). Declared after
+    // every other useState so their hook order is unchanged.
+    const width = useTerminalWidth();
     const resolvingRef = useRef(false);
 
     // Grace teardown on unmount.
@@ -280,7 +284,8 @@ const connectionPageImpl = createPrompt(
       navigationMenuItems({
         enter: 'edit / done',
         escape: 'cancel page',
-      })
+      }),
+      width
     );
     const rowLines = [
       ...rows.map((row, index) => {
@@ -314,6 +319,7 @@ const connectionPageImpl = createPrompt(
         plain: `? ${config.message}${resolvingNote}`,
       },
       lines: rowLines,
+      width,
     });
     const lines = [menu, panel, config.preview];
     return lines.filter(Boolean).join('\n');

@@ -150,19 +150,38 @@ A single-line cell (a list column) is still flattened with `singleLine`
 and cut with `truncate` from `src/utils/TextLayout.ts`, because wrapping
 it would add rows to a list that expects one per item.
 
-Width: frames are 120 columns by default (`DEFAULT_FRAME_WIDTH`). The
-live dashboards (`JourneyDebugPrompt`, `DebugTailPrompt`) follow the
-terminal instead: `useTerminalWidth()` (`TerminalWidth.ts`) returns the
-terminal's columns (never below 40; 120 when stdout is not a TTY) and
-re-reads them on resize. The prompt passes that width to
-`renderNavigationMenu` and `renderFramedBox` and sizes its own rows with
-`frameInnerWidth(width)`. The other prompts (pickers, connection page,
-command preview, options editor) still draw at 120 columns.
+Width: every prompt frame follows the terminal. `useTerminalWidth()`
+(`TerminalWidth.ts`) returns the terminal's columns (never below 40; 120,
+the `DEFAULT_FRAME_WIDTH`, when stdout is not a TTY, which is also the
+width the PTY tests run at) and re-reads them on resize; its listener is
+removed when the prompt closes. A prompt calls it as a hook in its render
+function, after its other `useState` calls (the frame tests seed state by
+hook order), passes the width to `renderNavigationMenu`,
+`renderFramedBox` and `descriptionPanelLines`, and sizes its own rows
+with `frameInnerWidth(width)`. That holds for the pickers
+(`EscapableSelectPrompt`: realm, entity, connection profile, the shell
+menus), the options editor with its inline value boxes
+(`EscapableMultiSelectPrompt`), the connection page
+(`ConnectionPagePrompt`) and the two live dashboards. The command
+preview is not a frame: it is one line, the command as authored,
+printed under the panels, and the terminal wraps it. ESLint enforces the
+rule (`no-restricted-syntax` in `eslint.config.mjs`): a call to
+`renderNavigationMenu`, `descriptionPanelLines`, `frameInnerWidth` or
+`renderFramedBox` that leaves the width out is an error. It cannot see
+an options object held in a variable, so write the object inline.
 
 Tests: every prompt's render test asserts frame integrity at several
 widths with hostile text, using `assertFrame`, `FRAME_WIDTHS` and
-`HOSTILE_TEXTS` from `test/utils/FrameAssertions.js` (see
-`JourneyDebugPrompt.test.js` and `DebugTailPromptFrame.test.js`).
+`HOSTILE_TEXTS` from `test/utils/FrameAssertions.js`, and renders the
+prompt's view through `createPromptHarness` from
+`test/utils/PromptHarness.js` (see `EscapableSelectPromptFrame.test.js`,
+`EscapableMultiSelectPromptFrame.test.js`,
+`ConnectionPagePromptFrame.test.js`, `JourneyDebugPrompt.test.js` and
+`DebugTailPromptFrame.test.js`). Frame integrity alone cannot tell a
+frame drawn at the wrong width from the right one, because
+`renderFramedBox` re-wraps whatever overflows: also assert the layout,
+for example that a description a wide frame holds on one row is not
+split at the 120-column default.
 
 ## Live dashboards (`frodo debug`)
 
