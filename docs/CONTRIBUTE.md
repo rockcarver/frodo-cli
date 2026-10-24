@@ -238,6 +238,10 @@ Pick meaningful function names. It's OK for them to be long, as long as they con
 
 If your command prompts the user, read "Layering: where interactive code lives" in [INTERACTIVE-COMMANDS.md](INTERACTIVE-COMMANDS.md) first.
 
+### Recording decisions
+
+When you decide something that will outlive your change (a rule contributors must follow, a behaviour users rely on, a design principle), record it in `docs/decisions/` in the same pull request. Accepted records are binding until a newer record supersedes them, and a pull request that changes a decided behaviour adds or supersedes one. How to write a record, and the index of the existing ones, is in [docs/decisions/README.md](decisions/README.md).
+
 ### Working with coding agents
 
 `AGENTS.md` at the repository root and the files in `.github/instructions/` give coding agents (GitHub Copilot and others) the short version of this guide: build and test commands, the hard rules, and checklists that load when a matching file is edited. They link back here; when a convention changes, change it here first and keep those files short.

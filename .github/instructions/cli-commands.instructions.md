@@ -31,6 +31,8 @@ Every command has a `Usage Examples:` block, shown by `-hhh`. Model it on `src/c
 - **Interactive by design is the one exception:** `frodo journey prune` asks to confirm with `@inquirer/confirm` directly, so no flag and no `--no-prompt` skips it; the sentence above its example says so.
 - `test/unit/UsageExamples.test.js` fails for a command without examples; `test/unit/UsageExampleOperands.test.js` fails for an example that breaks the rules above. Never add to `UsageExamplesLegacyExceptions.js` or `UsageExampleOperandsLegacyExceptions.js`: they only shrink, so delete a line when you fix its entry.
 
+Decisions behind these rules: [0002 examples run as written and open no prompt](../../docs/decisions/0002-usage-examples-run-as-written-and-open-no-prompt.md), [0006 every new command ships usage examples](../../docs/decisions/0006-every-new-command-ships-usage-examples.md).
+
 ## Tests for a new command
 
 Add `test/client_cli/en/<group>-<verb>.test.js` (the `-h` snapshot) and, for a command that talks to a tenant, `test/e2e/<group>-<verb>.e2e.test.js`. See [tests.instructions.md](tests.instructions.md).

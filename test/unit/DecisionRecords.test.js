@@ -1,0 +1,198 @@
+import { describe, expect, it } from '@jest/globals';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+/**
+ * The decision records in docs/decisions/ (docs/decisions/README.md): one file
+ * per decision, `NNNN-short-title.md`, with front matter and fixed sections.
+ * This test keeps the records well formed and the index honest: required keys,
+ * valid statuses, contiguous numbering, supersede links that point at a newer
+ * record, paths in `applies-to` that exist, an index row per record whose title
+ * and status match, and the two tool-neutral entry points (AGENTS.md and
+ * CLAUDE.md) that lead to them. It does not judge what a decision says.
+ */
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const DIR = path.join(ROOT, 'docs/decisions');
+const MAX_LINES = 60;
+const KEYS = ['status', 'date', 'decision-makers', 'applies-to', 'issues'];
+const REQUIRED_KEYS = ['status', 'date', 'decision-makers'];
+const STATUS = /^(proposed|accepted|rejected|deprecated|superseded by (\d{4}))$/;
+const SECTIONS = [
+  'Context and problem statement',
+  'Decision',
+  'Consequences',
+  'Alternatives considered',
+];
+const TOOL_NAMES = /\b(copilot|claude|grok|chatgpt|codex)\b/i;
+
+const read = (file) => fs.readFileSync(path.join(DIR, file), 'utf8');
+
+/** Front matter of the small YAML subset the records use: `key: value` and `key:` followed by `  - item` lines. */
+function parse(file) {
+  const text = read(file);
+  const m = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!m) return { file, text, error: 'no front matter' };
+  const data = {};
+  let key;
+  for (const line of m[1].split('\n')) {
+    const kv = line.match(/^([a-z-]+):\s*(.*)$/);
+    const item = line.match(/^\s+-\s+(.+)$/);
+    if (kv) {
+      key = kv[1];
+      data[key] = kv[2] === '' ? [] : kv[2];
+    } else if (item && Array.isArray(data[key])) {
+      data[key].push(item[1].trim());
+    } else if (line.trim() !== '') {
+      return { file, text, error: `cannot parse front matter line: ${line}` };
+    }
+  }
+  const body = m[2];
+  const title = (body.match(/^\s*# (.+)$/m) || [])[1];
+  const headings = [...body.matchAll(/^## (.+)$/gm)].map((h) => h[1]);
+  return { file, text, data, body, title, headings };
+}
+
+const files = fs
+  .readdirSync(DIR)
+  .filter((f) => !f.startsWith('.') && f !== 'README.md' && f !== 'template.md')
+  .sort();
+const records = files.map(parse);
+const byNumber = new Map(records.map((r) => [r.file.slice(0, 4), r]));
+const pathPrefixExists = (glob) => {
+  const parts = glob.split('/');
+  const fixed = [];
+  for (const part of parts) {
+    if (part.includes('*')) break;
+    fixed.push(part);
+  }
+  return fs.existsSync(path.join(ROOT, ...fixed));
+};
+
+describe('decision records', () => {
+  it('has the README and the template, and at least one record', () => {
+    expect(fs.existsSync(path.join(DIR, 'README.md'))).toBe(true);
+    expect(fs.existsSync(path.join(DIR, 'template.md'))).toBe(true);
+    expect(records.length).toBeGreaterThan(0);
+  });
+
+  it('names every file NNNN-short-title.md, numbered from 0001 without gaps', () => {
+    const bad = files.filter((f) => !/^\d{4}-[a-z0-9]+(-[a-z0-9]+)*\.md$/.test(f));
+    expect(bad).toEqual([]);
+    expect(files.map((f) => Number(f.slice(0, 4)))).toEqual(
+      files.map((_, i) => i + 1)
+    );
+  });
+
+  describe.each(records)('$file', (record) => {
+    const { data } = record;
+
+    it('has parseable front matter with only known keys and the required ones', () => {
+      expect(record.error).toBeUndefined();
+      expect(Object.keys(data).filter((k) => !KEYS.includes(k))).toEqual([]);
+      expect(REQUIRED_KEYS.filter((k) => !(k in data))).toEqual([]);
+    });
+
+    it('has a valid status; a superseded record points at a newer record', () => {
+      const m = String(data.status).match(STATUS);
+      expect(m).not.toBeNull();
+      if (m[2]) {
+        expect(byNumber.has(m[2])).toBe(true);
+        expect(Number(m[2])).toBeGreaterThan(Number(record.file.slice(0, 4)));
+      }
+    });
+
+    it('has a real date and a non-empty role in decision-makers', () => {
+      const date = String(data.date);
+      expect(date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10)).toBe(date);
+      expect(String(data['decision-makers']).trim()).not.toBe('');
+    });
+
+    it('lists issues as owner/repo#number and applies-to as paths that exist', () => {
+      for (const issue of data.issues ?? []) {
+        expect(issue).toMatch(/^[\w.-]+\/[\w.-]+#\d+$/);
+      }
+      if ('applies-to' in data) {
+        expect(data['applies-to'].length).toBeGreaterThan(0);
+        // A superseded or deprecated record may outlive its paths.
+        if (data.status === 'accepted') {
+          expect(data['applies-to'].filter((g) => !pathPrefixExists(g))).toEqual([]);
+        }
+      }
+    });
+
+    it('has a title and the fixed sections in order, and nothing else', () => {
+      expect(record.title && record.title.trim()).toBeTruthy();
+      const required = SECTIONS.slice(0, 3);
+      expect(record.headings.slice(0, 3)).toEqual(required);
+      expect(
+        record.headings.slice(3).every((h) => h === SECTIONS[3])
+      ).toBe(true);
+      expect(record.headings.length).toBeLessThanOrEqual(4);
+    });
+
+    it(`stays short (at most ${MAX_LINES} lines), names no tool and holds no e-mail address`, () => {
+      expect(record.text.split('\n').length).toBeLessThanOrEqual(MAX_LINES);
+      expect(record.text).not.toMatch(TOOL_NAMES);
+      expect(record.text).not.toMatch(/\S+@\S+\.\S+/);
+    });
+  });
+
+  describe('README index', () => {
+    const readme = read('README.md');
+    const index = readme.split(/^## Index$/m)[1] ?? '';
+    const rows = index
+      .split('\n')
+      .filter((l) => /^\|\s*\[\d{4}\]\(/.test(l))
+      .map((l) => {
+        const cells = l.split('|').slice(1, -1).map((c) => c.trim());
+        const link = cells[0].match(/^\[(\d{4})\]\(([^)]+)\)$/);
+        return { number: link?.[1], target: link?.[2], title: cells[1], status: cells[2], appliesTo: cells[3] };
+      });
+
+    it('lists every record exactly once and nothing else', () => {
+      expect(rows.map((r) => r.target)).toEqual(files);
+      expect(rows.every((r, i) => r.number === files[i].slice(0, 4))).toBe(true);
+    });
+
+    it('shows each record\'s title and status as the record says', () => {
+      for (const record of records) {
+        const row = rows.find((r) => r.target === record.file);
+        expect(row.title).toBe(record.title.trim());
+        expect(row.status).toBe(String(record.data.status));
+      }
+    });
+
+    it('shows what each record applies to', () => {
+      for (const record of records) {
+        const row = rows.find((r) => r.target === record.file);
+        const globs = record.data['applies-to'];
+        if (globs) {
+          for (const glob of globs) expect(row.appliesTo).toContain(`\`${glob}\``);
+        } else {
+          expect(row.appliesTo).toMatch(/repository-wide/i);
+        }
+      }
+    });
+  });
+
+  describe('entry points for every tool', () => {
+    it('AGENTS.md points at the records and states that they bind', () => {
+      const agents = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf8');
+      expect(agents).toContain('docs/decisions/README.md');
+      expect(agents).toMatch(/accepted record is binding/i);
+    });
+
+    it('CLAUDE.md only imports AGENTS.md', () => {
+      const claude = fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf8');
+      expect(claude.split('\n')).toContain('@AGENTS.md');
+    });
+
+    it('the template has the same sections', () => {
+      const template = read('template.md');
+      for (const section of SECTIONS) expect(template).toContain(`## ${section}`);
+    });
+  });
+});
