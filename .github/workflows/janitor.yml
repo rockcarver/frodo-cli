@@ -4,14 +4,18 @@
 # has been: when the next gate label exists, the earlier one is removed, and when an issue
 # closes the labels that describe open work are removed. It never touches classification or
 # outcome labels. The second deletes the runs GitHub holds for approval that approving
-# could only turn into a skipped run: the Issue Worker run that every comment by the coding
-# agent on its own pull request leaves behind. It never deletes any other held run. Both
-# run on the label events that can change the answer, on assignment and close, hourly as a
-# sweep for anything missed, and on demand.
+# could only turn into a skipped run or into CI for a commit that is no longer the head: the
+# Issue Worker run that every comment by the coding agent on its own pull request leaves
+# behind, the Dependabot Auto-Merge run of every push (its job runs only for Dependabot), and
+# the runs of pushes the pull request has moved past or of a pull request that is closed. It
+# never deletes the held run for a pull request's current head, and none caused by anyone but
+# the coding agent. Both run on the label events that can change the answer, on assignment and
+# close, hourly as a sweep for anything missed, and on demand.
 #
 # Install: copy this file to .github/workflows/janitor.yml and
 # scripts/janitor.mjs to .github/scripts/janitor.mjs. No secret is needed: removing a label
-# starts nothing, and deleting a run needs only `actions: write` on the default token.
+# starts nothing, and deleting a run needs only `actions: write` on the default token (the sweep
+# also reads pull requests, hence `pull-requests: read` on its job only).
 name: "Concierge 4a ▸ Janitor"
 
 on:
@@ -72,10 +76,11 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run }}
         run: node .github/scripts/janitor.mjs
 
-  # Deletes the runs GitHub holds for approval that approving could only turn into a skipped run (see
-  # DISPOSABLE_HELD_RUNS in scripts/janitor.mjs). It needs `actions: write`, so it is its own job and the
+  # Deletes the runs GitHub holds for approval that approving could only turn into a skipped run or into CI
+  # for a commit that is no longer the head (see DISPOSABLE_HELD_RUNS and disposableReason in
+  # scripts/janitor.mjs). It needs `actions: write` and reads pull requests, so it is its own job and the
   # label job keeps its smaller token. It follows the label job and so starts for the same events. It skips
-  # issue events: the runs it deletes come from the coding agent's comments on its pull requests. The
+  # issue events: the runs it deletes come from the coding agent's work on its pull requests. The
   # janitor's own pull_request_target, schedule and dispatch runs have never been held (frodo-lib#775).
   held-runs:
     needs: clean
@@ -84,6 +89,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      pull-requests: read
       actions: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -15,6 +15,64 @@ const frodoLibSubpathRestriction = {
     "Import library values through the 'frodo' facade instead of importing from a package subpath.",
 };
 
+// Every synchronous read of standard input goes through src/utils/StdinSync.ts,
+// which knows that fd 0 may be non-blocking (EAGAIN means "no input yet").
+const stdinHelperHint =
+  "Read standard input through 'readStdinChunkSync' or 'readStdinToEndSync' in src/utils/StdinSync.ts: once anything touches process.stdin, fd 0 is non-blocking and a direct synchronous read throws EAGAIN when no data has arrived yet.";
+const stdinRestrictions = [
+  {
+    selector:
+      "MemberExpression[property.name='fd'][object.type='MemberExpression'][object.property.name='stdin'][object.object.name='process']",
+    message: stdinHelperHint,
+  },
+  {
+    selector:
+      'CallExpression[callee.name=/^(readSync|readFileSync)$/][arguments.0.value=0]',
+    message: stdinHelperHint,
+  },
+  {
+    selector:
+      'CallExpression[callee.property.name=/^(readSync|readFileSync)$/][arguments.0.value=0]',
+    message: stdinHelperHint,
+  },
+  {
+    selector: "Literal[value='/dev/stdin']",
+    message: stdinHelperHint,
+  },
+];
+// Every prompt frame follows the terminal (src/utils/interactive/TerminalWidth.ts):
+// the renderers default to 120 columns, so a call that leaves the width out
+// silently draws a fixed-width frame.
+const frameWidthHint =
+  'A prompt frame follows the terminal: call useTerminalWidth() (src/utils/interactive/TerminalWidth.ts) in the prompt, pass its width to renderNavigationMenu, renderFramedBox and descriptionPanelLines, and size rows with frameInnerWidth(width). Do not rely on the 120-column default.';
+const frameWidthRestrictions = [
+  {
+    selector:
+      "CallExpression[callee.name='renderNavigationMenu'][arguments.length<2]",
+    message: frameWidthHint,
+  },
+  {
+    selector:
+      "CallExpression[callee.name='descriptionPanelLines'][arguments.length<2]",
+    message: frameWidthHint,
+  },
+  {
+    selector:
+      "CallExpression[callee.name='frameInnerWidth'][arguments.length=0]",
+    message: frameWidthHint,
+  },
+  {
+    selector:
+      "CallExpression[callee.name='renderFramedBox'] > ObjectExpression:not(:has(> Property[key.name='width']))",
+    message: frameWidthHint,
+  },
+];
+const syntaxRestrictions = [
+  'LabeledStatement',
+  'WithStatement',
+  "ImportExpression[source.value='@rockcarver/frodo-lib']",
+];
+
 export default tseslint.config(
   {
     ignores: [
@@ -47,9 +105,9 @@ export default tseslint.config(
       'no-underscore-dangle': 'off',
       'no-restricted-syntax': [
         'error',
-        'LabeledStatement',
-        'WithStatement',
-        "ImportExpression[source.value='@rockcarver/frodo-lib']",
+        ...syntaxRestrictions,
+        ...stdinRestrictions,
+        ...frameWidthRestrictions,
       ],
       'no-restricted-imports': [
         'error',
@@ -68,6 +126,13 @@ export default tseslint.config(
       'no-multi-str': 'off',
       'import-x/first': 'error',
       'import-x/no-duplicates': 'error',
+    },
+  },
+  {
+    // The one module that reads fd 0 directly.
+    files: ['src/utils/StdinSync.ts'],
+    rules: {
+      'no-restricted-syntax': ['error', ...syntaxRestrictions],
     },
   },
   {

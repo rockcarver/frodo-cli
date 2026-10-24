@@ -3,11 +3,74 @@ name: "Concierge 3a PR Worker"
 description: |
   PR gate worker. Assigns a coding agent when plan triage has opened the gate.
   The coding agent must signal completion with the pr-worker-ready label.
-if: ${{ github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'dependency-required') }}
+# A closed issue never reaches the coding agent, and neither does an issue that an open pull request
+# already closes (see docs/multi-phase-design.md, "Who may start when"). The first is decided by the event
+# payload, the second by the `existing_fix` step below, which reads the live state before activation.
+# Because this `if:` reads a pre-activation output (`needs.`), gh-aw applies it to the activation job only:
+# the pre-activation job now starts for every label event, so the step carries its own label and state
+# conditions and does nothing, and posts nothing, for any other label.
+if: >-
+  ${{ github.event.issue.state == 'open'
+  && github.event.issue.user.type != 'Bot'
+  && !contains(github.event.issue.labels.*.name, 'dependency-required')
+  && needs.pre_activation.outputs.existing_fix_result != 'failure' }}
 on:
+  # The pre-activation job runs before the agent and gets no repository permissions by default.
+  permissions:
+    issues: write
+    pull-requests: read
   issues:
     types: [labeled]
     names: [plan-triage-handoff]
+  steps:
+    # Deterministic, no model. gh-aw exports only this step's outcome (`existing_fix_result`), so the
+    # step fails on purpose and `continue-on-error` keeps the job itself green: outcome `failure`
+    # means "do not hand this issue to the coding agent", and the `if:` above reads it.
+    - name: Stop when the issue is closed or an open pull request already closes it
+      id: existing_fix
+      if: github.event.label.name == 'plan-triage-handoff' && github.event.issue.state == 'open'
+      continue-on-error: true
+      uses: actions/github-script@v9
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          const number = context.payload.issue.number;
+          let issue;
+          try {
+            const data = await github.graphql(
+              `query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $number) {
+                    state
+                    closedByPullRequestsReferences(first: 5, includeClosedPrs: false) {
+                      nodes { number state }
+                    }
+                  }
+                }
+              }`,
+              { owner, repo, number }
+            );
+            issue = data.repository.issue;
+          } catch (error) {
+            // Doubt about the live state never blocks the hand-off by itself: the event payload was
+            // already checked, and a silent stall is worse than a redundant pull request.
+            core.warning(`Could not read the live state of #${number}: ${error.message}`);
+            return;
+          }
+          if (issue.state !== 'OPEN') {
+            core.setFailed(`#${number} is ${issue.state.toLowerCase()}: nothing to hand on.`);
+            return;
+          }
+          const open = issue.closedByPullRequestsReferences.nodes.filter((pr) => pr.state === 'OPEN');
+          if (open.length === 0) return;
+          const links = open.map((pr) => `#${pr.number}`).join(', ');
+          await github.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number: number,
+            body: `No coding agent was assigned: ${links} is already open and will close this issue when it merges. If that pull request is not the way forward, close it or remove its link to this issue and hand the issue on again.`,
+          });
+          core.setFailed(`${links} already closes #${number}.`);
 permissions:
   contents: read
   issues: read

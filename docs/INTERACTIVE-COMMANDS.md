@@ -82,7 +82,10 @@ tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   system has more than one realm. Provenance (user-specified vs
   sentinel default) is captured BEFORE auth, because frodo-lib maps the
   sentinel to the deployment realm during auth, making the two
-  indistinguishable afterwards.
+  indistinguishable afterwards. A realm typed as the `[realm]` argument
+  counts (it is read from the command's processed arguments: the action
+  copies it into the state only later), and so does `FRODO_REALM`, which
+  is that argument's default.
 
 Both inherit type-to-search. Escape declines; single-candidate lists
 auto-select. `<enter>` on the already-highlighted default realm keeps
@@ -135,6 +138,54 @@ shaft. The box wraps its items within the terminal width. The
 multi-select's `[space]` and the editor's `[⏴]` are additional items;
 the `[⏵]` hint count (`[⏵] 4 options`) renders inside the menu.
 
+### Frame integrity and width
+
+Frames are drawn only through `renderFramedBox`, `renderNavigationMenu`
+and `wrapLine` (`NavigationMenu.ts`); a prompt never assembles its own
+box characters. Together they make a frame unbreakable. `wrapLine`
+splits on line breaks, expands tabs and keeps each line's indentation.
+`renderFramedBox` re-wraps (plain, without colors) any body row that
+carries a control character or is wider than the box, and cuts a title
+that does not fit with an ellipsis; a row that already fits passes
+through untouched, colors included. So a raw log line, a stack trace or
+a tenant string can be handed over as a row without cleaning it first.
+A single-line cell (a list column) is still flattened with `singleLine`
+and cut with `truncate` from `src/utils/TextLayout.ts`, because wrapping
+it would add rows to a list that expects one per item.
+
+Width: every prompt frame follows the terminal. `useTerminalWidth()`
+(`TerminalWidth.ts`) returns the terminal's columns (never below 40; 120,
+the `DEFAULT_FRAME_WIDTH`, when stdout is not a TTY, which is also the
+width the PTY tests run at) and re-reads them on resize; its listener is
+removed when the prompt closes. A prompt calls it as a hook in its render
+function, after its other `useState` calls (the frame tests seed state by
+hook order), passes the width to `renderNavigationMenu`,
+`renderFramedBox` and `descriptionPanelLines`, and sizes its own rows
+with `frameInnerWidth(width)`. That holds for the pickers
+(`EscapableSelectPrompt`: realm, entity, connection profile, the shell
+menus), the options editor with its inline value boxes
+(`EscapableMultiSelectPrompt`), the connection page
+(`ConnectionPagePrompt`) and the two live dashboards. The command
+preview is not a frame: it is one line, the command as authored,
+printed under the panels, and the terminal wraps it. ESLint enforces the
+rule (`no-restricted-syntax` in `eslint.config.mjs`): a call to
+`renderNavigationMenu`, `descriptionPanelLines`, `frameInnerWidth` or
+`renderFramedBox` that leaves the width out is an error. It cannot see
+an options object held in a variable, so write the object inline.
+
+Tests: every prompt's render test asserts frame integrity at several
+widths with hostile text, using `assertFrame`, `FRAME_WIDTHS` and
+`HOSTILE_TEXTS` from `test/utils/FrameAssertions.js`, and renders the
+prompt's view through `createPromptHarness` from
+`test/utils/PromptHarness.js` (see `EscapableSelectPromptFrame.test.js`,
+`EscapableMultiSelectPromptFrame.test.js`,
+`ConnectionPagePromptFrame.test.js`, `JourneyDebugPrompt.test.js` and
+`DebugTailPromptFrame.test.js`). Frame integrity alone cannot tell a
+frame drawn at the wrong width from the right one, because
+`renderFramedBox` re-wraps whatever overflows: also assert the layout,
+for example that a description a wide frame holds on one row is not
+split at the 120-column default.
+
 ## Live dashboards (`frodo debug`)
 
 The debug commands are the frame design applied to LIVE VIEWS (not
@@ -178,7 +229,10 @@ from what the user typed (alias/substring, captured before
 credential resolution overwrites it). The prompt imports no ops
 module: the cli action injects a `readEvents` loader (the
 EntityPickers injection pattern) that owns the log stream and maps
-events through `DebugLogOps`'s formatters.
+events through `DebugLogOps`'s formatters, which hand back one short
+line per event (an exception is cut to its headline). The frame follows
+the terminal width, and an event line that still carries line breaks or
+tabs wraps on them like any other row.
 
 ## The inline value editor
 
@@ -429,3 +483,8 @@ none.
   `src/utils/interactive/` so neither layer imports a type across the
   ops boundary; ops re-exports (`AuthenticateOps`) keep established
   import paths stable.
+- `src/utils/TextLayout.ts` — the plain-text layout helpers both layers
+  need (`truncate`, `padCell`, `singleLine`, `firstLine`). It has no
+  imports, so `src/ops/` (which must not import from
+  `utils/interactive/`) and the prompts share one copy; a helper like
+  these is never defined inside a prompt file.

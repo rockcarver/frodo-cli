@@ -7,8 +7,8 @@
 // and so on) are never touched. Rules: docs/multi-phase-design.md, "Label lifecycle".
 //
 // A second task, `--held-runs`, deletes the runs GitHub holds for approval that approving
-// could only turn into a skipped run (see DISPOSABLE_HELD_RUNS). Rules:
-// docs/multi-phase-design.md, "Held runs".
+// could only turn into a skipped run or into CI for a commit that is no longer the head (see
+// DISPOSABLE_HELD_RUNS and disposableReason). Rules: docs/multi-phase-design.md, "Held runs".
 import { execFileSync } from 'node:child_process';
 
 /** Gate labels in the order a work item passes through them, per object type. */
@@ -57,19 +57,75 @@ export function isCodingAgent(login) {
  * Runs GitHub holds at `action_required` until a maintainer approves them, that approving can only turn
  * into a skipped run. GitHub holds every run the coding agent causes before it evaluates any job
  * condition, so a comment by the agent on its own pull request leaves a held `Issue Worker` run behind
- * that `if:` would skip (a test pins the guard in workflows/issue-worker.md). Never add a workflow here
- * that does real work: a held CI run is the approval that matters.
+ * that `if:` would skip (a test pins the guard in workflows/issue-worker.md), and every push leaves a held
+ * `Dependabot Auto-Merge` run behind whose only job runs for Dependabot. An entry with a `guard` is
+ * deleted only while the default branch's copy of that workflow still has the guard (see
+ * `everyJobGuardedByDependabot`): the file belongs to the repository, not to this harness. Never add a
+ * workflow here that does real work: a held CI run is the approval that matters.
  */
-export const DISPOSABLE_HELD_RUNS = [{ path: '.github/workflows/issue-worker.lock.yml', event: 'issue_comment' }];
+export const DISPOSABLE_HELD_RUNS = [
+  {
+    path: '.github/workflows/issue-worker.lock.yml',
+    event: 'issue_comment',
+    reason: 'the Issue Worker skips comments by bots on pull requests',
+  },
+  {
+    path: '.github/workflows/dependabot-auto-merge.yml',
+    event: 'pull_request',
+    guard: 'dependabot-actor',
+    reason: 'its job runs only for Dependabot',
+  },
+];
 
-/** True for a held run the sweep may delete: finished as `action_required`, caused by the coding agent, and listed above. */
+/** True for a run held for approval and caused by the coding agent: the only runs the sweep ever looks at. */
+export function isHeldByAgent(run) {
+  return run.status === 'completed' && run.conclusion === 'action_required' && isCodingAgent(run.actor?.login);
+}
+
+/** The table entry for a run, by workflow file and event, or undefined. The entry's guard is not checked here. */
+export function disposableEntry(run) {
+  return DISPOSABLE_HELD_RUNS.find((d) => d.path === run.path && d.event === run.event);
+}
+
+/** True for a held run the table lists: held for the coding agent, and a listed workflow on a listed event. */
 export function isDisposableHeldRun(run) {
-  return (
-    run.status === 'completed' &&
-    run.conclusion === 'action_required' &&
-    isCodingAgent(run.actor?.login) &&
-    DISPOSABLE_HELD_RUNS.some((d) => d.path === run.path && d.event === run.event)
-  );
+  return isHeldByAgent(run) && disposableEntry(run) !== undefined;
+}
+
+/**
+ * True when every job of a workflow file is conditioned on the Dependabot actor, so a run caused by anyone
+ * else can only be skipped: each job key (two spaces of indent under `jobs:`) has a job-level `if:` whose
+ * whole condition is `github.actor == 'dependabot[bot]'` (optionally wrapped in `${{ }}`).
+ */
+export function everyJobGuardedByDependabot(text) {
+  const lines = String(text || '').split(/\r?\n/);
+  const start = lines.findIndex((l) => /^jobs:\s*$/.test(l));
+  if (start < 0) return false;
+  const jobs = [];
+  for (const line of lines.slice(start + 1)) {
+    if (/^\S/.test(line)) break; // the next top-level key ends the jobs block
+    if (/^ {2}[\w-]+:\s*$/.test(line)) jobs.push({ name: line.trim(), guarded: false });
+    else if (jobs.length && /^ {4}if:\s*(\$\{\{\s*)?github\.actor == 'dependabot\[bot\]'(\s*\}\})?\s*(#.*)?$/.test(line)) {
+      jobs[jobs.length - 1].guarded = true;
+    }
+  }
+  return jobs.length > 0 && jobs.every((j) => j.guarded);
+}
+
+/**
+ * Why a held `pull_request` run is stale, or null when it is not: its pull request is closed (merged
+ * included), or the run is for a commit that is no longer the head of the pull request. `pr` is
+ * { state, headSha } as read just now. The run for the CURRENT head is never stale, whatever the
+ * workflow: it is the only CI for the agent's code and the human gate for branch-controlled workflow files.
+ */
+export function staleRunReason(run, pr) {
+  const number = run.pull_requests?.[0]?.number;
+  if (run.event !== 'pull_request' || !number || !pr) return null;
+  if (pr.state !== 'open') return `pull request #${number} is closed`;
+  if (pr.headSha && run.head_sha && pr.headSha !== run.head_sha) {
+    return `pull request #${number} moved on to ${String(pr.headSha).slice(0, 7)}`;
+  }
+  return null;
 }
 
 /**
@@ -165,14 +221,59 @@ export async function run(opts, ctx) {
 // ------------------------------------------------------------- held runs
 
 /**
- * ctx: { listHeldRuns() -> runs[], deleteRun(id), log(line) }. opts: { dryRun }.
- * Deletes the held runs `isDisposableHeldRun` accepts and nothing else. A held pipeline run (the
- * approval that matters) and a fork pull request's run are never touched. Returns the deleted ids.
+ * Decides one held run. Returns the reason to delete it, or null to keep it. Doubt always keeps the run:
+ * a pull request that cannot be read, or a workflow whose guard cannot be confirmed, is logged and left.
+ * `cache`: { prs: Map, guards: Map } so a sweep reads each pull request and workflow file once.
+ */
+async function disposableReason(run, ctx, cache) {
+  const entry = disposableEntry(run);
+  if (entry) {
+    if (!entry.guard) return entry.reason;
+    if (!cache.guards.has(entry.path)) {
+      try {
+        cache.guards.set(entry.path, everyJobGuardedByDependabot(await ctx.readWorkflow(entry.path)));
+      } catch (e) {
+        cache.guards.set(entry.path, false);
+        ctx.log(`::warning::${entry.path} could not be read, so its held runs are kept: ${e.message}`);
+      }
+    }
+    if (cache.guards.get(entry.path)) return entry.reason;
+    ctx.log(`run ${run.id} (${run.name}): kept, ${entry.path} no longer has a Dependabot-actor guard on every job`);
+  }
+  const number = run.pull_requests?.[0]?.number;
+  if (run.event === 'pull_request' && number) {
+    if (!cache.prs.has(number)) {
+      try {
+        cache.prs.set(number, await ctx.getPullRequest(number));
+      } catch (e) {
+        cache.prs.set(number, { error: e.message });
+      }
+    }
+    const pr = cache.prs.get(number);
+    if (pr?.error) {
+      ctx.log(`::warning::run ${run.id} (${run.name}): kept, pull request #${number} could not be read: ${pr.error}`);
+      return null;
+    }
+    return staleRunReason(run, pr);
+  }
+  return null;
+}
+
+/**
+ * ctx: { listHeldRuns() -> runs[], deleteRun(id), getPullRequest(number) -> { state, headSha },
+ *        readWorkflow(path) -> text, log(line) }. opts: { dryRun }.
+ * Deletes the held runs of the coding agent that `disposableReason` accepts and nothing else: the table's
+ * workflows (Issue Worker comments, Dependabot Auto-Merge) and pull request runs that are stale. The held
+ * run for a pull request's current head (the approval that matters) and a contributor's run are never
+ * touched. Returns the deleted ids.
  */
 export async function sweepHeldRuns(opts, ctx) {
   const deleted = [];
   const failures = [];
-  for (const run of (await ctx.listHeldRuns()).filter(isDisposableHeldRun)) {
+  const cache = { prs: new Map(), guards: new Map() };
+  for (const run of (await ctx.listHeldRuns()).filter(isHeldByAgent)) {
+    const reason = await disposableReason(run, ctx, cache);
+    if (!reason) continue;
     if (!opts.dryRun) {
       try {
         await ctx.deleteRun(run.id);
@@ -182,7 +283,7 @@ export async function sweepHeldRuns(opts, ctx) {
       }
     }
     deleted.push(run.id);
-    ctx.log(`run ${run.id} (${run.name}, ${run.event} by ${run.actor.login}, "${run.display_title}"): ${opts.dryRun ? 'would delete' : 'deleted'}`);
+    ctx.log(`run ${run.id} (${run.name}, ${run.event} by ${run.actor.login}, "${run.display_title}"): ${opts.dryRun ? 'would delete' : 'deleted'} (${reason})`);
   }
   if (deleted.length === 0 && failures.length === 0) ctx.log('No held runs to delete.');
   if (failures.length) throw new Error(`could not delete: ${failures.join('; ')}`);
@@ -237,6 +338,12 @@ export function realContext(repo, token) {
       );
       return out.split('\n').filter(Boolean).map((line) => JSON.parse(line));
     },
+    getPullRequest: async (number) => {
+      const pr = JSON.parse(gh(['api', `repos/${repo}/pulls/${number}`], token));
+      return { state: pr.state, headSha: pr.head?.sha };
+    },
+    readWorkflow: async (path) =>
+      Buffer.from(gh(['api', `repos/${repo}/contents/${path}`, '--jq', '.content'], token).trim(), 'base64').toString('utf8'),
     deleteRun: async (id) => {
       try {
         gh(['api', '--method', 'DELETE', `repos/${repo}/actions/runs/${id}`], token);

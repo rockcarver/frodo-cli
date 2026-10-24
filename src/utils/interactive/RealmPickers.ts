@@ -34,6 +34,7 @@ import { verboseMessage } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
+import { positionalValue } from './PositionalArgs';
 import { canPrompt } from './PromptGateState';
 
 /** frodo-lib's sentinel default for "no realm chosen yet". */
@@ -57,10 +58,26 @@ let realmUserSpecified = false;
  * argument value or FRODO_REALM) as opposed to the sentinel default.
  * Called by the resolution pass BEFORE auth -- see the `realmUserSpecified`
  * doc for why the timing matters.
+ *
+ * The realm positional is read from the command's processed arguments: it
+ * only reaches frodo-lib's state later, when the action body runs
+ * `handleDefaultArgsAndOpts`, so `state.getRealm()` alone cannot see a realm
+ * the user typed (the picker then opened for `frodo journey list <host>
+ * /alpha`). FRODO_REALM is the positional's default, so it counts through the
+ * same read.
+ *
+ * @param command the command being run; omit it to judge by the state alone
  */
-export function noteRealmProvenance(): void {
-  const realm = state.getRealm();
+export function noteRealmProvenance(command?: Command): void {
+  const realm =
+    (command ? positionalValue(command, 'realm') : undefined) ??
+    state.getRealm();
   realmUserSpecified = !!realm && realm !== DEFAULT_REALM_KEY;
+}
+
+/** What `noteRealmProvenance` last recorded (for tests: the flag is module-private). */
+export function realmUserSpecifiedForTests(): boolean {
+  return realmUserSpecified;
 }
 
 /** Test hygiene: clears the per-invocation provenance + realm cache. */

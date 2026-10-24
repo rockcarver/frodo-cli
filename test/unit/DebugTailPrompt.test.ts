@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { afterEach, describe, expect, it } from '@jest/globals';
 import {
   appendTailEvent,
   buildTailRows,
@@ -103,6 +103,45 @@ describe('buildTailRows (panel rendering)', () => {
       .replace(/\s+/g, ' ')
       .trim();
     expect(rejoined).toContain('OAuth2 GET /very/long/path');
+  });
+
+  describe('without an explicit inner width', () => {
+    const isTTY = Object.getOwnPropertyDescriptor(process.stdout, 'isTTY');
+    const columns = Object.getOwnPropertyDescriptor(process.stdout, 'columns');
+    const restore = (key: string, descriptor?: PropertyDescriptor) => {
+      if (descriptor) Object.defineProperty(process.stdout, key, descriptor);
+      else delete (process.stdout as unknown as Record<string, unknown>)[key];
+    };
+    afterEach(() => {
+      restore('isTTY', isTTY);
+      restore('columns', columns);
+    });
+    const setTerminal = (cols: number | undefined, tty: boolean) => {
+      Object.defineProperty(process.stdout, 'columns', {
+        configurable: true,
+        value: cols,
+      });
+      Object.defineProperty(process.stdout, 'isTTY', {
+        configurable: true,
+        value: tty,
+      });
+    };
+    const rowsFor = (line: string) =>
+      buildTailRows([{ timestamp: '2026-10-15T01:23:45Z', line }]).length;
+
+    it('defaults to the 120-column frame (116 inside) when stdout is not a terminal', () => {
+      setTerminal(200, false);
+      const fits = 'x'.repeat(116 - 11); // timestamp column + text exactly fills the row
+      expect(rowsFor(fits)).toBe(1);
+      expect(rowsFor(fits + 'y')).toBe(2);
+    });
+
+    it("defaults to the terminal's frame width on a terminal", () => {
+      setTerminal(80, true);
+      const fits = 'x'.repeat(76 - 11);
+      expect(rowsFor(fits)).toBe(1);
+      expect(rowsFor(fits + 'y')).toBe(2);
+    });
   });
 
   it('keeps every row within the given inner width', () => {

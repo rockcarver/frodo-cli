@@ -25,12 +25,12 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Abort a direct configuration session with full tenant URL, username, and password:\n` +
         c.command(
-          `  $ frodo direct-config-session abort ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+          `  $ frodo dcc session abort ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Abort a direct configuration session with connection ID:\n` +
-        c.command(`  $ frodo direct-config-session abort ${s.connId}\n`) +
+        c.command(`  $ frodo dcc session abort ${s.connId}\n`) +
         `  Abort a direct configuration session in JSON format with connection ID:\n` +
-        c.command(`  $ frodo direct-config-session abort --json ${s.connId}\n`)
+        c.command(`  $ frodo dcc session abort --json ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler
