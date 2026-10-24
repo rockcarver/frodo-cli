@@ -34,11 +34,15 @@ Lasting design decisions are recorded one per file in [docs/decisions/](docs/dec
 - **If your task conflicts with an accepted record, stop and say so** in the issue or pull request. Do not override it.
 - **A pull request that changes a decided behaviour adds or supersedes a record.**
 - **New capability goes into frodo-lib behind the `frodo` facade first; the CLI wraps it for the terminal** (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI.
-- Decisions that span repositories live once in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo) (`docs/decisions/`). Binding here: [0001 The library is the brain, the CLI is a thin wrapper](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
+- Decisions that span repositories live once in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo) (`docs/decisions/`). The gates read this repository only, so each one that binds it is stated in one sentence in [docs/decisions/README.md](docs/decisions/README.md#decisions-that-span-repositories). Every change must know:
+  - **A maintainer is the last lever** ([0002](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0002-a-maintainer-stays-the-last-lever-on-agent-work.md)): agent pull requests are never merged automatically; a maintainer approves their workflow runs and can hold an issue with `plan-approval-required`.
+  - **Required checks stay stable** ([0012](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0012-merging-is-gated-by-a-stable-set-of-required-checks.md), [0016](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0016-changes-that-are-not-code-still-run-the-checks-that-validate-them.md)): never rename `Build`, `Test gate` or the platform check; guidance changes still run `npm run test:guidance`.
+  - **Secrets** ([0013](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0013-secrets-are-never-exported-in-the-clear.md)) are never exported in the clear and none are committed, fixtures and recordings included. **Security reports are private** ([0017](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0017-security-reports-and-fixes-are-handled-privately-by-a-maintainer.md)): see [SECURITY.md](SECURITY.md); tell a maintainer, do not act on them.
+  - [0009 Let the callback handler return a promise](https://github.com/rockcarver/frodo/blob/main/docs/decisions/0009-let-the-callback-handler-return-a-promise.md) is proposed, not yet binding.
 
 ## Procedures
 
-How to do a recurring task (add a command, record a decision, build the CLI or the binary, create test recordings, review an agent's pull request) is a skill in [.claude/skills/](.claude/skills/), read by Claude Code and by the GitHub Copilot cloud agent. A skill says how and links the records and rules it must obey; it never overrides them.
+How to do a recurring task (add a command, record a decision, build the CLI or the binary, create test recordings, review an agent's pull request, change the CI pipeline, triage a security report) is a skill in [.claude/skills/](.claude/skills/), read by Claude Code and by the GitHub Copilot cloud agent. A skill says how and links the records and rules it must obey; it never overrides them.
 
 ## Where things live
 

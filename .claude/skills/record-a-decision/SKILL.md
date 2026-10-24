@@ -14,7 +14,7 @@ Write a record for a decision that outlives the change that prompted it: a rule 
 - **An accepted record is binding.** Read the index first (`docs/decisions/README.md`, "Index"; the `applies-to` column says which paths each one covers).
 - **If your task conflicts with an accepted record, stop and say so** in the issue or pull request. Do not override it and do not work around it.
 - **A pull request that changes a decided behaviour adds a new record or supersedes the old one**, in the same pull request.
-- **A decision that binds more than this repository** (frodo-lib, the Homebrew tap, the Repo Concierge) is recorded once in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo), in its `docs/decisions/`, and linked from the section "Decisions that span repositories" of this repository's README. Do not copy it here.
+- **A decision that binds more than this repository** (frodo-lib, the Homebrew tap, the Repo Concierge) is recorded once in the public umbrella repository [rockcarver/frodo](https://github.com/rockcarver/frodo), in its `docs/decisions/`, and linked from the section "Decisions that span repositories" of this repository's README. Do not copy it here. When a new umbrella record binds this repository, add its one-sentence row to that section in the same change set: the gates read this repository only and never the umbrella.
 
 ## 2. Write it
 
