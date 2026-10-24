@@ -6,6 +6,10 @@ const credentialVariables = [
   'FRODO_SA_JWK',
   'FRODO_AMSTER_PRIVATE_KEY',
   'FRODO_AMSTER_PASSPHRASE',
+  'FRODO_BROWSER_LOGIN',
+  'FRODO_LOGIN_DEVICE_FLOW',
+  'FRODO_CREDENTIAL',
+  'FRODO_FORCE_LOGIN_AS_USER',
 ];
 let savedEnvironment;
 
@@ -30,6 +34,8 @@ function commandWith(args) {
     .option('--private-key <file>')
     .option('--passphrase <value>')
     .option('--authentication-service <name>')
+    .option('--credential <type>')
+    .option('--force-login-as-user')
     .parse(args, { from: 'user' });
 }
 
@@ -110,6 +116,97 @@ describe('explicit credential sources', () => {
       expect(hasExplicitCredentialSource(commandWith([option, '']))).toBe(
         false
       );
+    }
+  );
+
+  test.each(['FRODO_BROWSER_LOGIN', 'FRODO_LOGIN_DEVICE_FLOW'])(
+    '%s counts only the exact value true',
+    (name) => {
+      for (const value of ['false', '', '1', 'TRUE']) {
+        process.env[name] = value;
+        expect(hasExplicitCredentialSource(commandWith([]))).toBe(false);
+      }
+      process.env[name] = 'true';
+      expect(hasExplicitCredentialSource(commandWith([]))).toBe(true);
+    }
+  );
+
+  test.each(['svcacct', 'amster', 'browser', 'user'])(
+    'credential %s follows option-over-environment precedence',
+    (credential) => {
+      process.env.FRODO_CREDENTIAL = credential;
+      expect(hasExplicitCredentialSource(commandWith([]))).toBe(
+        credential !== 'user'
+      );
+      for (const option of ['svcacct', 'amster', 'browser', 'user']) {
+        expect(
+          hasExplicitCredentialSource(commandWith(['--credential', option]))
+        ).toBe(option !== 'user');
+      }
+    }
+  );
+
+  test.each(['', 'invalid', 'USER'])(
+    'unrecognized environment credential %j does not name a source',
+    (value) => {
+      process.env.FRODO_CREDENTIAL = value;
+      expect(hasExplicitCredentialSource(commandWith([]))).toBe(false);
+    }
+  );
+
+  test.each([
+    ['--sa-id', 'test-account'],
+    ['--sa-jwk-file', 'throwaway.jwk'],
+    ['--private-key', 'throwaway.pem'],
+    ['--browser'],
+    ['--device'],
+  ])('explicit user login overrides source %j', (...source) => {
+    expect(
+      hasExplicitCredentialSource(
+        commandWith([...source, '--credential', 'user'])
+      )
+    ).toBe(false);
+    expect(
+      hasExplicitCredentialSource(
+        commandWith([...source, '--force-login-as-user'])
+      )
+    ).toBe(false);
+    process.env.FRODO_CREDENTIAL = 'user';
+    expect(hasExplicitCredentialSource(commandWith(source))).toBe(false);
+  });
+
+  test.each([
+    ['FRODO_SA_ID', 'test-account'],
+    ['FRODO_SA_JWK', 'unparsed JWK'],
+    ['FRODO_AMSTER_PRIVATE_KEY', 'unparsed PEM'],
+    ['FRODO_BROWSER_LOGIN', 'true'],
+    ['FRODO_LOGIN_DEVICE_FLOW', 'true'],
+  ])('user selectors override environment source %s', (name, value) => {
+    process.env[name] = value;
+    expect(
+      hasExplicitCredentialSource(commandWith(['--credential', 'user']))
+    ).toBe(false);
+    expect(
+      hasExplicitCredentialSource(commandWith(['--force-login-as-user']))
+    ).toBe(false);
+    process.env.FRODO_CREDENTIAL = 'user';
+    expect(hasExplicitCredentialSource(commandWith([]))).toBe(false);
+    delete process.env.FRODO_CREDENTIAL;
+    process.env.FRODO_FORCE_LOGIN_AS_USER = 'false'; // Legacy override uses truthy strings.
+    expect(hasExplicitCredentialSource(commandWith([]))).toBe(false);
+  });
+
+  test.each(['svcacct', 'amster', 'browser'])(
+    'credential %s takes precedence over the legacy force-user override',
+    (credential) => {
+      process.env.FRODO_FORCE_LOGIN_AS_USER = 'true';
+      expect(
+        hasExplicitCredentialSource(commandWith(['--credential', credential]))
+      ).toBe(true);
+      process.env.FRODO_CREDENTIAL = credential;
+      expect(
+        hasExplicitCredentialSource(commandWith(['--force-login-as-user']))
+      ).toBe(true);
     }
   );
 });

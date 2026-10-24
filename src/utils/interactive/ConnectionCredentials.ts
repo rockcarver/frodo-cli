@@ -6,7 +6,23 @@ import type { Command } from 'commander';
  * not interactive resolution.
  */
 export function hasExplicitCredentialSource(command: Command): boolean {
+  const envCredential = process.env.FRODO_CREDENTIAL;
+  const credential =
+    command.getOptionValue('credential') ??
+    (['svcacct', 'amster', 'browser', 'user'].includes(envCredential ?? '')
+      ? envCredential
+      : undefined);
+  if (credential) return credential !== 'user';
+  if (
+    command.getOptionValue('forceLoginAsUser') ??
+    !!process.env.FRODO_FORCE_LOGIN_AS_USER
+  ) {
+    return false;
+  }
+
   return (
+    process.env.FRODO_BROWSER_LOGIN === 'true' ||
+    process.env.FRODO_LOGIN_DEVICE_FLOW === 'true' ||
     ['browser', 'device', 'saId', 'saJwkFile', 'privateKey'].some(
       (name) => !!command.getOptionValue(name)
     ) ||

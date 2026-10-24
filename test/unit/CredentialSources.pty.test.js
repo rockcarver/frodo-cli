@@ -87,6 +87,47 @@ suite('credential-source audit, on a real terminal', () => {
     },
     { name: '--browser', args: () => ['--browser'], browser: true },
     { name: '--device', args: () => ['--device'], browser: true },
+    {
+      name: 'FRODO_BROWSER_LOGIN=true',
+      env: () => ({ FRODO_BROWSER_LOGIN: 'true' }),
+      browser: true,
+    },
+    {
+      name: 'FRODO_LOGIN_DEVICE_FLOW=true',
+      env: () => ({ FRODO_LOGIN_DEVICE_FLOW: 'true' }),
+      // Device flow is selected at authentication; the flag also sets authMode,
+      // whereas its environment variable alone leaves that mode unchanged.
+    },
+    ...['svcacct', 'amster', 'browser'].flatMap((credential) => [
+      {
+        name: `--credential ${credential} with a host only`,
+        args: () => ['--credential', credential],
+        selector: true,
+      },
+      {
+        name: `FRODO_CREDENTIAL=${credential}`,
+        env: () => ({ FRODO_CREDENTIAL: credential }),
+        selector: true,
+      },
+    ]),
+    {
+      name: '--credential svcacct overrides FRODO_CREDENTIAL=user',
+      args: () => ['--credential', 'svcacct'],
+      env: () => ({ FRODO_CREDENTIAL: 'user' }),
+      selector: true,
+    },
+    {
+      name: '--credential svcacct overrides FRODO_FORCE_LOGIN_AS_USER',
+      args: () => ['--credential', 'svcacct'],
+      env: () => ({ FRODO_FORCE_LOGIN_AS_USER: 'true' }),
+      selector: true,
+    },
+    {
+      name: 'FRODO_CREDENTIAL=svcacct overrides --force-login-as-user',
+      args: () => ['--force-login-as-user'],
+      env: () => ({ FRODO_CREDENTIAL: 'svcacct' }),
+      selector: true,
+    },
     { name: 'FRODO_SA_ID', env: () => ({ FRODO_SA_ID: 'test-account' }) },
     { name: 'FRODO_SA_JWK', env: () => ({ FRODO_SA_JWK: jwk }) },
     {
@@ -186,7 +227,7 @@ suite('credential-source audit, on a real terminal', () => {
           ...(row.args?.(jwkFile, pemFile, encryptedFile) ?? []),
         ],
         actions: [
-          ...(row.malformed || row.browser
+          ...(row.malformed || row.browser || row.selector
             ? []
             : [{ type: 'wait_request', path: recordPath, regex: request }]),
           ...(row.authenticated
@@ -206,7 +247,7 @@ suite('credential-source audit, on a real terminal', () => {
       expect(result.plainOutput).not.toMatch(/username: \(not set\)|Username:/);
       expect(result.plainOutput).not.toMatch(/password: \(not set\)|Password:/);
       expect(result.plainOutput).not.toContain('Choose a realm');
-      if (!row.malformed && !row.browser) {
+      if (!row.malformed && !row.browser && !row.selector) {
         const urls = fs
           .readFileSync(recordPath, 'utf8')
           .trim()
@@ -233,6 +274,78 @@ suite('credential-source audit, on a real terminal', () => {
         `http://127.0.0.1:${fakeAm.port}/am`,
         '--type',
         'classic',
+      ],
+      actions: [{ type: 'wait_plain', regex: 'Connection:', timeoutMs: 10000 }],
+    });
+    expect(result.plainOutput).toContain('username: (not set)');
+    expect(result.plainOutput).toContain('password: (not set)');
+  });
+
+  const userSelectors = [
+    { name: '--credential user', args: ['--credential', 'user'] },
+    { name: 'FRODO_CREDENTIAL=user', env: { FRODO_CREDENTIAL: 'user' } },
+    { name: '--force-login-as-user', args: ['--force-login-as-user'] },
+    {
+      name: 'FRODO_FORCE_LOGIN_AS_USER=true',
+      env: { FRODO_FORCE_LOGIN_AS_USER: 'true' },
+    },
+    {
+      name: 'FRODO_FORCE_LOGIN_AS_USER=false (truthy legacy value)',
+      env: { FRODO_FORCE_LOGIN_AS_USER: 'false' },
+    },
+  ];
+  test.each([
+    {
+      name: 'FRODO_BROWSER_LOGIN=false',
+      env: () => ({ FRODO_BROWSER_LOGIN: 'false' }),
+    },
+    {
+      name: 'FRODO_LOGIN_DEVICE_FLOW=false',
+      env: () => ({ FRODO_LOGIN_DEVICE_FLOW: 'false' }),
+    },
+    {
+      name: 'empty browser/device values',
+      env: () => ({ FRODO_BROWSER_LOGIN: '', FRODO_LOGIN_DEVICE_FLOW: '' }),
+    },
+    ...userSelectors.flatMap((selector) => [
+      { ...selector, env: () => selector.env ?? {} },
+      {
+        ...selector,
+        name: `${selector.name} with service-account environment credentials`,
+        env: () => ({
+          FRODO_SA_ID: 'test-account',
+          FRODO_SA_JWK: jwk,
+          ...selector.env,
+        }),
+      },
+      {
+        ...selector,
+        name: `${selector.name} with Amster environment credentials`,
+        env: () => ({ FRODO_AMSTER_PRIVATE_KEY: pem, ...selector.env }),
+      },
+    ]),
+    {
+      name: '--credential user overrides FRODO_CREDENTIAL=svcacct and a service account',
+      args: ['--credential', 'user'],
+      env: () => ({
+        FRODO_CREDENTIAL: 'svcacct',
+        FRODO_SA_ID: 'test-account',
+        FRODO_SA_JWK: jwk,
+      }),
+    },
+  ])('$name opens the Connection page', async (row) => {
+    fakeAm = await startFakeAm({ recordPath, journey: 'password' });
+    const result = runShellScenario({
+      homeDir: home,
+      allowPrompting: true,
+      env: { ...emptyCredentials, ...row.env() },
+      args: [
+        'journey',
+        'list',
+        `http://127.0.0.1:${fakeAm.port}/am`,
+        '--type',
+        'classic',
+        ...(row.args ?? []),
       ],
       actions: [{ type: 'wait_plain', regex: 'Connection:', timeoutMs: 10000 }],
     });
