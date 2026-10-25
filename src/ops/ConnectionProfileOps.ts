@@ -12,7 +12,73 @@ import {
 } from '../utils/Console';
 
 const { validateServiceAccount } = frodo.cloud.serviceAccount;
-const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
+const {
+  getConnectionProfilesPath,
+  getConnectionProfileByHost,
+  findConnectionProfiles,
+} = frodo.conn;
+
+/**
+ * What the saved profile for a host already holds of what `conn save`
+ * provisions in the tenant. Read from the profiles file without decrypting
+ * anything, so it works for the login paths that never load the profile (a
+ * browser login, or credentials on the command line): their state knows
+ * nothing of the profile's service account, and without this `conn save`
+ * would create another one and another log API key every time, leaving the
+ * old ones behind in the tenant.
+ * @param {string} host Host URL, unique substring or alias of the profile
+ * @returns {{ serviceAccount: boolean; logApiKey: boolean }} what the single matching profile holds; both false when there is none or the file cannot be read
+ */
+export function findSavedProvisioning(host: string): {
+  serviceAccount: boolean;
+  logApiKey: boolean;
+} {
+  const none = { serviceAccount: false, logApiKey: false };
+  if (!host) return none;
+  try {
+    const filename = getConnectionProfilesPath();
+    if (!fs.existsSync(filename)) return none;
+    const found = findConnectionProfiles(
+      JSON.parse(fs.readFileSync(filename, 'utf8')),
+      host
+    );
+    if (found.length !== 1) return none;
+    return {
+      serviceAccount: !!found[0].svcacctId,
+      logApiKey: !!found[0].logApiKey,
+    };
+  } catch {
+    return none;
+  }
+}
+
+/**
+ * Find the connection profile that already uses an alias, other than the one
+ * a save is for. Lets `conn save` refuse a taken alias before it creates
+ * anything in the tenant. The profile being saved may keep its own alias.
+ * @param {string} host Host URL for a new profile, unique substring or alias for an existing one
+ * @param {string} alias Alias the profile should get
+ * @returns {string | undefined} the host of the other profile using the alias, or undefined if there is none
+ */
+export function findAliasConflict(
+  host: string,
+  alias: string
+): string | undefined {
+  if (!host || !alias) return undefined;
+  try {
+    const filename = getConnectionProfilesPath();
+    if (!fs.existsSync(filename)) return undefined;
+    const profiles = JSON.parse(fs.readFileSync(filename, 'utf8'));
+    const found = findConnectionProfiles(profiles, host);
+    const own = found.length === 1 ? found[0].tenant : host;
+    return Object.keys(profiles).find(
+      (tenant) => tenant !== own && profiles[tenant]?.alias === alias
+    );
+  } catch {
+    // An unreadable profiles file is reported by the save itself.
+    return undefined;
+  }
+}
 
 /**
  * List connection profiles
