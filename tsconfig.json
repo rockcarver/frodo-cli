@@ -26,7 +26,7 @@
     // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
 
     /* Modules */
-    "module": "ES2020",
+    "module": "ESNext",
     "target": "ES2020",
     // "outDir": "./types",
     "rootDir": "./src" /* Specify the root folder within your source files. */,

@@ -22,8 +22,8 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import GENERIC_EXTENSION_ATTRIBUTES from './templates/GenericExtensionAttributesTemplate.json';
-import OAUTH2_CLIENT from './templates/OAuth2ClientTemplate.json';
+import GENERIC_EXTENSION_ATTRIBUTES from './templates/GenericExtensionAttributesTemplate.json' with { type: 'json' };
+import OAUTH2_CLIENT from './templates/OAuth2ClientTemplate.json' with { type: 'json' };
 import { cloneDeep } from './utils/OpsUtils';
 
 const {
