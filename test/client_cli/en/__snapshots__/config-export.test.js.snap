@@ -9,13 +9,6 @@ read-only) for the current deployment (e.g. if exporting from cloud, realm
 config would NOT be exported since it can't be imported back into cloud even
 though it can be imported into classic deployments). There is a flag to export
 all config including read only config.
-On Advanced Identity Cloud, the export holds the global config and the alpha and
-bravo realms. Identity Cloud denies access to most root realm config, so the
-root realm is only exported with -R, --read-only, and then only as read-only
-authorization config (policies, policy sets, resource types and the like). Use
--r to limit the export to the active realm (alpha unless you name another one)
-and -g to limit it to the global config. Use both for the global config plus the
-active realm.
 Additionally, there is a flag to export config for only the specified realm, a
 flag to export only global config, and many other flags to customize the export.
 Use the -h or --help to see them all and to also see usage examples.
@@ -60,12 +53,15 @@ Options:
                              the journey/tree nodes.
   --no-decode                Do not include decoded variable value in variable
                              export
-  -r, --realm-only           Export only the config for the active realm. If -g,
-                             --global-only is also active, then the global
-                             config will also be exported.
+  -r, --realm-only           Export only the config for the active realm (on
+                             Identity Cloud alpha, unless you name another realm
+                             after the host). If -g, --global-only is also
+                             active, then the global config will also be
+                             exported.
   -R, --read-only            Export read-only config (with the exception of
                              default scripts) in addition to the importable
-                             config.
+                             config. On Identity Cloud this adds a root realm,
+                             which holds read-only authorization config.
   --target <host url>        Host URL of the environment to perform secret value
                              encryption. The URL must resolve to an existing
                              connection profile. Use this option to generate an

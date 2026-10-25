@@ -15,10 +15,7 @@ export default function setup() {
   const program = new FrodoCommand('frodo config import');
 
   program
-    .description(
-      `Import full cloud configuration.\n` +
-        `Frodo imports every realm it finds in the export: all the directories under realm/ in the -D directory with -A, or all the realms in the file with -a. An export made with -R, --read-only contains a root realm, and importing it makes Frodo attempt the root realm of the target. Identity Cloud denies access to most root realm config. To leave the root realm out, import an export made without -R (on Identity Cloud that holds the global config and the alpha and bravo realms) or remove the realm/root directory.`
-    )
+    .description('Import full cloud configuration.')
     .addOption(
       new Option(
         '-f, --file <file>',
@@ -28,13 +25,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Import all configuration from the single file -f. Ignored with -i.'
+        'Import all configuration from the single file -f, including every realm in it. Ignored with -i.'
       )
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all configuration from separate (.json) files in the (working) directory -D. Ignored with -i or -a.'
+        'Import all configuration from separate (.json) files in the (working) directory -D, including every realm directory under realm/. Ignored with -i or -a.'
       )
     )
     .addOption(
@@ -97,6 +94,9 @@ export default function setup() {
         c.positive(
           `  Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment (--target parameter). Frodo never exports secrets in the clear.\n\n`
         ) +
+        c.positive(`Realms on Identity Cloud:\n`) +
+        `  Frodo imports every realm it finds in the export. An export made with -R, --read-only contains a root realm, and importing it makes Frodo attempt the root realm of the target. Identity Cloud denies access to most root realm config.\n` +
+        `  To leave the root realm out, import an export made without -R (on Identity Cloud that holds the global config and the alpha and bravo realms) or remove the realm/root directory.\n\n` +
         `Usage Examples:\n` +
         `  Restore global and active realm configuration including active secret values from a single file (Note: config export must have been performed using the --include-active-values option):\n` +
         c.command(
