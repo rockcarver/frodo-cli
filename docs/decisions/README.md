@@ -89,3 +89,4 @@ A core record has the format above plus a `repos:` list and may have a `## Known
 | [0028](0028-log-event-analysis-lives-in-the-cli.md) | Log-event analysis lives in the CLI (proposed) | proposed | `src/ops/DebugLogOps.ts`, `src/ops/JourneyDebugAggregator.ts` |
 | [0029](0029-smaller-inconsistencies-with-the-documented-conventions.md) | Smaller places where the repository departs from its documented conventions (deprecated) | deprecated | `src/**`, `test/**`, `docs/**` |
 | [0030](0030-interactive-mode-never-prompts-for-what-4x-accepted.md) | Interactive mode never prompts for what 4.x accepted | accepted | `src/cli/ResolveInteractiveInputs.ts`, `src/utils/interactive/**` |
+| [0031](0031-a-saved-credential-or-a-fresh-cached-session-completes-the-connection.md) | A saved credential or a fresh cached session completes the connection | accepted | `src/cli/ResolveInteractiveInputs.ts`, `src/utils/interactive/**` |

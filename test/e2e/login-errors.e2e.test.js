@@ -1,6 +1,7 @@
 /**
  * `frodo login`'s argument-validation error paths (missing OAuth2 client id,
- * missing deployment type) fail before any network call, so — unlike
+ * missing deployment type) fail before any request to a real tenant (the
+ * missing-type case asks a closed local port), so — unlike
  * `frodo login`'s actual successful-login paths (plain username/password,
  * --device, --browser), which this suite has no way to record Polly
  * fixtures for without a real, reachable tenant — these run against the
@@ -75,11 +76,18 @@ describe('frodo login (argument-validation error paths)', () => {
     });
   });
 
-  test('"frodo login --browser <host>" with no --type and no saved profile fails clearly, before any network call', async () => {
+  test('"frodo login --browser <host>" with no --type, no saved profile and a host that does not answer fails clearly', async () => {
+    // With no type from the command line or a profile, browser login asks
+    // the host with an anonymous probe. A closed local port is the host
+    // that cannot answer: no real tenant is contacted, and an inconclusive
+    // probe must not be taken for a classic deployment.
     await expect(
-      exec(`frodo login --browser ${c.host}`, { env, cwd: process.cwd() })
+      exec(`frodo login --browser http://127.0.0.1:1/am`, {
+        env,
+        cwd: process.cwd(),
+      })
     ).rejects.toMatchObject({
-      stderr: expect.stringContaining('known deployment type'),
+      stderr: expect.stringContaining('could not determine the deployment type'),
     });
   });
 

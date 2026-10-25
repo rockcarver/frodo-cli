@@ -1,5 +1,9 @@
 import { Command } from 'commander';
-import { hasExplicitCredentialSource } from '../../src/utils/interactive/ConnectionCredentials.ts';
+import {
+  forcesUserLogin,
+  hasExplicitCredentialSource,
+  savedConnectionIsComplete,
+} from '../../src/utils/interactive/ConnectionCredentials.ts';
 
 const credentialVariables = [
   'FRODO_SA_ID',
@@ -209,4 +213,72 @@ describe('explicit credential sources', () => {
       ).toBe(true);
     }
   );
+});
+
+describe('forcesUserLogin', () => {
+  test.each([
+    [['--credential', 'user'], {}, true],
+    [['--force-login-as-user'], {}, true],
+    [[], { FRODO_CREDENTIAL: 'user' }, true],
+    [[], { FRODO_FORCE_LOGIN_AS_USER: 'true' }, true],
+    [[], {}, false],
+    [['--credential', 'browser'], {}, false],
+    [['--credential', 'svcacct'], { FRODO_FORCE_LOGIN_AS_USER: 'true' }, false],
+    [['--force-login-as-user'], { FRODO_CREDENTIAL: 'svcacct' }, false],
+    [[], { FRODO_CREDENTIAL: 'not a type' }, false],
+  ])('%j with %j is %s', (args, env, expected) => {
+    Object.assign(process.env, env);
+    expect(forcesUserLogin(commandWith(args))).toBe(expected);
+  });
+});
+
+describe('savedConnectionIsComplete (record 0031)', () => {
+  test.each([
+    ['a username with a password', { username: 'u', password: 'p' }],
+    ['a service account', { svcacctId: 'id' }],
+    ['an Amster key', { amsterPrivateKey: 'key' }],
+    ['a saved default of browser', { username: 'u', defaultCredential: 'browser' }],
+    ['a saved default of svcacct', { defaultCredential: 'svcacct' }],
+    ['a saved default of amster', { defaultCredential: 'amster' }],
+  ])('%s completes the connection', (_name, profile) => {
+    expect(savedConnectionIsComplete(profile, false)).toBe(true);
+  });
+
+  test.each([
+    ['a username alone', { username: 'u' }],
+    ['a username and a saved default of user', { username: 'u', defaultCredential: 'user' }],
+    ['a bare profile', {}],
+    ['a password without a username', { password: 'p' }],
+  ])('%s completes nothing', (_name, profile) => {
+    expect(savedConnectionIsComplete(profile, false)).toBe(false);
+  });
+
+  test('a fresh cached browser session completes a profile that has nothing else', () => {
+    expect(savedConnectionIsComplete({ username: 'u' }, true)).toBe(true);
+    expect(savedConnectionIsComplete({}, true)).toBe(true);
+  });
+
+  test('a saved preference for the plain user login keeps a cached browser session from counting', () => {
+    expect(
+      savedConnectionIsComplete(
+        { username: 'u', defaultCredential: 'user' },
+        true
+      )
+    ).toBe(false);
+    // while a username with a password still completes it, as before
+    expect(
+      savedConnectionIsComplete(
+        { username: 'u', password: 'p', defaultCredential: 'user' },
+        false
+      )
+    ).toBe(true);
+  });
+
+  test('a command that forces a user login counts only what a user login can use', () => {
+    expect(savedConnectionIsComplete({ defaultCredential: 'browser' }, true, true)).toBe(false);
+    expect(savedConnectionIsComplete({ username: 'u' }, true, true)).toBe(false);
+    expect(savedConnectionIsComplete({ username: 'u', password: 'p' }, false, true)).toBe(true);
+    // unchanged from before record 0031: a saved service account or Amster key still completes
+    expect(savedConnectionIsComplete({ svcacctId: 'id' }, false, true)).toBe(true);
+  });
 });
