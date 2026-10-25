@@ -119,7 +119,7 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'wait_plain', regex: 'Connection:', timeoutMs: 30000 },
             { type: 'sleep', ms: 500 },
             { type: 'capture', label: 'page' },
-            { type: 'key', name: 'down' },
+            // The page opens on the first row without a value: username.
             { type: 'key', name: 'enter' },
             { type: 'send', text: 'probeuser' },
             { type: 'key', name: 'enter' },
@@ -150,7 +150,7 @@ describe('phase 5 slice 1: hint + segment routing', () => {
 
         const page = result.captures.page.plain;
         expect(page).toMatch(/host: https:\/\/page-probe\.example\.com\/am/);
-        expect(page).toMatch(/username: \(not set\)/);
+        expect(page).toMatch(/› username: \(not set\)/);
         expect(page).toMatch(/password: \(not set\)/);
         expect(page).toMatch(/Done/);
 
@@ -765,7 +765,9 @@ describe('phase 5 slice 4: command preview', () => {
           // rows' "--secret-id <secret-id>" help text still in the
           // scrollback -- anchor on the footer line itself instead.)
           expect(empty.plain).toMatch(/^frodo esv secret delete$/m);
-          expect(empty.plain).not.toMatch(/^frodo esv secret delete --secret-id/m);
+          expect(empty.plain).not.toMatch(
+            /^frodo esv secret delete --secret-id/m
+          );
         } finally {
           removeShellTestHome(homeDir);
         }

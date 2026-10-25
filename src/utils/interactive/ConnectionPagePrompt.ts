@@ -20,14 +20,6 @@ import {
 import { notePromptRendered } from './PromptGateState';
 import { useTerminalWidth } from './TerminalWidth';
 
-/**
- * Resolved by `connectionPage` when the user presses Escape on the page
- * (not inside a row editor): "don't touch connection args". The caller
- * falls back to its pre-existing behavior (today: the sequential
- * prompts; for an already-resolved visit, just conclude).
- */
-export const PAGE_ESCAPE = Symbol('connectionPage:escape');
-
 /** The masked rendering of a password row's stored value. */
 const PASSWORD_MASK = '••••••••';
 
@@ -48,10 +40,13 @@ export type ConnectionPageConfig = {
   message: string;
   rows: ConnectionPageRow[];
   /**
-   * Command preview: the command being authored, rendered as a
-   * footer line (pre-rendered by CommandPreview.ts).
+   * Command preview: the command being authored, rendered as a footer
+   * line (by CommandPreview.ts). A function is called on every render with
+   * the page's current rows, so the footer follows what the user has
+   * committed so far (value and color) instead of what was known when the
+   * page opened.
    */
-  preview?: string;
+  preview?: string | ((rows: ConnectionPageRow[]) => string | undefined);
   /**
    * Called when the user commits an edit to the host row -- the
    * credential rows' profile context keys on the host, so the caller
@@ -71,7 +66,9 @@ export type ConnectionPageConfig = {
  * Key language (docs/INTERACTIVE-COMMANDS.md): ↑↓ between rows, `<enter>` on a row opens its
  * inline editor (typing edits; `<enter>` commits, `<esc>` cancels the
  * edit), `<enter>` on the Done row concludes the page, `<esc>` on the
- * page declines it entirely (PAGE_ESCAPE). The password row masks its
+ * page cancels the command (exit-all: the page is the top level of the
+ * connection step, and no other prompt takes over). The page opens on the
+ * first row without a value. The password row masks its
  * value and draft both when stored and while typing; an empty commit on
  * a password row KEEPS the stored value (a masked row you didn't mean
  * to change must not become blank).
@@ -88,17 +85,26 @@ export type ConnectionPageConfig = {
 type ConnectionPageFn = (
   config: ConnectionPageConfig
 ) => Promise<
-  | { host?: string; username?: string; password?: string }
-  | typeof PAGE_ESCAPE
-  | typeof EXIT_ALL
+  { host?: string; username?: string; password?: string } | typeof EXIT_ALL
 >;
+
+/**
+ * The row the page opens on: the first one without a value (the user has
+ * to fill it in), the first row when every row has one.
+ */
+function firstEmptyRow(rows: ConnectionPageRow[]): number {
+  const index = rows.findIndex(
+    (row) => row.value === undefined || row.value === ''
+  );
+  return index === -1 ? 0 : index;
+}
 
 const connectionPageImpl = createPrompt(
   (config: ConnectionPageConfig, done: (value: unknown) => void) => {
     const [rows, setRows] = useState<ConnectionPageRow[]>(config.rows);
     // The Done row sits after the field rows.
     const doneIndex = config.rows.length;
-    const [active, setActive] = useState(0);
+    const [active, setActive] = useState(() => firstEmptyRow(config.rows));
     const [status, setStatus] = useState<'idle' | 'done' | 'escaped'>('idle');
     const [editing, setEditing] = useState<null | ConnectionPageRow['key']>(
       null
@@ -211,27 +217,11 @@ const connectionPageImpl = createPrompt(
         return;
       }
       if (key.name === 'escape') {
-        // Double-ESC exits all the way (see ExitAll.ts grace); a single
-        // press (after the grace expires) declines the page as before.
-        if (escapeGraceRef.current) {
-          const grace = escapeGraceRef.current;
-          escapeGraceRef.current = undefined;
-          grace.secondEscape();
-          return;
-        }
-        setEscapeGraceOpen(true);
-        escapeGraceRef.current = armEscapeGrace({
-          onSecondEscape: () => {
-            setEscapeGraceOpen(false);
-            setStatus('escaped');
-            done(EXIT_ALL);
-          },
-          onGraceExpire: () => {
-            setEscapeGraceOpen(false);
-            setStatus('escaped');
-            done(PAGE_ESCAPE);
-          },
-        });
+        // The top level of the connection step: ESC cancels the command.
+        // There is no grace window and no fallback prompt -- nothing is
+        // asked a second time.
+        setStatus('escaped');
+        done(EXIT_ALL);
         return;
       } else if (isEnterKey(key)) {
         escapeGraceRef.current?.otherKey();
@@ -283,7 +273,7 @@ const connectionPageImpl = createPrompt(
     const menu = renderNavigationMenu(
       navigationMenuItems({
         enter: 'edit / done',
-        escape: 'cancel page',
+        escape: 'cancel',
       }),
       width
     );
@@ -309,8 +299,8 @@ const connectionPageImpl = createPrompt(
     ];
     if (escapeGraceOpen) {
       rowLines.push({
-        text: c.muted('esc again to exit all -- or wait to cancel the page'),
-        plain: 'esc again to exit all -- or wait to cancel the page',
+        text: c.muted('esc again to exit all -- or wait to close the editor'),
+        plain: 'esc again to exit all -- or wait to close the editor',
       });
     }
     const panel = renderFramedBox({
@@ -321,7 +311,11 @@ const connectionPageImpl = createPrompt(
       lines: rowLines,
       width,
     });
-    const lines = [menu, panel, config.preview];
+    const preview =
+      typeof config.preview === 'function'
+        ? config.preview(rows)
+        : config.preview;
+    const lines = [menu, panel, preview];
     return lines.filter(Boolean).join('\n');
   }
 );

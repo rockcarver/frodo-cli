@@ -36,6 +36,7 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
 const view = await harness.load(
   () => import('../../src/utils/interactive/ConnectionPagePrompt.ts')
 );
+const { EXIT_ALL } = await import('../../src/utils/interactive/ExitAll.ts');
 
 /** The view's useState calls in order (a new hook before them shifts these). */
 const STATE = {
@@ -155,5 +156,70 @@ describe('connectionPage frames', () => {
   it('draws no frame once the page has concluded', () => {
     setTerminal(80);
     expect(render(HOSTILE, { [STATE.status]: 'done' })).not.toContain('┌');
+  });
+});
+
+describe('connectionPage behaviour', () => {
+  const rowsOf = (values) =>
+    ['host', 'username', 'password'].map((key, index) => ({
+      key,
+      label: key,
+      value: values[index],
+    }));
+
+  it.each([
+    ['only the password is missing', ['h', 'u', undefined], 2],
+    ['username and password are missing', ['h', undefined, undefined], 1],
+    ['the password is empty', ['h', 'u', ''], 2],
+    ['the host is missing', [undefined, 'u', 'p'], 0],
+    ['every row has a value', ['h', 'u', 'p'], 0],
+  ])('opens on the first row without a value: %s', (_label, values, row) => {
+    setTerminal(100);
+    harness.reset();
+    render({ message: 'Connection:', rows: rowsOf(values) });
+    expect(harness.states[STATE.active]).toBe(row);
+  });
+
+  it('renders a preview function with the current rows on every render', () => {
+    setTerminal(100);
+    const preview = jest.fn(
+      (rows) => `command with ${rows.map((row) => row.value ?? '-').join(' ')}`
+    );
+    const config = {
+      message: 'Connection:',
+      rows: rowsOf(['h', 'u', undefined]),
+      preview,
+    };
+    expect(render(config)).toContain('command with h u -');
+    // A value committed on the page reaches the footer in the next frame.
+    harness.states[STATE.rows] = rowsOf(['h', 'u', 'p']);
+    expect(harness.render(view, config)).toContain('command with h u p');
+  });
+
+  it('renders a preview string as given', () => {
+    setTerminal(100);
+    expect(
+      render({
+        message: 'Connection:',
+        rows: rowsOf(['h', 'u', 'p']),
+        preview: 'a fixed footer',
+      })
+    ).toContain('a fixed footer');
+  });
+
+  it('cancels the command on a single escape, with no second prompt behind it', () => {
+    setTerminal(100);
+    harness.reset();
+    harness.stateIndex = 0;
+    harness.refIndex = 0;
+    harness.effects = [];
+    const done = jest.fn();
+    view({ message: 'Connection:', rows: rowsOf(['h', 'u', undefined]) }, done);
+    harness.keypress({ name: 'escape' }, { line: '', clearLine: () => {} });
+    expect(done).toHaveBeenCalledTimes(1);
+    expect(done).toHaveBeenCalledWith(EXIT_ALL);
+    expect(harness.states[STATE.status]).toBe('escaped');
+    // No grace window: nothing waits for a second press.
+    expect(harness.states[STATE.escapeGraceOpen]).toBe(false);
   });
 });
