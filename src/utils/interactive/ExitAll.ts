@@ -47,7 +47,7 @@ export const EXIT_ALL_WINDOW_MS = 400;
 /**
  * The sentinel every escapable prompt resolves with when the user
  * double-pressed ESC. Distinct from the per-surface escape symbols
- * (ESCAPE / MULTISEL_ESCAPE / PAGE_ESCAPE / the value box's reject):
+ * (ESCAPE / MULTISEL_ESCAPE / the value box's reject):
  * those mean "back one level", this means "leave everything".
  */
 export const EXIT_ALL = Symbol('interactive:exitAll');

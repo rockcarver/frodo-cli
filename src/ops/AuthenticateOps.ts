@@ -130,6 +130,12 @@ export function setOpenBrowser(value: boolean): void {
 }
 
 /**
+ * Whether this process showed a browser-login step: told apart from a
+ * session reused from the cache when the command names who it runs as.
+ */
+let browserLoginPrompted = false;
+
+/**
  * Presents an interactive browser-login step on the CLI: launches the
  * system browser for the loopback-redirect flow, or prints the user code
  * and verification URL for the device-authorization flow.
@@ -148,6 +154,7 @@ export function setOpenBrowser(value: boolean): void {
 export const cliBrowserLoginPromptHandler: BrowserLoginPromptHandler = async (
   prompt: BrowserLoginPrompt
 ) => {
+  browserLoginPrompted = true;
   if (prompt.userCode && prompt.verificationUri) {
     printMessage(`To complete login, open this URL in any browser:`);
     printMessage(`  ${prompt.verificationUri}`);
@@ -209,6 +216,18 @@ export async function getTokens(
         state.getRealm() ? state.getRealm() : 'root'
       }] as ${tokens.subject}`
     );
+    // A browser or device login runs as whoever is signed in to the browser,
+    // which the command line does not say, so always name the account.
+    // Other logins keep the verbose line above: their account is the one
+    // that was passed in or saved.
+    if (state.getActiveCredentialSource() === 'browser') {
+      printMessage(
+        browserLoginPrompted
+          ? `Logged in as ${tokens.subject}`
+          : `Using the saved browser login of ${tokens.subject}`,
+        'info'
+      );
+    }
     // Post-auth realm picker: offers the target system's realms when the
     // command has a realm argument, the user left it at its default, the
     // resolution pass prompted for required connection input, and the system

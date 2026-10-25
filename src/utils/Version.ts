@@ -4,7 +4,7 @@ import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
 import Color from 'colors';
 import { compareVersions } from 'compare-versions';
-import pkg from '../../package.json';
+import pkg from '../../package.json' with { type: 'json' };
 
 const { getVersion, getBuildTimestamp, getAllVersions } = frodo.utils.version;
 

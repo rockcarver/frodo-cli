@@ -101,7 +101,8 @@ classic:  "openid"'
           return;
         }
         printMessage(
-          `Logged in to ${tokens.host} [${tokens.realm}] as ${tokens.subject}`
+          `Logged in to ${tokens.host} [${tokens.realm}] as ${tokens.subject}`,
+          'info'
         );
       } else {
         if (!(await getTokens())) {
@@ -111,7 +112,8 @@ classic:  "openid"'
         printMessage(
           `Logged in to ${state.getHost()} [${
             state.getRealm() ? state.getRealm() : 'root'
-          }]`
+          }]`,
+          'info'
         );
       }
 

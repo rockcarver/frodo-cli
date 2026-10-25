@@ -58,7 +58,7 @@ import {
 } from '../utils/interactive/ConnectionCredentials';
 import {
   connectionPage,
-  PAGE_ESCAPE,
+  type ConnectionPageRow,
 } from '../utils/interactive/ConnectionPagePrompt';
 import {
   applicableCommandDefaults,
@@ -92,7 +92,6 @@ import {
 import {
   canPrompt,
   promptInput,
-  promptPassword,
   promptsRendered,
 } from '../utils/interactive/PromptGate';
 import {
@@ -197,6 +196,26 @@ export function getOneOfGroups(
   command: Command
 ): (OptionRequirementSpec & { all: boolean })[] {
   return pendingOneOfGroups.get(command) ?? [];
+}
+
+const connectionPromptsSkippedWhen = new WeakMap<
+  Command,
+  (command: Command) => boolean
+>();
+
+/**
+ * Registers a predicate that says, for one invocation, that the command
+ * needs no connection at all, so the resolution pass opens neither the
+ * profile picker nor the Connection page. Called from
+ * FrodoCommand.skipConnectionPromptsWhen. The predicate runs in the
+ * resolution pass, after persisted defaults are applied, so it sees the
+ * same options the action will.
+ */
+export function deferSkipConnectionPrompts(
+  command: Command,
+  predicate: (command: Command) => boolean
+): void {
+  connectionPromptsSkippedWhen.set(command, predicate);
 }
 
 /**
@@ -306,7 +325,9 @@ export async function resolveInteractiveInputs(
   // value immediately, with no frame in between.
   connectionReadiness.set(command, false);
   const promptCountBeforeConnection = promptsRendered();
-  const connectionResolved = await resolveConnectionArgs(command);
+  const connectionResolved =
+    (connectionPromptsSkippedWhen.get(command)?.(command) ?? false) ||
+    (await resolveConnectionArgs(command));
   connectionReadiness.set(command, connectionResolved);
   noteRequiredInputPrompted(promptsRendered() > promptCountBeforeConnection);
   const mandatoryResolved = connectionResolved
@@ -493,6 +514,43 @@ export function commandPreviewFor(command: Command): string | undefined {
   if (!canPrompt()) return undefined;
   const readiness = commandReadinessFor(command);
   return readiness ? renderCommandPreview(command, readiness) : undefined;
+}
+
+/**
+ * The Connection page's LIVE footer: the command with the page's rows
+ * shadowed into its positionals (the serializer masks the password), green
+ * once every row the command declares holds a value. The page is the
+ * connection step's own prompt, so the connection counts as resolved when
+ * its rows are filled, not when the step ends (connectionReadiness stays
+ * false until then, which is why a one-shot footer never turned green).
+ * Like livePositionalPreview, the real positionals are only borrowed for
+ * this render. Undefined when prompting is disallowed.
+ */
+function connectionPagePreview(
+  command: Command,
+  rows: ConnectionPageRow[]
+): string | undefined {
+  const readiness = commandReadinessFor(command);
+  if (!readiness) return undefined;
+  const args = command.processedArgs;
+  const committed = new Map<number, unknown>();
+  for (const row of rows) {
+    const index = positionalIndex(command, row.key);
+    if (args && index !== -1 && row.value) {
+      committed.set(index, args[index]);
+      args[index] = row.value;
+    }
+  }
+  try {
+    return renderCommandPreview(command, {
+      ...readiness,
+      connectionResolved: rows
+        .filter((row) => positionalIndex(command, row.key) !== -1)
+        .every((row) => row.value),
+    });
+  } finally {
+    for (const [index, value] of committed) args[index] = value;
+  }
 }
 
 /**
@@ -1008,15 +1066,16 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
     if (!forcesUserLogin(command) && hasCachedBrowserSession(host)) return true;
   }
 
-  // The connection PAGE replaces the sequential username-then-
-  // password prompts. Rows carry the resolved current values + provenance
-  // (a username-only profile prefills the username row as before; env
-  // fallbacks show as "(from FRODO_USERNAME)" etc.); an empty commit on
-  // the masked password row keeps the stored value. Escape on the page
-  // falls back to today's sequential prompts (unchanged behavior).
+  // The connection PAGE is the only prompt for username and password.
+  // Rows carry the resolved current values + provenance (a username-only
+  // profile prefills the username row; env fallbacks show as "(from
+  // FRODO_USERNAME)" etc.); an empty commit on the masked password row
+  // keeps the stored value. The page opens on the first row without a
+  // value, its footer follows the rows, and Escape cancels the command:
+  // there is no second, unframed prompt behind it.
   const result = await connectionPage({
     message: 'Connection:',
-    preview: commandPreviewFor(command),
+    preview: (rows) => connectionPagePreview(command, rows),
     rows: [
       {
         key: 'host',
@@ -1027,7 +1086,11 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
       {
         key: 'username',
         label: 'username',
-        value: positionalValue(command, 'username') ?? state.getUsername(),
+        // state.getUsername() is '' (not undefined) when nothing set it, so
+        // `||` is what falls through to the saved profile's username.
+        value:
+          positionalValue(command, 'username') ??
+          (state.getUsername() || savedUsername),
         note: state.getUsername()
           ? 'from FRODO_USERNAME'
           : (profileNote ?? undefined),
@@ -1077,23 +1140,6 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
     // signal travels through the resolver, the preAction hook chain and
     // the action body to app.ts's top-level catch).
     throw EXIT_ALL_SIGNAL;
-  }
-  if (result === PAGE_ESCAPE) {
-    // Page declined: fall back to the pre-page sequential prompts.
-    if (usernameNeeded) {
-      const answer = await promptInput({
-        message: 'Username:',
-        default: savedUsername,
-      });
-      if (!answer) return false;
-      setPositionalValue(command, 'username', answer);
-    }
-    if (passwordNeeded) {
-      const answer = await promptPassword({ message: 'Password:' });
-      if (!answer) return false;
-      setPositionalValue(command, 'password', answer);
-    }
-    return true;
   }
   if (result.username) setPositionalValue(command, 'username', result.username);
   if (result.password) setPositionalValue(command, 'password', result.password);

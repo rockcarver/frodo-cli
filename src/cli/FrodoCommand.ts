@@ -40,6 +40,7 @@ import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
   deferMissingMandatoryOption,
   deferOneOfGroups,
+  deferSkipConnectionPrompts,
   getOneOfGroups,
   resolveInteractiveInputs,
   setActiveActionCommand,
@@ -2745,6 +2746,23 @@ export class FrodoStubCommand extends Command {
       this,
       groups.map((group) => ({ ...group, all: true }))
     );
+    return this;
+  }
+
+  /**
+   * Declares that this command needs no connection for some invocations,
+   * for example a bare `frodo conn set`, which only prints a list. When
+   * the predicate returns true the preAction resolution pass skips the
+   * connection step: no profile picker and no Connection page. The
+   * action still runs, and still decides for itself whether to log in.
+   * The predicate runs after persisted defaults are applied and receives
+   * the executing command, so it reads the same options the action will.
+   *
+   * @param predicate True when this invocation needs no connection.
+   * @returns This command for chaining.
+   */
+  skipConnectionPromptsWhen(predicate: (command: Command) => boolean): this {
+    deferSkipConnectionPrompts(this, predicate);
     return this;
   }
 

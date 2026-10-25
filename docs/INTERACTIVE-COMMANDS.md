@@ -43,7 +43,11 @@ hook, before the action body, and fills missing input in order:
    prompting then is pure friction). The username/password prompts run
    as a single connection page (`ConnectionPagePrompt.ts`) showing
    resolved values with provenance (`from profile X`, `from
-FRODO_USERNAME`).
+FRODO_USERNAME`). The page is the only prompt for them: it opens on the
+   first row without a value, its footer is the command as it would run
+   (red until every row has a value, then green, the password masked),
+   and `<esc>` cancels the command. No unframed `Username:`/`Password:`
+   prompt sits behind it.
 3. **Deferred mandatory options** — `FrodoCommand` overrides commander's
    `missingMandatoryOptionValue()` to DEFER violations into a registry
    instead of throwing at parse time; the pass then prompts for each
@@ -59,6 +63,11 @@ FRODO_USERNAME`).
    `frodo settings guided`), a multi-select over the command's optional
    options, with per-option value steps. `--save-defaults` persists
    what this editor commits.
+
+A command that needs no connection for some invocations says so with
+`skipConnectionPromptsWhen(predicate)`, and the pass then skips step 2
+for that invocation: bare `frodo conn set` only lists fields, so it
+opens neither the profile picker nor the Connection page.
 
 Injection writes BOTH `command.processedArgs` (what `action()` slices
 from) and `command.args` (what `handleDefaultArgsAndOpts` iterates) —

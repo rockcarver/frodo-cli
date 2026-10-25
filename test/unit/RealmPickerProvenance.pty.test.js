@@ -115,7 +115,11 @@ suite('default realm behavior, on a real terminal', () => {
           'cloud',
         ],
         actions: [
-          { type: 'wait_plain', regex: 'Error getting tokens', timeoutMs: 10000 },
+          {
+            type: 'wait_plain',
+            regex: 'Error getting tokens',
+            timeoutMs: 10000,
+          },
         ],
       });
       expect(result.plainOutput).not.toContain('Connection:');
@@ -139,7 +143,7 @@ suite('default realm behavior, on a real terminal', () => {
         args: ['journey', 'list', `http://127.0.0.1:${fakeAm.port}/am`],
         actions: [
           { type: 'wait_plain', regex: 'Connection:', timeoutMs: 60000 },
-          { type: 'key', name: 'down' },
+          // The page opens on the first row without a value: username.
           { type: 'key', name: 'enter' },
           { type: 'send', text: 'someone@example.com' },
           { type: 'key', name: 'enter' },
@@ -294,9 +298,9 @@ suite('default realm behavior, on a real terminal', () => {
         ],
       });
       expect(result.plainOutput).not.toContain('Choose a realm');
-      expect(
-        requestedUrls().some((url) => url.includes('/realms/root'))
-      ).toBe(true);
+      expect(requestedUrls().some((url) => url.includes('/realms/root'))).toBe(
+        true
+      );
     },
     TIMEOUT
   );
@@ -311,11 +315,9 @@ suite('default realm behavior, on a real terminal', () => {
           [`http://127.0.0.1:${fakeAm.port}/am`]: {},
         })
       );
-      const result = journeyList(
-        [],
-        [{ type: 'sleep', ms: 6000 }],
-        { FRODO_CONNECTION_PROFILES_PATH: profilesPath }
-      );
+      const result = journeyList([], [{ type: 'sleep', ms: 6000 }], {
+        FRODO_CONNECTION_PROFILES_PATH: profilesPath,
+      });
       expect(result.plainOutput).not.toContain('Choose a realm');
       expect(
         requestedUrls().some(

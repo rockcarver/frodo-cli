@@ -1,6 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import packageJson from '../../../../package.json';
+import packageJson from '../../../../package.json' with { type: 'json' };
 import {
   MCP_SERVER_VERSION,
   MCP_SUPPORTED_PROTOCOL_VERSIONS,
