@@ -28,9 +28,11 @@
 //
 // Install: copy workflows/related-repo-closer.yml to .github/workflows/related-repo-closer.yml and
 // scripts/related-repo-closer.mjs to .github/scripts/related-repo-closer.mjs. It imports
-// dependency-watch.mjs and reporter-notify.mjs (which imports janitor.mjs), so install them too.
+// dependency-watch.mjs, opt-out.mjs and reporter-notify.mjs (which imports janitor.mjs), so install them too.
+// An issue that carries `no-auto-processing`, canonical or original, is left alone ("Opting an item out").
 import { execFileSync } from 'node:child_process';
 import { parseRelatedRepos } from './dependency-watch.mjs';
+import { isOptedOut, optedOutReason } from './opt-out.mjs';
 import { ghApi, namesRef, parseLinks } from './reporter-notify.mjs';
 
 export const LABEL_CANONICAL = 'original-in-related-repo';
@@ -90,6 +92,7 @@ export function decide(issue, ctx) {
   if (issue.pull_request) return skip('a pull request');
   if (issue.state !== 'closed') return skip('the issue is not closed');
   if (issue.user && issue.user.type === 'Bot') return skip('opened by a bot');
+  if (isOptedOut(issue)) return skip(optedOutReason('issue'));
   const labels = new Set((issue.labels || []).map((l) => l.name || l));
   if (!labels.has(LABEL_CANONICAL)) return skip(`the issue does not carry ${LABEL_CANONICAL}`);
   // A canonical issue closed as not planned or as a duplicate has no fix to wait for, and what the
@@ -115,6 +118,11 @@ export function decide(issue, ctx) {
     const o = r.data;
     if (o.pull_request) {
       why.push(`${c.ref} is a pull request`);
+      continue;
+    }
+    // A person handles an original that carries the opt-out label: it gets no comment and is not closed.
+    if (isOptedOut(o)) {
+      why.push(`${c.ref}: ${optedOutReason('issue')}`);
       continue;
     }
     const oLabels = new Set((o.labels || []).map((l) => l.name || l));

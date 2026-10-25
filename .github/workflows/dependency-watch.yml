@@ -5,7 +5,8 @@
 # a release is published, or package.json changes on main.
 #
 # Install: copy this file to .github/workflows/dependency-watch.yml and
-# scripts/dependency-watch.mjs to .github/scripts/dependency-watch.mjs.
+# scripts/dependency-watch.mjs to .github/scripts/dependency-watch.mjs (it imports opt-out.mjs, so
+# install that too).
 name: "Concierge 1c ▸ Dependency Watch"
 
 on:
@@ -48,7 +49,9 @@ jobs:
     if: >-
       (github.event_name != 'issues' && github.event_name != 'pull_request_target')
       || (github.event_name == 'issues'
-          && (github.event.action == 'closed' || github.event.label.name == 'dependency-required'))
+          && (github.event.action == 'closed'
+              || (github.event.label.name == 'dependency-required'
+                  && !contains(github.event.issue.labels.*.name, 'no-auto-processing'))))
       || (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     timeout-minutes: 10

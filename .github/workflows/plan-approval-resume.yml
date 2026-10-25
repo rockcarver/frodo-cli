@@ -4,7 +4,8 @@
 # gate. A manual run does the same for an issue whose label was already removed.
 #
 # Install: copy this file to .github/workflows/plan-approval-resume.yml and
-# scripts/plan-approval-resume.mjs to .github/scripts/plan-approval-resume.mjs.
+# scripts/plan-approval-resume.mjs to .github/scripts/plan-approval-resume.mjs (it imports
+# janitor.mjs and opt-out.mjs, so install those too).
 name: "Concierge 2c ▸ Plan Approval Resume"
 
 on:
@@ -28,7 +29,7 @@ concurrency:
 jobs:
   resume:
     # On a label event, run only for the approval label.
-    if: github.event_name != 'issues' || github.event.label.name == 'plan-approval-required'
+    if: (github.event_name != 'issues' || github.event.label.name == 'plan-approval-required') && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

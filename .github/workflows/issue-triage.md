@@ -4,7 +4,7 @@ description: |
   Issue gate triage. Applies internal quality and priority labels.
   Any comment posted for the reporter uses plain language only.
   Skips planning when the issue is marked related-repo.
-if: ${{ github.event.issue.state == 'open' && github.event.issue.user.type != 'Bot' }}
+if: ${{ github.event.issue.state == 'open' && github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing') }}
 on:
   issues:
     types: [labeled]

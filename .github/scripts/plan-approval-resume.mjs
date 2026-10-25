@@ -6,6 +6,7 @@
 // to the PR gate by applying `plan-triage-handoff`. Rules: docs/multi-phase-design.md.
 import { execFileSync } from 'node:child_process';
 import { isCodingAgent } from './janitor.mjs';
+import { isOptedOut, optedOutReason } from './opt-out.mjs';
 
 export const MARKER = '<!-- plan-approval-resume -->';
 export const LABEL_APPROVAL = 'plan-approval-required';
@@ -38,6 +39,7 @@ export function decide(issue, removedLabel, actor) {
   const labels = new Set((issue.labels || []).map((l) => l.name || l));
   if (issue.pull_request) return { handoff: false, reason: 'pull request' };
   if (issue.state !== 'open') return { handoff: false, reason: 'issue is closed' };
+  if (isOptedOut(issue)) return { handoff: false, reason: optedOutReason('issue') };
   if (removedLabel !== undefined && removedLabel !== LABEL_APPROVAL) {
     return { handoff: false, reason: `unrelated label ${removedLabel}` };
   }

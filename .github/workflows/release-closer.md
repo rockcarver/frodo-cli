@@ -41,6 +41,8 @@ on:
           for (const issue of issues) {
             if (issue.pull_request) continue;
             const names = (issue.labels ?? []).map((label) => (typeof label === 'string' ? label : label.name));
+            // An issue that carries no-auto-processing is a person's: no label, no comment, no close ("Opting an item out").
+            if (names.includes('no-auto-processing')) continue;
             // An issue linked to a related repository is decided by the agent, from the version this repository pins.
             if (names.includes('related-repo')) continue;
             try {
@@ -126,6 +128,8 @@ This run was started by the release tagged `${{ github.event.release.tag_name }}
 Issues that wait for a release are usually **closed**: the pipeline closes an issue when its pull request merges and then adds `waiting-for-release`. Open issues with the label are the ones that wait on a related repository.
 
 List issues with `waiting-for-release` in both states. Call `list_issues` with `state: CLOSED` and again with `state: OPEN`, and check every issue from both lists. Never search only open issues, and never skip an issue because it is closed.
+
+Skip every issue that also carries `no-auto-processing`, in either list and in both sections below: a maintainer handles it by hand. Do not read it, label it, comment on it or close it, and do not mention it.
 
 ## This repository owns the fix
 
