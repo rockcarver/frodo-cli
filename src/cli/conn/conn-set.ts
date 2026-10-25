@@ -5,6 +5,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';
 import { printError, printMessage } from '../../utils/Console';
 import type { CredentialOverrideType } from '../../utils/interactive/ConnectionProfilePickers';
+import { positionalValue } from '../../utils/interactive/PositionalArgs';
 import { FrodoCommand, preferredCredentialOption } from '../FrodoCommand';
 
 const { loadConnectionProfileByHost, saveConnectionProfile } = frodo.conn;
@@ -88,6 +89,15 @@ export default function setup() {
         'Do not validate the connection after setting the fields.'
       )
     )
+    // Nothing to set and no host to set it on: the command only prints
+    // the list of fields, so the interactive step must not ask which
+    // profile or which credentials first.
+    .skipConnectionPromptsWhen(
+      (command) =>
+        !positionalValue(command, 'host') &&
+        !state.getHost() &&
+        namedFields(command.opts()).length === 0
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -111,13 +121,19 @@ export default function setup() {
       // order. commander's attributeName() is the flag's camelCase name
       // (verified: --log-api-key -> logApiKey), which is also the
       // options-object key.
-      const given = SETTABLE_FIELDS.filter(
-        (field) => options[camelCase(field.flag)] !== undefined
-      );
-      // Bare invocation (no host, no field options): the settable-fields
-      // reference (the `gh config` pattern).
-      if (!host && given.length === 0) {
-        printMessage('Settable connection profile fields:\n');
+      const given = namedFields(options);
+      // No field named, with or without a host: there is nothing to set.
+      // List the settable fields (the `gh config` pattern) instead of
+      // logging in and saving the profile unchanged under a success
+      // message. A bare `frodo conn set` skips the interactive connection
+      // step (see skipConnectionPromptsWhen above), so it arrives here with
+      // no host and nothing was asked first.
+      if (given.length === 0) {
+        printMessage(
+          host
+            ? `No field was named, so ${host} is unchanged. Settable connection profile fields:\n`
+            : 'Settable connection profile fields:\n'
+        );
         for (const field of SETTABLE_FIELDS) {
           printMessage(
             `  ${field.flag}${field.valuePlaceholder ? ` <${field.valuePlaceholder}>` : ''}  ${field.description}`
@@ -171,6 +187,13 @@ export default function setup() {
     });
 
   return program;
+}
+
+/** The settable fields named on this invocation, in registry order. */
+function namedFields(options: Record<string, unknown>): SettableField[] {
+  return SETTABLE_FIELDS.filter(
+    (field) => options[camelCase(field.flag)] !== undefined
+  );
 }
 
 /** commander's option-attribute convention: --log-api-key -> logApiKey. */

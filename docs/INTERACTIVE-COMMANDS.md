@@ -60,6 +60,11 @@ FRODO_USERNAME`).
    options, with per-option value steps. `--save-defaults` persists
    what this editor commits.
 
+A command that needs no connection for some invocations says so with
+`skipConnectionPromptsWhen(predicate)`, and the pass then skips step 2
+for that invocation: bare `frodo conn set` only lists fields, so it
+opens neither the profile picker nor the Connection page.
+
 Injection writes BOTH `command.processedArgs` (what `action()` slices
 from) and `command.args` (what `handleDefaultArgsAndOpts` iterates) —
 commander's `_processArguments` never writes back, so a single-surface
