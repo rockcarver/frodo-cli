@@ -7,7 +7,7 @@
 //     the fix reaches the reporter (`release.requires_consumer_release`), the original stays open
 //     and gets `waiting-for-release` and a comment;
 //   - otherwise it gets a comment and is closed.
-// Rules and the reasons for them: docs/multi-phase-design.md, "Split-repo routing"; record 0026.
+// Rules and the reasons for them: docs/multi-phase-design.md, "Split-repo routing"; record 0027.
 //
 // It used to be a model run. The model was given the closed issue and had to name the original in
 // its outputs, and on frodo-lib#806 it named the closed issue itself, so the write to the other
@@ -17,7 +17,10 @@
 // Trust. The closed issue's text is not trusted: the `Reported from` line only names a candidate.
 // The candidate must be in this repository's related-repos.md, must carry `related-repo`, and must
 // have a comment by `github-actions[bot]` that names this issue, the same proof reporter-notify
-// uses. Only a canonical issue opened by someone with a role in this repository counts.
+// uses. Who opened the canonical issue is not asked: GitHub reports an author's association relative to what the
+// reading token can see, and the workflow token does not see a private organization membership, so an issue that
+// a maintainer opened looked like a stranger's (frodo-lib#806, found on the first live run). The proof of the link
+// is what stops a forged one: a stranger's issue cannot make a comment from the harness name it.
 //
 // Reads use the workflow token (public repositories only, like reporter-notify). Writes to the
 // other repository use CROSS_REPO_TOKEN, which the updater generates from related-repos.md into
@@ -35,8 +38,6 @@ export const LABEL_ORIGINAL = 'related-repo';
 export const LABEL_WAITING = 'waiting-for-release';
 export const MARKER = '<!-- related-repo-closer:';
 const BOT = 'github-actions[bot]';
-// Closed by someone with a role here. GitHub reports it on the issue itself, so it costs no request.
-const TRUSTED_AUTHORS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 const MAX_PAGES = 5;
 
 const lower = (s) => String(s || '').toLowerCase();
@@ -91,9 +92,6 @@ export function decide(issue, ctx) {
   if (issue.user && issue.user.type === 'Bot') return skip('opened by a bot');
   const labels = new Set((issue.labels || []).map((l) => l.name || l));
   if (!labels.has(LABEL_CANONICAL)) return skip(`the issue does not carry ${LABEL_CANONICAL}`);
-  if (!TRUSTED_AUTHORS.has(String(issue.author_association || '').toUpperCase())) {
-    return skip('opened by someone without a role in this repository');
-  }
   // A canonical issue closed as not planned or as a duplicate has no fix to wait for, and what the
   // original should say then is a maintainer's call.
   if (issue.state_reason && issue.state_reason !== 'completed') {
