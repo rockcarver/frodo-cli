@@ -4,12 +4,14 @@
 // where it has been. A gate label is a signal: once the next signal exists, the
 // earlier one goes. When an issue closes, the labels that describe open work go
 // too. Classification and outcome labels (complexity, risk, duplicate, released,
-// and so on) are never touched. Rules: docs/multi-phase-design.md, "Label lifecycle".
+// and so on) are never touched, and neither is any item that carries `no-auto-processing`.
+// Rules: docs/multi-phase-design.md, "Label lifecycle" and "Opting an item out".
 //
 // A second task, `--held-runs`, deletes the runs GitHub holds for approval that approving
 // could only turn into a skipped run or into CI for a commit that is no longer the head (see
 // DISPOSABLE_HELD_RUNS and disposableReason). Rules: docs/multi-phase-design.md, "Held runs".
 import { execFileSync } from 'node:child_process';
+import { isOptedOut, optedOutReason } from './opt-out.mjs';
 
 /** Gate labels in the order a work item passes through them, per object type. */
 export const GATE = {
@@ -195,6 +197,11 @@ export async function run(opts, ctx) {
   const failures = [];
   for (const item of [...items.values()].sort((a, b) => a.number - b.number)) {
     const kind = item.pull_request ? 'pull request' : 'issue';
+    // An opted-out item keeps its labels exactly as a person left them, even a stale gate label.
+    if (isOptedOut(item)) {
+      ctx.log(`#${item.number} (${kind}, ${item.state}): skipped, ${optedOutReason(kind)}`);
+      continue;
+    }
     const stale = staleLabels({
       labels: (item.labels || []).map((l) => l.name || l),
       state: item.state,

@@ -6,7 +6,8 @@
 // subscribes them to the thread:
 //   - the link notice, once, when the canonical issue is first linked ("Original report: ...");
 //   - the request notice, once per request for information, while the issue is `needs-info`.
-// Rules and the reasons for them: docs/multi-phase-design.md, "Split-repo routing".
+// Rules and the reasons for them: docs/multi-phase-design.md, "Split-repo routing". Nothing is posted
+// for an issue that carries `no-auto-processing`, or whose original does ("Opting an item out").
 //
 // The login is never taken from text. It is the author of the original issue as GitHub returns
 // it, and only after the original issue proves it is the one this issue was opened from: it
@@ -14,6 +15,7 @@
 // issue. Issue text is attacker-controlled; a bot comment is not.
 import { execFileSync } from 'node:child_process';
 import { isCodingAgent } from './janitor.mjs';
+import { isOptedOut, optedOutReason } from './opt-out.mjs';
 
 export const LABEL_WAITING = 'needs-info';
 export const LABEL_LINKED = 'related-repo';
@@ -109,6 +111,8 @@ function confirmOriginal(issue, ctx) {
     if (!original || original.status !== 200 || !original.data) continue; // private, deleted or an API error
     const o = original.data;
     if (o.pull_request) continue;
+    // The original carries the opt-out label: a person handles that report, the Concierge says nothing to its reporter.
+    if (isOptedOut(o)) return no(`the linked original report: ${optedOutReason('issue')}`);
     const oLabels = new Set((o.labels || []).map((l) => l.name || l));
     if (!oLabels.has(LABEL_LINKED)) { // not linked yet, or unlinked by a maintainer
       pending = true;
@@ -149,6 +153,7 @@ export function notifyLink(issue, ctx) {
   const skip = (reason, extra = {}) => ({ notified: false, reason, ...extra });
   if (issue.pull_request) return skip('pull request');
   if (issue.state !== 'open') return skip('issue is closed');
+  if (isOptedOut(issue)) return skip(optedOutReason('issue'));
 
   const c = confirmOriginal(issue, ctx);
   if (!c.ok) return skip(c.reason, c.retry ? { retry: true } : {});
@@ -197,6 +202,7 @@ export function notify(issue, ctx) {
   const labels = new Set((issue.labels || []).map((l) => l.name || l));
   if (issue.pull_request) return skip('pull request');
   if (issue.state !== 'open') return skip('issue is closed');
+  if (isOptedOut(issue)) return skip(optedOutReason('issue'));
   if (!labels.has(LABEL_WAITING)) return skip('the issue is not waiting for information');
 
   const c = confirmOriginal(issue, ctx);

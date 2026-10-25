@@ -5,6 +5,7 @@
 // gates when every dependency is satisfied. Rules: shared/dependencies.md.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import { isOptedOut, optedOutReason } from './opt-out.mjs';
 
 export const BOT_MARKER = '<!-- dependency-watch -->';
 export const LABEL_REQUIRED = 'dependency-required';
@@ -339,6 +340,11 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
     if (issue.pull_request) continue;
     // Only issues that are waiting on a dependency are ever touched.
     if (!(issue.labels || []).some((l) => (l.name || l) === LABEL_REQUIRED)) continue;
+    // An opted-out issue is never evaluated, commented on or relabelled, whatever it waits for.
+    if (isOptedOut(issue)) {
+      console.log(`#${issue.number}: skipped (${optedOutReason('issue')})`);
+      continue;
+    }
     try {
       const comments = ghJson(`repos/${thisRepo}/issues/${issue.number}/comments?per_page=100`, readToken) || [];
       const verdict = await evaluateIssue(issue, comments, ctx);

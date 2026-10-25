@@ -5,14 +5,17 @@ description: |
   Guides reporters only through comments; never mentions internal labels.
   Prefers the repository issue template as the definition of a complete issue.
   For split-repo projects, creates a linked canonical issue and marks the original with related-repo.
-if: ${{ (github.event_name == 'workflow_dispatch' || github.event.issue.state == 'open') && github.event.issue.user.type != 'Bot' && github.event.comment.user.type != 'Bot' && github.event.issue.pull_request == null }}
+# An issue that carries no-auto-processing starts nothing; removing the label (an `unlabeled` event for that label only,
+# no other label) hands the issue over, once. A manual dispatch has no issue payload, so it is always allowed: it is the
+# explicit way to start intake for one issue ("Opting an item out" in docs/multi-phase-design.md).
+if: ${{ (github.event_name == 'workflow_dispatch' || github.event.issue.state == 'open') && github.event.issue.user.type != 'Bot' && github.event.comment.user.type != 'Bot' && github.event.issue.pull_request == null && !contains(github.event.issue.labels.*.name, 'no-auto-processing') && (github.event.action != 'unlabeled' || github.event.label.name == 'no-auto-processing') }}
 on:
   # Reporters are the audience of this gate and most of them have no write access, so gh-aw's
   # default role check (admin, maintainer, write) would skip their issues without a word. Every
   # other gate keeps the default: they start from a label added with write access.
   roles: all
   issues:
-    types: [opened, reopened, edited]
+    types: [opened, reopened, edited, unlabeled]
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -71,7 +74,7 @@ timeout-minutes: 5
 # Issue Worker
 
 ## Target issue
-- Issue event → analyze issue #${{ github.event.issue.number }}.
+- Issue event → analyze issue #${{ github.event.issue.number }}. When the event is a label being removed, a maintainer has just handed an issue to the pipeline that was kept out of it: treat it like a newly opened issue, and never mention the label or its removal in a comment.
 - Comment event → analyze the issue the comment belongs to (ignore bot comments).
 - workflow_dispatch → analyze issue #${{ github.event.inputs.issue_number }}.
   If that value is empty, do nothing.

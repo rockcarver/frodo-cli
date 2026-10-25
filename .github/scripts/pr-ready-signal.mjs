@@ -11,6 +11,7 @@
 // a maintainer's approval) and it repeats after every feedback round.
 import { execFileSync } from 'node:child_process';
 import { isCodingAgent } from './janitor.mjs';
+import { isOptedOut, optedOutReason } from './opt-out.mjs';
 
 export const LABEL = 'pr-worker-ready';
 
@@ -35,6 +36,7 @@ export function decideSweep({ pr, events }) {
   if (!pr) return { add: false, reason: 'no pull request found' };
   if (pr.state !== 'open' || pr.merged) return { add: false, reason: 'pull request is not open' };
   if (!isCodingAgent(pr.user?.login)) return { add: false, reason: 'not a coding agent pull request' };
+  if (isOptedOut(pr)) return { add: false, reason: optedOutReason('pull request') };
   const labels = new Set((pr.labels || []).map((l) => l.name || l));
   if (labels.has(LABEL)) return { add: false, reason: 'already signalled' };
   const started = pickLatest(events, (e) => e.event === 'copilot_work_started');
@@ -55,6 +57,7 @@ export function decide({ pr, trigger }) {
   if (!pr) return { add: false, reason: 'no pull request found' };
   if (pr.state !== 'open' || pr.merged) return { add: false, reason: 'pull request is not open' };
   if (!isCodingAgent(pr.user?.login)) return { add: false, reason: 'not a coding agent pull request' };
+  if (isOptedOut(pr)) return { add: false, reason: optedOutReason('pull request') };
   const labels = new Set((pr.labels || []).map((l) => l.name || l));
   if (labels.has(LABEL)) return { add: false, reason: 'already signalled' };
   return { add: true, reason: trigger };

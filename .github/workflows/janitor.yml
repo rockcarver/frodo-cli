@@ -13,7 +13,7 @@
 # close, hourly as a sweep for anything missed, and on demand.
 #
 # Install: copy this file to .github/workflows/janitor.yml and
-# scripts/janitor.mjs to .github/scripts/janitor.mjs. No secret is needed: removing a label
+# scripts/janitor.mjs to .github/scripts/janitor.mjs (it imports opt-out.mjs, so install that too). No secret is needed: removing a label
 # starts nothing, and deleting a run needs only `actions: write` on the default token (the sweep
 # also reads pull requests, hence `pull-requests: read` on its job only).
 name: "Concierge 4a ▸ Janitor"
@@ -61,9 +61,12 @@ jobs:
   clean:
     # A label event starts the job only for the labels that can change the answer.
     # Keep this list identical to TRIGGER_LABELS in scripts/janitor.mjs (a test checks it).
+    # An item that carries no-auto-processing is left alone ("Opting an item out" in docs/multi-phase-design.md).
     if: >-
-      github.event.action != 'labeled'
-      || contains(fromJSON('["issue-worker-ready","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","pr-worker-ready","pr-triage-handoff","backlog","needs-info","dependency-required","scope-review","out-of-scope","duplicate","invalid","already-fixed","spam","plan-approval-required"]'), github.event.label.name)
+      (github.event.action != 'labeled'
+      || contains(fromJSON('["issue-worker-ready","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","pr-worker-ready","pr-triage-handoff","backlog","needs-info","dependency-required","scope-review","out-of-scope","duplicate","invalid","already-fixed","spam","plan-approval-required"]'), github.event.label.name))
+      && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
+      && !contains(github.event.pull_request.labels.*.name, 'no-auto-processing')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

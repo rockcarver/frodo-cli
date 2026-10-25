@@ -8,6 +8,7 @@ on:
 if: >-
   github.event.label.name == 'pr-worker-ready'
   && github.event.pull_request.head.repo.id == github.repository_id
+  && !contains(github.event.pull_request.labels.*.name, 'no-auto-processing')
 checkout: false
 # gh-aw's default group for pull-request triggers is one per pull request with cancel-in-progress. Triage's
 # own labels (complexity, risk, handoff) each start a run that the `if:` skips, but a skipped run still enters

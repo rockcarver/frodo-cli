@@ -17,6 +17,7 @@ if: >-
   && github.event.issue.user.type != 'Bot'
   && !contains(github.event.issue.labels.*.name, 'dependency-required')
   && !contains(github.event.issue.labels.*.name, 'plan-approval-required')
+  && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
   && needs.pre_activation.outputs.existing_fix_result != 'failure' }}
 on:
   # The pre-activation job runs before the agent and gets no repository permissions by default.
@@ -32,7 +33,7 @@ on:
     # means "do not hand this issue to the coding agent", and the `if:` above reads it.
     - name: Stop when the issue is closed, held, or an open pull request already closes it
       id: existing_fix
-      if: github.event.label.name == 'plan-triage-handoff' && github.event.issue.state == 'open'
+      if: github.event.label.name == 'plan-triage-handoff' && github.event.issue.state == 'open' && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
       continue-on-error: true
       uses: actions/github-script@v9
       with:

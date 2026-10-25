@@ -16,8 +16,8 @@
 # comment written with the workflow token starts no workflow, so this cannot loop.
 #
 # Install: copy this file to .github/workflows/reporter-notify.yml and
-# scripts/reporter-notify.mjs to .github/scripts/reporter-notify.mjs (it imports janitor.mjs,
-# so install both together).
+# scripts/reporter-notify.mjs to .github/scripts/reporter-notify.mjs (it imports janitor.mjs
+# and opt-out.mjs, so install all three together).
 name: "Concierge 1d ▸ Reporter Notify"
 
 on:
@@ -42,7 +42,7 @@ jobs:
   notify:
     # By hand: always. On an event: an open issue that is not a pull request and has a
     # `Reported from` line, when it is opened or when one of the three labels is applied.
-    if: github.event_name == 'workflow_dispatch' || (github.event.issue.state == 'open' && github.event.issue.pull_request == null && contains(github.event.issue.body, 'Reported from ') && (github.event.action == 'opened' || github.event.label.name == 'plan-approval-required' || github.event.label.name == 'issue-worker-ready' || github.event.label.name == 'needs-info'))
+    if: github.event_name == 'workflow_dispatch' || (github.event.issue.state == 'open' && github.event.issue.pull_request == null && !contains(github.event.issue.labels.*.name, 'no-auto-processing') && contains(github.event.issue.body, 'Reported from ') && (github.event.action == 'opened' || github.event.label.name == 'plan-approval-required' || github.event.label.name == 'issue-worker-ready' || github.event.label.name == 'needs-info'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

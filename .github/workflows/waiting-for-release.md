@@ -10,6 +10,7 @@ description: |
 # conditions. A lookup that cannot be made never blocks the agent (the prompt applies the same rule).
 if: >-
   ${{ github.event.issue.user.type != 'Bot'
+  && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
   && needs.pre_activation.outputs.closed_by_merge_result != 'failure' }}
 on:
   # The pre-activation job runs before the agent and gets no repository permissions by default.
@@ -24,7 +25,7 @@ on:
     # "nothing is waiting for a release here", and the `if:` above reads it.
     - name: Stop when no pull request or commit closed the issue
       id: closed_by_merge
-      if: github.event.issue.user.type != 'Bot'
+      if: github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
       continue-on-error: true
       uses: actions/github-script@v9
       with:
