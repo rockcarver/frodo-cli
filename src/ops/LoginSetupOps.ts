@@ -10,7 +10,7 @@ import { printMessage } from '../utils/Console';
 // gate their own destructive steps (docs/INTERACTIVE-COMMANDS.md,
 // layering).
 import { escapableSelect } from '../utils/interactive/EscapableSelectPrompt';
-import OAUTH2_CLIENT_TEMPLATE from './templates/OAuth2ClientTemplate.json';
+import OAUTH2_CLIENT_TEMPLATE from './templates/OAuth2ClientTemplate.json' with { type: 'json' };
 import { cloneDeep } from './utils/OpsUtils';
 
 const constants = frodo.utils.constants;

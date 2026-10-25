@@ -1,5 +1,5 @@
 import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/server';
-import packageJson from '../../package.json';
+import packageJson from '../../package.json' with { type: 'json' };
 import { getCliBuildTimestamp } from '../utils/Version';
 
 const MCP_LATEST_PROTOCOL_VERSION = '2026-07-28';
