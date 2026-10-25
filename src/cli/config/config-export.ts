@@ -72,13 +72,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-R, --read-only',
-        'Export read-only config (with the exception of default scripts) in addition to the importable config.'
+        'Export read-only config (with the exception of default scripts) in addition to the importable config. On Identity Cloud this adds a root realm, which holds read-only authorization config.'
       )
     )
     .addOption(
       new Option(
         '-r, --realm-only',
-        'Export only the config for the active realm. If -g, --global-only is also active, then the global config will also be exported.'
+        'Export only the config for the active realm (on Identity Cloud alpha, unless you name another realm after the host). If -g, --global-only is also active, then the global config will also be exported.'
       )
     )
     .addOption(
@@ -111,10 +111,15 @@ export default function setup() {
         c.positive(
           `  Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment (--target parameter). Frodo never exports secrets in the clear.\n\n`
         ) +
+        c.positive(`Realms on Identity Cloud:\n`) +
+        `  A default export holds the global config and the alpha and bravo realms. Identity Cloud denies access to most root realm config, so the root realm is only exported with -R, --read-only, and then only as read-only authorization config (policies, policy sets, resource types and the like).\n` +
+        `  Use -r to limit the export to the active realm and -g to limit it to the global config. Use both for the global config plus the active realm.\n\n` +
         `Usage Examples:\n` +
         `  Export global and realm configuration for version control (e.g. Git) into the current directory.\n` +
         `  Note that -A exports everything to separate files in the -D directory and, unless you add -x (--no-extract), scripts and server properties are extracted into files of their own, which makes changes to them easier to track, and -N removes metadata since it changes every export (you may consider using --no-coords as well if you don't care to track node positions in journeys):\n` +
         c.command(`  $ frodo config export -AND . ${s.connId}\n`) +
+        `  Export the global config and only the active realm for version control (on Identity Cloud the active realm is alpha unless you name another one after the connection profile, for example bravo):\n` +
+        c.command(`  $ frodo config export -rgAND . ${s.connId}\n`) +
         `  Export global and realm configuration from cloud to be later imported into a classic, on-prem deployment.\n` +
         `  Note -dR is used for exporting all read-only config from cloud since certain cloud read-only config (like the realm config) can be imported into a classic on-prem deployment:\n` +
         c.command(`  $ frodo config export -adR ${s.connId}\n`) +
