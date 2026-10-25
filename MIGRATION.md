@@ -43,6 +43,25 @@ references by default. Pass `--no-validate` to restore the previous behavior.
 
 - Dropped support for Node.js 18 and 20; Node.js 22, 24, and 26 are tested.
 
+**Export extraction is the default, and `-x` now means the opposite.** In 3.x
+the export commands extracted scripts and server properties into separate
+files only when asked (`-x, --extract`). In 4.x they extract by default, and
+`-x, --no-extract` turns extraction off. A 3.x command line that passes `-x`
+still runs, but it now keeps that content inline. The long form `--extract`
+no longer exists and is rejected. This affects `config export`,
+`script export` and `server export`.
+
+| 3.x command line                | Same result in 4.x and later    |
+| ------------------------------- | ------------------------------- |
+| `frodo config export -A -x ...` | `frodo config export -A ...`    |
+| `frodo config export -A ...`    | `frodo config export -A -x ...` |
+
+**Removed option**:
+
+| Removed option                                            | Replacement                                                      |
+| --------------------------------------------------------- | ---------------------------------------------------------------- |
+| `-s, --separate-mappings` (`config export`, `idm export`) | None needed: sync mappings are always written to separate files. |
+
 ---
 
 ## Maintaining This Guide
