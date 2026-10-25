@@ -28,6 +28,8 @@ export const RELATED_PATH = '.github/agentic-workflows/related-repos.md';
 export const BRANCH = 'concierge/update';
 export const MANIFEST_ASSET = 'release-manifest.json';
 const CROSS_REPO_MARKER = /^([ \t]*)# concierge:cross-repo[ \t]*\n/gm;
+// The same settings for a plain workflow, as the environment of a step instead of safe-output keys.
+const CROSS_REPO_ENV_MARKER = /^([ \t]*)# concierge:cross-repo-env[ \t]*\n/gm;
 
 const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
 const lockOf = (dest) => dest.replace(/\.md$/, '.lock.yml');
@@ -105,13 +107,22 @@ export function selectRelated(relatedText) {
   return { related: withSecret[0] || null, warnings };
 }
 
-/** Replace each `# concierge:cross-repo` marker with the generated settings, or remove it. */
+/**
+ * Replace each `# concierge:cross-repo` marker (in a definition) with the generated safe-output settings, and each
+ * `# concierge:cross-repo-env` marker (in a plain workflow) with the generated environment, or remove it.
+ */
 export function applyCrossRepo(text, related) {
-  return text.replace(CROSS_REPO_MARKER, (_m, indent) =>
-    related
-      ? `${indent}github-token: \${{ secrets.${related.secret} }}\n${indent}allowed-repos: ["${related.repo}"]\n`
-      : ''
-  );
+  return text
+    .replace(CROSS_REPO_MARKER, (_m, indent) =>
+      related
+        ? `${indent}github-token: \${{ secrets.${related.secret} }}\n${indent}allowed-repos: ["${related.repo}"]\n`
+        : ''
+    )
+    .replace(CROSS_REPO_ENV_MARKER, (_m, indent) =>
+      related
+        ? `${indent}CROSS_REPO: ${related.repo}\n${indent}CROSS_REPO_TOKEN: \${{ secrets.${related.secret} }}\n`
+        : ''
+    );
 }
 
 /** What a release installs: dest path -> { content, kind }. */
@@ -120,7 +131,7 @@ export function buildDesired({ manifest, contents, related }) {
   for (const f of manifest.files) {
     if (!f.dest) continue;
     let content = contents.get(f.path);
-    if (f.kind === 'definition') content = Buffer.from(applyCrossRepo(content.toString('utf8'), related));
+    if (f.kind === 'definition' || f.kind === 'workflow') content = Buffer.from(applyCrossRepo(content.toString('utf8'), related));
     out.set(f.dest, { content, kind: f.kind });
   }
   return out;

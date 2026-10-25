@@ -3,7 +3,8 @@
 # Fails when the compiled workflows cannot do what
 # .github/agentic-workflows/related-repos.md promises: for every related
 # repository that names a secret, the issue worker must be able to create
-# issues there and the related-repo closer to comment, label and close there.
+# issues there and the related-repo closer (a plain workflow, with CROSS_REPO and
+# CROSS_REPO_TOKEN written into it by the updater) to comment, label and close there.
 # It also prints notices, and never fails, when the repository has neither
 # AGENTS.md nor .github/copilot-instructions.md (template: shared/agents.md) and
 # when it has no docs/decisions/ folder (or decisions/ at the repository root
@@ -20,6 +21,7 @@ on:
     paths:
       - '.github/workflows/*.md'
       - '.github/workflows/*.lock.yml'
+      - '.github/workflows/related-repo-closer.yml'
       - '.github/agentic-workflows/**'
       - '.github/scripts/check-deployment.mjs'
   workflow_dispatch:

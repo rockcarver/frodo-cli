@@ -4,7 +4,8 @@
 // do what .github/agentic-workflows/related-repos.md promises: for every
 // related repository that names a secret, the issue worker may create issues
 // there and the related-repo closer may comment, label and close there, with
-// that secret. Reads the compiled .lock.yml files, because they are what runs.
+// that secret. Reads the compiled .lock.yml of the issue worker and the text of
+// the closer's plain workflow, because they are what runs.
 // It cannot tell whether the secret exists or what the token may do; that is a
 // manual check (docs/deployment.md).
 //
@@ -16,10 +17,14 @@ import fs from 'node:fs';
 import { parseRelatedRepos } from './dependency-watch.mjs';
 
 /** Safe outputs a related repository must be reachable through, per compiled workflow. */
-export const REQUIREMENTS = [
-  { file: 'issue-worker.lock.yml', outputs: ['create_issue'] },
-  { file: 'related-repo-closer.lock.yml', outputs: ['add_comment', 'add_labels', 'close_issue'] },
-];
+export const REQUIREMENTS = [{ file: 'issue-worker.lock.yml', outputs: ['create_issue'] }];
+
+/**
+ * The plain workflow that writes to a related repository with the environment the updater generates
+ * (`CROSS_REPO` and `CROSS_REPO_TOKEN`, from the `# concierge:cross-repo-env` marker).
+ */
+export const CLOSER = 'related-repo-closer.yml';
+const CLOSER_MARKER = '# concierge:cross-repo-env';
 
 /** The files that tell coding agents how to work on the repository; either one is enough. */
 export const GUIDANCE_FILES = ['AGENTS.md', '.github/copilot-instructions.md'];
@@ -64,9 +69,13 @@ export function readSafeOutputsConfig(lockText) {
   }
 }
 
+/** The value of `NAME: value` in a workflow's text, or undefined. */
+const envValue = (text, name) => text.match(new RegExp(`^\\s*${name}:\\s*(.+?)\\s*$`, 'm'))?.[1];
+
 /**
- * Compare related-repos.md with the compiled workflows.
- * `locks` maps a lock file name to its text (missing files are absent).
+ * Compare related-repos.md with the workflows that write to a related repository.
+ * `locks` maps a file name (a compiled .lock.yml, or the closer's plain workflow) to its text
+ * (missing files are absent).
  */
 export function checkDeployment(relatedText, locks) {
   const errors = [];
@@ -87,6 +96,25 @@ export function checkDeployment(relatedText, locks) {
         `${rel.repo}: related-repos.md names no secret, so the issue worker cannot open issues there and the related-repo closer cannot update it`
       );
       continue;
+    }
+    if (!(CLOSER in locks)) {
+      errors.push(`${CLOSER}: not found; ${rel.repo} needs it`);
+    } else {
+      const text = String(locks[CLOSER]);
+      if (text.includes(CLOSER_MARKER) && envValue(text, 'CROSS_REPO') === undefined && envValue(text, 'CROSS_REPO_TOKEN') === undefined) {
+        // The update that first installs the closer is made by the updater of the release before, which does not know
+        // the marker yet. That is a state to finish, not a mistake: the next run of the updater writes the lines.
+        warnings.push(
+          `${CLOSER}: still has the ${CLOSER_MARKER} marker, so CROSS_REPO and CROSS_REPO_TOKEN were not written: the updater that installed it predates the marker. Run the Concierge updater again (concierge-updater.yml, with target set to the pinned release); until then the closer updates nothing in ${rel.repo}`
+        );
+      } else {
+        if (envValue(text, 'CROSS_REPO') !== rel.repo) {
+          errors.push(`${CLOSER}: CROSS_REPO is not ${rel.repo}, so the closer cannot update issues there; run the Concierge updater, which writes it from related-repos.md`);
+        }
+        if (envValue(text, 'CROSS_REPO_TOKEN') !== `\${{ secrets.${rel.secret} }}`) {
+          errors.push(`${CLOSER}: CROSS_REPO_TOKEN does not use the secret ${rel.secret}; run the Concierge updater, which writes it from related-repos.md`);
+        }
+      }
     }
     const token = '${GH_AW_SECRET_' + rel.secret + '}';
     for (const { file, outputs } of REQUIREMENTS) {
@@ -154,7 +182,7 @@ export function main(cwd = process.cwd()) {
     return 0;
   }
   const locks = {};
-  for (const { file } of REQUIREMENTS) {
+  for (const file of [...REQUIREMENTS.map((r) => r.file), CLOSER]) {
     const p = `${cwd}/.github/workflows/${file}`;
     if (fs.existsSync(p)) locks[file] = fs.readFileSync(p, 'utf8');
   }
