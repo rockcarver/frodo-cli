@@ -1,9 +1,9 @@
 ---
 name: "Concierge 4b Related Repo Closer"
 description: |
-  When a canonical issue is closed, close the linked non-canonical issue
-  that carries the related-repo label.
-if: ${{ github.event.issue.user.type != 'Bot' }}
+  When a canonical issue (one that carries original-in-related-repo) is closed,
+  close the linked non-canonical issue that carries the related-repo label.
+if: ${{ github.event.issue.user.type != 'Bot' && contains(github.event.issue.labels.*.name, 'original-in-related-repo') }}
 on:
   issues:
     types: [closed]
@@ -44,7 +44,7 @@ timeout-minutes: 3
 
 # Related-repo closer
 
-Triggered when an issue is closed.
+Triggered when an issue is closed. The activation condition already checked that the closed issue carries `original-in-related-repo`, so it was opened from an issue in a related repository; do not look at any other closed issue.
 
 ## Task
 Look at the closed issue body and comments for a line of the form:
