@@ -2,9 +2,77 @@
 name: "Concierge 4d Release Closer"
 description: |
   When a release is published, mark included issues as released.
+# The release notes are written for people and name only the changes they describe, so a fix that has no
+# entry in them (a test, a documentation change) is invisible to a model that reads the notes: frodo-lib#762
+# was fixed in #775, which is part of v5.0.0-13, and stayed `waiting-for-release` after that release. What a
+# release contains is a question for git, not for a model: the `included_fixes` step below runs before the
+# agent, with no model, and moves every issue whose `Fixed in #N.` comment (written by the Waiting for Release
+# gate) names a pull request whose merge commit is an ancestor of the tag. The agent then finds the labels of
+# those issues gone and checks the rest by the notes (docs/multi-phase-design.md, "Which fixes a release contains").
 on:
   release:
     types: [published, prereleased]
+  # The pre-activation job runs before the agent and gets no repository permissions by default. The step
+  # swaps a label and posts one comment, so it needs `issues: write`; it reads pull requests and compares commits.
+  permissions:
+    issues: write
+    pull-requests: read
+    contents: read
+  steps:
+    # Deterministic, no model, and never blocking: a failure here is a warning, because the agent still has
+    # to run for the issues this step cannot decide (the notes name them, or a related repository holds the fix).
+    - name: Move the issues whose fix pull request is part of this release
+      id: included_fixes
+      continue-on-error: true
+      uses: actions/github-script@v9
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          const tag = context.payload.release.tag_name;
+          const WAITING = 'waiting-for-release';
+          const RELEASED = 'released';
+          let issues;
+          try {
+            issues = await github.paginate(github.rest.issues.listForRepo, { owner, repo, labels: WAITING, state: 'all', per_page: 100 });
+          } catch (error) {
+            core.warning(`Could not list the issues that wait for a release: ${error.message}`);
+            return;
+          }
+          for (const issue of issues) {
+            if (issue.pull_request) continue;
+            const names = (issue.labels ?? []).map((label) => (typeof label === 'string' ? label : label.name));
+            // An issue linked to a related repository is decided by the agent, from the version this repository pins.
+            if (names.includes('related-repo')) continue;
+            try {
+              // Only the comment the Waiting for Release gate wrote counts. Anyone can type "Fixed in #N."
+              const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: issue.number, per_page: 100 });
+              let fix;
+              for (const comment of comments) {
+                if (comment.user?.login !== 'github-actions[bot]') continue;
+                const found = (comment.body ?? '').match(/^Fixed in #(\d+)\./m);
+                if (found) fix = Number(found[1]);
+              }
+              if (!fix) continue;
+              const { data: pull } = await github.rest.pulls.get({ owner, repo, pull_number: fix });
+              if (!pull.merged || !pull.merge_commit_sha) continue;
+              // `ahead`: the tag is ahead of the merge commit, so the merge commit is one of its ancestors.
+              const { data: compared } = await github.rest.repos.compareCommitsWithBasehead({ owner, repo, basehead: `${pull.merge_commit_sha}...${tag}` });
+              if (compared.status !== 'ahead' && compared.status !== 'identical') continue;
+              // Order matters if a call fails half way: `released` first, then the label that is waiting, then the
+              // comment. An issue that already has `released` only loses the waiting label, and says nothing twice.
+              const done = names.includes(RELEASED);
+              if (!done) await github.rest.issues.addLabels({ owner, repo, issue_number: issue.number, labels: [RELEASED] });
+              try {
+                await github.rest.issues.removeLabel({ owner, repo, issue_number: issue.number, name: WAITING });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+              if (!done) await github.rest.issues.createComment({ owner, repo, issue_number: issue.number, body: `Included in ${tag}.` });
+              core.info(`#${issue.number}: its fix, #${fix}, is part of ${tag}.`);
+            } catch (error) {
+              core.warning(`#${issue.number}: ${error.message}`);
+            }
+          }
 engine:
   id: copilot
   model: small
@@ -61,7 +129,7 @@ List issues with `waiting-for-release` in both states. Call `list_issues` with `
 
 ## This repository owns the fix
 
-Find issues with `waiting-for-release` that this release includes.
+A step before this run has already moved the issues whose fix pull request is part of this release, so they no longer carry `waiting-for-release`. Do not look for them. Find the issues that still have `waiting-for-release` and that this release includes.
 
 A mention counts when:
 - The release notes mention the issue number, or
