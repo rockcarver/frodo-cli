@@ -338,6 +338,15 @@ Frodo generally doesn't export platform passwords and secrets. The platform supp
 
 Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment. Frodo never exports secrets in the clear.
 
+### Realms On Advanced Identity Cloud (`frodo config`)
+
+`frodo config export` and `frodo config import` work on the global config and on realms. On Advanced Identity Cloud:
+
+- A default export, for example `frodo config export -AND . <my-env>`, contains the global config and the alpha and bravo realms.
+- The root realm is not part of it. Identity Cloud denies access to most root realm config. With `-R`, `--read-only` the export also holds read-only config, which for the root realm is authorization config such as policies, policy sets and resource types.
+- `-r`, `--realm-only` limits the export to the active realm, which is alpha unless you name another realm after the host, as in `frodo config export -rAND . <my-env> bravo`. `-g`, `--global-only` limits it to the global config. Use both for the global config plus the active realm: `frodo config export -rgAND . <my-env>`.
+- `frodo config import` imports every realm it finds: each directory under `realm/` in the `-D` directory with `-A`, or each realm in the file with `-a`. An export made with `-R` contains a `root` realm, and importing it makes Frodo attempt the root realm of the target. To leave it out, import an export made without `-R` or remove the `realm/root` directory.
+
 ## Installing
 
 ### Download executable binaries (all supported platforms)

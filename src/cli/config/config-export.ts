@@ -17,6 +17,7 @@ export default function setup() {
     .description(
       `Export full cloud configuration.\n` +
         `By default, it only exports importable config (i.e. config that is not read-only) for the current deployment (e.g. if exporting from cloud, realm config would NOT be exported since it can't be imported back into cloud even though it can be imported into classic deployments). There is a flag to export all config including read only config.\n` +
+        `On Advanced Identity Cloud, the export holds the global config and the alpha and bravo realms. Identity Cloud denies access to most root realm config, so the root realm is only exported with -R, --read-only, and then only as read-only authorization config (policies, policy sets, resource types and the like). Use -r to limit the export to the active realm (alpha unless you name another one) and -g to limit it to the global config. Use both for the global config plus the active realm.\n` +
         `Additionally, there is a flag to export config for only the specified realm, a flag to export only global config, and many other flags to customize the export. Use the -h or --help to see them all and to also see usage examples.`
     )
     .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
@@ -115,6 +116,8 @@ export default function setup() {
         `  Export global and realm configuration for version control (e.g. Git) into the current directory.\n` +
         `  Note that -A exports everything to separate files in the -D directory and, unless you add -x (--no-extract), scripts and server properties are extracted into files of their own, which makes changes to them easier to track, and -N removes metadata since it changes every export (you may consider using --no-coords as well if you don't care to track node positions in journeys):\n` +
         c.command(`  $ frodo config export -AND . ${s.connId}\n`) +
+        `  Export the global config and only the active realm for version control (on Identity Cloud the active realm is alpha unless you name another one after the connection profile, for example bravo):\n` +
+        c.command(`  $ frodo config export -rgAND . ${s.connId}\n`) +
         `  Export global and realm configuration from cloud to be later imported into a classic, on-prem deployment.\n` +
         `  Note -dR is used for exporting all read-only config from cloud since certain cloud read-only config (like the realm config) can be imported into a classic on-prem deployment:\n` +
         c.command(`  $ frodo config export -adR ${s.connId}\n`) +

@@ -15,7 +15,10 @@ export default function setup() {
   const program = new FrodoCommand('frodo config import');
 
   program
-    .description('Import full cloud configuration.')
+    .description(
+      `Import full cloud configuration.\n` +
+        `Frodo imports every realm it finds in the export: all the directories under realm/ in the -D directory with -A, or all the realms in the file with -a. An export made with -R, --read-only contains a root realm, and importing it makes Frodo attempt the root realm of the target. Identity Cloud denies access to most root realm config. To leave the root realm out, import an export made without -R (on Identity Cloud that holds the global config and the alpha and bravo realms) or remove the realm/root directory.`
+    )
     .addOption(
       new Option(
         '-f, --file <file>',
@@ -103,6 +106,8 @@ export default function setup() {
         c.command(
           `  $ frodo config import -A -D ${s.connId}-backup --include-active-values ${s.connId}\n`
         ) +
+        `  Import the global config and the realm from a directory that was exported for version control, for example with frodo config export -rgAND (see the examples of that command):\n` +
+        c.command(`  $ frodo config import -A -D . ${s.connId}\n`) +
         `  Import global and active realm configuration including active secret values, wich were exported from another environment using the --include-active-values option but without using the --target parameter, therefore requiring the --source parameter on import:\n` +
         `  The --source parameter instructs frodo to decrypt the secret values during import using the source environment, which was used to encrypt them.\n` +
         `  Using the --source parameter, the source environment must be available at the time of import and the person performing the import must have a connection profile for the source environment.\n` +

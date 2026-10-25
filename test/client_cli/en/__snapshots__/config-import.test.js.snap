@@ -4,6 +4,13 @@ exports[`CLI help interface for 'config import' should be expected english 1`] =
 "Usage: frodo config import [options] [host] [realm] [username] [password]
 
 Import full cloud configuration.
+Frodo imports every realm it finds in the export: all the directories under
+realm/ in the -D directory with -A, or all the realms in the file with -a. An
+export made with -R, --read-only contains a root realm, and importing it makes
+Frodo attempt the root realm of the target. Identity Cloud denies access to most
+root realm config. To leave the root realm out, import an export made without -R
+(on Identity Cloud that holds the global config and the alpha and bravo realms)
+or remove the realm/root directory.
 
 Arguments:
   host                     AM base URL, e.g.: https://cdk.iam.example.com/am. To
