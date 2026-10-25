@@ -195,6 +195,26 @@ export function getOneOfGroups(
   return pendingOneOfGroups.get(command) ?? [];
 }
 
+const connectionPromptsSkippedWhen = new WeakMap<
+  Command,
+  (command: Command) => boolean
+>();
+
+/**
+ * Registers a predicate that says, for one invocation, that the command
+ * needs no connection at all, so the resolution pass opens neither the
+ * profile picker nor the Connection page. Called from
+ * FrodoCommand.skipConnectionPromptsWhen. The predicate runs in the
+ * resolution pass, after persisted defaults are applied, so it sees the
+ * same options the action will.
+ */
+export function deferSkipConnectionPrompts(
+  command: Command,
+  predicate: (command: Command) => boolean
+): void {
+  connectionPromptsSkippedWhen.set(command, predicate);
+}
+
 /**
  * Records a mandatory option that was missing at parse time, instead of
  * throwing. Called from FrodoCommand's `missingMandatoryOptionValue`
@@ -302,7 +322,9 @@ export async function resolveInteractiveInputs(
   // value immediately, with no frame in between.
   connectionReadiness.set(command, false);
   const promptCountBeforeConnection = promptsRendered();
-  const connectionResolved = await resolveConnectionArgs(command);
+  const connectionResolved =
+    (connectionPromptsSkippedWhen.get(command)?.(command) ?? false) ||
+    (await resolveConnectionArgs(command));
   connectionReadiness.set(command, connectionResolved);
   noteRequiredInputPrompted(promptsRendered() > promptCountBeforeConnection);
   const mandatoryResolved = connectionResolved
