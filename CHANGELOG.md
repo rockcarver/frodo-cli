@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-13] - 2026-10-25
+
+### Added
+- Added support for browser login without specifying `--type`. A saved credential or cached session now completes the connection automatically. The command also indicates which account a browser or device login runs as, enhancing user feedback. This requires `frodo-lib` version 5.0.0-13. (#937, #936, #943)
+
+### Changed
+- Updated `frodo-lib` to version 5.0.0-13, enabling new features such as `Authenticate.hasCachedBrowserSession()` and `DeploymentTypeProbe.conclusive`. (#943)
+
+### Fixed
+- `frodo conn save` now properly handles alias conflicts by refusing a taken alias first and retaining existing service account and log API key details from the saved profile. It also provides clearer error messages when steps fail. (#935)
+- `frodo login` now prints its success message in the info color, aligning with other info-colored messages. (#940)
+- The Connection page now opens on the first missing field rather than defaulting to the host row, updates the footer dynamically, and allows cancellation with the Escape key. (#939)
+- `frodo conn set` now correctly lists settable fields when no field is specified, and a bare `conn set` no longer prompts for a profile or credentials first. (#938)
+
 ## [v5.0.0-12] - 2026-10-23
 
 ### Added
@@ -3075,6 +3089,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-13]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-12...v5.0.0-13
 [v5.0.0-12]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-11...v5.0.0-12
 [v5.0.0-11]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-10...v5.0.0-11
 [v5.0.0-10]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-9...v5.0.0-10
