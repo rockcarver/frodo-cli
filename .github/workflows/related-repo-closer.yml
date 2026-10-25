@@ -54,5 +54,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
           DRY_RUN: ${{ inputs.dry_run }}
-          # concierge:cross-repo-env
+          CROSS_REPO: rockcarver/frodo-lib
+          CROSS_REPO_TOKEN: ${{ secrets.FRODO_LIB_ISSUES_TOKEN }}
         run: node .github/scripts/related-repo-closer.mjs $([ "$DRY_RUN" = "true" ] && echo --dry-run)
