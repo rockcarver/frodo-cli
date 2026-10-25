@@ -24,6 +24,8 @@ One file per decision, named `NNNN-short-title.md` (four digits, counted up from
 
 The body has `Context and problem statement`, `Decision` and `Consequences`, and optionally `Alternatives considered`. Keep it short, in plain language, and neutral about tools. No secrets and no private information.
 
+Write a record so it stays true: state the rule, not a value that changes. Leave out "currently", "now", "the latest" and any current version, count, size or line number. Say "e.g." or "for example" when an example helps, and date a fact that explains the decision ("on 2026-10-24 the pin was ..."). An accepted record is not edited to keep up with such a fact, so it must not contain one.
+
 ## Superseding
 
 Accepted records are not edited, except to fix a typo and except for a `Known deviations` section. That section is a status note, not part of the decision: it names the tracking issue and the commit it was written against, and it may be added, edited or removed, without a new record, in the pull request that fixes the deviation or opens its tracking issue ([core 0018](core/0018-core-decision-records-are-kept-in-each-repository.md)). To change a decision, write a new record that says what it replaces, and set the old record's status to `superseded by NNNN`. `test/unit/DecisionRecords.test.js` checks the front matter, the numbering, the index below and the supersede links.
