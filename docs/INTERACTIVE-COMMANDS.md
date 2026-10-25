@@ -43,7 +43,11 @@ hook, before the action body, and fills missing input in order:
    prompting then is pure friction). The username/password prompts run
    as a single connection page (`ConnectionPagePrompt.ts`) showing
    resolved values with provenance (`from profile X`, `from
-FRODO_USERNAME`).
+FRODO_USERNAME`). The page is the only prompt for them: it opens on the
+   first row without a value, its footer is the command as it would run
+   (red until every row has a value, then green, the password masked),
+   and `<esc>` cancels the command. No unframed `Username:`/`Password:`
+   prompt sits behind it.
 3. **Deferred mandatory options** — `FrodoCommand` overrides commander's
    `missingMandatoryOptionValue()` to DEFER violations into a registry
    instead of throwing at parse time; the pass then prompts for each
