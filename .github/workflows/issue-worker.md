@@ -52,10 +52,13 @@ safe-outputs:
     target: "*"
   create-issue:
     max: 1
-    # The canonical issue starts held: a maintainer reads its plan and removes the label to release it
+    # The canonical issue starts held: a maintainer reads its plan and removes the first label to release it
     # (docs/multi-phase-design.md, "Split-repo routing"). A routing mistake then costs a comment, not a pull request.
+    # The second label marks it as opened from an issue in another repository, and is what starts the
+    # related-repo closer when it closes ("Both issues of a link carry a label").
     labels:
       - plan-approval-required
+      - original-in-related-repo
     github-token: ${{ secrets.FRODO_LIB_ISSUES_TOKEN }}
     allowed-repos: ["rockcarver/frodo-lib"]
   threat-detection:
@@ -110,7 +113,7 @@ The `secret` field on that entry names the Actions secret the workflow uses to c
    - Set `temporary_id` to exactly `aw_canonical`. Do not choose another id and do not leave it out.
    - Title: same as the original, or a clear summary.
    - Body: include the original report and a line `Reported from {owner}/{repo}#{number}`. This is the original issue, whose number you know.
-   - Do not set labels on it. The system opens it with the hold label `plan-approval-required`; a maintainer removes that label after reading its plan.
+   - Do not set labels on it. The system opens it with the hold label `plan-approval-required` and the link label `original-in-related-repo`; a maintainer removes the hold label after reading its plan, and the link label stays.
 2. On the original (non-canonical) issue:
    - Post a plain-language comment. You cannot know the new issue's number yet, so refer to it only as `#aw_canonical`. Write exactly that token: no owner or repository in front of it, no number of your own, and never another `#aw_` id. After the issue is created the system replaces `#aw_canonical` with the full reference (`owner/repo#number`).
      If the related entry has `release.requires_consumer_release: true`:
