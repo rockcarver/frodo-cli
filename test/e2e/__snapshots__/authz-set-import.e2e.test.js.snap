@@ -88,13 +88,13 @@ exports[`frodo authz set import "frodo authz set import -af allAlphaPolicySets.p
 exports[`frodo authz set import "frodo authz set import -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 1`] = `""`;
 
 exports[`frodo authz set import "frodo authz set import -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 2`] = `
-"Progress indicator Did not import first policy set from test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json since no changes were made. not found.
+"⚠ Did not import first policy set from test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json since no changes were made.
 "
 `;
 
 exports[`frodo authz set import "frodo authz set import -i 'test-policy-set' -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 1`] = `""`;
 
 exports[`frodo authz set import "frodo authz set import -i 'test-policy-set' -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all": should not import the policy set with the id "test-policy-set" from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" when no changes are made 2`] = `
-"Progress indicator Did not import test-policy-set since no changes were made. not found.
+"⚠ Did not import test-policy-set since no changes were made.
 "
 `;
