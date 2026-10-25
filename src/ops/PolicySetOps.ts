@@ -426,6 +426,7 @@ export async function importPolicySetFromFile(
       stopProgressIndicator(indicatorId, `Imported ${policySetId}.`, 'success');
     } else {
       stopProgressIndicator(
+        indicatorId,
         `Did not import ${policySetId} since no changes were made.`,
         'warn'
       );
@@ -472,6 +473,7 @@ export async function importFirstPolicySetFromFile(
       );
     } else {
       stopProgressIndicator(
+        indicatorId,
         `Did not import first policy set from ${filePath} since no changes were made.`,
         'warn'
       );
