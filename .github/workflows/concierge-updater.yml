@@ -47,7 +47,7 @@ jobs:
           # change workflow files). Without it the updater only reports.
           token: ${{ secrets.CONCIERGE_TOKEN || github.token }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
 
