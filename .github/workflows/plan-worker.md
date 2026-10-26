@@ -47,6 +47,7 @@ This plan exists so plan triage can assign complexity and risk. It is not a coll
 - Repository rules that apply, when the repository has guidance files (see "Repository guidance")
 - Decisions that apply, and any conflict with one, when the repository has decision records (see "Decision records")
 - A "Wrong layer:" line, when the code to change is in the related repository (see "Layer check")
+- "Work item:" lines, when the fix needs a change in this repository and in the related repository (see "Work items")
 
 ## Reports with a runtime failure
 - If the report contains an error message or a stack trace, say in the plan how the likely cause was checked: the file and line you read, or "not verified".
@@ -63,6 +64,15 @@ An issue that was routed here, or back here, carries what the worker before you 
 - If you read the code a lead names and it settles the layer here, write one line: "Layer: confirmed, see {file}", and plan as usual.
 - If you did not read code that settles it, write "Layer: not verified" in the plan's open questions and do not guess. Name no repository as the likely home of the fix: a maintainer acts on that guess, and a guess about code you did not read is the one that sends an issue to the wrong repository.
 - If the code to change is in this repository, say nothing about layers. The one exception is an issue that was routed here: it gets the "Layer: confirmed" line above, because the maintainer who approves the plan needs to see that the routing was checked.
+
+## Work items
+Only in a repository with `.github/agentic-workflows/related-repos.md`, and only when you read the code on both sides and found that the fix needs a change in this repository and a change in the related repository (a new library function that a command then calls, for example). If the whole fix is in one repository, write no work items and say nothing about them.
+
+Write one line per repository that has work, this repository included, each on its own line, in exactly this form:
+
+Work item: {owner}/{repo} | {what changes, in one sentence} | where: {the file or function you read} | order: {first, independent or this}
+
+`order: this` is the line for this repository. For the related repository, `first` means this repository's change needs that change done first (merged, and released where the repository says so), and `independent` means neither waits for the other. Name only a repository that `related-repos.md` lists, at most one line each. Say why the work is split in the plan's prose, not in the lines: a maintainer reads the lines and a workflow creates the other repository's issue from them.
 
 ## Repository guidance
 A repository may tell its contributors how to work on it: `AGENTS.md` at the root, `.github/copilot-instructions.md`, and files under `.github/instructions/` whose frontmatter `applyTo` globs name the paths they cover. If none of them exists, skip this section without comment.

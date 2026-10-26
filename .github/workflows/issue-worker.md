@@ -94,6 +94,10 @@ If `.github/agentic-workflows/related-repos.md` exists, read it.
 
 Where an issue belongs is decided by where the code that has to change lives. The `when` text and the notes in that file describe how the project is layered. They tell you where to look. They are never evidence by themselves.
 
+An issue with a `Part of {owner}/{repo}#{number}` line is a work item that a maintainer approved in a plan of another issue: keep it here, never create a linked issue for it, and skip the rest of this section.
+
+When part of the work belongs in the related repository and part here, keep the issue. Do not route it and do not create a linked issue: the plan gate reads the code on both sides and proposes the split, and a maintainer decides. Say in your comment which part might belong in the other repository and why, as for any kept issue.
+
 ### Decide from the text
 Do this before you create anything. Read the issue and its comments once. Do not call `search_repositories`: the repositories are named in the file. Deciding where an issue belongs needs no search, so a keep and a route both fit the turns you already had: you have 14 turns in all.
 
@@ -161,7 +165,7 @@ Cover, in ordinary language:
 Look at the comments before you write. A comment of yours has a footer that names `Concierge 1a ▸ Issue Worker`. When one is there and still covers the report as it stands, an event that adds nothing to it does not need a second analysis: a comment that only links, thanks or notes something, a label change, an edit that fixes a typo. Post no comment then, and signal as usual (see "Signaling"). Write a new comment only when something changed that a reporter would want an answer to: the report was edited with new facts, someone answered a question you asked, or someone asked a new one. Say only what is new and do not repeat the earlier analysis.
 
 ### Opened from another repository
-An issue with a `Reported from {owner}/{repo}#{number}` line was created by the worker of that repository, and its "Routing note" says what that worker found. It is a lead, not proof: check the part you can with the one tool call it needs (the file or function it names), and say only what you checked. A note that the code you read contradicts is worth saying so plainly in your comment: the plan gate and a maintainer decide where the issue belongs.
+An issue with a `Reported from {owner}/{repo}#{number}` line was created by the worker of that repository, and its "Routing note" says what that worker found. It is a lead, not proof: check the part you can with the one tool call it needs (the file or function it names), and say only what you checked. A note that the code you read contradicts is worth saying so plainly in your comment: the plan gate and a maintainer decide where the issue belongs. An issue with a `Part of {owner}/{repo}#{number}` line was created from a plan: the sentence under the line is its scope and the plan it links says what was read, so treat both the same way.
 
 ### Already fixed or cannot reproduce
 Use the issue's creation date as the line.

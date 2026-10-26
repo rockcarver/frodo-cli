@@ -1,0 +1,57 @@
+# Spawn work items. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "Work in more than one repository".
+#
+# Run by hand for an issue whose plan lists `Work item:` lines for the related repository, after a maintainer has read the
+# plan and agrees with the split. For each such line it creates the work item as an issue in the related repository (held
+# for plan approval, marked `Part of` this issue), and comments on this issue about it. A work item that has to come first
+# also gets a `Depends on:` line here and the label `dependency-required`, so the dependency watcher holds this issue back
+# until the work item is merged, released, installable and pinned, and then starts it again. Nothing starts it by itself
+# (record 0005), the hold stays on this issue, and each step checks first whether it was done, so a run that stopped half
+# way is finished by running it again. With dry_run it reports what it would do and writes nothing.
+#
+# An issue that carries 'no-auto-processing' is left alone: the script checks the label.
+#
+# Install: copy this file to .github/workflows/spawn-work-items.yml and scripts/spawn-work-items.mjs to
+# .github/scripts/spawn-work-items.mjs (it imports related-repo-closer.mjs, which imports dependency-watch.mjs,
+# opt-out.mjs, reporter-notify.mjs and resolution.mjs: install them too).
+# Secrets: SIGNAL_TOKEN (the label event must start the dependency watcher) and the one related-repos.md names for the
+# related repository, with Issues: Read and write there. The updater writes the second into the `env` below (the marker),
+# like it does for the related-repo closer.
+name: "Concierge 2d ▸ Spawn Work Items"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "The issue that holds the plan with the work items"
+        required: true
+        type: string
+      dry_run:
+        description: "Report what would be done, change nothing"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: spawn-work-items-${{ inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  spawn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Create the work items in the related repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Label changes made with this token start the dependency watcher.
+          SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          CROSS_REPO: rockcarver/frodo-lib
+          CROSS_REPO_TOKEN: ${{ secrets.FRODO_LIB_ISSUES_TOKEN }}
+        run: node .github/scripts/spawn-work-items.mjs $([ "$DRY_RUN" = "true" ] && echo --dry-run)
