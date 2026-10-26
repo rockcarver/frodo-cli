@@ -1,0 +1,63 @@
+# Waiting for Release. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "The resolution".
+#
+# When an issue is closed because a pull request merged, this tells the reporter how it was resolved and marks
+# the issue as waiting for the release that will contain the fix:
+#   - the comment is the `## Resolution` section of the pull request's description (the text a maintainer read
+#     before merging), copied by code, or the old one-line comment when the pull request has no usable section;
+#   - the issue gets `waiting-for-release`, which the release closer looks for when a release is published, or
+#     `released` when a release after the merge already contains the fix (decided by git, record 0024).
+# An issue closed by hand, as not planned or as a duplicate, by a pull request that is not merged, or by a commit
+# gets nothing: nothing waits for a release, and a maintainer says what there is to say.
+#
+# This used to be a model run. Everything it decided is data: how the issue was closed, when the pull request
+# merged, which release came after. Code decides what code can decide (record 0011), and the explanation the
+# reporter needed was never something a model could know without reading the pull request, which its prompt forbade.
+#
+# The condition below is the guarantee that a bot's issue and an issue that carries `no-auto-processing` start
+# nothing. A manual run does the same for one closed issue, and `dry_run` shows the comment without posting it.
+#
+# Install: copy this file to .github/workflows/waiting-for-release.yml and scripts/resolution.mjs to
+# .github/scripts/resolution.mjs (it imports opt-out.mjs: install that too). The release closer reads the
+# `Fixed in #N.` line this writes, and only when `github-actions[bot]` wrote it.
+name: "Concierge 4c ▸ Waiting for Release"
+
+on:
+  issues:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "The closed issue to post the resolution on"
+        required: true
+        type: string
+      dry_run:
+        description: "Show what would be posted, change nothing"
+        required: false
+        type: boolean
+        default: false
+
+# Writes: the label and the comment, on this repository's issues only. Reads: the pull request and the releases.
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: waiting-for-release-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  resolution:
+    # By hand: always. On an event: not for an issue a bot opened and not for one that carries no-auto-processing.
+    # The script checks everything else (how the issue was closed, who merged the pull request).
+    if: github.event_name == 'workflow_dispatch' || (github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Post the resolution
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: node .github/scripts/resolution.mjs $([ "$DRY_RUN" = "true" ] && echo --dry-run)

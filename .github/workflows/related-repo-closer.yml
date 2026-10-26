@@ -10,9 +10,12 @@
 # The condition below is the guarantee that any other close starts nothing: an issue without the label
 # is never looked at. A manual run does the same for one issue, and `dry_run` reports without writing.
 #
+# The comment on the original carries the resolution of the canonical issue: the text the Waiting for Release
+# workflow posted there, or the same text read from the pull request that closed it (record 0029).
+#
 # Install: copy this file to .github/workflows/related-repo-closer.yml and
 # scripts/related-repo-closer.mjs to .github/scripts/related-repo-closer.mjs (it imports
-# dependency-watch.mjs, opt-out.mjs and reporter-notify.mjs, which imports janitor.mjs: install them too).
+# dependency-watch.mjs, opt-out.mjs, reporter-notify.mjs, which imports janitor.mjs, and resolution.mjs: install them too).
 # Secret: the one related-repos.md names for the related repository, with Issues: Read and write
 # there. The updater writes it into the `env` below (the marker) and `check-deployment` verifies it.
 name: "Concierge 4b ▸ Related Repo Closer"
@@ -35,6 +38,7 @@ on:
 permissions:
   contents: read
   issues: read
+  pull-requests: read
 
 concurrency:
   group: related-repo-closer-${{ github.event.issue.number || inputs.issue_number }}
