@@ -20,6 +20,7 @@ safe-outputs:
   add-comment:
     max: 1
   add-labels:
+    issue-intent: false
     github-token: ${{ secrets.SIGNAL_TOKEN }}
     allowed:
       - plan-worker-ready
@@ -85,4 +86,4 @@ gh-aw automatically appends hidden HTML comments to every comment this workflow 
 
 Do not try to add it yourself. The safe-outputs job inserts it.
 
-Post the plan as a single comment and add the label `plan-worker-ready`.
+Post the plan as a single comment and add the label `plan-worker-ready`. Apply the label as a plain string, with no rationale, no confidence and no suggestion: it is the hand-off to plan triage and must be applied, not suggested.

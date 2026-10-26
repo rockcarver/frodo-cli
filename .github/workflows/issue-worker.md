@@ -33,7 +33,7 @@ user-rate-limit:
 engine:
   id: copilot
   model: small
-max-turns: 10
+max-turns: 14
 permissions:
   contents: read
   issues: read
@@ -95,7 +95,7 @@ If `.github/agentic-workflows/related-repos.md` exists, read it.
 Where an issue belongs is decided by where the code that has to change lives. The `when` text and the notes in that file describe how the project is layered. They tell you where to look. They are never evidence by themselves.
 
 ### Decide from the text
-Do this before you create anything. Read the issue and its comments once. Do not call `search_repositories`: the repositories are named in the file. Deciding where an issue belongs needs no search, so a keep and a route both fit the turns you already had: you have 10 turns in all.
+Do this before you create anything. Read the issue and its comments once. Do not call `search_repositories`: the repositories are named in the file. Deciding where an issue belongs needs no search, so a keep and a route both fit the turns you already had: you have 14 turns in all.
 
 1. Take the cause, not the wrapper. From the report take the innermost error: the last message of an error chain or stack trace, a system error code, or the place a stack trace names. When there is no error, take the behavior described and the command or feature it belongs to. A message that one layer wraps around a failure from another layer (for example "Error getting tokens" around "EAGAIN: resource temporarily unavailable, read") only says where the failure was caught, not where it started.
 2. Apply the layering the repository states. The `when` text and the notes in the file are a guide to where to look, never evidence by themselves; a keyword in them, in the title or in a wrapper message ("authentication", "import", "config") decides nothing. Apply the layering the repository states: the ownership lists in the file, and `AGENTS.md` or an accepted decision record when the file points to them (for example that a library has no terminal or prompt code); do not open other files to find the layering. That statement outranks the `when` text and any keyword. The default is to keep the issue here: if the cause as you took it in step 1 is something this repository owns, or you cannot tell, go on with the normal analysis below and skip the rest of this section. A keep needs no tool call.
@@ -149,11 +149,16 @@ Post a short, plain-language comment. Do not mention labels, gates, workflows, o
 
 Say only what you checked. Every statement in the comment about the code, a commit, a pull request or another issue must come from a tool call you made in this run. If you did not look, leave the statement out, or say that you did not check. A guess is never allowed, and neither is a "nothing has changed" or "nothing touches this" that no search or listing in this run showed.
 
+Spend at most ten turns reading and searching. The comment and the labels are tool calls too, and a run that reaches its turn limit before it has posted leaves the issue unanswered and outside the pipeline. If a check is still open when you get there, post what you verified and say what you did not check.
+
 Cover, in ordinary language:
 - Whether the report is clear enough to act on
 - Whether the request fits the project's scope, only when a scope file exists and the answer is not simply yes
 - Apparent duplicates
 - Whether the reported behavior is already fixed, or cannot be found in the current code
+
+### Already analysed
+Look at the comments before you write. A comment of yours has a footer that names `Concierge 1a ▸ Issue Worker`. When one is there and still covers the report as it stands, an event that adds nothing to it does not need a second analysis: a comment that only links, thanks or notes something, a label change, an edit that fixes a typo. Post no comment then, and signal as usual (see "Signaling"). Write a new comment only when something changed that a reporter would want an answer to: the report was edited with new facts, someone answered a question you asked, or someone asked a new one. Say only what is new and do not repeat the earlier analysis.
 
 ### Already fixed or cannot reproduce
 Use the issue's creation date as the line.
@@ -200,3 +205,5 @@ A `Depends on:`, `Blocked by:`, or `Requires:` line is not a reason to withhold 
 - If the issue stays here: add `issue-worker-ready`, even when it declares a dependency that is not finished yet.
 - If an open pull request already closes the issue (see "A fix is already in review"): add no label at all, not even `issue-worker-ready`.
 - If you created or confirmed a linked canonical issue: add `related-repo` and do **not** add `issue-worker-ready`.
+
+`issue-worker-ready` is a signal, not a judgement: give it `confidence: HIGH` and a one-line rationale whatever you think of the report. A label below HIGH is held back as a suggestion, the issue never reaches issue triage, and nobody is told. Confidence decides only `related-repo`, in "Decide from the text".

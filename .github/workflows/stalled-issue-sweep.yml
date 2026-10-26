@@ -1,0 +1,52 @@
+# Stalled issue sweep. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "Stalled issues".
+#
+# Every hour, find the open issues the issue worker analysed that never reached issue triage (its run ended before
+# it signalled, or its label was held back as a suggestion) and give them the gate label again. It never lifts a
+# hold, never comments and never starts the issue worker. A manual run sweeps every issue, or one (for which it
+# ignores how recent the analysis is); with dry_run it only says what it would do.
+#
+# An issue that carries 'no-auto-processing' is left alone: the script checks the label ("Opting an item out").
+#
+# Install: copy this file to .github/workflows/stalled-issue-sweep.yml and scripts/stalled-issue-sweep.mjs to
+# .github/scripts/stalled-issue-sweep.mjs (it imports janitor.mjs and opt-out.mjs, so install those too).
+# Needs SIGNAL_TOKEN: a label added with the workflow token starts no workflow.
+name: "Concierge 1e ▸ Stalled Issue Sweep"
+
+on:
+  schedule:
+    - cron: '47 * * * *'
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Sweep one issue (leave empty to sweep every open issue)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Only say which issues would be given the gate label again'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: stalled-issue-sweep
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Give stalled issues the gate label again
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Label changes made with this token start issue triage.
+          SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: node .github/scripts/stalled-issue-sweep.mjs
