@@ -57,9 +57,12 @@ Some repositories are one half of a split project: `.github/agentic-workflows/re
 
 When you read the code for the cause, also notice which repository holds the code that has to change. Take the innermost error, not the wrapper another layer put around it (a library's "Error getting tokens" around a terminal read error does not make it a library bug). Search the related repository too when the report could belong there. If the repository's `AGENTS.md` or an accepted decision record says which layer owns what, apply it.
 
+An issue that was routed here, or back here, carries what the worker before you found. Read it before you search: the "Routing note" in the issue body (the words in the report that name the failing component, what the routing worker read, and what it did not check) and, when a comment says the work was passed back from another repository, the plan comment that comment links. These are leads, not facts: read the code a lead names, in the repository it names, before you rely on it, and say in the plan which lead the code confirmed and which it contradicted.
+
 - If your reading shows that the code to change is in the related repository, or that an issue routed here belongs in the repository it came from, start the plan with one line: "Wrong layer: the fix belongs in {owner}/{repo}, see {file}", naming the file you read and what it does. Then plan for the repository where the fix belongs and say that a maintainer should move or re-route the issue. Never plan silently in the repository that happens to hold the issue.
-- If you did not read code that settles it, write "Layer: not verified" in the plan's open questions and do not guess.
-- If the code to change is in this repository, say nothing about layers.
+- If you read the code a lead names and it settles the layer here, write one line: "Layer: confirmed, see {file}", and plan as usual.
+- If you did not read code that settles it, write "Layer: not verified" in the plan's open questions and do not guess. Name no repository as the likely home of the fix: a maintainer acts on that guess, and a guess about code you did not read is the one that sends an issue to the wrong repository.
+- If the code to change is in this repository, say nothing about layers. The one exception is an issue that was routed here: it gets the "Layer: confirmed" line above, because the maintainer who approves the plan needs to see that the routing was checked.
 
 ## Repository guidance
 A repository may tell its contributors how to work on it: `AGENTS.md` at the root, `.github/copilot-instructions.md`, and files under `.github/instructions/` whose frontmatter `applyTo` globs name the paths they cover. If none of them exists, skip this section without comment.

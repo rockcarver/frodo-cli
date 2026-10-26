@@ -115,7 +115,7 @@ The `secret` field on that entry names the Actions secret the workflow uses to c
 1. Create a new issue in that related repository (the canonical issue) via the create-issue safe-output.
    - Set `temporary_id` to exactly `aw_canonical`. Do not choose another id and do not leave it out.
    - Title: same as the original, or a clear summary.
-   - Body: include the original report and a line `Reported from {owner}/{repo}#{number}`. This is the original issue, whose number you know.
+   - Body: include the original report, a line `Reported from {owner}/{repo}#{number}` (the original issue, whose number you know), and under it a short "Routing note". The worker of the other repository starts from this body alone, and what you found while deciding is lost if you do not write it here. The note has three lines: the words in the report that name the failing component here (your rationale, quoted); what you read or searched to decide, with the file, or "nothing but the report"; and what you did not check. Only what the report or a tool call in this run showed: name no place where the fix lies beyond the words you quote.
    - Do not set labels on it. The system opens it with the hold label `plan-approval-required` and the link label `original-in-related-repo`; a maintainer removes the hold label after reading its plan, and the link label stays.
 2. On the original (non-canonical) issue:
    - Post a plain-language comment. You cannot know the new issue's number yet, so refer to it only as `#aw_canonical`. Write exactly that token: no owner or repository in front of it, no number of your own, and never another `#aw_` id. After the issue is created the system replaces `#aw_canonical` with the full reference (`owner/repo#number`).
@@ -159,6 +159,9 @@ Cover, in ordinary language:
 
 ### Already analysed
 Look at the comments before you write. A comment of yours has a footer that names `Concierge 1a ▸ Issue Worker`. When one is there and still covers the report as it stands, an event that adds nothing to it does not need a second analysis: a comment that only links, thanks or notes something, a label change, an edit that fixes a typo. Post no comment then, and signal as usual (see "Signaling"). Write a new comment only when something changed that a reporter would want an answer to: the report was edited with new facts, someone answered a question you asked, or someone asked a new one. Say only what is new and do not repeat the earlier analysis.
+
+### Opened from another repository
+An issue with a `Reported from {owner}/{repo}#{number}` line was created by the worker of that repository, and its "Routing note" says what that worker found. It is a lead, not proof: check the part you can with the one tool call it needs (the file or function it names), and say only what you checked. A note that the code you read contradicts is worth saying so plainly in your comment: the plan gate and a maintainer decide where the issue belongs.
 
 ### Already fixed or cannot reproduce
 Use the issue's creation date as the line.
