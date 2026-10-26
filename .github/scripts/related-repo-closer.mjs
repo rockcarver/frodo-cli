@@ -52,7 +52,7 @@ const MAX_PAGES = 5;
 const lower = (s) => String(s || '').toLowerCase();
 
 /** Every comment of an issue (a few pages at most), or null when GitHub says no. */
-function readComments(api, base) {
+export function readComments(api, base) {
   const all = [];
   for (let page = 1; page <= MAX_PAGES; page++) {
     const r = api(`${base}/comments?per_page=100&page=${page}`);
@@ -105,35 +105,18 @@ export async function resolutionFor(issue, ctx) {
 }
 
 /**
- * Decide what to do about a closed canonical issue. `issue` is the closed issue (this repository),
- * `ctx.thisRepo` is `owner/repo`, `ctx.relatedRepo` is the related repository the updater generated
- * (or empty), `ctx.api(path)` is a read-only GitHub GET returning { status, data } and never throws.
- * Returns one of
- *   { action: 'skip', reason }                   nothing to do, and nothing wrong
- *   { action: 'error', reason }                  something that should be looked at; nothing was changed
- *   { action: 'waiting' | 'close', original, comments, labelled } what to do to the original
- * where `original` is { repo, number, labels, data } and `comments` its comments.
+ * The original issue a canonical issue points at, with the proof of the link. The `Reported from` line only names a
+ * candidate: it must be in the related repository this deployment is configured for, carry `related-repo`, not be
+ * opted out, and have a comment from the harness that names the canonical issue. Shared with route-back.mjs, which
+ * needs the same proof before it writes to the other repository. Returns { original } with
+ * { repo, number, ref, labels, data, comments }, or { skip: reason }. The original may be open or closed: the caller asks.
  */
-export function decide(issue, ctx) {
-  const skip = (reason) => ({ action: 'skip', reason });
-  const error = (reason) => ({ action: 'error', reason });
+export function verifyOriginal(issue, ctx) {
   const thisRef = `${ctx.thisRepo}#${issue.number}`;
-
-  if (issue.pull_request) return skip('a pull request');
-  if (issue.state !== 'closed') return skip('the issue is not closed');
-  if (issue.user && issue.user.type === 'Bot') return skip('opened by a bot');
-  if (isOptedOut(issue)) return skip(optedOutReason('issue'));
-  const labels = new Set((issue.labels || []).map((l) => l.name || l));
-  if (!labels.has(LABEL_CANONICAL)) return skip(`the issue does not carry ${LABEL_CANONICAL}`);
-  // A canonical issue closed as not planned or as a duplicate has no fix to wait for, and what the
-  // original should say then is a maintainer's call.
-  if (issue.state_reason && issue.state_reason !== 'completed') {
-    return skip(`closed as ${String(issue.state_reason).replace(/_/g, ' ')}, not as completed: the original is left to a maintainer`);
-  }
-  if (!ctx.relatedRepo) return skip('no related repository with a secret is configured here');
+  if (!ctx.relatedRepo) return { skip: 'no related repository with a secret is configured here' };
 
   const candidates = parseLinks(issue.body).filter((l) => lower(`${l.owner}/${l.repo}`) === lower(ctx.relatedRepo));
-  if (candidates.length === 0) return skip(`no link to an original issue in ${ctx.relatedRepo}`);
+  if (candidates.length === 0) return { skip: `no link to an original issue in ${ctx.relatedRepo}` };
 
   const verified = [];
   const why = [];
@@ -173,9 +156,39 @@ export function decide(issue, ctx) {
     }
     verified.push({ repo, number: c.number, ref: c.ref, labels: oLabels, data: o, comments });
   }
-  if (verified.length === 0) return skip(`no original issue confirms this one: ${why.join('; ')}`);
-  if (verified.length > 1) return skip('more than one linked original issue: ambiguous');
-  const original = verified[0];
+  if (verified.length === 0) return { skip: `no original issue confirms this one: ${why.join('; ')}` };
+  if (verified.length > 1) return { skip: 'more than one linked original issue: ambiguous' };
+  return { original: verified[0] };
+}
+
+/**
+ * Decide what to do about a closed canonical issue. `issue` is the closed issue (this repository),
+ * `ctx.thisRepo` is `owner/repo`, `ctx.relatedRepo` is the related repository the updater generated
+ * (or empty), `ctx.api(path)` is a read-only GitHub GET returning { status, data } and never throws.
+ * Returns one of
+ *   { action: 'skip', reason }                   nothing to do, and nothing wrong
+ *   { action: 'error', reason }                  something that should be looked at; nothing was changed
+ *   { action: 'waiting' | 'close', original, comments, labelled } what to do to the original
+ * where `original` is { repo, number, labels, data } and `comments` its comments.
+ */
+export function decide(issue, ctx) {
+  const skip = (reason) => ({ action: 'skip', reason });
+  const error = (reason) => ({ action: 'error', reason });
+
+  if (issue.pull_request) return skip('a pull request');
+  if (issue.state !== 'closed') return skip('the issue is not closed');
+  if (issue.user && issue.user.type === 'Bot') return skip('opened by a bot');
+  if (isOptedOut(issue)) return skip(optedOutReason('issue'));
+  const labels = new Set((issue.labels || []).map((l) => l.name || l));
+  if (!labels.has(LABEL_CANONICAL)) return skip(`the issue does not carry ${LABEL_CANONICAL}`);
+  // A canonical issue closed as not planned or as a duplicate has no fix to wait for, and what the
+  // original should say then is a maintainer's call.
+  if (issue.state_reason && issue.state_reason !== 'completed') {
+    return skip(`closed as ${String(issue.state_reason).replace(/_/g, ' ')}, not as completed: the original is left to a maintainer`);
+  }
+  const found = verifyOriginal(issue, ctx);
+  if (found.skip) return skip(found.skip);
+  const original = found.original;
   if (original.data.state !== 'open') return skip(`${original.ref} is already closed`);
 
   const cfg = readFile(ctx.api, original.repo, '.github/agentic-workflows/related-repos.md');

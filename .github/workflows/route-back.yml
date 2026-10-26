@@ -1,0 +1,55 @@
+# Route back. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "Routing back".
+#
+# Run by hand for the canonical issue of a split-repo link (the one that carries `original-in-related-repo`) when the
+# fix belongs in the repository of the original issue after all: the plan said "Wrong layer", or a person read the code.
+# The original loses `related-repo`, is held for plan approval and handed to the plan gate there, with a comment that
+# links the plan written here; the canonical issue gets a comment that names the original and is closed as not planned.
+# Nothing starts by itself: moving the work to another repository is a maintainer's decision (record 0005), and each
+# step checks first whether it was done, so a run that stopped half way is finished by running it again.
+# With dry_run it reports what it would do and writes nothing.
+#
+# An issue that carries 'no-auto-processing', canonical or original, is left alone: the script checks the label.
+# Removing it from the original hands that issue to the issue worker, which is the maintainer's act, not this one's.
+#
+# Install: copy this file to .github/workflows/route-back.yml and scripts/route-back.mjs to .github/scripts/route-back.mjs
+# (it imports related-repo-closer.mjs, which imports dependency-watch.mjs, opt-out.mjs, reporter-notify.mjs and
+# resolution.mjs: install them too).
+# Secret: the one related-repos.md names for the related repository, with Issues: Read and write there. The updater
+# writes it into the `env` below (the marker), like it does for the related-repo closer.
+name: "Concierge 4g ▸ Route Back"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "The canonical issue (open, with the link label) whose work belongs in the other repository"
+        required: true
+        type: string
+      dry_run:
+        description: "Report what would be done, change nothing"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: route-back-${{ inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  route-back:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Move the work back to the original issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          CROSS_REPO: rockcarver/frodo-lib
+          CROSS_REPO_TOKEN: ${{ secrets.FRODO_LIB_ISSUES_TOKEN }}
+        run: node .github/scripts/route-back.mjs $([ "$DRY_RUN" = "true" ] && echo --dry-run)
