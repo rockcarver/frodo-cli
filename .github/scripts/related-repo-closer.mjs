@@ -26,14 +26,21 @@
 // other repository use CROSS_REPO_TOKEN, which the updater generates from related-repos.md into
 // the workflow (`# concierge:cross-repo-env`); without it nothing is written.
 //
+// What the reporter reads on the original is the resolution of the canonical issue: the text the Waiting for
+// Release workflow posted there (copied from the pull request that closed it), or, when that has not been posted
+// yet because both workflows start on the same close, the same text read from the pull request
+// (scripts/resolution.mjs, record 0029). References like `#12` are qualified, because they name issues of this
+// repository and the original lives in another. Without a resolution the comments are the short ones.
+//
 // Install: copy workflows/related-repo-closer.yml to .github/workflows/related-repo-closer.yml and
 // scripts/related-repo-closer.mjs to .github/scripts/related-repo-closer.mjs. It imports
-// dependency-watch.mjs, opt-out.mjs and reporter-notify.mjs (which imports janitor.mjs), so install them too.
+// dependency-watch.mjs, opt-out.mjs, reporter-notify.mjs (which imports janitor.mjs) and resolution.mjs, so install them too.
 // An issue that carries `no-auto-processing`, canonical or original, is left alone ("Opting an item out").
 import { execFileSync } from 'node:child_process';
 import { parseRelatedRepos } from './dependency-watch.mjs';
 import { isOptedOut, optedOutReason } from './opt-out.mjs';
 import { ghApi, namesRef, parseLinks } from './reporter-notify.mjs';
+import { closingFix, ghGraphql, qualifyRefs, textOfComment } from './resolution.mjs';
 
 export const LABEL_CANONICAL = 'original-in-related-repo';
 export const LABEL_ORIGINAL = 'related-repo';
@@ -63,15 +70,38 @@ function readFile(api, repo, file) {
   return { status: 200, text: Buffer.from(r.data.content, 'base64').toString('utf8') };
 }
 
-/** The comments this script writes. The marker names the closed issue, so a second run finds them. */
-export function waitingComment(thisRepo, number, originalRepo) {
-  return (
-    `The fix is in ${thisRepo}#${number}. This stays open until a release of ${originalRepo} pins a ${thisRepo} version ` +
-    `that contains that fix.\n\n${MARKER}waiting ${thisRepo}#${number} -->`
-  );
+/**
+ * The comments this script writes. The marker names the closed issue, so a second run finds them. `resolution` is the
+ * text that tells the reporter how the issue was resolved (empty when there is none): without it the comments are
+ * the short ones they have always been.
+ */
+export function waitingComment(thisRepo, number, originalRepo, resolution = '') {
+  const lead = `The fix is in ${thisRepo}#${number}.`;
+  const rest = `This stays open until a release of ${originalRepo} pins a ${thisRepo} version that contains that fix.`;
+  return `${resolution ? `${lead}\n\n${resolution}\n\n${rest}` : `${lead} ${rest}`}\n\n${MARKER}waiting ${thisRepo}#${number} -->`;
 }
-export function closingComment(thisRepo, number) {
-  return `The work tracked in ${thisRepo}#${number} is complete. Closing this issue.\n\n${MARKER}closed ${thisRepo}#${number} -->`;
+export function closingComment(thisRepo, number, resolution = '') {
+  const lead = `The work tracked in ${thisRepo}#${number} is complete.`;
+  return `${resolution ? `${lead}\n\n${resolution}\n\nClosing this issue.` : `${lead} Closing this issue.`}\n\n${MARKER}closed ${thisRepo}#${number} -->`;
+}
+
+/**
+ * The text to give the original: what the harness posted on the closed canonical issue, else what the pull request
+ * that closed it says (the two workflows start on the same close, so the first may not have posted yet). Returns
+ * { text } (empty when there is none, which is fine) or { error } when GitHub could not be asked, in which case the
+ * caller writes nothing: an original must not be closed without the explanation because of a failed read.
+ */
+export async function resolutionFor(issue, ctx) {
+  const comments = readComments(ctx.api, `repos/${ctx.thisRepo}/issues/${issue.number}`);
+  if (!comments) return { error: `the comments of ${ctx.thisRepo}#${issue.number} could not be read` };
+  for (const cm of [...comments].reverse()) {
+    if (!cm.user || cm.user.login !== BOT || cm.user.type !== 'Bot') continue;
+    const text = textOfComment(cm.body);
+    if (text) return { text: qualifyRefs(text, ctx.thisRepo) };
+  }
+  const fix = await closingFix(issue, ctx);
+  if (fix.error) return { error: fix.error };
+  return { text: fix.resolution ? qualifyRefs(fix.resolution.text, ctx.thisRepo) : '' };
 }
 
 /**
@@ -174,12 +204,12 @@ export function apply(verdict, issue, ctx) {
       did.push(`labelled ${original.ref} ${LABEL_WAITING}`);
     }
     if (!posted('waiting')) {
-      if (!ctx.dryRun) ctx.comment(original.repo, original.number, waitingComment(ctx.thisRepo, issue.number, original.repo));
+      if (!ctx.dryRun) ctx.comment(original.repo, original.number, waitingComment(ctx.thisRepo, issue.number, original.repo, ctx.resolution));
       did.push(`commented on ${original.ref}`);
     }
   } else {
     if (!posted('closed')) {
-      if (!ctx.dryRun) ctx.comment(original.repo, original.number, closingComment(ctx.thisRepo, issue.number));
+      if (!ctx.dryRun) ctx.comment(original.repo, original.number, closingComment(ctx.thisRepo, issue.number, ctx.resolution));
       did.push(`commented on ${original.ref}`);
     }
     if (!ctx.dryRun) ctx.close(original.repo, original.number);
@@ -197,7 +227,7 @@ function ghWrite(args, token) {
   });
 }
 
-export function main(argv = process.argv.slice(2), env = process.env) {
+export async function main(argv = process.argv.slice(2), env = process.env) {
   const thisRepo = env.GITHUB_REPOSITORY;
   const number = Number(env.ISSUE_NUMBER);
   if (!thisRepo || !Number.isInteger(number) || number <= 0) {
@@ -217,6 +247,12 @@ export function main(argv = process.argv.slice(2), env = process.env) {
     thisRepo,
     relatedRepo: env.CROSS_REPO || '',
     api,
+    // for the resolution: the closing event can lag the `closed` webhook by a few seconds
+    graphql: (query, variables) => ghGraphql(query, variables, readToken),
+    sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+    attempts: 6,
+    waitMs: 5000,
+    resolution: '',
     dryRun,
     addLabel: (repo, n, label) => ghWrite([`repos/${repo}/issues/${n}/labels`, '--method', 'POST', '-f', `labels[]=${label}`], writeToken),
     comment: (repo, n, body) => ghWrite([`repos/${repo}/issues/${n}/comments`, '--method', 'POST', '-f', `body=${body}`], writeToken),
@@ -236,6 +272,12 @@ export function main(argv = process.argv.slice(2), env = process.env) {
     console.log(`::error::#${number}: ${verdict.reason}. Nothing changed.`);
     return 1;
   }
+  const found = await resolutionFor(issue.data, ctx);
+  if (found.error) {
+    console.log(`::error::#${number}: ${found.error}, so what to tell the original is unknown. Nothing changed.`);
+    return 1;
+  }
+  ctx.resolution = found.text;
   try {
     const did = apply(verdict, issue.data, ctx);
     console.log(`#${number}: ${verdict.action === 'waiting' ? 'waits for a release' : 'closes the original'}${dryRun ? ' (dry run, nothing written)' : ''}: ${did.join(', ') || 'already done'}`);
@@ -246,4 +288,4 @@ export function main(argv = process.argv.slice(2), env = process.env) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(main());
+if (import.meta.url === `file://${process.argv[1]}`) process.exit(await main());
