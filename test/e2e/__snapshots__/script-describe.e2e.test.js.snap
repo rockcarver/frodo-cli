@@ -189,17 +189,10 @@ exports[`frodo script describe "frodo script describe -un shared": should descri
 • Exported 2 global services.
 • Exported 1 telemetry exporters.
 • Exported 12 variables.
-• Exported 0 / realm SAML2 providers.
-• Exported 0 / realm agent groups.
-• Exported 0 / realm agents.
-• Exported 0 / realm OAuth2 clients.
-• 0 / realm providers exported.
 • Exported 0 / realm applications
 • Exported 169 / realm policies.
 • Exported 11 / realm policy sets.
 • Exported 3 / realm resource types.
-• Exported 0 secret stores.
-• Exported 0 / realm services.
 • Exported 0 / realm themes.
 • Exported 2 alpha realm SAML2 providers.
 • Exported 2 alpha realm circles of trust.
