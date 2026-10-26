@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-14] - 2026-10-26
+
+### Added
+- Identity Cloud no longer receives requests for root realm configuration it denies, improving compatibility and reducing unnecessary errors. This change is part of the update to `frodo-lib` version 5.0.0-14. (#956)
+
+### Fixed
+- The progress indicator now correctly stops when a policy set import has no changes, resolving an issue where the spinner continued unnecessarily. (#951)
+
 ## [v5.0.0-13] - 2026-10-25
 
 ### Added
@@ -3089,6 +3097,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-14]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-13...v5.0.0-14
 [v5.0.0-13]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-12...v5.0.0-13
 [v5.0.0-12]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-11...v5.0.0-12
 [v5.0.0-11]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-10...v5.0.0-11
