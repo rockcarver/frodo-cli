@@ -12,10 +12,10 @@ Arguments:
   password                                         Password.
 
 Options:
-  -a, --all                                        Delete all mappings. Ignored with -i.
-  -c, --connector-id <connector-id>                Connector id. If specified, limits mappings to that particular connector; Ignored with -i.
-  -i, --mapping-id <mapping-id>                    Mapping id. If specified, -a is ignored. (pick from mapping)
-  -t, --managed-object-type <managed-object-type>  Managed object type. If specified, limits mappings to that particular managed object type. Ignored with -i.
+  -a, --all                                        Delete all mappings. Cannot be used with -i.
+  -c, --connector-id <connector-id>                Connector id. If specified, limits mappings to that particular connector; Cannot be used with -i.
+  -i, --mapping-id <mapping-id>                    Mapping id. Cannot be used with -a. (pick from mapping)
+  -t, --managed-object-type <managed-object-type>  Managed object type. If specified, limits mappings to that particular managed object type. Cannot be used with -i.
   -h, --help                                       Help
   -hh, --help-more                                 Help with all options.
   -hhh, --help-all                                 Help with all options, environment variables, and usage examples.

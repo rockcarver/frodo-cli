@@ -22,15 +22,15 @@ Arguments:
   password                 Password.
 
 Options:
-  -a, --all                Import all the themes from single file. Ignored with
-                           -n or -i.
+  -a, --all                Import all the themes from single file. Cannot be
+                           used with -i, -n or -A.
   -A, --all-separate       Import all the themes from separate files (*.json) in
-                           the current directory. Ignored with -n or -i or -a.
-  -f, --file <file>        Name of the file to import the theme(s) from.
-  -i, --theme-id <uuid>    Uuid of the theme. If specified, -a and -A are
-                           ignored.
-  -n, --theme-name <name>  Name of the theme. If specified, -a and -A are
-                           ignored.
+                           the current directory. Cannot be used with -i, -n, -f
+                           or -a.
+  -f, --file <file>        Name of the file to import the theme(s) from. Cannot
+                           be used with -A.
+  -i, --theme-id <uuid>    Uuid of the theme. Cannot be used with -n, -a or A.
+  -n, --theme-name <name>  Name of the theme. Cannot be used with -i, -a or -A.
   -h, --help               Help
   -hh, --help-more         Help with all options.
   -hhh, --help-all         Help with all options, environment variables, and

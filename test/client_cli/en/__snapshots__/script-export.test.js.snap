@@ -24,33 +24,34 @@ Arguments:
   password                       Password.
 
 Options:
-  -a, --all                      Export all scripts to a single file. Ignored
-                                 with -n.
+  -a, --all                      Export all scripts to a single file. Cannot be
+                                 used with -i, -n or -A.
   -A, --all-separate             Export all scripts to separate files
                                  (*.script.json) in the current directory.
-                                 Ignored with -n or -a.
+                                 Cannot be used with -i, -n or -a.
   --context <context>            Filter scripts by context when using -a or -A.
                                  Values are case-insensitive; kebab-case and
                                  underscore formats are both accepted.
   -d, --default                  Export all scripts including the default
-                                 scripts. Ignored with -n.
+                                 scripts. Cannot be used with -i or -n.
   --evaluator-version <version>  Filter scripts by evaluator version when using
                                  -a or -A. Combine with other filters to imply
                                  AND matching.
-  -f, --file <file>              Name of the export file.
-  -i, --script-id <uuid>         Uuid of the script. If specified, -a and -A are
-                                 ignored.
+  -f, --file <file>              Name of the export file. Cannot be used with
+                                 -A.
+  -i, --script-id <uuid>         Uuid of the script. If specified, -n, -a or -A
+                                 cannot be used.
   --language <language>          Filter scripts by language when using -a or -A.
                                  Use lowercase values such as javascript or
                                  groovy. (choices: "javascript", "groovy")
   -M, --modified-properties      Include modified properties in export (e.g.
                                  lastModifiedDate, lastModifiedBy, createdBy,
                                  creationDate, etc.) (default: false)
-  -n, --script-name <name>       Name of the script. If specified, -a and -A are
-                                 ignored.
+  -n, --script-name <name>       Name of the script. If specified, -i, -a or -A
+                                 cannot be used.
   -N, --no-metadata              Does not include metadata in the export file.
   --no-deps                      Do not include script dependencies (i.e.
-                                 library scripts). Ignored with -a and -A.
+                                 library scripts). Cannot be used with -a or -A.
   -s, --script <script>          DEPRECATED! Use -n/--script-name instead. Name
                                  of the script.
   -x, --no-extract               Do not extract the script from the exported

@@ -12,16 +12,16 @@ Arguments:
   password                                         Password.
 
 Options:
-  -a, --all                                        Export all mappings. Ignored with -i.
-  -A, --all-separate                               Export all mappings into separate JSON files in directory -D. Ignored with -i and -a.
-  -c, --connector-id <connector-id>                Connector id. If specified, limits mappings to that particular connector; Ignored with -i.
-  -f, --file <file>                                Export file if -x or -a is provided. Ignored with -A.
-  -i, --mapping-id <mapping-id>                    Mapping id. If specified, -a is ignored.
+  -a, --all                                        Export all mappings. Cannot be used with -i or -A.
+  -A, --all-separate                               Export all mappings into separate JSON files in directory -D. Cannot be used with -i, -f or -a.
+  -c, --connector-id <connector-id>                Connector id. If specified, limits mappings to that particular connector; Cannot be used with -i.
+  -f, --file <file>                                Export file if -x or -a is provided. Cannot be used with -A.
+  -i, --mapping-id <mapping-id>                    Mapping id. Cannot be used with -c, -t, -a or -A.
   -N, --no-metadata                                Does not include metadata in the export file.
   --no-deps                                        Do not include any dependencies in export.
-  -t, --managed-object-type <managed-object-type>  Managed object type. If specified, limits mappings to that particular managed object type. Ignored with -i.
+  -t, --managed-object-type <managed-object-type>  Managed object type. If specified, limits mappings to that particular managed object type. Cannot be used with -i.
   --use-string-arrays                              Where applicable, use string arrays to store multi-line text (e.g. scripts). (default: off)
-  -x, --no-extract                                 Do not extract and save idm scripts to separate files. Ignored with -a.
+  -x, --no-extract                                 Do not extract and save idm scripts to separate files. Cannot be used with -a.
   -h, --help                                       Help
   -hh, --help-more                                 Help with all options.
   -hhh, --help-all                                 Help with all options, environment variables, and usage examples.

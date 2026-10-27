@@ -25,27 +25,27 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --role-id <role-id>',
-        'Internal role id. If specified, only one internal role is imported and the options -n, -a and -A are ignored.'
-      )
+        'Internal role id. If specified, only one internal role is imported and the options -n, -a or -A cannot be used.'
+      ).conflicts(['roleName', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --role-name <role-name>',
-        'Internal role name. If specified, only one internal role is imported and the options -a and -A are ignored.'
-      )
+        'Internal role name. If specified, only one internal role is imported and the options -i, -a or -A cannot be used.'
+      ).conflicts(['roleId', 'all', 'allSeparate'])
     )
     .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
     .addOption(
       new Option(
         '-a, --all',
-        'Import all internal roles from single file. Ignored with -i.'
-      )
+        'Import all internal roles from single file. Cannot be used with -i, -n or -A.'
+      ).conflicts(['roleId', 'roleName', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all internal roles from separate files (*.internalRole.json) in the current directory. Ignored with -i or -a.'
-      )
+        'Import all internal roles from separate files (*.internalRole.json) in the current directory. Cannot be used with -i, -n or -a.'
+      ).conflicts(['roleId', 'roleName', 'all'])
     )
     .requireOneOf({
       options: ['all', 'allSeparate', 'file', 'roleId', 'roleName'],

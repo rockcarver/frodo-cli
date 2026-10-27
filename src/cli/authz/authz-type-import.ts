@@ -18,27 +18,32 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --type-id <type-uuid>',
-        'Resource type uuid. If specified, -a and -A are ignored.'
-      )
+        'Resource type uuid. Cannot be used with -n, -a or -A.'
+      ).conflicts(['typeName', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --type-name <type-name>',
-        'Resource type name. If specified, -a and -A are ignored.'
-      )
+        'Resource type name. Cannot be used with -i, -a or -A.'
+      ).conflicts(['typeId', 'all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the file to import. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Import all resource types from single file. Ignored with -i.'
-      )
+        'Import all resource types from single file. Cannot be used with -i, -n or -A.'
+      ).conflicts(['typeId', 'typeName', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all resource types from separate files (*.resourcetype.authz.json or *.resourcetype.json) in the current directory. Ignored with -i, -n, or -a.'
-      )
+        'Import all resource types from separate files (*.resourcetype.authz.json or *.resourcetype.json) in the current directory. Cannot be used with -i, -n, -f or -a.'
+      ).conflicts(['typeId', 'typeName', 'file', 'all'])
     )
     .requireOneOf({
       options: ['all', 'allSeparate', 'file', 'typeId', 'typeName'],

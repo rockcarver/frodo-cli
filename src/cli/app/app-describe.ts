@@ -21,10 +21,15 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --app-id <id>',
-        'Application id. If specified, -n is ignored.'
-      )
+        'Application id. Cannot be used with -n.'
+      ).conflicts(['appName'])
     )
-    .addOption(new Option('-n, --app-name <name>', 'Application name.'))
+    .addOption(
+      new Option(
+        '-n, --app-name <name>',
+        'Application name. Cannot be used with -i.'
+      ).conflicts(['appId'])
+    )
     .addHelpText(
       'after',
       c.warning(`Important Note:\n`) +

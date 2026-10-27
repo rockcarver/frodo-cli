@@ -17,27 +17,32 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --script-id <uuid>',
-        'Uuid of the script. If specified, -a and -A are ignored.'
-      )
+        'Uuid of the script. If specified, -n, -a or -A cannot be used.'
+      ).conflicts(['scriptName', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --script-name <name>',
-        'Name of the script. If specified, -a and -A are ignored.'
-      )
+        'Name of the script. If specified, -i, -a or -A cannot be used.'
+      ).conflicts(['scriptId', 'all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the export file. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all scripts to a single file. Ignored with -n.'
-      )
+        'Export all scripts to a single file. Cannot be used with -i, -n or -A.'
+      ).conflicts(['scriptId', 'scriptName', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all scripts to separate files (*.script.json) in the current directory. Ignored with -n or -a.'
-      )
+        'Export all scripts to separate files (*.script.json) in the current directory. Cannot be used with -i, -n or -a.'
+      ).conflicts(['scriptId', 'scriptName', 'all'])
     )
     .addOption(
       new Option(
@@ -67,14 +72,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-d, --default',
-        'Export all scripts including the default scripts. Ignored with -n.'
-      )
+        'Export all scripts including the default scripts. Cannot be used with -i or -n.'
+      ).conflicts(['scriptId', 'scriptName'])
     )
     .addOption(
       new Option(
         '--no-deps',
-        'Do not include script dependencies (i.e. library scripts). Ignored with -a and -A.'
-      )
+        'Do not include script dependencies (i.e. library scripts). Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(

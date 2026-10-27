@@ -24,16 +24,17 @@ Arguments:
   password                       Password.
 
 Options:
-  -a, --all                      Export all realms to a single file. Ignored
-                                 with -i or -n.
+  -a, --all                      Export all realms to a single file. Cannot be
+                                 used with -i, -n or -A.
   -A, --all-separate             Export all realms to separate files
-                                 (*.realm.json) in the current directory.
-                                 Ignored with -i, -n, or -a.
-  -f, --file <file>              Name of the export file.
-  -i, --realm-id <realm-id>      Realm id. If specified, -n, -a, and -A are
-                                 ignored.
-  -n, --realm-name <realm-name>  Realm name. If specified, -a and -A are
-                                 ignored.
+                                 (*.realm.json) in the current directory. Cannot
+                                 be used with -i, -n or -a.
+  -f, --file <file>              Name of the export file. Cannot be used with
+                                 -A.
+  -i, --realm-id <realm-id>      Realm id. If specified, -n, -a, and -A cannot
+                                 be used.
+  -n, --realm-name <realm-name>  Realm name. If specified, -i, -a or -A cannot
+                                 be used.
   -N, --no-metadata              Does not include metadata in the export file.
   -h, --help                     Help
   -hh, --help-more               Help with all options.

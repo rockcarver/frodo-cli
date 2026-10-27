@@ -46,12 +46,17 @@ export default function setup() {
     .addOption(
       new Option('-s, --secret-id <secret-id>', 'Secret label of the mapping.')
     )
-    .addOption(new Option('-a, --alias <alias>', 'The alias to delete.'))
+    .addOption(
+      new Option(
+        '-a, --alias <alias>',
+        'The alias to delete. Cannot be used with --all.'
+      ).conflicts(['all'])
+    )
     .addOption(
       new Option(
         '--all',
-        'Delete all aliases except for the active one in the mapping. Ignored with -a.'
-      )
+        'Delete all aliases except for the active one in the mapping. Cannot be used with -a.'
+      ).conflicts(['alias'])
     )
     .addOption(
       new Option(

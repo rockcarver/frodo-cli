@@ -29,21 +29,21 @@ export default function setup() {
     .description('Delete themes.')
     .addOption(
       new Option(
-        '-n, --theme-name <name>',
-        'Name of the theme. If specified, -a and -A are ignored.'
-      )
+        '-i, --theme-id <uuid>',
+        'Uuid of the theme. Cannot be used with -n or -a.'
+      ).conflicts(['themeName', 'all'])
     )
     .addOption(
       new Option(
-        '-i, --theme-id <uuid>',
-        'Uuid of the theme. If specified, -a and -A are ignored.'
-      )
+        '-n, --theme-name <name>',
+        'Name of the theme. Cannot be used with -i or -a.'
+      ).conflicts(['themeId', 'all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all the themes in the realm. Ignored with -n and -i.'
-      )
+        'Delete all the themes in the realm. Cannot be used with -i or -n.'
+      ).conflicts(['themeId', 'themeName'])
     )
     .requireOneOf({
       options: ['all', 'themeId', 'themeName'],

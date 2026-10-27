@@ -18,8 +18,8 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --cot-id <cot-id>',
-        'Circle of trust id. If specified, only one circle of trust is imported and the options -a and -A are ignored.'
-      )
+        'Circle of trust id. If specified, only one circle of trust is imported and the options -a or -A cannot be used.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
@@ -30,14 +30,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Import all circles of trust from single file. Ignored with -i.'
-      )
+        'Import all circles of trust from single file. Cannot be used with -i or -A.'
+      ).conflicts(['cotId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all circles of trust from separate files (*.cot.saml.json) in the current directory. Ignored with -i or -a.'
-      )
+        'Import all circles of trust from separate files (*.cot.saml.json) in the current directory. Cannot be used with -i or -a.'
+      ).conflicts(['cotId', 'all'])
     )
     .requireOneOf({
       options: ['all', 'allSeparate', 'cotId', 'file'],

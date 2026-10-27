@@ -23,14 +23,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --mapping-id <mapping-id>',
-        "Mapping id/name. If specified, -a is ignored. The mapping's order is lost through renaming, and relies on the default ordering of wherever it ends up (usually that means it ends up last in sync order)"
-      )
+        "Mapping id/name. Cannot be used with -a. The mapping's order is lost through renaming, and relies on the default ordering of wherever it ends up (usually that means it ends up last in sync order)"
+      ).conflicts(['all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Rename all mappings. Ignored with -i. Ordering is preserved through this renaming process, according to the order of the mappings before renaming.'
-      )
+        'Rename all mappings. Cannot be used with -i. Ordering is preserved through this renaming process, according to the order of the mappings before renaming.'
+      ).conflicts(['mappingId'])
     )
     .addOption(
       new Option(

@@ -34,16 +34,21 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --secretstore-id <secretstore-id>',
-        'Secret store id. If specified, only one secret store is imported and the options -a and -A are ignored.'
-      )
+        'Secret store id. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-t, --secretstore-type <secretstore-type>',
-        'Secret store type id of the secret store. Only necessary if there are multiple secret stores with the same secret store id. Ignored if -i is not specified.'
-      )
+        'Secret store type id of the secret store. Only necessary if there are multiple secret stores with the same secret store id. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the file to import. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-g, --global',
@@ -53,14 +58,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Import all secret stores from single file. Ignored with -i.'
-      )
+        'Import all secret stores from single file. Cannot be used with -i, -t or -A.'
+      ).conflicts(['secretstoreId', 'secretstoreType', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all secret stores from separate files (*.secretstore.json) in the current directory. Ignored with -i or -a.'
-      )
+        'Import all secret stores from separate files (*.secretstore.json) in the current directory. Cannot be used with -i, -t, -f or -a.'
+      ).conflicts(['secretstoreId', 'secretstoreType', 'file', 'all'])
     )
     .requireOneOf({
       options: ['all', 'allSeparate', 'file', 'global', 'secretstoreId'],

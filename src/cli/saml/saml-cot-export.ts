@@ -17,26 +17,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --cot-id <cot-id>',
-        'Circle of trust id/name. If specified, -a and -A are ignored.'
-      )
+        'Circle of trust id/name. If specified, -a or -A cannot be used.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Name of the export file. Ignored with -A. Defaults to <cot-id>.cot.saml.json.'
+        'Name of the export file. Cannot be used with -A. Defaults to <cot-id>.cot.saml.json.'
       )
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all the circles of trust in a realm to a single file. Ignored with -i.'
-      )
+        'Export all the circles of trust in a realm to a single file. Cannot be used with -i or -A.'
+      ).conflicts(['cotId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all the circles of trust in a realm as separate files <cot-id>.cot.saml.json. Ignored with -i, and -a.'
-      )
+        'Export all the circles of trust in a realm as separate files <cot-id>.cot.saml.json. Cannot be used with -i or -a.'
+      ).conflicts(['cotId', 'all'])
     )
     .addOption(
       new Option(

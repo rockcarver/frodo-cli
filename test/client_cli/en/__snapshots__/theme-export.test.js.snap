@@ -23,15 +23,14 @@ Arguments:
 
 Options:
   -a, --all                Export all the themes in a realm to a single file.
-                           Ignored with -n and -i.
+                           Cannot be used with -i, -n or -A.
   -A, --all-separate       Export all the themes in a realm as separate files
-                           <theme name>.theme.json. Ignored with -n, -i, and -a.
+                           <theme name>.theme.json. Cannot be used with -i, -n,
+                           -f or -a.
   -f, --file [file]        Name of the file to write the exported theme(s) to.
-                           Ignored with -A.
-  -i, --theme-id <uuid>    Uuid of the theme. If specified, -a and -A are
-                           ignored.
-  -n, --theme-name <name>  Name of the theme. If specified, -a and -A are
-                           ignored.
+                           Cannot be used with -A.
+  -i, --theme-id <uuid>    Uuid of the theme. Cannot be used with -n, -a or -A.
+  -n, --theme-name <name>  Name of the theme. Cannot be used with -i, -a or -A.
   -N, --no-metadata        Does not include metadata in the export file.
   -x, --no-extract         Do not extract the HTML from the exported file to a
                            separate file.

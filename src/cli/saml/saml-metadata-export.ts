@@ -13,20 +13,20 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --entity-id <entity-id>',
-        'Entity id. If specified, -a and -A are ignored.'
-      )
+        'Entity id. If specified, -A cannot be used.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Name of the file to write the exported metadata to. Ignored with -A. If not specified, the export file is named <entity-id>.metadata.xml.'
-      )
+        'Name of the file to write the exported metadata to. Cannot be used with -A. If not specified, the export file is named <entity-id>.metadata.xml.'
+      ).conflicts(['allSeparate'])
     )
     // .addOption(
     //   new Option(
     //     '-A, --all-separate',
-    //     'Export all the providers in a realm as separate files <provider name>.saml.json. Ignored with -t, -i, and -a.'
-    //   )
+    //     'Export all the providers in a realm as separate files <provider name>.saml.json. Cannot be used with -i or -a.'
+    //   ).conflicts(['entityId', 'all])
     // )
     .requireOneOf({
       options: ['allSeparate', 'entityId'],

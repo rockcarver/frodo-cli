@@ -19,12 +19,17 @@ export default function setup() {
   program
     .description('Create secrets.')
     .requiredOption('-i, --secret-id <secret-id>', 'Secret id.')
-    .option('--value <value>', 'Secret value. Overrides "--file"')
+    .addOption(
+      new Option(
+        '--value <value>',
+        'Secret value. Cannot be used with -f.'
+      ).conflicts(['file'])
+    )
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Name of the file to read pem or base64hmac encoded secret from. Ignored if --value is specified'
-      )
+        'Name of the file to read pem or base64hmac encoded secret from. Cannot be used with --value.'
+      ).conflicts(['value'])
     )
     .option('--description [description]', 'Secret description.')
     .addOption(

@@ -19,16 +19,21 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --role-id <role-id>',
-        'Role id. If specified, only one role is deleted and the options -n, -a and -A are ignored.'
-      )
+        'Role id. If specified, only one role is deleted and the options -n, -a or -A cannot be used.'
+      ).conflicts(['roleName', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --role-name <role-name>',
-        'Role name. If specified, only one role is deleted and the options -a and -A are ignored.'
-      )
+        'Role name. If specified, only one role is deleted and the options -i, -a or -A cannot be used.'
+      ).conflicts(['roleId', 'all', 'allSeparate'])
     )
-    .addOption(new Option('-a, --all', 'Delete all roles. Ignored with -i.'))
+    .addOption(
+      new Option(
+        '-a, --all',
+        'Delete all roles. Cannot be used with -i.'
+      ).conflicts(['roleId', 'allSeparate'])
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

@@ -29,26 +29,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --template-id <template-id>',
-        'Email template id/name. If specified, -a and -A are ignored.'
-      )
+        'Email template id/name. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Name of the export file. Ignored with -A. Defaults to <template-id>.template.email.json.'
-      )
+        'Name of the export file. Defaults to <template-id>.template.email.json. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all email templates to a single file. Ignored with -i.'
-      )
+        'Export all email templates to a single file. Cannot be used with -i or -A.'
+      ).conflicts(['templateId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all email templates as separate files <template-id>.template.email.json. Ignored with -i, and -a.'
-      )
+        'Export all email templates as separate files <template-id>.template.email.json. Cannot be used with -i, -f and -a.'
+      ).conflicts(['templateId', 'file', 'all'])
     )
     .addOption(
       new Option(

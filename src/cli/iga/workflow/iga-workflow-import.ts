@@ -26,21 +26,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --workflow-id <workflow-id>',
-        'Workflow id. If specified, -a and -A are ignored.'
-      )
+        'Workflow id. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the import file.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the import file. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Import all workflows from single file. Ignored with -i.'
-      )
+        'Import all workflows from single file. Cannot be used with -i or -A.'
+      ).conflicts(['workflowId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all workflows from separate files (*.workflow.json) in the current directory. Ignored with -i or -a.'
-      )
+        'Import all workflows from separate files (*.workflow.json) in the current directory. Cannot be used with -i, -f or -a.'
+      ).conflicts(['workflowId', 'file', 'all'])
     )
     .addOption(
       new Option(

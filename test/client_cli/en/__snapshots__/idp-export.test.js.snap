@@ -23,13 +23,13 @@ Arguments:
 
 Options:
   -a, --all              Export all the providers in a realm to a single file.
-                         Ignored with -t and -i.
+                         Cannot be used with -i or -A.
   -A, --all-separate     Export all the providers in a realm as separate files
-                         <provider name>.idp.json. Ignored with -t, -i, and -a.
+                         <provider name>.idp.json. Cannot be used with -i, -f or
+                         -a.
   -f, --file [file]      Name of the file to write the exported provider(s) to.
-                         Ignored with -A.
-  -i, --idp-id <idp-id>  Id/name of a provider. If specified, -a and -A are
-                         ignored.
+                         Cannot be used with -A.
+  -i, --idp-id <idp-id>  Id/name of a provider. Cannot be used with -a or -A.
   -N, --no-metadata      Does not include metadata in the export file.
   -h, --help             Help
   -hh, --help-more       Help with all options.

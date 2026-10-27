@@ -22,10 +22,10 @@ Arguments:
   password               Password.
 
 Options:
-  -a, --all              Delete all applications. Ignored with -i or -n.
-  -i, --app-id <id>      Application id. If specified, -n and -a are ignored.
-                         (pick from application)
-  -n, --app-name <name>  Application name. If specified, -a is ignored.
+  -a, --all              Delete all applications. Cannot be used with -i or -n.
+  -i, --app-id <id>      Application id. Cannot be used with -n or -a. (pick
+                         from application)
+  -n, --app-name <name>  Application name. Cannot be used with -i or -a.
   --no-deep              No deep delete. This leaves orphaned configuration
                          artifacts behind.
   -h, --help             Help

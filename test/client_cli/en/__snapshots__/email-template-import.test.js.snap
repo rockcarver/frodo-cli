@@ -26,20 +26,21 @@ Arguments:
 
 Options:
   -a, --all                        Import all email templates from single file.
-                                   Ignored with -i.
+                                   Cannot be used with -i or -A.
   -A, --all-separate               Import all email templates from separate
                                    files (*.template.email.json) in the current
-                                   directory. Ignored with -i or -a.
-  -f, --file <file>                Name of the import file.
-  -i, --template-id <template-id>  Email template id/name. If specified, -a and
-                                   -A are ignored.
+                                   directory. Cannot be used with -i, -f or -a.
+  -f, --file <file>                Name of the import file. Cannot be used with
+                                   -A.
+  -i, --template-id <template-id>  Email template id/name. Cannot be used with
+                                   -a or -A.
   --raw                            Import raw email template files. Raw
                                    templates do not contain the id/name,
                                    therefore when using -A or -f without -i, the
                                    email template id/name is parsed from the
                                    file name; Make sure your template files are
                                    named 'emailTemplate-<id/name>.json' or use
-                                   -f with -i. Ignored with -a.
+                                   -f with -i. Cannot be used with -a.
   -h, --help                       Help
   -hh, --help-more                 Help with all options.
   -hhh, --help-all                 Help with all options, environment variables,

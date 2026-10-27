@@ -29,8 +29,18 @@ export default function setup() {
 
   program
     .description('Delete AM services.')
-    .addOption(new Option('-i, --id <id>', 'Id of Service to be deleted.'))
-    .addOption(new Option('-a, --all', 'Delete all services. Ignored with -i.'))
+    .addOption(
+      new Option(
+        '-i, --id <id>',
+        'Id of Service to be deleted. Cannot be used with -a.'
+      ).conflicts(['all'])
+    )
+    .addOption(
+      new Option(
+        '-a, --all',
+        'Delete all services. Cannot be used with -i.'
+      ).conflicts(['id'])
+    )
     .addOption(new Option('-g, --global', 'Delete global services.'))
     .action(
       async (

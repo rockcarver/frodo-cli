@@ -386,11 +386,11 @@ exports[`frodo authz policy export "frodo authz policy export --modified-propert
 }
 `;
 
-exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs 1`] = `0`;
+exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs 1`] = `0`;
 
-exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs 2`] = `""`;
+exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs 2`] = `""`;
 
-exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs: my-Test-Policy.policy.authz.json 1`] = `
+exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs: my-Test-Policy.policy.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {
@@ -1032,11 +1032,12 @@ exports[`frodo authz policy export "frodo authz policy export -i 'Test Policy'":
       "name": "Google Profile Normalization",
       "script": [
         "/*",
-        " * Copyright 2020 ForgeRock AS. All Rights Reserved",
+        " * Copyright 2020-2025 Ping Identity Corporation. All Rights Reserved",
         " *",
-        " * Use of this code requires a commercial software license with ForgeRock AS.",
-        " * or with one of its affiliates. All use shall be exclusively subject",
-        " * to such license between the licensee and ForgeRock AS.",
+        " * This code is to be used exclusively in connection with Ping Identity",
+        " * Corporation software or services. Ping Identity Corporation only offers",
+        " * such software or services to legal entities who have entered into a",
+        " * binding license agreement with Ping Identity Corporation.",
         " */",
         "",
         "import static org.forgerock.json.JsonValue.field",
@@ -1052,6 +1053,7 @@ exports[`frodo authz policy export "frodo authz policy export -i 'Test Policy'":
         "        field("email", rawProfile.email),",
         "        field("username", rawProfile.email),",
         "        field("locale", rawProfile.locale)))",
+        "",
       ],
     },
   },

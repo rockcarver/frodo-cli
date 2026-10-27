@@ -29,14 +29,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --variable-id <variable-id>',
-        'Variable id. If specified, -a is ignored.'
-      )
+        'Variable id. Cannot be used with -a.'
+      ).conflicts(['all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all variable in a realm. Ignored with -i.'
-      )
+        'Delete all variable in a realm. Cannot be used with -i.'
+      ).conflicts(['variableId'])
     )
     .addOption(
       new Option(

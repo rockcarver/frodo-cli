@@ -17,14 +17,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --script-id <uuid>',
-        'Uuid of the script. If specified, -a and -A are ignored.'
-      )
+        'Uuid of the script. If specified, -n and -A cannot be used.'
+      ).conflicts(['scriptName', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --script-name <name>',
-        'Name of the script. If specified, -a and -A are ignored.'
-      )
+        'Name of the script. If specified, -i and -A cannot be used.'
+      ).conflicts(['scriptId', 'allSeparate'])
     )
     .addOption(
       new Option(
@@ -42,8 +42,8 @@ export default function setup() {
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all scripts from separate files (*.script.json) in the current directory. Ignored with -n.'
-      )
+        'Import all scripts from separate files (*.script.json) in the current directory. Cannot be used with -i or -n.'
+      ).conflicts(['scriptId', 'scriptName'])
     )
     .addOption(
       new Option(
@@ -61,7 +61,7 @@ export default function setup() {
       new Option(
         '--no-deps',
         'Do not include script dependencies (i.e. library scripts). Can only be used with -n or -i.'
-      )
+      ).conflicts(['all', 'allSeparate'])
     )
     .requireOneOf({
       options: ['allSeparate', 'file'],

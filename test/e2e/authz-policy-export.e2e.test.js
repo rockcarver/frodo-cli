@@ -2,7 +2,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -i 'Test Policy'
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --set-id test-policy-set --no-deps --prereqs
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --no-deps --prereqs
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -MNi 'Test Policy' -D authzPolicyExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export --all --file my-allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs
@@ -25,9 +25,9 @@ describe('frodo authz policy export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo authz policy export --policy-id \'Test Policy\' -f my-Test-Policy.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs', async () => {
+    test('"frodo authz policy export --policy-id \'Test Policy\' -f my-Test-Policy.policy.authz.json --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs', async () => {
         const exportFile = "my-Test-Policy.policy.authz.json";
-        const CMD = `frodo authz policy export --policy-id 'Test Policy' -f ${exportFile} --set-id test-policy-set --no-deps --prereqs`;
+        const CMD = `frodo authz policy export --policy-id 'Test Policy' -f ${exportFile} --no-deps --prereqs`;
         await testExport(CMD, env, type, exportFile);
     });
 

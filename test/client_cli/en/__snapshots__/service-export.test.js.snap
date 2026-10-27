@@ -24,14 +24,15 @@ Arguments:
   password                       Password.
 
 Options:
-  -a, --all                      Export all services to a single file.
+  -a, --all                      Export all services to a single file. Cannot be
+                                 used with -i or -A.
   -A, --all-separate             Export all services to separate files
                                  (*.service.json) in the current directory.
-                                 Ignored with -a.
-  -f, --file <file>              Name of the export file.
+                                 Cannot be used with -i, -f or -a.
+  -f, --file <file>              Name of the export file. Cannot be used with
+                                 -A.
   -g, --global                   Export global services.
-  -i, --service-id <service-id>  Service id. If specified, -a and -A are
-                                 ignored.
+  -i, --service-id <service-id>  Service id. Cannot be used with -a or -A.
   -N, --no-metadata              Does not include metadata in the export file.
   -h, --help                     Help
   -hh, --help-more               Help with all options.

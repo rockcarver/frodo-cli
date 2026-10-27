@@ -21,9 +21,10 @@ Arguments:
   password          Password.
 
 Options:
-  -a, --all         Delete all services. Ignored with -i.
+  -a, --all         Delete all services. Cannot be used with -i.
   -g, --global      Delete global services.
-  -i, --id <id>     Id of Service to be deleted. (pick from service)
+  -i, --id <id>     Id of Service to be deleted. Cannot be used with -a. (pick
+                    from service)
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

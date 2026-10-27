@@ -20,12 +20,17 @@ export default function setup() {
 
   program
     .description('Describe server.')
-    .addOption(new Option('-i, --server-id <server-id>', 'Server id.'))
+    .addOption(
+      new Option(
+        '-i, --server-id <server-id>',
+        'Server id. Cannot be used with -u.'
+      ).conflicts(['serverUrl'])
+    )
     .addOption(
       new Option(
         '-u, --server-url <server-url>',
-        'Server url. Can be a unique substring of the full url (if not unique, it will error out).'
-      )
+        'Server url. Can be a unique substring of the full url (if not unique, it will error out). Cannot be used with -i.'
+      ).conflicts(['serverId'])
     )
     .action(
       // implement command logic inside action handler

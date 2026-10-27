@@ -41,9 +41,9 @@ exports[`frodo authz policy import "frodo authz policy import --force-update --f
 "
 `;
 
-exports[`frodo authz policy import "frodo authz policy import --force-update --policy-id 'Test Policy' --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should import the policy with the id "Test Policy" from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 1`] = `""`;
+exports[`frodo authz policy import "frodo authz policy import --force-update --policy-id 'Test Policy' --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --no-deps --prereqs": should import the policy with the id "Test Policy" from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 1`] = `""`;
 
-exports[`frodo authz policy import "frodo authz policy import --force-update --policy-id 'Test Policy' --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should import the policy with the id "Test Policy" from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 2`] = `
+exports[`frodo authz policy import "frodo authz policy import --force-update --policy-id 'Test Policy' --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --no-deps --prereqs": should import the policy with the id "Test Policy" from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 2`] = `
 "✔ Imported Test Policy.
 "
 `;

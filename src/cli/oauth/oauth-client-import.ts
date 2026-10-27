@@ -17,21 +17,21 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --app-id <id>',
-        'Client id. If specified, only one client is imported and the options -a and -A are ignored.'
-      )
+        'Client id. If specified, only one client is imported and the options -a or -A cannot be used.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
     .addOption(
       new Option(
         '-a, --all',
-        'Import all clients from single file. Ignored with -i.'
-      )
+        'Import all clients from single file. Cannot be used with -i.'
+      ).conflicts(['appId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all clients from separate files (*.app.json) in the current directory. Ignored with -i or -a.'
-      )
+        'Import all clients from separate files (*.app.json) in the current directory. Cannot be used with -i or -a.'
+      ).conflicts(['appId', 'all'])
     )
     .addOption(
       new Option('--no-deps', 'Do not include any dependencies (scripts).')

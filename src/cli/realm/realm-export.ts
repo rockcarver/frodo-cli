@@ -17,27 +17,32 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --realm-id <realm-id>',
-        'Realm id. If specified, -n, -a, and -A are ignored.'
-      )
+        'Realm id. If specified, -n, -a, and -A cannot be used.'
+      ).conflicts(['realmName', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --realm-name <realm-name>',
-        'Realm name. If specified, -a and -A are ignored.'
-      )
+        'Realm name. If specified, -i, -a or -A cannot be used.'
+      ).conflicts(['realmId', 'all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the export file. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all realms to a single file. Ignored with -i or -n.'
-      )
+        'Export all realms to a single file. Cannot be used with -i, -n or -A.'
+      ).conflicts(['realmId', 'realmName', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all realms to separate files (*.realm.json) in the current directory. Ignored with -i, -n, or -a.'
-      )
+        'Export all realms to separate files (*.realm.json) in the current directory. Cannot be used with -i, -n or -a.'
+      ).conflicts(['realmId', 'realmName', 'all'])
     )
     .addOption(
       new Option(

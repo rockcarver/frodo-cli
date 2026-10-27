@@ -24,18 +24,17 @@ Arguments:
   password                     Password.
 
 Options:
-  -a, --all                    Import all custom nodes from single file. Ignored
-                               with -i or -n.
+  -a, --all                    Import all custom nodes from single file. Cannot
+                               be used with -i, -n or -A.
   -A, --all-separate           Import all custom nodes from separate files
                                (*.nodeTypes.json) in the current directory.
-                               Ignored with -i, -n, or -a.
-  -f, --file <file>            Name of the file to import.
-  -i, --node-id <node-id>      Custom node id or service name. If specified,
-                               only one custom node is imported and the options
-                               -n, -a and -A are ignored.
-  -n, --node-name <node-name>  Custom node display name. If specified, only one
-                               custom node is imported and the options -a and -A
-                               are ignored.
+                               Cannot be used with -i, -n, -f or -a.
+  -f, --file <file>            Name of the file to import. Cannot be used with
+                               -A.
+  -i, --node-id <node-id>      Custom node id or service name. Cannot be used
+                               with -n, -a or -A.
+  -n, --node-name <node-name>  Custom node display name. Cannot be used with -i,
+                               -a or -A.
   --re-uuid                    Re-UUID. Create a new UUID (and service name) for
                                the custom node upon import. Use this to
                                duplicate a custom node or create a new version

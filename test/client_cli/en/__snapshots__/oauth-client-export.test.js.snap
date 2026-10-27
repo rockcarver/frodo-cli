@@ -22,13 +22,13 @@ Arguments:
   password               Password.
 
 Options:
-  -a, --all              Export all OAuth2 apps to a single file. Ignored with
-                         -i.
+  -a, --all              Export all OAuth2 apps to a single file. Cannot be used
+                         with -i or -A.
   -A, --all-separate     Export all OAuth2 apps to separate files
-                         (*.oauth2.app.json) in the current directory. Ignored
-                         with -i or -a.
-  -f, --file <file>      Name of the export file.
-  -i, --app-id <app-id>  App id. If specified, -a and -A are ignored.
+                         (*.oauth2.app.json) in the current directory. Cannot be
+                         used with -i or -a.
+  -f, --file <file>      Name of the export file. Cannot be used with -A.
+  -i, --app-id <app-id>  App id. If specified, -a or -A cannot be used.
   -N, --no-metadata      Does not include metadata in the export file.
   --no-deps              Do not include any dependencies (scripts).
   -h, --help             Help

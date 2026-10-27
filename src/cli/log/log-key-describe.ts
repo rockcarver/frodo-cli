@@ -16,12 +16,7 @@ export default function setup() {
 
   program
     .description('Describe log API keys.')
-    .addOption(
-      new Option(
-        '-i, --key-id <key-id>',
-        'Key id. If specified, -a and -A are ignored.'
-      )
-    )
+    .addOption(new Option('-i, --key-id <key-id>', 'Key id.'))
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {

@@ -24,13 +24,14 @@ Arguments:
   password                     Password.
 
 Options:
-  -a, --all                    Export policies to a single file. Ignored with
-                               -i.
+  -a, --all                    Export policies to a single file. Cannot be used
+                               with -i or -A.
   -A, --all-separate           Export policies to separate files
                                (*.policy.authz.json) in the current directory.
-                               Ignored with -i or -a.
-  -f, --file <file>            Name of the export file.
-  -i, --policy-id <policy-id>  Policy id. If specified, -a and -A are ignored.
+                               Cannot be used with -i, -f or -a.
+  -f, --file <file>            Name of the export file. Cannot be used with -A.
+  -i, --policy-id <policy-id>  Policy id. Cannot be used with --set-id, -a or
+                               -A.
   -M, --modified-properties    Include modified properties in export (e.g.
                                lastModifiedDate, lastModifiedBy, createdBy,
                                creationDate, etc.) (default: false)
@@ -38,8 +39,8 @@ Options:
   --no-deps                    Do not include dependencies (scripts).
   --prereqs                    Include prerequisites (policy sets, resource
                                types).
-  --set-id <set-id>            Export policies in policy set only. Ignored with
-                               -i.
+  --set-id <set-id>            Export policies in policy set only. Cannot be
+                               used with -i.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

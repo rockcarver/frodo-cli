@@ -22,8 +22,8 @@ Arguments:
   password                   Password.
 
 Options:
-  -a, --all                  Delete all AI agents. Ignored with -i.
-  -i, --agent-id <agent-id>  Agent id. If specified, -a is ignored.
+  -a, --all                  Delete all AI agents. Cannot be used with -i.
+  -i, --agent-id <agent-id>  Agent id. Cannot be used with -a.
   -h, --help                 Help
   -hh, --help-more           Help with all options.
   -hhh, --help-all           Help with all options, environment variables, and

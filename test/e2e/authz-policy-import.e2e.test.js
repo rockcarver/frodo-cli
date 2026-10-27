@@ -2,7 +2,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import -Fi 'Test Policy' -f test/e2e/exports/all/allAlphaPolicies.policy.authz.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import --force-update --policy-id 'Test Policy' --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import --force-update --policy-id 'Test Policy' --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --no-deps --prereqs
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import -i 'Test Policy' -f allAlphaPolicies.policy.authz.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import -Ff test/e2e/exports/all/allAlphaPolicies.policy.authz.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import --force-update --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs
@@ -36,8 +36,8 @@ describe('frodo authz policy import', () => {
         await testSuccess(CMD, env);
     });
 
-    test(`"frodo authz policy import --force-update --policy-id 'Test Policy' --file ${allAlphaPoliciesExport} --set-id test-policy-set --no-deps --prereqs": should import the policy with the id "Test Policy" from the file "${allAlphaPoliciesExport}" with no dependencies`, async () => {
-        const CMD = `frodo authz policy import --force-update --policy-id 'Test Policy' --file ${allAlphaPoliciesExport} --set-id test-policy-set --no-deps --prereqs`;
+    test(`"frodo authz policy import --force-update --policy-id 'Test Policy' --file ${allAlphaPoliciesExport} --no-deps --prereqs": should import the policy with the id "Test Policy" from the file "${allAlphaPoliciesExport}" with no dependencies`, async () => {
+        const CMD = `frodo authz policy import --force-update --policy-id 'Test Policy' --file ${allAlphaPoliciesExport} --no-deps --prereqs`;
         await testSuccess(CMD, env);
     });
 

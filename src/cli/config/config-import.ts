@@ -19,20 +19,20 @@ export default function setup() {
     .addOption(
       new Option(
         '-f, --file <file>',
-        'Name of the file to import. Ignored with -A. If included without -a, it will import the single entity within the file.'
-      )
+        'Name of the file to import. Cannot be used with -A. If included without -a, it will import the single entity within the file.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Import all configuration from the single file -f, including every realm in it. Ignored with -i.'
-      )
+        'Import all configuration from the single file -f. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all configuration from separate (.json) files in the (working) directory -D, including every realm directory under realm/. Ignored with -i or -a.'
-      )
+        'Import all configuration from separate (.json) files in the (working) directory -D. Cannot be used with -f or -a.'
+      ).conflicts(['file', 'all'])
     )
     .addOption(
       new Option('-C, --clean', 'Remove existing service(s) before importing.')
@@ -85,8 +85,8 @@ export default function setup() {
     .addOption(
       new Option(
         '-g, --global',
-        'Import global entity. Ignored with -a and -A.'
-      )
+        'Import global entity. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addHelpText(
       'after',

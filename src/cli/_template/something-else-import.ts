@@ -21,21 +21,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --else-id <else-id>',
-        '[Else] id. If specified, only one [else] is imported and the options -a and -A are ignored.'
-      )
+        '[Else] id. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the file to import. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Import all [else] from single file. Ignored with -i.'
-      )
+        'Import all [else] from single file. Cannot be used with -i or -A.'
+      ).conflicts(['elseId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all [else] from separate files (*.[else].json) in the current directory. Ignored with -i or -a.'
-      )
+        'Import all [else] from separate files (*.[else].json) in the current directory. Cannot be used with -i, -f or -a.'
+      ).conflicts(['elseId', 'file', 'all'])
     )
     .addHelpText(
       'after',
