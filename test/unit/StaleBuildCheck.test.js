@@ -135,12 +135,50 @@ describe("staleBuildWarnings: this checkout's dist/", () => {
     expect(staleBuildWarnings({ root, env: {} })).toHaveLength(2);
   });
 
-  it('does not check dist/ for the SEA binary, which has its own build', () => {
-    write(path.join(root, 'dist', 'launch.cjs'), 1);
-    write(path.join(root, 'src', 'cli', 'a.ts'), 2);
+  it('in SEA mode (npm run test:binary) also checks dist-sea/frodo and points at build:binary', () => {
+    write(path.join(root, 'dist', 'launch.cjs'), 2);
+    write(path.join(root, 'dist-sea', 'frodo'), 1);
+    write(path.join(root, 'src', 'cli', 'a.ts'), 3);
+    const env = { FRODO_TEST_BINARY: 'sea' };
+    const warnings = staleBuildWarnings({ root, env });
+    expect(warnings).toHaveLength(2);
+    expect(warnings.every((w) => w.includes('npm run build:binary'))).toBe(
+      true
+    );
     expect(
-      staleBuildWarnings({ root, env: { FRODO_TEST_BINARY: 'sea' } })
-    ).toEqual([]);
+      warnings.some((w) => w.includes("This checkout's dist-sea/ is older"))
+    ).toBe(true);
+  });
+
+  it('in SEA mode says nothing for a fresh binary, or when it is missing (the scripts build it then)', () => {
+    const env = { FRODO_TEST_BINARY: 'sea' };
+    write(path.join(root, 'src', 'cli', 'a.ts'), 1);
+    write(path.join(root, 'dist', 'launch.cjs'), 2);
+    expect(staleBuildWarnings({ root, env })).toEqual([]);
+    write(path.join(root, 'dist-sea', 'frodo'), 2);
+    expect(staleBuildWarnings({ root, env })).toEqual([]);
+  });
+
+  it('looks for frodo.exe on Windows', () => {
+    write(path.join(root, 'dist', 'launch.cjs'), 4);
+    write(path.join(root, 'dist-sea', 'frodo.exe'), 1);
+    write(path.join(root, 'src', 'cli', 'a.ts'), 3);
+    const env = { FRODO_TEST_BINARY: 'sea' };
+    expect(staleBuildWarnings({ root, env, platform: 'win32' })).toHaveLength(
+      1
+    );
+    expect(staleBuildWarnings({ root, env, platform: 'linux' })).toHaveLength(
+      0
+    );
+  });
+
+  it('keeps the dev-mode advice (npx tsdown) when the SEA binary is not selected', () => {
+    write(path.join(root, 'dist', 'launch.cjs'), 1);
+    write(path.join(root, 'dist-sea', 'frodo'), 1);
+    write(path.join(root, 'src', 'cli', 'a.ts'), 2);
+    const warnings = staleBuildWarnings({ root, env: {} });
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('npx tsdown');
   });
 });
 

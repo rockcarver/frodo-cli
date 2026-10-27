@@ -8,8 +8,12 @@
  *   node_modules, so the tests run the clone's built `dist/`, not the pinned
  *   package CI installs. `git pull` or a branch switch in the clone moves the
  *   source forward and leaves `dist/` behind.
- * - This checkout's own `dist/`. The test scripts build it only when it is
+ * - This checkout's own build. The test scripts build it only when it is
  *   missing, so an existing one is never refreshed after a change to `src/`.
+ *   The default (dev) mode runs `dist/launch.cjs`; `npm run test:binary`
+ *   (FRODO_TEST_BINARY=sea, what CI runs) runs the SEA binary
+ *   `dist-sea/frodo`, and the npm-entry smoke suite runs `dist/launch.cjs`
+ *   in both modes, so `dist/launch.cjs` is always checked.
  *
  * Only a warning is produced; the caller decides what to do with it. Stat
  * calls only, no builds and no network.
@@ -69,7 +73,11 @@ function describeNewer(newer, base) {
  * @param {{ root: string, env?: NodeJS.ProcessEnv }} options
  * @returns {string[]} one message per stale build, empty when everything is fresh
  */
-export function staleBuildWarnings({ root, env = process.env }) {
+export function staleBuildWarnings({
+  root,
+  env = process.env,
+  platform = process.platform,
+}) {
   if (env.FRODO_SKIP_STALE_CHECK === '1' || env.CI === 'true') return [];
   const warnings = [];
   const see =
@@ -107,22 +115,32 @@ export function staleBuildWarnings({ root, env = process.env }) {
     }
   }
 
-  // 2. This checkout's dist/. The test scripts build it only when it is missing,
-  // and the SEA binary has its own build, so only the dev (shim) mode is checked.
-  if (env.FRODO_TEST_BINARY !== 'sea') {
-    const dist = path.join(root, 'dist', 'launch.cjs');
-    if (fs.existsSync(dist)) {
-      const newer = newerSources(
-        path.join(root, 'src'),
-        fs.statSync(dist).mtimeMs
+  // 2. This checkout's own build. The test scripts build it only when it is
+  // missing, so an existing one is never refreshed.
+  const sea = env.FRODO_TEST_BINARY === 'sea';
+  const rebuild = sea ? 'npm run build:binary' : 'npx tsdown';
+  const artifacts = [
+    { label: 'dist/', file: path.join(root, 'dist', 'launch.cjs') },
+  ];
+  if (sea) {
+    const name = platform === 'win32' ? 'frodo.exe' : 'frodo';
+    artifacts.push({
+      label: 'dist-sea/',
+      file: path.join(root, 'dist-sea', name),
+    });
+  }
+  for (const { label, file } of artifacts) {
+    if (!fs.existsSync(file)) continue; // the test scripts build a missing one
+    const newer = newerSources(
+      path.join(root, 'src'),
+      fs.statSync(file).mtimeMs
+    );
+    if (newer.length > 0) {
+      warnings.push(
+        `This checkout's ${label} is older than src/ (${describeNewer(newer, root)}). ` +
+          `The test scripts do not rebuild an existing ${label}, so the tests would run old code. ` +
+          `Run \`${rebuild}\` first. ${see}`
       );
-      if (newer.length > 0) {
-        warnings.push(
-          `This checkout's dist/ is older than src/ (${describeNewer(newer, root)}). ` +
-            `The test scripts do not rebuild an existing dist/, so the tests would run old code. ` +
-            `Run \`npx tsdown\` first. ${see}`
-        );
-      }
     }
   }
   return warnings;
