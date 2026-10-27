@@ -28,14 +28,20 @@ npm run test:serial                  # replay everything, one file at a time
 
 Replay needs no network access and no credentials of yours.
 
-**The binary under test is this checkout's build, and the test scripts pin it for you.** Every `npm run test:*` script goes through `tools/with-frodo-bin.mjs`, which builds `dist-sea/frodo` on demand (guarded by a lock file so concurrent runs don't clobber each other) and prepends `dist-sea` to `PATH` for the run — tests spawn exactly that binary, never whatever stale `frodo` might sit elsewhere on your `PATH`. The binary bundles frodo-lib, so a foreign binary would fail in confusing ways (typically `Recording for the following request has expired / is not found` for changes it doesn't contain) — but the pin makes that a non-issue for npm-script runs. Before trusting a result:
+**The binary under test is this checkout's build, and the test scripts pin it for you.** Every `npm run test:*` script goes through `tools/with-frodo-bin.mjs`, which builds this checkout's artifact on demand if it is missing (guarded by a lock file so concurrent runs don't clobber each other) and prepends its directory to `PATH` for the run — tests spawn exactly that build, never whatever stale `frodo` might sit elsewhere on your `PATH`. There are two modes, and **an existing artifact is never rebuilt in either**:
+
+- **dev (the default: `npm test`, `npm run test:only`, `npm run test:serial`, ...)** runs `node dist/launch.cjs` through the shim in `test/e2e/shims/`. A missing `dist/` is built with `npm run build:only`.
+- **sea (`npm run test:binary`, which is what CI's Test job runs)** runs the single-executable binary `dist-sea/frodo`. A missing one is built with `npm run build:binary` (Node 26).
+
+The build bundles frodo-lib, so a foreign binary would fail in confusing ways (typically `Recording for the following request has expired / is not found` for changes it doesn't contain) — but the pin makes that a non-issue for npm-script runs. Before trusting a result:
 
 ```console
-test/e2e/utils/FrodoBinary.cjs        # how the binary path is resolved
-ls dist-sea/frodo                     # built on first test run; rm -rf to force a rebuild
+test/e2e/utils/FrodoBinary.cjs        # how the artifact path is resolved
+ls dist/launch.cjs                    # dev mode: built on the first test run, then never refreshed
+ls dist-sea/frodo                     # sea mode: same; remove it to force a rebuild
 ```
 
-After changing frodo-lib, rebuild it first and then rebuild frodo-cli (`npm run build` in each; `npm run build:binary` re-cuts the SEA binary); after changing only frodo-cli, `npm run build` here. If you bypass the npm scripts and invoke `npx jest` directly, run `node tools/with-frodo-bin.mjs npx jest ...` instead, or set up the pin yourself — see `FrodoBinary.cjs`'s `getTestBinaryPath()`.
+After changing frodo-cli, rebuild what the mode runs: `npx tsdown` (or `npm run build:only`) for the default scripts, `npm run build:binary` for `test:binary`. After changing frodo-lib — and after every `git pull` or branch switch in a linked clone, because its `dist/` is not rebuilt for you and the tests run that build, not the published package CI uses — run `npm run build` in the library first, then rebuild the CLI as above. If you bypass the npm scripts and invoke `npx jest` directly, run `node tools/with-frodo-bin.mjs npx jest ...` instead, or set up the pin yourself — see `FrodoBinary.cjs`'s `getTestBinaryPath()`. The wrapper also prints a `WARNING` when a linked frodo-lib's `dist/`, or the artifact the mode runs, is older than its source; the `run-the-tests` skill (`.claude/skills/run-the-tests/SKILL.md`) says how to read a failing run.
 
 ## How the harness works
 

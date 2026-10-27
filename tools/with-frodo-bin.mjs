@@ -11,12 +11,22 @@
  * The binary is built on demand if missing (see FrodoBinary.cjs).
  */
 import { createRequire } from 'module';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { staleBuildWarnings } from './StaleBuildCheck.mjs';
 
 const require = createRequire(import.meta.url);
 const { ensureFrodoArtifact, getTestBinaryPath } = require('../test/e2e/utils/FrodoBinary.cjs');
 
 ensureFrodoArtifact();
 process.env.PATH = getTestBinaryPath();
+
+// An existing dist/ is never rebuilt here, and a linked frodo-lib has its own
+// dist/. Warn (never fail) when either is older than its source.
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+for (const warning of staleBuildWarnings({ root })) {
+  console.error(`\nWARNING: ${warning}\n`);
+}
 
 const [cmd, ...args] = process.argv.slice(2);
 const child = import('node:child_process');
