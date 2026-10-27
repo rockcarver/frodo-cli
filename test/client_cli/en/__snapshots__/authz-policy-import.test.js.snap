@@ -32,14 +32,13 @@ Options:
                                -a.
   -f, --file <file>            Name of the file to import. Cannot be used with
                                -A.
-  -i, --policy-id <policy-id>  Policy id. Cannot be used with --set-id, -a or
-                               -A.
+  -i, --policy-id <policy-id>  Policy id. If specified, only one policy is
+                               imported. Cannot be used with -a or -A.
   --no-deps                    Do not import dependencies (scripts) even if they
                                are available in the import file.
   --prereqs                    Import prerequisites (policy sets, resource
                                types) if they are available in the import file.
-  --set-id <set-id>            Import policies into this policy set. Cannot be
-                               used with -i.
+  --set-id <set-id>            Import policies into this policy set.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

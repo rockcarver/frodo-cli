@@ -26,15 +26,12 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --secret-id <secret-id>',
-        'Secret id. Cannot be used with -a.'
-      ).conflicts(['all'])
+        'Secret id. If specified, -a is ignored.'
+      )
     )
     .addOption(new Option('-v, --version <version>', 'Version of secret.'))
     .addOption(
-      new Option(
-        '-a, --all',
-        'Delete all secrets in a realm. Cannot be used with -i.'
-      ).conflicts(['secretId'])
+      new Option('-a, --all', 'Delete all secrets in a realm. Ignored with -i.')
     )
     .requireAllOf({
       options: ['secretId', 'version'],

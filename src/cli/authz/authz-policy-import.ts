@@ -17,14 +17,11 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --policy-id <policy-id>',
-        'Policy id. Cannot be used with --set-id, -a or -A.'
-      ).conflicts(['setId', 'all', 'allSeparate'])
+        'Policy id. If specified, only one policy is imported. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
-      new Option(
-        '--set-id <set-id>',
-        'Import policies into this policy set. Cannot be used with -i.'
-      ).conflicts(['policyId'])
+      new Option('--set-id <set-id>', 'Import policies into this policy set.')
     )
     .addOption(
       new Option(
