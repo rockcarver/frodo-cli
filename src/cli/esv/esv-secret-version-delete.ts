@@ -23,16 +23,8 @@ export default function setup() {
 
   program
     .description('Delete versions of secrets.')
-    .addOption(
-      new Option(
-        '-i, --secret-id <secret-id>',
-        'Secret id. If specified, -a is ignored.'
-      )
-    )
+    .addOption(new Option('-i, --secret-id <secret-id>', 'Secret id.'))
     .addOption(new Option('-v, --version <version>', 'Version of secret.'))
-    .addOption(
-      new Option('-a, --all', 'Delete all secrets in a realm. Ignored with -i.')
-    )
     .requireAllOf({
       options: ['secretId', 'version'],
       purpose: 'which secret version',
@@ -62,12 +54,6 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a
-        // else if (options.all && (await getTokens(false, true, deploymentTypes))) {
-        //   printMessage('Deleting all versions...');
-        //   const outcome = deleteJourneys(options);
-        //   if (!outcome) process.exitCode = 1;
-        // }
         // No branch ran: with requireAllOf satisfied, the only ways here
         // are getTokens() failing or the user escaping the entity picker --
         // keep the old exit-1 semantics.

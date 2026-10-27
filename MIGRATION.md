@@ -64,6 +64,14 @@ The rejected combinations follow these patterns:
 | `--alias` with `--all`                                                                                 | `secretstore mapping alias delete`                                                                                                                                                                                                                  |
 | `--no-sa` with `--sa-id` or `--sa-jwk-file`; `--no-log-api` with `--log-api-key` or `--log-api-secret` | `conn save`                                                                                                                                                                                                                                         |
 
+**New command and a removed option**: `frodo esv secret version prune` deletes
+the old versions of one secret (`-i`) or of all secrets (`-a`) and keeps the
+active version. `frodo esv secret version delete` lost its `-a, --all` option:
+it never did anything on its own (the command always needed `-i` and `-v`, and
+with `-i` the option was ignored), so `frodo esv secret version delete -a -i
+<secret-id> -v <version>` is now rejected as an unknown option. Drop `-a`; to
+remove old versions, use `prune`.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm
