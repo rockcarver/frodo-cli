@@ -16,6 +16,14 @@ The full guide is [docs/CONTRIBUTE.md, "Writing a command"](../../docs/CONTRIBUT
 - **Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`,** not `console.log`.
 - **Name functions with CRUDQ verbs** (`createX`, `readX`, `updateX`, `deleteX`, `queryX`; `getX`/`setX` for one property; `enableX`/`disableX` for status). See CONTRIBUTE.md.
 
+## Options that cannot be combined
+
+- **Declare the conflict on both options with `.conflicts([...])`,** each naming the other by its attribute name (camelCase; the attribute name of a negatable `--no-x` option is `x`, not `noX`), and say "Cannot be used with ..." in the help.
+- **A conflict never contradicts a requirement.** Do not make an option conflict with a `requireAllOf` member or a `makeOptionMandatory` option, and keep every `requireOneOf` member usable. `test/unit/OptionConflicts.test.js` fails for a conflict target that names no option and for a contradiction.
+- **Before you conflict a modifier (`--set-id`, `--no-deps`, `-g`, ...) with a one-of member (`-i`, `-a`, `-A`), read that member's branch of the action.** Conflict only where the branch ignores the modifier; the test cannot tell. A newly rejected combination goes into [MIGRATION.md](../../MIGRATION.md) in the same pull request.
+
+Decision: [0032 mutually exclusive options are declared and never contradict a requirement](../../docs/decisions/0032-mutually-exclusive-options-are-declared-and-never-contradict-a-requirement.md).
+
 ## Usage examples: required, correct, and no prompts
 
 Every command has a `Usage Examples:` block, shown by `-hhh`. Model it on `src/cli/info/info.ts` and `src/cli/conn/conn-save.ts`:

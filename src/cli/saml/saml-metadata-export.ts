@@ -10,17 +10,12 @@ export default function setup() {
 
   program
     .description('Export SAML metadata.')
-    .addOption(
-      new Option(
-        '-i, --entity-id <entity-id>',
-        'Entity id. If specified, -A cannot be used.'
-      ).conflicts(['allSeparate'])
-    )
+    .addOption(new Option('-i, --entity-id <entity-id>', 'Entity id.'))
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Name of the file to write the exported metadata to. Cannot be used with -A. If not specified, the export file is named <entity-id>.metadata.xml.'
-      ).conflicts(['allSeparate'])
+        'Name of the file to write the exported metadata to. If not specified, the export file is named <entity-id>.metadata.xml.'
+      )
     )
     // .addOption(
     //   new Option(
@@ -29,7 +24,7 @@ export default function setup() {
     //   ).conflicts(['entityId', 'all])
     // )
     .requireOneOf({
-      options: ['allSeparate', 'entityId'],
+      options: ['entityId'],
       purpose: 'what to export',
     })
     .action(

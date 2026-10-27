@@ -19,20 +19,20 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --role-id <role-id>',
-        'Role id. If specified, only one role is deleted and the options -n, -a or -A cannot be used.'
-      ).conflicts(['roleName', 'all', 'allSeparate'])
+        'Role id. If specified, only one role is deleted and the options -n or -a cannot be used.'
+      ).conflicts(['roleName', 'all'])
     )
     .addOption(
       new Option(
         '-n, --role-name <role-name>',
-        'Role name. If specified, only one role is deleted and the options -i, -a or -A cannot be used.'
-      ).conflicts(['roleId', 'all', 'allSeparate'])
+        'Role name. If specified, only one role is deleted and the options -i or -a cannot be used.'
+      ).conflicts(['roleId', 'all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all roles. Cannot be used with -i.'
-      ).conflicts(['roleId', 'allSeparate'])
+        'Delete all roles. Cannot be used with -i or -n.'
+      ).conflicts(['roleId', 'roleName'])
     )
     .action(
       // implement command logic inside action handler
