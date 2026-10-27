@@ -36,7 +36,7 @@ Notes:
 
 **The test scripts do not rebuild `dist/`.** Client_cli, e2e and PTY tests run `dist/launch.cjs` (through the shim in `test/e2e/shims/`) and build it only when it is missing. After every change to `src/`, run `npx tsdown`, or the tests exercise the old code and pass or fail for the wrong reason.
 
-Do not edit `src/` or rebuild `dist/` while a test run is in progress: the test workers read files mid-run and report failures that are not real.
+Do not edit `src/` or rebuild `dist/` while a test run is in progress: the test workers read files mid-run and report failures that are not real. How to run the tests and judge a failure: [run-the-tests](../run-the-tests/SKILL.md).
 
 ## Check before you finish
 
@@ -65,13 +65,13 @@ npx tsdown
 node dist/launch.cjs -v                     # the lib line now shows the time of your local lib build
 ```
 
-- **After every library change, rebuild the library (`npm run build` there) and then the CLI (`npx tsdown`).** `npm run dev` does not pick up library rebuilds.
+- **After every library change, pull or branch switch in the clone, rebuild the library (`npm run build` there) and then the CLI (`npx tsdown`).** A pull moves the library source forward and leaves its `dist/` behind; the tests run that `dist/`, so snapshots can fail here while CI is green. `tools/with-frodo-bin.mjs` warns about it. `npm run dev` does not pick up library rebuilds.
 - **`npm ci` or `npm install` removes the link.** Run `npm run link` again.
 - The CLI pins an exact `@rockcarver/frodo-lib` version in `package.json` (cli record 0012). A pull request that needs an unreleased library change cannot merge until that library is released and the pin updated; say so in the pull request instead of working around it.
 
 ## Pitfalls
 
-- A **stale `dist/`** is the usual reason for a test that fails or passes unexpectedly. Rebuild first.
+- A **stale `dist/`** (this checkout's, or a linked library's) is the usual reason for a test that fails or passes unexpectedly. Rebuild first; the test wrapper warns about both.
 - **Never add a package to `dependencies`.** Packages imported by shipped code go in `devDependencies`; `dependencies` stays empty (core 0006, [published packages have no runtime dependencies](../../../docs/decisions/core/0006-published-packages-have-no-runtime-dependencies.md); the check is in BUILD-ENV.md section 2.2.1).
 - Do not edit `CHANGELOG.md`; it is generated at release time.
 

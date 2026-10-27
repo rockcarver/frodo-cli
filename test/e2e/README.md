@@ -35,7 +35,7 @@ test/e2e/utils/FrodoBinary.cjs        # how the binary path is resolved
 ls dist-sea/frodo                     # built on first test run; rm -rf to force a rebuild
 ```
 
-After changing frodo-lib, rebuild it first and then rebuild frodo-cli (`npm run build` in each; `npm run build:binary` re-cuts the SEA binary); after changing only frodo-cli, `npm run build` here. If you bypass the npm scripts and invoke `npx jest` directly, run `node tools/with-frodo-bin.mjs npx jest ...` instead, or set up the pin yourself — see `FrodoBinary.cjs`'s `getTestBinaryPath()`.
+After changing frodo-lib (and after every `git pull` or branch switch in a linked clone: its `dist/` is not rebuilt for you, and the tests run that build, not the published package CI uses), rebuild it first and then rebuild frodo-cli (`npm run build` in each; `npm run build:binary` re-cuts the SEA binary); after changing only frodo-cli, `npm run build` here. If you bypass the npm scripts and invoke `npx jest` directly, run `node tools/with-frodo-bin.mjs npx jest ...` instead, or set up the pin yourself — see `FrodoBinary.cjs`'s `getTestBinaryPath()`. The wrapper also prints a `WARNING` when a linked frodo-lib's `dist/` or this checkout's `dist/` is older than its source; the `run-the-tests` skill (`.claude/skills/run-the-tests/SKILL.md`) says how to read a failing run.
 
 ## How the harness works
 
