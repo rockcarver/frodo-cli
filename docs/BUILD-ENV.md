@@ -164,7 +164,7 @@ import both expose all 62 exports).
   Two modes:
   - **dev (default; `npm test`)**: shims in `test/e2e/shims/` exec
     `node dist/launch.cjs` — the npm/Docker entry. On-demand build =
-    `npm run build:only` (~1.3 s). No SEA build, no macOS signing — the
+    `npm run build:only` (a few seconds). No SEA build, no macOS signing — the
     developer loop needs nothing but `npm test`.
   - **sea (`npm run test:binary`, what CI's Test job runs)**: the real SEA
     binary at `dist-sea/frodo[.exe]` — exactly the artifact the release

@@ -34,7 +34,7 @@ Notes:
 
 ## Rebuild before you test
 
-**The test scripts do not rebuild `dist/`.** Client_cli, e2e and PTY tests run `dist/launch.cjs` (through the shim in `test/e2e/shims/`) and build it only when it is missing. After every change to `src/`, run `npx tsdown`, or the tests exercise the old code and pass or fail for the wrong reason.
+**The test scripts do not rebuild `dist/`.** Client_cli, e2e and PTY tests run `dist/launch.cjs` (through the shim in `test/e2e/shims/`) and build it only when it is missing. After every change to `src/`, run `npx tsdown`, or the tests exercise the old code and pass or fail for the wrong reason. `npm run test:binary`, which CI runs, tests `dist-sea/frodo` instead; see [build-the-binary](../build-the-binary/SKILL.md).
 
 Do not edit `src/` or rebuild `dist/` while a test run is in progress: the test workers read files mid-run and report failures that are not real. How to run the tests and judge a failure: [run-the-tests](../run-the-tests/SKILL.md).
 

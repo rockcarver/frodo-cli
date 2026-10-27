@@ -11,7 +11,7 @@
  *
  * - dev (default): a launcher shim whose directory is prepended to PATH; the
  *   shim execs `node dist/launch.cjs` - the npm/Docker entry. Build on
- *   demand = `npm run build:only` (~1.3s, works on any Node >= 20). This is
+ *   demand = `npm run build:only` (a few seconds, works on any Node >= 20). This is
  *   the developer loop: no SEA build, no macOS signing, no Node 26 needed.
  *
  * - sea (FRODO_TEST_BINARY=sea): the real SEA binary at
@@ -91,7 +91,7 @@ function buildBinary() {
 /**
  * Ensures this checkout's test artifact exists, building it on demand.
  *
- * - dev mode: `npm run build:only` (~1.3s, any Node that can run the
+ * - dev mode: `npm run build:only` (a few seconds, any Node that can run the
  *   bundle). If dist/ exists but predates the newest file under src/, it is
  *   rebuilt first, so local runs never silently test a stale build.
  * - sea mode: `npm run build:binary` (needs Node >= 25.5 for --build-sea;
