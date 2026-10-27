@@ -4,6 +4,7 @@ import CreateCmd from './esv-secret-version-create.js';
 import DeactivateCmd from './esv-secret-version-deactivate.js';
 import DeleteCmd from './esv-secret-version-delete.js';
 import ListCmd from './esv-secret-version-list.js';
+import PruneCmd from './esv-secret-version-prune.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('frodo esv secret version');
@@ -19,6 +20,8 @@ export default function setup() {
   program.addCommand(DeleteCmd().name('delete'));
 
   program.addCommand(ListCmd().name('list'));
+
+  program.addCommand(PruneCmd().name('prune'));
 
   return program;
 }

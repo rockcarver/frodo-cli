@@ -42,6 +42,7 @@ const {
   updateSecretDescription,
   deleteSecret: _deleteSecret,
   deleteVersionOfSecret: _deleteVersionOfSecret,
+  pruneVersionsOfSecret: _pruneVersionsOfSecret,
 } = frodo.cloud.secret;
 
 const { getFilePath, getTypedFilename, getWorkingDirectory, saveJsonToFile } =
@@ -928,4 +929,88 @@ export async function deleteVersionOfSecret(
     printError(error);
   }
   return false;
+}
+
+/**
+ * Prune the versions of a secret: delete every version except the active one
+ * (the library never deletes the active version). The library reports its own
+ * progress; this function reports each failure and returns the outcome.
+ * @param {String} secretId secret id
+ * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
+ * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
+ * @returns {Promise<boolean>} true if every version was pruned, false otherwise
+ */
+export async function pruneVersionsOfSecret(
+  secretId: string,
+  keepLoaded = false,
+  keepDeactivated = false
+): Promise<boolean> {
+  let failures = 0;
+  try {
+    await _pruneVersionsOfSecret(
+      secretId,
+      keepLoaded,
+      keepDeactivated,
+      (error) => {
+        if (error) {
+          failures++;
+          printError(error);
+        }
+      }
+    );
+  } catch (error) {
+    printError(error);
+    return false;
+  }
+  return failures === 0;
+}
+
+/**
+ * Prune the versions of all secrets (see pruneVersionsOfSecret). A failure on
+ * one secret does not stop the others, and nothing is pruned when the secrets
+ * cannot be read.
+ * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
+ * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
+ * @returns {Promise<boolean>} true if every secret was pruned, false otherwise
+ */
+export async function pruneVersionsOfSecrets(
+  keepLoaded = false,
+  keepDeactivated = false
+): Promise<boolean> {
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Reading secrets...`
+  );
+  let secrets: SecretSkeleton[];
+  try {
+    secrets = await readSecrets();
+    secrets.sort((a, b) => a._id.localeCompare(b._id));
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully read ${secrets.length} secrets.`,
+      'success'
+    );
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error reading secrets`, 'fail');
+    printError(error);
+    return false;
+  }
+  let failed = 0;
+  for (const secret of secrets) {
+    if (
+      !(await pruneVersionsOfSecret(secret._id, keepLoaded, keepDeactivated))
+    ) {
+      failed++;
+    }
+  }
+  if (failed === 0) {
+    printMessage(`Pruned the versions of ${secrets.length} secrets.`, 'info');
+  } else {
+    printMessage(
+      `Failed to prune the versions of ${failed} of ${secrets.length} secrets.`,
+      'error'
+    );
+  }
+  return failed === 0;
 }
