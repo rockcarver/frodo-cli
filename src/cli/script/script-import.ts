@@ -61,7 +61,7 @@ export default function setup() {
       new Option(
         '--no-deps',
         'Do not include script dependencies (i.e. library scripts). Can only be used with -n or -i.'
-      ).conflicts(['all', 'allSeparate'])
+      ).conflicts(['allSeparate'])
     )
     .requireOneOf({
       options: ['allSeparate', 'file'],

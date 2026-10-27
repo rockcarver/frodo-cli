@@ -31,13 +31,13 @@ export default function setup() {
       new Option(
         '--log-api-key [key]',
         'Log API key. If specified, must also include --log-api-secret. Cannot be used with --no-log-api.'
-      ).conflicts(['noLogApi'])
+      ).conflicts(['logApi'])
     )
     .addOption(
       new Option(
         '--log-api-secret [secret]',
         'Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api.'
-      ).conflicts(['noLogApi'])
+      ).conflicts(['logApi'])
     )
     .addOption(
       new Option(
