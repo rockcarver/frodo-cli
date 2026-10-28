@@ -50,7 +50,7 @@ The workflow runs on:
   Test. No publishing, no release.
 - **Manual `workflow_dispatch`** — the full release path with the release
   type as an explicit input: `prerelease` | `premajor` | `patch` | `minor`
-  | `major` (with a `dry-run` flag that stops short of publishing/tagging).
+  | `major`, and a `dry-run` flag (off by default; see [Dry run](#dry-run)).
   `premajor` starts (or continues) an `X.0.0-1` prerelease train for the
   next major.
 
@@ -244,6 +244,26 @@ Release assets include:
 - `frodo-macos-intel-<version>.zip`
 - `frodo-macos-arm64-<version>.zip`
 - `frodo-windows-x64-<version>.zip`
+
+### Dry run
+
+Dispatching with `dry-run` on rehearses the whole release path and publishes
+nothing. It builds, runs the live smoke test, builds, signs and notarizes the
+five binaries, runs the npm publish action in its own dry-run mode and
+generates the changelog, so a broken secret, certificate, action or version
+computation shows up before a real release does. It does **not**:
+
+- publish to npm (the action is handed `dry-run: true`),
+- push the changelog and version commit,
+- create the tag or the GitHub release,
+- update the Homebrew tap (the `homebrew-formula-update` job is skipped: it
+  reads the release zips that a dry run never creates).
+
+A dry run can be dispatched from any branch (the release type is then
+`prerelease`); only a dispatch from `main` uses the release type you choose.
+The version it reports is the one the next real release would take.
+`test/unit/PipelineClassification.test.js` fails if a step that pushes, tags or
+creates a release loses its `!inputs.dry-run` guard.
 
 ### Update Homebrew formulas
 

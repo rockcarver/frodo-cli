@@ -30,6 +30,11 @@ on:
           - major
         default: 'prerelease'
         required: true
+      dry-run:
+        description: 'Test release pipeline without publishing, tagging, or creating GitHub releases'
+        type: boolean
+        default: false
+        required: true
 
 # Cancel superseded runs: each new push to a PR (including Dependabot
 # rebases) cancels the previous run for the same ref instead of piling up
@@ -505,6 +510,7 @@ jobs:
 
       - name: Commit updated changelog and version
         id: commit-changelog
+        if: ${{ !inputs.dry-run }}
         env:
           FRODO_CI_PAT: ${{ secrets.FRODO_CI_PAT }}
         run: |
@@ -526,6 +532,7 @@ jobs:
           git push
 
       - name: Release
+        if: ${{ !inputs.dry-run }}
         uses: softprops/action-gh-release@v3
         with:
           name: Frodo CLI ${{ needs.build.outputs.newVersion }}
@@ -585,6 +592,7 @@ jobs:
           package-name: '@rockcarver/frodo-cli'
           version: ${{ needs.build.outputs.newVersion }}
           dual-release-on-stable: 'true'
+          dry-run: ${{ inputs.dry-run && 'true' || 'false' }}
 
       - name: Publish summary
         run: |
@@ -629,7 +637,8 @@ jobs:
           fi
 
   homebrew-formula-update:
-    if: github.event_name == 'workflow_dispatch'
+    # A dry run creates no release, so there are no zips to read the formulas from.
+    if: github.event_name == 'workflow_dispatch' && !inputs.dry-run
     name: Update Homebrew formulas (prebuilt zips)
     needs: [release, build, npm-release]
     runs-on: ubuntu-latest
