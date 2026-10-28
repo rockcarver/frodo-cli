@@ -7,7 +7,7 @@ import { printError } from '../utils/Console';
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
 const { readManagedObjectSchemaProperty } = frodo.idm.managed.schema;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveTextToFile, saveJsonToFile } = frodo.utils;
 const { stringify } = frodo.utils.json;
 
 type ObjectSkeleton = IdObjectSkeletonInterface & {
@@ -72,6 +72,7 @@ async function processManagedObjects(
   const repoMapping = pullCustomRelationships
     ? await readConfigEntity('repo.ds')
     : undefined;
+  try {
     for (const managedObject of managedObjects) {
       if (name && name !== managedObject.name) {
         continue;
@@ -157,7 +158,10 @@ async function processManagedObjects(
 
       const fileName = `${objectPath}/${managedObject.name}.json`;
 
-      saveJsonToFile(managedObject, getFilePath(fileName, true));
+      saveTextToFile(stringify(managedObject), getFilePath(fileName, true));
+    }
+  } catch (err) {
+    printError(err);
   }
 }
 

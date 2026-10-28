@@ -5,7 +5,7 @@
 // during parse -- import TIME is irrelevant, first CALL is what counts.
 // (The eslint rule that wants imports first is disabled for the call's
 // placement, not the imports.)
- 
+/* eslint-disable import-x/first */
 import { frodo, state } from '@rockcarver/frodo-lib';
 // commands
 import admin from './cli/admin/admin';

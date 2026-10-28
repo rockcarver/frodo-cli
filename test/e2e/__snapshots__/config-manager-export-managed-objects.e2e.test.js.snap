@@ -6,7 +6,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/alpha_application/alpha_application.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_application",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -301,7 +300,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/alpha_assignment/alpha_assignment.json 1`] = `
 {
   "attributeEncryption": {},
-  "meta": Any<Object>,
   "name": "alpha_assignment",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -546,7 +544,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/alpha_group/alpha_group.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_group",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -687,7 +684,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/alpha_organization/alpha_organization.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_organization",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -1086,7 +1082,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/alpha_role/alpha_role.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_role",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -2856,7 +2851,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/bravo_application/bravo_application.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_application",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -3151,7 +3145,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/bravo_assignment/bravo_assignment.json 1`] = `
 {
   "attributeEncryption": {},
-  "meta": Any<Object>,
   "name": "bravo_assignment",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -3396,7 +3389,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/bravo_group/bravo_group.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_group",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -3537,7 +3529,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/bravo_organization/bravo_organization.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_organization",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -3936,7 +3927,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -D testDir17": should export the managed-objects in fr-config-manager style": testDir17/managed-objects/bravo_role/bravo_role.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_role",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -7241,7 +7231,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/alpha_aiagent/alpha_aiagent.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_aiagent",
   "onDelete": {
     "file": "alpha_aiagent.onDelete.js",
@@ -7423,7 +7412,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/alpha_aiagentprivilege/alpha_aiagentprivilege.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_aiagentprivilege",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -7790,7 +7778,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/alpha_application/alpha_application.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_application",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -8182,7 +8169,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/alpha_assignment/alpha_assignment.json 1`] = `
 {
   "attributeEncryption": {},
-  "meta": Any<Object>,
   "name": "alpha_assignment",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -8439,7 +8425,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/alpha_group/alpha_group.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_group",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -8635,7 +8620,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/alpha_organization/alpha_organization.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_organization",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -9034,7 +9018,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/alpha_role/alpha_role.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "alpha_role",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -9289,7 +9272,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
     "effectiveAssignmentsProperty": "effectiveAssignments",
     "lastSyncProperty": "lastSync",
   },
-  "meta": Any<Object>,
   "name": "alpha_user",
   "notifications": {},
   "schema": {
@@ -11103,7 +11085,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/bravo_aiagent/bravo_aiagent.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_aiagent",
   "onDelete": {
     "file": "bravo_aiagent.onDelete.js",
@@ -11285,7 +11266,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/bravo_aiagentprivilege/bravo_aiagentprivilege.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_aiagentprivilege",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -11652,7 +11632,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/bravo_application/bravo_application.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_application",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -12041,7 +12020,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/bravo_assignment/bravo_assignment.json 1`] = `
 {
   "attributeEncryption": {},
-  "meta": Any<Object>,
   "name": "bravo_assignment",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -12298,7 +12276,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/bravo_group/bravo_group.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_group",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -12494,7 +12471,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/bravo_organization/bravo_organization.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_organization",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -12893,7 +12869,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/bravo_role/bravo_role.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "bravo_role",
   "schema": {
     "$schema": "http://forgerock.org/json-schema#",
@@ -13148,7 +13123,6 @@ exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -
     "effectiveAssignmentsProperty": "effectiveAssignments",
     "lastSyncProperty": "lastSync",
   },
-  "meta": Any<Object>,
   "name": "bravo_user",
   "notifications": {},
   "schema": {
@@ -14979,7 +14953,6 @@ console.log("Hello World!");
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/javascript/javascript.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "javascript",
   "onCreate": {
     "globals": {},
@@ -15776,7 +15749,6 @@ console.log("Hello World!");
 
 exports[`frodo config-manager pulls "frodo config-manager pull managed-objects -u": should export the managed-object custom relationships schema in fr-config-manager style": testDir19/managed-objects/moSample/moSample.json 1`] = `
 {
-  "meta": Any<Object>,
   "name": "moSample",
   "schema": {
     "description": "A sample managed object for testing frodo commands",
