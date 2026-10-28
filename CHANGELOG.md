@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-15] - 2026-10-28
+
+### Added
+- Introduced `frodo esv secret version prune`, which deletes all versions of a secret except the active one. This command is cloud-only and wraps the library's `pruneVersionsOfSecret` method. (#972)
+- Added `-u, --custom-relationships` option to `frodo config-manager pull managed-objects`, allowing the export of custom relationship property schemas. (#975)
+- Implemented `-u, --dump` option for `frodo config-manager pull variables` to output variable values to the console. (#964)
+
+### Changed
+- `frodo esv secret version prune -a` now displays a plan of the secrets it will affect and prompts for confirmation before deleting old versions. This change prevents accidental deletion of secret versions. (#982)
+- Commands now set the exit code and return instead of calling `process.exit()`, aligning with the newly added record 0033. This change affects 31 commands that previously used `process.exit()`. (#980)
+
+### Removed
+- Removed the `-r, --realm` flag from `frodo config-manager pull` commands to eliminate redundancy, as Frodo already includes realm as a built-in argument. (#961)
+- Removed the dead `-a` option from `frodo esv secret version delete`. (#972)
+
+### Fixed
+- Resolved issues with `frodo config-manager pull all` and `pull all-static` commands, ensuring proper handling of org privileges, realm, and error conditions. (#976)
+- Fixed the `authz policy import` command to allow the `-i` and `--set-id` options to be used together, restoring intended functionality. (#969)
+- Corrected the conflicts on `esv secret version delete` by reverting the `-i/-a` conflicts. (#969)
+
+### Security
+- Updated `frodo-lib` to version 5.0.0-15, which includes a fix for the browser-login callback check that previously rejected a valid redirect. (#981)
+
 ## [v5.0.0-14] - 2026-10-26
 
 ### Added
@@ -3097,6 +3120,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-15]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-14...v5.0.0-15
 [v5.0.0-14]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-13...v5.0.0-14
 [v5.0.0-13]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-12...v5.0.0-13
 [v5.0.0-12]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-11...v5.0.0-12
