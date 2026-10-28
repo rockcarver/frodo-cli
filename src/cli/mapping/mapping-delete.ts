@@ -113,6 +113,7 @@ export default function setup() {
     entityPick<MappingSkeleton>({
       name: 'mappingId',
       kind: 'mapping',
+      scopedBy: ['connectorId', 'managedObjectType'],
       load: () =>
         frodo.idm.mapping.readMappings(
           program.getOptionValue('connectorId'),
