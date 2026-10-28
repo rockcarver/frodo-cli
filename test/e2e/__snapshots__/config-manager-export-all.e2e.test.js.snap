@@ -13860,6 +13860,820 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/managed-objects/moSample/schema/moSample.schema.scripts.json 1`] = `
+{
+  "_id": "scripts",
+  "description": "JavaScripts",
+  "id": "urn:jsonschema:org:forgerock:openidm:managed:api:MoSample:scripts",
+  "notifySelf": false,
+  "properties": {
+    "_ref": {
+      "type": "string",
+    },
+    "_refProperties": {
+      "properties": {},
+      "type": "object",
+    },
+  },
+  "required": false,
+  "resourceCollection": [
+    {
+      "label": "javascript",
+      "notify": true,
+      "path": "managed/javascript",
+      "query": {
+        "fields": [
+          "string",
+        ],
+        "queryFilter": "true",
+      },
+      "reverseProperty": {
+        "resourceCollection": {
+          "notify": false,
+          "query": {
+            "fields": [
+              "_id",
+            ],
+            "queryFilter": "true",
+          },
+        },
+        "type": "array",
+        "validate": false,
+      },
+    },
+  ],
+  "returnByDefault": false,
+  "reversePropertyName": "samples",
+  "reverseRelationship": true,
+  "searchable": false,
+  "title": "Scripts",
+  "type": "relationship",
+  "userEditable": false,
+  "validate": true,
+  "viewable": true,
+}
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/org-privileges/alphaOrgPrivileges.json 1`] = `
+{
+  "_id": "alphaOrgPrivileges",
+  "privileges": [
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "owners",
+          "readOnly": true,
+        },
+        {
+          "attribute": "admins",
+          "readOnly": false,
+        },
+        {
+          "attribute": "members",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parent",
+          "readOnly": false,
+        },
+        {
+          "attribute": "children",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parentIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "adminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentAdminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentOwnerIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/ownerIDs eq "{{_id}}" or /parentOwnerIDs eq "{{_id}}"",
+      "name": "owner-view-update-delete-orgs",
+      "path": "managed/alpha_organization",
+      "permissions": [
+        "VIEW",
+        "UPDATE",
+        "DELETE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "owners",
+          "readOnly": true,
+        },
+        {
+          "attribute": "admins",
+          "readOnly": false,
+        },
+        {
+          "attribute": "members",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parent",
+          "readOnly": false,
+        },
+        {
+          "attribute": "children",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parentIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "adminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentAdminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentOwnerIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/parent pr",
+      "name": "owner-create-orgs",
+      "path": "managed/alpha_organization",
+      "permissions": [
+        "CREATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "userName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "password",
+          "readOnly": false,
+        },
+        {
+          "attribute": "givenName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "sn",
+          "readOnly": false,
+        },
+        {
+          "attribute": "mail",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "accountStatus",
+          "readOnly": false,
+        },
+        {
+          "attribute": "telephoneNumber",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalAddress",
+          "readOnly": false,
+        },
+        {
+          "attribute": "city",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalCode",
+          "readOnly": false,
+        },
+        {
+          "attribute": "country",
+          "readOnly": false,
+        },
+        {
+          "attribute": "stateProvince",
+          "readOnly": false,
+        },
+        {
+          "attribute": "roles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "groups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "manager",
+          "readOnly": false,
+        },
+        {
+          "attribute": "authzRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "reports",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveAssignments",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveGroups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "lastSync",
+          "readOnly": false,
+        },
+        {
+          "attribute": "kbaInfo",
+          "readOnly": false,
+        },
+        {
+          "attribute": "preferences",
+          "readOnly": false,
+        },
+        {
+          "attribute": "consentedMappings",
+          "readOnly": false,
+        },
+        {
+          "attribute": "memberOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "adminOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "ownerOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "memberOfOrgIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/memberOfOrgIDs eq "__org_id_placeholder__"",
+      "name": "owner-view-update-delete-admins-and-members",
+      "path": "managed/alpha_user",
+      "permissions": [
+        "VIEW",
+        "DELETE",
+        "UPDATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "userName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "password",
+          "readOnly": false,
+        },
+        {
+          "attribute": "givenName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "sn",
+          "readOnly": false,
+        },
+        {
+          "attribute": "mail",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "accountStatus",
+          "readOnly": false,
+        },
+        {
+          "attribute": "telephoneNumber",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalAddress",
+          "readOnly": false,
+        },
+        {
+          "attribute": "city",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalCode",
+          "readOnly": false,
+        },
+        {
+          "attribute": "country",
+          "readOnly": false,
+        },
+        {
+          "attribute": "stateProvince",
+          "readOnly": false,
+        },
+        {
+          "attribute": "roles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "groups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "manager",
+          "readOnly": false,
+        },
+        {
+          "attribute": "authzRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "reports",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveAssignments",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveGroups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "lastSync",
+          "readOnly": false,
+        },
+        {
+          "attribute": "kbaInfo",
+          "readOnly": false,
+        },
+        {
+          "attribute": "preferences",
+          "readOnly": false,
+        },
+        {
+          "attribute": "consentedMappings",
+          "readOnly": false,
+        },
+        {
+          "attribute": "memberOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "adminOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "ownerOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "memberOfOrgIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/memberOfOrg/0 pr and /adminOfOrg/0 pr and !(/ownerOfOrg pr)",
+      "name": "owner-create-admins",
+      "path": "managed/alpha_user",
+      "permissions": [
+        "CREATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "owners",
+          "readOnly": true,
+        },
+        {
+          "attribute": "admins",
+          "readOnly": true,
+        },
+        {
+          "attribute": "members",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parent",
+          "readOnly": false,
+        },
+        {
+          "attribute": "children",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parentIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "adminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentAdminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentOwnerIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/adminIDs eq "{{_id}}" or /parentAdminIDs eq "{{_id}}"",
+      "name": "admin-view-update-delete-orgs",
+      "path": "managed/alpha_organization",
+      "permissions": [
+        "VIEW",
+        "UPDATE",
+        "DELETE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "owners",
+          "readOnly": true,
+        },
+        {
+          "attribute": "admins",
+          "readOnly": true,
+        },
+        {
+          "attribute": "members",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parent",
+          "readOnly": false,
+        },
+        {
+          "attribute": "children",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parentIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "adminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentAdminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentOwnerIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/parent pr",
+      "name": "admin-create-orgs",
+      "path": "managed/alpha_organization",
+      "permissions": [
+        "CREATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "userName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "password",
+          "readOnly": false,
+        },
+        {
+          "attribute": "givenName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "sn",
+          "readOnly": false,
+        },
+        {
+          "attribute": "mail",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "accountStatus",
+          "readOnly": false,
+        },
+        {
+          "attribute": "telephoneNumber",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalAddress",
+          "readOnly": false,
+        },
+        {
+          "attribute": "city",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalCode",
+          "readOnly": false,
+        },
+        {
+          "attribute": "country",
+          "readOnly": false,
+        },
+        {
+          "attribute": "stateProvince",
+          "readOnly": false,
+        },
+        {
+          "attribute": "roles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "groups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "manager",
+          "readOnly": false,
+        },
+        {
+          "attribute": "authzRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "reports",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveAssignments",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveGroups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "lastSync",
+          "readOnly": false,
+        },
+        {
+          "attribute": "kbaInfo",
+          "readOnly": false,
+        },
+        {
+          "attribute": "preferences",
+          "readOnly": false,
+        },
+        {
+          "attribute": "consentedMappings",
+          "readOnly": false,
+        },
+        {
+          "attribute": "memberOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "adminOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "memberOfOrgIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/memberOfOrgIDs eq "__org_id_placeholder__"",
+      "name": "admin-view-update-delete-members",
+      "path": "managed/alpha_user",
+      "permissions": [
+        "VIEW",
+        "DELETE",
+        "UPDATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "userName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "password",
+          "readOnly": false,
+        },
+        {
+          "attribute": "givenName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "sn",
+          "readOnly": false,
+        },
+        {
+          "attribute": "mail",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "accountStatus",
+          "readOnly": false,
+        },
+        {
+          "attribute": "telephoneNumber",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalAddress",
+          "readOnly": false,
+        },
+        {
+          "attribute": "city",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalCode",
+          "readOnly": false,
+        },
+        {
+          "attribute": "country",
+          "readOnly": false,
+        },
+        {
+          "attribute": "stateProvince",
+          "readOnly": false,
+        },
+        {
+          "attribute": "roles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "groups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "manager",
+          "readOnly": false,
+        },
+        {
+          "attribute": "authzRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "reports",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveAssignments",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveGroups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "lastSync",
+          "readOnly": false,
+        },
+        {
+          "attribute": "kbaInfo",
+          "readOnly": false,
+        },
+        {
+          "attribute": "preferences",
+          "readOnly": false,
+        },
+        {
+          "attribute": "consentedMappings",
+          "readOnly": false,
+        },
+        {
+          "attribute": "memberOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "adminOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "memberOfOrgIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/memberOfOrg/0 pr and !(/adminOfOrg pr) and !(/ownerOfOrg pr)",
+      "name": "admin-create-members",
+      "path": "managed/alpha_user",
+      "permissions": [
+        "CREATE",
+      ],
+    },
+  ],
+}
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/org-privileges/privilegeAssignments.json 1`] = `
 {
   "_id": "privilegeAssignments",
@@ -13913,7 +14727,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/raw/environment/release.json 1`] = `
 {
   "channel": "rapid",
-  "currentVersion": "24273.0",
+  "currentVersion": "24327.0",
 }
 `;
 
@@ -33891,58 +34705,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "NONE",
     "JwtClaim",
   ],
-}
-`;
-
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/services/SocialIdentityProviders.json 1`] = `
-{
-  "_id": "",
-  "_rev": "1077208638",
-  "_type": {
-    "_id": "SocialIdentityProviders",
-    "collection": false,
-    "name": "Social Identity Provider Service",
-  },
-  "enabled": true,
-}
-`;
-
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/services/policyconfiguration.json 1`] = `
-{
-  "_id": "",
-  "_rev": "-247595145",
-  "_type": {
-    "_id": "policyconfiguration",
-    "collection": false,
-    "name": "Policy Configuration",
-  },
-  "bindDn": "&{am.stores.user.username}",
-  "bindPassword": {
-    "$string": "&{am.stores.user.password}",
-  },
-  "checkIfResourceTypeExists": true,
-  "connectionPoolMaximumSize": 10,
-  "connectionPoolMinimumSize": 1,
-  "ldapServer": [
-    "userstore-1.userstore.fr-platform.svc.cluster.local:1389",
-    "userstore-2.userstore.fr-platform.svc.cluster.local:1389",
-    "userstore-0.userstore.fr-platform.svc.cluster.local:1389",
-  ],
-  "maximumSearchResults": 100,
-  "mtlsEnabled": false,
-  "policyHeartbeatInterval": 10,
-  "policyHeartbeatTimeUnit": "SECONDS",
-  "realmSearchFilter": "(objectclass=sunismanagedorganization)",
-  "searchTimeout": 5,
-  "sslEnabled": {
-    "$bool": "&{am.stores.ssl.enabled}",
-  },
-  "subjectsResultTTL": 10,
-  "userAliasEnabled": false,
-  "usersBaseDn": "ou=identities",
-  "usersSearchAttribute": "uid",
-  "usersSearchFilter": "(objectclass=inetorgperson)",
-  "usersSearchScope": "SCOPE_SUB",
 }
 `;
 
