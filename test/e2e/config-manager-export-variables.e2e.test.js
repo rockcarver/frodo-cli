@@ -3,9 +3,10 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull variables -D variableTestDir
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME='report' frodo config-manager pull variables -r
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull variables -d
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull variables -u -D variableDumpDir
 */
 
+import fs from 'fs';
 import { getEnv, testExport, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
@@ -27,8 +28,14 @@ describe('frodo config-manager pulls', () => {
       env: { ...env.env, FRODO_TEST_NAME: 'report' },
     });
   });
-  test('"frodo config-manager pull variables -d": should dump all variables into the console"', async () => {
-    const CMD = `frodo config-manager pull variables -d`;
-    await testSuccess(CMD, env);
+  test('"frodo config-manager pull variables -u -D variableDumpDir": should dump all variables into the console"', async () => {
+    const dirName = 'variableDumpDir';
+    const CMD = `frodo config-manager pull variables -u -D ${dirName}`;
+    try {
+      await testSuccess(CMD, env);
+    } finally {
+      // the export also writes the variable files; leave nothing behind
+      fs.rmSync(dirName, { recursive: true, force: true });
+    }
   });
 });
