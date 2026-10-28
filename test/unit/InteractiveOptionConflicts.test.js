@@ -350,9 +350,15 @@ describe('across every command', () => {
 
 describe('the resolver sets options only through commitOption', () => {
   it('has no other call to setOptionValueWithSource in src, except the preview shadows', () => {
-    const allowed = new Set([
-      'src/utils/interactive/OptionConflicts.ts',
-      'src/utils/interactive/CommandPreview.ts',
+    // How many calls each file may have. FrodoCommand.ts hands the prompt
+    // switch a user typed after a command group down to the sub-command that
+    // runs (adoptPromptingFromActionStub): command line input, not a choice
+    // the resolver made, so commitOption (which records resolver choices that
+    // later steps may replace) is the wrong tool. Exactly one call.
+    const allowed = new Map([
+      ['src/utils/interactive/OptionConflicts.ts', Infinity],
+      ['src/utils/interactive/CommandPreview.ts', Infinity],
+      ['src/cli/FrodoCommand.ts', 1],
     ]);
     const offenders = [];
     const walk = (dir) => {
@@ -366,8 +372,9 @@ describe('the resolver sets options only through commitOption', () => {
             .split('\n')
             .filter((line) => !/^\s*(\/\/|\*|\/\*)/.test(line))
             .join('\n');
-          if (/\.setOptionValueWithSource\(/.test(code) && !allowed.has(rel))
-            offenders.push(rel);
+          const calls = (code.match(/\.setOptionValueWithSource\(/g) ?? [])
+            .length;
+          if (calls > (allowed.get(rel) ?? 0)) offenders.push(rel);
         }
       }
     };
