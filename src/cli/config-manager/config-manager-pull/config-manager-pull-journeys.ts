@@ -28,12 +28,6 @@ export default function setup() {
         'Journey name, It only export the journey with the name.'
       )
     )
-    .addOption(
-      new Option(
-        '-r, --realm <realm>',
-        'Specific realm to get journeys from (overrides environment)'
-      )
-    )
     .addOption(new Option('-d, --pull-dependencies', 'Pull dependencies.'))
     .addOption(
       new Option('-c, --clean', 'Clear existing configuration before pull.')
@@ -47,9 +41,6 @@ export default function setup() {
         options,
         command
       );
-      if (options.realm) {
-        realm = options.realm;
-      }
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting config entity journeys');

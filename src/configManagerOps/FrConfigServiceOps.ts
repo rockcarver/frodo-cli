@@ -22,8 +22,8 @@ const { DEFAULT_REALM_KEY } = frodo.utils.constants;
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportServices(
-  realm?,
-  name?
+  realm?: string,
+  name?: string
 ): Promise<boolean> {
   try {
     if (realm && realm !== DEFAULT_REALM_KEY) {
@@ -43,7 +43,11 @@ export async function configManagerExportServices(
   return false;
 }
 
-async function processServices(services, realm, name) {
+async function processServices(
+  services: FullService[],
+  realm: string,
+  name: string
+) {
   const realmDir = realm === '/' ? 'root' : realm;
   const fileDir = `realms/${realmDir}/services`;
   for (const service of services) {

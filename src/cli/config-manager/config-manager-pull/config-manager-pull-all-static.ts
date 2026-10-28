@@ -13,11 +13,10 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull all',
+    'frodo config-manager pull all-static',
     [],
     deploymentTypes
   );
-  // TO DO: adding a realm option to export all-static for specific realm
   program
     .description('Export all static config.')
     .action(async (host, realm, user, password, options, command) => {
@@ -30,12 +29,14 @@ export default function setup() {
         command
       );
 
-      if (!(await getTokens(false, true, deploymentTypes))) {
-        process.exitCode = 1;
-        return;
-      }
+      const getTokensIsSuccessful = await getTokens(
+        false,
+        true,
+        deploymentTypes
+      );
+      if (!getTokensIsSuccessful) process.exit(1);
 
-      const outcome = await configManagerExportAllStatic();
+      const outcome = await configManagerExportAllStatic(realm);
       if (!outcome) process.exitCode = 1;
     });
 
