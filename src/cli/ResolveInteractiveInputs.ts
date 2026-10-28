@@ -68,6 +68,7 @@ import {
   editableOptionalOptions,
   editableOptionGroupOf,
   editableOptionGroups,
+  editableOptionsHiddenByConflicts,
   editableOptionsHint,
   sortEditableOptions,
 } from '../utils/interactive/EditableOptions';
@@ -84,6 +85,13 @@ import {
   type EscapableSelectConfig,
 } from '../utils/interactive/EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
+import {
+  assertNoConflicts,
+  commitOption,
+  failWithConflict,
+  hiddenNote,
+  selectableMembers,
+} from '../utils/interactive/OptionConflicts';
 import {
   positionalIndex,
   positionalValue,
@@ -357,6 +365,11 @@ export async function resolveInteractiveInputs(
   if (explicitlyInteractive) {
     await runInvocationEditor(command);
   }
+
+  // Safety net: every option above went through commitOption, so this only
+  // fires for a path that bypassed it. The command about to run (and the
+  // preview of it) must be one the command line itself would accept.
+  assertNoConflicts(command);
 
   // The authoring-tool moment, DEFERRED to just before the command's
   // own output: after an interactive-assisted resolution, the command as
@@ -659,6 +672,51 @@ async function selectFromChoices(
 }
 
 /**
+ * Sets an option through the conflict check (issue #967). A conflict with
+ * something the user gave ends the command with commander's own error, as
+ * if it had been typed that way; a conflicting value the resolver set
+ * earlier (a saved default, an earlier pick) is replaced, and says so in
+ * verbose output.
+ */
+function commitOrFail(command: Command, option: Option, value: unknown): void {
+  const result = commitOption(command, option.attributeName(), value);
+  if (result.status === 'blocked') {
+    failWithConflict(command, option, result.blockedBy);
+  }
+  for (const replaced of result.cleared) {
+    verboseMessage(
+      `Replaced ${replaced.flags}, which cannot be used with ${option.flags}.`
+    );
+  }
+}
+
+/**
+ * The editor's variant of commitOrFail: a conflict is not fatal there. It
+ * says which option stands in the way and leaves the option unset, so the
+ * user can pick something else. Returns whether the value was set.
+ */
+function commitInEditor(
+  command: Command,
+  option: Option,
+  value: unknown
+): boolean {
+  const result = commitOption(command, option.attributeName(), value);
+  if (result.status === 'blocked') {
+    printMessage(
+      `${option.flags} was not set: it cannot be used with ${result.blockedBy.flags}.`,
+      'info'
+    );
+    return false;
+  }
+  for (const replaced of result.cleared) {
+    verboseMessage(
+      `Replaced ${replaced.flags}, which cannot be used with ${option.flags}.`
+    );
+  }
+  return true;
+}
+
+/**
  * Prompts for each deferred mandatory option violation. Options with a
  * closed value set (commander `choices()`) get a dropdown; everything
  * else free text. Returns false as soon as the user declines one (Escape
@@ -705,7 +763,7 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
       if (!answer) return false;
       value = answer;
     }
-    command.setOptionValueWithSource(attributeName, value, 'cli');
+    commitOrFail(command, option, value);
     verboseMessage(`Using ${value} for ${option.flags}.`);
   }
   return true;
@@ -761,6 +819,21 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
       );
     if (memberOptions.length === 0) continue;
 
+    // A member that cannot be combined with an option the user already gave
+    // is not offered (the command line would be rejected); if that leaves
+    // nothing to pick, fail like commander does for the typed combination.
+    const { selectable, hidden } = selectableMembers(
+      command,
+      memberOptions.map((member) => member.name)
+    );
+    if (hidden.length > 0) printMessage(hiddenNote(hidden), 'info');
+    if (selectable.length === 0) {
+      failWithConflict(command, hidden[0].option, hidden[0].blockedBy);
+    }
+    const offered = memberOptions.filter((member) =>
+      selectable.includes(member.name)
+    );
+
     const subject = group.purpose ?? 'what to act on';
     // LIVE footer: each row IS an option of the group, so the shadow
     // dispatches per highlight -- the highlighted member's own option
@@ -776,7 +849,7 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
       ...(commandReadinessFor(command)
         ? {
             preview: (highlighted: unknown) => {
-              const member = memberOptions.find(
+              const member = offered.find(
                 (candidate) => candidate.name === highlighted
               );
               // The gate above ran commandReadinessFor once; it can only
@@ -801,14 +874,14 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
             },
           }
         : {}),
-      choices: memberOptions.map((member): EscapableSelectChoice<string> => ({
+      choices: offered.map((member): EscapableSelectChoice<string> => ({
         value: member.name,
         name: `${member.option.flags}${member.option.description ? ` -- ${member.option.description}` : ''}`,
       })),
     });
     if (picked === ESCAPE) return false;
 
-    const chosen = memberOptions.find((member) => member.name === picked)!;
+    const chosen = offered.find((member) => member.name === picked)!;
 
     // Entity-pickable members are deferred to the action body's post-auth
     // dropdown (resolveEntityPicks) -- see resolveMandatoryOptions.
@@ -827,17 +900,17 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
         chosen.name
       );
       if (value === ESCAPE) return false;
-      command.setOptionValueWithSource(chosen.name, value, 'cli');
+      commitOrFail(command, chosen.option, value);
     } else if (!/<[^>]+>|\[[^\]]+\]/.test(chosen.option.flags)) {
       // Boolean flag: the flags carry no value placeholder (<value> /
       // [value]), so the pick itself is the value -- no second prompt.
-      command.setOptionValueWithSource(chosen.name, true, 'cli');
+      commitOrFail(command, chosen.option, true);
     } else {
       const answer = await promptInput({
         message: `Enter a value for ${chosen.option.flags}:`,
       });
       if (!answer) return false;
-      command.setOptionValueWithSource(chosen.name, answer, 'cli');
+      commitOrFail(command, chosen.option, answer);
     }
     verboseMessage(`Using ${chosen.option.flags}.`);
   }
@@ -1219,7 +1292,17 @@ function applyPersistedDefaults(command: Command): void {
       Array.isArray(command.getOptionValue(option.attributeName())) ||
       Array.isArray(option.defaultValue);
     if (Array.isArray(value) !== collectsArrays) continue;
-    command.setOptionValueWithSource(option.attributeName(), value, 'cli');
+    // A saved default fills a gap; it never overrides anything and never
+    // joins an option that cannot be combined with one already set.
+    const result = commitOption(command, option.attributeName(), value, {
+      replace: false,
+    });
+    if (result.status === 'blocked') {
+      verboseMessage(
+        `Skipping saved default ${option.flags}: it cannot be used with ${result.blockedBy.flags}.`
+      );
+      continue;
+    }
     verboseMessage(
       `Using saved default ${option.flags} ${String(value)} (frodo settings defaults to change).`
     );
@@ -1230,6 +1313,10 @@ async function runInvocationEditor(command: Command): Promise<void> {
   // THROWS EXIT_ALL_SIGNAL on a double-ESC inside the editor (either the
   // multiselect's list escape or a value step's) -- the signal propagates
   // through every caller to app.ts's top-level handler.
+  const hiddenByConflicts = editableOptionsHiddenByConflicts(command);
+  if (hiddenByConflicts.length > 0) {
+    printMessage(hiddenNote(hiddenByConflicts), 'info');
+  }
   const candidates = editableOptionalOptions(command);
   if (candidates.length === 0) {
     verboseMessage('No optional options left to edit.');
@@ -1280,12 +1367,12 @@ async function runInvocationEditor(command: Command): Promise<void> {
       });
       if (value === EXIT_ALL) return EXIT_ALL;
       if (value === ESCAPE || value === RIGHT) return undefined;
-      command.setOptionValueWithSource(attributeName, value, 'cli');
+      if (!commitInEditor(command, option, value)) return undefined;
       return value;
     }
     if (!/<[^>]+>|\[[^\]]+\]/.test(option.flags)) {
       // Boolean flag: selected = true, no value step.
-      command.setOptionValueWithSource(attributeName, true, 'cli');
+      if (!commitInEditor(command, option, true)) return undefined;
       return true;
     }
     const answer = await promptInput({
@@ -1293,7 +1380,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
       default: currentText,
     });
     if (!answer) return undefined;
-    command.setOptionValueWithSource(attributeName, answer, 'cli');
+    if (!commitInEditor(command, option, answer)) return undefined;
     return answer;
   };
 
@@ -1364,16 +1451,13 @@ async function runInvocationEditor(command: Command): Promise<void> {
       // Array-collecting options (ListOption family) accumulate:
       // a repeated mark appends, mirroring repeated CLI flags.
       const collectsArrays = Array.isArray(option.defaultValue);
-      if (collectsArrays) {
-        const existing = command.getOptionValue(attributeName);
-        command.setOptionValueWithSource(
-          attributeName,
-          [...(Array.isArray(existing) ? existing : []), value],
-          'cli'
-        );
-      } else {
-        command.setOptionValueWithSource(attributeName, value, 'cli');
-      }
+      const existing = command.getOptionValue(attributeName);
+      const next = collectsArrays
+        ? [...(Array.isArray(existing) ? existing : []), value]
+        : value;
+      // A conflict leaves the option unset (the message says why); the
+      // loop after the prompt then tries it once more and says it again.
+      if (!commitInEditor(command, option, next)) return;
       committed[attributeName] = command.getOptionValue(attributeName);
       verboseMessage(`Using ${option.flags} ${value}.`);
     },

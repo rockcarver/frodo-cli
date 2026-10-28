@@ -69,6 +69,28 @@ A command that needs no connection for some invocations says so with
 for that invocation: bare `frodo conn set` only lists fields, so it
 opens neither the profile picker nor the Connection page.
 
+**Conflicts.** Commander enforces `.conflicts()` while it parses, before the
+steps above run, so everything this pass writes goes through `commitOption`
+(`OptionConflicts.ts`), which applies the same rules
+([record 0032](decisions/0032-mutually-exclusive-options-are-declared-and-never-contradict-a-requirement.md)):
+
+- A one-of picker does not offer a member that conflicts with an option the
+  user already gave (`frodo agent export -f out.json` offers no `-A`), says so
+  in one line, and fails with commander's conflict error when nothing is left.
+- The editor leaves such options out of its list and out of the `→ N options`
+  hint.
+- A saved default that conflicts with a given option, or with another default,
+  is skipped; verbose output says so.
+- A value the resolver set earlier is replaced when the user later picks
+  something that conflicts with it. An option typed on the command line or
+  set from the environment is never dropped.
+- An entity picker whose loader reads other options to narrow its list
+  (`mapping delete -c <connector>`) declares them with `scopedBy`: they do not
+  block the pick, and the pick drops them from the command.
+- After the pass, `assertNoConflicts` fails with commander's text if anything
+  slipped through. A test forbids any other `setOptionValueWithSource` call in
+  `src/` (the preview's shadow values excepted).
+
 Injection writes BOTH `command.processedArgs` (what `action()` slices
 from) and `command.args` (what `handleDefaultArgsAndOpts` iterates) —
 commander's `_processArguments` never writes back, so a single-surface

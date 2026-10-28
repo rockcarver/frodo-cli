@@ -41,10 +41,11 @@
  */
 
 import { Command } from 'commander';
-import { printError } from '../Console';
+import { printError, verboseMessage } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
+import { blockersOf, commitOption, failWithConflict } from './OptionConflicts';
 import { canPrompt } from './PromptGateState';
 
 /**
@@ -80,6 +81,14 @@ export type EntityPickSpec<T = any> = {
   message?: string;
   /** Noun for the default message, e.g. "secret". */
   kind: string;
+  /**
+   * Attribute names of options the loader reads to narrow the list (`-c`
+   * narrows the mappings that are offered). They conflict with the picked
+   * option on the command line, so the pick replaces them: once it is made
+   * they are dropped from the command, and the command that runs (and its
+   * preview) is the one you could type again.
+   */
+  scopedBy?: string[];
 };
 
 const pendingEntityPicks = new WeakMap<Command, EntityPickSpec<unknown>[]>();
@@ -138,6 +147,15 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
     // through setOptionValueWithSource keeps both that object and the
     // resolver's own getOptionValue reads consistent.
     if (command.getOptionValue(pick.name)) continue;
+    // An option the user gave cannot be combined with the one this pick
+    // fills (`-a` with `-i`): picking would build a command the CLI rejects.
+    const [blocker] = blockersOf(command, pick.name, pick.scopedBy);
+    if (blocker) {
+      verboseMessage(
+        `Not offering a ${pick.kind} to pick: it cannot be used with ${blocker.flags}.`
+      );
+      continue;
+    }
     let entities: unknown[];
     try {
       entities = await pick.load();
@@ -241,5 +259,19 @@ function apply(
   pick: EntityPickSpec<unknown>,
   entity: unknown
 ): void {
-  command.setOptionValueWithSource(pick.name, pick.label(entity), 'cli');
+  const result = commitOption(command, pick.name, pick.label(entity), {
+    consume: pick.scopedBy,
+  });
+  if (result.status === 'blocked') {
+    const option = command.options.find(
+      (candidate) => candidate.attributeName() === pick.name
+    );
+    if (option) failWithConflict(command, option, result.blockedBy);
+    return;
+  }
+  for (const dropped of result.cleared) {
+    verboseMessage(
+      `Dropped ${dropped.flags}: it cannot be used with the ${pick.kind} that was picked.`
+    );
+  }
 }

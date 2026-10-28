@@ -13,15 +13,43 @@
  */
 
 import type { Command, Option } from 'commander';
+import { selectableMembers } from './OptionConflicts';
 
 /**
  * The command's editable options for this invocation -- the exact
  * candidate list the invocation editor offers: options not yet valued,
  * PLUS already-valued ones (editing what was given
  * is the point of an editor; the value step pre-fills the current
- * value). Non-editable machinery (help/version/prompting) never counts.
+ * value). Non-editable machinery (help/version/prompting) never counts,
+ * and neither does an option that cannot be combined with one the user
+ * already gave (a command line the CLI would reject, issue #967).
  */
 export function editableOptionalOptions(command: Command): Option[] {
+  const { selectable } = selectableMembers(
+    command,
+    machineryFree(command).map((option) => option.attributeName())
+  );
+  return machineryFree(command).filter((option) =>
+    selectable.includes(option.attributeName())
+  );
+}
+
+/**
+ * The options the editor would offer if nothing conflicted, and the ones
+ * it leaves out because an option the user already gave cannot be combined
+ * with them (cli record 0032, issue #967).
+ */
+export function editableOptionsHiddenByConflicts(
+  command: Command
+): { option: Option; blockedBy: Option }[] {
+  return selectableMembers(
+    command,
+    machineryFree(command).map((option) => option.attributeName())
+  ).hidden;
+}
+
+/** The command's options minus the help/version/prompting machinery. */
+function machineryFree(command: Command): Option[] {
   return command.options.filter((option) => {
     // Help/version/prompt machinery is not an editable option. The
     // prompting switch is a dual option pair (--prompt + --no-prompt)
