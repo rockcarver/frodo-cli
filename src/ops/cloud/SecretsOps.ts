@@ -965,18 +965,130 @@ export async function pruneVersionsOfSecret(
   return failures === 0;
 }
 
+/** The versions of one secret that a prune would delete. */
+export type SecretPrunePlan = {
+  secretId: string;
+  versions: VersionOfSecretSkeleton[];
+};
+
 /**
- * Prune the versions of all secrets (see pruneVersionsOfSecret). A failure on
- * one secret does not stop the others, and nothing is pruned when the secrets
- * cannot be read.
+ * Collapse version numbers into a compact list: 1, 2, 3 and 5 become "1-3, 5".
+ * @param {string[]} versions version numbers
+ * @returns {string} the versions as ranges, ascending
+ */
+export function formatVersionRanges(versions: string[]): string {
+  const numbers = versions.map(Number);
+  if (numbers.some((n) => !Number.isInteger(n))) return versions.join(', ');
+  numbers.sort((a, b) => a - b);
+  const parts: string[] = [];
+  for (let i = 0; i < numbers.length;) {
+    let j = i;
+    while (j + 1 < numbers.length && numbers[j + 1] === numbers[j] + 1) j++;
+    parts.push(j > i ? `${numbers[i]}-${numbers[j]}` : `${numbers[i]}`);
+    i = j + 1;
+  }
+  return parts.join(', ');
+}
+
+/**
+ * Count what a prune plan covers.
+ * @param {SecretPrunePlan[]} plan the plan
+ * @returns the number of secrets checked, of secrets with versions to delete, and of versions to delete
+ */
+export function summarizePrunePlan(plan: SecretPrunePlan[]): {
+  secrets: number;
+  affected: number;
+  versions: number;
+} {
+  return {
+    secrets: plan.length,
+    affected: plan.filter((p) => p.versions.length > 0).length,
+    versions: plan.reduce((sum, p) => sum + p.versions.length, 0),
+  };
+}
+
+const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+/**
+ * Find the versions a prune would delete in each of the given secrets, without
+ * deleting anything. The plan is all or nothing: when any secret cannot be
+ * checked, no plan is returned, because a partial plan would understate what
+ * pruning does.
+ * @param {string[]} secretIds secret ids
  * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
  * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
- * @returns {Promise<boolean>} true if every secret was pruned, false otherwise
+ * @returns {Promise<SecretPrunePlan[] | undefined>} the plan, or undefined if any secret could not be checked
  */
-export async function pruneVersionsOfSecrets(
+async function findPrunePlans(
+  secretIds: string[],
+  keepLoaded: boolean,
+  keepDeactivated: boolean
+): Promise<SecretPrunePlan[] | undefined> {
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    secretIds.length,
+    `Finding the versions to prune...`
+  );
+  const plan: SecretPrunePlan[] = [];
+  let failed = 0;
+  for (const secretId of secretIds) {
+    try {
+      plan.push({
+        secretId,
+        versions: await frodo.cloud.secret.findVersionsToPrune(
+          secretId,
+          keepLoaded,
+          keepDeactivated
+        ),
+      });
+    } catch (error) {
+      failed++;
+      printError(error);
+    }
+    updateProgressIndicator(indicatorId, `Checked secret ${secretId}`);
+  }
+  if (failed > 0) {
+    stopProgressIndicator(
+      indicatorId,
+      `Could not check ${failed} of ${count(secretIds.length, 'secret')}`,
+      'fail'
+    );
+    printMessage('Nothing was deleted: the plan is incomplete.', 'error');
+    return undefined;
+  }
+  stopProgressIndicator(
+    indicatorId,
+    `Checked ${count(secretIds.length, 'secret')}.`,
+    'success'
+  );
+  return plan;
+}
+
+/**
+ * Find the versions a prune would delete in one secret, without deleting anything.
+ * @param {string} secretId secret id
+ * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
+ * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
+ * @returns {Promise<SecretPrunePlan[] | undefined>} the plan, or undefined if the secret could not be checked
+ */
+export async function findVersionsToPruneOfSecret(
+  secretId: string,
   keepLoaded = false,
   keepDeactivated = false
-): Promise<boolean> {
+): Promise<SecretPrunePlan[] | undefined> {
+  return findPrunePlans([secretId], keepLoaded, keepDeactivated);
+}
+
+/**
+ * Find the versions a prune would delete in all secrets, without deleting anything.
+ * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
+ * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
+ * @returns {Promise<SecretPrunePlan[] | undefined>} the plan, or undefined if the secrets could not be read or checked
+ */
+export async function findVersionsToPruneOfAllSecrets(
+  keepLoaded = false,
+  keepDeactivated = false
+): Promise<SecretPrunePlan[] | undefined> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -984,7 +1096,7 @@ export async function pruneVersionsOfSecrets(
   );
   let secrets: SecretSkeleton[];
   try {
-    secrets = await readSecrets();
+    secrets = await frodo.cloud.secret.readSecrets();
     secrets.sort((a, b) => a._id.localeCompare(b._id));
     stopProgressIndicator(
       spinnerId,
@@ -994,22 +1106,139 @@ export async function pruneVersionsOfSecrets(
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error reading secrets`, 'fail');
     printError(error);
-    return false;
+    return undefined;
   }
+  return findPrunePlans(
+    secrets.map((secret) => secret._id),
+    keepLoaded,
+    keepDeactivated
+  );
+}
+
+/**
+ * Print what a prune plan would delete: a table of the affected secrets, the
+ * totals, and what is always kept.
+ * @param {SecretPrunePlan[]} plan the plan
+ * @param {boolean} keepLoaded the plan keeps the versions that are currently loaded. Default: false
+ * @param {boolean} keepDeactivated the plan keeps the deactivated versions. Default: false
+ */
+export function printPrunePlan(
+  plan: SecretPrunePlan[],
+  keepLoaded = false,
+  keepDeactivated = false
+): void {
+  const { secrets, affected, versions } = summarizePrunePlan(plan);
+  if (versions === 0) {
+    printMessage(
+      `Nothing to prune: ${count(secrets, 'secret')} checked, none has a version that is not kept.`,
+      'info'
+    );
+    return;
+  }
+  const table = createTable([
+    'Secret',
+    { hAlign: 'right', content: c.heading('Count') },
+    'Versions to delete',
+  ]);
+  for (const { secretId, versions: toDelete } of plan) {
+    if (toDelete.length === 0) continue;
+    table.push([
+      secretId,
+      { hAlign: 'right', content: String(toDelete.length) },
+      formatVersionRanges(toDelete.map((v) => v.version)),
+    ]);
+  }
+  printMessage(table.toString(), 'data');
+  const kept = [
+    'the active version of each secret',
+    ...(keepLoaded ? ['the loaded versions'] : []),
+    ...(keepDeactivated ? ['the deactivated versions'] : []),
+  ];
+  printMessage(
+    `\nSelected for deletion: ${count(versions, 'version')} in ${affected} of ${count(secrets, 'secret')}.`,
+    'data'
+  );
+  printMessage(`Always kept: ${kept.join(', ')}.`, 'data');
+  printMessage('Deleted versions cannot be recovered.', 'warn');
+}
+
+/**
+ * Delete the versions of a prune plan, and only those. A version is deleted
+ * only if it is in the plan and the library still selects it for pruning just
+ * before its secret is processed, so a version that has become active since the
+ * plan was made is skipped. A failure does not stop the remaining versions.
+ * @param {SecretPrunePlan[]} plan the confirmed plan
+ * @param {boolean} keepLoaded the plan keeps the versions that are currently loaded. Default: false
+ * @param {boolean} keepDeactivated the plan keeps the deactivated versions. Default: false
+ * @returns {Promise<boolean>} true if no deletion failed (skipped versions are not failures), false otherwise
+ */
+export async function pruneVersionsOfPlan(
+  plan: SecretPrunePlan[],
+  keepLoaded = false,
+  keepDeactivated = false
+): Promise<boolean> {
+  const work = plan.filter((p) => p.versions.length > 0);
+  const total = summarizePrunePlan(work).versions;
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    total,
+    `Deleting ${count(total, 'version')}...`
+  );
+  let deleted = 0;
   let failed = 0;
-  for (const secret of secrets) {
-    if (
-      !(await pruneVersionsOfSecret(secret._id, keepLoaded, keepDeactivated))
-    ) {
-      failed++;
+  let skipped = 0;
+  for (const { secretId, versions } of work) {
+    let eligible: Set<string>;
+    try {
+      eligible = new Set(
+        (
+          await frodo.cloud.secret.findVersionsToPrune(
+            secretId,
+            keepLoaded,
+            keepDeactivated
+          )
+        ).map((v) => v.version)
+      );
+    } catch (error) {
+      printError(error);
+      failed += versions.length;
+      versions.forEach(() =>
+        updateProgressIndicator(
+          indicatorId,
+          `Could not check secret ${secretId}`
+        )
+      );
+      continue;
+    }
+    for (const v of versions) {
+      if (!eligible.has(v.version)) {
+        skipped++;
+      } else {
+        try {
+          await frodo.cloud.secret.deleteVersionOfSecret(secretId, v.version);
+          deleted++;
+        } catch (error) {
+          failed++;
+          printError(error);
+        }
+      }
+      updateProgressIndicator(
+        indicatorId,
+        `Processed version ${v.version} of secret ${secretId}`
+      );
     }
   }
-  if (failed === 0) {
-    printMessage(`Pruned the versions of ${secrets.length} secrets.`, 'info');
-  } else {
+  stopProgressIndicator(
+    indicatorId,
+    failed === 0
+      ? `Deleted ${count(deleted, 'version')}.`
+      : `Deleted ${count(deleted, 'version')}, failed to delete ${failed}.`,
+    failed === 0 ? 'success' : 'fail'
+  );
+  if (skipped > 0) {
     printMessage(
-      `Failed to prune the versions of ${failed} of ${secrets.length} secrets.`,
-      'error'
+      `Skipped ${count(skipped, 'version')} that changed since the plan was made (for example a version that became active).`,
+      'warn'
     );
   }
   return failed === 0;

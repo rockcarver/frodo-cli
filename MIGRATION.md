@@ -66,7 +66,10 @@ The rejected combinations follow these patterns:
 
 **New command and a removed option**: `frodo esv secret version prune` deletes
 the old versions of one secret (`-i`) or of all secrets (`-a`) and keeps the
-active version. `frodo esv secret version delete` lost its `-a, --all` option:
+active version. `-a` first shows which versions it will delete and asks for
+confirmation; pass `-y` to skip the question (required without a terminal) or
+`--dry-run` to only show the plan. `frodo esv secret version delete` lost its
+`-a, --all` option:
 it never did anything on its own (the command always needed `-i` and `-v`, and
 with `-i` the option was ignored), so `frodo esv secret version delete -a -i
 <secret-id> -v <version>` is now rejected as an unknown option. Drop `-a`; to

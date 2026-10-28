@@ -1,10 +1,15 @@
+import confirm from '@inquirer/confirm';
 import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
+  findVersionsToPruneOfAllSecrets,
+  findVersionsToPruneOfSecret,
+  printPrunePlan,
+  pruneVersionsOfPlan,
   pruneVersionsOfSecret,
-  pruneVersionsOfSecrets,
+  summarizePrunePlan,
 } from '../../ops/cloud/SecretsOps';
 import c from '../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
@@ -46,6 +51,27 @@ export function pruneTarget(options: {
   return { kind: 'none', reason: 'nothing-selected' };
 }
 
+/** What to do with a prune plan once it has been shown. */
+export type PruneGate = 'dry-run' | 'proceed' | 'ask' | 'refuse';
+
+/**
+ * Decides whether a plan may be carried out. A dry run never deletes, even with
+ * `--yes`. Otherwise `--yes` proceeds, a terminal is asked, and anything else
+ * is refused: nothing is ever deleted without either a yes on the command line
+ * or an answer from a person.
+ * @param options the parsed `--yes` and `--dry-run` options and whether stdin is a terminal
+ * @returns the gate
+ */
+export function pruneGate(options: {
+  yes?: boolean;
+  dryRun?: boolean;
+  interactive: boolean;
+}): PruneGate {
+  if (options.dryRun) return 'dry-run';
+  if (options.yes) return 'proceed';
+  return options.interactive ? 'ask' : 'refuse';
+}
+
 export default function setup() {
   const program = new FrodoCommand(
     'frodo esv secret version prune',
@@ -66,7 +92,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Prune all secrets. Cannot be used with -i.'
+        'Prune all secrets. Shows which versions will be deleted and asks for confirmation (see -y and --dry-run). Cannot be used with -i.'
       ).conflicts(['secretId'])
     )
     .addOption(
@@ -79,6 +105,18 @@ export default function setup() {
       new Option(
         '--keep-deactivated',
         'Keep the deactivated versions. Only the activated versions other than the active version are pruned.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before pruning all secrets. Required with -a when there is no terminal. Has no effect with -i, which never asks.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--dry-run',
+        'Dry-run only, do not delete anything: show which versions would be pruned. Works with -i and -a, and wins over -y.'
       )
     )
     .requireOneOf({
@@ -104,8 +142,12 @@ export default function setup() {
         c.command(
           `  $ frodo esv secret version prune -i esv-nebuchadnezzar-key --keep-deactivated ${s.connId}\n`
         ) +
-        `  Prune the old versions of all secrets:\n` +
-        c.command(`  $ frodo esv secret version prune -a ${s.connId}\n`)
+        `  Show which versions pruning all secrets would delete, without deleting anything:\n` +
+        c.command(
+          `  $ frodo esv secret version prune -a --dry-run ${s.connId}\n`
+        ) +
+        `  Prune the old versions of all secrets. Shows the versions to delete and asks for confirmation; add -y to skip the question, which is required without a terminal:\n` +
+        c.command(`  $ frodo esv secret version prune -a -y ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler
@@ -139,28 +181,96 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
+        const interactive = !!process.stdin.isTTY;
+        // Fail before reading the tenant when the run could never be allowed
+        // to delete: all secrets, no --yes, and nobody to ask.
+        if (
+          target.kind === 'all' &&
+          pruneGate({
+            yes: options.yes,
+            dryRun: options.dryRun,
+            interactive,
+          }) === 'refuse'
+        ) {
+          printMessage(
+            'Refusing to prune all secrets without confirmation: there is no interactive terminal to ask. Pass -y/--yes to prune without asking, or --dry-run to only show what would be deleted.',
+            'error'
+          );
+          process.exitCode = 1;
+          return;
+        }
         if (!(await getTokens(false, true, deploymentTypes))) {
           process.exitCode = 1;
           return;
         }
-        let outcome: boolean;
-        if (target.kind === 'all') {
-          verboseMessage('Pruning the versions of all secrets...');
-          outcome = await pruneVersionsOfSecrets(
-            options.keepLoaded,
-            options.keepDeactivated
-          );
-        } else {
+        // One named secret is pruned directly, as before. Everything else
+        // (all secrets, or any dry run) first finds, and shows, what would go.
+        if (target.kind === 'secret' && !options.dryRun) {
           verboseMessage(
             `Pruning the versions of secret ${target.secretId}...`
           );
-          outcome = await pruneVersionsOfSecret(
-            target.secretId,
+          if (
+            !(await pruneVersionsOfSecret(
+              target.secretId,
+              options.keepLoaded,
+              options.keepDeactivated
+            ))
+          ) {
+            process.exitCode = 1;
+          }
+          return;
+        }
+        verboseMessage(
+          target.kind === 'all'
+            ? 'Finding the versions of all secrets to prune...'
+            : `Finding the versions of secret ${target.secretId} to prune...`
+        );
+        const plan =
+          target.kind === 'all'
+            ? await findVersionsToPruneOfAllSecrets(
+                options.keepLoaded,
+                options.keepDeactivated
+              )
+            : await findVersionsToPruneOfSecret(
+                target.secretId,
+                options.keepLoaded,
+                options.keepDeactivated
+              );
+        if (!plan) {
+          process.exitCode = 1;
+          return;
+        }
+        printPrunePlan(plan, options.keepLoaded, options.keepDeactivated);
+        const { affected, versions } = summarizePrunePlan(plan);
+        if (versions === 0) return;
+        const gate = pruneGate({
+          yes: options.yes,
+          dryRun: options.dryRun,
+          interactive,
+        });
+        if (gate === 'dry-run') {
+          printMessage('\nDry run: nothing was deleted.', 'info');
+          return;
+        }
+        if (
+          gate === 'ask' &&
+          !(await confirm({
+            message: `\nPermanently delete ${versions} ${versions === 1 ? 'version' : 'versions'} from ${affected} ${affected === 1 ? 'secret' : 'secrets'}?`,
+            default: false,
+          }))
+        ) {
+          printMessage('Nothing was deleted.', 'info');
+          return;
+        }
+        if (
+          !(await pruneVersionsOfPlan(
+            plan,
             options.keepLoaded,
             options.keepDeactivated
-          );
+          ))
+        ) {
+          process.exitCode = 1;
         }
-        if (!outcome) process.exitCode = 1;
       }
       // end command logic inside action handler
     );
