@@ -112,6 +112,34 @@ exports[`frodo config-manager pulls "frodo config-manager pull variables -D vari
 }
 `;
 
+exports[`frodo config-manager pulls "frodo config-manager pull variables -d": should dump all variables into the console" 1`] = `
+"ESV_ASDF='asdf'
+ESV_BLUE_PILLER='false'
+ESV_FR_VAR_TEST='test2'
+ESV_FR_VAR_TEST_2='20'
+ESV_IPV4_CIDR_ACCESS_RULES='{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }'
+ESV_NEBUCHADNEZZAR_CREW='["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]'
+ESV_NEBUCHADNEZZAR_CREW_STRUCTURE='{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}'
+ESV_NEO_AGE='28'
+ESV_NUMBER='1.134'
+ESV_SAML_VAR_TEST='test'
+ESV_TEST='a,b,c,d'
+ESV_TEST_VAR='this is a test variable'
+ESV_TEST_VAR_BOOL='True'
+ESV_TEST_VAR_PI='3.1415926'
+ESV_TEST_VAR_PI_STRING='3.14'
+ESV_TEST_VARIABLE_LIGHT='299792458'
+ESV_TRINITY_PHONE='(312)-555-0690'
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -d": should dump all variables into the console" 2`] = `
+"Experimental feature in use: 'frodo config-manager pull variables'. This feature may change without notice.
+✔ Successfully retrieved 17 variables
+• 17 variables exported
+"
+`;
+
 exports[`frodo config-manager pulls "frodo config-manager pull variables -r": should report all variables as a csv table report in fr-config-manager style" 1`] = `
 "Name, Description, Type, Value, Last Changed
 esv-asdf,,string,asdf,2026-09-22 15:34:24

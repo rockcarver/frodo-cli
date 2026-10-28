@@ -23,6 +23,7 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
+  -d, --dump        Dump decoded variable values to the console.
   -r, --report      Output variables as a CSV report.
   -h, --help        Help
   -hh, --help-more  Help with all options.
