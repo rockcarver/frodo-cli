@@ -21,6 +21,10 @@ export default function setup() {
   );
   program
     .description('Export all config.')
+    .addHelpText(
+      'after',
+      '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n'
+    )
     .addOption(
       new Option(
         '-C, --config-folder <config-folder-path>',

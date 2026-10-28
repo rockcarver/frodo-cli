@@ -19,6 +19,10 @@ export default function setup() {
   );
   program
     .description('Export all static config.')
+    .addHelpText(
+      'after',
+      '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n'
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -29,14 +33,12 @@ export default function setup() {
         command
       );
 
-      const getTokensIsSuccessful = await getTokens(
-        false,
-        true,
-        deploymentTypes
-      );
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!(await getTokens(false, true, deploymentTypes))) {
+        process.exitCode = 1;
+        return;
+      }
 
-      const outcome = await configManagerExportAllStatic(realm);
+      const outcome = await configManagerExportAllStatic({ realm });
       if (!outcome) process.exitCode = 1;
     });
 
