@@ -18,9 +18,17 @@ export default function setup() {
 
   program
     .description('Export variables objects.')
-    .addOption(new Option('-r, --report', 'Output variables as a CSV report.'))
     .addOption(
-      new Option('-d, --dump', 'Dump decoded variable values to the console.')
+      new Option(
+        '-r, --report',
+        'Output variables as a CSV report. Cannot be used with -u.'
+      ).conflicts(['dump'])
+    )
+    .addOption(
+      new Option(
+        '-u, --dump',
+        'Dump decoded variable values to the console. Cannot be used with -r.'
+      ).conflicts(['report'])
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

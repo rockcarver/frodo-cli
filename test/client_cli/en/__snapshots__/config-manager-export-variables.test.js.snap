@@ -23,8 +23,9 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -d, --dump        Dump decoded variable values to the console.
-  -r, --report      Output variables as a CSV report.
+  -r, --report      Output variables as a CSV report. Cannot be used with -u.
+  -u, --dump        Dump decoded variable values to the console. Cannot be used
+                    with -r.
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

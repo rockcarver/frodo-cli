@@ -18,6 +18,19 @@ const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { readVariables, importVariables } = frodo.cloud.variable;
 
 /**
+ * Format a variable as a shell assignment, `NAME='value'`, that can be sourced.
+ * A single quote in the value is written as `'\''`, so a value such as `it's`
+ * does not end the quoted string early. Values without a single quote come out
+ * as they always did.
+ * @param {string} name environment variable name
+ * @param {unknown} value variable value
+ * @returns {string} the assignment
+ */
+export function formatEnvAssignment(name: string, value: unknown): string {
+  return `${name}='${String(value ?? '').replace(/'/g, `'\\''`)}'`;
+}
+
+/**
  * Export all variables to individual files in fr-config-manager format
  * @param {boolean} report true to report in csv format
  * @param {boolean} dump true to dump variable values to the console
@@ -88,7 +101,7 @@ export async function configManagerExportVariables(
       );
 
       if (dump) {
-        printMessage(`${envVariable}='${variable.value}'`, 'data');
+        printMessage(formatEnvAssignment(envVariable, variable.value), 'data');
       }
 
       updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
