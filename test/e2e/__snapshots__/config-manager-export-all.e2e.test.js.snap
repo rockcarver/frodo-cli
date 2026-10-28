@@ -13860,6 +13860,820 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/managed-objects/moSample/schema/moSample.schema.scripts.json 1`] = `
+{
+  "_id": "scripts",
+  "description": "JavaScripts",
+  "id": "urn:jsonschema:org:forgerock:openidm:managed:api:MoSample:scripts",
+  "notifySelf": false,
+  "properties": {
+    "_ref": {
+      "type": "string",
+    },
+    "_refProperties": {
+      "properties": {},
+      "type": "object",
+    },
+  },
+  "required": false,
+  "resourceCollection": [
+    {
+      "label": "javascript",
+      "notify": true,
+      "path": "managed/javascript",
+      "query": {
+        "fields": [
+          "string",
+        ],
+        "queryFilter": "true",
+      },
+      "reverseProperty": {
+        "resourceCollection": {
+          "notify": false,
+          "query": {
+            "fields": [
+              "_id",
+            ],
+            "queryFilter": "true",
+          },
+        },
+        "type": "array",
+        "validate": false,
+      },
+    },
+  ],
+  "returnByDefault": false,
+  "reversePropertyName": "samples",
+  "reverseRelationship": true,
+  "searchable": false,
+  "title": "Scripts",
+  "type": "relationship",
+  "userEditable": false,
+  "validate": true,
+  "viewable": true,
+}
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/org-privileges/alphaOrgPrivileges.json 1`] = `
+{
+  "_id": "alphaOrgPrivileges",
+  "privileges": [
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "owners",
+          "readOnly": true,
+        },
+        {
+          "attribute": "admins",
+          "readOnly": false,
+        },
+        {
+          "attribute": "members",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parent",
+          "readOnly": false,
+        },
+        {
+          "attribute": "children",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parentIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "adminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentAdminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentOwnerIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/ownerIDs eq "{{_id}}" or /parentOwnerIDs eq "{{_id}}"",
+      "name": "owner-view-update-delete-orgs",
+      "path": "managed/alpha_organization",
+      "permissions": [
+        "VIEW",
+        "UPDATE",
+        "DELETE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "owners",
+          "readOnly": true,
+        },
+        {
+          "attribute": "admins",
+          "readOnly": false,
+        },
+        {
+          "attribute": "members",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parent",
+          "readOnly": false,
+        },
+        {
+          "attribute": "children",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parentIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "adminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentAdminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentOwnerIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/parent pr",
+      "name": "owner-create-orgs",
+      "path": "managed/alpha_organization",
+      "permissions": [
+        "CREATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "userName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "password",
+          "readOnly": false,
+        },
+        {
+          "attribute": "givenName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "sn",
+          "readOnly": false,
+        },
+        {
+          "attribute": "mail",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "accountStatus",
+          "readOnly": false,
+        },
+        {
+          "attribute": "telephoneNumber",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalAddress",
+          "readOnly": false,
+        },
+        {
+          "attribute": "city",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalCode",
+          "readOnly": false,
+        },
+        {
+          "attribute": "country",
+          "readOnly": false,
+        },
+        {
+          "attribute": "stateProvince",
+          "readOnly": false,
+        },
+        {
+          "attribute": "roles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "groups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "manager",
+          "readOnly": false,
+        },
+        {
+          "attribute": "authzRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "reports",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveAssignments",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveGroups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "lastSync",
+          "readOnly": false,
+        },
+        {
+          "attribute": "kbaInfo",
+          "readOnly": false,
+        },
+        {
+          "attribute": "preferences",
+          "readOnly": false,
+        },
+        {
+          "attribute": "consentedMappings",
+          "readOnly": false,
+        },
+        {
+          "attribute": "memberOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "adminOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "ownerOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "memberOfOrgIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/memberOfOrgIDs eq "__org_id_placeholder__"",
+      "name": "owner-view-update-delete-admins-and-members",
+      "path": "managed/alpha_user",
+      "permissions": [
+        "VIEW",
+        "DELETE",
+        "UPDATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "userName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "password",
+          "readOnly": false,
+        },
+        {
+          "attribute": "givenName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "sn",
+          "readOnly": false,
+        },
+        {
+          "attribute": "mail",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "accountStatus",
+          "readOnly": false,
+        },
+        {
+          "attribute": "telephoneNumber",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalAddress",
+          "readOnly": false,
+        },
+        {
+          "attribute": "city",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalCode",
+          "readOnly": false,
+        },
+        {
+          "attribute": "country",
+          "readOnly": false,
+        },
+        {
+          "attribute": "stateProvince",
+          "readOnly": false,
+        },
+        {
+          "attribute": "roles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "groups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "manager",
+          "readOnly": false,
+        },
+        {
+          "attribute": "authzRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "reports",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveAssignments",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveGroups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "lastSync",
+          "readOnly": false,
+        },
+        {
+          "attribute": "kbaInfo",
+          "readOnly": false,
+        },
+        {
+          "attribute": "preferences",
+          "readOnly": false,
+        },
+        {
+          "attribute": "consentedMappings",
+          "readOnly": false,
+        },
+        {
+          "attribute": "memberOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "adminOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "ownerOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "memberOfOrgIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/memberOfOrg/0 pr and /adminOfOrg/0 pr and !(/ownerOfOrg pr)",
+      "name": "owner-create-admins",
+      "path": "managed/alpha_user",
+      "permissions": [
+        "CREATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "owners",
+          "readOnly": true,
+        },
+        {
+          "attribute": "admins",
+          "readOnly": true,
+        },
+        {
+          "attribute": "members",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parent",
+          "readOnly": false,
+        },
+        {
+          "attribute": "children",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parentIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "adminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentAdminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentOwnerIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/adminIDs eq "{{_id}}" or /parentAdminIDs eq "{{_id}}"",
+      "name": "admin-view-update-delete-orgs",
+      "path": "managed/alpha_organization",
+      "permissions": [
+        "VIEW",
+        "UPDATE",
+        "DELETE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "owners",
+          "readOnly": true,
+        },
+        {
+          "attribute": "admins",
+          "readOnly": true,
+        },
+        {
+          "attribute": "members",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parent",
+          "readOnly": false,
+        },
+        {
+          "attribute": "children",
+          "readOnly": false,
+        },
+        {
+          "attribute": "parentIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "adminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentAdminIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerIDs",
+          "readOnly": true,
+        },
+        {
+          "attribute": "parentOwnerIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/parent pr",
+      "name": "admin-create-orgs",
+      "path": "managed/alpha_organization",
+      "permissions": [
+        "CREATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "userName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "password",
+          "readOnly": false,
+        },
+        {
+          "attribute": "givenName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "sn",
+          "readOnly": false,
+        },
+        {
+          "attribute": "mail",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "accountStatus",
+          "readOnly": false,
+        },
+        {
+          "attribute": "telephoneNumber",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalAddress",
+          "readOnly": false,
+        },
+        {
+          "attribute": "city",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalCode",
+          "readOnly": false,
+        },
+        {
+          "attribute": "country",
+          "readOnly": false,
+        },
+        {
+          "attribute": "stateProvince",
+          "readOnly": false,
+        },
+        {
+          "attribute": "roles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "groups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "manager",
+          "readOnly": false,
+        },
+        {
+          "attribute": "authzRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "reports",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveAssignments",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveGroups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "lastSync",
+          "readOnly": false,
+        },
+        {
+          "attribute": "kbaInfo",
+          "readOnly": false,
+        },
+        {
+          "attribute": "preferences",
+          "readOnly": false,
+        },
+        {
+          "attribute": "consentedMappings",
+          "readOnly": false,
+        },
+        {
+          "attribute": "memberOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "adminOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "memberOfOrgIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/memberOfOrgIDs eq "__org_id_placeholder__"",
+      "name": "admin-view-update-delete-members",
+      "path": "managed/alpha_user",
+      "permissions": [
+        "VIEW",
+        "DELETE",
+        "UPDATE",
+      ],
+    },
+    {
+      "accessFlags": [
+        {
+          "attribute": "userName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "password",
+          "readOnly": false,
+        },
+        {
+          "attribute": "givenName",
+          "readOnly": false,
+        },
+        {
+          "attribute": "sn",
+          "readOnly": false,
+        },
+        {
+          "attribute": "mail",
+          "readOnly": false,
+        },
+        {
+          "attribute": "description",
+          "readOnly": false,
+        },
+        {
+          "attribute": "accountStatus",
+          "readOnly": false,
+        },
+        {
+          "attribute": "telephoneNumber",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalAddress",
+          "readOnly": false,
+        },
+        {
+          "attribute": "city",
+          "readOnly": false,
+        },
+        {
+          "attribute": "postalCode",
+          "readOnly": false,
+        },
+        {
+          "attribute": "country",
+          "readOnly": false,
+        },
+        {
+          "attribute": "stateProvince",
+          "readOnly": false,
+        },
+        {
+          "attribute": "roles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "groups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "manager",
+          "readOnly": false,
+        },
+        {
+          "attribute": "authzRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "reports",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveRoles",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveAssignments",
+          "readOnly": false,
+        },
+        {
+          "attribute": "effectiveGroups",
+          "readOnly": false,
+        },
+        {
+          "attribute": "lastSync",
+          "readOnly": false,
+        },
+        {
+          "attribute": "kbaInfo",
+          "readOnly": false,
+        },
+        {
+          "attribute": "preferences",
+          "readOnly": false,
+        },
+        {
+          "attribute": "consentedMappings",
+          "readOnly": false,
+        },
+        {
+          "attribute": "memberOfOrg",
+          "readOnly": false,
+        },
+        {
+          "attribute": "adminOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "ownerOfOrg",
+          "readOnly": true,
+        },
+        {
+          "attribute": "memberOfOrgIDs",
+          "readOnly": true,
+        },
+      ],
+      "actions": [],
+      "filter": "/memberOfOrg/0 pr and !(/adminOfOrg pr) and !(/ownerOfOrg pr)",
+      "name": "admin-create-members",
+      "path": "managed/alpha_user",
+      "permissions": [
+        "CREATE",
+      ],
+    },
+  ],
+}
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/org-privileges/privilegeAssignments.json 1`] = `
 {
   "_id": "privilegeAssignments",
@@ -13913,7 +14727,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/raw/environment/release.json 1`] = `
 {
   "channel": "rapid",
-  "currentVersion": "24273.0",
+  "currentVersion": "24327.0",
 }
 `;
 
@@ -33894,58 +34708,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/services/SocialIdentityProviders.json 1`] = `
-{
-  "_id": "",
-  "_rev": "1077208638",
-  "_type": {
-    "_id": "SocialIdentityProviders",
-    "collection": false,
-    "name": "Social Identity Provider Service",
-  },
-  "enabled": true,
-}
-`;
-
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/bravo/services/policyconfiguration.json 1`] = `
-{
-  "_id": "",
-  "_rev": "-247595145",
-  "_type": {
-    "_id": "policyconfiguration",
-    "collection": false,
-    "name": "Policy Configuration",
-  },
-  "bindDn": "&{am.stores.user.username}",
-  "bindPassword": {
-    "$string": "&{am.stores.user.password}",
-  },
-  "checkIfResourceTypeExists": true,
-  "connectionPoolMaximumSize": 10,
-  "connectionPoolMinimumSize": 1,
-  "ldapServer": [
-    "userstore-1.userstore.fr-platform.svc.cluster.local:1389",
-    "userstore-2.userstore.fr-platform.svc.cluster.local:1389",
-    "userstore-0.userstore.fr-platform.svc.cluster.local:1389",
-  ],
-  "maximumSearchResults": 100,
-  "mtlsEnabled": false,
-  "policyHeartbeatInterval": 10,
-  "policyHeartbeatTimeUnit": "SECONDS",
-  "realmSearchFilter": "(objectclass=sunismanagedorganization)",
-  "searchTimeout": 5,
-  "sslEnabled": {
-    "$bool": "&{am.stores.ssl.enabled}",
-  },
-  "subjectsResultTTL": 10,
-  "userAliasEnabled": false,
-  "usersBaseDn": "ou=identities",
-  "usersSearchAttribute": "uid",
-  "usersSearchFilter": "(objectclass=inetorgperson)",
-  "usersSearchScope": "SCOPE_SUB",
-}
-`;
-
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/root/authorization/policy-sets/iPlanetAMWebAgentService/iPlanetAMWebAgentService.json 1`] = `
 {
   "_id": "iPlanetAMWebAgentService",
@@ -37439,7 +38201,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     {
       "actions": "",
       "methods": "read",
-      "pattern": "health",
+      "pattern": "health/*",
       "roles": "*",
     },
     {
@@ -37467,9 +38229,8 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "roles": "*",
     },
     {
-      "actions": "*",
-      "methods": "read",
-      "pattern": "config/ui/theme-*",
+      "methods": "read,query",
+      "pattern": "ui/theme/*",
       "roles": "*",
     },
     {
@@ -37623,7 +38384,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     {
       "actions": "*",
       "methods": "read,action",
-      "pattern": "policy/*",
+      "pattern": "policy/managed/*",
       "roles": "internal/role/platform-provisioning",
     },
     {
@@ -37667,7 +38428,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     {
       "actions": "*",
       "methods": "read,action",
-      "pattern": "policy/*",
+      "pattern": "policy/managed/*",
       "roles": "internal/role/openidm-authorized",
     },
     {
@@ -37724,9 +38485,8 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "roles": "internal/role/openidm-authorized",
     },
     {
-      "actions": "read",
       "customAuthz": "isOneOfMyWorkflows()",
-      "methods": "*",
+      "methods": "read",
       "pattern": "workflow/processdefinition/*",
       "roles": "internal/role/openidm-authorized",
     },
@@ -38192,6 +38952,613 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/managed-objects/aiagent/aiagent.json 1`] = `
+{
+  "name": "aiagent",
+  "onDelete": {
+    "file": "aiagent.onDelete.js",
+    "type": "text/javascript",
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "icon": "fa-android",
+    "order": [
+      "_id",
+      "name",
+      "description",
+      "oauth2ClientId",
+      "owners",
+      "privileges",
+      "customAttributes",
+      "origin",
+      "identity",
+    ],
+    "properties": {
+      "_id": {
+        "description": "Agent ID",
+        "searchable": false,
+        "type": "string",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "customAttributes": {
+        "description": "JSON object for arbitrary attributes",
+        "order": [],
+        "properties": {},
+        "searchable": false,
+        "title": "Custom Attributes",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "description": {
+        "description": "Agent Description",
+        "searchable": false,
+        "title": "Description",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "identity": {
+        "description": "Reference to the managed user object that represents the agent's identity.",
+        "properties": {
+          "_ref": {
+            "description": "References a relationship from a managed object",
+            "type": "string",
+          },
+          "_refProperties": {
+            "description": "Supports metadata within the relationship",
+            "properties": {
+              "_id": {
+                "description": "_refProperties object ID",
+                "type": "string",
+              },
+            },
+            "title": "AI Agent _refProperties",
+            "type": "object",
+          },
+        },
+        "resourceCollection": [
+          {
+            "label": "User",
+            "path": "managed/user",
+            "query": {
+              "fields": [
+                "userName",
+                "givenName",
+                "sn",
+              ],
+              "queryFilter": "true",
+              "sortKeys": [],
+            },
+          },
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": "aiagent",
+        "reverseRelationship": true,
+        "searchable": false,
+        "title": "Identity",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
+        "viewable": true,
+      },
+      "name": {
+        "description": "Agent Name",
+        "searchable": false,
+        "title": "Agent Name",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "oauth2ClientId": {
+        "description": "ID of the agent's OAuth2 client",
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "OAuth2 Client ID",
+        "type": "string",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "origin": {
+        "default": "ADMIN",
+        "description": "The process in which the agent was created.",
+        "enum": [
+          "ADMIN",
+          "DCR",
+          "DISCOVERED",
+        ],
+        "searchable": true,
+        "title": "Origin",
+        "type": "string",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "owners": {
+        "description": "Agent Owners",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgent:owners:items",
+          "notifySelf": false,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string",
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string",
+                },
+              },
+              "title": "Agent Owners Items _refProperties",
+              "type": "object",
+            },
+          },
+          "resourceCollection": [
+            {
+              "label": "User",
+              "notify": false,
+              "path": "managed/user",
+              "query": {
+                "fields": [
+                  "userName",
+                  "givenName",
+                  "sn",
+                ],
+                "queryFilter": "true",
+                "sortKeys": [],
+              },
+            },
+          ],
+          "reverseRelationship": false,
+          "title": "Agent Owners Items",
+          "type": "relationship",
+          "validate": true,
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Agent Owners",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "privileges": {
+        "description": "Agent Privileges",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgent:privileges:items",
+          "notifySelf": false,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string",
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string",
+                },
+              },
+              "title": "Agent Privileges Items _refProperties",
+              "type": "object",
+            },
+          },
+          "resourceCollection": [
+            {
+              "label": "Agent Privilege",
+              "notify": true,
+              "path": "managed/aiagentprivilege",
+              "query": {
+                "fields": [
+                  "_id",
+                ],
+                "queryFilter": "true",
+                "sortKeys": [],
+              },
+            },
+          ],
+          "reversePropertyName": "agent",
+          "reverseRelationship": true,
+          "title": "Agent Privileges Items",
+          "type": "relationship",
+          "validate": true,
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Privileges",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true,
+      },
+    },
+    "required": [
+      "name",
+      "oauth2ClientId",
+    ],
+    "title": "AI Agent",
+    "type": "object",
+  },
+}
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/managed-objects/aiagent/aiagent.onDelete.js 1`] = `
+"require('ai/aiagentCleanup').deleteOrphanedPrivileges(object, resourceName, request);
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/managed-objects/aiagentprivilege/aiagentprivilege.json 1`] = `
+{
+  "name": "aiagentprivilege",
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "icon": "fa-unlock-alt",
+    "order": [
+      "_id",
+      "description",
+      "agentID",
+      "agentOAuth2ClientId",
+      "agent",
+      "resource",
+      "resourceData",
+      "subjects",
+      "subjectGroups",
+      "subjectIDs",
+      "permissions",
+    ],
+    "properties": {
+      "_id": {
+        "description": "Agent Privilege ID",
+        "searchable": false,
+        "type": "string",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "agent": {
+        "description": "Agent",
+        "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgentPrivilege:agent",
+        "notifySelf": true,
+        "properties": {
+          "_ref": {
+            "description": "References a relationship from a managed object",
+            "type": "string",
+          },
+          "_refProperties": {
+            "description": "Supports metadata within the relationship",
+            "properties": {
+              "_id": {
+                "description": "_refProperties object ID",
+                "propName": "_id",
+                "required": false,
+                "type": "string",
+              },
+            },
+            "title": "Agent Privilege Agent _refProperties",
+            "type": "object",
+          },
+        },
+        "resourceCollection": [
+          {
+            "label": "Agent",
+            "notify": false,
+            "path": "managed/aiagent",
+            "query": {
+              "fields": [
+                "_id",
+              ],
+              "queryFilter": "true",
+              "sortKeys": [],
+            },
+          },
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": "privileges",
+        "reverseRelationship": true,
+        "searchable": false,
+        "title": "Agent",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
+        "viewable": true,
+      },
+      "agentID": {
+        "description": "ID of the associated AI Agent",
+        "isVirtual": true,
+        "queryConfig": {
+          "flattenProperties": true,
+          "referencedObjectFields": [
+            "_id",
+          ],
+          "referencedRelationshipFields": [
+            "agent",
+          ],
+        },
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Agent ID",
+        "type": "string",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "agentOAuth2ClientId": {
+        "description": "OAuth2 Client ID of the associated AI Agent",
+        "isVirtual": true,
+        "queryConfig": {
+          "flattenProperties": true,
+          "referencedObjectFields": [
+            "oauth2ClientId",
+          ],
+          "referencedRelationshipFields": [
+            "agent",
+          ],
+        },
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Agent OAuth2 Client ID",
+        "type": "string",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "description": {
+        "description": "Privilege Description",
+        "searchable": false,
+        "title": "Description",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "permissions": {
+        "description": "Permission grants for this privilege",
+        "items": {
+          "order": [
+            "type",
+            "values",
+          ],
+          "properties": {
+            "type": {
+              "description": "Type of permission",
+              "searchable": false,
+              "title": "Permission Type",
+              "type": "string",
+              "userEditable": true,
+              "viewable": true,
+            },
+            "values": {
+              "description": "Permission values",
+              "items": {
+                "type": "string",
+              },
+              "searchable": false,
+              "title": "Values",
+              "type": "array",
+              "userEditable": true,
+              "viewable": true,
+            },
+          },
+          "required": [
+            "type",
+            "values",
+          ],
+          "title": "Permission",
+          "type": "object",
+        },
+        "searchable": false,
+        "title": "Permissions",
+        "type": "array",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "resource": {
+        "description": "The resource this privilege applies to",
+        "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgentPrivilege:resource",
+        "notifySelf": true,
+        "properties": {
+          "_ref": {
+            "description": "References a relationship from a managed object",
+            "type": "string",
+          },
+          "_refProperties": {
+            "description": "Supports metadata within the relationship",
+            "properties": {
+              "_id": {
+                "description": "_refProperties object ID",
+                "propName": "_id",
+                "required": false,
+                "type": "string",
+              },
+            },
+            "title": "Agent Privilege Resource _refProperties",
+            "type": "object",
+          },
+        },
+        "resourceCollection": [
+          {
+            "label": "Application",
+            "notify": true,
+            "path": "managed/application",
+            "query": {
+              "fields": [
+                "name",
+              ],
+              "queryFilter": "true",
+              "sortKeys": [],
+            },
+          },
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": "aiagentprivileges",
+        "reverseRelationship": true,
+        "searchable": false,
+        "title": "Resource",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
+        "viewable": true,
+      },
+      "resourceData": {
+        "description": "Resource identifiers for querying privileges by application",
+        "isVirtual": true,
+        "queryConfig": {
+          "referencedObjectFields": [
+            "_id",
+            "ssoEntities",
+          ],
+          "referencedRelationshipFields": [
+            "resource",
+          ],
+        },
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Resource Data",
+        "type": "object",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "subjectGroups": {
+        "description": "Group of subjects participating in this privilege, on whose behalf the agent can operate",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgentPrivilege:subjectGroups:items",
+          "notifySelf": true,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string",
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string",
+                },
+              },
+              "title": "Agent Privilege Subject Groups Items _refProperties",
+              "type": "object",
+            },
+          },
+          "resourceCollection": [
+            {
+              "label": "Group",
+              "notify": false,
+              "path": "managed/group",
+              "query": {
+                "fields": [
+                  "name",
+                ],
+                "queryFilter": "true",
+                "sortKeys": [],
+              },
+            },
+          ],
+          "reversePropertyName": "aiagentprivileges",
+          "reverseRelationship": true,
+          "title": "Agent Privilege Subject Groups Items",
+          "type": "relationship",
+          "validate": true,
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Subject Groups",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "subjectIDs": {
+        "description": "IDs of the subjects",
+        "isVirtual": true,
+        "items": {
+          "type": "string",
+        },
+        "queryConfig": {
+          "flattenProperties": true,
+          "referencedObjectFields": [
+            "_id",
+          ],
+          "referencedRelationshipFields": [
+            [
+              "subjectGroups",
+              "members",
+            ],
+            [
+              "subjects",
+            ],
+          ],
+        },
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Subject IDs",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "subjects": {
+        "description": "The subjects participating in this privilege, on whose behalf the agent can operate",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:AIAgentPrivilege:subjects:items",
+          "notifySelf": true,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string",
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string",
+                },
+              },
+              "title": "Agent Privilege Subjects Items _refProperties",
+              "type": "object",
+            },
+          },
+          "resourceCollection": [
+            {
+              "label": "User",
+              "notify": false,
+              "path": "managed/user",
+              "query": {
+                "fields": [
+                  "userName",
+                ],
+                "queryFilter": "true",
+                "sortKeys": [],
+              },
+            },
+          ],
+          "reverseRelationship": false,
+          "title": "Agent Privilege Subjects Items",
+          "type": "relationship",
+          "validate": true,
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Subjects",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true,
+      },
+    },
+    "required": [
+      "agent",
+    ],
+    "title": "AI Agent Privilege",
+    "type": "object",
+  },
+}
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/managed-objects/application/application.json 1`] = `
 {
   "name": "application",
@@ -38216,6 +39583,55 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
         "type": "string",
         "userEditable": false,
         "viewable": false,
+      },
+      "aiagentprivileges": {
+        "description": "AI Agent Privileges targeting this application",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Application:aiagentprivileges:items",
+          "notifySelf": false,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string",
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "type": "string",
+                },
+              },
+              "title": "Application AI Agent Privileges Items _refProperties",
+              "type": "object",
+            },
+          },
+          "resourceCollection": [
+            {
+              "label": "AI Agent Privilege",
+              "notify": true,
+              "path": "managed/aiagentprivilege",
+              "query": {
+                "fields": [
+                  "_id",
+                ],
+                "queryFilter": "true",
+                "sortKeys": [],
+              },
+            },
+          ],
+          "reversePropertyName": "resource",
+          "reverseRelationship": true,
+          "title": "Application AI Agent Privileges Items",
+          "type": "relationship",
+          "validate": true,
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "AI Agent Privileges",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true,
       },
       "authoritative": {
         "description": "Is this an authoritative application",
@@ -38325,11 +39741,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
           "roles",
           "members",
         ],
-        "policies": [
-          {
-            "policyId": "unique",
-          },
-        ],
         "returnByDefault": true,
         "searchable": true,
         "title": "Name",
@@ -38430,6 +39841,9 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "ssoEntities": {
         "description": "SSO Entity Id",
+        "notifyRelationships": [
+          "aiagentprivileges",
+        ],
         "properties": {
           "domain": {
             "type": "string",
@@ -38797,6 +40211,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "description",
       "condition",
       "members",
+      "aiagentprivileges",
     ],
     "properties": {
       "_id": {
@@ -38807,6 +40222,56 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
         "usageDescription": "",
         "userEditable": false,
         "viewable": false,
+      },
+      "aiagentprivileges": {
+        "description": "AI Agent Privileges assigned to this group",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Group:aiagentprivileges:items",
+          "notifySelf": false,
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string",
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "type": "string",
+                },
+              },
+              "title": "Group Members Items _refProperties",
+              "type": "object",
+            },
+          },
+          "resourceCollection": [
+            {
+              "label": "AI Agent Privilege",
+              "notify": true,
+              "path": "managed/aiagentprivilege",
+              "query": {
+                "fields": [
+                  "description",
+                  "agentID",
+                ],
+                "queryFilter": "true",
+              },
+            },
+          ],
+          "reversePropertyName": "subjectGroups",
+          "reverseRelationship": true,
+          "title": "Group Agent Privilege Items",
+          "type": "relationship",
+          "validate": true,
+        },
+        "policies": [],
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Agent Privileges",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true,
       },
       "condition": {
         "description": "A filter for conditionally assigned members",
@@ -38828,6 +40293,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
         "description": "Group Members",
         "items": {
           "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Group:members:items",
+          "notifySelf": true,
           "properties": {
             "_ref": {
               "description": "References a relationship from a managed object",
@@ -38872,6 +40338,9 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
           "type": "relationship",
           "validate": true,
         },
+        "notifyRelationships": [
+          "aiagentprivileges",
+        ],
         "policies": [],
         "returnByDefault": false,
         "searchable": false,
@@ -39573,6 +41042,8 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "postalCode",
       "country",
       "stateProvince",
+      "identityType",
+      "aiagent",
       "assignedDashboard",
       "roles",
       "assignments",
@@ -39627,6 +41098,10 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "accountStatus": {
         "default": "active",
         "description": "Status",
+        "enum": [
+          "active",
+          "inactive",
+        ],
         "isPersonal": false,
         "searchable": false,
         "title": "Status",
@@ -39694,6 +41169,49 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
         "title": "Organizations I Administer",
         "type": "array",
         "userEditable": false,
+        "viewable": true,
+      },
+      "aiagent": {
+        "description": "Reference to the managed aiagent object that holds additional, agent-type specific details.",
+        "notifySelf": false,
+        "properties": {
+          "_ref": {
+            "description": "References a relationship from a managed object",
+            "type": "string",
+          },
+          "_refProperties": {
+            "description": "Supports metadata within the relationship",
+            "properties": {
+              "_id": {
+                "description": "_refProperties object ID",
+                "type": "string",
+              },
+            },
+            "title": "AI Agent _refProperties",
+            "type": "object",
+          },
+        },
+        "resourceCollection": [
+          {
+            "label": "AI Agent",
+            "path": "managed/aiagent",
+            "query": {
+              "fields": [
+                "name",
+              ],
+              "queryFilter": "true",
+              "sortKeys": [],
+            },
+          },
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": "identity",
+        "reverseRelationship": true,
+        "searchable": false,
+        "title": "AI Agent",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
         "viewable": true,
       },
       "aliasList": {
@@ -39919,8 +41437,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
         "default": "{{givenName}} {{sn}}",
         "description": "Common Name",
         "isPersonal": true,
-        "scope": "private",
-        "searchable": false,
+        "searchable": true,
         "title": "Common Name",
         "type": "string",
         "userEditable": false,
@@ -40159,6 +41676,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
             {
               "conditionalAssociationField": "condition",
               "label": "Group",
+              "notify": true,
               "path": "managed/group",
               "query": {
                 "fields": [
@@ -40182,6 +41700,19 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
         "title": "Group",
         "type": "array",
         "usageDescription": "",
+        "userEditable": false,
+        "viewable": true,
+      },
+      "identityType": {
+        "default": "HUMAN",
+        "description": "Defines the type of identity this user represents.",
+        "enum": [
+          "HUMAN",
+          "AGENT",
+        ],
+        "searchable": true,
+        "title": "Identity Type",
+        "type": "string",
         "userEditable": false,
         "viewable": true,
       },
@@ -40762,9 +42293,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
         "isPersonal": true,
         "policies": [
           {
-            "policyId": "valid-username",
-          },
-          {
             "params": {
               "forbiddenChars": [
                 "/",
@@ -41014,7 +42542,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "editable": true,
   "entitlementCombiner": "DenyOverride",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1770388620391,
+  "lastModifiedDate": 1793157151845,
   "name": "iPlanetAMWebAgentService",
   "resourceComparator": null,
   "resourceTypeUuids": [
@@ -41067,7 +42595,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "editable": true,
   "entitlementCombiner": "DenyOverride",
   "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
-  "lastModifiedDate": 1770388620346,
+  "lastModifiedDate": 1793157151899,
   "name": "oauth2Scopes",
   "resourceComparator": null,
   "resourceTypeUuids": [
@@ -41090,7 +42618,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/Agent/Agent.json 1`] = `
 {
   "_id": "Agent",
-  "_rev": "174532371",
+  "_rev": "-286831350",
   "description": "Authentication Tree for Agent",
   "enabled": true,
   "entryNodeId": "6c24a892-4bae-48ad-8d9c-8061257c9ed7",
@@ -41104,6 +42632,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 350,
       "y": 200,
     },
@@ -41114,6 +42643,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Zero Page Login Collector",
       "nodeType": "ZeroPageLoginNode",
+      "version": "1.0",
       "x": 150,
       "y": 25,
     },
@@ -41124,6 +42654,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Agent Data Store Decision",
       "nodeType": "AgentDataStoreDecisionNode",
+      "version": "1.0",
       "x": 700,
       "y": 25,
     },
@@ -41142,6 +42673,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 25,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Authentication"]",
   },
@@ -41161,11 +42693,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "1005305455",
+  "_rev": "1392627660",
   "_type": {
     "_id": "AgentDataStoreDecisionNode",
     "collection": true,
     "name": "Agent Data Store Decision",
+    "version": "1.0",
   },
 }
 `;
@@ -41179,22 +42712,25 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-520517447",
+  "_rev": "2138207974",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "d0990b1c-e23d-4f0c-a32d-af3c4a1cd16e",
       "displayName": "Username Collector",
       "nodeType": "UsernameCollectorNode",
+      "nodeVersion": "1.0",
     },
     {
       "_id": "b0faff37-78ad-492f-a614-9b96814e6915",
       "displayName": "Password Collector",
       "nodeType": "PasswordCollectorNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {},
@@ -41211,11 +42747,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "835969126",
+  "_rev": "1290404339",
   "_type": {
     "_id": "PasswordCollectorNode",
     "collection": true,
     "name": "Password Collector",
+    "version": "1.0",
   },
 }
 `;
@@ -41229,12 +42766,14 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-674343946",
+  "_rev": "-1317740434",
   "_type": {
     "_id": "UsernameCollectorNode",
     "collection": true,
     "name": "Username Collector",
+    "version": "1.0",
   },
+  "autocompleteValues": [],
 }
 `;
 
@@ -41251,11 +42790,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "-605868868",
+  "_rev": "-436711863",
   "_type": {
     "_id": "ZeroPageLoginNode",
     "collection": true,
     "name": "Zero Page Login Collector",
+    "version": "1.0",
   },
   "allowWithoutReferer": true,
   "passwordHeader": "X-OpenAM-Password",
@@ -41267,7 +42807,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/ForgottenUsername/ForgottenUsername.json 1`] = `
 {
   "_id": "ForgottenUsername",
-  "_rev": "-1065471530",
+  "_rev": "-1880624166",
   "description": "Forgotten Username Tree",
   "enabled": true,
   "entryNodeId": "5e2a7c95-94af-4b23-8724-deb13853726a",
@@ -41281,6 +42821,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 139,
       "y": 146,
     },
@@ -41291,6 +42832,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Inner Tree Evaluator",
       "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
       "x": 767,
       "y": 188,
     },
@@ -41301,6 +42843,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Identify Existing User",
       "nodeType": "IdentifyExistingUserNode",
+      "version": "1.0",
       "x": 324,
       "y": 152,
     },
@@ -41310,6 +42853,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Email Suspend Node",
       "nodeType": "EmailSuspendNode",
+      "version": "1.0",
       "x": 563,
       "y": 193,
     },
@@ -41328,6 +42872,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 25,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Username Reset"]",
   },
@@ -41343,11 +42888,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "2035832000",
+  "_rev": "-2008123875",
   "_type": {
     "_id": "EmailSuspendNode",
     "collection": true,
     "name": "Email Suspend Node",
+    "version": "1.0",
   },
   "emailAttribute": "mail",
   "emailSuspendMessage": {
@@ -41372,11 +42918,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "-626658673",
+  "_rev": "-174222356",
   "_type": {
     "_id": "IdentifyExistingUserNode",
     "collection": true,
     "name": "Identify Existing User",
+    "version": "1.0",
   },
   "identifier": "userName",
   "identityAttribute": "mail",
@@ -41396,11 +42943,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "1166482376",
+  "_rev": "1620753749",
   "_type": {
     "_id": "InnerTreeEvaluatorNode",
     "collection": true,
     "name": "Inner Tree Evaluator",
+    "version": "1.0",
   },
   "displayErrorOutcome": false,
   "tree": "Login",
@@ -41416,17 +42964,19 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1421046051",
+  "_rev": "60678637",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "9f1e8d94-4922-481b-9e14-212b66548900",
       "displayName": "Attribute Collector",
       "nodeType": "AttributeCollectorNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {
@@ -41447,11 +42997,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1331445210",
+  "_rev": "-1080466509",
   "_type": {
     "_id": "AttributeCollectorNode",
     "collection": true,
     "name": "Attribute Collector",
+    "version": "1.0",
   },
   "attributesToCollect": [
     "mail",
@@ -41465,7 +43016,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/Login/Login.json 1`] = `
 {
   "_id": "Login",
-  "_rev": "870652898",
+  "_rev": "-1718870598",
   "description": "Platform Login Tree",
   "enabled": true,
   "entryNodeId": "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8",
@@ -41480,6 +43031,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Data Store Decision",
       "nodeType": "DataStoreDecisionNode",
+      "version": "1.0",
       "x": 315,
       "y": 140,
     },
@@ -41490,6 +43042,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Inner Tree Evaluator",
       "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
       "x": 815,
       "y": 180,
     },
@@ -41499,6 +43052,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 136,
       "y": 59,
     },
@@ -41508,6 +43062,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Increment Login Count",
       "nodeType": "IncrementLoginCountNode",
+      "version": "1.0",
       "x": 564,
       "y": 132,
     },
@@ -41526,6 +43081,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 25,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Authentication"]",
   },
@@ -41545,11 +43101,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "-656534578",
+  "_rev": "-135023269",
   "_type": {
     "_id": "DataStoreDecisionNode",
     "collection": true,
     "name": "Data Store Decision",
+    "version": "1.0",
   },
 }
 `;
@@ -41563,11 +43120,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "2098371942",
+  "_rev": "-1742156045",
   "_type": {
     "_id": "IncrementLoginCountNode",
     "collection": true,
     "name": "Increment Login Count",
+    "version": "1.0",
   },
   "identityAttribute": "userName",
 }
@@ -41586,11 +43144,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "-1628846194",
+  "_rev": "-1174574821",
   "_type": {
     "_id": "InnerTreeEvaluatorNode",
     "collection": true,
     "name": "Inner Tree Evaluator",
+    "version": "1.0",
   },
   "displayErrorOutcome": false,
   "tree": "ProgressiveProfile",
@@ -41606,22 +43165,25 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1594114",
+  "_rev": "-1369655509",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "7354982f-57b6-4b04-9ddc-f1dd1e1e07d0",
       "displayName": "Platform Username",
       "nodeType": "ValidatedUsernameNode",
+      "nodeVersion": "1.0",
     },
     {
       "_id": "0c80c39b-4813-4e67-b4fb-5a0bba85f994",
       "displayName": "Platform Password",
       "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {
@@ -41642,11 +43204,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1763423776",
+  "_rev": "-1579586707",
   "_type": {
     "_id": "ValidatedPasswordNode",
     "collection": true,
     "name": "Platform Password",
+    "version": "1.0",
   },
   "passwordAttribute": "password",
   "validateInput": false,
@@ -41662,12 +43225,14 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-2064640544",
+  "_rev": "1586799256",
   "_type": {
     "_id": "ValidatedUsernameNode",
     "collection": true,
     "name": "Platform Username",
+    "version": "1.0",
   },
+  "autocompleteValues": [],
   "usernameAttribute": "userName",
   "validateInput": false,
 }
@@ -41676,7 +43241,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/ProgressiveProfile/ProgressiveProfile.json 1`] = `
 {
   "_id": "ProgressiveProfile",
-  "_rev": "2039065517",
+  "_rev": "-789506697",
   "description": "Prompt for missing preferences on 3rd login",
   "enabled": true,
   "entryNodeId": "8afdaec3-275e-4301-bb53-34f03e6a4b29",
@@ -41691,6 +43256,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Patch Object",
       "nodeType": "PatchObjectNode",
+      "version": "1.0",
       "x": 766,
       "y": 36,
     },
@@ -41701,6 +43267,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Login Count Decision",
       "nodeType": "LoginCountDecisionNode",
+      "version": "1.0",
       "x": 152,
       "y": 36,
     },
@@ -41711,6 +43278,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Query Filter Decision",
       "nodeType": "QueryFilterDecisionNode",
+      "version": "1.0",
       "x": 357,
       "y": 36,
     },
@@ -41720,6 +43288,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 555,
       "y": 20,
     },
@@ -41738,6 +43307,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 58.5,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Progressive Profile"]",
   },
@@ -41757,11 +43327,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "-1679047423",
+  "_rev": "-1493211554",
   "_type": {
     "_id": "LoginCountDecisionNode",
     "collection": true,
     "name": "Login Count Decision",
+    "version": "1.0",
   },
   "amount": 3,
   "identityAttribute": "userName",
@@ -41778,17 +43349,19 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "380010937",
+  "_rev": "1517800905",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "0a042e10-b22e-4e02-86c4-65e26e775f7a",
       "displayName": "Attribute Collector",
       "nodeType": "AttributeCollectorNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {},
@@ -41807,11 +43380,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1210529544",
+  "_rev": "-959550843",
   "_type": {
     "_id": "AttributeCollectorNode",
     "collection": true,
     "name": "Attribute Collector",
+    "version": "1.0",
   },
   "attributesToCollect": [
     "preferences/updates",
@@ -41836,11 +43410,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "FAILURE",
     },
   ],
-  "_rev": "1653653564",
+  "_rev": "2108187017",
   "_type": {
     "_id": "PatchObjectNode",
     "collection": true,
     "name": "Patch Object",
+    "version": "1.0",
   },
   "identityAttribute": "userName",
   "identityResource": "managed/user",
@@ -41862,11 +43437,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "-1852493841",
+  "_rev": "-1398255236",
   "_type": {
     "_id": "QueryFilterDecisionNode",
     "collection": true,
     "name": "Query Filter Decision",
+    "version": "1.0",
   },
   "identityAttribute": "userName",
   "queryFilter": "!(/preferences pr) or /preferences/marketing eq false or /preferences/updates eq false",
@@ -41876,7 +43452,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/Registration/Registration.json 1`] = `
 {
   "_id": "Registration",
-  "_rev": "-1700711221",
+  "_rev": "722114886",
   "description": "Platform Registration Tree",
   "enabled": true,
   "entryNodeId": "0c091c49-f3af-48fb-ac6f-07fba0499dd6",
@@ -41890,6 +43466,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 261,
       "y": 168,
     },
@@ -41899,6 +43476,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Increment Login Count",
       "nodeType": "IncrementLoginCountNode",
+      "version": "1.0",
       "x": 681,
       "y": 144,
     },
@@ -41909,6 +43487,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Create Object",
       "nodeType": "CreateObjectNode",
+      "version": "1.0",
       "x": 537,
       "y": 206,
     },
@@ -41927,6 +43506,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 25,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Registration"]",
   },
@@ -41946,11 +43526,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "FAILURE",
     },
   ],
-  "_rev": "-246787506",
+  "_rev": "207647643",
   "_type": {
     "_id": "CreateObjectNode",
     "collection": true,
     "name": "Create Object",
+    "version": "1.0",
   },
   "identityResource": "managed/user",
 }
@@ -41965,11 +43546,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-841385771",
+  "_rev": "-386946462",
   "_type": {
     "_id": "IncrementLoginCountNode",
     "collection": true,
     "name": "Increment Login Count",
+    "version": "1.0",
   },
   "identityAttribute": "userName",
 }
@@ -41984,37 +43566,43 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "762531723",
+  "_rev": "-1136264609",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "7fcaf48e-a754-4959-858b-05b2933b825f",
       "displayName": "Platform Username",
       "nodeType": "ValidatedUsernameNode",
+      "nodeVersion": "1.0",
     },
     {
       "_id": "d3ce2036-1523-4ce8-b1a2-895a2a036667",
       "displayName": "Attribute Collector",
       "nodeType": "AttributeCollectorNode",
+      "nodeVersion": "1.0",
     },
     {
       "_id": "3d8709a1-f09f-4d1f-8094-2850e472c1db",
       "displayName": "Platform Password",
       "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0",
     },
     {
       "_id": "120c69d3-90b4-4ad4-b7af-380e8b119340",
       "displayName": "KBA Definition",
       "nodeType": "KbaCreateNode",
+      "nodeVersion": "1.0",
     },
     {
       "_id": "b4a0e915-c15d-4b83-9c9d-18347d645976",
       "displayName": "Accept Terms and Conditions",
       "nodeType": "AcceptTermsAndConditionsNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {
@@ -42035,11 +43623,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "1508860909",
+  "_rev": "1961133386",
   "_type": {
     "_id": "AcceptTermsAndConditionsNode",
     "collection": true,
     "name": "Accept Terms and Conditions",
+    "version": "1.0",
   },
 }
 `;
@@ -42053,11 +43642,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1158802257",
+  "_rev": "-907823556",
   "_type": {
     "_id": "AttributeCollectorNode",
     "collection": true,
     "name": "Attribute Collector",
+    "version": "1.0",
   },
   "attributesToCollect": [
     "givenName",
@@ -42081,11 +43671,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-8134977",
+  "_rev": "242876428",
   "_type": {
     "_id": "KbaCreateNode",
     "collection": true,
     "name": "KBA Definition",
+    "version": "1.0",
   },
   "allowUserDefinedQuestions": true,
   "message": {
@@ -42103,11 +43694,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1470058997",
+  "_rev": "-1286221928",
   "_type": {
     "_id": "ValidatedPasswordNode",
     "collection": true,
     "name": "Platform Password",
+    "version": "1.0",
   },
   "passwordAttribute": "password",
   "validateInput": true,
@@ -42123,12 +43715,14 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "1966656034",
+  "_rev": "1323128538",
   "_type": {
     "_id": "ValidatedUsernameNode",
     "collection": true,
     "name": "Platform Username",
+    "version": "1.0",
   },
+  "autocompleteValues": [],
   "usernameAttribute": "userName",
   "validateInput": true,
 }
@@ -42137,7 +43731,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/ResetPassword/ResetPassword.json 1`] = `
 {
   "_id": "ResetPassword",
-  "_rev": "1024569230",
+  "_rev": "635603035",
   "description": "Reset Password Tree",
   "enabled": true,
   "entryNodeId": "cc3e1ed2-25f1-47bf-83c6-17084f8b2b2b",
@@ -42151,6 +43745,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Email Suspend Node",
       "nodeType": "EmailSuspendNode",
+      "version": "1.0",
       "x": 453,
       "y": 66,
     },
@@ -42161,6 +43756,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Identify Existing User",
       "nodeType": "IdentifyExistingUserNode",
+      "version": "1.0",
       "x": 271,
       "y": 21,
     },
@@ -42171,6 +43767,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Patch Object",
       "nodeType": "PatchObjectNode",
+      "version": "1.0",
       "x": 819,
       "y": 61,
     },
@@ -42180,6 +43777,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 103,
       "y": 50,
     },
@@ -42189,6 +43787,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 643,
       "y": 50,
     },
@@ -42207,6 +43806,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 25,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Password Reset"]",
   },
@@ -42222,11 +43822,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1138066714",
+  "_rev": "-887055293",
   "_type": {
     "_id": "EmailSuspendNode",
     "collection": true,
     "name": "Email Suspend Node",
+    "version": "1.0",
   },
   "emailAttribute": "mail",
   "emailSuspendMessage": {
@@ -42251,11 +43852,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "402776485",
+  "_rev": "855212802",
   "_type": {
     "_id": "IdentifyExistingUserNode",
     "collection": true,
     "name": "Identify Existing User",
+    "version": "1.0",
   },
   "identifier": "userName",
   "identityAttribute": "mail",
@@ -42271,17 +43873,19 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "86486605",
+  "_rev": "1224278369",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "276afa7c-a680-4cf4-a5f6-d6c78191f5c9",
       "displayName": "Attribute Collector",
       "nodeType": "AttributeCollectorNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {
@@ -42302,11 +43906,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1256358519",
+  "_rev": "-1005379818",
   "_type": {
     "_id": "AttributeCollectorNode",
     "collection": true,
     "name": "Attribute Collector",
+    "version": "1.0",
   },
   "attributesToCollect": [
     "mail",
@@ -42326,17 +43931,19 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "1593283676",
+  "_rev": "-1303847056",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "009c19c8-9572-47bb-adb2-1f092c559a43",
       "displayName": "Platform Password",
       "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {
@@ -42357,11 +43964,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "519412822",
+  "_rev": "703249891",
   "_type": {
     "_id": "ValidatedPasswordNode",
     "collection": true,
     "name": "Platform Password",
+    "version": "1.0",
   },
   "passwordAttribute": "password",
   "validateInput": true,
@@ -42381,11 +43989,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "FAILURE",
     },
   ],
-  "_rev": "920985509",
+  "_rev": "1375518962",
   "_type": {
     "_id": "PatchObjectNode",
     "collection": true,
     "name": "Patch Object",
+    "version": "1.0",
   },
   "identityAttribute": "mail",
   "identityResource": "managed/user",
@@ -42397,7 +44006,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/UpdatePassword/UpdatePassword.json 1`] = `
 {
   "_id": "UpdatePassword",
-  "_rev": "459173545",
+  "_rev": "2146159656",
   "description": "Update password using active session",
   "enabled": true,
   "entryNodeId": "d1b79744-493a-44fe-bc26-7d324a8caa4e",
@@ -42412,6 +44021,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Attribute Present Decision",
       "nodeType": "AttributePresentDecisionNode",
+      "version": "1.0",
       "x": 288,
       "y": 133,
     },
@@ -42421,6 +44031,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 526,
       "y": 46,
     },
@@ -42431,6 +44042,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Patch Object",
       "nodeType": "PatchObjectNode",
+      "version": "1.0",
       "x": 1062,
       "y": 189,
     },
@@ -42441,6 +44053,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Data Store Decision",
       "nodeType": "DataStoreDecisionNode",
+      "version": "1.0",
       "x": 722,
       "y": 45,
     },
@@ -42450,6 +44063,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Email Suspend Node",
       "nodeType": "EmailSuspendNode",
+      "version": "1.0",
       "x": 659,
       "y": 223,
     },
@@ -42459,6 +44073,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 943,
       "y": 30,
     },
@@ -42468,6 +44083,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Get Session Data",
       "nodeType": "SessionDataNode",
+      "version": "1.0",
       "x": 122,
       "y": 129,
     },
@@ -42486,6 +44102,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 25,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Password Reset"]",
   },
@@ -42505,11 +44122,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "-1218497043",
+  "_rev": "-833300678",
   "_type": {
     "_id": "AttributePresentDecisionNode",
     "collection": true,
     "name": "Attribute Present Decision",
+    "version": "1.0",
   },
   "identityAttribute": "userName",
   "presentAttribute": "password",
@@ -42529,11 +44147,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "869693667",
+  "_rev": "1391204976",
   "_type": {
     "_id": "DataStoreDecisionNode",
     "collection": true,
     "name": "Data Store Decision",
+    "version": "1.0",
   },
 }
 `;
@@ -42547,11 +44166,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1059437256",
+  "_rev": "-808425835",
   "_type": {
     "_id": "EmailSuspendNode",
     "collection": true,
     "name": "Email Suspend Node",
+    "version": "1.0",
   },
   "emailAttribute": "mail",
   "emailSuspendMessage": {
@@ -42572,11 +44192,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-716667889",
+  "_rev": "-530831972",
   "_type": {
     "_id": "SessionDataNode",
     "collection": true,
     "name": "Get Session Data",
+    "version": "1.0",
   },
   "sessionDataKey": "UserToken",
   "sharedStateKey": "userName",
@@ -42592,17 +44213,19 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "1965792723",
+  "_rev": "-1115887389",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "fe2962fc-4db3-4066-8624-553649afc438",
       "displayName": "Platform Password",
       "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {
@@ -42623,11 +44246,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "875005143",
+  "_rev": "1058842212",
   "_type": {
     "_id": "ValidatedPasswordNode",
     "collection": true,
     "name": "Platform Password",
+    "version": "1.0",
   },
   "passwordAttribute": "password",
   "validateInput": false,
@@ -42643,17 +44267,19 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1359533036",
+  "_rev": "46692388",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "21a99653-a7a7-47ee-b650-f493a84bba09",
       "displayName": "Platform Password",
       "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {
@@ -42674,11 +44300,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "688403743",
+  "_rev": "872240812",
   "_type": {
     "_id": "ValidatedPasswordNode",
     "collection": true,
     "name": "Platform Password",
+    "version": "1.0",
   },
   "passwordAttribute": "password",
   "validateInput": true,
@@ -42698,11 +44325,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "FAILURE",
     },
   ],
-  "_rev": "152951098",
+  "_rev": "607484551",
   "_type": {
     "_id": "PatchObjectNode",
     "collection": true,
     "name": "Patch Object",
+    "version": "1.0",
   },
   "identityAttribute": "userName",
   "identityResource": "managed/user",
@@ -42716,7 +44344,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/amsterService/amsterService.json 1`] = `
 {
   "_id": "amsterService",
-  "_rev": "-809809713",
+  "_rev": "-1406655430",
   "description": "Authentication Tree for Amster utility",
   "enabled": true,
   "entryNodeId": "cfcd2084-95d5-35ef-a6e7-d7f9f98764db",
@@ -42732,6 +44360,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Amster Jwt Decision Node",
       "nodeType": "AmsterJwtDecisionNode",
+      "version": "1.0",
       "x": 200,
       "y": 30,
     },
@@ -42750,6 +44379,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 30,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Authentication"]",
   },
@@ -42769,11 +44399,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "-1115967105",
+  "_rev": "-661732644",
   "_type": {
     "_id": "AmsterJwtDecisionNode",
     "collection": true,
     "name": "Amster Jwt Decision Node",
+    "version": "1.0",
   },
   "authorizedKeys": "/var/run/secrets/amster/authorized_keys",
 }
@@ -42782,7 +44413,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/journeys/ldapService/ldapService.json 1`] = `
 {
   "_id": "ldapService",
-  "_rev": "-972265986",
+  "_rev": "-1450506587",
   "description": "Authentication tree replacing old default chain for backward compatibility",
   "enabled": true,
   "entryNodeId": "eccbc87e-4b5c-32fe-a830-8fd9f2a7baf5",
@@ -42797,6 +44428,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Page Node",
       "nodeType": "PageNode",
+      "version": "1.0",
       "x": 500,
       "y": 25,
     },
@@ -42807,6 +44439,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Data Store Decision",
       "nodeType": "DataStoreDecisionNode",
+      "version": "1.0",
       "x": 800,
       "y": 25,
     },
@@ -42817,6 +44450,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       },
       "displayName": "Zero Page Login Collector",
       "nodeType": "ZeroPageLoginNode",
+      "version": "1.0",
       "x": 150,
       "y": 25,
     },
@@ -42835,6 +44469,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "y": 25,
     },
   },
+  "transactionalOnly": false,
   "uiConfig": {
     "categories": "["Authentication"]",
   },
@@ -42854,11 +44489,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "1201833785",
+  "_rev": "1723345094",
   "_type": {
     "_id": "DataStoreDecisionNode",
     "collection": true,
     "name": "Data Store Decision",
+    "version": "1.0",
   },
 }
 `;
@@ -42872,22 +44508,25 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1862464893",
+  "_rev": "1073083568",
   "_type": {
     "_id": "PageNode",
     "collection": true,
     "name": "Page Node",
+    "version": "1.0",
   },
   "nodes": [
     {
       "_id": "cfcd2084-95d5-35ef-a6e7-dff9f98764db",
       "displayName": "User Name Collector",
       "nodeType": "UsernameCollectorNode",
+      "nodeVersion": "1.0",
     },
     {
       "_id": "c4ca4238-a0b9-3382-8dcc-509a6f75849c",
       "displayName": "Password Collector",
       "nodeType": "PasswordCollectorNode",
+      "nodeVersion": "1.0",
     },
   ],
   "pageDescription": {
@@ -42909,11 +44548,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1271206474",
+  "_rev": "-816771261",
   "_type": {
     "_id": "PasswordCollectorNode",
     "collection": true,
     "name": "Password Collector",
+    "version": "1.0",
   },
 }
 `;
@@ -42927,12 +44567,14 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "outcome",
     },
   ],
-  "_rev": "-1588216697",
+  "_rev": "2063354111",
   "_type": {
     "_id": "UsernameCollectorNode",
     "collection": true,
     "name": "Username Collector",
+    "version": "1.0",
   },
+  "autocompleteValues": [],
 }
 `;
 
@@ -42949,11 +44591,12 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "id": "false",
     },
   ],
-  "_rev": "1517053586",
+  "_rev": "1686210591",
   "_type": {
     "_id": "ZeroPageLoginNode",
     "collection": true,
     "name": "Zero Page Login Collector",
+    "version": "1.0",
   },
   "allowWithoutReferer": true,
   "passwordHeader": "X-OpenAM-Password",
@@ -42977,6 +44620,44 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "name": "Authentication Tree Decision Node Script",
   "script": {
     "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Authentication Tree Decision Node Script.js",
+  },
+}
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-config/05ab4a85-11ec-4a32-94cf-05bbb763c8f3.json 1`] = `
+{
+  "_id": "05ab4a85-11ec-4a32-94cf-05bbb763c8f3",
+  "context": "SAML2_SP_ACCOUNT_MAPPER",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 SP Account Mapper",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "lastModifiedDate": 1433147666269,
+  "name": "SAML2 SP Account Mapper Script",
+  "script": {
+    "file": "scripts-content/SAML2_SP_ACCOUNT_MAPPER/SAML2 SP Account Mapper Script.js",
+  },
+}
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-config/0c1d7319-5a82-4359-8839-094121404832.json 1`] = `
+{
+  "_id": "0c1d7319-5a82-4359-8839-094121404832",
+  "context": "SAML2_IDP_ATTRIBUTE_MAPPER_NEXT_GEN",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 IDP Attribute Mapper (Next Gen)",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "lastModifiedDate": 1433147666269,
+  "name": "SAML IDP Attribute Mapper Script (Next Gen)",
+  "script": {
+    "file": "scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER_NEXT_GEN/SAML IDP Attribute Mapper Script (Next Gen).js",
   },
 }
 `;
@@ -43072,6 +44753,25 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "name": "Library Script",
   "script": {
     "file": "scripts-content/LIBRARY/Library Script.js",
+  },
+}
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-config/7c399b7e-e596-4447-aa7a-071af55e892c.json 1`] = `
+{
+  "_id": "7c399b7e-e596-4447-aa7a-071af55e892c",
+  "context": "SAML2_IDP_ADAPTER_NEXTGEN",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 IDP Adapter (Next Gen)",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "lastModifiedDate": 1433147666269,
+  "name": "SAML2 IDP Adapter Script (Next Gen)",
+  "script": {
+    "file": "scripts-content/SAML2_IDP_ADAPTER_NEXTGEN/SAML2 IDP Adapter Script (Next Gen).js",
   },
 }
 `;
@@ -43209,6 +44909,25 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-config/91bd046e-0221-41ed-8890-6858c1efd998.json 1`] = `
+{
+  "_id": "91bd046e-0221-41ed-8890-6858c1efd998",
+  "context": "SAML2_SP_ADAPTER_NEXTGEN",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 SP Adapter (Next Gen)",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "lastModifiedDate": 1433147666269,
+  "name": "SAML2 SP Adapter Script (Next Gen)",
+  "script": {
+    "file": "scripts-content/SAML2_SP_ADAPTER_NEXTGEN/SAML2 SP Adapter Script (Next Gen).js",
+  },
+}
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-config/248b8a56-df81-4b1b-b4ba-45d994f6504c.json 1`] = `
 {
   "_id": "248b8a56-df81-4b1b-b4ba-45d994f6504c",
@@ -43300,6 +45019,25 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "name": "Device Id (Match) - Client Side",
   "script": {
     "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Device Id (Match) - Client Side.js",
+  },
+}
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-config/ac40a394-b3cd-400f-b2aa-b6b2e4a8be8e.json 1`] = `
+{
+  "_id": "ac40a394-b3cd-400f-b2aa-b6b2e4a8be8e",
+  "context": "CACHE_LOADER",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for Cache Loader",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "lastModifiedDate": 1433147666269,
+  "name": "Cache Loader Script",
+  "script": {
+    "file": "scripts-content/CACHE_LOADER/Cache Loader Script.js",
   },
 }
 `;
@@ -44682,6 +46420,42 @@ if (storedProfiles) {
 "
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/CACHE_LOADER/Cache Loader Script.js 1`] = `
+"/*
+ * Copyright 2025 Ping Identity Corporation. All Rights Reserved
+ *
+ * This code is to be used exclusively in connection with Ping Identity
+ * Corporation software or services. Ping Identity Corporation only offers
+ * such software or services to legal entities who have entered into a
+ * binding license agreement with Ping Identity Corporation.
+ */
+
+/**
+ * Example cache loader script. This script is called when a cache entry is
+ * requested that has not yet been loaded. The script returns the \`value\`
+ * in the <code>key</code> object.
+ *
+ * @param key {object} of string to string
+ * @returns {string}, but can also return {object}, {array}, {number}, {boolean}
+ */
+function load(key) {
+    return key.value;
+}
+
+/**
+ * Example reload function, this is called to refresh an existing cache entry. This simple example
+ * ignores the old value and returns the first value in the <code>key</code> array.
+ * @param key {object} of string to string
+ * @param oldValue {string}, but could be {object}, {array}, {number}, {boolean}, the previous value associated
+ *                 with the key
+ * @returns {string}, but can also return {object}, {array}, {number}, {boolean}
+ */
+function reload(key, oldValue) {
+    return load(key);
+}
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/CONFIG_PROVIDER_NODE/Config Provider.js 1`] = `
 "/*
  * Copyright 2021 ForgeRock AS. All Rights Reserved
@@ -45082,7 +46856,8 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 
 /*
 // Example: Update the OAuth2Client identity on CREATE
-// NOTE: setAttribute() overwrites the whole attribute if it exists already
+// NOTE: setAttribute() overwrites the whole attribute if it exists already.
+//       Obtain the attribute name from the OAuth2Client schema by querying the /realm-config/agents/OAuth2Client endpoint
 if (operation === "CREATE") {
     // Read a property from the request body
     var requestBody = requestProperties.get("requestBody");
@@ -45091,14 +46866,18 @@ if (operation === "CREATE") {
     if (grantType != null) {
         var grantTypes = ["[0]=authorization_code"];
         grantTypes.push("[1]=".concat(grantType));
-        clientIdentity.setAttribute( "com.forgerock.openam.oauth2provider.grantTypes", grantTypes);
-        clientIdentity.store();
-    };
+        clientIdentity.setAttribute("grantTypes", grantTypes);
+    }
+
+    clientIdentity.setClientType("Public");
+    clientIdentity.setScope(["read", "write"]);
+    clientIdentity.store();
 };
 
 // Example: Update the OAuth2Client identity on UPDATE
 // NOTE: addAttribute() adds the provided value to the set if it exists already.
 //       Otherwise, it sets the attribute with the single value.
+//       Obtain the attribute name from the OAuth2Client schema by querying the /realm-config/agents/OAuth2Client endpoint
 if (operation === "UPDATE") {
     // Example: Read a property from the software statement
     var redirectUris = softwareStatement.get("redirect_uris");
@@ -45107,7 +46886,7 @@ if (operation === "UPDATE") {
     };
 
     if (firstUri != null) {
-        clientIdentity.addAttribute("com.forgerock.openam.oauth2provider.redirectionURIs", "[0]=".concat(firstUri));
+        clientIdentity.addAttribute("redirectionURIs", "[0]=".concat(firstUri));
         clientIdentity.store();
     };
 };
@@ -46345,6 +48124,181 @@ function preSendFailureResponse () {
 "
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/SAML2_IDP_ADAPTER_NEXTGEN/SAML2 IDP Adapter Script (Next Gen).js 1`] = `
+"/*
+ * Copyright 2026 Ping Identity Corporation. All Rights Reserved
+ *
+ * This code is to be used exclusively in connection with Ping Identity
+ * Corporation software or services. Ping Identity Corporation only offers
+ * such software or services to legal entities who have entered into a
+ * binding license agreement with Ping Identity Corporation.
+ */
+
+/*
+ * This script allows customization of SAML2 Identity Provider (IDP) adapter behavior at various points
+ * in the SAML2 authentication flow.
+ *
+ * Next-gen bindings available in this script (depending on the method being invoked):
+ *
+ * hostedEntityId - String
+ *      The entity ID of the hosted IDP.
+ * realm - String
+ *      The realm of the hosted IDP.
+ * idpAdapterScriptHelper - IdpAdapterNextGenScriptHelper
+ *      Helper object providing utility methods for IDP adapter operations.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper for reading request attributes, headers, and parameters.
+ * responseHelper - HttpServletResponseHelper
+ *      Helper for writing response headers and redirects.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * ssoResponse - Map
+ *      The SAML2 Response object as a JSON map.
+ * reqId - String
+ *      The request ID used for continuation after redirect.
+ * session - ScriptedSession
+ *      The user's session object (when available). Supports getProperty/setProperty.
+ * relayState - String
+ *      The relayState value used in the redirect.
+ * faultCode - String
+ *      The fault code that will be returned in the SAML response.
+ * faultDetail - String
+ *      The fault detail that will be returned in the SAML response.
+ *
+ * Bindings not listed for a method will be null.
+ */
+
+/**
+ * Invoked when AM receives the authentication request from the SP for the first time,
+ * before any processing starts on the IDP side.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ * realm - String
+ * idpAdapterScriptHelper - IdpAdapterNextGenScriptHelper
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper for reading request attributes, headers, and parameters.
+ * responseHelper - HttpServletResponseHelper
+ *      Helper for writing response headers and redirects.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * reqId - String
+ *
+ * Return true if browser redirection is happening after processing, false otherwise.
+ * Throw an exception to fail the process.
+ */
+function preSingleSignOn() {
+    return false;
+}
+
+/**
+ * Invoked when AM has processed the authentication request and is ready to redirect to authentication.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ * realm - String
+ * idpAdapterScriptHelper - IdpAdapterNextGenScriptHelper
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper for reading request attributes, headers, and parameters.
+ * responseHelper - HttpServletResponseHelper
+ *      Helper for writing response headers and redirects.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * reqId - String
+ * session - ScriptedSession
+ * relayState - String
+ *
+ * Return true if browser redirection is happening after processing, false otherwise.
+ * Throw an exception to fail the process.
+ */
+function preAuthentication() {
+    return false;
+}
+
+/**
+ * Invoked before sending a non-error SAML2 Response, but before the response object is constructed.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ * realm - String
+ * idpAdapterScriptHelper - IdpAdapterNextGenScriptHelper
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper for reading request attributes, headers, and parameters.
+ * responseHelper - HttpServletResponseHelper
+ *      Helper for writing response headers and redirects.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * reqId - String
+ * session - ScriptedSession
+ * relayState - String
+ *
+ * Return true if browser redirection happened after processing, false otherwise.
+ * Throw an exception to fail the process.
+ */
+function preSendResponse() {
+    return false;
+}
+
+/**
+ * Invoked after the SAML2 Response object is created, but before it is signed/encrypted.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ * realm - String
+ * idpAdapterScriptHelper - IdpAdapterNextGenScriptHelper
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper for reading request attributes, headers, and parameters.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * session - ScriptedSession
+ * relayState - String
+ * ssoResponse - Map
+ *      The SAML2 Response object as a JSON map.
+ */
+function preSignResponse() {
+}
+
+/**
+ * Invoked before a SAML error message is returned.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ * realm - String
+ * idpAdapterScriptHelper - IdpAdapterNextGenScriptHelper
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper for reading request attributes, headers, and parameters.
+ * responseHelper - HttpServletResponseHelper
+ *      Helper for writing response headers and redirects.
+ * faultCode - String
+ * faultDetail - String
+ */
+function preSendFailureResponse() {
+}
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER/SAML2 IDP Attribute Mapper Script.js 1`] = `
 "/*
  * Copyright 2021 ForgeRock AS. All Rights Reserved
@@ -46508,6 +48462,54 @@ getAttributes();
 "
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER_NEXT_GEN/SAML IDP Attribute Mapper Script (Next Gen).js 1`] = `
+"/*
+ * Copyright 2026 Ping Identity Corporation. All Rights Reserved
+ *
+ * This code is to be used exclusively in connection with Ping Identity
+ * Corporation software or services. Ping Identity Corporation only offers
+ * such software or services to legal entities who have entered into a
+ * binding license agreement with Ping Identity Corporation.
+ */
+
+/*
+ * This script returns a list of SAML Attribute objects for the IDP framework to insert into the generated Assertion.
+ *
+ * Next-gen bindings available in this script:
+ *
+ * session - ScriptedSession
+ *      The user's session object.
+ *
+ * hostedEntityId - String
+ *      The entity ID of the hosted Identity Provider.
+ *
+ * remoteEntityId - String
+ *      The entity ID of the remote Service Provider.
+ *
+ * realm - String
+ *      The name of the realm the user is authenticating to.
+ *
+ * idpAttributeMapperScriptHelper - IdpAttributeMapperScriptHelper
+ *      Helper object providing utility methods for IDP attribute mapping operations.
+ *
+ * The last line must be a JSON list containing attributes with the structure:
+ * 
+ * [{
+ *      "name:" "...",
+ *      "nameFormat": "...",
+ *      "values": ["..."]
+ * },...]
+ * 
+ */
+
+attributes = idpAttributeMapperScriptHelper.getStandardAttributes()
+
+// modify the attrs object as needed
+
+attributes  // this must be the last line of the script
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/SAML2_NAMEID_MAPPER/SAML2 NameID Mapper Script.js 1`] = `
 "/*
  * Copyright 2024-2025 Ping Identity Corporation. All Rights Reserved
@@ -46524,6 +48526,77 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
  * The example script delegates to the configured java plugin via the nameIDScriptHelper binding.
  */
 nameIDScriptHelper.getNameIDValue();
+"
+`;
+
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/SAML2_SP_ACCOUNT_MAPPER/SAML2 SP Account Mapper Script.js 1`] = `
+"/*
+ * Copyright 2025 Ping Identity Corporation. All Rights Reserved
+ *
+ * This code is to be used exclusively in connection with Ping Identity
+ * Corporation software or services. Ping Identity Corporation only offers
+ * such software or services to legal entities who have entered into a
+ * binding license agreement with Ping Identity Corporation.
+ */
+
+/*
+ * This script returns the user's distinguished name or the universal ID for the corresponding SAML Assertion.
+ *
+ * Defined variables:
+ * hostedEntityId - String (primitive).
+ *      The hosted entity ID.
+ * assertion - Map
+ *      Map of the SAML Assertion.
+ * realm - String (primitive).
+ *      The name of the realm the user is authenticating to.
+ * accountMapperHelper - SpAccountMapperScriptHelper
+ *      An SpAccountMapperScriptHelper instance containing convenience methods used for SP account mapping.
+ *
+ * Return - a String containing the user's distinguished name or the universal ID. Return null if no user can be mapped.
+ *
+ * Example return values:
+ *      "uid=jdoe,ou=people,dc=example,dc=com" - the SP user's distinguished name
+ *      "jdoe" - the SP user's universal ID
+ *      null - no user has been mapped thus requiring the user to enter their SP credentials
+ *      "prefix-" + nameID["value"] - the NameID value with a hardcoded prefix of "prefix-"
+ */
+
+/**
+ * Default SAML2 SP Account Mapper.
+ */
+function getIdentity() {
+    const debugMethod = "ScriptedSPAccountMapper.getIdentity:: ";
+
+    var nameID = accountMapperHelper.getNameID();
+
+    var userID = null;
+    var isTransient = accountMapperHelper.isTransientNameId(nameID["format"]);
+    if (isTransient) {
+        userID = accountMapperHelper.getTransientUserForSP();
+        accountMapperHelper.validateUserId(userID);
+    }
+
+    if (userID != null && userID.length > 0) {
+        logger.debug(debugMethod + " use Transient user as userID:" + userID);
+        return userID;
+    }
+
+    userID = accountMapperHelper.getAutoFedUser(nameID["value"]);
+    if (userID != null && userID.length > 0) {
+        logger.debug(debugMethod + " use AutoFedUser as userID:" + userID);
+        return userID;
+    } else {
+        if (accountMapperHelper.useNameIDAsSPUserID() && !accountMapperHelper.isAutoFedEnabled()) {
+            logger.debug(debugMethod + " use NameID value as userID:" + nameID["value"]);
+            accountMapperHelper.validateUserId(nameID["value"]);
+            return nameID["value"];
+        } else {
+            return null;
+        }
+    }
+}
+
+getIdentity();
 "
 `;
 
@@ -46758,6 +48831,303 @@ function postSingleLogoutSuccess() {
 "
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/SAML2_SP_ADAPTER_NEXTGEN/SAML2 SP Adapter Script (Next Gen).js 1`] = `
+"/*
+ * Copyright 2026 Ping Identity Corporation. All Rights Reserved
+ *
+ * This code is to be used exclusively in connection with Ping Identity
+ * Corporation software or services. Ping Identity Corporation only offers
+ * such software or services to legal entities who have entered into a
+ * binding license agreement with Ping Identity Corporation.
+ */
+
+/*
+ * This script allows customization of SAML2 Service Provider (SP) adapter behavior at various points
+ * in the SAML2 authentication flow.
+ *
+ * Next-gen bindings available in this script (depending on the method being invoked):
+ *
+ * idpEntityId - String
+ *      The entity ID of the Identity Provider.
+ * profile - String
+ *      The SAML2 profile being used (e.g., "urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser").
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ * isFederation - Boolean
+ *      True if this is a federation scenario, false otherwise.
+ * userId - String
+ *      The universal ID of the user.
+ * failureCode - Integer
+ *      The failure code indicating the type of SSO failure (see SPAdapter constants).
+ * ssoResponse - Map
+ *      The SAML2 Response object from the IDP as a JSON map.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * authnRequestHelper - AuthnRequestHelper
+ *      Helper object for retrieving and updating properties of the AuthnRequest.
+ * session - ScriptedSession
+ *      The user's session object (when available).
+ * realm - String
+ *      The realm of the hosted SP.
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * binding - String
+ *      The SAML2 binding being used (e.g., "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST").
+ */
+
+/**
+ * Invoked before AM sends the Single-Sign-On request to IDP.
+ *
+ * Available bindings:
+ * idpEntityId - String
+ *      The entity ID of the Identity Provider.
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * realm - String
+ *      The realm of the hosted SP.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * authnRequestHelper - AuthnRequestHelper
+ *      Helper object for retrieving and updating properties of the AuthnRequest.
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ *
+ * Throw an exception to fail the process.
+ */
+function preSingleSignOnRequest() {
+}
+
+/**
+ * Invoked when AM receives the Single-Sign-On response from the IDP,
+ * before any processing starts on the SP side.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * realm - String
+ *      The realm of the hosted SP.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * authnRequestHelper - AuthnRequestHelper
+ *      Helper object for retrieving and updating properties of the AuthnRequest.
+ * ssoResponse - Map
+ *      The SAML2 Response object from the IDP as a JSON map.
+ * profile - String
+ *      The SAML2 profile being used (e.g., "urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser").
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ *
+ * Throw an exception to fail the process.
+ */
+function preSingleSignOnProcess() {
+}
+
+/**
+ * Invoked after Single-Sign-On processing succeeds.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * realm - String
+ *      The realm of the hosted SP.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * session - ScriptedSession
+ *      The user's session object.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * authnRequestHelper - AuthnRequestHelper
+ *      Helper object for retrieving and updating properties of the AuthnRequest.
+ * ssoResponse - Map
+ *      The SAML2 Response object from the IDP as a JSON map.
+ * profile - String
+ *      The SAML2 profile being used (e.g., "urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser").
+ * isFederation - Boolean
+ *      True if this is a federation scenario, false otherwise.
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ *
+ * Return true if browser redirection occurred after processing, false otherwise.
+ * Throw an exception to fail the process.
+ */
+function postSingleSignOnSuccess() {
+    return false;
+}
+
+/**
+ * Invoked after Single-Sign-On processing fails.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * realm - String
+ *      The realm of the hosted SP.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * authnRequest - Map
+ *      The SAML2 AuthnRequest object as a JSON map.
+ * authnRequestHelper - AuthnRequestHelper
+ *      Helper object for retrieving and updating properties of the AuthnRequest.
+ * ssoResponse - Map
+ *      The SAML2 Response object from the IDP as a JSON map.
+ * profile - String
+ *      The SAML2 profile being used (e.g., "urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser").
+ * failureCode - Integer
+ *      The failure code indicating the type of SSO failure (see SPAdapter constants).
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ *
+ * Return true if browser redirection occurred, false otherwise.
+ */
+function postSingleSignOnFailure() {
+    return false;
+}
+
+/**
+ * Invoked after new Name Identifier processing succeeds.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * realm - String
+ *      The realm of the hosted SP.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * userId - String
+ *      The universal ID of the user.
+ * binding - String
+ *      The SAML2 binding being used (e.g., "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST").
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ */
+function postNewNameIDSuccess() {
+}
+
+/**
+ * Invoked after Terminate Name Identifier processing succeeds.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * realm - String
+ *      The realm of the hosted SP.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * userId - String
+ *      The universal ID of the user.
+ * binding - String
+ *      The SAML2 binding being used (e.g., "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST").
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ */
+function postTerminateNameIDSuccess() {
+}
+
+/**
+ * Invoked before single logout process starts on SP side.
+ * This is called before the user session is invalidated on the service provider side.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * realm - String
+ *      The realm of the hosted SP.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * userId - String
+ *      The universal ID of the user.
+ * binding - String
+ *      The SAML2 binding being used (e.g., "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST").
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ *
+ * Throw an exception to fail the process.
+ */
+function preSingleLogoutProcess() {
+}
+
+/**
+ * Invoked after single logout process succeeds, i.e., user session has been invalidated.
+ *
+ * Available bindings:
+ * hostedEntityId - String
+ *      The entity ID of the hosted SP.
+ * realm - String
+ *      The realm of the hosted SP.
+ * request - Map
+ *      The HttpServletRequest object as a JSON map.
+ * response - Map
+ *      The HttpServletResponse object as a JSON map.
+ * userId - String
+ *      The universal ID of the user.
+ * binding - String
+ *      The SAML2 binding being used (e.g., "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST").
+ * spAdapterScriptHelper - SpAdapterScriptHelper
+ *      Helper object providing utility methods for SP adapter operations.
+ * requestHelper - HttpServletRequestHelper
+ *      Helper object for accessing and manipulating HttpServletRequest properties (attributes, headers, parameters).
+ * responseHelper - HttpServletResponseHelper
+ *      Helper object for accessing and manipulating HttpServletResponse properties (headers, redirects).
+ */
+function postSingleLogoutSuccess() {
+}
+"
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/scripts/scripts-content/SCRIPTED_DECISION_NODE/Next Generation Scripted Decision Node Script.js 1`] = `
 "/*
  * Copyright 2024-2025 Ping Identity Corporation. All Rights Reserved
@@ -46822,14 +49192,14 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/services/baseurl.json 1`] = `
 {
   "_id": "",
-  "_rev": "-1367821838",
+  "_rev": "-1873452754",
   "_type": {
     "_id": "baseurl",
     "collection": false,
     "name": "Base URL Source",
   },
   "contextPath": "/am",
-  "fixedValue": "https://platform.dev.trivir.com",
+  "fixedValue": "https://nightly.gcp.forgeops.com",
   "source": "FIXED_VALUE",
 }
 `;
@@ -46837,7 +49207,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/services/id-repositories.json 1`] = `
 {
   "_id": "",
-  "_rev": "-1741783487",
+  "_rev": "2018677050",
   "_type": {
     "_id": "id-repositories",
     "collection": false,
@@ -46845,9 +49215,9 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   },
   "sunIdRepoAttributeCombiner": "com.iplanet.am.sdk.AttributeCombiner",
   "sunIdRepoAttributeValidator": [
+    "usernameInvalidChars=*|(|)|&|!|{|}|;",
     "class=com.sun.identity.idm.server.IdRepoAttributeValidatorImpl",
     "minimumPasswordLength=8",
-    "usernameInvalidChars=*|(|)|&|!",
   ],
 }
 `;
@@ -47000,6 +49370,8 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "iplanet-am-session-max-session-time",
       "deviceProfiles",
       "boundDevices",
+      "pingOneRecognizeUserProfile",
+      "pingOneRecognizeDeviceProfiles",
       "cn",
       "oathDeviceProfiles",
       "webauthnDeviceProfiles",
@@ -47032,6 +49404,8 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "iplanet-am-auth-configuration-service",
       "deviceProfilesContainer",
       "boundDevicesContainer",
+      "pingOneRecognizeUserProfileContainer",
+      "pingOneRecognizeDeviceProfilesContainer",
       "fr-idm-managed-user-explicit",
     ],
     "sun-idrepo-ldapv3-config-users-search-attribute": "fr-idm-uuid",
@@ -47043,13 +49417,14 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/services/oauth-oidc.json 1`] = `
 {
   "_id": "",
-  "_rev": "533784112",
+  "_rev": "2041881104",
   "_type": {
     "_id": "oauth-oidc",
     "collection": false,
     "name": "OAuth2 Provider",
   },
   "advancedOAuth2Config": {
+    "acceptAudienceParametersInTokenExchangeRequests": false,
     "allowClientCredentialsInTokenRequestQueryParameters": true,
     "allowedAudienceValues": [],
     "authenticationAttributes": [
@@ -47064,6 +49439,9 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "email",
     ],
     "displayNameAttribute": "cn",
+    "enableApplicationContext": false,
+    "enableRichAuthorizationRequests": false,
+    "enforceMayActInTokenExchangeRequests": true,
     "expClaimRequiredInRequestObject": false,
     "grantTypes": [
       "implicit",
@@ -47075,9 +49453,10 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "authorization_code",
       "urn:ietf:params:oauth:grant-type:uma-ticket",
     ],
-    "hashSalt": "3FQf76iBRzr9nfmqoSz4tLc7E6Wii2Cc",
+    "hashSalt": "atbzNK45iFwj65PcScPk",
     "includeClientIdClaimInStatelessTokens": true,
     "includeSubnameInTokenClaims": true,
+    "introspectionAudienceValidationEnabled": false,
     "macaroonTokenFormat": "V2",
     "maxAgeOfRequestObjectNbfClaim": 0,
     "maxDifferenceBetweenRequestObjectNbfAndExp": 0,
@@ -47094,6 +49473,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "device_code|org.forgerock.oauth2.core.TokenResponseTypeHandler",
       "token|org.forgerock.oauth2.core.TokenResponseTypeHandler",
     ],
+    "restrictTokenExchangeScopesToSubjectTokenScopes": false,
     "supportedScopes": [
       "email|Your email address",
       "openid|",
@@ -47110,7 +49490,9 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     ],
     "tlsCertificateBoundAccessTokensEnabled": true,
     "tlsCertificateRevocationCheckingEnabled": false,
+    "tlsClientCertificateChainValidationEnabled": false,
     "tlsClientCertificateHeaderFormat": "BASE64_ENCODED_CERT",
+    "tlsClientCertificateTrustedProxyAllowlist": [],
     "tokenCompressionEnabled": false,
     "tokenEncryptionEnabled": false,
     "tokenExchangeClasses": [
@@ -47124,6 +49506,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
       "urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.OidcIdTokenValidator",
       "urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.OAuth2AccessTokenValidator",
     ],
+    "useTokenIntrospectionClaimForJWT": false,
   },
   "advancedOIDCConfig": {
     "alwaysAddClaimsToToken": false,
@@ -47138,7 +49521,9 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "defaultACR": [],
     "idTokenInfoClientAuthenticationEnabled": true,
     "includeAllKtyAlgCombinationsInJwksUri": false,
+    "jwtSigningKidHeaderMappings": {},
     "loaMapping": {},
+    "minMaxAge": 60,
     "storeOpsTokens": true,
     "supportedAuthorizationResponseEncryptionAlgorithms": [
       "ECDH-ES+A256KW",
@@ -47281,6 +49666,17 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "useForceAuthnForMaxAge": false,
     "useForceAuthnForPromptLogin": false,
   },
+  "aiAgentsConfig": {
+    "aiAgentsEnabled": true,
+    "aiAgentsIdentityObjectMapping": [
+      "client_id|oauth2ClientId",
+      "client_name#en|name",
+      "client_name|name",
+      "client_id|name",
+    ],
+    "aiAgentsIdentityObjectName": "managed/aiagent",
+    "aiAgentsPrivilegeObjectName": "managed/aiagentprivilege",
+  },
   "cibaConfig": {
     "cibaAuthReqIdLifetime": 600,
     "cibaMinimumPollingInterval": 2,
@@ -47298,6 +49694,7 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "requiredSoftwareStatementAttestedAttributes": [
       "redirect_uris",
     ],
+    "storeSoftwareStatementInOAuth2Client": false,
   },
   "consent": {
     "clientsCanSkipConsent": true,
@@ -47430,6 +49827,8 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "devicePollInterval": 5,
     "deviceUserCodeCharacterSet": "234567ACDEFGHJKLMNPQRSTWXYZabcdefhijkmnopqrstwxyz",
     "deviceUserCodeLength": 8,
+    "exposeDeviceUserCodeLength": false,
+    "realmAllowUnauthorisedAccessToUserCodeForm": false,
   },
   "pluginsConfig": {
     "accessTokenEnricherClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
@@ -47475,14 +49874,14 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/services/validation.json 1`] = `
 {
   "_id": "",
-  "_rev": "1064971965",
+  "_rev": "-1969382919",
   "_type": {
     "_id": "validation",
     "collection": false,
     "name": "Validation Service",
   },
   "validGotoDestinations": [
-    "https://platform.dev.trivir.com/*?*",
+    "https://nightly.gcp.forgeops.com/*?*",
   ],
 }
 `;
@@ -47570,458 +49969,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
   "persisted": true,
   "repeatInterval": 86400000,
   "type": "simple",
-}
-`;
-
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/sync/connectors/GoogleApps.json 1`] = `
-{
-  "_id": "provisioner.openicf/GoogleApps",
-  "configurationProperties": {
-    "availableLicenses": [
-      "101005/1010050001",
-      "101001/1010010001",
-      "101031/1010310010",
-      "101034/1010340002",
-      "101038/1010380002",
-      "101034/1010340001",
-      "101038/1010380003",
-      "101034/1010340004",
-      "101034/1010340003",
-      "101034/1010340006",
-      "Google-Apps/Google-Apps-For-Business",
-      "101034/1010340005",
-      "Google-Vault/Google-Vault",
-      "Google-Apps/1010020031",
-      "Google-Apps/1010020030",
-      "Google-Apps/1010060003",
-      "Google-Apps/1010060005",
-      "Google-Apps/Google-Apps-Unlimited",
-      "Google-Apps/1010020029",
-      "Google-Apps/Google-Apps-Lite",
-      "101031/1010310003",
-      "101033/1010330002",
-      "101033/1010330004",
-      "Google-Apps/Google-Apps-For-Education",
-      "101031/1010310002",
-      "101033/1010330003",
-      "Google-Apps/1010020026",
-      "101031/1010310007",
-      "Google-Apps/1010020025",
-      "101031/1010310008",
-      "Google-Apps/1010020028",
-      "Google-Apps/Google-Apps-For-Postini",
-      "101031/1010310005",
-      "Google-Apps/1010020027",
-      "101031/1010310006",
-      "101031/1010310009",
-      "Google-Vault/Google-Vault-Former-Employee",
-      "101038/1010370001",
-      "Google-Apps/1010020020",
-      "Google-Apps/1010060001",
-    ],
-    "clientId": "&{esv.gac.client.id}",
-    "clientSecret": "&{esv.gac.secret}",
-    "domain": "&{esv.gac.domain}",
-    "groupsMaxResults": "200",
-    "listProductAndSkuMaxResults": "100",
-    "listProductMaxResults": "100",
-    "membersMaxResults": "200",
-    "proxyHost": null,
-    "proxyPort": 8080,
-    "refreshToken": "&{esv.gac.refresh}",
-    "roleAssignmentMaxResults": 100,
-    "roleMaxResults": 100,
-    "usersMaxResults": "100",
-    "validateCertificate": true,
-  },
-  "connectorRef": {
-    "bundleName": "org.forgerock.openicf.connectors.googleapps-connector",
-    "bundleVersion": "[1.5.0.0,1.6.0.0)",
-    "connectorHostRef": "",
-    "connectorName": "org.forgerock.openicf.connectors.googleapps.GoogleAppsConnector",
-    "displayName": "GoogleApps Connector",
-    "systemType": "provisioner.openicf",
-  },
-  "enabled": {
-    "$bool": "&{esv.gac.enable.connector}",
-  },
-  "objectTypes": {
-    "__ACCOUNT__": {
-      "$schema": "http://json-schema.org/draft-03/schema",
-      "id": "__ACCOUNT__",
-      "nativeType": "__ACCOUNT__",
-      "properties": {
-        "__GROUPS__": {
-          "flags": [
-            "NOT_RETURNED_BY_DEFAULT",
-          ],
-          "items": {
-            "nativeType": "string",
-            "type": "string",
-          },
-          "nativeName": "__GROUPS__",
-          "nativeType": "string",
-          "type": "array",
-        },
-        "__NAME__": {
-          "nativeName": "__NAME__",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "__PASSWORD__": {
-          "flags": [
-            "NOT_READABLE",
-            "NOT_RETURNED_BY_DEFAULT",
-          ],
-          "nativeName": "__PASSWORD__",
-          "nativeType": "JAVA_TYPE_GUARDEDSTRING",
-          "required": true,
-          "type": "string",
-        },
-        "__PHOTO__": {
-          "flags": [
-            "NOT_RETURNED_BY_DEFAULT",
-          ],
-          "nativeName": "__PHOTO__",
-          "nativeType": "JAVA_TYPE_BYTE_ARRAY",
-          "type": "string",
-        },
-        "__SECONDARY_EMAILS__": {
-          "items": {
-            "nativeType": "object",
-            "type": "object",
-          },
-          "nativeName": "__SECONDARY_EMAILS__",
-          "nativeType": "object",
-          "type": "array",
-        },
-        "__UID__": {
-          "nativeName": "__UID__",
-          "nativeType": "string",
-          "required": false,
-          "type": "string",
-        },
-        "addresses": {
-          "items": {
-            "nativeType": "object",
-            "type": "object",
-          },
-          "nativeName": "addresses",
-          "nativeType": "object",
-          "type": "array",
-        },
-        "agreedToTerms": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "agreedToTerms",
-          "nativeType": "JAVA_TYPE_PRIMITIVE_BOOLEAN",
-          "type": "boolean",
-        },
-        "aliases": {
-          "flags": [
-            "NOT_CREATABLE",
-          ],
-          "items": {
-            "nativeType": "string",
-            "type": "string",
-          },
-          "nativeName": "aliases",
-          "nativeType": "string",
-          "type": "array",
-        },
-        "archived": {
-          "nativeName": "archived",
-          "nativeType": "boolean",
-          "type": "boolean",
-        },
-        "changePasswordAtNextLogin": {
-          "nativeName": "changePasswordAtNextLogin",
-          "nativeType": "boolean",
-          "type": "boolean",
-        },
-        "creationTime": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "items": {
-            "nativeType": "string",
-            "type": "string",
-          },
-          "nativeName": "creationTime",
-          "nativeType": "string",
-          "type": "array",
-        },
-        "customSchemas": {
-          "nativeName": "customSchemas",
-          "nativeType": "object",
-          "type": "object",
-        },
-        "customerId": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "customerId",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "deletionTime": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "deletionTime",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "externalIds": {
-          "items": {
-            "nativeType": "object",
-            "type": "object",
-          },
-          "nativeName": "externalIds",
-          "nativeType": "object",
-          "type": "array",
-        },
-        "familyName": {
-          "nativeName": "familyName",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "fullName": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "fullName",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "givenName": {
-          "nativeName": "givenName",
-          "nativeType": "string",
-          "required": true,
-          "type": "string",
-        },
-        "hashFunction": {
-          "flags": [
-            "NOT_RETURNED_BY_DEFAULT",
-          ],
-          "nativeName": "hashFunction",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "ims": {
-          "items": {
-            "nativeType": "object",
-            "type": "object",
-          },
-          "nativeName": "ims",
-          "nativeType": "object",
-          "type": "array",
-        },
-        "includeInGlobalAddressList": {
-          "nativeName": "includeInGlobalAddressList",
-          "nativeType": "boolean",
-          "type": "boolean",
-        },
-        "ipWhitelisted": {
-          "nativeName": "ipWhitelisted",
-          "nativeType": "boolean",
-          "type": "boolean",
-        },
-        "isAdmin": {
-          "nativeName": "isAdmin",
-          "nativeType": "JAVA_TYPE_PRIMITIVE_BOOLEAN",
-          "type": "boolean",
-        },
-        "isDelegatedAdmin": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "isDelegatedAdmin",
-          "nativeType": "JAVA_TYPE_PRIMITIVE_BOOLEAN",
-          "type": "boolean",
-        },
-        "isEnforcedIn2Sv": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "isEnforcedIn2Sv",
-          "nativeType": "boolean",
-          "type": "boolean",
-        },
-        "isEnrolledIn2Sv": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "isEnrolledIn2Sv",
-          "nativeType": "boolean",
-          "type": "boolean",
-        },
-        "isMailboxSetup": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "isMailboxSetup",
-          "nativeType": "boolean",
-          "type": "boolean",
-        },
-        "languages": {
-          "items": {
-            "nativeType": "object",
-            "type": "object",
-          },
-          "nativeName": "languages",
-          "nativeType": "object",
-          "type": "array",
-        },
-        "lastLoginTime": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "items": {
-            "nativeType": "string",
-            "type": "string",
-          },
-          "nativeName": "lastLoginTime",
-          "nativeType": "string",
-          "type": "array",
-        },
-        "nonEditableAliases": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "items": {
-            "nativeType": "string",
-            "type": "string",
-          },
-          "nativeName": "nonEditableAliases",
-          "nativeType": "string",
-          "type": "array",
-        },
-        "orgUnitPath": {
-          "nativeName": "orgUnitPath",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "organizations": {
-          "items": {
-            "nativeType": "object",
-            "type": "object",
-          },
-          "nativeName": "organizations",
-          "nativeType": "object",
-          "type": "array",
-        },
-        "phones": {
-          "items": {
-            "nativeType": "object",
-            "type": "object",
-          },
-          "nativeName": "phones",
-          "nativeType": "object",
-          "type": "array",
-        },
-        "primaryEmail": {
-          "nativeName": "primaryEmail",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "recoveryEmail": {
-          "nativeName": "recoveryEmail",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "recoveryPhone": {
-          "nativeName": "recoveryPhone",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "relations": {
-          "items": {
-            "nativeType": "object",
-            "type": "object",
-          },
-          "nativeName": "relations",
-          "nativeType": "object",
-          "type": "array",
-        },
-        "suspended": {
-          "nativeName": "suspended",
-          "nativeType": "boolean",
-          "type": "boolean",
-        },
-        "suspensionReason": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "suspensionReason",
-          "nativeType": "string",
-          "type": "string",
-        },
-        "thumbnailPhotoUrl": {
-          "flags": [
-            "NOT_CREATABLE",
-            "NOT_UPDATEABLE",
-          ],
-          "nativeName": "thumbnailPhotoUrl",
-          "nativeType": "string",
-          "type": "string",
-        },
-      },
-      "type": "object",
-    },
-  },
-  "operationTimeout": {
-    "AUTHENTICATE": -1,
-    "CREATE": -1,
-    "DELETE": -1,
-    "GET": -1,
-    "RESOLVEUSERNAME": -1,
-    "SCHEMA": -1,
-    "SCRIPT_ON_CONNECTOR": -1,
-    "SCRIPT_ON_RESOURCE": -1,
-    "SEARCH": -1,
-    "SYNC": -1,
-    "TEST": -1,
-    "UPDATE": -1,
-    "VALIDATE": -1,
-  },
-  "poolConfigOption": {
-    "maxIdle": 10,
-    "maxObjects": 10,
-    "maxWait": 150000,
-    "minEvictableIdleTimeMillis": 120000,
-    "minIdle": 1,
-  },
-  "resultsHandlerConfig": {
-    "enableAttributesToGetSearchResultsHandler": true,
-    "enableCaseInsensitiveFilter": false,
-    "enableFilteredResultsHandler": false,
-    "enableNormalizingResultsHandler": false,
-  },
-}
-`;
-
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/sync/rcs/provisioner.openicf.connectorinfoprovider.json 1`] = `
-{
-  "_id": "provisioner.openicf.connectorinfoprovider",
-  "connectorsLocation": "connectors",
-  "remoteConnectorClients": [],
-  "remoteConnectorClientsGroups": [],
-  "remoteConnectorServers": [],
-  "remoteConnectorServersGroups": [],
 }
 `;
 

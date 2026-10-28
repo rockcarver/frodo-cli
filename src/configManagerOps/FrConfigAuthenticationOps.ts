@@ -63,7 +63,7 @@ export async function configManagerImportAuthentication(
   realm?: string
 ): Promise<boolean> {
   try {
-    if (realm) {
+    if (realm && realm !== frodo.utils.constants.DEFAULT_REALM_KEY) {
       const filePath = getFilePath(
         `realms/${realm}/realm-config/authentication.json`
       );

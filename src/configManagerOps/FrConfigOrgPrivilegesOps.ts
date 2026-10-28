@@ -2,9 +2,10 @@ import fs from 'fs';
 import {
   frodo,
   state,
+  type FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { printError, verboseMessage } from '../utils/Console';
 
 const { config } = frodo.idm;
 const { getFilePath, saveJsonToFile } = frodo.utils;
@@ -14,10 +15,12 @@ const { readRealms } = frodo.realm;
 /**
  *
  * @param realm The name of the realm to retrieve organization privileges from.
+ * @param ignoreMissing True to treat a realm that has no organization privileges configuration as nothing to export instead of an error. Default: false
  * @returns True if realm exists and organization privileges configuration file was successfully saved
  */
 export async function configManagerExportOrgPrivilegesRealm(
-  realm: string
+  realm: string,
+  ignoreMissing = false
 ): Promise<boolean> {
   try {
     const realmPrivileges: IdObjectSkeletonInterface =
@@ -30,6 +33,12 @@ export async function configManagerExportOrgPrivilegesRealm(
     );
     return true;
   } catch (error) {
+    if (ignoreMissing && (error as FrodoError).httpStatus === 404) {
+      verboseMessage(
+        `No organization privileges config for realm "${realm}", nothing to export.`
+      );
+      return true;
+    }
     printError(error);
     return false;
   }
@@ -57,26 +66,35 @@ export async function configManagerExportOrgPrivileges(): Promise<boolean> {
 }
 
 /**
- * Export all organization privileges configurations from all realms in fr-config manager format
+ * Export the organization privileges configurations in fr-config manager format:
+ * the global privilege assignments plus the configuration of every realm, or of
+ * one realm when a realm is given.
+ * @param realm Optional name of the one realm to export. All realms when omitted or the default realm key.
  * @returns True if configuration files were successfully saved
  */
-export async function configManagerExportOrgPrivilegesAllRealms(): Promise<boolean> {
+export async function configManagerExportOrgPrivilegesAllRealms(
+  realm?: string
+): Promise<boolean> {
   try {
-    configManagerExportOrgPrivileges();
-    for (const realm of await readRealms()) {
+    const assignmentsExported = await configManagerExportOrgPrivileges();
+    const realmNames =
+      realm && realm !== frodo.utils.constants.DEFAULT_REALM_KEY
+        ? [realm]
+        : (await readRealms()).map((r) => r.name);
+    for (const name of realmNames) {
       if (
-        realm.name === '/' &&
+        name === '/' &&
         state.getDeploymentType() ===
           frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
 
-      state.setRealm(realm.name);
-      if (!(await configManagerExportOrgPrivilegesRealm(realm.name))) {
+      state.setRealm(name);
+      if (!(await configManagerExportOrgPrivilegesRealm(name, true))) {
         return false;
       }
     }
-    return true;
+    return assignmentsExported;
   } catch (error) {
     printError(error);
     return false;
