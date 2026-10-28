@@ -2,7 +2,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
-import { FrodoCommand } from '../FrodoCommand';
+import { FrodoCommand, SecretOption } from '../FrodoCommand';
 
 const { clientCredentialsGrant } = frodo.oauth2oidc.endpoint;
 export default function setup() {
@@ -11,10 +11,10 @@ export default function setup() {
   program
     .description('Get an access token using client credentials grant type.')
     .addOption(
-      new Option('-i, --client-id [id]', 'Client id.').makeOptionMandatory()
+      new Option('-i, --client-id <id>', 'Client id.').makeOptionMandatory()
     )
     .addOption(
-      new Option(
+      new SecretOption(
         '-s, --client-secret [secret]',
         'Client secret.'
       ).makeOptionMandatory()

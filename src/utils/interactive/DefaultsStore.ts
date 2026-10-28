@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import type { Command, Option } from 'commander';
+import { isSecretOption } from './SecretOptions';
 
 /**
  * Persistent per-command defaults (docs/INTERACTIVE-COMMANDS.md):
@@ -103,7 +104,14 @@ export function saveCommandDefaults(
 ): void {
   const store = readDefaultsStore();
   const key = commandStoreKey(command);
-  store[key] = { ...(store[key] ?? {}), ...values };
+  // A secret is never written to disk, whatever the editor committed.
+  const secrets = new Set(
+    command.options.filter(isSecretOption).map((o) => o.attributeName())
+  );
+  const safe = Object.fromEntries(
+    Object.entries(values).filter(([name]) => !secrets.has(name))
+  );
+  store[key] = { ...(store[key] ?? {}), ...safe };
   writeDefaultsStore(store);
 }
 
@@ -135,7 +143,9 @@ export function clearDefaultsByPath(commandPath: string): void {
 export function applicableCommandDefaults(command: Command): CommandDefaults {
   const persisted = readCommandDefaults(command);
   const known = new Set(
-    command.options.map((option) => option.attributeName())
+    command.options
+      .filter((option) => !isSecretOption(option))
+      .map((option) => option.attributeName())
   );
   return Object.fromEntries(
     Object.entries(persisted).filter(([name]) => known.has(name))

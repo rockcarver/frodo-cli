@@ -75,6 +75,17 @@ with `-i` the option was ignored), so `frodo esv secret version delete -a -i
 <secret-id> -v <version>` is now rejected as an unknown option. Drop `-a`; to
 remove old versions, use `prune`.
 
+**Secret options without a value are asked for**: in 4.x, `frodo conn save
+--log-api-secret`, `frodo admin get-access-token -s` and `frodo admin
+create-oauth2-client-with-admin-privileges --client-secret` accepted the flag
+without a value and used `true` as the secret, so the command failed or kept a
+useless secret. In 5.x a bare flag asks for the value with the input hidden,
+or reads it from stdin when input is piped (`echo "$SECRET" | frodo ...
+--client-secret`), and the command refuses to run and exits with code 1 when
+it can do neither. `frodo admin get-access-token -i` likewise needs a value:
+`-i` without one is rejected with `option '-i, --client-id <id>' argument
+missing`, instead of sending `true` as the client id.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

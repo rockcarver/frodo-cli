@@ -8,6 +8,7 @@ import {
   serializeCommand,
   setDeploymentTypeForPreview,
 } from '../../src/utils/interactive/CommandPreview';
+import { markSecret } from '../../src/utils/interactive/SecretOptions';
 
 /**
  * Zero-import module (no frodo-lib), so these run against a real
@@ -166,14 +167,10 @@ describe('live previews with a readiness THUNK (footer color 2026-10-14)', () =>
     // observes the SHADOW ORDER instead of the color bytes: did the
     // thunk run with the highlighted value already applied?).
     let seenOptionValue: string | undefined;
-    const preview = liveOptionPreview(
-      command,
-      'secretId',
-      () => {
-        seenOptionValue = command.getOptionValue('secretId');
-        return { missingMandatoryOptionLabels: [], oneOfUnsatisfied: false };
-      }
-    );
+    const preview = liveOptionPreview(command, 'secretId', () => {
+      seenOptionValue = command.getOptionValue('secretId');
+      return { missingMandatoryOptionLabels: [], oneOfUnsatisfied: false };
+    });
     preview('esv-beta');
     // The thunk saw the SHADOWED command (the value in place), not the
     // picker-open pristine state -- readiness is evaluated on the
@@ -392,5 +389,34 @@ describe('liveMultiOptionPreview (invocation editor selection footer)', () => {
     const preview = liveMultiOptionPreview(command, ALWAYS_READY);
     expect(preview(['nonexistent', 42, 'long'])).toContain('list -l');
     expect(serializeCommand(command)).toBe('list');
+  });
+});
+
+describe('serializeCommand (secret options)', () => {
+  function secretCommand(argv: string[]): Command {
+    const command = new Command('set');
+    command.addOption(markSecret(new Option('--password [password]')));
+    command.addOption(new Option('--alias [name]'));
+    command.action(async () => {});
+    command.parse(argv, { from: 'user' });
+    return command;
+  }
+
+  it('never prints a secret value, however it was given', () => {
+    expect(serializeCommand(secretCommand(['--password', 'hunter2']))).toBe(
+      'set --password ********'
+    );
+  });
+
+  it('prints the flag alone while its value is still to be asked for', () => {
+    expect(serializeCommand(secretCommand(['--password']))).toBe(
+      'set --password'
+    );
+  });
+
+  it('still prints a plain optional-value option as typed', () => {
+    expect(serializeCommand(secretCommand(['--alias', 'prod']))).toBe(
+      'set --alias prod'
+    );
   });
 });

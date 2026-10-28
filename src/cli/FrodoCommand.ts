@@ -36,6 +36,10 @@ import {
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
+import {
+  markSecret,
+  SECRET_OPTION_HELP,
+} from '../utils/interactive/SecretOptions.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
   deferMissingMandatoryOption,
@@ -570,6 +574,27 @@ export class ListOption extends Option {
       previous.push(value);
       return previous;
     }).default([]);
+  }
+}
+
+/**
+ * Option whose value is a secret and that may be given without one: bare, it
+ * is asked for with the input hidden, or read from stdin when input is piped.
+ * Declare it with an optional value (`--password [password]`). See
+ * src/utils/interactive/SecretOptions.ts for what the marker does.
+ */
+export class SecretOption extends Option {
+  constructor(flags: string, description?: string) {
+    super(
+      flags,
+      description ? `${description} ${SECRET_OPTION_HELP}` : SECRET_OPTION_HELP
+    );
+    if (!/\[[^\]]+\]/.test(flags)) {
+      throw new Error(
+        `SecretOption ${flags} needs an optional value ([value]): a bare flag is how the user asks to be prompted.`
+      );
+    }
+    markSecret(this);
   }
 }
 

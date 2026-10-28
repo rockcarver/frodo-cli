@@ -23,7 +23,9 @@ Arguments:
 
 Options:
   --client-id [id]          Client id.
-  --client-secret [secret]  Client secret.
+  --client-secret [secret]  Client secret. Without a value, it is asked for
+                            (input hidden) or, when input is piped, read from
+                            stdin.
   --llt                     Create a long-lived token and store it in a secret.
                             The default secret name is esv-admin-token and the
                             default token lifetime is 315,360,000 seconds (10

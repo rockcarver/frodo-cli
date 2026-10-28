@@ -10,7 +10,11 @@ import {
 import { provisionCreds } from '../../ops/LogOps';
 import c from '../../utils/ColorTheme';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
-import { FrodoCommand, preferredCredentialOption } from '../FrodoCommand';
+import {
+  FrodoCommand,
+  preferredCredentialOption,
+  SecretOption,
+} from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const { addNewServiceAccount, saveConnectionProfile } = frodo.conn;
@@ -34,7 +38,7 @@ export default function setup() {
       ).conflicts(['logApi'])
     )
     .addOption(
-      new Option(
+      new SecretOption(
         '--log-api-secret [secret]',
         'Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api.'
       ).conflicts(['logApi'])

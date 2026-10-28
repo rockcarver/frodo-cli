@@ -9,7 +9,7 @@ import {
 import { getTokens } from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';
 import { printError, printMessage } from '../../utils/Console.js';
-import { FrodoCommand } from '../FrodoCommand';
+import { FrodoCommand, SecretOption } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -29,7 +29,7 @@ export default function setup() {
   program
     .description('Create an oauth2 client with admin privileges.')
     .addOption(new Option('--client-id [id]', 'Client id.'))
-    .addOption(new Option('--client-secret [secret]', 'Client secret.'))
+    .addOption(new SecretOption('--client-secret [secret]', 'Client secret.'))
     .addOption(
       new Option(
         '--llt',

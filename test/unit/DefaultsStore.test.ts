@@ -17,6 +17,7 @@ import {
   setDefaultsBaseDirForTests,
   writeDefaultsStore,
 } from '../../src/utils/interactive/DefaultsStore';
+import { markSecret } from '../../src/utils/interactive/SecretOptions';
 
 /**
  * The store reads/writes ~/.frodo/Defaults.json -- redirected at a temp
@@ -143,5 +144,33 @@ describe('optionMissingUserValue (the precedence gate)', () => {
     // resolver/env fallback does, with the 'env' source.
     command.setOptionValueWithSource('flat', 'ids', 'env');
     expect(optionMissingUserValue(command, command.options[1])).toBe(false);
+  });
+});
+
+describe('secret options', () => {
+  function secretCommand(): Command {
+    const command = new Command('set');
+    command.addOption(markSecret(new Option('--password [password]')));
+    command.addOption(new Option('--alias [name]'));
+    command.parent = new Command('conn');
+    command.parent.name('conn');
+    return command;
+  }
+
+  it('are never written to the store, whatever the editor committed', () => {
+    baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'defaults-'));
+    setDefaultsBaseDirForTests(baseDir);
+    const command = secretCommand();
+    saveCommandDefaults(command, { password: 'hunter2', alias: 'prod' });
+    expect(readCommandDefaults(command)).toEqual({ alias: 'prod' });
+    expect(fs.readFileSync(getDefaultsPath(), 'utf8')).not.toContain('hunter2');
+  });
+
+  it('are never applied from a store that holds one', () => {
+    baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'defaults-'));
+    setDefaultsBaseDirForTests(baseDir);
+    const command = secretCommand();
+    writeDefaultsStore({ 'conn set': { password: 'stale', alias: 'prod' } });
+    expect(applicableCommandDefaults(command)).toEqual({ alias: 'prod' });
   });
 });

@@ -16,7 +16,7 @@ Options:
   --authentication-service [service]           Name of the authentication service/tree to use.
   --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Cannot be used with --no-log-api.
-  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api.
+  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api. Without a value, it is asked for (input hidden) or, when input is piped, read from stdin.
   --no-log-api                                 Do not create and add log API key and secret.
   --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
   --no-sa                                      Do not create and add service account. Cannot be used with --sa-id or --sa-jwk-file.
@@ -44,7 +44,7 @@ Options:
   --authentication-service [service]           Name of the authentication service/tree to use.
   --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Cannot be used with --no-log-api.
-  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api.
+  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api. Without a value, it is asked for (input hidden) or, when input is piped, read from stdin.
   --no-log-api                                 Do not create and add log API key and secret.
   --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
   --no-sa                                      Do not create and add service account. Cannot be used with --sa-id or --sa-jwk-file.

@@ -6,7 +6,11 @@ import c from '../../utils/ColorTheme';
 import { printError, printMessage } from '../../utils/Console';
 import type { CredentialOverrideType } from '../../utils/interactive/ConnectionProfilePickers';
 import { positionalValue } from '../../utils/interactive/PositionalArgs';
-import { FrodoCommand, preferredCredentialOption } from '../FrodoCommand';
+import {
+  FrodoCommand,
+  preferredCredentialOption,
+  SecretOption,
+} from '../FrodoCommand';
 
 const { loadConnectionProfileByHost, saveConnectionProfile } = frodo.conn;
 
@@ -34,9 +38,9 @@ export default function setup() {
     )
     .addOption(new Option('--username [username]', 'Username to login with.'))
     .addOption(
-      new Option(
+      new SecretOption(
         '--password [password]',
-        'Password for the username. Given without a value, reads it from stdin non-interactively (echo off) when piped; prompts securely on an interactive terminal.'
+        'Password for the username. Put the host before this option, or a host given after it is taken as the password.'
       )
     )
     .addOption(
@@ -45,7 +49,12 @@ export default function setup() {
     // --idm-host comes from defaultOpts (FrodoCommand's shared option);
     // do NOT re-declare it here (commander throws on conflicting flags).
     .addOption(new Option('--log-api-key [key]', 'Log API key.'))
-    .addOption(new Option('--log-api-secret [secret]', 'Log API secret.'))
+    .addOption(
+      new SecretOption(
+        '--log-api-secret [secret]',
+        "Log API secret. It goes with the profile's log API key; give --log-api-key as well to change both."
+      )
+    )
     .addOption(
       new Option(
         '--authentication-service [service]',
@@ -89,15 +98,17 @@ export default function setup() {
         'Do not validate the connection after setting the fields.'
       )
     )
-    // Nothing to set and no host to set it on: the command only prints
-    // the list of fields, so the interactive step must not ask which
-    // profile or which credentials first.
-    .skipConnectionPromptsWhen(
-      (command) =>
-        !positionalValue(command, 'host') &&
-        !state.getHost() &&
-        namedFields(command.opts()).length === 0
-    )
+    // The interactive connection step stays out of the way in two cases.
+    // Nothing to set and no host to set it on: the command only prints the
+    // list of fields, so it must not ask which profile or which credentials
+    // first. A host and a password to set: the password being set is the
+    // one the validating login uses, so the Connection page would ask for
+    // the same thing twice (before and after the secret prompt).
+    .skipConnectionPromptsWhen((command) => {
+      const hostGiven = !!positionalValue(command, 'host') || !!state.getHost();
+      if (!hostGiven && namedFields(command.opts()).length === 0) return true;
+      return hostGiven && command.getOptionValue('password') !== undefined;
+    })
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -106,6 +117,10 @@ export default function setup() {
         `  Change a profile's stored password (validates the connection):\n` +
         c.command(
           `  $ frodo conn set ${s.connId} --password '${s.password}'\n`
+        ) +
+        `  Change it without putting it on the command line (a piped value is read from stdin):\n` +
+        c.command(
+          `  $ echo "$FRODO_NEW_PASSWORD" | frodo conn set ${s.connId} --password\n`
         ) +
         `  Point a profile at a new username and validate:\n` +
         c.command(`  $ frodo conn set ${s.connId} --username ${s.username}\n`) +

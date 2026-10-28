@@ -100,13 +100,22 @@ import {
 import {
   canPrompt,
   promptInput,
+  promptPassword,
   promptsRendered,
 } from '../utils/interactive/PromptGate';
 import {
   noteRealmProvenance,
   noteRequiredInputPrompted,
 } from '../utils/interactive/RealmPickers';
+import {
+  assertNoPendingSecrets,
+  collectSecretsByPrompt,
+  collectSecretsFromStdin,
+  failFirstPendingSecret,
+} from '../utils/interactive/SecretCollector';
+import { isSecretOption } from '../utils/interactive/SecretOptions';
 import { guidedModeEnabled } from '../utils/SettingsStore';
+import { readStdinToEndSync } from '../utils/StdinSync';
 
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
 const { probeDeploymentType, hasCachedBrowserSession } = frodo.login;
@@ -283,6 +292,12 @@ export async function resolveInteractiveInputs(
     if (unsatisfiedGroups.length > 0) {
       throwOneOfUnsatisfied(command, unsatisfiedGroups[0]);
     }
+    // The last required input: a secret used without a value comes from
+    // stdin when input is piped, and ends the command otherwise.
+    collectSecretsFromStdin(command, {
+      isTTY: !!process.stdin.isTTY,
+      read: readStdinToEndSync,
+    });
     return;
   }
 
@@ -345,6 +360,8 @@ export async function resolveInteractiveInputs(
     if (violations.length > 0) {
       throwMissingMandatory(command, violations[0]);
     }
+    // Never let a secret's marker run on as a value.
+    assertNoPendingSecrets(command);
     return;
   }
   const oneOfResolved = await resolveOneOfGroups(command);
@@ -353,6 +370,18 @@ export async function resolveInteractiveInputs(
     if (unsatisfied.length > 0) {
       throwOneOfUnsatisfied(command, unsatisfied[0]);
     }
+  }
+  // Secrets come last of the required inputs: every other prompt has
+  // succeeded by now, so a declined earlier prompt never makes anyone type a
+  // secret for nothing. Asked for in declaration order, input hidden.
+  if (
+    !(await collectSecretsByPrompt(command, violations, (message) =>
+      promptPassword({ message })
+    ))
+  ) {
+    failFirstPendingSecret(command, violations, (flags) =>
+      throwMissingMandatory(command, flags)
+    );
   }
   // The invocation editor runs LAST: by now gap-filled
   // mandatory/one-of values are visible, so the editor only offers what is
@@ -370,6 +399,7 @@ export async function resolveInteractiveInputs(
   // fires for a path that bypassed it. The command about to run (and the
   // preview of it) must be one the command line itself would accept.
   assertNoConflicts(command);
+  assertNoPendingSecrets(command);
 
   // The authoring-tool moment, DEFERRED to just before the command's
   // own output: after an interactive-assisted resolution, the command as
@@ -734,6 +764,10 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
       throwMissingMandatory(command, violation);
     }
     const attributeName = option.attributeName();
+
+    // A secret is collected last, hidden, by the secrets step: typing it
+    // here would echo it.
+    if (isSecretOption(option)) continue;
 
     // Entity-pickable options are deferred to the action body's post-auth
     // dropdown (resolveEntityPicks) -- free-texting an id here would defeat
@@ -1284,6 +1318,8 @@ function applyPersistedDefaults(command: Command): void {
     const value = persisted[option.attributeName()];
     if (value === undefined) continue;
     if (!optionMissingUserValue(command, option)) continue;
+    // A secret is never saved, so a stray saved one is never applied.
+    if (isSecretOption(option)) continue;
     // Type guard: a persisted value must fit the option's collector
     // shape -- arrays only for repeat-collecting options (ListOption
     // family), everything else scalar. A mismatched entry (the option's
@@ -1412,7 +1448,13 @@ async function runInvocationEditor(command: Command): Promise<void> {
       const option = command.options.find(
         (candidate) => candidate.attributeName() === attributeName
       );
-      return !!option && /<[^>]+>|\[[^\]]+\]/.test(option.flags);
+      // A secret is asked for with its input hidden after the choice (see
+      // the loop below), never typed into the inline editor.
+      return (
+        !!option &&
+        !isSecretOption(option) &&
+        /<[^>]+>|\[[^\]]+\]/.test(option.flags)
+      );
     },
     // Enum options (commander `.choices()`, e.g. --retry <strategy>)
     // get an in-frame PICKER instead of free text (user feedback
@@ -1476,9 +1518,11 @@ async function runInvocationEditor(command: Command): Promise<void> {
       const sourced =
         current === undefined || current === false
           ? undefined
-          : command.getOptionValueSource(option.attributeName()) === 'default'
-            ? ` (default: ${current})`
-            : ` (current: ${current})`;
+          : isSecretOption(option)
+            ? ' (set)'
+            : command.getOptionValueSource(option.attributeName()) === 'default'
+              ? ` (default: ${current})`
+              : ` (current: ${current})`;
       return {
         value: option.attributeName(),
         name: option.flags,
@@ -1509,6 +1553,25 @@ async function runInvocationEditor(command: Command): Promise<void> {
     command.getOptionValueSource('saveDefaults') === 'cli';
 
   for (const attributeName of picked) {
+    const pickedOption = command.options.find(
+      (candidate) => candidate.attributeName() === attributeName
+    );
+    if (pickedOption && isSecretOption(pickedOption)) {
+      // A secret is asked for here, input hidden, and never saved as a
+      // default. One that already has a value is kept as it is.
+      const alreadySet =
+        command.getOptionValueSource(attributeName) === 'cli' &&
+        command.getOptionValue(attributeName) !== undefined;
+      if (!alreadySet) {
+        const answer = await promptPassword({
+          message: `Enter a value for ${pickedOption.flags} (input is hidden):`,
+        });
+        if (answer && commitInEditor(command, pickedOption, answer)) {
+          verboseMessage(`Using ${pickedOption.flags}.`);
+        }
+      }
+      continue;
+    }
     // Options valued INLINE (the multiselect's onValue committed the
     // value AND marked the option, source 'cli') are done -- running
     // the value step again would ask twice for the same value. A
