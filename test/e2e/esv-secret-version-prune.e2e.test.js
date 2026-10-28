@@ -156,6 +156,19 @@ describe('frodo esv secret version prune', () => {
         );
       }
     });
+
+    test('"frodo esv secret version prune -a --no-prompt": should refuse because there is no terminal to confirm in and no -y', async () => {
+      const CMD = 'frodo esv secret version prune -a --no-prompt';
+      try {
+        await execWithRecordingProgress(CMD, env, false);
+        throw new Error('Command should have failed with non-zero exit code');
+      } catch (e) {
+        expect(e.code).toBe(1);
+        expect(e.stderr).toContain(
+          'Refusing to prune all secrets without confirmation: there is no interactive terminal to ask. Pass -y/--yes to prune without asking, or --dry-run to only show what would be deleted.'
+        );
+      }
+    });
   });
 
   describe('prunes the versions of one secret (recorded against the staged fixture)', () => {
