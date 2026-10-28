@@ -31,9 +31,9 @@ export default function setup() {
         'Name of the file to read pem or base64hmac encoded secret from. Cannot be used with --value.'
       ).conflicts(['value'])
     )
-    .option('--description [description]', 'Secret description.')
+    .option('--description <description>', 'Secret description.')
     .addOption(
-      new Option('--encoding [encoding]', 'Secret encoding')
+      new Option('--encoding <encoding>', 'Secret encoding')
         .choices(['generic', 'pem', 'base64hmac'])
         .default('generic', 'generic')
     )

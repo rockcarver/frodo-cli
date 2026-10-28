@@ -86,6 +86,28 @@ it can do neither. `frodo admin get-access-token -i` likewise needs a value:
 `-i` without one is rejected with `option '-i, --client-id <id>' argument
 missing`, instead of sending `true` as the client id.
 
+**Options that need a value now say so**: in 4.x an option declared with an
+optional value (`--scope [scope]`) was accepted without one and then used
+`true` as its value (`--scope` failed on `true.split(' ')`, the others passed
+`true` on as a description, an alias or a host header). In 5.x the option
+requires its value, and
+the command refuses to run and exits with code 1 before it connects to
+anything:
+
+```text
+error: option '--scope <scope>' argument missing
+```
+
+This affects `-e, --entities-file` (`idm export` and `idm import`),
+`--description`, `--encoding`, `--value` and `--variable-type` (`esv secret
+create`, `esv variable create`, `esv variable set`), `--client-id`, `--jwk-file`,
+`--sub`, `--iss`, `--scope` and `--llt-scope`, `--llt-esv`, `--llt-ttl` (the
+`frodo admin` OAuth 2.0 commands), `--log-api-key`, `--authentication-service`,
+`--authentication-header-overrides`, `--configuration-header-overrides` and
+`--alias` (`conn save`, `login`), and the same options plus `--username` on
+`conn set`, which is new in 5.x. `-f, --file` without a file name still writes
+the export to the default file name.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

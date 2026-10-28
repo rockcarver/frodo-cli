@@ -23,10 +23,10 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  --description [description]      Variable description.
+  --description <description>      Variable description.
   -i, --variable-id <variable-id>  Variable id. (prompts if missing)
   --value <value>                  Variable value. (prompts if missing)
-  --variable-type [variable-type]  Variable type. Must be one of "string",
+  --variable-type <variable-type>  Variable type. Must be one of "string",
                                    "list", "array", "object", "bool", "int", or
                                    "number". (default: "string")
   -h, --help                       Help

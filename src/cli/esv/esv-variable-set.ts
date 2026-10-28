@@ -23,8 +23,8 @@ export default function setup() {
   program
     .description('Set variable description.')
     .requiredOption('-i, --variable-id <variable-id>', 'Variable id.')
-    .option('--value [value]', 'Variable value.')
-    .option('--description [description]', 'Variable description.')
+    .option('--value <value>', 'Variable value.')
+    .option('--description <description>', 'Variable description.')
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {

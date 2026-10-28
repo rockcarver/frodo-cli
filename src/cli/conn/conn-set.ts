@@ -36,7 +36,7 @@ export default function setup() {
     .description(
       "Set fields of an existing connection profile. Only the fields given on the command line change; everything else stays as-is. Run 'frodo conn set' without any field option to list the settable fields."
     )
-    .addOption(new Option('--username [username]', 'Username to login with.'))
+    .addOption(new Option('--username <username>', 'Username to login with.'))
     .addOption(
       new SecretOption(
         '--password [password]',
@@ -44,11 +44,11 @@ export default function setup() {
       )
     )
     .addOption(
-      new Option('--alias [name]', 'Alias name for this connection profile.')
+      new Option('--alias <name>', 'Alias name for this connection profile.')
     )
     // --idm-host comes from defaultOpts (FrodoCommand's shared option);
     // do NOT re-declare it here (commander throws on conflicting flags).
-    .addOption(new Option('--log-api-key [key]', 'Log API key.'))
+    .addOption(new Option('--log-api-key <key>', 'Log API key.'))
     .addOption(
       new SecretOption(
         '--log-api-secret [secret]',
@@ -57,19 +57,19 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--authentication-service [service]',
+        '--authentication-service <service>',
         'Name of the authentication service/tree to use.'
       )
     )
     .addOption(
       new Option(
-        '--authentication-header-overrides [headers]',
+        '--authentication-header-overrides <headers>',
         'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests.'
       )
     )
     .addOption(
       new Option(
-        '--configuration-header-overrides [headers]',
+        '--configuration-header-overrides <headers>',
         'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests.'
       )
     )

@@ -23,10 +23,10 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  --description [description]      Variable description.
+  --description <description>      Variable description.
   -i, --variable-id <variable-id>  Variable id. (pick from variable) (prompts if
                                    missing)
-  --value [value]                  Variable value.
+  --value <value>                  Variable value.
   -h, --help                       Help
   -hh, --help-more                 Help with all options.
   -hhh, --help-all                 Help with all options, environment variables,

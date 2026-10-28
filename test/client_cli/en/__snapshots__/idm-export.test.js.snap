@@ -31,7 +31,7 @@ Options:
   -A, --all-separate                   Export all IDM configuration objects into
                                        separate JSON files in directory -D.
                                        Cannot be used with -i or -a.
-  -e, --entities-file [entities-file]  Name of the entity file. Cannot be used
+  -e, --entities-file <entities-file>  Name of the entity file. Cannot be used
                                        with -i.
   -f, --file [file]                    Export file if -x or -a is provided.
                                        Cannot be used with -A.

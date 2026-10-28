@@ -21,7 +21,7 @@ Arguments:
   password                             Password.
 
 Options:
-  --alias [name]                       Alias name for the saved connection
+  --alias <name>                       Alias name for the saved connection
                                        profile. Ignored without --save. Lets
                                        later commands address this session by an
                                        alias.

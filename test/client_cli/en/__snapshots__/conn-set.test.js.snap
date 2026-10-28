@@ -13,18 +13,18 @@ Arguments:
   password                                     Password.
 
 Options:
-  --alias [name]                               Alias name for this connection profile.
+  --alias <name>                               Alias name for this connection profile.
   --allow-insecure                             Allow insecure connections when using SSL/TLS (persisted on the profile).
-  --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests.
-  --authentication-service [service]           Name of the authentication service/tree to use.
-  --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests.
-  --log-api-key [key]                          Log API key.
+  --authentication-header-overrides <headers>  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests.
+  --authentication-service <service>           Name of the authentication service/tree to use.
+  --configuration-header-overrides <headers>   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests.
+  --log-api-key <key>                          Log API key.
   --log-api-secret [secret]                    Log API secret. It goes with the profile's log API key; give --log-api-key as well to change both. Without a value, it is asked for (input hidden) or, when input is piped, read from stdin.
   --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead).
   --no-validate                                Do not validate the connection after setting the fields.
   --password [password]                        Password for the username. Put the host before this option, or a host given after it is taken as the password. Without a value, it is asked for (input hidden) or, when input is piped, read from stdin.
   --preferred-device-flow                      Persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow (only meaningful with --preferred-credential browser).
-  --username [username]                        Username to login with.
+  --username <username>                        Username to login with.
   -h, --help                                   Help
   -hh, --help-more                             Help with all options.
   -hhh, --help-all                             Help with all options, environment variables, and usage examples.

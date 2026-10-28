@@ -31,7 +31,7 @@ Options:
   -A, --all-separate                   Import all IDM configuration objects from
                                        separate files in directory -D. Cannot be
                                        used with -i, -f or -a.
-  -e, --entities-file [entities-file]  Name of the entity file. Cannot be used
+  -e, --entities-file <entities-file>  Name of the entity file. Cannot be used
                                        with -i.
   -f, --file [file]                    Import file. Cannot be used with -A.
   -i, --entity-id <id>                 Config entity id/name. E.g. "managed",
