@@ -67,6 +67,19 @@ const frameWidthRestrictions = [
     message: frameWidthHint,
   },
 ];
+// A failure sets process.exitCode and returns (record 0033): process.exit() ends the
+// process with output still being written and skips cleanup. The command framework's
+// help path and the MCP server's crash handler are the two exceptions; each carries an
+// eslint-disable comment on the line with its reason.
+const exitHint =
+  'Set process.exitCode to a non-zero value and return instead of calling process.exit(): the call can cut off pending output and skips cleanup (record 0033). A fatal-condition handler may disable this rule on the line, with the reason.';
+const exitRestrictions = [
+  {
+    selector:
+      "CallExpression[callee.object.name='process'][callee.property.name='exit']",
+    message: exitHint,
+  },
+];
 const syntaxRestrictions = [
   'LabeledStatement',
   'WithStatement',
@@ -108,6 +121,7 @@ export default tseslint.config(
         ...syntaxRestrictions,
         ...stdinRestrictions,
         ...frameWidthRestrictions,
+        ...exitRestrictions,
       ],
       'no-restricted-imports': [
         'error',
@@ -132,7 +146,11 @@ export default tseslint.config(
     // The one module that reads fd 0 directly.
     files: ['src/utils/StdinSync.ts'],
     rules: {
-      'no-restricted-syntax': ['error', ...syntaxRestrictions],
+      'no-restricted-syntax': [
+        'error',
+        ...syntaxRestrictions,
+        ...exitRestrictions,
+      ],
     },
   },
   {

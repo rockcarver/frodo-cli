@@ -19,7 +19,10 @@ export default function setup() {
       );
 
       const getTokensIsSuccessful = await getTokens();
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Importing cors configuration.');
       const outcome = await configManagerImportCors();
       if (!outcome) process.exitCode = 1;

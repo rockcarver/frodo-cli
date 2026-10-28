@@ -38,20 +38,24 @@ export default function setup() {
         true,
         deploymentTypes
       );
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       if (!state.getIsIGA()) {
         printMessage(
           'Command not supported for non-IGA cloud tenants',
           'error'
         );
-        process.exit(1);
+        process.exitCode = 1;
+        return;
       }
       verboseMessage('Exporting IGA workflows');
       const outcome = await configManagerExportIgaWorkflows(
         options.name,
         options.includeImmutable
       );
-      if (!outcome) process.exit(1);
+      if (!outcome) process.exitCode = 1;
     });
   return program;
 }

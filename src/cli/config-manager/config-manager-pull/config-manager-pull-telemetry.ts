@@ -35,7 +35,10 @@ export default function setup() {
         true,
         deploymentTypes
       );
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Exporting telemetry configuration.');
       const outcome = await configManagerExportTelemetry(
         options.category,

@@ -36,7 +36,10 @@ export default function setup() {
         true,
         deploymentTypes
       );
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Exporting idm authentication configuration.');
       const outcome = await configManagerExportIdmAuthentication();
       if (!outcome) process.exitCode = 1;

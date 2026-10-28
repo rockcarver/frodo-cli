@@ -38,7 +38,10 @@ export default function setup() {
         true,
         deploymentTypes
       );
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Importing variables');
       const outcome = await configManagerImportVariables(options.name);
       if (!outcome) process.exitCode = 1;

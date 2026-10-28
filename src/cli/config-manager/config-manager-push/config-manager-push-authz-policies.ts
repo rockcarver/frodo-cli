@@ -18,7 +18,10 @@ export default function setup() {
     );
 
     const getTokensIsSuccessful = await getTokens();
-    if (!getTokensIsSuccessful) process.exit(1);
+    if (!getTokensIsSuccessful) {
+      process.exitCode = 1;
+      return;
+    }
     printMessage(`Importing authorization policies...`);
     const outcome = await configManagerImportAuthzPolicies();
     if (!outcome) process.exitCode = 1;

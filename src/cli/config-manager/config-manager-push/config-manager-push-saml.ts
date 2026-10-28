@@ -24,7 +24,10 @@ export default function setup() {
         command
       );
       const getTokensIsSuccessful = await getTokens();
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Importing SAML configuration.');
       const outcome = await configManagerImportSaml(realm, options.name);
       if (!outcome) process.exitCode = 1;

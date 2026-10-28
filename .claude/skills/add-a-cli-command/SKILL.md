@@ -34,7 +34,7 @@ Use the usual verbs (`list`, `describe`, `export`, `import`, `delete`) and copy 
 
 ## 3. Keep the command file thin
 
-A verb file exports `setup()` as its default. Its action does four things, in this order: `command.handleDefaultArgsAndOpts(host, realm, user, password, options, command)`, `await getTokens()`, one call to an ops function, and `process.exitCode = 1` when login or the operation fails. Read `src/cli/journey/journey-list.ts` for the shape. Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`, colours from `src/utils/ColorTheme.ts`, never `console.log` (cli record 0010).
+A verb file exports `setup()` as its default. Its action does four things, in this order: `command.handleDefaultArgsAndOpts(host, realm, user, password, options, command)`, `await getTokens()`, one call to an ops function, and, when login or the operation fails, `process.exitCode = 1;` followed by `return;`. Never call `process.exit()`: it can cut off pending output, and lint rejects it. Read `src/cli/journey/journey-list.ts` for the shape. Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`, colours from `src/utils/ColorTheme.ts`, never `console.log` (cli record 0010).
 
 Declare what the command needs instead of coding it (cli record 0016): `requireOneOf({ options, purpose })` for "at least one of" and `requireAllOf(...)` for "all together". A new command needs no "unrecognized combination" branch, and a command file contains no prompt code: interactivity attaches to the command by itself (cli record 0014).
 

@@ -41,7 +41,10 @@ export default function setup() {
       }
 
       const getTokensIsSuccessful = await getTokens();
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
 
       verboseMessage('Importing raw configurations.');
       const outcome = await configManagerImportRaw(options.path, options.stdin);
