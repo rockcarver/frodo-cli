@@ -176,13 +176,13 @@ jobs:
 
       - name: 'Compute Version Bump'
         id: version-bump
-        uses: vscheuber/version-bump-action@v1
+        uses: gearsnlevers/version-bump-action@v1
         with:
           release-type: ${{ steps.release-type.outputs.value }}
 
       - name: Release preflight checks
         if: github.event_name != 'pull_request'
-        uses: vscheuber/release-preflight-action@v1
+        uses: gearsnlevers/release-preflight-action@v1
         with:
           candidate-version: ${{ steps.version-bump.outputs.newVersion }}
           candidate-tag: ${{ steps.version-bump.outputs.newTag }}
@@ -193,7 +193,7 @@ jobs:
           check-version-drift: true
 
       - name: Update package.json and package-lock.json
-        uses: vscheuber/manifest-version-update-action@v1
+        uses: gearsnlevers/manifest-version-update-action@v1
         with:
           version: ${{ steps.version-bump.outputs.newVersion }}
 
@@ -489,7 +489,7 @@ jobs:
 
       - name: Generate and promote AI changelog
         id: changelog
-        uses: vscheuber/ai-changelog-action@v1
+        uses: gearsnlevers/ai-changelog-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           llm-api-key: ${{ secrets.OPENAI_API_KEY }}
@@ -579,7 +579,7 @@ jobs:
 
       - name: Publish package
         id: npm-publish
-        uses: vscheuber/npm-trusted-publish-action@v1
+        uses: gearsnlevers/npm-trusted-publish-action@v1
         with:
           release-type: ${{ needs.build.outputs.releaseType || 'prerelease' }}
           package-name: '@rockcarver/frodo-cli'

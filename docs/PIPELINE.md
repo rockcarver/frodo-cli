@@ -135,8 +135,8 @@ minute, most of it `npm ci`. The same command runs locally.
 - Uses deep checkout with tags (`fetch-depth: 0`, `fetch-tags: true`)
 - Guards against version drift from the latest npm/tagged release
 - Resolves the release type; computes the next version with
-  `vscheuber/version-bump-action@v1`; guards against duplicate tag/version
-- Updates manifests with `vscheuber/manifest-version-update-action@v1`
+  `gearsnlevers/version-bump-action@v1`; guards against duplicate tag/version
+- Updates manifests with `gearsnlevers/manifest-version-update-action@v1`
 - Runs the MCP SDK track check, the npm bundle build (`tsdown` + `tsc`),
   `npm run check` (ESLint 10 + Prettier, including import order — see
   [BUILD-ENV.md](BUILD-ENV.md) §5), and a critical-level security audit
@@ -211,7 +211,7 @@ unsigned) and the ditto zip is notarized with `xcrun notarytool submit
 ### npm-release
 
 `npm-release` runs for manual release executions and uses trusted publishing
-via `vscheuber/npm-trusted-publish-action@v1`. It deliberately runs **last**
+via `gearsnlevers/npm-trusted-publish-action@v1`. It deliberately runs **last**
 among the publish-adjacent jobs (comment in the workflow: unpublishing npm
 releases is inconvenient), after all binary jobs.
 
@@ -227,7 +227,7 @@ For `prerelease`, it publishes to `next`.
 
 Release job (needs build, live smoke, all five binary jobs):
 
-- Generates changelog/release notes using `vscheuber/ai-changelog-action@v1`
+- Generates changelog/release notes using `gearsnlevers/ai-changelog-action@v1`
 - Commits changelog and manifest updates to `main` (pushed as the
   `FRODO_CI_PAT` identity — the repository admin the ruleset's bypass
   covers; a plain `GITHUB_TOKEN` push would be rejected by the required
