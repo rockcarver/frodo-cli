@@ -2,9 +2,10 @@ import fs from 'fs';
 import {
   frodo,
   state,
+  type FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { printError, verboseMessage } from '../utils/Console';
 
 const { config } = frodo.idm;
 const { getFilePath, saveJsonToFile } = frodo.utils;
@@ -14,10 +15,12 @@ const { readRealms } = frodo.realm;
 /**
  *
  * @param realm The name of the realm to retrieve organization privileges from.
+ * @param ignoreMissing True to treat a realm that has no organization privileges configuration as nothing to export instead of an error. Default: false
  * @returns True if realm exists and organization privileges configuration file was successfully saved
  */
 export async function configManagerExportOrgPrivilegesRealm(
-  realm: string
+  realm: string,
+  ignoreMissing = false
 ): Promise<boolean> {
   try {
     const realmPrivileges: IdObjectSkeletonInterface =
@@ -30,6 +33,12 @@ export async function configManagerExportOrgPrivilegesRealm(
     );
     return true;
   } catch (error) {
+    if (ignoreMissing && (error as FrodoError).httpStatus === 404) {
+      verboseMessage(
+        `No organization privileges config for realm "${realm}", nothing to export.`
+      );
+      return true;
+    }
     printError(error);
     return false;
   }
@@ -81,7 +90,7 @@ export async function configManagerExportOrgPrivilegesAllRealms(
         continue;
 
       state.setRealm(name);
-      if (!(await configManagerExportOrgPrivilegesRealm(name))) {
+      if (!(await configManagerExportOrgPrivilegesRealm(name, true))) {
         return false;
       }
     }

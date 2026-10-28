@@ -47,8 +47,10 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   verboseMessage,
 }));
 
-const { configManagerExportOrgPrivilegesAllRealms } =
-  await import('../../src/configManagerOps/FrConfigOrgPrivilegesOps');
+const {
+  configManagerExportOrgPrivilegesAllRealms,
+  configManagerExportOrgPrivilegesRealm,
+} = await import('../../src/configManagerOps/FrConfigOrgPrivilegesOps');
 const { configFileStep, existingConfigFile } =
   await import('../../src/configManagerOps/ConfigFileStep');
 
@@ -119,6 +121,32 @@ describe('configManagerExportOrgPrivilegesAllRealms', () => {
     await configManagerExportOrgPrivilegesAllRealms();
     expect(saved()[0]).toBe('out/org-privileges/privilegeAssignments.json');
     expect(saved()).toHaveLength(3);
+  });
+
+  it('treats a realm without org privileges config as nothing to export (ForgeOps has none for its root realm)', async () => {
+    deploymentType = 'forgeops';
+    readRealms.mockResolvedValue([{ name: '/' }]);
+    readConfigEntity.mockImplementation(async (id) => {
+      if (id === '/OrgPrivileges') {
+        const error = new Error('Not Found');
+        error.httpStatus = 404;
+        throw error;
+      }
+      return { _id: id };
+    });
+    expect(await configManagerExportOrgPrivilegesAllRealms()).toBe(true);
+    expect(saved()).toEqual(['out/org-privileges/privilegeAssignments.json']);
+    expect(printError).not.toHaveBeenCalled();
+  });
+
+  it('still fails a realm export that was asked for by name when its config is missing', async () => {
+    readConfigEntity.mockImplementation(async () => {
+      const error = new Error('Not Found');
+      error.httpStatus = 404;
+      throw error;
+    });
+    expect(await configManagerExportOrgPrivilegesRealm('alpha')).toBe(false);
+    expect(printError).toHaveBeenCalledTimes(1);
   });
 
   it('reports a failure of a realm', async () => {
