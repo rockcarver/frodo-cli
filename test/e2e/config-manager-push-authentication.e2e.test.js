@@ -3,7 +3,7 @@
 /*
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push authentication -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push authentication -r alpha -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push authentication -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
 */
 
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
@@ -21,9 +21,9 @@ describe('frodo config-manager pulls authentication', () => {
         const { stdout } = await exec(CMD, forgeopsEnv);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
     });
-    test(`"frodo config-manager push authentication -r alpha -D ${allDirectory} -m forgeops": should import an authentication config by realm into forgeops"`, async () => {
-        const CMD = `frodo config-manager push authentication -r alpha -D ${allDirectory} -m forgeops`;
-        const { stdout } = await exec(CMD, forgeopsEnv);
+    test(`"FRODO_REALM=alpha frodo config-manager push authentication -D ${allDirectory} -m forgeops": should import an authentication config by realm into forgeops"`, async () => {
+        const CMD = `frodo config-manager push authentication -D ${allDirectory} -m forgeops`;
+        const { stdout } = await exec(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_REALM: 'alpha' } });
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
     });
 });
