@@ -28,9 +28,9 @@ When this was decided, on 2026-10-27, 891 lines set `process.exitCode` in 355 fi
 
 ## Consequences
 
-- Reviewers and agents reject a new call outside the exceptions. The idiom to copy is `process.exitCode = 1; return;`.
-- The calls that this rule rejects stay until a clean-up replaces them. The intended enforcement is a lint rule that rejects the call and marks the exceptions; until it exists, review is the check.
-- The command guidance (`.github/instructions/cli-commands.instructions.md` and the add-a-cli-command skill) should show the idiom, so that the copied line stops spreading.
+- The lint configuration rejects a call to `process.exit()` in `src/`. The two exceptions carry a disable comment on the line with their reason, and a reviewer rejects any other disable comment. The idiom to copy is `process.exitCode = 1; return;`.
+- The rule matches the literal `process.exit(...)` call, so an aliased call is not caught; review covers that.
+- The command guidance (`.github/instructions/cli-commands.instructions.md` and the add-a-cli-command skill) shows the idiom, so that the copied line does not spread.
 - A command that needs a specific non-zero code still sets `process.exitCode`.
 
 ## Alternatives considered
