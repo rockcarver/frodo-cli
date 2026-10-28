@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-16] - 2026-10-28
+
+### Added
+- Interactive mode now honors option conflicts across pickers, editors, saved defaults, and entity picks, ensuring consistent behavior with command line parsing. (#986)
+
+### Fixed
+- Options that require a value now prompt for one if used without a value, preventing unintended defaults. This affects commands like `conn set --password`. (#989, #988)
+
 ## [v5.0.0-15] - 2026-10-28
 
 ### Added
@@ -3120,6 +3128,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-16]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-15...v5.0.0-16
 [v5.0.0-15]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-14...v5.0.0-15
 [v5.0.0-14]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-13...v5.0.0-14
 [v5.0.0-13]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-12...v5.0.0-13
