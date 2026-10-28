@@ -36,7 +36,10 @@ export default function setup() {
         true,
         deploymentTypes
       );
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Importing idm authentication configuration.');
       const outcome = await configManagerImportIdmAuthentication();
       if (!outcome) process.exitCode = 1;

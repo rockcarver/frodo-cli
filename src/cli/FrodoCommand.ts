@@ -2899,6 +2899,7 @@ export class FrodoStubCommand extends Command {
       unknown.some((token) => token === '--no-prompt')
     ) {
       this.outputHelp();
+      // eslint-disable-next-line no-restricted-syntax -- stops after the help path of the command framework (record 0033)
       process.exit(0);
     }
     // Action path (bare invocation of an action-bearing stub): the

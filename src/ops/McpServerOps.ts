@@ -475,6 +475,7 @@ export function registerServerCrashHandlers(
       } catch {
         // The exit below must not be held hostage by a failing cleanup.
       }
+      // eslint-disable-next-line no-restricted-syntax -- fatal-condition handler, after its best-effort cleanup (record 0033)
       process.exit(1);
     };
     process.on('uncaughtException', onUncaughtException);

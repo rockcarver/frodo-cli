@@ -34,7 +34,10 @@ export default function setup() {
       );
 
       const getTokensIsSuccessful = await getTokens(false, true);
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Importing email provider configuration.');
       const outcome = await configManagerImportJourneys(
         options.name,

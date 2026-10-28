@@ -36,7 +36,10 @@ export default function setup() {
         true,
         deploymentTypes
       );
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Import RCS config.');
       const outcome = await configManagerImportRemoteServers();
       if (!outcome) process.exitCode = 1;

@@ -49,7 +49,10 @@ export default function setup() {
         true,
         deploymentTypes
       );
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Importing secret mappings configuration.');
       const outcome = await configManagerImportSecretMappings(
         options.name,

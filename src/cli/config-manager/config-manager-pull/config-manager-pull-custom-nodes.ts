@@ -26,7 +26,10 @@ export default function setup() {
       );
 
       const getTokensIsSuccessful = await getTokens();
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage(
         `Exporting custom node${options.name ? ` with name ${options.name}` : 's'}`
       );

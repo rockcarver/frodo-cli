@@ -49,7 +49,10 @@ export default function setup() {
           true,
           deploymentTypes
         );
-        if (!getTokensIsSuccessful) process.exit(1);
+        if (!getTokensIsSuccessful) {
+          process.exitCode = 1;
+          return;
+        }
         // An unspecified mandatory variableId prompts for a variable from
         // the live system (no-op outside the prompt gate) now that tokens
         // are available.

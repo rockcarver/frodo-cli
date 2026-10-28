@@ -49,7 +49,10 @@ export default function setup() {
       );
 
       const getTokensIsSuccessful = await getTokens();
-      if (!getTokensIsSuccessful) process.exit(1);
+      if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
       verboseMessage('Exporting all policy sets in the provided config file.');
       const outcome = await configManagerExportAuthzPolicySets(options.file);
       if (!outcome) process.exitCode = 1;
