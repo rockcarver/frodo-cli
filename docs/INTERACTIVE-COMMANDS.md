@@ -467,7 +467,11 @@ difference visible in help and behavior:
   parent. Both `--prompt` (sub-command picker instead of the action —
   browse mode on demand) and `--no-prompt` (the action is
   gate-respecting: declines without prompting, exactly like ESC) list
-  in its help.
+  in its help. Typed after one of its sub-commands, as in
+  `frodo conn set --alias a --no-prompt`, either flag applies to THAT
+  sub-command, like on any live command: commander hands the flag to the
+  stub, so the sub-command that runs takes the stub's value before the
+  gate and the resolution pass read it (cli#990).
   An action stub's field edits go through ONE set-verb sub-command,
   never a sub-command per field (`frodo conn set <host> --field
 value ...`; bare `frodo conn set` lists the settable fields). A new

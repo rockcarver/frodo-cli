@@ -2499,6 +2499,39 @@ function stubPromptPair(): Option[] {
   ];
 }
 
+/**
+ * The stub pair has one cost: a flag typed after a SUB-COMMAND of an
+ * action-bearing stub is consumed by the stub, because commander gives a
+ * flag to the first command in the chain that declares it. `frodo conn set
+ * --alias a --no-prompt` stores `prompt=false` on `conn` and leaves `set`
+ * with `undefined` (cli#990), and everything downstream reads the command
+ * that runs: the gate hook below, and the resolution pass for `--prompt`.
+ * So the command that runs takes the value (and its source) from the
+ * nearest ancestor that has one, unless it has a value of its own.
+ *
+ * Nothing changes for the stub's own action (`frodo conn --no-prompt`): it
+ * is the command that runs and holds its own value. Pure containers never
+ * declare the pair, so they never hold a value to hand down.
+ */
+function adoptPromptingFromActionStub(actionCommand: Command): void {
+  const attribute = promptOption.attributeName();
+  if (actionCommand.getOptionValue(attribute) !== undefined) return;
+  for (
+    let ancestor = actionCommand.parent;
+    ancestor;
+    ancestor = ancestor.parent
+  ) {
+    const value = ancestor.getOptionValue(attribute);
+    if (value === undefined) continue;
+    actionCommand.setOptionValueWithSource(
+      attribute,
+      value,
+      ancestor.getOptionValueSource(attribute)!
+    );
+    return;
+  }
+}
+
 export class FrodoStubCommand extends Command {
   /**
    * Command stability metadata. Defaults to stable.
@@ -2626,6 +2659,7 @@ export class FrodoStubCommand extends Command {
     // actionCommand, so dedupe on the executing command.
     this.hook('preAction', (_thisCommand, actionCommand) => {
       enforceStabilityAndWarn(actionCommand);
+      adoptPromptingFromActionStub(actionCommand);
       // The prompting switch is a dual option pair sharing the `prompt`
       // attribute (undefined = prompting allowed when input is missing);
       // --no-prompt sets it false. Set once per process, before the
