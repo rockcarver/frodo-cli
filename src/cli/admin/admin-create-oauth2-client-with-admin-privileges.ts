@@ -28,7 +28,7 @@ export default function setup() {
 
   program
     .description('Create an oauth2 client with admin privileges.')
-    .addOption(new Option('--client-id [id]', 'Client id.'))
+    .addOption(new Option('--client-id <id>', 'Client id.'))
     .addOption(new SecretOption('--client-secret [secret]', 'Client secret.'))
     .addOption(
       new Option(
@@ -38,13 +38,13 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--llt-scope [scope]',
+        '--llt-scope <scope>',
         'Request the following scope(s). This option only applies if used with the --llt option.'
       ).default('fr:idm:*', 'fr:idm:*')
     )
     .addOption(
       new Option(
-        '--llt-esv [esv]',
+        '--llt-esv <esv>',
         'Name of the secret to store the token in. This option only applies if used with the --llt option.'
       ).default('esv-admin-token', 'esv-admin-token')
     )
@@ -56,7 +56,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--llt-ttl [ttl]',
+        '--llt-ttl <ttl>',
         'Token lifetime (seconds). This option only applies if used with the --llt option.'
       ).default(315360000, '315,360,000 seconds (10 years)')
     )

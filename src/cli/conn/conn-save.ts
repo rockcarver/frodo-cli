@@ -33,7 +33,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--log-api-key [key]',
+        '--log-api-key <key>',
         'Log API key. If specified, must also include --log-api-secret. Cannot be used with --no-log-api.'
       ).conflicts(['logApi'])
     )
@@ -52,24 +52,24 @@ export default function setup() {
     .addOption(new Option('--no-validate', 'Do not validate connection.'))
     .addOption(
       new Option(
-        '--authentication-service [service]',
+        '--authentication-service <service>',
         'Name of the authentication service/tree to use.'
       )
     )
     .addOption(
       new Option(
-        '--authentication-header-overrides [headers]',
+        '--authentication-header-overrides <headers>',
         `Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.`
       )
     )
     .addOption(
       new Option(
-        '--configuration-header-overrides [headers]',
+        '--configuration-header-overrides <headers>',
         `Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.`
       )
     )
     .addOption(
-      new Option('--alias [name]', 'Alias name for this connection profile.')
+      new Option('--alias <name>', 'Alias name for this connection profile.')
     )
     .addOption(preferredCredentialOption)
     .addOption(

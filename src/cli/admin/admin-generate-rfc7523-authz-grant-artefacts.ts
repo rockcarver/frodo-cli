@@ -16,22 +16,22 @@ export default function setup() {
 
   program
     .description('Generate RFC7523 authorization grant artefacts.')
-    .addOption(new Option('--client-id [id]', 'Client id.'))
+    .addOption(new Option('--client-id <id>', 'Client id.'))
     .addOption(
       new Option(
-        '--jwk-file [file]',
+        '--jwk-file <file>',
         'Path to JSON Web Key (JWK) file containing private key.'
       )
     )
     .addOption(
       new Option(
-        '--sub [subject]',
+        '--sub <subject>',
         'Subject identifier, typically a UUID. Must resolve to a valid user in the realm. Restricts the trusted issuer to only this subject by adding the identifier to the list of allowed subjects. Omitting this option allows the trusted issuer to request tokens for any realm user without restrictions.'
       )
     )
-    .addOption(new Option('--iss [issuer]', 'Trusted issuer, typically a URL.'))
+    .addOption(new Option('--iss <issuer>', 'Trusted issuer, typically a URL.'))
     .addOption(
-      new Option('--scope [scope]', 'Space-delimited list of scopes.').default(
+      new Option('--scope <scope>', 'Space-delimited list of scopes.').default(
         'openid fr:am:* fr:idm:*'
       )
     )

@@ -52,7 +52,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-e, --entities-file [entities-file]',
+        '-e, --entities-file <entities-file>',
         'Name of the entity file. Cannot be used with -i.'
       ).conflicts(['entityId'])
     )

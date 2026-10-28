@@ -56,7 +56,7 @@ classic:  "openid"'
     )
     .addOption(
       new Option(
-        '--alias [name]',
+        '--alias <name>',
         'Alias name for the saved connection profile. Ignored without --save. Lets later commands address this session by an alias.'
       )
     )

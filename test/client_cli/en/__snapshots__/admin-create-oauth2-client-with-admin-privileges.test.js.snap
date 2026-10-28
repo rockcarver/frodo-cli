@@ -22,7 +22,7 @@ Arguments:
   password                  Password.
 
 Options:
-  --client-id [id]          Client id.
+  --client-id <id>          Client id.
   --client-secret [secret]  Client secret. Without a value, it is asked for
                             (input hidden) or, when input is piped, read from
                             stdin.
@@ -31,13 +31,13 @@ Options:
                             default token lifetime is 315,360,000 seconds (10
                             years). Both can be overwritten with the --llt-esv
                             and --llt-ttl options.
-  --llt-esv [esv]           Name of the secret to store the token in. This
+  --llt-esv <esv>           Name of the secret to store the token in. This
                             option only applies if used with the --llt option.
                             (default: esv-admin-token)
-  --llt-scope [scope]       Request the following scope(s). This option only
+  --llt-scope <scope>       Request the following scope(s). This option only
                             applies if used with the --llt option. (default:
                             fr:idm:*)
-  --llt-ttl [ttl]           Token lifetime (seconds). This option only applies
+  --llt-ttl <ttl>           Token lifetime (seconds). This option only applies
                             if used with the --llt option. (default: 315,360,000
                             seconds (10 years))
   --no-llt-esv              Don't store the token in a secret and output to

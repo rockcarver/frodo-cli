@@ -21,9 +21,9 @@ export default function setup() {
     .description('Create variables.')
     .requiredOption('-i, --variable-id <variable-id>', 'Variable id.')
     .requiredOption('--value <value>', 'Variable value.')
-    .option('--description [description]', 'Variable description.')
+    .option('--description <description>', 'Variable description.')
     .option(
-      '--variable-type [variable-type]',
+      '--variable-type <variable-type>',
       'Variable type. Must be one of "string", "list", "array", "object", "bool", "int", or "number".',
       'string'
     )

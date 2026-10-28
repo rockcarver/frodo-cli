@@ -20,7 +20,7 @@ export default function setup() {
       ).makeOptionMandatory()
     )
     .addOption(
-      new Option('--scope [scope]', 'Request the following scope(s).').default(
+      new Option('--scope <scope>', 'Request the following scope(s).').default(
         'fr:idm:*',
         'fr:idm:*'
       )
