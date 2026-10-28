@@ -352,3 +352,69 @@ describeIfBash('tools/run-guidance-tests.mjs', () => {
     expect(listed).toEqual(expect.arrayContaining(['test/unit/DecisionRecords.test.js', 'test/unit/Skills.test.js']));
   });
 });
+
+/** The steps of one job, each as its own text (a step starts at `      - `). */
+function steps(id) {
+  const out = [];
+  for (const line of job(id).split('\n')) {
+    if (/^ {6}- /.test(line)) out.push([line]);
+    else if (out.length) out[out.length - 1].push(line);
+  }
+  return out.map((s) => s.join('\n'));
+}
+
+/** The job ids, in file order. */
+function jobIds() {
+  const afterJobs = WORKFLOW.slice(WORKFLOW.indexOf('\njobs:\n'));
+  return afterJobs
+    .split('\n')
+    .filter((l) => /^ {2}[a-z][a-z0-9-]*:\s*$/.test(l))
+    .map((l) => l.trim().slice(0, -1));
+}
+
+describe('pipeline.yml dry run (workflow_dispatch with dry-run = true)', () => {
+  it('offers a boolean dry-run input that is off by default', () => {
+    const input = WORKFLOW.slice(WORKFLOW.indexOf('      dry-run:'), WORKFLOW.indexOf('# Cancel superseded runs'));
+    expect(input).toContain('type: boolean');
+    expect(input).toContain('default: false');
+  });
+
+  it('pushes, tags and creates a GitHub release only when it is not a dry run', () => {
+    const publishes = /git push|git tag|action-gh-release|gh release/;
+    const unguarded = [];
+    for (const id of jobIds()) {
+      const jobGuarded = job(id).split('    steps:')[0].includes('!inputs.dry-run');
+      for (const step of steps(id)) {
+        if (publishes.test(step) && !jobGuarded && !step.includes('!inputs.dry-run')) {
+          unguarded.push(`${id}: ${step.split('\n')[0].trim()}`);
+        }
+      }
+    }
+    expect(unguarded).toEqual([]);
+  });
+
+  it('hands the flag to the npm publish action, which then publishes nothing', () => {
+    const publish = steps('npm-release').find((s) => s.includes('npm-trusted-publish-action'));
+    expect(publish).toContain("dry-run: ${{ inputs.dry-run && 'true' || 'false' }}");
+  });
+
+  it('skips the Homebrew tap update, because a dry run creates no release zips to read', () => {
+    expect(job('homebrew-formula-update')).toContain("if: github.event_name == 'workflow_dispatch' && !inputs.dry-run");
+  });
+
+  it('still builds, signs, smoke-tests and runs the release jobs, so the dry run proves them', () => {
+    const jobGuard = (id) => job(id).split('    steps:')[0];
+    for (const id of [
+      'test-live',
+      'macos-intel-binary-release',
+      'macos-arm64-binary-release',
+      'linux-x64-binary-release',
+      'linux-arm64-binary-release',
+      'windows-x64-binary-release',
+      'npm-release',
+      'release',
+    ]) {
+      expect(jobGuard(id)).not.toContain('dry-run');
+    }
+  });
+});
