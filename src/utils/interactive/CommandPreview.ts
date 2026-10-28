@@ -15,6 +15,7 @@
 
 import type { Command, Option } from 'commander';
 import c from '../ColorTheme';
+import { isSecretOption, SECRET_MASK } from './SecretOptions';
 
 /**
  * frodo-lib's sentinel default for "no realm chosen yet" and its
@@ -177,7 +178,18 @@ export function serializeCommand(command: Command): string {
     // the tokens a user would type.
     if (command.getOptionValueSource(option.attributeName()) === 'default')
       continue;
-    if (value === true || option.negate) {
+    if (isSecretOption(option)) {
+      // A secret is never printed: the flag alone while its value is still
+      // to be asked for, the mask once it has one.
+      const longFlag = option.flags
+        .split(/[, ]+/)
+        .find((token) => token.startsWith('--'));
+      parts.push(
+        value === true
+          ? (longFlag ?? option.flags)
+          : `${longFlag ?? option.flags} ${SECRET_MASK}`
+      );
+    } else if (value === true || option.negate) {
       // Boolean flags, and the user-typed negative form (--no-cache,
       // value false), serialize as the flag alone -- "--no-cache false"
       // is not a re-typable token.

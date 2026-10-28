@@ -58,7 +58,15 @@ FRODO_USERNAME`). The page is the only prompt for them: it opens on the
    replace the old `Unrecognized combination` dead-ends: an unsatisfied
    group prompts (pick the member, then its value), non-interactive
    runs fail with commander-shaped errors before auth.
-5. **The invocation editor** (`EditableOptions.ts` builds the candidate
+5. **Secret values** (`SecretCollector.ts`) — an option declared with
+   `SecretOption` (`--password` on `conn set`, `--log-api-secret`,
+   `--client-secret`) may be used without a value. The pass asks for each
+   one last of the required inputs, in declaration order, with
+   `promptPassword` (input hidden), so a declined earlier prompt never makes
+   anyone type a secret for nothing. A mandatory secret that was left out is
+   asked for in the same step. Escape or an empty answer ends the command
+   with the usual error. See "Secret options" below.
+6. **The invocation editor** (`EditableOptions.ts` builds the candidate
    list) — on `--prompt` (or the persisted guided mode,
    `frodo settings guided`), a multi-select over the command's optional
    options, with per-option value steps. `--save-defaults` persists
@@ -68,6 +76,28 @@ A command that needs no connection for some invocations says so with
 `skipConnectionPromptsWhen(predicate)`, and the pass then skips step 2
 for that invocation: bare `frodo conn set` only lists fields, so it
 opens neither the profile picker nor the Connection page.
+
+**Secret options.** A secret option takes an optional value
+(`--password [password]`). Used bare, it holds `true` until the pass has
+replaced it, and the marker (`SecretOptions.ts`, set by the `SecretOption`
+class) is what makes every other surface treat it as a secret:
+
+- On a terminal that may be prompted, it is asked for as above. Without one
+  (no TTY, `FRODO_NO_PROMPT`), the value comes from stdin when input is
+  piped: all of stdin, minus one trailing line break. Stdin can supply one
+  value, so two bare secrets, an empty pipe, or a terminal stdin end the
+  command with a commander-shaped error, before anything is read; a missing
+  mandatory or one-of option is reported first. A terminal is never read when
+  prompting is off.
+- The command preview and the printed command show `********` for a secret
+  value, and the flag alone while its value is still to be asked for.
+- A secret is never written by `--save-defaults` and never applied from a
+  saved default. In the editor it is asked for hidden and shown as `(set)`.
+- Commander gives an optional-value option the next argument that does not
+  start with `-`, so `frodo conn set --password nightly` sets the password to
+  `nightly`. The host goes first. `conn set` skips the connection step when a
+  host and a `--password` are given, because that password is the one its
+  validating login uses.
 
 **Conflicts.** Commander enforces `.conflicts()` while it parses, before the
 steps above run, so everything this pass writes goes through `commitOption`

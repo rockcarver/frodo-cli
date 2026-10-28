@@ -60,6 +60,7 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     handleDefaultArgsAndOpts() {}
   },
   preferredCredentialOption: new Option('--preferred-credential <type>'),
+  SecretOption: class extends Option {},
 }));
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({ getTokens }));
 jest.unstable_mockModule('../../src/ops/LogOps', () => ({ provisionCreds }));

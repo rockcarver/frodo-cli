@@ -24,8 +24,10 @@ Arguments:
   password                      Password.
 
 Options:
-  -i, --client-id [id]          Client id. (prompts if missing)
-  -s, --client-secret [secret]  Client secret. (prompts if missing)
+  -i, --client-id <id>          Client id. (prompts if missing)
+  -s, --client-secret [secret]  Client secret. Without a value, it is asked for
+                                (input hidden) or, when input is piped, read
+                                from stdin. (prompts if missing)
   --scope [scope]               Request the following scope(s). (default:
                                 fr:idm:*)
   -h, --help                    Help
