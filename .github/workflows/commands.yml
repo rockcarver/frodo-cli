@@ -1,0 +1,73 @@
+# Concierge commands. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "The maintainer's view".
+#
+# A maintainer decides what becomes of an issue that waits for them by commenting a command: /accept, /decline,
+# /approve, /replan or /retry (/help lists them). The workflow also keeps one comment on such an issue, the options
+# comment, that says what is needed and which command does what. It appears only while a maintainer has to act, it is
+# always the last comment (it is posted again after anyone else comments), and it is deleted when nothing waits.
+#
+# A command does what a person with the role can already do by hand with the labels. The role is read from GitHub for
+# the person who commented (the setting `commands-need` in .github/agentic-workflows/settings.yml, template
+# shared/settings.yml, says which role is enough; triage is the default), and the comment is read from the event file:
+# it is never put into a shell command. With `commands: false` the workflow does nothing.
+#
+# It runs when someone comments, when a label that changes what waits for a maintainer is applied (after half a minute,
+# so that the comment a gate posts with its labels is there first), when an issue closes or reopens, every hour (which
+# also finds an options comment that is left over because a label was removed by hand), and by hand for one issue.
+# A label being removed starts nothing here: only the issue worker and the plan approval resume start on a removal.
+#
+# An issue that carries 'no-auto-processing' starts no run here ("Opting an item out").
+#
+# Install: copy this file to .github/workflows/commands.yml and scripts/commands.mjs to .github/scripts/commands.mjs (it
+# imports concierge-settings.mjs, concierge-state.mjs, plan-approval-resume.mjs, janitor.mjs and opt-out.mjs, so
+# install those too).
+# Needs SIGNAL_TOKEN: a label added or an issue closed with the workflow token starts no workflow, and handing an issue
+# on is what starts the next gate.
+name: "Concierge 5b ▸ Commands"
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [labeled, closed, reopened]
+  schedule:
+    - cron: '41 * * * *'
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Bring the options comment of one issue up to date (leave empty for every issue that waits)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: concierge-commands
+  cancel-in-progress: false
+
+jobs:
+  commands:
+    # A label event starts the job only for the labels that change what waits for a maintainer.
+    if: >-
+      (github.event.action != 'labeled'
+      || contains(fromJSON('["needs-decision","scope-review","plan-approval-required","complexity/low","complexity/medium","complexity/high","risk/low","risk/medium","risk/high","issue-triage-handoff","plan-triage-handoff","declined"]'), github.event.label.name))
+      && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
+      && github.event.issue.pull_request == null
+      && github.event.comment.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Let the gate finish its comment
+        if: github.event_name == 'issues' && github.event.action == 'labeled'
+        run: sleep 30
+      - name: Run the command and keep the options comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Hands an issue on and closes it with this token, which is what starts the next gate.
+          SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          # When it is 'true' a command that would hand an issue on is refused, because no gate would start.
+          CONCIERGE_PAUSED: ${{ vars.CONCIERGE_PAUSED }}
+        run: node .github/scripts/commands.mjs

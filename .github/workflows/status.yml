@@ -1,0 +1,71 @@
+# Concierge status. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "The maintainer's view".
+#
+# Keeps one pinned issue, "Concierge status", up to date: what waits for a maintainer, the reporter replies nobody
+# has answered, which issues the Concierge manages and which it does not, the health of the gates and what they
+# cost. It runs when a label that matters is applied, when someone comments, every hour, and by hand. A label being
+# removed starts nothing here (only the issue worker and the plan approval resume start on a removal): every way a
+# maintainer accepts an issue applies a label, and the hourly run catches the rest. Runs are queued one behind the
+# other (a burst of events is one run after the one in progress), and a run that finds nothing changed writes nothing.
+#
+# The settings are in .github/agentic-workflows/settings.yml (template: shared/settings.yml). With
+# `status-issue: false` the issue is closed and unpinned and nothing updates it. The Concierge never acts on this
+# issue: it is opened by the bot and carries 'no-auto-processing', and every gate skips both.
+#
+# An issue that carries 'no-auto-processing' starts no run here ("Opting an item out"); the hourly run counts it.
+#
+# Install: copy this file to .github/workflows/status.yml, and scripts/status-issue.mjs,
+# scripts/concierge-settings.mjs and scripts/concierge-state.mjs to .github/scripts/ (they import janitor.mjs and
+# opt-out.mjs, so install those too).
+# Needs SIGNAL_TOKEN to pin the issue and to report when that token expires; without it the issue is still written. With
+# `mention-after-days` set it also names the maintainers in a comment on the page when something has waited too long, and
+# lists the collaborators with the workflow token or, if that may not, with SIGNAL_TOKEN.
+name: "Concierge 5a ▸ Status"
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only print the page and write nothing'
+        required: false
+        type: boolean
+        default: false
+  issues:
+    types: [opened, closed, reopened, labeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  actions: read
+
+concurrency:
+  group: concierge-status
+  cancel-in-progress: false
+
+jobs:
+  status:
+    # A label event starts the job only for the labels that change a number on the page.
+    # Keep this list identical to TRIGGER_LABELS in scripts/janitor.mjs (a test checks it).
+    if: >-
+      (github.event.action != 'labeled'
+      || contains(fromJSON('["issue-worker-ready","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","pr-worker-ready","pr-triage-handoff","backlog","needs-info","dependency-required","scope-review","needs-decision","out-of-scope","duplicate","invalid","already-fixed","spam","plan-approval-required"]'), github.event.label.name))
+      && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
+      && github.event.issue.pull_request == null
+      && github.event.comment.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Write the status issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Pins the issue, and is the token whose expiry the page reports.
+          SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          # When it is 'true' the page says so (the Concierge is paused).
+          CONCIERGE_PAUSED: ${{ vars.CONCIERGE_PAUSED }}
+        run: node .github/scripts/status-issue.mjs

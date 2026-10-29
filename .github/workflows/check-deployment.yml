@@ -9,11 +9,12 @@
 # AGENTS.md nor .github/copilot-instructions.md (template: shared/agents.md) and
 # when it has no docs/decisions/ folder (or decisions/ at the repository root
 # when docs/ is generated) of decision records (template:
-# shared/decision-record.md).
+# shared/decision-record.md). It warns, and never fails, about a line of
+# .github/agentic-workflows/settings.yml that the Concierge cannot use.
 #
 # Install: copy this file to .github/workflows/check-deployment.yml and
-# scripts/check-deployment.mjs (plus scripts/dependency-watch.mjs, which it
-# imports) to .github/scripts/.
+# scripts/check-deployment.mjs (plus scripts/dependency-watch.mjs and
+# scripts/concierge-settings.mjs, which it imports) to .github/scripts/.
 name: "Concierge 4f ▸ Check Deployment"
 
 on:
