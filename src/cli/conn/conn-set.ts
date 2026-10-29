@@ -157,6 +157,20 @@ export default function setup() {
         return;
       }
 
+      // set EDITS an existing profile, so it has to be told which one. The
+      // missing host is its own error: the load below would report a
+      // profile called 'undefined' and point at 'conn save' although
+      // profiles may exist (cli#993).
+      if (!host) {
+        printError(
+          new Error(
+            'No host was given. Name the connection profile to change as the first argument (its host or alias).'
+          )
+        );
+        process.exitCode = 1;
+        return;
+      }
+
       // Load the existing profile into state (its decoded fields become
       // state's values; a load failure means no such profile -- set
       // EDITS, it never creates).
