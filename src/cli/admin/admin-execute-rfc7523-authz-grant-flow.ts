@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { type JwkRsa } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import { v4 as uuidv4 } from 'uuid';
 import * as s from '../../help/SampleData';
 import { executeRfc7523AuthZGrantFlow } from '../../ops/AdminOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -16,20 +15,28 @@ export default function setup() {
 
   program
     .description('Execute RFC7523 authorization grant flow.')
-    .addOption(new Option('--client-id <id>', 'Client id.'))
+    // There is no client to run the flow for without its id (cli#1001).
+    .addOption(
+      new Option('--client-id <id>', 'Client id.').makeOptionMandatory()
+    )
     .addOption(
       new Option(
         '--jwk-file <file>',
-        'Path to JSON Web Key (JWK) file containing private key.'
+        'Path to JSON Web Key (JWK) file containing private key. Defaults to <client id>_private.jwk.json in the current directory, where generate-rfc7523-authz-grant-artefacts saves it.'
       )
     )
     .addOption(
       new Option(
         '--sub <subject>',
-        'Subject identifier, typically a UUID. Must resolve to a valid user in the realm.'
+        'Subject identifier, typically a UUID. Must resolve to a valid user in the realm. Defaults to the first allowed subject of the trusted issuer; required when that issuer allows any user.'
       )
     )
-    .addOption(new Option('--iss <issuer>', 'Trusted issuer, typically a URL.'))
+    .addOption(
+      new Option(
+        '--iss <issuer>',
+        'Trusted issuer, typically a URL. Defaults to the issuer of the trusted issuer named <client id>-issuer.'
+      )
+    )
     .addOption(
       new Option('--scope <scope>', 'Space-delimited list of scopes.').default(
         'openid fr:am:* fr:idm:*'
@@ -67,10 +74,6 @@ export default function setup() {
         );
         if (await getTokens()) {
           printMessage(`Executing RFC7523 authorization grant flow...`);
-          let clientId = uuidv4();
-          if (options.clientId) {
-            clientId = options.clientId;
-          }
           let jwk: JwkRsa = undefined;
           if (options.jwkFile) {
             try {
@@ -81,10 +84,12 @@ export default function setup() {
                 `Error parsing JWK from file ${options.jwkFile}: ${error.message}`,
                 'error'
               );
+              process.exitCode = 1;
+              return;
             }
           }
           const outcome = await executeRfc7523AuthZGrantFlow(
-            clientId,
+            options.clientId,
             options.iss,
             jwk,
             options.sub,
