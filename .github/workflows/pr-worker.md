@@ -13,7 +13,8 @@ description: |
 # the pre-activation job now starts for every label event, so the step carries its own label and state
 # conditions and does nothing, and posts nothing, for any other label.
 if: >-
-  ${{ github.event.issue.state == 'open'
+  ${{ (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+  && github.event.issue.state == 'open'
   && github.event.issue.user.type != 'Bot'
   && !contains(github.event.issue.labels.*.name, 'dependency-required')
   && !contains(github.event.issue.labels.*.name, 'plan-approval-required')
@@ -33,7 +34,7 @@ on:
     # means "do not hand this issue to the coding agent", and the `if:` above reads it.
     - name: Stop when the issue is closed, held, or an open pull request already closes it
       id: existing_fix
-      if: github.event.label.name == 'plan-triage-handoff' && github.event.issue.state == 'open' && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
+      if: (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && github.event.label.name == 'plan-triage-handoff' && github.event.issue.state == 'open' && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
       continue-on-error: true
       uses: actions/github-script@v9
       with:

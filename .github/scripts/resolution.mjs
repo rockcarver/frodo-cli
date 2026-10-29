@@ -9,7 +9,7 @@
 //     pull request in the first line (`Fixed in #N.`, which the release closer reads) and a line about the release;
 //   - the related-repo closer posts the same text on the original issue of a split-repository link.
 // The rules and the reasons: docs/multi-phase-design.md, "The resolution", and the decision record
-// https://github.com/vscheuber/repo-concierge/blob/main/docs/decisions/0029-the-reporter-is-told-how-an-issue-was-resolved.md
+// https://github.com/gearsnlevers/issue-concierge/blob/main/docs/decisions/0029-the-reporter-is-told-how-an-issue-was-resolved.md
 //
 // Trust. The section is text from a pull request, and anyone can write a pull request. It is used only when a
 // person merged the pull request, so a maintainer has had it in front of them (record 0005), and it is copied by

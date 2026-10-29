@@ -4,7 +4,7 @@ description: |
   Plan gate triage. Assigns complexity and risk.
   Adds plan-approval-required for high complexity or high risk; does not hand off while that label is present.
   Reads repository-local complexity and risk definitions when present.
-if: ${{ github.event.issue.state == 'open' && github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing') }}
+if: ${{ (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && github.event.issue.state == 'open' && github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing') }}
 on:
   issues:
     types: [labeled]
@@ -74,7 +74,7 @@ If complexity is high, or risk is high, or both:
   - only risk is high: "High risk. Remove the plan-approval-required label to resume."
   - both are high: "High complexity and high risk. Remove the plan-approval-required label to resume."
 
-Otherwise, and unless the issue already carries `plan-approval-required` (see "A hold that is already there"), the plan reports a conflict with a decision record (see "A conflict with a decision record") or the plan reports a wrong layer (see "A wrong layer"), emit `plan-triage-handoff`. A plan that needs work in another repository (see "Work in another repository") is held the same way.
+Otherwise, and unless the issue already carries `plan-approval-required` (see "A hold that is already there"), the plan reports a conflict with a decision record (see "A conflict with a decision record") or the plan reports a wrong layer (see "A wrong layer") or a breaking change (see "A breaking change"), emit `plan-triage-handoff`. A plan that needs work in another repository (see "Work in another repository") is held the same way.
 
 You never resume a high-complexity or high-risk issue yourself. When a maintainer removes `plan-approval-required`, a separate workflow (`plan-approval-resume`, no LLM) applies `plan-triage-handoff`.
 
@@ -88,6 +88,11 @@ You never lift this hold yourself: removing the label is the maintainer's decisi
 
 ## A wrong layer
 If the plan starts with, or has a line that starts with, "Wrong layer:", the plan worker found that the code to change is in another repository than the one holding this issue. A coding agent started here would work in the wrong repository. Classify as usual and apply the complexity and risk labels, add the label `plan-approval-required` unless the issue already carries it, and do **not** emit `plan-triage-handoff`, whatever the classification. Post this short comment, unless the issue already carries `plan-approval-required` (then post no comment, as under "A hold that is already there"): "The plan found that the fix belongs in another repository. A maintainer has to move or re-route this issue. Remove the plan-approval-required label to resume."
+
+You never lift this hold yourself: removing the label is the maintainer's decision, and `plan-approval-resume` hands the issue on.
+
+## A breaking change
+If the plan has a line that starts with "Breaking change:", the fix removes, renames or replaces something that exists, or breaks something that works today, or changes the architecture. A coding agent started on it would make that change without a person having decided it should be made. Classify as usual and apply the complexity and risk labels, whatever they are: do not lower either because the plan calls the change small or safe. Add the label `plan-approval-required` unless the issue already carries it, and do **not** emit `plan-triage-handoff`, whatever the classification. Post this short comment, unless the issue already carries `plan-approval-required` (then post no comment, as under "A hold that is already there"): "The plan found a change to something that already exists. A maintainer has to decide whether it goes ahead. Remove the plan-approval-required label to resume."
 
 You never lift this hold yourself: removing the label is the maintainer's decision, and `plan-approval-resume` hands the issue on.
 

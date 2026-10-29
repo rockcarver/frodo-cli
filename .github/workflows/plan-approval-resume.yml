@@ -29,7 +29,7 @@ concurrency:
 jobs:
   resume:
     # On a label event, run only for the approval label.
-    if: (github.event_name != 'issues' || github.event.label.name == 'plan-approval-required') && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
+    if: (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && (github.event_name != 'issues' || github.event.label.name == 'plan-approval-required') && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

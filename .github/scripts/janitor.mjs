@@ -26,6 +26,7 @@ export const TRIAGE_OUTCOMES = [
   'needs-info',
   'dependency-required',
   'scope-review',
+  'needs-decision',
   'out-of-scope',
   'duplicate',
   'invalid',
@@ -40,6 +41,7 @@ export const OPEN_WORK_STATE = [
   'needs-info',
   'backlog',
   'scope-review',
+  'needs-decision',
   'plan-approval-required',
 ];
 

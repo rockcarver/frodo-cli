@@ -5,7 +5,7 @@
 // the label on an item to handle it by hand (an issue that predates the Concierge, or one that needs a
 // person's own explanation), and removes it to hand the issue over: removing it starts the issue worker once.
 // The rule and the reasons for it: docs/multi-phase-design.md, "Opting an item out", and the decision record
-// https://github.com/vscheuber/repo-concierge/blob/main/docs/decisions/0028-an-item-labelled-no-auto-processing-is-never-touched.md
+// https://github.com/gearsnlevers/issue-concierge/blob/main/docs/decisions/0028-an-item-labelled-no-auto-processing-is-never-touched.md
 //
 // The gh-aw workflows and the plain workflows check the label in their `if:` (so no run starts for the event);
 // the scripts check it here, for the items they pick by a query or read by number. The two checks name the same

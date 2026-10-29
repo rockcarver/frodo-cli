@@ -51,7 +51,7 @@ concurrency:
 jobs:
   signal:
     # A pull request that carries no-auto-processing is not signalled (the sweep and the script check it too).
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-auto-processing') }}
+    if: ${{ (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && !contains(github.event.pull_request.labels.*.name, 'no-auto-processing') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

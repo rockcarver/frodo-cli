@@ -50,7 +50,7 @@ jobs:
   resolution:
     # By hand: always. On an event: not for an issue a bot opened and not for one that carries no-auto-processing.
     # The script checks everything else (how the issue was closed, who merged the pull request).
-    if: github.event_name == 'workflow_dispatch' || (github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing'))
+    if: (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && (github.event_name == 'workflow_dispatch' || (github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing')))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
