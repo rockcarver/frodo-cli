@@ -1,13 +1,9 @@
-import {
-  frodo,
-  state,
-  type IdObjectSkeletonInterface,
-  type Writable,
-} from '@rockcarver/frodo-lib';
+import { frodo, state, type Writable } from '@rockcarver/frodo-lib';
 import { padCell, singleLine, truncate } from '../utils/TextLayout';
 
 const { readOAuth2TrustedJwtIssuer } = frodo.oauth2oidc.issuer;
 const { queryManagedObjects, countManagedObjects } = frodo.idm.managed;
+const { readUsers, countUsers } = frodo.user;
 const { getCurrentRealmManagedUser } = frodo.utils;
 const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -23,7 +19,8 @@ export const SUBJECT_LIST_LIMIT = 1000;
 /** A search that finds more users than this asks for a longer text. */
 export const SUBJECT_MATCH_LIMIT = 200;
 
-const FIELDS = ['userName', 'givenName', 'sn', 'mail'];
+const IDM_FIELDS = ['userName', 'givenName', 'sn', 'mail'];
+const AM_FIELDS = ['username', 'givenName', 'sn', 'mail'];
 const USER_COLUMN = 28;
 const NAME_COLUMN = 32;
 
@@ -69,11 +66,18 @@ export function subjectMatches(
     .every((word) => fields.some((field) => field.includes(word)));
 }
 
-/** The IDM query filter behind the search-first step: a prefix of a field, or the id. */
-export function subjectSearchFilter(text: string): string {
+/**
+ * The query filter behind the search-first step: a prefix of a name field or
+ * the email, or the whole id. IDM calls the username attribute `userName`, the
+ * AM users endpoint filters it as `uid`.
+ */
+export function subjectSearchFilter(
+  text: string,
+  userNameAttribute = 'userName'
+): string {
   const quoted = quote(text);
   const parts = [
-    `userName sw ${quoted}`,
+    `${userNameAttribute} sw ${quoted}`,
     `givenName sw ${quoted}`,
     `sn sw ${quoted}`,
     `mail sw ${quoted}`,
@@ -88,21 +92,71 @@ export function subjectSearchFilter(text: string): string {
   return parts.join(' or ');
 }
 
+/** A string attribute, or the first of a list (AM returns every attribute as a list). */
+function text(value: unknown): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  return typeof first === 'string' && first ? singleLine(first) : undefined;
+}
+
 function toCandidate(
   id: string,
-  user?: IdObjectSkeletonInterface
+  user: {
+    userName?: unknown;
+    givenName?: unknown;
+    sn?: unknown;
+    mail?: unknown;
+  }
 ): SubjectCandidate {
-  const text = (name: string): string | undefined => {
-    const value = user?.[name];
-    return typeof value === 'string' && value ? singleLine(value) : undefined;
-  };
   return {
     id,
-    userName: text('userName'),
-    givenName: text('givenName'),
-    sn: text('sn'),
-    mail: text('mail'),
+    userName: text(user.userName),
+    givenName: text(user.givenName),
+    sn: text(user.sn),
+    mail: text(user.mail),
     row: '',
+  };
+}
+
+/**
+ * Where the users are read from. Identity Cloud and ForgeOps keep them in
+ * IDM's managed user object; a classic deployment has no IDM, so the AM users
+ * endpoint answers instead. Both give the picker the same candidates.
+ */
+type UserDirectory = {
+  count(filter: string): Promise<number>;
+  read(filter: string): Promise<SubjectCandidate[]>;
+  searchFilter(text: string): string;
+};
+
+function userDirectory(): UserDirectory {
+  if (state.getDeploymentType() === CLASSIC_DEPLOYMENT_TYPE_KEY) {
+    return {
+      count: (filter) => countUsers(filter),
+      read: async (filter) =>
+        (await readUsers(filter, AM_FIELDS)).map((user) =>
+          toCandidate(user._id, {
+            userName: user.username,
+            givenName: user.givenName,
+            sn: user.sn,
+            mail: user.mail,
+          })
+        ),
+      searchFilter: (value) => subjectSearchFilter(value, 'uid'),
+    };
+  }
+  const type = getCurrentRealmManagedUser();
+  return {
+    count: (filter) => countManagedObjects(type, filter),
+    read: async (filter) =>
+      (await queryManagedObjects(type, filter, IDM_FIELDS)).map((user) =>
+        toCandidate(user._id, {
+          userName: user['userName'],
+          givenName: user['givenName'],
+          sn: user['sn'],
+          mail: user['mail'],
+        })
+      ),
+    searchFilter: (value) => subjectSearchFilter(value),
   };
 }
 
@@ -139,60 +193,47 @@ async function readAllowedSubjects(
  * Where the candidates for `--sub` come from. The users to offer depend on
  * the trusted issuer `<client id>-issuer`: when it lists the subjects it
  * allows, those are the choice; otherwise (any user, or no such issuer) it is
- * the realm's users. A deployment without IDM (classic) offers none: the
- * command then asks for `--sub`.
+ * the realm's users.
  */
 export function createSubjectSource(getClientId: () => string) {
   let allowed: Promise<string[] | undefined> | undefined;
   const allowedSubjects = () =>
     (allowed ??= readAllowedSubjects(`${getClientId()}-issuer`));
-  const hasIdm = () =>
-    state.getDeploymentType() !== CLASSIC_DEPLOYMENT_TYPE_KEY;
 
   return {
     /** The realm has too many users to list whole and nothing narrows it. */
     async tooMany(): Promise<boolean> {
-      if (!hasIdm() || (await allowedSubjects())?.length) return false;
-      return (
-        (await countManagedObjects(getCurrentRealmManagedUser(), 'true')) >
-        SUBJECT_LIST_LIMIT
-      );
+      if ((await allowedSubjects())?.length) return false;
+      return (await userDirectory().count('true')) > SUBJECT_LIST_LIMIT;
     },
 
     /** The allowed subjects, or the realm's users when the issuer allows any. */
     async list(): Promise<SubjectCandidate[]> {
-      if (!hasIdm()) return [];
-      const type = getCurrentRealmManagedUser();
+      const directory = userDirectory();
       const ids = await allowedSubjects();
       if (ids?.length) {
-        const users = await queryManagedObjects(
-          type,
-          ids.map((id) => `_id eq ${quote(id)}`).join(' or '),
-          FIELDS
+        const users = await directory.read(
+          ids.map((id) => `_id eq ${quote(id)}`).join(' or ')
         );
+        // an allowed subject that is no longer a user of the realm is still offered
         return subjectRows(
-          ids.map((id) =>
-            toCandidate(
-              id,
-              users.find((user) => user._id === id)
-            )
+          ids.map(
+            (id) => users.find((user) => user.id === id) ?? toCandidate(id, {})
           )
         );
       }
-      const users = await queryManagedObjects(type, 'true', FIELDS);
-      return subjectRows(users.map((user) => toCandidate(user._id, user)));
+      return subjectRows(await directory.read('true'));
     },
 
     /** The realm's users that match the text, or a message when there are too many. */
     async search(text: string): Promise<SubjectCandidate[] | string> {
-      const type = getCurrentRealmManagedUser();
-      const filter = subjectSearchFilter(text);
-      const found = await countManagedObjects(type, filter);
+      const directory = userDirectory();
+      const filter = directory.searchFilter(text);
+      const found = await directory.count(filter);
       if (found > SUBJECT_MATCH_LIMIT) {
         return `${found} users match '${text}'. Type more of the username, name or email.`;
       }
-      const users = await queryManagedObjects(type, filter, FIELDS);
-      return subjectRows(users.map((user) => toCandidate(user._id, user)));
+      return subjectRows(await directory.read(filter));
     },
   };
 }

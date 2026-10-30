@@ -1,6 +1,4 @@
-import { state } from '@rockcarver/frodo-lib';
 import {
-  createSubjectSource,
   subjectMatches,
   subjectRows,
   subjectSearchFilter,
@@ -99,20 +97,15 @@ describe('subjectSearchFilter()', () => {
     );
   });
 
+  test('the AM users endpoint filters the username as uid', () => {
+    expect(subjectSearchFilter('ali', 'uid')).toBe(
+      'uid sw "ali" or givenName sw "ali" or sn sw "ali" or mail sw "ali" or _id eq "ali"'
+    );
+  });
+
   test('quotes and backslashes in the text cannot end the string', () => {
     const filter = subjectSearchFilter('a"b\\c');
     expect(filter).toContain('userName sw "a\\"b\\\\c"');
     expect(filter.match(/ or /g)).toHaveLength(4);
-  });
-});
-
-describe('createSubjectSource() without IDM', () => {
-  afterEach(() => state.setDeploymentType(undefined));
-
-  test('a classic deployment offers no users and never counts', async () => {
-    state.setDeploymentType('classic');
-    const source = createSubjectSource(() => 'c1');
-    await expect(source.list()).resolves.toEqual([]);
-    await expect(source.tooMany()).resolves.toBe(false);
   });
 });

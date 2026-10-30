@@ -161,7 +161,9 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   empty or a message ("1001 users match 'user'"); Esc declines. The first
   user is `--sub` of `frodo admin execute-rfc7523-authz-grant-flow`
   (`Rfc7523SubjectOps.ts`, cli#1004): the users the trusted issuer allows,
-  else the realm's, found by username, first or last name, email or id.
+  else the realm's, found by username, first or last name, email or id. The
+  users come from IDM's managed user object, and on a classic deployment,
+  which has no IDM, from the AM users endpoint.
 
 Both pickers inherit type-to-search and auto-select a single candidate.
 

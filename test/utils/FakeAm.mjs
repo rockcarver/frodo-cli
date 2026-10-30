@@ -41,7 +41,10 @@
  * `mail`) the fake serves under `/openidm/managed/`, with IDM's `_queryFilter`
  * reduced to what the frodo user picker sends: `true`, and `or`-ed
  * `field sw "text"` / `field eq "text"` terms (an `and` group counts as `or`).
- * `_pageSize=0` answers the count.
+ * `_pageSize=0` answers the count. The same users are served by the AM users
+ * endpoint (`.../json/realms/root/realms/<realm>/users`, which a classic
+ * deployment has instead of IDM): AM's shape, with the attributes as lists and
+ * the username filtered as `uid`.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -62,7 +65,9 @@ function selectUsers(filter) {
   return users.filter((user) =>
     terms.some(([, field, operator, quoted]) => {
       const wanted = quoted.replace(/\\(.)/g, '$1').toLowerCase();
-      const have = String(user[field] ?? '').toLowerCase();
+      const have = String(
+        user[field === 'uid' ? 'userName' : field] ?? ''
+      ).toLowerCase();
       return operator === 'eq' ? have === wanted : have.startsWith(wanted);
     })
   );
@@ -119,6 +124,28 @@ const server = http.createServer((req, res) => {
           ? { inherited: false, value: issuer.issuer }
           : { inherited: false },
         allowedSubjects: { inherited: false, value: issuer.allowedSubjects },
+      });
+    }
+    const pathname = new URL(req.url, 'http://fake').pathname;
+    if (users && pathname.includes('/json/') && pathname.endsWith('/users')) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      const selected = selectUsers(query.get('_queryFilter') ?? 'true');
+      const size = Number(query.get('_pageSize') ?? selected.length);
+      const page = size === 0 ? [] : selected.slice(0, size);
+      return send(200, {
+        result: page.map((user) => ({
+          _id: user._id,
+          username: user.userName,
+          uid: [user.userName],
+          givenName: [user.givenName],
+          sn: [user.sn],
+          mail: [user.mail],
+        })),
+        resultCount: page.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: selected.length,
+        remainingPagedResults: -1,
       });
     }
     if (users && req.url.includes('/openidm/managed/')) {

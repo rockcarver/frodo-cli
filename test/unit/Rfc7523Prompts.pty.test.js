@@ -92,23 +92,25 @@ suite('RFC7523 commands, on a real terminal', () => {
     });
   }
 
-  function onTerminal(command, args, actions) {
+  /** Cloud with a service account, or classic with a user name and password. */
+  function onTerminal(command, args, actions, { classic = false } = {}) {
     return runShellScenario({
       homeDir: home,
       allowPrompting: true,
       env: {
         ...noCredentials,
         FRODO_CONNECTION_PROFILES_PATH: path.join(home, 'Connections.json'),
-        FRODO_SA_ID: 'test-account',
-        FRODO_SA_JWK: jwk,
+        ...(classic
+          ? { FRODO_USERNAME: 'someone', FRODO_PASSWORD: 'not-a-password' }
+          : { FRODO_SA_ID: 'test-account', FRODO_SA_JWK: jwk }),
       },
       args: [
         'admin',
         command,
         `http://127.0.0.1:${fakeAm.port}/am`,
-        'alpha',
+        classic ? '/' : 'alpha',
         '--type',
-        'cloud',
+        classic ? 'classic' : 'cloud',
         ...args,
       ],
       actions,
@@ -117,6 +119,14 @@ suite('RFC7523 commands, on a real terminal', () => {
 
   /** The picker as last drawn: a capture holds every frame since the last clear. */
   const lastFrame = (plain) => plain.split('┌ Navigate').pop();
+
+  /** The URLs the fake AM was asked for. */
+  const requestedUrls = () =>
+    fs
+      .readFileSync(recordPath, 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line).url);
 
   /** The subject of the assertion the flow sent for client `c1`. */
   function sentSubject() {
@@ -218,6 +228,13 @@ suite('RFC7523 commands, on a real terminal', () => {
       expect(list).toMatch(/bob\s+Bob Jones\s+u-bbb/);
       expect(list).toMatch(/carol\s+Carol Smith\s+u-ccc/);
       expect(sentSubject()).toBe('u-bbb');
+      // Identity Cloud keeps its users in IDM
+      expect(
+        requestedUrls().some((url) => url.includes('/openidm/managed/'))
+      ).toBe(true);
+      expect(
+        requestedUrls().some((url) => /\/json\/.*\/users\?/.test(url))
+      ).toBe(false);
     });
 
     test.each([
@@ -308,6 +325,140 @@ suite('RFC7523 commands, on a real terminal', () => {
         { type: 'sleep', ms: 1500 },
       ]);
       expect(sentSubject()).toBeUndefined();
+    });
+
+    describe('on a classic deployment (the AM users endpoint, no IDM)', () => {
+      // a classic login has no token endpoint in the fake: the flow's own
+      // request is the last thing that happens, and it is what is checked
+      const requested = {
+        type: 'wait_request',
+        path: undefined,
+        regex: '/access_token',
+        timeoutMs: 30000,
+      };
+      const classic = { classic: true };
+      const sent = () => ({ ...requested, path: recordPath });
+
+      test('lists the realm users with their names and inserts the id of the pick', async () => {
+        await fake({
+          journey: 'password',
+          issuer: { issuer: issuerUrl, allowedSubjects: [] },
+          users: people,
+        });
+        const run = onTerminal(
+          'execute-rfc7523-authz-grant-flow',
+          withKey(),
+          [
+            waitForPicker,
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'list' },
+            { type: 'key', name: 'down' },
+            { type: 'key', name: 'enter' },
+            sent(),
+          ],
+          classic
+        );
+        const list = lastFrame(run.captures.list.plain);
+        expect(list).toMatch(/alice\s+Alice Smith\s+u-aaa/);
+        expect(list).toMatch(/bob\s+Bob Jones\s+u-bbb/);
+        expect(sentSubject()).toBe('u-bbb');
+        // a classic deployment has no IDM: the users come from the AM endpoint
+        expect(
+          requestedUrls().some((url) => /\/json\/.*\/users\?/.test(url))
+        ).toBe(true);
+        expect(requestedUrls().some((url) => url.includes('/openidm/'))).toBe(
+          false
+        );
+      });
+
+      test.each([
+        ['username', 'carol', 'u-ccc'],
+        ['last name', 'jones', 'u-bbb'],
+        ['email', 'corp.example', 'u-ccc'],
+      ])('type to search finds a user by %s', async (_field, text, id) => {
+        await fake({
+          journey: 'password',
+          issuer: { issuer: issuerUrl, allowedSubjects: [] },
+          users: people,
+        });
+        onTerminal(
+          'execute-rfc7523-authz-grant-flow',
+          withKey(),
+          [
+            waitForPicker,
+            { type: 'sleep', ms: 400 },
+            { type: 'send', text },
+            { type: 'sleep', ms: 500 },
+            { type: 'key', name: 'enter' },
+            sent(),
+          ],
+          classic
+        );
+        expect(sentSubject()).toBe(id);
+      });
+
+      test('with several allowed subjects only those are offered', async () => {
+        await fake({
+          journey: 'password',
+          issuer: { issuer: issuerUrl, allowedSubjects: ['u-aaa', 'u-ccc'] },
+          users: people,
+        });
+        const run = onTerminal(
+          'execute-rfc7523-authz-grant-flow',
+          withKey(),
+          [
+            waitForPicker,
+            { type: 'sleep', ms: 400 },
+            { type: 'capture', label: 'list' },
+            { type: 'key', name: 'enter' },
+            sent(),
+          ],
+          classic
+        );
+        const list = lastFrame(run.captures.list.plain);
+        expect(list).toContain('u-aaa');
+        expect(list).toContain('u-ccc');
+        expect(list).not.toContain('u-bbb');
+        expect(sentSubject()).toBe('u-aaa');
+      });
+
+      test('a big realm asks for a search text first', async () => {
+        const crowd = Array.from({ length: 1001 }, (_, index) => {
+          const n = String(index).padStart(4, '0');
+          return {
+            _id: `id-${n}`,
+            userName: `user${n}`,
+            givenName: 'First',
+            sn: `Last${n}`,
+            mail: `user${n}@example.com`,
+          };
+        });
+        await fake({
+          journey: 'password',
+          issuer: { issuer: issuerUrl, allowedSubjects: [] },
+          users: crowd,
+        });
+        onTerminal(
+          'execute-rfc7523-authz-grant-flow',
+          withKey(),
+          [
+            {
+              type: 'wait_plain',
+              regex: 'The realm has more than 1000 users',
+              timeoutMs: 30000,
+            },
+            { type: 'send', text: 'user004' },
+            { type: 'key', name: 'enter' },
+            waitForPicker,
+            { type: 'sleep', ms: 400 },
+            { type: 'key', name: 'down' },
+            { type: 'key', name: 'enter' },
+            sent(),
+          ],
+          classic
+        );
+        expect(sentSubject()).toBe('id-0041');
+      });
     });
 
     describe('in a realm with more than 1000 users', () => {
