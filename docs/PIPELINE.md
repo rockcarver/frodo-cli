@@ -139,7 +139,8 @@ minute, most of it `npm ci`. The same command runs locally.
 - Updates manifests with `gearsnlevers/manifest-version-update-action@v1`
 - Runs the MCP SDK track check, the npm bundle build (`tsdown` + `tsc`),
   `npm run check` (ESLint 10 + Prettier, including import order — see
-  [BUILD-ENV.md](BUILD-ENV.md) §5), and a critical-level security audit
+  [BUILD-ENV.md](BUILD-ENV.md) §5), and a critical-level security audit (check
+  only: it fails the build on a critical advisory and never rewrites the lockfile)
 - Uploads `package.json`, `package-lock.json` and `dist/` as the `build`
   artifact that every downstream job consumes
 

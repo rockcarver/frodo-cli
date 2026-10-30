@@ -223,8 +223,15 @@ jobs:
       - name: Type Check
         run: npx tsc
 
+      # Check only. `npm audit fix` here rewrote package-lock.json inside the
+      # build, the artifact carried that lockfile, and the Release job committed
+      # it to main: the locked version of a dependency moved up and down from
+      # release to release (and the alerts of Dependabot with it), and what was
+      # built before this step differed from what was built after it. A
+      # critical advisory fails the build; fixing it is a dependency pull
+      # request.
       - name: Security Audit
-        run: npm audit fix --audit-level critical
+        run: npm audit --audit-level critical
 
       - uses: actions/upload-artifact@v7
         with:
