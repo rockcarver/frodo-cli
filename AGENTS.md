@@ -42,7 +42,7 @@ Lasting design decisions are recorded one per file in [docs/decisions/](docs/dec
 
 ## Procedures
 
-How to do a recurring task (add a command, record a decision, build the CLI or the binary, run the tests, create test recordings, review an agent's pull request, change the CI pipeline, triage a security report) is a skill in [.claude/skills/](.claude/skills/), read by Claude Code and by the GitHub Copilot cloud agent. A skill says how and links the records and rules it must obey; it never overrides them.
+How to do a recurring task (add a command, record a decision, build the CLI or the binary, run the tests, create test recordings, review an agent's pull request, change the CI pipeline, pin the library, release the CLI, triage a security report) is a skill in [.claude/skills/](.claude/skills/), read by Claude Code and by the GitHub Copilot cloud agent. A skill says how and links the records and rules it must obey; it never overrides them.
 
 ## Where things live
 

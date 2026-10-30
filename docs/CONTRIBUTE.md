@@ -252,4 +252,4 @@ When you decide something that will outlive your change (a rule contributors mus
 
 `AGENTS.md` at the repository root and the files in `.github/instructions/` give coding agents (GitHub Copilot and others) the short version of this guide: build and test commands, the hard rules, and checklists that load when a matching file is edited. They link back here; when a convention changes, change it here first and keep those files short.
 
-Step-by-step procedures for recurring tasks (adding a command, recording a decision, building the CLI and the binary, creating test recordings, reviewing an agent's pull request) are skills in `.claude/skills/`, which Claude Code and the GitHub Copilot cloud agent load on demand. A skill links the rules it must obey and does not restate them.
+Step-by-step procedures for recurring tasks (adding a command, recording a decision, building the CLI and the binary, creating test recordings, reviewing an agent's pull request, pinning the library, releasing the CLI) are skills in `.claude/skills/`, which Claude Code and the GitHub Copilot cloud agent load on demand. A skill links the rules it must obey and does not restate them.
