@@ -37,6 +37,11 @@ Options:
   -c, --only-custom          Only export custom request types (IGA cloud
                              deployments only).
   -d, --default              Export all scripts including the default scripts.
+  --dynamic                  Export only dynamic configuration: what changes at
+                             run time (OAuth2 clients, agents, policies, SAML
+                             providers, ESVs and the like). With --static it
+                             exports both, which is also what happens without
+                             either.
   -f, --file <file>          Name of the export file. Cannot be used with -A.
   -g, --global-only          Export only the global config. If -r, --realm-only
                              is also active, then the corresponding active realm
@@ -67,6 +72,10 @@ Options:
                              which holds read-only authorization config.
   -s, --separate-mappings    Export sync.idm.json mappings separately in their
                              own directory. Cannot be used with -a.
+  --static                   Export only static configuration: what an
+                             environment promotion carries (journeys, scripts,
+                             themes and the like). With --dynamic it exports
+                             both, which is also what happens without either.
   --target <host url>        Host URL of the environment to perform secret value
                              encryption. The URL must resolve to an existing
                              connection profile. Use this option to generate an

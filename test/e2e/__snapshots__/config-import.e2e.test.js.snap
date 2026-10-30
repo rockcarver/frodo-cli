@@ -173,3 +173,70 @@ Error updating bravo realm script
 `;
 
 exports[`frodo config import Cloud "frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json --no-validate" Import everything from "all.cloud-full-import.json", including default scripts. 2`] = `1`;
+
+exports[`frodo config import Forgeops "frodo config import --all --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json": should import only dynamic configurations. 1`] = `""`;
+
+exports[`frodo config import Forgeops "frodo config import --all --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json": should import only dynamic configurations. 2`] = `
+"✔ Finished Importing Everything to global!
+✔ Finished Importing Everything to root realm!
+✔ Finished Importing Everything to root-alpha realm!
+✔ Finished Importing Everything to root-bravo realm!
+✔ Finished Importing all other AM config entities!
+"
+`;
+
+exports[`frodo config import Forgeops "frodo config import --all --static --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json": should import both static and dynamic configurations and report that the DataStoreService needs a bindPassword. 1`] = `
+"Error Importing Services
+  Error importing services
+    Error putting global full service configs
+      Error putting global full service config DataStoreService
+        Error putting descendent 'application-store' of service 'DataStoreService'
+          Network error:
+            URL: https://nightly.gcp.forgeops.com/am/json/global-config/services/DataStoreService/config/application-store
+            Status: 400
+            Code: ERR_BAD_REQUEST
+            Reason: Bad Request
+            Message: The request body must include 'bindPassword'.
+✔ Finished Importing Everything to global!
+✔ Resolved all / realm dependencies.
+• Finished importing / realm journeys
+✔ Finished Importing Everything to root realm!
+✔ Resolved all alpha realm dependencies.
+• Finished importing alpha realm journeys
+✔ Finished Importing Everything to root-alpha realm!
+✔ Resolved all bravo realm dependencies.
+• Finished importing bravo realm journeys
+✔ Finished Importing Everything to root-bravo realm!
+✔ Finished Importing all other AM config entities!
+"
+`;
+
+exports[`frodo config import Forgeops "frodo config import --all --static --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json": should import both static and dynamic configurations and report that the DataStoreService needs a bindPassword. 2`] = `1`;
+
+exports[`frodo config import Forgeops "frodo config import --all --static --file test/e2e/exports/all/forgeops/all.forgeops.json": should import only static configurations and report that the DataStoreService needs a bindPassword. 1`] = `
+"Error Importing Services
+  Error importing services
+    Error putting global full service configs
+      Error putting global full service config DataStoreService
+        Error putting descendent 'application-store' of service 'DataStoreService'
+          Network error:
+            URL: https://nightly.gcp.forgeops.com/am/json/global-config/services/DataStoreService/config/application-store
+            Status: 400
+            Code: ERR_BAD_REQUEST
+            Reason: Bad Request
+            Message: The request body must include 'bindPassword'.
+✔ Finished Importing Everything to global!
+✔ Resolved all / realm dependencies.
+• Finished importing / realm journeys
+✔ Finished Importing Everything to root realm!
+✔ Resolved all alpha realm dependencies.
+• Finished importing alpha realm journeys
+✔ Finished Importing Everything to root-alpha realm!
+✔ Resolved all bravo realm dependencies.
+• Finished importing bravo realm journeys
+✔ Finished Importing Everything to root-bravo realm!
+✔ Finished Importing all other AM config entities!
+"
+`;
+
+exports[`frodo config import Forgeops "frodo config import --all --static --file test/e2e/exports/all/forgeops/all.forgeops.json": should import only static configurations and report that the DataStoreService needs a bindPassword. 2`] = `1`;

@@ -127,6 +127,18 @@ export default function setup() {
         'Only export custom request types (IGA cloud deployments only).'
       )
     )
+    .addOption(
+      new Option(
+        '--static',
+        'Export only static configuration: what an environment promotion carries (journeys, scripts, themes and the like). With --dynamic it exports both, which is also what happens without either.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--dynamic',
+        'Export only dynamic configuration: what changes at run time (OAuth2 clients, agents, policies, SAML providers, ESVs and the like). With --static it exports both, which is also what happens without either.'
+      )
+    )
     .addHelpText(
       'after',
       c.positive(`How Frodo handles secrets:\n`) +
@@ -147,6 +159,10 @@ export default function setup() {
         c.command(`  $ frodo config export -adR ${s.connId}\n`) +
         `  Export only the bravo realm configuration:\n` +
         c.command(`  $ frodo config export -ar ${s.connId} bravo\n`) +
+        `  Export only the static configuration, the part an environment promotion carries, to a single file:\n` +
+        c.command(`  $ frodo config export -a --static ${s.connId}\n`) +
+        `  Export only the dynamic configuration, the part that changes at run time:\n` +
+        c.command(`  $ frodo config export -a --dynamic ${s.connId}\n`) +
         `  Backup global and realm configuration including active secret values to a single file (Note: only values of active and loaded secrets can be exported):\n` +
         c.command(
           `  $ frodo config export -a --include-active-values ${s.connId}\n`
@@ -196,6 +212,8 @@ export default function setup() {
               onlyRealm: options.realmOnly,
               onlyGlobal: options.globalOnly,
               onlyCustom: options.onlyCustom,
+              includeStatic: options.static || !options.dynamic,
+              includeDynamic: options.dynamic || !options.static,
             }
           );
           if (!outcome) process.exitCode = 1;
@@ -227,6 +245,8 @@ export default function setup() {
               onlyRealm: options.realmOnly,
               onlyGlobal: options.globalOnly,
               onlyCustom: options.onlyCustom,
+              includeStatic: options.static || !options.dynamic,
+              includeDynamic: options.dynamic || !options.static,
             }
           );
           if (!outcome) process.exitCode = 1;
