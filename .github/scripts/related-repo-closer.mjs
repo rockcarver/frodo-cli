@@ -116,8 +116,10 @@ export async function resolutionFor(issue, ctx) {
  * opted out, and have a comment from the harness that names the canonical issue. Shared with route-back.mjs, which
  * needs the same proof before it writes to the other repository. Returns { original } with
  * { repo, number, ref, labels, data, comments }, or { skip: reason }. The original may be open or closed: the caller asks.
+ * An opted-out original is refused because the caller would write to it; with `allowOptedOut` the caller only reads it
+ * (the status page asks who reported it), and the opt-out says nothing about that.
  */
-export function verifyOriginal(issue, ctx) {
+export function verifyOriginal(issue, ctx, { allowOptedOut = false } = {}) {
   const thisRef = `${ctx.thisRepo}#${issue.number}`;
   if (!ctx.relatedRepo) return { skip: 'no related repository with a secret is configured here' };
 
@@ -140,7 +142,7 @@ export function verifyOriginal(issue, ctx) {
       continue;
     }
     // A person handles an original that carries the opt-out label: it gets no comment and is not closed.
-    if (isOptedOut(o)) {
+    if (!allowOptedOut && isOptedOut(o)) {
       why.push(`${c.ref}: ${optedOutReason('issue')}`);
       continue;
     }

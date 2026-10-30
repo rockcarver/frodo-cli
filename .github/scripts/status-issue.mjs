@@ -4,21 +4,25 @@
 // maintainers of that repository what the Concierge is doing: what waits for them, which reporters have answered,
 // which issues the Concierge manages and which it does not, whether the gates are healthy and what they cost.
 // Everything on it is derived from the repository's own state (issues, labels, comments, runs, the pin file), so a
-// deployment needs no store and no access beyond the repository. The Concierge never acts on this issue: it is opened
-// by a bot and carries no-auto-processing, and every gate skips both. Rules and reasons:
-// docs/multi-phase-design.md, "The maintainer's view".
+// deployment needs no store and no access beyond the repository. The one read outside it is the original of an issue that
+// the Concierge opened from a report in a related repository, to name the reporter (decision 0040); without access the page
+// is complete without it. The Concierge never acts on this issue: it is opened by a bot and carries no-auto-processing, and
+// every gate skips both. Rules and reasons: docs/multi-phase-design.md, "The maintainer's view".
 //
 // Install: copy to .github/scripts/status-issue.mjs (it imports issue-concierge-settings.mjs, issue-concierge-state.mjs,
-// janitor.mjs and opt-out.mjs, so install those too).
+// janitor.mjs, opt-out.mjs, related-repo-closer.mjs and reporter-notify.mjs, and those import more, so install every
+// script of the release).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import { PIN_PATH, readPin as readPinFile } from './issue-concierge-paths.mjs';
+import { PIN_PATH, readConfig, readPin as readPinFile } from './issue-concierge-paths.mjs';
 import { SETTINGS_PATH, parseSettings, readSettingsText } from './issue-concierge-settings.mjs';
 import {
   BOT, QUEUES, STUCK_AFTER_MINUTES, GATE_LABELS, ago, classify, compareVersions, isAnalysis, labelledAt, latestRelease,
   pausedBy, readPin, reporterReplies, runHealth, safeText, shortGateName, spend, tokenExpiry,
 } from './issue-concierge-state.mjs';
 import { LABEL_OPT_OUT, labelNames } from './opt-out.mjs';
+import { LABEL_CANONICAL, verifyOriginal } from './related-repo-closer.mjs';
+import { isBotLogin, relatedRepos } from './reporter-notify.mjs';
 
 export const TITLE = 'Issue Concierge status';
 // What a version before the product was named for its kind called the issue and marked it with. The page is found by either, and renamed.
@@ -34,6 +38,10 @@ export const LIST_CAP = 10;
 const ANALYSIS_CHECKS = 40;
 /** Issues whose events are read to find out how long they have waited. */
 const EVENT_CHECKS = 40;
+/** People whose repository role is asked for, to tell a maintainer's last word from a reporter's reply. */
+const ROLE_CHECKS = 30;
+/** Linked issues whose original is read, to learn who reported it. */
+const REPORTER_CHECKS = 10;
 /** GitHub accepts 65,536 characters in a body; the page stays well below. */
 const BODY_LIMIT = 60000;
 const MAX_BUFFER = 64 * 1024 * 1024;
@@ -48,7 +56,8 @@ const minute = (ms) => `${new Date(ms).toISOString().slice(0, 16).replace('T', '
 
 /**
  * raw: { repo, issues (the open ones, pull requests included), comments, events (number -> events), analysed (a set of
- * numbers), runs, pin, latest, token }; settings as parseSettings gives them; now in milliseconds.
+ * numbers), runs, pin, latest, token, roles (login -> repository role, null when it could not be asked), reporters (issue
+ * number -> the login, lower case, of the person who reported it) }; settings as parseSettings gives them; now in milliseconds.
  */
 export function summarize(raw, settings, now) {
   const counts = { open: 0, managed: 0, optedOut: 0, botAuthored: 0, notPickedUp: 0 };
@@ -82,10 +91,11 @@ export function summarize(raw, settings, now) {
   for (const q of queues.values()) q.items.sort((a, b) => a.since - b.since);
   stages['in-flight'].sort((a, b) => a.since - b.since);
 
-  const replies = reporterReplies(raw.comments, { now, days: settings['reporter-replies-days'], openNumbers }).map((r) => ({
+  const replies = reporterReplies(raw.comments, { now, days: settings['reporter-replies-days'], openNumbers, roles: raw.roles, reporters: raw.reporters }).map((r) => ({
     ...r,
     title: byNumber.get(r.number)?.title ?? '',
     optedOut: optedOut.has(r.number),
+    unchecked: Boolean(raw.roles) && !raw.roles.get(r.login),
   }));
 
   const health = runHealth(raw.runs, { now });
@@ -135,9 +145,9 @@ export function render(m) {
   if (m.replies.length === 0) {
     L.push(`No open issue has a reporter reply from the last ${plural(settings['reporter-replies-days'], 'day')} that nobody has answered.`, '');
   } else {
-    L.push(`The latest comment is from someone who is not a maintainer or a bot, from the last ${plural(settings['reporter-replies-days'], 'day')}.`, '');
+    L.push(`The latest comment is from someone who is not a maintainer or a bot, from the last ${plural(settings['reporter-replies-days'], 'day')}. The reporter is the person who opened the issue or, for an issue the Concierge opened from a report in a related repository, the person who reported that original; the reporter's replies come first.`, '');
     for (const r of m.replies.slice(0, LIST_CAP)) {
-      L.push(`- #${r.number} ${safeText(r.title)} · \`${safeText(r.login, 39)}\` replied ${ago(m.now - r.at)} ago${r.optedOut ? ' · opted out, the Concierge will not answer' : ''}${r.url ? ` · [comment](${r.url})` : ''}`);
+      L.push(`- #${r.number} ${safeText(r.title)} · \`${safeText(r.login, 39)}\` (${r.reporter ? 'the reporter' : 'another commenter'}) replied ${ago(m.now - r.at)} ago${r.optedOut ? ' · opted out, the Concierge will not answer' : ''}${r.unchecked ? ' · could not check whether they are a maintainer' : ''}${r.url ? ` · [comment](${r.url})` : ''}`);
     }
     if (m.replies.length > LIST_CAP) L.push(`- and ${m.replies.length - LIST_CAP} more`);
     L.push('');
@@ -193,7 +203,7 @@ export function render(m) {
     open: counts.open, managed: counts.managed, optedOut: counts.optedOut, botAuthored: counts.botAuthored, notPickedUp: counts.notPickedUp,
     queues: Object.fromEntries(m.queues.map((q) => [q.id, q.items.length])), inFlight: m.stages['in-flight'].length, stuck: stuck.length,
     withAgent: m.stages['with-agent'], elsewhere: m.stages.elsewhere, settled: m.stages.settled,
-    replies: m.replies.length, failedRuns7d: m.health.failures.length, pinned: m.pin.version, behind: m.behind,
+    replies: m.replies.length, repliesFromReporter: m.replies.filter((r) => r.reporter).length, failedRuns7d: m.health.failures.length, pinned: m.pin.version, behind: m.behind,
     aic7d: m.spend.total, aic24h: m.spend.last24h,
   };
   L.push('<details><summary>The same numbers for a dashboard</summary>', '', '```json', JSON.stringify(data, null, 2), '```', '', '</details>');
@@ -349,6 +359,57 @@ export function realContext(env = process.env) {
   };
 }
 
+/**
+ * The repository role of each login (read, triage, write, maintain, admin, none), from the permission API: the workflow token
+ * asks first and the signal token second, as the commands do. null when neither could be asked. The author association says
+ * CONTRIBUTOR for a member whose membership is private, so a maintainer's last word would look like a reporter's reply.
+ */
+export function rolesOf(ctx, repo, logins, signalToken) {
+  const roles = new Map();
+  for (const login of [...new Set(logins)].slice(0, ROLE_CHECKS)) {
+    let role = null;
+    for (const token of signalToken ? [undefined, signalToken] : [undefined]) {
+      const res = ctx.get(`repos/${repo}/collaborators/${encodeURIComponent(login)}/permission`, token);
+      if (res.status === 200 && res.data) { role = String(res.data.role_name || res.data.permission || '').toLowerCase() || null; break; }
+      if (res.status === 404) { role = 'none'; break; }
+    }
+    roles.set(login, role);
+  }
+  return roles;
+}
+
+/**
+ * Who reported each of the issues in `numbers`, by number: the login in lower case, or no entry when nobody can be named. An
+ * issue's author is its reporter, unless the Concierge opened it from a report in a related repository: its author is then the
+ * maintainer whose token created it, and the reporter is the author of the original. The original is found by the proof the
+ * closer uses (the `Reported from` line, the label on the original, the harness's comment that names this issue), so a link
+ * anybody can write proves nothing. An opted-out original is read all the same: the opt-out says what the Concierge does
+ * there, not who wrote it. A repository the tokens cannot read leaves the reporter unnamed, and a bot is nobody's reporter.
+ */
+export function reportersOf(ctx, repo, issues, numbers, signalToken) {
+  const reporters = new Map();
+  const related = [...relatedRepos(readConfig('related-repos.md', (p) => ctx.read(p)).value)];
+  const api = (path) => {
+    const res = ctx.get(path);
+    return res.status === 200 || !signalToken ? res : ctx.get(path, signalToken);
+  };
+  let looked = 0;
+  for (const issue of issues) {
+    if (!numbers.has(issue.number)) continue;
+    let author = null;
+    if (labelNames(issue).includes(LABEL_CANONICAL)) {
+      if (looked >= REPORTER_CHECKS) continue;
+      looked += 1;
+      for (const relatedRepo of related) {
+        const proof = verifyOriginal(issue, { thisRepo: repo, relatedRepo, api }, { allowOptedOut: true });
+        if (proof.original) { author = proof.original.data.user; break; }
+      }
+    } else author = issue.user;
+    if (author && author.login && !isBotLogin(author.login, author.type)) reporters.set(issue.number, author.login.toLowerCase());
+  }
+  return reporters;
+}
+
 /** Collect the facts. Returns null when the issues cannot be read: the page is not rewritten from nothing. */
 export function collect(ctx, repo, settings, signalToken, pausedVariables = []) {
   const now = ctx.now;
@@ -360,6 +421,12 @@ export function collect(ctx, repo, settings, signalToken, pausedVariables = []) 
   const since = new Date(now - windowDays * 86400000).toISOString();
   const rawComments = ctx.list(`repos/${repo}/issues/comments?since=${encodeURIComponent(since)}`, { maxPages: 10 }) ?? [];
   const comments = rawComments.map((c) => ({ ...c, issueNumber: Number(String(c.issue_url).split('/').pop()) }));
+  // Whose last word is a reporter's reply is settled by the repository role, and only the replies the association leaves in doubt are asked.
+  const openNumbers = new Set(candidates.map((i) => i.number));
+  const days = settings['reporter-replies-days'];
+  const roles = rolesOf(ctx, repo, reporterReplies(comments, { now, days, openNumbers }).map((r) => r.login), signalToken);
+  // The reporter is looked up only for the issues that still have a reply once the maintainers are out.
+  const reporters = reportersOf(ctx, repo, candidates, new Set(reporterReplies(comments, { now, days, openNumbers, roles }).map((r) => r.number)), signalToken);
 
   const analysed = new Set();
   let checks = 0;
@@ -393,7 +460,7 @@ export function collect(ctx, repo, settings, signalToken, pausedVariables = []) 
     .filter(Boolean)
     .sort();
   const pausedSince = stamps[0] ?? null;
-  return { repo, issues: candidates, comments, analysed, events, runs, pin, latest, token: ctx.probe(signalToken), paused: paused ? { since: pausedSince } : null };
+  return { repo, issues: candidates, comments, roles, reporters, analysed, events, runs, pin, latest, token: ctx.probe(signalToken), paused: paused ? { since: pausedSince } : null };
 }
 
 const PIN = 'mutation($id: ID!) { pinIssue(input: {issueId: $id}) { issue { id } } }';
