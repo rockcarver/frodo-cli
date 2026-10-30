@@ -212,7 +212,10 @@ describe('frodo config import', () => {
   });
   // ForgeOps env tests
   describe('Forgeops', () => {
-    test(`"frodo config import --all --static --file ${allForgeopsExport}": should import only static configurations.`, async () => {
+    // The exported services hold no secrets (they are never exported in the
+    // clear), so the DataStoreService import is refused for lack of its
+    // bindPassword and the command exits with 1; everything else is imported.
+    test(`"frodo config import --all --static --file ${allForgeopsExport}": should import only static configurations and report that the DataStoreService needs a bindPassword.`, async () => {
       const CMD = `frodo config import --all --static --file ${allForgeopsExport} --type forgeops`;
       await testFail(CMD, forgeopsEnv);
     });
@@ -220,7 +223,7 @@ describe('frodo config import', () => {
       const CMD = `frodo config import --all --dynamic --file ${allForgeopsExport} --type forgeops`;
       await testSuccess(CMD, forgeopsEnv);
     });
-    test(`"frodo config import --all --static --dynamic --file ${allForgeopsExport}": should import both static and dynamic configurations.`, async () => {
+    test(`"frodo config import --all --static --dynamic --file ${allForgeopsExport}": should import both static and dynamic configurations and report that the DataStoreService needs a bindPassword.`, async () => {
       const CMD = `frodo config import --all --static --dynamic --file ${allForgeopsExport} --type forgeops`;
       await testFail(CMD, forgeopsEnv);
     });

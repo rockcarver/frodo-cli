@@ -103,7 +103,12 @@ describe('frodo config export', () => {
       const CMD = `frodo config export --all --static --file ${exportFile}`;
       await testExport(CMD, cloudEnv, type, exportFile, undefined, true, true);
     });
-    test('"frodo config export --all --dynamic --file testExportAllDynamic.json": should export only dynamic configurations.', async () => {
+    // Skipped until it is re-recorded on a tenant (see the commands at the top of
+    // this file). It was recorded while a dynamic-only export left out every
+    // realm-level entity (OAuth2 clients, agents, policies, ...) because of a
+    // frodo-lib defect; the library now asks for those too, and a request
+    // without a recording fails the test. Never hand-write the recording.
+    test.skip('"frodo config export --all --dynamic --file testExportAllDynamic.json": should export only dynamic configurations.', async () => {
       const exportFile = 'testExportAllDynamic.json';
       const CMD = `frodo config export --all --dynamic --file ${exportFile}`;
       await testExport(CMD, cloudEnv, type, exportFile, undefined, true, true);

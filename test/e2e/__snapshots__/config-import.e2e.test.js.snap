@@ -185,7 +185,7 @@ exports[`frodo config import Forgeops "frodo config import --all --dynamic --fil
 "
 `;
 
-exports[`frodo config import Forgeops "frodo config import --all --static --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json": should import both static and dynamic configurations. 1`] = `
+exports[`frodo config import Forgeops "frodo config import --all --static --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json": should import both static and dynamic configurations and report that the DataStoreService needs a bindPassword. 1`] = `
 "Error Importing Services
   Error importing services
     Error putting global full service configs
@@ -211,9 +211,9 @@ exports[`frodo config import Forgeops "frodo config import --all --static --dyna
 "
 `;
 
-exports[`frodo config import Forgeops "frodo config import --all --static --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json": should import both static and dynamic configurations. 2`] = `1`;
+exports[`frodo config import Forgeops "frodo config import --all --static --dynamic --file test/e2e/exports/all/forgeops/all.forgeops.json": should import both static and dynamic configurations and report that the DataStoreService needs a bindPassword. 2`] = `1`;
 
-exports[`frodo config import Forgeops "frodo config import --all --static --file test/e2e/exports/all/forgeops/all.forgeops.json": should import only static configurations. 1`] = `
+exports[`frodo config import Forgeops "frodo config import --all --static --file test/e2e/exports/all/forgeops/all.forgeops.json": should import only static configurations and report that the DataStoreService needs a bindPassword. 1`] = `
 "Error Importing Services
   Error importing services
     Error putting global full service configs
@@ -239,4 +239,4 @@ exports[`frodo config import Forgeops "frodo config import --all --static --file
 "
 `;
 
-exports[`frodo config import Forgeops "frodo config import --all --static --file test/e2e/exports/all/forgeops/all.forgeops.json": should import only static configurations. 2`] = `1`;
+exports[`frodo config import Forgeops "frodo config import --all --static --file test/e2e/exports/all/forgeops/all.forgeops.json": should import only static configurations and report that the DataStoreService needs a bindPassword. 2`] = `1`;
