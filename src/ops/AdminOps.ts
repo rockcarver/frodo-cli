@@ -1354,22 +1354,26 @@ export async function executeRfc7523AuthZGrantFlow(
         'No subject provided, attempting to find one in the trusted issuer...'
       );
       await readIssuer();
-      const allowedSubjects = (issuer?.allowedSubjects as Writable<string[]>)
-        ?.value;
-      if (allowedSubjects?.length) {
+      const allowedSubjects =
+        (issuer?.allowedSubjects as Writable<string[]>)?.value ?? [];
+      // One allowed subject is no choice. Several, or any user, need a
+      // decision that only the person running the flow can make.
+      if (allowedSubjects.length === 1) {
         sub = allowedSubjects[0];
         stopProgressIndicator(
           subSpinnerId,
-          `Using first subject from issuer's allowed subjects: ${sub}`,
+          `Using the trusted issuer's only allowed subject: ${sub}`,
           'success'
         );
       } else {
         missing.push('--sub');
         stopProgressIndicator(
           subSpinnerId,
-          issuer
-            ? `No subject provided, and the trusted issuer allows any realm user, so there is none to pick. Name the user to act as with --sub.`
-            : `No subject provided and no suitable subject could be extracted from the trusted issuer configuration: ${issuerError}`,
+          !issuer
+            ? `No subject provided and no suitable subject could be extracted from the trusted issuer configuration: ${issuerError}`
+            : allowedSubjects.length
+              ? `No subject provided, and the trusted issuer allows ${allowedSubjects.length} subjects (${allowedSubjects.join(', ')}). Name one with --sub.`
+              : `No subject provided, and the trusted issuer allows any realm user, so there is none to pick. Name the user to act as with --sub.`,
           'fail'
         );
       }

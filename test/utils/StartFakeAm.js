@@ -1,4 +1,7 @@
 import cp from 'child_process';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
@@ -12,6 +15,8 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string} [options.recordPath] file the fake appends one JSON line per request to
  * @param {string} [options.journey] `password` for plain login, `service-account` for bearer login (default: the MFA journey)
  * @param {string} [options.grantError] makes the service-account journey refuse other token requests with `invalid_grant` and this description
+ * @param {{ issuer?: string, allowedSubjects: string[] }} [options.issuer] what every trusted JWT issuer read answers with
+ * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @returns {Promise<{ port: number, stop: () => void }>}
  */
@@ -20,7 +25,15 @@ export async function startFakeAm({
   journey,
   realms,
   grantError,
+  issuer,
+  users,
 } = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
+  const written = (name, data) => {
+    const file = path.join(dir, name);
+    fs.writeFileSync(file, JSON.stringify(data));
+    return file;
+  };
   const child = cp.spawn(process.execPath, [fakeAmPath], {
     env: {
       ...process.env,
@@ -28,6 +41,10 @@ export async function startFakeAm({
       ...(journey ? { FAKE_AM_JOURNEY: journey } : {}),
       ...(realms ? { FAKE_AM_REALMS: realms.join(',') } : {}),
       ...(grantError ? { FAKE_AM_GRANT_ERROR: grantError } : {}),
+      ...(issuer
+        ? { FAKE_AM_ISSUER_FILE: written('issuer.json', issuer) }
+        : {}),
+      ...(users ? { FAKE_AM_USERS_FILE: written('users.json', users) } : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });
@@ -43,5 +60,11 @@ export async function startFakeAm({
       reject(new Error(`fake AM exited early with code ${code}`))
     );
   });
-  return { port, stop: () => child.kill('SIGTERM') };
+  return {
+    port,
+    stop: () => {
+      child.kill('SIGTERM');
+      fs.rmSync(dir, { recursive: true, force: true });
+    },
+  };
 }

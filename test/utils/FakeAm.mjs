@@ -34,6 +34,14 @@
  * is not the service-account login itself (`client_id=service-account`) with
  * `400 invalid_grant` and the text as its description, like AM does for an
  * RFC7523 assertion it does not accept.
+ *
+ * FAKE_AM_ISSUER_FILE=<path> names a JSON file `{ issuer?, allowedSubjects }`
+ * the fake answers every trusted JWT issuer read with. FAKE_AM_USERS_FILE=<path>
+ * names a JSON array of managed users (`_id`, `userName`, `givenName`, `sn`,
+ * `mail`) the fake serves under `/openidm/managed/`, with IDM's `_queryFilter`
+ * reduced to what the frodo user picker sends: `true`, and `or`-ed
+ * `field sw "text"` / `field eq "text"` terms (an `and` group counts as `or`).
+ * `_pageSize=0` answers the count.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -42,6 +50,23 @@ const recordPath = process.env.FAKE_AM_RECORD;
 const plainLogin = process.env.FAKE_AM_JOURNEY === 'password';
 const serviceAccountLogin = process.env.FAKE_AM_JOURNEY === 'service-account';
 const realms = (process.env.FAKE_AM_REALMS ?? '').split(',').filter(Boolean);
+const readJson = (file) =>
+  file ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined;
+const issuer = readJson(process.env.FAKE_AM_ISSUER_FILE);
+const users = readJson(process.env.FAKE_AM_USERS_FILE);
+
+/** The users an IDM `_queryFilter` of the shapes above selects. */
+function selectUsers(filter) {
+  if (filter === 'true') return users;
+  const terms = [...filter.matchAll(/(\w+) (sw|eq) "((?:[^"\\]|\\.)*)"/g)];
+  return users.filter((user) =>
+    terms.some(([, field, operator, quoted]) => {
+      const wanted = quoted.replace(/\\(.)/g, '$1').toLowerCase();
+      const have = String(user[field] ?? '').toLowerCase();
+      return operator === 'eq' ? have === wanted : have.startsWith(wanted);
+    })
+  );
+}
 let step = 0;
 
 const nameCallback = (prompt) => ({
@@ -83,6 +108,31 @@ const server = http.createServer((req, res) => {
         access_token: 'fake-service-account-token',
         token_type: 'Bearer',
         expires_in: 3600,
+      });
+    }
+    if (issuer && req.url.includes('/realm-config/agents/TrustedJwtIssuer/')) {
+      return send(200, {
+        _id: decodeURIComponent(req.url.split('/TrustedJwtIssuer/')[1]).split(
+          '?'
+        )[0],
+        issuer: issuer.issuer
+          ? { inherited: false, value: issuer.issuer }
+          : { inherited: false },
+        allowedSubjects: { inherited: false, value: issuer.allowedSubjects },
+      });
+    }
+    if (users && req.url.includes('/openidm/managed/')) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      const selected = selectUsers(query.get('_queryFilter') ?? 'true');
+      const size = Number(query.get('_pageSize') ?? selected.length);
+      const page = size === 0 ? [] : selected.slice(0, size);
+      return send(200, {
+        result: page,
+        resultCount: page.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: selected.length,
+        remainingPagedResults: -1,
       });
     }
     if (req.url.includes('/json/serverinfo')) {
