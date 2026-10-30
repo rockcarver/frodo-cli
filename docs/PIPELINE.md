@@ -223,6 +223,18 @@ publish:
 
 For `prerelease`, it publishes to `next`.
 
+The first step of `npm-release`, **Refuse to publish when the branch has
+moved**, compares the head of the dispatched branch with the commit the run was
+dispatched from and fails the run when they differ. The `Release` job commits
+the version, the changelog and the docs on top of the dispatched commit and
+pushes it. When the branch has moved since (a merge while the tests ran), that
+push is rejected after the package is on npm, which refuses to publish a version
+twice, and the release is left without its version commit, its tag and its
+GitHub release. Failing before the publish leaves nothing to clean up: dispatch
+again. A branch that cannot be read fails the step too. The step cannot cover a
+merge in the minutes between it and the push of the release commit, so do not
+merge into `main` while a release run is in progress.
+
 ### Release
 
 Release job (needs build, live smoke, all five binary jobs):
@@ -316,3 +328,14 @@ If a bad release occurs:
    ```
 
 6. Re-run release with the intended release type via `workflow_dispatch`.
+
+If `npm-release` succeeded and the `Release` job did not (for example because
+the push of the release commit was rejected after `main` moved), the version is
+on npm without its version commit, tag and GitHub release. Do not dispatch
+again (the next version is computed from the latest tag, so the run would try
+to publish the same version) and do not expect "Re-run failed jobs" to help
+(the `Release` job starts from the dispatched commit again). frodo-lib's
+[PIPELINE.md](https://github.com/rockcarver/frodo-lib/blob/main/PIPELINE.md)
+describes how a half-finished release was completed by hand there; the CLI's
+release also has the binaries and the Homebrew job, which that recipe does not
+cover.

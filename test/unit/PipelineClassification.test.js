@@ -418,3 +418,76 @@ describe('pipeline.yml dry run (workflow_dispatch with dry-run = true)', () => {
     }
   });
 });
+
+/**
+ * The release publishes to npm first and the `Release` job pushes the version
+ * commit afterwards. A push to the branch while the tests ran makes that push
+ * fail with the package already published (npm refuses a second publish of the
+ * version), so the first step of `npm-release` stops the run while nothing is
+ * published yet. docs/PIPELINE.md, "Release".
+ */
+describe('the `npm-release` job', () => {
+  const GUARD = 'Refuse to publish when the branch has moved';
+  const DISPATCHED = '1111111111111111111111111111111111111111';
+  const MOVED = '2222222222222222222222222222222222222222';
+
+  /** The names (or actions) of the steps of a job, in order. */
+  function stepNames(id) {
+    return job(id)
+      .split('\n')
+      .filter((l) => /^ {6}- (name|uses): /.test(l))
+      .map((l) => l.replace(/^ {6}- (name|uses): /, ''));
+  }
+
+  /** Runs the shell of the guard step with a stand-in for the `gh` CLI. */
+  function runGuard({ branchAt, apiFails } = {}) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'release-guard-'));
+    const calls = path.join(dir, 'calls.txt');
+    const stub = apiFails
+      ? `#!/bin/sh\necho "$@" >> "${calls}"\necho 'gh: HTTP 502' >&2\nexit 1\n`
+      : `#!/bin/sh\necho "$@" >> "${calls}"\necho "${branchAt}"\n`;
+    fs.writeFileSync(path.join(dir, 'gh'), stub, { mode: 0o755 });
+    const result = spawnSync('bash', ['-c', stepRun(GUARD)], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${dir}:${process.env.PATH}`,
+        GITHUB_REPOSITORY: 'owner/repo',
+        DISPATCHED_SHA: DISPATCHED,
+        DISPATCHED_REF: 'refs/heads/main',
+      },
+    });
+    const asked = fs.existsSync(calls) ? fs.readFileSync(calls, 'utf8') : '';
+    fs.rmSync(dir, { recursive: true, force: true });
+    return { ...result, asked };
+  }
+
+  it('asks whether the branch has moved, as its first step and before it publishes', () => {
+    const names = stepNames('npm-release');
+    expect(names[0]).toBe(GUARD);
+    expect(names).toContain('Publish package');
+    expect(names.indexOf(GUARD)).toBeLessThan(names.indexOf('Publish package'));
+  });
+
+  describeIfBash('the guard step', () => {
+    it('lets the release go on when the branch is where it was dispatched from', () => {
+      const result = runGuard({ branchAt: DISPATCHED });
+      expect(result.status).toBe(0);
+      expect(result.asked).toContain('repos/owner/repo/git/ref/heads/main');
+    });
+
+    it('stops the release when the branch has moved, and says nothing was published', () => {
+      const result = runGuard({ branchAt: MOVED });
+      expect(result.status).toBe(1);
+      expect(result.stdout).toContain('::error::');
+      expect(result.stdout).toContain(MOVED);
+      expect(result.stdout).toContain(DISPATCHED);
+      expect(result.stdout).toContain('Nothing was published');
+    });
+
+    it('stops the release when the branch cannot be read (it fails closed)', () => {
+      const result = runGuard({ apiFails: true });
+      expect(result.status).not.toBe(0);
+    });
+  });
+});
