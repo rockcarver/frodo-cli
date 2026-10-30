@@ -72,26 +72,39 @@ export function subjectMatches(
 }
 
 /**
- * The query filter behind the search-first step: a prefix of a name field or
- * the email, or the whole id. IDM calls the username attribute `userName`, the
- * AM users endpoint filters it as `uid`.
+ * The query filter behind the search-first step: a part of a name field or of
+ * the email (the same "contains" that typing in the picker applies), or the
+ * whole id. IDM calls the username attribute `userName` and has no full name,
+ * so two words are matched as first and last name. The AM users endpoint
+ * filters the username as `uid` and has `cn`, the full name, like the AM
+ * Admin UI's own user search.
  */
 export function subjectSearchFilter(
   text: string,
-  userNameAttribute = 'userName'
+  directory: 'idm' | 'am' = 'idm'
 ): string {
   const quoted = quote(text);
+  if (directory === 'am') {
+    return [
+      `uid co ${quoted}`,
+      `cn co ${quoted}`,
+      `givenName co ${quoted}`,
+      `sn co ${quoted}`,
+      `mail co ${quoted}`,
+      `_id eq ${quoted}`,
+    ].join(' or ');
+  }
   const parts = [
-    `${userNameAttribute} sw ${quoted}`,
-    `givenName sw ${quoted}`,
-    `sn sw ${quoted}`,
-    `mail sw ${quoted}`,
+    `userName co ${quoted}`,
+    `givenName co ${quoted}`,
+    `sn co ${quoted}`,
+    `mail co ${quoted}`,
     `_id eq ${quoted}`,
   ];
   const words = text.split(/\s+/).filter(Boolean);
   if (words.length > 1) {
     parts.push(
-      `(givenName sw ${quote(words[0])} and sn sw ${quote(words.slice(1).join(' '))})`
+      `(givenName co ${quote(words[0])} and sn co ${quote(words.slice(1).join(' '))})`
     );
   }
   return parts.join(' or ');
@@ -149,7 +162,7 @@ function userDirectory(): UserDirectory {
             mail: user.mail,
           })
         ),
-      searchFilter: (value) => subjectSearchFilter(value, 'uid'),
+      searchFilter: (value) => subjectSearchFilter(value, 'am'),
     };
   }
   const type = getCurrentRealmManagedUser();

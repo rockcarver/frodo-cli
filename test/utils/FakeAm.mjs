@@ -40,7 +40,8 @@
  * names a JSON array of managed users (`_id`, `userName`, `givenName`, `sn`,
  * `mail`) the fake serves under `/openidm/managed/`, with IDM's `_queryFilter`
  * reduced to what the frodo user picker sends: `true`, and `or`-ed
- * `field sw "text"` / `field eq "text"` terms (an `and` group counts as `or`).
+ * `field sw|co|eq "text"` terms (an `and` group counts as `or`; `cn` is the
+ * first and last name, `uid` the user name).
  * `_pageSize=0` answers the count. The same users are served by the AM users
  * endpoint (`.../json/realms/root/realms/<realm>/users`, which a classic
  * deployment has instead of IDM): AM's shape, with the attributes as lists and
@@ -60,16 +61,21 @@ const readJson = (file) =>
 const issuer = readJson(process.env.FAKE_AM_ISSUER_FILE);
 const users = readJson(process.env.FAKE_AM_USERS_FILE);
 
-/** The users an IDM `_queryFilter` of the shapes above selects. */
+/** The users an IDM or AM `_queryFilter` of the shapes above selects. */
 function selectUsers(filter) {
   if (filter === 'true') return users;
-  const terms = [...filter.matchAll(/(\w+) (sw|eq) "((?:[^"\\]|\\.)*)"/g)];
+  const terms = [...filter.matchAll(/(\w+) (sw|co|eq) "((?:[^"\\]|\\.)*)"/g)];
   return users.filter((user) =>
     terms.some(([, field, operator, quoted]) => {
       const wanted = quoted.replace(/\\(.)/g, '$1').toLowerCase();
       const have = String(
-        user[field === 'uid' ? 'userName' : field] ?? ''
+        field === 'uid'
+          ? user.userName
+          : field === 'cn'
+            ? `${user.givenName} ${user.sn}`
+            : (user[field] ?? '')
       ).toLowerCase();
+      if (operator === 'co') return have.includes(wanted);
       return operator === 'eq' ? have === wanted : have.startsWith(wanted);
     })
   );
@@ -143,6 +149,7 @@ const server = http.createServer((req, res) => {
           _id: user._id,
           username: user.userName,
           uid: [user.userName],
+          cn: [`${user.givenName} ${user.sn}`],
           givenName: [user.givenName],
           sn: [user.sn],
           mail: [user.mail],

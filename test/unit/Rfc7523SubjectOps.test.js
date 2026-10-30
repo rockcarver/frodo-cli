@@ -85,27 +85,30 @@ describe('subjectRows()', () => {
 });
 
 describe('subjectSearchFilter()', () => {
-  test('matches the start of the name fields and the email, or the whole id', () => {
+  test('matches a part of the name fields and the email, or the whole id', () => {
     expect(subjectSearchFilter('ali')).toBe(
-      'userName sw "ali" or givenName sw "ali" or sn sw "ali" or mail sw "ali" or _id eq "ali"'
+      'userName co "ali" or givenName co "ali" or sn co "ali" or mail co "ali" or _id eq "ali"'
     );
   });
 
-  test('two words also match first name and last name', () => {
+  test('IDM has no full name, so two words also match first name and last name', () => {
     expect(subjectSearchFilter('alice sm')).toContain(
-      '(givenName sw "alice" and sn sw "sm")'
+      '(givenName co "alice" and sn co "sm")'
     );
   });
 
-  test('the AM users endpoint filters the username as uid', () => {
-    expect(subjectSearchFilter('ali', 'uid')).toBe(
-      'uid sw "ali" or givenName sw "ali" or sn sw "ali" or mail sw "ali" or _id eq "ali"'
+  test('the AM users endpoint filters the username as uid and has the full name cn', () => {
+    const filter = subjectSearchFilter('alice sm', 'am');
+    expect(filter).toBe(
+      'uid co "alice sm" or cn co "alice sm" or givenName co "alice sm" or sn co "alice sm" or mail co "alice sm" or _id eq "alice sm"'
     );
+    expect(filter).not.toContain(' and ');
   });
 
   test('quotes and backslashes in the text cannot end the string', () => {
     const filter = subjectSearchFilter('a"b\\c');
-    expect(filter).toContain('userName sw "a\\"b\\\\c"');
+    expect(filter).toContain('userName co "a\\"b\\\\c"');
     expect(filter.match(/ or /g)).toHaveLength(4);
+    expect(subjectSearchFilter('a"b\\c', 'am')).toContain('cn co "a\\"b\\\\c"');
   });
 });
