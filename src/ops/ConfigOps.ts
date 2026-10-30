@@ -75,8 +75,8 @@ export async function exportEverythingToFile(
     onlyCustom: false,
     onlyRealm: false,
     onlyGlobal: false,
-    includeStatic: false,
-    includeDynamic: false,
+    includeStatic: true,
+    includeDynamic: true,
   }
 ): Promise<boolean> {
   try {
@@ -122,8 +122,8 @@ export async function exportEverythingToFiles(
     onlyCustom: false,
     onlyRealm: false,
     onlyGlobal: false,
-    includeStatic: false,
-    includeDynamic: false,
+    includeStatic: true,
+    includeDynamic: true,
   }
 ): Promise<boolean> {
   try {
@@ -396,8 +396,8 @@ export async function importEverythingFromFile(
     includeDefault: false,
     includeActiveValues: false,
     onlyCustom: false,
-    includeStatic: false,
-    includeDynamic: false,
+    includeStatic: true,
+    includeDynamic: true,
     source: '',
   }
 ): Promise<boolean> {
@@ -433,8 +433,8 @@ export async function importEverythingFromFiles(
     includeDefault: false,
     includeActiveValues: false,
     onlyCustom: false,
-    includeStatic: false,
-    includeDynamic: false,
+    includeStatic: true,
+    includeDynamic: true,
     source: '',
   }
 ): Promise<boolean> {
@@ -466,8 +466,8 @@ export async function importEntityfromFile(
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,
-    includeDynamic: false,
-    includeStatic: false,
+    includeDynamic: true,
+    includeStatic: true,
     onlyCustom: false,
     source: '',
   }
