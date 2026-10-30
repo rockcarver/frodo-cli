@@ -17,6 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { isCodingAgent } from './janitor.mjs';
 import { configViaApi } from './issue-concierge-paths.mjs';
 import { isOptedOut, optedOutReason } from './opt-out.mjs';
+import { MAINTAINER_ROLES } from './issue-concierge-state.mjs';
 
 export const LABEL_WAITING = 'needs-info';
 export const LABEL_LINKED = 'related-repo';
@@ -60,6 +61,17 @@ export function relatedRepos(configText) {
 /** True when `text` names `ref` (owner/repo#n) as a whole reference, not as a prefix of another number. */
 export function namesRef(text, ref) {
   return new RegExp(`(?<![\\w/-])${esc(ref)}(?![0-9])`, 'i').test(String(text || ''));
+}
+
+/**
+ * True when the permission API gives this person write or more in THIS repository. The association of the original's author
+ * misses a maintainer whose membership is private (the workflow token reads them as a CONTRIBUTOR), and the workflow token
+ * cannot ask the permission API about the other repository, so the maintainers of this one stand for the maintainers of
+ * both: the repositories of a link are kept by the same people. A refusal or a transport error means no.
+ */
+function maintainsHere(login, ctx) {
+  const r = ctx.api(`repos/${ctx.thisRepo}/collaborators/${encodeURIComponent(login)}/permission`);
+  return Boolean(r && r.status === 200 && r.data && MAINTAINER_ROLES.has(String(r.data.role_name || r.data.permission || '').toLowerCase()));
 }
 
 /** A bot account or a coding agent: nobody to notify. */
@@ -139,7 +151,7 @@ function confirmOriginal(issue, ctx) {
   const login = author.login;
   if (!login) return no('the original report has no author');
   if (isBotLogin(login, author.type)) return no(`the original reporter is a bot (${login})`);
-  if (MAINTAINER_ASSOCIATIONS.has(String(original.author_association || '').toUpperCase())) {
+  if (MAINTAINER_ASSOCIATIONS.has(String(original.author_association || '').toUpperCase()) || maintainsHere(login, ctx)) {
     return no(`the original reporter is a maintainer (${login})`);
   }
   if (issue.user && lower(issue.user.login) === lower(login)) return no(`@${login} opened this issue`);

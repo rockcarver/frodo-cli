@@ -14,11 +14,13 @@
 # An issue that carries 'no-auto-processing' starts no run here ("Opting an item out"); the hourly run counts it.
 #
 # Install: copy this file to .github/workflows/status.yml, and scripts/status-issue.mjs,
-# scripts/issue-concierge-settings.mjs and scripts/issue-concierge-state.mjs to .github/scripts/ (they import janitor.mjs and
-# opt-out.mjs, so install those too).
+# scripts/issue-concierge-settings.mjs and scripts/issue-concierge-state.mjs to .github/scripts/ (they import janitor.mjs,
+# opt-out.mjs, related-repo-closer.mjs and reporter-notify.mjs, and those import more, so install every script of the release).
 # Needs SIGNAL_TOKEN to pin the issue and to report when that token expires; without it the issue is still written. With
 # `mention-after-days` set it also names the maintainers in a comment on the page when something has waited too long, and
-# lists the collaborators with the workflow token or, if that may not, with SIGNAL_TOKEN.
+# lists the collaborators with the workflow token or, if that may not, with SIGNAL_TOKEN. To tell a reporter's reply from
+# another commenter's on an issue that the Concierge opened from a report in a related repository, it reads that original
+# issue (read-only, with the workflow token or else SIGNAL_TOKEN); without access the reply is shown as another commenter's.
 name: "Issue Concierge 5a ▸ Status"
 
 on:
