@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager promote rollback "frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket": Will run rollback with promoter, description, unlocking after, and Zendesk ticket" 1`] = `
+"{ result: 'Rollback process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote rollback "frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket": Will run rollback with promoter, description, unlocking after, and Zendesk ticket" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote rollback'. This feature may change without notice.
+✔ Rollback in progress.
+"
+`;
+
+exports[`frodo config-manager promote rollback "frodo config-manager promote rollback": Will run rollback" 1`] = `
+"{ result: 'Rollback process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote rollback "frodo config-manager promote rollback": Will run rollback" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote rollback'. This feature may change without notice.
+✔ Rollback in progress.
+"
+`;

@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager promote check-locked-status "frodo config-manager promote check-locked-status -l": Will check lock-status for local lock only." 1`] = `
+"{ description: 'Environment unlocked', result: 'unlocked' }
+"
+`;
+
+exports[`frodo config-manager promote check-locked-status "frodo config-manager promote check-locked-status -l": Will check lock-status for local lock only." 2`] = `
+"Experimental feature in use: 'frodo config-manager promote check-locked-status'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager promote check-locked-status "frodo config-manager promote check-locked-status": Will check lock-status(should default --local-lock-only to false)" 1`] = `
+"{
+  description: 'Environment unlocked',
+  lowerEnv: { proxyState: 'unlocked', state: 'unlocked' },
+  result: 'unlocked',
+  upperEnv: { proxyState: 'unlocked', state: 'unlocked' }
+}
+"
+`;
+
+exports[`frodo config-manager promote check-locked-status "frodo config-manager promote check-locked-status": Will check lock-status(should default --local-lock-only to false)" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote check-locked-status'. This feature may change without notice.
+"
+`;

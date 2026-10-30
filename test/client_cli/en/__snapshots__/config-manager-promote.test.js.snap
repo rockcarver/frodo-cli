@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'config-manager promote' should be expected english 1`] = `
+"Usage: frodo config-manager promote [options] [command]
+
+[Experimental] [Cloud-only] Promote configuration optimized for CI/CD pipelines
+(format compatible with fr-config-manager).
+
+Deployment: Cloud-only
+
+Options:
+  -h, --help               Help
+  -hh, --help-more         Help with all options.
+  -hhh, --help-all         Help with all options, environment variables, and
+                           usage examples.
+
+Runtime Options:
+  --no-prompt              Never prompt interactively (same as setting
+                           FRODO_NO_PROMPT).
+
+Commands:
+  check-locked-status      [Experimental] [Cloud-only] Check the lock status of
+                           the environments.
+  check-promotion-reports  [Experimental] [Cloud-only] Retrieve promotion
+                           reports. Defaults to the latest report if no option
+                           is specified.
+  check-promotion-status   [Experimental] [Cloud-only] Check the current
+                           promotion status.
+  lock-tenants             [Experimental] [Cloud-only] Lock tenants and wait
+                           until they are locked.
+  rollback                 [Experimental] [Cloud-only] Roll back the previous
+                           promotion.
+  run-dryrun-promotion     [Experimental] [Cloud-only] Run a dry-run
+                           configuration promotion without applying changes.
+  run-promotion            [Experimental] [Cloud-only] Run a configuration
+                           promotion.
+  unlock-tenants           [Experimental] [Cloud-only] Unlock tenants and wait
+                           until they are unlocked.
+
+Utilities:
+  help                     display help for command
+
+
+Run without a sub-command to enter interactive mode."
+`;

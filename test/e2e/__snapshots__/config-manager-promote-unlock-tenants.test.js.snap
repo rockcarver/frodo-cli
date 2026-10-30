@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager promote unlock-tenants "frodo config-manager promote unlock-tenants -i bb757dc6-0646-47d7-b63c-c7c6b5668ad7": unlock tenants if tenants are locked" 1`] = `
+"{ status: 'unlocked' }
+"
+`;
+
+exports[`frodo config-manager promote unlock-tenants "frodo config-manager promote unlock-tenants -i bb757dc6-0646-47d7-b63c-c7c6b5668ad7": unlock tenants if tenants are locked" 2`] = `
+"Experimental feature in use: 'frodo config-manager promote unlock-tenants'. This feature may change without notice.
+✔ Environment unlocked after 20s
+"
+`;
