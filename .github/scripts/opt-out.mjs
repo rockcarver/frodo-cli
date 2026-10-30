@@ -1,4 +1,4 @@
-// The opt-out label of Repo Concierge.
+// The opt-out label of Issue Concierge.
 //
 // An item that carries `no-auto-processing` is never touched by the Concierge: no gate starts for it, no
 // workflow labels, comments on, assigns or closes it, and no script picks it from a query. A maintainer puts

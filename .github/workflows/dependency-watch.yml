@@ -7,7 +7,7 @@
 # Install: copy this file to .github/workflows/dependency-watch.yml and
 # scripts/dependency-watch.mjs to .github/scripts/dependency-watch.mjs (it imports opt-out.mjs, so
 # install that too).
-name: "Concierge 1c ▸ Dependency Watch"
+name: "Issue Concierge 1c ▸ Dependency Watch"
 
 on:
   schedule:
@@ -47,7 +47,7 @@ jobs:
     # only when merged. Closed issues, releases, pushes and the schedule
     # evaluate every waiting issue.
     if: >-
-      (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+      (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
       && ((github.event_name != 'issues' && github.event_name != 'pull_request_target')
       || (github.event_name == 'issues'
           && (github.event.action == 'closed'

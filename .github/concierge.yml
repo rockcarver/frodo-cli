@@ -1,6 +1,0 @@
-# Repo Concierge pin. concierge-updater rewrites version and sha; change channel by hand
-# (stable | prerelease). Do not edit the other lines.
-source: gearsnlevers/issue-concierge
-version: v2.0.1
-sha: f785d7d5e6bcc1faa24d5c9ee76dee2f0bba0d49
-channel: stable
