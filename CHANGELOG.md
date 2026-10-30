@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-18] - 2026-10-30
+
+### Fixed
+- All free-text prompts, including those for missing option values, are now consistently drawn as framed prompts, enhancing the user interface. This change ensures that prompts are visually cohesive and tested for completeness. (#1008)
+
 ## [v5.0.0-17] - 2026-10-30
 
 ### Added
@@ -3142,6 +3147,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-18]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-17...v5.0.0-18
 [v5.0.0-17]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-16...v5.0.0-17
 [v5.0.0-16]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-15...v5.0.0-16
 [v5.0.0-15]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-14...v5.0.0-15
