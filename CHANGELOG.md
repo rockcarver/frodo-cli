@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-17] - 2026-10-30
+
+### Added
+- The `--sub` picker in `frodo admin execute-rfc7523-authz-grant-flow` now allows selection from the realm's users on a terminal, displaying a row per user with username, first name, last name, and id. This is the first entity picker where rows are not the option value. (#1005)
+
+### Changed
+- Updated `@rockcarver/frodo-lib` to version 5.0.0-17, which includes enhancements to `frodo.user.readUsers` and `countUsers` for query filtering and attribute selection. (#1006)
+
+### Fixed
+- `frodo admin execute-rfc7523-authz-grant-flow` now provides detailed error messages when AM refuses a request, improving user feedback. (commit a5b2bba4a)
+- The `generate-rfc7523-authz-grant-artefacts` command now correctly requires the `--iss` option, preventing the creation of invalid artefacts. (commit 0151b79cb)
+- `frodo conn set` correctly uses `FRODO_HOST` when no host is specified and provides an accurate error message instead of naming a profile 'undefined'. (#998)
+- The `--prompt` and `--no-prompt` flags now function correctly after sub-commands of `conn` or `settings`, aligning with documented behavior. (#992)
+
 ## [v5.0.0-16] - 2026-10-28
 
 ### Added
@@ -3128,6 +3142,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-17]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-16...v5.0.0-17
 [v5.0.0-16]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-15...v5.0.0-16
 [v5.0.0-15]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-14...v5.0.0-15
 [v5.0.0-14]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-13...v5.0.0-14

@@ -29,7 +29,14 @@ export default function setup() {
         'Subject identifier, typically a UUID. Must resolve to a valid user in the realm. Restricts the trusted issuer to only this subject by adding the identifier to the list of allowed subjects. Omitting this option allows the trusted issuer to request tokens for any realm user without restrictions.'
       )
     )
-    .addOption(new Option('--iss <issuer>', 'Trusted issuer, typically a URL.'))
+    // The trusted issuer is useless without an issuer value: AM matches the
+    // assertion's iss claim against it (cli#1000).
+    .addOption(
+      new Option(
+        '--iss <issuer>',
+        'Trusted issuer, typically a URL.'
+      ).makeOptionMandatory()
+    )
     .addOption(
       new Option('--scope <scope>', 'Space-delimited list of scopes.').default(
         'openid fr:am:* fr:idm:*'
@@ -97,6 +104,9 @@ export default function setup() {
                 `Error parsing JWK from file ${options.jwkFile}: ${error.message}`,
                 'error'
               );
+              // not a reason to generate a different key than the one asked for
+              process.exitCode = 1;
+              return;
             }
           }
           const outcome = await generateRfc7523AuthZGrantArtefacts(

@@ -47,12 +47,13 @@ jobs:
     # only when merged. Closed issues, releases, pushes and the schedule
     # evaluate every waiting issue.
     if: >-
-      (github.event_name != 'issues' && github.event_name != 'pull_request_target')
+      (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+      && ((github.event_name != 'issues' && github.event_name != 'pull_request_target')
       || (github.event_name == 'issues'
           && (github.event.action == 'closed'
               || (github.event.label.name == 'dependency-required'
                   && !contains(github.event.issue.labels.*.name, 'no-auto-processing'))))
-      || (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true)
+      || (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

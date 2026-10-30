@@ -6,7 +6,8 @@ on:
   pull_request_target:
     types: [labeled]
 if: >-
-  github.event.label.name == 'pr-worker-ready'
+  (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+  && github.event.label.name == 'pr-worker-ready'
   && github.event.pull_request.head.repo.id == github.repository_id
   && !contains(github.event.pull_request.labels.*.name, 'no-auto-processing')
 checkout: false

@@ -46,6 +46,7 @@ import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { blockersOf, commitOption, failWithConflict } from './OptionConflicts';
+import { promptInput } from './PromptGate';
 import { canPrompt } from './PromptGateState';
 
 /**
@@ -66,15 +67,43 @@ export type EntityPickLoader<T> = () => Promise<T[]>;
 export type EntityPickSpec<T = any> = {
   /**
    * Attribute name of the option being filled (e.g. `secretId`). The value
-   * written back is the entity's rendered label -- for every current
-   * command family, the option wants the entity id/name, so the label IS
-   * the value (loaders are expected to feed the label with the id).
+   * written back is the entity's rendered label unless the spec has a
+   * `value` -- for most command families the option wants the entity
+   * id/name, so the label IS the value (loaders are expected to feed the
+   * label with the id).
    */
   name: string;
   /** Loads the candidates from the live system. */
   load: EntityPickLoader<T>;
-  /** Renders an entity as both the picker row label and the option value. */
+  /** Renders an entity as the picker row label (and the option value, see `value`). */
   label: (entity: T) => string;
+  /**
+   * The option value for an entity, when it is not the row label (a user
+   * row shows the name and the id; the option wants the id). The live
+   * command preview and the committed value both use it.
+   */
+  value?: (entity: T) => string;
+  /**
+   * Type-to-search predicate over the entity. Omitted, typing filters the
+   * row labels by case-insensitive substring; give one when the match must
+   * span more than the label (a user by username, name, email or id).
+   */
+  search?: (entity: T, query: string) => boolean;
+  /**
+   * For lists too long to show whole: when `when()` says so, the picker asks
+   * for a search text first and offers only what `load(text)` returns. A
+   * string returned by `load` is shown as a message and the text is asked
+   * for again (for example "1200 users match 'a': type more"). Esc or an
+   * empty text declines the pick. `when` and `load` read the system; they do
+   * not prompt.
+   */
+  searchFirst?: {
+    when: () => Promise<boolean>;
+    message?: string;
+    /** Shown in the prompt under the question: what to type. */
+    hint?: string;
+    load: (text: string) => Promise<T[] | string>;
+  };
   /** Optional second line shown as the row's dimmed description. */
   description?: (entity: T) => string | undefined;
   /** Prompt message; defaults to "Select <entity kind>:". */
@@ -158,7 +187,15 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
     }
     let entities: unknown[];
     try {
-      entities = await pick.load();
+      const searched = pick.searchFirst
+        ? await searchFirst(command, pick, pick.searchFirst)
+        : undefined;
+      if (searched === ESCAPE) {
+        const { revokeAuthoringPrint } = await import('./AuthoringPrintState');
+        revokeAuthoringPrint();
+        return false;
+      }
+      entities = searched ?? (await pick.load());
     } catch (error) {
       // Loader failure is a DECLINED pick, not a satisfied one: returning
       // true here lets `(options.all || (await resolveEntityPicks(...)))`
@@ -196,8 +233,14 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
         // committed state (undefined -> undefined) instead of crashing
         // on the spec's `entity._id`-style label.
         preview: liveOptionPreviewFor(command, pick.name, (entity) =>
-          entity === undefined ? undefined : pick.label(entity)
+          entity === undefined ? undefined : valueOf(pick, entity)
         ),
+        ...(pick.search
+          ? {
+              search: ({ value }: { value: unknown }, query: string) =>
+                pick.search!(value, query),
+            }
+          : {}),
         choices: entities.map((entity) => {
           const description = pick.description?.(entity);
           return {
@@ -254,12 +297,52 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
   return true;
 }
 
+/** The option value for an entity: its `value`, else its row label. */
+function valueOf(pick: EntityPickSpec<unknown>, entity: unknown): string {
+  return (pick.value ?? pick.label)(entity);
+}
+
+/**
+ * The search-first step of a long list: asks for a text and loads the
+ * matches until there are some. Returns the matches to show, `undefined`
+ * when the list is short enough to load whole, or ESCAPE when the user
+ * declined.
+ */
+async function searchFirst(
+  command: Command,
+  pick: EntityPickSpec<unknown>,
+  spec: NonNullable<EntityPickSpec<unknown>['searchFirst']>
+): Promise<unknown[] | undefined | typeof ESCAPE> {
+  if (!(await spec.when())) return undefined;
+  const { commandPreviewFor } =
+    await import('../../cli/ResolveInteractiveInputs');
+  // what the prompt says under the question: the hint, then why the last text was not enough
+  let note = spec.hint;
+  for (;;) {
+    const text = await promptInput({
+      message: spec.message ?? `Search ${pick.kind}s:`,
+      hint: note,
+      // the search text is not the option's value: the footer is the command as it stands
+      preview: () => commandPreviewFor(command) ?? '',
+    });
+    // '' is Esc, Ctrl-C or an empty line: all of them decline
+    if (!text) return ESCAPE;
+    const found = await spec.load(text.trim());
+    if (typeof found !== 'string') {
+      if (found.length > 0) return found;
+      note = `No ${pick.kind} matches '${text.trim()}'.`;
+      continue;
+    }
+    note = found;
+  }
+}
+
 function apply(
   command: Command,
   pick: EntityPickSpec<unknown>,
   entity: unknown
 ): void {
-  const result = commitOption(command, pick.name, pick.label(entity), {
+  const result = commitOption(command, pick.name, valueOf(pick, entity), {
     consume: pick.scopedBy,
   });
   if (result.status === 'blocked') {

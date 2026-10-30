@@ -13,8 +13,18 @@
 // agents no guidance file (AGENTS.md or .github/copilot-instructions.md) and
 // when it keeps no decision records (docs/decisions/, or decisions/ at the
 // repository root when docs/ is generated).
+//
+// It warns, and never fails, about a line of .github/agentic-workflows/settings.yml that the Concierge cannot use
+// (an unknown setting, a value out of range): the default stays, so nothing stops, but the setting does not do what
+// the file says.
 import fs from 'node:fs';
+import { SETTINGS_PATH, parseSettings } from './concierge-settings.mjs';
 import { parseRelatedRepos } from './dependency-watch.mjs';
+
+/** Warnings about the lines of a settings file that cannot be used; `null` when there is no file. */
+export function checkSettings(text) {
+  return text == null ? [] : parseSettings(text).problems;
+}
 
 /** Safe outputs a related repository must be reachable through, per compiled workflow. */
 export const REQUIREMENTS = [{ file: 'issue-worker.lock.yml', outputs: ['create_issue'] }];
@@ -176,6 +186,8 @@ const isDirectory = (p) => {
 export function main(cwd = process.cwd()) {
   for (const notice of checkGuidance((f) => isFile(`${cwd}/${f}`))) console.log(`::notice::${notice}`);
   for (const notice of checkDecisions((d) => isDirectory(`${cwd}/${d}`))) console.log(`::notice::${notice}`);
+  const settingsPath = `${cwd}/${SETTINGS_PATH}`;
+  for (const problem of checkSettings(fs.existsSync(settingsPath) ? fs.readFileSync(settingsPath, 'utf8') : null)) console.log(`::warning::${problem}`);
   const relatedPath = `${cwd}/.github/agentic-workflows/related-repos.md`;
   if (!fs.existsSync(relatedPath)) {
     console.log('No .github/agentic-workflows/related-repos.md: nothing to check.');

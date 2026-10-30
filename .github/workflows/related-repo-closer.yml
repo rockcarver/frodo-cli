@@ -48,7 +48,7 @@ jobs:
   close-original:
     # By hand: always. On an event: only for an issue that carries the link label and was not opened by
     # a bot. The script checks everything else (why it was closed, the proof of the link).
-    if: github.event_name == 'workflow_dispatch' || (github.event.issue.user.type != 'Bot' && contains(github.event.issue.labels.*.name, 'original-in-related-repo') && !contains(github.event.issue.labels.*.name, 'no-auto-processing'))
+    if: (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && (github.event_name == 'workflow_dispatch' || (github.event.issue.user.type != 'Bot' && contains(github.event.issue.labels.*.name, 'original-in-related-repo') && !contains(github.event.issue.labels.*.name, 'no-auto-processing')))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

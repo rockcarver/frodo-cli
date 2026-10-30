@@ -9,6 +9,7 @@ description: |
 # agent, with no model, and moves every issue whose `Fixed in #N.` comment (written by the Waiting for Release
 # gate) names a pull request whose merge commit is an ancestor of the tag. The agent then finds the labels of
 # those issues gone and checks the rest by the notes (docs/multi-phase-design.md, "Which fixes a release contains").
+if: ${{ (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') }}
 on:
   release:
     types: [published, prereleased]
@@ -23,6 +24,7 @@ on:
     # to run for the issues this step cannot decide (the notes name them, or a related repository holds the fix).
     - name: Move the issues whose fix pull request is part of this release
       id: included_fixes
+      if: (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
       continue-on-error: true
       uses: actions/github-script@v9
       with:

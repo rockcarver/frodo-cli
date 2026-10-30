@@ -108,6 +108,22 @@ create`, `esv variable create`, `esv variable set`), `--client-id`, `--jwk-file`
 `conn set`, which is new in 5.x. `-f, --file` without a file name still writes
 the export to the default file name.
 
+**RFC7523 commands require the input they cannot work without**: 4.x let
+`frodo admin generate-rfc7523-authz-grant-artefacts` run without `--iss` and
+saved a trusted issuer with no issuer value, which no assertion can match, so
+every later `frodo admin execute-rfc7523-authz-grant-flow` failed. In 5.x
+`--iss` is required (the command exits with code 1 before it connects, or asks
+for the value in interactive mode). `execute-rfc7523-authz-grant-flow` requires
+`--client-id` the same way (4.x made up a random client id that could not
+exist) and, when it can find no issuer, key or subject, stops before it sends
+anything and names the option to give. Without `--sub` it uses the trusted
+issuer's allowed subject only when there is exactly one (4.x took the first of
+several); with several, or with an issuer that allows any user, you name the
+user with `--sub` or, on a terminal, pick one from a list. A `--jwk-file` that cannot be read stops
+either command with exit code 1 (`generate-rfc7523-authz-grant-artefacts` used
+to make a new key instead). These are fixes for defects in the sense of
+[a fix for a defect is not a departure from the 4.x rule](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0034-a-fix-for-a-defect-is-not-a-departure-from-the-4x-rule.md).
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm
