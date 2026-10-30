@@ -130,7 +130,8 @@ export default function setup() {
       search: subjectMatches,
       searchFirst: {
         when: () => subjects.tooMany(),
-        message: `The realm has ${SUBJECT_LIST_LIMIT} or more users. Search by part of a username, first or last name or email, or by a whole id:`,
+        message: 'Search users:',
+        hint: `The realm has ${SUBJECT_LIST_LIMIT} or more users. Type part of a username, first or last name or email, or a whole id.`,
         load: (text) => subjects.search(text),
       },
     }),

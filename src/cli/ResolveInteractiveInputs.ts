@@ -376,7 +376,10 @@ export async function resolveInteractiveInputs(
   // secret for nothing. Asked for in declaration order, input hidden.
   if (
     !(await collectSecretsByPrompt(command, violations, (message) =>
-      promptPassword({ message })
+      promptPassword({
+        message,
+        preview: () => commandPreviewFor(command) ?? '',
+      })
     ))
   ) {
     failFirstPendingSecret(command, violations, (flags) =>
@@ -671,6 +674,29 @@ export function liveOptionPreviewFor(
 }
 
 /**
+ * The footer of a text prompt that collects the value of an option: the
+ * command with the text typed so far shadowed in, as the pickers do with the
+ * highlighted value (record 0019). Every prompt that asks for a value passes
+ * one, so a typed value is framed like a picked one.
+ */
+function typedOptionPreviewFor(
+  command: Command,
+  optionName: string
+): ((typed: string) => string) | undefined {
+  const live = liveOptionPreviewFor(command, optionName);
+  return live ? (typed) => live(typed.trim()) : undefined;
+}
+
+/** The footer of a text prompt that collects a positional argument; see typedOptionPreviewFor. */
+function typedPositionalPreviewFor(
+  command: Command,
+  positionalName: string
+): ((typed: string) => string) | undefined {
+  const live = livePositionalPreviewFor(command, positionalName);
+  return live ? (typed) => live(typed.trim()) : undefined;
+}
+
+/**
  * Prompts for a value from a closed choice set. A ONE-item set auto-commits
  * (a single choice is no choice; commander would accept only that value
  * anyway -- the plan's single-option refinement); otherwise a searchable
@@ -793,6 +819,7 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
     } else {
       const answer = await promptInput({
         message: `Enter a value for ${option.flags}:`,
+        preview: typedOptionPreviewFor(command, option.attributeName()),
       });
       if (!answer) return false;
       value = answer;
@@ -942,6 +969,7 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     } else {
       const answer = await promptInput({
         message: `Enter a value for ${chosen.option.flags}:`,
+        preview: typedOptionPreviewFor(command, chosen.name),
       });
       if (!answer) return false;
       commitOrFail(command, chosen.option, answer);
@@ -1053,6 +1081,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
       if (choice === ENTER_MANUALLY) {
         const answer = await promptInput({
           message: 'AM base URL (or profile alias/substring):',
+          preview: typedPositionalPreviewFor(command, 'host'),
         });
         if (!answer) return false;
         picked = answer;
@@ -1064,6 +1093,7 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
       // manually" path above.
       const answer = await promptInput({
         message: 'AM base URL:',
+        preview: typedPositionalPreviewFor(command, 'host'),
       });
       if (!answer) return false;
       picked = answer;
@@ -1414,6 +1444,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
     const answer = await promptInput({
       message: `Enter a value for ${option.flags}:`,
       default: currentText,
+      preview: typedOptionPreviewFor(command, attributeName),
     });
     if (!answer) return undefined;
     if (!commitInEditor(command, option, answer)) return undefined;
@@ -1565,6 +1596,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
       if (!alreadySet) {
         const answer = await promptPassword({
           message: `Enter a value for ${pickedOption.flags} (input is hidden):`,
+          preview: () => commandPreviewFor(command) ?? '',
         });
         if (answer && commitInEditor(command, pickedOption, answer)) {
           verboseMessage(`Using ${pickedOption.flags}.`);

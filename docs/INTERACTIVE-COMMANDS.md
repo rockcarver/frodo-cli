@@ -157,8 +157,9 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   whose search must span more than the row sets `search` (case-insensitive
   substring over the label by default). A list too long to show whole sets
   `searchFirst`: when its `when()` says so the picker asks for a search
-  text, offers what `load(text)` returns, and asks again while that is
-  empty or a message ("1001 users match 'user'"); Esc declines. The first
+  text (the spec's `hint` says what to type), offers what `load(text)`
+  returns, and asks again while that is empty or a message ("1001 users
+  match 'user'", shown in the prompt's frame); Esc declines. The first
   user is `--sub` of `frodo admin execute-rfc7523-authz-grant-flow`
   (`Rfc7523SubjectOps.ts`, cli#1004): the users the trusted issuer allows,
   else the realm's, found by username, first or last name, email or id. The
@@ -200,6 +201,50 @@ frodo journey list alpha
 3. **Transient editors** (the value box) — their own framed box
    directly UNDER the panel they edit, so the input sits next to the
    list it belongs to and the description stays beside its list.
+
+4. **The command footer** — under the boxes, outside them: the command
+   being authored (see "The command preview"), live with what the user is
+   highlighting or typing.
+
+### Every prompt is framed
+
+A picker, a text prompt, a page: EVERY prompt that authors a command is
+drawn as the same frame — the Navigate menu on top, the question in a
+box, the command footer underneath — so the sequence of prompts in one
+command reads as one flow (cli records
+[0018](decisions/0018-every-interactive-surface-speaks-one-key-language.md),
+[0019](decisions/0019-the-command-preview-shows-the-exact-command-to-retype.md)
+and [0035](decisions/0035-every-prompt-is-drawn-as-the-framed-prompt.md)).
+A bare one-line prompt between two framed pickers was the bug that made
+this explicit: the free-text prompt for a missing option value
+(`promptInput` in `PromptGate.ts`) was drawn without any of it. A yes/no
+confirmation asked once the command is complete ("Prune orphaned
+nodes?") is not a step in authoring the command and is not covered.
+
+For a new prompt:
+
+- **Free text** is `promptInput` (or `promptPassword`, input hidden),
+  which draws the frame itself. Pass `preview`: for the value of an option
+  or a positional, the command with the typed text shadowed in
+  (`typedOptionPreviewFor` / `typedPositionalPreviewFor` in
+  `ResolveInteractiveInputs.ts`); for anything else, the command as it
+  stands (`commandPreviewFor`). Put a sentence of guidance in `hint` and
+  keep the question short: a title wider than the frame is cut. A hidden
+  prompt's footer never gets the typed text.
+- **A list** is `escapableSelect` / `escapableMultiSelect`, with a `preview`
+  (`liveOptionPreviewFor` / `livePositionalPreviewFor`).
+- **A new kind of prompt** draws through `renderNavigationMenu`,
+  `renderFramedBox` and `useTerminalWidth`, takes a `preview` option and
+  has a render test (`test/unit/TextPromptFrame.test.js` is the smallest
+  example). `test/unit/PromptsAreFramed.test.js` fails for a prompt
+  component that leaves one of the four out. A live dashboard of a
+  running command has no command to show and is the one exemption from
+  the footer. A packaged `@inquirer/*` prompt is not used: the existing
+  `@inquirer/confirm` consent checks are listed in the guard as an
+  inventory, and a new one waits for a maintainer's decision on how
+  confirmations are drawn.
+- A note about a prompt ("no user matches", "too many matches") goes in
+  the prompt's own frame (`hint`), not in a line printed between frames.
 
 Only keys that apply to the current prompt appear (silence = that key
 does nothing here), and each renders in its role's theme color:

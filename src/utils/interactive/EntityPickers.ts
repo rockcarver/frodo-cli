@@ -41,7 +41,7 @@
  */
 
 import { Command } from 'commander';
-import { printError, printMessage, verboseMessage } from '../Console';
+import { printError, verboseMessage } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
@@ -100,6 +100,8 @@ export type EntityPickSpec<T = any> = {
   searchFirst?: {
     when: () => Promise<boolean>;
     message?: string;
+    /** Shown in the prompt under the question: what to type. */
+    hint?: string;
     load: (text: string) => Promise<T[] | string>;
   };
   /** Optional second line shown as the row's dimmed description. */
@@ -186,7 +188,7 @@ export async function resolveEntityPicks(command: Command): Promise<boolean> {
     let entities: unknown[];
     try {
       const searched = pick.searchFirst
-        ? await searchFirst(pick, pick.searchFirst)
+        ? await searchFirst(command, pick, pick.searchFirst)
         : undefined;
       if (searched === ESCAPE) {
         const { revokeAuthoringPrint } = await import('./AuthoringPrintState');
@@ -307,23 +309,31 @@ function valueOf(pick: EntityPickSpec<unknown>, entity: unknown): string {
  * declined.
  */
 async function searchFirst(
+  command: Command,
   pick: EntityPickSpec<unknown>,
   spec: NonNullable<EntityPickSpec<unknown>['searchFirst']>
 ): Promise<unknown[] | undefined | typeof ESCAPE> {
   if (!(await spec.when())) return undefined;
+  const { commandPreviewFor } =
+    await import('../../cli/ResolveInteractiveInputs');
+  // what the prompt says under the question: the hint, then why the last text was not enough
+  let note = spec.hint;
   for (;;) {
     const text = await promptInput({
       message: spec.message ?? `Search ${pick.kind}s:`,
+      hint: note,
+      // the search text is not the option's value: the footer is the command as it stands
+      preview: () => commandPreviewFor(command) ?? '',
     });
     // '' is Esc, Ctrl-C or an empty line: all of them decline
     if (!text) return ESCAPE;
     const found = await spec.load(text.trim());
     if (typeof found !== 'string') {
       if (found.length > 0) return found;
-      printMessage(`No ${pick.kind} matches '${text.trim()}'.`, 'info');
+      note = `No ${pick.kind} matches '${text.trim()}'.`;
       continue;
     }
-    printMessage(found, 'info');
+    note = found;
   }
 }
 

@@ -57,17 +57,26 @@ export function navigationMenuItems(options: {
   left?: boolean;
   /** The prompt has a filterable list (type-to-search applies). */
   filter?: boolean;
+  /** The prompt takes typed text rather than a list; what the text is for, e.g. 'a value'. */
+  type?: string;
+  /** The prompt has a list to move through (default true; a text prompt has none). */
+  move?: boolean;
   /** esc backs out (always true for our escapable prompts). */
   escape?: string;
 }): NavigationMenuItem[] {
   const items: NavigationMenuItem[] = [];
-  items.push({
-    keys: `[${DIRECTION_KEYS.upDown}]`,
-    action: 'move',
-    intent: 'muted',
-  });
+  if (options.move !== false) {
+    items.push({
+      keys: `[${DIRECTION_KEYS.upDown}]`,
+      action: 'move',
+      intent: 'muted',
+    });
+  }
   if (options.filter) {
     items.push({ keys: 'type', action: 'to filter', intent: 'muted' });
+  }
+  if (options.type) {
+    items.push({ keys: 'type', action: options.type, intent: 'muted' });
   }
   if (options.space) {
     items.push({ keys: '[space]', action: options.space, intent: 'muted' });
