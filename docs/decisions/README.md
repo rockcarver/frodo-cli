@@ -96,4 +96,4 @@ A core record has the format above plus a `repos:` list and may have a `## Known
 | [0032](0032-mutually-exclusive-options-are-declared-and-never-contradict-a-requirement.md) | Mutually exclusive options are declared with `.conflicts()` and never contradict a requirement | accepted | `src/cli/**`, `test/unit/OptionConflicts.test.js`, `test/utils/OptionConflicts.js` |
 | [0033](0033-code-sets-the-exit-code-and-returns-instead-of-exiting.md) | Code sets the exit code and returns instead of calling `process.exit()` | accepted | `src/cli/**`, `src/ops/**`, `src/configManagerOps/**`, `src/utils/**` |
 | [0034](0034-a-fix-for-a-defect-is-not-a-departure-from-the-4x-rule.md) | A fix for a defect is not a departure from the 4.x rule | accepted | `src/cli/**`, `src/utils/interactive/**` |
-| [0035](0035-every-prompt-is-drawn-as-the-framed-prompt.md) | Every prompt is drawn as the framed prompt | proposed | `src/utils/interactive/**`, `test/unit/PromptsAreFramed.test.js` |
+| [0035](0035-every-prompt-is-drawn-as-the-framed-prompt.md) | Every prompt is drawn as the framed prompt | accepted | `src/utils/interactive/**`, `test/unit/PromptsAreFramed.test.js` |
