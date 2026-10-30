@@ -90,7 +90,7 @@ suite('--no-prompt and --prompt after a sub-command of conn', () => {
     const before = fs.readFileSync(profilesPath, 'utf8');
     const run = onTerminal(args, settle);
     expect(run.plainOutput).not.toContain('Choose a connection profile');
-    expect(run.plainOutput).toContain('No connection profile found');
+    expect(run.plainOutput).toContain('No host was given');
     expect(fs.readFileSync(profilesPath, 'utf8')).toBe(before);
   });
 

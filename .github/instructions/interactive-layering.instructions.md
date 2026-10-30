@@ -4,7 +4,7 @@ applyTo: 'src/utils/interactive/**/*.ts,src/utils/TextLayout.ts,src/utils/StdinS
 
 # Where interactive code lives
 
-Accepted decision records are binding: [0001 realm picker](../../docs/decisions/0001-realm-picker-opens-only-when-the-command-is-incomplete.md), [0003 standard input](../../docs/decisions/0003-synchronous-stdin-reads-go-through-one-helper.md), [0004 terminal width](../../docs/decisions/0004-prompt-frames-follow-the-terminal-width.md), [0005 layering](../../docs/decisions/0005-interactive-layering.md). If your task conflicts with one, stop and say so.
+Accepted decision records are binding: [0001 realm picker](../../docs/decisions/0001-realm-picker-opens-only-when-the-command-is-incomplete.md), [0003 standard input](../../docs/decisions/0003-synchronous-stdin-reads-go-through-one-helper.md), [0004 terminal width](../../docs/decisions/0004-prompt-frames-follow-the-terminal-width.md), [0005 layering](../../docs/decisions/0005-interactive-layering.md), [0035 every prompt is framed](../../docs/decisions/0035-every-prompt-is-drawn-as-the-framed-prompt.md). If your task conflicts with one, stop and say so.
 
 The interactive framework is ambient: a command is written the usual way and interactivity attaches to it. The rules for new code are in [docs/INTERACTIVE-COMMANDS.md, "Layering: where interactive code lives"](../../docs/INTERACTIVE-COMMANDS.md#layering-where-interactive-code-lives). In short:
 
@@ -16,6 +16,7 @@ The interactive framework is ambient: a command is written the usual way and int
 
 ## Frames and text
 
+- **Every prompt that authors a command is framed: the Navigate menu on top, the question in a box, the command footer underneath** ([0035](../../docs/decisions/0035-every-prompt-is-drawn-as-the-framed-prompt.md), guide: "Every prompt is framed"). Use `promptInput` / `promptPassword` for free text and `escapableSelect` / `escapableMultiSelect` for lists, and pass a `preview` (the command, live with what is highlighted or typed; never the text of a hidden prompt). Never add a bare one-line prompt, a `console.log` question or a packaged `@inquirer/*` prompt. The existing yes/no confirmations (consent checks once the command is complete) are outside the rule; ask a maintainer before adding one. A new prompt component draws through `renderNavigationMenu`, `renderFramedBox` and `useTerminalWidth` and takes a `preview` option; `test/unit/PromptsAreFramed.test.js` fails otherwise.
 - **Draw frames only through `renderFramedBox`, `renderNavigationMenu` and `wrapLine`** (`src/utils/interactive/NavigationMenu.ts`). They split on line breaks, expand tabs, re-wrap rows that do not fit and cut an over-wide title, so raw log or tenant text cannot break a frame. Never assemble box characters in a prompt.
 - **Every prompt's width comes from `useTerminalWidth()`** (`TerminalWidth.ts`), called after the view's other `useState` calls. Pass it as `width` to `renderNavigationMenu`, `renderFramedBox` and `descriptionPanelLines`, and size your own rows with `frameInnerWidth(width)`. Do not hard-code 116 or 120. ESLint rejects a call that leaves the width out.
 - **A single-line cell (a list column) is flattened and cut with `singleLine` and `truncate`** from `src/utils/TextLayout.ts`. Wrapping it would add rows.

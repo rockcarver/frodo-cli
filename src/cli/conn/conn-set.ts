@@ -137,6 +137,10 @@ export default function setup() {
       // (verified: --log-api-key -> logApiKey), which is also the
       // options-object key.
       const given = namedFields(options);
+      // The profile to edit: the host argument or, when there is none,
+      // FRODO_HOST (listed in this command's help; the argument wins). Both
+      // end up in state, so state is the one place to read it from.
+      const target = host || state.getHost();
       // No field named, with or without a host: there is nothing to set.
       // List the settable fields (the `gh config` pattern) instead of
       // logging in and saving the profile unchanged under a success
@@ -145,8 +149,8 @@ export default function setup() {
       // no host and nothing was asked first.
       if (given.length === 0) {
         printMessage(
-          host
-            ? `No field was named, so ${host} is unchanged. Settable connection profile fields:\n`
+          target
+            ? `No field was named, so ${target} is unchanged. Settable connection profile fields:\n`
             : 'Settable connection profile fields:\n'
         );
         for (const field of SETTABLE_FIELDS) {
@@ -157,15 +161,29 @@ export default function setup() {
         return;
       }
 
+      // set EDITS an existing profile, so it has to be told which one. The
+      // missing host is its own error: the load below would report a
+      // profile called 'undefined' and point at 'conn save' although
+      // profiles may exist (cli#993).
+      if (!target) {
+        printError(
+          new Error(
+            'No host was given. Name the connection profile to change as the first argument (its host or alias), or set FRODO_HOST.'
+          )
+        );
+        process.exitCode = 1;
+        return;
+      }
+
       // Load the existing profile into state (its decoded fields become
       // state's values; a load failure means no such profile -- set
       // EDITS, it never creates).
       try {
-        await loadConnectionProfileByHost(host);
+        await loadConnectionProfileByHost(target);
       } catch {
         printError(
           new Error(
-            `No connection profile found for '${host}'. Create one first with 'frodo conn save'.`
+            `No connection profile found for '${target}'. Create one first with 'frodo conn save'.`
           )
         );
         process.exitCode = 1;
