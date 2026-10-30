@@ -30,6 +30,10 @@
  *
  * FAKE_AM_JOURNEY=service-account also answers the token endpoint, so a
  * service-account login can reach post-auth realm selection and commands.
+ * FAKE_AM_GRANT_ERROR=<text> makes that endpoint refuse every request that
+ * is not the service-account login itself (`client_id=service-account`) with
+ * `400 invalid_grant` and the text as its description, like AM does for an
+ * RFC7523 assertion it does not accept.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -66,6 +70,15 @@ const server = http.createServer((req, res) => {
       res.end(JSON.stringify(payload));
     };
     if (serviceAccountLogin && req.url.includes('/access_token')) {
+      if (
+        process.env.FAKE_AM_GRANT_ERROR &&
+        !body.includes('client_id=service-account')
+      ) {
+        return send(400, {
+          error: 'invalid_grant',
+          error_description: process.env.FAKE_AM_GRANT_ERROR,
+        });
+      }
       return send(200, {
         access_token: 'fake-service-account-token',
         token_type: 'Bearer',
