@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-19] - 2026-10-30
+
+### Added
+- Introduced `config-manager promote` commands, enhancing configuration management capabilities with new promotion functions. This addition includes comprehensive tests to ensure reliability. (#994)
+- Added `--dynamic` and `--static` flags to `frodo export/import` commands, allowing users to specify the type of configuration data to handle. These flags default to `true`, enabling both dynamic and static data by default. (#999)
+
+### Changed
+- Updated `@rockcarver/frodo-lib` to version 5.0.0-18, which includes enhancements to `frodo.config.exportFullConfiguration()` and `importFullConfiguration()` functions. These functions now support `includeStatic` and `includeDynamic` options, both defaulting to `true`. (#1011)
+
 ## [v5.0.0-18] - 2026-10-30
 
 ### Fixed
@@ -3147,6 +3156,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-19]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-18...v5.0.0-19
 [v5.0.0-18]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-17...v5.0.0-18
 [v5.0.0-17]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-16...v5.0.0-17
 [v5.0.0-16]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-15...v5.0.0-16
