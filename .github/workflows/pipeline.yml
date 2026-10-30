@@ -566,6 +566,28 @@ jobs:
       ]
     runs-on: ubuntu-latest
     steps:
+      # The Release job commits the version and the changelog on top of the
+      # commit this run was dispatched from and pushes that commit. When the
+      # branch has moved since (a merge while the tests ran) the push is
+      # rejected, but by then the package is on npm, which refuses to publish
+      # a version twice, and the release is left without its version commit,
+      # its tag and its GitHub release. Stop here, before anything is
+      # published: dispatching again is then enough. This fails closed: a
+      # branch that cannot be read blocks the release too.
+      - name: Refuse to publish when the branch has moved
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED_SHA: ${{ github.sha }}
+          DISPATCHED_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          current="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/${DISPATCHED_REF#refs/}" --jq .object.sha)"
+          if [ "${current}" != "${DISPATCHED_SHA}" ]; then
+            echo "::error::${DISPATCHED_REF} is at ${current}, but this run was dispatched from ${DISPATCHED_SHA}. Nothing was published. Dispatch the release again when nothing is being merged."
+            exit 1
+          fi
+          echo "${DISPATCHED_REF} is still at ${DISPATCHED_SHA}"
+
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
