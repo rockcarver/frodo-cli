@@ -88,8 +88,18 @@ export default function setup() {
         'Import global entity. Cannot be used with -a or -A.'
       ).conflicts(['all', 'allSeparate'])
     )
-    .addOption(new Option('--static', 'Import only static configuration.'))
-    .addOption(new Option('--dynamic', 'Import only dynamic configuration.'))
+    .addOption(
+      new Option(
+        '--static',
+        'Import only static configuration: what an environment promotion carries (journeys, scripts, themes and the like). With --dynamic it imports both, which is also what happens without either.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--dynamic',
+        'Import only dynamic configuration: what changes at run time (OAuth2 clients, agents, policies, SAML providers, ESVs and the like). With --static it imports both, which is also what happens without either.'
+      )
+    )
     .addHelpText(
       'after',
       c.positive(`How Frodo handles secrets:\n`) +
@@ -110,6 +120,14 @@ export default function setup() {
         ) +
         `  Import the global config and the realm from a directory that was exported for version control, for example with frodo config export -rgAND (see the examples of that command):\n` +
         c.command(`  $ frodo config import -A -D . ${s.connId}\n`) +
+        `  Import only the static configuration, the part an environment promotion carries, from a single file:\n` +
+        c.command(
+          `  $ frodo config import -a -f Alpha.everything.json --static ${s.connId}\n`
+        ) +
+        `  Import only the dynamic configuration, the part that changes at run time:\n` +
+        c.command(
+          `  $ frodo config import -a -f Alpha.everything.json --dynamic ${s.connId}\n`
+        ) +
         `  Import global and active realm configuration including active secret values, wich were exported from another environment using the --include-active-values option but without using the --target parameter, therefore requiring the --source parameter on import:\n` +
         `  The --source parameter instructs frodo to decrypt the secret values during import using the source environment, which was used to encrypt them.\n` +
         `  Using the --source parameter, the source environment must be available at the time of import and the person performing the import must have a connection profile for the source environment.\n` +
