@@ -168,6 +168,50 @@ suite('RFC7523 commands, on a real terminal', () => {
     expect(run.plainOutput).toContain('Enter a value for --iss');
   });
 
+  test('the question for the issuer is framed like the pickers around it, with the command as the footer', async () => {
+    await fake();
+    const run = onTerminal(
+      'generate-rfc7523-authz-grant-artefacts',
+      ['--client-id', 'c1'],
+      [
+        {
+          type: 'wait_plain',
+          regex: 'Enter a value for --iss',
+          timeoutMs: 30000,
+        },
+        { type: 'sleep', ms: 300 },
+        { type: 'capture', label: 'empty' },
+        // short enough that the footer stays on one line of the 120-column terminal
+        { type: 'send', text: 'a' },
+        // the footer is the last line of a redraw: once it has the whole text, the frame is complete
+        { type: 'wait_plain', regex: '--iss a', timeoutMs: 30000 },
+        { type: 'sleep', ms: 200 },
+        { type: 'capture', label: 'typed' },
+        { type: 'key', name: 'enter' },
+        {
+          type: 'wait_plain',
+          regex: 'Generating RFC7523 authorization grant artefacts',
+          timeoutMs: 30000,
+        },
+      ]
+    );
+    const empty = lastFrame(run.captures.empty.plain);
+    // the Navigate menu is the top box (lastFrame cut it off the front)
+    expect(run.captures.empty.plain).toContain('┌ Navigate');
+    expect(empty).toContain('[ENTER] commit');
+    expect(empty).toContain('[ESC] back out');
+    // the question in a box of its own
+    expect(empty).toMatch(/┌ \? Enter a value for --iss <issuer>: [^\n]*┐/);
+    // the footer is the command being built, outside the boxes
+    const footer = (frame) => frame.split('└').pop();
+    expect(footer(empty)).toContain('generate-rfc7523-authz-grant-artefacts');
+    expect(footer(empty)).not.toContain('--iss');
+    // typing moves into the box and into the footer
+    const typed = lastFrame(run.captures.typed.plain);
+    expect(typed).toMatch(/│ › a +│/);
+    expect(footer(typed)).toContain('--iss a');
+  });
+
   test('execute asks for the client id, then goes on', async () => {
     await fake();
     const run = onTerminal(
@@ -535,6 +579,8 @@ suite('RFC7523 commands, on a real terminal', () => {
             regex: "1001 users match 'user'",
             timeoutMs: 30000,
           },
+          { type: 'sleep', ms: 300 },
+          { type: 'capture', label: 'again' },
           { type: 'clear_output' },
           { type: 'send', text: 'ser004' },
           { type: 'key', name: 'enter' },
@@ -545,6 +591,14 @@ suite('RFC7523 commands, on a real terminal', () => {
           { type: 'key', name: 'enter' },
           done,
         ]);
+        // the search text is asked for in a frame, and so is the "too many" answer
+        const again = lastFrame(run.captures.again.plain);
+        expect(again).toMatch(/┌ \? Search users: [^\n]*┐/);
+        expect(again).toContain("1001 users match 'user'");
+        expect(again).toContain('[ENTER] commit');
+        expect(again.split('└').pop()).toContain(
+          'execute-rfc7523-authz-grant-flow'
+        );
         const matches = lastFrame(run.captures.matches.plain);
         expect(matches).toContain('id-0040');
         expect(matches).toContain('id-0049');
