@@ -20,7 +20,7 @@
 # scripts/pr-ready-signal.mjs to .github/scripts/pr-ready-signal.mjs (it imports
 # janitor.mjs and opt-out.mjs, so install those too). Needs the repository secret SIGNAL_TOKEN with
 # Issues and Pull requests: Read and write (a pull request is labelled through the issues API).
-name: "Concierge 3b ▸ PR Ready Signal"
+name: "Issue Concierge 3b ▸ PR Ready Signal"
 
 on:
   pull_request_target:
@@ -51,7 +51,7 @@ concurrency:
 jobs:
   signal:
     # A pull request that carries no-auto-processing is not signalled (the sweep and the script check it too).
-    if: ${{ (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && !contains(github.event.pull_request.labels.*.name, 'no-auto-processing') }}
+    if: ${{ (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && !contains(github.event.pull_request.labels.*.name, 'no-auto-processing') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

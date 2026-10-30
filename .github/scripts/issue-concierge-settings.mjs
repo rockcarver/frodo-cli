@@ -1,6 +1,6 @@
-// The repository's own settings for Repo Concierge.
+// The repository's own settings for Issue Concierge.
 //
-// `.github/agentic-workflows/settings.yml` is owned by the repository, like `scope.md`: reviewed by pull request,
+// `.github/issue-concierge/settings.yml` is owned by the repository, like `scope.md`: reviewed by pull request,
 // read from the default branch, and every setting has a default, so a missing file or a missing line changes
 // nothing. The file is flat `key: value` lines and comments, which is all a setting needs, so this reads it
 // without a YAML library. A line it cannot use is reported and the default stays; the Concierge never stops
@@ -9,9 +9,14 @@
 // The pause switch is not a setting here: a gate must be able to check it without starting a run, and only a
 // repository variable can be read that way (docs/multi-phase-design.md, "The maintainer's view").
 //
-// Install: copy to .github/scripts/concierge-settings.mjs. The scripts that import it are installed with it.
+// Install: copy to .github/scripts/issue-concierge-settings.mjs. The scripts that import it are installed with it.
 
-export const SETTINGS_PATH = '.github/agentic-workflows/settings.yml';
+import { configPath, readConfig } from './issue-concierge-paths.mjs';
+
+export const SETTINGS_PATH = configPath('settings.yml');
+
+/** The text of the settings file, from the new folder or else the old one, or null. `read(path)` returns text or null. */
+export const readSettingsText = (read) => readConfig('settings.yml', read).value;
 
 /** Every setting, its type and its default. A setting is added here in the change that gives it an effect. */
 export const SCHEMA = {

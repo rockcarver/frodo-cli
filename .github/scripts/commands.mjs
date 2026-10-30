@@ -1,9 +1,9 @@
-// Comment commands and the options comment of Repo Concierge.
+// Comment commands and the options comment of Issue Concierge.
 //
 // Deterministic: no LLM. A maintainer decides what becomes of an issue that waits for them by commenting a command
 // (`/accept`, `/decline`, `/approve`, `/replan`, `/retry`), and the Concierge keeps one comment on such an issue, the
 // options comment, that says what is needed and which command does what. The options comment is derived from the
-// issue's labels alone (scripts/concierge-state.mjs shows the same state on the status issue), it exists only while a
+// issue's labels alone (scripts/issue-concierge-state.mjs shows the same state on the status issue), it exists only while a
 // maintainer has to act, it is always the last comment, and it is deleted when nothing waits any more.
 //
 // A command does what a person with the role can already do by hand with the labels, no more. The commenter's role is
@@ -12,12 +12,12 @@
 // mentions neutralised. The Concierge still never lifts a hold on its own: a person gives the command, and the
 // approval names that person. Rules and reasons: docs/multi-phase-design.md, "The maintainer's view".
 //
-// Install: copy to .github/scripts/commands.mjs (it imports concierge-settings.mjs, concierge-state.mjs,
+// Install: copy to .github/scripts/commands.mjs (it imports issue-concierge-settings.mjs, issue-concierge-state.mjs,
 // plan-approval-resume.mjs, janitor.mjs and opt-out.mjs, so install those too).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import { SETTINGS_PATH, parseSettings } from './concierge-settings.mjs';
-import { BOT, GATE_LABELS, OPTIONS_MARKER, STUCK_AFTER_MINUTES, isOptionsComment, labelledAt, MAINTAINER_ASSOCIATIONS } from './concierge-state.mjs';
+import { parseSettings, readSettingsText } from './issue-concierge-settings.mjs';
+import { BOT, GATE_LABELS, OPTIONS_MARKER, STUCK_AFTER_MINUTES, isOptionsComment, labelledAt, MAINTAINER_ASSOCIATIONS, pausedBy } from './issue-concierge-state.mjs';
 import { LABEL_OPT_OUT, isOptedOut, labelNames } from './opt-out.mjs';
 import { MARKER as APPROVAL_MARKER, decide as decideApproval } from './plan-approval-resume.mjs';
 
@@ -32,7 +32,9 @@ export const LABEL_PLAN_HANDOFF = 'plan-triage-handoff';
  * as a CONTRIBUTOR to the workflow token. workflows/issue-triage.md reads this string in its pre-activation step and in its
  * prompt; a test keeps the three equal.
  */
-export const ACCEPT_MARKER = '<!-- concierge:accepted -->';
+export const ACCEPT_MARKER = '<!-- issue-concierge:accepted -->';
+/** What a version before the product was named for its kind wrote. Issue triage counts it as a record too. */
+export const LEGACY_ACCEPT_MARKER = '<!-- concierge:accepted -->';
 
 /** The labels that stop an issue at the first gate; a maintainer accepts it by removing them. */
 export const STOP_LABELS = ['needs-decision', 'scope-review', 'backlog', 'out-of-scope', LABEL_DECLINED, 'needs-info'];
@@ -170,7 +172,7 @@ export function optionsFor(issue, { comments = [], events = [], now = Date.now()
   return { kind, body };
 }
 
-export const menuKind = (comment) => /concierge:options kind=(\S+)/.exec(comment.body || '')?.[1] ?? null;
+export const menuKind = (comment) => /(?:issue-)?concierge:options kind=(\S+)/.exec(comment.body || '')?.[1] ?? null;
 
 const stamp = (c) => `${c.created_at ?? ''}#${String(c.id ?? 0).padStart(20, '0')}`;
 
@@ -214,7 +216,7 @@ export function runCommand(cmd, { issue, actor, api, paused = false }) {
   // While the Concierge is paused no gate starts, so a command that hands an issue on would leave it behind a gate that
   // never runs. Declining and listing the commands start nothing.
   if (paused && ['accept', 'approve', 'replan', 'retry'].includes(cmd.name)) {
-    return refuse('The Concierge is paused (the repository variable `CONCIERGE_PAUSED` is `true`), so nothing would start. Resume it first, then give the command again.');
+    return refuse('The Concierge is paused (the repository variable `ISSUE_CONCIERGE_PAUSED` is `true`, or `CONCIERGE_PAUSED`, its older name), so nothing would start. Resume it first, then give the command again.');
   }
 
   switch (cmd.name) {
@@ -387,7 +389,7 @@ export function menuCandidates(api, now) {
 // ------------------------------------------------------------------ the entry point
 
 function settingsFrom(api, log) {
-  const { settings, problems } = parseSettings(api.read(SETTINGS_PATH));
+  const { settings, problems } = parseSettings(readSettingsText((p) => api.read(p)));
   for (const p of problems) log(`::warning::${p}`);
   return { on: settings.commands, need: settings['commands-need'] };
 }
@@ -428,7 +430,7 @@ export function main(env = process.env, api = realApi(env, env.GITHUB_REPOSITORY
       const role = api.role(commenter.login);
       const allowed = role !== null && mayUse(role, cfg.need, { organisation });
       if (allowed) {
-        const result = runCommand(cmd, { issue: api.getIssue(number), actor: commenter.login, api, paused: env.CONCIERGE_PAUSED === 'true' });
+        const result = runCommand(cmd, { issue: api.getIssue(number), actor: commenter.login, api, paused: pausedBy(env).length > 0 });
         api.react(payload.comment.id, result.ok ? 'rocket' : 'confused');
         if (!result.ok) api.reply(number, `Could not run \`/${cmd.name}\`: ${result.reason}`);
         log(`#${number}: /${cmd.name} by ${commenter.login}: ${result.ok ? result.note : result.reason}`);

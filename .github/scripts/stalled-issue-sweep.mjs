@@ -1,4 +1,4 @@
-// Stalled issue sweep for Repo Concierge.
+// Stalled issue sweep for Issue Concierge.
 //
 // Deterministic: no LLM. An issue the issue worker analysed but that never reached issue triage gets the gate
 // label again, so triage runs on the analysis that is already there. A model run can end before it signals

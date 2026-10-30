@@ -1,4 +1,4 @@
-# Concierge commands. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "The maintainer's view".
+# Issue Concierge commands. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "The maintainer's view".
 #
 # A maintainer decides what becomes of an issue that waits for them by commenting a command: /accept, /decline,
 # /approve, /replan or /retry (/help lists them). The workflow also keeps one comment on such an issue, the options
@@ -6,7 +6,7 @@
 # always the last comment (it is posted again after anyone else comments), and it is deleted when nothing waits.
 #
 # A command does what a person with the role can already do by hand with the labels. The role is read from GitHub for
-# the person who commented (the setting `commands-need` in .github/agentic-workflows/settings.yml, template
+# the person who commented (the setting `commands-need` in .github/issue-concierge/settings.yml, template
 # shared/settings.yml, says which role is enough; triage is the default), and the comment is read from the event file:
 # it is never put into a shell command. With `commands: false` the workflow does nothing.
 #
@@ -18,11 +18,11 @@
 # An issue that carries 'no-auto-processing' starts no run here ("Opting an item out").
 #
 # Install: copy this file to .github/workflows/commands.yml and scripts/commands.mjs to .github/scripts/commands.mjs (it
-# imports concierge-settings.mjs, concierge-state.mjs, plan-approval-resume.mjs, janitor.mjs and opt-out.mjs, so
+# imports issue-concierge-settings.mjs, issue-concierge-state.mjs, plan-approval-resume.mjs, janitor.mjs and opt-out.mjs, so
 # install those too).
 # Needs SIGNAL_TOKEN: a label added or an issue closed with the workflow token starts no workflow, and handing an issue
 # on is what starts the next gate.
-name: "Concierge 5b ▸ Commands"
+name: "Issue Concierge 5b ▸ Commands"
 
 on:
   issue_comment:
@@ -68,6 +68,8 @@ jobs:
           # Hands an issue on and closes it with this token, which is what starts the next gate.
           SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
           ISSUE_NUMBER: ${{ inputs.issue_number }}
-          # When it is 'true' a command that would hand an issue on is refused, because no gate would start.
+          # When either is 'true' a command that would hand an issue on is refused, because no gate would start.
+          # CONCIERGE_PAUSED is the name the variable had before; it still pauses.
+          ISSUE_CONCIERGE_PAUSED: ${{ vars.ISSUE_CONCIERGE_PAUSED }}
           CONCIERGE_PAUSED: ${{ vars.CONCIERGE_PAUSED }}
         run: node .github/scripts/commands.mjs

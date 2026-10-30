@@ -1,4 +1,4 @@
-// The status issue of Repo Concierge.
+// The status issue of Issue Concierge.
 //
 // Deterministic: no LLM. One pinned issue per repository, written and kept up to date by the bot, that shows the
 // maintainers of that repository what the Concierge is doing: what waits for them, which reporters have answered,
@@ -8,20 +8,26 @@
 // by a bot and carries no-auto-processing, and every gate skips both. Rules and reasons:
 // docs/multi-phase-design.md, "The maintainer's view".
 //
-// Install: copy to .github/scripts/status-issue.mjs (it imports concierge-settings.mjs, concierge-state.mjs,
+// Install: copy to .github/scripts/status-issue.mjs (it imports issue-concierge-settings.mjs, issue-concierge-state.mjs,
 // janitor.mjs and opt-out.mjs, so install those too).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import { SETTINGS_PATH, parseSettings } from './concierge-settings.mjs';
+import { PIN_PATH, readPin as readPinFile } from './issue-concierge-paths.mjs';
+import { SETTINGS_PATH, parseSettings, readSettingsText } from './issue-concierge-settings.mjs';
 import {
   BOT, QUEUES, STUCK_AFTER_MINUTES, GATE_LABELS, ago, classify, compareVersions, isAnalysis, labelledAt, latestRelease,
-  readPin, reporterReplies, runHealth, safeText, spend, tokenExpiry,
-} from './concierge-state.mjs';
+  pausedBy, readPin, reporterReplies, runHealth, safeText, shortGateName, spend, tokenExpiry,
+} from './issue-concierge-state.mjs';
 import { LABEL_OPT_OUT, labelNames } from './opt-out.mjs';
 
-export const TITLE = 'Concierge status';
+export const TITLE = 'Issue Concierge status';
+// What a version before the product was named for its kind called the issue and marked it with. The page is found by either, and renamed.
+export const LEGACY_TITLE = 'Concierge status';
 /** The hidden line that tells the status issue from every other issue the bot opened. */
-export const MARKER = '<!-- concierge:status -->';
+export const MARKER = '<!-- issue-concierge:status -->';
+export const LEGACY_MARKER = '<!-- concierge:status -->';
+/** True when a body carries the marker of the status page, in either spelling. */
+export const hasStatusMarker = (body) => String(body || '').includes(MARKER) || String(body || '').includes(LEGACY_MARKER);
 /** Items listed per queue; the rest is a link to the search. */
 export const LIST_CAP = 10;
 /** Issues whose comments are read to find out whether the issue worker has seen them. */
@@ -114,7 +120,7 @@ export function render(m) {
 
   L.push(MARKER, `# ${TITLE}`, '', `Last changed ${minute(m.now)} · [What is this page?](${MAINTAINER_DOCS})`, '');
   if (m.paused) {
-    L.push(`> ⏸ **Paused**${m.paused.since ? ` since ${minute(Date.parse(m.paused.since))}` : ''}. No gate, sweep, closer or notifier touches an issue or a pull request, and runs that are already in flight finish. To resume, delete the repository variable \`CONCIERGE_PAUSED\` or set it to anything but \`true\`: [Settings › Variables](https://github.com/${repo}/settings/variables/actions). An issue that was in a gate meanwhile may need \`/retry\` afterwards.`, '');
+    L.push(`> ⏸ **Paused**${m.paused.since ? ` since ${minute(Date.parse(m.paused.since))}` : ''}. No gate, sweep, closer or notifier touches an issue or a pull request, and runs that are already in flight finish. To resume, delete the repository variable \`ISSUE_CONCIERGE_PAUSED\` (and \`CONCIERGE_PAUSED\`, its older name, if it is set) or set it to anything but \`true\`: [Settings › Variables](https://github.com/${repo}/settings/variables/actions). An issue that was in a gate meanwhile may need \`/retry\` afterwards.`, '');
   }
   if (m.pinNote) L.push(`> ⚠ This issue is not pinned: ${m.pinNote}`, '');
 
@@ -161,15 +167,15 @@ export function render(m) {
 
   L.push('## Health', '');
   const last = m.health.lastGood;
-  L.push(last.length ? `- Last good run: ${last.map((g) => `${g.name.replace(/^Concierge /, '')} ${ago(m.now - g.at)} ago`).join(' · ')}` : '- No gate has run successfully in the runs GitHub lists.');
+  L.push(last.length ? `- Last good run: ${last.map((g) => `${shortGateName(g.name)} ${ago(m.now - g.at)} ago`).join(' · ')}` : '- No gate has run successfully in the runs GitHub lists.');
   if (m.health.failures.length === 0) L.push('- Failed runs in the last 7 days: none');
   else {
     L.push(`- Failed runs in the last 7 days: ${m.health.failures.length}`);
-    for (const f of m.health.failures.slice(0, 5)) L.push(`  - [${safeText(f.name.replace(/^Concierge /, ''))}](${f.url}) ${ago(m.now - f.at)} ago`);
+    for (const f of m.health.failures.slice(0, 5)) L.push(`  - [${safeText(shortGateName(f.name))}](${f.url}) ${ago(m.now - f.at)} ago`);
   }
   if (m.pin.version) {
     L.push(`- Pinned: \`${m.pin.version}\` (${m.pin.channel}) from \`${m.pin.source}\`${m.behind ? ` · ⚠ ${m.behind} is available, the updater opens a pull request` : m.latest ? ' · up to date' : ''}`);
-  } else L.push('- No pin file (`.github/concierge.yml`) was found.');
+  } else L.push(`- No pin file (\`${PIN_PATH}\`) was found.`);
   L.push(`- ${tokenLine(m)}`, '');
 
   L.push('## Spend', '');
@@ -213,7 +219,8 @@ export function normalise(body) {
 // ------------------------------------------------------------------ the nudge
 
 /** The hidden line the mention comment starts with. It is the bot's comment on the status issue, found by this line. */
-export const MENTION_MARKER = '<!-- concierge:mention -->';
+export const MENTION_MARKER = '<!-- issue-concierge:mention -->';
+export const LEGACY_MENTION_MARKER = '<!-- concierge:mention -->';
 /** At most this many people are named in one comment. */
 export const MENTION_CAP = 20;
 /** Items listed in a mention comment; the rest is a count. */
@@ -240,7 +247,7 @@ export function renderMention(logins, items, days, now) {
   L.push(`${plural(items.length, 'issue')} ${items.length === 1 ? 'has' : 'have'} waited for a maintainer for ${plural(days, 'day')} or more:`, '');
   for (const i of items.slice(0, MENTION_ITEMS)) L.push(`- #${i.number} ${safeText(i.title)} · ${i.queue.toLowerCase()} · waiting ${ago(now - i.since)}`);
   if (items.length > MENTION_ITEMS) L.push(`- and ${items.length - MENTION_ITEMS} more, listed on this page`);
-  L.push('', 'The lists above say what each one needs. To stop these comments, set `mention-after-days: 0` in `.github/agentic-workflows/settings.yml`.');
+  L.push('', 'The lists above say what each one needs. To stop these comments, set `mention-after-days: 0` in `.github/issue-concierge/settings.yml`.');
   return L.join('\n');
 }
 
@@ -261,7 +268,7 @@ export function nudge(ctx, repo, number, model, settings, signalToken) {
   const days = settings['mention-after-days'];
   const items = overdue(model, days);
   const comments = ctx.list(`repos/${repo}/issues/${number}/comments`) ?? [];
-  const mentions = comments.filter((c) => c.user && c.user.login === BOT && String(c.body || '').startsWith(MENTION_MARKER));
+  const mentions = comments.filter((c) => c.user && c.user.login === BOT && (String(c.body || '').startsWith(MENTION_MARKER) || String(c.body || '').startsWith(LEGACY_MENTION_MARKER)));
   const previous = mentions.length ? mentions[mentions.length - 1] : null;
   // Listing the collaborators needs more than the workflow token may have: try it first, then the signal token.
   let listed = null;
@@ -343,11 +350,11 @@ export function realContext(env = process.env) {
 }
 
 /** Collect the facts. Returns null when the issues cannot be read: the page is not rewritten from nothing. */
-export function collect(ctx, repo, settings, signalToken, paused = false) {
+export function collect(ctx, repo, settings, signalToken, pausedVariables = []) {
   const now = ctx.now;
   const issues = ctx.list(`repos/${repo}/issues?state=open`);
   if (!issues) return null;
-  const candidates = issues.filter((i) => !i.pull_request && !(i.body || '').includes(MARKER));
+  const candidates = issues.filter((i) => !i.pull_request && !hasStatusMarker(i.body));
 
   const windowDays = Math.max(settings['reporter-replies-days'], 7);
   const since = new Date(now - windowDays * 86400000).toISOString();
@@ -370,16 +377,22 @@ export function collect(ctx, repo, settings, signalToken, paused = false) {
     .slice(0, EVENT_CHECKS);
   for (const { i } of waiting) events.set(i.number, ctx.list(`repos/${repo}/issues/${i.number}/events`, { maxPages: 3 }) ?? []);
 
-  const pin = readPin(ctx.read('.github/concierge.yml'));
+  const pin = readPin(readPinFile((p) => ctx.read(p)).value);
   let latest = null;
   if (pin.source) {
     const releases = ctx.get(`repos/${pin.source}/releases?per_page=30`);
     if (releases.status === 200) latest = latestRelease(releases.data, pin.channel);
   }
   const runs = ctx.runs(new Date(now - 7 * 86400000).toISOString().slice(0, 10)) ?? [];
-  // When the variable was last set is the nearest thing to "paused since"; the workflow token may not be allowed to read it.
-  const variable = paused ? ctx.get(`repos/${repo}/actions/variables/CONCIERGE_PAUSED`) : null;
-  const pausedSince = variable && variable.status === 200 && variable.data ? variable.data.updated_at ?? null : null;
+  // When a pause variable was last set is the nearest thing to "paused since"; the workflow token may not be allowed to read it.
+  // With both set, the pause began with the earlier one.
+  const paused = pausedVariables.length > 0;
+  const stamps = pausedVariables
+    .map((name) => ctx.get(`repos/${repo}/actions/variables/${name}`))
+    .map((variable) => (variable && variable.status === 200 && variable.data ? variable.data.updated_at ?? null : null))
+    .filter(Boolean)
+    .sort();
+  const pausedSince = stamps[0] ?? null;
   return { repo, issues: candidates, comments, analysed, events, runs, pin, latest, token: ctx.probe(signalToken), paused: paused ? { since: pausedSince } : null };
 }
 
@@ -390,7 +403,9 @@ const IS_PINNED = 'query($id: ID!) { node(id: $id) { ... on Issue { isPinned } }
 /** Find the status issue among the issues the bot opened, open or closed. */
 export function findStatusIssue(ctx, repo) {
   const bot = ctx.list(`repos/${repo}/issues?state=all&creator=${encodeURIComponent(BOT)}`, { maxPages: 5 }) ?? [];
-  return bot.find((i) => !i.pull_request && (i.body || '').includes(MARKER)) ?? null;
+  // By the marker, in either spelling; an issue the bot opened under one of the two titles and lost its marker from is the page too.
+  const pages = bot.filter((i) => !i.pull_request);
+  return pages.find((i) => hasStatusMarker(i.body)) ?? pages.find((i) => i.title === TITLE || i.title === LEGACY_TITLE) ?? null;
 }
 
 /**
@@ -432,8 +447,13 @@ export function reconcile(ctx, repo, settings, existing, build, signalToken) {
   }
 
   const body = build(pinNote);
-  if (normalise(body) !== normalise(current)) {
-    ctx.write('PATCH', `repos/${repo}/issues/${issue.number}`, { body });
+  const patch = {};
+  if (normalise(body) !== normalise(current)) patch.body = body;
+  // A page that an earlier version opened is renamed, not replaced: there is one status issue, and it is this one. Only the
+  // title that version gave it is renamed; a title a maintainer chose is theirs.
+  if (issue.title === LEGACY_TITLE) patch.title = TITLE;
+  if (Object.keys(patch).length) {
+    ctx.write('PATCH', `repos/${repo}/issues/${issue.number}`, patch);
     if (action === 'unchanged') action = 'updated';
   }
   return { action, pinned, number: issue.number };
@@ -445,7 +465,7 @@ export function main(env = process.env, ctx = realContext(env)) {
     console.error('GITHUB_REPOSITORY is required');
     return 1;
   }
-  const text = ctx.read(SETTINGS_PATH);
+  const text = readSettingsText((p) => ctx.read(p));
   const { settings, problems } = parseSettings(text);
   for (const p of problems) console.log(`::warning::${p}`);
   const signalToken = env.SIGNAL_TOKEN || '';
@@ -456,7 +476,7 @@ export function main(env = process.env, ctx = realContext(env)) {
     console.log(out.action === 'closed' ? 'status-issue is false: the status issue was closed and unpinned' : 'status-issue is false: nothing to do');
     return 0;
   }
-  const raw = collect(ctx, repo, settings, signalToken, env.CONCIERGE_PAUSED === 'true');
+  const raw = collect(ctx, repo, settings, signalToken, pausedBy(env));
   if (!raw) {
     console.log('::error::the open issues could not be listed; the status issue is left as it is');
     return 1;

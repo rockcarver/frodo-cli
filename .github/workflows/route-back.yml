@@ -16,7 +16,7 @@
 # resolution.mjs: install them too).
 # Secret: the one related-repos.md names for the related repository, with Issues: Read and write there. The updater
 # writes it into the `env` below (the marker), like it does for the related-repo closer.
-name: "Concierge 4g ▸ Route Back"
+name: "Issue Concierge 4g ▸ Route Back"
 
 on:
   workflow_dispatch:

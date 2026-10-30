@@ -1,4 +1,4 @@
-// PR ready signal for Repo Concierge.
+// PR ready signal for Issue Concierge.
 //
 // Deterministic: no LLM. The PR gate starts when a pull request carries
 // `pr-worker-ready`, and the coding agent was told to add it but cannot: its GitHub

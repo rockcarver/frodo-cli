@@ -1,5 +1,5 @@
 ---
-name: "Concierge 4d Release Closer"
+name: "Issue Concierge 4d Release Closer"
 description: |
   When a release is published, mark included issues as released.
 # The release notes are written for people and name only the changes they describe, so a fix that has no
@@ -9,7 +9,7 @@ description: |
 # agent, with no model, and moves every issue whose `Fixed in #N.` comment (written by the Waiting for Release
 # gate) names a pull request whose merge commit is an ancestor of the tag. The agent then finds the labels of
 # those issues gone and checks the rest by the notes (docs/multi-phase-design.md, "Which fixes a release contains").
-if: ${{ (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') }}
+if: ${{ (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') }}
 on:
   release:
     types: [published, prereleased]
@@ -24,7 +24,7 @@ on:
     # to run for the issues this step cannot decide (the notes name them, or a related repository holds the fix).
     - name: Move the issues whose fix pull request is part of this release
       id: included_fixes
-      if: (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+      if: (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
       continue-on-error: true
       uses: actions/github-script@v9
       with:
@@ -150,7 +150,9 @@ Do not reopen a closed issue.
 
 ## This repository consumes the fix
 
-Read `.github/agentic-workflows/related-repos.md`.
+A repository's own files for the Concierge are in `.github/issue-concierge/`. A repository that has not been updated yet still has them in `.github/agentic-workflows/`: where this prompt names a file in the first folder and it is not there, look for the same name in the second.
+
+Read `.github/issue-concierge/related-repos.md`.
 Apply this only when an entry sets `release.requires_consumer_release: true`.
 
 1. Read the published release notes and the version of each pinned package (`release.pins`).

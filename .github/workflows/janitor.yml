@@ -16,7 +16,7 @@
 # scripts/janitor.mjs to .github/scripts/janitor.mjs (it imports opt-out.mjs, so install that too). No secret is needed: removing a label
 # starts nothing, and deleting a run needs only `actions: write` on the default token (the sweep
 # also reads pull requests, hence `pull-requests: read` on its job only).
-name: "Concierge 4a ▸ Janitor"
+name: "Issue Concierge 4a ▸ Janitor"
 
 on:
   issues:
@@ -63,7 +63,7 @@ jobs:
     # Keep this list identical to TRIGGER_LABELS in scripts/janitor.mjs (a test checks it).
     # An item that carries no-auto-processing is left alone ("Opting an item out" in docs/multi-phase-design.md).
     if: >-
-      (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+      (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
       && (github.event.action != 'labeled'
       || contains(fromJSON('["issue-worker-ready","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","pr-worker-ready","pr-triage-handoff","backlog","needs-info","dependency-required","scope-review","needs-decision","out-of-scope","duplicate","invalid","already-fixed","spam","plan-approval-required"]'), github.event.label.name))
       && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
@@ -88,7 +88,7 @@ jobs:
   # janitor's own pull_request_target, schedule and dispatch runs have never been held (frodo-lib#775).
   held-runs:
     needs: clean
-    if: ${{ !cancelled() && needs.clean.result != 'skipped' && (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && github.event_name != 'issues' }}
+    if: ${{ !cancelled() && needs.clean.result != 'skipped' && (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && github.event_name != 'issues' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
