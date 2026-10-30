@@ -1,4 +1,4 @@
-// Reporter notify for Repo Concierge.
+// Reporter notify for Issue Concierge.
 //
 // Deterministic: no LLM. The person who reported the ORIGINAL issue is not a participant of the
 // linked (canonical) issue that the issue worker opens in a related repository, so GitHub never
@@ -15,6 +15,7 @@
 // issue. Issue text is attacker-controlled; a bot comment is not.
 import { execFileSync } from 'node:child_process';
 import { isCodingAgent } from './janitor.mjs';
+import { configViaApi } from './issue-concierge-paths.mjs';
 import { isOptedOut, optedOutReason } from './opt-out.mjs';
 
 export const LABEL_WAITING = 'needs-info';
@@ -47,7 +48,7 @@ export function parseLinks(body) {
   return [...seen.values()];
 }
 
-/** The `repo: owner/name` entries of `.github/agentic-workflows/related-repos.md`, lower-cased. */
+/** The `repo: owner/name` entries of `.github/issue-concierge/related-repos.md`, lower-cased. */
 export function relatedRepos(configText) {
   const out = new Set();
   for (const m of String(configText || '').matchAll(/^\s*(?:-\s*)?repo:\s*([A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9._-]+)\s*$/gm)) {
@@ -94,7 +95,8 @@ function confirmOriginal(issue, ctx) {
   const links = parseLinks(issue.body);
   if (links.length === 0) return no('no link to an original report');
 
-  const cfg = ctx.api(`repos/${ctx.thisRepo}/contents/.github/agentic-workflows/related-repos.md`);
+  // The new folder first; the old one only when the file is not in the new one (an error on the new place is the answer).
+  const cfg = configViaApi('related-repos.md', (file) => ctx.api(`repos/${ctx.thisRepo}/contents/${file}`)).result;
   if (!cfg || cfg.status !== 200 || !cfg.data || typeof cfg.data.content !== 'string') {
     return no('no related-repos.md to confirm the linked repository');
   }

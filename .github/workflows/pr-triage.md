@@ -1,12 +1,12 @@
 ---
-name: "Concierge 3c PR Triage"
+name: "Issue Concierge 3c PR Triage"
 description: |
   PR gate triage. Runs when the coding agent signals completion with pr-worker-ready.
 on:
   pull_request_target:
     types: [labeled]
 if: >-
-  (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+  (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
   && github.event.label.name == 'pr-worker-ready'
   && github.event.pull_request.head.repo.id == github.repository_id
   && !contains(github.event.pull_request.labels.*.name, 'no-auto-processing')

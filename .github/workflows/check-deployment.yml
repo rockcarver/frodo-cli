@@ -1,7 +1,7 @@
 # Deployment check. Plain GitHub Actions, no LLM. See docs/deployment.md.
 #
 # Fails when the compiled workflows cannot do what
-# .github/agentic-workflows/related-repos.md promises: for every related
+# .github/issue-concierge/related-repos.md promises: for every related
 # repository that names a secret, the issue worker must be able to create
 # issues there and the related-repo closer (a plain workflow, with CROSS_REPO and
 # CROSS_REPO_TOKEN written into it by the updater) to comment, label and close there.
@@ -10,12 +10,13 @@
 # when it has no docs/decisions/ folder (or decisions/ at the repository root
 # when docs/ is generated) of decision records (template:
 # shared/decision-record.md). It warns, and never fails, about a line of
-# .github/agentic-workflows/settings.yml that the Concierge cannot use.
+# .github/issue-concierge/settings.yml that the Concierge cannot use, and tells a repository whose own files are
+# still in the old folder .github/agentic-workflows/ which they are (a notice) and which are in both folders (a warning).
 #
 # Install: copy this file to .github/workflows/check-deployment.yml and
 # scripts/check-deployment.mjs (plus scripts/dependency-watch.mjs and
-# scripts/concierge-settings.mjs, which it imports) to .github/scripts/.
-name: "Concierge 4f ▸ Check Deployment"
+# scripts/issue-concierge-settings.mjs, which it imports) to .github/scripts/.
+name: "Issue Concierge 4f ▸ Check Deployment"
 
 on:
   pull_request:
@@ -23,7 +24,10 @@ on:
       - '.github/workflows/*.md'
       - '.github/workflows/*.lock.yml'
       - '.github/workflows/related-repo-closer.yml'
+      - '.github/issue-concierge/**'
       - '.github/agentic-workflows/**'
+      - '.github/issue-concierge.yml'
+      - '.github/concierge.yml'
       - '.github/scripts/check-deployment.mjs'
   workflow_dispatch:
 

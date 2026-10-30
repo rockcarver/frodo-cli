@@ -1,4 +1,4 @@
-// Route back for Repo Concierge.
+// Route back for Issue Concierge.
 //
 // Deterministic: no LLM. A split-repo link has two issues: the ORIGINAL, which the reporter filed, and the CANONICAL
 // issue in the repository that holds the work (record 0019). When a maintainer decides that the fix belongs in the

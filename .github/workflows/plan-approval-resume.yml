@@ -6,7 +6,7 @@
 # Install: copy this file to .github/workflows/plan-approval-resume.yml and
 # scripts/plan-approval-resume.mjs to .github/scripts/plan-approval-resume.mjs (it imports
 # janitor.mjs and opt-out.mjs, so install those too).
-name: "Concierge 2c ▸ Plan Approval Resume"
+name: "Issue Concierge 2c ▸ Approval Resume"
 
 on:
   issues:
@@ -29,7 +29,7 @@ concurrency:
 jobs:
   resume:
     # On a label event, run only for the approval label.
-    if: (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && (github.event_name != 'issues' || github.event.label.name == 'plan-approval-required') && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
+    if: (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && (github.event_name != 'issues' || github.event.label.name == 'plan-approval-required') && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

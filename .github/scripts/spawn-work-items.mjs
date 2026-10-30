@@ -1,4 +1,4 @@
-// Spawn work items for Repo Concierge.
+// Spawn work items for Issue Concierge.
 //
 // Deterministic: no LLM. A fix can need changes in two repositories: a library function and the command that calls it.
 // The plan worker, which reads the code on both sides, lists that as `Work item:` lines in its plan; plan triage holds

@@ -16,7 +16,7 @@
 # Secrets: SIGNAL_TOKEN (the label event must start the dependency watcher) and the one related-repos.md names for the
 # related repository, with Issues: Read and write there. The updater writes the second into the `env` below (the marker),
 # like it does for the related-repo closer.
-name: "Concierge 2d ▸ Spawn Work Items"
+name: "Issue Concierge 2d ▸ Spawn Work Items"
 
 on:
   workflow_dispatch:
