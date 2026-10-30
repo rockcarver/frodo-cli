@@ -249,6 +249,81 @@ describe('frodo admin generate/execute-rfc7523: required inputs', () => {
     });
   });
 
+  describe('execute: what it takes from the trusted issuer', () => {
+    const issuerUrl = 'https://issuer.example.invalid';
+    const args = ['execute-rfc7523-authz-grant-flow', '--client-id', 'c1'];
+
+    async function withIssuer(issuer) {
+      fakeAm = await startFakeAm({
+        recordPath,
+        journey: 'service-account',
+        issuer,
+      });
+    }
+
+    test('takes the issuer and the only allowed subject', async () => {
+      await withIssuer({ issuer: issuerUrl, allowedSubjects: ['user-1'] });
+      const result = frodo([...args, '--jwk-file', jwkFile]);
+      expect(result.status).toBe(0);
+      expect(result.output).toContain("trusted issuer's only allowed subject");
+      const [sent] = grantRequests('c1');
+      const assertion = new URLSearchParams(sent.body).get('assertion');
+      const claims = JSON.parse(
+        Buffer.from(assertion.split('.')[1], 'base64url').toString()
+      );
+      expect(claims.iss).toBe(issuerUrl);
+      expect(claims.sub).toBe('user-1');
+    });
+
+    test('with several allowed subjects it lists them, asks for --sub and sends nothing', async () => {
+      await withIssuer({
+        issuer: issuerUrl,
+        allowedSubjects: ['user-1', 'user-2'],
+      });
+      const result = frodo([...args, '--jwk-file', jwkFile]);
+      expect(result.status).toBe(1);
+      expect(result.output).toContain(
+        'the trusted issuer allows 2 subjects (user-1, user-2). Name one with --sub.'
+      );
+      expect(result.output).toContain('Nothing was sent. No value for --sub');
+      expect(grantRequests('c1')).toHaveLength(0);
+    });
+
+    test('with any user allowed it asks for --sub and sends nothing', async () => {
+      await withIssuer({ issuer: issuerUrl, allowedSubjects: [] });
+      const result = frodo([...args, '--jwk-file', jwkFile]);
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('allows any realm user');
+      expect(result.output).toContain('Nothing was sent. No value for --sub');
+      expect(grantRequests('c1')).toHaveLength(0);
+    });
+
+    test('an issuer without an issuer value is not taken as found', async () => {
+      await withIssuer({ allowedSubjects: ['user-1'] });
+      const result = frodo([...args, '--jwk-file', jwkFile]);
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('has no issuer value');
+      expect(result.output).toContain('Nothing was sent. No value for --iss');
+      expect(result.output).not.toContain('undefined');
+      expect(grantRequests('c1')).toHaveLength(0);
+    });
+
+    test('--sub given beats the issuer list', async () => {
+      await withIssuer({
+        issuer: issuerUrl,
+        allowedSubjects: ['user-1', 'user-2'],
+      });
+      const result = frodo([...args, '--jwk-file', jwkFile, '--sub', 'user-2']);
+      expect(result.status).toBe(0);
+      const [sent] = grantRequests('c1');
+      const assertion = new URLSearchParams(sent.body).get('assertion');
+      expect(
+        JSON.parse(Buffer.from(assertion.split('.')[1], 'base64url').toString())
+          .sub
+      ).toBe('user-2');
+    });
+  });
+
   describe('generate', () => {
     beforeEach(async () => {
       fakeAm = await startFakeAm({ recordPath, journey: 'service-account' });

@@ -150,7 +150,20 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   are registered at setup via `deferEntityPicks(command, [...])`; the
   resolver skips the free-text value step for pickable options. The
   loader is per-deployment-type by construction (whatever read
-  function the command family's ops layer provides).
+  function the command family's ops layer provides). A row is the
+  entity's `label` and, unless the spec has a `value`, also the option
+  value; a spec whose rows say more than the value (a user row shows the
+  username, name and id, the option gets the id) sets `value`, and one
+  whose search must span more than the row sets `search` (case-insensitive
+  substring over the label by default). A list too long to show whole sets
+  `searchFirst`: when its `when()` says so the picker asks for a search
+  text, offers what `load(text)` returns, and asks again while that is
+  empty or a message ("1001 users match 'user'"); Esc declines. The first
+  user is `--sub` of `frodo admin execute-rfc7523-authz-grant-flow`
+  (`Rfc7523SubjectOps.ts`, cli#1004): the users the trusted issuer allows,
+  else the realm's, found by username, first or last name, email or id. The
+  users come from IDM's managed user object, and on a classic deployment,
+  which has no IDM, from the AM users endpoint.
 
 Both pickers inherit type-to-search and auto-select a single candidate.
 
