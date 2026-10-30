@@ -136,7 +136,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--dynamic',
-        'Export only dynamic configuration: what changes at run time (OAuth2 clients, agents, policies, SAML providers, ESVs and the like). With --static it exports both, which is also what happens without either.'
+        'Export only dynamic configuration: everything that is not static, which is what an environment promotion does not carry (OAuth2 clients, agents, policies, SAML providers, ESVs and the like). With --static it exports both, which is also what happens without either.'
       )
     )
     .addHelpText(
@@ -161,7 +161,7 @@ export default function setup() {
         c.command(`  $ frodo config export -ar ${s.connId} bravo\n`) +
         `  Export only the static configuration, the part an environment promotion carries, to a single file:\n` +
         c.command(`  $ frodo config export -a --static ${s.connId}\n`) +
-        `  Export only the dynamic configuration, the part that changes at run time:\n` +
+        `  Export only the dynamic configuration, everything a promotion does not carry:\n` +
         c.command(`  $ frodo config export -a --dynamic ${s.connId}\n`) +
         `  Backup global and realm configuration including active secret values to a single file (Note: only values of active and loaded secrets can be exported):\n` +
         c.command(

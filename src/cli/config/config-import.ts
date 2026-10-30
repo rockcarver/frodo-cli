@@ -97,7 +97,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--dynamic',
-        'Import only dynamic configuration: what changes at run time (OAuth2 clients, agents, policies, SAML providers, ESVs and the like). With --static it imports both, which is also what happens without either.'
+        'Import only dynamic configuration: everything that is not static, which is what an environment promotion does not carry (OAuth2 clients, agents, policies, SAML providers, ESVs and the like). With --static it imports both, which is also what happens without either.'
       )
     )
     .addHelpText(
@@ -124,7 +124,7 @@ export default function setup() {
         c.command(
           `  $ frodo config import -a -f Alpha.everything.json --static ${s.connId}\n`
         ) +
-        `  Import only the dynamic configuration, the part that changes at run time:\n` +
+        `  Import only the dynamic configuration, everything a promotion does not carry:\n` +
         c.command(
           `  $ frodo config import -a -f Alpha.everything.json --dynamic ${s.connId}\n`
         ) +
