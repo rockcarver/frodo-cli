@@ -16,6 +16,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string} [options.journey] `password` for plain login, `service-account` for bearer login (default: the MFA journey)
  * @param {string} [options.grantError] makes the service-account journey refuse other token requests with `invalid_grant` and this description
  * @param {{ issuer?: string, allowedSubjects: string[] }} [options.issuer] what every trusted JWT issuer read answers with
+ * @param {number} [options.usersCap] stops the AM users endpoint (not IDM) at this many results, in the list and in the count
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @returns {Promise<{ port: number, stop: () => void }>}
@@ -27,6 +28,7 @@ export async function startFakeAm({
   grantError,
   issuer,
   users,
+  usersCap,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
   const written = (name, data) => {
@@ -45,6 +47,7 @@ export async function startFakeAm({
         ? { FAKE_AM_ISSUER_FILE: written('issuer.json', issuer) }
         : {}),
       ...(users ? { FAKE_AM_USERS_FILE: written('users.json', users) } : {}),
+      ...(usersCap ? { FAKE_AM_USERS_CAP: String(usersCap) } : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });

@@ -14,7 +14,12 @@ const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
  * belongs to. The reads are plain ops: the prompts are in the picker.
  */
 
-/** A realm with up to this many users is listed whole. */
+/**
+ * A realm with fewer users than this is listed whole. The AM users endpoint
+ * stops at 1000 results, in the list and in the count (the data store's
+ * maximum results, 1000 by default), so a count that reaches the limit may be
+ * a cap: from here on the picker asks for a search text first.
+ */
 export const SUBJECT_LIST_LIMIT = 1000;
 /** A search that finds more users than this asks for a longer text. */
 export const SUBJECT_MATCH_LIMIT = 200;
@@ -123,6 +128,8 @@ function toCandidate(
  * endpoint answers instead. Both give the picker the same candidates.
  */
 type UserDirectory = {
+  /** The AM endpoint caps its count at the limit; IDM counts exactly. */
+  countIsCapped: boolean;
   count(filter: string): Promise<number>;
   read(filter: string): Promise<SubjectCandidate[]>;
   searchFilter(text: string): string;
@@ -131,6 +138,7 @@ type UserDirectory = {
 function userDirectory(): UserDirectory {
   if (state.getDeploymentType() === CLASSIC_DEPLOYMENT_TYPE_KEY) {
     return {
+      countIsCapped: true,
       count: (filter) => countUsers(filter),
       read: async (filter) =>
         (await readUsers(filter, AM_FIELDS)).map((user) =>
@@ -146,6 +154,7 @@ function userDirectory(): UserDirectory {
   }
   const type = getCurrentRealmManagedUser();
   return {
+    countIsCapped: false,
     count: (filter) => countManagedObjects(type, filter),
     read: async (filter) =>
       (await queryManagedObjects(type, filter, IDM_FIELDS)).map((user) =>
@@ -204,7 +213,7 @@ export function createSubjectSource(getClientId: () => string) {
     /** The realm has too many users to list whole and nothing narrows it. */
     async tooMany(): Promise<boolean> {
       if ((await allowedSubjects())?.length) return false;
-      return (await userDirectory().count('true')) > SUBJECT_LIST_LIMIT;
+      return (await userDirectory().count('true')) >= SUBJECT_LIST_LIMIT;
     },
 
     /** The allowed subjects, or the realm's users when the issuer allows any. */
@@ -231,7 +240,11 @@ export function createSubjectSource(getClientId: () => string) {
       const filter = directory.searchFilter(text);
       const found = await directory.count(filter);
       if (found > SUBJECT_MATCH_LIMIT) {
-        return `${found} users match '${text}'. Type more of the username, name or email.`;
+        const many =
+          directory.countIsCapped && found >= SUBJECT_LIST_LIMIT
+            ? `${found} or more`
+            : `${found}`;
+        return `${many} users match '${text}'. Type more of the username, name or email.`;
       }
       return subjectRows(await directory.read(filter));
     },

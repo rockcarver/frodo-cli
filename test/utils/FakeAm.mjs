@@ -44,7 +44,9 @@
  * `_pageSize=0` answers the count. The same users are served by the AM users
  * endpoint (`.../json/realms/root/realms/<realm>/users`, which a classic
  * deployment has instead of IDM): AM's shape, with the attributes as lists and
- * the username filtered as `uid`.
+ * the username filtered as `uid`. FAKE_AM_USERS_CAP=<n> makes that endpoint
+ * stop at n results, in the list and in the count, as AM does at the data
+ * store's maximum results (1000 by default).
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -129,7 +131,11 @@ const server = http.createServer((req, res) => {
     const pathname = new URL(req.url, 'http://fake').pathname;
     if (users && pathname.includes('/json/') && pathname.endsWith('/users')) {
       const query = new URL(req.url, 'http://fake').searchParams;
-      const selected = selectUsers(query.get('_queryFilter') ?? 'true');
+      const cap = Number(process.env.FAKE_AM_USERS_CAP ?? Infinity);
+      const selected = selectUsers(query.get('_queryFilter') ?? 'true').slice(
+        0,
+        cap
+      );
       const size = Number(query.get('_pageSize') ?? selected.length);
       const page = size === 0 ? [] : selected.slice(0, size);
       return send(200, {

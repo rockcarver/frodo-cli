@@ -422,6 +422,50 @@ suite('RFC7523 commands, on a real terminal', () => {
         expect(sentSubject()).toBe('u-aaa');
       });
 
+      test('AM stops at 1000 results: a realm of 1500 users still asks for a search text, and the broad search says "or more"', async () => {
+        const many = Array.from({ length: 1500 }, (_, index) => {
+          const n = String(index).padStart(4, '0');
+          return {
+            _id: `id-${n}`,
+            userName: `user${n}`,
+            givenName: 'First',
+            sn: `Last${n}`,
+            mail: `user${n}@example.com`,
+          };
+        });
+        await fake({
+          journey: 'password',
+          issuer: { issuer: issuerUrl, allowedSubjects: [] },
+          users: many,
+          usersCap: 1000,
+        });
+        const run = onTerminal(
+          'execute-rfc7523-authz-grant-flow',
+          withKey(),
+          [
+            {
+              type: 'wait_plain',
+              regex: 'The realm has 1000 or more users',
+              timeoutMs: 30000,
+            },
+            { type: 'send', text: 'user' },
+            { type: 'key', name: 'enter' },
+            {
+              type: 'wait_plain',
+              regex: "1000 or more users match 'user'",
+              timeoutMs: 30000,
+            },
+            { type: 'send', text: '0' },
+            { type: 'key', name: 'enter' },
+          ],
+          classic
+        );
+        // the picker never listed the truncated first 1000
+        expect(run.plainOutput).not.toContain(
+          'Select the user to get tokens for'
+        );
+      });
+
       test('a big realm asks for a search text first', async () => {
         const crowd = Array.from({ length: 1001 }, (_, index) => {
           const n = String(index).padStart(4, '0');
@@ -444,7 +488,7 @@ suite('RFC7523 commands, on a real terminal', () => {
           [
             {
               type: 'wait_plain',
-              regex: 'The realm has more than 1000 users',
+              regex: 'The realm has 1000 or more users',
               timeoutMs: 30000,
             },
             { type: 'send', text: 'user004' },
@@ -461,7 +505,7 @@ suite('RFC7523 commands, on a real terminal', () => {
       });
     });
 
-    describe('in a realm with more than 1000 users', () => {
+    describe('in a realm with 1000 or more users', () => {
       const crowd = Array.from({ length: 1001 }, (_, index) => {
         const n = String(index).padStart(4, '0');
         return {
@@ -481,7 +525,7 @@ suite('RFC7523 commands, on a real terminal', () => {
         const run = onTerminal('execute-rfc7523-authz-grant-flow', withKey(), [
           {
             type: 'wait_plain',
-            regex: 'The realm has more than 1000 users',
+            regex: 'The realm has 1000 or more users',
             timeoutMs: 30000,
           },
           { type: 'send', text: 'user' },
@@ -516,7 +560,7 @@ suite('RFC7523 commands, on a real terminal', () => {
         onTerminal('execute-rfc7523-authz-grant-flow', withKey(), [
           {
             type: 'wait_plain',
-            regex: 'The realm has more than 1000 users',
+            regex: 'The realm has 1000 or more users',
             timeoutMs: 30000,
           },
           { type: 'key', name: 'escape' },
