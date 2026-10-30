@@ -19,11 +19,18 @@ export default function setup() {
 
   program
     .description('Unlock tenants and wait until they are unlocked.')
-    .requiredOption('-i, --id <id>', 'Promotion ID associated with the lock.')
+    .option(
+      '-i, --id <id>',
+      'Promotion ID associated with the lock. If not specified, it is read from the lock status of the environment.'
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Unlock the environments after a promotion and wait until they are unlocked (the ID is the promotion ID that lock-tenants printed):\n` +
+        `  Unlock the environments after a promotion and wait until they are unlocked (the promotion ID is read from the lock status):\n` +
+        c.command(
+          `  $ frodo config-manager promote unlock-tenants ${s.connId}\n`
+        ) +
+        `  Unlock the environments of a specific promotion (the ID is the promotion ID that lock-tenants printed):\n` +
         c.command(
           `  $ frodo config-manager promote unlock-tenants --id 1d9ac1b3-b9a0-46d5-8d8c-0f3f2a1f8a21 ${s.connId}\n`
         )

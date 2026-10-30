@@ -23,7 +23,8 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -i, --id <id>     Promotion ID associated with the lock. (prompts if missing)
+  -i, --id <id>     Promotion ID associated with the lock. If not specified, it
+                    is read from the lock status of the environment.
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

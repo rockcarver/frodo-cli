@@ -115,7 +115,7 @@ export async function lockTenants(): Promise<boolean> {
     printMessage(
       {
         status: lockStatus.result,
-        Promotionid: lockStatus.promotionId,
+        promotionId: lockStatus.promotionId,
       },
       'data'
     );
@@ -128,10 +128,10 @@ export async function lockTenants(): Promise<boolean> {
 
 /**
  * Unlock tenants and wait until they are unlocked.
- * @param {string} promotionId Promotion ID associated with the lock.
+ * @param {string} promotionId Optional promotion ID associated with the lock. If not specified, it is read from the environment lock status.
  * @returns {Promise<boolean>}  True if tenants were successfully unlocked, false otherwise.
  */
-export async function unlockTenants(promotionId: string): Promise<boolean> {
+export async function unlockTenants(promotionId?: string): Promise<boolean> {
   try {
     // Poll interval is 60s for config-manager, but the UI uses 10s. 60s is very long, so we use 10s instead.
     const lockStatus = await unlockEnvironment(promotionId, true);
