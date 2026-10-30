@@ -19,7 +19,7 @@
 # Install: copy this file to .github/workflows/waiting-for-release.yml and scripts/resolution.mjs to
 # .github/scripts/resolution.mjs (it imports opt-out.mjs: install that too). The release closer reads the
 # `Fixed in #N.` line this writes, and only when `github-actions[bot]` wrote it.
-name: "Concierge 4c ▸ Waiting for Release"
+name: "Issue Concierge 4c ▸ Waiting for Release"
 
 on:
   issues:
@@ -50,7 +50,7 @@ jobs:
   resolution:
     # By hand: always. On an event: not for an issue a bot opened and not for one that carries no-auto-processing.
     # The script checks everything else (how the issue was closed, who merged the pull request).
-    if: (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && (github.event_name == 'workflow_dispatch' || (github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing')))
+    if: (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && (github.event_name == 'workflow_dispatch' || (github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing')))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

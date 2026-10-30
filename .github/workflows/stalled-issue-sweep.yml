@@ -10,7 +10,7 @@
 # Install: copy this file to .github/workflows/stalled-issue-sweep.yml and scripts/stalled-issue-sweep.mjs to
 # .github/scripts/stalled-issue-sweep.mjs (it imports janitor.mjs and opt-out.mjs, so install those too).
 # Needs SIGNAL_TOKEN: a label added with the workflow token starts no workflow.
-name: "Concierge 1e ▸ Stalled Issue Sweep"
+name: "Issue Concierge 1e ▸ Stalled Issue Sweep"
 
 on:
   schedule:
@@ -38,7 +38,7 @@ concurrency:
 
 jobs:
   sweep:
-    if: ${{ (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

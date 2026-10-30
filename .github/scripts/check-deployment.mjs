@@ -1,7 +1,7 @@
-// Deployment check for Repo Concierge.
+// Deployment check for Issue Concierge.
 //
 // Deterministic: no LLM, no network. Verifies that the compiled workflows can
-// do what .github/agentic-workflows/related-repos.md promises: for every
+// do what .github/issue-concierge/related-repos.md promises: for every
 // related repository that names a secret, the issue worker may create issues
 // there and the related-repo closer may comment, label and close there, with
 // that secret. Reads the compiled .lock.yml of the issue worker and the text of
@@ -14,16 +14,35 @@
 // when it keeps no decision records (docs/decisions/, or decisions/ at the
 // repository root when docs/ is generated).
 //
-// It warns, and never fails, about a line of .github/agentic-workflows/settings.yml that the Concierge cannot use
+// It warns, and never fails, about a line of .github/issue-concierge/settings.yml that the Concierge cannot use
 // (an unknown setting, a value out of range): the default stays, so nothing stops, but the setting does not do what
 // the file says.
 import fs from 'node:fs';
-import { SETTINGS_PATH, parseSettings } from './concierge-settings.mjs';
+import { parseSettings, readSettingsText } from './issue-concierge-settings.mjs';
 import { parseRelatedRepos } from './dependency-watch.mjs';
+import { CONFIG_DIR, LEGACY_DIR, configPath, plannedMoves, readConfig } from './issue-concierge-paths.mjs';
 
 /** Warnings about the lines of a settings file that cannot be used; `null` when there is no file. */
 export function checkSettings(text) {
   return text == null ? [] : parseSettings(text).problems;
+}
+
+/**
+ * What to tell a repository whose own files are still in the old folder (`.github/agentic-workflows/`). `exists(path)` says
+ * whether a file is there. A file only in the old folder is read from there until the update has moved it, so this is a
+ * notice; a file in both folders is read from the new one and the old one is ignored, so that is a warning. Neither fails
+ * the check in the 2.x releases. In the next major release, which stops reading the old folder, both become errors: a
+ * scope.md or guard.md left in the old place would silently stop applying.
+ */
+export function checkLegacyFolder(exists) {
+  const { moves, both } = plannedMoves(exists);
+  const name = (m) => m.from.slice(LEGACY_DIR.length + 1);
+  return {
+    notices: moves.length
+      ? [`${moves.map(name).join(', ')} ${moves.length === 1 ? 'is' : 'are'} still in ${LEGACY_DIR}/. The update moves ${moves.length === 1 ? 'it' : 'them'} to ${CONFIG_DIR}/; until then ${moves.length === 1 ? 'it is' : 'they are'} read from there.`]
+      : [],
+    warnings: both.map((m) => `${name(m)} is in both ${LEGACY_DIR}/ and ${CONFIG_DIR}/. The one in ${CONFIG_DIR}/ is used and the one in ${LEGACY_DIR}/ is ignored: delete it.`),
+  };
 }
 
 /** Safe outputs a related repository must be reachable through, per compiled workflow. */
@@ -34,7 +53,9 @@ export const REQUIREMENTS = [{ file: 'issue-worker.lock.yml', outputs: ['create_
  * (`CROSS_REPO` and `CROSS_REPO_TOKEN`, from the `# concierge:cross-repo-env` marker).
  */
 export const CLOSER = 'related-repo-closer.yml';
-const CLOSER_MARKER = '# concierge:cross-repo-env';
+// Both spellings. The delivered workflow keeps the older one until every deployment's updater reads both; a pull request that
+// installed a closer with either line still in it came from an updater that does not know the marker.
+const CLOSER_MARKERS = ['# issue-concierge:cross-repo-env', '# concierge:cross-repo-env'];
 
 /** The files that tell coding agents how to work on the repository; either one is enough. */
 export const GUIDANCE_FILES = ['AGENTS.md', '.github/copilot-instructions.md'];
@@ -46,7 +67,7 @@ export const GUIDANCE_FILES = ['AGENTS.md', '.github/copilot-instructions.md'];
 export function checkGuidance(exists) {
   if (GUIDANCE_FILES.some((f) => exists(f))) return [];
   return [
-    'Coding agents get no repository guidance: neither AGENTS.md nor .github/copilot-instructions.md exists (template: shared/agents.md in the Repo Concierge repository; see docs/deployment.md)',
+    'Coding agents get no repository guidance: neither AGENTS.md nor .github/copilot-instructions.md exists (template: shared/agents.md in the Issue Concierge repository; see docs/deployment.md)',
   ];
 }
 
@@ -64,7 +85,7 @@ export const DECISIONS_DIRS = ['docs/decisions', 'decisions'];
 export function checkDecisions(isDirectory) {
   if (DECISIONS_DIRS.some((d) => isDirectory(d))) return [];
   return [
-    'Design decisions are not preserved for contributors and agents: docs/decisions/ (or decisions/ at the repository root when docs/ is generated) does not exist (template: shared/decision-record.md in the Repo Concierge repository; see docs/deployment.md)',
+    'Design decisions are not preserved for contributors and agents: docs/decisions/ (or decisions/ at the repository root when docs/ is generated) does not exist (template: shared/decision-record.md in the Issue Concierge repository; see docs/deployment.md)',
   ];
 }
 
@@ -111,11 +132,12 @@ export function checkDeployment(relatedText, locks) {
       errors.push(`${CLOSER}: not found; ${rel.repo} needs it`);
     } else {
       const text = String(locks[CLOSER]);
-      if (text.includes(CLOSER_MARKER) && envValue(text, 'CROSS_REPO') === undefined && envValue(text, 'CROSS_REPO_TOKEN') === undefined) {
+      const leftover = CLOSER_MARKERS.find((m) => text.includes(m));
+      if (leftover && envValue(text, 'CROSS_REPO') === undefined && envValue(text, 'CROSS_REPO_TOKEN') === undefined) {
         // The update that first installs the closer is made by the updater of the release before, which does not know
         // the marker yet. That is a state to finish, not a mistake: the next run of the updater writes the lines.
         warnings.push(
-          `${CLOSER}: still has the ${CLOSER_MARKER} marker, so CROSS_REPO and CROSS_REPO_TOKEN were not written: the updater that installed it predates the marker. Run the Concierge updater again (concierge-updater.yml, with target set to the pinned release); until then the closer updates nothing in ${rel.repo}`
+          `${CLOSER}: still has the ${leftover} marker, so CROSS_REPO and CROSS_REPO_TOKEN were not written: the updater that installed it predates the marker. Run the Concierge updater again (issue-concierge-updater.yml, with target set to the pinned release); until then the closer updates nothing in ${rel.repo}`
         );
       } else {
         if (envValue(text, 'CROSS_REPO') !== rel.repo) {
@@ -186,11 +208,14 @@ const isDirectory = (p) => {
 export function main(cwd = process.cwd()) {
   for (const notice of checkGuidance((f) => isFile(`${cwd}/${f}`))) console.log(`::notice::${notice}`);
   for (const notice of checkDecisions((d) => isDirectory(`${cwd}/${d}`))) console.log(`::notice::${notice}`);
-  const settingsPath = `${cwd}/${SETTINGS_PATH}`;
-  for (const problem of checkSettings(fs.existsSync(settingsPath) ? fs.readFileSync(settingsPath, 'utf8') : null)) console.log(`::warning::${problem}`);
-  const relatedPath = `${cwd}/.github/agentic-workflows/related-repos.md`;
-  if (!fs.existsSync(relatedPath)) {
-    console.log('No .github/agentic-workflows/related-repos.md: nothing to check.');
+  const readFile = (p) => (isFile(`${cwd}/${p}`) ? fs.readFileSync(`${cwd}/${p}`, 'utf8') : null);
+  const legacy = checkLegacyFolder((p) => isFile(`${cwd}/${p}`));
+  for (const notice of legacy.notices) console.log(`::notice::${notice}`);
+  for (const warning of legacy.warnings) console.log(`::warning::${warning}`);
+  for (const problem of checkSettings(readSettingsText(readFile))) console.log(`::warning::${problem}`);
+  const related = readConfig('related-repos.md', readFile);
+  if (related.value === null) {
+    console.log(`No ${configPath('related-repos.md')}: nothing to check.`);
     return 0;
   }
   const locks = {};
@@ -198,7 +223,7 @@ export function main(cwd = process.cwd()) {
     const p = `${cwd}/.github/workflows/${file}`;
     if (fs.existsSync(p)) locks[file] = fs.readFileSync(p, 'utf8');
   }
-  const { errors, warnings } = checkDeployment(fs.readFileSync(relatedPath, 'utf8'), locks);
+  const { errors, warnings } = checkDeployment(related.value, locks);
   for (const w of warnings) console.log(`::warning::${w}`);
   for (const e of errors) console.log(`::error::${e}`);
   console.log(`${errors.length} error(s), ${warnings.length} warning(s)`);

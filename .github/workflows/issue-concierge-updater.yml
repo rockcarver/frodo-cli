@@ -1,13 +1,16 @@
-# Concierge updater. Plain GitHub Actions, no LLM. See docs/updater.md.
+# Issue Concierge updater. Plain GitHub Actions, no LLM. See docs/updater.md.
 #
-# Keeps this repository on a released version of Repo Concierge: when a newer
-# release exists it rebuilds the update on the branch concierge/update and opens
+# Keeps this repository on a released version of Issue Concierge: when a newer
+# release exists it rebuilds the update on the branch issue-concierge/update and opens
 # or updates ONE pull request. The branch is rebuilt every run and never merged
-# into, so lock-file conflicts between updates cannot happen.
+# into, so lock-file conflicts between updates cannot happen. It also moves what the product used to
+# keep elsewhere (the pin file and the folder of a repository's own files) to its new place.
 #
-# Install: this file is delivered by Repo Concierge itself. For the first
+# The secret is ISSUE_CONCIERGE_TOKEN. It was called CONCIERGE_TOKEN, which still works.
+#
+# Install: this file is delivered by Issue Concierge itself. For the first
 # adoption follow docs/updater.md.
-name: "Concierge 4e ▸ Updater"
+name: "Issue Concierge 4e ▸ Updater"
 
 on:
   schedule:
@@ -31,7 +34,7 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: concierge-updater
+  group: issue-concierge-updater
   cancel-in-progress: false
 
 jobs:
@@ -45,7 +48,7 @@ jobs:
           fetch-depth: 0
           # The token that pushes the update branch (it must be allowed to
           # change workflow files). Without it the updater only reports.
-          token: ${{ secrets.CONCIERGE_TOKEN || github.token }}
+          token: ${{ secrets.ISSUE_CONCIERGE_TOKEN || secrets.CONCIERGE_TOKEN || github.token }}
 
       - uses: actions/setup-node@v7
         with:
@@ -54,11 +57,11 @@ jobs:
       - name: Update
         env:
           GH_TOKEN: ${{ github.token }}
-          CONCIERGE_TOKEN: ${{ secrets.CONCIERGE_TOKEN }}
+          ISSUE_CONCIERGE_TOKEN: ${{ secrets.ISSUE_CONCIERGE_TOKEN || secrets.CONCIERGE_TOKEN }}
           TARGET: ${{ inputs.target }}
           DRY_RUN: ${{ inputs.dry-run }}
         run: |
           args=()
           if [ -n "${TARGET}" ]; then args+=(--target "${TARGET}"); fi
           if [ "${DRY_RUN}" = "true" ]; then args+=(--dry-run); fi
-          node .github/scripts/concierge-updater.mjs "${args[@]}"
+          node .github/scripts/issue-concierge-updater.mjs "${args[@]}"

@@ -1,4 +1,4 @@
-// Resolution notice for Repo Concierge.
+// Resolution notice for Issue Concierge.
 //
 // Deterministic: no LLM. When an issue is closed because a pull request merged, the reporter should read how it
 // was resolved, in plain words, where they read: on the issue. A model used to post one fixed sentence ("Fixed in
@@ -24,9 +24,15 @@ import { isOptedOut, labelNames, optedOutReason } from './opt-out.mjs';
 
 export const LABEL_WAITING = 'waiting-for-release';
 export const LABEL_RELEASED = 'released';
-export const BEGIN = '<!-- concierge:resolution:begin -->';
-export const END = '<!-- concierge:resolution:end -->';
-export const MARKER = '<!-- concierge:resolution';
+export const BEGIN = '<!-- issue-concierge:resolution:begin -->';
+export const END = '<!-- issue-concierge:resolution:end -->';
+export const MARKER = '<!-- issue-concierge:resolution';
+// What a version before the product was named for its kind wrote. Those comments stay in the issues for good (the
+// resolution comments of production have been there since v1.5.0), so they are read as the same thing: the text between
+// the old lines is the resolution, and the old marker line says the comment was posted.
+export const LEGACY_BEGIN = '<!-- concierge:resolution:begin -->';
+export const LEGACY_END = '<!-- concierge:resolution:end -->';
+export const LEGACY_MARKER = '<!-- concierge:resolution';
 export const MAX_CHARS = 1500;
 export const MIN_CHARS = 20;
 const BOT = 'github-actions[bot]';
@@ -139,15 +145,20 @@ export function resolutionComment(pull, resolution, thisRepo, released) {
 
 /** The marker line of the comment above, so a second run finds it. */
 export const markerFor = (pull, thisRepo) => `${MARKER} ${ref(pull, thisRepo)} -->`;
+/** The same line as an earlier version wrote it: a comment that has either one was posted already. */
+export const legacyMarkerFor = (pull, thisRepo) => `${LEGACY_MARKER} ${ref(pull, thisRepo)} -->`;
 
 /** The resolution text inside a comment the harness wrote, or null. */
 export function textOfComment(body) {
   const s = String(body || '');
-  const a = s.indexOf(BEGIN);
-  const b = s.indexOf(END);
-  if (a < 0 || b < a) return null;
-  const text = s.slice(a + BEGIN.length, b).trim();
-  return text || null;
+  for (const [begin, end] of [[BEGIN, END], [LEGACY_BEGIN, LEGACY_END]]) {
+    const a = s.indexOf(begin);
+    const b = s.indexOf(end);
+    if (a < 0 || b < a) continue;
+    const text = s.slice(a + begin.length, b).trim();
+    return text || null;
+  }
+  return null;
 }
 
 // -------------------------------------------------------------------- reading
@@ -281,6 +292,7 @@ export async function decide(issue, ctx) {
     label: released ? LABEL_RELEASED : LABEL_WAITING,
     released,
     marker,
+    legacyMarker: legacyMarkerFor(pull, ctx.thisRepo),
     comment: body,
   };
 }
@@ -293,7 +305,11 @@ export function apply(verdict, issue, ctx, comments) {
   const did = [];
   const have = new Set(labelNames(issue));
   const posted = comments.some(
-    (c) => c.user && c.user.login === BOT && c.user.type === 'Bot' && String(c.body || '').includes(verdict.marker)
+    (c) =>
+      c.user &&
+      c.user.login === BOT &&
+      c.user.type === 'Bot' &&
+      [verdict.marker, verdict.legacyMarker].filter(Boolean).some((m) => String(c.body || '').includes(m))
   );
   if (verdict.label && !have.has(verdict.label)) {
     if (!ctx.dryRun) ctx.addLabel(issue.number, verdict.label);

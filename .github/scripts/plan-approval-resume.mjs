@@ -1,4 +1,4 @@
-// Plan approval resume for Repo Concierge.
+// Plan approval resume for Issue Concierge.
 //
 // Deterministic: no LLM. When a maintainer removes `plan-approval-required`
 // from an issue plan triage has classified (high complexity or high risk, which plan triage holds

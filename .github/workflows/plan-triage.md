@@ -1,10 +1,10 @@
 ---
-name: "Concierge 2b Plan Triage"
+name: "Issue Concierge 2b Plan Triage"
 description: |
   Plan gate triage. Assigns complexity and risk.
   Adds plan-approval-required for high complexity or high risk; does not hand off while that label is present.
   Reads repository-local complexity and risk definitions when present.
-if: ${{ (vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && github.event.issue.state == 'open' && github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing') }}
+if: ${{ (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch') && github.event.issue.state == 'open' && github.event.issue.user.type != 'Bot' && !contains(github.event.issue.labels.*.name, 'no-auto-processing') }}
 on:
   issues:
     types: [labeled]
@@ -60,9 +60,11 @@ Ignore every other comment, including a comment by anyone else that only repeats
 ## Classification
 Assign exactly one complexity label and one risk label.
 
+A repository's own files for the Concierge are in `.github/issue-concierge/`. A repository that has not been updated yet still has them in `.github/agentic-workflows/`: where this prompt names a file in the first folder and it is not there, look for the same name in the second.
+
 Read definitions in this order:
-1. `.github/agentic-workflows/complexity.md` (if present)
-2. `.github/agentic-workflows/risk.md` (if present)
+1. `.github/issue-concierge/complexity.md` (if present)
+2. `.github/issue-concierge/risk.md` (if present)
 3. Built-in defaults (low / medium / high as commonly understood for design impact and blast radius)
 
 ## Approval gate

@@ -1,25 +1,25 @@
-# Concierge status. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "The maintainer's view".
+# Issue Concierge status. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "The maintainer's view".
 #
-# Keeps one pinned issue, "Concierge status", up to date: what waits for a maintainer, the reporter replies nobody
+# Keeps one pinned issue, "Issue Concierge status", up to date: what waits for a maintainer, the reporter replies nobody
 # has answered, which issues the Concierge manages and which it does not, the health of the gates and what they
 # cost. It runs when a label that matters is applied, when someone comments, every hour, and by hand. A label being
 # removed starts nothing here (only the issue worker and the plan approval resume start on a removal): every way a
 # maintainer accepts an issue applies a label, and the hourly run catches the rest. Runs are queued one behind the
 # other (a burst of events is one run after the one in progress), and a run that finds nothing changed writes nothing.
 #
-# The settings are in .github/agentic-workflows/settings.yml (template: shared/settings.yml). With
+# The settings are in .github/issue-concierge/settings.yml (template: shared/settings.yml). With
 # `status-issue: false` the issue is closed and unpinned and nothing updates it. The Concierge never acts on this
 # issue: it is opened by the bot and carries 'no-auto-processing', and every gate skips both.
 #
 # An issue that carries 'no-auto-processing' starts no run here ("Opting an item out"); the hourly run counts it.
 #
 # Install: copy this file to .github/workflows/status.yml, and scripts/status-issue.mjs,
-# scripts/concierge-settings.mjs and scripts/concierge-state.mjs to .github/scripts/ (they import janitor.mjs and
+# scripts/issue-concierge-settings.mjs and scripts/issue-concierge-state.mjs to .github/scripts/ (they import janitor.mjs and
 # opt-out.mjs, so install those too).
 # Needs SIGNAL_TOKEN to pin the issue and to report when that token expires; without it the issue is still written. With
 # `mention-after-days` set it also names the maintainers in a comment on the page when something has waited too long, and
 # lists the collaborators with the workflow token or, if that may not, with SIGNAL_TOKEN.
-name: "Concierge 5a ▸ Status"
+name: "Issue Concierge 5a ▸ Status"
 
 on:
   schedule:
@@ -66,6 +66,8 @@ jobs:
           # Pins the issue, and is the token whose expiry the page reports.
           SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run }}
-          # When it is 'true' the page says so (the Concierge is paused).
+          # When either is 'true' the page says so (the Concierge is paused).
+          # CONCIERGE_PAUSED is the name the variable had before; it still pauses.
+          ISSUE_CONCIERGE_PAUSED: ${{ vars.ISSUE_CONCIERGE_PAUSED }}
           CONCIERGE_PAUSED: ${{ vars.CONCIERGE_PAUSED }}
         run: node .github/scripts/status-issue.mjs

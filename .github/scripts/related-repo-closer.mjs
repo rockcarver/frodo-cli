@@ -1,4 +1,4 @@
-// Related-repo closer for Repo Concierge.
+// Related-repo closer for Issue Concierge.
 //
 // Deterministic: no LLM. A split-repo link has two issues: the ORIGINAL, which the reporter filed,
 // and the CANONICAL issue in the repository that holds the work (record 0019). When the canonical
@@ -38,6 +38,7 @@
 // An issue that carries `no-auto-processing`, canonical or original, is left alone ("Opting an item out").
 import { execFileSync } from 'node:child_process';
 import { parseRelatedRepos } from './dependency-watch.mjs';
+import { configViaApi } from './issue-concierge-paths.mjs';
 import { isOptedOut, optedOutReason } from './opt-out.mjs';
 import { ghApi, namesRef, parseLinks } from './reporter-notify.mjs';
 import { closingFix, ghGraphql, qualifyRefs, textOfComment } from './resolution.mjs';
@@ -64,6 +65,11 @@ export function readComments(api, base) {
 }
 
 /** The text of a file of a repository through the contents API, or { status } when it cannot be read. */
+/** A file of the folder of another repository: { status, text }, from the new folder or else the old one. */
+function readConfigFile(api, repo, name) {
+  return configViaApi(name, (file) => readFile(api, repo, file)).result;
+}
+
 function readFile(api, repo, file) {
   const r = api(`repos/${repo}/contents/${file}`);
   if (!r || r.status !== 200 || !r.data || typeof r.data.content !== 'string') return { status: r ? r.status : 0 };
@@ -191,7 +197,8 @@ export function decide(issue, ctx) {
   const original = found.original;
   if (original.data.state !== 'open') return skip(`${original.ref} is already closed`);
 
-  const cfg = readFile(ctx.api, original.repo, '.github/agentic-workflows/related-repos.md');
+  // The original's repository may be on either side of the move of the folder: the new place first, the old one when it is not there.
+  const cfg = readConfigFile(ctx.api, original.repo, 'related-repos.md');
   if (cfg.status !== 200) {
     return error(`could not read related-repos.md of ${original.repo} (HTTP ${cfg.status}), so whether it waits for a release is unknown`);
   }
