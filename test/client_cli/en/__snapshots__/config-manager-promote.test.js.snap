@@ -19,8 +19,8 @@ Runtime Options:
                            FRODO_NO_PROMPT).
 
 Commands:
-  check-locked-status      [Experimental] [Cloud-only] Check the current
-                           promotion status.
+  check-locked-status      [Experimental] [Cloud-only] Check the lock status of
+                           the environments.
   check-promotion-reports  [Experimental] [Cloud-only] Retrieve promotion
                            reports. Defaults to the latest report if no option
                            is specified.

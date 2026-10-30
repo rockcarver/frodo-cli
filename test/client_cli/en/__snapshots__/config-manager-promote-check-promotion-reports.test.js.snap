@@ -26,10 +26,14 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -i, --reportID <id>         Retrieve a promotion report by ID.
-  -l, --list                  List all promotion reports.
+  -i, --report-id <id>        Retrieve a promotion report by ID. Cannot be used
+                              with -l, -p or -r.
+  -l, --list                  List all promotion reports. Cannot be used with
+                              -i, -p or -r.
   -p, --provisional           Retrieve the current provisional promotion report.
+                              Cannot be used with -l, -i or -r.
   -r, --provisional-rollback  Retrieve the current provisional rollback report.
+                              Cannot be used with -l, -i or -p.
   -h, --help                  Help
   -hh, --help-more            Help with all options.
   -hhh, --help-all            Help with all options, environment variables, and

@@ -1,7 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import { configManagerRunPromotion } from '../../../configManagerOps/FrConfigPromoteOps';
+import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
+import { runPromotion } from '../../../ops/cloud/EnvPromotionOps';
+import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
@@ -47,6 +49,18 @@ export default function setup() {
         'Zendesk ticket reference.'
       )
     )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Run a dry-run promotion: it checks what a promotion would do and applies nothing. The request returns as soon as it is accepted; check-promotion-status shows when it is done:\n` +
+        c.command(
+          `  $ frodo config-manager promote run-dryrun-promotion ${s.connId}\n`
+        ) +
+        `  Run a dry-run promotion that ignores encrypted secrets:\n` +
+        c.command(
+          `  $ frodo config-manager promote run-dryrun-promotion --ignore-encrypted-secrets ${s.connId}\n`
+        )
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -66,14 +80,14 @@ export default function setup() {
         return;
       }
       verboseMessage('Running dry-run promotion...');
-      const outcome = await configManagerRunPromotion(
-        true,
-        options.ignoreEncryptedSecrets,
-        options.unlockAfter,
-        options.promoter,
-        options.description,
-        options.ticketReference
-      );
+      const outcome = await runPromotion({
+        dryRun: true,
+        ignoreEncryptedSecrets: options.ignoreEncryptedSecrets,
+        unlockAfter: options.unlockAfter,
+        promoter: options.promoter,
+        description: options.description,
+        ticketReference: options.ticketReference,
+      });
       if (!outcome) process.exitCode = 1;
     });
   return program;

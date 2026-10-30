@@ -1,5 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { printError, printMessage } from '../utils/Console';
+import { printError, printMessage } from '../../utils/Console';
 
 const {
   readPromotionStatus,
@@ -10,7 +10,7 @@ const {
   readLastPromotionReport,
   lockEnvironment,
   unlockEnvironment,
-  rollbackPromotion,
+  rollbackPromotion: rollbackPromotionInLib,
   promoteConfiguration,
   readLockStatus,
 } = frodo.cloud.env.promotion;
@@ -19,7 +19,7 @@ const {
  * Check promotion status.
  * @returns {Promise<boolean>} True if the status was retrieved successfully, false otherwise.
  */
-export async function configManagerCheckPromotionStatus(): Promise<boolean> {
+export async function checkPromotionStatus(): Promise<boolean> {
   try {
     const response = await readPromotionStatus();
     printMessage(response, 'data');
@@ -31,19 +31,24 @@ export async function configManagerCheckPromotionStatus(): Promise<boolean> {
 }
 
 /**
- * Check promotion reports.
+ * Check promotion reports. The latest report if no option is given.
  * @param {string} reportId Optional ID of a specific promotion report.
  * @param {boolean} list Whether to list all promotion reports.
  * @param {boolean} provisional Whether to retrieve the provisional promotion report.
  * @param {boolean} provisionalRollback Whether to retrieve the provisional rollback report.
  * @returns {Promise<boolean>} True if successful, false otherwise.
  */
-export async function configManagerCheckPromotionReports(
-  reportId?: string,
-  list: boolean = false,
-  provisional: boolean = false,
-  provisionalRollback: boolean = false
-): Promise<boolean> {
+export async function checkPromotionReports({
+  reportId,
+  list = false,
+  provisional = false,
+  provisionalRollback = false,
+}: {
+  reportId?: string;
+  list?: boolean;
+  provisional?: boolean;
+  provisionalRollback?: boolean;
+} = {}): Promise<boolean> {
   try {
     let response;
     if (provisional) {
@@ -73,18 +78,23 @@ export async function configManagerCheckPromotionReports(
  * @param {boolean} unlockAfter Whether to unlock environments after rollback.
  * @returns {Promise<boolean>} True if the rollback request succeeds, false otherwise.
  */
-export async function configManagerRollback(
-  promoter?: string,
-  description?: string,
-  ticketReference?: string,
-  unlockAfter: boolean = false
-): Promise<boolean> {
+export async function rollbackPromotion({
+  promoter,
+  description,
+  ticketReference,
+  unlockAfter = false,
+}: {
+  promoter?: string;
+  description?: string;
+  ticketReference?: string;
+  unlockAfter?: boolean;
+} = {}): Promise<boolean> {
   try {
-    const response = await rollbackPromotion({
+    const response = await rollbackPromotionInLib({
       unlockEnvironmentsAfterPromotion: unlockAfter,
-      promoter: promoter ?? undefined,
-      promotionDescription: description ?? undefined,
-      zendeskTicketReference: ticketReference ?? undefined,
+      promoter,
+      promotionDescription: description,
+      zendeskTicketReference: ticketReference,
     });
     printMessage(response, 'data');
     return true;
@@ -98,7 +108,7 @@ export async function configManagerRollback(
  * Lock tenants and wait until they are locked.
  * @returns {Promise<boolean>} True if tenants were successfully locked, false otherwise.
  */
-export async function configManagerLockTenants(): Promise<boolean> {
+export async function lockTenants(): Promise<boolean> {
   try {
     // Poll interval is 60s for config-manager, but the UI uses 10s. 60s is very long, so we use 10s instead.
     const lockStatus = await lockEnvironment(true);
@@ -121,9 +131,7 @@ export async function configManagerLockTenants(): Promise<boolean> {
  * @param {string} promotionId Promotion ID associated with the lock.
  * @returns {Promise<boolean>}  True if tenants were successfully unlocked, false otherwise.
  */
-export async function configManagerUnlockTenants(
-  promotionId: string
-): Promise<boolean> {
+export async function unlockTenants(promotionId: string): Promise<boolean> {
   try {
     // Poll interval is 60s for config-manager, but the UI uses 10s. 60s is very long, so we use 10s instead.
     const lockStatus = await unlockEnvironment(promotionId, true);
@@ -148,24 +156,31 @@ export async function configManagerUnlockTenants(
  * @param {string} promoter Optional name of the person performing the promotion.
  * @param {string} description Optional description of the promotion.
  * @param {string} ticketReference Optional zendesk ticket reference.
- * @returns true if successful, false otherwise.
+ * @returns {Promise<boolean>} True if successful, false otherwise.
  */
-export async function configManagerRunPromotion(
-  dryRun: boolean,
-  ignoreEncryptedSecrets: boolean = false,
-  unlockAfter: boolean = false,
-  promoter?: string,
-  description?: string,
-  ticketReference?: string
-): Promise<boolean> {
+export async function runPromotion({
+  dryRun,
+  ignoreEncryptedSecrets = false,
+  unlockAfter = false,
+  promoter,
+  description,
+  ticketReference,
+}: {
+  dryRun: boolean;
+  ignoreEncryptedSecrets?: boolean;
+  unlockAfter?: boolean;
+  promoter?: string;
+  description?: string;
+  ticketReference?: string;
+}): Promise<boolean> {
   try {
     const response = await promoteConfiguration({
       dryRun,
       ignoreEncryptedSecrets,
       unlockEnvironmentsAfterPromotion: unlockAfter,
-      promoter: promoter ?? undefined,
-      promotionDescription: description ?? undefined,
-      zendeskTicketReference: ticketReference ?? undefined,
+      promoter,
+      promotionDescription: description,
+      zendeskTicketReference: ticketReference,
     });
     printMessage(response, 'data');
     return true;
@@ -180,7 +195,7 @@ export async function configManagerRunPromotion(
  * @param {boolean} localLockOnly Whether to show only the requested environment's lock status.
  * @returns {Promise<boolean>} True if successful, false otherwise.
  */
-export async function configManagerCheckLockedStatus(
+export async function checkLockedStatus(
   localLockOnly: boolean = false
 ): Promise<boolean> {
   try {

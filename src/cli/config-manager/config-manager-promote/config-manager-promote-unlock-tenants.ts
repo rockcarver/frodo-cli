@@ -1,6 +1,8 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { configManagerUnlockTenants } from '../../../configManagerOps/FrConfigPromoteOps';
+import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
+import { unlockTenants } from '../../../ops/cloud/EnvPromotionOps';
+import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
@@ -18,6 +20,14 @@ export default function setup() {
   program
     .description('Unlock tenants and wait until they are unlocked.')
     .requiredOption('-i, --id <id>', 'Promotion ID associated with the lock.')
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Unlock the environments after a promotion and wait until they are unlocked (the ID is the promotion ID that lock-tenants printed):\n` +
+        c.command(
+          `  $ frodo config-manager promote unlock-tenants --id 1d9ac1b3-b9a0-46d5-8d8c-0f3f2a1f8a21 ${s.connId}\n`
+        )
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -38,7 +48,7 @@ export default function setup() {
         return;
       }
       verboseMessage('Unlocking tenants.');
-      const outcome = await configManagerUnlockTenants(options.id);
+      const outcome = await unlockTenants(options.id);
       if (!outcome) process.exitCode = 1;
     });
   return program;

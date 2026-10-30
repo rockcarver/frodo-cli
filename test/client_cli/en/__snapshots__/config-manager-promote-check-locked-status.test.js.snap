@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager promote check-locked-status' should be expected english 1`] = `
 "Usage: frodo config-manager promote check-locked-status [options] [host] [realm] [username] [password]
 
-[Experimental] [Cloud-only] Check the current promotion status.
+[Experimental] [Cloud-only] Check the lock status of the environments.
 
 Arguments:
   host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To

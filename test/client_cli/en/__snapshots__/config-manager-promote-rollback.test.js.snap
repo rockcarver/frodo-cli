@@ -27,11 +27,11 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -d, --description <description>     Description of the promotion.
+  -d, --description <description>     Description of the rollback.
   -p, --promoter <name>               Name of the person performing the
-                                      promotion.
+                                      rollback.
   -t, --ticket-reference <reference>  Zendesk ticket reference.
-  -u, --unlock-after                  Unlock environments after promotion.
+  -u, --unlock-after                  Unlock environments after the rollback.
   -h, --help                          Help
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment
