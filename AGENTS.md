@@ -25,7 +25,7 @@ The test scripts do not rebuild `dist/`. After changing anything in `src/`, run 
 - **Never commit, create or generate a master key** (`test/e2e/env/masterkey.key` is gitignored on purpose).
 - **Read standard input only through `src/utils/StdinSync.ts`.** A direct `readSync(0)` or `process.stdin.fd` fails with `EAGAIN` once anything has touched `process.stdin`; ESLint rejects it. See [.github/instructions/interactive-layering.instructions.md](.github/instructions/interactive-layering.instructions.md).
 - **Do not run Prettier over `test/e2e/`.**
-- **Do not edit the Repo Concierge's files**: `.github/workflows/*.lock.yml` and the `.md` workflow sources beside them, `janitor.yml`, `check-deployment.yml`, `concierge-updater.yml`, `dependency-watch.yml`, `plan-approval-resume.yml`, `pr-ready-signal.yml`, `.github/scripts/`, `.github/aw/` and the pin in `.github/concierge.yml`. An updater overwrites them. `pipeline.yml`, `core-records-drift.yml`, `dependabot*.yml`, `.github/agentic-workflows/scope.md` and `related-repos.md` belong to this repository.
+- **Do not edit the Issue Concierge's files**: `.github/workflows/*.lock.yml` and the `.md` workflow sources beside them, `janitor.yml`, `check-deployment.yml`, `issue-concierge-updater.yml`, `dependency-watch.yml`, `plan-approval-resume.yml`, `pr-ready-signal.yml`, `.github/scripts/`, `.github/aw/` and the pin in `.github/issue-concierge.yml`. An updater overwrites them. `pipeline.yml`, `core-records-drift.yml`, `dependabot*.yml`, `.github/issue-concierge/scope.md` and `related-repos.md` belong to this repository.
 
 ## Decisions
 

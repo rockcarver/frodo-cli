@@ -26,7 +26,7 @@ set -eu
 LIMIT=3000
 
 # Files that cannot change what the test jobs build or test.
-NON_CODE='^(docs/|[^/]+\.md$|LICENSE$|\.claude/skills/|\.github/(ISSUE_TEMPLATE/|agentic-workflows/|aw/|instructions/|scripts/|workflows/[^/]+\.(ya?ml|md)$|concierge\.yml$|CODEOWNERS$|dependabot\.yml$|copilot-instructions\.md$))'
+NON_CODE='^(docs/|[^/]+\.md$|LICENSE$|\.claude/skills/|\.github/(ISSUE_TEMPLATE/|issue-concierge/|aw/|instructions/|scripts/|workflows/[^/]+\.(ya?ml|md)$|issue-concierge\.yml$|CODEOWNERS$|dependabot\.yml$|copilot-instructions\.md$))'
 
 # Files on that list that still count as code: the pipeline and this
 # classifier decide what judges a pull request.

@@ -83,7 +83,8 @@ which answers two questions:
 
 - `code`: is the long test matrix needed? `code=false` only when **every** file
   is on the non-code list: root `*.md`, `docs/`, `LICENSE`, `.claude/skills/`,
-  `.github/instructions/`, issue templates, the agentic-workflow definitions,
+  `.github/instructions/`, issue templates, the Issue Concierge's folder
+  `issue-concierge/` and pin `issue-concierge.yml`,
   scripts and every workflow file under `.github/workflows/` except
   `pipeline.yml` itself. Anything else counts as code, including
   `package.json` and the lockfile. The pipeline and the classifier

@@ -49,7 +49,7 @@ Not the description, the diff: source, tests, docs, snapshots, lock files, workf
 
 - tests deleted or weakened, `.skip` added, a legacy-exceptions list that grew (`test/unit/UsageExamplesLegacyExceptions.js` and `UsageExampleOperandsLegacyExceptions.js` only shrink);
 - snapshot changes nobody explained;
-- a package added to `dependencies` (it must be `devDependencies`), edits to `CHANGELOG.md`, edits to the Repo Concierge's files (see `AGENTS.md`), anything that looks like a key or token;
+- a package added to `dependencies` (it must be `devDependencies`), edits to `CHANGELOG.md`, edits to the Issue Concierge's files (see `AGENTS.md`), anything that looks like a key or token;
 - business logic added to the CLI that frodo-lib should own ([core 0001](../../../docs/decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md), cli record 0007), new modules in the deprecated `src/configManagerOps/` layer (cli record 0023), code in `src/ops/` that prompts, prompt code outside `src/utils/interactive/`, direct reads of standard input outside `src/utils/StdinSync.ts`;
 - docs that the change makes wrong (`docs/INTERACTIVE-COMMANDS.md`, the usage examples, MIGRATION.md for a removed option).
 
