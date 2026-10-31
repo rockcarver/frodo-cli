@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-10-24
 decision-makers:
   - maintainers
@@ -25,9 +25,12 @@ The handler is the seam where the library (0001) hands a question to the termina
 
 ## Decision
 
-Proposed, not yet accepted: widen the type to `(callback) => Callback | Promise<Callback>` and await it in `checkAndHandle2FA`. A synchronous handler keeps working. Afterwards the CLI uses its async prompt and drops the synchronous helper.
+Widen the type to `(callback) => Callback | Promise<Callback>` and await it in `checkAndHandle2FA`. A synchronous handler keeps working. Afterwards the CLI uses its async prompt and drops the synchronous helper.
 
 ## Consequences
 
-- Until accepted, the handler stays synchronous and the CLI reads standard input synchronously only through `src/utils/StdinSync.ts`.
-- If accepted, the change is non-breaking for library users: one library release, then the CLI change.
+- The change is non-breaking for library users: one library release, then the CLI change.
+
+## Known deviations
+
+When this record was accepted, on 2026-10-30, the library's `CallbackHandler` type and `checkAndHandle2FA` were still synchronous and the CLI still read the code with the synchronous helper. The library change is tracked in rockcarver/frodo-lib#783; the pull request that widens the type removes this section.
