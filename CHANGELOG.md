@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-20] - 2026-10-31
+
+### Changed
+- Updated `frodo config-manager promote` to print `promotionId` and made the `--id` option for `unlock-tenants` optional, enhancing usability and flexibility. (#1019, 52b1cd242)
+
+### Fixed
+- Resolved an issue where the release process would stop before publishing if the main branch had moved, ensuring smoother release operations. (#1014, e60dc1f50)
+- Corrected the security audit process to only perform checks without rewriting the lockfile, maintaining the integrity of the build process. (#1016, 20f3e1160)
+
 ## [v5.0.0-19] - 2026-10-30
 
 ### Added
@@ -3156,6 +3165,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-20]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-19...v5.0.0-20
 [v5.0.0-19]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-18...v5.0.0-19
 [v5.0.0-18]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-17...v5.0.0-18
 [v5.0.0-17]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-16...v5.0.0-17
