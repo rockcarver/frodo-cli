@@ -318,7 +318,8 @@ surface, and junk in the tarball is junk in every install.
 ## 8. CI/CD pipeline (summary; details in PIPELINE.md)
 
 `pipeline.yml` — pull requests and pushes to `main` validate; releases are
-manual `workflow_dispatch` only (prerelease/patch/minor/major).
+manual `workflow_dispatch` only (prerelease/premajor/patch/minor/major, or `ci-only` for the
+validation without a release).
 
 Jobs: Build (version bump, manifest update, tsdown+tsc) → Test (Node 26
 matrix + cross-platform credential-file tests + live-tenant smoke)
@@ -424,4 +425,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-10-30 | `npm-release` starts with a step that fails the run when the dispatched branch has moved, before anything is published (the frodo-lib release 5.0.0-18 had been left on npm without its version commit, tag and GitHub release by a merge during the tests); `test/unit/PipelineClassification.test.js` runs the step                                        | — |
 | 2026-10-30 | `Security Audit` in the Build job is check only (`npm audit --audit-level critical`): `npm audit fix` there rewrote `package-lock.json` in the build artifact, the Release job committed it, and the locked version of a dependency flipped between versions from release to release; `test/unit/PipelineClassification.test.js` pins it                     | — |
 | 2026-11-01 | The `push` trigger of `pipeline.yml` ignores the Issue Concierge's files (pin, `.github/issue-concierge/`, `.github/aw/`, `.github/scripts/*.mjs`, `.github/workflows/*.yml` and `*.md`): an update pull request was non-code and skipped the tests, but its merge started the whole pipeline, and the live tenant smoke test failed on a frodo-dev outage (502) and turned `main` red; `test/unit/PipelineClassification.test.js` pins the list against the classifier | — |
+| 2026-11-01 | `workflow_dispatch` of `pipeline.yml` gets the release type `ci-only`, the new default: the validation of a push to `main` (build, tests, live smoke test, linux-x64 binary) without any release job, so a full CI run can be started by hand for a change the classifier skipped or for `main`, and a dispatch that names no type publishes nothing. The seven dispatch-only jobs skip on `ci-only`; the release skill passes its type explicitly. | — |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |

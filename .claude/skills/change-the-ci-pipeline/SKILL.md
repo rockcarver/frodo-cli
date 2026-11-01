@@ -47,6 +47,14 @@ shellcheck -s bash .github/scripts/classify-changes.sh
 - `actionlint`, if you have it, catches workflow syntax. The first run of the pull request also fails fast on a broken file.
 - Read your own diff of `pipeline.yml` for anything that lets a pull request skip a check it should run.
 
+## Run everything by hand
+
+A pull request that the classifier skips gets no long test jobs. To run them anyway, dispatch the pipeline on its branch with `ci-only`, which publishes nothing (`docs/PIPELINE.md`, "Full CI by hand"):
+
+```console
+gh workflow run pipeline.yml -R rockcarver/frodo-cli --ref <branch> -f release-type=ci-only -f dry-run=false
+```
+
 ## Prove it live
 
 The pull request that changes the pipeline cannot show the skip, because it is code. After it is merged, open a draft pull request that changes one skill file and expect `Test` skipped, `Validate guidance` green and `Test gate` green. Break the front matter of that skill on the same pull request and expect `Validate guidance` and `Test gate` red. Close it and delete the branch. A scratch branch cut from the unmerged change lists the whole change and is code too.
