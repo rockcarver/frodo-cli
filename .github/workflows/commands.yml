@@ -12,7 +12,10 @@
 #
 # It runs when someone comments, when a label that changes what waits for a maintainer is applied (after half a minute,
 # so that the comment a gate posts with its labels is there first), when an issue closes or reopens, every hour (which
-# also finds an options comment that is left over because a label was removed by hand), and by hand for one issue.
+# also finds an options comment that is left over because a label was removed by hand), and by hand for one issue. The
+# label 'plan-worker-ready' is one of them because a /replan is answered by it: the issue holds its complexity and risk
+# labels already, so no other label event follows the new plan, and the menu, which waits until the plan is there, would
+# come back only with the next hourly run.
 # A label being removed starts nothing here: only the issue worker and the plan approval resume start on a removal.
 #
 # An issue that carries 'no-auto-processing' starts no run here ("Opting an item out").
@@ -51,7 +54,7 @@ jobs:
     # A label event starts the job only for the labels that change what waits for a maintainer.
     if: >-
       (github.event.action != 'labeled'
-      || contains(fromJSON('["needs-decision","scope-review","plan-approval-required","complexity/low","complexity/medium","complexity/high","risk/low","risk/medium","risk/high","issue-triage-handoff","plan-triage-handoff","declined"]'), github.event.label.name))
+      || contains(fromJSON('["needs-decision","scope-review","plan-approval-required","complexity/low","complexity/medium","complexity/high","risk/low","risk/medium","risk/high","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","declined"]'), github.event.label.name))
       && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
       && github.event.issue.pull_request == null
       && github.event.comment.user.type != 'Bot'
