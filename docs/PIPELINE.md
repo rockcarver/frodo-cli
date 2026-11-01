@@ -47,9 +47,10 @@ The workflow runs on:
   cross-platform tests, and the linux-x64 binary build (it needs no secrets,
   so PRs exercise the whole binary path). Release jobs are skipped.
 - **Pushes to `main`** — the same validation, plus the Live Tenant Smoke
-  Test. No publishing, no release. A push that changes only documentation,
-  `pipeline.yml` or the Issue Concierge's files does not start the workflow
-  (the `paths-ignore` of the push trigger, see below).
+  Test. No publishing, no release. A push that changes only files the
+  classifier calls non-code (documentation, guidance files, `pipeline.yml`, the
+  Issue Concierge's files) does not start the workflow (the `paths-ignore` of
+  the push trigger, see below).
 - **Manual `workflow_dispatch`** — with the default release type `ci-only`,
   the validation of a push to `main` and nothing else (see
   [Full CI by hand](#full-ci-by-hand)). With an explicit release type, the
@@ -118,17 +119,32 @@ because required checks would stay "expected" forever.
 
 **The push trigger.** `Detect code changes` only looks at pull requests; a push
 always counts as code. So a merge whose pull request skipped the tests would
-start everything again, the Live Tenant Smoke Test included. For the Issue
-Concierge's files that is avoided with the `paths-ignore` of the push trigger
-(a pull request cannot use it, see above): its pin `.github/issue-concierge.yml`,
-its folder `.github/issue-concierge/`, `.github/aw/`, and the scripts
-(`.github/scripts/*.mjs`) and workflow definitions (`.github/workflows/*.yml`
-and `*.md`) it installs. The classifier itself (`classify-changes.sh`), the
-instruction files in `.github/instructions/` and files in deeper folders are
-not on the list: their push still runs everything.
-`test/unit/PipelineClassification.test.js` checks that nothing under `.github/`
-is ignored on push that the classifier counts as code or guidance. The list is
-allowed to be narrower than the classifier's, never wider.
+start everything again, the Live Tenant Smoke Test included. The `paths-ignore`
+of the push trigger (a pull request cannot use it, see above) avoids that for
+the files the classifier calls non-code:
+
+- documentation: `docs/`, `README.md`, `CODE_OF_CONDUCT.md`, and every other
+  Markdown file in the repository root (`AGENTS.md`, `CLAUDE.md`, ...);
+- `LICENSE` and `.claude/skills/`;
+- under `.github/`: `instructions/`, `ISSUE_TEMPLATE/`, `CODEOWNERS`,
+  `dependabot.yml` and `copilot-instructions.md`;
+- the Issue Concierge's files: its pin `.github/issue-concierge.yml`, its folder
+  `.github/issue-concierge/`, `.github/aw/`, and the scripts
+  (`.github/scripts/*.mjs`) and workflow definitions (`.github/workflows/*.yml`
+  and `*.md`) it installs.
+
+Some of these are guidance files that a test reads (`docs/decisions/`,
+`AGENTS.md`, `CLAUDE.md`, `.claude/skills/`, `.github/instructions/`). A pull
+request that changes them runs the fast `Validate guidance` job; the push after
+the merge does not repeat it, as it has never repeated it for `docs/decisions/`.
+`pipeline.yml` is on the list too, although the classifier counts it as code: a
+pull request that changes it runs everything, and the push after its merge does
+not. The classifier itself (`classify-changes.sh`) and files in deeper folders
+(other than a nested `README.md`) are not on the list: their push still runs
+everything. `test/unit/PipelineClassification.test.js` checks that nothing is
+ignored on push that the classifier counts as code. The list is allowed to be
+narrower than the classifier's, never wider. To run everything for a push that
+was skipped, see [Full CI by hand](#full-ci-by-hand).
 
 A path that a guidance test starts to read goes into `GUIDANCE` in the script
 (and a fixture into `ClassifyChanges.test.js`) in the same pull request. A

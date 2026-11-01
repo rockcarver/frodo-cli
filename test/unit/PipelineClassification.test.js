@@ -145,6 +145,28 @@ describe('the push trigger of pipeline.yml', () => {
     expect(CONCIERGE_FILES.filter((f) => !ignoredOnPush(f))).toEqual([]);
   });
 
+  // The rest of what the classifier calls non-code: agent entry points and the
+  // other Markdown files of the root, the licence, skills, instruction files,
+  // issue templates and the repository settings.
+  const OTHER_NON_CODE_FILES = [
+    'AGENTS.md',
+    'CLAUDE.md',
+    'CHANGELOG.md',
+    'MIGRATION.md',
+    'SECURITY.md',
+    'LICENSE',
+    '.claude/skills/release-the-cli/SKILL.md',
+    '.github/ISSUE_TEMPLATE/issue-report.md',
+    '.github/instructions/tests.instructions.md',
+    '.github/CODEOWNERS',
+    '.github/dependabot.yml',
+    '.github/copilot-instructions.md',
+  ];
+
+  it('does not start the pipeline for a push of the other non-code files alone', () => {
+    expect(OTHER_NON_CODE_FILES.filter((f) => !ignoredOnPush(f))).toEqual([]);
+  });
+
   it('keeps the earlier entries: documentation and the pipeline itself', () => {
     for (const file of ['docs/PIPELINE.md', 'README.md', 'CODE_OF_CONDUCT.md', '.github/workflows/pipeline.yml']) {
       expect(ignoredOnPush(file)).toBe(true);
@@ -159,6 +181,11 @@ describe('the push trigger of pipeline.yml', () => {
       '.github/scripts/classify-changes.sh',
       '.github/workflows/nested/commands.yml',
       '.github/scripts/nested/commands.mjs',
+      // `*.md` stays in the root folder, as the classifier's does
+      'test/unit/notes.md',
+      'src/cli/notes.md',
+      'Dockerfile',
+      'tools/run-guidance-tests.mjs',
     ];
     expect(mustRun.filter(ignoredOnPush)).toEqual([]);
   });
@@ -169,14 +196,24 @@ describe('the push trigger of pipeline.yml', () => {
       return run.stdout.trim().split('\n');
     }
 
-    // The pull request judged these files as not code and skipped its tests; the
-    // push may only skip what that judgement allows, or it hides work.
-    it('ignores under .github/ only what the classifier calls neither code nor guidance', () => {
-      const patterns = pushIgnored().filter((p) => p.startsWith('.github/'));
+    // The pull request judged these files as not code and skipped its long tests;
+    // the push may only skip what that judgement allows, or it hides work. A
+    // guidance file is allowed: its pull request ran `Validate guidance`, and
+    // docs/decisions/ is ignored on push through docs/** in the same way. The
+    // `**/` patterns match in any folder, so the classifier (root files only)
+    // does not speak for them.
+    it('ignores only what the classifier calls not code', () => {
+      const patterns = pushIgnored().filter((p) => !p.startsWith('**/'));
       expect(patterns.length).toBeGreaterThan(0);
       for (const pattern of patterns) {
         const sample = pattern.replace('**', 'deeper/example').replace('*', 'example');
-        expect({ sample, answer: classify([sample]) }).toEqual({ sample, answer: ['code=false', 'guidance=false'] });
+        expect({ sample, answer: classify([sample])[0] }).toEqual({ sample, answer: 'code=false' });
+      }
+    });
+
+    it('calls every file named above that it ignores not code', () => {
+      for (const file of [...CONCIERGE_FILES, ...OTHER_NON_CODE_FILES]) {
+        expect({ file, answer: classify([file])[0] }).toEqual({ file, answer: 'code=false' });
       }
     });
   });
