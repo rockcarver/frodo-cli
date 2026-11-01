@@ -3,8 +3,9 @@
 // Deterministic: no LLM. A maintainer decides what becomes of an issue that waits for them by commenting a command
 // (`/accept`, `/decline`, `/approve`, `/replan`, `/retry`), and the Concierge keeps one comment on such an issue, the
 // options comment, that says what is needed and which command does what. The options comment is derived from the
-// issue's labels alone (scripts/issue-concierge-state.mjs shows the same state on the status issue), it exists only while a
-// maintainer has to act, it is always the last comment, and it is deleted when nothing waits any more.
+// issue's labels and the times they were applied (scripts/issue-concierge-state.mjs shows the same state on the status issue),
+// it exists only while a maintainer has to act (not while a new plan is being written), it is always the last comment, and
+// it is deleted when nothing waits any more.
 //
 // A command does what a person with the role can already do by hand with the labels, no more. The commenter's role is
 // read from GitHub, never from the comment; the issue acted on is the issue of the event, never a number in the text;
@@ -38,8 +39,8 @@ export const LEGACY_ACCEPT_MARKER = '<!-- concierge:accepted -->';
 
 /** The labels that stop an issue at the first gate; a maintainer accepts it by removing them. */
 export const STOP_LABELS = ['needs-decision', 'scope-review', 'backlog', 'out-of-scope', LABEL_DECLINED, 'needs-info'];
-/** An issue that shows any of these has been handed on: a maintainer or an earlier run decided to plan it. */
-const PROGRESS_LABELS = [LABEL_HANDOFF, 'plan-worker-ready', LABEL_PLAN_HANDOFF];
+/** The plan worker adds this when its plan is on the issue. */
+export const LABEL_PLAN_READY = 'plan-worker-ready';
 
 // ------------------------------------------------------------------ the roles
 
@@ -76,10 +77,26 @@ export const neutralizeMentions = (text) => String(text || '').replace(/@([A-Za-
 const classified = (labels) => [...labels].some((l) => l.startsWith('complexity/')) && [...labels].some((l) => l.startsWith('risk/'));
 
 /**
+ * True while the plan worker owes the issue a new plan: `issue-triage-handoff` was given after the last
+ * `plan-worker-ready`, and not longer ago than a gate may take. A `/replan` gives the label to an issue that already holds
+ * a plan, and the janitor takes it away again within seconds (the issue is held already), so the label cannot show the wait;
+ * the events can. After an hour the plan is taken as lost, so that the maintainer is offered the commands again.
+ */
+export function planPending(events, now = Date.now()) {
+  const asked = labelledAt(events, LABEL_HANDOFF);
+  if (asked === null || now - asked > STUCK_AFTER_MINUTES * 60000) return false;
+  const answered = labelledAt(events, LABEL_PLAN_READY);
+  return answered === null || answered < asked;
+}
+
+/** A new plan is coming: the label is on (the events may lag behind a label that was just given), or the events say so. */
+const planComing = (labels, events, now) => labels.has(LABEL_HANDOFF) || planPending(events, now);
+
+/**
  * What the issue waits for, or null when it waits for no maintainer:
  * decision (held because it changes what exists), scope (held for the scope), plan (a classified plan waits for
- * approval), stalled (a gate label has not moved for an hour). A request kept out of the Concierge, a bot's issue, a
- * pull request and a closed issue wait for nobody.
+ * approval, and no new plan is on its way), stalled (a gate label has not moved for an hour). A request kept out of the
+ * Concierge, a bot's issue, a pull request and a closed issue wait for nobody.
  */
 export function situationOf(issue, { events = [], now = Date.now() } = {}) {
   if (issue.pull_request || issue.state !== 'open') return null;
@@ -87,7 +104,7 @@ export function situationOf(issue, { events = [], now = Date.now() } = {}) {
   const labels = new Set(labelNames(issue));
   if (labels.has('needs-decision')) return 'decision';
   if (labels.has('scope-review')) return 'scope';
-  if (labels.has(LABEL_APPROVAL) && classified(labels)) return 'plan';
+  if (labels.has(LABEL_APPROVAL) && classified(labels)) return planComing(labels, events, now) ? null : 'plan';
   const gate = GATE_LABELS.find((l) => labels.has(l));
   if (gate) {
     const since = labelledAt(events, gate);
@@ -208,7 +225,7 @@ const done = (note) => ({ ok: true, note });
  * removal starts nothing); the label that hands the issue on, and a close, are made with the signal token, because
  * those are what start the next gate.
  */
-export function runCommand(cmd, { issue, actor, api, paused = false }) {
+export function runCommand(cmd, { issue, actor, api, paused = false, now = Date.now() }) {
   const n = issue.number;
   const labels = new Set(labelNames(issue));
   if (isOptedOut(issue)) return refuse(`This issue carries \`${LABEL_OPT_OUT}\`, so the Concierge does not touch it. Remove the label to hand it over.`);
@@ -243,6 +260,8 @@ export function runCommand(cmd, { issue, actor, api, paused = false }) {
     }
     case 'approve': {
       if (!labels.has(LABEL_APPROVAL)) return refuse('There is no plan waiting for approval: the issue does not carry `plan-approval-required`.');
+      // The plan on the issue is the old one while a new plan is written; approving it would hand that one to implementation.
+      if (planComing(labels, api.listEvents(n), now)) return refuse('A new plan is being written for this issue, and the plan above is out of date. Give `/approve` again when the new plan is there, or `/replan` if it does not come.');
       const without = { ...issue, labels: [...labels].filter((l) => l !== LABEL_APPROVAL) };
       const verdict = decideApproval(without, undefined, actor);
       if (!verdict.handoff) return refuse(`The plan cannot be approved yet: ${verdict.reason}.`);
@@ -360,7 +379,8 @@ export function syncOptions(api, issue, { repo, settings, organisation, now }) {
   const comments = api.listComments(issue.number);
   if (!comments) return [];
   const labels = new Set(labelNames(issue));
-  const events = GATE_LABELS.some((l) => labels.has(l)) ? api.listEvents(issue.number) : [];
+  // The events say how long a gate label has been there, and whether a plan that waits was asked for again.
+  const events = GATE_LABELS.some((l) => labels.has(l)) || labels.has(LABEL_APPROVAL) ? api.listEvents(issue.number) : [];
   const desired = settings.commands.on ? optionsFor(issue, { comments, events, now, settings, repo, organisation }) : null;
   const ops = planMenu({ desired, comments });
   for (const o of ops) {
@@ -430,7 +450,7 @@ export function main(env = process.env, api = realApi(env, env.GITHUB_REPOSITORY
       const role = api.role(commenter.login);
       const allowed = role !== null && mayUse(role, cfg.need, { organisation });
       if (allowed) {
-        const result = runCommand(cmd, { issue: api.getIssue(number), actor: commenter.login, api, paused: pausedBy(env).length > 0 });
+        const result = runCommand(cmd, { issue: api.getIssue(number), actor: commenter.login, api, paused: pausedBy(env).length > 0, now });
         api.react(payload.comment.id, result.ok ? 'rocket' : 'confused');
         if (!result.ok) api.reply(number, `Could not run \`/${cmd.name}\`: ${result.reason}`);
         log(`#${number}: /${cmd.name} by ${commenter.login}: ${result.ok ? result.note : result.reason}`);
