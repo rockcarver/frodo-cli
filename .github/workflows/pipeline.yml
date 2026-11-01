@@ -176,6 +176,23 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository_owner == 'rockcarver'
     steps:
+      # A release publishes what the dispatched ref contains, and core 0005
+      # makes a release a dispatch on main. Every release job needs this job,
+      # so refusing here stops the whole run in seconds, before anything is
+      # built or signed. A dry run publishes nothing and may run from any
+      # branch (that is how a change to this file is tried before it is
+      # merged), and so may ci-only. test/unit/PipelineClassification.test.js
+      # evaluates this condition. Keep this the first step, and keep reading
+      # the boolean as inputs.dry-run: github.event.inputs.dry-run is the
+      # string 'false', which is truthy.
+      - name: Refuse a release that is not dispatched from main
+        if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only' && !inputs.dry-run && github.ref != 'refs/heads/main'
+        env:
+          DISPATCHED_REF: ${{ github.ref }}
+        run: |
+          echo "::error::A release is dispatched from main, and this run is on ${DISPATCHED_REF}. Nothing was built or published. Dispatch it again with --ref main, or set dry-run to rehearse it from this ref."
+          exit 1
+
       - name: Checkout repository
         uses: actions/checkout@v7
         with:

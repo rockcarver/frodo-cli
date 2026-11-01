@@ -590,6 +590,71 @@ describe('pipeline.yml ci-only (workflow_dispatch with release-type = ci-only)',
 });
 
 /**
+ * A release publishes what the dispatched ref contains, and core 0005 makes a
+ * release a dispatch on `main`. Nothing in the release jobs checks the ref, so
+ * the first step of `build` (which every release job needs) refuses a real
+ * release from any other ref. Dry runs and `ci-only` publish nothing and stay
+ * possible from a branch. docs/PIPELINE.md, "Dry run".
+ */
+describe('pipeline.yml refuses a release that is not dispatched from main', () => {
+  const REFUSAL = 'Refuse a release that is not dispatched from main';
+  const refusal = () => steps('build').find((s) => s.includes(`name: ${REFUSAL}`));
+
+  /** Evaluates the `if:` of the refusal step for one run, with the few expression forms it may use. */
+  function refuses({ event, ref, type, dry = false }) {
+    const condition = refusal().match(/\n\s+if: (.+)\n/)[1];
+    const values = { 'github.event_name': event, 'github.ref': ref, 'inputs.release-type': type, 'inputs.dry-run': dry };
+    const js = condition.replace(/github\.event_name|github\.ref|inputs\.release-type|inputs\.dry-run/g, (name) => `values[${JSON.stringify(name)}]`);
+    const leftover = js.replace(/values\["[a-z_.-]+"\]|'[^']*'|==|!=|&&|!|\s/g, '');
+    if (leftover) throw new Error(`the condition uses something this test does not evaluate: ${leftover}`);
+    // eslint-disable-next-line no-new-func
+    return Boolean(new Function('values', `return ${js};`)(values));
+  }
+
+  it('is the first step of the build job, so nothing is checked out, built or signed before it', () => {
+    expect(steps('build')[0]).toBe(refusal());
+  });
+
+  it('fails the job with a message that says what to do, and reads the ref from the environment', () => {
+    const step = refusal();
+    expect(step).toContain('exit 1');
+    expect(step).toContain('--ref main');
+    expect(step).toContain('DISPATCHED_REF: ${{ github.ref }}');
+    expect(step).not.toMatch(/run: \|[\s\S]*\$\{\{/);
+  });
+
+  it.each(['prerelease', 'premajor', 'patch', 'minor', 'major'])(
+    'refuses a real %s release from a branch, and from a tag',
+    (type) => {
+      expect(refuses({ event: 'workflow_dispatch', ref: 'refs/heads/feature', type })).toBe(true);
+      expect(refuses({ event: 'workflow_dispatch', ref: 'refs/tags/v1.0.0', type })).toBe(true);
+    }
+  );
+
+  it.each(['prerelease', 'premajor', 'patch', 'minor', 'major'])('lets a real %s release run from main', (type) => {
+    expect(refuses({ event: 'workflow_dispatch', ref: 'refs/heads/main', type })).toBe(false);
+  });
+
+  it('lets a dry run and ci-only run from a branch, because they publish nothing', () => {
+    expect(refuses({ event: 'workflow_dispatch', ref: 'refs/heads/feature', type: 'patch', dry: true })).toBe(false);
+    expect(refuses({ event: 'workflow_dispatch', ref: 'refs/heads/feature', type: 'ci-only' })).toBe(false);
+    expect(refuses({ event: 'workflow_dispatch', ref: 'refs/heads/feature', type: 'ci-only', dry: true })).toBe(false);
+  });
+
+  it('never touches a pull request or a push, whatever their ref is', () => {
+    expect(refuses({ event: 'pull_request', ref: 'refs/pull/1/merge' })).toBe(false);
+    expect(refuses({ event: 'push', ref: 'refs/heads/main' })).toBe(false);
+  });
+
+  it('is in front of every job that can release, because each of them needs the build job', () => {
+    const releaseJobs = jobIds().filter((id) => job(id).split('    steps:')[0].includes("inputs.release-type != 'ci-only'"));
+    expect(releaseJobs).toHaveLength(7);
+    const withoutBuild = releaseJobs.filter((id) => !/needs:\s*\[[^\]]*\bbuild\b[^\]]*\]/.test(job(id).split('    steps:')[0]));
+    expect(withoutBuild).toEqual([]);
+  });
+});
+
+/**
  * The release publishes to npm first and the `Release` job pushes the version
  * commit afterwards. A push to the branch while the tests ran makes that push
  * fail with the package already published (npm refuses a second publish of the
