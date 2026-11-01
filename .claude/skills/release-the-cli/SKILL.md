@@ -34,7 +34,7 @@ gh workflow run pipeline.yml -R rockcarver/frodo-cli --ref main -f release-type=
 gh run list -R rockcarver/frodo-cli --workflow pipeline.yml --event workflow_dispatch --limit 1
 ```
 
-Always pass `release-type`: the default `ci-only` runs the validation and publishes nothing. The run takes 10 to 15 minutes: build, tests, the live smoke test, the binaries for five platforms, `npm-release`, `Release`, the Homebrew update. Do not merge anything into `main` meanwhile.
+Always pass `release-type`: the default `ci-only` runs the validation and publishes nothing. Always pass `--ref main`: a real release from any other ref is refused by the first step of the `Build` job (a dry run is not, and may run from a branch). The run takes 10 to 15 minutes: build, tests, the live smoke test, the binaries for five platforms, `npm-release`, `Release`, the Homebrew update. Do not merge anything into `main` meanwhile.
 
 ## Verify
 
