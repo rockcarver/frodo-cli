@@ -475,7 +475,7 @@ describe('pipeline.yml dry run (workflow_dispatch with dry-run = true)', () => {
   });
 
   it('skips the Homebrew tap update, because a dry run creates no release zips to read', () => {
-    expect(job('homebrew-formula-update')).toContain("if: github.event_name == 'workflow_dispatch' && !inputs.dry-run");
+    expect(job('homebrew-formula-update')).toContain("&& !inputs.dry-run");
   });
 
   it('still builds, signs, smoke-tests and runs the release jobs, so the dry run proves them', () => {
@@ -492,6 +492,63 @@ describe('pipeline.yml dry run (workflow_dispatch with dry-run = true)', () => {
     ]) {
       expect(jobGuard(id)).not.toContain('dry-run');
     }
+  });
+});
+
+/**
+ * `ci-only` is how a maintainer starts the whole validation by hand (the build,
+ * every test job, the live smoke test, the linux-x64 binary) for a change the
+ * classifier skipped, or for `main`. It must publish nothing, and a dispatch
+ * from the Actions page must not release by accident, so it is the default.
+ * docs/PIPELINE.md, "Full CI by hand".
+ */
+describe('pipeline.yml ci-only (workflow_dispatch with release-type = ci-only)', () => {
+  const input = WORKFLOW.slice(WORKFLOW.indexOf('      release-type:'), WORKFLOW.indexOf('      dry-run:'));
+
+  it('offers ci-only as the first choice and as the default', () => {
+    expect(input).toMatch(/options:\n\s+- ci-only\n/);
+    expect(input).toContain("default: 'ci-only'");
+  });
+
+  it('keeps every release type that the release skill passes', () => {
+    for (const type of ['prerelease', 'premajor', 'patch', 'minor', 'major']) {
+      expect(input).toMatch(new RegExp(`\\n\\s+- ${type}\\n`));
+    }
+  });
+
+  it('skips every job and step that is only for a dispatch when the type is ci-only', () => {
+    const unguarded = WORKFLOW.split('\n')
+      .filter((l) => /^\s+if:.*github\.event_name == 'workflow_dispatch'/.test(l))
+      .filter((l) => !l.includes("inputs.release-type != 'ci-only'"));
+    expect(unguarded).toEqual([]);
+  });
+
+  it('guards the same seven jobs that the release path is made of', () => {
+    const guarded = jobIds().filter((id) =>
+      job(id).split('    steps:')[0].includes("inputs.release-type != 'ci-only'")
+    );
+    expect(guarded).toEqual([
+      'release',
+      'npm-release',
+      'homebrew-formula-update',
+      'macos-intel-binary-release',
+      'macos-arm64-binary-release',
+      'linux-arm64-binary-release',
+      'windows-x64-binary-release',
+    ]);
+  });
+
+  it('runs the build, the tests and the live smoke test, as any other non-pull-request run does', () => {
+    for (const id of ['build', 'test', 'test-live', 'test-gate', 'linux-x64-binary-release']) {
+      expect(job(id).split('    steps:')[0]).not.toContain('ci-only');
+    }
+    expect(job('test-live').split('    steps:')[0]).toContain("github.event_name != 'pull_request'");
+  });
+
+  it('never hands ci-only to the version bump (it is not a release kind)', () => {
+    const run = stepRun('id: release-type');
+    expect(run).toContain('"ci-only"');
+    expect(run).toContain('echo "value=prerelease"');
   });
 });
 

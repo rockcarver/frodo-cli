@@ -50,11 +50,12 @@ The workflow runs on:
   Test. No publishing, no release. A push that changes only documentation,
   `pipeline.yml` or the Issue Concierge's files does not start the workflow
   (the `paths-ignore` of the push trigger, see below).
-- **Manual `workflow_dispatch`** — the full release path with the release
-  type as an explicit input: `prerelease` | `premajor` | `patch` | `minor`
-  | `major`, and a `dry-run` flag (off by default; see [Dry run](#dry-run)).
-  `premajor` starts (or continues) an `X.0.0-1` prerelease train for the
-  next major.
+- **Manual `workflow_dispatch`** — with the default release type `ci-only`,
+  the validation of a push to `main` and nothing else (see
+  [Full CI by hand](#full-ci-by-hand)). With an explicit release type, the
+  full release path: `prerelease` | `premajor` | `patch` | `minor` | `major`,
+  and a `dry-run` flag (off by default; see [Dry run](#dry-run)). `premajor`
+  starts (or continues) an `X.0.0-1` prerelease train for the next major.
 
 All releases are manual. There is no PR-label-based release-type logic.
 
@@ -94,7 +95,8 @@ which answers two questions:
   because they decide what judges a pull request. An empty list, API errors,
   more than 3000 changed files, pushes, `workflow_dispatch` and release runs
   all resolve to `code=true`, so the filter can only ever skip work, never hide
-  it.
+  it. To run everything for a change the filter skipped, see
+  [Full CI by hand](#full-ci-by-hand).
 - `guidance`: does a file change that a guidance test reads? Only meaningful
   with `code=false` (with code, `Test` runs the same tests). The list is
   `GUIDANCE` in the script: `docs/decisions/`, `AGENTS.md`, `CLAUDE.md`,
@@ -275,6 +277,27 @@ Release assets include:
 - `frodo-macos-arm64-<version>.zip`
 - `frodo-windows-x64-<version>.zip`
 
+### Full CI by hand
+
+A pull request that changes no code skips the long test jobs, and a push that
+changes only ignored files starts no run (see
+[Detect code changes](#detect-code-changes)). To run the whole validation
+anyway, for a pull request branch or for `main`, dispatch the workflow with the
+release type `ci-only`, which is also the preselected choice:
+
+```console
+gh workflow run pipeline.yml -R rockcarver/frodo-cli --ref <branch> -f release-type=ci-only -f dry-run=false
+gh run list -R rockcarver/frodo-cli --workflow pipeline.yml --event workflow_dispatch --limit 1
+```
+
+The run does what a push to `main` does: Build, the Node tests, the Live
+Tenant Smoke Test, the linux-x64 binary build and the `Test gate`. It never
+reaches `Release`, `npm-release`, the other four binary builds or the Homebrew
+update: every job that exists only for a dispatch skips when the type is
+`ci-only`, and `test/unit/PipelineClassification.test.js` fails if one loses
+that guard. Because `ci-only` is the default, a dispatch that does not name a
+release type publishes nothing; the release skill always passes the type.
+
 ### Dry run
 
 Dispatching with `dry-run` on rehearses the whole release path and publishes
@@ -293,7 +316,8 @@ A dry run can be dispatched from any branch (the release type is then
 `prerelease`); only a dispatch from `main` uses the release type you choose.
 The version it reports is the one the next real release would take.
 `test/unit/PipelineClassification.test.js` fails if a step that pushes, tags or
-creates a release loses its `!inputs.dry-run` guard.
+creates a release loses its `!inputs.dry-run` guard. A dry run needs a release
+type: with `ci-only` no release job runs, so there is nothing to rehearse.
 
 ### Update Homebrew formulas
 

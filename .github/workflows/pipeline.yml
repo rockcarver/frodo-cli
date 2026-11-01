@@ -33,15 +33,16 @@ on:
   workflow_dispatch:
     inputs:
       release-type:
-        description: 'Release kind: prerelease | premajor | patch | minor | major'
+        description: 'ci-only runs the build and every test job and publishes nothing; otherwise the release kind: prerelease | premajor | patch | minor | major'
         type: choice
         options:
+          - ci-only
           - prerelease
           - premajor
           - patch
           - minor
           - major
-        default: 'prerelease'
+        default: 'ci-only'
         required: true
       dry-run:
         description: 'Test release pipeline without publishing, tagging, or creating GitHub releases'
@@ -186,7 +187,7 @@ jobs:
       - name: Resolve release type
         id: release-type
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ github.event.inputs.release-type }}" != "ci-only" ]; then
             echo "value=${{ github.event.inputs.release-type }}" >> "$GITHUB_OUTPUT"
           else
             echo "value=prerelease" >> "$GITHUB_OUTPUT"
@@ -451,7 +452,7 @@ jobs:
           frodo info "$FIDC_TENANT_URL"
 
   release:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only'
     needs:
       [
         build,
@@ -572,7 +573,7 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}
 
   npm-release:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only'
     # npm-release only needs the build job but since it is inconvenient to unpublish an npm we want this job to run last
     needs:
       [
@@ -680,7 +681,7 @@ jobs:
 
   homebrew-formula-update:
     # A dry run creates no release, so there are no zips to read the formulas from.
-    if: github.event_name == 'workflow_dispatch' && !inputs.dry-run
+    if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only' && !inputs.dry-run
     name: Update Homebrew formulas (prebuilt zips)
     needs: [release, build, npm-release]
     runs-on: ubuntu-latest
@@ -737,7 +738,7 @@ jobs:
     # arm64-host/x64-target path is unaffected). Smoke-tested under
     # Rosetta below.
     # don't run on PRs, since secrets are not available
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only'
     needs: [build, test]
     runs-on: macos-15
     timeout-minutes: 15
@@ -848,7 +849,7 @@ jobs:
 
   macos-arm64-binary-release:
     # don't run on PRs, since secrets are not available
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only'
     needs: [build, test]
     runs-on: macos-15
     timeout-minutes: 15
@@ -972,7 +973,7 @@ jobs:
     # Native arm64 runner (not a container) - SEA binaries need a full
     # glibc userland; alpine is not a supported SEA platform.
     # don't run on PRs to speed up the checks
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only'
     needs: [build, test]
     runs-on: ubuntu-24.04-arm
     steps:
@@ -1011,7 +1012,7 @@ jobs:
 
   windows-x64-binary-release:
     # don't run on PRs to speed up the checks
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only'
     needs: [build, test]
     runs-on: windows-2022
     steps:
