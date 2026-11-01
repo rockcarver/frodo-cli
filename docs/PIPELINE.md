@@ -55,7 +55,9 @@ The workflow runs on:
   [Full CI by hand](#full-ci-by-hand)). With an explicit release type, the
   full release path: `prerelease` | `premajor` | `patch` | `minor` | `major`,
   and a `dry-run` flag (off by default; see [Dry run](#dry-run)). `premajor`
-  starts (or continues) an `X.0.0-1` prerelease train for the next major.
+  starts (or continues) an `X.0.0-1` prerelease train for the next major. A
+  release is dispatched on `main`: a real one (neither `ci-only` nor a dry
+  run) from any other ref is refused by the first step of the `Build` job.
 
 All releases are manual. There is no PR-label-based release-type logic.
 
@@ -315,6 +317,20 @@ computation shows up before a real release does. It does **not**:
 A dry run can be dispatched from any branch (the release type is then
 `prerelease`); only a dispatch from `main` uses the release type you choose.
 The version it reports is the one the next real release would take.
+
+A real release is the opposite: it publishes what the dispatched ref contains,
+and [core 0005](decisions/core/0005-releases-are-started-by-a-maintainer-through-the-pipeline.md)
+makes a release a dispatch on `main`. The first step of the `Build` job,
+`Refuse a release that is not dispatched from main`, fails a dispatch from any
+other ref that is neither `ci-only` nor a dry run. Every release job needs
+`Build`, so the run stops after a few seconds with an error that says to
+dispatch again with `--ref main`, and nothing is built or published. The
+refusal is a failed `Build` check on that run; when the ref has a pull request,
+the check appears on its head commit next to the pull request's own, and
+re-running the pull request's checks gives it a passing `Build` again.
+`test/unit/PipelineClassification.test.js` evaluates the condition for every
+combination of event, ref, release type and dry run, and fails if another step
+comes before it or a release job stops needing `Build`.
 `test/unit/PipelineClassification.test.js` fails if a step that pushes, tags or
 creates a release loses its `!inputs.dry-run` guard. A dry run needs a release
 type: with `ci-only` no release job runs, so there is nothing to rehearse.
