@@ -325,9 +325,9 @@ makes a release a dispatch on `main`. The first step of the `Build` job,
 other ref that is neither `ci-only` nor a dry run. Every release job needs
 `Build`, so the run stops after a few seconds with an error that says to
 dispatch again with `--ref main`, and nothing is built or published. The
-refusal is a failed `Build` check on that run; when the ref has a pull request,
-the check appears on its head commit next to the pull request's own, and
-re-running the pull request's checks gives it a passing `Build` again.
+refusal makes `Build` and `Test gate` fail on that run; when the ref has a pull
+request, those checks appear on its head commit next to the pull request's own
+under the same names, so re-run the pull request's checks afterwards.
 `test/unit/PipelineClassification.test.js` evaluates the condition for every
 combination of event, ref, release type and dry run, and fails if another step
 comes before it or a release job stops needing `Build`.
