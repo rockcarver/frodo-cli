@@ -47,7 +47,9 @@ The workflow runs on:
   cross-platform tests, and the linux-x64 binary build (it needs no secrets,
   so PRs exercise the whole binary path). Release jobs are skipped.
 - **Pushes to `main`** — the same validation, plus the Live Tenant Smoke
-  Test. No publishing, no release.
+  Test. No publishing, no release. A push that changes only documentation,
+  `pipeline.yml` or the Issue Concierge's files does not start the workflow
+  (the `paths-ignore` of the push trigger, see below).
 - **Manual `workflow_dispatch`** — the full release path with the release
   type as an explicit input: `prerelease` | `premajor` | `patch` | `minor`
   | `major`, and a `dry-run` flag (off by default; see [Dry run](#dry-run)).
@@ -111,6 +113,20 @@ required check and also lints and builds). Skipped required jobs count as
 passing, and the gate job(s) accept a skip only when `code=false` and `Build`
 succeeded. Filtering cannot use `paths-ignore` on the `pull_request` trigger,
 because required checks would stay "expected" forever.
+
+**The push trigger.** `Detect code changes` only looks at pull requests; a push
+always counts as code. So a merge whose pull request skipped the tests would
+start everything again, the Live Tenant Smoke Test included. For the Issue
+Concierge's files that is avoided with the `paths-ignore` of the push trigger
+(a pull request cannot use it, see above): its pin `.github/issue-concierge.yml`,
+its folder `.github/issue-concierge/`, `.github/aw/`, and the scripts
+(`.github/scripts/*.mjs`) and workflow definitions (`.github/workflows/*.yml`
+and `*.md`) it installs. The classifier itself (`classify-changes.sh`), the
+instruction files in `.github/instructions/` and files in deeper folders are
+not on the list: their push still runs everything.
+`test/unit/PipelineClassification.test.js` checks that nothing under `.github/`
+is ignored on push that the classifier counts as code or guidance. The list is
+allowed to be narrower than the classifier's, never wider.
 
 A path that a guidance test starts to read goes into `GUIDANCE` in the script
 (and a fixture into `ClassifyChanges.test.js`) in the same pull request. A

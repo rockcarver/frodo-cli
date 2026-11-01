@@ -106,6 +106,82 @@ describe('pipeline.yml facts that rulesets and records rely on', () => {
   });
 });
 
+/** The entries of `paths-ignore` under the push trigger (comments left out). */
+function pushIgnored() {
+  const push = WORKFLOW.slice(WORKFLOW.indexOf('  push:'), WORKFLOW.indexOf('  workflow_dispatch:'));
+  return push
+    .slice(push.indexOf('paths-ignore:'))
+    .split('\n')
+    .map((l) => l.match(/^\s+- '(.+)'\s*$/)?.[1])
+    .filter(Boolean);
+}
+
+/** Whether a `paths-ignore` pattern covers a file, with the two wildcards pipeline.yml uses: `*` stays in a folder, `**` crosses them. */
+function ignoredOnPush(file) {
+  return pushIgnored().some((pattern) => {
+    const wildcards = { '**/': '(?:.*/)?', '**': '.*', '*': '[^/]*' };
+    const source = pattern
+      .split(/(\*\*\/|\*\*|\*)/)
+      .map((part) => wildcards[part] ?? part.replace(/[.+^${}()|[\]\\]/g, '\\$&'))
+      .join('');
+    return new RegExp(`^${source}$`).test(file);
+  });
+}
+
+describe('the push trigger of pipeline.yml', () => {
+  // What an update of the Issue Concierge changes: the pin, the files of its
+  // own folder, the compiled lock data, scripts, workflow sources and locks.
+  const CONCIERGE_FILES = [
+    '.github/issue-concierge.yml',
+    '.github/issue-concierge/related-repos.md',
+    '.github/aw/actions-lock.json',
+    '.github/scripts/commands.mjs',
+    '.github/workflows/commands.yml',
+    '.github/workflows/plan-worker.md',
+    '.github/workflows/plan-worker.lock.yml',
+  ];
+
+  it('does not start the pipeline for a push of the Issue Concierge files alone', () => {
+    expect(CONCIERGE_FILES.filter((f) => !ignoredOnPush(f))).toEqual([]);
+  });
+
+  it('keeps the earlier entries: documentation and the pipeline itself', () => {
+    for (const file of ['docs/PIPELINE.md', 'README.md', 'CODE_OF_CONDUCT.md', '.github/workflows/pipeline.yml']) {
+      expect(ignoredOnPush(file)).toBe(true);
+    }
+  });
+
+  it('still starts it for code, the classifier and files in a deeper folder', () => {
+    const mustRun = [
+      'package.json',
+      'package-lock.json',
+      'src/cli/frodo.ts',
+      '.github/scripts/classify-changes.sh',
+      '.github/workflows/nested/commands.yml',
+      '.github/scripts/nested/commands.mjs',
+    ];
+    expect(mustRun.filter(ignoredOnPush)).toEqual([]);
+  });
+
+  describeIfBash('against the classifier', () => {
+    function classify(files) {
+      const run = spawnSync('bash', [CLASSIFIER], { input: files.map((f) => `${f}\n`).join(''), encoding: 'utf8' });
+      return run.stdout.trim().split('\n');
+    }
+
+    // The pull request judged these files as not code and skipped its tests; the
+    // push may only skip what that judgement allows, or it hides work.
+    it('ignores under .github/ only what the classifier calls neither code nor guidance', () => {
+      const patterns = pushIgnored().filter((p) => p.startsWith('.github/'));
+      expect(patterns.length).toBeGreaterThan(0);
+      for (const pattern of patterns) {
+        const sample = pattern.replace('**', 'deeper/example').replace('*', 'example');
+        expect({ sample, answer: classify([sample]) }).toEqual({ sample, answer: ['code=false', 'guidance=false'] });
+      }
+    });
+  });
+});
+
 describeIfBash('Test gate step', () => {
   const script = stepRun('name: Fail if any test matrix leg did not succeed');
 

@@ -351,6 +351,12 @@ job skips the test jobs instead (classifier:
 (decision records, skills, entry points) runs the fast `Validate guidance` job
 in their place, and `Test gate` requires it ([PIPELINE.md](PIPELINE.md)).
 
+The `push` trigger keeps its own `paths-ignore`: besides documentation and
+`pipeline.yml` it lists the Issue Concierge's files (pin, `.github/issue-concierge/`,
+`.github/aw/`, `.github/scripts/*.mjs`, `.github/workflows/*.yml` and `*.md`),
+because a push is always code and would otherwise rerun everything, the live
+tenant smoke test included, after an update pull request that skipped it.
+
 ---
 
 ## 9. Dependency automation
@@ -417,4 +423,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-10-28 | `pipeline.yml` gets a `dry-run` input on `workflow_dispatch` (as in frodo-lib): the release path runs with the npm publish action in dry-run mode and without the changelog commit, the tag, the GitHub release and the Homebrew tap update. `test/unit/PipelineClassification.test.js` guards the steps that publish. Required checks unchanged (core 0012) |
 | 2026-10-30 | `npm-release` starts with a step that fails the run when the dispatched branch has moved, before anything is published (the frodo-lib release 5.0.0-18 had been left on npm without its version commit, tag and GitHub release by a merge during the tests); `test/unit/PipelineClassification.test.js` runs the step                                        | — |
 | 2026-10-30 | `Security Audit` in the Build job is check only (`npm audit --audit-level critical`): `npm audit fix` there rewrote `package-lock.json` in the build artifact, the Release job committed it, and the locked version of a dependency flipped between versions from release to release; `test/unit/PipelineClassification.test.js` pins it                     | — |
+| 2026-11-01 | The `push` trigger of `pipeline.yml` ignores the Issue Concierge's files (pin, `.github/issue-concierge/`, `.github/aw/`, `.github/scripts/*.mjs`, `.github/workflows/*.yml` and `*.md`): an update pull request was non-code and skipped the tests, but its merge started the whole pipeline, and the live tenant smoke test failed on a frodo-dev outage (502) and turned `main` red; `test/unit/PipelineClassification.test.js` pins the list against the classifier | — |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |

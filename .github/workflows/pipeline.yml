@@ -17,6 +17,19 @@ on:
       - '**/README.md'
       - '**/pipeline.yml'
       - 'docs/**'
+      # The Issue Concierge's files. A pull request that changes only these is
+      # non-code in .github/scripts/classify-changes.sh, so its test jobs were
+      # skipped there; the push after the merge would start everything again,
+      # the live tenant smoke test included, for files no test builds or reads.
+      # The classifier itself (.github/scripts/classify-changes.sh) stays off
+      # this list: it is code. Every entry must also be non-code in the
+      # classifier; test/unit/PipelineClassification.test.js checks it.
+      - '.github/issue-concierge.yml'
+      - '.github/issue-concierge/**'
+      - '.github/aw/**'
+      - '.github/scripts/*.mjs'
+      - '.github/workflows/*.yml'
+      - '.github/workflows/*.md'
   workflow_dispatch:
     inputs:
       release-type:
