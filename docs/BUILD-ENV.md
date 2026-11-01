@@ -366,7 +366,9 @@ tenant smoke test included, after an update pull request that skipped it.
   grouped PR for dev minor/patch; prettier/typescript/eslint excluded
   (Prettier minors reformat; TS/ESLint majors need coordinated work); TS
   majors ignored outright. The exact `@rockcarver/frodo-lib` pin updates
-  flow through the same group.
+  flow through the same group. `github/gh-aw-actions/setup` is ignored: it is
+  pinned inside the Issue Concierge's generated `*.lock.yml` files, which a
+  Concierge release moves by recompiling them.
 - `dependabot-auto-merge.yml`: arms `gh pr merge --auto --squash` on
   Dependabot patch/minor PRs (security updates included) once checks pass.
   Majors and the tooling set stay manual. NOTE: Dependabot "rules" in repo
