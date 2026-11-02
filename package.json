@@ -157,7 +157,7 @@
     "tinyrainbow": "^3.0.3",
     "tmp": "^0.2.3",
     "ts-jest": "^29.1.4",
-    "tsdown": "0.23.3",
+    "tsdown": "0.23.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "8.72.1",
     "uuid": "^14.0.2",
