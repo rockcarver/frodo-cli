@@ -30,6 +30,23 @@ on:
       - '.github/scripts/*.mjs'
       - '.github/workflows/*.yml'
       - '.github/workflows/*.md'
+      # The other files the classifier calls non-code: the agent entry points
+      # and the other Markdown files of the root, the licence, skills,
+      # instruction files, issue templates and the repository settings. A pull
+      # request that changes only these skipped the long tests (for the
+      # guidance files it ran the fast `Validate guidance` job instead); the
+      # push after the merge would start everything again, as it did for the
+      # Concierge files, and docs/** above already covers docs/decisions/ the
+      # same way. Every entry must be non-code in the classifier;
+      # test/unit/PipelineClassification.test.js checks it.
+      - '*.md'
+      - 'LICENSE'
+      - '.claude/skills/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/instructions/**'
+      - '.github/CODEOWNERS'
+      - '.github/dependabot.yml'
+      - '.github/copilot-instructions.md'
   workflow_dispatch:
     inputs:
       release-type:
