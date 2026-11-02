@@ -7,7 +7,7 @@
 // Rules and reasons: docs/multi-phase-design.md, "The maintainer's view".
 //
 // Install: copy to .github/scripts/issue-concierge-state.mjs (it imports janitor.mjs and opt-out.mjs, so install those too).
-import { GATE, isCodingAgent } from './janitor.mjs';
+import { GATE, LABEL_AGENT_FAILED, isCodingAgent } from './janitor.mjs';
 import { isOptedOut, labelNames } from './opt-out.mjs';
 
 export const BOT = 'github-actions[bot]';
@@ -30,6 +30,7 @@ export const QUEUES = [
   { id: 'decision', who: 'you', label: 'needs-decision', title: 'Held: changes what exists' },
   { id: 'scope', who: 'you', label: 'scope-review', title: 'Held: may not fit the scope' },
   { id: 'plan', who: 'you', label: 'plan-approval-required', title: 'Held: waiting for your approval' },
+  { id: 'agent', who: 'you', label: LABEL_AGENT_FAILED, title: 'Held: the coding agent did not start' },
   { id: 'dependency', who: 'another issue', label: 'dependency-required', title: 'Waiting for a dependency' },
   { id: 'reporter', who: 'the reporter', label: 'needs-info', title: 'Waiting for the reporter' },
   { id: 'parked', who: 'nobody', label: 'backlog', title: 'Parked' },
@@ -40,7 +41,7 @@ export const GATE_LABELS = [...GATE.issue, ...GATE.pr];
 /** The labels that only the Concierge applies. A label a repository may use for itself (`duplicate`, `spam`) proves nothing. */
 const OTHER_CONCIERGE_LABELS = [
   'plan-approval-required', 'needs-decision', 'scope-review', 'out-of-scope', 'dependency-required', 'dependency-satisfied',
-  'needs-info', 'backlog', 'low-hanging-fruit', 'related-repo', 'original-in-related-repo', 'waiting-for-release', 'released', 'declined',
+  'needs-info', 'backlog', 'low-hanging-fruit', 'related-repo', 'original-in-related-repo', 'waiting-for-release', 'released', 'declined', LABEL_AGENT_FAILED,
 ];
 
 export const CONCIERGE_LABELS = [...GATE_LABELS, ...OTHER_CONCIERGE_LABELS];
@@ -50,13 +51,19 @@ export const isConciergeLabel = (name) => CONCIERGE_LABELS.includes(name) || /^(
 /** An issue in a gate for longer than this is stuck: a whole run of the three gates takes about a quarter of an hour. */
 export const STUCK_AFTER_MINUTES = 60;
 
-/** The queue of a managed issue, or the stage it is in when nobody has to move. */
+/**
+ * The queue of a managed issue, or the stage it is in when nobody has to move. `backlog` says an issue is parked, and it
+ * stays on an issue that a maintainer has since approved (frodo-lib#783 kept it from its first triage to its pull request),
+ * so it counts only when nothing is working on the issue: a gate label or the coding agent outranks it. The other queues
+ * are waits that something else is not working on, and they come first.
+ */
 export function queueOf(issue) {
   const labels = new Set(labelNames(issue));
-  const queue = QUEUES.find((q) => labels.has(q.label));
+  const queue = QUEUES.find((q) => q.id !== 'parked' && labels.has(q.label));
   if (queue) return queue.id;
   if (GATE_LABELS.some((l) => labels.has(l))) return 'in-flight';
   if ((issue.assignees || []).some((a) => isCodingAgent(a.login || a))) return 'with-agent';
+  if (labels.has('backlog')) return 'parked';
   if (labels.has('related-repo')) return 'elsewhere';
   return 'settled';
 }
@@ -72,6 +79,34 @@ export function classify(issue, { analysed = false } = {}) {
   if (issue.user && issue.user.type === 'Bot') return { kind: 'bot-authored' };
   if (!analysed && !labelNames(issue).some(isConciergeLabel)) return { kind: 'not-picked-up' };
   return { kind: 'managed', queue: queueOf(issue) };
+}
+
+/**
+ * How long an issue may be with the coding agent before the page says no pull request has come. A session opens its draft
+ * pull request within seconds of starting, so half an hour with none means the session did not start (or the pull request was
+ * closed), and the agent says so itself only in the case scripts/agent-start-watch.mjs reads.
+ */
+export const AGENT_QUIET_MINUTES = 30;
+
+/** When the coding agent was assigned, from the issue's events (the latest assignment); null when it was never seen. */
+export function assignedAt(events) {
+  const times = (events || []).filter((e) => e.event === 'assigned' && e.assignee && isCodingAgent(e.assignee.login)).map((e) => Date.parse(e.created_at));
+  return times.length ? Math.max(...times) : null;
+}
+
+/** True when a pull request body closes issue `number` of `repo`: `Fixes #7`, `Closes owner/repo#7`, in any case. */
+export function closesIssue(body, number, repo) {
+  for (const m of String(body || '').matchAll(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+(?:([\w.-]+\/[\w.-]+))?#(\d+)\b/gi)) {
+    if (Number(m[2]) === number && (!m[1] || m[1].toLowerCase() === String(repo).toLowerCase())) return true;
+  }
+  return false;
+}
+
+/** The newest open pull request of the coding agent that closes the issue, or null. items: the open items of the repository, pull requests among them. */
+export function agentPullFor(number, repo, items) {
+  const mine = (items || []).filter((i) => i.pull_request && i.user && isCodingAgent(i.user.login) && closesIssue(i.body, number, repo));
+  mine.sort((a, b) => Date.parse(b.updated_at || 0) - Date.parse(a.updated_at || 0));
+  return mine[0] ?? null;
 }
 
 const esc = (s) => String(s).replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');

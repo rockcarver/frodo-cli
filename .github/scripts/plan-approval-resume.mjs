@@ -14,6 +14,7 @@ export const LABEL_HANDOFF = 'plan-triage-handoff';
 export const LABEL_HIGH = 'complexity/high';
 export const LABEL_RISK_HIGH = 'risk/high';
 export const LABEL_DEPENDENCY = 'dependency-required';
+export const LABEL_BACKLOG = 'backlog';
 
 /**
  * Plan triage has classified the plan: it applies one complexity label and one risk label, whatever
@@ -64,6 +65,9 @@ export function resume(issue, ctx) {
   const verdict = decide(issue, ctx.removedLabel, ctx.actor);
   if (!verdict.handoff) return verdict;
   if (!ctx.dryRun) {
+    // An approved plan is not parked any more. The label was put on by issue triage ("valid, not urgent") and nothing else
+    // takes it off, so it would show the issue as parked while the coding agent works on it (frodo-lib#783).
+    if (new Set((issue.labels || []).map((l) => l.name || l)).has(LABEL_BACKLOG) && ctx.removeLabel) ctx.removeLabel(LABEL_BACKLOG);
     // Applied with the signal token so the PR gate starts.
     ctx.addLabel(LABEL_HANDOFF);
     ctx.comment(
@@ -98,6 +102,13 @@ export function main(argv = process.argv.slice(2), env = process.env) {
     removedLabel: env.REMOVED_LABEL || undefined,
     actor: env.ACTOR || undefined,
     dryRun: argv.includes('--dry-run'),
+    removeLabel: (l) => {
+      try {
+        ghJson(`repos/${repo}/issues/${number}/labels/${encodeURIComponent(l)}`, readToken, { method: 'DELETE' });
+      } catch (e) {
+        if (!/HTTP 404/.test(String(e.stderr || e.message))) throw e;
+      }
+    },
     addLabel: (l) =>
       ghJson(`repos/${repo}/issues/${number}/labels`, signalToken, { method: 'POST', body: { 'labels[]': l } }),
     comment: (body) => ghJson(`repos/${repo}/issues/${number}/comments`, readToken, { method: 'POST', body: { body } }),

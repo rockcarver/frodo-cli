@@ -9,7 +9,7 @@
 # behind, the Dependabot Auto-Merge run of every push (its job runs only for Dependabot), and
 # the runs of pushes the pull request has moved past or of a pull request that is closed. It
 # never deletes the held run for a pull request's current head, and none caused by anyone but
-# the coding agent. Both run on the label events that can change the answer, on assignment and
+# the coding agent. Both run on the label events that can change the answer, on assignment, unassignment and
 # close, hourly as a sweep for anything missed, and on demand.
 #
 # Install: copy this file to .github/workflows/janitor.yml and
@@ -20,7 +20,7 @@ name: "Issue Concierge 4a ▸ Janitor"
 
 on:
   issues:
-    types: [labeled, assigned, closed]
+    types: [labeled, assigned, unassigned, closed]
   pull_request_target:
     types: [labeled, closed]
   schedule:
@@ -65,7 +65,7 @@ jobs:
     if: >-
       (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
       && (github.event.action != 'labeled'
-      || contains(fromJSON('["issue-worker-ready","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","pr-worker-ready","pr-triage-handoff","backlog","needs-info","dependency-required","scope-review","needs-decision","out-of-scope","duplicate","invalid","already-fixed","spam","plan-approval-required"]'), github.event.label.name))
+      || contains(fromJSON('["issue-worker-ready","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","pr-worker-ready","pr-triage-handoff","backlog","needs-info","dependency-required","scope-review","needs-decision","out-of-scope","duplicate","invalid","already-fixed","spam","plan-approval-required","agent-start-failed"]'), github.event.label.name))
       && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
       && !contains(github.event.pull_request.labels.*.name, 'no-auto-processing')
     runs-on: ubuntu-latest
