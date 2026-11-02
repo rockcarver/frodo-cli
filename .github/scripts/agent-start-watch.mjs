@@ -12,12 +12,13 @@
 // start back and hands the issue on again. It never starts the agent again by itself. Rules and reasons:
 // docs/multi-phase-design.md, "When the coding agent does not start", and the decision record 0041.
 //
-// Install: copy to .github/scripts/agent-start-watch.mjs (it imports janitor.mjs, opt-out.mjs and plan-approval-resume.mjs, so
-// install those too).
+// Install: copy to .github/scripts/agent-start-watch.mjs (it imports janitor.mjs, opt-out.mjs, plan-approval-resume.mjs and
+// issue-concierge-state.mjs, so install those too).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { LABEL_AGENT_FAILED, isCodingAgent } from './janitor.mjs';
 import { isOptedOut, labelNames, optedOutReason } from './opt-out.mjs';
+import { assignedAt } from './issue-concierge-state.mjs';
 import { isClassified } from './plan-approval-resume.mjs';
 
 /**
@@ -29,10 +30,13 @@ export const START_FAILURE = /\bunable to start working on this issue\b/i;
 
 /**
  * Whether the comment is the agent's report that it could not start on this issue, and the issue is one the Concierge handed on.
- * issue: as the REST API gives it. comment: { user: { login, type }, body }.
+ * issue: as the REST API gives it. comment: { user: { login, type }, body, created_at }. assigned: when the agent was last assigned
+ * (milliseconds, from the issue's events), or null when that is not known. A report from before that is about an attempt that is
+ * over: a maintainer started the agent again, and it says nothing more on the issue while it works (frodo-lib#783 after its second
+ * attempt), so the latest comment of the agent is still the old failure.
  * Returns { label: boolean, reason }.
  */
-export function decide(issue, comment) {
+export function decide(issue, comment, { assigned = null } = {}) {
   if (issue.pull_request) return { label: false, reason: 'pull request' };
   if (issue.state !== 'open') return { label: false, reason: 'issue is closed' };
   if (isOptedOut(issue)) return { label: false, reason: optedOutReason('issue') };
@@ -42,6 +46,7 @@ export function decide(issue, comment) {
   if (!START_FAILURE.test(String(comment.body || ''))) return { label: false, reason: 'comment is not a report that the agent could not start' };
   const assignees = (issue.assignees || []).map((a) => a.login || a);
   if (!assignees.some(isCodingAgent)) return { label: false, reason: 'the coding agent is no longer assigned' };
+  if (assigned !== null && Date.parse(comment.created_at) < assigned) return { label: false, reason: 'the coding agent was assigned again after this comment, so it is about an attempt that is over' };
   const labels = new Set(labelNames(issue));
   if (labels.has(LABEL_AGENT_FAILED)) return { label: false, reason: 'already labelled' };
   // The Concierge hands an issue to the agent after plan triage has classified the plan. An issue that somebody assigned to
@@ -71,6 +76,15 @@ function realApi(env, repo) {
       }
       return all;
     },
+    listEvents(n) {
+      const all = [];
+      for (let page = 1; page <= 5; page += 1) {
+        const chunk = get(`repos/${repo}/issues/${n}/events?per_page=100&page=${page}`);
+        all.push(...chunk);
+        if (chunk.length < 100) break;
+      }
+      return all;
+    },
     // The signal token, because a label added with the workflow token starts no workflow.
     addLabel: (n, label) => call(['api', `repos/${repo}/issues/${n}/labels`, '--method', 'POST', '-f', `labels[]=${label}`], signal),
   };
@@ -95,7 +109,7 @@ export function main(argv = process.argv.slice(2), env = process.env, api = real
     log(`#${number}: skipped (${issue ? 'the coding agent has not commented' : 'the issue could not be read'})`);
     return 0;
   }
-  const verdict = decide(issue, comment);
+  const verdict = decide(issue, comment, { assigned: assignedAt(api.listEvents(number)) });
   log(`#${number}: ${verdict.label ? 'labelled' : 'skipped'} (${verdict.reason})`);
   if (verdict.label && !argv.includes('--dry-run')) api.addLabel(number, LABEL_AGENT_FAILED);
   return 0;

@@ -55,7 +55,7 @@ const minute = (ms) => `${new Date(ms).toISOString().slice(0, 16).replace('T', '
 // ------------------------------------------------------------------ from the raw facts to the page's numbers
 
 /**
- * raw: { repo, issues (the open ones, pull requests included), comments, events (number -> events), analysed (a set of
+ * raw: { repo, issues (the open ones), pulls (the open pull requests: the agent's are found among them), comments, events (number -> events), analysed (a set of
  * numbers), runs, pin, latest, token, roles (login -> repository role, null when it could not be asked), reporters (issue
  * number -> the login, lower case, of the person who reported it) }; settings as parseSettings gives them; now in milliseconds.
  */
@@ -88,7 +88,7 @@ export function summarize(raw, settings, now) {
       stages['in-flight'].push({ number: issue.number, title: issue.title, gate, since, stuck: now - since > STUCK_AFTER_MINUTES * 60000 });
     } else if (c.queue === 'with-agent') {
       const since = assignedAt(events) ?? Date.parse(issue.updated_at);
-      const pull = agentPullFor(issue.number, raw.repo, raw.issues);
+      const pull = agentPullFor(issue.number, raw.repo, raw.pulls ?? raw.issues);
       stages['with-agent'].push({ number: issue.number, title: issue.title, since, pull: pull ? { number: pull.number, draft: pull.draft === true } : null, quiet: !pull && now - since > AGENT_QUIET_MINUTES * 60000 });
     } else stages[c.queue] += 1;
   }
@@ -433,6 +433,7 @@ export function collect(ctx, repo, settings, signalToken, pausedVariables = []) 
   const issues = ctx.list(`repos/${repo}/issues?state=open`);
   if (!issues) return null;
   const candidates = issues.filter((i) => !i.pull_request && !hasStatusMarker(i.body));
+  const pulls = issues.filter((i) => i.pull_request);
 
   const windowDays = Math.max(settings['reporter-replies-days'], 7);
   const since = new Date(now - windowDays * 86400000).toISOString();
@@ -477,7 +478,7 @@ export function collect(ctx, repo, settings, signalToken, pausedVariables = []) 
     .filter(Boolean)
     .sort();
   const pausedSince = stamps[0] ?? null;
-  return { repo, issues: candidates, comments, roles, reporters, analysed, events, runs, pin, latest, token: ctx.probe(signalToken), paused: paused ? { since: pausedSince } : null };
+  return { repo, issues: candidates, pulls, comments, roles, reporters, analysed, events, runs, pin, latest, token: ctx.probe(signalToken), paused: paused ? { since: pausedSince } : null };
 }
 
 const PIN = 'mutation($id: ID!) { pinIssue(input: {issueId: $id}) { issue { id } } }';
