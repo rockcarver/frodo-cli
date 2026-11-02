@@ -33,4 +33,4 @@ Widen the type to `(callback) => Callback | Promise<Callback>` and await it in `
 
 ## Known deviations
 
-When this record was accepted, on 2026-10-30, the library's `CallbackHandler` type and `checkAndHandle2FA` were still synchronous and the CLI still read the code with the synchronous helper. The library change is tracked in rockcarver/frodo-lib#783; the pull request that widens the type removes this section.
+When this record was accepted, on 2026-10-30, the library's `CallbackHandler` type and `checkAndHandle2FA` were still synchronous and the CLI still read the code with the synchronous helper. The library change is tracked in rockcarver/frodo-lib#783. This section stays while either half is open: the pull request that widens the type leaves it alone, and a maintainer removes it from both repositories once the CLI change has landed.
