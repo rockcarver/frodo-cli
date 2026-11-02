@@ -8,7 +8,8 @@
 #   human review.
 # - The exact @rockcarver/frodo-lib pin is updated by this too, so new library
 #   releases automatically arrive here as a PR.
-# - Weekly updates for the GitHub Actions used by the workflows.
+# - Weekly updates for the GitHub Actions used by the workflows, except
+#   github/gh-aw-actions/setup (see the ignore below).
 # - Dependabot security updates are enabled separately in repo settings.
 
 version: 2
@@ -46,3 +47,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # The Issue Concierge's .github/workflows/*.lock.yml files are compiled by
+      # gh-aw and record the compiler they were built with (compiler_version,
+      # GH_AW_VERSION, the manifest, .github/aw/actions-lock.json). The setup
+      # action installs the runtime scripts of the gh-aw version it is tagged
+      # with, so bumping it alone leaves compiler and runtime out of step. A
+      # Concierge release moves it by recompiling the locks; a Dependabot bump
+      # would also be auto-merged when it is a patch (dependabot-auto-merge.yml).
+      - dependency-name: "github/gh-aw-actions/setup"
