@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
+import type { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import {
   nameInFolder,
@@ -16,8 +17,10 @@ import { OperationRun } from '../utils/OperationRun';
 
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
-const { readManagedObjectSchemaProperty } = frodo.idm.managed.schema;
-const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
+const { readManagedObjectSchemaProperty, updateManagedObjectSchemaProperty } =
+  frodo.idm.managed.schema;
+const { getFilePath, saveTextToFile, saveJsonToFile } = frodo.utils;
+const { stringify } = frodo.utils.json;
 
 const SCRIPT_HOOKS = ['onStore', 'onRetrieve', 'onValidate'];
 
@@ -205,9 +208,11 @@ function getExtractedFiles(obj: any, managedObjectDirectory: string): void {
  * @param {string} file The file where the managed object is saved
  * @returns {object} The managed object data from the file, including data from any extracted files
  */
-function getManagedObjectImportData(file: string): object {
-  const importData = readJsonFile(file);
-  getExtractedFiles(importData, path.dirname(file));
+function getManagedObjectImportData(file: string): IdObjectSkeletonInterface {
+  const readManagedObject = fs.readFileSync(file, 'utf-8');
+  const importData = JSON.parse(readManagedObject);
+  const managedObjectDirectory = path.dirname(file);
+  getExtractedFiles(importData, managedObjectDirectory);
   return importData;
 }
 
@@ -216,32 +221,90 @@ function getManagedObjectImportData(file: string): object {
  * @param {string} objectName Optional managed object name. If not specified, imports all the managed objects.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
+
 export async function configManagerImportManagedObjects(
   objectName?: string
 ): Promise<boolean> {
   try {
-    if (objectName) {
-      const filePath = objectFilePath(
-        objectFolderPath(getFilePath('managed-objects'), objectName),
-        objectName
+    const managedObjectsPath = getFilePath('managed-objects');
+    const managedObjectsFiles = fs.readdirSync(managedObjectsPath, 'utf-8');
+    const customRelationshipSchema: {
+      object: string;
+      schema_id: string;
+      schema: any;
+    }[] = [];
+
+    const importManagedObjectData = {
+      idm: {
+        managed: {
+          _id: 'managed',
+          objects: [] as IdObjectSkeletonInterface[],
+        },
+      },
+    };
+
+    for (const managedObjectName of managedObjectsFiles) {
+      if (objectName && objectName !== managedObjectName) {
+        continue;
+      }
+
+      const filePath = getFilePath(
+        `managed-objects/${managedObjectName}/${managedObjectName}.json`
       );
-      const importData = getManagedObjectImportData(filePath) as any;
-      await importSubConfigEntity('managed', importData);
-    } else {
-      const managedObjectsPath = getFilePath('managed-objects');
-      const managedObjectsFiles = fs.readdirSync(managedObjectsPath, 'utf-8');
-      const importManagedObjectData = {
-        idm: { managed: { _id: 'managed', objects: [] } },
-      };
-      for (const managedObjectsFile of managedObjectsFiles) {
-        const filePath = getFilePath(
-          `managed-objects/${managedObjectsFile}/${managedObjectsFile}.json`
-        );
-        const importData = getManagedObjectImportData(filePath);
+      const importData = getManagedObjectImportData(filePath);
+
+      if (objectName) {
+        await importSubConfigEntity('managed', importData);
+      } else {
         importManagedObjectData.idm.managed.objects.push(importData);
       }
+
+      const schemaPath = path.join(
+        managedObjectsPath,
+        managedObjectName,
+        'schema'
+      );
+
+      if (!fs.existsSync(schemaPath)) {
+        continue;
+      }
+
+      const schemaFiles = fs.readdirSync(schemaPath).filter((schemaFile) => {
+        const parts = schemaFile.split('.schema.');
+
+        return (
+          parts.length === 2 &&
+          parts[0] === managedObjectName &&
+          parts[1].endsWith('.json')
+        );
+      });
+
+      for (const schemaFile of schemaFiles) {
+        const propertyName = schemaFile.split('.schema.')[1].slice(0, -5);
+        const schemaData = JSON.parse(
+          fs.readFileSync(path.join(schemaPath, schemaFile), 'utf-8')
+        );
+
+        customRelationshipSchema.push({
+          object: managedObjectName,
+          schema_id: propertyName,
+          schema: schemaData,
+        });
+      }
+    }
+
+    if (!objectName) {
       await importConfigEntities(importManagedObjectData);
     }
+
+    for (const relationshipSchema of customRelationshipSchema) {
+      await updateManagedObjectSchemaProperty(
+        relationshipSchema.object,
+        relationshipSchema.schema_id,
+        relationshipSchema.schema
+      );
+    }
+
     return true;
   } catch (error) {
     printError(error, `Error importing IDM managed objects`);
