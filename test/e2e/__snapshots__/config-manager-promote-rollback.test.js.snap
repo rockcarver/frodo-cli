@@ -1,5 +1,25 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`frodo config-manager promote rollback "frodo config-manager promote rollback --wait --timeout 0.1": Should time out waiting for rollback 1`] = `
+"Experimental feature in use: 'frodo config-manager promote rollback'. This feature may change without notice.
+⚠ Rollback timed out after 6s with final message: Update configuration
+Error rolling back promotion
+"
+`;
+
+exports[`frodo config-manager promote rollback "frodo config-manager promote rollback --wait --timeout 0.1": Should time out waiting for rollback 2`] = `1`;
+
+exports[`frodo config-manager promote rollback "frodo config-manager promote rollback --wait": Should wait for rollback to complete 1`] = `
+"{ result: 'Rollback process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote rollback "frodo config-manager promote rollback --wait": Should wait for rollback to complete 2`] = `
+"Experimental feature in use: 'frodo config-manager promote rollback'. This feature may change without notice.
+✔ Rollback completed in 20s with final message: Rollback completed
+"
+`;
+
 exports[`frodo config-manager promote rollback "frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket": Will run rollback with promoter, description, unlocking after, and Zendesk ticket" 1`] = `
 "{ result: 'Rollback process initiated successfully' }
 "

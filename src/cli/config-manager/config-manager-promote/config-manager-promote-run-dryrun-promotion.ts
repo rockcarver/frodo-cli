@@ -4,7 +4,7 @@ import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { runPromotion } from '../../../ops/cloud/EnvPromotionOps';
 import c from '../../../utils/ColorTheme';
-import { verboseMessage } from '../../../utils/Console';
+import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -49,16 +49,32 @@ export default function setup() {
         'Zendesk ticket reference.'
       )
     )
+    .addOption(
+      new Option(
+        '-w, --wait',
+        'Wait for the rollback to complete. Times out after 60 minutes by default, but can be overridden using --timeout.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-T, --timeout <minutes>',
+        'How many minutes to wait for the promotion to complete. Requires --wait.'
+      )
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Run a dry-run promotion: it checks what a promotion would do and applies nothing. The request returns as soon as it is accepted; check-promotion-status shows when it is done:\n` +
+        `  Run a dry-run promotion without waiting for completion:\n` +
         c.command(
           `  $ frodo config-manager promote run-dryrun-promotion ${s.connId}\n`
         ) +
-        `  Run a dry-run promotion that ignores encrypted secrets:\n` +
+        `  Run a dry-run promotion and wait up to 60 minutes for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote run-dryrun-promotion --ignore-encrypted-secrets ${s.connId}\n`
+          `  $ frodo config-manager promote run-dryrun-promotion --wait --timeout 60 ${s.connId}\n`
+        ) +
+        `  Run a dry-run promotion, record who did it and why, and unlock the environments afterwards:\n` +
+        c.command(
+          `  $ frodo config-manager promote run-dryrun-promotion --promoter 'Jane Doe' --description 'Release 7' --ticket-reference TKT-1234 --unlock-after ${s.connId}\n`
         )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -70,6 +86,11 @@ export default function setup() {
         options,
         command
       );
+      if (options.timeout && !options.wait) {
+        printMessage('--timeout requires --wait.', 'error');
+        process.exitCode = 1;
+        program.help();
+      }
       const getTokensIsSuccessful = await getTokens(
         false,
         true,
@@ -87,6 +108,8 @@ export default function setup() {
         promoter: options.promoter,
         description: options.description,
         ticketReference: options.ticketReference,
+        wait: options.wait,
+        timeout: options.timeout,
       });
       if (!outcome) process.exitCode = 1;
     });

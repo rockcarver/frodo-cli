@@ -4,9 +4,11 @@
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote run-promotion
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote run-promotion -p provisional-report -uid 'provisional report' -t ticket
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote run-promotion  --wait
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote run-promotion  --wait --timeout 0.1
 */
 
-import { getEnv, testSuccess } from './utils/TestUtils';
+import { getEnv, testSuccess, testFail } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
@@ -20,5 +22,13 @@ describe('frodo config-manager promote run-promotion', () => {
     test(`"frodo config-manager promote run-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket"`, async () => {
         const CMD = `frodo config-manager promote run-promotion -p provisional-report -uid 'provisional report' -t ticket`;
         await testSuccess(CMD, cloudEnv);
+    });
+    test(`"frodo config-manager promote run-promotion --wait": Should wait for promotion to complete`, async () => {
+        const CMD = `frodo config-manager promote run-promotion --wait`;
+        await testSuccess(CMD, cloudEnv);
+    });
+    test(`"frodo config-manager promote run-promotion --wait --timeout 0.1": Should time out waiting for promotion`, async () => {
+        const CMD = `frodo config-manager promote run-promotion --wait --timeout 0.1`;
+        await testFail(CMD, cloudEnv);
     });
 });

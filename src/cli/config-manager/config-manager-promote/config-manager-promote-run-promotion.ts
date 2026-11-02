@@ -4,7 +4,7 @@ import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { runPromotion } from '../../../ops/cloud/EnvPromotionOps';
 import c from '../../../utils/ColorTheme';
-import { verboseMessage } from '../../../utils/Console';
+import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -47,12 +47,28 @@ export default function setup() {
         'Zendesk ticket reference.'
       )
     )
+    .addOption(
+      new Option(
+        '-w, --wait',
+        'Wait for the rollback to complete. Times out after 60 minutes by default, but can be overridden using --timeout.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-T, --timeout <minutes>',
+        'How many minutes to wait for the promotion to complete. Requires --wait.'
+      )
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Promote the configuration of the lower environment to this one. The request returns as soon as it is accepted; check-promotion-status shows when it is done:\n` +
+        `  Promote the configuration of the lower environment to this one without waiting for completion:\n` +
         c.command(
           `  $ frodo config-manager promote run-promotion ${s.connId}\n`
+        ) +
+        `  Promote and wait up to 60 minutes for completion:\n` +
+        c.command(
+          `  $ frodo config-manager promote run-promotion --wait --timeout 60 ${s.connId}\n`
         ) +
         `  Promote, record who did it and why, and unlock the environments afterwards:\n` +
         c.command(
@@ -68,6 +84,11 @@ export default function setup() {
         options,
         command
       );
+      if (options.timeout && !options.wait) {
+        printMessage('--timeout requires --wait.', 'error');
+        process.exitCode = 1;
+        program.help();
+      }
       const getTokensIsSuccessful = await getTokens(
         false,
         true,
@@ -85,6 +106,8 @@ export default function setup() {
         promoter: options.promoter,
         description: options.description,
         ticketReference: options.ticketReference,
+        wait: options.wait,
+        timeout: options.timeout,
       });
       if (!outcome) process.exitCode = 1;
     });

@@ -76,26 +76,37 @@ export async function checkPromotionReports({
  * @param {string} description Optional description of the rollback.
  * @param {string} ticketReference Optional Zendesk ticket reference.
  * @param {boolean} unlockAfter Whether to unlock environments after rollback.
- * @returns {Promise<boolean>} True if the rollback request succeeds, false otherwise.
+ * @param {boolean} wait Whether to wait for the rollback to complete.
+ * @param {number} timeout Maximum time to wait in minutes.
+ * @returns {Promise<boolean>} True if the rollback request succeeds, or if waiting, the rollback completes successfully; false otherwise.
  */
 export async function rollbackPromotion({
   promoter,
   description,
   ticketReference,
   unlockAfter = false,
+  wait = false,
+  timeout = 60,
 }: {
   promoter?: string;
   description?: string;
   ticketReference?: string;
   unlockAfter?: boolean;
+  wait?: boolean;
+  timeout?: number;
 } = {}): Promise<boolean> {
   try {
-    const response = await rollbackPromotionInLib({
-      unlockEnvironmentsAfterPromotion: unlockAfter,
-      promoter,
-      promotionDescription: description,
-      zendeskTicketReference: ticketReference,
-    });
+    const response = await rollbackPromotionInLib(
+      {
+        unlockEnvironmentsAfterPromotion: unlockAfter,
+        promoter,
+        promotionDescription: description,
+        zendeskTicketReference: ticketReference,
+      },
+      wait,
+      undefined,
+      Math.round(Number(timeout) * 60 * 1000)
+    );
     printMessage(response, 'data');
     return true;
   } catch (error) {
@@ -155,8 +166,10 @@ export async function unlockTenants(promotionId?: string): Promise<boolean> {
  * @param {boolean} unlockAfter Whether to unlock environments after promotion.
  * @param {string} promoter Optional name of the person performing the promotion.
  * @param {string} description Optional description of the promotion.
- * @param {string} ticketReference Optional zendesk ticket reference.
- * @returns {Promise<boolean>} True if successful, false otherwise.
+ * @param {string} ticketReference Optional Zendesk ticket reference.
+ * @param {boolean} wait Whether to wait for the promotion to complete.
+ * @param {number} timeout Maximum time to wait in minutes.
+ * @returns {Promise<boolean>} True if the request succeeds, or if waiting, the promotion completes successfully; false otherwise.
  */
 export async function runPromotion({
   dryRun,
@@ -165,6 +178,8 @@ export async function runPromotion({
   promoter,
   description,
   ticketReference,
+  wait = false,
+  timeout = 60,
 }: {
   dryRun: boolean;
   ignoreEncryptedSecrets?: boolean;
@@ -172,16 +187,23 @@ export async function runPromotion({
   promoter?: string;
   description?: string;
   ticketReference?: string;
+  wait?: boolean;
+  timeout?: number;
 }): Promise<boolean> {
   try {
-    const response = await promoteConfiguration({
-      dryRun,
-      ignoreEncryptedSecrets,
-      unlockEnvironmentsAfterPromotion: unlockAfter,
-      promoter,
-      promotionDescription: description,
-      zendeskTicketReference: ticketReference,
-    });
+    const response = await promoteConfiguration(
+      {
+        dryRun,
+        ignoreEncryptedSecrets,
+        unlockEnvironmentsAfterPromotion: unlockAfter,
+        promoter,
+        promotionDescription: description,
+        zendeskTicketReference: ticketReference,
+      },
+      wait,
+      undefined,
+      Math.round(Number(timeout) * 60 * 1000)
+    );
     printMessage(response, 'data');
     return true;
   } catch (error) {
