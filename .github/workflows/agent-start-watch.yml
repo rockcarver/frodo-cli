@@ -9,12 +9,14 @@
 # here starts the agent again by itself (decision 0041).
 #
 # It acts only on a comment of the coding agent's own account, on an open issue that plan triage has classified and that the
-# agent is still assigned to, and never on an issue that carries 'no-auto-processing'. The text of the comment is read from
-# the event file by a script and is never put into a shell command. A run by hand looks at the latest comment of the agent on
-# one issue, for an issue whose comment came while the Concierge was paused or before this workflow was installed.
+# agent is still assigned to, and never on an issue that carries 'no-auto-processing'. A report from before the agent's latest
+# assignment is about an attempt that is over and is ignored. The text of the comment is read from the event file by a script
+# and is never put into a shell command. A run by hand looks at the latest comment of the agent on one issue, for an issue whose
+# comment came while the Concierge was paused or before this workflow was installed.
 #
 # Install: copy this file to .github/workflows/agent-start-watch.yml and scripts/agent-start-watch.mjs to
-# .github/scripts/agent-start-watch.mjs (it imports janitor.mjs, opt-out.mjs and plan-approval-resume.mjs, so install those too).
+# .github/scripts/agent-start-watch.mjs (it imports janitor.mjs, opt-out.mjs, plan-approval-resume.mjs and issue-concierge-state.mjs,
+# so install those too).
 # Needs SIGNAL_TOKEN: a label added with the workflow token starts no workflow, and the status issue and the options comment
 # start on this label.
 name: "Issue Concierge 3d ▸ Agent Start Watch"
