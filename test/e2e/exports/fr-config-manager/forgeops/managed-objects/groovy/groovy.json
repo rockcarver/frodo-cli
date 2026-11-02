@@ -1,0 +1,634 @@
+{
+  "iconClass": "fa fa-database",
+  "name": "groovy",
+  "onCreate": {
+    "globals": {},
+    "source": "// Test Groovy onCreate script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "onDelete": {
+    "globals": {},
+    "source": "// Test Groovy onDelete script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "onRead": {
+    "globals": {},
+    "source": "// Test Groovy onRead script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "onRetrieve": {
+    "globals": {},
+    "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "onStore": {
+    "globals": {},
+    "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "onSync": {
+    "globals": {},
+    "source": "// Test Groovy onSync script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "// Test Groovy onUpdate script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "onValidate": {
+    "globals": {},
+    "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "postCreate": {
+    "globals": {},
+    "source": "// Test Groovy postCreate script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "postDelete": {
+    "globals": {},
+    "source": "// Test Groovy postDelete script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "postUpdate": {
+    "globals": {},
+    "source": "// Test Groovy postUpdate script\nprintln \"Hello World!\"\n",
+    "type": "groovy"
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "Managed object that contains Groovy scripts",
+    "icon": "fa-music",
+    "mat-icon": "",
+    "order": [
+      "object",
+      "string",
+      "boolean",
+      "number",
+      "array",
+      "testRelationshipGroovy"
+    ],
+    "properties": {
+      "array": {
+        "description": null,
+        "isVirtual": false,
+        "items": {
+          "order": [
+            "array",
+            "object"
+          ],
+          "properties": {
+            "array": {
+              "description": null,
+              "isVirtual": false,
+              "items": {
+                "type": "boolean"
+              },
+              "onRetrieve": {
+                "globals": {},
+                "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                "type": "groovy"
+              },
+              "onStore": {
+                "globals": {},
+                "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                "type": "groovy"
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                "type": "groovy"
+              },
+              "searchable": false,
+              "title": "Array",
+              "type": "array",
+              "userEditable": true,
+              "viewable": true
+            },
+            "object": {
+              "description": null,
+              "isVirtual": false,
+              "nullable": false,
+              "onRetrieve": {
+                "globals": {},
+                "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                "type": "groovy"
+              },
+              "onStore": {
+                "globals": {},
+                "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                "type": "groovy"
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                "type": "groovy"
+              },
+              "order": [
+                "object",
+                "string"
+              ],
+              "properties": {
+                "object": {
+                  "description": null,
+                  "isVirtual": false,
+                  "nullable": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                    "type": "groovy"
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                    "type": "groovy"
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                    "type": "groovy"
+                  },
+                  "order": [
+                    "object",
+                    "string"
+                  ],
+                  "properties": {
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true
+                    },
+                    "string": {
+                      "description": null,
+                      "format": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "searchable": false,
+                      "title": "String",
+                      "type": "string",
+                      "userEditable": true,
+                      "viewable": true
+                    }
+                  },
+                  "required": [],
+                  "searchable": false,
+                  "title": "Object",
+                  "type": "object",
+                  "userEditable": true,
+                  "viewable": true
+                },
+                "string": {
+                  "description": null,
+                  "format": null,
+                  "isVirtual": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                    "type": "groovy"
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                    "type": "groovy"
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                    "type": "groovy"
+                  },
+                  "searchable": false,
+                  "title": "String",
+                  "type": "string",
+                  "userEditable": true,
+                  "viewable": true
+                }
+              },
+              "required": [
+                "object"
+              ],
+              "searchable": false,
+              "title": "Object",
+              "type": "object",
+              "userEditable": true,
+              "viewable": true
+            }
+          },
+          "required": [
+            "array",
+            "object"
+          ],
+          "type": "object"
+        },
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+          "type": "groovy"
+        },
+        "onStore": {
+          "globals": {},
+          "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+          "type": "groovy"
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+          "type": "groovy"
+        },
+        "searchable": false,
+        "title": "Array",
+        "type": "array",
+        "userEditable": true,
+        "viewable": true
+      },
+      "boolean": {
+        "searchable": false,
+        "title": "Boolean",
+        "type": "boolean",
+        "userEditable": true,
+        "viewable": true
+      },
+      "number": {
+        "searchable": false,
+        "title": "Number",
+        "type": "number",
+        "userEditable": true,
+        "viewable": true
+      },
+      "object": {
+        "description": null,
+        "isVirtual": false,
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+          "type": "groovy"
+        },
+        "onStore": {
+          "globals": {},
+          "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+          "type": "groovy"
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+          "type": "groovy"
+        },
+        "order": [
+          "object",
+          "array",
+          "string",
+          "number"
+        ],
+        "properties": {
+          "array": {
+            "description": null,
+            "isVirtual": false,
+            "items": {
+              "items": {
+                "items": {
+                  "order": [
+                    "array",
+                    "object"
+                  ],
+                  "properties": {
+                    "array": {
+                      "description": null,
+                      "isVirtual": false,
+                      "items": {
+                        "order": [
+                          "string",
+                          "number"
+                        ],
+                        "properties": {
+                          "number": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                              "type": "groovy"
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                              "type": "groovy"
+                            },
+                            "searchable": false,
+                            "title": "Number",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true
+                          },
+                          "string": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                              "type": "groovy"
+                            },
+                            "onStore": {
+                              "globals": {},
+                              "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                              "type": "groovy"
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                              "type": "groovy"
+                            },
+                            "searchable": false,
+                            "title": "String",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true
+                          }
+                        },
+                        "required": [],
+                        "type": "object"
+                      },
+                      "nullable": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "searchable": false,
+                      "title": "Array",
+                      "type": "array",
+                      "userEditable": true,
+                      "viewable": true
+                    },
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                        "type": "groovy"
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+              "type": "groovy"
+            },
+            "onStore": {
+              "globals": {},
+              "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+              "type": "groovy"
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+              "type": "groovy"
+            },
+            "searchable": false,
+            "title": "Array",
+            "type": "array",
+            "userEditable": true,
+            "viewable": true
+          },
+          "number": {
+            "searchable": false,
+            "title": "Number",
+            "type": "number",
+            "userEditable": true,
+            "viewable": true
+          },
+          "object": {
+            "description": null,
+            "isVirtual": false,
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+              "type": "groovy"
+            },
+            "onStore": {
+              "globals": {},
+              "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+              "type": "groovy"
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+              "type": "groovy"
+            },
+            "order": [
+              "object",
+              "string"
+            ],
+            "properties": {
+              "object": {
+                "description": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                  "type": "groovy"
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                  "type": "groovy"
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                  "type": "groovy"
+                },
+                "order": [],
+                "properties": {},
+                "required": [],
+                "searchable": false,
+                "title": "Object",
+                "type": "object",
+                "userEditable": true,
+                "viewable": true
+              },
+              "string": {
+                "description": null,
+                "format": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "// Test Groovy onRetrieve script\nprintln \"Hello World!\"\n",
+                  "type": "groovy"
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "// Test Groovy onStore script\nprintln \"Hello World!\"\n",
+                  "type": "groovy"
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "// Test Groovy onValidate script\nprintln \"Hello World!\"\n",
+                  "type": "groovy"
+                },
+                "searchable": false,
+                "title": "String",
+                "type": "string",
+                "userEditable": true,
+                "viewable": true
+              }
+            },
+            "required": [],
+            "searchable": false,
+            "title": "Object",
+            "type": "object",
+            "userEditable": true,
+            "viewable": true
+          },
+          "string": {
+            "searchable": false,
+            "title": "String",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          }
+        },
+        "required": [
+          "object",
+          "array"
+        ],
+        "searchable": false,
+        "title": "Object",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true
+      },
+      "string": {
+        "searchable": false,
+        "title": "String",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "testRelationshipGroovy": {
+        "_id": "testRelationshipGroovy",
+        "description": "Test groovy description",
+        "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Groovy:testRelationshipGroovy",
+        "notifySelf": false,
+        "properties": {
+          "_ref": {
+            "type": "string"
+          },
+          "_refProperties": {
+            "properties": {
+              "_id": {
+                "propName": "_id",
+                "required": false,
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "resourceCollection": [
+          {
+            "label": "Group",
+            "notify": false,
+            "path": "managed/group",
+            "query": {
+              "fields": [
+                "description",
+                "members"
+              ],
+              "queryFilter": "true",
+              "sortKeys": []
+            }
+          }
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": null,
+        "reverseRelationship": false,
+        "searchable": false,
+        "title": "Testrelationshipgroovy",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
+        "viewable": true
+      }
+    },
+    "required": [
+      "array",
+      "object"
+    ],
+    "title": "Groovy",
+    "type": "object"
+  },
+  "type": "Managed Object"
+}

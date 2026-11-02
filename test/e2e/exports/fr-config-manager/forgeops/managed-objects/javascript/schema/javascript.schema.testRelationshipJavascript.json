@@ -1,0 +1,74 @@
+{
+  "_id": "testRelationshipJavascript",
+  "description": "Test Description",
+  "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Javascript:testRelationshipJavascript",
+  "notifySelf": false,
+  "properties": {
+    "_ref": {
+      "type": "string"
+    },
+    "_refProperties": {
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "testJavascript1": {
+          "label": "Test Javascript 1",
+          "type": "string"
+        },
+        "testJavascript2": {
+          "label": "Test Javascript 2",
+          "type": "string"
+        },
+        "testJavascript3": {
+          "label": "Test Javascript 3",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "required": false,
+  "resourceCollection": [
+    {
+      "label": "Group",
+      "notify": true,
+      "path": "managed/group",
+      "query": {
+        "fields": [
+          "_id",
+          "condition",
+          "name"
+        ],
+        "queryFilter": "true",
+        "sortKeys": []
+      },
+      "reverseProperty": {
+        "resourceCollection": {
+          "notify": true,
+          "query": {
+            "fields": [
+              "object",
+              "array",
+              "boolean",
+              "string",
+              "number"
+            ],
+            "queryFilter": "true"
+          }
+        },
+        "type": "array",
+        "validate": true
+      }
+    }
+  ],
+  "returnByDefault": false,
+  "reversePropertyName": "testReverseJavascript",
+  "reverseRelationship": true,
+  "searchable": false,
+  "title": "Testrelationshipjavascript",
+  "type": "relationship",
+  "userEditable": false,
+  "validate": true,
+  "viewable": true
+}

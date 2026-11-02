@@ -1,0 +1,642 @@
+{
+  "name": "javascript",
+  "onCreate": {
+    "file": "javascript.onCreate.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "onDelete": {
+    "file": "javascript.onDelete.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "onRead": {
+    "file": "javascript.onRead.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "onRetrieve": {
+    "file": "javascript.onRetrieve.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "onStore": {
+    "file": "javascript.onStore.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "onSync": {
+    "file": "javascript.onSync.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "onUpdate": {
+    "file": "javascript.onUpdate.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "onValidate": {
+    "file": "javascript.onValidate.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "postCreate": {
+    "file": "javascript.postCreate.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "postDelete": {
+    "file": "javascript.postDelete.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "postUpdate": {
+    "file": "javascript.postUpdate.js",
+    "globals": {},
+    "type": "text/javascript"
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "Managed object that contains Javascript scripts",
+    "icon": "fa-jsfiddle",
+    "order": [
+      "object",
+      "string",
+      "boolean",
+      "number",
+      "array",
+      "testRelationshipJavascript"
+    ],
+    "properties": {
+      "array": {
+        "description": null,
+        "isVirtual": false,
+        "items": {
+          "order": [
+            "array",
+            "object"
+          ],
+          "properties": {
+            "array": {
+              "description": null,
+              "isVirtual": false,
+              "items": {
+                "type": "boolean"
+              },
+              "onRetrieve": {
+                "globals": {},
+                "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                "type": "text/javascript"
+              },
+              "onStore": {
+                "globals": {},
+                "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                "type": "text/javascript"
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                "type": "text/javascript"
+              },
+              "searchable": false,
+              "title": "Array",
+              "type": "array",
+              "userEditable": true,
+              "viewable": true
+            },
+            "object": {
+              "description": null,
+              "isVirtual": false,
+              "nullable": false,
+              "onRetrieve": {
+                "globals": {},
+                "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                "type": "text/javascript"
+              },
+              "onStore": {
+                "globals": {},
+                "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                "type": "text/javascript"
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                "type": "text/javascript"
+              },
+              "order": [
+                "object",
+                "string"
+              ],
+              "properties": {
+                "object": {
+                  "description": null,
+                  "isVirtual": false,
+                  "nullable": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                    "type": "text/javascript"
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                    "type": "text/javascript"
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                    "type": "text/javascript"
+                  },
+                  "order": [
+                    "object",
+                    "string"
+                  ],
+                  "properties": {
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true
+                    },
+                    "string": {
+                      "description": null,
+                      "format": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "searchable": false,
+                      "title": "String",
+                      "type": "string",
+                      "userEditable": true,
+                      "viewable": true
+                    }
+                  },
+                  "required": [],
+                  "searchable": false,
+                  "title": "Object",
+                  "type": "object",
+                  "userEditable": true,
+                  "viewable": true
+                },
+                "string": {
+                  "description": null,
+                  "format": null,
+                  "isVirtual": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                    "type": "text/javascript"
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                    "type": "text/javascript"
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                    "type": "text/javascript"
+                  },
+                  "searchable": false,
+                  "title": "String",
+                  "type": "string",
+                  "userEditable": true,
+                  "viewable": true
+                }
+              },
+              "required": [
+                "object"
+              ],
+              "searchable": false,
+              "title": "Object",
+              "type": "object",
+              "userEditable": true,
+              "viewable": true
+            }
+          },
+          "required": [
+            "array",
+            "object"
+          ],
+          "type": "object"
+        },
+        "nullable": false,
+        "onRetrieve": {
+          "file": "javascript.array.onRetrieve.js",
+          "globals": {},
+          "type": "text/javascript"
+        },
+        "onStore": {
+          "file": "javascript.array.onStore.js",
+          "globals": {},
+          "type": "text/javascript"
+        },
+        "onValidate": {
+          "file": "javascript.array.onValidate.js",
+          "globals": {},
+          "type": "text/javascript"
+        },
+        "searchable": false,
+        "title": "Array",
+        "type": "array",
+        "userEditable": true,
+        "viewable": true
+      },
+      "boolean": {
+        "searchable": false,
+        "title": "Boolean",
+        "type": "boolean",
+        "userEditable": true,
+        "viewable": true
+      },
+      "number": {
+        "searchable": false,
+        "title": "Number",
+        "type": "number",
+        "userEditable": true,
+        "viewable": true
+      },
+      "object": {
+        "description": null,
+        "isVirtual": false,
+        "nullable": false,
+        "onRetrieve": {
+          "file": "javascript.object.onRetrieve.js",
+          "globals": {},
+          "type": "text/javascript"
+        },
+        "onStore": {
+          "file": "javascript.object.onStore.js",
+          "globals": {},
+          "type": "text/javascript"
+        },
+        "onValidate": {
+          "file": "javascript.object.onValidate.js",
+          "globals": {},
+          "type": "text/javascript"
+        },
+        "order": [
+          "object",
+          "array",
+          "string",
+          "number"
+        ],
+        "properties": {
+          "array": {
+            "description": null,
+            "isVirtual": false,
+            "items": {
+              "items": {
+                "items": {
+                  "order": [
+                    "array",
+                    "object"
+                  ],
+                  "properties": {
+                    "array": {
+                      "description": null,
+                      "isVirtual": false,
+                      "items": {
+                        "order": [
+                          "string",
+                          "number"
+                        ],
+                        "properties": {
+                          "number": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                              "type": "text/javascript"
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                              "type": "text/javascript"
+                            },
+                            "searchable": false,
+                            "title": "Number",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true
+                          },
+                          "string": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                              "type": "text/javascript"
+                            },
+                            "onStore": {
+                              "globals": {},
+                              "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                              "type": "text/javascript"
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                              "type": "text/javascript"
+                            },
+                            "searchable": false,
+                            "title": "String",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true
+                          }
+                        },
+                        "required": [],
+                        "type": "object"
+                      },
+                      "nullable": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "searchable": false,
+                      "title": "Array",
+                      "type": "array",
+                      "userEditable": true,
+                      "viewable": true
+                    },
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                        "type": "text/javascript"
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+              "type": "text/javascript"
+            },
+            "onStore": {
+              "globals": {},
+              "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+              "type": "text/javascript"
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+              "type": "text/javascript"
+            },
+            "searchable": false,
+            "title": "Array",
+            "type": "array",
+            "userEditable": true,
+            "viewable": true
+          },
+          "number": {
+            "searchable": false,
+            "title": "Number",
+            "type": "number",
+            "userEditable": true,
+            "viewable": true
+          },
+          "object": {
+            "description": null,
+            "isVirtual": false,
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+              "type": "text/javascript"
+            },
+            "onStore": {
+              "globals": {},
+              "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+              "type": "text/javascript"
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+              "type": "text/javascript"
+            },
+            "order": [
+              "object",
+              "string"
+            ],
+            "properties": {
+              "object": {
+                "description": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                  "type": "text/javascript"
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                  "type": "text/javascript"
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                  "type": "text/javascript"
+                },
+                "order": [],
+                "properties": {},
+                "required": [],
+                "searchable": false,
+                "title": "Object",
+                "type": "object",
+                "userEditable": true,
+                "viewable": true
+              },
+              "string": {
+                "description": null,
+                "format": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "// Test Javascript onRetrieve script\nconsole.log(\"Hello World!\");\n",
+                  "type": "text/javascript"
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "// Test Javascript onStore script\nconsole.log(\"Hello World!\");\n",
+                  "type": "text/javascript"
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "// Test Javascript onValidate script\nconsole.log(\"Hello World!\");\n",
+                  "type": "text/javascript"
+                },
+                "searchable": false,
+                "title": "String",
+                "type": "string",
+                "userEditable": true,
+                "viewable": true
+              }
+            },
+            "required": [],
+            "searchable": false,
+            "title": "Object",
+            "type": "object",
+            "userEditable": true,
+            "viewable": true
+          },
+          "string": {
+            "searchable": false,
+            "title": "String",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          }
+        },
+        "required": [
+          "object",
+          "array"
+        ],
+        "searchable": false,
+        "title": "Object",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true
+      },
+      "string": {
+        "searchable": false,
+        "title": "String",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "testRelationshipJavascript": {
+        "_id": "testRelationshipJavascript",
+        "description": "Test Description",
+        "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Javascript:testRelationshipJavascript",
+        "notifySelf": false,
+        "properties": {
+          "_ref": {
+            "type": "string"
+          },
+          "_refProperties": {
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "testJavascript1": {
+                "label": "Test Javascript 1",
+                "type": "string"
+              },
+              "testJavascript2": {
+                "label": "Test Javascript 2",
+                "type": "string"
+              },
+              "testJavascript3": {
+                "label": "Test Javascript 3",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "resourceCollection": [
+          {
+            "label": "Group",
+            "notify": true,
+            "path": "managed/group",
+            "query": {
+              "fields": [
+                "_id",
+                "condition",
+                "name"
+              ],
+              "queryFilter": "true",
+              "sortKeys": []
+            }
+          }
+        ],
+        "returnByDefault": false,
+        "reversePropertyName": "testReverseJavascript",
+        "reverseRelationship": true,
+        "searchable": false,
+        "title": "Testrelationshipjavascript",
+        "type": "relationship",
+        "userEditable": false,
+        "validate": true,
+        "viewable": true
+      }
+    },
+    "required": [
+      "array",
+      "object"
+    ],
+    "title": "Javascript",
+    "type": "object"
+  }
+}
