@@ -2,10 +2,13 @@
 #
 # Keeps one pinned issue, "Issue Concierge status", up to date: what waits for a maintainer, the reporter replies nobody
 # has answered, which issues the Concierge manages and which it does not, the health of the gates and what they
-# cost. It runs when a label that matters is applied, when someone comments, every hour, and by hand. A label being
-# removed starts nothing here (only the issue worker and the plan approval resume start on a removal): every way a
-# maintainer accepts an issue applies a label, and the hourly run catches the rest. Runs are queued one behind the
-# other (a burst of events is one run after the one in progress), and a run that finds nothing changed writes nothing.
+# cost. It runs when a label that matters is applied, when the coding agent is assigned or unassigned, when someone
+# comments, on a schedule, and by hand. A label being removed starts nothing here (only the issue worker and the plan
+# approval resume start on a removal): every way a maintainer accepts an issue applies a label. The schedule asks for
+# every hour, but GitHub starts a scheduled run when it can, and on a quiet repository that was every few hours (3.5 to
+# 10 on 2026-11-01 and 2026-11-02), so nothing that has to show promptly may rely on it: the coding agent's failure is a
+# label event (scripts/agent-start-watch.mjs). Runs are queued one behind the other (a burst of events is one run after
+# the one in progress), and a run that finds nothing changed writes nothing.
 #
 # The settings are in .github/issue-concierge/settings.yml (template: shared/settings.yml). With
 # `status-issue: false` the issue is closed and unpinned and nothing updates it. The Concierge never acts on this
@@ -34,7 +37,7 @@ on:
         type: boolean
         default: false
   issues:
-    types: [opened, closed, reopened, labeled]
+    types: [opened, closed, reopened, labeled, assigned, unassigned]
   issue_comment:
     types: [created]
 
@@ -50,11 +53,14 @@ concurrency:
 
 jobs:
   status:
-    # A label event starts the job only for the labels that change a number on the page.
-    # Keep this list identical to TRIGGER_LABELS in scripts/janitor.mjs (a test checks it).
+    # A label event starts the job only for the labels that change a number on the page, and an assignment only when it is
+    # the coding agent's (the "With the coding agent" list). Keep the label list identical to TRIGGER_LABELS in
+    # scripts/janitor.mjs (a test checks it).
     if: >-
       (github.event.action != 'labeled'
-      || contains(fromJSON('["issue-worker-ready","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","pr-worker-ready","pr-triage-handoff","backlog","needs-info","dependency-required","scope-review","needs-decision","out-of-scope","duplicate","invalid","already-fixed","spam","plan-approval-required"]'), github.event.label.name))
+      || contains(fromJSON('["issue-worker-ready","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","pr-worker-ready","pr-triage-handoff","backlog","needs-info","dependency-required","scope-review","needs-decision","out-of-scope","duplicate","invalid","already-fixed","spam","plan-approval-required","agent-start-failed"]'), github.event.label.name))
+      && ((github.event.action != 'assigned' && github.event.action != 'unassigned')
+      || contains(fromJSON('["Copilot","copilot-swe-agent","copilot-swe-agent[bot]"]'), github.event.assignee.login))
       && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
       && github.event.issue.pull_request == null
       && github.event.comment.user.type != 'Bot'

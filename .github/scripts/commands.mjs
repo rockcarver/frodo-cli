@@ -18,6 +18,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { parseSettings, readSettingsText } from './issue-concierge-settings.mjs';
+import { LABEL_AGENT_FAILED, isCodingAgent } from './janitor.mjs';
 import { BOT, GATE_LABELS, OPTIONS_MARKER, STUCK_AFTER_MINUTES, isOptionsComment, labelledAt, MAINTAINER_ASSOCIATIONS, pausedBy } from './issue-concierge-state.mjs';
 import { LABEL_OPT_OUT, isOptedOut, labelNames } from './opt-out.mjs';
 import { MARKER as APPROVAL_MARKER, decide as decideApproval } from './plan-approval-resume.mjs';
@@ -27,6 +28,7 @@ export const LABEL_DECLINED = 'declined';
 export const LABEL_HANDOFF = 'issue-triage-handoff';
 export const LABEL_APPROVAL = 'plan-approval-required';
 export const LABEL_PLAN_HANDOFF = 'plan-triage-handoff';
+export const LABEL_BACKLOG = 'backlog';
 /**
  * The record of `/accept`, a comment of the bot. The labels that show the decision are removed as the issue moves on, and
  * the author association of the maintainer's own comment is not a record: GitHub shows a member with private membership
@@ -95,7 +97,8 @@ const planComing = (labels, events, now) => labels.has(LABEL_HANDOFF) || planPen
 /**
  * What the issue waits for, or null when it waits for no maintainer:
  * decision (held because it changes what exists), scope (held for the scope), plan (a classified plan waits for
- * approval, and no new plan is on its way), stalled (a gate label has not moved for an hour). A request kept out of the
+ * approval, and no new plan is on its way), agent (the coding agent reported that it could not start), stalled (a gate
+ * label has not moved for an hour). A request kept out of the
  * Concierge, a bot's issue, a pull request and a closed issue wait for nobody.
  */
 export function situationOf(issue, { events = [], now = Date.now() } = {}) {
@@ -105,6 +108,7 @@ export function situationOf(issue, { events = [], now = Date.now() } = {}) {
   if (labels.has('needs-decision')) return 'decision';
   if (labels.has('scope-review')) return 'scope';
   if (labels.has(LABEL_APPROVAL) && classified(labels)) return planComing(labels, events, now) ? null : 'plan';
+  if (labels.has(LABEL_AGENT_FAILED)) return 'agent';
   const gate = GATE_LABELS.find((l) => labels.has(l));
   if (gate) {
     const since = labelledAt(events, gate);
@@ -136,6 +140,7 @@ const SENTENCE = {
   decision: 'This request changes something that already exists, so a maintainer needs to decide on it before anything is planned.',
   scope: 'A maintainer needs to decide whether this fits the project.',
   stalled: 'This issue has not moved for a while. A maintainer can start it again.',
+  agent: 'GitHub\'s coding agent could not start work on this issue, so nothing has been built. A maintainer can ask it to start again.',
   'plan.plain': 'A maintainer needs to approve the plan before anything is built.',
   'plan.conflict': 'This request conflicts with a decision the project has taken. A maintainer needs to decide.',
   'plan.wrong-layer': 'The plan found that the fix belongs in another repository. A maintainer needs to decide what happens next.',
@@ -154,6 +159,7 @@ const ROWS = {
     DECLINE,
   ],
   stalled: [['/retry', 'Give the gate label again, so that the gate runs once more.']],
+  agent: [['/retry', 'Start again: unassigns the coding agent, closes its empty draft pull request and deletes that branch, and hands the issue to the PR worker once more. A pull request with changes on it is never touched.']],
 };
 const EXTRA = {
   'plan.work-item': 'To split the work, run **Spawn Work Items** from the Actions tab. `/approve` lets this repository\'s part go on alone.',
@@ -266,6 +272,8 @@ export function runCommand(cmd, { issue, actor, api, paused = false, now = Date.
       const verdict = decideApproval(without, undefined, actor);
       if (!verdict.handoff) return refuse(`The plan cannot be approved yet: ${verdict.reason}.`);
       api.removeLabel(n, LABEL_APPROVAL);
+      // An approved plan is not parked any more; a parking label left on the issue would show it as waiting for nobody.
+      if (labels.has(LABEL_BACKLOG)) api.removeLabel(n, LABEL_BACKLOG);
       api.addLabelSignal(n, LABEL_PLAN_HANDOFF);
       api.reply(n, `${APPROVAL_MARKER}\nPlan approved by @${actor} with /approve. Handing the issue to implementation.`);
       return done('approved and handed to implementation');
@@ -277,6 +285,7 @@ export function runCommand(cmd, { issue, actor, api, paused = false, now = Date.
       return done('asked the plan worker for a new plan');
     }
     case 'retry': {
+      if (issue.state === 'open' && labels.has(LABEL_AGENT_FAILED)) return retryAgentStart({ issue, actor, api });
       const gate = GATE_LABELS.find((l) => labels.has(l));
       if (issue.state !== 'open' || !gate) return refuse('Nothing is in a gate on this issue, so there is nothing to start again.');
       api.removeLabel(n, gate);
@@ -300,12 +309,62 @@ export function runCommand(cmd, { issue, actor, api, paused = false, now = Date.
   }
 }
 
+/**
+ * A pull request of the coding agent that holds nothing: a draft with no changed file, which is what the agent leaves when its
+ * session cannot start. Anything else may be work, and a retry never discards work.
+ * pr: { number, isDraft, changedFiles, branch } as api.agentPulls gives it.
+ */
+export const isEmptyStart = (pr) => pr.isDraft === true && pr.changedFiles === 0;
+
+/** The branch of an empty start that may be deleted: the agent's own `copilot/` branch in this repository, never a fork's or a named branch. */
+export const deletableBranch = (pr, repo) => (pr.headRepository && pr.headRepository.nameWithOwner === repo && /^copilot\/[\w./-]+$/.test(String(pr.headRefName || '')) ? pr.headRefName : null);
+
+/**
+ * The open pull requests of the coding agent in GitHub's answer for the issue (GraphQL `closedByPullRequestsReferences`), each
+ * with the branch a retry may delete, or null. A pull request of anyone else, or a closed one, is not the agent's start.
+ */
+export function agentPullsOf(answer, repo) {
+  const nodes = answer.data.repository.issue.closedByPullRequestsReferences.nodes;
+  return nodes
+    .filter((pr) => pr.state === 'OPEN' && pr.author && isCodingAgent(pr.author.login))
+    .map((pr) => ({ number: pr.number, isDraft: pr.isDraft, changedFiles: pr.changedFiles, branch: deletableBranch(pr, repo) }));
+}
+
+/**
+ * `/retry` on an issue the coding agent could not start on: take back what the failed start left, then hand the issue to the
+ * PR worker again, which is the hand-off the maintainer would give by hand. The agent is unassigned first, and the work
+ * stops there when it stays assigned, so that nothing is thrown away on a run that cannot finish; an agent pull request with
+ * changes stops the command before anything is touched. A second `/retry` after a failure half-way finishes the job.
+ */
+function retryAgentStart({ issue, actor, api }) {
+  const n = issue.number;
+  const pulls = api.agentPulls(n);
+  if (!pulls) return refuse('GitHub did not tell the Concierge which pull requests the coding agent has for this issue, so nothing was changed. Give `/retry` again.');
+  const work = pulls.find((pr) => !isEmptyStart(pr));
+  if (work) return refuse(`The coding agent has pull request #${work.number} with changes on it, so this is not a start that failed, and a retry would drop that work. Close the pull request yourself if you want a fresh start, then give \`/retry\` again.`);
+
+  const agents = (issue.assignees || []).map((a) => a.login || a).filter(isCodingAgent);
+  if (agents.length && api.unassign(n, agents).some(isCodingAgent)) return refuse('GitHub kept the coding agent assigned, so nothing else was changed. Unassign it by hand and give `/retry` again.');
+
+  const closed = [];
+  for (const pr of pulls) {
+    api.reply(pr.number, `Closed by @${actor} with /retry: the coding agent could not start, so this pull request holds no changes. A new attempt follows on #${n}.`);
+    api.closePull(pr.number);
+    if (pr.branch) api.deleteBranch(pr.branch);
+    closed.push(pr.number);
+  }
+  api.removeLabel(n, LABEL_AGENT_FAILED);
+  api.addLabelSignal(n, LABEL_PLAN_HANDOFF);
+  api.reply(n, `Started again by @${actor} with /retry.${closed.length ? ` ${closed.map((c) => `#${c}`).join(', ')} held no changes and ${closed.length === 1 ? 'is' : 'are'} closed.` : ''} The issue goes back to implementation.`);
+  return done(`took back the failed start${closed.length ? ` (closed ${closed.map((c) => `#${c}`).join(', ')})` : ''} and handed the issue to implementation again`);
+}
+
 const ROWS_ALL = {
   '/accept': 'Plan an issue that is held (`needs-decision`, `scope-review`, `backlog`, `needs-info`) or declined.',
   '/decline [reason]': 'Close an issue as not planned, add `declined`, and tell the reporter.',
   '/approve': 'Approve a plan that waits for approval; the coding agent starts.',
   '/replan [what to change]': 'Ask for a new plan for a plan that waits for approval.',
-  '/retry': 'Give the gate label of an issue again, so that its gate runs once more.',
+  '/retry': 'Give the gate label of an issue again, so that its gate runs once more. For an issue the coding agent could not start on, take the empty start back and hand the issue on again.',
 };
 
 // ------------------------------------------------------------------ GitHub
@@ -364,6 +423,38 @@ export function realApi(env, repo) {
     closeSignal: (n) => json('PATCH', `repos/${repo}/issues/${n}`, { state: 'closed', state_reason: 'not_planned' }, signal),
     reopen: (n) => json('PATCH', `repos/${repo}/issues/${n}`, { state: 'open' }),
     reply: (n, body) => json('POST', `repos/${repo}/issues/${n}/comments`, { body }),
+    // The open pull requests of the coding agent that would close this issue, or null when GitHub could not say.
+    agentPulls(n) {
+      const [owner, name] = repo.split('/');
+      const query = 'query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){issue(number:$n){closedByPullRequestsReferences(first:20,includeClosedPrs:false){nodes{number state isDraft changedFiles headRefName headRepository{nameWithOwner} author{login __typename}}}}}}';
+      try {
+        return agentPullsOf(JSON.parse(call(['api', 'graphql', '-f', `query=${query}`, '-f', `o=${owner}`, '-f', `r=${name}`, '-F', `n=${n}`], env.GH_TOKEN)), repo);
+      } catch (e) {
+        return null;
+      }
+    },
+    // The REST answer for the login depends on the spelling (the list shows `Copilot`, the account is `copilot-swe-agent`), so each is tried until the agent is gone.
+    unassign(n, logins) {
+      let left = logins;
+      for (const login of [...new Set([...logins, 'copilot-swe-agent[bot]', 'copilot-swe-agent'])]) {
+        try {
+          const issue = json('DELETE', `repos/${repo}/issues/${n}/assignees`, { assignees: [login] });
+          left = (issue.assignees || []).map((a) => a.login);
+        } catch (e) {
+          // an unknown spelling is refused by GitHub; the next one may work
+        }
+        if (!left.some(isCodingAgent)) break;
+      }
+      return left;
+    },
+    // A pull request is closed with the signal token (pull requests: write), so that the janitor's close event runs.
+    closePull: (number) => json('PATCH', `repos/${repo}/pulls/${number}`, { state: 'closed' }, signal),
+    // Deleting a branch needs contents: write, which this job's token does not have (workflows/commands.yml). The names are
+    // handed to the job that has it, through the step's output; main() writes them.
+    branchesToDelete: [],
+    deleteBranch(branch) {
+      this.branchesToDelete.push(branch);
+    },
     react: (commentId, content) => json('POST', `repos/${repo}/issues/comments/${commentId}/reactions`, { content }),
     postComment: (n, body) => json('POST', `repos/${repo}/issues/${n}/comments`, { body }),
     editComment: (id, body) => json('PATCH', `repos/${repo}/issues/comments/${id}`, { body }),
@@ -392,7 +483,7 @@ export function syncOptions(api, issue, { repo, settings, organisation, now }) {
 }
 
 /** The labels that make an issue wait for a maintainer or move through a gate: an issue with none of them has no options comment to keep. */
-const WAITING_LABELS = new Set(['needs-decision', 'scope-review', LABEL_APPROVAL, ...GATE_LABELS]);
+const WAITING_LABELS = new Set(['needs-decision', 'scope-review', LABEL_APPROVAL, LABEL_AGENT_FAILED, ...GATE_LABELS]);
 
 /** The issues that may have an options comment, or have one: those that carry a label that waits for a maintainer, and those that hold a recent menu. */
 export function menuCandidates(api, now) {
@@ -466,6 +557,9 @@ export function main(env = process.env, api = realApi(env, env.GITHUB_REPOSITORY
     }
     // A comment on an issue that waits for nobody costs nothing more; a menu that is left over is removed by the hourly run.
     if (cmd || labelNames(payload.issue).some((l) => WAITING_LABELS.has(l))) syncOne(number);
+    if (api.branchesToDelete && api.branchesToDelete.length && env.GITHUB_OUTPUT) {
+      fs.appendFileSync(env.GITHUB_OUTPUT, `branches=${[...new Set(api.branchesToDelete)].join(' ')}\n`);
+    }
     return 0;
   }
   if (event === 'issues' && payload.issue) {

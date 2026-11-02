@@ -17,8 +17,8 @@ import fs from 'node:fs';
 import { PIN_PATH, readConfig, readPin as readPinFile } from './issue-concierge-paths.mjs';
 import { SETTINGS_PATH, parseSettings, readSettingsText } from './issue-concierge-settings.mjs';
 import {
-  BOT, QUEUES, STUCK_AFTER_MINUTES, GATE_LABELS, ago, classify, compareVersions, isAnalysis, labelledAt, latestRelease,
-  pausedBy, readPin, reporterReplies, runHealth, safeText, shortGateName, spend, tokenExpiry,
+  AGENT_QUIET_MINUTES, BOT, QUEUES, STUCK_AFTER_MINUTES, GATE_LABELS, agentPullFor, ago, assignedAt, classify, compareVersions, isAnalysis, labelledAt,
+  latestRelease, pausedBy, readPin, reporterReplies, runHealth, safeText, shortGateName, spend, tokenExpiry,
 } from './issue-concierge-state.mjs';
 import { LABEL_OPT_OUT, labelNames } from './opt-out.mjs';
 import { LABEL_CANONICAL, verifyOriginal } from './related-repo-closer.mjs';
@@ -62,7 +62,7 @@ const minute = (ms) => `${new Date(ms).toISOString().slice(0, 16).replace('T', '
 export function summarize(raw, settings, now) {
   const counts = { open: 0, managed: 0, optedOut: 0, botAuthored: 0, notPickedUp: 0 };
   const queues = new Map(QUEUES.map((q) => [q.id, { ...q, items: [] }]));
-  const stages = { 'in-flight': [], 'with-agent': 0, elsewhere: 0, settled: 0 };
+  const stages = { 'in-flight': [], 'with-agent': [], elsewhere: 0, settled: 0 };
   const openNumbers = new Set();
   const optedOut = new Set();
   const byNumber = new Map();
@@ -86,10 +86,15 @@ export function summarize(raw, settings, now) {
       const gate = GATE_LABELS.find((l) => labelNames(issue).includes(l));
       const since = labelledAt(events, gate) ?? Date.parse(issue.updated_at);
       stages['in-flight'].push({ number: issue.number, title: issue.title, gate, since, stuck: now - since > STUCK_AFTER_MINUTES * 60000 });
+    } else if (c.queue === 'with-agent') {
+      const since = assignedAt(events) ?? Date.parse(issue.updated_at);
+      const pull = agentPullFor(issue.number, raw.repo, raw.issues);
+      stages['with-agent'].push({ number: issue.number, title: issue.title, since, pull: pull ? { number: pull.number, draft: pull.draft === true } : null, quiet: !pull && now - since > AGENT_QUIET_MINUTES * 60000 });
     } else stages[c.queue] += 1;
   }
   for (const q of queues.values()) q.items.sort((a, b) => a.since - b.since);
   stages['in-flight'].sort((a, b) => a.since - b.since);
+  stages['with-agent'].sort((a, b) => a.since - b.since);
 
   const replies = reporterReplies(raw.comments, { now, days: settings['reporter-replies-days'], openNumbers, roles: raw.roles, reporters: raw.reporters }).map((r) => ({
     ...r,
@@ -162,10 +167,22 @@ export function render(m) {
     L.push('');
   }
 
+  const agent = m.stages['with-agent'];
+  const quiet = agent.filter((i) => i.quiet);
+  L.push(`## With the coding agent (${agent.length})${quiet.length ? ` · ${quiet.length} with no pull request` : ''}`, '');
+  if (agent.length === 0) L.push('No issue is with the coding agent.', '');
+  else {
+    for (const i of agent.slice(0, LIST_CAP)) {
+      const work = i.pull ? ` · [${i.pull.draft ? 'draft pull request' : 'pull request'} #${i.pull.number}](https://github.com/${repo}/pull/${i.pull.number})` : i.quiet ? ` · ⚠ no open pull request after ${AGENT_QUIET_MINUTES} min` : ' · no pull request yet';
+      L.push(issueLine(m, i, ` · assigned ${ago(m.now - i.since)} ago${work}`));
+    }
+    if (agent.length > LIST_CAP) L.push(`- and ${agent.length - LIST_CAP} more`);
+    L.push('');
+  }
+
   const other = m.queues.filter((q) => q.who !== 'you');
   const rest = [
     ...other.map((q) => `${q.title.toLowerCase()}: [${q.items.length}](${URL_OF(repo, `is:issue is:open label:${q.label}`)})`),
-    `with the coding agent: ${m.stages['with-agent']}`,
     `tracked in another repository: ${m.stages.elsewhere}`,
     `settled: ${m.stages.settled}`,
   ];
@@ -202,7 +219,7 @@ export function render(m) {
     schema: 1, repo, generatedAt: new Date(m.now).toISOString(), paused: Boolean(m.paused),
     open: counts.open, managed: counts.managed, optedOut: counts.optedOut, botAuthored: counts.botAuthored, notPickedUp: counts.notPickedUp,
     queues: Object.fromEntries(m.queues.map((q) => [q.id, q.items.length])), inFlight: m.stages['in-flight'].length, stuck: stuck.length,
-    withAgent: m.stages['with-agent'], elsewhere: m.stages.elsewhere, settled: m.stages.settled,
+    withAgent: m.stages['with-agent'].length, elsewhere: m.stages.elsewhere, settled: m.stages.settled,
     replies: m.replies.length, repliesFromReporter: m.replies.filter((r) => r.reporter).length, failedRuns7d: m.health.failures.length, pinned: m.pin.version, behind: m.behind,
     aic7d: m.spend.total, aic24h: m.spend.last24h,
   };
@@ -440,7 +457,7 @@ export function collect(ctx, repo, settings, signalToken, pausedVariables = []) 
   const events = new Map();
   const waiting = candidates
     .map((i) => ({ i, c: classify(i, { analysed: analysed.has(i.number) }) }))
-    .filter(({ c }) => QUEUES.some((q) => q.who === 'you' && q.id === c.queue) || c.queue === 'in-flight')
+    .filter(({ c }) => QUEUES.some((q) => q.who === 'you' && q.id === c.queue) || c.queue === 'in-flight' || c.queue === 'with-agent')
     .slice(0, EVENT_CHECKS);
   for (const { i } of waiting) events.set(i.number, ctx.list(`repos/${repo}/issues/${i.number}/events`, { maxPages: 3 }) ?? []);
 

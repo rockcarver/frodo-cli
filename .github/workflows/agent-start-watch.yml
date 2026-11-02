@@ -1,0 +1,62 @@
+# Agent start watch. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "When the coding agent does not start".
+#
+# The PR worker assigns the coding agent and GitHub accepts the assignment at once, but the agent's own session can still fail
+# to start. When it does, the agent opens an empty draft pull request and says so in one comment on the issue ("... was unable
+# to start working on this issue"). Nothing else shows it: the gate's run is green, a session that never started creates no
+# workflow run, and the janitor removes the hand-off label as soon as an agent is assigned. This workflow reads that comment
+# and gives the issue `agent-start-failed`, with the signal token so that the status issue and the options comment start. A
+# maintainer then decides: `/retry` takes the empty start back and hands the issue on again (scripts/commands.mjs). Nothing
+# here starts the agent again by itself (decision 0041).
+#
+# It acts only on a comment of the coding agent's own account, on an open issue that plan triage has classified and that the
+# agent is still assigned to, and never on an issue that carries 'no-auto-processing'. The text of the comment is read from
+# the event file by a script and is never put into a shell command. A run by hand looks at the latest comment of the agent on
+# one issue, for an issue whose comment came while the Concierge was paused or before this workflow was installed.
+#
+# Install: copy this file to .github/workflows/agent-start-watch.yml and scripts/agent-start-watch.mjs to
+# .github/scripts/agent-start-watch.mjs (it imports janitor.mjs, opt-out.mjs and plan-approval-resume.mjs, so install those too).
+# Needs SIGNAL_TOKEN: a label added with the workflow token starts no workflow, and the status issue and the options comment
+# start on this label.
+name: "Issue Concierge 3d ▸ Agent Start Watch"
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Check this issue: label it when the latest comment of the coding agent says it could not start'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: agent-start-watch-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    # Keep the words of the comment identical to START_FAILURE in scripts/agent-start-watch.mjs (a test checks it). The login
+    # is the coding agent's: REST shows `Copilot`, the bot account is `copilot-swe-agent`.
+    if: >-
+      (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+      && (github.event_name == 'workflow_dispatch'
+      || (github.event.issue.pull_request == null
+      && github.event.comment.user.type == 'Bot'
+      && contains(fromJSON('["Copilot","copilot-swe-agent","copilot-swe-agent[bot]"]'), github.event.comment.user.login)
+      && contains(github.event.comment.body, 'unable to start working on this issue')
+      && !contains(github.event.issue.labels.*.name, 'no-auto-processing')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Label an issue the coding agent could not start on
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Labels with this token, which is what starts the status issue and the options comment.
+          SIGNAL_TOKEN: ${{ secrets.SIGNAL_TOKEN }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+        run: node .github/scripts/agent-start-watch.mjs

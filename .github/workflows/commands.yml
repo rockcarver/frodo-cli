@@ -1,8 +1,9 @@
 # Issue Concierge commands. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "The maintainer's view".
 #
 # A maintainer decides what becomes of an issue that waits for them by commenting a command: /accept, /decline,
-# /approve, /replan or /retry (/help lists them). The workflow also keeps one comment on such an issue, the options
-# comment, that says what is needed and which command does what. It appears only while a maintainer has to act, it is
+# /approve, /replan or /retry (/help lists them). /retry also starts an issue again that the coding agent could not start
+# on: it unassigns the agent, closes its empty draft pull request and hands the issue on (decision 0041). The workflow also
+# keeps one comment on such an issue, the options comment, that says what is needed and which command does what. It appears only while a maintainer has to act, it is
 # always the last comment (it is posted again after anyone else comments), and it is deleted when nothing waits.
 #
 # A command does what a person with the role can already do by hand with the labels. The role is read from GitHub for
@@ -24,7 +25,9 @@
 # imports issue-concierge-settings.mjs, issue-concierge-state.mjs, plan-approval-resume.mjs, janitor.mjs and opt-out.mjs, so
 # install those too).
 # Needs SIGNAL_TOKEN: a label added or an issue closed with the workflow token starts no workflow, and handing an issue
-# on is what starts the next gate.
+# on is what starts the next gate. It also closes the agent's empty pull request, which needs pull requests: write.
+# The one thing the workflow token of the command job may not do is delete a branch (contents: write), so the empty
+# `copilot/` branch of a closed start is deleted by a second job that has only that permission and gets only the names.
 name: "Issue Concierge 5b ▸ Commands"
 
 on:
@@ -54,18 +57,22 @@ jobs:
     # A label event starts the job only for the labels that change what waits for a maintainer.
     if: >-
       (github.event.action != 'labeled'
-      || contains(fromJSON('["needs-decision","scope-review","plan-approval-required","complexity/low","complexity/medium","complexity/high","risk/low","risk/medium","risk/high","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","declined"]'), github.event.label.name))
+      || contains(fromJSON('["needs-decision","scope-review","plan-approval-required","complexity/low","complexity/medium","complexity/high","risk/low","risk/medium","risk/high","issue-triage-handoff","plan-worker-ready","plan-triage-handoff","declined","agent-start-failed"]'), github.event.label.name))
       && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
       && github.event.issue.pull_request == null
       && github.event.comment.user.type != 'Bot'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # The branches of the empty starts a /retry closed, for the job below.
+    outputs:
+      branches: ${{ steps.commands.outputs.branches }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Let the gate finish its comment
         if: github.event_name == 'issues' && github.event.action == 'labeled'
         run: sleep 30
       - name: Run the command and keep the options comment
+        id: commands
         env:
           GH_TOKEN: ${{ github.token }}
           # Hands an issue on and closes it with this token, which is what starts the next gate.
@@ -76,3 +83,27 @@ jobs:
           ISSUE_CONCIERGE_PAUSED: ${{ vars.ISSUE_CONCIERGE_PAUSED }}
           CONCIERGE_PAUSED: ${{ vars.CONCIERGE_PAUSED }}
         run: node .github/scripts/commands.mjs
+
+  # Deletes the empty `copilot/` branches of the draft pull requests a /retry closed. It is its own job because deleting a
+  # branch needs contents: write, and the job above reads every comment in the repository with a smaller token. It runs
+  # only when the command named a branch, and it deletes only a name that has the shape of the agent's own branches.
+  delete-branches:
+    needs: commands
+    if: ${{ needs.commands.outputs.branches != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Delete the empty branches of a closed start
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCHES: ${{ needs.commands.outputs.branches }}
+        run: |
+          for branch in $BRANCHES; do
+            if [[ "$branch" =~ ^copilot/[A-Za-z0-9._/-]+$ ]]; then
+              gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/heads/${branch}" || echo "::warning::could not delete the branch ${branch}; it can be deleted by hand"
+            else
+              echo "::warning::not deleting ${branch}: it is not a branch of the coding agent"
+            fi
+          done

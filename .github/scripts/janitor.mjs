@@ -19,6 +19,12 @@ export const GATE = {
   pr: ['pr-worker-ready', 'pr-triage-handoff'],
 };
 
+/**
+ * Applied by scripts/agent-start-watch.mjs when the coding agent says it could not start work on an issue that is assigned to
+ * it. It holds the issue for a maintainer (`/retry`), and the janitor takes it away when it no longer describes the issue.
+ */
+export const LABEL_AGENT_FAILED = 'agent-start-failed';
+
 /** What issue triage can apply when it has finished with an issue. Any of them consumes issue-worker-ready. */
 export const TRIAGE_OUTCOMES = [
   'issue-triage-handoff',
@@ -43,11 +49,12 @@ export const OPEN_WORK_STATE = [
   'scope-review',
   'needs-decision',
   'plan-approval-required',
+  LABEL_AGENT_FAILED,
 ];
 
 /** Label events that can change the answer; the workflow starts only for these (plus assigned and closed). */
 export const TRIGGER_LABELS = [
-  ...new Set([...GATE.issue, ...GATE.pr, ...TRIAGE_OUTCOMES, 'plan-approval-required']),
+  ...new Set([...GATE.issue, ...GATE.pr, ...TRIAGE_OUTCOMES, 'plan-approval-required', LABEL_AGENT_FAILED]),
 ];
 
 const CODING_AGENT = /^copilot(-swe-agent)?(\[bot\])?$/i;
@@ -167,6 +174,9 @@ export function staleLabels({ labels, state = 'open', isPullRequest = false, ass
   drop('issue-triage-handoff', any('plan-worker-ready') || planDecided || planned || agent);
   drop('plan-worker-ready', planDecided || agent);
   drop('plan-triage-handoff', agent);
+  // A coding agent that did not start is a state of the assignment: with nobody assigned, or with a new hand-off given since
+  // (a maintainer started it again by hand), the label describes something that is over.
+  drop(LABEL_AGENT_FAILED, !agent || any('plan-triage-handoff'));
   return stale;
 }
 
