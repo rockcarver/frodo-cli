@@ -1,5 +1,25 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait --timeout 6": Should time out waiting for dry-run promotion 1`] = `
+"Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
+⚠ Dry-run promotion timed out after 6s with final message: Check ESVs
+Error promoting configuration
+"
+`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait --timeout 6": Should time out waiting for dry-run promotion 2`] = `1`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait": Should wait for dry-run promotion to complete 1`] = `
+"{ result: 'Promotion process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait": Should wait for dry-run promotion to complete 2`] = `
+"Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
+✔ Dry-run promotion completed in 20s with final message: Promotion completed
+"
+`;
+
 exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 1`] = `
 "{ result: 'Promotion process initiated successfully' }
 "

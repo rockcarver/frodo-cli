@@ -4,8 +4,9 @@ import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { runPromotion } from '../../../ops/cloud/EnvPromotionOps';
 import c from '../../../utils/ColorTheme';
-import { verboseMessage } from '../../../utils/Console';
+import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { parseTimeoutSeconds } from './WaitTimeout';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -49,12 +50,28 @@ export default function setup() {
         'Zendesk ticket reference.'
       )
     )
+    .addOption(
+      new Option(
+        '-w, --wait',
+        'Wait for the dry-run promotion to complete. Times out after 2700 seconds (45 minutes) by default, but can be overridden using --timeout.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-T, --timeout <seconds>',
+        'Specify a timeout in seconds how long the tool should wait for the dry-run promotion to complete. Requires --wait.'
+      ).argParser(parseTimeoutSeconds)
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Run a dry-run promotion: it checks what a promotion would do and applies nothing. The request returns as soon as it is accepted; check-promotion-status shows when it is done:\n` +
+        `  Run a dry-run promotion without waiting for completion:\n` +
         c.command(
           `  $ frodo config-manager promote run-dryrun-promotion ${s.connId}\n`
+        ) +
+        `  Run a dry-run promotion and wait up to 30 minutes for completion:\n` +
+        c.command(
+          `  $ frodo config-manager promote run-dryrun-promotion --wait --timeout 1800 ${s.connId}\n`
         ) +
         `  Run a dry-run promotion that ignores encrypted secrets:\n` +
         c.command(
@@ -70,6 +87,11 @@ export default function setup() {
         options,
         command
       );
+      if (options.timeout && !options.wait) {
+        printMessage('--timeout requires --wait.', 'error');
+        process.exitCode = 1;
+        program.help();
+      }
       const getTokensIsSuccessful = await getTokens(
         false,
         true,
@@ -87,6 +109,8 @@ export default function setup() {
         promoter: options.promoter,
         description: options.description,
         ticketReference: options.ticketReference,
+        wait: options.wait,
+        timeout: options.timeout,
       });
       if (!outcome) process.exitCode = 1;
     });

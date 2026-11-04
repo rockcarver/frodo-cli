@@ -33,7 +33,14 @@ Options:
   -p, --promoter <name>               Name of the person performing the
                                       promotion.
   -t, --ticket-reference <reference>  Zendesk ticket reference.
+  -T, --timeout <seconds>             Specify a timeout in seconds how long the
+                                      tool should wait for the dry-run promotion
+                                      to complete. Requires --wait.
   -u, --unlock-after                  Unlock environments after promotion.
+  -w, --wait                          Wait for the dry-run promotion to
+                                      complete. Times out after 2700 seconds (45
+                                      minutes) by default, but can be overridden
+                                      using --timeout.
   -h, --help                          Help
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment
