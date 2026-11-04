@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -d": should dry-run delete all the custom-nodes" 1`] = `""`;
+
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -d": should dry-run delete all the custom-nodes" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete custom-nodes'. This feature may change without notice.
+Dry run: Deleting node with displayName Has Session AM
+Dry run: Deleting node with displayName ALU
+Dry run: Deleting node with displayName PingOne Recognize Biometric Unenrollment
+Dry run: Deleting node with displayName PingOne Recognize Biometric Web Authentication
+Dry run: Deleting node with displayName Generate JWT
+Dry run: Deleting node with displayName Display State
+Dry run: Deleting node with displayName Debug
+Dry run: Deleting node with displayName Vector ALU
+Dry run: Deleting node with displayName Display Message
+Dry run: Deleting node with displayName Display Callback
+Dry run: Deleting node with displayName Has Session
+Dry run: Deleting node with displayName PingOne Recognize Biometric Web Enrollment
+"
+`;
+
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -n ALU --dry-run": should dry-run delete a specific custom node by name" 1`] = `""`;
+
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -n ALU --dry-run": should dry-run delete a specific custom node by name" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete custom-nodes'. This feature may change without notice.
+Dry run: Deleting node with displayName ALU
+"
+`;
+
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -n ALU": should delete a specific custom node by name" 1`] = `""`;
+
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -n ALU": should delete a specific custom node by name" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete custom-nodes'. This feature may change without notice.
+Deleting node with displayName: ALU
+"
+`;
+
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes": should continue deleting custom nodes after individual failures and exit unsuccessfully" 1`] = `
+"Experimental feature in use: 'frodo config-manager delete custom-nodes'. This feature may change without notice.
+Error deleting custom node Debug
+  Error deleting custom node Debug
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/am/json/node-designer/node-type/4b76e2122a0541498f380072cd115683-1
+      Status: 400
+      Code: ERR_BAD_REQUEST
+      Reason: Bad Request
+      Message: Cannot delete node type that is in use
+Error deleting custom node Display Message
+  Error deleting custom node Display Message
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/am/json/node-designer/node-type/9baced97d9314337bcd202d28f3fd17b-1
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+Error deleting custom node PingOne Recognize Biometric Web Enrollment
+  Error deleting custom node PingOne Recognize Biometric Web Enrollment
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/am/json/node-designer/node-type/c5a8d1b2e4f06a9b3c5d7e8f1a2b3c4d-1
+      Status: 400
+      Code: ERR_BAD_REQUEST
+      Reason: Bad Request
+      Message: Cannot delete node type that is in use
+Error deleting custom node PingOne Recognize Biometric Web Authentication
+  Error deleting custom node PingOne Recognize Biometric Web Authentication
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/am/json/node-designer/node-type/5e75b06c44e344b4b39b9b8a7377bfd3-1
+      Status: 400
+      Code: ERR_BAD_REQUEST
+      Reason: Bad Request
+      Message: Cannot delete node type that is in use
+Deleted 8 custom nodes.
+"
+`;
+
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes": should continue deleting custom nodes after individual failures and exit unsuccessfully" 2`] = `1`;
