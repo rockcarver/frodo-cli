@@ -1,12 +1,11 @@
-import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 /**
- * Export an IDM configuration object in the fr-config-manager format.
+ * Export IDM UI configuration in fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportUiConfig(): Promise<boolean> {
@@ -25,16 +24,15 @@ export async function configManagerExportUiConfig(): Promise<boolean> {
 }
 
 /**
- * Import UI configuration in the fr-config-manager format.
+ * Export IDM UI configuration from fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerImportUiConfig(): Promise<boolean> {
   try {
-    const fileData = getFilePath(`ui/ui-configuration.json`);
-    const readFile = fs.readFileSync(fileData, 'utf8');
-    let importData = JSON.parse(readFile);
-    importData = { idm: { [importData._id]: importData } };
-    await importConfigEntities(importData);
+    const config = readJsonFile(
+      getFilePath(`ui/ui-configuration.json`)
+    ) as IdObjectSkeletonInterface;
+    await importConfigEntities({ idm: { [config._id]: config } });
     return true;
   } catch (error) {
     printError(error);

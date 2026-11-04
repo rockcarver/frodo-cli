@@ -1,0 +1,16 @@
+{
+  "_id": "df153624-6d66-4e82-9b62-8cee4d62ab8f",
+  "_outcomes": [
+    {
+      "displayName": "outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "1300434121",
+  "_type": {
+    "_id": "designer-8ab9f1aad4b4460a9c45d15fb148e221",
+    "collection": true,
+    "name": "Display State"
+  },
+  "displayFormat": "TABLE"
+}

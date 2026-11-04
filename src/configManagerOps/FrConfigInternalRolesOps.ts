@@ -2,24 +2,31 @@ import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
-const { getFilePath, saveJsonToFile } = frodo.utils;
-const { readInternalRoles, importInternalRoles } = frodo.role;
+const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
+  frodo.utils;
+const { readInternalRoleByName, importInternalRoles, readInternalRoles } =
+  frodo.role;
+
 /**
- * Export an internal roles in fr-config-manager format.
+ * Export internal roles in fr-config-manager format.
+ * @param {string} name The internal role name to export
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportInternalRoles(
   name?: string
 ): Promise<boolean> {
   try {
-    const exportData = await readInternalRoles();
-    for (const role of Object.values(exportData)) {
-      if (name && name !== role.name) {
-        continue;
-      }
+    const roles = name
+      ? [await readInternalRoleByName(name)]
+      : await readInternalRoles();
+    for (const role of roles) {
       if (role.privileges && role.privileges.length > 0) {
-        const fileName = `internal-roles/${role.name}.json`;
-        saveJsonToFile(role, getFilePath(fileName, true), false, true);
+        saveJsonToFile(
+          role,
+          getFilePath(`internal-roles/${role.name}.json`, true),
+          false,
+          true
+        );
       }
     }
     return true;
@@ -29,17 +36,23 @@ export async function configManagerExportInternalRoles(
   return false;
 }
 
+/**
+ * Import internal roles from fr-config-manager format.
+ * @param {string} internalRoleName The internal role name to import
+ * @returns {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
 export async function configManagerImportInternalRoles(
   internalRoleName?: string
 ): Promise<boolean> {
   try {
-    const internalRolesDir = getFilePath('internal-roles');
-    const internalRolesFiles = fs.readdirSync(internalRolesDir);
+    const internalRolesFiles = fs.readdirSync(
+      `${getWorkingDirectory()}/internal-roles`
+    );
     const importData = { internalRole: {} };
     for (const internalRolesFile of internalRolesFiles) {
-      const filePath = getFilePath(`internal-roles/${internalRolesFile}`);
-      const readFile = fs.readFileSync(filePath, 'utf-8');
-      const roleData = JSON.parse(readFile);
+      const roleData = readJsonFile(
+        getFilePath(`internal-roles/${internalRolesFile}`)
+      ) as any;
       if (internalRoleName && roleData.name !== internalRoleName) {
         continue;
       }
@@ -48,7 +61,7 @@ export async function configManagerImportInternalRoles(
     await importInternalRoles(importData);
     return true;
   } catch (error) {
-    printError(error, `Error importing internal roles to files`);
+    printError(error, `Error importing internal roles from files`);
   }
   return false;
 }

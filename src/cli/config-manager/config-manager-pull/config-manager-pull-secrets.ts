@@ -5,13 +5,9 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
+const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -37,7 +33,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting secrets');
+        verboseMessage('Exporting secrets...');
         const outcome = await configManagerExportSecrets(
           options.activeOnly,
           options.report

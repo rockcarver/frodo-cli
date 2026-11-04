@@ -1,12 +1,11 @@
-import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 /**
- * Export an IDM configuration object in the fr-config-manager format.
+ * Export IDM access configuration object in the fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportAccessConfig(): Promise<boolean> {
@@ -19,26 +18,24 @@ export async function configManagerExportAccessConfig(): Promise<boolean> {
     );
     return true;
   } catch (error) {
-    printError(error, `Error exporting config entity access`);
+    printError(error, `Error exporting IDM access configuration`);
   }
   return false;
 }
 
 /**
- * Import access configuration from fr-config-manager format.
+ * Import IDM access configuration from fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerImportAccessConfig(): Promise<boolean> {
   try {
-    const accessConfigFile = getFilePath('access-config/access.json');
-    const readAccessConfig = fs.readFileSync(accessConfigFile, 'utf-8');
-    let accessConfigImportData = JSON.parse(readAccessConfig);
-    const id = accessConfigImportData._id;
-    accessConfigImportData = { idm: { [id]: accessConfigImportData } };
-    await importConfigEntities(accessConfigImportData);
+    const importData = readJsonFile(
+      getFilePath('access-config/access.json')
+    ) as IdObjectSkeletonInterface;
+    await importConfigEntities({ idm: { [importData._id]: importData } });
     return true;
   } catch (error) {
-    printError(error, `Error importing config entity access`);
+    printError(error, `Error importing IDM access configuration`);
   }
   return false;
 }

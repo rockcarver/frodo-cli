@@ -5,37 +5,26 @@ import { printError } from '../utils/Console';
 import { fileFilter } from '../utils/FrConfig';
 
 const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 /**
  * Export schedules in fr-config-manager format.
+ * @param {string} name The name of the schedule to export
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportSchedules(
   name?: string
 ): Promise<boolean> {
   try {
-    const exportData = await readConfigEntitiesByType('schedule');
-    processSchedules(exportData, 'schedules', name);
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting internal schedules to files`);
-  }
-  return false;
-}
-
-function processSchedules(schedules, fileDir, name?) {
-  try {
-    schedules.forEach((schedule) => {
+    const schedules = await readConfigEntitiesByType('schedule');
+    schedules.forEach((schedule: any) => {
       if (schedule._id !== 'scheduler') {
         const scheduleName = schedule._id.split('/')[1];
-        if (name && name !== scheduleName) {
-          return;
-        }
-        const scheduleDir = `${fileDir}/${scheduleName}`;
+        if (name && name !== scheduleName) return;
+        const scheduleDir = `schedules/${scheduleName}`;
         const scriptFilename = `${scheduleName}.js`;
         if (
           schedule.invokeService === 'script' &&
-          schedule.invokeContext.script.source
+          schedule.invokeContext?.script?.source
         ) {
           extractFrConfigDataToFile(
             schedule.invokeContext.script.source,
@@ -43,10 +32,10 @@ function processSchedules(schedules, fileDir, name?) {
             scheduleDir
           );
           delete schedule.invokeContext.script.source;
-          schedule.invokeContext.script.file = `${scriptFilename}`;
+          schedule.invokeContext.script.file = scriptFilename;
         } else if (
           schedule.invokeService === 'taskscanner' &&
-          schedule.invokeContext.task.script.source
+          schedule.invokeContext?.task?.script?.source
         ) {
           extractFrConfigDataToFile(
             schedule.invokeContext.task.script.source,
@@ -54,7 +43,7 @@ function processSchedules(schedules, fileDir, name?) {
             scheduleDir
           );
           delete schedule.invokeContext.task.script.source;
-          schedule.invokeContext.task.script.file = `${scriptFilename}`;
+          schedule.invokeContext.task.script.file = scriptFilename;
         }
 
         const scheduleFilename = `${scheduleDir}/${scheduleName}.json`;
@@ -66,9 +55,11 @@ function processSchedules(schedules, fileDir, name?) {
         );
       }
     });
-  } catch (err) {
-    printError(err);
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting schedules to files`);
   }
+  return false;
 }
 
 /**
@@ -90,8 +81,7 @@ export async function configManagerImportSchedules(
         `schedules/${schedulesFile}/${schedulesFile}.json`
       );
       if (!fs.existsSync(jsonFilePath)) continue;
-      const readJsonSchedules = fs.readFileSync(jsonFilePath, 'utf8');
-      const importData = JSON.parse(readJsonSchedules);
+      const importData = readJsonFile(jsonFilePath) as any;
       const id = importData._id;
       if (schedulesName && id !== `schedule/${schedulesName}`) {
         continue;
@@ -134,7 +124,7 @@ export async function configManagerImportSchedules(
     await importConfigEntities(importScheduleData);
     return true;
   } catch (error) {
-    printError(error, `Error importing internal schedules`);
+    printError(error, `Error importing schedules`);
   }
   return false;
 }

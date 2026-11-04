@@ -1,11 +1,8 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import {
-  configManagerExportConnectorDefinition,
-  configManagerExportConnectorDefinitionsAll,
-} from '../../../configManagerOps/FrConfigConnectorDefinitionsOps';
+import { configManagerExportConnectorDefinitions } from '../../../configManagerOps/FrConfigConnectorDefinitionsOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage } from '../../../utils/Console';
+import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -24,11 +21,11 @@ export default function setup() {
   );
 
   program
-    .description('Export aconnector definitions.')
+    .description('Export connector definitions.')
     .addOption(
       new Option(
         '-n, --name <connector-name>',
-        'Get connector-definition from specified name/id, without the type prefix.'
+        'Get connector definition from specified name/id, without the type prefix.'
       )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -41,26 +38,19 @@ export default function setup() {
         command
       );
 
-      if (await getTokens(false, true, deploymentTypes)) {
-        let outcome: boolean;
-        if (options.name) {
-          printMessage(
-            `Exporting connector definition for connector: "${options.name}"`
-          );
-          outcome = await configManagerExportConnectorDefinition({
-            connectorName: options.name,
-          });
-        } else {
-          printMessage('Exporting all connector defitions.');
-          outcome = await configManagerExportConnectorDefinitionsAll();
-        }
-        if (!outcome) process.exitCode = 1;
-      }
-      // Any option combination is valid; the only way this branch runs
-      // is getTokens() failing.
-      else {
+      if (!(await getTokens(false, true, deploymentTypes))) {
         process.exitCode = 1;
+        return;
       }
+      verboseMessage(
+        options.name
+          ? `Exporting connector definition for connector: "${options.name}"`
+          : 'Exporting all connector defitions.'
+      );
+      const outcome = await configManagerExportConnectorDefinitions(
+        options.name
+      );
+      if (!outcome) process.exitCode = 1;
     });
 
   return program;

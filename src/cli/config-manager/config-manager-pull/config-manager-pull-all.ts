@@ -1,24 +1,11 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerExportAllWithConfigFolder } from '../../../configManagerOps/FrConfigAllOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage, verboseMessage } from '../../../utils/Console';
+import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull all',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config-manager pull all');
   program
     .description('Export all config.')
     .addHelpText(
@@ -29,7 +16,7 @@ export default function setup() {
       new Option(
         '-C, --config-folder <config-folder-path>',
         'Path to the folder containing the config files.\n'
-      )
+      ).makeOptionMandatory()
     )
     .addHelpText(
       'after',
@@ -53,29 +40,16 @@ export default function setup() {
         command
       );
 
-      if (
-        options.configFolder &&
-        (await getTokens(false, true, deploymentTypes))
-      ) {
-        verboseMessage(
-          'Exporting config files that fr-config-manager supports.'
-        );
-        const outcome = await configManagerExportAllWithConfigFolder({
-          configFolder: options.configFolder,
-          realm,
-        });
-        if (!outcome) process.exitCode = 1;
-      }
-      // unrecognized combination of options or no options
-      else {
-        printMessage(
-          'You must specify a folder containing the config files.\n' +
-            'Please refer to the help message for more information.',
-          'error'
-        );
+      if (!(await getTokens())) {
         process.exitCode = 1;
-        program.help();
+        return;
       }
+      verboseMessage('Exporting config files that fr-config-manager supports.');
+      const outcome = await configManagerExportAllWithConfigFolder({
+        configFolder: options.configFolder,
+        realm,
+      });
+      if (!outcome) process.exitCode = 1;
     });
 
   return program;

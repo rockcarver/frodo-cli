@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager push cookie-domains' should be expected english 1`] = `
 "Usage: frodo config-manager push cookie-domains [options] [host] [realm] [username] [password]
 
-[Experimental] Import cookie domains.
+[Experimental] [Cloud-only] Import cookie domains.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
@@ -19,6 +19,8 @@ Arguments:
                     host, frodo uses that profile's stored password instead of
                     requiring it on the command line.
   password          Password.
+
+Deployment: Cloud-only
 
 Options:
   -h, --help        Help

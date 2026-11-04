@@ -26,7 +26,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Internal role name, It only export the endpoint with the name'
+        'Internal role name. If specified, only export the internal role with the specified name.'
       )
     )
     .action(async (host, realm, user, password, options, command) => {

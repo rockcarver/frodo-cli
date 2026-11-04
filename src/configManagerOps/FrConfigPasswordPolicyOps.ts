@@ -1,9 +1,15 @@
 import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import {
+  frodo,
+  state,
+  type IdObjectSkeletonInterface,
+} from '@rockcarver/frodo-lib';
+import { printError, printMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { DEFAULT_REALM_KEY } = frodo.utils.constants;
+const { getFilePath, saveJsonToFile, getWorkingDirectory, readJsonFile } =
+  frodo.utils;
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
 
 /**
@@ -15,24 +21,26 @@ export async function configManagerExportPasswordPolicy(
   realm?: string
 ): Promise<boolean> {
   try {
-    if (realm && realm !== '__default__realm__') {
-      const realmData = await readConfigEntity(`fieldPolicy/${realm}_user`);
-      const fileName = `realms/${realm}/password-policy/${realm}_user-password-policy.json`;
-      saveJsonToFile(realmData, getFilePath(fileName, true), false, true);
-    } else {
-      for (const realmName of await realmList()) {
-        // fr-config-manager doesn't support root themes
-        if (realmName === '/') continue;
-        const realmData = await readConfigEntity(
-          `fieldPolicy/${realmName}_user`
-        );
-        const fileName = `realms/${realmName}/password-policy/${realmName}_user-password-policy.json`;
-        saveJsonToFile(realmData, getFilePath(fileName, true), false, true);
+    const realms =
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    for (const realm of realms) {
+      if (
+        realm === '/' &&
+        state.getDeploymentType() ===
+          frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
+      ) {
+        continue;
       }
+      const objectName = `${realm === '/' ? '' : `${realm}_`}user`;
+      const passwordPolicy = await readConfigEntity(
+        `fieldPolicy/${objectName}`
+      );
+      const fileName = `realms/${realm === '/' ? 'root' : realm}/password-policy/${objectName}-password-policy.json`;
+      saveJsonToFile(passwordPolicy, getFilePath(fileName, true), false, true);
     }
     return true;
   } catch (error) {
-    printError(error, `Error exporting config entity ui-configuration`);
+    printError(error, `Error exporting password policies`);
   }
   return false;
 }
@@ -46,38 +54,33 @@ export async function configManagerImportPasswordPolicy(
   realm?: string
 ): Promise<boolean> {
   try {
+    printMessage('Updating password policy');
     const realms =
-      realm && realm !== '__default__realm__' ? [realm] : await realmList();
-    for (const realmName of realms) {
-      // fr-config-manager doesn't support root themes
-      if (realmName === '/') continue;
-      const filePath = getFilePath(
-        `realms/${realmName}/password-policy/${realmName}_user-password-policy.json`
-      );
-      const mainFile = fs.readFileSync(filePath, 'utf8');
-      const parsedData = JSON.parse(mainFile);
-      let importData;
-
-      // Support both fr-config wrappers ({ idm: { ... }, meta: ... }) and
-      // legacy single-entity files with top-level _id.
+      realm && realm !== DEFAULT_REALM_KEY
+        ? [realm]
+        : fs
+            .readdirSync(`${getWorkingDirectory()}/realms`)
+            .map((r) => (r === 'root' ? '/' : r));
+    for (const realm of realms) {
       if (
-        parsedData &&
-        typeof parsedData === 'object' &&
-        parsedData.idm &&
-        typeof parsedData.idm === 'object' &&
-        Object.keys(parsedData.idm).length > 0
+        realm === '/' &&
+        state.getDeploymentType() ===
+          frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
       ) {
-        importData = { idm: parsedData.idm };
-      } else {
-        const id = parsedData?._id;
-        if (!id) {
-          throw new Error(
-            `Invalid password policy payload in '${filePath}': expected either an 'idm' map or top-level '_id'.`
-          );
-        }
-        importData = { idm: { [id]: parsedData } };
+        continue;
       }
-      await importConfigEntities(importData);
+      const objectName = `${realm === '/' ? '' : `${realm}_`}user`;
+      const filePath = getFilePath(
+        `realms/${realm === '/' ? 'root' : realm}/password-policy/${objectName}-password-policy.json`
+      );
+      const passwordPolicy = readJsonFile(
+        filePath
+      ) as IdObjectSkeletonInterface;
+      await importConfigEntities({
+        idm: {
+          [passwordPolicy._id]: passwordPolicy,
+        },
+      });
     }
     return true;
   } catch (error) {

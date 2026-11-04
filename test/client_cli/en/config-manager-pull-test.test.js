@@ -8,3 +8,4 @@ const { stdout } = await exec(CMD);
 test("CLI help interface for 'config-manager pull test' should be expected english", async () => {
     expect(stdout).toMatchSnapshot();
 });
+

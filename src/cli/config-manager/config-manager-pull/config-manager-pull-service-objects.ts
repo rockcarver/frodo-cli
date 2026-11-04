@@ -26,10 +26,8 @@ export default function setup() {
       new Option(
         '-f, --file <file>',
         'The file path of the service object config file. '
-      )
+      ).makeOptionMandatory()
     )
-    // To do: export all users/roles
-
     .addHelpText(
       'after',
       'HELP MESSAGE:\n' +
@@ -78,8 +76,6 @@ export default function setup() {
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
-
-    .requireOneOf({ options: ['file'], purpose: 'the export file' })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -90,14 +86,12 @@ export default function setup() {
         command
       );
 
-      if (options.file && (await getTokens(false, true, deploymentTypes))) {
+      if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting service objects');
         const outcome = await configManagerExportServiceObjectsFromFile(
           options.file
         );
         if (!outcome) process.exitCode = 1;
-        // No branch ran: with requireOneOf satisfied, the only way here is
-        // getTokens() failing -- keep the old exit-1 semantics.
       } else {
         process.exitCode = 1;
       }

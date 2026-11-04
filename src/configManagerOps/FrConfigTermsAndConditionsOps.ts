@@ -3,11 +3,11 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
 
-const { saveJsonToFile, getFilePath } = frodo.utils;
+const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
 
 /**
- * Export terms and conditions to file
+ * Export terms and conditions to file in fr-config-manager format
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportTermsAndConditions(): Promise<boolean> {
@@ -44,12 +44,10 @@ export async function configManagerExportTermsAndConditions(): Promise<boolean> 
  */
 export async function configManagerImportTermsAndConditions(): Promise<boolean> {
   try {
-    const mainFile = getFilePath('terms-conditions/terms-conditions.json');
-    const readMain = fs.readFileSync(mainFile, 'utf8') as any;
-    let importData = JSON.parse(readMain) as any;
-    const id = importData._id;
-    importData = { idm: { [id]: importData } };
-    for (const version of importData.idm[id].versions) {
+    const termsAndConditions = readJsonFile(
+      getFilePath('terms-conditions/terms-conditions.json')
+    ) as any;
+    for (const version of termsAndConditions.versions) {
       for (const [language] of Object.entries(version.termsTranslations)) {
         const languageFileName = `${version.version}/${language}.html`;
         const directoryName = `terms-conditions`;
@@ -57,7 +55,9 @@ export async function configManagerImportTermsAndConditions(): Promise<boolean> 
         version.termsTranslations[language] = fs.readFileSync(fileDir, 'utf8');
       }
     }
-    await importConfigEntities(importData);
+    await importConfigEntities({
+      idm: { [termsAndConditions._id]: termsAndConditions },
+    });
     return true;
   } catch (error) {
     printError(error);

@@ -4,55 +4,46 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
 
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
 
-function processMappings(mapping, targetDir, name) {
-  try {
-    if (name && name !== mapping.name) {
-      return;
-    }
-    const mappingPath = `${targetDir}`;
-
-    Object.entries(mapping).forEach(([key, value]: [string, any]) => {
-      if (
-        typeof value === 'object' &&
-        value !== null &&
-        'type' in value &&
-        'source' in value &&
-        value.type === 'text/javascript'
-      ) {
-        const scriptText = Array.isArray(value.source)
-          ? value.source.join('\n')
-          : value.source;
-
-        const scriptFilename = `${mapping.name}.${key}.js`;
-        (value as any).file = scriptFilename; // Replace source code with file reference
-        extractFrConfigDataToFile(scriptText, scriptFilename, targetDir);
-
-        delete value.source;
-      }
-    });
-
-    const fileName = `${mappingPath}/${mapping.name}.json`;
-    saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
-  } catch (err) {
-    printError(err);
-  }
-}
-
 /**
  * Export all mappings to separate files in fr-config-manager format
- * @param {MappingExportOptions} options export options
+ * @param {string} name connector mapping name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function configManagerExportMappings(): Promise<boolean> {
+export async function configManagerExportMappings(
+  name?: string
+): Promise<boolean> {
   try {
     const exportData = await readConfigEntity('sync');
     const fileDir = `sync/mappings`;
     for (const mapping of Object.values(exportData.mappings)) {
-      processMappings(mapping, `${fileDir}/${mapping.name}`, mapping.name);
+      if (name && name !== mapping.name) continue;
+      const mappingPath = `${fileDir}/${mapping.name}`;
+
+      Object.entries(mapping).forEach(([key, value]: [string, any]) => {
+        if (
+          value &&
+          typeof value === 'object' &&
+          value.type === 'text/javascript' &&
+          value.source
+        ) {
+          const scriptText = Array.isArray(value.source)
+            ? value.source.join('\n')
+            : value.source;
+
+          const scriptFilename = `${mapping.name}.${key}.js`;
+          (value as any).file = scriptFilename; // Replace source code with file reference
+          extractFrConfigDataToFile(scriptText, scriptFilename, mappingPath);
+
+          delete value.source;
+        }
+      });
+
+      const fileName = `${mappingPath}/${mapping.name}.json`;
+      saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
     }
     return true;
   } catch (error) {
@@ -88,10 +79,8 @@ function getExtractedFiles(obj: any, connectorMappingDirectory: string): void {
  * @returns {object} The connector mapping data from the file, including data from any extracted files
  */
 function getConnectorMappingImportData(file: string): object {
-  const readManagedObject = fs.readFileSync(file, 'utf-8');
-  const importData = JSON.parse(readManagedObject);
-  const connectorMappingDirectory = path.dirname(file);
-  getExtractedFiles(importData, connectorMappingDirectory);
+  const importData = readJsonFile(file);
+  getExtractedFiles(importData, path.dirname(file));
   return importData;
 }
 

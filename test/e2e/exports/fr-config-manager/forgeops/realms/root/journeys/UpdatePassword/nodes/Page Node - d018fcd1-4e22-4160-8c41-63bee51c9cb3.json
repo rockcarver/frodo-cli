@@ -1,0 +1,28 @@
+{
+  "_id": "d018fcd1-4e22-4160-8c41-63bee51c9cb3",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "-1359533036",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node"
+  },
+  "nodes": [
+    {
+      "_id": "21a99653-a7a7-47ee-b650-f493a84bba09",
+      "displayName": "Platform Password",
+      "nodeType": "ValidatedPasswordNode"
+    }
+  ],
+  "pageDescription": {
+    "en": "Enter new password"
+  },
+  "pageHeader": {
+    "en": "Update Password"
+  }
+}

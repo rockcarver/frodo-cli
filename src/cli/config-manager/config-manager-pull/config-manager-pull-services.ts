@@ -1,31 +1,18 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerExportServices } from '../../../configManagerOps/FrConfigServiceOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull services',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config-manager pull services');
 
   program
     .description('Export authentication services.')
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Service name, It only export the service with the name.'
+        'Service name. If specified, only exports the service with the specified name.'
       )
     )
 
@@ -39,8 +26,8 @@ export default function setup() {
         command
       );
 
-      if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting services');
+      if (await getTokens()) {
+        verboseMessage('Exporting services...');
         const outcome = await configManagerExportServices(realm, options.name);
         if (!outcome) process.exitCode = 1;
       } else {

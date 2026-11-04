@@ -1,18 +1,17 @@
-import fs from 'fs';
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
-const { config } = frodo.idm;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { readConfigEntity, importConfigEntities } = frodo.idm.config;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 /**
  * Export the email provider configuration json in fr-config manager format
- * @returns True if file was successfully saved
+ * @returns {Promise<boolean>} True if file was successfully saved
  */
 export async function configManagerExportEmailProviderConfiguration(): Promise<boolean> {
   try {
     const emailProvider: IdObjectSkeletonInterface =
-      await config.readConfigEntity('external.email');
+      await readConfigEntity('external.email');
 
     saveJsonToFile(
       emailProvider,
@@ -27,16 +26,16 @@ export async function configManagerExportEmailProviderConfiguration(): Promise<b
   }
 }
 
+/**
+ * Imports an email provider from a config-manager export
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
 export async function configManagerImportEmailProvider(): Promise<boolean> {
   try {
-    const filePath = getFilePath('email-provider');
-    const fileData = fs.readFileSync(
-      `${filePath}/external.email.json`,
-      'utf-8'
-    );
-    let importData = JSON.parse(fileData);
-    importData = { idm: { [importData._id]: importData } };
-    await config.importConfigEntities(importData);
+    const importData = readJsonFile(
+      getFilePath('email-provider/external.email.json')
+    ) as IdObjectSkeletonInterface;
+    await importConfigEntities({ idm: { [importData._id]: importData } });
     return true;
   } catch (error) {
     printError(error);

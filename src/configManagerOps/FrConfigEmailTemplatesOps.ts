@@ -3,25 +3,40 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
 
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
+  frodo.utils;
 const { readEmailTemplates, readEmailTemplate, importEmailTemplates } =
   frodo.email.template;
+
 /**
- * Export an internal roles in fr-config-manager format.
+ * Export email templates in fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportEmailTemplates(
   name?: string
 ): Promise<boolean> {
   try {
-    if (name) {
-      const exportData = await readEmailTemplate(name);
-      processEmailTemplate(exportData, `email-templates`);
-    } else {
-      const exportData = await readEmailTemplates();
-      exportData.forEach(async (template) => {
-        processEmailTemplate(template, `email-templates`);
-      });
+    const templates = name
+      ? [await readEmailTemplate(name)]
+      : await readEmailTemplates();
+    for (const template of templates) {
+      const templateName = template._id.split('/')[1];
+      const templatePath = `email-templates/${templateName}`;
+      await splitLangToFile(template.html, templatePath, templateName, 'html');
+      await splitLangToFile(template.message, templatePath, templateName, 'md');
+      if (template.styles) {
+        const cssFilename = `${templateName}.css`;
+        extractFrConfigDataToFile(template.styles, cssFilename, templatePath);
+        template.styles = {
+          file: cssFilename,
+        };
+      }
+      saveJsonToFile(
+        template,
+        getFilePath(`${templatePath}/${templateName}.json`, true),
+        false,
+        true
+      );
     }
     return true;
   } catch (error) {
@@ -43,26 +58,6 @@ async function splitLangToFile(property, templatePath, templateName, suffix) {
   });
 }
 
-async function processEmailTemplate(template, fileDir) {
-  try {
-    const templateName = template._id.split('/')[1];
-    const templatePath = `${fileDir}/${templateName}`;
-    await splitLangToFile(template.html, templatePath, templateName, 'html');
-    await splitLangToFile(template.message, templatePath, templateName, 'md');
-    if (template.styles) {
-      const cssFilename = `${templateName}.css`;
-      extractFrConfigDataToFile(template.styles, cssFilename, templatePath);
-      template.styles = {
-        file: cssFilename,
-      };
-    }
-    const fileName = `${templatePath}/${templateName}.json`;
-    saveJsonToFile(template, getFilePath(fileName, true), false, true);
-  } catch (err) {
-    printError(err);
-  }
-}
-
 /**
  * Imports email templates that were exported using config-manager
  * @param {string} templateName Optional template name. If not specified, imports all email templates.
@@ -72,19 +67,17 @@ export async function configManagerImportEmailTemplates(
   templateName?: string
 ): Promise<boolean> {
   try {
-    const templateDir = getFilePath('email-templates');
-    const templateFiles = fs.readdirSync(templateDir);
+    const templateFiles = fs.readdirSync(
+      `${getWorkingDirectory()}/email-templates`
+    );
     const importTemplateData = { emailTemplate: {} };
 
     for (const templateFile of templateFiles) {
-      const templateJsonPath = getFilePath(
-        `email-templates/${templateFile}/${templateFile}.json`
-      );
-      const readTemplate = fs.readFileSync(templateJsonPath, 'utf8');
-      const importData = JSON.parse(readTemplate);
-      const id = importData._id;
+      const importData = readJsonFile(
+        getFilePath(`email-templates/${templateFile}/${templateFile}.json`)
+      ) as any;
 
-      if (templateName && id !== `emailTemplate/${templateName}`) {
+      if (templateName && importData._id !== `emailTemplate/${templateName}`) {
         continue;
       }
 
@@ -110,8 +103,9 @@ export async function configManagerImportEmailTemplates(
         );
         importData.styles = fs.readFileSync(stylesFilePath, 'utf8');
       }
-      importTemplateData.emailTemplate[id.replace('emailTemplate/', '')] =
-        importData;
+      importTemplateData.emailTemplate[
+        importData._id.replace('emailTemplate/', '')
+      ] = importData;
     }
     await importEmailTemplates(importTemplateData);
     return true;

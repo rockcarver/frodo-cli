@@ -21,44 +21,45 @@ Commands:
   all                    [Experimental] Export all config.
   all-static             [Experimental] Export all static config.
   audit                  [Experimental] Export audit objects.
-  authentication         [Experimental] Export authentication objects.
+  authentication         [Experimental] Export authentication settings.
   authz-policies         [Experimental] Export authorization policies.
   config-metadata        [Experimental] Show metadata.
-  connector-definitions  [Experimental] Export aconnector definitions.
+  connector-definitions  [Experimental] Export connector definitions.
   connector-mappings     [Experimental] Export connector mappings.
-  cookie-domains         [Experimental] Export cookie-domains objects.
+  cookie-domains         [Experimental] [Cloud-only] Export cookie domains.
   cors                   [Experimental] Export CORS configuration.
-  csp                    [Experimental] Export content security policy.
+  csp                    [Experimental] [Cloud-only] Export content security
+                         policy.
   custom-nodes           [Experimental] Export custom nodes.
   email-provider         [Experimental] Export email provider configuration.
   email-templates        [Experimental] Export email-templates objects.
-  endpoints              [Experimental] Export custom endpoints objects.
+  endpoints              [Experimental] Export custom endpoints.
   idm-authentication     [Experimental] Export idm authentication config.
   iga-workflows          [Experimental] [Cloud-only] Export iga-workflows.
   internal-roles         [Experimental] Export internal roles.
   journeys               [Experimental] Export journeys.
-  kba                    [Experimental] Export kba-config objects.
-  locales                [Experimental] Export custom locales objects.
+  kba                    [Experimental] Export KBA.
+  locales                [Experimental] Export locales.
   managed-objects        [Experimental] Export managed-objects.
   oauth2-agents          [Experimental] Export OAuth2 Agents
   org-privileges         [Experimental] Export organization privileges config.
-  password-policy        [Experimental] Export password-policy objects.
+  password-policy        [Experimental] Export password policy.
   raw                    [Experimental] Export raw configurations from the
                          tenant.
-  remote-servers         [Experimental] Export remote-servers objects.
+  remote-servers         [Experimental] Export RCS server configurations.
   saml                   [Experimental] Export saml.
   schedules              [Experimental] Export schedules.
   scripts                [Experimental] Export AM scripts.
   secret-mappings        [Experimental] [Cloud-only] Export secret mappings.
-  secrets                [Experimental] Export secrets.
+  secrets                [Experimental] [Cloud-only] Export secrets.
   service-objects        [Experimental] Export service objects.
   services               [Experimental] Export authentication services.
   telemetry              [Experimental] [Cloud-only] Export telemetry exporters.
   terms-and-conditions   [Experimental] Export terms and conditions.
   test                   [Experimental] Test connection and authentication.
   themes                 [Experimental] Export themes.
-  ui-config              [Experimental] Export ui-configuration objects.
-  variables              [Experimental] [Cloud-only] Export variables objects.
+  ui-config              [Experimental] Export IDM UI configuration objects.
+  variables              [Experimental] [Cloud-only] Export variables.
 
 Utilities:
   help                   display help for command

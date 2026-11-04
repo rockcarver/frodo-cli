@@ -21,11 +21,11 @@ export default function setup() {
   );
 
   program
-    .description('Export custom endpoints objects.')
+    .description('Export custom endpoints.')
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Endpoint name, It only export the endpoint with the name'
+        'Endpoint name. If specified, pulls only the endpoint with the given name.'
       )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -39,7 +39,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity endpoints');
+        verboseMessage('Exporting custom endpoints.');
         const outcome = await configManagerExportEndpoints(options.name);
         if (!outcome) process.exitCode = 1;
       } else {

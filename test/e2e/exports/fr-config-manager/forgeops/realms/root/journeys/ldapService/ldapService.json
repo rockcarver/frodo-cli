@@ -1,0 +1,59 @@
+{
+  "_id": "ldapService",
+  "_rev": "-1619916438",
+  "description": "Authentication tree replacing old default chain for backward compatibility",
+  "enabled": true,
+  "entryNodeId": "eccbc87e-4b5c-32fe-a830-8fd9f2a7baf5",
+  "identityResource": "managed/user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "6c8349cc-7260-3e62-a3b1-396831a8398a": {
+      "connections": {
+        "outcome": "c81e728d-9d4c-3f63-af06-7f89cc14862d"
+      },
+      "displayName": "Page Node",
+      "nodeType": "PageNode",
+      "x": 500,
+      "y": 25
+    },
+    "c81e728d-9d4c-3f63-af06-7f89cc14862d": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Data Store Decision",
+      "nodeType": "DataStoreDecisionNode",
+      "x": 800,
+      "y": 25
+    },
+    "eccbc87e-4b5c-32fe-a830-8fd9f2a7baf5": {
+      "connections": {
+        "false": "6c8349cc-7260-3e62-a3b1-396831a8398a",
+        "true": "c81e728d-9d4c-3f63-af06-7f89cc14862d"
+      },
+      "displayName": "Zero Page Login Collector",
+      "nodeType": "ZeroPageLoginNode",
+      "x": 150,
+      "y": 25
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1000,
+      "y": 25
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1000,
+      "y": 200
+    },
+    "startNode": {
+      "x": 50,
+      "y": 25
+    }
+  },
+  "uiConfig": {
+    "categories": "[\"Authentication\"]"
+  }
+}

@@ -1,9 +1,19 @@
 import fs from 'fs';
-import { frodo, FrodoError } from '@rockcarver/frodo-lib';
+import {
+  frodo,
+  FrodoError,
+  type CustomNodeSkeleton,
+} from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 import { fileFilter } from '../utils/FrConfig';
 
-const { saveJsonToFile, getFilePath, saveTextToFile } = frodo.utils;
+const {
+  saveJsonToFile,
+  getFilePath,
+  saveTextToFile,
+  readJsonFile,
+  getWorkingDirectory,
+} = frodo.utils;
 const { readCustomNode, readCustomNodes, importCustomNodes } = frodo.authn.node;
 
 /**
@@ -17,14 +27,9 @@ export async function configManagerExportCustomNodes(
   name?: string
 ): Promise<boolean> {
   try {
-    let customNodes;
-    if (name) {
-      const customNode = await readCustomNode(undefined, name);
-      customNodes = [customNode];
-    } else {
-      customNodes = await readCustomNodes();
-    }
-
+    const customNodes = name
+      ? [await readCustomNode(undefined, name)]
+      : await readCustomNodes();
     for (const node of customNodes) {
       const nodeDir = getFilePath(
         `custom-nodes/nodes/${node.displayName}/`,
@@ -34,7 +39,7 @@ export async function configManagerExportCustomNodes(
       const jsonFileName = `${node.displayName}.json`;
 
       saveTextToFile(`${node.script}`, nodeDir + scriptFileName);
-      node.script = { file: scriptFileName };
+      (node as any).script = { file: scriptFileName };
 
       const filePath = nodeDir + jsonFileName;
       saveJsonToFile(node, filePath, false);
@@ -58,19 +63,19 @@ export async function configManagerImportCustomNodes(
   filenameFilter?: string
 ): Promise<boolean> {
   try {
-    const nodesDir = getFilePath(`custom-nodes/nodes`);
+    const nodesDir = `${getWorkingDirectory()}/custom-nodes/nodes`;
     const nodeFolders = fs.readdirSync(nodesDir);
     const customNodeData = { nodeTypes: {} };
 
     let nodeFound = false;
 
     for (const nodeFolder of nodeFolders) {
-      const jsonFilePath = `${nodesDir}/${nodeFolder}/${nodeFolder}.json`;
-      const importData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
-
+      const importData = readJsonFile(
+        `${nodesDir}/${nodeFolder}/${nodeFolder}.json`
+      ) as CustomNodeSkeleton;
       if (nodeName && nodeName !== importData.displayName) continue;
 
-      if (!fileFilter(importData.script?.file, filenameFilter)) {
+      if (!fileFilter((importData.script as any)?.file, filenameFilter)) {
         continue;
       }
 

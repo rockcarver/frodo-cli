@@ -1,0 +1,34 @@
+{
+  "_id": "e78ff99e-59f8-4302-93b7-1770f18b4ae7",
+  "_outcomes": [
+    {
+      "displayName": "outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "942720118",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node"
+  },
+  "nodes": [
+    {
+      "_id": "df153624-6d66-4e82-9b62-8cee4d62ab8f",
+      "displayName": "Display State",
+      "nodeType": "designer-8ab9f1aad4b4460a9c45d15fb148e221"
+    },
+    {
+      "_id": "cccb0cb9-a134-4f52-a499-55d4f095ac81",
+      "displayName": "Hello World!",
+      "nodeType": "designer-ef81b1a52c914710b3388caebfe7233a"
+    }
+  ],
+  "pageDescription": {
+    "en": "Description"
+  },
+  "pageHeader": {
+    "en": "Header"
+  },
+  "stage": "{\"submitButtonText\":{\"en\":\"Submit Button\"},\"pageFooter\":{\"en\":\"Footer\"},\"themeId\":\"a9bc15cf-8d9c-4bfb-8979-67a5f5823227\"}"
+}

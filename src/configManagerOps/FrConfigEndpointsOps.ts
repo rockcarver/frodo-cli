@@ -5,34 +5,26 @@ import { printError } from '../utils/Console';
 import { fileFilter } from '../utils/FrConfig';
 
 const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
-const { saveJsonToFile, getFilePath } = frodo.utils;
+const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
 
 /**
- * Export an IDM configuration object in the fr-config-manager format.
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ * Export custom endpoints in fr-config-manager format.
+ * @param {string} name The custom endpoint name
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportEndpoints(
-  endpointName?: string
+  name?: string
 ): Promise<boolean> {
   try {
-    const exportData = await readConfigEntitiesByType('endpoint');
-    processEndpoints(exportData, 'endpoints', endpointName);
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting config entity endpoints`);
-  }
-  return false;
-}
-
-function processEndpoints(endpoints, fileDir, name?) {
-  try {
+    const endpoints = await readConfigEntitiesByType('endpoint');
     endpoints
       .filter(
         (endpoint) =>
           !endpoint.file &&
           endpoint._id.startsWith('endpoint') &&
-          (!endpoint.context || !endpoint.context.startsWith('util')) &&
+          (!endpoint.context ||
+            typeof endpoint.context !== 'string' ||
+            !endpoint.context.startsWith('util')) &&
           endpoint._id !== 'endpoint/linkedView'
       )
       .forEach((endpoint) => {
@@ -40,7 +32,7 @@ function processEndpoints(endpoints, fileDir, name?) {
         if (name && name !== endpointName) {
           return;
         }
-        const endpointDir = `${fileDir}/${endpointName}`;
+        const endpointDir = `endpoints/${endpointName}`;
         const scriptFilename = `${endpointName}.${endpoint.type === 'groovy' ? 'groovy' : 'js'}`;
 
         extractFrConfigDataToFile(endpoint.source, scriptFilename, endpointDir);
@@ -54,9 +46,11 @@ function processEndpoints(endpoints, fileDir, name?) {
           true
         );
       });
-  } catch (err) {
-    printError(err);
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting custom endpoints`);
   }
+  return false;
 }
 
 /**
@@ -74,35 +68,32 @@ export async function configManagerImportEndpoints(
     const endpointsFiles = fs.readdirSync(endpointsDir);
     const importEndpointData = { idm: {} };
     for (const endpointsFile of endpointsFiles) {
-      const jsonFilePath = getFilePath(
-        `endpoints/${endpointsFile}/${endpointsFile}.json`
-      );
-      const readJsonEndpoint = fs.readFileSync(jsonFilePath, 'utf8') as any;
-      const importData = JSON.parse(readJsonEndpoint) as any;
-      const id = importData._id;
+      const endpoint = readJsonFile(
+        getFilePath(`endpoints/${endpointsFile}/${endpointsFile}.json`)
+      ) as any;
 
-      if (endpointName && id !== `endpoint/${endpointName}`) {
+      if (endpointName && endpoint._id !== `endpoint/${endpointName}`) {
         continue;
       }
 
-      if (!fileFilter(importData.file, filenameFilter)) {
+      if (!fileFilter(endpoint.file, filenameFilter)) {
         continue;
       }
 
-      if (importData.file) {
+      if (endpoint.file) {
         const scriptPath = getFilePath(
-          `endpoints/${endpointsFile}/${importData.file}`
+          `endpoints/${endpointsFile}/${endpoint.file}`
         );
-        importData.source = fs.readFileSync(scriptPath, 'utf8');
-        delete importData.file;
+        endpoint.source = fs.readFileSync(scriptPath, 'utf8');
+        delete endpoint.file;
       }
 
-      importEndpointData.idm[id] = importData;
+      importEndpointData.idm[endpoint._id] = endpoint;
     }
     await importConfigEntities(importEndpointData);
     return true;
   } catch (error) {
-    printError(error, `Error importing config entity endpoints`);
+    printError(error, `Error importing custom endpoints`);
   }
   return false;
 }

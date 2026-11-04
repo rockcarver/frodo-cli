@@ -8,7 +8,6 @@ FRODO_HOST=https://openam-mtc-feb16-stg.forgeblocks.com/am frodo config-manager 
 import { getEnv, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
-
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 

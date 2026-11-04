@@ -1,0 +1,20 @@
+{
+  "_id": "cfcd2084-95d5-35ef-a6e7-d7f9f98764db",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    }
+  ],
+  "_rev": "-1115967105",
+  "_type": {
+    "_id": "AmsterJwtDecisionNode",
+    "collection": true,
+    "name": "Amster Jwt Decision Node"
+  },
+  "authorizedKeys": "/var/run/secrets/amster/authorized_keys"
+}

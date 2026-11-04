@@ -8,7 +8,6 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull telemetry -c otlp -D telemetryTestDir5
 */
 
-
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
@@ -47,5 +46,4 @@ describe('frodo config-manager pull telemetry', () => {
     const CMD = `frodo config-manager pull telemetry -c otlp -D ${dirName}`;
     await testExport(CMD, env, undefined, undefined, dirName, false);
   });
-
 });

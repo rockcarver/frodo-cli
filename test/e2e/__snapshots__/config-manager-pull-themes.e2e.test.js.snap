@@ -1,0 +1,3617 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes" 1`] = `0`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes" 2`] = `""`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Contrast/Contrast.json 1`] = `
+{
+  "_id": "be99b4f6-b7ed-4970-ba57-41b970c745a2",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#000000",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#000000",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "0",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#000000",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#000000",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#000000",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoAltText": "Contrast",
+  "logoEnabled": true,
+  "logoHeight": "72",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoProfileAltText": "Contrast",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoProfileCollapsedAltText": "Contrast",
+  "logoProfileCollapsedHeight": "22",
+  "logoProfileHeight": "22",
+  "name": "Contrast",
+  "pageTitle": "#23282e",
+  "primaryColor": "#000000",
+  "primaryOffColor": "#000000",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#000000",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Contrast/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2022</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Contrast/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2022</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Contrast/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/ForgeRock Theme/ForgeRock Theme.json 1`] = `
+{
+  "_id": "462b8800-1f13-4a72-a6b1-388e031f56a0",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#109cf1",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#f6f8fa",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": 5,
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": true,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#109cf1",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0c85cf",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+  "logoAltText": "ForgeRock Logo",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock-full.svg",
+  "logoProfileAltText": "ForgeRock Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+  "logoProfileCollapsedAltText": "ForgeRock Logo",
+  "logoProfileCollapsedHeight": "22",
+  "logoProfileHeight": "40",
+  "name": "ForgeRock Theme",
+  "pageTitle": "#23282e",
+  "primaryColor": "#109cf1",
+  "primaryOffColor": "#0c85cf",
+  "profileBackgroundColor": "#f6f8fa",
+  "profileMenuHighlightColor": "#e4f4fd",
+  "profileMenuHoverColor": "#109cf1",
+  "profileMenuHoverTextColor": "#ffffff",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/ForgeRock Theme/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2022</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/ForgeRock Theme/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2022</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/ForgeRock Theme/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Highlander/Highlander.json 1`] = `
+{
+  "_id": "19b1792b-9d2d-4e29-bd91-7be476e27ada",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#EB0A1E",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#EB0A1E",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#C60819",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#EB0A1E",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "logoAltText": "Highlander",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg",
+  "logoProfileAltText": "Highlander",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "logoProfileCollapsedAltText": "Highlander",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "28",
+  "name": "Highlander",
+  "pageTitle": "#23282e",
+  "primaryColor": "#EB0A1E",
+  "primaryOffColor": "#C60819",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#EB0A1E",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Highlander/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6" style="color: #5e6d82">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2022</span>
+                        <a href="#" class="text-decoration-none" target="_self" style="color: #5e6d82">Highlander, Inc.</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Highlander/journeyFooter.html 1`] = `
+"<footer class="w-100">
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+        <div class="container w-100">
+            <div class="mt-5 py-4 border-top border-darkened">
+                <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Company
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">About Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Support
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Docs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Community
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Forum</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                            <span class="pr-1">&copy; 2022</span>
+                            <a href="#" class="text-decoration-none" target="_self">Highlander, Inc.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Highlander/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Robroy/Robroy.json 1`] = `
+{
+  "_id": "987e2468-75f9-46c7-b15b-886b24c2ea20",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#5AA625",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#5AA625",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": {
+    "file": "journeyJustifiedContent.html",
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "justified-right",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#49871E",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#5AA625",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "logoAltText": "Robroy",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg",
+  "logoProfileAltText": "RobRoy",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "logoProfileCollapsedAltText": "RobRoy",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "28",
+  "name": "Robroy",
+  "pageTitle": "#23282e",
+  "primaryColor": "#5AA625",
+  "primaryOffColor": "#49871E",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#5AA625",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Robroy/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2022</span>
+                        <a href="#" class="text-decoration-none" target="_self">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Robroy/journeyFooter.html 1`] = `
+"<footer class="w-100">
+            <div
+              class="
+                d-flex
+                flex-column flex-md-row
+                justify-content-center
+                align-items-center
+                py-4
+              "
+            >
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Company
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >About Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Contact Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Support
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Help Center</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Docs</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Community
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Facebook</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Twitter</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Forum</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div
+                        class="
+                          d-flex
+                          align-items-center
+                          justify-content-lg-end
+                          py-4 py-lg-0
+                        "
+                      >
+                        <span class="pr-1">&copy; 2022</span>
+                        <a href="#" class="text-decoration-none" target="_self"
+                          >Rob Roy Markets, Inc</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Robroy/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Robroy/journeyJustifiedContent.html 1`] = `
+"<img src="https://cdn.forgerock.com/platform/themes/robroy/illustration-robroy.svg" class="w-100">
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test No HTML/Test No HTML.json 1`] = `
+{
+  "_id": "54a560a1-f02b-4a01-9906-2db258c7515a",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#324054",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#e4f4fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": false,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": true,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": false,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": false,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0778d6",
+  "buttonRounded": 5,
+  "dangerColor": "#dc3545",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": false,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": false,
+  "journeyFocusElement": "content",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyHeaderSkipLinkEnabled": true,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#324054",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContentMobileViewEnabled": true,
+  "journeyLayout": "justified-left",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "remember me!",
+  "journeySignInButtonPosition": "justify-content-center",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0a6eab",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoAltText": "Logo",
+  "logoEnabled": false,
+  "logoHeight": "43",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+  "logoProfileAltText": "Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoProfileCollapsedAltText": "Logo",
+  "logoProfileHeight": "24",
+  "name": "Test No HTML",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#ffffff",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#f3f5f8",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#c0c9d5",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test Single HTML/Test Single HTML.json 1`] = `
+{
+  "_id": "31126921-feb3-493e-9eb2-a3a46262e3b5",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#324054",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#e4f4fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": {
+    "file": "accountFooterScriptTag.html",
+  },
+  "accountFooterScriptTagEnabled": true,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": true,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": true,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": true,
+    },
+    "oauthApplications": {
+      "enabled": true,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": true,
+    },
+    "social": {
+      "enabled": true,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0778d6",
+  "buttonRounded": 5,
+  "dangerColor": "#dc3545",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "content",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": {
+    "file": "journeyFooterScriptTag.html",
+  },
+  "journeyFooterScriptTagEnabled": true,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": true,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#324054",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": {
+    "file": "journeyJustifiedContent.html",
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": true,
+  "journeyLayout": "justified-left",
+  "journeyRememberMeEnabled": true,
+  "journeyRememberMeLabel": "remember me!",
+  "journeySignInButtonPosition": "justify-content-center",
+  "journeyTheaterMode": true,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0a6eab",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoAltText": "Logo",
+  "logoEnabled": true,
+  "logoHeight": "43",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+  "logoProfileAltText": "Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoProfileCollapsedAltText": "Logo",
+  "logoProfileHeight": "24",
+  "name": "Test Single HTML",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#ffffff",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#f3f5f8",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#c0c9d5",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test Single HTML/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test Single HTML/accountFooterScriptTag.html 1`] = `
+"<script>
+    console.log("Hello World!");
+</script>
+<script>
+    console.log("Hola Mundo!");
+</script>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test Single HTML/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test Single HTML/journeyFooterScriptTag.html 1`] = `
+"<script>
+    console.log("Hello World!");
+</script>
+<script>
+    console.log("Hola Mundo!");
+</script>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test Single HTML/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hello World!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test Single HTML/journeyJustifiedContent.html 1`] = `
+"<p>
+    Hello World!
+</p>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/Test.json 1`] = `
+{
+  "_id": "27d96c03-d55e-48a6-ba8b-ad2b144ab732",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#324054",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#e4f4fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "en": {
+      "file": "accountFooter/en.html",
+    },
+    "es": {
+      "file": "accountFooter/es.html",
+    },
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": {
+    "file": "accountFooterScriptTag.html",
+  },
+  "accountFooterScriptTagEnabled": true,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": true,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": true,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": true,
+    },
+    "oauthApplications": {
+      "enabled": true,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": true,
+    },
+    "social": {
+      "enabled": true,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0778d6",
+  "buttonRounded": 5,
+  "dangerColor": "#dc3545",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "content",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "en": {
+      "file": "journeyFooter/en.html",
+    },
+    "es": {
+      "file": "journeyFooter/es.html",
+    },
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": {
+    "file": "journeyFooterScriptTag.html",
+  },
+  "journeyFooterScriptTagEnabled": true,
+  "journeyHeader": {
+    "en": {
+      "file": "journeyHeader/en.html",
+    },
+    "es": {
+      "file": "journeyHeader/es.html",
+    },
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": true,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#324054",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": {
+    "en": {
+      "file": "journeyJustifiedContent/en.html",
+    },
+    "es": {
+      "file": "journeyJustifiedContent/es.html",
+    },
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": true,
+  "journeyLayout": "justified-left",
+  "journeyRememberMeEnabled": true,
+  "journeyRememberMeLabel": "remember me!",
+  "journeySignInButtonPosition": "justify-content-center",
+  "journeyTheaterMode": true,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0a6eab",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [
+    "Login",
+  ],
+  "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoAltText": "Logo",
+  "logoEnabled": true,
+  "logoHeight": "43",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+  "logoProfileAltText": "Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoProfileCollapsedAltText": "Logo",
+  "logoProfileHeight": "24",
+  "name": "Test",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#ffffff",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#f3f5f8",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#c0c9d5",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/accountFooter/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/accountFooter/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100">
+  <span class="pr-1">© 2026</span>
+  <a href="#" target="_blank" class="text-body">Mi Empresa, Inc</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Política de Privacidad</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Términos &amp; Condiciones</a>
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/accountFooterScriptTag.html 1`] = `
+"<script>
+    console.log("Hello World!");
+</script>
+<script>
+    console.log("Hola Mundo!");
+</script>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/journeyFooter/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/journeyFooter/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100">
+  <span class="pr-1">© 2026</span>
+  <a href="#" target="_blank" class="text-body">Mi Empresa, Inc</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Política de Privacidad</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Términos &amp; Condiciones</a>
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/journeyFooterScriptTag.html 1`] = `
+"<script>
+    console.log("Hello World!");
+</script>
+<script>
+    console.log("Hola Mundo!");
+</script>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/journeyHeader/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hello World!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/journeyHeader/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hola Mundo!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/journeyJustifiedContent/en.html 1`] = `
+"<p>
+    Hello World!
+</p>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Test/journeyJustifiedContent/es.html 1`] = `
+"<p>
+    Hola Mundo!
+</p>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Zardoz/Zardoz.json 1`] = `
+{
+  "_id": "a9bc15cf-8d9c-4bfb-8979-67a5f5823227",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#009C80",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#009C80",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": {
+    "file": "journeyJustifiedContent.html",
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "justified-right",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": true,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#007661",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#009C80",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoAltText": "Zardoz Logo",
+  "logoEnabled": true,
+  "logoHeight": "47",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoProfileAltText": "Zardaz Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoProfileCollapsedAltText": "Zardaz Logo",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "40",
+  "name": "Zardoz",
+  "pageTitle": "#23282e",
+  "primaryColor": "#009C80",
+  "primaryOffColor": "#007661",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#009C80",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Zardoz/accountFooter.html 1`] = `
+"<footer>
+  <div class="container-md">
+    <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+      <div class="text-nowrap">
+        <span class="pr-1">© 2022</span>
+        <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+      </div>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Privacy Policy</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Terms of Use</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Zardoz/journeyFooter.html 1`] = `
+"<footer>
+            <div class="container-md">
+            <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+              <div class="text-nowrap">
+                <span class="pr-1">© 2022</span>
+                <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+              </div>
+              <ul class="nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Terms of Use</a>
+                </li>
+              </ul>
+            </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Zardoz/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/alpha/themes/Zardoz/journeyJustifiedContent.html 1`] = `
+"<div class="position-fixed" style="top: 0; background-color: black; height: 100vh;">
+    <div class="d-none d-md-flex justify-content-center align-items-center p-5 h-100" style="background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);
+    background-size: cover;"><h1 class="text-center display-3" style="color: rgb(255, 255, 255);">Uptime &amp; Performance Benchmarking Made Easy</h1></div>
+</div>
+
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Contrast/Contrast.json 1`] = `
+{
+  "_id": "be99b4f6-b7ed-4970-ba57-41b970c745a2",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#000000",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#000000",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "0",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#000000",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#000000",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#000000",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoAltText": "Contrast",
+  "logoEnabled": true,
+  "logoHeight": "72",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoProfileAltText": "Contrast",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoProfileCollapsedAltText": "Contrast",
+  "logoProfileCollapsedHeight": "22",
+  "logoProfileHeight": "22",
+  "name": "Contrast",
+  "pageTitle": "#23282e",
+  "primaryColor": "#000000",
+  "primaryOffColor": "#000000",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#000000",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Contrast/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2022</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Contrast/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2022</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Contrast/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/ForgeRock Theme/ForgeRock Theme.json 1`] = `
+{
+  "_id": "462b8800-1f13-4a72-a6b1-388e031f56a0",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#109cf1",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#f6f8fa",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": 5,
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": true,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#109cf1",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0c85cf",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+  "logoAltText": "ForgeRock Logo",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock-full.svg",
+  "logoProfileAltText": "ForgeRock Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+  "logoProfileCollapsedAltText": "ForgeRock Logo",
+  "logoProfileCollapsedHeight": "22",
+  "logoProfileHeight": "40",
+  "name": "ForgeRock Theme",
+  "pageTitle": "#23282e",
+  "primaryColor": "#109cf1",
+  "primaryOffColor": "#0c85cf",
+  "profileBackgroundColor": "#f6f8fa",
+  "profileMenuHighlightColor": "#e4f4fd",
+  "profileMenuHoverColor": "#109cf1",
+  "profileMenuHoverTextColor": "#ffffff",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/ForgeRock Theme/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2022</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/ForgeRock Theme/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2022</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/ForgeRock Theme/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Highlander/Highlander.json 1`] = `
+{
+  "_id": "19b1792b-9d2d-4e29-bd91-7be476e27ada",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#EB0A1E",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#EB0A1E",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#C60819",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#EB0A1E",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "logoAltText": "Highlander",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg",
+  "logoProfileAltText": "Highlander",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "logoProfileCollapsedAltText": "Highlander",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "28",
+  "name": "Highlander",
+  "pageTitle": "#23282e",
+  "primaryColor": "#EB0A1E",
+  "primaryOffColor": "#C60819",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#EB0A1E",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Highlander/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6" style="color: #5e6d82">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2022</span>
+                        <a href="#" class="text-decoration-none" target="_self" style="color: #5e6d82">Highlander, Inc.</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Highlander/journeyFooter.html 1`] = `
+"<footer class="w-100">
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+        <div class="container w-100">
+            <div class="mt-5 py-4 border-top border-darkened">
+                <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Company
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">About Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Support
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Docs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <h5 style="font-weight: 600; font-size: 0.9375rem;">
+                            Community
+                        </h5>
+                        <ul class="nav mb-4 flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link px-0 py-1" target="_self">Forum</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                            <span class="pr-1">&copy; 2022</span>
+                            <a href="#" class="text-decoration-none" target="_self">Highlander, Inc.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Highlander/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Robroy/Robroy.json 1`] = `
+{
+  "_id": "987e2468-75f9-46c7-b15b-886b24c2ea20",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#5AA625",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#5AA625",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": {
+    "file": "journeyJustifiedContent.html",
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "justified-right",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#49871E",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#5AA625",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "logoAltText": "Robroy",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg",
+  "logoProfileAltText": "RobRoy",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "logoProfileCollapsedAltText": "RobRoy",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "28",
+  "name": "Robroy",
+  "pageTitle": "#23282e",
+  "primaryColor": "#5AA625",
+  "primaryOffColor": "#49871E",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#5AA625",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Robroy/accountFooter.html 1`] = `
+"<footer class="w-100">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center py-4">
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e;">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Company</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">About Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Contact Us</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Support</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Help Center</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Docs</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Privacy &amp; Terms</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem;">Community</h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Facebook</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Twitter</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link px-0 py-1" target="_self">Forum</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="d-flex align-items-center justify-content-lg-end py-4 py-lg-0">
+                        <span class="pr-1">&copy; 2022</span>
+                        <a href="#" class="text-decoration-none" target="_self">Rob Roy Markets, Inc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Robroy/journeyFooter.html 1`] = `
+"<footer class="w-100">
+            <div
+              class="
+                d-flex
+                flex-column flex-md-row
+                justify-content-center
+                align-items-center
+                py-4
+              "
+            >
+              <div class="container w-100">
+                <div class="mt-5 py-4 border-top border-darkened">
+                  <div class="row" style="color: #23282e">
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Company
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >About Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Contact Us</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Support
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Help Center</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Docs</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Privacy &amp; Terms</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2">
+                      <h5 style="font-weight: 600; font-size: 0.9375rem">
+                        Community
+                      </h5>
+                      <ul class="nav mb-4 flex-column">
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Facebook</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Twitter</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a href="#" class="nav-link px-0 py-1" target="_self"
+                            >Forum</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div
+                        class="
+                          d-flex
+                          align-items-center
+                          justify-content-lg-end
+                          py-4 py-lg-0
+                        "
+                      >
+                        <span class="pr-1">&copy; 2022</span>
+                        <a href="#" class="text-decoration-none" target="_self"
+                          >Rob Roy Markets, Inc</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Robroy/journeyHeader.html 1`] = `
+"<header>
+            <nav
+              class="navbar shadow-lg navbar-light bg-white navbar-expand-lg"
+            >
+              <a href="#" target="_self" class="navbar-brand">
+                <img
+                  src="https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg"
+                  alt="Logo"
+                  style="height: 28px"
+                />
+              </a>
+              <div
+                class="navbar-collapse d-none d-lg-flex"
+                id="navbarSupportedContent"
+              >
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link disabled"
+                      href="#"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      >Disabled</a
+                    >
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">Link</a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </header>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Robroy/journeyJustifiedContent.html 1`] = `
+"<img src="https://cdn.forgerock.com/platform/themes/robroy/illustration-robroy.svg" class="w-100">
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test No HTML/Test No HTML.json 1`] = `
+{
+  "_id": "54a560a1-f02b-4a01-9906-2db258c7515b",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#324054",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#e4f4fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": false,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": true,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": false,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": false,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0778d6",
+  "buttonRounded": 5,
+  "dangerColor": "#dc3545",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": false,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": false,
+  "journeyFocusElement": "content",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyHeaderSkipLinkEnabled": true,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#324054",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContentMobileViewEnabled": true,
+  "journeyLayout": "justified-left",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "remember me!",
+  "journeySignInButtonPosition": "justify-content-center",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0a6eab",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoAltText": "Logo",
+  "logoEnabled": false,
+  "logoHeight": "43",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+  "logoProfileAltText": "Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoProfileCollapsedAltText": "Logo",
+  "logoProfileHeight": "24",
+  "name": "Test No HTML",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#ffffff",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#f3f5f8",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#c0c9d5",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test Single HTML/Test Single HTML.json 1`] = `
+{
+  "_id": "31126921-feb3-493e-9eb2-a3a46262e3b6",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#324054",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#e4f4fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": {
+    "file": "accountFooterScriptTag.html",
+  },
+  "accountFooterScriptTagEnabled": true,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": true,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": true,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": true,
+    },
+    "oauthApplications": {
+      "enabled": true,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": true,
+    },
+    "social": {
+      "enabled": true,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0778d6",
+  "buttonRounded": 5,
+  "dangerColor": "#dc3545",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "content",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": {
+    "file": "journeyFooterScriptTag.html",
+  },
+  "journeyFooterScriptTagEnabled": true,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": true,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#324054",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": {
+    "file": "journeyJustifiedContent.html",
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": true,
+  "journeyLayout": "justified-left",
+  "journeyRememberMeEnabled": true,
+  "journeyRememberMeLabel": "remember me!",
+  "journeySignInButtonPosition": "justify-content-center",
+  "journeyTheaterMode": true,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0a6eab",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoAltText": "Logo",
+  "logoEnabled": true,
+  "logoHeight": "43",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+  "logoProfileAltText": "Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoProfileCollapsedAltText": "Logo",
+  "logoProfileHeight": "24",
+  "name": "Test Single HTML",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#ffffff",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#f3f5f8",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#c0c9d5",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test Single HTML/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test Single HTML/accountFooterScriptTag.html 1`] = `
+"<script>
+    console.log("Hello World!");
+</script>
+<script>
+    console.log("Hola Mundo!");
+</script>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test Single HTML/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test Single HTML/journeyFooterScriptTag.html 1`] = `
+"<script>
+    console.log("Hello World!");
+</script>
+<script>
+    console.log("Hola Mundo!");
+</script>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test Single HTML/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hello World!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test Single HTML/journeyJustifiedContent.html 1`] = `
+"<p>
+    Hello World!
+</p>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/Test.json 1`] = `
+{
+  "_id": "27d96c03-d55e-48a6-ba8b-ad2b144ab733",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#324054",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#e4f4fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "en": {
+      "file": "accountFooter/en.html",
+    },
+    "es": {
+      "file": "accountFooter/es.html",
+    },
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": {
+    "file": "accountFooterScriptTag.html",
+  },
+  "accountFooterScriptTagEnabled": true,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": true,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": true,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": true,
+    },
+    "oauthApplications": {
+      "enabled": true,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": true,
+    },
+    "social": {
+      "enabled": true,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0778d6",
+  "buttonRounded": 5,
+  "dangerColor": "#dc3545",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "content",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "en": {
+      "file": "journeyFooter/en.html",
+    },
+    "es": {
+      "file": "journeyFooter/es.html",
+    },
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": {
+    "file": "journeyFooterScriptTag.html",
+  },
+  "journeyFooterScriptTagEnabled": true,
+  "journeyHeader": {
+    "en": {
+      "file": "journeyHeader/en.html",
+    },
+    "es": {
+      "file": "journeyHeader/es.html",
+    },
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": true,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#324054",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": {
+    "en": {
+      "file": "journeyJustifiedContent/en.html",
+    },
+    "es": {
+      "file": "journeyJustifiedContent/es.html",
+    },
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": true,
+  "journeyLayout": "justified-left",
+  "journeyRememberMeEnabled": true,
+  "journeyRememberMeLabel": "remember me!",
+  "journeySignInButtonPosition": "justify-content-center",
+  "journeyTheaterMode": true,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0a6eab",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [
+    "Login",
+  ],
+  "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoAltText": "Logo",
+  "logoEnabled": true,
+  "logoHeight": "43",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+  "logoProfileAltText": "Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoProfileCollapsedAltText": "Logo",
+  "logoProfileHeight": "24",
+  "name": "Test",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#ffffff",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#f3f5f8",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#c0c9d5",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/accountFooter/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/accountFooter/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100">
+  <span class="pr-1">© 2026</span>
+  <a href="#" target="_blank" class="text-body">Mi Empresa, Inc</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Política de Privacidad</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Términos &amp; Condiciones</a>
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/accountFooterScriptTag.html 1`] = `
+"<script>
+    console.log("Hello World!");
+</script>
+<script>
+    console.log("Hola Mundo!");
+</script>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/journeyFooter/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/journeyFooter/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100">
+  <span class="pr-1">© 2026</span>
+  <a href="#" target="_blank" class="text-body">Mi Empresa, Inc</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Política de Privacidad</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Términos &amp; Condiciones</a>
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/journeyFooterScriptTag.html 1`] = `
+"<script>
+    console.log("Hello World!");
+</script>
+<script>
+    console.log("Hola Mundo!");
+</script>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/journeyHeader/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hello World!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/journeyHeader/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hola Mundo!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/journeyJustifiedContent/en.html 1`] = `
+"<p>
+    Hello World!
+</p>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Test/journeyJustifiedContent/es.html 1`] = `
+"<p>
+    Hola Mundo!
+</p>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Zardoz/Zardoz.json 1`] = `
+{
+  "_id": "a9bc15cf-8d9c-4bfb-8979-67a5f5823227",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#009C80",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#009C80",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": {
+    "file": "journeyJustifiedContent.html",
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "justified-right",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": true,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#007661",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#009C80",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoAltText": "Zardoz Logo",
+  "logoEnabled": true,
+  "logoHeight": "47",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoProfileAltText": "Zardaz Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoProfileCollapsedAltText": "Zardaz Logo",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "40",
+  "name": "Zardoz",
+  "pageTitle": "#23282e",
+  "primaryColor": "#009C80",
+  "primaryOffColor": "#007661",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#009C80",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Zardoz/accountFooter.html 1`] = `
+"<footer>
+  <div class="container-md">
+    <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+      <div class="text-nowrap">
+        <span class="pr-1">© 2022</span>
+        <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+      </div>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Privacy Policy</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Terms of Use</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Zardoz/journeyFooter.html 1`] = `
+"<footer>
+            <div class="container-md">
+            <div class="py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100">
+              <div class="text-nowrap">
+                <span class="pr-1">© 2022</span>
+                <a href="#" target="_blank" class="notranslate text-body">Zardoz, Inc</a>
+              </div>
+              <ul class="nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">Terms of Use</a>
+                </li>
+              </ul>
+            </div>
+            </div>
+          </footer>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Zardoz/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
+exports[`frodo config-manager pull themes "frodo config-manager pull themes -D cmThemesExportDir": should pull themes": cmThemesExportDir/realms/bravo/themes/Zardoz/journeyJustifiedContent.html 1`] = `
+"<div class="position-fixed" style="top: 0; background-color: black; height: 100vh;">
+    <div class="d-none d-md-flex justify-content-center align-items-center p-5 h-100" style="background-image: url(https://cdn.forgerock.com/platform/themes/zardoz/background-zardoz.png);
+    background-size: cover;"><h1 class="text-center display-3" style="color: rgb(255, 255, 255);">Uptime &amp; Performance Benchmarking Made Easy</h1></div>
+</div>
+
+"
+`;

@@ -1,0 +1,30 @@
+{
+  "_id": "0dd3743e-2aaf-4a4a-9e83-a64490303a10",
+  "_outcomes": [
+    {
+      "displayName": "Success",
+      "id": "Success"
+    },
+    {
+      "displayName": "Script Error",
+      "id": "Script Error"
+    }
+  ],
+  "_rev": "1826892730",
+  "_type": {
+    "_id": "designer-c15e2efb3deb4d4ea338c74a6440b69f",
+    "collection": true,
+    "name": "Vector ALU"
+  },
+  "a": [
+    1,
+    2,
+    3
+  ],
+  "b": [
+    4,
+    5,
+    6
+  ],
+  "operator": "CROSS"
+}

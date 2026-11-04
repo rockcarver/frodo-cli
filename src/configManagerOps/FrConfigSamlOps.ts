@@ -32,21 +32,21 @@ type Saml2PullExportInterface = {
 };
 
 /**
- * Export an IDM configuration object in the fr-config-manager format.
+ * Export SAML configurations in fr-config-manager format.
  * @param {string} file File that determines what SAML config is exported
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function configManagerExportSaml(file): Promise<boolean> {
+export async function configManagerExportSaml(file: string): Promise<boolean> {
   try {
     const objects = JSON.parse(fs.readFileSync(file, 'utf8'));
     for (const realm of Object.keys(objects)) {
-      state.setRealm(realm);
       if (
         realm === '/' &&
         state.getDeploymentType() ===
           frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
+      state.setRealm(realm);
       const realmDir = realm === '/' ? 'root' : realm;
       for (const samlProvider of objects[realm].samlProviders) {
         const result = await exportSaml2Provider(samlProvider.entityId, {
@@ -127,12 +127,11 @@ export async function configManagerExportSaml(file): Promise<boolean> {
 }
 
 /**
- * Import all SAML entity providers from all *.saml.json files in the current directory
- * @param {string} entityName option parameter to import SAML entity by name
+ * Import SAML configuration that was exported in config-manager format
  * @param {string} realm name of realm to import SAML entity
+ * @param {string} entityName option parameter to import SAML entity by name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-
 export async function configManagerImportSaml(
   realm?: string,
   entityName?: string

@@ -1,31 +1,18 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerExportJourneys } from '../../../configManagerOps/FrConfigJourneysOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull journeys',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config-manager pull journeys');
 
   program
     .description('Export journeys.')
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Journey name, It only export the journey with the name.'
+        'Journey name. If specified, only exports the journey with the specified name.'
       )
     )
     .addOption(new Option('-d, --pull-dependencies', 'Pull dependencies.'))
@@ -42,8 +29,8 @@ export default function setup() {
         command
       );
 
-      if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity journeys');
+      if (await getTokens()) {
+        verboseMessage('Exporting journeys...');
         const outcome = await configManagerExportJourneys(
           options.name,
           realm,

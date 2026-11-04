@@ -24,7 +24,7 @@ Commands:
   config-metadata        [Experimental] Import metadata.
   connector-definitions  [Experimental] Import connector definitions.
   connector-mappings     [Experimental] Import connector mappings.
-  cookie-domains         [Experimental] Import cookie domains.
+  cookie-domains         [Experimental] [Cloud-only] Import cookie domains.
   cors                   [Experimental] Import CORS configuration.
   csp                    [Experimental] [Cloud-only] Import content security
                          policy.

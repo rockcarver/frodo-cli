@@ -1,53 +1,19 @@
-import fs from 'fs';
 import { readFile } from 'fs/promises';
 import { frodo, type ContentSecurityPolicy } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
+import { lodashMerge } from '../utils/FrConfig';
 
 const { env } = frodo.cloud;
 const {
   updateEnforcedContentSecurityPolicy,
   updateReportOnlyContentSecurityPolicy,
 } = frodo.cloud.env;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
-/**
- * Merge `source` into `target`, mirroring deep-diff's
- * `applyDiff(target, source, (s, t, change) => change.kind !== 'D')` — the
- * semantics this function relied on before deep-diff was dropped
- * (unmaintained since 2018):
- *
- * - every key present in `source` wins, including when its type differs from
- *   the target's (scalar → object and object → scalar both overwrite);
- * - keys present only in `target` are left untouched (deletions filtered);
- * - objects and arrays recurse per key/index (element-wise).
- *
- * frodo-lib's `mergeDeep` was evaluated as a replacement and rejected: it
- * cannot overwrite a scalar target with an object source (it recurses into
- * the scalar and throws "Cannot create property ... on boolean").
- */
-function mergeOver(
-  target: Record<string, unknown>,
-  source: Record<string, unknown>
-): Record<string, unknown> {
-  for (const key of Object.keys(source)) {
-    const s = source[key];
-    const t = target[key];
-    const bothPlainObjects =
-      isPlainObject(s) && isPlainObject(t)
-        ? true
-        : Array.isArray(s) && Array.isArray(t);
-    if (bothPlainObjects) {
-      mergeOver(t as Record<string, unknown>, s as Record<string, unknown>);
-    } else {
-      target[key] = s;
-    }
-  }
-  return target;
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+type CSPExport = {
+  enforced: ContentSecurityPolicy;
+  'report-only': ContentSecurityPolicy;
+};
 
 /**
  * Export the content security policy in fr-config manager format
@@ -68,7 +34,7 @@ export async function configManagerExportCsp(
       const configFileData = JSON.parse(
         await readFile(file, { encoding: 'utf8' })
       );
-      mergeOver(csp, configFileData);
+      lodashMerge(csp, configFileData);
     }
 
     saveJsonToFile(csp, getFilePath('csp/csp.json', true), false, true);
@@ -86,10 +52,7 @@ export async function configManagerExportCsp(
  */
 export async function configManagerImportCsp(name?: string): Promise<boolean> {
   try {
-    const cspFilePath = getFilePath('csp/csp.json');
-    const cspFile = fs.readFileSync(cspFilePath, 'utf8');
-    const importData = JSON.parse(cspFile);
-
+    const importData = readJsonFile(getFilePath('csp/csp.json')) as CSPExport;
     if (!name || name === 'enforced')
       await updateEnforcedContentSecurityPolicy(importData.enforced);
     if (!name || name === 'report-only')

@@ -8,7 +8,6 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 import { getEnv, testSuccess } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 
-
 process.env['FRODO_MOCK'] ||= '1';
 const forgeopsEnv = getEnv(fc);
 

@@ -1,70 +1,62 @@
 import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { printError, printMessage } from '../utils/Console';
 
 const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
-const { saveJsonToFile, getFilePath } = frodo.utils;
+const { saveJsonToFile, getFilePath, readJsonFile, getWorkingDirectory } =
+  frodo.utils;
 
 /**
- * Export IDM locales configuration object in the fr-config-manager format.
- * @param {string} localeName optional name of the locale to export
+ * Export IDM locales configuration in fr-config-manager format.
+ * @param {string} name optional name of the locale to export
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportLocales(
-  localeName?: string
+  name?: string
 ): Promise<boolean> {
   try {
-    const exportData = await readConfigEntitiesByType('uilocale');
-    processLocales(exportData, 'locales', localeName);
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting config entity locales`);
-  }
-  return false;
-}
-
-function processLocales(locales, fileDir, name?) {
-  try {
+    const locales = await readConfigEntitiesByType('uilocale');
     locales.forEach((locale) => {
       const localeName = locale._id.split('/')[1];
       if (name && name !== localeName) {
         return;
       }
-      const localeFilename = `${fileDir}/${localeName}.json`;
-
+      const localeFilename = `locales/${localeName}.json`;
       saveJsonToFile(locale, getFilePath(localeFilename, true), false, true);
     });
-  } catch (err) {
-    printError(err);
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting locales`);
   }
+  return false;
 }
 
 /**
- * Import IDM locales configuration object in the fr-config-manager format.
- * @param {string} localeName optional name of the locale to import
+ * Import IDM locales configuration from fr-config-manager format.
+ * @param {string} name optional name of the locale to import
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerImportLocales(
-  localeName?: string
+  name?: string
 ): Promise<boolean> {
   try {
-    const localeDir = getFilePath('locales');
-    const localeFiles = fs.readdirSync(localeDir, 'utf8');
+    printMessage(`Updating locale${name ? ` ${name}` : 's'}`);
+    const localeFiles = fs.readdirSync(
+      `${getWorkingDirectory()}/locales`,
+      'utf8'
+    );
     const importLocaleData = { idm: {} };
     for (const localeFile of localeFiles) {
-      const filePath = getFilePath(`locales/${localeFile}`);
-      const readLocale = fs.readFileSync(filePath, 'utf8') as any;
-      const importData = JSON.parse(readLocale) as any;
-      const id = importData._id;
-      if (localeName && id !== `uilocale/${localeName}`) {
-        continue;
-      }
-      importLocaleData.idm[id] = importData;
+      const locale = readJsonFile(
+        getFilePath(`locales/${localeFile}`)
+      ) as IdObjectSkeletonInterface;
+      if (name && locale._id !== `uilocale/${name}`) continue;
+      importLocaleData.idm[locale._id] = locale;
     }
     await importConfigEntities(importLocaleData);
     return true;
   } catch (error) {
-    printError(error, `Error importing config entity locales`);
+    printError(error, `Error importing locales`);
     return false;
   }
 }

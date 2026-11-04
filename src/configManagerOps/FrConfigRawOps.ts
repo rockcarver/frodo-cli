@@ -22,7 +22,7 @@ const { exportRawConfig, importRawConfig } = frodo.rawConfig;
 
 /**
  * Export every item from the list in the provided json file
- * @returns True if each file was successfully exported
+ * @returns {boolean} True if each file was successfully exported
  */
 export async function configManagerExportRaw(file: string): Promise<boolean> {
   try {

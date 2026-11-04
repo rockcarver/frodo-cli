@@ -1,0 +1,92 @@
+{
+  "_id": "987e2468-75f9-46c7-b15b-886b24c2ea20",
+  "accountFooter": {
+    "file": "accountFooter.html"
+  },
+  "accountFooterEnabled": true,
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true
+        },
+        "securityQuestions": {
+          "enabled": false
+        },
+        "twoStepVerification": {
+          "enabled": true
+        },
+        "username": {
+          "enabled": true
+        }
+      }
+    },
+    "consent": {
+      "enabled": false
+    },
+    "oauthApplications": {
+      "enabled": false
+    },
+    "personalInformation": {
+      "enabled": true
+    },
+    "preferences": {
+      "enabled": false
+    },
+    "social": {
+      "enabled": false
+    },
+    "trustedDevices": {
+      "enabled": true
+    }
+  },
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "favicon": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "isDefault": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html"
+  },
+  "journeyFooterEnabled": true,
+  "journeyHeader": {
+    "file": "journeyHeader.html"
+  },
+  "journeyHeaderEnabled": true,
+  "journeyJustifiedContent": {
+    "file": "journeyJustifiedContent.html"
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyLayout": "justified-right",
+  "journeyTheaterMode": false,
+  "linkActiveColor": "#49871E",
+  "linkColor": "#5AA625",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "logoAltText": "Robroy",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg",
+  "logoProfileAltText": "RobRoy",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "logoProfileCollapsedAltText": "RobRoy",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "28",
+  "name": "Robroy",
+  "pageTitle": "#23282e",
+  "primaryColor": "#5AA625",
+  "primaryOffColor": "#49871E",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#5AA625",
+  "secondaryColor": "#69788b",
+  "textColor": "#ffffff"
+}

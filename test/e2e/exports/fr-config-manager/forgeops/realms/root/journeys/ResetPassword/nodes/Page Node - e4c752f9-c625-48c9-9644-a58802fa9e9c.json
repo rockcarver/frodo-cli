@@ -1,0 +1,28 @@
+{
+  "_id": "e4c752f9-c625-48c9-9644-a58802fa9e9c",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "1593283676",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node"
+  },
+  "nodes": [
+    {
+      "_id": "009c19c8-9572-47bb-adb2-1f092c559a43",
+      "displayName": "Platform Password",
+      "nodeType": "ValidatedPasswordNode"
+    }
+  ],
+  "pageDescription": {
+    "en": "Change password"
+  },
+  "pageHeader": {
+    "en": "Reset Password"
+  }
+}

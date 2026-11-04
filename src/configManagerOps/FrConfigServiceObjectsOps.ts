@@ -1,19 +1,21 @@
 import fs from 'fs';
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { printError, printMessage } from '../utils/Console';
+import { lodashMerge } from '../utils/FrConfig';
 
-const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile, escapePlaceholders } =
+  frodo.utils;
 const { queryManagedObjects, updateManagedObject } = frodo.idm.managed;
 /**
- * Export an IDM configuration object in the fr-config-manager format.
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ * Export service objects in fr-config-manager format.
+ * @param {string} file file with the service objects to export
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportServiceObjectsFromFile(
-  file
+  file: string
 ): Promise<boolean> {
   try {
-    const objects = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const objects = readJsonFile(file, false);
     for (const objectType of Object.keys(objects)) {
       for (const object of objects[objectType]) {
         const queryFilter = `${object.searchField} eq "${object.searchValue}"`;
@@ -22,44 +24,24 @@ export async function configManagerExportServiceObjectsFromFile(
           queryFilter,
           object.fields
         );
-        if (queryResult.length > 1) {
-          const error = new Error(
-            `Unexpected result from search: ${queryResult.length} entries found for ${objectType} - ${object.searchValue}`
+        if (queryResult.length != 1) {
+          printMessage(
+            `Unexpected result from search: ${queryResult.length} entries found for ${objectType} - ${object.searchValue}`,
+            'error'
           );
-          printError(error);
           return false;
-        } else if (queryResult.length == 0) {
-          const error = new Error(
-            `No result from search: ${queryResult.length} entries found for ${objectType} - ${object.searchValue}`
-          );
-          printError(error);
-          return false;
-        } else {
-          const result = queryResult[0];
-          if (
-            object.overrides &&
-            typeof object.overrides === 'object' &&
-            !Array.isArray(object.overrides) &&
-            object.overrides !== null &&
-            Object.keys(object.overrides).length !== 0
-          ) {
-            for (const [key, value] of Object.entries(object.overrides) as [
-              string,
-              any,
-            ]) {
-              result[key] = value;
-            }
-          }
-          saveJsonToFile(
-            result,
-            getFilePath(
-              `service-objects/${objectType}/${object.searchValue}.json`,
-              true
-            ),
-            false,
-            true
-          );
         }
+        const attributes = escapePlaceholders(queryResult[0]);
+        const mergedAttributes = lodashMerge(attributes, object.overrides);
+        saveJsonToFile(
+          mergedAttributes,
+          getFilePath(
+            `service-objects/${objectType}/${object.searchValue}.json`,
+            true
+          ),
+          false,
+          true
+        );
       }
     }
     return true;
@@ -67,54 +49,6 @@ export async function configManagerExportServiceObjectsFromFile(
     printError(err, `Error exporting service-objects`);
   }
   return false;
-}
-
-export async function configManagerExportServiceObject(
-  type,
-  searchField,
-  searchValue,
-  fields,
-  overrideField?,
-  overrideValue?
-): Promise<boolean> {
-  try {
-    const object = {
-      [type]: {
-        searchField: searchField,
-        searchValue: searchValue,
-        fields: fields,
-        overrides:
-          overrideField && overrideValue
-            ? { [overrideField]: overrideValue }
-            : {},
-      },
-    };
-    const queryFilter = `${searchField} eq "${searchValue}"`;
-    const queryResult = await queryManagedObjects(type, queryFilter, fields);
-    if (queryResult.length > 1) {
-      const error = new Error(
-        `Unexpected result from search: ${queryResult.length} entries found for ${type} - ${searchValue}`
-      );
-      printError(error);
-      return false;
-    } else {
-      const result = queryResult[0];
-      if (Object.keys(object[type].overrides).length !== 0) {
-        for (const [key, value] of Object.entries(object[type].overrides)) {
-          result[key] = value;
-        }
-      }
-      saveJsonToFile(
-        result,
-        getFilePath(`service-objects/${type}/${searchValue}.json`, true),
-        false,
-        true
-      );
-      return true;
-    }
-  } catch (err) {
-    printError(err, `Error exporting object`);
-  }
 }
 
 /**
@@ -142,7 +76,7 @@ export async function configManagerImportServiceObjects(): Promise<boolean> {
 
     return true;
   } catch (err) {
-    printError(err, `Error importing service-objects`);
+    printError(err, `Error importing service objects`);
   }
   return false;
 }

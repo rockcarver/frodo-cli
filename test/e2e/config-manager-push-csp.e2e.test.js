@@ -6,7 +6,6 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push csp -n enforced -D test/e2e/exports/fr-config-manager/cloud 
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push csp --name test-only -D test/e2e/exports/fr-config-manager/cloud 
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push csp --name report-only --directory test/e2e/exports/fr-config-manager/cloud 
-
 */
 
 import { getEnv, testSuccess, testFail } from './utils/TestUtils';
