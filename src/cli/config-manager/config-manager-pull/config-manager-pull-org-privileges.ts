@@ -1,8 +1,8 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { configManagerExportOrgPrivilegesAllRealms } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
+import { Option } from 'commander';
+import { configManagerExportOrgPrivileges } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage } from '../../../utils/Console';
-import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
+import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -12,7 +12,6 @@ const deploymentTypes = [
   CLOUD_DEPLOYMENT_TYPE_KEY,
   FORGEOPS_DEPLOYMENT_TYPE_KEY,
 ];
-const { constants } = frodo.utils;
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -24,7 +23,12 @@ export default function setup() {
   program
     .description('Export organization privileges config.')
     .multiOp()
-    .usesRealm()
+    .addOption(
+      new Option(
+        '-n, --name <name>',
+        'Export an organization privilege by name.'
+      )
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -35,36 +39,23 @@ export default function setup() {
         command
       );
 
-      if (await getTokens(false, true, deploymentTypes)) {
-        let outcome: boolean;
-        const pickedRealm = realmOfRun(command, realm);
-        if (pickedRealm !== constants.DEFAULT_REALM_KEY) {
-          printMessage(
-            `Exporting organization privileges config from the realm: "${pickedRealm}"`
-          );
-          outcome = await configManagerExportOrgPrivilegesAllRealms(
-            pickedRealm,
-            options.allowFailures,
-            false
-          );
-        } else {
-          printMessage(
-            'Exporting oranization privileges config from all realms'
-          );
-          outcome = await configManagerExportOrgPrivilegesAllRealms(
-            undefined,
-            options.allowFailures
-          );
-        }
-
-        if (!outcome) process.exitCode = 1;
-      }
-      // Any option combination is valid; the only way this branch runs
-      // is getTokens() failing.
-      else {
+      const getTokensIsSuccessful = await getTokens(
+        false,
+        true,
+        deploymentTypes
+      );
+      if (!getTokensIsSuccessful) {
         process.exitCode = 1;
+        return;
       }
+      verboseMessage(
+        `Exporting ${options.name || 'all'} organization privileges config`
+      );
+      const outcome = await configManagerExportOrgPrivileges(
+        options.name,
+        options.allowFailures
+      );
+      if (!outcome) process.exitCode = 1;
     });
-
   return program;
 }

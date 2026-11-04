@@ -2,8 +2,8 @@ import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
 /**
- * The ten config-manager commands `pull` and `push` of `authentication`,
- * `authz-policies`, `journeys`, `oauth2-agents` and `org-privileges` as record
+ * The eight config-manager commands `pull` and `push` of `authentication`,
+ * `authz-policies`, `journeys`, and `oauth2-agents` as record
  * 0040 asks of a command that handles several items: each one adds the shared
  * `--allow-failures` option (`.multiOp()`), hands its value to the ops
  * function, and exits 1 when the ops function reports a failure or when the
@@ -29,11 +29,6 @@ const OPS = {
   FrConfigOauth2AgentOps: [
     'configManagerExportOAuth2Agents',
     'configManagerImportAgents',
-  ],
-  FrConfigOrgPrivilegesOps: [
-    'configManagerExportOrgPrivilegesAllRealms',
-    'configManagerImportOrgPrivilegesAllRealms',
-    'configManagerImportOrgPrivilegesByName',
   ],
 };
 const ops = {};
@@ -152,29 +147,6 @@ const COMMANDS = [
     options: {},
     args: (allowFailures) => [allowFailures],
   },
-  {
-    name: 'config-manager pull org-privileges (one realm)',
-    file: 'config-manager-pull/config-manager-pull-org-privileges',
-    fn: 'configManagerExportOrgPrivilegesAllRealms',
-    options: {},
-    // a realm that was named has to have its configuration
-    args: (allowFailures) => ['alpha', allowFailures, false],
-  },
-  {
-    name: 'config-manager pull org-privileges (all realms)',
-    file: 'config-manager-pull/config-manager-pull-org-privileges',
-    fn: 'configManagerExportOrgPrivilegesAllRealms',
-    options: {},
-    realm: DEFAULT_REALM_KEY,
-    args: (allowFailures) => [undefined, allowFailures],
-  },
-  {
-    name: 'config-manager push org-privileges (all realms)',
-    file: 'config-manager-push/config-manager-push-org-privileges',
-    fn: 'configManagerImportOrgPrivilegesAllRealms',
-    options: {},
-    args: (allowFailures) => [allowFailures],
-  },
 ];
 
 const setups = {};
@@ -250,37 +222,5 @@ describe.each(COMMANDS)('$name', (c) => {
       for (const op of Object.values(module)) expect(op).not.toHaveBeenCalled();
     }
     expect(process.exitCode).toBe(1);
-  });
-});
-
-describe('config-manager push org-privileges -n', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    getTokens.mockResolvedValue(true);
-    for (const module of Object.values(ops)) {
-      for (const op of Object.values(module))
-        op.mockReset().mockResolvedValue(true);
-    }
-  });
-
-  test('imports the named file only, and exits 1 when it cannot be imported', async () => {
-    const setup =
-      setups['config-manager-push/config-manager-push-org-privileges'];
-    await invoke(setup(), { name: 'alphaOrgPrivileges', allowFailures: true });
-    expect(
-      ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivilegesByName.mock
-        .calls
-    ).toEqual([['alphaOrgPrivileges']]);
-    expect(
-      ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivilegesAllRealms
-    ).not.toHaveBeenCalled();
-    expect(process.exitCode).toBe(0);
-
-    ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivilegesByName.mockResolvedValue(
-      false
-    );
-    await invoke(setup(), { name: 'alphaOrgPrivileges', allowFailures: true });
-    expect(process.exitCode).toBe(1);
-    process.exitCode = 0;
   });
 });

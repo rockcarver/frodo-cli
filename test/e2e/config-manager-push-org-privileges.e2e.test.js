@@ -19,7 +19,6 @@ describe('frodo config-manager push org-privileges', () => {
         const CMD = `frodo config-manager push org-privileges -D ${allDirectory} -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });
-
     test(`"frodo config-manager push org-privileges -n alphaOrgPrivileges -D ${allDirectory} -m forgeops": should import a specific org-privilege by name into forgeops"`, async () => {
         const CMD = `frodo config-manager push org-privileges -n alphaOrgPrivileges -D ${allDirectory} -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
