@@ -1,6 +1,6 @@
 # Issue Concierge pin. issue-concierge-updater rewrites version and sha; change channel by hand
 # (stable | prerelease). Do not edit the other lines.
 source: gearsnlevers/issue-concierge
-version: v2.2.3
-sha: 085fd26ce903bca6c609ff74b2eda4f118187830
+version: v2.3.0
+sha: 1997cbfd5bcc714345448801d11a1ea232bd7d6c
 channel: stable

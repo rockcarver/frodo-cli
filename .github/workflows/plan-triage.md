@@ -81,7 +81,7 @@ If complexity is high, or risk is high, or both:
   - only risk is high: "High risk. Remove the plan-approval-required label to resume."
   - both are high: "High complexity and high risk. Remove the plan-approval-required label to resume."
 
-Otherwise, and unless the issue already carries `plan-approval-required` (see "A hold that is already there"), the plan reports a conflict with a decision record (see "A conflict with a decision record") or the plan reports a wrong layer (see "A wrong layer") or a breaking change (see "A breaking change"), emit `plan-triage-handoff`. A plan that needs work in another repository (see "Work in another repository") is held the same way.
+Otherwise, and unless the issue already carries `plan-approval-required` (see "A hold that is already there"), the plan reports a conflict with a decision record (see "A conflict with a decision record") or the plan reports a wrong layer (see "A wrong layer") or a breaking change (see "A breaking change"), emit `plan-triage-handoff`. A plan that needs work in another repository (see "Work in another repository") is held the same way. So is a plan that rests on a fact it could not confirm (see "An unverified fact").
 
 You never resume a high-complexity or high-risk issue yourself. When a maintainer removes `plan-approval-required`, a separate workflow (`plan-approval-resume`, no LLM) applies `plan-triage-handoff`.
 
@@ -100,6 +100,11 @@ You never lift this hold yourself: removing the label is the maintainer's decisi
 
 ## A breaking change
 If the plan has a line that starts with "Breaking change:", the fix removes, renames or replaces something that exists, or breaks something that works today, or changes the architecture. A coding agent started on it would make that change without a person having decided it should be made. Classify as usual and apply the complexity and risk labels, whatever they are: do not lower either because the plan calls the change small or safe. Add the label `plan-approval-required` unless the issue already carries it, and do **not** emit `plan-triage-handoff`, whatever the classification. Post this short comment, unless the issue already carries `plan-approval-required` (then post no comment, as under "A hold that is already there"): "The plan found a change to something that already exists. A maintainer has to decide whether it goes ahead. Remove the plan-approval-required label to resume."
+
+You never lift this hold yourself: removing the label is the maintainer's decision, and `plan-approval-resume` hands the issue on.
+
+## An unverified fact
+If the plan has a line that starts with "Unverified:", the plan rests on a fact that the plan worker could not confirm, and a coding agent started on it would fill the gap from memory and build on the guess. Classify as usual and apply the complexity and risk labels, whatever they are: do not lower either because the plan calls the change small. Add the label `plan-approval-required` unless the issue already carries it, and do **not** emit `plan-triage-handoff`, whatever the classification. Post this short comment, unless the issue already carries `plan-approval-required` (then post no comment, as under "A hold that is already there"): "The plan could not confirm a fact the change depends on (see the Unverified line in the plan). A maintainer has to supply it or accept the risk. Remove the plan-approval-required label to resume."
 
 You never lift this hold yourself: removing the label is the maintainer's decision, and `plan-approval-resume` hands the issue on.
 

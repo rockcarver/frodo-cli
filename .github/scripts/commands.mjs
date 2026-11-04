@@ -123,7 +123,7 @@ const esc = (s) => String(s).replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 
 /**
  * Why a plan is held, from the lines the plan worker writes for plan triage: a conflict with a decision record, the
- * wrong layer, work in another repository, a breaking change, or none of these.
+ * wrong layer, work in another repository, a breaking change, a fact it could not confirm, or none of these.
  */
 export function planReason(comments, repo) {
   const marker = new RegExp(`gh-aw-workflow-call-id:\\s*${esc(repo)}/plan-worker(?![\\w-])`, 'i');
@@ -133,6 +133,7 @@ export function planReason(comments, repo) {
   if (/^\s*(?:\*\*)?Wrong layer:/m.test(body)) return 'wrong-layer';
   if (/^\s*Work item:/m.test(body)) return 'work-item';
   if (/^\s*[-*]?\s*(?:\*\*)?Breaking change:/m.test(body)) return 'breaking';
+  if (/^\s*[-*]?\s*(?:\*\*)?Unverified:/m.test(body)) return 'unverified';
   return 'plain';
 }
 
@@ -148,6 +149,7 @@ const SENTENCE = {
   'plan.wrong-layer': 'The plan found that the fix belongs in another repository. A maintainer needs to decide what happens next.',
   'plan.work-item': 'The plan needs work in two repositories. A maintainer needs to decide how to split it.',
   'plan.breaking': 'The plan found a change to something that already exists. A maintainer needs to decide whether it goes ahead.',
+  'plan.unverified': 'The plan could not confirm a fact the change depends on. A maintainer needs to supply it, or accept the risk.',
 };
 
 const ACCEPT = (label) => ['/accept', `Plan it: removes \`${label}\` and hands the issue to the plan worker.`];
@@ -167,6 +169,7 @@ const EXTRA = {
   'plan.work-item': 'To split the work, run **Spawn Work Items** from the Actions tab. `/approve` lets this repository\'s part go on alone.',
   'plan.wrong-layer': 'The plan names the repository where the fix belongs; move or re-route the issue there, or `/decline` it here.',
   'plan.conflict': 'The plan names the decision record. Change the request, or supersede the record, before you approve.',
+  'plan.unverified': 'The plan names the fact in its Unverified line and what was tried. `/replan` with the answer asks for a new plan that rests on it; `/approve` lets the coding agent go on without it.',
 };
 
 /**
