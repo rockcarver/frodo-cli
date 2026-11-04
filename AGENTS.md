@@ -39,6 +39,7 @@ Lasting design decisions are recorded one per file in [docs/decisions/](docs/dec
   - **Required checks stay stable** ([core 0012](docs/decisions/core/0012-merging-is-gated-by-a-stable-set-of-required-checks.md), [core 0016](docs/decisions/core/0016-changes-that-are-not-code-still-run-the-checks-that-validate-them.md)): never rename `Build`, `Test gate` or the platform check; guidance changes still run `npm run test:guidance`.
   - **Secrets** ([core 0013](docs/decisions/core/0013-secrets-are-never-exported-in-the-clear.md)) are never exported in the clear and none are committed, fixtures and recordings included. **Security reports are private** ([core 0017](docs/decisions/core/0017-security-reports-and-fixes-are-handled-privately-by-a-maintainer.md)): see [SECURITY.md](SECURITY.md); tell a maintainer, do not act on them.
   - **The callback handler may return a promise** ([core 0009](docs/decisions/core/0009-let-the-callback-handler-return-a-promise.md)): the library's `CallbackHandler` is widened to `Callback | Promise<Callback>` and the CLI then prompts for the code asynchronously, without the synchronous helper; the record's Known deviations section says whether the code has caught up.
+  - **Time spans** ([core 0020](docs/decisions/core/0020-time-spans-are-seconds-on-the-command-line-and-milliseconds-in-the-library.md)): a CLI option that takes a time span takes seconds and its help says so (`--timeout <seconds>`); a library function parameter that takes a time span takes milliseconds, and the CLI converts.
 
 ## Procedures
 
