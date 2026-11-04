@@ -1,12 +1,11 @@
-import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 /**
- * Export an IDM configuration object in the fr-config-manager format.
+ * Export the remote connector server (RCS) provisioner config in fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportRemoteServers(): Promise<boolean> {
@@ -26,7 +25,7 @@ export async function configManagerExportRemoteServers(): Promise<boolean> {
   } catch (error) {
     printError(
       error,
-      `Error exporting config entity RCS: provisioner.openicf.connectorinfoprovider`
+      `Error exporting RCS configuration: provisioner.openicf.connectorinfoprovider`
     );
   }
   return false;
@@ -41,13 +40,14 @@ export async function configManagerImportRemoteServers(): Promise<boolean> {
     const fileData = getFilePath(
       'sync/rcs/provisioner.openicf.connectorinfoprovider.json'
     );
-    const readData = fs.readFileSync(fileData, 'utf8');
-    let importData = JSON.parse(readData);
-    importData = { idm: { [importData._id]: importData } };
-    await importConfigEntities(importData);
+    const importData = readJsonFile(fileData) as IdObjectSkeletonInterface;
+    await importConfigEntities({ idm: { [importData._id]: importData } });
     return true;
   } catch (error) {
-    printError(error);
+    printError(
+      error,
+      `Error importing RCS configuration: provisioner.openicf.connectorinfoprovider`
+    );
   }
   return false;
 }

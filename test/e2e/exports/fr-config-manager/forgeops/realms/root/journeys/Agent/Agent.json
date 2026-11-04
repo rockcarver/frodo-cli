@@ -1,0 +1,59 @@
+{
+  "_id": "Agent",
+  "_rev": "1590168042",
+  "description": "Authentication Tree for Agent",
+  "enabled": true,
+  "entryNodeId": "6c24a892-4bae-48ad-8d9c-8061257c9ed7",
+  "identityResource": "managed/user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "35cb0861-c160-47ff-808c-3429ba18772c": {
+      "connections": {
+        "outcome": "7a910023-cad2-4f49-9ce0-1a0c711613d3"
+      },
+      "displayName": "Page Node",
+      "nodeType": "PageNode",
+      "x": 350,
+      "y": 200
+    },
+    "6c24a892-4bae-48ad-8d9c-8061257c9ed7": {
+      "connections": {
+        "false": "35cb0861-c160-47ff-808c-3429ba18772c",
+        "true": "7a910023-cad2-4f49-9ce0-1a0c711613d3"
+      },
+      "displayName": "Zero Page Login Collector",
+      "nodeType": "ZeroPageLoginNode",
+      "x": 150,
+      "y": 25
+    },
+    "7a910023-cad2-4f49-9ce0-1a0c711613d3": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Agent Data Store Decision",
+      "nodeType": "AgentDataStoreDecisionNode",
+      "x": 700,
+      "y": 25
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1000,
+      "y": 25
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1000,
+      "y": 200
+    },
+    "startNode": {
+      "x": 50,
+      "y": 25
+    }
+  },
+  "uiConfig": {
+    "categories": "[\"Authentication\"]"
+  }
+}

@@ -1,24 +1,10 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerExportRaw } from '../../../configManagerOps/FrConfigRawOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull raw',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config-manager pull raw');
 
   program
     .description('Export raw configurations from the tenant.')
@@ -59,17 +45,11 @@ export default function setup() {
         command
       );
 
-      if (await getTokens(false, true, deploymentTypes)) {
+      if (await getTokens()) {
         const outcome: boolean = await configManagerExportRaw(
           options.configFile
         );
-
-        if (!outcome) {
-          printMessage(
-            `Failed to export one or more config files. ${options.verbose ? '' : 'Check --verbose for me details.'}`
-          );
-          process.exitCode = 1;
-        }
+        if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).
         process.exitCode = 1;

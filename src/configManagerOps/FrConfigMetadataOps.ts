@@ -1,4 +1,4 @@
-import { frodo, type ConfigEntityExportInterface } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printError,
@@ -16,8 +16,7 @@ const METADATA_ID = 'custom-config.metadata';
  */
 export async function configManagerExportMetadata(): Promise<boolean> {
   try {
-    const exportData = await readConfigEntity(METADATA_ID);
-    printMessage(JSON.stringify(exportData, null, 2), 'data');
+    printMessage(await readConfigEntity(METADATA_ID), 'data');
     return true;
   } catch (error) {
     printError(error, `Error exporting config-metadata`);
@@ -26,7 +25,7 @@ export async function configManagerExportMetadata(): Promise<boolean> {
 }
 
 /**
- * Import metadata configuration in fr-config-manager format.
+ * Import metadata configuration from fr-config-manager format.
  * @param {object} metadata an object containing the metadata to import
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
@@ -39,15 +38,14 @@ export async function configManagerImportMetadata(
     'Importing metadata config...'
   );
   try {
-    const importData: ConfigEntityExportInterface = {
+    await importConfigEntities({
       idm: {
         [METADATA_ID]: {
           _id: METADATA_ID,
           ...metadata,
         },
       },
-    };
-    await importConfigEntities(importData);
+    });
     stopProgressIndicator(
       indicatorId,
       'Metadata config import completed.',

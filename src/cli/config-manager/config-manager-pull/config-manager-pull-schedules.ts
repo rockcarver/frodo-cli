@@ -26,7 +26,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --name <name>',
-        'schedule name, It only export the endpoint with the name'
+        'Schedule name. If specified, only exports the schedule with the specified name.'
       )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -40,7 +40,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting schedules');
+        verboseMessage('Exporting schedules...');
         const outcome = await configManagerExportSchedules(options.name);
         if (!outcome) process.exitCode = 1;
       } else {

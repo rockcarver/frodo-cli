@@ -1,12 +1,11 @@
-import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 /**
- * Export an IDM configuration object in the fr-config-manager format.
+ * Export IDM audit configuration object in the fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportAudit(): Promise<boolean> {
@@ -15,25 +14,24 @@ export async function configManagerExportAudit(): Promise<boolean> {
     saveJsonToFile(exportData, getFilePath('audit/audit.json', true), false);
     return true;
   } catch (error) {
-    printError(error, `Error exporting config entity audit`);
+    printError(error, `Error exporting IDM audit configuration`);
   }
   return false;
 }
 
 /**
- * Import audit configuration from fr-config-manager format.
+ * Import IDM audit configuration from fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerImportAudit(): Promise<boolean> {
   try {
-    const auditPath = getFilePath('audit/');
-    const auditData = fs.readFileSync(`${auditPath}/audit.json`, 'utf-8');
-    let importData = JSON.parse(auditData);
-    importData = { idm: { [importData._id]: importData } };
-    await importConfigEntities(importData);
+    const importData = readJsonFile(
+      getFilePath('audit/audit.json')
+    ) as IdObjectSkeletonInterface;
+    await importConfigEntities({ idm: { [importData._id]: importData } });
     return true;
   } catch (error) {
-    printError(error, `Error importing audit configuration`);
+    printError(error, `Error importing IDM audit configuration`);
   }
   return false;
 }

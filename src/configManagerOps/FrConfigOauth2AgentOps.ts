@@ -23,9 +23,10 @@ const {
 } = frodo.utils;
 const { mergeDeep } = frodo.utils.json;
 const { readAgentByTypeAndId, importAgent } = frodo.agent;
+
 /**
  * Export all agents based on values in provided config file.
- * @param configFile The path to the file
+ * @param {string} configFile The path to the file
  * @returns True if all specified agents were exported successfully
  */
 export async function configManagerExportOAuth2Agents(
@@ -124,8 +125,7 @@ export async function configManagerImportAgents(): Promise<boolean> {
     return true;
   } catch (error) {
     stopProgressIndicator(indicatorId, 'Oauth2 Agents import failed.', 'fail');
-
-    printError(error, 'Oauth2 agent import failed');
+    printError(error, 'Oauth2 Agents import failed');
     return false;
   }
 }

@@ -17,7 +17,7 @@ export default function setup() {
   );
 
   program
-    .description('Export variables objects.')
+    .description('Export variables.')
     .addOption(
       new Option(
         '-r, --report',
@@ -41,7 +41,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting variables');
+        verboseMessage('Exporting variables...');
         const outcome = await configManagerExportVariables(
           options.report,
           options.dump

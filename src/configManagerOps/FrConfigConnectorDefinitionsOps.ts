@@ -1,77 +1,38 @@
 import fs from 'fs';
 import { frodo, type ConnectorSkeleton } from '@rockcarver/frodo-lib';
-import { printError, verboseMessage } from '../utils/Console';
+import { printError } from '../utils/Console';
 
-const { connector } = frodo.idm;
-const { getFilePath, saveJsonToFile } = frodo.utils;
-const { importConfigEntities } = frodo.idm.config;
-type ByName = { connectorName: string };
-type BySkeleton = { c: ConnectorSkeleton };
+const { getFilePath, readJsonFile, saveJsonToFile, getWorkingDirectory } =
+  frodo.utils;
+const { readConnector, readConnectors, importConnectors } = frodo.idm.connector;
 
 /**
- * Export connector definition using the name of the connector
- * @param criteria
+ * Export connector in fr-config manager format
+ * @param {string} name The connector name
+ * @returns {Promise<boolean>} True if successful, false otherwise
  */
-export async function configManagerExportConnectorDefinition(
-  criteria: ByName
-): Promise<boolean>;
-/**
- * Export connector definition using the provided connector skeleton object
- * @param criteria
- */
-export async function configManagerExportConnectorDefinition(
-  criteria: BySkeleton
-): Promise<boolean>;
-/**
- * Export connector definition in fr-config manager format
- * @param criteria
- * @returns
- */
-export async function configManagerExportConnectorDefinition(
-  criteria: ByName | BySkeleton
+export async function configManagerExportConnectorDefinitions(
+  name?: string
 ): Promise<boolean> {
   try {
-    const c: ConnectorSkeleton =
-      'c' in criteria
-        ? criteria.c
-        : await connector.readConnector(criteria.connectorName);
-    verboseMessage(`  Exporting connector: "${c._id}"`);
-    saveJsonToFile(
-      c,
-      getFilePath(
-        `sync/connectors/${c._id.substring(c._id.indexOf('/'))}.json`,
+    const connectors = name
+      ? [await readConnector(name)]
+      : await readConnectors();
+    for (const connector of connectors) {
+      const connectorName = connector._id.split('/')[1];
+      // This filters out the RCS configuration (which we want since it's not technically a connector)
+      if (!connectorName) continue;
+      saveJsonToFile(
+        connector,
+        getFilePath(`sync/connectors/${connectorName}.json`, true),
+        false,
         true
-      ),
-      false,
-      true
-    );
-    return true;
-  } catch (error) {
-    printError(
-      error,
-      'connectorName' in criteria
-        ? `Does the connector: "${criteria.connectorName}" actually exist in the specified host?`
-        : ''
-    );
-    return false;
-  }
-}
-
-/**
- * Export all the connector definitions in the tenant each in their own file in fr-config manager format
- * @returns
- */
-export async function configManagerExportConnectorDefinitionsAll(): Promise<boolean> {
-  try {
-    const cs: ConnectorSkeleton[] = await connector.readConnectors();
-    for (const c of cs) {
-      if (c._id.includes('provisioner.openicf/')) {
-        configManagerExportConnectorDefinition({ c: c });
-      }
+      );
     }
     return true;
   } catch (error) {
-    printError(error);
+    printError(error, `Error pulling connector${name ? ` ${name}` : 's'}`);
+    return false;
   }
 }
 
@@ -84,34 +45,22 @@ export async function configManagerImportConnectors(
   name?: string
 ): Promise<boolean> {
   try {
-    const connMappingDir = getFilePath('sync/connectors/');
-    const connMappingFiles = fs.readdirSync(connMappingDir);
-    const connMappingImportData = { idm: {} };
-
-    if (name) {
-      const filePath = getFilePath(`sync/connectors/${name}.json`);
-      const fileData = fs.readFileSync(filePath, 'utf8');
-      const importData = JSON.parse(fileData);
-      const id = importData._id;
-      connMappingImportData.idm[id] = importData;
-      await importConfigEntities(connMappingImportData);
-    } else {
-      for (const connMappingFile of connMappingFiles) {
-        const filePath = getFilePath(`sync/connectors/`);
-        const fileData = fs.readFileSync(
-          `${filePath}/${connMappingFile}`,
-          'utf-8'
-        );
-        const importData = JSON.parse(fileData);
-        const id = importData._id;
-        connMappingImportData.idm[id] = importData;
-      }
-      await importConfigEntities(connMappingImportData);
+    const connectorDir = `${getWorkingDirectory()}/sync/connectors`;
+    const connMappingFiles = name
+      ? [`${name}.json`]
+      : fs.readdirSync(connectorDir);
+    const importData = { connector: {} };
+    for (const connMappingFile of connMappingFiles) {
+      const connector = readJsonFile(
+        `${connectorDir}/${connMappingFile}`
+      ) as ConnectorSkeleton;
+      const connectorId = connector._id.split('/')[1];
+      importData.connector[connectorId] = connector;
     }
-
+    await importConnectors(importData, { deps: false });
     return true;
   } catch (error) {
-    printError(error, `Error exporting mappings to files`);
+    printError(error, `Error pushing connector${name ? ` ${name}` : 's'}`);
   }
   return false;
 }

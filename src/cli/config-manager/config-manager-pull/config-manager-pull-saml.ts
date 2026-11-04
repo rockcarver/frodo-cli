@@ -1,24 +1,11 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerExportSaml } from '../../../configManagerOps/FrConfigSamlOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull saml',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config-manager pull saml');
 
   program
     .description('Export saml.')
@@ -67,7 +54,7 @@ export default function setup() {
       // intentionally not overridden here - SAML export iterates the realms
       // found in the exported file itself (see configManagerExportSaml).
 
-      if (await getTokens(false, true, deploymentTypes)) {
+      if (await getTokens()) {
         verboseMessage('Exporting config entity saml');
         const outcome = await configManagerExportSaml(options.file);
         if (!outcome) process.exitCode = 1;

@@ -2,12 +2,12 @@
 
 /*
 // ForgeOps
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=allRealms frodo config-manager push themes -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=alpha frodo config-manager push themes -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
 */
 
-import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
+import { getEnv, testSuccess } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
-
 
 process.env['FRODO_MOCK'] ||= '1';
 const forgeopsEnv = getEnv(fc);
@@ -16,11 +16,20 @@ const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
 test(`"frodo config-manager push themes -D ${allDirectory} -m forgeops": should import the themes into forgeops"`, async () => {
     const CMD = `frodo config-manager push themes -D ${allDirectory} -m forgeops`;
-    const { stdout } = await exec(CMD, {
+    await testSuccess(CMD, {
+        env: {
+            ...forgeopsEnv.env,
+            FRODO_TEST_NAME: 'allRealms',
+        }
+    });
+});
+
+test(`"frodo config-manager push themes -D ${allDirectory} -m forgeops": should import the themes into forgeops"`, async () => {
+    const CMD = `frodo config-manager push themes -D ${allDirectory} -m forgeops`;
+    await testSuccess(CMD, {
         env: {
             ...forgeopsEnv.env,
             FRODO_REALM: 'alpha'
         }
     });
-    expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
 });

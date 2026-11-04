@@ -5,7 +5,7 @@ import { configManagerExportAccessConfig } from './FrConfigAccessConfigOps';
 import { configManagerExportAudit } from './FrConfigAuditOps';
 import { configManagerExportAuthentication } from './FrConfigAuthenticationOps';
 import { configManagerExportAuthzPolicySets } from './FrConfigAuthzPoliciesOps';
-import { configManagerExportConnectorDefinitionsAll } from './FrConfigConnectorDefinitionsOps';
+import { configManagerExportConnectorDefinitions } from './FrConfigConnectorDefinitionsOps';
 import { configManagerExportMappings } from './FrConfigConnectorMappingOps';
 import { configManagerExportCookieDomains } from './FrConfigCookieDomainsOps';
 import { configManagerExportCors } from './FrConfigCorsOps';
@@ -58,7 +58,7 @@ const deploymentMapAll = {
       'oauth2-agents.json',
       configManagerExportOAuth2Agents
     ),
-    () => configManagerExportConnectorDefinitionsAll(),
+    () => configManagerExportConnectorDefinitions(),
     () => configManagerExportCors(),
     () => configManagerExportCustomNodes(),
     () => configManagerExportEmailProviderConfiguration(),
@@ -103,7 +103,7 @@ const deploymentMapAll = {
       'oauth2-agents.json',
       configManagerExportOAuth2Agents
     ),
-    () => configManagerExportConnectorDefinitionsAll(),
+    () => configManagerExportConnectorDefinitions(),
     () => configManagerExportCookieDomains(),
     () => configManagerExportCors(),
     (options) =>
@@ -171,7 +171,7 @@ const deploymentMapAllStatic = {
     () => configManagerExportAccessConfig(),
     () => configManagerExportAudit(),
     (options) => configManagerExportAuthentication(options.realm),
-    () => configManagerExportConnectorDefinitionsAll(),
+    () => configManagerExportConnectorDefinitions(),
     () => configManagerExportCors(),
     () => configManagerExportCustomNodes(),
     () => configManagerExportEmailProviderConfiguration(),
@@ -197,7 +197,7 @@ const deploymentMapAllStatic = {
     () => configManagerExportAccessConfig(),
     () => configManagerExportAudit(),
     (options) => configManagerExportAuthentication(options.realm),
-    () => configManagerExportConnectorDefinitionsAll(),
+    () => configManagerExportConnectorDefinitions(),
     () => configManagerExportCookieDomains(),
     () => configManagerExportCors(),
     () => configManagerExportCsp(),

@@ -1,26 +1,13 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { configManagerExportAuthentication } from '../../../configManagerOps/FrConfigAuthenticationOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull authentication',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config-manager pull authentication');
 
   program
-    .description('Export authentication objects.')
+    .description('Export authentication settings.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -30,8 +17,8 @@ export default function setup() {
         options,
         command
       );
-      if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity authentication');
+      if (await getTokens()) {
+        verboseMessage('Exporting authentication settings');
         const outcome = await configManagerExportAuthentication(realm);
         if (!outcome) process.exitCode = 1;
       } else {

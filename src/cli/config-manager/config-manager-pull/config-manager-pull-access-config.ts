@@ -32,7 +32,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity access-config');
+        verboseMessage('Exporting IDM config entity access-config');
         const outcome = await configManagerExportAccessConfig();
         if (!outcome) process.exitCode = 1;
       } else {

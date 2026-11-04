@@ -20,7 +20,7 @@ export default function setup() {
   );
 
   program
-    .description('Export password-policy objects.')
+    .description('Export password policy.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -31,7 +31,7 @@ export default function setup() {
         command
       );
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity password-policy');
+        verboseMessage('Exporting password policies...');
         const outcome = await configManagerExportPasswordPolicy(realm);
         if (!outcome) process.exitCode = 1;
       } else {

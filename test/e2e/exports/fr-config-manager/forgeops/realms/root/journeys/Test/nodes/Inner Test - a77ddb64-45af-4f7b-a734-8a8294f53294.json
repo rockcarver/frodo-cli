@@ -1,0 +1,25 @@
+{
+  "_id": "a77ddb64-45af-4f7b-a734-8a8294f53294",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    },
+    {
+      "displayName": "Error",
+      "id": "error"
+    }
+  ],
+  "_rev": "-998861558",
+  "_type": {
+    "_id": "InnerTreeEvaluatorNode",
+    "collection": true,
+    "name": "Inner Tree Evaluator"
+  },
+  "displayErrorOutcome": true,
+  "tree": "InnerTest"
+}

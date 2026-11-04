@@ -1,55 +1,49 @@
 import fs from 'fs';
-import {
-  frodo,
-  state,
-  type AuthenticationSettingsExportInterface,
-} from '@rockcarver/frodo-lib';
-import { printError, verboseMessage } from '../utils/Console';
+import { frodo, state } from '@rockcarver/frodo-lib';
+import { printError, printMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 
 const {
   readAuthenticationSettings: _readAuthenticationSettings,
   importAuthenticationSettings,
 } = frodo.authn.settings;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
+  frodo.utils;
+const { DEFAULT_REALM_KEY } = frodo.utils.constants;
 
 /**
- * Export an IDM configuration object in the fr-config-manager format.
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ * Export authentication settings in the fr-config-manager format.
+ * @param {string} realm The realm to export from
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportAuthentication(
   realm?: string
 ): Promise<boolean> {
   try {
-    if (realm && realm !== '__default__realm__') {
+    const realms =
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    for (const realm of realms) {
+      if (
+        realm === '/' &&
+        state.getDeploymentType() ===
+          frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
+      )
+        continue;
+      state.setRealm(realm);
       const exportData = await _readAuthenticationSettings(false);
-      const fileName = `realms/${state.getRealm()}/realm-config/authentication.json`;
-      saveJsonToFile(exportData, getFilePath(`${fileName}`, true), false, true);
-    } else {
-      for (const realmName of await realmList()) {
-        if (
-          realmName === '/' &&
-          state.getDeploymentType() ===
-            frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
-        )
-          continue;
-
-        state.setRealm(realmName);
-        const exportData = await _readAuthenticationSettings(false);
-        const fileName = `realms/${realmName}/realm-config/authentication.json`;
-        saveJsonToFile(
-          exportData,
-          getFilePath(`${fileName}`, true),
-          false,
+      saveJsonToFile(
+        exportData,
+        getFilePath(
+          `realms/${realm === '/' ? 'root' : realm}/realm-config/authentication.json`,
           true
-        );
-      }
+        ),
+        false,
+        true
+      );
     }
-
     return true;
   } catch (error) {
-    printError(error, `Error exporting config entity ui-configuration`);
+    printError(error, `Error exporting authentication settings`);
   }
   return false;
 }
@@ -63,55 +57,33 @@ export async function configManagerImportAuthentication(
   realm?: string
 ): Promise<boolean> {
   try {
-    if (realm && realm !== frodo.utils.constants.DEFAULT_REALM_KEY) {
+    const realms =
+      realm && realm !== DEFAULT_REALM_KEY
+        ? [realm]
+        : fs.readdirSync(`${getWorkingDirectory()}/realms`);
+    for (const realm of realms) {
+      if (
+        realm === '/' &&
+        state.getDeploymentType() ===
+          frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
+      )
+        continue;
+      await state.setRealm(realm);
       const filePath = getFilePath(
-        `realms/${realm}/realm-config/authentication.json`
+        `realms/${realm === '/' ? 'root' : realm}/realm-config/authentication.json`
       );
-
       if (!fs.existsSync(filePath)) {
-        verboseMessage('No authentication file found to import.');
+        printMessage('No authentication file found to import.');
         return false;
       }
-
-      const fileContent = fs.readFileSync(filePath, 'utf-8');
-      const authData = JSON.parse(fileContent);
+      const authData = readJsonFile(filePath) as any;
       delete authData._rev;
-      const importData: AuthenticationSettingsExportInterface = {
-        authentication: authData,
-      };
-
-      await importAuthenticationSettings(importData, false);
-    } else {
-      const realmsPath = getFilePath(`realms/`);
-      const realmDirs = fs.readdirSync(realmsPath);
-
-      for (const realmName of realmDirs) {
-        await state.setRealm(realmName);
-        let realmPath;
-
-        if (realmName === 'realm-config') {
-          await state.setRealm('/');
-          realmPath = getFilePath(`realms/realm-config/authentication.json`);
-        } else {
-          await state.setRealm(realmName);
-          realmPath = getFilePath(
-            `realms/${realmName}/realm-config/authentication.json`
-          );
-        }
-
-        if (!fs.existsSync(realmPath)) {
-          continue;
-        }
-
-        const fileContent = fs.readFileSync(realmPath, 'utf-8');
-        const authData = JSON.parse(fileContent);
-        delete authData._rev;
-        const importData: AuthenticationSettingsExportInterface = {
+      await importAuthenticationSettings(
+        {
           authentication: authData,
-        };
-
-        await importAuthenticationSettings(importData, false);
-      }
+        },
+        false
+      );
     }
 
     return true;

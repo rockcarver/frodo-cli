@@ -1,12 +1,11 @@
-import fs from 'fs';
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 /**
- * Export an IDM configuration object in the fr-config-manager format.
+ * Export IDM KBA configuration in fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportKbaConfig(): Promise<boolean> {
@@ -19,24 +18,24 @@ export async function configManagerExportKbaConfig(): Promise<boolean> {
     );
     return true;
   } catch (error) {
-    printError(error, `Error exporting config entity selfservice.kba`);
+    printError(error, `Error exporting KBA`);
   }
   return false;
 }
 
+/**
+ * Import IDM KBA configuration from fr-config-manager format.
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
 export async function configManagerImportKbaConfig(): Promise<boolean> {
   try {
-    const filePath = getFilePath('kba/');
-    const fileData = fs.readFileSync(
-      `${filePath}/selfservice.kba.json`,
-      'utf-8'
-    );
-    let importData = JSON.parse(fileData);
-    importData = { idm: { [importData._id]: importData } };
-    await importConfigEntities(importData);
+    const kba = readJsonFile(
+      getFilePath(`kba/selfservice.kba.json`)
+    ) as IdObjectSkeletonInterface;
+    await importConfigEntities({ idm: { [kba._id]: kba } });
     return true;
   } catch (error) {
-    printError(error);
+    printError(error, 'Error importing KBA');
   }
   return false;
 }

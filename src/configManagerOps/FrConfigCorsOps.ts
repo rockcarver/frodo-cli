@@ -1,16 +1,9 @@
-import fs from 'fs';
-import {
-  frodo,
-  state,
-  type FullService,
-  type IdObjectSkeletonInterface,
-} from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { frodo, state, type FullService } from '@rockcarver/frodo-lib';
+import { printError, printMessage } from '../utils/Console';
 
-const { config } = frodo.idm;
-const { getFilePath, saveJsonToFile } = frodo.utils;
-const { importConfigEntities } = frodo.idm.config;
-const { importServices } = frodo.service;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
+const { readConfigEntity, importConfigEntities } = frodo.idm.config;
+const { getFullServices, importServices } = frodo.service;
 const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
 type CorsObject = { idmCorsConfig; corsServices; corsServiceGlobal };
@@ -21,18 +14,23 @@ type CorsObject = { idmCorsConfig; corsServices; corsServiceGlobal };
  */
 export async function configManagerExportCors(): Promise<boolean> {
   try {
-    const cors: IdObjectSkeletonInterface =
-      await config.readConfigEntity('servletfilter/cors');
-    const services: FullService[] = await frodo.service.getFullServices(true);
+    const services: FullService[] = await getFullServices(true);
     const corsServiceGlobal = services.find(
       (fullService) => fullService._type._id === 'CorsService'
     );
-    const coreSsrvices = corsServiceGlobal.nextDescendents;
+    if (!corsServiceGlobal) {
+      printMessage('Global CORS service not found', 'error');
+      return false;
+    }
+    const corsServices = corsServiceGlobal.nextDescendents;
     delete corsServiceGlobal.nextDescendents;
     const newCorsObject: CorsObject = {
-      idmCorsConfig: cors,
-      corsServices: coreSsrvices,
-      corsServiceGlobal: corsServiceGlobal,
+      idmCorsConfig:
+        state.getDeploymentType() === CLASSIC_DEPLOYMENT_TYPE_KEY
+          ? {}
+          : await readConfigEntity('servletfilter/cors'),
+      corsServices,
+      corsServiceGlobal,
     };
 
     saveJsonToFile(
@@ -54,9 +52,9 @@ export async function configManagerExportCors(): Promise<boolean> {
  */
 export async function configManagerImportCors(): Promise<boolean> {
   try {
-    const filePath = getFilePath('cors/cors-config.json');
-    const readFile = fs.readFileSync(filePath, 'utf8');
-    const importData = JSON.parse(readFile);
+    const importData = readJsonFile(
+      getFilePath('cors/cors-config.json')
+    ) as CorsObject;
 
     if (state.getDeploymentType() !== CLASSIC_DEPLOYMENT_TYPE_KEY) {
       const corsImport = {

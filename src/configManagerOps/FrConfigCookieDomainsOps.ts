@@ -1,8 +1,7 @@
-import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
 
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { readCookieDomains, updateCookieDomains } = frodo.cloud.env;
 
 /**
@@ -19,7 +18,7 @@ export async function configManagerExportCookieDomains(): Promise<boolean> {
     );
     return true;
   } catch (error) {
-    printError(error, `Error exporting custom domains`);
+    printError(error, `Error exporting cookie domains`);
   }
   return false;
 }
@@ -30,13 +29,13 @@ export async function configManagerExportCookieDomains(): Promise<boolean> {
  */
 export async function configManagerImportCookieDomains(): Promise<boolean> {
   try {
-    const getFile = getFilePath('cookie-domains/cookie-domains.json');
-    const readFile = fs.readFileSync(getFile, 'utf-8');
-    const importData = JSON.parse(readFile);
+    const importData = readJsonFile(
+      getFilePath('cookie-domains/cookie-domains.json')
+    ) as any;
     await updateCookieDomains(importData);
     return true;
   } catch (error) {
-    printError(error, `Error importing custom domains`);
+    printError(error, `Error importing cookie domains`);
   }
   return false;
 }

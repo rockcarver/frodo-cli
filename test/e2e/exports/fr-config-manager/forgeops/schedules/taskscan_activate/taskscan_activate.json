@@ -5,7 +5,7 @@
   "invokeContext": {
     "numberOfThreads": 5,
     "scan": {
-      "_queryFilter": "((/activeDate le \"${Time.nowWithOffset}\") AND (!(/inactiveDate pr) or /inactiveDate ge \"${Time.nowWithOffset}\"))",
+      "_queryFilter": "((/activeDate le \"\\${Time.nowWithOffset}\") AND (!(/inactiveDate pr) or /inactiveDate ge \"\\${Time.nowWithOffset}\"))",
       "object": "managed/user",
       "recovery": {
         "timeout": "10m"

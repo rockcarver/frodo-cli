@@ -7,7 +7,7 @@ import AuthzPolicies from './config-manager-push-authz-policies';
 import Metadata from './config-manager-push-config-metadata';
 import ConnectorDefinitions from './config-manager-push-connector-definitions';
 import ConnectorMappings from './config-manager-push-connector-mappings';
-import CookieDomains from './config-manager-push-cookie-domain';
+import CookieDomains from './config-manager-push-cookie-domains';
 import Cors from './config-manager-push-cors';
 import CSP from './config-manager-push-csp';
 import CustomNodes from './config-manager-push-custom-nodes';

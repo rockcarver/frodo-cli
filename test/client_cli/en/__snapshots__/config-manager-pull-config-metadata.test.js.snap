@@ -1,68 +1,29 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CLI help interface for 'config-manager pull config-metadata' should be expected english 1`] = `
-"Usage: frodo config-manager pull [options] [command]
+"Usage: frodo config-manager pull config-metadata [options] [host] [realm] [username] [password]
 
-[Experimental] Export configuration optimized for CI/CD pipelines (format
-compatible with fr-config-manager).
+[Experimental] Show metadata.
+
+Arguments:
+  host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
+                    connection profile, just specify a unique substring or
+                    alias.
+  realm             Realm. Specify realm as '/' for the root realm or 'realm' or
+                    '/parent/child' otherwise. (default: "alpha" for Identity
+                    Cloud tenants, "/" otherwise.)
+  username          Username to login with. Must be an admin user with
+                    appropriate rights to manage authentication journeys/trees.
+                    If given without a password, and it matches the username
+                    already stored in the connection profile for the target
+                    host, frodo uses that profile's stored password instead of
+                    requiring it on the command line.
+  password          Password.
 
 Options:
-  -h, --help             Help
-  -hh, --help-more       Help with all options.
-  -hhh, --help-all       Help with all options, environment variables, and usage
-                         examples.
-
-Runtime Options:
-  --no-prompt            Never prompt interactively (same as setting
-                         FRODO_NO_PROMPT).
-
-Commands:
-  access-config          [Experimental] Export access-config objects.
-  all                    [Experimental] Export all config.
-  all-static             [Experimental] Export all static config.
-  audit                  [Experimental] Export audit objects.
-  authentication         [Experimental] Export authentication objects.
-  authz-policies         [Experimental] Export authorization policies.
-  config-metadata        [Experimental] Show metadata.
-  connector-definitions  [Experimental] Export aconnector definitions.
-  connector-mappings     [Experimental] Export connector mappings.
-  cookie-domains         [Experimental] Export cookie-domains objects.
-  cors                   [Experimental] Export CORS configuration.
-  csp                    [Experimental] Export content security policy.
-  custom-nodes           [Experimental] Export custom nodes.
-  email-provider         [Experimental] Export email provider configuration.
-  email-templates        [Experimental] Export email-templates objects.
-  endpoints              [Experimental] Export custom endpoints objects.
-  idm-authentication     [Experimental] Export idm authentication config.
-  iga-workflows          [Experimental] [Cloud-only] Export iga-workflows.
-  internal-roles         [Experimental] Export internal roles.
-  journeys               [Experimental] Export journeys.
-  kba                    [Experimental] Export kba-config objects.
-  locales                [Experimental] Export custom locales objects.
-  managed-objects        [Experimental] Export managed-objects.
-  oauth2-agents          [Experimental] Export OAuth2 Agents
-  org-privileges         [Experimental] Export organization privileges config.
-  password-policy        [Experimental] Export password-policy objects.
-  raw                    [Experimental] Export raw configurations from the
-                         tenant.
-  remote-servers         [Experimental] Export remote-servers objects.
-  saml                   [Experimental] Export saml.
-  schedules              [Experimental] Export schedules.
-  scripts                [Experimental] Export AM scripts.
-  secret-mappings        [Experimental] [Cloud-only] Export secret mappings.
-  secrets                [Experimental] Export secrets.
-  service-objects        [Experimental] Export service objects.
-  services               [Experimental] Export authentication services.
-  telemetry              [Experimental] [Cloud-only] Export telemetry exporters.
-  terms-and-conditions   [Experimental] Export terms and conditions.
-  test                   [Experimental] Test connection and authentication.
-  themes                 [Experimental] Export themes.
-  ui-config              [Experimental] Export ui-configuration objects.
-  variables              [Experimental] [Cloud-only] Export variables objects.
-
-Utilities:
-  help                   display help for command
-
-
-Run without a sub-command to enter interactive mode."
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
 `;

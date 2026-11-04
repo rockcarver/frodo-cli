@@ -1,0 +1,89 @@
+{
+  "_id": "33b89c09-2a29-4e9b-9e2b-12fd7e1c7466",
+  "accountFooter": {
+    "file": "accountFooter.html"
+  },
+  "accountFooterEnabled": false,
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true
+        },
+        "securityQuestions": {
+          "enabled": false
+        },
+        "twoStepVerification": {
+          "enabled": true
+        },
+        "username": {
+          "enabled": true
+        }
+      }
+    },
+    "consent": {
+      "enabled": false
+    },
+    "oauthApplications": {
+      "enabled": false
+    },
+    "personalInformation": {
+      "enabled": true
+    },
+    "preferences": {
+      "enabled": false
+    },
+    "social": {
+      "enabled": false
+    },
+    "trustedDevices": {
+      "enabled": true
+    }
+  },
+  "backgroundColor": "#324054",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "buttonRounded": 5,
+  "dangerColor": "#f7685b",
+  "favicon": "",
+  "isDefault": true,
+  "journeyFooter": {
+    "file": "journeyFooter.html"
+  },
+  "journeyFooterEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html"
+  },
+  "journeyHeaderEnabled": false,
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyLayout": "card",
+  "journeyTheaterMode": false,
+  "linkActiveColor": "#0c85cf",
+  "linkColor": "#109cf1",
+  "linkedTrees": [],
+  "logo": "",
+  "logoAltText": "",
+  "logoHeight": "40",
+  "logoProfile": "",
+  "logoProfileAltText": "",
+  "logoProfileCollapsed": "",
+  "logoProfileCollapsedAltText": "",
+  "logoProfileCollapsedHeight": "40",
+  "logoProfileHeight": "40",
+  "name": "Starter Theme",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#f6f8fa",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#324054",
+  "profileMenuHoverTextColor": "#ffffff",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "textColor": "#ffffff"
+}

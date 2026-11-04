@@ -30,6 +30,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
       },
       getFilePath: (file) => path.join(workingDirectory, file),
       saveJsonToFile: jest.fn(),
+      readJsonFile: jest.fn()
     },
   },
   state: {

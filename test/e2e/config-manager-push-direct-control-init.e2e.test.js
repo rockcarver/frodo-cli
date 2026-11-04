@@ -7,8 +7,6 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS="https://openam-mtc-feb16-st
 import { getEnv, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
-
-
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 

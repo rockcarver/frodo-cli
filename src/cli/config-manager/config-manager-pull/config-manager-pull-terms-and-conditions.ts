@@ -32,7 +32,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting terms and conditions');
+        verboseMessage('Exporting terms and conditions...');
         const outcome = await configManagerExportTermsAndConditions();
         if (!outcome) process.exitCode = 1;
       } else {

@@ -20,7 +20,7 @@ export default function setup() {
   );
 
   program
-    .description('Export remote-servers objects.')
+    .description('Export RCS server configurations.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -32,7 +32,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity remote-servers');
+        verboseMessage('Exporting RCS server configurations...');
         const outcome = await configManagerExportRemoteServers();
         if (!outcome) process.exitCode = 1;
       } else {

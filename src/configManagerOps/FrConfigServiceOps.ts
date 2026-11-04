@@ -12,13 +12,18 @@ import {
 } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const { getFilePath, saveJsonToFile, getWorkingDirectory, readJsonFile } =
   frodo.utils;
 const { getFullServices, importServices } = frodo.service;
 const { DEFAULT_REALM_KEY } = frodo.utils.constants;
 
+const EXCLUDE_SERVICES = ['DataStoreService'];
+
 /**
  * Export all services to separate files in fr-config-manager format
+ * @param {string} realm The realm to export services from
+ * @param {string} name The name of the service to export
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportServices(
@@ -26,56 +31,52 @@ export async function configManagerExportServices(
   name?: string
 ): Promise<boolean> {
   try {
-    if (realm && realm !== DEFAULT_REALM_KEY) {
+    const realms =
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    for (const realm of realms) {
+      if (
+        realm === '/' &&
+        state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+      )
+        continue;
+      state.setRealm(realm);
       const services = await getFullServices(false);
-      processServices(services, realm, name);
-    } else {
-      for (const realm of await realmList()) {
-        state.setRealm(realm);
-        const services = await getFullServices(false);
-        processServices(services, realm, name);
-      }
-    }
-    return true;
-  } catch (error) {
-    printError(error);
-  }
-  return false;
-}
-
-async function processServices(
-  services: FullService[],
-  realm: string,
-  name: string
-) {
-  const realmDir = realm === '/' ? 'root' : realm;
-  const fileDir = `realms/${realmDir}/services`;
-  for (const service of services) {
-    if (name && name !== service._type._id) {
-      continue;
-    }
-    if (service.nextDescendents.length > 0) {
-      for (const descendent of service.nextDescendents) {
+      const realmDir = realm === '/' ? 'root' : realm;
+      const fileDir = `realms/${realmDir}/services`;
+      for (const service of services) {
+        if (
+          EXCLUDE_SERVICES.includes(service._type._id) ||
+          (name && name !== service._type._id)
+        ) {
+          continue;
+        }
+        if (service.nextDescendents?.length > 0) {
+          for (const descendent of service.nextDescendents) {
+            saveJsonToFile(
+              descendent,
+              getFilePath(
+                `${fileDir}/${service._type._id}/${descendent._id}.json`,
+                true
+              ),
+              false,
+              true
+            );
+          }
+        }
+        delete service.nextDescendents;
         saveJsonToFile(
-          descendent,
-          getFilePath(
-            `${fileDir}/${service._type._id}/${descendent._id}.json`,
-            true
-          ),
+          service,
+          getFilePath(`${fileDir}/${service._type._id}.json`, true),
           false,
           true
         );
       }
     }
-    delete service.nextDescendents;
-
-    saveJsonToFile(
-      service,
-      getFilePath(`${fileDir}/${service._type._id}.json`, true),
-      false,
-      true
-    );
+    return true;
+  } catch (error) {
+    printError(error, 'Service export failed');
   }
+  return false;
 }
 
 /**

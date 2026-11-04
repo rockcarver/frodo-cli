@@ -1,10 +1,21 @@
 import fs from 'fs';
-import { frodo, state, type ThemeSkeleton } from '@rockcarver/frodo-lib';
+import {
+  frodo,
+  state,
+  type ThemeExportInterface,
+  type ThemeSkeleton,
+} from '@rockcarver/frodo-lib';
 import { printError } from '../utils/Console';
-import { decodeOrNot, realmList } from '../utils/FrConfig';
+import { decodeOrNot, encodeOrNot, realmList } from '../utils/FrConfig';
 
-const { saveJsonToFile, getFilePath, constants } = frodo.utils;
-const { readRealms, readRealmByName } = frodo.realm;
+const { DEFAULT_REALM_KEY, CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const {
+  saveJsonToFile,
+  getFilePath,
+  readJsonFile,
+  saveTextToFile,
+  getWorkingDirectory,
+} = frodo.utils;
 const { readThemes, importThemes } = frodo.theme;
 
 const THEME_HTML_FIELDS = [
@@ -16,66 +27,67 @@ const THEME_HTML_FIELDS = [
   { name: 'accountFooterScriptTag', encoded: true },
 ];
 
-function extractHtmlFields(theme: ThemeSkeleton, themePath: string): void {
-  for (const field of THEME_HTML_FIELDS) {
-    if (!theme[field.name]) continue;
-
-    switch (typeof theme[field.name]) {
-      case 'string': {
-        const fileName = `${field.name}.html`;
-        const filePath = `${themePath}/${fileName}`;
-        fs.writeFileSync(
-          filePath,
-          decodeOrNot(theme[field.name] as string, field.encoded)
-        );
-        theme[field.name] = { file: fileName };
-        break;
-      }
-
-      case 'object': {
-        const fieldDir = `${themePath}/${field.name}`;
-        fs.mkdirSync(fieldDir, { recursive: true });
-
-        for (const locale of Object.keys(theme[field.name])) {
-          const localeFilename = `${locale}.html`;
-          const filePath = `${fieldDir}/${localeFilename}`;
-          fs.writeFileSync(
-            filePath,
-            decodeOrNot(theme[field.name][locale], field.encoded)
-          );
-          theme[field.name][locale] = {
-            file: `${field.name}/${localeFilename}`,
-          };
-        }
-        break;
-      }
-
-      default:
-        throw new Error(`Unexpected type for ${field.name} in ${theme.name}`);
-    }
-  }
-}
-
+/**
+ * Exports realms in fr-config-manager format
+ * @param {string} realm The realm to export from
+ * @returns {Promise<boolean>} a promise that evaluates to true if successful, false otherwise
+ */
 export async function configManagerExportThemes(
   realm?: string
 ): Promise<boolean> {
   try {
     const realmNames =
-      realm && realm !== constants.DEFAULT_REALM_KEY
-        ? [realm]
-        : await realmList();
+      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     for (const realm of realmNames) {
-      // fr-config-manager doesn't support root themes
-      if (realm === '/') continue;
+      if (
+        realm === '/' &&
+        state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+      )
+        continue;
       state.setRealm(realm);
+      const realmDir = realm === '/' ? 'root' : realm;
       const themes = await readThemes();
-      const exportDir = getFilePath(`realms/${realm}/themes`, true);
-      fs.mkdirSync(exportDir, { recursive: true });
       for (const theme of themes) {
-        const themeDir = `${exportDir}/${theme.name}`;
-        fs.mkdirSync(themeDir, { recursive: true });
-        extractHtmlFields(theme, themeDir);
-        saveJsonToFile(theme, `${themeDir}/${theme.name}.json`, false);
+        const themeDir = `realms/${realmDir}/themes/${theme.name}`;
+        for (const field of THEME_HTML_FIELDS) {
+          if (!theme[field.name]) continue;
+
+          switch (typeof theme[field.name]) {
+            case 'string':
+              {
+                const fileName = `${field.name}.html`;
+                saveTextToFile(
+                  decodeOrNot(theme[field.name] as string, field.encoded),
+                  getFilePath(`${themeDir}/${fileName}`, true)
+                );
+                theme[field.name] = { file: fileName };
+              }
+              break;
+            case 'object': {
+              const fieldDir = `${themeDir}/${field.name}`;
+              for (const locale of Object.keys(theme[field.name])) {
+                const localeFilename = `${locale}.html`;
+                saveTextToFile(
+                  decodeOrNot(theme[field.name][locale], field.encoded),
+                  getFilePath(`${fieldDir}/${localeFilename}`, true)
+                );
+                theme[field.name][locale] = {
+                  file: `${field.name}/${localeFilename}`,
+                };
+              }
+              break;
+            }
+            default:
+              throw new Error(
+                `Unexpected data type for ${field.name}: ${typeof theme[field.name]}`
+              );
+          }
+        }
+        saveJsonToFile(
+          theme,
+          getFilePath(`${themeDir}/${theme.name}.json`, true),
+          false
+        );
       }
     }
     return true;
@@ -85,47 +97,68 @@ export async function configManagerExportThemes(
   }
 }
 
+/**
+ * Imports realms from fr-config-manager format
+ * @param {string} realm The realm to import to
+ * @returns {Promise<boolean>} a promise that evaluates to true if successful, false otherwise
+ */
 export async function configManagerImportThemes(
   realm?: string
 ): Promise<boolean> {
   try {
-    const realms =
-      realm && realm !== constants.DEFAULT_REALM_KEY
-        ? [await readRealmByName(realm)]
-        : await readRealms();
-    for (const realm of realms) {
-      // fr-config-manager doesn't support root themes
-      if (realm.name === '/') continue;
-      state.setRealm(realm.name);
-      const importDir = getFilePath(
-        `realms${realm.parentPath + realm.name}/themes`
-      );
+    const realms: string[] =
+      realm && realm !== DEFAULT_REALM_KEY
+        ? [realm === '/' ? 'root' : realm]
+        : fs
+            .readdirSync(`${getWorkingDirectory()}/realms`, {
+              withFileTypes: true,
+            })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name);
+    for (const realmDir of realms) {
+      if (
+        realmDir === 'root' &&
+        state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+      )
+        continue;
+      state.setRealm(realmDir === 'root' ? '/' : realmDir);
+      const importDir = `${getWorkingDirectory()}/realms/${realmDir}/themes`;
       const themesDir = fs
         .readdirSync(importDir, { withFileTypes: true })
         .filter((dirent) => dirent.isDirectory())
         .map((dirent) => dirent.name);
-      const themeMap: Record<string, ThemeSkeleton> = {};
+      const importData: ThemeExportInterface = { theme: {} };
       for (const themeName of themesDir) {
         const themeDir = `${importDir}/${themeName}`;
-        const themeJsonPath = `${themeDir}/${themeName}.json`;
-        const theme: ThemeSkeleton = JSON.parse(
-          fs.readFileSync(themeJsonPath, 'utf8')
-        );
+        const theme = readJsonFile(
+          `${themeDir}/${themeName}.json`
+        ) as ThemeSkeleton;
         for (const field of THEME_HTML_FIELDS) {
-          if (
-            !theme[field.name] ||
-            typeof theme[field.name] !== 'object' ||
-            typeof (theme[field.name] as any).file !== 'string'
-          )
+          if (!theme[field.name] || typeof theme[field.name] !== 'object')
             continue;
-          const fileName = (theme[field.name] as any).file;
-          const filePath = `${themeDir}/${fileName}`;
-          const fileContent = fs.readFileSync(filePath, 'utf8');
-          theme[field.name] = fileContent;
+          if (typeof (theme[field.name] as any).file === 'string') {
+            theme[field.name] = encodeOrNot(
+              fs.readFileSync(
+                `${themeDir}/${(theme[field.name] as any).file}`,
+                'utf8'
+              ),
+              field.encoded
+            );
+            continue;
+          }
+          Object.keys(theme[field.name]).forEach((locale) => {
+            theme[field.name][locale] = encodeOrNot(
+              fs.readFileSync(
+                `${themeDir}/${(theme[field.name][locale] as any).file}`,
+                'utf8'
+              ),
+              field.encoded
+            );
+          });
         }
-        themeMap[theme._id] = theme;
+        importData.theme[theme._id] = theme;
       }
-      await importThemes({ theme: themeMap });
+      await importThemes(importData);
     }
     return true;
   } catch (error) {

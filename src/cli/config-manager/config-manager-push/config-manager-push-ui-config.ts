@@ -35,9 +35,7 @@ export default function setup() {
         verboseMessage('Importing UI configuration...');
         const outcome = await configManagerImportUiConfig();
         if (!outcome) process.exitCode = 1;
-      }
-      // unrecognized combination of options or no options
-      else {
+      } else {
         process.exitCode = 1;
       }
     });

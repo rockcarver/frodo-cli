@@ -1,23 +1,16 @@
 import fs from 'fs';
 import path from 'path';
-import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
 const { readManagedObjectSchemaProperty } = frodo.idm.managed.schema;
-const { getFilePath, saveTextToFile, saveJsonToFile } = frodo.utils;
-const { stringify } = frodo.utils.json;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
-type ObjectSkeleton = IdObjectSkeletonInterface & {
-  name: string;
-};
-
-export type ManagedSkeleton = IdObjectSkeletonInterface & {
-  objects: ObjectSkeleton[];
-};
 const SCRIPT_HOOKS = ['onStore', 'onRetrieve', 'onValidate'];
+
 function getCustomRelationships(managedObject, repoMapping) {
   const objectMapping =
     repoMapping.resourceMapping?.genericMapping[
@@ -38,137 +31,96 @@ function getCustomRelationships(managedObject, repoMapping) {
   });
 }
 
+function extractScripts(
+  obj: object,
+  objectPath: string,
+  getFileName: (key: string) => string,
+  hook?: string
+) {
+  (Object.entries(obj) as [string, any][]).forEach(([key, value]) => {
+    if (hook && value[hook]) value = value[hook];
+    if (
+      value &&
+      typeof value === 'object' &&
+      value.type === 'text/javascript' &&
+      value.source
+    ) {
+      const scriptFilename = getFileName(key);
+      value.file = scriptFilename;
+      extractFrConfigDataToFile(value.source, scriptFilename, objectPath);
+      delete value.source;
+    }
+  });
+}
+
 /**
- * Export an IDM configuration object in the fr-config-manager format.
- * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ * Export IDM managed objects in fr-config-manager format.
+ * @param {string} name The managed object name to export
+ * @param {boolean} pullCustomRelationships True to pull custom relationship schema
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportManagedObjects(
-  objectName?: string,
+  name?: string,
   pullCustomRelationships = false
 ): Promise<boolean> {
   try {
-    const exportData = (await readConfigEntity('managed')) as ManagedSkeleton;
-
-    await processManagedObjects(
-      exportData.objects,
-      'managed-objects',
-      objectName,
-      pullCustomRelationships
-    );
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting config entity endpoints`);
-  }
-  return false;
-}
-
-async function processManagedObjects(
-  managedObjects,
-  targetDir,
-  name,
-  pullCustomRelationships = false
-) {
-  const repoMapping = pullCustomRelationships
-    ? await readConfigEntity('repo.ds')
-    : undefined;
-  try {
+    const repoMapping = pullCustomRelationships
+      ? await readConfigEntity('repo.ds')
+      : null;
+    const managedObjects = (await readConfigEntity('managed')).objects as any[];
     for (const managedObject of managedObjects) {
-      if (name && name !== managedObject.name) {
-        continue;
-      }
-
-      const objectPath = `${targetDir}/${managedObject.name}`;
-      (Object.entries(managedObject) as [string, ObjectSkeleton][]).forEach(
-        ([key, value]) => {
-          if (value.type && value.type === 'text/javascript' && value.source) {
-            const scriptFilename = `${managedObject.name}.${key}.js`;
-            value.file = scriptFilename;
-            extractFrConfigDataToFile(
-              value.source,
-              scriptFilename,
-              `${objectPath}`
-            );
-            delete value.source;
-          }
-        }
+      if (name && name !== managedObject.name) continue;
+      const objectPath = `managed-objects/${managedObject.name}`;
+      extractScripts(
+        managedObject,
+        objectPath,
+        (k) => `${managedObject.name}.${k}.js`
       );
-
-      if (managedObject.actions) {
-        (Object.entries(managedObject.actions) as [string, any]).forEach(
-          ([key, value]) => {
-            if (
-              value.type &&
-              value.type === 'text/javascript' &&
-              value.source
-            ) {
-              const scriptFilename = `${managedObject.name}.actions.${key}.js`;
-              value.file = scriptFilename;
-              extractFrConfigDataToFile(
-                value.source,
-                scriptFilename,
-                `${objectPath}`
-              );
-              delete value.source;
-            }
-          }
+      if (managedObject.actions)
+        extractScripts(
+          managedObject,
+          objectPath,
+          (k) => `${managedObject.name}.actions.${k}.js`
         );
-      }
-
-      Object.entries(managedObject.schema.properties).forEach(
-        ([key, value]) => {
-          SCRIPT_HOOKS.forEach((hook) => {
-            if (
-              // eslint-disable-next-line no-prototype-builtins
-              value.hasOwnProperty(hook) &&
-              value[hook].type === 'text/javascript' &&
-              value[hook].source
-            ) {
-              const scriptFilename = `${managedObject.name}.${key}.${hook}.js`;
-              value[hook].file = scriptFilename;
-              extractFrConfigDataToFile(
-                value[hook].source,
-                scriptFilename,
-                `${objectPath}`
-              );
-
-              delete value[hook].source;
-            }
-          });
-        }
-      );
-
-      if (pullCustomRelationships && repoMapping) {
+      SCRIPT_HOOKS.forEach((hook) => {
+        extractScripts(
+          managedObject.schema.properties,
+          objectPath,
+          (k) => `${managedObject.name}.${k}.${hook}.js`,
+          hook
+        );
+      });
+      if (pullCustomRelationships) {
         const customRelationships = getCustomRelationships(
           managedObject,
           repoMapping
         );
-
         for (const customRelationship of customRelationships) {
           const schemaData = await readManagedObjectSchemaProperty(
             managedObject.name,
             customRelationship
           );
-
           const schemaFileName = `${objectPath}/schema/${managedObject.name}.schema.${customRelationship}.json`;
-
           saveJsonToFile(schemaData, getFilePath(schemaFileName, true), false);
         }
       }
-
-      const fileName = `${objectPath}/${managedObject.name}.json`;
-
-      saveTextToFile(stringify(managedObject), getFilePath(fileName, true));
+      saveJsonToFile(
+        managedObject,
+        getFilePath(`${objectPath}/${managedObject.name}.json`, true),
+        false
+      );
     }
-  } catch (err) {
-    printError(err);
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting IDM managed objects`);
   }
+  return false;
 }
 
 /**
- * Helper that recursively reads in extracted files and stores them back in the managed object
- * @param obj The managed object configuration
- * @param managedObjectDirectory The directory where the managed object resides
+ * Recursive helper that reads in extracted files and stores them back in the managed object
+ * @param {any} obj The managed object configuration
+ * @param {string} managedObjectDirectory The directory where the managed object resides
  */
 function getExtractedFiles(obj: any, managedObjectDirectory: string): void {
   if (!obj || typeof obj !== 'object') return;
@@ -188,19 +140,17 @@ function getExtractedFiles(obj: any, managedObjectDirectory: string): void {
 
 /**
  * Helper that returns the import data for a managed object given the file where it is saved
- * @param file The file where the managed object is saved
- * @returns The managed object data from the file, including data from any extracted files
+ * @param {string} file The file where the managed object is saved
+ * @returns {object} The managed object data from the file, including data from any extracted files
  */
 function getManagedObjectImportData(file: string): object {
-  const readManagedObject = fs.readFileSync(file, 'utf-8');
-  const importData = JSON.parse(readManagedObject);
-  const managedObjectDirectory = path.dirname(file);
-  getExtractedFiles(importData, managedObjectDirectory);
+  const importData = readJsonFile(file);
+  getExtractedFiles(importData, path.dirname(file));
   return importData;
 }
 
 /**
- * Import an IDM managed object in the fr-config-manager format.
+ * Import an IDM managed object from fr-config-manager format.
  * @param {string} objectName Optional managed object name. If not specified, imports all the managed objects.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
@@ -231,7 +181,7 @@ export async function configManagerImportManagedObjects(
     }
     return true;
   } catch (error) {
-    printError(error, `Error exporting config entity endpoints`);
+    printError(error, `Error importing IDM managed objects`);
   }
   return false;
 }

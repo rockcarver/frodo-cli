@@ -25,7 +25,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Endpoint name, It only export the endpoint with the name'
+        'Managed object name. If specified, only exports the managed object with the specified name.'
       )
     )
     .addOption(
@@ -46,7 +46,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity managed-objects');
+        verboseMessage('Exporting managed objects...');
         const outcome = await configManagerExportManagedObjects(
           options.name,
           options.customRelationships

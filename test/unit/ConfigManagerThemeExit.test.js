@@ -27,6 +27,10 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     utils: {
       saveJsonToFile: (data, file) =>
         fs.writeFileSync(file, JSON.stringify(data)),
+      saveTextToFile: (data, file) => {
+        fs.mkdirSync(file.substring(0, file.lastIndexOf('/')), { recursive: true });
+        fs.writeFileSync(file, data);
+      },
       getFilePath: (p) => path.join(root, p),
       constants: { DEFAULT_REALM_KEY: '__default__realm__' },
     },
@@ -38,6 +42,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
 jest.unstable_mockModule('../../src/utils/Console', () => ({ printError }));
 jest.unstable_mockModule('../../src/utils/FrConfig', () => ({
   decodeOrNot: (value) => value,
+  encodeOrNot: (value) => value,
   realmList: jest.fn(async () => ['alpha']),
 }));
 
@@ -77,7 +82,7 @@ describe('configManagerExportThemes', () => {
     expect(exit).not.toHaveBeenCalled();
     expect(printError).toHaveBeenCalledTimes(1);
     expect(printError.mock.calls[0][0].message).toBe(
-      'Unexpected type for accountFooter in bad'
+      'Unexpected data type for accountFooter: number'
     );
   });
 });

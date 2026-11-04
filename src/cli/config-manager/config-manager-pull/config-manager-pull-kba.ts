@@ -20,7 +20,7 @@ export default function setup() {
   );
 
   program
-    .description('Export kba-config objects.')
+    .description('Export KBA.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -32,7 +32,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity kba-config');
+        verboseMessage('Exporting KBA...');
         const outcome = await configManagerExportKbaConfig();
         if (!outcome) process.exitCode = 1;
       } else {

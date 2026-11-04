@@ -1,22 +1,10 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { configManagerExportAllStatic } from '../../../configManagerOps/FrConfigAllOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
+import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull all-static',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config-manager pull all-static');
   program
     .description('Export all static config.')
     .addHelpText(
@@ -33,11 +21,11 @@ export default function setup() {
         command
       );
 
-      if (!(await getTokens(false, true, deploymentTypes))) {
+      if (!(await getTokens())) {
         process.exitCode = 1;
         return;
       }
-
+      verboseMessage('Exporting all static config');
       const outcome = await configManagerExportAllStatic({ realm });
       if (!outcome) process.exitCode = 1;
     });

@@ -21,11 +21,11 @@ export default function setup() {
   );
 
   program
-    .description('Export custom locales objects.')
+    .description('Export locales.')
     .addOption(
       new Option(
         '-n, --name <name>',
-        'locale name, It only export the locale with the name'
+        'Locale name. If specified, only exports the locale with the specified name.'
       )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -39,7 +39,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity locales');
+        verboseMessage('Exporting locales...');
         const outcome = await configManagerExportLocales(options.name);
         if (!outcome) process.exitCode = 1;
       } else {

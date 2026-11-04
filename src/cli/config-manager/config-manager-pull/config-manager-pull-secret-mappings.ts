@@ -21,7 +21,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Name of the secret mapping, It will only export secret mapping with the name. Works both with mapping._id or alias.  '
+        'Name of the secret mapping, If specified, only exports the secret mapping with the specified name.'
       )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -35,7 +35,7 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity secret-mappings');
+        verboseMessage('Exporting secret mappings...');
         const outcome = await configManagerExportSecretMappings(
           options.name,
           realm
