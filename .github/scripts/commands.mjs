@@ -19,7 +19,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { parseSettings, readSettingsText } from './issue-concierge-settings.mjs';
 import { LABEL_AGENT_FAILED, isCodingAgent } from './janitor.mjs';
-import { BOT, GATE_LABELS, OPTIONS_MARKER, STUCK_AFTER_MINUTES, isOptionsComment, labelledAt, MAINTAINER_ASSOCIATIONS, pausedBy } from './issue-concierge-state.mjs';
+import { BOT, GATE_LABELS, OPTIONS_MARKER, PLAN_OWED_MINUTES, STUCK_AFTER_MINUTES, isOptionsComment, labelledAt, MAINTAINER_ASSOCIATIONS, pausedBy } from './issue-concierge-state.mjs';
 import { LABEL_OPT_OUT, isOptedOut, labelNames } from './opt-out.mjs';
 import { MARKER as APPROVAL_MARKER, decide as decideApproval } from './plan-approval-resume.mjs';
 
@@ -82,11 +82,13 @@ const classified = (labels) => [...labels].some((l) => l.startsWith('complexity/
  * True while the plan worker owes the issue a new plan: `issue-triage-handoff` was given after the last
  * `plan-worker-ready`, and not longer ago than a gate may take. A `/replan` gives the label to an issue that already holds
  * a plan, and the janitor takes it away again within seconds (the issue is held already), so the label cannot show the wait;
- * the events can. After an hour the plan is taken as lost, so that the maintainer is offered the commands again.
+ * the events can. The plan worker answers every hand-off with `plan-worker-ready`, also when it writes no plan, so a plan
+ * is owed for a few minutes. After `PLAN_OWED_MINUTES` it is taken as lost (the worker failed or never started), so that
+ * the maintainer is offered the commands again.
  */
 export function planPending(events, now = Date.now()) {
   const asked = labelledAt(events, LABEL_HANDOFF);
-  if (asked === null || now - asked > STUCK_AFTER_MINUTES * 60000) return false;
+  if (asked === null || now - asked > PLAN_OWED_MINUTES * 60000) return false;
   const answered = labelledAt(events, LABEL_PLAN_READY);
   return answered === null || answered < asked;
 }

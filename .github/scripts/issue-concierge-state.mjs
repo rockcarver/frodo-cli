@@ -52,6 +52,15 @@ export const isConciergeLabel = (name) => CONCIERGE_LABELS.includes(name) || /^(
 export const STUCK_AFTER_MINUTES = 60;
 
 /**
+ * How long a plan that was asked for (a hand-off to the plan worker, or a `/replan`) is taken as still on its way, and
+ * the options comment is kept back. The plan worker stops after 6 minutes and plan triage after 4, and the plan worker
+ * answers every hand-off with `plan-worker-ready`, even when it writes no plan, so a healthy hand-off is answered well
+ * inside this time. It is the limit for a worker that fails or never starts; the stuck limit above, an hour, would
+ * leave a maintainer without the commands for that long.
+ */
+export const PLAN_OWED_MINUTES = 20;
+
+/**
  * The queue of a managed issue, or the stage it is in when nobody has to move. `backlog` says an issue is parked, and it
  * stays on an issue that a maintainer has since approved (frodo-lib#783 kept it from its first triage to its pull request),
  * so it counts only when nothing is working on the issue: a gate label or the coding agent outranks it. The other queues
