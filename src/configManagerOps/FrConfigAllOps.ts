@@ -1,4 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { exportIdmRemoteProxyConfig } from '../ops/ConfigManagerRemoteProxyOps';
 import { printError } from '../utils/Console';
 import { configFileStep, existingConfigFile } from './ConfigFileStep';
 import { configManagerExportAccessConfig } from './FrConfigAccessConfigOps';
@@ -75,6 +76,7 @@ const deploymentMapAll = {
     configFileStep('raw config', 'raw.json', configManagerExportRaw, {
       optional: true,
     }),
+    () => exportIdmRemoteProxyConfig(),
     () => configManagerExportRemoteServers(),
     configFileStep('SAML', 'saml.json', configManagerExportSaml),
     () => configManagerExportSchedules(),
@@ -125,6 +127,7 @@ const deploymentMapAll = {
     configFileStep('raw config', 'raw.json', configManagerExportRaw, {
       optional: true,
     }),
+    () => exportIdmRemoteProxyConfig(),
     () => configManagerExportRemoteServers(),
     configFileStep('SAML', 'saml.json', configManagerExportSaml),
     () => configManagerExportSchedules(),
@@ -185,6 +188,7 @@ const deploymentMapAllStatic = {
     () => configManagerExportMappings(),
     (options) => configManagerExportOrgPrivilegesAllRealms(options.realm),
     (options) => configManagerExportPasswordPolicy(options.realm),
+    () => exportIdmRemoteProxyConfig(),
     () => configManagerExportRemoteServers(),
     () => configManagerExportSchedules(),
     (options) => configManagerExportScripts(undefined, options.realm),
@@ -212,6 +216,7 @@ const deploymentMapAllStatic = {
     () => configManagerExportMappings(),
     (options) => configManagerExportOrgPrivilegesAllRealms(options.realm),
     (options) => configManagerExportPasswordPolicy(options.realm),
+    () => exportIdmRemoteProxyConfig(),
     () => configManagerExportRemoteServers(),
     () => configManagerExportSchedules(),
     (options) => configManagerExportScripts(undefined, options.realm),
