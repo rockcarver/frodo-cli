@@ -13,8 +13,8 @@ import {
 
 /**
  * Decision records 0040 and 0041 for `config-manager pull` and `push` of
- * `authentication`, `authz-policies`, `journeys`, `oauth2-agents` and
- * `org-privileges`. When one item fails, the others still run, one summary
+ * `authentication`, `authz-policies`, `journeys`, and `oauth2-agents`.
+ * When one item fails, the others still run, one summary
  * names the failed one, and the command fails, unless --allow-failures was
  * given. A failure to read what there is to export or the files to import
  * fails the command whatever the flag says.
@@ -271,67 +271,6 @@ const CASES = [
     failToRead: () =>
       fs.rmSync(path.join(folder, 'realms'), { recursive: true }),
     run: (m, allowFailures) => m.configManagerImportAgents(allowFailures),
-  },
-  {
-    name: 'config-manager pull org-privileges',
-    file: 'src/configManagerOps/FrConfigOrgPrivilegesOps.ts',
-    summaryName: (id) => `${id}OrgPrivileges`,
-    unit: 'configuration',
-    total: 4, // the privilege assignments and the three realms
-    arrange({ failing, attempted }) {
-      frodo.realm.readRealms
-        .mockReset()
-        .mockResolvedValue(IDS.map((id) => ({ name: id })));
-      frodo.idm.config.readConfigEntity
-        .mockReset()
-        .mockImplementation(async (entity) => {
-          const id = entity.replace(/OrgPrivileges$/, '');
-          if (IDS.includes(id)) attempted.push(id);
-          if (failing.has(id)) throw boom(id);
-          return { _id: entity };
-        });
-    },
-    empty: () => frodo.realm.readRealms.mockReset().mockResolvedValue([]),
-    failToRead: () =>
-      frodo.realm.readRealms
-        .mockReset()
-        .mockRejectedValue(new Error('read failed')),
-    run: (m, allowFailures) =>
-      m.configManagerExportOrgPrivilegesAllRealms(undefined, allowFailures),
-  },
-  {
-    name: 'config-manager push org-privileges',
-    file: 'src/configManagerOps/FrConfigOrgPrivilegesOps.ts',
-    summaryName: (id) => `${id}OrgPrivileges`,
-    unit: 'configuration',
-    total: 4,
-    arrange({ failing, attempted }) {
-      write('org-privileges/privilegeAssignments.json', {
-        _id: 'privilegeAssignments',
-      });
-      for (const id of IDS) {
-        write(`org-privileges/${id}OrgPrivileges.json`, {
-          _id: `${id}OrgPrivileges`,
-        });
-      }
-      frodo.realm.readRealms
-        .mockReset()
-        .mockResolvedValue(IDS.map((id) => ({ name: id })));
-      frodo.idm.config.importConfigEntities
-        .mockReset()
-        .mockImplementation(async ({ idm }) => {
-          const [entity] = Object.keys(idm);
-          const id = entity.replace(/OrgPrivileges$/, '');
-          if (IDS.includes(id)) attempted.push(id);
-          if (failing.has(id)) throw boom(id);
-        });
-    },
-    empty: () => emptyFolder('org-privileges'),
-    failMessage: /No org-privileges folder found to import from/,
-    failToRead: () =>
-      fs.rmSync(path.join(folder, 'org-privileges'), { recursive: true }),
-    run: (m, allowFailures) =>
-      m.configManagerImportOrgPrivilegesAllRealms(allowFailures),
   },
   {
     name: 'config-manager pull journeys (a journey that cannot be read)',
@@ -698,142 +637,6 @@ describe('config-manager push authz-policies', () => {
       'c:sets',
       'c:policies',
     ]);
-  });
-});
-
-describe('config-manager pull org-privileges', () => {
-  const file = 'src/configManagerOps/FrConfigOrgPrivilegesOps.ts';
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    arrangeCommon();
-    frodo.realm.readRealms
-      .mockReset()
-      .mockResolvedValue(IDS.map((id) => ({ name: id })));
-  });
-
-  test('exports the global assignments and every realm even when the assignments failed', async () => {
-    const saved = [];
-    frodo.utils.saveJsonToFile.mockImplementation((data) =>
-      saved.push(data._id)
-    );
-    frodo.idm.config.readConfigEntity
-      .mockReset()
-      .mockImplementation(async (entity) => {
-        if (entity === 'privilegeAssignments') throw boom('assignments');
-        return { _id: entity };
-      });
-
-    expect(
-      await modules[file].configManagerExportOrgPrivilegesAllRealms()
-    ).toBe(false);
-
-    expect(saved).toEqual([
-      'aOrgPrivileges',
-      'bOrgPrivileges',
-      'cOrgPrivileges',
-    ]);
-    expect(summary()).toMatch(
-      /^1 of 4 configurations failed:\n {2}- privilegeAssignments: /
-    );
-  });
-
-  test.each([
-    ['a realm that was asked for by name fails', false, false],
-    ['a realm that the tenant lists is nothing to export', true, true],
-  ])(
-    'a realm without configuration: %s',
-    async (_, ignoreMissing, expected) => {
-      frodo.idm.config.readConfigEntity
-        .mockReset()
-        .mockImplementation(async (entity) => {
-          if (entity === 'aOrgPrivileges') {
-            throw Object.assign(new Error('Not Found'), { httpStatus: 404 });
-          }
-          return { _id: entity };
-        });
-
-      expect(
-        await modules[file].configManagerExportOrgPrivilegesAllRealms(
-          'a',
-          false,
-          ignoreMissing
-        )
-      ).toBe(expected);
-    }
-  );
-});
-
-describe('config-manager push org-privileges', () => {
-  const file = 'src/configManagerOps/FrConfigOrgPrivilegesOps.ts';
-  let imported;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    arrangeCommon();
-    imported = [];
-    frodo.realm.readRealms
-      .mockReset()
-      .mockResolvedValue(IDS.map((id) => ({ name: id })));
-    frodo.idm.config.importConfigEntities
-      .mockReset()
-      .mockImplementation(async ({ idm }) => {
-        imported.push(...Object.keys(idm));
-      });
-  });
-
-  test('a realm of the tenant without a file has nothing to import, and does not fail the push', async () => {
-    write('org-privileges/privilegeAssignments.json', {
-      _id: 'privilegeAssignments',
-    });
-    write('org-privileges/aOrgPrivileges.json', { _id: 'aOrgPrivileges' });
-
-    expect(
-      await modules[file].configManagerImportOrgPrivilegesAllRealms()
-    ).toBe(true);
-
-    expect(imported).toEqual(['privilegeAssignments', 'aOrgPrivileges']);
-    expect(printError).not.toHaveBeenCalled();
-  });
-
-  test('says that the privilege assignments are missing, and still imports the realms', async () => {
-    write('org-privileges/bOrgPrivileges.json', { _id: 'bOrgPrivileges' });
-
-    expect(
-      await modules[file].configManagerImportOrgPrivilegesAllRealms()
-    ).toBe(true);
-
-    expect(imported).toEqual(['bOrgPrivileges']);
-    expect(printMessage).toHaveBeenCalledWith(
-      expect.stringContaining('no privilegeAssignments.json'),
-      'warn'
-    );
-  });
-
-  test('says plainly that the org-privileges folder is missing', async () => {
-    expect(
-      await modules[file].configManagerImportOrgPrivilegesAllRealms(true)
-    ).toBe(false);
-
-    expect(printMessage).toHaveBeenCalledWith(
-      expect.stringContaining('No org-privileges folder found'),
-      'error'
-    );
-    expect(printError).not.toHaveBeenCalled();
-  });
-
-  test('-n fails plainly when the named file is not there', async () => {
-    expect(
-      await modules[file].configManagerImportOrgPrivilegesByName(
-        'zzzOrgPrivileges'
-      )
-    ).toBe(false);
-
-    expect(printMessage).toHaveBeenCalledWith(
-      expect.stringContaining('Organization privileges file not found'),
-      'error'
-    );
-    expect(imported).toEqual([]);
   });
 });
 
