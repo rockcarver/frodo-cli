@@ -127,8 +127,6 @@ export function friendlyTimestamp(timestamp?: string): string {
 /**
  * Merge function that mimics Lodash's merge (from config-manager).
  *
- * Claude description:
- *
  * Merge `source` into `target`, mirroring deep-diff's
  * `applyDiff(target, source, (s, t, change) => change.kind !== 'D')` — the
  * semantics this function relied on before deep-diff was dropped

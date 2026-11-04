@@ -78,7 +78,7 @@ export async function configManagerExportManagedObjects(
       );
       if (managedObject.actions)
         extractScripts(
-          managedObject,
+          managedObject.actions,
           objectPath,
           (k) => `${managedObject.name}.actions.${k}.js`
         );
