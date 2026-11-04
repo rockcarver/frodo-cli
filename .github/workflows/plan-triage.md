@@ -52,6 +52,11 @@ Handoff and classification labels must be applied, not suggested.
 
 Triggered only when an issue receives `plan-worker-ready`.
 
+## Reading files
+Read repository files with the GitHub file tool (`get_file_contents`, with no `ref` argument, which reads the default branch) or with the file viewer and the search tools, one file or one search per call. Do not read, list or filter files with shell commands, do not chain commands, and do not run scripts (`python3`, `node`) on a tool result: the sandbox refuses a command it cannot approve as read-only, and nobody is there to approve it. A long tool result that was saved to a file is read with the file viewer or the search tools.
+
+A refused or failed read is not a missing file. Try once more with the other tool: the GitHub file tool if you used the viewer, the viewer if you used the GitHub tool. Say that you could not read a file only when both failed, and name the file and what failed. If you read some of a set of files, say which ones you read; never write that the set could not be read.
+
 ## Which comment is the plan
 The plan is the comment written by `github-actions[bot]` whose body contains the text `gh-aw-workflow-call-id: owner/repo/plan-worker`, where `owner/repo` is this repository. gh-aw appends that text to every comment the plan worker posts, as a hidden HTML comment at the end of the body. The GitHub API returns it in the raw body, so look for the text itself when you read the comments.
 
