@@ -41,9 +41,7 @@ This plan exists so plan triage can assign complexity and risk. It is not a coll
 ## Already planned
 Do this first, before you read any code, guidance file or decision record. Read the comments on the issue. A plan of yours is a comment by `github-actions[bot]` whose body contains the text `gh-aw-workflow-call-id: owner/repo/plan-worker` (see "Identity of the plan comment"). When one is there and still covers the issue as it stands, write no second plan: it would cost as much as the first and leave two plans on one issue. These do not change what a plan has to say: a comment that only thanks, links or notes something, a label change, an edit that fixes a typo. Write a new plan only when something changed that the plan did not account for: the issue was edited with new facts, someone answered a question that the plan or the analysis raised, or someone asked in a comment for a new or a different plan. A new plan stands on its own, because plan triage reads a plan and not a difference.
 
-When the plan stands, post no comment. What else you do depends on whether plan triage has classified it:
-- The issue has a `complexity/*` label and a `risk/*` label: plan triage has classified that plan. Add no label and call `noop` with a one-line reason.
-- It has not: the hand-off after the plan was lost. Add `plan-worker-ready` (see "Identity of the plan comment"), so that plan triage classifies the plan that is there.
+When the plan stands, post no comment and answer the hand-off all the same: add `plan-worker-ready` (see "Identity of the plan comment"), as you do for a new plan, so that plan triage classifies the plan that is there. Do not call `noop` for this. The label is the answer to the hand-off, and an issue whose hand-off is never answered is taken to wait for a plan.
 
 ## Plan contents
 - Expected files or subsystems to touch
