@@ -1,11 +1,19 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 
 /*
+ * The status polls of the "--wait" recordings were taken from the frodo-lib recordings
+ * (src/test/mock-recordings/EnvPromotionOps_*, Wait-tests, recorded on 2026-10-27) and trimmed to a few polls;
+ * only the login requests were recorded with the CLI. Re-record them on a promotion pair when possible, and trim
+ * only repeated identical polls. The recording name uses the flag names, not their values, so "--timeout 6"
+ * and any other value share one recording.
+ */
+
+/*
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote rollback
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote rollback --wait
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote rollback --wait --timeout 0.1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote rollback --wait --timeout 6
 */
 
 import { getEnv, testSuccess, testFail } from './utils/TestUtils';
@@ -27,8 +35,8 @@ describe('frodo config-manager promote rollback', () => {
         const CMD = `frodo config-manager promote rollback --wait`;
         await testSuccess(CMD, cloudEnv);
       });
-    test(`"frodo config-manager promote rollback --wait --timeout 0.1": Should time out waiting for rollback`, async () => {
-        const CMD = `frodo config-manager promote rollback --wait --timeout 0.1`;
+    test(`"frodo config-manager promote rollback --wait --timeout 6": Should time out waiting for rollback`, async () => {
+        const CMD = `frodo config-manager promote rollback --wait --timeout 6`;
         await testFail(CMD, cloudEnv);
     });
 });

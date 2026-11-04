@@ -6,7 +6,7 @@ import { rollbackPromotion } from '../../../ops/cloud/EnvPromotionOps';
 import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
-import { parseTimeoutMinutes } from './WaitTimeout';
+import { parseTimeoutSeconds } from './WaitTimeout';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -47,23 +47,23 @@ export default function setup() {
     .addOption(
       new Option(
         '-w, --wait',
-        'Wait for the rollback to complete. Times out after 45 minutes by default, but can be overridden using --timeout.'
+        'Wait for the rollback to complete. Times out after 2700 seconds (45 minutes) by default, but can be overridden using --timeout.'
       )
     )
     .addOption(
       new Option(
-        '-T, --timeout <minutes>',
-        'How many minutes to wait for the rollback to complete. Requires --wait.'
-      ).argParser(parseTimeoutMinutes)
+        '-T, --timeout <seconds>',
+        'Specify a timeout in seconds how long the tool should wait for the rollback to complete. Requires --wait.'
+      ).argParser(parseTimeoutSeconds)
     )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
         `  Roll back the previous promotion without waiting for completion:\n` +
         c.command(`  $ frodo config-manager promote rollback ${s.connId}\n`) +
-        `  Roll back the previous promotion and wait up to 60 minutes for completion:\n` +
+        `  Roll back the previous promotion and wait up to 30 minutes for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote rollback --wait --timeout 60 ${s.connId}\n`
+          `  $ frodo config-manager promote rollback --wait --timeout 1800 ${s.connId}\n`
         ) +
         `  Roll back the previous promotion, record who did it and why, and unlock the environments afterwards:\n` +
         c.command(

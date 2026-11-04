@@ -31,12 +31,14 @@ Options:
   -p, --promoter <name>               Name of the person performing the
                                       rollback.
   -t, --ticket-reference <reference>  Zendesk ticket reference.
-  -T, --timeout <minutes>             How many minutes to wait for the rollback
-                                      to complete. Requires --wait.
+  -T, --timeout <seconds>             Specify a timeout in seconds how long the
+                                      tool should wait for the rollback to
+                                      complete. Requires --wait.
   -u, --unlock-after                  Unlock environments after the rollback.
   -w, --wait                          Wait for the rollback to complete. Times
-                                      out after 45 minutes by default, but can
-                                      be overridden using --timeout.
+                                      out after 2700 seconds (45 minutes) by
+                                      default, but can be overridden using
+                                      --timeout.
   -h, --help                          Help
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment

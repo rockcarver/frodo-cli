@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
 /**
- * `--wait` and `--timeout <minutes>` of `config-manager promote run-promotion`,
+ * `--wait` and `--timeout <seconds>` of `config-manager promote run-promotion`,
  * `run-dryrun-promotion` and `rollback`. What must hold:
  *
  * - without `--wait` the library is asked not to wait;
@@ -116,9 +116,9 @@ describe.each([
   });
 
   test.each([
-    [['--wait', '--timeout', '2'], 120000],
-    [['-w', '-T', '0.5'], 30000],
-    [['--wait', '--timeout', '60'], 3600000],
+    [['--wait', '--timeout', '2'], 2000],
+    [['-w', '-T', '0.5'], 500],
+    [['--wait', '--timeout', '1800'], 1800000],
   ])('%j passes %d ms on', async (args, milliseconds) => {
     expect((await run(setup, args)).exitCode).toBe(0);
 

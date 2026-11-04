@@ -71,12 +71,12 @@ export async function checkPromotionReports({
 }
 
 /**
- * Convert minutes to milliseconds.
- * @param {number} minutes number of minutes, or undefined to leave the default of the library
+ * Convert seconds to milliseconds.
+ * @param {number} seconds number of seconds, or undefined to leave the default of the library
  * @returns {number | undefined} number of milliseconds, or undefined
  */
-function minutesToMilliseconds(minutes?: number): number | undefined {
-  return minutes === undefined ? undefined : Math.round(minutes * 60 * 1000);
+function secondsToMilliseconds(seconds?: number): number | undefined {
+  return seconds === undefined ? undefined : Math.round(seconds * 1000);
 }
 
 /**
@@ -86,7 +86,7 @@ function minutesToMilliseconds(minutes?: number): number | undefined {
  * @param {string} ticketReference Optional Zendesk ticket reference.
  * @param {boolean} unlockAfter Whether to unlock environments after rollback.
  * @param {boolean} wait Whether to wait for the rollback to complete.
- * @param {number} timeout Maximum time to wait in minutes. Default: the library default (45 minutes)
+ * @param {number} timeout Maximum time to wait in seconds. Default: the library default (2700 seconds, 45 minutes)
  * @returns {Promise<boolean>} True if the rollback request succeeds, or if waiting, the rollback completes successfully; false otherwise.
  */
 export async function rollbackPromotion({
@@ -114,7 +114,7 @@ export async function rollbackPromotion({
       },
       wait,
       undefined,
-      minutesToMilliseconds(timeout)
+      secondsToMilliseconds(timeout)
     );
     printMessage(response, 'data');
     return true;
@@ -177,7 +177,7 @@ export async function unlockTenants(promotionId?: string): Promise<boolean> {
  * @param {string} description Optional description of the promotion.
  * @param {string} ticketReference Optional Zendesk ticket reference.
  * @param {boolean} wait Whether to wait for the promotion to complete.
- * @param {number} timeout Maximum time to wait in minutes. Default: the library default (45 minutes)
+ * @param {number} timeout Maximum time to wait in seconds. Default: the library default (2700 seconds, 45 minutes)
  * @returns {Promise<boolean>} True if the request succeeds, or if waiting, the promotion completes successfully; false otherwise.
  */
 export async function runPromotion({
@@ -211,7 +211,7 @@ export async function runPromotion({
       },
       wait,
       undefined,
-      minutesToMilliseconds(timeout)
+      secondsToMilliseconds(timeout)
     );
     printMessage(response, 'data');
     return true;
