@@ -1,9 +1,5 @@
 import fs from 'fs';
-import {
-  frodo,
-  state,
-  type IdObjectSkeletonInterface,
-} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 
@@ -73,18 +69,29 @@ export async function configManagerImportPasswordPolicy(
       const filePath = getFilePath(
         `realms/${realm === '/' ? 'root' : realm}/password-policy/${objectName}-password-policy.json`
       );
-      const passwordPolicy = readJsonFile(
-        filePath
-      ) as IdObjectSkeletonInterface;
-      await importConfigEntities({
-        idm: {
-          [passwordPolicy._id]: passwordPolicy,
-        },
-      });
+      const parsedData = readJsonFile(filePath) as any;
+      // Support both fr-config wrappers ({ idm: { ... }, meta: ... }) and
+      // single-entity files with a top-level _id.
+      if (
+        parsedData?.idm &&
+        typeof parsedData.idm === 'object' &&
+        Object.keys(parsedData.idm).length > 0
+      ) {
+        await importConfigEntities({ idm: parsedData.idm });
+      } else {
+        if (!parsedData?._id) {
+          throw new Error(
+            `Invalid password policy payload in '${filePath}': expected either an 'idm' map or top-level '_id'.`
+          );
+        }
+        await importConfigEntities({
+          idm: { [parsedData._id]: parsedData },
+        });
+      }
     }
     return true;
   } catch (error) {
-    printError(error, `Error importing config entity ui-configuration`);
+    printError(error, `Error importing password policies`);
   }
   return false;
 }

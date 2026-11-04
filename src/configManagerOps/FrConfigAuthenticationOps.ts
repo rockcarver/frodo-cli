@@ -57,25 +57,28 @@ export async function configManagerImportAuthentication(
   realm?: string
 ): Promise<boolean> {
   try {
-    const realms =
-      realm && realm !== DEFAULT_REALM_KEY
-        ? [realm]
-        : fs.readdirSync(`${getWorkingDirectory()}/realms`);
-    for (const realm of realms) {
+    const singleRealm = realm && realm !== DEFAULT_REALM_KEY;
+    const realmDirs = singleRealm
+      ? [realm === '/' ? 'root' : realm]
+      : fs.readdirSync(`${getWorkingDirectory()}/realms`);
+    for (const realmDir of realmDirs) {
+      const realmName = realmDir === 'root' ? '/' : realmDir;
       if (
-        realm === '/' &&
+        realmName === '/' &&
         state.getDeploymentType() ===
           frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
-      await state.setRealm(realm);
       const filePath = getFilePath(
-        `realms/${realm === '/' ? 'root' : realm}/realm-config/authentication.json`
+        `realms/${realmDir}/realm-config/authentication.json`
       );
       if (!fs.existsSync(filePath)) {
+        // A realm directory that holds other configuration is not an error
+        if (!singleRealm) continue;
         printMessage('No authentication file found to import.');
         return false;
       }
+      await state.setRealm(realmName);
       const authData = readJsonFile(filePath) as any;
       delete authData._rev;
       await importAuthenticationSettings(

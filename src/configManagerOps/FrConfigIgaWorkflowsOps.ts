@@ -27,7 +27,8 @@ export async function configManagerExportIgaWorkflows(
       throw new Error(`Workflow ${name} not found`);
     }
     for (const workflow of workflows) {
-      const workflowPath = `iga/workflows/${workflow.name}`;
+      const workflowName = safeFileName(workflow.name);
+      const workflowPath = `iga/workflows/${workflowName}`;
 
       const stepsPath = `${workflowPath}/steps`;
       workflow.steps.forEach((step) => {
@@ -59,7 +60,7 @@ export async function configManagerExportIgaWorkflows(
 
       saveJsonToFile(
         workflow,
-        getFilePath(`${workflowPath}/${workflow.name}.json`, true),
+        getFilePath(`${workflowPath}/${workflowName}.json`, true),
         false,
         true
       );
@@ -101,35 +102,38 @@ export async function configManagerImportIgaWorkflows(
         continue;
       }
       const stepsDir = path.join(workflowDir, 'steps');
-      const stepDirs = fs
-        .readdirSync(stepsDir, { withFileTypes: true })
-        .filter((d) => d.isDirectory())
-        .map((dirent) => path.join(stepsDir, dirent.name));
-      const steps = [];
-      for (const stepDir of stepDirs) {
-        const stepName = path.parse(stepDir).base;
-        const stepFile = path.join(stepDir, `${stepName}.json`);
-        const step = readJsonFile(stepFile) as any;
-        if (
-          step.type === 'scriptTask' &&
-          step.scriptTask &&
-          (step.scriptTask as ScriptTask).script &&
-          (step.scriptTask as any).script.file
-        ) {
-          const filePath = path.join(
-            stepDir,
+      // A workflow without steps has no steps directory: import it as it is
+      if (fs.existsSync(stepsDir)) {
+        const stepDirs = fs
+          .readdirSync(stepsDir, { withFileTypes: true })
+          .filter((d) => d.isDirectory())
+          .map((dirent) => path.join(stepsDir, dirent.name));
+        const steps = [];
+        for (const stepDir of stepDirs) {
+          const stepName = path.parse(stepDir).base;
+          const stepFile = path.join(stepDir, `${stepName}.json`);
+          const step = readJsonFile(stepFile) as any;
+          if (
+            step.type === 'scriptTask' &&
+            step.scriptTask &&
+            (step.scriptTask as ScriptTask).script &&
             (step.scriptTask as any).script.file
-          );
-          if (fs.existsSync(filePath)) {
-            (step.scriptTask as ScriptTask).script = fs.readFileSync(
-              filePath,
-              'utf8'
+          ) {
+            const filePath = path.join(
+              stepDir,
+              (step.scriptTask as any).script.file
             );
+            if (fs.existsSync(filePath)) {
+              (step.scriptTask as ScriptTask).script = fs.readFileSync(
+                filePath,
+                'utf8'
+              );
+            }
           }
+          steps.push(step);
         }
-        steps.push(step);
+        workflow.steps = steps;
       }
-      workflow.steps = steps;
       workflow.status = status;
       await updateWorkflow(workflow.id, workflow);
     }
