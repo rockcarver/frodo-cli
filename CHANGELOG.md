@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-21] - 2026-11-05
+
+### Added
+- Introduced `frodo config-manager delete custom-nodes` command with `-n <name>` and `-d, --dry-run` options, allowing users to list and delete custom nodes efficiently. (#1050, 8225ccfb3)
+
+### Changed
+- Enhanced `frodo config-manager promote` commands by adding `--wait` and `--timeout` flags for better control over promotion operations. (#1038, d59e668e9)
+
+### Fixed
+- Addressed regressions in `config-manager pull` commands, ensuring scripts under managed objects are correctly extracted to `<name>.actions.<key>.js`. (#1049, bf8e631d9)
+- Updated `--timeout` option in promote commands to accept seconds, aligning with `esv apply` behavior. (#1039, 68f27b40b)
+
 ## [v5.0.0-20] - 2026-10-31
 
 ### Changed
@@ -3165,6 +3177,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-21]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-20...v5.0.0-21
 [v5.0.0-20]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-19...v5.0.0-20
 [v5.0.0-19]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-18...v5.0.0-19
 [v5.0.0-18]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-17...v5.0.0-18
