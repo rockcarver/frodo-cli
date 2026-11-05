@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-22] - 2026-11-05
+
+### Fixed
+- Updated `@rockcarver/frodo-lib` to version `5.0.0-20`, addressing an issue with the MCP server on classic AM by ensuring HttpOnly session cookies are used. (#1051, f91db9b2a)
+
 ## [v5.0.0-21] - 2026-11-05
 
 ### Added
@@ -3177,6 +3182,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-22]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-21...v5.0.0-22
 [v5.0.0-21]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-20...v5.0.0-21
 [v5.0.0-20]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-19...v5.0.0-20
 [v5.0.0-19]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-18...v5.0.0-19
