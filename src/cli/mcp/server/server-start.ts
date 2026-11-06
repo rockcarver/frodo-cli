@@ -169,12 +169,14 @@ function resolveMcpAuthToken(opts: McpStartOptions): string | undefined {
  * MCP server start command.
  */
 export default function setup() {
-  // 'no-cache'/'flush-cache': the token cache is hard-coded off for this
-  // command (see below) — showing these flags in --help would suggest a
-  // choice that doesn't actually exist here.
+  // The server uses the token cache like every command that logs in:
+  // processes of one host and identity share one login per expiry window,
+  // and frodo-lib's auto-refresh keeps it current. `--no-cache` (offered
+  // here) switches it off, for a read-only or ephemeral home: the server then
+  // logs in once per process. `--flush-cache` is not offered: it would delete
+  // the entries that other running servers use.
   const program = new FrodoCommand('frodo mcp server start', [
     'realm',
-    'no-cache',
     'flush-cache',
   ])
     .description('Start an MCP server session from frodo-lib skills.')
@@ -366,18 +368,6 @@ export default function setup() {
         options,
         command
       );
-      // The token cache exists to let successive short-lived CLI invocations
-      // reuse tokens instead of re-authenticating every time — not relevant
-      // to a long-running MCP server, which logs in once and relies on
-      // frodo-lib's own auto-refresh for the rest of its lifetime. Worse,
-      // it's actively unsafe here: multiple `mcp server start` processes
-      // (one per policy/profile) commonly run concurrently against the same
-      // host, all reading and writing the same on-disk token cache file —
-      // a real corruption/collision risk this command should never
-      // participate in. Hard-coded off, not exposed as a configurable
-      // default, until that on-disk cache is made safe for concurrent
-      // writers (tracked separately).
-      state.setUseTokenCache(false);
 
       const opts = options as McpStartOptions;
       if (opts.json && !opts.dryRun) {

@@ -48,11 +48,22 @@
  * the username filtered as `uid`. FAKE_AM_USERS_CAP=<n> makes that endpoint
  * stop at n results, in the list and in the count, as AM does at the data
  * store's maximum results (1000 by default).
+ * FAKE_AM_SESSION_TTL_SECONDS=<n> gives the session of a plain login a lifetime
+ * of n seconds from the lookup (default: it expires in 2099).
  */
 import fs from 'node:fs';
 import http from 'node:http';
 
 const recordPath = process.env.FAKE_AM_RECORD;
+// A plain login's session lasts until 2099 unless FAKE_AM_SESSION_TTL_SECONDS
+// gives it a lifetime from the moment it is looked up. A test that keeps a
+// process running (and so a token refresh timer) needs a realistic expiry:
+// Node cannot wait for a timer that is more than about 24 days away.
+const sessionTtlSeconds = Number(process.env.FAKE_AM_SESSION_TTL_SECONDS);
+const sessionExpiry = () =>
+  sessionTtlSeconds > 0
+    ? new Date(Date.now() + sessionTtlSeconds * 1000).toISOString()
+    : '2099-01-01T00:00:00Z';
 const plainLogin = process.env.FAKE_AM_JOURNEY === 'password';
 const serviceAccountLogin = process.env.FAKE_AM_JOURNEY === 'service-account';
 const realms = (process.env.FAKE_AM_REALMS ?? '').split(',').filter(Boolean);
@@ -225,8 +236,8 @@ const server = http.createServer((req, res) => {
           universalId: 'id=someone@example.com,ou=user,dc=openam',
           realm: '/',
           latestAccessTime: '2026-10-23T22:00:00Z',
-          maxIdleExpirationTime: '2099-01-01T00:00:00Z',
-          maxSessionExpirationTime: '2099-01-01T00:00:00Z',
+          maxIdleExpirationTime: sessionExpiry(),
+          maxSessionExpirationTime: sessionExpiry(),
           properties: { AMCtxId: 'fake' },
         });
       }
