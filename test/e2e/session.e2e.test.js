@@ -26,6 +26,8 @@ const exec = promisify(cp.exec);
 
 const TMP_DIR = path.resolve('./test/fs_tmp/session-e2e');
 const tokenCachePath = path.join(TMP_DIR, 'TokenCache.json');
+// the cache entries are kept in the directory named like the cache file
+const tokenCacheDirectory = path.join(TMP_DIR, 'TokenCache');
 const masterKeyPath = path.join(TMP_DIR, 'masterkey.key');
 const connectionProfilesPath = path.join(TMP_DIR, 'Connections.json');
 const host = 'https://openam-session-e2e.example.com/am';
@@ -112,7 +114,7 @@ afterAll(() => {
 
 describe('frodo session', () => {
   beforeEach(async () => {
-    rmSync(tokenCachePath, { force: true });
+    rmSync(tokenCacheDirectory, { recursive: true, force: true });
     await seedCachedBrowserSession();
   });
 

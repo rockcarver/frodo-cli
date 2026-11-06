@@ -40,8 +40,8 @@ COPY --from=build --chown=node:node /build/dist ./dist
 
 ENV NODE_ENV=production
 # Connection profiles live on a volume the operator mounts (read-only is
-# enough for `mcp server start`; the CLI writes TokenCache and theme files
-# only when those features are used).
+# enough for `mcp server start`; the token cache (a TokenCache directory) and
+# theme files are written to /home/node/.frodo when those features are used).
 ENV FRODO_CONNECTION_PROFILES_PATH=/home/node/.frodo/Connections.json
 RUN mkdir -p /home/node/.frodo && chown node:node /home/node/.frodo
 VOLUME ["/home/node/.frodo"]
