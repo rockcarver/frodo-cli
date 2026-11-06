@@ -5,8 +5,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type delete --type-name FrodoTestResourceType13
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type delete -i 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type delete --type-id 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type delete --all -y
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -51,15 +51,15 @@ describe('frodo authz type delete', () => {
   });
 
   //TODO: Generate mock for this test (skip for meantime)
-  test.skip('"frodo authz type delete -a": should delete all resource types', async () => {
-    const CMD = `frodo authz type delete -a`;
+  test.skip('"frodo authz type delete -a -y": should delete all resource types', async () => {
+    const CMD = `frodo authz type delete -a -y`;
     const { stdout } = await exec(CMD, env);
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   //TODO: Generate mock for this test (skip for meantime)
-  test.skip('"frodo authz type delete --all": should do nothing when no resource types can be deleted', async () => {
-    const CMD = `frodo authz type delete --all`;
+  test.skip('"frodo authz type delete --all -y": should do nothing when no resource types can be deleted', async () => {
+    const CMD = `frodo authz type delete --all -y`;
     const { stderr } = await exec(CMD, env);
     expect(normalizeSnapshotText(stderr)).toMatchSnapshot()
   });

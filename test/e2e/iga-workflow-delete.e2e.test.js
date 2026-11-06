@@ -34,18 +34,18 @@ describe('frodo iga workflow delete', () => {
     await testSuccess(CMD, igaEnv);
   });
 
-  test.skip(`"frodo iga workflow delete --draft-only -a": should delete all draft workflows`, async () => {
-    const CMD = `frodo iga workflow delete --draft-only -a`;
+  test.skip(`"frodo iga workflow delete --draft-only -a -y": should delete all draft workflows`, async () => {
+    const CMD = `frodo iga workflow delete --draft-only -a -y`;
     await testSuccess(CMD, igaEnv);
   });
 
-  test.skip(`"frodo iga workflow delete --published-only -fa": should fail (protected OOTB workflows)`, async () => {
-    const CMD = `frodo iga workflow delete --published-only -fa`;
+  test.skip(`"frodo iga workflow delete --published-only -fa -y": should fail (protected OOTB workflows)`, async () => {
+    const CMD = `frodo iga workflow delete --published-only -fa -y`;
     await testSuccess(CMD, igaEnv);
   });
 
-  test.skip(`"frodo iga workflow delete -fdp --all": should fail (protected OOTB workflows)`, async () => {
-    const CMD = `frodo iga workflow delete -fdp --all`;
+  test.skip(`"frodo iga workflow delete -fdp --all -y": should fail (protected OOTB workflows)`, async () => {
+    const CMD = `frodo iga workflow delete -fdp --all -y`;
     await testSuccess(CMD, igaEnv);
   });
 });

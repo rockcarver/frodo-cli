@@ -3,8 +3,8 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping delete -i sync/managedAlpha_user_managedBravo_user
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping delete --mapping-id mapping/managedBravo_user_managedBravo_user0
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping delete --all -y
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -27,14 +27,14 @@ describe('frodo mapping delete', () => {
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test('"frodo mapping delete -a": should delete all mappings', async () => {
-        const CMD = `frodo mapping delete -a`;
+    test('"frodo mapping delete -a -y": should delete all mappings', async () => {
+        const CMD = `frodo mapping delete -a -y`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test('"frodo mapping delete --all": should do nothing when no mappings can be deleted', async () => {
-        const CMD = `frodo mapping delete --all`;
+    test('"frodo mapping delete --all -y": should do nothing when no mappings can be deleted', async () => {
+        const CMD = `frodo mapping delete --all -y`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });

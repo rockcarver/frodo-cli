@@ -3,8 +3,8 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete -i esv-test-secret-pi-generic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete --secret-id esv-test-secret-pi-generic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete --all -y
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -32,15 +32,15 @@ describe('frodo esv secret delete', () => {
     });
 
     //TODO: Generate mock for this test (skip for meantime)
-    test.skip('"frodo esv secret delete -a": should delete all secrets', async () => {
-        const CMD = `frodo esv secret delete -a`;
+    test.skip('"frodo esv secret delete -a -y": should delete all secrets', async () => {
+        const CMD = `frodo esv secret delete -a -y`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
     //TODO: Generate mock for this test (skip for meantime)
-    test.skip('"frodo esv secret delete --all": should do nothing when no secrets can be deleted', async () => {
-        const CMD = `frodo esv secret delete --all`;
+    test.skip('"frodo esv secret delete --all -y": should do nothing when no secrets can be deleted', async () => {
+        const CMD = `frodo esv secret delete --all -y`;
         const { stderr } = await exec(CMD, env);
         expect(normalizeSnapshotText(stderr)).toMatchSnapshot()
     });

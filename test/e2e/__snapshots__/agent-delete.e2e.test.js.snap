@@ -5,8 +5,8 @@ exports[`frodo agent delete "frodo agent delete --agent-id frodo-test-non-existi
   alpha realm agent 'frodo-test-non-existing-ig-agent' not found!"
 `;
 
-exports[`frodo agent delete "frodo agent delete --all": should do nothing when no agents can be deleted 1`] = `""`;
+exports[`frodo agent delete "frodo agent delete --all -y": should do nothing when no agents can be deleted 1`] = `""`;
 
-exports[`frodo agent delete "frodo agent delete -a": should delete all agents 1`] = `""`;
+exports[`frodo agent delete "frodo agent delete -a -y": should delete all agents 1`] = `""`;
 
 exports[`frodo agent delete "frodo agent delete -i frodo-test-ig-agent": should delete the agent with id 'frodo-test-ig-agent' 1`] = `""`;

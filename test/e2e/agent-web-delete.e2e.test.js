@@ -3,8 +3,8 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web delete -i frodo-test-web-agent
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web delete --agent-id frodo-test-web-agent
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web delete --all -y
 */
 import { clearFixture, getEnv, stageFixture, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -16,7 +16,7 @@ const env = getEnv(c);
 const stagedAgentImport =
     'frodo agent import -i frodo-test-web-agent -f test/e2e/exports/all/allAlphaAgents.agent.json';
 const deleteAgent = 'frodo agent web delete -i frodo-test-web-agent';
-const deleteAllAgents = 'frodo agent web delete -a';
+const deleteAllAgents = 'frodo agent web delete -a -y';
 
 describe('frodo agent web delete', () => {
 
@@ -51,14 +51,14 @@ describe('frodo agent web delete', () => {
         }
     });
 
-    test('"frodo agent web delete -a": should delete all web agents', async () => {
+    test('"frodo agent web delete -a -y": should delete all web agents', async () => {
         const CMD = deleteAllAgents;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test('"frodo agent web delete --all": should do nothing when no web agent can be deleted', async () => {
-        const CMD = 'frodo agent web delete --all';
+    test('"frodo agent web delete --all -y": should do nothing when no web agent can be deleted', async () => {
+        const CMD = 'frodo agent web delete --all -y';
         const { stderr } = await exec(CMD, env);
         expect(normalizeSnapshotText(stderr)).toMatchSnapshot()
     });

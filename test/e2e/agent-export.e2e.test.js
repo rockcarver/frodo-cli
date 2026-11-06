@@ -26,7 +26,7 @@ const classicEnv = getEnv(cc);
 
 const type = 'agent';
 // const stagingCommand = 'frodo agent import -af test/e2e/exports/all/allAlphaAgents.agent.json';
-// const cleanupCommand = 'frodo agent delete -a';
+// const cleanupCommand = 'frodo agent delete -a -y';
 
 describe('frodo agent export', () => {
     // beforeEach(async () => {

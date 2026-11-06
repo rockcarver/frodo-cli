@@ -3,8 +3,8 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete -i esv-test-var-pi
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete --variable-id esv-test-var-pi
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete --all -y
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -32,15 +32,15 @@ describe('frodo esv variable delete', () => {
     });
 
     //TODO: Generate mock for this test (skip for meantime)
-    test.skip('"frodo esv variable delete -a": should delete all variables', async () => {
-        const CMD = `frodo esv variable delete -a`;
+    test.skip('"frodo esv variable delete -a -y": should delete all variables', async () => {
+        const CMD = `frodo esv variable delete -a -y`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
     //TODO: Generate mock for this test (skip for meantime)
-    test.skip('"frodo esv variable delete --all": should do nothing when no variables can be deleted', async () => {
-        const CMD = `frodo esv variable delete --all`;
+    test.skip('"frodo esv variable delete --all -y": should do nothing when no variables can be deleted', async () => {
+        const CMD = `frodo esv variable delete --all -y`;
         const { stderr } = await exec(CMD, env);
         expect(normalizeSnapshotText(stderr)).toMatchSnapshot()
     });

@@ -3,9 +3,9 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy delete -i 'Test Policy'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy delete --policy-id 'Test Policy'
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy delete --all --set-id test-policy-set
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy delete --all -y --set-id test-policy-set
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy delete --all -y
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -32,20 +32,20 @@ describe('frodo authz policy delete', () => {
         }
     });
 
-    test('"frodo authz policy delete -a": should delete all policies', async () => {
-        const CMD = `frodo authz policy delete -a`;
+    test('"frodo authz policy delete -a -y": should delete all policies', async () => {
+        const CMD = `frodo authz policy delete -a -y`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test('"frodo authz policy delete --all --set-id test-policy-set": should delete all policies in the test-policy-set set', async () => {
-        const CMD = `frodo authz policy delete --all --set-id test-policy-set`;
+    test('"frodo authz policy delete --all -y --set-id test-policy-set": should delete all policies in the test-policy-set set', async () => {
+        const CMD = `frodo authz policy delete --all -y --set-id test-policy-set`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test('"frodo authz policy delete --all": should do nothing when no policies can be deleted', async () => {
-        const CMD = `frodo authz policy delete --all`;
+    test('"frodo authz policy delete --all -y": should do nothing when no policies can be deleted', async () => {
+        const CMD = `frodo authz policy delete --all -y`;
         const { stderr } = await exec(CMD, env);
         expect(normalizeSnapshotText(stderr)).toMatchSnapshot()
     });

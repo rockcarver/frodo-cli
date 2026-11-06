@@ -5,8 +5,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node delete --node-name 'Unknown'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node delete -i e5ad0110c8ee4dafaae983003cd05d4a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node delete --node-id c605506774a848f7877b4d17a453bd39-1
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node delete --all -y
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -48,8 +48,8 @@ describe('frodo node delete', () => {
       }
     });
 
-    test('"frodo node delete -a": should delete all nodes that are not being used', async () => {
-      const CMD = `frodo node delete -a`;
+    test('"frodo node delete -a -y": should delete all nodes that are not being used', async () => {
+      const CMD = `frodo node delete -a -y`;
       try {
         await exec(CMD, env);
         throw new Error("Command should've failed");
@@ -58,8 +58,8 @@ describe('frodo node delete', () => {
       }
     });
 
-    test('"frodo node delete --all": should not delete any nodes if they are all in use', async () => {
-      const CMD = `frodo node delete --all`;
+    test('"frodo node delete --all -y": should not delete any nodes if they are all in use', async () => {
+      const CMD = `frodo node delete --all -y`;
       try {
         await exec(CMD, env);
         throw new Error("Command should've failed");

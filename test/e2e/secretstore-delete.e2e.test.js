@@ -3,12 +3,12 @@
 /*
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo secretstore delete -i ESV
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo secretstore delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo secretstore delete --all -y
 
 // Classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo secretstore delete -g --secretstore-id EnvironmentAndSystemPropertySecretStore --secretstore-type EnvironmentAndSystemPropertySecretStore -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo secretstore delete --global -i default-keystore --type classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo secretstore delete -agm classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo secretstore delete -agm classic -y
 */
 
 import { getEnv, testFail, testSuccess } from './utils/TestUtils';
@@ -26,8 +26,8 @@ describe('frodo secretstore delete', () => {
             const CMD = `frodo secretstore delete -i ESV`;
             await testFail(CMD, cloudEnv);
         });
-        test('"frodo secretstore delete --all": should fail deleting any secret store', async () => {
-            const CMD = `frodo secretstore delete --all`;
+        test('"frodo secretstore delete --all -y": should fail deleting any secret store', async () => {
+            const CMD = `frodo secretstore delete --all -y`;
             await testFail(CMD, cloudEnv);
         });
     });
@@ -40,8 +40,8 @@ describe('frodo secretstore delete', () => {
             const CMD = `frodo secretstore delete --global -i default-keystore --type classic`;
             await testSuccess(CMD, classicEnv);
         });
-        test('"frodo secretstore delete -agm classic": should delete all global keystores with exception of EnvironmentAndSystemPropertySecretStore', async () => {
-            const CMD = `frodo secretstore delete -agm classic`;
+        test('"frodo secretstore delete -agm classic -y": should delete all global keystores with exception of EnvironmentAndSystemPropertySecretStore', async () => {
+            const CMD = `frodo secretstore delete -agm classic -y`;
             await testFail(CMD, classicEnv);
         });
     });

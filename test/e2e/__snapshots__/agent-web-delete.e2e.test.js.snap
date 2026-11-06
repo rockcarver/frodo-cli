@@ -6,8 +6,8 @@ exports[`frodo agent web delete "frodo agent web delete --agent-id frodo-test-we
 "
 `;
 
-exports[`frodo agent web delete "frodo agent web delete --all": should do nothing when no web agent can be deleted 1`] = `""`;
+exports[`frodo agent web delete "frodo agent web delete --all -y": should do nothing when no web agent can be deleted 1`] = `""`;
 
-exports[`frodo agent web delete "frodo agent web delete -a": should delete all web agents 1`] = `""`;
+exports[`frodo agent web delete "frodo agent web delete -a -y": should delete all web agents 1`] = `""`;
 
 exports[`frodo agent web delete "frodo agent web delete -i frodo-test-web-agent": should delete the web agent with id 'frodo-test-web-agent' 1`] = `""`;
