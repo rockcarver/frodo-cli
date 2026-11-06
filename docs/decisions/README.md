@@ -100,3 +100,4 @@ A core record has the format above plus a `repos:` list and may have a `## Known
 | [0034](0034-a-fix-for-a-defect-is-not-a-departure-from-the-4x-rule.md) | A fix for a defect is not a departure from the 4.x rule | accepted | `src/cli/**`, `src/utils/interactive/**` |
 | [0035](0035-every-prompt-is-drawn-as-the-framed-prompt.md) | Every prompt is drawn as the framed prompt | accepted | `src/utils/interactive/**`, `test/unit/PromptsAreFramed.test.js` |
 | [0036](0036-the-library-holds-common-functions-and-the-cli-composes-them.md) | The library holds the common functions and the CLI composes them into commands | accepted | `src/ops/**`, `src/cli/**` |
+| [0037](0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md) | A command that can delete more than the one object it names asks first | proposed | `src/cli/**`, `src/ops/**` |
