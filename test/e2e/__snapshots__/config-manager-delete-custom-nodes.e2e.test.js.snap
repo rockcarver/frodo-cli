@@ -35,7 +35,7 @@ Deleting node with displayName: ALU
 "
 `;
 
-exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes": should continue deleting custom nodes after individual failures and exit unsuccessfully" 1`] = `
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -y": should continue deleting custom nodes after individual failures and exit unsuccessfully" 1`] = `
 "Experimental feature in use: 'frodo config-manager delete custom-nodes'. This feature may change without notice.
 Error deleting custom node Debug
   Error deleting custom node Debug
@@ -71,4 +71,4 @@ Deleted 8 custom nodes.
 "
 `;
 
-exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes": should continue deleting custom nodes after individual failures and exit unsuccessfully" 2`] = `1`;
+exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -y": should continue deleting custom nodes after individual failures and exit unsuccessfully" 2`] = `1`;

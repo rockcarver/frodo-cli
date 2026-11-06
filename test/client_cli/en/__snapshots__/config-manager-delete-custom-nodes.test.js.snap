@@ -25,6 +25,8 @@ Options:
                      them.
   -n, --name <name>  Custom node display name. If name is not specified, all
                      custom nodes are deleted.
+  -y, --yes          Do not ask for confirmation before deleting more than one
+                     custom node. Required without a terminal.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

@@ -3,6 +3,10 @@ import { Option } from 'commander';
 import { configManagerDeleteEndpoints } from '../../../configManagerOps/FrConfigEndpointsOps';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -36,11 +40,23 @@ export default function setup() {
         'Show which custom endpoints would be deleted without deleting them.'
       )
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting more than one custom endpoint. Required without a terminal.'
+      )
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Delete all eligible custom endpoints:\n` +
-        c.command(`  $ frodo config-manager delete endpoints ${s.connId}\n`) +
+        `  Delete all eligible custom endpoints without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
+        c.command(
+          `  $ frodo config-manager delete endpoints -y ${s.connId}\n`
+        ) +
+        `  Preview the deletion of all eligible custom endpoints:\n` +
+        c.command(
+          `  $ frodo config-manager delete endpoints -d ${s.connId}\n`
+        ) +
         `  Delete a custom endpoint by name:\n` +
         c.command(
           `  $ frodo config-manager delete endpoints -n Javascript ${s.connId}\n`
@@ -59,12 +75,36 @@ export default function setup() {
         options,
         command
       );
+      // a run that nobody can be asked about is refused before the login
+      if (
+        !options.name &&
+        !checkBulkDelete({
+          what: 'all eligible custom endpoints',
+          yes: options.yes,
+          dryRun: options.dryRun,
+        })
+      ) {
+        process.exitCode = 1;
+        return;
+      }
       const getTokensIsSuccessful = await getTokens(
         false,
         true,
         deploymentTypes
       );
       if (!getTokensIsSuccessful) {
+        process.exitCode = 1;
+        return;
+      }
+      if (
+        !options.name &&
+        !(await confirmBulkDelete({
+          what: 'all eligible custom endpoints',
+          yes: options.yes,
+          dryRun: options.dryRun,
+          showPlan: () => configManagerDeleteEndpoints(undefined, true),
+        }))
+      ) {
         process.exitCode = 1;
         return;
       }

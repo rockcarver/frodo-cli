@@ -4,7 +4,7 @@
 /*
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha frodo config-manager delete scripts -n FrodoDeleteByName -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha frodo config-manager delete scripts -p FrodoDeletePrefix -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha frodo config-manager delete scripts -d -n FrodoDeleteByName -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete scripts --dry-run -m forgeops
 */
@@ -28,8 +28,8 @@ describe('frodo config-manager delete scripts', () => {
       },
     });
   });
-  test('"frodo config-manager delete scripts -p FrodoDeletePrefix -m forgeops": should delete scripts matching the prefix', async () => {
-    const CMD = 'frodo config-manager delete scripts -p FrodoDeletePrefix -m forgeops';
+  test('"frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops": should delete scripts matching the prefix', async () => {
+    const CMD = 'frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops';
     await testSuccess(CMD, {
       env: {
         ...forgeopsEnv.env,

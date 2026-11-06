@@ -28,6 +28,8 @@ Options:
   -p, --prefix <prefix>  Delete all eligible scripts that start with a prefix.
                          Repetition of this flag is allowed. Ignored with -n
                          (default: [])
+  -y, --yes              Do not ask for confirmation before deleting more than
+                         one script (no -n). Required without a terminal.
   -h, --help             Help
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage

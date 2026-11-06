@@ -3,7 +3,7 @@
 /*
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete endpoints -n Javascript -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete endpoints -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete endpoints -y -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete endpoints --dry-run -n Javascript -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete endpoints -d -m forgeops
 */
@@ -19,8 +19,8 @@ describe('frodo config-manager delete endpoints', () => {
         const CMD = `frodo config-manager delete endpoints -n Javascript -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });
-    test(`"frodo config-manager delete endpoints -m forgeops": should delete all endpoints in config-manager format`, async () => {
-        const CMD = `frodo config-manager delete endpoints -m forgeops`;
+    test(`"frodo config-manager delete endpoints -y -m forgeops": should delete all endpoints in config-manager format`, async () => {
+        const CMD = `frodo config-manager delete endpoints -y -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });
     test(`"frodo config-manager delete endpoints --dry-run -n Javascript -m forgeops": should delete a specific endpoint by name in config-manager format`, async () => {
