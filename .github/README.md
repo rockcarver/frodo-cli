@@ -320,7 +320,8 @@ frodo esv variable export -D relative/path/to/working/directory -f sub-path/to/f
 ### Secure Token Caching
 
 Frodo CLI 2.x uses a secure token cache, which is active by default. The cache is tokenized and encrypted on disk, so it persists across CLI executions, dramatically decreasing authentication and token requests. You can disable the cache by either using the `--no-cache` option or by setting the `FRODO_NO_CACHE` environment variable.
-You can change the default location of the cache file (`~/.frodo/TokenCache.json`) by setting the `FRODO_TOKEN_CACHE_PATH` environment variable.
+The cache is a directory of encrypted entries (`~/.frodo/TokenCache/`), one per host, identity and kind of token, so several Frodo processes can use it at the same time and share one login. An entry is only replaced by one that lasts longer, and reading the cache never writes it. A `TokenCache.json` from an earlier version is not read and is removed.
+You can change the default location of the cache (`~/.frodo/TokenCache.json`) by setting the `FRODO_TOKEN_CACHE_PATH` environment variable; the entries are kept in the directory with the same name without its extension (`TokenCache`).
 
 ### Automatic Token Refresh
 
@@ -654,7 +655,7 @@ Environment Variables:
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
-  FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
+  FRODO_TOKEN_CACHE_PATH: Use this token cache location instead of '~/.frodo/TokenCache.json'. The entries are kept in the directory with the same name without its extension.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.

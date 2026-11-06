@@ -1413,7 +1413,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_TOKEN_CACHE_PATH',
     description:
-      "Use this token cache file instead of '~/.frodo/TokenCache.json'.",
+      "Use this token cache location instead of '~/.frodo/TokenCache.json'. The entries are kept in the directory with the same name without its extension.",
     group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
