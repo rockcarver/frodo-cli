@@ -1,5 +1,5 @@
 ---
-status: deprecated
+status: superseded by 0036
 date: 2026-10-24
 decision-makers: maintainers
 applies-to:

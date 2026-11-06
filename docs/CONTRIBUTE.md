@@ -145,7 +145,7 @@ Do not edit `CHANGELOG.md` in a PR. It is generated at release time from what me
 
 ### Code structure and conventions
 
-The library is the brain and the CLI is a thin wrapper: new capability goes into frodo-lib behind the `frodo` facade first, and the CLI wraps it for the terminal (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI. See [core 0001 The library is the brain, the CLI is a thin wrapper](decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md).
+The library is the brain and the CLI is a thin wrapper: new capability goes into frodo-lib behind the `frodo` facade first, and the CLI wraps it for the terminal (parsing, prompts, output, files and stdin, exit codes). The library stays free of anything tied to one interface, such as a terminal; interface-specific stacks (interactive mode, the MCP server, the frodo shell) legitimately live in the CLI. A workflow that only composes existing library functions (the order of the steps, work across connections, defaults, confirmation, dry run, progress) is the CLI's own work. See [core 0001 The library is the brain, the CLI is a thin wrapper](decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md) and [0036 The library holds the common functions and the CLI composes them into commands](decisions/0036-the-library-holds-common-functions-and-the-cli-composes-them.md).
 
 Frodo CLI adheres to the following folder and file structure:
 
@@ -190,7 +190,7 @@ Frodo CLI adheres to the following folder and file structure:
 └── tools                     Test and release tooling.
 ```
 
-`src/ops` adapts the library for the terminal; business logic belongs in frodo-lib behind the `frodo` facade ([core 0001 The library is the brain, the CLI is a thin wrapper](decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md)).
+`src/ops` adapts the library for the terminal and composes its functions into workflows; business logic that another consumer would also need belongs in frodo-lib behind the `frodo` facade ([0036 The library holds the common functions and the CLI composes them into commands](decisions/0036-the-library-holds-common-functions-and-the-cli-composes-them.md), [core 0001 The library is the brain, the CLI is a thin wrapper](decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md)).
 
 #### Code conventions
 
