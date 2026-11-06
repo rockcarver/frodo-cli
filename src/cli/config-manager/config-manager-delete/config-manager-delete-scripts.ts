@@ -10,7 +10,7 @@ export default function setup() {
   const program = new FrodoCommand('frodo config-manager delete scripts');
 
   program
-    .description('Delete AM scripts.')
+    .description('Delete AM scripts. Default scripts are never deleted.')
     .addOption(
       new Option('-n, --name <name>', 'Delete a specific script by name.')
     )

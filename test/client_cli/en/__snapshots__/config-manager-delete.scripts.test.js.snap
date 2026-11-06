@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager delete scripts' should be expected english 1`] = `
 "Usage: frodo config-manager delete scripts [options] [host] [realm] [username] [password]
 
-[Experimental] Delete AM scripts.
+[Experimental] Delete AM scripts. Default scripts are never deleted.
 
 Arguments:
   host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To
