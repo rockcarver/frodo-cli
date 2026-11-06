@@ -1,6 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
 import {
   deferEntityPicks,
@@ -37,6 +41,12 @@ export default function setup() {
         'Delete all entity providers. Cannot be used with -i.'
       ).conflicts(['entityId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all entity providers. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({ options: ['all', 'entityId'], purpose: 'what to delete' })
     .action(
       // implement command logic inside action handler
@@ -49,6 +59,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all entity providers',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // -i / --entity-id
         if (options.entityId && (await getTokens())) {
           verboseMessage(`Deleting entity provider '${options.entityId}'...`);
@@ -66,6 +89,16 @@ export default function setup() {
             verboseMessage(`Deleting entity provider '${options.entityId}'...`);
             await deleteSaml2Provider(options.entityId);
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all entity providers',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage(`Deleting all entity providers...`);
             await deleteSaml2Providers();
           }

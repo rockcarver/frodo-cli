@@ -2,6 +2,10 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteMapping, deleteMappings } from '../../ops/MappingOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console';
 import {
   deferEntityPicks,
@@ -55,6 +59,12 @@ export default function setup() {
         'Delete all mappings. Cannot be used with -i.'
       ).conflicts(['mappingId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all mappings. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({ options: ['all', 'mappingId'], purpose: 'what to delete' })
     .action(
       // implement command logic inside action handler
@@ -67,6 +77,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all mappings',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by id/name
         if (
           options.mappingId &&
@@ -89,6 +112,16 @@ export default function setup() {
             const outcome = await deleteMapping(options.mappingId);
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all mappings',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage(`Deleting all mappings...`);
             const outcome = await deleteMappings(
               options.connectorId,

@@ -6,6 +6,10 @@ import {
   deleteThemeByName,
   deleteThemes,
 } from '../../ops/ThemeOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console';
 import {
   deferEntityPicks,
@@ -45,6 +49,12 @@ export default function setup() {
         'Delete all the themes in the realm. Cannot be used with -i or -n.'
       ).conflicts(['themeId', 'themeName'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all themes. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({
       options: ['all', 'themeId', 'themeName'],
       purpose: 'what to delete',
@@ -60,6 +70,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all themes',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by name
         if (
           options.themeName &&
@@ -111,6 +134,16 @@ export default function setup() {
             const outcome = await deleteTheme(options.themeId);
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all themes',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage(
               `Deleting all themes from realm "${state.getRealm()}"...`
             );

@@ -2,6 +2,10 @@ import { frodo, type CustomNodeSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteCustomNode, deleteCustomNodes } from '../../ops/NodeOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console';
 import {
   deferEntityPicks,
@@ -33,6 +37,12 @@ export default function setup() {
         'Delete all custom nodes. Cannot be used with -i or -n.'
       ).conflicts(['nodeId', 'nodeName'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all custom nodes. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({
       options: ['all', 'nodeId', 'nodeName'],
       purpose: 'what to delete',
@@ -46,6 +56,19 @@ export default function setup() {
         options,
         command
       );
+      // a run that nobody can be asked about is refused before the login
+      // (cli record 0037)
+      if (
+        options.all &&
+        !checkBulkDelete({
+          what: 'all custom nodes',
+          yes: options.yes,
+          dryRunAvailable: false,
+        })
+      ) {
+        process.exitCode = 1;
+        return;
+      }
       if ((options.nodeId || options.nodeName) && (await getTokens())) {
         verboseMessage(
           `Deleting custom node ${options.nodeName ? options.nodeName : options.nodeId}...`
@@ -74,6 +97,16 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         } else {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all custom nodes',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
+          }
           verboseMessage(`Deleting all custom nodes...`);
           const outcome = await deleteCustomNodes();
           if (!outcome) process.exitCode = 1;

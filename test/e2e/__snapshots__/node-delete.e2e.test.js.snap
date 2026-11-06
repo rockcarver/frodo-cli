@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`frodo node delete "frodo node delete --all": should not delete any nodes if they are all in use 1`] = `
+exports[`frodo node delete "frodo node delete --all -y": should not delete any nodes if they are all in use 1`] = `
 "Error deleting custom node Display Callback
   Error deleting custom node Display Callback
     Network error:
@@ -73,7 +73,7 @@ Error deleting custom node Unknown
 "
 `;
 
-exports[`frodo node delete "frodo node delete -a": should delete all nodes that are not being used 1`] = `
+exports[`frodo node delete "frodo node delete -a -y": should delete all nodes that are not being used 1`] = `
 "Error deleting custom node Display Callback
   Error deleting custom node Display Callback
     Network error:

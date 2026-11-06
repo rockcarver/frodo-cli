@@ -4,12 +4,12 @@
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo secretstore mapping delete -i ESV -s am.services.httpclient.mtls.servertrustcerts.testServerCert.secret
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo secretstore mapping delete -i ESV -t GoogleSecretManagerSecretStoreProvider -s unknown.label
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo secretstore mapping delete --all --secretstore-id ESV --secretstore-type GoogleSecretManagerSecretStoreProvider
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo secretstore mapping delete --all -y --secretstore-id ESV --secretstore-type GoogleSecretManagerSecretStoreProvider
 
 // Classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo secretstore mapping delete -gi EnvironmentAndSystemPropertySecretStore -t EnvironmentAndSystemPropertySecretStore -s am.services.uma.pct.encryption -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo secretstore mapping delete --global -i default-keystore -s am.uma.resource.labels.mtls.cert --type classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo secretstore mapping delete -agi default-keystore -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo secretstore mapping delete -agi default-keystore -m classic -y
 */
 
 import { getEnv, testFail, testSuccess } from './utils/TestUtils';
@@ -30,8 +30,8 @@ describe('frodo secretstore mapping delete', () => {
         const CMD = `frodo secretstore mapping delete -i ESV -t GoogleSecretManagerSecretStoreProvider -s unknown.label`;
         await testFail(CMD, env)
     });
-    test('"frodo secretstore mapping delete --all --secretstore-id ESV --secretstore-type GoogleSecretManagerSecretStoreProvider": should delete all mappings in ESV secret store', async () => {
-        const CMD = `frodo secretstore mapping delete --all --secretstore-id ESV --secretstore-type GoogleSecretManagerSecretStoreProvider`;
+    test('"frodo secretstore mapping delete --all -y --secretstore-id ESV --secretstore-type GoogleSecretManagerSecretStoreProvider": should delete all mappings in ESV secret store', async () => {
+        const CMD = `frodo secretstore mapping delete --all -y --secretstore-id ESV --secretstore-type GoogleSecretManagerSecretStoreProvider`;
         await testSuccess(CMD, env)
     });
     test('"frodo secretstore mapping delete -gi EnvironmentAndSystemPropertySecretStore -t EnvironmentAndSystemPropertySecretStore -s am.services.uma.pct.encryption -m classic": should fail since no mappings can exist for the EnvironmentAndSystemPropertySecretStore', async () => {
@@ -42,8 +42,8 @@ describe('frodo secretstore mapping delete', () => {
         const CMD = `frodo secretstore mapping delete --global -i default-keystore -s am.uma.resource.labels.mtls.cert --type classic`;
         await testSuccess(CMD, classicEnv);
     });
-    test('"frodo secretstore mapping delete -agi default-keystore -m classic": should delete all mappings in global default-keystore secret store', async () => {
-        const CMD = `frodo secretstore mapping delete -agi default-keystore -m classic`;
+    test('"frodo secretstore mapping delete -agi default-keystore -m classic -y": should delete all mappings in global default-keystore secret store', async () => {
+        const CMD = `frodo secretstore mapping delete -agi default-keystore -m classic -y`;
         await testSuccess(CMD, classicEnv);
     });
 });

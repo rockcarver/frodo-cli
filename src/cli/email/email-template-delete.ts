@@ -5,6 +5,10 @@ import {
   deleteAllEmailTemplates,
   deleteEmailTemplateById,
 } from '../../ops/EmailTemplateOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
 import {
   deferEntityPicks,
@@ -38,6 +42,12 @@ export default function setup() {
         'Delete all policies in a realm. Cannot be used with -i.'
       ).conflicts(['templateId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all email templates. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({ options: ['all', 'templateId'], purpose: 'what to delete' })
     .action(
       // implement command logic inside action handler
@@ -50,6 +60,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all email templates',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by id
         if (options.templateId && (await getTokens())) {
           verboseMessage('Deleting email template...');
@@ -69,6 +92,16 @@ export default function setup() {
             const outcome = await deleteEmailTemplateById(options.templateId);
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all email templates',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage('Deleting all email templates...');
             const outcome = await deleteAllEmailTemplates();
             if (!outcome) process.exitCode = 1;

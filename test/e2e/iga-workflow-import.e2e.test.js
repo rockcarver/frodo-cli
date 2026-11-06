@@ -42,7 +42,7 @@ const allSeparateWorkflowsDirectory = `test/e2e/exports/all-separate/iga/global/
 // no published (including OOTB) workflow is ever deleted, but review this
 // on a tenant you don't want draft-polluted before recording these three
 // tests live.
-const deleteAllDrafts = 'frodo iga workflow delete --all --draft-only --force';
+const deleteAllDrafts = 'frodo iga workflow delete --all -y --draft-only --force';
 
 describe(`frodo iga workflow import`, () => {
   afterAll(async () => {

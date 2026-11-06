@@ -3,7 +3,7 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai delete -i testAgent
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai delete --agent-id does-not-exist
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai delete -a
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai delete -a -y
 */
 
 import { clearFixture, getEnv, stageFixture, normalizeSnapshotText, exec } from './utils/TestUtils';
@@ -17,7 +17,7 @@ const env = getEnv(c);
 //   'frodo agent ai import frodo-dev -i testAgent -f test/e2e/exports/all/allAlphaAgents.ai.agent.json';
 const deleteAgent = 'frodo agent ai delete -i testAgent';
 const deleteNonExistantAgent = 'frodo agent ai delete --agent-id does-not-exist';
-const deleteAllAgents = 'frodo agent ai delete -a';
+const deleteAllAgents = 'frodo agent ai delete -a -y';
 
 describe('frodo agent ai delete', () => {
 
@@ -50,7 +50,7 @@ describe('frodo agent ai delete', () => {
     }
   });
 
-  test('"frodo agent ai delete frodo-dev -a": should delete all AI agents', async () => {
+  test('"frodo agent ai delete frodo-dev -a -y": should delete all AI agents', async () => {
     const { stdout } = await exec(deleteAllAgents, env);
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
   });

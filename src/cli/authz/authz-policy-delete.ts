@@ -6,6 +6,10 @@ import {
   deletePoliciesByPolicySet,
   deletePolicyById,
 } from '../../ops/PolicyOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
 import {
   deferEntityPicks,
@@ -41,6 +45,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all policies. Required with -a when there is no terminal.'
+      )
+    )
+    .addOption(
+      new Option(
         '--set-id <set-id>',
         'Policy set id/name. Cannot be used with -i.'
       ).conflicts(['policyId'])
@@ -60,6 +70,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all policies',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by id
         if (options.policyId && (await getTokens())) {
           verboseMessage('Deleting authorization policy...');
@@ -87,6 +110,16 @@ export default function setup() {
             const outcome = await deletePolicyById(options.policyId);
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all policies',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage('Deleting all authorization policies...');
             const outcome = await deletePolicies();
             if (!outcome) process.exitCode = 1;

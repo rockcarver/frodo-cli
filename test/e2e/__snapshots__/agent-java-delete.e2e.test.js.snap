@@ -6,8 +6,8 @@ exports[`frodo agent java delete "frodo agent java delete --agent-id frodo-test-
 "
 `;
 
-exports[`frodo agent java delete "frodo agent java delete --all": should do nothing when no java agent can be deleted since none exist 1`] = `""`;
+exports[`frodo agent java delete "frodo agent java delete --all -y": should do nothing when no java agent can be deleted since none exist 1`] = `""`;
 
-exports[`frodo agent java delete "frodo agent java delete -a": should delete all java agents 1`] = `""`;
+exports[`frodo agent java delete "frodo agent java delete -a -y": should delete all java agents 1`] = `""`;
 
 exports[`frodo agent java delete "frodo agent java delete -i frodo-test-java-agent": should delete the java agent with id 'frodo-test-java-agent' 1`] = `""`;

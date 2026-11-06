@@ -124,6 +124,29 @@ either command with exit code 1 (`generate-rfc7523-authz-grant-artefacts` used
 to make a new key instead). These are fixes for defects in the sense of
 [a fix for a defect is not a departure from the 4.x rule](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0034-a-fix-for-a-defect-is-not-a-departure-from-the-4x-rule.md).
 
+**Deleting everything of a kind now asks first**: a delete that can remove
+more than the one object it names (`-a`/`--all`) used to run without a
+question. In 5.x, on a terminal it shows what it is about to delete and where
+and asks, with the answer defaulting to no. Without a terminal (a script, a CI
+job, `--no-prompt`, `FRODO_NO_PROMPT`) it refuses before it connects to anything
+and exits with code 1, unless you pass `-y`/`--yes`:
+
+```text
+Refusing to delete all journeys without confirmation: there is no interactive terminal to ask. Pass -y/--yes to delete without asking.
+```
+
+Add `-y` to every script and CI job that deletes in bulk. Deleting a single
+named object never asks. This affects `frodo agent delete -a` and
+`agent ai|gateway|java|web delete -a`, `app delete -a`,
+`authz policy|set|type delete -a`, `email template delete -a`,
+`esv secret|variable delete -a`, `iga workflow delete -a`, `journey delete -a`,
+`log key delete -a`, `mapping delete -a`, `node delete -a`, `saml delete -a`,
+`script delete -a`, `secretstore delete --all`, `secretstore mapping delete
+--all`, `secretstore mapping alias delete --all`, `service delete -a` and
+`theme delete -a`. It is a safety guard, a deliberate exception to the rule that
+a command line that ran under 4.x keeps running: see
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

@@ -2,6 +2,10 @@ import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { deleteJavaAgent, deleteJavaAgents } from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -22,6 +26,12 @@ export default function setup() {
         'Delete all java agents. Cannot be used with -i.'
       ).conflicts(['agentId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all java agents. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({ options: ['agentId', 'all'], purpose: 'what to delete' })
     .action(
       // implement command logic inside action handler
@@ -34,6 +44,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all java agents',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         if (await getTokens()) {
           // delete by id
           if (options.agentId) {
@@ -47,6 +70,16 @@ export default function setup() {
           }
           // --all -a
           else if (options.all) {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all java agents',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage('Deleting all agents...');
             const outcome = await deleteJavaAgents();
             if (!outcome) process.exitCode = 1;

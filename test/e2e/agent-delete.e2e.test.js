@@ -30,7 +30,7 @@ const env = getEnv(c);
 const stagedAgentImport =
     'frodo agent import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.agent.json';
 const deleteAgent = 'frodo agent delete -i frodo-test-ig-agent';
-const deleteAllAgents = 'frodo agent delete -a';
+const deleteAllAgents = 'frodo agent delete -a -y';
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('frodo agent delete', () => {
@@ -90,14 +90,14 @@ describe('frodo agent delete', () => {
     // Phase 2: Delete all
     // -a succeeds (agents exist), then --all is a no-op (all already gone)
     if (!isRecording || process.env['FRODO_RECORD_PHASE'] === '2') {
-        test('"frodo agent delete -a": should delete all agents', async () => {
+        test('"frodo agent delete -a -y": should delete all agents', async () => {
             const CMD = deleteAllAgents;
             const { stdout } = await execWithRecordingProgress(CMD, env, isRecording);
             expect(assertNoPollyReplayError(stdout, CMD)).toMatchSnapshot();
         });
 
-        test('"frodo agent delete --all": should do nothing when no agents can be deleted', async () => {
-            const CMD = 'frodo agent delete --all';
+        test('"frodo agent delete --all -y": should do nothing when no agents can be deleted', async () => {
+            const CMD = 'frodo agent delete --all -y';
             const { stderr } = await execWithRecordingProgress(CMD, env, isRecording);
             expect(assertNoPollyReplayError(stderr, CMD)).toMatchSnapshot();
         });

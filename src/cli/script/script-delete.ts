@@ -6,6 +6,10 @@ import {
   deleteScriptId,
   deleteScriptName,
 } from '../../ops/ScriptOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console';
 import {
   deferEntityPicks,
@@ -36,6 +40,12 @@ export default function setup() {
         '-a, --all',
         'Delete all non-default scripts in a realm. Cannot be used with -i or -n.'
       ).conflicts(['scriptId', 'scriptName'])
+    )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all non-default scripts. Required with -a when there is no terminal.'
+      )
     )
     .addOption(
       new Option(
@@ -70,6 +80,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all non-default scripts',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         if (options.scriptId && (await getTokens())) {
           verboseMessage(
             `Deleting script ${
@@ -112,6 +135,16 @@ export default function setup() {
             const outcome = await deleteScriptName(options.scriptName);
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all non-default scripts',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage('Deleting all non-default scripts...');
             const outcome = await deleteAllScripts({
               context: options.context,

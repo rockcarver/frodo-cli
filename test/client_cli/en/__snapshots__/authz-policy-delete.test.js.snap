@@ -29,6 +29,9 @@ Options:
   -i, --policy-id <policy-id>  Policy id/name. Cannot be used with --set-id or
                                -a. (pick from authorization policy)
   --set-id <set-id>            Policy set id/name. Cannot be used with -i.
+  -y, --yes                    Do not ask for confirmation before deleting all
+                               policies. Required with -a when there is no
+                               terminal.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

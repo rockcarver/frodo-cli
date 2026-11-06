@@ -28,6 +28,9 @@ Options:
                                -i.
   -i, --entity-id <entity-id>  Entity id. If specified, -a cannot be used. (pick
                                from entity provider)
+  -y, --yes                    Do not ask for confirmation before deleting all
+                               entity providers. Required with -a when there is
+                               no terminal.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

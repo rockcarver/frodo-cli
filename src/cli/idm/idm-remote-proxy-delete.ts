@@ -6,6 +6,10 @@ import {
   deleteRemoteProxies,
   deleteRemoteProxy,
 } from '../../ops/RemoteProxyOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
@@ -35,6 +39,12 @@ export default function setup() {
         'Delete all remote proxies. Cannot be used with -i.'
       ).conflicts(['proxyId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all remote proxies. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({
       options: ['all', 'proxyId'],
       purpose: 'what to delete',
@@ -60,12 +70,35 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all remote proxies',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         if (await getTokens(false, true, deploymentTypes)) {
           let outcome: boolean;
           if (options.proxyId) {
             verboseMessage(`Deleting remote proxy "${options.proxyId}"...`);
             outcome = await deleteRemoteProxy(options.proxyId);
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all remote proxies',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage('Deleting all remote proxies...');
             outcome = await deleteRemoteProxies();
           }

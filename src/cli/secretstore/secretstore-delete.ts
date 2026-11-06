@@ -5,6 +5,10 @@ import {
   deleteSecretStore,
   deleteSecretStores,
 } from '../../ops/SecretStoreOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -44,6 +48,12 @@ export default function setup() {
         'Delete all secret stores. Cannot be used with -i or -t.'
       ).conflicts(['secretstoreId', 'secretstoreType'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all secret stores. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({
       options: ['all', 'secretstoreId'],
       purpose: 'what to delete',
@@ -59,6 +69,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all secret stores',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         if (
           options.secretstoreId &&
           (await getTokens(false, true, deploymentTypes))
@@ -74,6 +97,16 @@ export default function setup() {
           options.all &&
           (await getTokens(false, true, deploymentTypes))
         ) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all secret stores',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
+          }
           verboseMessage(
             `Deleting all${options.global ? ' global' : ''} secret stores...`
           );

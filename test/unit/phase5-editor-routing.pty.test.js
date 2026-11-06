@@ -1319,7 +1319,9 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
             ['-k'],
             [
               // Cursor starts on the first row (-a). Down to the
-              // Authentication header (3rd row), expand it.
+              // Authentication header (4th row, after -a, -i and -y),
+              // expand it.
+              { type: 'key', name: 'down' },
               { type: 'key', name: 'down' },
               { type: 'key', name: 'down' },
               { type: 'sleep', ms: 300 },

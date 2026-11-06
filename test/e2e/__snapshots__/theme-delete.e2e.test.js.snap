@@ -12,7 +12,7 @@ exports[`frodo theme delete "frodo theme delete --theme-name 'Does Not Exist'": 
 "
 `;
 
-exports[`frodo theme delete "frodo theme delete -a": should delete all themes 1`] = `""`;
+exports[`frodo theme delete "frodo theme delete -a -y": should delete all themes 1`] = `""`;
 
 exports[`frodo theme delete "frodo theme delete -i 9e6bf50d-85aa-4d70-a340-439d8bc7bc14": should delete the theme with id '9e6bf50d-85aa-4d70-a340-439d8bc7bc14' 1`] = `""`;
 

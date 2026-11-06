@@ -3,8 +3,8 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java delete -i frodo-test-java-agent
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java delete --agent-id frodo-test-java-agent
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java delete --all -y
 */
 import { clearFixture, getEnv, stageFixture, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -16,7 +16,7 @@ const env = getEnv(c);
 const stagedAgentImport =
     'frodo agent import -i frodo-test-java-agent -f test/e2e/exports/all/allAlphaAgents.agent.json';
 const deleteAgent = 'frodo agent java delete -i frodo-test-java-agent';
-const deleteAllAgents = 'frodo agent java delete -a';
+const deleteAllAgents = 'frodo agent java delete -a -y';
 
 describe('frodo agent java delete', () => {
 
@@ -51,14 +51,14 @@ describe('frodo agent java delete', () => {
         }
     });
 
-    test('"frodo agent java delete -a": should delete all java agents', async () => {
+    test('"frodo agent java delete -a -y": should delete all java agents', async () => {
         const CMD = deleteAllAgents;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test('"frodo agent java delete --all": should do nothing when no java agent can be deleted since none exist', async () => {
-        const CMD = 'frodo agent java delete --all';
+    test('"frodo agent java delete --all -y": should do nothing when no java agent can be deleted since none exist', async () => {
+        const CMD = 'frodo agent java delete --all -y';
         const { stderr } = await exec(CMD, env);
         expect(normalizeSnapshotText(stderr)).toMatchSnapshot()
     });

@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`frodo authz policy delete "frodo authz policy delete --all --set-id test-policy-set": should delete all policies in the test-policy-set set 1`] = `""`;
+exports[`frodo authz policy delete "frodo authz policy delete --all -y --set-id test-policy-set": should delete all policies in the test-policy-set set 1`] = `""`;
 
-exports[`frodo authz policy delete "frodo authz policy delete --all": should do nothing when no policies can be deleted 1`] = `
+exports[`frodo authz policy delete "frodo authz policy delete --all -y": should do nothing when no policies can be deleted 1`] = `
 "✔ Found 0 policies.
 "
 `;
@@ -19,6 +19,6 @@ Error deleting alpha realm policy Test Policy
 "
 `;
 
-exports[`frodo authz policy delete "frodo authz policy delete -a": should delete all policies 1`] = `""`;
+exports[`frodo authz policy delete "frodo authz policy delete -a -y": should delete all policies 1`] = `""`;
 
 exports[`frodo authz policy delete "frodo authz policy delete -i 'Test Policy'": should delete the policies with id 'Test Policy' 1`] = `""`;

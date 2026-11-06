@@ -29,6 +29,9 @@ Options:
                               (for older AM versions).
   -i, --journey-id <journey>  Name of a journey/tree. Cannot be used with -a.
                               (pick from journey)
+  -y, --yes                   Do not ask for confirmation before deleting all
+                              journeys. Required with -a when there is no
+                              terminal.
   -h, --help                  Help
   -hh, --help-more            Help with all options.
   -hhh, --help-all            Help with all options, environment variables, and

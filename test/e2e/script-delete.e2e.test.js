@@ -5,8 +5,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script delete --script-name 'hashdeviceProfile'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script delete -i e15a13ee-9168-40cf-934f-656a5f568a6a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script delete --script-id e15a13ee-9168-40cf-934f-656a5f568a6a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script delete --all -y
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -49,15 +49,15 @@ describe('frodo script delete', () => {
     });
 
     //TODO: Generate mock for this test (skip for meantime)
-    test.skip('"frodo script delete -a": should delete all scripts', async () => {
-        const CMD = `frodo script delete -a`;
+    test.skip('"frodo script delete -a -y": should delete all scripts', async () => {
+        const CMD = `frodo script delete -a -y`;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
     //TODO: Generate mock for this test (skip for meantime)
-    test.skip('"frodo script delete --all": should do nothing when no scripts can be deleted', async () => {
-        const CMD = `frodo script delete --all`;
+    test.skip('"frodo script delete --all -y": should do nothing when no scripts can be deleted', async () => {
+        const CMD = `frodo script delete --all -y`;
         const { stderr } = await exec(CMD, env);
         expect(normalizeSnapshotText(stderr)).toMatchSnapshot()
     });

@@ -3,6 +3,10 @@ import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteJourney, deleteJourneys } from '../../ops/JourneyOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console';
 import {
@@ -31,6 +35,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all journeys. Required with -a when there is no terminal.'
+      )
+    )
+    .addOption(
+      new Option(
         '--deep',
         'Deep delete. Also delete journey node artifacts (for older AM versions).'
       )
@@ -49,7 +59,7 @@ export default function setup() {
         c.command(`  $ frodo journey delete -i ${s.journeyId} ${s.connId}\n`) +
         `  Delete all journeys in a realm and log in with AM base URL, username, and password:\n` +
         c.command(
-          `  $ frodo journey delete -a ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+          `  $ frodo journey delete -a -y ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Deep-delete a journey and its node artifacts:\n` +
         c.command(
@@ -67,6 +77,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all journeys',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // Default to shallow delete. --deep explicitly opts into legacy deep behavior.
         const deep = options.deep === true;
         const verbose = state.getVerbose();
@@ -105,6 +128,16 @@ export default function setup() {
             );
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all journeys',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage('Deleting all journeys...');
             const outcome = await deleteJourneys(deleteJourneysOptions);
             if (!outcome) process.exitCode = 1;

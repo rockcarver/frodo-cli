@@ -1,6 +1,10 @@
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deletePolicySetById, deletePolicySets } from '../../ops/PolicySetOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -21,6 +25,12 @@ export default function setup() {
         'Delete all policy sets in a realm. Cannot be used with -i.'
       ).conflicts(['setId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all policy sets. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({ options: ['all', 'setId'], purpose: 'what to delete' })
     .action(
       // implement command logic inside action handler
@@ -33,6 +43,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all policy sets',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by id
         if (options.setId && (await getTokens())) {
           verboseMessage('Deleting authorization policy set...');
@@ -41,6 +64,16 @@ export default function setup() {
         }
         // --all -a
         else if (options.all && (await getTokens())) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all policy sets',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
+          }
           verboseMessage('Deleting all authorization policy sets...');
           const outcome = await deletePolicySets();
           if (!outcome) process.exitCode = 1;

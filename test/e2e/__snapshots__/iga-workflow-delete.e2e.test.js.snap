@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`frodo iga workflow delete "frodo iga workflow delete --draft-only -a": should delete all draft workflows 1`] = `""`;
+exports[`frodo iga workflow delete "frodo iga workflow delete --draft-only -a -y": should delete all draft workflows 1`] = `""`;
 
-exports[`frodo iga workflow delete "frodo iga workflow delete --draft-only -a": should delete all draft workflows 2`] = `
+exports[`frodo iga workflow delete "frodo iga workflow delete --draft-only -a -y": should delete all draft workflows 2`] = `
 "✔ Deleted workflows.
 "
 `;

@@ -37,6 +37,9 @@ Options:
                                    and published unless -d or -p are used
                                    exclusively. Cannot be used with -a.
   -p, --published-only             Delete only the published workflow(s).
+  -y, --yes                        Do not ask for confirmation before deleting
+                                   all workflows. Required with -a when there is
+                                   no terminal.
   -h, --help                       Help
   -hh, --help-more                 Help with all options.
   -hhh, --help-all                 Help with all options, environment variables,

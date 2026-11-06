@@ -2,6 +2,10 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { deleteAgent, deleteAgents } from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
 import {
   deferEntityPicks,
@@ -33,6 +37,12 @@ export default function setup() {
         'Delete all agents. Cannot be used with -i.'
       ).conflicts(['agentId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all agents. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({ options: ['agentId', 'all'], purpose: 'which agents' })
     .action(
       // implement command logic inside action handler
@@ -45,6 +55,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all agents',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         if (await getTokens()) {
           // delete by id
           if (options.agentId) {
@@ -70,6 +93,16 @@ export default function setup() {
               const outcome = await deleteAgent(options.agentId);
               if (!outcome) process.exitCode = 1;
             } else {
+              if (
+                !(await confirmBulkDelete({
+                  what: 'all agents',
+                  yes: options.yes,
+                  dryRunAvailable: false,
+                }))
+              ) {
+                process.exitCode = 1;
+                return;
+              }
               verboseMessage(
                 `Deleting all agents in realm "${state.getRealm()}"...`
               );

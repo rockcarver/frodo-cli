@@ -3,8 +3,8 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway delete -i frodo-test-ig-agent
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway delete --agent-id frodo-test-ig-agent
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway delete -a
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway delete -a -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway delete --all -y
 */
 import { clearFixture, getEnv, stageFixture, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -16,7 +16,7 @@ const env = getEnv(c);
 const stagedAgentImport =
     'frodo agent gateway import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json';
 const deleteAgent = 'frodo agent gateway delete -i frodo-test-ig-agent';
-const deleteAllAgents = 'frodo agent gateway delete -a';
+const deleteAllAgents = 'frodo agent gateway delete -a -y';
 
 describe('frodo agent gateway delete', () => {
 
@@ -55,14 +55,14 @@ describe('frodo agent gateway delete', () => {
         }
     });
 
-    test('"frodo agent gateway delete -a": should delete all agent gateways', async () => {
+    test('"frodo agent gateway delete -a -y": should delete all agent gateways', async () => {
         const CMD = deleteAllAgents;
         const { stdout } = await exec(CMD, env);
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
-    test('"frodo agent gateway delete --all": should do nothing when no agent gateways can be deleted', async () => {
-        const CMD = 'frodo agent gateway delete --all';
+    test('"frodo agent gateway delete --all -y": should do nothing when no agent gateways can be deleted', async () => {
+        const CMD = 'frodo agent gateway delete --all -y';
         const { stderr } = await exec(CMD, env);
         expect(normalizeSnapshotText(stderr)).toMatchSnapshot()
     });
