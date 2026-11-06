@@ -34,3 +34,10 @@ export const journeyFile = 'ZionLogin.journey.json';
 export const allJourneysFile = 'allAlphaJourneys.journey.json';
 export const journeysDirectory = './journeys';
 export const journeyMarkdownFile = 'ZionLogin.md';
+export const remoteProxyId = 'zion';
+export const remoteProxyInstanceUrl =
+  'https://openam-zion.id.forgerock.io/openidm/';
+export const remoteProxyTokenEndpoint =
+  'https://openam-zion.id.forgerock.io/am/oauth2/realms/root/realms/alpha/access_token';
+export const remoteProxyClientId = 'frodo-proxy';
+export const remoteProxySecretPlaceholder = '&{esv.zion.proxy.secret}';

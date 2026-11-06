@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'idm remote-proxy create' should be expected english 1`] = `
+"Usage: frodo idm remote-proxy create [options] [host] [realm] [username] [password]
+
+[Cloud-only] Create an IDM remote proxy.
+
+Arguments:
+  host                           AM base URL, e.g.:
+                                 https://cdk.iam.example.com/am. To use a
+                                 connection profile, just specify a unique
+                                 substring or alias.
+  realm                          Realm. Specify realm as '/' for the root realm
+                                 or 'realm' or '/parent/child' otherwise.
+                                 (default: "alpha" for Identity Cloud tenants,
+                                 "/" otherwise.)
+  username                       Username to login with. Must be an admin user
+                                 with appropriate rights to manage
+                                 authentication journeys/trees. If given without
+                                 a password, and it matches the username already
+                                 stored in the connection profile for the target
+                                 host, frodo uses that profile's stored password
+                                 instead of requiring it on the command line.
+  password                       Password.
+
+Deployment: Cloud-only
+
+Options:
+  --auth-type <type>             How the proxy authenticates. (choices: "basic",
+                                 "bearer") (prompts if missing)
+  --basic-password [secret]      Basic authentication: password. Prefer an ESV
+                                 placeholder such as &{esv.zion.proxy.password}.
+                                 Without a value, it is asked for (input hidden)
+                                 or, when input is piped, read from stdin.
+  --basic-user-name <user-name>  Basic authentication: user name.
+  --client-id <client-id>        Bearer authentication: OAuth2 client id on the
+                                 receiving tenant.
+  --client-secret [secret]       Bearer authentication: client secret. Prefer an
+                                 ESV placeholder such as
+                                 &{esv.zion.proxy.secret}. Without a value, it
+                                 is asked for (input hidden) or, when input is
+                                 piped, read from stdin.
+  --disabled                     Create the remote proxy disabled.
+  -i, --proxy-id <proxy-id>      Remote proxy name: the name of the receiving
+                                 tenant. Letters, digits, ".", "_" and "-".
+                                 (prompts if missing)
+  --instance-url <url>           IDM URL of the receiving tenant, for example
+                                 https://openam-zion.id.forgerock.io/openidm/.
+                                 (prompts if missing)
+  --scope <scopes>               Bearer authentication: scopes, separated by
+                                 commas or spaces.
+  --token-endpoint <url>         Bearer authentication: token endpoint of the
+                                 receiving tenant.
+  -h, --help                     Help
+  -hh, --help-more               Help with all options.
+  -hhh, --help-all               Help with all options, environment variables,
+                                 and usage examples.
+"
+`;

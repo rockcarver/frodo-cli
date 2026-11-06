@@ -21,6 +21,8 @@ Commands:
   export            Export IDM configuration objects.
   import            Import IDM configuration objects.
   list              List IDM configuration objects.
+  remote-proxy      [Cloud-only] Manage IDM remote proxies: the connections from
+                    this tenant to the IDM of another tenant.
   schema            Manage IDM schema.
 
 Utilities:
