@@ -1,0 +1,12 @@
+{
+  "_id": "external.idm/zz-e2e-proxy",
+  "authType": "bearer",
+  "clientId": "frodo-proxy",
+  "clientSecret": "&{esv.zz.e2e.proxy}",
+  "enabled": false,
+  "instanceUrl": "https://example.invalid/openidm/",
+  "scope": ["fr:idm:*"],
+  "scopeDelimiter": " ",
+  "tokenEndpoint": "https://example.invalid/am/oauth2/realms/root/realms/alpha/access_token",
+  "tokenEndpointAuthMethod": "client_secret_post"
+}

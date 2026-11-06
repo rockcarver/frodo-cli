@@ -27,6 +27,7 @@ import Oauth2Agents from './config-manager-pull-oauth2-agents';
 import OrgPrivileges from './config-manager-pull-org-privileges';
 import PasswordPolicy from './config-manager-pull-password-policy';
 import Raw from './config-manager-pull-raw';
+import RemoteProxies from './config-manager-pull-remote-proxies';
 import RemoteServers from './config-manager-pull-remote-servers';
 import Saml from './config-manager-pull-saml';
 import Schedules from './config-manager-pull-schedules';
@@ -72,6 +73,7 @@ export default function setup() {
   program.addCommand(OrgPrivileges().name('org-privileges'));
   program.addCommand(PasswordPolicy().name('password-policy'));
   program.addCommand(Raw().name('raw'));
+  program.addCommand(RemoteProxies().name('remote-proxies'));
   program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(Saml().name('saml'));

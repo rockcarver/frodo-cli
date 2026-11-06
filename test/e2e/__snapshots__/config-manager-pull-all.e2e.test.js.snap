@@ -35983,6 +35983,23 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/remote-proxies/volker-dev.json 1`] = `
+{
+  "_id": "external.idm/volker-dev",
+  "authType": "bearer",
+  "clientId": "frodo-proxy-test",
+  "clientSecret": "&{esv.frodo.proxy.test}",
+  "enabled": true,
+  "instanceUrl": "https://openam-volker-dev.forgeblocks.com/openidm/",
+  "scope": [
+    "fr:idm:*",
+  ],
+  "scopeDelimiter": " ",
+  "tokenEndpoint": "https://openam-volker-dev.forgeblocks.com/am/oauth2/realms/root/realms/alpha/access_token",
+  "tokenEndpointAuthMethod": "client_secret_post",
+}
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/service-objects/alpha_role/Test Role.json 1`] = `
 {
   "_id": "cf5bb9d5-f775-405d-8bf0-4fe252286069",

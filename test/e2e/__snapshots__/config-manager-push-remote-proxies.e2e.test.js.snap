@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager push remote-proxies "frodo config-manager push remote-proxies -n zz-e2e-proxy -D test/e2e/exports/fr-config-manager/cloud": should import one remote proxy into cloud" 1`] = `""`;
+
+exports[`frodo config-manager push remote-proxies "frodo config-manager push remote-proxies -n zz-e2e-proxy -D test/e2e/exports/fr-config-manager/cloud": should import one remote proxy into cloud" 2`] = `
+"Experimental feature in use: 'frodo config-manager push remote-proxies'. This feature may change without notice.
+"
+`;

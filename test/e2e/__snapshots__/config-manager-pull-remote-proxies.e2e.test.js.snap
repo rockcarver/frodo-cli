@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager pull remote-proxies "frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25": should export one remote proxy in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pull remote-proxies "frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25": should export one remote proxy in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pull remote-proxies "frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25": should export one remote proxy in fr-config-manager style": testDir25/remote-proxies/zz-e2e-proxy.json 1`] = `
+{
+  "_id": "external.idm/zz-e2e-proxy",
+  "authType": "bearer",
+  "clientId": "frodo-proxy",
+  "clientSecret": "&{esv.zz.e2e.proxy}",
+  "enabled": false,
+  "instanceUrl": "https://example.invalid/openidm/",
+  "scope": [
+    "fr:idm:*",
+  ],
+  "scopeDelimiter": " ",
+  "tokenEndpoint": "https://example.invalid/am/oauth2/realms/root/realms/alpha/access_token",
+  "tokenEndpointAuthMethod": "client_secret_post",
+}
+`;

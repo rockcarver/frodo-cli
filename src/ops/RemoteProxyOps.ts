@@ -19,10 +19,17 @@ import {
   updateProgressIndicator,
 } from '../utils/Console';
 
-const { getTypedFilename, saveJsonToFile, getFilePath, getWorkingDirectory } =
-  frodo.utils;
+const {
+  getTypedFilename,
+  saveJsonToFile,
+  getFilePath,
+  getWorkingDirectory,
+  readJsonFile,
+} = frodo.utils;
 const { remoteProxy } = frodo.idm;
 
+/** Where `config-manager` keeps the remote proxies: one file per proxy, named after it. */
+const CONFIG_MANAGER_DIRECTORY = 'remote-proxies';
 const REMOTE_PROXY_FILE_TYPE = 'remoteproxy.idm';
 const REMOTE_PROXY_FILE_SUFFIX = `.${REMOTE_PROXY_FILE_TYPE}.json`;
 
@@ -765,6 +772,94 @@ export async function deleteRemoteProxies(): Promise<boolean> {
   } catch (error) {
     failSpinner('Error deleting all remote proxies');
     printError(error);
+  }
+  return false;
+}
+
+/**
+ * Export the remote proxies in fr-config-manager style: one file per proxy,
+ * `remote-proxies/<name>.json`, holding the proxy as IDM returns it. Secrets
+ * that only this tenant can decrypt are flagged; a tenant without remote proxies
+ * writes nothing.
+ * @param {string} name optional name: export only that remote proxy
+ * @param {boolean} quiet true to say nothing when there is no remote proxy (the step of `pull all`)
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function configManagerExportRemoteProxies(
+  name?: string,
+  quiet: boolean = false
+): Promise<boolean> {
+  try {
+    const proxies = name
+      ? [await remoteProxy.readRemoteProxy(name)]
+      : keepAddressable(await remoteProxy.readRemoteProxies());
+    const written: Record<string, RemoteProxySkeleton> = {};
+    for (const proxy of proxies) {
+      const proxyName = getName(proxy);
+      saveJsonToFile(
+        proxy,
+        getFilePath(`${CONFIG_MANAGER_DIRECTORY}/${proxyName}.json`, true),
+        false,
+        true
+      );
+      written[proxyName] = proxy;
+    }
+    if (proxies.length === 0 && !quiet) {
+      printMessage('No remote proxies found.', 'info');
+    }
+    warnTenantBoundSecrets(written);
+    return true;
+  } catch (error) {
+    printError(error, 'Error exporting remote proxies');
+  }
+  return false;
+}
+
+/**
+ * Import the remote proxies of the files `remote-proxies/<name>.json`. All or
+ * none: the library checks every name and proxy before it sends one. A secret
+ * that was encrypted by a tenant is imported with a warning, because this tenant
+ * may be unable to decrypt it; an ESV placeholder is the portable form.
+ * @param {string} name optional name: import only that remote proxy
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function configManagerImportRemoteProxies(
+  name?: string
+): Promise<boolean> {
+  try {
+    const directory = getFilePath(CONFIG_MANAGER_DIRECTORY);
+    const files = name
+      ? [`${name}.json`]
+      : fs.existsSync(directory)
+        ? fs
+            .readdirSync(directory)
+            .filter((file) => file.endsWith('.json'))
+            .sort()
+        : [];
+    if (
+      files.length === 0 ||
+      (name &&
+        !fs.existsSync(getFilePath(`${CONFIG_MANAGER_DIRECTORY}/${files[0]}`)))
+    ) {
+      printMessage(
+        name
+          ? `Remote proxy file ${files[0]} not found in ${directory}.`
+          : `No remote proxy files found in ${directory}.`,
+        'error'
+      );
+      return false;
+    }
+    const importData: RemoteProxyExportInterface = { remoteProxy: {} };
+    for (const file of files) {
+      importData.remoteProxy[file.replace(/\.json$/, '')] = readJsonFile(
+        getFilePath(`${CONFIG_MANAGER_DIRECTORY}/${file}`)
+      ) as RemoteProxySkeleton;
+    }
+    warnForeignSecrets(importData);
+    await remoteProxy.importRemoteProxies(importData);
+    return true;
+  } catch (error) {
+    printError(error, 'Error importing remote proxies');
   }
   return false;
 }
