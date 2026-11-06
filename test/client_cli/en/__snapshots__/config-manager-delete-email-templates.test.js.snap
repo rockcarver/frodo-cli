@@ -24,6 +24,8 @@ Options:
   -d, --dry-run      Show which email templates would be deleted.
   -n, --name <name>  Email template name; deletes only the email template with
                      the specified name.
+  -y, --yes          Do not ask for confirmation before deleting more than one
+                     email template (no -n). Required without a terminal.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

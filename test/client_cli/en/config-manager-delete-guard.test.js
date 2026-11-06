@@ -31,6 +31,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete scripts -p Example',
     'frodo config-manager delete scripts -p Example -p Other',
     'frodo config-manager delete themes',
+    'frodo config-manager delete email-templates',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -52,6 +53,12 @@ describe('a delete of more than one object without a terminal and without --yes'
 
     expect(stderr).toContain('all themes in the selected realms');
   });
+
+  test('the refusal of email templates says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete email-templates');
+
+    expect(stderr).toContain('all email templates');
+  });
 });
 
 describe('what is not refused', () => {
@@ -60,15 +67,18 @@ describe('what is not refused', () => {
     'frodo config-manager delete endpoints -n Example',
     'frodo config-manager delete scripts -n Example',
     'frodo config-manager delete themes -n Example',
+    'frodo config-manager delete email-templates -n Example',
     'frodo config-manager delete custom-nodes -d',
     'frodo config-manager delete endpoints -d',
     'frodo config-manager delete scripts -d',
     'frodo config-manager delete scripts -p Example -d',
     'frodo config-manager delete themes -d',
+    'frodo config-manager delete email-templates -d',
     'frodo config-manager delete custom-nodes -y',
     'frodo config-manager delete endpoints -y',
     'frodo config-manager delete scripts -y',
     'frodo config-manager delete themes -y',
+    'frodo config-manager delete email-templates -y',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 

@@ -3,7 +3,7 @@
 /*
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete email-templates -n frodoNameTest -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete email-templates -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete email-templates -y -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete email-templates -d -n test -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete email-templates --dry-run -m forgeops
 */
@@ -18,8 +18,8 @@ describe('frodo config-manager delete email-templates', () => {
         const CMD = `frodo config-manager delete email-templates -n frodoNameTest -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });
-    test(`"frodo config-manager delete email-templates -m forgeops": should delete the email-templates in forgeops"`, async () => {
-        const CMD = `frodo config-manager delete email-templates -m forgeops`;
+    test(`"frodo config-manager delete email-templates -y -m forgeops": should delete the email-templates in forgeops"`, async () => {
+        const CMD = `frodo config-manager delete email-templates -y -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });
     test(`"frodo config-manager delete email-templates -d -n test -m forgeops": should dry-run delete a specific email-template by name in forgeops"`, async () => {

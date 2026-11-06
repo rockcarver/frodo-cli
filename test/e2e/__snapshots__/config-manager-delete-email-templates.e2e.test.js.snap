@@ -21,9 +21,9 @@ Dry run: Deleting emailTemplate: test
 "
 `;
 
-exports[`frodo config-manager delete email-templates "frodo config-manager delete email-templates -m forgeops": should delete the email-templates in forgeops" 1`] = `""`;
+exports[`frodo config-manager delete email-templates "frodo config-manager delete email-templates -y -m forgeops": should delete the email-templates in forgeops" 1`] = `""`;
 
-exports[`frodo config-manager delete email-templates "frodo config-manager delete email-templates -m forgeops": should delete the email-templates in forgeops" 2`] = `
+exports[`frodo config-manager delete email-templates "frodo config-manager delete email-templates -y -m forgeops": should delete the email-templates in forgeops" 2`] = `
 "Experimental feature in use: 'frodo config-manager delete email-templates'. This feature may change without notice.
 Deleting emailTemplate: forgottenUsername
 Deleting emailTemplate: frodoNameTest
