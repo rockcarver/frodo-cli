@@ -2,6 +2,7 @@ import fs from 'fs';
 import {
   frodo,
   state,
+  type FrodoError,
   type ThemeExportInterface,
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib';
@@ -174,12 +175,33 @@ export async function configManagerImportThemes(
 }
 
 /**
+ * Whether an error of the library only says that there is nothing to delete: a
+ * realm without themes, or a theme that is not in the realm. It is told from
+ * the message, because the library raises both as plain errors.
+ * @param {unknown} error the error that was thrown
+ * @returns {boolean} true if there was nothing to delete
+ */
+function isNothingToDelete(error: unknown): boolean {
+  const message =
+    typeof (error as FrodoError)?.getCombinedMessage === 'function'
+      ? (error as FrodoError).getCombinedMessage()
+      : String((error as Error)?.message ?? error);
+  return /No theme configuration found for realm|not found in realm/.test(
+    message
+  );
+}
+
+/**
  * Delete themes in the specified realm, or in all listed realms if omitted.
- * Skips the root realm on Cloud deployments.
+ * Skips the root realm on Cloud deployments. Every realm is processed: one that
+ * has nothing to delete is reported and skipped, one that fails is reported and
+ * does not stop the others.
+ * A theme that is not in the realm is an error when the realm was given, and a
+ * warning when all realms are processed (fr-config-manager only warns).
  * @param {string} name Optional exact name of the theme to target.
  * @param {string} realm Optional realm to process.
  * @param {boolean} dryRun Show which themes would be deleted without deleting them.
- * @returns {Promise<boolean>} False if a read or deletion throws; otherwise true. An empty result is reported as a warning.
+ * @returns {Promise<boolean>} False if a realm could not be processed; otherwise true.
  */
 export async function configManagerDeleteThemes(
   name?: string,
@@ -187,8 +209,9 @@ export async function configManagerDeleteThemes(
   dryRun: boolean = false
 ): Promise<boolean> {
   try {
-    const realms =
-      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    const oneRealm = realm && realm !== DEFAULT_REALM_KEY;
+    const realms = oneRealm ? [realm] : await realmList();
+    let failed = 0;
     for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&
@@ -197,27 +220,47 @@ export async function configManagerDeleteThemes(
         continue;
       }
       state.setRealm(currentRealm);
-      const themes = dryRun
-        ? name
-          ? [await readThemeByName(name)]
-          : await readThemes()
-        : name
-          ? [await deleteThemeByName(name)]
-          : await deleteThemes(currentRealm);
-      if (themes.length === 0) {
-        printMessage(
-          `No themes found to delete in realm '${currentRealm}'.`,
-          'warn'
-        );
-        continue;
-      }
-      for (const theme of themes) {
-        printMessage(
-          `${dryRun ? 'Dry run: ' : ''}Deleting theme '${theme.name}' in realm '${currentRealm}'`
-        );
+      try {
+        const themes = dryRun
+          ? name
+            ? [await readThemeByName(name)]
+            : await readThemes()
+          : name
+            ? [await deleteThemeByName(name)]
+            : await deleteThemes(currentRealm);
+        if (themes.length === 0) {
+          printMessage(
+            `No themes found to delete in realm '${currentRealm}'.`,
+            'warn'
+          );
+          continue;
+        }
+        for (const theme of themes) {
+          printMessage(
+            `${dryRun ? 'Dry run: ' : ''}Deleting theme '${theme.name}' in realm '${currentRealm}'`
+          );
+        }
+      } catch (error) {
+        if (isNothingToDelete(error) && (!name || !oneRealm)) {
+          printMessage(
+            name
+              ? `Theme '${name}' not found in realm '${currentRealm}'.`
+              : `No themes found to delete in realm '${currentRealm}'.`,
+            'warn'
+          );
+          continue;
+        }
+        printError(error, `Error deleting themes in realm '${currentRealm}'`);
+        failed++;
       }
     }
-    return true;
+    if (failed > 0) {
+      printMessage(
+        `Themes could not be deleted in ${failed} of ${realms.length} realms.`,
+        'error'
+      );
+    }
+    return failed === 0;
   } catch (error) {
     printError(error);
     return false;

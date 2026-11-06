@@ -32,9 +32,9 @@ Dry run: Deleting theme 'Test' in realm 'alpha'
 "
 `;
 
-exports[`frodo config-manager delete themes "frodo config-manager delete themes -m forgeops": should delete themes across all realms 1`] = `""`;
+exports[`frodo config-manager delete themes "frodo config-manager delete themes -y -m forgeops": should delete themes across all realms 1`] = `""`;
 
-exports[`frodo config-manager delete themes "frodo config-manager delete themes -m forgeops": should delete themes across all realms 2`] = `
+exports[`frodo config-manager delete themes "frodo config-manager delete themes -y -m forgeops": should delete themes across all realms 2`] = `
 "Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
 Deleting theme 'Contrast' in realm '/'
 Deleting theme 'ForgeRock Theme' in realm '/'

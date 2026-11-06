@@ -24,6 +24,8 @@ Arguments:
 Options:
   -d, --dry-run      Show which themes would be deleted.
   -n, --name <name>  Name of the theme to delete.
+  -y, --yes          Do not ask for confirmation before deleting more than one
+                     theme (no -n). Required without a terminal.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage
