@@ -20,6 +20,10 @@ const SECRETS = [
   'frodo conn save --log-api-secret',
   'frodo admin get-access-token --client-secret',
   'frodo admin create-oauth2-client-with-admin-privileges --client-secret',
+  'frodo idm remote-proxy create --basic-password',
+  'frodo idm remote-proxy create --client-secret',
+  'frodo idm remote-proxy update --basic-password',
+  'frodo idm remote-proxy update --client-secret',
 ];
 
 let rows;
