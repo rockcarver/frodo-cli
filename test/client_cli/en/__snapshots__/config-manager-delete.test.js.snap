@@ -18,6 +18,7 @@ Runtime Options:
 
 Commands:
   custom-nodes      [Experimental] Delete custom nodes.
+  endpoints         [Experimental] Delete custom endpoint objects.
   test              [Experimental] Test connection and authentication.
 
 Utilities:
