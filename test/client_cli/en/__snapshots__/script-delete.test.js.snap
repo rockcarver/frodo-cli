@@ -39,6 +39,9 @@ Options:
                                  (choices: "javascript", "groovy")
   -n, --script-name <name>       Name of the script. If specified, -i or -a
                                  cannot be used.
+  -y, --yes                      Do not ask for confirmation before deleting all
+                                 non-default scripts. Required with -a when
+                                 there is no terminal.
   -h, --help                     Help
   -hh, --help-more               Help with all options.
   -hhh, --help-all               Help with all options, environment variables,

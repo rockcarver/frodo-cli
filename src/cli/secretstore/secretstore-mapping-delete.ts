@@ -5,6 +5,10 @@ import {
   deleteSecretStoreMapping,
   deleteSecretStoreMappings,
 } from '../../ops/SecretStoreOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   deferEntityPicks,
@@ -66,6 +70,12 @@ export default function setup() {
         'Delete all mappings. Cannot be used with -s.'
       ).conflicts(['secretId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all mappings. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({
       options: [
         'all',
@@ -87,6 +97,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all mappings',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         if (
           options.secretstoreType &&
           !canSecretStoreHaveMappings(options.secretstoreType)
@@ -124,6 +147,16 @@ export default function setup() {
             options.global ? globalDeploymentTypes : deploymentTypes
           ))
         ) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all mappings',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
+          }
           verboseMessage(
             `Deleting secret store mappings from secret store ${options.secretstoreId}...`
           );

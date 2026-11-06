@@ -6,6 +6,10 @@ import {
   deleteApplications,
 } from '../../ops/ApplicationOps';
 import { getTokens } from '../../ops/AuthenticateOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console';
 import {
@@ -57,6 +61,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all applications. Required with -a when there is no terminal.'
+      )
+    )
+    .addOption(
+      new Option(
         '--no-deep',
         'No deep delete. This leaves orphaned configuration artifacts behind.'
       )
@@ -70,7 +80,7 @@ export default function setup() {
         `  Delete application 'myApp':\n` +
         c.command(`  $ frodo app delete -i 'myApp' ${s.amBaseUrl}\n`) +
         `  Delete all applications:\n` +
-        c.command(`  $ frodo app delete -a ${s.connId}\n`)
+        c.command(`  $ frodo app delete -a -y ${s.connId}\n`)
     )
     .requireOneOf({
       options: ['all', 'appId', 'appName'],
@@ -87,6 +97,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all applications',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // -i/--app-id or -n/--app-name
         if (
           (options.appId || options.appName) &&
@@ -117,6 +140,16 @@ export default function setup() {
             );
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all applications',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage('Deleting all applications...');
             const outcome = await deleteApplications(options.deep);
             if (!outcome) process.exitCode = 1;

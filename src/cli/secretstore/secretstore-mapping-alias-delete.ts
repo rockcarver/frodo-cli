@@ -5,6 +5,10 @@ import {
   deleteSecretStoreMappingAlias,
   deleteSecretStoreMappingAliases,
 } from '../../ops/SecretStoreOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -60,6 +64,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all aliases except the active one. Required with --all when there is no terminal.'
+      )
+    )
+    .addOption(
+      new Option(
         '-g, --global',
         'Delete aliases for global secret stores. For classic deployments only.'
       )
@@ -86,6 +96,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all aliases except the active one',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         if (
           options.secretstoreType &&
           !canSecretStoreHaveMappings(options.secretstoreType)
@@ -126,6 +149,16 @@ export default function setup() {
             options.global ? globalDeploymentTypes : deploymentTypes
           ))
         ) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all aliases except the active one',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
+          }
           verboseMessage(
             `Deleting all aliases except active one from secret store mapping ${options.secretId} from secret store ${options.secretstoreId}...`
           );

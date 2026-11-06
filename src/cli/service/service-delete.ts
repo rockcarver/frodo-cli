@@ -3,6 +3,10 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteService, deleteServices } from '../../ops/ServiceOps.js';
 import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
+import {
   deferEntityPicks,
   entityPick,
   resolveEntityPicks,
@@ -18,6 +22,7 @@ export default function setup() {
 
   interface ServiceDeleteOptions {
     id?: string;
+    yes?: boolean;
     type?: string;
     insecure?: boolean;
     verbose?: boolean;
@@ -41,6 +46,12 @@ export default function setup() {
         'Delete all services. Cannot be used with -i.'
       ).conflicts(['id'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all services. Required with -a when there is no terminal.'
+      )
+    )
     .addOption(new Option('-g, --global', 'Delete global services.'))
     .action(
       async (
@@ -59,6 +70,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all services',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
 
         const globalConfig = options.global ?? false;
 
@@ -78,6 +102,16 @@ export default function setup() {
             const outcome = await deleteService(options.id, globalConfig);
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all services',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             const outcome = await deleteServices(globalConfig);
             if (!outcome) process.exitCode = 1;
           }

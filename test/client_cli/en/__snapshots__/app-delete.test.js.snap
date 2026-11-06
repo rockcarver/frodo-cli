@@ -28,6 +28,9 @@ Options:
   -n, --app-name <name>  Application name. Cannot be used with -i or -a.
   --no-deep              No deep delete. This leaves orphaned configuration
                          artifacts behind.
+  -y, --yes              Do not ask for confirmation before deleting all
+                         applications. Required with -a when there is no
+                         terminal.
   -h, --help             Help
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage

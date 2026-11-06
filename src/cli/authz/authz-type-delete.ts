@@ -5,6 +5,10 @@ import {
   deleteResourceTypes,
   deleteResourceTypeUsingName,
 } from '../../ops/ResourceTypeOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -31,6 +35,12 @@ export default function setup() {
         'Delete all resource types in a realm. Cannot be used with -i or -n.'
       ).conflicts(['typeId', 'typeName'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all resource types. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({
       options: ['all', 'typeId', 'typeName'],
       purpose: 'what to delete',
@@ -46,6 +56,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all resource types',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by uuid
         if (options.typeId && (await getTokens())) {
           verboseMessage('Deleting authorization resource type...');
@@ -60,6 +83,16 @@ export default function setup() {
         }
         // --all -a
         else if (options.all && (await getTokens())) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all resource types',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
+          }
           verboseMessage('Deleting all authorization resource types...');
           const outcome = await deleteResourceTypes();
           if (!outcome) process.exitCode = 1;

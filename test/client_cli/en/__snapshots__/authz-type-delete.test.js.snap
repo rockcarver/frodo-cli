@@ -28,6 +28,9 @@ Options:
                                used with -i or -n.
   -i, --type-id <type-id>      Variable id. Cannot be used with -n or -a.
   -n, --type-name <type-name>  Resource type name. Cannot be used with -i or -a.
+  -y, --yes                    Do not ask for confirmation before deleting all
+                               resource types. Required with -a when there is no
+                               terminal.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

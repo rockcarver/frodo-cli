@@ -27,6 +27,8 @@ Options:
   -i, --theme-id <uuid>    Uuid of the theme. Cannot be used with -n or -a.
                            (pick from theme)
   -n, --theme-name <name>  Name of the theme. Cannot be used with -i or -a.
+  -y, --yes                Do not ask for confirmation before deleting all
+                           themes. Required with -a when there is no terminal.
   -h, --help               Help
   -hh, --help-more         Help with all options.
   -hhh, --help-all         Help with all options, environment variables, and

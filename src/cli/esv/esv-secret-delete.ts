@@ -2,6 +2,10 @@ import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteSecret, deleteSecrets } from '../../ops/cloud/SecretsOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
 import {
   deferEntityPicks,
@@ -35,6 +39,12 @@ export default function setup() {
         'Delete all secrets in a realm. Cannot be used with -i.'
       ).conflicts(['secretId'])
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all secrets. Required with -a when there is no terminal.'
+      )
+    )
     .requireOneOf({ options: ['secretId', 'all'], purpose: 'which secrets' })
     .action(
       // implement command logic inside action handler
@@ -46,6 +56,19 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all secrets',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by id
         if (
           options.secretId &&
@@ -69,6 +92,16 @@ export default function setup() {
             const outcome = await deleteSecret(options.secretId);
             if (!outcome) process.exitCode = 1;
           } else {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all secrets',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
             verboseMessage('Deleting all secrets...');
             const outcome = await deleteSecrets();
             if (!outcome) process.exitCode = 1;
