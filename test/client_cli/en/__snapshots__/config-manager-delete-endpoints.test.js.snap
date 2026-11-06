@@ -24,6 +24,8 @@ Options:
   -d, --dry-run      Show which custom endpoints would be deleted without
                      deleting them.
   -n, --name <name>  Endpoint name. If omitted, deletes all eligible endpoints.
+  -y, --yes          Do not ask for confirmation before deleting more than one
+                     custom endpoint. Required without a terminal.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

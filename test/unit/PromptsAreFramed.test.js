@@ -65,6 +65,7 @@ const PACKAGED_CONFIRMS = [
   'src/ops/FeatureOps.ts',
   'src/ops/IdmOps.ts',
   'src/ops/PromoteOps.ts',
+  'src/utils/BulkDeleteGuard.ts',
 ];
 
 /** The source without its comments, so a mention in prose does not count as use. */

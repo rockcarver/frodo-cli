@@ -29,9 +29,9 @@ Successfully deleted script FrodoDeleteByName (0342f5f7-d33f-496d-8f12-1e1021fae
 "
 `;
 
-exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -p FrodoDeletePrefix -m forgeops": should delete scripts matching the prefix 1`] = `""`;
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops": should delete scripts matching the prefix 1`] = `""`;
 
-exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -p FrodoDeletePrefix -m forgeops": should delete scripts matching the prefix 2`] = `
+exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops": should delete scripts matching the prefix 2`] = `
 "Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
 Successfully deleted script FrodoDeletePrefixOne (770ae490-3c2b-4f34-a7b4-b75a09c0de55) in realm /alpha
 Successfully deleted script FrodoDeletePrefixTwo (30f741d7-da0f-4123-a391-20139566caa8) in realm /alpha
