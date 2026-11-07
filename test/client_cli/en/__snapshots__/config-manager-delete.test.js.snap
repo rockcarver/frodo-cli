@@ -22,6 +22,8 @@ Commands:
   scripts           [Experimental] Delete AM scripts. Default scripts are never
                     deleted.
   test              [Experimental] Test connection and authentication.
+  themes            [Experimental] Delete themes by name or delete all themes in
+                    the selected realms.
 
 Utilities:
   help              display help for command

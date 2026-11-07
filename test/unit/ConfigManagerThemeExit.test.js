@@ -39,7 +39,10 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   },
   state: { setRealm: jest.fn() },
 }));
-jest.unstable_mockModule('../../src/utils/Console', () => ({ printError }));
+jest.unstable_mockModule('../../src/utils/Console', () => ({
+  printError,
+  printMessage: jest.fn(),
+}));
 jest.unstable_mockModule('../../src/utils/FrConfig', () => ({
   decodeOrNot: (value) => value,
   encodeOrNot: (value) => value,
