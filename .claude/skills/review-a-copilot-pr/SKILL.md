@@ -52,6 +52,7 @@ Not the description, the diff: source, tests, docs, snapshots, lock files, workf
 - a package added to `dependencies` (it must be `devDependencies`), edits to `CHANGELOG.md`, edits to the Issue Concierge's files (see `AGENTS.md`), anything that looks like a key or token;
 - business logic added to the CLI that frodo-lib should own ([core 0001](../../../docs/decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md), cli record 0007), new modules in the deprecated `src/configManagerOps/` layer (cli record 0023), code in `src/ops/` that prompts, prompt code outside `src/utils/interactive/`, direct reads of standard input outside `src/utils/StdinSync.ts`;
 - docs that the change makes wrong (`docs/INTERACTIVE-COMMANDS.md`, the usage examples, MIGRATION.md for a removed option).
+- help text, examples, tests, commit messages or pull request text that name a real environment (a host, a tenant alias, a user, a company) instead of the sample data in `src/help/SampleData.ts`; the host test cannot see a name that is not part of a URL, so read for them ([cli record 0039](../../../docs/decisions/0039-public-help-and-examples-use-the-sample-data-never-a-real-environment.md)).
 
 ## 4. Build and run the checks
 

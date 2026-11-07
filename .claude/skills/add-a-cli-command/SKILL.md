@@ -60,7 +60,7 @@ node dist/launch.cjs widget list -h
 
 ## 6. Add usage examples
 
-Every command has a `Usage Examples:` block, shown by `-hhh`; the shape is in the instruction file above. Values come from `src/help/SampleData.ts`.
+Every command has a `Usage Examples:` block, shown by `-hhh`; the shape is in the instruction file above. Values come from `src/help/SampleData.ts`, in every line of help text, never from a real environment; when a name is derived from a URL, show a full sample URL and the name taken from it ([cli record 0039](../../../docs/decisions/0039-public-help-and-examples-use-the-sample-data-never-a-real-environment.md)).
 
 **Do not keep the template's example text.** It says `frodo something ...` and leaves out the realm, and the check in `test/unit/UsageExampleOperands.test.js` fails it (renaming only the constructor gives `unknown-command` findings). Per cli record 0002 an example runs as written and opens no picker or editor:
 

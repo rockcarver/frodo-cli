@@ -1,5 +1,6 @@
 import { Option } from 'commander';
 import { configManagerExportRaw } from '../../../configManagerOps/FrConfigRawOps';
+import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { FrodoCommand } from '../../FrodoCommand';
 
@@ -18,7 +19,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Make sure to create an export config file: raw.json to run this command.\n' +
-        'Example command: frodo config-manager pull raw -f raw.json -D ../testDir frodo-dev\n\n' +
+        `Example command: frodo config-manager pull raw -f raw.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '------------  Example Oauth2 agents export config for oauth2-agents.json file -----------\n' +
         '[\n' +

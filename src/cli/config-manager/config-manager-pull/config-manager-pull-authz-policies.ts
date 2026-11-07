@@ -1,5 +1,6 @@
 import { Option } from 'commander';
 import { configManagerExportAuthzPolicySets } from '../../../configManagerOps/FrConfigAuthzPoliciesOps';
+import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -19,7 +20,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Make sure to create the export config file, e.g. authz-policies.json, to run this command.\n' +
-        'Example command: frodo config-manager pull authz-policies -f authz-policies.json -D policiesDir frodo-dev\n\n' +
+        `Example command: frodo config-manager pull authz-policies -f authz-policies.json -D policiesDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '-----------------------  Example authz policies export config for authz-policies.json file ------------------------\n' +
         '{\n' +
