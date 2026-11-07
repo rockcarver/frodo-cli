@@ -198,6 +198,30 @@ function warnForeignSecrets(importData: RemoteProxyExportInterface): void {
 }
 
 /**
+ * Warn about remote proxies that address their receiving tenant with a fixed
+ * URL: a promotion carries the address to the next environment unchanged.
+ * @param {Record<string, RemoteProxySkeleton>} proxies the proxies by name
+ */
+function warnFixedHostUrls(proxies: Record<string, RemoteProxySkeleton>): void {
+  const fixed = Object.entries(proxies)
+    .map(([name, proxy]) => ({
+      name,
+      properties: remoteProxy.getFixedHostUrls(proxy),
+    }))
+    .filter(({ properties }) => properties.length > 0);
+  if (fixed.length > 0) {
+    printMessage(
+      `These remote proxies address their receiving tenant with a fixed URL, which a promotion carries to the next environment unchanged: ${fixed
+        .map(({ name, properties }) => `${name} (${properties.join(', ')})`)
+        .join(
+          ', '
+        )}. Make the host an ESV placeholder such as https://&{esv.zion.proxy.host}/openidm/ to let each environment supply its own receiver.`,
+      'warn'
+    );
+  }
+}
+
+/**
  * List remote proxies
  * @param {boolean} long long format with details
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -808,6 +832,7 @@ export async function configManagerExportRemoteProxies(
       printMessage('No remote proxies found.', 'info');
     }
     warnTenantBoundSecrets(written);
+    warnFixedHostUrls(written);
     return true;
   } catch (error) {
     printError(error, 'Error exporting remote proxies');
@@ -856,6 +881,7 @@ export async function configManagerImportRemoteProxies(
       ) as RemoteProxySkeleton;
     }
     warnForeignSecrets(importData);
+    warnFixedHostUrls(importData.remoteProxy);
     await remoteProxy.importRemoteProxies(importData);
     return true;
   } catch (error) {
