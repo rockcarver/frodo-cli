@@ -33,6 +33,7 @@ Options:
                              <proxy-id>.remoteproxy.idm.json. Cannot be used
                              with -A.
   -i, --proxy-id <proxy-id>  Remote proxy name. Cannot be used with -a or -A.
+                             (pick from remote proxy)
   -N, --no-metadata          Does not include metadata in the export file.
   -h, --help                 Help
   -hh, --help-more           Help with all options.

@@ -11,10 +11,15 @@
  * and so on), so each picker is deployment-type-correct by construction;
  * nothing here assumes a particular deployment type.
  *
+ * A family of commands can register its picks once instead (decision record
+ * 0038, EntityPickRegistry.ts): every command of the family that has the
+ * option inherits the pick, and the framework runs it after login, from
+ * `getTokens`, so the command declares nothing and calls nothing.
+ *
  * The flow spans two stages:
  *
  * 1. SETUP: the command declares its specs with `deferEntityPicks(command,
- *    [...])`. The resolver (ResolveInteractiveInputs) reads the registry to
+ *    [...])` (or inherits them from its family). The resolver (ResolveInteractiveInputs) reads the registry to
  *    learn which options are entity-pickable, and when such an option is
  *    the missing half of a mandatory/one-of rule, it SKIPS the free-text
  *    value step for it (asking the user to type an id by hand would defeat
@@ -43,6 +48,7 @@
 import { Command } from 'commander';
 import { printError, verboseMessage } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
+import { familyEntityPicks } from './EntityPickRegistry';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { blockersOf, commitOption, failWithConflict } from './OptionConflicts';
@@ -144,7 +150,24 @@ export function deferEntityPicks(
  * prompt for -- those belong to the post-auth dropdown.
  */
 export function getEntityPicks(command: Command): EntityPickSpec<unknown>[] {
+  return [...ownEntityPicks(command), ...inheritedEntityPicks(command)];
+}
+
+/** The picks a command registered itself with `deferEntityPicks`. */
+function ownEntityPicks(command: Command): EntityPickSpec<unknown>[] {
   return pendingEntityPicks.get(command) ?? [];
+}
+
+/**
+ * The picks a command inherits from the registry of its command family
+ * (EntityPickRegistry, record 0038), leaving out an option the command
+ * registered a pick for itself.
+ */
+function inheritedEntityPicks(command: Command): EntityPickSpec<unknown>[] {
+  const own = ownEntityPicks(command);
+  return familyEntityPicks(command).filter(
+    (pick) => !own.some((ownPick) => ownPick.name === pick.name)
+  );
 }
 
 /**
@@ -170,8 +193,28 @@ export function entityPick<T>(spec: EntityPickSpec<T>): EntityPickSpec<T> {
  * action's body (same shape as a failed getTokens()).
  */
 export async function resolveEntityPicks(command: Command): Promise<boolean> {
+  return runEntityPicks(command, getEntityPicks(command));
+}
+
+/**
+ * Runs the picks a command inherits from its command family (record 0038).
+ * The framework calls it after login, from `getTokens`, so a command whose
+ * family has a registry entry does not call a resolver of its own. Same
+ * contract as `resolveEntityPicks`: false means the user declined or a load
+ * failed, and the command must not run its body.
+ */
+export async function resolveFamilyEntityPicks(
+  command: Command
+): Promise<boolean> {
+  return runEntityPicks(command, inheritedEntityPicks(command));
+}
+
+async function runEntityPicks(
+  command: Command,
+  picks: EntityPickSpec<unknown>[]
+): Promise<boolean> {
   if (!canPrompt()) return true;
-  for (const pick of getEntityPicks(command)) {
+  for (const pick of picks) {
     // Commands branch on the RAW option value (options.secretId); writing
     // through setOptionValueWithSource keeps both that object and the
     // resolver's own getOptionValue reads consistent.

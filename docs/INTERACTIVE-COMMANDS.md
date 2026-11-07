@@ -146,8 +146,18 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
 
 - **Entity pickers** (`EntityPickers.ts`) — a command whose
   target-entity option (`-i/--secret-id`, `-i/--tree-id`, ...) was left
-  unspecified offers a dropdown populated from the live system. Specs
-  are registered at setup via `deferEntityPicks(command, [...])`; the
+  unspecified offers a dropdown populated from the live system. A
+  family of commands registers its specs once, in `EntityPickFamilies.ts`
+  (decision record 0038): every command of the family that has the option
+  inherits the pick, declares nothing and calls no resolver, and
+  `getTokens()` runs the pick once the login worked (a declined pick or a
+  failed load makes `getTokens()` return false, so the command does not
+  run). `create` and `import` commands never inherit a pick, because their
+  `-i` names an entity that does not exist yet or one in a file; a family
+  lists such a command in `include` when its option still names an
+  existing entity. A command can also register specs itself at setup via
+  `deferEntityPicks(command, [...])` (the older form, kept until the
+  command moves to its family). Either way the
   resolver skips the free-text value step for pickable options. The
   loader is per-deployment-type by construction (whatever read
   function the command family's ops layer provides). A row is the

@@ -261,6 +261,17 @@ export async function getTokens(
         await import('../utils/interactive/AuthoringPrintState');
       noteAuthSucceeded();
       const activeCommand = getActiveActionCommand();
+      // The entity pickers the command inherits from its command family
+      // (decision record 0038) run here, once the loaders have a login, so
+      // a command in such a family calls no resolver of its own. A declined
+      // pick or a failed load stops the command like a failed login does.
+      if (activeCommand) {
+        const { resolveFamilyEntityPicks } =
+          await import('../utils/interactive/EntityPickers');
+        if (!(await resolveFamilyEntityPicks(activeCommand))) {
+          return false;
+        }
+      }
       const hasPendingPicks = await (async () => {
         if (!activeCommand) return false;
         const { getEntityPicks } =
