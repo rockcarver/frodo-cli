@@ -1,6 +1,6 @@
 ---
-status: proposed
-date: 2026-11-06
+status: accepted
+date: 2026-11-07
 decision-makers: maintainers
 applies-to:
   - src/cli/**
