@@ -214,6 +214,7 @@ const deploymentMapAllStatic = {
     () => configManagerExportMappings(),
     (options) => configManagerExportOrgPrivilegesAllRealms(options.realm),
     (options) => configManagerExportPasswordPolicy(options.realm),
+    () => configManagerExportRemoteProxies(undefined, true),
     () => configManagerExportRemoteServers(),
     () => configManagerExportSchedules(),
     (options) => configManagerExportScripts(undefined, options.realm),

@@ -31,7 +31,7 @@ export default function setup() {
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Push all remote proxies from remote-proxies/<name>.json; a warning says when a secret was encrypted by another tenant:\n` +
+        `  Push all remote proxies from remote-proxies/<name>.json; a warning says when a secret was encrypted by another tenant or a URL has a fixed host:\n` +
         c.command(
           `  $ frodo config-manager push remote-proxies ${s.connId}\n`
         ) +

@@ -32,6 +32,12 @@ let exportedProxies = {};
 let baseDirectory = '';
 let importFailure;
 
+/** URLs whose host an ESV supplies: nothing names a tenant. */
+const portableUrls = {
+  instanceUrl: 'https://&{esv.proxy.host}/openidm/',
+  tokenEndpoint: '&{esv.proxy.token}',
+};
+
 const bearer = (name, overrides = {}) => ({
   _id: `external.idm/${name}`,
   enabled: true,
@@ -52,6 +58,14 @@ const remoteProxy = {
   getTenantBoundSecrets: (proxy) =>
     ['password', 'clientSecret'].filter(
       (property) => proxy[property] && typeof proxy[property] === 'object'
+    ),
+  // the library decides which host is a placeholder; here any placeholder in the URL counts
+  getFixedHostUrls: (proxy) =>
+    ['instanceUrl', 'tokenEndpoint'].filter(
+      (property) =>
+        typeof proxy[property] === 'string' &&
+        proxy[property] !== '' &&
+        !proxy[property].includes('&{')
     ),
   readRemoteProxies: async () => readProxies,
   readRemoteProxy: async (name) => {
@@ -330,12 +344,47 @@ describe('config-manager export', () => {
 
   test('secrets that only this tenant can decrypt are flagged, an ESV placeholder is not', async () => {
     await configManagerExportRemoteProxies();
-    expect(messages('warn').join('\n')).toContain('beta (clientSecret)');
-    expect(messages('warn').join('\n')).not.toContain('alpha-two');
+    const secretWarning = messages('warn').find((msg) => msg.includes('encrypted for this tenant'));
+    expect(secretWarning).toContain('beta (clientSecret)');
+    expect(secretWarning).not.toContain('alpha-two');
 
     printed.length = 0;
+    readProxies = [bearer('alpha-two', { clientSecret: '&{esv.alpha.two}', ...portableUrls })];
     await configManagerExportRemoteProxies('alpha-two');
     expect(messages('warn')).toEqual([]);
+  });
+
+  test('URLs with a fixed host are flagged once, with the property names, a placeholder host is not', async () => {
+    readProxies = [
+      bearer('beta', { clientSecret: '&{esv.beta}' }),
+      bearer('alpha-two', { clientSecret: '&{esv.alpha.two}', ...portableUrls }),
+      bearer('gamma', { clientSecret: '&{esv.gamma}', instanceUrl: '&{esv.gamma.idm}' }),
+    ];
+
+    await configManagerExportRemoteProxies();
+
+    const warnings = messages('warn');
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('beta (instanceUrl, tokenEndpoint)');
+    expect(warnings[0]).toContain('gamma (tokenEndpoint)');
+    expect(warnings[0]).not.toContain('alpha-two');
+    expect(warnings[0]).toContain('ESV placeholder');
+  });
+
+  test('one proxy by name is checked on its own', async () => {
+    await configManagerExportRemoteProxies('alpha-two');
+
+    expect(messages('warn').join('\n')).toContain('alpha-two (instanceUrl, tokenEndpoint)');
+    expect(messages('warn').join('\n')).not.toContain('beta (');
+  });
+
+  test('the files are written whatever the warning says', async () => {
+    expect(await configManagerExportRemoteProxies()).toBe(true);
+
+    expect(saved.map((entry) => entry.file)).toEqual([
+      'remote-proxies/beta.json',
+      'remote-proxies/alpha-two.json',
+    ]);
   });
 
   test('one proxy by name writes only that file', async () => {
@@ -426,9 +475,31 @@ describe('config-manager import', () => {
     expect(messages('warn').join('\n')).toContain('beta (clientSecret)');
 
     printed.length = 0;
-    writeProxy('beta', bearer('beta', { clientSecret: '&{esv.beta}' }));
+    writeProxy('beta', bearer('beta', { clientSecret: '&{esv.beta}', ...portableUrls }));
     await configManagerImportRemoteProxies();
     expect(messages('warn')).toEqual([]);
+  });
+
+  test('files with a URL of a fixed host warn once and are still imported, a placeholder host does not warn', async () => {
+    writeProxy('beta', bearer('beta', { clientSecret: '&{esv.beta}' }));
+    writeProxy('alpha-two', bearer('alpha-two', { clientSecret: '&{esv.alpha.two}', ...portableUrls }));
+
+    expect(await configManagerImportRemoteProxies()).toBe(true);
+
+    const warnings = messages('warn');
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('beta (instanceUrl, tokenEndpoint)');
+    expect(warnings[0]).not.toContain('alpha-two');
+    expect(Object.keys(imported[0].remoteProxy)).toEqual(['alpha-two', 'beta']);
+  });
+
+  test('a refused import has warned before the library refused it', async () => {
+    writeProxy('beta', bearer('beta', { clientSecret: '&{esv.beta}' }));
+    importFailure = new Error('refused');
+
+    expect(await configManagerImportRemoteProxies()).toBe(false);
+
+    expect(messages('warn').join('\n')).toContain('beta (instanceUrl, tokenEndpoint)');
   });
 
   test('without a remote-proxies directory nothing is sent and the message names the directory', async () => {

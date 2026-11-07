@@ -31,7 +31,7 @@ export default function setup() {
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Pull all remote proxies to remote-proxies/<name>.json, and say which of their secrets only this tenant can use:\n` +
+        `  Pull all remote proxies to remote-proxies/<name>.json, and say which of their secrets only this tenant can use and which URLs have a fixed host:\n` +
         c.command(
           `  $ frodo config-manager pull remote-proxies ${s.connId}\n`
         ) +
