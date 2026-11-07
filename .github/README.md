@@ -656,6 +656,7 @@ Environment Variables:
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
+  FRODO_NO_UPDATE_CHECK: Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips reading and writing '~/.frodo/Versions.json' and suppresses update notices; 'frodo -v' still shows installed versions.
   FRODO_TOKEN_CACHE_PATH: Use this token cache location instead of '~/.frodo/TokenCache.json'. The entries are kept in the directory with the same name without its extension.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.

@@ -24,6 +24,7 @@ import {
   updateProgressIndicator,
   verboseMessage,
 } from '../utils/Console.js';
+import { isTruthyOptInValue } from '../utils/EnvFlags.js';
 import { flushAuthoringPrint } from '../utils/interactive/AuthoringPrintState.js';
 // Type-only: the credential vocabulary lives in the interactive layer
 // (see docs/INTERACTIVE-COMMANDS.md, layering).
@@ -1419,6 +1420,12 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
       command.hasDefaultOption(noCacheOption.attributeName()),
   },
   {
+    name: 'FRODO_NO_UPDATE_CHECK',
+    description:
+      'Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices.',
+    group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
+  },
+  {
     name: 'FRODO_TOKEN_CACHE_PATH',
     description:
       "Use this token cache location instead of '~/.frodo/TokenCache.json'. The entries are kept in the directory with the same name without its extension.",
@@ -2188,21 +2195,6 @@ function getOptionLabel(option: Option): string {
  */
 function toOptionAttributeName(optionName: string): string {
   return optionName.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase());
-}
-
-/**
- * Returns true if value is treated as enabled for opt-in checks.
- * @param value Value to evaluate.
- * @returns Truthy opt-in interpretation.
- */
-function isTruthyOptInValue(value: unknown): boolean {
-  if (typeof value === 'boolean') {
-    return value;
-  }
-  if (typeof value === 'string') {
-    return ['1', 'true', 'yes', 'on'].includes(value.toLowerCase());
-  }
-  return false;
 }
 
 /**

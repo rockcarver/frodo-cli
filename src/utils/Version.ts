@@ -5,6 +5,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import Color from 'colors';
 import { compareVersions } from 'compare-versions';
 import pkg from '../../package.json' with { type: 'json' };
+import { isTruthyOptInValue } from './EnvFlags.js';
 
 const { getVersion, getBuildTimestamp, getAllVersions } = frodo.utils.version;
 
@@ -141,13 +142,16 @@ function isHomebrew() {
 }
 
 export async function getVersions(checkOnly: boolean) {
+  const noUpdateCheck = isTruthyOptInValue(process.env.FRODO_NO_UPDATE_CHECK);
   let updateAvailable = false;
   let usingBinary = false;
   if (isBinary()) {
     usingBinary = true;
   }
   try {
-    await getRemoteVersionData();
+    if (!noUpdateCheck) {
+      await getRemoteVersionData();
+    }
   } catch {
     // Do not report error if remote version can not be obtained.
     // Just silently report installed version
@@ -171,12 +175,13 @@ export async function getVersions(checkOnly: boolean) {
   }`;
   let newVersionString = '';
   if (
-    (usingBinary &&
+    !noUpdateCheck &&
+    ((usingBinary &&
       versionObject.github != null &&
       compareVersions(getCliVersion(), versionObject.github) == -1) ||
-    (!usingBinary &&
-      versionObject.npm != null &&
-      compareVersions(getCliVersion(), versionObject.npm) == -1)
+      (!usingBinary &&
+        versionObject.npm != null &&
+        compareVersions(getCliVersion(), versionObject.npm) == -1))
   ) {
     updateAvailable = true;
     newVersionString += `\n\nNewer version(s) available`;
