@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-23] - 2026-11-07
+
+### Added
+- Introduced `frodo config-manager delete email-templates`, allowing deletion of email templates by name with `-n` or as a dry run with `-d`. This feature is a port from fr-config-manager. (#1073)
+- Added `frodo config-manager delete endpoints`, facilitating endpoint deletion. (#1052)
+- Introduced IDM remote proxy management with `frodo idm remote-proxy`, supporting list, describe, export, import, create, update, and delete operations for IDM remote proxy configurations. (#1065)
+- Integrated IDM remote proxies into `frodo config-manager pull remote-proxies` and `frodo config-manager push remote-proxies`, supporting file operations for each remote proxy. (#1074)
+- Enhanced `frodo config-manager pull all-static` to include remote proxies of a cloud tenant. (#1075)
+- Implemented a confirmation prompt for bulk delete operations across 25 commands, requiring user confirmation before deleting multiple objects. This includes `frodo config-manager delete custom-nodes`, `endpoints`, and `scripts`. (#1071, #1069)
+
+### Changed
+- Updated `mcp server start` to utilize the token cache, allowing server processes to share a login per expiry window and maintain current sessions with auto-refresh. (#1061)
+
+### Fixed
+- Updated `frodo-lib` to version `5.0.0-24`, which includes various improvements and fixes. (commit 026676d55)
+
 ## [v5.0.0-22] - 2026-11-05
 
 ### Fixed
@@ -3182,6 +3198,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-23]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-22...v5.0.0-23
 [v5.0.0-22]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-21...v5.0.0-22
 [v5.0.0-21]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-20...v5.0.0-21
 [v5.0.0-20]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-19...v5.0.0-20
