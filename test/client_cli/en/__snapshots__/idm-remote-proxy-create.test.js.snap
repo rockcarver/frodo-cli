@@ -5,6 +5,12 @@ exports[`CLI help interface for 'idm remote-proxy create' should be expected eng
 
 [Cloud-only] Create an IDM remote proxy.
 
+Choose a name that tells the remote environment apart. The tenant name in its
+URL is a good choice: for https://openam-zion.id.forgerock.io/ that is "zion".
+The name is the id of the proxy configuration (external.idm/<proxy-id>) and the
+part of the URL that reaches the receiving tenant:
+/openidm/external/idm/<proxy-id>/.
+
 Arguments:
   host                           AM base URL, e.g.:
                                  https://cdk.iam.example.com/am. To use a
@@ -41,9 +47,8 @@ Options:
                                  is asked for (input hidden) or, when input is
                                  piped, read from stdin.
   --disabled                     Create the remote proxy disabled.
-  -i, --proxy-id <proxy-id>      Remote proxy name: the name of the receiving
-                                 tenant. Letters, digits, ".", "_" and "-".
-                                 (prompts if missing)
+  -i, --proxy-id <proxy-id>      Remote proxy name. Letters, digits, ".", "_"
+                                 and "-". (prompts if missing)
   --instance-url <url>           IDM URL of the receiving tenant, for example
                                  https://openam-zion.id.forgerock.io/openidm/.
                                  (prompts if missing)

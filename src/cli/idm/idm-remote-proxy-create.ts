@@ -19,11 +19,17 @@ export default function setup() {
   );
 
   program
-    .description('Create an IDM remote proxy.')
+    .summary('Create an IDM remote proxy.')
+    .description(
+      'Create an IDM remote proxy.\n\n' +
+        'Choose a name that tells the remote environment apart. The tenant name in its URL is a good choice: ' +
+        `for ${new URL(s.amBaseUrl2).origin}/ that is "${s.remoteProxyId}". ` +
+        'The name is the id of the proxy configuration (external.idm/<proxy-id>) and the part of the URL that reaches the receiving tenant: /openidm/external/idm/<proxy-id>/.'
+    )
     .addOption(
       new Option(
         '-i, --proxy-id <proxy-id>',
-        'Remote proxy name: the name of the receiving tenant. Letters, digits, ".", "_" and "-".'
+        'Remote proxy name. Letters, digits, ".", "_" and "-".'
       ).makeOptionMandatory()
     )
     .addOption(

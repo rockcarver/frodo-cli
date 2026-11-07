@@ -41,9 +41,8 @@ Options:
                                  piped, read from stdin.
   --disabled                     Disable the remote proxy.
   --enabled                      Enable the remote proxy.
-  -i, --proxy-id <proxy-id>      Remote proxy name: the name of the receiving
-                                 tenant. (pick from remote proxy) (prompts if
-                                 missing)
+  -i, --proxy-id <proxy-id>      Remote proxy name. (pick from remote proxy)
+                                 (prompts if missing)
   --instance-url <url>           IDM URL of the receiving tenant.
   --scope <scopes>               Bearer authentication: scopes, separated by
                                  commas or spaces.
