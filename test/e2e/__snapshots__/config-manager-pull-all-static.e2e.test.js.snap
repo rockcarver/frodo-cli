@@ -34458,7 +34458,7 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 }
 `;
 
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style" 1`] = `0`;
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style" 1`] = `1`;
 
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style" 2`] = `""`;
 

@@ -41,6 +41,10 @@ import {
   markSecret,
   SECRET_OPTION_HELP,
 } from '../utils/interactive/SecretOptions.js';
+import {
+  ALLOW_FAILURES_HELP,
+  ALLOW_FAILURES_OPTION,
+} from '../utils/OperationRun.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import {
   deferMissingMandatoryOption,
@@ -3820,6 +3824,24 @@ export class FrodoCommand extends FrodoStubCommand {
       (option) =>
         option.attributeName() === optionName || option.name() === optionName
     );
+  }
+
+  /**
+   * Marks the command as performing several operations (the items of a bulk,
+   * the steps of an "all" command, a loop over the items of a kind) and adds
+   * the shared `--allow-failures` option (decision record 0040). A command never
+   * declares that option itself, so its flag and help text exist once.
+   *
+   * The action passes `options.allowFailures` to its ops function, which runs
+   * its operations through `OperationRun` (src/utils/OperationRun.ts): that runs
+   * them all, prints one summary and answers whether the command succeeded.
+   * @returns This command for chaining.
+   */
+  multiOp(): this {
+    if (!this.hasDefaultOption('allowFailures')) {
+      this.addOption(new Option(ALLOW_FAILURES_OPTION, ALLOW_FAILURES_HELP));
+    }
+    return this;
   }
 
   /**

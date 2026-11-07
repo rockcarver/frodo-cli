@@ -147,6 +147,29 @@ named object never asks. This affects `frodo agent delete -a` and
 a command line that ran under 4.x keeps running: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
+**Commands that run several operations now run them all and exit 1 if any
+failed**: `frodo config-manager pull all` and `pull all-static` carried on after
+a step failed, printed that step's error and exited with code 0, with no
+summary. In 5.x they still run every step, then print one summary of the steps
+that failed and exit with code 1:
+
+```text
+2 of 24 steps failed:
+  - org-privileges
+  - password-policy
+```
+
+A script or CI job that must keep going after a failed step adds
+`--allow-failures`: the failures are still printed, as a warning, and the exit
+code stays 0. A failed step includes a config file that a step needs and cannot
+read (for example `saml.json` missing from the config folder given with `-C`).
+The step names in the summary are the names of the `config-manager pull`
+commands, so you can run one of them to see its error again. Other commands that
+run several operations (the bulk `-a` and `-A` options, and the other
+config-manager commands) follow in later releases; each one that changes is
+added here, and the option is shown in its `-h`. See
+[a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

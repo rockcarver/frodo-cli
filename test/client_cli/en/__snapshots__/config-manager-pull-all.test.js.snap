@@ -12,6 +12,7 @@ Arguments:
   password                                  Password.
 
 Options:
+  --allow-failures                          Report operations that fail, but still exit with code 0. Without this option the command runs every operation, prints a summary of what failed and exits with code 1.
   -C, --config-folder <config-folder-path>  Path to the folder containing the config files.
    (prompts if missing)
   -h, --help                                Help
