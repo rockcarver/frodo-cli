@@ -32,6 +32,10 @@ type Tenant = ReturnType<typeof frodo.createInstance>;
 export const DEFAULT_TIMEOUT_SECONDS = 600;
 /** Seconds between two checks of the proxy while it loads. */
 const POLL_INTERVAL_SECONDS = 10;
+/** Tests in a row that must succeed before a proxy counts as answering. */
+export const CONSECUTIVE_ANSWERS = 3;
+/** Seconds between two of those tests, once the proxy has answered. */
+const CONFIRM_INTERVAL_SECONDS = 3;
 
 /**
  * The identity the OAuth2 client of a remote proxy gets on the receiving
@@ -203,11 +207,14 @@ export function checkSetupAllowed(
 /**
  * Wait until a remote proxy answers: test it every few seconds, because it
  * is not loaded until the ESV changes it needs are applied, and a new one takes
- * up to about half a minute to load.
+ * up to about half a minute to load. One answer is not enough: right after an
+ * ESV apply the services restart, and a test can fail again moments after one
+ * passed. The proxy counts as answering after several tests in a row, and a
+ * failed test starts the count again.
  * @param {string} proxyId name of the remote proxy
  * @param {number} timeoutSeconds seconds to wait
  * @param {WorkflowDeps} deps clock
- * @returns {Promise<RemoteProxyTestResult>} the last result of the test
+ * @returns {Promise<RemoteProxyTestResult>} the last result of the test, not ok when the proxy did not answer enough tests in a row before the timeout
  */
 export async function waitUntilRemoteProxyAnswers(
   proxyId: string,
@@ -219,17 +226,28 @@ export async function waitUntilRemoteProxyAnswers(
   const deadline = now() + timeoutSeconds * 1000;
   showSpinner(`Waiting for the remote proxy "${proxyId}" to answer...`);
   let result = await remoteProxy.testRemoteProxy(proxyId);
-  while (!result.ok && now() + POLL_INTERVAL_SECONDS * 1000 <= deadline) {
-    await sleep(POLL_INTERVAL_SECONDS * 1000);
+  let answers = result.ok ? 1 : 0;
+  while (answers < CONSECUTIVE_ANSWERS) {
+    const pause = result.ok ? CONFIRM_INTERVAL_SECONDS : POLL_INTERVAL_SECONDS;
+    if (now() + pause * 1000 > deadline) break;
+    await sleep(pause * 1000);
     result = await remoteProxy.testRemoteProxy(proxyId);
+    answers = result.ok ? answers + 1 : 0;
+  }
+  if (answers >= CONSECUTIVE_ANSWERS) {
+    succeedSpinner(`The remote proxy "${proxyId}" answers.`);
+    return result;
   }
   if (result.ok) {
-    succeedSpinner(`The remote proxy "${proxyId}" answers.`);
-  } else {
-    failSpinner(
-      `The remote proxy "${proxyId}" does not answer yet: ${result.message}`
-    );
+    result = {
+      ...result,
+      ok: false,
+      message: `it answered, but not ${CONSECUTIVE_ANSWERS} tests in a row before the timeout`,
+    };
   }
+  failSpinner(
+    `The remote proxy "${proxyId}" does not answer yet: ${result.message}`
+  );
   return result;
 }
 
