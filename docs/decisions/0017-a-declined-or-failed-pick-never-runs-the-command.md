@@ -1,6 +1,6 @@
 ---
-status: accepted
-date: 2026-10-14
+status: superseded by 0038
+date: 2026-11-07
 decision-makers: maintainers
 applies-to:
   - src/utils/interactive/EntityPickers.ts
