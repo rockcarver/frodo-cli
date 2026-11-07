@@ -1,4 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { configManagerExportRemoteProxies } from '../ops/RemoteProxyOps';
 import { printError } from '../utils/Console';
 import { configFileStep, existingConfigFile } from './ConfigFileStep';
 import { configManagerExportAccessConfig } from './FrConfigAccessConfigOps';
@@ -125,6 +126,7 @@ const deploymentMapAll = {
     configFileStep('raw config', 'raw.json', configManagerExportRaw, {
       optional: true,
     }),
+    () => configManagerExportRemoteProxies(undefined, true),
     () => configManagerExportRemoteServers(),
     configFileStep('SAML', 'saml.json', configManagerExportSaml),
     () => configManagerExportSchedules(),

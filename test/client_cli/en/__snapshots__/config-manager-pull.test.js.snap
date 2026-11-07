@@ -46,6 +46,8 @@ Commands:
   password-policy        [Experimental] Export password policy.
   raw                    [Experimental] Export raw configurations from the
                          tenant.
+  remote-proxies         [Experimental] [Cloud-only] Export IDM remote proxies:
+                         one file remote-proxies/<name>.json for each.
   remote-servers         [Experimental] Export RCS server configurations.
   saml                   [Experimental] Export saml.
   schedules              [Experimental] Export schedules.

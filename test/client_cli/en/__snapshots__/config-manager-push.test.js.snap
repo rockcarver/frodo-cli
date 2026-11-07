@@ -51,6 +51,8 @@ Commands:
   org-privileges         [Experimental] Import organization privileges config.
   password-policy        [Experimental] Import password-policy objects.
   raw                    [Experimental] Import raw configurations.
+  remote-proxies         [Experimental] [Cloud-only] Import IDM remote proxies
+                         from the files remote-proxies/<name>.json.
   remote-servers         [Experimental] Import RCS config.
   restart                [Experimental] [Cloud-only] Restart the environment.
   saml                   [Experimental] Import saml configuration.

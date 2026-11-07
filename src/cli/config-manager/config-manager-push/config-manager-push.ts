@@ -29,6 +29,7 @@ import OAuth2Agents from './config-manager-push-oauth2-agents';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
 import Raw from './config-manager-push-raw';
+import RemoteProxies from './config-manager-push-remote-proxies';
 import RemoteServers from './config-manager-push-remote-servers';
 import Restart from './config-manager-push-restart';
 import Saml from './config-manager-push-saml';
@@ -78,6 +79,7 @@ export default function setup() {
   program.addCommand(DirectControlApply().name('direct-control-apply'));
   program.addCommand(DirectControlInit().name('direct-control-init'));
   program.addCommand(DirectControlState().name('direct-control-state'));
+  program.addCommand(RemoteProxies().name('remote-proxies'));
   program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(CustomNodes().name('custom-nodes'));

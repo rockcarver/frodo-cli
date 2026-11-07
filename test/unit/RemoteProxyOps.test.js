@@ -28,6 +28,9 @@ const updated = [];
 const imported = [];
 let readProxies = [];
 let exportedProxies = {};
+// where getFilePath puts relative paths; empty keeps them relative to the working directory
+let baseDirectory = '';
+let importFailure;
 
 const bearer = (name, overrides = {}) => ({
   _id: `external.idm/${name}`,
@@ -66,6 +69,7 @@ const remoteProxy = {
   }),
   createRemoteProxyExportTemplate: () => ({ meta: { origin: HOST }, remoteProxy: {} }),
   importRemoteProxies: async (data) => {
+    if (importFailure) throw importFailure;
     imported.push(data);
     return Object.values(data.remoteProxy);
   },
@@ -87,7 +91,8 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
       getTypedFilename: (name, type) => `${name}.${type}.json`,
       saveJsonToFile: (data, file, includeMeta) =>
         saved.push({ data, file, includeMeta }),
-      getFilePath: (file) => file,
+      getFilePath: (file) => (baseDirectory ? path.join(baseDirectory, file) : file),
+      readJsonFile: (file) => JSON.parse(fs.readFileSync(file, 'utf8')),
       getWorkingDirectory: () => '.',
     },
     idm: { remoteProxy },
@@ -124,6 +129,8 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
 }));
 
 const {
+  configManagerExportRemoteProxies,
+  configManagerImportRemoteProxies,
   createRemoteProxy,
   describeRemoteProxy,
   exportRemoteProxiesToFile,
@@ -143,6 +150,8 @@ beforeEach(() => {
   created.length = 0;
   updated.length = 0;
   imported.length = 0;
+  baseDirectory = '';
+  importFailure = undefined;
   readProxies = [
     bearer('beta'),
     bearer('alpha-two', { enabled: false, clientSecret: '&{esv.alpha.two}' }),
@@ -297,6 +306,165 @@ describe('import', () => {
 
     expect(imported).toEqual([]);
     expect(messages('error').join('\n')).toContain('Remote proxy missing not found');
+  });
+});
+
+describe('config-manager export', () => {
+  test('writes one file per proxy under remote-proxies, as IDM returns it and without metadata', async () => {
+    expect(await configManagerExportRemoteProxies()).toBe(true);
+
+    expect(saved.map((entry) => entry.file)).toEqual([
+      'remote-proxies/beta.json',
+      'remote-proxies/alpha-two.json',
+    ]);
+    expect(saved.every((entry) => entry.includeMeta === false)).toBe(true);
+    expect(saved[0].data).toEqual(bearer('beta'));
+  });
+
+  test('a name that cannot be addressed is left out and said so', async () => {
+    await configManagerExportRemoteProxies();
+
+    expect(saved.map((entry) => entry.file)).not.toContain('remote-proxies/zzspike/slash.json');
+    expect(messages('warn').join('\n')).toContain('"zzspike/slash"');
+  });
+
+  test('secrets that only this tenant can decrypt are flagged, an ESV placeholder is not', async () => {
+    await configManagerExportRemoteProxies();
+    expect(messages('warn').join('\n')).toContain('beta (clientSecret)');
+    expect(messages('warn').join('\n')).not.toContain('alpha-two');
+
+    printed.length = 0;
+    await configManagerExportRemoteProxies('alpha-two');
+    expect(messages('warn')).toEqual([]);
+  });
+
+  test('one proxy by name writes only that file', async () => {
+    expect(await configManagerExportRemoteProxies('alpha-two')).toBe(true);
+
+    expect(saved.map((entry) => entry.file)).toEqual(['remote-proxies/alpha-two.json']);
+  });
+
+  test('a proxy that does not exist is an error and writes nothing', async () => {
+    expect(await configManagerExportRemoteProxies('nothing')).toBe(false);
+
+    expect(saved).toEqual([]);
+    expect(messages('error').join('\n')).toContain('no such remote proxy nothing');
+  });
+
+  test('a tenant without remote proxies writes nothing, says so, and succeeds', async () => {
+    readProxies = [];
+
+    expect(await configManagerExportRemoteProxies()).toBe(true);
+
+    expect(saved).toEqual([]);
+    expect(messages('info')).toEqual(['No remote proxies found.']);
+  });
+
+  test('quiet (the step of pull all) says nothing when there is no proxy', async () => {
+    readProxies = [];
+
+    expect(await configManagerExportRemoteProxies(undefined, true)).toBe(true);
+
+    expect(printed).toEqual([]);
+  });
+});
+
+describe('config-manager import', () => {
+  const writeProxy = (name, proxy = bearer(name), file = `${name}.json`) => {
+    fs.mkdirSync(path.join(baseDirectory, 'remote-proxies'), { recursive: true });
+    fs.writeFileSync(path.join(baseDirectory, 'remote-proxies', file), JSON.stringify(proxy));
+  };
+
+  beforeEach(() => {
+    baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'remote-proxy-cm-'));
+  });
+  afterEach(() => {
+    fs.rmSync(baseDirectory, { recursive: true, force: true });
+  });
+
+  test('imports every json file of remote-proxies in one call, named after the file', async () => {
+    writeProxy('beta');
+    writeProxy('alpha-two', bearer('alpha-two', { clientSecret: '&{esv.alpha.two}' }));
+    writeProxy('notes', {}, 'notes.txt');
+
+    expect(await configManagerImportRemoteProxies()).toBe(true);
+
+    expect(imported).toHaveLength(1);
+    expect(Object.keys(imported[0].remoteProxy)).toEqual(['alpha-two', 'beta']);
+    expect(imported[0].remoteProxy.beta).toEqual(bearer('beta'));
+  });
+
+  test('the files are imported in name order, whatever order the file system lists them in', async () => {
+    writeProxy('beta');
+    writeProxy('alpha-two');
+    const readdir = jest
+      .spyOn(fs, 'readdirSync')
+      .mockReturnValue(['beta.json', 'alpha-two.json']);
+
+    try {
+      expect(await configManagerImportRemoteProxies()).toBe(true);
+    } finally {
+      readdir.mockRestore();
+    }
+
+    expect(Object.keys(imported[0].remoteProxy)).toEqual(['alpha-two', 'beta']);
+  });
+
+  test('one proxy by name imports only that file', async () => {
+    writeProxy('beta');
+    writeProxy('alpha-two');
+
+    expect(await configManagerImportRemoteProxies('beta')).toBe(true);
+
+    expect(Object.keys(imported[0].remoteProxy)).toEqual(['beta']);
+  });
+
+  test('a secret encrypted by a tenant warns that its origin is unknown, an ESV placeholder does not', async () => {
+    writeProxy('beta');
+    await configManagerImportRemoteProxies();
+    expect(messages('warn').join('\n')).toContain('an unknown tenant');
+    expect(messages('warn').join('\n')).toContain('beta (clientSecret)');
+
+    printed.length = 0;
+    writeProxy('beta', bearer('beta', { clientSecret: '&{esv.beta}' }));
+    await configManagerImportRemoteProxies();
+    expect(messages('warn')).toEqual([]);
+  });
+
+  test('without a remote-proxies directory nothing is sent and the message names the directory', async () => {
+    expect(await configManagerImportRemoteProxies()).toBe(false);
+
+    expect(imported).toEqual([]);
+    expect(messages('error').join('\n')).toContain(
+      `No remote proxy files found in ${path.join(baseDirectory, 'remote-proxies')}.`
+    );
+  });
+
+  test('a directory without json files is the same error', async () => {
+    writeProxy('notes', {}, 'notes.txt');
+
+    expect(await configManagerImportRemoteProxies()).toBe(false);
+
+    expect(imported).toEqual([]);
+    expect(messages('error').join('\n')).toContain('No remote proxy files found');
+  });
+
+  test('a name without a file is an error and nothing is sent', async () => {
+    writeProxy('beta');
+
+    expect(await configManagerImportRemoteProxies('nothing')).toBe(false);
+
+    expect(imported).toEqual([]);
+    expect(messages('error').join('\n')).toContain('Remote proxy file nothing.json not found');
+  });
+
+  test('a refusal by the library is reported and the result is false', async () => {
+    writeProxy('beta');
+    importFailure = new Error("Remote proxy beta has the id 'external.idm/x'");
+
+    expect(await configManagerImportRemoteProxies()).toBe(false);
+
+    expect(messages('error').join('\n')).toContain("has the id 'external.idm/x'");
   });
 });
 
