@@ -1,5 +1,6 @@
 import { Option } from 'commander';
 import { configManagerExportSaml } from '../../../configManagerOps/FrConfigSamlOps';
+import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -16,7 +17,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Make sure to create the export config file: saml.json to run this command.\n' +
-        'Example command: frodo config-manager pull saml -f saml.json -D ../testDir frodo-dev\n\n' +
+        `Example command: frodo config-manager pull saml -f saml.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '-----------------------  Example SAML export config for saml.json file ------------------------\n' +
         '{\n' +
@@ -30,7 +31,7 @@ export default function setup() {
         '       "entityId": "iSPAzure",\n' +
         '       "replacements": [\n' +
         '         {\n' +
-        '         "search": "https://idc.scheuber.io/am",\n' +
+        `         "search": "${s.amBaseUrl}",\n` +
         '         "replacement": "${TENANT_BASE_URL}"\n' +
         '         }\n' +
         '       ]\n' +

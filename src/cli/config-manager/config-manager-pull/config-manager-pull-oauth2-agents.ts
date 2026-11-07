@@ -1,5 +1,6 @@
 import { Option } from 'commander';
 import { configManagerExportOAuth2Agents } from '../../../configManagerOps/FrConfigOauth2AgentOps';
+import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -19,7 +20,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Make sure to create the export config file: oauth2-agents.json to run this command.\n' +
-        'Example command: frodo config-manager pull oauth2-agents -f oauth2-agents.json -D ../testDir frodo-dev\n\n' +
+        `Example command: frodo config-manager pull oauth2-agents -f oauth2-agents.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '------------  Example Oauth2 agents export config for oauth2-agents.json file -----------\n' +
         '{\n' +
