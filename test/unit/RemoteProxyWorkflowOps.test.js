@@ -377,6 +377,7 @@ const {
   tenantNameOf,
   hostNameOf,
   remoteProxyEsvIds,
+  waitUntilRemoteProxyAnswers,
   ADMIN_STATIC_MAPPING,
 } = await import('../../src/ops/RemoteProxyWorkflowOps.ts');
 
@@ -455,6 +456,8 @@ describe('setup on two empty tenants', () => {
       `sender:createVariable:${HOST_VARIABLE_ID}`,
       'sender:createProxy:zion',
       'sender:apply:wait=true:timeout=600000',
+      'sender:test',
+      'sender:test',
       'sender:test',
     ]);
   });
@@ -607,7 +610,12 @@ describe('setup run a second time', () => {
     const { outcome } = await runSetup();
 
     expect(outcome).toBe(true);
-    expect(calls).toEqual(['receiver:login', 'sender:test']);
+    expect(calls).toEqual([
+      'receiver:login',
+      'sender:test',
+      'sender:test',
+      'sender:test',
+    ]);
     expect(world.sender.secrets.get(SECRET_ID).value).toBe(secretBefore);
     expect(world.generated).toBe(1);
   });
@@ -748,8 +756,50 @@ describe('setup and the ESV apply', () => {
     const { outcome, clock } = await runSetup();
 
     expect(outcome).toBe(true);
-    expect(calls.filter((c) => c === 'sender:test')).toHaveLength(3);
-    expect(clock.slept).toEqual([10000, 10000]);
+    expect(calls.filter((c) => c === 'sender:test')).toHaveLength(5);
+    expect(clock.slept).toEqual([10000, 10000, 3000, 3000]);
+  });
+
+  test('one answer is not enough: it must answer three tests in a row, and a failure starts the count again', async () => {
+    world.testResults = [
+      okResult,
+      {
+        ok: false,
+        status: 'not-found',
+        httpStatus: 404,
+        message: 'not loaded yet',
+      },
+      okResult,
+      okResult,
+    ];
+
+    const { outcome, clock } = await runSetup();
+
+    expect(outcome).toBe(true);
+    expect(calls.filter((c) => c === 'sender:test')).toHaveLength(5);
+    expect(clock.slept).toEqual([3000, 10000, 3000, 3000]);
+  });
+
+  test('says so when it answered but not three tests in a row before the timeout', async () => {
+    world.testResults = [okResult, okResult];
+    const clock = fakeClock();
+
+    const result = await waitUntilRemoteProxyAnswers('zion', 5, clock.deps);
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain('not 3 tests in a row');
+    expect(calls.filter((c) => c === 'sender:test')).toHaveLength(2);
+  });
+
+  test('setup reports a proxy that did not keep answering as not set up yet', async () => {
+    world.testResults = [okResult, okResult];
+
+    const { outcome } = await runSetup({ timeout: 5 });
+
+    expect(outcome).toBe(false);
+    expect(messages('error').join('\n')).toContain(
+      'frodo idm remote-proxy test -i zion'
+    );
   });
 
   test('gives up when it still does not answer at the timeout, and says how to check it later', async () => {

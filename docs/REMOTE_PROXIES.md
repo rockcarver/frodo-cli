@@ -36,7 +36,7 @@ The first command only shows the plan. The second asks for confirmation, because
 | matrix (sending) | ESV variable that holds the host name of the receiving tenant | `esv-remote-proxy-zion-host` |
 | matrix (sending) | The remote proxy configuration | `zion` |
 
-It then applies the ESV changes, which takes about three minutes and up to ten, and tests the proxy until it answers. The generated secret is held in memory only and is never printed or logged.
+It then applies the ESV changes, which takes about three minutes and up to ten, and tests the proxy until it has answered three tests in a row, because right after an ESV apply a first answer is not always stable. The generated secret is held in memory only and is never printed or logged.
 
 The proxy is named after the receiving tenant by default. Choose another name with `-i`, and another client with `--client-id`. `--no-apply` leaves the ESV changes unapplied (apply them with `frodo esv apply`, then run `test`), and `--no-wait` starts the apply without waiting for it.
 
