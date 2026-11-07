@@ -19,13 +19,14 @@ export default function setup() {
   );
 
   program
+    .summary('Update properties of an IDM remote proxy.')
     .description(
       'Update properties of an IDM remote proxy. Properties that are not given stay as they are.'
     )
     .addOption(
       new Option(
         '-i, --proxy-id <proxy-id>',
-        'Remote proxy name: the name of the receiving tenant.'
+        'Remote proxy name.'
       ).makeOptionMandatory()
     )
     .addOption(

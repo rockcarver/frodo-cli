@@ -69,11 +69,11 @@ describe('the remote proxy picker', () => {
   });
 
   it('offers the proxies by name, in order', async () => {
-    proxiesOnTenant(proxy('zion'), proxy('alpha-dev'), proxy('volker-dev'));
+    proxiesOnTenant(proxy('zion'), proxy('alpha-dev'), proxy('matrix'));
     const entities = await pick.load();
     expect(entities.map((entity) => pick.label(entity))).toEqual([
       'alpha-dev',
-      'volker-dev',
+      'matrix',
       'zion',
     ]);
   });
@@ -87,12 +87,12 @@ describe('the remote proxy picker', () => {
   it('describes a proxy by how it authenticates and where it goes', () => {
     expect(
       pick.description?.(
-        proxy('volker-dev', {
+        proxy('zion', {
           authType: 'bearer',
-          instanceUrl: 'https://&{esv.volker.dev.host}/openidm/',
+          instanceUrl: 'https://&{esv.zion.host}/openidm/',
         })
       )
-    ).toBe('bearer · https://&{esv.volker.dev.host}/openidm/');
+    ).toBe('bearer · https://&{esv.zion.host}/openidm/');
     expect(pick.description?.(proxy('x', { authType: 'basic' }))).toBe('basic');
   });
 

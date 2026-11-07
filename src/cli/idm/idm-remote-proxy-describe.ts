@@ -22,7 +22,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --proxy-id <proxy-id>',
-        'Remote proxy name: the name of the receiving tenant.'
+        'Remote proxy name.'
       ).makeOptionMandatory()
     )
     .addOption(new Option('--json', 'Output in JSON format.'))
