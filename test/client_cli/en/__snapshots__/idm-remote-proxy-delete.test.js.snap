@@ -25,7 +25,8 @@ Deployment: Cloud-only
 
 Options:
   -a, --all                  Delete all remote proxies. Cannot be used with -i.
-  -i, --proxy-id <proxy-id>  Remote proxy name. Cannot be used with -a.
+  -i, --proxy-id <proxy-id>  Remote proxy name. Cannot be used with -a. (pick
+                             from remote proxy)
   -y, --yes                  Do not ask for confirmation before deleting all
                              remote proxies. Required with -a when there is no
                              terminal.

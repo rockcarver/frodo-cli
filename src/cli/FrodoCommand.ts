@@ -29,6 +29,7 @@ import { flushAuthoringPrint } from '../utils/interactive/AuthoringPrintState.js
 // (see docs/INTERACTIVE-COMMANDS.md, layering).
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
 import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
+import { registerEntityPickFamilies } from '../utils/interactive/EntityPickFamilies.js';
 import {
   escapableSelect,
   ESCAPE,
@@ -50,6 +51,9 @@ import {
   setActiveActionCommand,
   type OptionRequirementSpec,
 } from './ResolveInteractiveInputs.js';
+
+// The command families that have a registered entity picker (record 0038)
+registerEntityPickFamilies();
 
 // Frodo constants
 const constants = frodo.utils.constants;

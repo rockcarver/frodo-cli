@@ -25,7 +25,8 @@ Deployment: Cloud-only
 
 Options:
   -i, --proxy-id <proxy-id>  Remote proxy name: the name of the receiving
-                             tenant. (prompts if missing)
+                             tenant. (pick from remote proxy) (prompts if
+                             missing)
   --json                     Output in JSON format.
   -h, --help                 Help
   -hh, --help-more           Help with all options.
