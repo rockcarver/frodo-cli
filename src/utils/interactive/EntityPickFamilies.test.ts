@@ -1,5 +1,8 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
-import { frodo, type RemoteProxySkeleton } from '@rockcarver/frodo-lib';
+import { frodo, state, type RemoteProxySkeleton } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
 import { registerEntityPickFamilies } from './EntityPickFamilies';
 import { familyEntityPicks } from './EntityPickRegistry';
@@ -99,5 +102,101 @@ describe('the remote proxy picker', () => {
   it('offers nothing, and does not fail, when the tenant has no proxies', async () => {
     proxiesOnTenant();
     expect(await pick.load()).toEqual([]);
+  });
+});
+
+describe('the receiving tenant picker', () => {
+  const profilesFile = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-profiles-')),
+    'Connections.json'
+  );
+  const targetPick = (verb: string) =>
+    familyEntityPicks(
+      (() => {
+        const command = commandAt(['idm', 'remote-proxy', verb]);
+        command.addOption(new Option('--target <host>'));
+        return command;
+      })()
+    ).find((candidate) => candidate.name === 'target');
+
+  afterEach(() => {
+    delete process.env.FRODO_CONNECTION_PROFILES_PATH;
+  });
+
+  it('belongs to setup and teardown, which take --target, and not to a command without it', () => {
+    expect(targetPick('setup')).toBeDefined();
+    expect(targetPick('teardown')).toBeDefined();
+    expect(
+      familyEntityPicks(commandAt(['idm', 'remote-proxy', 'describe'])).find(
+        (candidate) => candidate.name === 'target'
+      )
+    ).toBeUndefined();
+  });
+
+  it('leaves the proxy name picker off setup, which names a new proxy', () => {
+    const command = commandAt(['idm', 'remote-proxy', 'setup']);
+    expect(
+      familyEntityPicks(command).find(
+        (candidate) => candidate.name === 'proxyId'
+      )
+    ).toBeUndefined();
+    expect(
+      familyEntityPicks(commandAt(['idm', 'remote-proxy', 'teardown'])).find(
+        (candidate) => candidate.name === 'proxyId'
+      )
+    ).toBeDefined();
+  });
+
+  it('offers the saved profiles other than the tenant it is logged in to, by host with the alias', async () => {
+    fs.writeFileSync(
+      profilesFile,
+      JSON.stringify({
+        'https://openam-matrix.id.forgerock.io/am': { alias: 'matrix' },
+        'https://openam-zion.id.forgerock.io/am': {},
+      })
+    );
+    process.env.FRODO_CONNECTION_PROFILES_PATH = profilesFile;
+    const pick = targetPick('setup')!;
+    jest
+      .spyOn(state, 'getHost')
+      .mockReturnValue('https://openam-matrix.id.forgerock.io/am/');
+
+    const entities = await pick.load();
+
+    expect(entities.map((entity) => pick.label(entity))).toEqual([
+      'https://openam-zion.id.forgerock.io/am',
+    ]);
+    expect(pick.value?.(entities[0])).toBe(
+      'https://openam-zion.id.forgerock.io/am'
+    );
+  });
+
+  it('shows the alias in the row and searches by it', async () => {
+    fs.writeFileSync(
+      profilesFile,
+      JSON.stringify({
+        'https://openam-zion.id.forgerock.io/am': { alias: 'nebuchadnezzar' },
+      })
+    );
+    process.env.FRODO_CONNECTION_PROFILES_PATH = profilesFile;
+    const pick = targetPick('setup')!;
+    jest
+      .spyOn(state, 'getHost')
+      .mockReturnValue('https://other.example.com/am');
+    const [entity] = await pick.load();
+
+    expect(pick.label(entity)).toBe(
+      'https://openam-zion.id.forgerock.io/am (nebuchadnezzar)'
+    );
+    expect(pick.search?.(entity, 'NEBU')).toBe(true);
+    expect(pick.search?.(entity, 'matrix')).toBe(false);
+  });
+
+  it('offers nothing when no profile is saved yet', async () => {
+    process.env.FRODO_CONNECTION_PROFILES_PATH = path.join(
+      path.dirname(profilesFile),
+      'does-not-exist.json'
+    );
+    expect(await targetPick('setup')!.load()).toEqual([]);
   });
 });

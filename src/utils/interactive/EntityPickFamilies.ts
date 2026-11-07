@@ -8,7 +8,12 @@
  * command files.
  */
 
-import { frodo, type RemoteProxySkeleton } from '@rockcarver/frodo-lib';
+import { frodo, state, type RemoteProxySkeleton } from '@rockcarver/frodo-lib';
+import {
+  sameHost,
+  savedConnectionProfiles,
+  type SavedProfile,
+} from '../SavedProfiles';
 import { entityPick } from './EntityPickers';
 import { registerEntityPickFamily } from './EntityPickRegistry';
 
@@ -24,8 +29,36 @@ function remoteProxyName(proxy: RemoteProxySkeleton): string {
  * registering again replaces the entries.
  */
 export function registerEntityPickFamilies(): void {
+  // The receiving tenant of `setup` and `teardown`: one of the saved connection
+  // profiles, other than the tenant the command is logged in to. It is its own
+  // entry because the entry below leaves `setup` out.
   registerEntityPickFamily({
     family: 'idm remote-proxy',
+    name: 'idm remote-proxy: connection profiles',
+    picks: [
+      entityPick<SavedProfile>({
+        name: 'target',
+        kind: 'connection profile',
+        message: 'Select the receiving tenant:',
+        load: async () =>
+          savedConnectionProfiles().filter(
+            (profile) => !sameHost(profile.host, state.getHost() ?? '')
+          ),
+        label: (profile) =>
+          profile.alias ? `${profile.host} (${profile.alias})` : profile.host,
+        value: (profile) => profile.host,
+        search: (profile, query) =>
+          `${profile.host} ${profile.alias ?? ''}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      }),
+    ],
+  });
+
+  registerEntityPickFamily({
+    family: 'idm remote-proxy',
+    // `setup` names a new proxy (create and import are left out by default)
+    except: ['setup'],
     picks: [
       entityPick<RemoteProxySkeleton>({
         name: 'proxyId',
