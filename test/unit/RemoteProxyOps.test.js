@@ -31,6 +31,9 @@ let exportedProxies = {};
 // where getFilePath puts relative paths; empty keeps them relative to the working directory
 let baseDirectory = '';
 let importFailure;
+let testResult;
+let testFailure;
+const tested = [];
 
 /** URLs whose host an ESV supplies: nothing names a tenant. */
 const portableUrls = {
@@ -96,6 +99,11 @@ const remoteProxy = {
     return data;
   },
   deleteRemoteProxy: async (name) => ({ _id: `external.idm/${name}` }),
+  testRemoteProxy: async (name) => {
+    tested.push(name);
+    if (testFailure) throw testFailure;
+    return testResult;
+  },
   deleteRemoteProxies: async () => [],
 };
 
@@ -151,6 +159,7 @@ const {
   exportRemoteProxyToFile,
   importRemoteProxyFromFile,
   listRemoteProxies,
+  testRemoteProxy,
   updateRemoteProxy,
 } = await import('../../src/ops/RemoteProxyOps.ts');
 
@@ -166,6 +175,9 @@ beforeEach(() => {
   imported.length = 0;
   baseDirectory = '';
   importFailure = undefined;
+  testFailure = undefined;
+  tested.length = 0;
+  testResult = { ok: true, status: 'ok', httpStatus: 200, authenticationId: 'frodo-proxy', roles: ['internal/role/openidm-admin', 'internal/role/openidm-authorized'], message: 'ok' };
   readProxies = [
     bearer('beta'),
     bearer('alpha-two', { enabled: false, clientSecret: '&{esv.alpha.two}' }),
@@ -638,5 +650,64 @@ describe('update', () => {
 
     expect(updated).toEqual([]);
     expect(messages('error').join('\n')).toContain('uses bearer authentication');
+  });
+});
+
+describe('test', () => {
+  test('shows who the proxy acts as and with which roles when it works', async () => {
+    expect(await testRemoteProxy('beta', false)).toBe(true);
+
+    expect(tested).toEqual(['beta']);
+    const out = messages('data').join('\n');
+    expect(out).toContain('beta');
+    expect(out).toContain('works');
+    expect(out).toContain('frodo-proxy');
+    expect(out).toContain('internal/role/openidm-admin, internal/role/openidm-authorized');
+    expect(messages('error')).toEqual([]);
+    expect(messages('info')).toEqual([]);
+  });
+
+  test('prints the result as JSON when asked, and still reports whether it works', async () => {
+    expect(await testRemoteProxy('beta', true)).toBe(true);
+    expect(JSON.parse(messages('data').join('\n'))).toMatchObject({ ok: true, status: 'ok' });
+
+    testResult = { ok: false, status: 'not-found', httpStatus: 404, message: 'no working remote proxy' };
+    printed.length = 0;
+    expect(await testRemoteProxy('beta', true)).toBe(false);
+    expect(JSON.parse(messages('data').join('\n'))).toMatchObject({ ok: false, status: 'not-found' });
+    expect(messages('error')).toEqual([]);
+  });
+
+  test.each([
+    ['not-found', 'frodo esv apply'],
+    ['unavailable', 'frodo idm remote-proxy update -i beta --enabled'],
+    ['token-request-failed', 'OAuth2 client exists there'],
+    ['not-authorized', 'static user mapping'],
+    ['unreachable', 'did not answer'],
+  ])('says what is wrong, and what to do, when the status is %s', async (status, advice) => {
+    testResult = { ok: false, status, httpStatus: 500, message: `the library says ${status}` };
+
+    expect(await testRemoteProxy('beta', false)).toBe(false);
+
+    expect(messages('error').join('\n')).toContain('Remote proxy "beta" does not work: the library says ' + status);
+    expect(messages('info').join('\n')).toContain(advice);
+    expect(messages('data')).toEqual([]);
+  });
+
+  test('gives no advice for a failure it cannot classify, but still shows the message', async () => {
+    testResult = { ok: false, status: 'error', httpStatus: 502, message: 'unexpected answer' };
+
+    expect(await testRemoteProxy('beta', false)).toBe(false);
+
+    expect(messages('error').join('\n')).toContain('unexpected answer');
+    expect(messages('info')).toEqual([]);
+  });
+
+  test('reports a name the library refuses without a result', async () => {
+    testFailure = new Error('The name "a/b" is not allowed');
+
+    expect(await testRemoteProxy('a/b', false)).toBe(false);
+
+    expect(messages('error').join('\n')).toContain('is not allowed');
   });
 });

@@ -321,6 +321,64 @@ export async function describeRemoteProxy(
 }
 
 /**
+ * What to do about each way a remote proxy can fail its test. The library
+ * tells the ways apart; these say what the user can do about each one.
+ * @param {string} proxyId name of the remote proxy
+ * @returns {Record<string, string>} advice by status of the test
+ */
+function adviceForFailedTest(proxyId: string): Record<string, string> {
+  return {
+    'not-found': `This tenant has no working remote proxy "${proxyId}". Either it does not exist or IDM has not loaded it: IDM does not load a proxy whose ESV placeholder cannot be resolved, so after creating or changing the ESV secrets and variables it uses, apply them (frodo esv apply) and test again. A new proxy can also take up to about half a minute to load.`,
+    unavailable: `The remote proxy "${proxyId}" is disabled or not ready. Enable it with frodo idm remote-proxy update -i ${proxyId} --enabled, or test again in a moment.`,
+    'token-request-failed':
+      'The proxy could not get a token from the receiving tenant. Check that the OAuth2 client exists there, that its secret is the one in the ESV secret the proxy refers to, and that the token endpoint is right.',
+    'not-authorized':
+      'The receiving tenant issued a token and then refused the request. The OAuth2 client probably has no static user mapping in the IDM authentication configuration of the receiving tenant.',
+    unreachable:
+      'The receiving tenant did not answer. Check the instance URL of the remote proxy and that the tenant is up.',
+  };
+}
+
+/**
+ * Test a remote proxy: make one read through it to the receiving tenant and
+ * say what the answer means. A working proxy shows the identity and roles it
+ * is mapped to on the receiving tenant; a failing one is explained. Nothing is
+ * changed and no secret is read or printed.
+ * @param {string} proxyId name of the remote proxy
+ * @param {boolean} json true to print the result as JSON
+ * @returns {Promise<boolean>} true if the remote proxy works, false otherwise
+ */
+export async function testRemoteProxy(
+  proxyId: string,
+  json: boolean = false
+): Promise<boolean> {
+  try {
+    const result = await remoteProxy.testRemoteProxy(proxyId);
+    if (json) {
+      printMessage(JSON.stringify(result, null, 2), 'data');
+    } else if (result.ok) {
+      const table = createTable([c.heading('Property'), c.heading('Value')]);
+      table.push(['Remote proxy', proxyId]);
+      table.push(['Status', c.positive('works')]);
+      table.push(['Acts as', result.authenticationId ?? '']);
+      table.push(['Roles', (result.roles ?? []).join(', ')]);
+      printMessage(table.toString(), 'data');
+    } else {
+      printMessage(
+        `Remote proxy "${proxyId}" does not work: ${result.message}`,
+        'error'
+      );
+      const advice = adviceForFailedTest(proxyId)[result.status];
+      if (advice) printMessage(advice, 'info');
+    }
+    return result.ok;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
  * Export a remote proxy to a file
  * @param {string} proxyId name of the remote proxy
  * @param {string} file optional file name
