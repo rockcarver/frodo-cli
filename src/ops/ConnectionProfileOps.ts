@@ -159,6 +159,14 @@ export async function describeConnectionProfile(
       if (profile.logApiSecret) profile.logApiSecret = present;
       if (profile.svcacctJwk) (profile as unknown)['svcacctJwk'] = present;
       if (profile.amsterPrivateKey) profile.amsterPrivateKey = present;
+      if (profile.authenticationHeaderOverrides) {
+        profile.authenticationHeaderOverrides = Object.fromEntries(
+          Object.keys(profile.authenticationHeaderOverrides).map((header) => [
+            header,
+            present,
+          ])
+        );
+      }
     }
     if (!profile.idmHost) {
       delete profile.idmHost;
