@@ -5,6 +5,7 @@ import DescribeCmd from './idm-remote-proxy-describe';
 import ExportCmd from './idm-remote-proxy-export';
 import ImportCmd from './idm-remote-proxy-import';
 import ListCmd from './idm-remote-proxy-list';
+import TestCmd from './idm-remote-proxy-test';
 import UpdateCmd from './idm-remote-proxy-update';
 
 export default function setup() {
@@ -27,6 +28,8 @@ export default function setup() {
   program.addCommand(UpdateCmd().name('update'));
 
   program.addCommand(DeleteCmd().name('delete'));
+
+  program.addCommand(TestCmd().name('test'));
 
   return program;
 }
