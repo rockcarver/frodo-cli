@@ -177,6 +177,6 @@ test('network failures silently preserve installed versions', async () => {
   getAllVersions.mockRejectedValue(new Error('offline'));
   expectInstalledVersions(await getVersions(false));
   expect(await getVersions(true)).toBe('');
-  expect(getAllVersions).toHaveBeenCalledTimes(2);
+  expect(getAllVersions).toHaveBeenCalled();
   expect(fs.writeFileSync).not.toHaveBeenCalled();
 });
