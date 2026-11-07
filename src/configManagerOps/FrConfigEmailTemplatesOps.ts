@@ -1,12 +1,16 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { printError } from '../utils/Console';
+import { printError, printMessage } from '../utils/Console';
 
 const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
   frodo.utils;
-const { readEmailTemplates, readEmailTemplate, importEmailTemplates } =
-  frodo.email.template;
+const {
+  readEmailTemplates,
+  readEmailTemplate,
+  importEmailTemplates,
+  deleteEmailTemplate,
+} = frodo.email.template;
 
 /**
  * Export email templates in fr-config-manager format.
@@ -113,4 +117,61 @@ export async function configManagerImportEmailTemplates(
     printError(error, `Error importing email templates to files`);
   }
   return false;
+}
+
+/**
+ * Delete email templates: the one with the given name, or all of them. The
+ * templates are read once and deleted one by one, so that one that cannot be
+ * deleted is reported and does not hide the others.
+ * @param {string} name Optional exact template name. If omitted, targets all templates.
+ * @param {boolean} dryRun Show which templates would be deleted without deleting them.
+ * @returns {Promise<boolean>} False if a named template does not exist or a read or deletion fails; true otherwise, also when there is nothing to delete.
+ */
+export async function configManagerDeleteEmailTemplates(
+  name?: string,
+  dryRun: boolean = false
+): Promise<boolean> {
+  try {
+    const allTemplates = await readEmailTemplates();
+    const templates = name
+      ? allTemplates.filter(
+          (template) => template._id === `emailTemplate/${name}`
+        )
+      : allTemplates;
+    if (templates.length === 0) {
+      if (name) {
+        printMessage(`Email template '${name}' not found.`, 'error');
+        return false;
+      }
+      printMessage('No email templates found to delete.');
+      return true;
+    }
+    let failed = 0;
+    for (const template of templates) {
+      const templateName = template._id.split('/')[1];
+      if (!dryRun) {
+        try {
+          await deleteEmailTemplate(templateName);
+        } catch (error) {
+          printError(error, `Failed to delete email template ${templateName}`);
+          failed++;
+          continue;
+        }
+      }
+      printMessage(
+        `${dryRun ? 'Dry run: ' : ''}Deleting emailTemplate: ${templateName}`
+      );
+    }
+    if (failed > 0) {
+      printMessage(
+        `Deleted ${templates.length - failed} email templates, ${failed} failed.`,
+        'error'
+      );
+      return false;
+    }
+    return true;
+  } catch (error) {
+    printError(error, 'Error deleting email templates');
+    return false;
+  }
 }
