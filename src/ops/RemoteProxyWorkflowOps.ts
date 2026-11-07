@@ -535,6 +535,32 @@ export function checkTeardownAllowed(
 }
 
 /**
+ * All the text an error carries. The reason IDM gives for a refusal is not in
+ * `message` of the library's error ("Error deleting variable X"): it is in the
+ * combined message and the HTTP message of the error it wraps.
+ * @param {unknown} error the error
+ * @returns {string} its texts, joined
+ */
+function errorText(error: unknown): string {
+  const e = error as {
+    message?: string;
+    httpMessage?: string;
+    httpDetail?: string;
+    getCombinedMessage?: () => string;
+  };
+  const parts = [e?.message ?? String(error)];
+  if (typeof e?.getCombinedMessage === 'function') {
+    try {
+      parts.push(e.getCombinedMessage());
+    } catch {
+      // the other texts are enough
+    }
+  }
+  parts.push(e?.httpMessage ?? '', e?.httpDetail ?? '');
+  return parts.join(' ');
+}
+
+/**
  * Delete something that IDM refuses to delete for a while after the
  * configuration that used it was deleted ("Cannot delete a variable that has an
  * existing config placeholder"): try again every few seconds until the
@@ -557,13 +583,7 @@ async function deleteWhenUnused(
       await remove();
       return;
     } catch (error) {
-      const message = String((error as Error)?.message ?? error);
-      const cause = String(
-        (error as { cause?: { message?: string } })?.cause?.message ?? ''
-      );
-      const stillUsed = /placeholder|in use|referenc/i.test(
-        `${message} ${cause}`
-      );
+      const stillUsed = /placeholder|in use|referenc/i.test(errorText(error));
       if (!stillUsed || now() + DELETE_RETRY_SECONDS * 1000 > deadline) {
         throw error;
       }

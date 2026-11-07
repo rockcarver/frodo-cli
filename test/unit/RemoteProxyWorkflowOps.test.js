@@ -205,9 +205,7 @@ const cloud = {
       if (world.sender.deleteFailure) throw world.sender.deleteFailure;
       if (world.sender.deleteRefusals.secret > 0) {
         world.sender.deleteRefusals.secret -= 1;
-        throw new Error(
-          'Cannot delete a secret that has an existing config placeholder'
-        );
+        throw refusedBecauseUsed('secret', id);
       }
       calls.push(`sender:deleteSecret:${id}`);
       world.sender.secrets.delete(id);
@@ -232,8 +230,8 @@ const cloud = {
       if (world.sender.deleteFailure) throw world.sender.deleteFailure;
       if (world.sender.deleteRefusals.variable > 0) {
         world.sender.deleteRefusals.variable -= 1;
-        throw new Error(
-          'Cannot delete a variable that has an existing config placeholder'
+        throw (
+          world.sender.refusalError?.(id) ?? refusedBecauseUsed('variable', id)
         );
       }
       calls.push(`sender:deleteVariable:${id}`);
@@ -270,13 +268,39 @@ const cloud = {
   },
 };
 
+/** Like the real one: the reason of a failed request is in the error it wraps, not in `message`. */
 class FakeFrodoError extends Error {
   constructor(message, cause) {
     super(message);
     this.cause = cause;
     this.httpStatus = cause?.httpStatus;
+    this.httpMessage = cause?.response?.data?.message;
+  }
+
+  getCombinedMessage() {
+    return [
+      this.message,
+      this.cause?.message,
+      this.httpMessage && `Message: ${this.httpMessage}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 }
+
+/** What IDM answers while a deleted proxy still counts as using an ESV variable. */
+const refusedBecauseUsed = (what, id) =>
+  new FakeFrodoError(
+    `Error deleting ${what} ${id}`,
+    Object.assign(new Error('Request failed with status code 403'), {
+      httpStatus: 403,
+      response: {
+        data: {
+          message: `Cannot delete a ${what} that has an existing config placeholder`,
+        },
+      },
+    })
+  );
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError: FakeFrodoError,
@@ -298,7 +322,10 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
 jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage: (msg, type) => printed.push({ msg: String(msg), type }),
   printError: (error) =>
-    printed.push({ msg: String(error?.message ?? error), type: 'error' }),
+    printed.push({
+      msg: String(error?.getCombinedMessage?.() ?? error?.message ?? error),
+      type: 'error',
+    }),
   createTable: () => {
     const rows = [];
     return {
@@ -904,6 +931,44 @@ describe('teardown', () => {
     expect(second.outcome).toBe(true);
     expect(world.sender.variables.size + world.sender.secrets.size).toBe(0);
   });
+
+  test.each([
+    [
+      'only the combined message',
+      () =>
+        Object.assign(new Error('Error deleting variable x'), {
+          getCombinedMessage: () =>
+            'Error deleting variable x\nMessage: Cannot delete a variable that has an existing config placeholder',
+        }),
+    ],
+    [
+      'only the HTTP message',
+      () =>
+        Object.assign(new Error('Error deleting variable x'), {
+          httpMessage:
+            'Cannot delete a variable that has an existing config placeholder',
+        }),
+    ],
+    [
+      'only the message',
+      () =>
+        new Error(
+          'Cannot delete a variable that has an existing config placeholder'
+        ),
+    ],
+  ])(
+    'recognises the refusal when %s carries the reason',
+    async (_name, makeError) => {
+      await setupThenForget();
+      world.sender.deleteRefusals.variable = 1;
+      world.sender.refusalError = makeError;
+
+      const { outcome, clock } = await runTeardown();
+
+      expect(outcome).toBe(true);
+      expect(clock.slept).toEqual([15000]);
+    }
+  );
 
   test('does not retry an error that is not about the placeholder', async () => {
     await setupThenForget();
