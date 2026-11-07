@@ -24,6 +24,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../../utils/Console';
+import { OperationRun } from '../../utils/OperationRun';
 import wordwrap from '../utils/Wordwrap';
 
 const {
@@ -275,9 +276,10 @@ export async function deleteVariableById(variableId: string): Promise<boolean> {
 
 /**
  * Delete all variables
+ * @param {boolean} allowFailures true to report variables that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteVariables(): Promise<boolean> {
+export async function deleteVariables(allowFailures = false): Promise<boolean> {
   let indicatorId: string;
   try {
     const variables = await readVariables();
@@ -286,22 +288,24 @@ export async function deleteVariables(): Promise<boolean> {
       variables.length,
       `Deleting variable...`
     );
+    const run = new OperationRun({ unit: 'variable', allowFailures });
     for (const variable of variables) {
-      try {
+      await run.run(variable._id, async () => {
         await deleteVariable(variable._id);
         updateProgressIndicator(
           indicatorId,
           `Deleted variable ${variable._id}`
         );
-      } catch (error) {
-        printMessage(
-          `Error: ${error.response.data.code} - ${error.response.data.message}`,
-          'error'
-        );
-      }
+      });
     }
-    stopProgressIndicator(indicatorId, `Variables deleted`);
-    return true;
+    stopProgressIndicator(
+      indicatorId,
+      run.hasFailures
+        ? `Some variables could not be deleted.`
+        : `Variables deleted`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error deleting variables`);
     printError(error);

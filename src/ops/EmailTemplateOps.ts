@@ -18,6 +18,7 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import { cloneDeep } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
@@ -556,10 +557,15 @@ export async function deleteEmailTemplateById(
 
 /**
  * Delete all email templates
+ * @param {boolean} allowFailures true to report templates that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteAllEmailTemplates(): Promise<boolean> {
+export async function deleteAllEmailTemplates(
+  allowFailures = false
+): Promise<boolean> {
   debugMessage(`cli.EmailTemplateOps.deleteAllEmailTemplates: begin`);
+  const run = new OperationRun({ unit: 'email template', allowFailures });
+  let readFailed = false;
   const errors = [];
   let templates: EmailTemplateSkeleton[] = [];
   let indicatorId: string;
@@ -584,14 +590,17 @@ export async function deleteAllEmailTemplates(): Promise<boolean> {
         debugMessage(`Deleting email template ${templateId}`);
         await deleteEmailTemplate(templateId);
         updateProgressIndicator(indicatorId, `Deleted ${templateId}`);
+        run.recordSuccess();
       } catch (error) {
         errors.push(
           new FrodoError(`Error deleting email template ${templateId}`, error)
         );
+        run.recordFailure(templateId, error);
       }
     }
   } catch (error) {
     errors.push(new FrodoError(`Error deleting all email templates`, error));
+    readFailed = true;
   } finally {
     if (errors.length > 0) {
       if (templates.length)
@@ -612,5 +621,5 @@ export async function deleteAllEmailTemplates(): Promise<boolean> {
     }
   }
   debugMessage(`cli.EmailTemplateOps.deleteAllEmailTemplates: end`);
-  return errors.length === 0;
+  return run.finish() && !readFailed;
 }

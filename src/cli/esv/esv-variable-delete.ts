@@ -55,6 +55,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['all', 'variableId'], purpose: 'what to delete' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -111,7 +112,7 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all variabless...');
-            const outcome = await deleteVariables();
+            const outcome = await deleteVariables(options.allowFailures);
             if (!outcome) process.exitCode = 1;
           }
         }

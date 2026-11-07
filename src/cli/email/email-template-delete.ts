@@ -49,6 +49,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['all', 'templateId'], purpose: 'what to delete' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -103,7 +104,9 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all email templates...');
-            const outcome = await deleteAllEmailTemplates();
+            const outcome = await deleteAllEmailTemplates(
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
         }

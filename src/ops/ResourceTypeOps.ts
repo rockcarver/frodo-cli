@@ -20,6 +20,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getRealmName,
@@ -189,12 +190,15 @@ export async function deleteResourceTypeUsingName(
 
 /**
  * Delete all resource types
+ * @param {boolean} allowFailures true to report resource types that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteResourceTypes(): Promise<
-  boolean | ResourceTypeSkeleton
-> {
+export async function deleteResourceTypes(
+  allowFailures = false
+): Promise<boolean | ResourceTypeSkeleton> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceTypes: begin`);
+  const run = new OperationRun({ unit: 'resource type', allowFailures });
+  let readFailed = false;
   const errors = [];
   let resourceTypes: ResourceTypeSkeleton[] = [];
   let indicatorId: string;
@@ -219,12 +223,15 @@ export async function deleteResourceTypes(): Promise<
         debugMessage(`Deleting resource type ${resourceTypeId}`);
         await deleteResourceType(resourceTypeId);
         updateProgressIndicator(indicatorId, `Deleted ${resourceTypeId}`);
+        run.recordSuccess();
       } catch (error) {
         errors.push(error);
+        run.recordFailure(resourceTypeId, error);
       }
     }
   } catch (error) {
     errors.push(new FrodoError(`Error deleting resource types`, error));
+    readFailed = true;
   } finally {
     if (errors.length > 0) {
       if (resourceTypes.length)
@@ -241,7 +248,7 @@ export async function deleteResourceTypes(): Promise<
     }
   }
   debugMessage(`cli.ResourceTypeOps.deleteResourceTypes: end`);
-  return errors.length === 0;
+  return run.finish() && !readFailed;
 }
 
 /**

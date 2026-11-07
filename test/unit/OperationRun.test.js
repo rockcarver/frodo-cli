@@ -147,7 +147,9 @@ describe('a failure that the next operations depend on', () => {
         { dependent: true }
       )
     ).toBe(false);
-    expect(await run.run('second', async () => attempted.push('second'))).toBe(false);
+    expect(await run.run('second', async () => attempted.push('second'))).toBe(
+      false
+    );
     await run.run('third', async () => attempted.push('third'));
 
     expect(attempted).toEqual(['first', 'login']);
@@ -181,5 +183,50 @@ describe('a failure that the next operations depend on', () => {
     await run.run('a', async () => true);
     await run.run('last', async () => false, { dependent: true });
     expect(run.finish()).toBe(false);
+  });
+});
+
+describe('operations that the caller ran itself', () => {
+  it('counts a success and a failure like run() does, and prints nothing until finish()', async () => {
+    const run = new OperationRun({ unit: 'item' });
+    run.recordSuccess();
+    run.recordFailure('b', new Error('could not delete b\nmore'));
+    run.recordSuccess();
+
+    expect(printMessage).not.toHaveBeenCalled();
+    expect(printError).not.toHaveBeenCalled();
+    expect(run.hasFailures).toBe(true);
+    expect(run.finish()).toBe(false);
+    expect(summary()).toBe('1 of 3 items failed:\n  - b: could not delete b');
+  });
+
+  it('keeps a failure without an error as a name only', () => {
+    const run = new OperationRun();
+    run.recordFailure('only');
+    run.finish();
+    expect(summary()).toBe('1 of 1 operation failed:\n  - only');
+  });
+
+  it('lets --allow-failures succeed after recorded failures', () => {
+    const run = new OperationRun({ allowFailures: true });
+    run.recordFailure('x', new Error('no'));
+    expect(run.finish()).toBe(true);
+    expect(level()).toBe('warn');
+  });
+
+  it('stops the run for a dependent failure that was recorded, whatever the flag says', async () => {
+    const run = new OperationRun({ allowFailures: true });
+    run.recordFailure('prepare', new Error('no'), { dependent: true });
+    expect(await run.run('next', async () => true)).toBe(false);
+    expect(run.finish()).toBe(false);
+    expect(summary()).toContain('next (not attempted)');
+  });
+
+  it('recordSuccess alone leaves a clean run', () => {
+    const run = new OperationRun();
+    run.recordSuccess();
+    expect(run.hasFailures).toBe(false);
+    expect(run.finish()).toBe(true);
+    expect(printMessage).not.toHaveBeenCalled();
   });
 });

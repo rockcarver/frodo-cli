@@ -24,6 +24,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../../utils/Console';
+import { OperationRun } from '../../utils/OperationRun';
 import wordwrap from '../utils/Wordwrap';
 
 const { resolveUserName } = frodo.idm.managed;
@@ -289,9 +290,10 @@ export async function deleteSecret(secretId: string): Promise<boolean> {
 
 /**
  * Delete all secrets
+ * @param {boolean} allowFailures true to report secrets that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteSecrets(): Promise<boolean> {
+export async function deleteSecrets(allowFailures = false): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -310,16 +312,21 @@ export async function deleteSecrets(): Promise<boolean> {
       secrets.length,
       `Deleting secrets...`
     );
+    const run = new OperationRun({ unit: 'secret', allowFailures });
     for (const secret of secrets) {
-      try {
+      await run.run(secret._id, async () => {
         await _deleteSecret(secret._id);
         updateProgressIndicator(indicatorId, `Deleted secret ${secret._id}`);
-      } catch (error) {
-        printError(error);
-      }
+      });
     }
-    stopProgressIndicator(indicatorId, `Secrets deleted.`);
-    return true;
+    stopProgressIndicator(
+      indicatorId,
+      run.hasFailures
+        ? `Some secrets could not be deleted.`
+        : `Secrets deleted.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error deleting secrets`, 'fail');
     printError(error);

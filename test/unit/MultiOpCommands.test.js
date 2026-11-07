@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { beforeAll, describe, expect, it } from '@jest/globals';
 import {
   ALLOW_FAILURES_HELP,
@@ -72,7 +74,9 @@ function hasBulkOption(leaf) {
 
 function isCandidate(leaf) {
   const name = fullName(leaf);
-  return hasBulkOption(leaf) || FAMILIES.some((family) => name.startsWith(family));
+  return (
+    hasBulkOption(leaf) || FAMILIES.some((family) => name.startsWith(family))
+  );
 }
 
 const declaresAllowFailures = (leaf) =>
@@ -191,6 +195,34 @@ describe('multi-op commands accept --allow-failures', () => {
     const declared = allowFailuresDeclarations(leaves);
     expect(declared.length).toBeGreaterThan(0);
     expect(declared).toEqual([`${OPTION} | ${ALLOW_FAILURES_HELP}`]);
+  });
+});
+
+describe('commands that call .multiOp()', () => {
+  const cliDir = path.resolve(import.meta.dirname, '../../src/cli');
+  const files = fs
+    .readdirSync(cliDir, { recursive: true })
+    .filter((file) => String(file).endsWith('.ts'))
+    .map((file) => path.join(cliDir, String(file)));
+
+  it('are found', () => {
+    const callers = files.filter((file) =>
+      fs.readFileSync(file, 'utf8').includes('.multiOp()')
+    );
+    expect(callers.length).toBeGreaterThan(5);
+  });
+
+  it('pass options.allowFailures on to their ops function, because the option does nothing otherwise', () => {
+    const missing = files
+      .filter((file) => {
+        const source = fs.readFileSync(file, 'utf8');
+        return (
+          source.includes('.multiOp()') &&
+          !source.includes('options.allowFailures')
+        );
+      })
+      .map((file) => path.relative(cliDir, file));
+    expect(missing).toEqual([]);
   });
 });
 
