@@ -174,6 +174,36 @@ describe('familyEntityPicks', () => {
     ).toEqual([]);
   });
 
+  it('keeps the entries of a family apart when they have names: an exception of one does not reach the other', () => {
+    const { family, group } = newFamily();
+    registerEntityPickFamily({
+      family,
+      except: ['setup'],
+      picks: [proxyPick('proxyId')],
+    });
+    registerEntityPickFamily({
+      family,
+      name: `${family} targets`,
+      picks: [proxyPick('target')],
+    });
+    const setup = commandAt(
+      [...group, 'setup'],
+      ['--proxy-id <id>', '--target <host>']
+    );
+    expect(familyEntityPicks(setup).map((pick) => pick.name)).toEqual([
+      'target',
+    ]);
+    const describe = commandAt(
+      [...group, 'describe'],
+      ['--proxy-id <id>', '--target <host>']
+    );
+    expect(
+      familyEntityPicks(describe)
+        .map((pick) => pick.name)
+        .sort()
+    ).toEqual(['proxyId', 'target']);
+  });
+
   it('replaces the entry when a family is registered again', () => {
     const { family, group } = newFamily();
     registerEntityPickFamily({ family, picks: [proxyPick('proxyId')] });

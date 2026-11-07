@@ -107,3 +107,72 @@ export async function confirmBulkDelete({
   if (!answered) printMessage('Delete aborted.', 'warn');
   return answered;
 }
+
+/**
+ * Refuses an action that gives access or changes several things at once, and
+ * that nobody can be asked about, before anything else happens: without a
+ * terminal and without `--yes` it is an error that names `--yes` and
+ * `--dry-run`. The counterpart of `checkBulkDelete` for an action that does not
+ * delete, such as setting up a remote proxy.
+ * @param {object} guard what is about to be done
+ * @param {string} guard.what what is done, as a verb phrase: "set up a remote proxy"
+ * @param {boolean} guard.yes true if `--yes` was given
+ * @param {boolean} guard.dryRun true if `--dry-run` was given
+ * @returns {boolean} false, after printing the error, if the action is refused
+ */
+export function checkProceed({
+  what,
+  yes,
+  dryRun,
+}: {
+  what: string;
+  yes?: boolean;
+  dryRun?: boolean;
+}): boolean {
+  if (bulkDeleteGate({ yes, dryRun, interactive: canPrompt() }) !== 'refuse') {
+    return true;
+  }
+  printMessage(
+    `Refusing to ${what} without confirmation: there is no interactive terminal to ask. Pass -y/--yes to go ahead without asking, or --dry-run to only show what would be done.`,
+    'error'
+  );
+  return false;
+}
+
+/**
+ * The one place that asks before an action that gives access or changes
+ * several things at once: with a terminal it shows the plan and the warning
+ * and asks (the default answer is no); without one it refuses and names
+ * `--yes`. A dry run and `--yes` pass without a question.
+ * @param {object} guard what is about to be done
+ * @param {string} guard.what what is done, as a verb phrase: "set up a remote proxy"
+ * @param {boolean} guard.yes true if `--yes` was given
+ * @param {boolean} guard.dryRun true if `--dry-run` was given
+ * @param {string} guard.warning what the user should know before agreeing, shown above the question
+ * @param {() => Promise<boolean>} guard.showPlan optional: prints what would be done and resolves to false if that failed
+ * @returns {Promise<boolean>} a promise that resolves to true if the action may go ahead; the reason has been printed otherwise
+ */
+export async function confirmProceed({
+  what,
+  yes,
+  dryRun,
+  warning,
+  showPlan,
+}: {
+  what: string;
+  yes?: boolean;
+  dryRun?: boolean;
+  warning?: string;
+  showPlan?: () => Promise<boolean>;
+}): Promise<boolean> {
+  if (!checkProceed({ what, yes, dryRun })) return false;
+  if (dryRun || yes) return true;
+  if (showPlan && !(await showPlan())) return false;
+  if (warning) printMessage(warning, 'warn');
+  const answered = await confirm({
+    message: `${what.charAt(0).toUpperCase()}${what.slice(1)}? Continue?`,
+    default: false,
+  });
+  if (!answered) printMessage('Nothing was changed.', 'warn');
+  return answered;
+}

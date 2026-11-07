@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'idm remote-proxy teardown' should be expected english 1`] = `
+"Usage: frodo idm remote-proxy teardown [options] [host] [realm] [username] [password]
+
+[Cloud-only] Take down an IDM remote proxy and what frodo idm remote-proxy setup
+created for it, in the reverse order.
+
+It cuts the access first: on the receiving tenant it deletes the static user
+mapping, which stops the proxy at once, and then the OAuth2 client. Deleting
+only the client would leave a proxy that already holds a token working until the
+token expires. Then, on this tenant, it deletes the remote proxy, the ESV
+variable and the ESV secret. IDM refuses to delete the variable for about a
+minute after the proxy is gone, so that delete is retried. --keep-client leaves
+the receiving tenant alone, which also leaves the access in place, and a client
+that another remote proxy still uses is kept. The receiving tenant is found from
+the host name the proxy's ESV variable holds, or given with --target.
+
+It lists what it will delete and asks for confirmation. It is safe to run again:
+what is already gone is skipped.
+
+Arguments:
+  host                       AM base URL, e.g.: https://cdk.iam.example.com/am.
+                             To use a connection profile, just specify a unique
+                             substring or alias.
+  realm                      Realm. Specify realm as '/' for the root realm or
+                             'realm' or '/parent/child' otherwise. (default:
+                             "alpha" for Identity Cloud tenants, "/" otherwise.)
+  username                   Username to login with. Must be an admin user with
+                             appropriate rights to manage authentication
+                             journeys/trees. If given without a password, and it
+                             matches the username already stored in the
+                             connection profile for the target host, frodo uses
+                             that profile's stored password instead of requiring
+                             it on the command line.
+  password                   Password.
+
+Deployment: Cloud-only
+
+Options:
+  --dry-run                  Show what would be deleted on which tenant and
+                             change nothing.
+  -i, --proxy-id <proxy-id>  Remote proxy name. (pick from remote proxy)
+                             (prompts if missing)
+  --keep-client              Leave the receiving tenant alone: its OAuth2 client
+                             and static user mapping stay.
+  --target <host url>        Host URL of the receiving tenant, if it cannot be
+                             found from the proxy. The URL must resolve to an
+                             existing connection profile. (pick from connection
+                             profile)
+  --timeout <seconds>        How long to keep retrying the delete of the ESV
+                             secret and variable. (default: 300 secs (5 mins))
+  -y, --yes                  Do not ask for confirmation before deleting.
+  -h, --help                 Help
+  -hh, --help-more           Help with all options.
+  -hhh, --help-all           Help with all options, environment variables, and
+                             usage examples.
+"
+`;

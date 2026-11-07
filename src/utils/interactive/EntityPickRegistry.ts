@@ -19,6 +19,13 @@ export type EntityPickFamily = {
   /** Path of the family's command group without the program name, e.g. `idm remote-proxy`. */
   family: string;
   /**
+   * Names this entry when a family has more than one (for example one for the
+   * entities of the family and one for the connection profiles a command
+   * takes), because `except` and `include` apply to all picks of an entry.
+   * Defaults to the family.
+   */
+  name?: string;
+  /**
    * Commands of the family (their path after the family) that do not get the
    * picks, besides the ones whose verb names a new entity or one in a file
    * (see `NEW_ENTITY_VERBS`).
@@ -45,12 +52,12 @@ export const NEW_ENTITY_VERBS = ['create', 'import'];
 const families = new Map<string, EntityPickFamily>();
 
 /**
- * Registers the picks of a family of commands. Registering a family again
- * replaces its entry.
+ * Registers the picks of a family of commands. Registering an entry again
+ * (the same name, or the same family when it has no name) replaces it.
  * @param {EntityPickFamily} entry the family
  */
 export function registerEntityPickFamily(entry: EntityPickFamily): void {
-  families.set(entry.family, entry);
+  families.set(entry.name ?? entry.family, entry);
 }
 
 /**

@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'idm remote-proxy setup' should be expected english 1`] = `
+"Usage: frodo idm remote-proxy setup [options] [host] [realm] [username] [password]
+
+[Cloud-only] Set up an IDM remote proxy from this tenant to another one: the
+whole workflow in one command, between two saved connection profiles.
+
+On the receiving tenant it creates an OAuth2 client with a generated secret and
+the static user mapping that lets the client act as the IDM administrator, which
+is admin-equivalent access. On this tenant it creates an ESV secret that holds
+the secret, an ESV variable that holds the host name of the receiving tenant,
+and the remote proxy, which refers to both by placeholder so that it can be
+promoted to another environment. It then applies the ESV changes, which restarts
+services and takes about three minutes (up to ten), and tests the proxy until it
+answers. The generated secret is never shown or logged.
+
+It is safe to run again: it completes what is missing and leaves what exists as
+it is, except with --rotate-secret. It asks for confirmation before it starts.
+
+Arguments:
+  host                       AM base URL, e.g.: https://cdk.iam.example.com/am.
+                             To use a connection profile, just specify a unique
+                             substring or alias.
+  realm                      Realm. Specify realm as '/' for the root realm or
+                             'realm' or '/parent/child' otherwise. (default:
+                             "alpha" for Identity Cloud tenants, "/" otherwise.)
+  username                   Username to login with. Must be an admin user with
+                             appropriate rights to manage authentication
+                             journeys/trees. If given without a password, and it
+                             matches the username already stored in the
+                             connection profile for the target host, frodo uses
+                             that profile's stored password instead of requiring
+                             it on the command line.
+  password                   Password.
+
+Deployment: Cloud-only
+
+Options:
+  --client-id <client-id>    OAuth2 client on the receiving tenant. Default:
+                             frodo-remote-proxy-<name of this tenant>.
+  --dry-run                  Show what would be created on which tenant and
+                             change nothing.
+  -i, --proxy-id <proxy-id>  Name of the remote proxy. Default: the name of the
+                             receiving tenant.
+  --no-apply                 Do not apply the ESV changes. Apply them with frodo
+                             esv apply, then check the proxy with frodo idm
+                             remote-proxy test.
+  --no-wait                  Don't wait for the ESV changes to finish applying
+                             and for the proxy to answer.
+  --rotate-secret            Write a new secret to the OAuth2 client and the ESV
+                             secret even if both exist. The proxy fails until
+                             the ESV changes are applied.
+  --target <host url>        Host URL of the receiving tenant. The URL must
+                             resolve to an existing connection profile. (pick
+                             from connection profile) (prompts if missing)
+  --target-realm <realm>     Realm of the OAuth2 client on the receiving tenant.
+                             (default: alpha)
+  --timeout <seconds>        How long to wait for the ESV changes to apply and
+                             for the proxy to answer. Only effective without
+                             --no-wait. (default: 600 secs (10 mins))
+  -y, --yes                  Do not ask for confirmation.
+  -h, --help                 Help
+  -hh, --help-more           Help with all options.
+  -hhh, --help-all           Help with all options, environment variables, and
+                             usage examples.
+"
+`;
