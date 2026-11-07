@@ -161,19 +161,21 @@ that failed and exit with code 1:
 
 A script or CI job that must keep going after a failed step adds
 `--allow-failures`: the failures are still printed, as a warning, and the exit
-code stays 0. A failed step includes a config file that a step needs and cannot
-read (for example `saml.json` missing from the config folder given with `-C`).
-The step names in the summary are the names of the `config-manager pull`
-commands, so you can run one of them to see its error again. Other commands that
-run several operations follow in later releases; each one that changes is
-added here, and the option is shown in its `-h`. So far these have the
-option and the new exit code: `config-manager pull all`, `config-manager pull
-all-static`, `esv secret delete -a`, `esv variable delete -a`, `email template
-delete -a`, `authz policy delete -a`, `authz type delete -a` and `authz set
-delete -a`. For the deletes this means a failed delete used to be printed and
-the command still exited 0 (`esv secret delete -a`), or the run ended at the
-first failure (`esv variable delete -a`), and now every item is tried and the
-exit code is 1 if any failed. See
+code stays 0. A config file that exists but cannot be read is a failed step. A
+config file that is not in the config folder given with `-C` (`saml.json`,
+`authz-policies.json`, `oauth2-agents.json` or `service-objects.json`) is not:
+there is nothing for that step to export, so it is skipped with a warning and
+the exit code is not affected. The step names in the summary are the names of
+the `config-manager pull` commands, so you can run one of them to see its error
+again. Other commands that run several operations follow in later releases; each
+one that changes is added here, and the option is shown in its `-h`. So far
+these have the option and the new exit code: `config-manager pull all`,
+`config-manager pull all-static`, `esv secret delete -a`, `esv variable delete
+-a`, `email template delete -a`, `authz policy delete -a`, `authz type delete -a`
+and `authz set delete -a`. For the deletes this means a failed delete used to be
+printed and the command still exited 0 (`esv secret delete -a`), or the run
+ended at the first failure (`esv variable delete -a`), and now every item is
+tried and the exit code is 1 if any failed. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

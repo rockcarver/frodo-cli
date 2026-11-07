@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { printError, verboseMessage } from '../utils/Console';
+import { printError, printMessage, verboseMessage } from '../utils/Console';
 
 export type ConfigFileExporter = (filePath: string) => Promise<boolean>;
 
@@ -24,13 +24,17 @@ export function existingConfigFile(
  * A step of `config-manager pull all` that reads a file from the config folder
  * to know what to export. These are the dynamic items (authz policy sets,
  * OAuth2 clients, SAML entity providers, service objects) and raw config, whose
- * file lists what to pull. The exporter throws when the file is missing, which
- * must not abort the other steps, but it is a failure of this step.
+ * file lists what to pull. The file is found by its name, not asked for, so a
+ * config folder without it has nothing for this step to export: the step is
+ * skipped with a warning, which is not a failure (decision record 0040). A file
+ * that exists but cannot be read or processed is a failure of this step, and an
+ * exporter that throws must not abort the other steps.
  * @param label what the step exports, for the messages
  * @param fileName name of the file in the config folder
  * @param exporter the export function, called with the path of the file
- * @param settings `optional`: skip the step quietly when the file does not exist,
- * for items that most config folders do not have, instead of reporting an error
+ * @param settings `optional`: skip the step quietly (only in the verbose
+ * output) when the file does not exist, for items that most config folders do
+ * not have, instead of with a warning
  * @returns the step: it never throws, and it answers whether it succeeded (false
  * when the exporter failed or threw, true when it exported or was skipped)
  */
@@ -41,8 +45,21 @@ export function configFileStep(
   { optional = false }: { optional?: boolean } = {}
 ) {
   return async (options: { configFolder?: string }): Promise<boolean> => {
-    if (optional && !existingConfigFile(options.configFolder, fileName)) {
-      verboseMessage(`Skipping ${label}: no ${fileName} in the config folder.`);
+    if (!existingConfigFile(options.configFolder, fileName)) {
+      if (optional) {
+        verboseMessage(
+          `Skipping ${label}: no ${fileName} in the config folder.`
+        );
+      } else {
+        printMessage(
+          `Skipping ${label}: no ${fileName} in ${
+            options.configFolder
+              ? `'${options.configFolder}'`
+              : 'the config folder'
+          }.`,
+          'warn'
+        );
+      }
       return true;
     }
     try {
@@ -50,7 +67,7 @@ export function configFileStep(
     } catch (err) {
       printError(
         err,
-        `Error exporting ${label}, Please make sure the config file name is ${fileName} in the config folder.`
+        `Error exporting ${label}, please make sure ${fileName} in the config folder can be read and has the expected content.`
       );
       return false;
     }
