@@ -31,6 +31,10 @@ describe('frodo config-manager pull all-static', () => {
     const CMD = `frodo config-manager pull all-static -D ${dirName}`;
     await testExport(CMD, { env: {...env.env, FRODO_TEST_NAME: 'allRealms' } }, undefined, undefined, dirName, false);
   });
+  // This replay exits with code 1 and prints a summary of the steps that failed: org-privileges and password-policy.
+  // The recording predates those steps, so their requests are missing ("Network error").
+  // Until it is re-recorded (frodo-cli#1102), the exit code snapshot says so. Before a failed step failed
+  // the command (decision record 0040) the exit code was 0, which hid it.
   test('"frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir2';
     const CMD = `frodo config-manager pull all-static -D ${dirName} -m forgeops`;

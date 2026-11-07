@@ -1,4 +1,8 @@
 import { beforeAll, describe, expect, it } from '@jest/globals';
+import {
+  ALLOW_FAILURES_HELP,
+  ALLOW_FAILURES_OPTION,
+} from '../../src/utils/OperationRun.ts';
 import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
 import {
   CONTINUES_BUT_EXITS_ZERO,
@@ -38,12 +42,13 @@ import {
  *
  * What this does not check: what a command does when an operation fails (the
  * others run, the failure is named, the exit code is 1, `--allow-failures`
- * gives 0). That needs the shared option and summary, and the scenario for
- * each command is added when the command is migrated (tracked in
- * frodo-cli#1099).
+ * gives 0). The shared option (`FrodoCommand.multiOp()`) and the summary
+ * (`OperationRun`) are tested on their own (OperationRun.test.js), and the
+ * scenario for each migrated command is a test of its own, such as the failing
+ * steps in ConfigManagerAllRemoteProxies.test.js (tracked in frodo-cli#1099).
  */
 
-const OPTION = '--allow-failures';
+const OPTION = ALLOW_FAILURES_OPTION;
 const LEGACY_FILE = 'test/unit/MultiOpCommandExceptions.js';
 const FAMILIES = [
   'frodo config-manager pull ',
@@ -52,10 +57,10 @@ const FAMILIES = [
 ];
 const HOW_TO_FIX =
   'A command that performs several operations accepts --allow-failures (decision record 0040). ' +
-  'The shared option is added by the command framework; do not declare your own. ' +
+  'Call .multiOp() on the command (it adds the shared option; do not declare your own) ' +
+  'and run the operations through OperationRun (src/utils/OperationRun.ts). ' +
   `If this command performs ONE operation, add it to NOT_MULTI_OP_BULK_CANDIDATES in ${LEGACY_FILE}. ` +
-  'Do not add it to the legacy lists: they only shrink. ' +
-  'If the shared option does not exist yet, stop and ask in frodo-cli#1099 instead of working around this test.';
+  'Do not add it to the legacy lists: they only shrink.';
 
 function hasBulkOption(leaf) {
   return leaf.options.some(
@@ -182,8 +187,10 @@ describe('multi-op commands accept --allow-failures', () => {
     }
   });
 
-  it('declares the option the same way on every command', () => {
-    expect(allowFailuresDeclarations(leaves).length).toBeLessThanOrEqual(1);
+  it('declares the option the shared way on every command that has it: one flag, one help text', () => {
+    const declared = allowFailuresDeclarations(leaves);
+    expect(declared.length).toBeGreaterThan(0);
+    expect(declared).toEqual([`${OPTION} | ${ALLOW_FAILURES_HELP}`]);
   });
 });
 

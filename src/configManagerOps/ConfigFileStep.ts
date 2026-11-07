@@ -25,13 +25,14 @@ export function existingConfigFile(
  * to know what to export. These are the dynamic items (authz policy sets,
  * OAuth2 clients, SAML entity providers, service objects) and raw config, whose
  * file lists what to pull. The exporter throws when the file is missing, which
- * must not abort the other steps.
+ * must not abort the other steps, but it is a failure of this step.
  * @param label what the step exports, for the messages
  * @param fileName name of the file in the config folder
  * @param exporter the export function, called with the path of the file
  * @param settings `optional`: skip the step quietly when the file does not exist,
  * for items that most config folders do not have, instead of reporting an error
- * @returns the step: it never throws
+ * @returns the step: it never throws, and it answers whether it succeeded (false
+ * when the exporter failed or threw, true when it exported or was skipped)
  */
 export function configFileStep(
   label: string,
@@ -39,18 +40,19 @@ export function configFileStep(
   exporter: ConfigFileExporter,
   { optional = false }: { optional?: boolean } = {}
 ) {
-  return async (options: { configFolder?: string }): Promise<void> => {
+  return async (options: { configFolder?: string }): Promise<boolean> => {
     if (optional && !existingConfigFile(options.configFolder, fileName)) {
       verboseMessage(`Skipping ${label}: no ${fileName} in the config folder.`);
-      return;
+      return true;
     }
     try {
-      await exporter(`${options.configFolder}/${fileName}`);
+      return (await exporter(`${options.configFolder}/${fileName}`)) !== false;
     } catch (err) {
       printError(
         err,
         `Error exporting ${label}, Please make sure the config file name is ${fileName} in the config folder.`
       );
+      return false;
     }
   };
 }

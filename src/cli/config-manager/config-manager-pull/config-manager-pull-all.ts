@@ -8,6 +8,7 @@ export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull all');
   program
     .description('Export all config.')
+    .multiOp()
     .addHelpText(
       'after',
       '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n'
@@ -48,6 +49,7 @@ export default function setup() {
       const outcome = await configManagerExportAllWithConfigFolder({
         configFolder: options.configFolder,
         realm,
+        allowFailures: options.allowFailures,
       });
       if (!outcome) process.exitCode = 1;
     });

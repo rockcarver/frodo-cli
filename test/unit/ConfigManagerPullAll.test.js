@@ -163,13 +163,21 @@ describe('configFileStep', () => {
 
   it('calls the exporter with the file in the config folder', async () => {
     const exporter = jest.fn(async () => true);
-    await configFileStep(
+    const outcome = await configFileStep(
       'SAML',
       'saml.json',
       exporter
     )({ configFolder: 'cfg' });
     expect(exporter).toHaveBeenCalledWith('cfg/saml.json');
+    expect(outcome).toBe(true);
     expect(printError).not.toHaveBeenCalled();
+  });
+
+  it('fails the step when the exporter says it failed', async () => {
+    const exporter = jest.fn(async () => false);
+    await expect(
+      configFileStep('SAML', 'saml.json', exporter)({ configFolder: 'cfg' })
+    ).resolves.toBe(false);
   });
 
   it('does not throw when the file is missing, and says which file to provide', async () => {
@@ -185,7 +193,7 @@ describe('configFileStep', () => {
       )({
         configFolder: 'cfg',
       })
-    ).resolves.toBeUndefined();
+    ).resolves.toBe(false);
     expect(printError).toHaveBeenCalledWith(
       error,
       'Error exporting Authz Policy Sets, Please make sure the config file name is authz-policies.json in the config folder.'
@@ -226,9 +234,10 @@ describe('optional config files', () => {
 
   it('an optional step skips quietly when its file is missing', async () => {
     const exporter = jest.fn(async () => true);
-    await configFileStep('raw config', 'raw.json', exporter, {
+    const outcome = await configFileStep('raw config', 'raw.json', exporter, {
       optional: true,
     })({ configFolder: folder });
+    expect(outcome).toBe(true);
     expect(exporter).not.toHaveBeenCalled();
     expect(printError).not.toHaveBeenCalled();
     expect(verboseMessage).toHaveBeenCalledWith(

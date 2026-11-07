@@ -7,6 +7,7 @@ export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull all-static');
   program
     .description('Export all static config.')
+    .multiOp()
     .addHelpText(
       'after',
       '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n'
@@ -26,7 +27,10 @@ export default function setup() {
         return;
       }
       verboseMessage('Exporting all static config');
-      const outcome = await configManagerExportAllStatic({ realm });
+      const outcome = await configManagerExportAllStatic({
+        realm,
+        allowFailures: options.allowFailures,
+      });
       if (!outcome) process.exitCode = 1;
     });
 

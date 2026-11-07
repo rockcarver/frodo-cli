@@ -13,8 +13,9 @@
  *
  * These lists only ever shrink:
  * - NEVER add a command here. A new command that performs several operations
- *   accepts `--allow-failures` from the start (the option is added by the
- *   command framework once it exists; tracked in frodo-cli#1099).
+ *   accepts `--allow-failures` from the start: call `.multiOp()` on the command,
+ *   and run its operations through `OperationRun` (src/utils/OperationRun.ts).
+ *   Tracked in frodo-cli#1099.
  * - When a command accepts `--allow-failures`, delete its line. The test fails
  *   until you do, so the lists cannot go stale.
  *
@@ -91,8 +92,6 @@ export const SWALLOWS_THE_FAILURE = [
   'frodo agent java import',
   'frodo agent web export',
   'frodo agent web import',
-  'frodo config-manager pull all',
-  'frodo config-manager pull all-static',
   'frodo config-manager pull connector-definitions',
   'frodo config-manager pull connector-mappings',
   'frodo config-manager pull custom-nodes',
