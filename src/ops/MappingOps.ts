@@ -247,23 +247,74 @@ export async function importMappingFromFile(
 }
 
 /**
+ * How many mappings an import holds: the new-style mappings and the legacy mappings of sync.json.
+ * @param {MappingExportInterface} importData the data to import
+ * @returns {number} the number of mappings
+ */
+function countMappings(importData: MappingExportInterface): number {
+  return (
+    Object.keys(importData.mapping ?? {}).length +
+    (Array.isArray(importData.sync?.mappings)
+      ? importData.sync.mappings.length
+      : 0)
+  );
+}
+
+/**
+ * Hands the mappings to the library and records the outcome in the run. The library tries every
+ * mapping and throws one combined error that carries one nested error per mapping it could not
+ * import; the mappings without a nested error were imported.
+ * @param {OperationRun} run the run of the command
+ * @param {MappingExportInterface} importData the data to import
+ * @param {MappingImportOptions} options import options
+ * @param {string} errorMessage the message that heads the printed error
+ */
+async function importMappingsInto(
+  run: OperationRun,
+  importData: MappingExportInterface,
+  options: MappingImportOptions,
+  errorMessage: string
+): Promise<void> {
+  const total = countMappings(importData);
+  try {
+    await importMappings(importData, options);
+    for (let i = 0; i < total; i++) run.recordSuccess();
+  } catch (error) {
+    printError(error, errorMessage);
+    run.recordCombinedError(error, { total, fallbackName: 'mappings' });
+  }
+}
+
+/**
  * Import mappings from file
+ * Every mapping of the file is its own item: the ones that can be imported are imported, one summary
+ * names the ones that could not be, and a file that cannot be read or parsed ends the command
+ * whatever `--allow-failures` says.
  * @param {String} file file name
  * @param {MappingImportOptions} options import options
+ * @param {boolean} allowFailures true to report mappings that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importMappingsFromFile(
   file: string,
-  options: MappingImportOptions = { deps: true }
+  options: MappingImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'mapping', allowFailures });
   try {
     debugMessage(`importMappingsFromFile: start`);
     debugMessage(`importMappingsFromFile: importing ${file}`);
     const importData = getMappingImportDataFromFile(file);
-    await importMappings(importData, options);
+    await importMappingsInto(
+      run,
+      importData,
+      options,
+      `Error importing mappings from file`
+    );
     debugMessage(`importMappingsFromFile: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the file could not be read or parsed
     printError(error, `Error importing mappings from file`);
   }
   return false;
@@ -271,12 +322,18 @@ export async function importMappingsFromFile(
 
 /**
  * Import all mappings from separate files
+ * A file that cannot be read or parsed is a failed item, named in the summary, and the mappings of
+ * the other files are still imported, as are the mappings of the library's one call. A directory
+ * that cannot be read ends the command whatever `--allow-failures` says.
  * @param {MappingImportOptions} options import options
+ * @param {boolean} allowFailures true to report mappings that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importMappingsFromFiles(
-  options: MappingImportOptions = { deps: true }
+  options: MappingImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'mapping', allowFailures });
   try {
     const workingDirectory = getWorkingDirectory();
     const allMappingFiles = (await readFiles(workingDirectory)).filter(
@@ -290,23 +347,35 @@ export async function importMappingsFromFiles(
     for (const f of allMappingFiles.filter((f) =>
       f.path.endsWith('mapping.json')
     )) {
-      const parsed = parseAndResolveMappingFile(f);
-      mappingEntries.push(...Object.entries(parsed));
+      // a file that cannot be parsed is one failed item; the mappings of a good file are counted when they are imported
+      try {
+        const parsed = parseAndResolveMappingFile(f);
+        mappingEntries.push(...Object.entries(parsed));
+      } catch (error) {
+        printError(error);
+        run.recordFailure(f.path, error);
+      }
     }
     const mapping = Object.fromEntries(mappingEntries) as Record<
       string,
       MappingSkeleton
     >;
-    await importMappings(
-      {
-        mapping,
-        sync: getLegacyMappingsFromFiles(allMappingFiles),
-      } as MappingExportInterface,
-      options
+    let sync: SyncSkeleton | undefined;
+    try {
+      sync = getLegacyMappingsFromFiles(allMappingFiles);
+    } catch (error) {
+      printError(error);
+      run.recordFailure('sync mappings', error);
+    }
+    await importMappingsInto(
+      run,
+      { mapping, sync } as MappingExportInterface,
+      options,
+      `Error importing mappings from files`
     );
-
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     printError(error, `Error importing mappings from files`);
   }
   return false;

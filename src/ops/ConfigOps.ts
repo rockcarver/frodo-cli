@@ -41,7 +41,6 @@ import {
 import { extractCustomNodeScriptsToFiles } from './NodeOps';
 import { extractScriptsToFiles } from './ScriptOps';
 import { extractThemeHTMLToFiles } from './ThemeOps';
-import { errorHandler } from './utils/OpsUtils';
 
 const {
   getTypedFilename,
@@ -419,8 +418,13 @@ export function exportItem(
 
 /**
  * Import everything from a single file
+ * The library reports every part of the configuration it could or could not import to the result
+ * callback of an {@link OperationRun}: what can be imported is imported, and one summary names
+ * what could not be. A file that cannot be read or parsed ends the command whatever
+ * `--allow-failures` says.
  * @param {string} file The file path
  * @param {FullImportOptions} options import options
+ * @param {boolean} allowFailures true to report what could not be imported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importEverythingFromFile(
@@ -436,29 +440,38 @@ export async function importEverythingFromFile(
     includeStatic: true,
     includeDynamic: true,
     source: '',
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'item', allowFailures });
   try {
     const data = await getFullExportConfig(file);
     const importedEntities = await importFullConfiguration(
       data,
       options,
-      errorHandler
+      run.resultCallback()
     );
     if (!importedEntities.length) {
       printMessage('No configuration was imported.', 'warn');
-      return true;
     }
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the file could not be read or the import could not start
     cleanupProgressIndicators();
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Import everything from separate files
+ * The library reports every part of the configuration it could or could not import to the result
+ * callback of an {@link OperationRun}: what can be imported is imported, and one summary names
+ * what could not be. A directory that cannot be read ends the command whatever
+ * `--allow-failures` says.
+ * @param {FullImportOptions} options import options
+ * @param {boolean} allowFailures true to report what could not be imported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importEverythingFromFiles(
@@ -473,26 +486,38 @@ export async function importEverythingFromFiles(
     includeStatic: true,
     includeDynamic: true,
     source: '',
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'item', allowFailures });
   try {
     const data = await getFullExportConfigFromDirectory(getWorkingDirectory());
     const importedEntities = await importFullConfiguration(
       data,
       options,
-      errorHandler
+      run.resultCallback()
     );
     if (!importedEntities.length) {
       printMessage('No configuration was imported.', 'warn');
-      return true;
     }
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read or the import could not start
+    cleanupProgressIndicators();
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
+/**
+ * Import one config entity from a file. That is one operation: a failure is printed, and the
+ * function answers with the outcome (the caller sets the exit code).
+ * @param {string} file The file path
+ * @param {boolean} global true to import into the global config, false into the current realm. Default: false
+ * @param {FullImportOptions} options import options
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
 export async function importEntityfromFile(
   file: string,
   global = false,
@@ -534,11 +559,16 @@ export async function importEntityfromFile(
       data.realm[realm] = {} as FullRealmExportInterface;
       await getConfig(data.realm[realm], file, undefined);
     }
-    const imports = await importFullConfiguration(data, options, errorHandler);
+    let failed = false;
+    const imports = await importFullConfiguration(data, options, (error) => {
+      if (!error) return;
+      printError(error);
+      failed = true;
+    });
     if (imports.length === 0) {
       throw new FrodoError(`No imports were made`);
     }
-    return true;
+    return !failed;
   } catch (error) {
     printError(error);
   }

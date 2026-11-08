@@ -67,11 +67,17 @@ describe('frodo idm import', () => {
         await testSuccess(CMD, env);
     });
 
+    // The recording replays config entities that the tenant refuses. The command printed their errors and still said
+    // "Imported config entities"; it now ends the progress line with the failure and prints the one summary (cli record
+    // 0040, imports). The stderr snapshot of this test was edited by hand (not re-recorded).
     test(`"frodo idm import --all --file ${allIdmExportFileName} -D ${allIdmExportDirectory}": Should import all configs from the file '${allIdmExportFileName}' in directory '${allIdmExportDirectory}'"`, async () => {
         const CMD = `frodo idm import --all --file ${allIdmExportFileName} -D ${allIdmExportDirectory}`;
         await testFail(CMD, env);
     });
 
+    // The recording replays config entities that the tenant refuses. The command printed their errors and still said
+    // "Imported config entities"; it now ends the progress line with the failure and prints the one summary (cli record
+    // 0040, imports). The stderr snapshot of this test was edited by hand (not re-recorded).
     test(`"frodo idm import -AD ${idmExportDirectory}": Should import all configs from the directory '${idmExportDirectory}'"`, async () => {
         const CMD = `frodo idm import -AD ${idmExportDirectory}`;
         await testFail(CMD, env);

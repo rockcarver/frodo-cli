@@ -31,6 +31,11 @@ Options:
   -A, --all-separate                   Import all IDM configuration objects from
                                        separate files in directory -D. Cannot be
                                        used with -i, -f or -a.
+  --allow-failures                     Report operations that fail, but still
+                                       exit with code 0. Without this option the
+                                       command runs every operation, prints a
+                                       summary of what failed and exits with
+                                       code 1.
   -e, --entities-file <entities-file>  Name of the entity file. Cannot be used
                                        with -i.
   -f, --file [file]                    Import file. Cannot be used with -A.

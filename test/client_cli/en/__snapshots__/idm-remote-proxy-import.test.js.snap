@@ -29,6 +29,10 @@ Options:
   -A, --all-separate         Import all remote proxies from separate files
                              (*.remoteproxy.idm.json) in the current directory.
                              Cannot be used with -i, -f or -a.
+  --allow-failures           Report operations that fail, but still exit with
+                             code 0. Without this option the command runs every
+                             operation, prints a summary of what failed and
+                             exits with code 1.
   -f, --file <file>          Name of the import file. Without -i or -a the first
                              remote proxy of the file is imported. Cannot be
                              used with -A.

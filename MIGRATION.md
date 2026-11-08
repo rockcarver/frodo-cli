@@ -187,8 +187,10 @@ export -A`, `role export -A`, `saml export -A`, `saml cot export -A`, `idp
 export -A`, `app export -A`, `oauth client export -A` and the bulk exports (`-a`
 and `-A`) of `authz policy`, `authz set`, `authz type`, `esv secret`, `esv
 variable`, `secretstore`, `server`, `iga workflow` and `admin federation`, and
-the agent imports `agent import`, `agent ai import`, `agent gateway import`,
-`agent java import` and `agent web import`. For the deletes this means a
+the imports `agent import`, `agent ai import`, `agent gateway import`, `agent
+java import`, `agent web import`, `config import`, `idm import`, `idm schema
+object import -D`, `idm remote-proxy import` and `mapping import`. For the
+deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -287,7 +289,26 @@ that cannot be read fails the command whatever `--allow-failures` says. `agent
 gateway|java|web import -A` took every `*.agent.json` file whatever the type of
 the agents in it and printed an error for each agent of another type; they now
 import the agents of their own type and skip the others. A failed login exited 0
-in the agent imports (frodo-cli#1094); it exits 1 now. See
+in the agent imports (frodo-cli#1094); it exits 1 now.
+`config import`, `idm import`, `idm schema object import -D` (it imports the
+same directory as `idm import -A`) and `mapping import` already tried every
+part, entity or mapping, printed each error and exited 1, but named nothing at
+the end; they now print one summary that names what could not be imported, and
+`idm import` ends its progress line with the failure instead of "Imported config
+entities". `idm import -A`, `mapping import -A` and `idm remote-proxy import -A`
+stopped at the first file that could not be parsed; that file is now named in
+the summary and the other files are still imported. `idm remote-proxy import`
+keeps the check of every proxy before the first one is sent: if the library
+refuses any proxy, nothing is imported, the refused proxies are named, the
+others are listed as not attempted, and `--allow-failures` does not apply; once
+the check is passed, a proxy that cannot be sent is named in the summary and the
+others are imported. `idm remote-proxy import -A` in a directory without remote
+proxy files now says so as a warning and exits 0, where it exited 1. A file or
+directory that the command line names must exist and parse: otherwise the
+command fails whatever `--allow-failures` says. After a failed login `config
+import`, `idm import`, `idm schema object import` and `mapping import` now end
+with the login error and exit code 1; they used to print "Unrecognized
+combination of options" or the help of the command after it. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

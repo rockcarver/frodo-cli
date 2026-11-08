@@ -34,7 +34,6 @@ import {
   writeMappingJsonToDirectory,
   writeSyncJsonToDirectory,
 } from './MappingOps';
-import { errorHandler } from './utils/OpsUtils';
 
 const {
   buildManagedObjectSchemaRelationshipPropertyPayload:
@@ -381,6 +380,27 @@ export async function exportAllConfigEntitiesToFiles(
 }
 
 /**
+ * Result callback for the imports of one config entity: the library reports the entity (or the
+ * error that names it) to it. A failure is printed and remembered, so that the function can
+ * answer with the outcome and leave the exit code to its caller (cli record 0033).
+ * @returns {{callback: Function, failed: () => boolean}} the callback for the library and the answer to "did it fail"
+ */
+function singleImportCallback(): {
+  callback: (error?: FrodoError) => void;
+  failed: () => boolean;
+} {
+  let failed = false;
+  return {
+    callback: (error?: FrodoError) => {
+      if (!error) return;
+      printError(error);
+      failed = true;
+    },
+    failed: () => failed,
+  };
+}
+
+/**
  * Import an IDM configuration object by id from file.
  * @param {string} entityId the configuration object to import
  * @param {string} file optional file to import
@@ -430,6 +450,7 @@ export async function importConfigEntityByIdFromFile(
       }
     }
 
+    const imported = singleImportCallback();
     await importConfigEntities(
       importData,
       entityId,
@@ -437,9 +458,9 @@ export async function importConfigEntityByIdFromFile(
         entitiesToImport: undefined,
         validate,
       },
-      errorHandler
+      imported.callback
     );
-    return true;
+    return !imported.failed();
   } catch (error) {
     printError(error);
   }
@@ -532,6 +553,7 @@ export async function importFirstConfigEntityFromFile(
       ]);
     }
 
+    const imported = singleImportCallback();
     await importConfigEntities(
       importData,
       entityId,
@@ -539,14 +561,16 @@ export async function importFirstConfigEntityFromFile(
         entitiesToImport: undefined,
         validate,
       },
-      errorHandler
+      imported.callback
     );
     stopProgressIndicator(
       indicatorId,
-      `Imported ${entityId} from ${filePath}.`,
-      'success'
+      imported.failed()
+        ? `Error importing ${entityId} from ${filePath}.`
+        : `Imported ${entityId} from ${filePath}.`,
+      imported.failed() ? 'fail' : 'success'
     );
-    return true;
+    return !imported.failed();
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error importing ${filePath}.`, 'fail');
     printError(error);
@@ -556,16 +580,22 @@ export async function importFirstConfigEntityFromFile(
 
 /**
  * Import all IDM configuration objects from a single file
+ * The library reports every config entity to the result callback of an {@link OperationRun}: the
+ * entities that can be imported are imported, one summary names the ones that could not be, and
+ * a file that cannot be read or parsed ends the command whatever `--allow-failures` says.
  * @param {string} file the file with the configuration objects
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
  * @param {boolean} validate True to validate script hooks. Default: false
+ * @param {boolean} allowFailures true to report entities that could not be imported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importAllConfigEntitiesFromFile(
   file: string,
   entitiesFile?: string,
-  validate: boolean = false
+  validate: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'config entity', allowFailures });
   let indicatorId: string;
   let filePath;
   try {
@@ -586,17 +616,25 @@ export async function importAllConfigEntitiesFromFile(
         entitiesToImport: options.entitiesToExportOrImport,
         validate,
       },
-      errorHandler
+      run.resultCallback()
     );
-    stopProgressIndicator(indicatorId, `Imported config entities`, 'success');
-    return true;
+    stopProgressIndicator(
+      indicatorId,
+      run.hasFailures
+        ? `Some config entities could not be imported from ${filePath}.`
+        : `Imported config entities`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    return run.finish();
   } catch (error) {
+    // not an item failure: the file could not be read or the import could not start
     stopProgressIndicator(
       indicatorId,
       `Error importing config entities from ${filePath}.`,
       'fail'
     );
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -2475,18 +2513,28 @@ export async function deleteManagedObjectTypeCli(
 
 /**
  * Import all IDM configuration objects from working directory
+ * The library reports every config entity to the result callback of an {@link OperationRun}: the
+ * entities that can be imported are imported, one summary names the ones that could not be, and
+ * a directory that cannot be read or holds a file that cannot be parsed ends the command whatever
+ * `--allow-failures` says.
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
  * @param {boolean} validate True to validate script hooks. Default: false
+ * @param {boolean} allowFailures true to report entities that could not be imported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importAllConfigEntitiesFromFiles(
   entitiesFile?: string,
-  validate: boolean = false
+  validate: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'config entity', allowFailures });
   let indicatorId: string;
   const baseDirectory = getWorkingDirectory();
   try {
-    const importData = await getIdmImportDataFromIdmDirectory(baseDirectory);
+    const importData = await getIdmImportDataFromIdmDirectory(
+      baseDirectory,
+      run
+    );
     indicatorId = createProgressIndicator(
       'indeterminate',
       0,
@@ -2500,17 +2548,25 @@ export async function importAllConfigEntitiesFromFiles(
         entitiesToImport: options.entitiesToExportOrImport,
         validate,
       },
-      errorHandler
+      run.resultCallback()
     );
-    stopProgressIndicator(indicatorId, `Imported config entities`, 'success');
-    return true;
+    stopProgressIndicator(
+      indicatorId,
+      run.hasFailures
+        ? `Some config entities could not be imported from ${baseDirectory}.`
+        : `Imported config entities`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read or the import could not start
     stopProgressIndicator(
       indicatorId,
       `Error importing config entities from ${baseDirectory}.`,
       'fail'
     );
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -2534,22 +2590,41 @@ export async function countManagedObjects(type: string): Promise<boolean> {
 /**
  * Helper that reads all the idm config entity data from a directory
  * @param directory The directory of the idm config entities
+ * @param {OperationRun} run Optional. When given, a file that cannot be read or parsed is printed and recorded as a failed item and the other files are still read; without it the first such file throws.
  */
 export async function getIdmImportDataFromIdmDirectory(
-  directory: string
+  directory: string,
+  run?: OperationRun
 ): Promise<ConfigEntityExportInterface> {
   const importData = { idm: {} } as ConfigEntityExportInterface;
   const idmConfigFiles = await readFiles(directory);
   idmConfigFiles.forEach((f) => (f.path = f.path.replace(/\/$/, '')));
+  // a file that cannot be read is one failed item (the entities of a good file are counted when they are imported)
+  const attempt = (name: string, read: () => void) => {
+    if (!run) {
+      read();
+      return;
+    }
+    try {
+      read();
+    } catch (error) {
+      printError(error);
+      run.recordFailure(name, error);
+    }
+  };
   // Process sync mapping file(s)
-  const sync = getLegacyMappingsFromFiles(idmConfigFiles);
-  if (sync.mappings && sync.mappings.length > 0) {
-    importData.idm.sync = sync;
-  }
-  const managed = getManagedObjectsFromFiles(idmConfigFiles);
-  if (managed.objects && managed.objects.length > 0) {
-    importData.idm.managed = managed;
-  }
+  attempt('sync.idm.json', () => {
+    const sync = getLegacyMappingsFromFiles(idmConfigFiles);
+    if (sync.mappings && sync.mappings.length > 0) {
+      importData.idm.sync = sync;
+    }
+  });
+  attempt('managed.idm.json', () => {
+    const managed = getManagedObjectsFromFiles(idmConfigFiles);
+    if (managed.objects && managed.objects.length > 0) {
+      importData.idm.managed = managed;
+    }
+  });
   // Process other files
   for (const f of idmConfigFiles.filter(
     (f) =>
@@ -2557,14 +2632,16 @@ export async function getIdmImportDataFromIdmDirectory(
       !f.path.endsWith('managed.idm.json') &&
       f.path.endsWith('.idm.json')
   )) {
-    const baseDirOfThisJson = path.dirname(f.path);
-    const entities = Object.values(
-      JSON.parse(f.content).idm
-    ) as unknown as IdObjectSkeletonInterface[];
-    for (const entity of entities) {
-      resolveAllExtractedScriptsForImport(entity, baseDirOfThisJson);
-      importData.idm[entity._id] = entity;
-    }
+    attempt(f.path, () => {
+      const baseDirOfThisJson = path.dirname(f.path);
+      const entities = Object.values(
+        JSON.parse(f.content).idm
+      ) as unknown as IdObjectSkeletonInterface[];
+      for (const entity of entities) {
+        resolveAllExtractedScriptsForImport(entity, baseDirOfThisJson);
+        importData.idm[entity._id] = entity;
+      }
+    });
   }
   return importData;
 }

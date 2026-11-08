@@ -3,6 +3,7 @@ import path from 'path';
 import {
   frodo,
   state,
+  type FrodoError,
   type RemoteProxyExportInterface,
   type RemoteProxySkeleton,
 } from '@rockcarver/frodo-lib';
@@ -18,7 +19,7 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
-import { OperationRun } from '../utils/OperationRun';
+import { describeFailure, OperationRun } from '../utils/OperationRun';
 
 const {
   getTypedFilename,
@@ -535,6 +536,80 @@ async function runImport(
   return false;
 }
 
+/** True if the error of a nested library error names the remote proxy. */
+function namesRemoteProxy(error: unknown, proxyId: string): boolean {
+  const message = (error as Error)?.message ?? '';
+  return (
+    message.includes(`Remote proxy ${proxyId} `) ||
+    message.includes(JSON.stringify(proxyId))
+  );
+}
+
+/**
+ * Import remote proxies and record the outcome in the run. The library checks every name and every
+ * proxy before it sends one; if any is refused it imports nothing, and that is a failure the other
+ * proxies depend on: the refused ones are named, the others are "not attempted", and
+ * `--allow-failures` does not apply. Once the check is passed the library sends every proxy, and
+ * the ones it could not send are named in its one combined error.
+ * @param {OperationRun} run the run of the command
+ * @param {RemoteProxyExportInterface} importData the data to import
+ * @param {string} source where the data came from, for the messages
+ */
+async function runImportInto(
+  run: OperationRun,
+  importData: RemoteProxyExportInterface,
+  source: string
+): Promise<void> {
+  const names = Object.keys(importData.remoteProxy ?? {});
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing remote proxies from ${source}...`
+  );
+  try {
+    warnForeignSecrets(importData);
+    const imported = await remoteProxy.importRemoteProxies(importData);
+    stopProgressIndicator(
+      indicatorId,
+      `Imported ${countProxies(imported.length)} from ${source}.`,
+      'success'
+    );
+    for (let i = 0; i < imported.length; i++) run.recordSuccess();
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing remote proxies from ${source}.`,
+      'fail'
+    );
+    printError(error);
+    const nested = (error as FrodoError).originalErrors ?? [];
+    if (
+      nested.length > 0 &&
+      /nothing was imported/.test((error as Error).message ?? '')
+    ) {
+      const refused = new Set<string>();
+      for (const item of nested) {
+        const described = describeFailure(item);
+        run.recordFailure(described.name, described.reason, {
+          dependent: true,
+        });
+        for (const name of names) {
+          if (namesRemoteProxy(item, name)) refused.add(name);
+        }
+      }
+      // the run has stopped: these are counted as not attempted
+      for (const name of names.filter((it) => !refused.has(it))) {
+        await run.run(name, () => undefined);
+      }
+    } else {
+      run.recordCombinedError(error, {
+        total: names.length,
+        fallbackName: source,
+      });
+    }
+  }
+}
+
 function readImportFile(file: string): RemoteProxyExportInterface {
   return JSON.parse(fs.readFileSync(getFilePath(file), 'utf8'));
 }
@@ -596,55 +671,83 @@ export async function importFirstRemoteProxyFromFile(
 /**
  * Import all remote proxies from one file
  * @param {string} file name of the file
+ * @param {boolean} allowFailures true to report remote proxies that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importRemoteProxiesFromFile(
-  file: string
+  file: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'remote proxy', allowFailures });
   try {
-    return await runImport(readImportFile(file), file);
+    // the file the command line names must exist and parse
+    const importData = readImportFile(file);
+    await runImportInto(run, importData, file);
+    return run.finish();
   } catch (error) {
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Import all remote proxies from the separate files of the working directory
- * (`*.remoteproxy.idm.json`) in one go: a file that holds a name or a proxy that
- * the library refuses stops the whole import.
+ * (`*.remoteproxy.idm.json`). A file that cannot be read or parsed is a failed item, named in
+ * the summary; the proxies of the other files are still imported. The library imports nothing if
+ * it refuses any proxy (see {@link runImportInto}).
+ * @param {boolean} allowFailures true to report files and remote proxies that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importRemoteProxiesFromFiles(): Promise<boolean> {
+export async function importRemoteProxiesFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'remote proxy', allowFailures });
   try {
     const directory = getWorkingDirectory();
     const files = fs
       .readdirSync(directory)
       .filter((name) => name.endsWith(REMOTE_PROXY_FILE_SUFFIX))
       .sort();
+    // nothing to import is not a failure (cli record 0041)
     if (files.length === 0) {
       printMessage(
         `No remote proxy files (*${REMOTE_PROXY_FILE_SUFFIX}) found in ${directory}!`,
-        'error'
+        'warn'
       );
-      return false;
+      return true;
     }
     const combined: RemoteProxyExportInterface = { remoteProxy: {} };
     const origins = new Set<string | undefined>();
     for (const file of files) {
-      const fileData = JSON.parse(
-        fs.readFileSync(path.join(directory, file), 'utf8')
-      ) as RemoteProxyExportInterface;
-      Object.assign(combined.remoteProxy, fileData.remoteProxy);
-      origins.add(fileData.meta?.origin);
-      combined.meta ??= fileData.meta;
+      // a file that cannot be read is one failed item; the proxies of a good file are counted when they are imported
+      try {
+        const fileData = JSON.parse(
+          fs.readFileSync(path.join(directory, file), 'utf8')
+        ) as RemoteProxyExportInterface;
+        Object.assign(combined.remoteProxy, fileData.remoteProxy);
+        origins.add(fileData.meta?.origin);
+        combined.meta ??= fileData.meta;
+      } catch (error) {
+        printError(error);
+        run.recordFailure(file, error);
+      }
     }
     // files that do not agree on where they come from have an unknown origin,
     // so that the warning about secrets of another tenant is not lost
     if (origins.size !== 1) combined.meta = undefined;
-    return await runImport(combined, `${files.length} files in ${directory}`);
+    if (Object.keys(combined.remoteProxy).length > 0) {
+      await runImportInto(
+        run,
+        combined,
+        `${files.length} files in ${directory}`
+      );
+    }
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
