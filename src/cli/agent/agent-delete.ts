@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { deleteAgent, deleteAgents } from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -6,19 +6,8 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-/**
- * The agent skeleton type isn't exported from frodo-lib's root; derive it
- * from the read function instead of importing an unexported name.
- */
-type AgentSkeleton = Awaited<ReturnType<typeof frodo.agent.readAgents>>[number];
 
 export default function setup() {
   const program = new FrodoCommand('frodo agent delete');
@@ -69,6 +58,9 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
+        // The family's picker (record 0038) has run inside getTokens when -i was
+        // missing on a terminal; a declined pick or a failed load ends up in the
+        // else below, like a failed login.
         if (await getTokens()) {
           // delete by id
           if (options.agentId) {
@@ -80,60 +72,35 @@ export default function setup() {
             const outcome = await deleteAgent(options.agentId);
             if (!outcome) process.exitCode = 1;
           }
-          // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-          // outside the prompt gate, so a non-interactive run with neither
-          // option never reaches deleteAgents here -- same as before Phase
-          // 3, where the old else handled that case).
-          else if (options.all || (await resolveEntityPicks(command))) {
-            if (options.agentId) {
-              verboseMessage(
-                `Deleting agent '${
-                  options.agentId
-                }' in realm "${state.getRealm()}"...`
-              );
-              const outcome = await deleteAgent(options.agentId);
-              if (!outcome) process.exitCode = 1;
-            } else {
-              if (
-                !(await confirmBulkDelete({
-                  what: 'all agents',
-                  yes: options.yes,
-                  dryRunAvailable: false,
-                }))
-              ) {
-                process.exitCode = 1;
-                return;
-              }
-              verboseMessage(
-                `Deleting all agents in realm "${state.getRealm()}"...`
-              );
-              const outcome = await deleteAgents(options.allowFailures);
-              if (!outcome) process.exitCode = 1;
+          // --all -a
+          else if (options.all) {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all agents',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
             }
-          } else {
-            // User escaped the entity picker -- declined to run.
-            process.exitCode = 1;
+            verboseMessage(
+              `Deleting all agents in realm "${state.getRealm()}"...`
+            );
+            const outcome = await deleteAgents(options.allowFailures);
+            if (!outcome) process.exitCode = 1;
           }
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
+          // Neither was given and the pick found no agent (an empty list counts as
+          // satisfied): there is nothing to delete, and nothing to confirm.
+          else {
+            printMessage('No agents found to delete.');
+          }
+        } else {
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<AgentSkeleton>({
-      name: 'agentId',
-      kind: 'agent',
-      load: () => frodo.agent.readAgents(false),
-      label: (agent) => agent._id ?? '',
-      description: (agent) => agent._type?.name,
-    }),
-  ]);
 
   return program;
 }
