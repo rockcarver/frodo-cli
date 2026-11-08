@@ -32,7 +32,13 @@ export default function setup() {
         '\n' +
         'frodo promote --what-if -M ./master -E ./export [testTenant]\n' +
         '\n' +
-        'This will output the changes that would be made if the promote was run but will not do those changes'
+        'This will output the changes that would be made if the promote was run but will not do those changes' +
+        '\n' +
+        '\n' +
+        'frodo promote --yes -M ./master -e ./export [testTenant]\n' +
+        '\n' +
+        'This will run the promote and, after a journey was deleted, prune every orphaned node of the realm without asking. ' +
+        'Without --yes the prune asks on a terminal and is refused when there is no terminal; --no-prune skips the prune.'
     )
     .addOption(
       new Option(
@@ -55,16 +61,24 @@ export default function setup() {
     .addOption(
       new Option(
         '--prompt-prune',
-        'Ask before the orphaned nodes are pruned (permanently deleted) after a journey was deleted. The prune covers every orphaned node of the realm, not only those of the deleted journey.'
-      ).default(false, 'false')
+        'Ask before the orphaned nodes are pruned (permanently deleted) after a journey was deleted. This is what happens on a terminal without this option; without a terminal nothing can be asked and the prune is refused unless -y/--yes is given. The prune covers every orphaned node of the realm, not only those of the deleted journey.'
+      )
+        .default(false, 'false')
+        .conflicts(['yes'])
     )
     // the spelling this option had before it worked; kept so that nothing that passes it breaks
-    .addOption(new Option('--propmt-prune').hideHelp())
+    .addOption(new Option('--propmt-prune').hideHelp().conflicts(['yes']))
     .addOption(
       new Option(
         '--no-prune',
-        'Do not prune orphaned nodes after a journey was deleted. Without this option, and without --prompt-prune, every orphaned node of the realm is pruned (permanently deleted) without asking.'
+        'Do not prune orphaned nodes after a journey was deleted, and do not ask. Without this option, and without -y/--yes, the prune asks on a terminal and is refused when there is no terminal.'
       )
+    )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask before the orphaned nodes are pruned (permanently deleted) after a journey was deleted. Required for the prune when there is no terminal. The prune covers every orphaned node of the realm, not only those of the deleted journey.'
+      ).conflicts(['prune'])
     )
     .addOption(
       new Option(
@@ -122,7 +136,8 @@ export default function setup() {
             options.whatIf,
             options.effectSecrets,
             options.waitSecrets,
-            Boolean(options.promptPrune || options.propmtPrune),
+            // --prompt-prune (and its old spelling) is what happens on a terminal anyway
+            Boolean(options.yes),
             // commander stores the negated --no-prune as `prune`, true unless the option was given
             options.prune === false,
             options.printDiff,

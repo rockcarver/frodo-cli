@@ -35,19 +35,23 @@ Options:
   -M, --master-dir <directory>        The directory where the master
                                       configurations is located.
   --no-prune                          Do not prune orphaned nodes after a
-                                      journey was deleted. Without this option,
-                                      and without --prompt-prune, every orphaned
-                                      node of the realm is pruned (permanently
-                                      deleted) without asking.
+                                      journey was deleted, and do not ask.
+                                      Without this option, and without -y/--yes,
+                                      the prune asks on a terminal and is
+                                      refused when there is no terminal.
   --no-validate                       Do not validate journeys during promotion.
   -P --print-diff                     Outputs the diff to a file in the
                                       directory where the command was run.
                                       (default: false)
   --prompt-prune                      Ask before the orphaned nodes are pruned
                                       (permanently deleted) after a journey was
-                                      deleted. The prune covers every orphaned
-                                      node of the realm, not only those of the
-                                      deleted journey. (default: false)
+                                      deleted. This is what happens on a
+                                      terminal without this option; without a
+                                      terminal nothing can be asked and the
+                                      prune is refused unless -y/--yes is given.
+                                      The prune covers every orphaned node of
+                                      the realm, not only those of the deleted
+                                      journey. (default: false)
   -S --effect-secrets                 Will effect the secrets, otherwise we will
                                       not change the secrets but will compare
                                       them (default: false)
@@ -64,6 +68,12 @@ Options:
                                       refresh is finished. (default: false)
   --what-if                           Runs a what if of the comparison, so it
                                       wont do any changes (default: false)
+  -y, --yes                           Do not ask before the orphaned nodes are
+                                      pruned (permanently deleted) after a
+                                      journey was deleted. Required for the
+                                      prune when there is no terminal. The prune
+                                      covers every orphaned node of the realm,
+                                      not only those of the deleted journey.
   -h, --help                          Help
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment

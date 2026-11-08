@@ -64,7 +64,6 @@ const PACKAGED_CONFIRMS = [
   'src/cli/journey/journey-prune.ts',
   'src/ops/FeatureOps.ts',
   'src/ops/IdmOps.ts',
-  'src/ops/PromoteOps.ts',
   'src/utils/BulkDeleteGuard.ts',
 ];
 
