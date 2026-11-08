@@ -48,6 +48,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'cotId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -85,7 +86,10 @@ export default function setup() {
         // --all-separate -A
         else if (options.allSeparate && (await getTokens())) {
           verboseMessage('Exporting all circles of trust to separate files...');
-          const outcome = await exportCirclesOfTrustToFiles(options.metadata);
+          const outcome = await exportCirclesOfTrustToFiles(
+            options.metadata,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way

@@ -14,6 +14,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const { getRealmString, getTypedFilename, saveJsonToFile } = frodo.utils;
 const {
@@ -94,17 +95,17 @@ export async function exportSocialIdentityProviderToFile(
   includeMeta: boolean = true
 ): Promise<boolean> {
   debugMessage(`cli.IdpOps.exportSocialIdentityProviderToFile: start`);
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(providerId, 'idp');
-  }
-  const filePath = getFilePath(fileName, true);
   const indicatorId = createProgressIndicator(
     'determinate',
     1,
     `Exporting ${providerId}`
   );
   try {
+    let fileName = file;
+    if (!fileName) {
+      fileName = getTypedFilename(providerId, 'idp');
+    }
+    const filePath = getFilePath(fileName, true);
     updateProgressIndicator(indicatorId, `Writing file ${filePath}`);
     const fileData = await exportSocialIdentityProvider(providerId);
     saveJsonToFile(fileData, filePath, includeMeta);
@@ -123,6 +124,9 @@ export async function exportSocialIdentityProviderToFile(
 
 /**
  * Export all providers
+ * One operation: the library reports the items it could not export in one combined error and returns no export
+ * data then, so no file is written and the command fails (`--allow-failures` does not apply to a file that does not
+ * exist). The printed error names the items.
  * @param {string} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
@@ -146,16 +150,20 @@ export async function exportSocialIdentityProvidersToFile(
 }
 
 /**
- * Export all providers to individual files
+ * Export all providers to separate files
+ * Every provider is exported on its own: a provider that cannot be exported or saved does not stop the others, one
+ * summary names the ones that could not be, and a failure to read the providers ends the command whatever
+ * `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
- * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ * @param {boolean} allowFailures true to report providers that could not be exported but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSocialIdentityProvidersToFiles(
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures = false
 ): Promise<boolean> {
   debugMessage(`cli.IdpOps.exportSocialIdentityProvidersToFiles: start`);
   let indicatorId: string;
-  const errors: Error[] = [];
   try {
     const allIdpsData = await readSocialIdentityProviders();
     indicatorId = createProgressIndicator(
@@ -163,8 +171,9 @@ export async function exportSocialIdentityProvidersToFiles(
       allIdpsData.length,
       'Exporting providers'
     );
+    const run = new OperationRun({ unit: 'identity provider', allowFailures });
     for (const idpData of allIdpsData) {
-      try {
+      await run.run(idpData._id, async () => {
         const fileName = getTypedFilename(idpData._id, 'idp');
         const fileData = await exportSocialIdentityProvider(idpData._id);
         saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
@@ -172,19 +181,17 @@ export async function exportSocialIdentityProvidersToFiles(
           indicatorId,
           `Exported provider ${idpData._id}`
         );
-      } catch (error) {
-        errors.push(error);
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error exporting dependencies`, errors);
+      });
     }
     stopProgressIndicator(
       indicatorId,
-      `${allIdpsData.length} providers exported.`
+      run.hasFailures
+        ? `Some providers could not be exported.`
+        : `${allIdpsData.length} providers exported.`,
+      run.hasFailures ? 'fail' : 'success'
     );
     debugMessage(`cli.IdpOps.exportSocialIdentityProvidersToFiles: end`);
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error exporting providers`, 'fail');
     printError(error);

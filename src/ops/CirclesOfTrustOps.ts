@@ -1,7 +1,6 @@
 import fs from 'fs';
 import {
   frodo,
-  FrodoError,
   state,
   type CircleOfTrustSkeleton,
   type CirclesOfTrustExportInterface,
@@ -16,6 +15,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getRealmName,
@@ -154,6 +154,8 @@ export async function exportCircleOfTrustToFile(
 
 /**
  * Export all circles of trust to one file
+ * One operation: if reading or saving fails there is no file and the command fails (`--allow-failures` does not
+ * apply to a file that does not exist).
  * @param {String} file Optional filename
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
@@ -197,14 +199,19 @@ export async function exportCirclesOfTrustToFile(
 }
 
 /**
- * Export all circles of trust to individual files
+ * Export all circles of trust to separate files
+ * Every circle of trust is exported on its own: one that cannot be exported or saved does not stop the others, one
+ * summary names the ones that could not be, and a failure to read the circles of trust ends the command whatever
+ * `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report circles of trust that could not be exported but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportCirclesOfTrustToFiles(
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures = false
 ): Promise<boolean> {
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFiles: begin`);
-  const errors = [];
   let indicatorId: string;
   try {
     const cots: CircleOfTrustSkeleton[] = await readCirclesOfTrust();
@@ -213,23 +220,30 @@ export async function exportCirclesOfTrustToFiles(
       cots.length,
       'Exporting circles of trust...'
     );
+    const run = new OperationRun({ unit: 'trust circle', allowFailures });
     for (const cot of cots) {
-      const file = getTypedFilename(cot._id, 'cot.saml');
-      try {
-        const exportData: CirclesOfTrustExportInterface =
-          await exportCircleOfTrust(cot._id);
-        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
-        updateProgressIndicator(indicatorId, `Exported ${cot.name}.`);
-      } catch (error) {
-        errors.push(error);
-        updateProgressIndicator(indicatorId, `Error exporting ${cot.name}.`);
-      }
+      await run.run(cot._id, async () => {
+        try {
+          const file = getTypedFilename(cot._id, 'cot.saml');
+          const exportData: CirclesOfTrustExportInterface =
+            await exportCircleOfTrust(cot._id);
+          saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
+          updateProgressIndicator(indicatorId, `Exported ${cot.name}.`);
+        } catch (error) {
+          updateProgressIndicator(indicatorId, `Error exporting ${cot.name}.`);
+          throw error;
+        }
+      });
     }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error exporting circles of trust`, errors);
-    }
-    stopProgressIndicator(indicatorId, `Export complete.`);
-    return true;
+    stopProgressIndicator(
+      indicatorId,
+      run.hasFailures
+        ? `Some circles of trust could not be exported.`
+        : `Export complete.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFiles: end`);
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(
       indicatorId,

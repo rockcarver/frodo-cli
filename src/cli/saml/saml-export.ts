@@ -51,6 +51,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'entityId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -94,9 +95,11 @@ export default function setup() {
         // --all-separate -A
         else if (options.allSeparate && (await getTokens())) {
           verboseMessage('Exporting all providers to separate files...');
-          const outcome = await exportSaml2ProvidersToFiles(options.metadata, {
-            deps: options.deps,
-          });
+          const outcome = await exportSaml2ProvidersToFiles(
+            options.metadata,
+            { deps: options.deps },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way

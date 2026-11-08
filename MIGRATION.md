@@ -178,10 +178,14 @@ delete -a`, `idm remote-proxy delete -a`, `log key delete`, `oauth client delete
 -a`, `node delete -a`, `secretstore delete -a`, `secretstore mapping delete -a`,
 `iga workflow delete -a`, `agent delete -a`, `agent ai delete -a`, `agent
 gateway delete -a`, `agent java delete -a`, `agent web delete -a`, `saml delete
--a`, `service delete -a`, `journey delete -a`, `agent export -A`, `agent ai export
--A`, `agent gateway export -A`, `agent java export -A`, `agent web export -A`,
-`config export`, `idm export`, `idm schema object export -A`, `idm remote-proxy
-export -A`, `mapping export -A`, `journey export`, `script export`, `theme export`, `node export`, `email template export` and `service export`. For the deletes this means a
+-a`, `service delete -a`, `journey delete -a`, `agent export -A`, `agent ai
+export -A`, `agent gateway export -A`, `agent java export -A`, `agent web export
+-A`, `config export`, `idm export`, `idm schema object export -A`, `idm
+remote-proxy export -A`, `mapping export -A`, `journey export`, `script export`,
+`theme export`, `node export`, `email template export`, `service export`, `realm
+export -A`, `role export -A`, `saml export -A`, `saml cot export -A`, `idp
+export -A`, `app export -A` and `oauth client export -A`. For the deletes this
+means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -241,7 +245,20 @@ script, theme or custom node is now a failure (exit code 1 for a single export,
 named in the summary for `-A`). Reading what there is to export fails the
 command whatever `--allow-failures` says. The `-a` forms of `theme export`,
 `node export`, `email template export` and `service export` read everything and
-write one file as one operation, so they fail as a whole. See
+write one file as one operation, so they fail as a whole.
+The exports to
+separate files (`-A`) of realms, roles, SAML providers, circles of trust,
+identity providers, applications and OAuth2 clients now export every item they
+can and print one summary that names the ones that could not be exported or
+saved. `realm export -A` and `role export -A` printed the error of a file that
+could not be saved and went on to exit 0; they now exit 1. `saml export -A`,
+`saml cot export -A`, `idp export -A`, `app export -A` and `oauth client export
+-A` already exported the other items and exited 1 with one combined error,
+which is now the summary. Reading the items fails the command whatever
+`--allow-failures` says. `-a` writes everything to one file and is one
+operation: when the library cannot export an item it reports it in one error
+and no file is written, so the command exits 1 and `--allow-failures` does not
+change that. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

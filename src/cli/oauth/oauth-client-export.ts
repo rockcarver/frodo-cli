@@ -50,6 +50,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'appId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -91,10 +92,14 @@ export default function setup() {
         // -A/--all-separate
         else if (options.allSeparate && (await getTokens())) {
           verboseMessage('Exporting all clients to separate files...');
-          const outcome = await exportOAuth2ClientsToFiles(options.metadata, {
-            useStringArrays: true,
-            deps: options.deps,
-          });
+          const outcome = await exportOAuth2ClientsToFiles(
+            options.metadata,
+            {
+              useStringArrays: true,
+              deps: options.deps,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way
