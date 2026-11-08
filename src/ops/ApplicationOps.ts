@@ -231,6 +231,9 @@ export async function exportApplicationToFile(
 
 /**
  * Export all applications to file
+ * One operation: the library reports the items it could not export in one combined error and returns no export
+ * data then, so no file is written and the command fails (`--allow-failures` does not apply to a file that does not
+ * exist). The printed error names the items.
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {ApplicationExportOptions} options export options
@@ -275,16 +278,20 @@ export async function exportApplicationsToFile(
 
 /**
  * Export all applications to separate files
- * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * Every application is exported on its own: an application that cannot be exported or saved does not stop the others,
+ * one summary names the ones that could not be, and a failure to read the applications ends the command whatever
+ * `--allow-failures` says.
+ * @param {boolean} includeMeta true to include metadata, false otherwise
  * @param {ApplicationExportOptions} options export options
+ * @param {boolean} allowFailures true to report applications that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportApplicationsToFiles(
   includeMeta: boolean,
-  options: ApplicationExportOptions = { useStringArrays: true, deps: true }
-) {
+  options: ApplicationExportOptions = { useStringArrays: true, deps: true },
+  allowFailures = false
+): Promise<boolean> {
   debugMessage(`cli.ApplicationOps.exportApplicationsToFiles: begin`);
-  const errors: Error[] = [];
   let totalBarId: string;
   try {
     const applications = await _readApplications();
@@ -293,50 +300,54 @@ export async function exportApplicationsToFiles(
       applications.length,
       'Exporting applications...'
     );
+    const run = new OperationRun({ unit: 'application', allowFailures });
     for (const application of applications) {
       const fileBarId = createProgressIndicator(
         'determinate',
         1,
         `Exporting application ${application.name}...`
       );
-      const file = getFilePath(
-        getTypedFilename(application.name, 'application'),
-        true
-      );
-      try {
-        updateProgressIndicator(totalBarId, `Exporting ${application.name}.`);
-        const exportData = await _exportApplication(application._id, options);
-        saveJsonToFile(exportData, file, includeMeta);
-        updateProgressIndicator(
-          fileBarId,
-          `Saving ${application.name} to ${file}.`
-        );
-        stopProgressIndicator(
-          fileBarId,
-          `${application.name} saved to ${file}.`
-        );
-      } catch (error) {
-        errors.push(error);
-        updateProgressIndicator(
-          totalBarId,
-          `Error exporting ${application.name}.`
-        );
-        stopProgressIndicator(
-          fileBarId,
-          `Error saving ${application.name} to ${file}.`,
-          'fail'
-        );
-      }
+      await run.run(application.name || application._id, async () => {
+        let file = application.name;
+        try {
+          file = getFilePath(
+            getTypedFilename(application.name, 'application'),
+            true
+          );
+          updateProgressIndicator(totalBarId, `Exporting ${application.name}.`);
+          const exportData = await _exportApplication(application._id, options);
+          saveJsonToFile(exportData, file, includeMeta);
+          updateProgressIndicator(
+            fileBarId,
+            `Saving ${application.name} to ${file}.`
+          );
+          stopProgressIndicator(
+            fileBarId,
+            `${application.name} saved to ${file}.`
+          );
+        } catch (error) {
+          updateProgressIndicator(
+            totalBarId,
+            `Error exporting ${application.name}.`
+          );
+          stopProgressIndicator(
+            fileBarId,
+            `Error saving ${application.name} to ${file}.`,
+            'fail'
+          );
+          throw error;
+        }
+      });
     }
-    stopProgressIndicator(totalBarId, `Export complete.`);
-    if (errors.length > 0) {
-      throw new FrodoError(
-        `Error exporting applications(s) to file(s)`,
-        errors
-      );
-    }
+    stopProgressIndicator(
+      totalBarId,
+      run.hasFailures
+        ? `Some applications could not be exported.`
+        : `Export complete.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
     debugMessage(`cli.ApplicationOps.exportApplicationsToFiles: end`);
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(
       totalBarId,

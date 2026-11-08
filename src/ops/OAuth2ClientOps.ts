@@ -147,6 +147,9 @@ export async function exportOAuth2ClientToFile(
 
 /**
  * Export all OAuth2 clients to file
+ * One operation: the library reports the items it could not export in one combined error and returns no export
+ * data then, so no file is written and the command fails (`--allow-failures` does not apply to a file that does not
+ * exist). The printed error names the items.
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {OAuth2ClientExportOptions} options export options
@@ -185,8 +188,12 @@ export async function exportOAuth2ClientsToFile(
 
 /**
  * Export all OAuth2 clients to separate files
+ * Every client is exported on its own: a client that cannot be exported or saved does not stop the others, one summary
+ * names the ones that could not be, and a failure to read the clients ends the command whatever `--allow-failures`
+ * says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {OAuth2ClientExportOptions} options export options
+ * @param {boolean} allowFailures true to report clients that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportOAuth2ClientsToFiles(
@@ -194,10 +201,10 @@ export async function exportOAuth2ClientsToFiles(
   options: OAuth2ClientExportOptions = {
     useStringArrays: true,
     deps: true,
-  }
+  },
+  allowFailures = false
 ): Promise<boolean> {
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: begin`);
-  const errors = [];
   let indicatorId: string;
   try {
     const clients = await readOAuth2Clients();
@@ -206,26 +213,39 @@ export async function exportOAuth2ClientsToFiles(
       clients.length,
       'Exporting clients...'
     );
+    const run = new OperationRun({ unit: 'client', allowFailures });
     for (const client of clients) {
-      const file = getTypedFilename(client._id, 'oauth2.app');
-      try {
-        const exportData: OAuth2ClientExportInterface =
-          await exportOAuth2Client(client._id, options);
-        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
-        updateProgressIndicator(indicatorId, `Exported ${client._id}.`);
-      } catch (error) {
-        errors.push(error);
-        updateProgressIndicator(indicatorId, `Error exporting ${client._id}.`);
-      }
+      await run.run(client._id, async () => {
+        try {
+          const file = getTypedFilename(client._id, 'oauth2.app');
+          const exportData: OAuth2ClientExportInterface =
+            await exportOAuth2Client(client._id, options);
+          saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
+          updateProgressIndicator(indicatorId, `Exported ${client._id}.`);
+        } catch (error) {
+          updateProgressIndicator(
+            indicatorId,
+            `Error exporting ${client._id}.`
+          );
+          throw error;
+        }
+      });
     }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error exporting oauth2 clients`, errors);
-    }
-    stopProgressIndicator(indicatorId, `Export complete.`);
+    stopProgressIndicator(
+      indicatorId,
+      run.hasFailures
+        ? `Some clients could not be exported.`
+        : `Export complete.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
     debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: end`);
-    return true;
+    return run.finish();
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error exporting client(s) to file(s)`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error exporting client(s) to file(s)`,
+      'fail'
+    );
     printError(error);
   }
   return false;

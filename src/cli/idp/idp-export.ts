@@ -48,6 +48,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'idpId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -86,7 +87,8 @@ export default function setup() {
         else if (options.allSeparate && (await getTokens())) {
           verboseMessage('Exporting all providers to separate files...');
           const outcome = await exportSocialIdentityProvidersToFiles(
-            options.metadata
+            options.metadata,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

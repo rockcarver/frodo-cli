@@ -15,6 +15,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   readRealm,
@@ -210,6 +211,8 @@ export async function exportRealmByName(
 
 /**
  * Export all realms to file
+ * One operation: if reading or saving fails there is no file and the command fails (`--allow-failures` does not
+ * apply to a file that does not exist).
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -234,28 +237,32 @@ export async function exportRealmsToFile(
 
 /**
  * Export all realms to separate files
+ * Every realm is exported on its own: a realm that cannot be saved does not stop the others, one summary names the ones
+ * that could not be, and a failure to read the realms ends the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report realms that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportRealmsToFiles(
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures = false
 ): Promise<boolean> {
   try {
     const realms = await readRealms();
+    const run = new OperationRun({ unit: 'realm', allowFailures });
     for (const realm of realms) {
-      const fileName = getTypedFilename(
-        !realm.name || realm.name === '/' ? 'root' : realm.name,
-        'realm'
-      );
-      saveToFile(
-        'realm',
-        realm,
-        '_id',
-        getFilePath(fileName, true),
-        includeMeta
-      );
+      const name = !realm.name || realm.name === '/' ? 'root' : realm.name;
+      await run.run(name, () => {
+        saveToFile(
+          'realm',
+          realm,
+          '_id',
+          getFilePath(getTypedFilename(name, 'realm'), true),
+          includeMeta
+        );
+      });
     }
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting realms to files`);
   }

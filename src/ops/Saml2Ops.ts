@@ -250,6 +250,9 @@ export async function exportSaml2ProviderToFile(
 
 /**
  * Export all entity providers to one file
+ * One operation: the library reports the items it could not export in one combined error and returns no export
+ * data then, so no file is written and the command fails (`--allow-failures` does not apply to a file that does not
+ * exist). The printed error names the items.
  * @param {String} file Optional filename
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -275,15 +278,20 @@ export async function exportSaml2ProvidersToFile(
 }
 
 /**
- * Export all entity providers to individual files
+ * Export all providers to separate files
+ * Every provider is exported on its own: a provider that cannot be exported or saved does not stop the others, one
+ * summary names the ones that could not be, and a failure to read the providers ends the command whatever
+ * `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {Saml2EntitiesExportOptions} options export options
+ * @param {boolean} allowFailures true to report providers that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSaml2ProvidersToFiles(
   includeMeta: boolean = true,
-  options: Saml2EntitiesExportOptions = { deps: true }
+  options: Saml2EntitiesExportOptions = { deps: true },
+  allowFailures = false
 ): Promise<boolean> {
-  const errors: Error[] = [];
   let indicatorId: string;
   try {
     const stubs = await readSaml2ProviderStubs();
@@ -293,8 +301,9 @@ export async function exportSaml2ProvidersToFiles(
         stubs.length,
         'Exporting providers'
       );
+      const run = new OperationRun({ unit: 'SAML provider', allowFailures });
       for (const stub of stubs) {
-        try {
+        await run.run(stub.entityId, async () => {
           const file = getFilePath(
             getTypedFilename(stub.entityId, 'saml'),
             true
@@ -305,15 +314,16 @@ export async function exportSaml2ProvidersToFiles(
             indicatorId,
             `Exported provider ${stub.entityId}`
           );
-        } catch (error) {
-          errors.push(error);
-        }
+        });
       }
-      if (errors.length > 0) {
-        throw new FrodoError(`Error exporting providers`, errors);
-      }
-      stopProgressIndicator(indicatorId, `${stubs.length} providers exported.`);
-      return true;
+      stopProgressIndicator(
+        indicatorId,
+        run.hasFailures
+          ? `Some providers could not be exported.`
+          : `${stubs.length} providers exported.`,
+        run.hasFailures ? 'fail' : 'success'
+      );
+      return run.finish();
     } else {
       printMessage('No entity providers found.', 'info');
       return true;

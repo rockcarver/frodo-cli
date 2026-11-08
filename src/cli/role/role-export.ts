@@ -62,6 +62,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'roleId', 'roleName'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -107,7 +108,10 @@ export default function setup() {
           (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Exporting all internal roles to separate files...');
-          const outcome = await exportInternalRolesToFiles(options.metadata);
+          const outcome = await exportInternalRolesToFiles(
+            options.metadata,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

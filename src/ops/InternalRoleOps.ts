@@ -13,6 +13,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getTypedFilename,
@@ -111,6 +112,8 @@ export async function exportInternalRoleToFile(
 
 /**
  * Export all internal roles to file
+ * One operation: if reading or saving fails there is no file and the command fails (`--allow-failures` does not
+ * apply to a file that does not exist).
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -134,24 +137,31 @@ export async function exportInternalRolesToFile(
 
 /**
  * Export all internal roles to separate files
+ * Every role is exported on its own: a role that cannot be saved does not stop the others, one summary names the ones
+ * that could not be, and a failure to read the roles ends the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report roles that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportInternalRolesToFiles(
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures = false
 ): Promise<boolean> {
   try {
     const exportData = await exportInternalRoles();
+    const run = new OperationRun({ unit: 'internal role', allowFailures });
     for (const role of Object.values(exportData.internalRole)) {
-      saveToFile(
-        'internalRole',
-        role,
-        '_id',
-        getFilePath(getTypedFilename(role.name, 'internalRole'), true),
-        includeMeta
-      );
+      await run.run(role.name, () => {
+        saveToFile(
+          'internalRole',
+          role,
+          '_id',
+          getFilePath(getTypedFilename(role.name, 'internalRole'), true),
+          includeMeta
+        );
+      });
     }
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting internal roles to files`);
   }

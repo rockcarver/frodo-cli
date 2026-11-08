@@ -86,6 +86,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'appId', 'appName'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -137,10 +138,14 @@ export default function setup() {
           (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Exporting all applications to separate files...');
-          const outcome = await exportApplicationsToFiles(options.metadata, {
-            useStringArrays: true,
-            deps: options.deps,
-          });
+          const outcome = await exportApplicationsToFiles(
+            options.metadata,
+            {
+              useStringArrays: true,
+              deps: options.deps,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

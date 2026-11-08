@@ -29,6 +29,10 @@ Options:
   -A, --all-separate           Export all internal roles to separate files
                                (*.internalRole.json) in the current directory.
                                Cannot be used with -i, -n or -a.
+  --allow-failures             Report operations that fail, but still exit with
+                               code 0. Without this option the command runs
+                               every operation, prints a summary of what failed
+                               and exits with code 1.
   -f, --file <file>            Name of the export file. Cannot be used with -A.
   -i, --role-id <role-id>      Internal role id. If specified, only one internal
                                role is exported and the options -n, -a or -A
