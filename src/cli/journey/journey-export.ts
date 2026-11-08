@@ -82,6 +82,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'journeyId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -153,7 +154,8 @@ export default function setup() {
                 useStringArrays: options.useStringArrays,
                 deps: options.deps,
                 coords: options.coords,
-              }
+              },
+              options.allowFailures
             );
             if (!outcome) process.exitCode = 1;
           }
@@ -161,11 +163,15 @@ export default function setup() {
         // --all-separate -A
         else if (options.allSeparate && (await getTokens())) {
           verboseMessage('Exporting all journeys to separate files...');
-          const outcome = await exportJourneysToFiles(options.metadata, {
-            useStringArrays: options.useStringArrays,
-            deps: options.deps,
-            coords: options.coords,
-          });
+          const outcome = await exportJourneysToFiles(
+            options.metadata,
+            {
+              useStringArrays: options.useStringArrays,
+              deps: options.deps,
+              coords: options.coords,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way

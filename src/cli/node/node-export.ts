@@ -65,6 +65,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'nodeId', 'nodeName'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -111,7 +112,8 @@ export default function setup() {
           options.extract,
           {
             useStringArrays: options.useStringArrays,
-          }
+          },
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       }

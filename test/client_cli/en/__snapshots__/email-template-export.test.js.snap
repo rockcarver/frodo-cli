@@ -30,6 +30,10 @@ Options:
   -A, --all-separate               Export all email templates as separate files
                                    <template-id>.template.email.json. Cannot be
                                    used with -i, -f and -a.
+  --allow-failures                 Report operations that fail, but still exit
+                                   with code 0. Without this option the command
+                                   runs every operation, prints a summary of
+                                   what failed and exits with code 1.
   -f, --file [file]                Name of the export file. Defaults to
                                    <template-id>.template.email.json. Cannot be
                                    used with -A.

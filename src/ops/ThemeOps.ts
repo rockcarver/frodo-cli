@@ -15,6 +15,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getRealmString,
@@ -146,11 +147,21 @@ export async function exportThemeByName(
     if (!themeData._id) themeData._id = uuidv4();
     let fileName = getTypedFilename(name, 'theme');
     if (extract) {
-      extractThemeHTMLToFiles(
-        { theme: { [themeData._id]: themeData } },
-        themeData._id,
-        name
-      );
+      if (
+        !extractThemeHTMLToFiles(
+          { theme: { [themeData._id]: themeData } },
+          themeData._id,
+          name
+        )
+      ) {
+        // extractThemeHTMLToFiles has printed its error
+        stopProgressIndicator(
+          indicatorId,
+          `Error extracting the HTML of theme ${name}`,
+          'fail'
+        );
+        return false;
+      }
       fileName = `${name}/${fileName}`;
     } else if (file) {
       fileName = file;
@@ -187,7 +198,15 @@ export async function exportThemeById(
     const themeData = await readTheme(id);
     let fileName = getTypedFilename(id, 'theme');
     if (extract) {
-      extractThemeHTMLToFiles({ theme: { [id]: themeData } }, id, id);
+      if (!extractThemeHTMLToFiles({ theme: { [id]: themeData } }, id, id)) {
+        // extractThemeHTMLToFiles has printed its error
+        stopProgressIndicator(
+          indicatorId,
+          `Error extracting the HTML of theme ${id}`,
+          'fail'
+        );
+        return false;
+      }
       fileName = `${id}/${fileName}`;
     } else if (file) {
       fileName = file;
@@ -231,14 +250,19 @@ export async function exportThemesToFile(
 
 /**
  * Export all themes to separate files
+ * Every theme is exported to its own file even after another failed; one summary names the themes that could
+ * not be exported. A failure to read the themes ends the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract extracts HTML into separate files if true. Default: true
+ * @param {boolean} allowFailures true to report themes that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportThemesToFiles(
   includeMeta: boolean = true,
-  extract: boolean = true
-) {
+  extract: boolean = true,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'theme', allowFailures });
   let barId: string;
   try {
     const themes = await readThemes();
@@ -259,29 +283,45 @@ export async function exportThemesToFiles(
 
       updateProgressIndicator(barId, `Exporting theme ${theme.name}`);
 
-      let fileName = getTypedFilename(theme.name, 'theme');
+      const saved = await run.run(theme.name, () => {
+        let fileName = getTypedFilename(theme.name, 'theme');
 
-      if (extract) {
-        extractThemeHTMLToFiles(
-          { theme: { [theme._id]: theme } },
-          theme._id,
-          theme.name
+        if (extract) {
+          // extractThemeHTMLToFiles has printed its error when it returns false
+          if (
+            !extractThemeHTMLToFiles(
+              { theme: { [theme._id]: theme } },
+              theme._id,
+              theme.name
+            )
+          ) {
+            return false;
+          }
+          fileName = `${theme.name}/${fileName}`;
+        }
+
+        const file = getFilePath(fileName, true);
+
+        saveToFile('theme', theme, '_id', file, includeMeta);
+
+        updateProgressIndicator(fileBarId, `${theme.name} saved to ${file}`);
+        stopProgressIndicator(fileBarId, `${theme.name} saved to ${file}.`);
+      });
+      if (!saved) {
+        stopProgressIndicator(
+          fileBarId,
+          `Error exporting theme ${theme.name}`,
+          'fail'
         );
-        fileName = `${theme.name}/${fileName}`;
       }
-
-      const file = getFilePath(fileName, true);
-
-      saveToFile('theme', theme, '_id', file, includeMeta);
-
-      updateProgressIndicator(fileBarId, `${theme.name} saved to ${file}`);
-      stopProgressIndicator(fileBarId, `${theme.name} saved to ${file}.`);
     }
 
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the themes could not be read
     stopProgressIndicator(barId, `Error exporting themes`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

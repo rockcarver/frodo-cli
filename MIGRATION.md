@@ -181,7 +181,7 @@ gateway delete -a`, `agent java delete -a`, `agent web delete -a`, `saml delete
 -a`, `service delete -a`, `journey delete -a`, `agent export -A`, `agent ai export
 -A`, `agent gateway export -A`, `agent java export -A`, `agent web export -A`,
 `config export`, `idm export`, `idm schema object export -A`, `idm remote-proxy
-export -A` and `mapping export -A`. For the deletes this means a
+export -A`, `mapping export -A`, `journey export`, `script export`, `theme export`, `node export`, `email template export` and `service export`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -215,15 +215,33 @@ stopped at the first agent that could not be exported, and before frodo-lib
 that failed (including a file that could not be saved), and exit 1. Reading the
 agents fails the command whatever `--allow-failures` says. `-a` and `-i` export
 one thing and are unchanged: a failure is printed and the exit code is 1.
-`config export` and `idm export` already exported every object the library could read, printed
-the error of each one it could not and exited 1, with `-a` as well as `-A`; they
+`config export` and `idm export` already exported every object the library could
+read, printed the error of each one it could not and exited 1, with `-a` as well as `-A`; they
 now also print one summary that names those objects (and, with `-a`, the file if
 it could not be written). `config export -A` used to stop at the first kind of
 configuration whose files could not be written, and `idm schema object export
 -A`, `idm remote-proxy export -A` and `mapping export -A` used to stop at the
 first object whose file could not be written, leaving the later ones, and the
 file that lists them, unwritten and printing a single error; they now write every
-object they can, name the ones that failed in the summary and exit 1. See
+object they can, name the ones that failed in the summary and exit 1.
+`journey export -A`
+printed "Error saving <journey> to <file>" for a journey whose file could not
+be written and exited 0; the journey is now named in the summary and the exit
+code is 1. The journeys and scripts that the library cannot export (`journey
+export -a` and `-A`, `script export -a` and `-A`) were printed one by one and
+now appear in the summary too. `theme export -A`, `node export -A`, `email
+template export -A` and `service export -A` stopped at the first theme, custom
+node, email template or service whose file could not be written and exited 1;
+they now export every one they can and name the ones that failed. `script
+export -A` already tried every script and ended with one combined error; it now
+prints the summary. `script export -x`, `theme export -x` and `node export -x`
+printed the error of extracting the code or HTML into separate files and went on
+to write an export that refers to files that are not there, and exited 0; the
+script, theme or custom node is now a failure (exit code 1 for a single export,
+named in the summary for `-A`). Reading what there is to export fails the
+command whatever `--allow-failures` says. The `-a` forms of `theme export`,
+`node export`, `email template export` and `service export` read everything and
+write one file as one operation, so they fail as a whole. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x
