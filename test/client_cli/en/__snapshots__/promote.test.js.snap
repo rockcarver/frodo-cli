@@ -34,13 +34,20 @@ Options:
                                       located.
   -M, --master-dir <directory>        The directory where the master
                                       configurations is located.
-  --no-prune                          Will stop prune from running
+  --no-prune                          Do not prune orphaned nodes after a
+                                      journey was deleted. Without this option,
+                                      and without --prompt-prune, every orphaned
+                                      node of the realm is pruned (permanently
+                                      deleted) without asking.
   --no-validate                       Do not validate journeys during promotion.
   -P --print-diff                     Outputs the diff to a file in the
                                       directory where the command was run.
                                       (default: false)
-  --propmt-prune                      Will prompt for Frodo Journey Prune on all
-                                      realms (default: false)
+  --prompt-prune                      Ask before the orphaned nodes are pruned
+                                      (permanently deleted) after a journey was
+                                      deleted. The prune covers every orphaned
+                                      node of the realm, not only those of the
+                                      deleted journey. (default: false)
   -S --effect-secrets                 Will effect the secrets, otherwise we will
                                       not change the secrets but will compare
                                       them (default: false)

@@ -29,6 +29,13 @@ canonical commands; use the canonical name):
 config-manager journey pushes, and `frodo promote` now validate journey
 references by default. Pass `--no-validate` to restore the previous behavior.
 
+**`frodo promote` prune options**: after `promote` deletes a journey it prunes
+(permanently deletes) every orphaned node of the realm, without asking. The two
+options that were meant to control this had no effect: `--propmt-prune` was
+misspelled and `--no-prune` was read under the wrong name. `--prompt-prune` and
+`--no-prune` now work; `--propmt-prune` is still accepted. Without either option
+the prune runs as before.
+
 **Mutually exclusive options are now rejected**: 4.x accepted many option
 combinations in which one option was silently ignored (the help said "Ignored
 with ..."). In 5.x the command refuses to run and exits with code 1, before it

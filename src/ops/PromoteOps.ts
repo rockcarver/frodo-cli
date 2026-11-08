@@ -75,8 +75,8 @@ interface CompareObj {
  * @param whatIf flag to run the comparison but not affect the differences if true
  * @param effectSecrets if true esv's will be effected
  * @param wait causes function to wait for an environment refresh to finish before letting to of control if a refresh is necessary
- * @param promptPrune when true if a prune of orphaned nodes will run the user will be prompted to say yes or no
- * @param noPrune when true pruning of orphaned nodes will not occur
+ * @param promptPrune when true the user is asked before the orphaned nodes of the realm are pruned after a deleted journey
+ * @param noPrune when true the orphaned nodes are not pruned after a deleted journey (every orphaned node of the realm is pruned otherwise)
  * @param printDiff when true outputs two files, one that shows the files that were changed in some way and another that
  * gives a log for if the changes were successful or not
  * @param validateJourneys when false journeys are imported without validation
@@ -961,7 +961,7 @@ async function deleteSwitch(
             PromptPrune
               ? () =>
                   confirm({
-                    message: `Prune (permanently delete) orphaned nodes from journey ${journeyId}?`,
+                    message: `Journey ${journeyId} was deleted. Prune (permanently delete) every orphaned node of realm "${state.getRealm()}", not only those of this journey?`,
                     default: false,
                   })
               : undefined,
