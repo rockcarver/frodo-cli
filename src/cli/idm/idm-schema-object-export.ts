@@ -4,6 +4,7 @@ import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
   exportConfigEntityToFile,
+  exportManagedObjectsToFiles,
   exportManagedObjectToFile,
   warnAboutOfflineConnectorServers,
 } from '../../ops/IdmOps';
@@ -88,6 +89,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'managedObject'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -143,11 +145,9 @@ export default function setup() {
           verboseMessage(
             `Exporting managed objects ${envMessage}${directoryMessage}...`
           );
-          const outcome = await exportConfigEntityToFile(
-            'managed',
-            options.file,
+          const outcome = await exportManagedObjectsToFiles(
             options.metadata,
-            true
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
           await warnAboutOfflineConnectorServers();

@@ -31,6 +31,11 @@ Options:
   -A, --all-separate                   Export all IDM configuration objects into
                                        separate JSON files in directory -D.
                                        Cannot be used with -i or -a.
+  --allow-failures                     Report operations that fail, but still
+                                       exit with code 0. Without this option the
+                                       command runs every operation, prints a
+                                       summary of what failed and exits with
+                                       code 1.
   -e, --entities-file <entities-file>  Name of the entity file. Cannot be used
                                        with -i.
   -f, --file [file]                    Export file if -x or -a is provided.

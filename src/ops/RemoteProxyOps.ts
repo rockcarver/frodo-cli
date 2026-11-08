@@ -447,12 +447,18 @@ export async function exportRemoteProxiesToFile(
 
 /**
  * Export all remote proxies to separate files
+ * Every remote proxy is one operation of an {@link OperationRun}: a proxy whose file cannot be
+ * written is printed and named in one summary, and the others are still written. A failure to read
+ * the remote proxies ends the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise
+ * @param {boolean} allowFailures true to report proxies that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportRemoteProxiesToFiles(
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'remote proxy', allowFailures });
   let indicatorId: string;
   try {
     const exportData = await remoteProxy.exportRemoteProxies();
@@ -464,24 +470,31 @@ export async function exportRemoteProxiesToFiles(
       'Writing remote proxies'
     );
     for (const [name, proxy] of entries) {
-      const fileData = remoteProxy.createRemoteProxyExportTemplate();
-      fileData.remoteProxy[name] = proxy;
-      updateProgressIndicator(indicatorId, `Exporting ${name}`);
-      saveJsonToFile(
-        fileData,
-        getFilePath(getTypedFilename(name, REMOTE_PROXY_FILE_TYPE), true),
-        includeMeta
-      );
+      await run.run(name, () => {
+        const fileData = remoteProxy.createRemoteProxyExportTemplate();
+        fileData.remoteProxy[name] = proxy;
+        updateProgressIndicator(indicatorId, `Exporting ${name}`);
+        saveJsonToFile(
+          fileData,
+          getFilePath(getTypedFilename(name, REMOTE_PROXY_FILE_TYPE), true),
+          includeMeta
+        );
+      });
     }
     stopProgressIndicator(
       indicatorId,
-      `${countProxies(entries.length)} written.`
+      run.hasFailures
+        ? 'Some remote proxies could not be written.'
+        : `${countProxies(entries.length)} written.`,
+      run.hasFailures ? 'fail' : 'success'
     );
     warnTenantBoundSecrets(exportData.remoteProxy);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the remote proxies could not be read
     stopProgressIndicator(indicatorId, `${error}`);
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

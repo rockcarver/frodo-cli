@@ -76,6 +76,7 @@ export default function setup() {
         `  Export all remote proxies without metadata:\n` +
         c.command(`  $ frodo idm remote-proxy export -a -N ${s.connId}\n`)
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -104,7 +105,10 @@ export default function setup() {
             );
           } else {
             verboseMessage('Exporting all remote proxies to separate files...');
-            outcome = await exportRemoteProxiesToFiles(options.metadata);
+            outcome = await exportRemoteProxiesToFiles(
+              options.metadata,
+              options.allowFailures
+            );
           }
           if (!outcome) process.exitCode = 1;
         } else {

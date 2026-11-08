@@ -28,6 +28,7 @@ import {
   printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import {
   getLegacyMappingsFromFiles,
   writeMappingJsonToDirectory,
@@ -222,61 +223,114 @@ export async function exportManagedObjectToFile(
 }
 
 /**
+ * Export every IDM managed object type to its own file
+ * Every managed object type is one operation of an {@link OperationRun}: a type that cannot be
+ * written (or whose scripts cannot be extracted) is printed and named in one summary, and the
+ * others are still written, as is the file that lists them. A failure to read the managed object
+ * configuration ends the command whatever `--allow-failures` says.
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report types that could not be exported but still succeed. Default: false
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
+export async function exportManagedObjectsToFiles(
+  includeMeta: boolean = true,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'managed object', allowFailures });
+  try {
+    const exportData = await exportConfigEntity('managed');
+    writeManagedJsonToDirectory(
+      exportData.idm['managed'] as ManagedSkeleton,
+      'managed',
+      includeMeta,
+      true,
+      run
+    );
+    return run.finish();
+  } catch (error) {
+    // not an item failure: the managed object configuration could not be read
+    printError(error, `Error exporting managed objects`);
+    if (run.hasFailures) run.finish();
+  }
+  return false;
+}
+
+/**
  * Export all IDM configuration objects
+ * The library reports every configuration object it could or could not export to the result callback
+ * of an {@link OperationRun}, so the objects that can be exported are written to the file and one
+ * summary names the ones that could not be.
  * @param {string} file file to export to
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report objects that could not be exported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportAllConfigEntitiesToFile(
   file?: string,
   entitiesFile?: string,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'config entity', allowFailures });
   try {
     const options = getIdmImportExportOptions(entitiesFile);
     const exportData = await exportConfigEntities(
       {
         entitiesToExport: options.entitiesToExportOrImport,
       },
-      errorHandler
+      run.resultCallback()
     );
     let fileName = getTypedFilename(`all`, `idm`);
     if (file) {
       fileName = file;
     }
-    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
-    return true;
+    // the file is one more operation: when it cannot be written, that is named too
+    await run.run(fileName, () =>
+      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta)
+    );
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even list the configuration objects
     printError(error, `Error exporting idm config to file`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Export all IDM configuration objects to separate files
+ * The library reports every configuration object it could not export to the result callback of an
+ * {@link OperationRun}; every object it could export is written to its own file, a file that
+ * cannot be written is a failure of that object only, and one summary names the failed objects.
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract true to extract idm scripts, false otherwise. Default: false
+ * @param {boolean} allowFailures true to report objects that could not be exported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportAllConfigEntitiesToFiles(
   entitiesFile?: string,
   includeMeta: boolean = true,
-  extract: boolean = false
+  extract: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors: Error[] = [];
+  const run = new OperationRun({ unit: 'config entity', allowFailures });
   try {
     const options = getIdmImportExportOptions(entitiesFile);
+    // an object is counted once, when it is written: the library's successes are not counted here
+    const reportFailure = run.resultCallback();
     const exportData = await exportConfigEntities(
       {
         entitiesToExport: options.entitiesToExportOrImport,
       },
-      errorHandler
+      (error, result) => {
+        if (error) reportFailure(error, result);
+      }
     );
     for (const [id, obj] of Object.entries(exportData.idm)) {
       if (!obj) continue;
-      try {
+      await run.run(id, () => {
         if (!extract) {
           saveToFile(
             'idm',
@@ -285,7 +339,7 @@ export async function exportAllConfigEntitiesToFiles(
             getFilePath(`${id}.idm.json`, true),
             includeMeta
           );
-          continue;
+          return;
         }
         if (id === 'sync') {
           writeSyncJsonToDirectory(
@@ -294,7 +348,7 @@ export async function exportAllConfigEntitiesToFiles(
             includeMeta,
             extract
           );
-          continue;
+          return;
         }
         if (id === 'managed') {
           writeManagedJsonToDirectory(
@@ -303,7 +357,7 @@ export async function exportAllConfigEntitiesToFiles(
             includeMeta,
             extract
           );
-          continue;
+          return;
         }
         if (id.startsWith('mapping/')) {
           writeMappingJsonToDirectory(
@@ -312,19 +366,16 @@ export async function exportAllConfigEntitiesToFiles(
             includeMeta,
             extract
           );
-          continue;
+          return;
         }
         writeIdmObjectToDirectory(obj, '.', includeMeta, extract);
-      } catch (error) {
-        errors.push(new FrodoError(`Error saving config entity ${id}`, error));
-      }
+      });
     }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error saving config entities`, errors);
-    }
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even list the configuration objects
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -2577,41 +2628,58 @@ export function getIdmImportExportOptions(entitiesFile?: string): {
  * @param {string} directory The directory to save the entity to within the base directory
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract true to extract idm scripts, false otherwise. Default: false
+ * @param {OperationRun} run Optional. When given, every managed object type and the file that lists them are one operation of the run: a failure is printed and recorded and the others are still written. Without it the first failure is thrown.
  */
 export function writeManagedJsonToDirectory(
   managed: ManagedSkeleton,
   directory: string = 'managed',
   includeMeta: boolean = true,
-  extract: boolean = false
+  extract: boolean = false,
+  run?: OperationRun
 ) {
+  // one operation of the run, or just the operation when there is no run
+  const attempt = (name: string, operation: () => void) => {
+    try {
+      operation();
+      run?.recordSuccess();
+    } catch (error) {
+      if (!run) throw error;
+      printError(error);
+      run.recordFailure(name, error);
+    }
+  };
   const objectPaths = [];
   for (const object of managed.objects) {
     if (!object) {
       // Skip null/malformed entries in the tenant's managed.json objects array.
       continue;
     }
-    const fileName = getTypedFilename(object.name, 'managed');
-    if (
-      extract &&
-      extractManagedObjectScriptsToDirectory(
-        object,
-        `${directory}/${object.name}`
-      )
-    ) {
-      objectPaths.push(
-        extractDataToFile(object, `${object.name}/${fileName}`, directory)
-      );
-    } else {
-      objectPaths.push(extractDataToFile(object, fileName, directory));
-    }
+    attempt(object.name, () => {
+      const fileName = getTypedFilename(object.name, 'managed');
+      if (
+        extract &&
+        extractManagedObjectScriptsToDirectory(
+          object,
+          `${directory}/${object.name}`
+        )
+      ) {
+        objectPaths.push(
+          extractDataToFile(object, `${object.name}/${fileName}`, directory)
+        );
+      } else {
+        objectPaths.push(extractDataToFile(object, fileName, directory));
+      }
+    });
   }
   managed.objects = objectPaths;
-  saveToFile(
-    'idm',
-    managed,
-    '_id',
-    getFilePath(`${directory}/managed.idm.json`, true),
-    includeMeta
+  attempt('managed.idm.json', () =>
+    saveToFile(
+      'idm',
+      managed,
+      '_id',
+      getFilePath(`${directory}/managed.idm.json`, true),
+      includeMeta
+    )
   );
 }
 

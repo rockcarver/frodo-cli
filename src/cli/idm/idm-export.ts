@@ -69,6 +69,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'entityId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -116,7 +117,8 @@ export default function setup() {
           const outcome = await exportAllConfigEntitiesToFile(
             options.file,
             options.entitiesFile,
-            options.metadata
+            options.metadata,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
           await warnAboutOfflineConnectorServers();
@@ -141,7 +143,8 @@ export default function setup() {
           const outcome = await exportAllConfigEntitiesToFiles(
             options.entitiesFile,
             options.metadata,
-            options.extract
+            options.extract,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
           await warnAboutOfflineConnectorServers();
