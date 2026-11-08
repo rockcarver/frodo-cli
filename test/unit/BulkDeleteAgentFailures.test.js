@@ -24,7 +24,8 @@ import {
  * The real import graph of the ops modules pulls in all of frodo-lib, whose
  * bundled ESM cannot load under jest's ESM runtime, so the library is a deep
  * stub and every relative import of the module under test is a set of spies
- * (OperationRun and the module itself stay real).
+ * (OperationRun, the module it reads causes with, and the module itself stay
+ * real).
  */
 
 const root = path.resolve(
@@ -105,7 +106,11 @@ const mocked = new Map();
     /^import (?!type )([^;]*?) from '(\.[^']+)';/gms
   )) {
     const target = path.resolve(importer, from).replace(/\.(js|ts)$/, '');
-    if (target.endsWith('/utils/OperationRun')) continue;
+    if (
+      target.endsWith('/utils/OperationRun') ||
+      target.endsWith('/utils/ErrorCause')
+    )
+      continue;
     const names = mocked.get(target) ?? new Set();
     const named = clause.match(/\{([^}]*)\}/s)?.[1] ?? '';
     for (const part of named.split(',')) {

@@ -56,6 +56,7 @@ export default function setup() {
       options: ['agentId', 'all', 'allSeparate', 'global'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -100,7 +101,8 @@ export default function setup() {
             verboseMessage('Exporting all agents to separate files...');
             const outcome = await exportAgentsToFiles(
               options.global,
-              options.metadata
+              options.metadata,
+              options.allowFailures
             );
             if (!outcome) process.exitCode = 1;
           }

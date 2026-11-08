@@ -14,6 +14,7 @@ import {
   printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -68,6 +69,8 @@ const agentTypeToFileIdMap = {
   SoftwarePublisher: 'publisher.agent',
   WebAgent: 'web.agent',
 };
+
+type AgentSkeleton = Awaited<ReturnType<typeof frodo.agent.readAgents>>[number];
 
 type AgentImportData = Partial<AgentExportInterface> & {
   agents?: AgentExportInterface['agent'];
@@ -466,113 +469,131 @@ export async function exportWebAgentToFile(
 }
 
 /**
+ * Exports the agents that `read` returns, each to a file of its own, through an
+ * {@link OperationRun}. An agent that cannot be exported (building its export or
+ * saving its file) is printed and named in one summary, and the others are still
+ * exported. A failure to read the agents ends the command whatever
+ * `--allow-failures` says.
+ * @param {object} params structured and named parameters
+ * @param {string} params.what what is exported, for the messages, e.g. 'identity gateway agents'
+ * @param {Function} params.read reads the agents to export
+ * @param {boolean} params.includeMeta true to include metadata, false otherwise
+ * @param {boolean} params.allowFailures true to report agents that could not be exported but still succeed
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+async function exportEachAgentToFile({
+  what,
+  read,
+  includeMeta,
+  allowFailures,
+}: {
+  what: string;
+  read: () => Promise<AgentSkeleton[]>;
+  includeMeta: boolean;
+  allowFailures: boolean;
+}): Promise<boolean> {
+  const run = new OperationRun({ unit: 'agent', allowFailures });
+  try {
+    const agents = await read();
+    debugMessage(`exportEachAgentToFile: ${agents.length} ${what}`);
+    for (const agent of agents) {
+      try {
+        const type = agentTypeToFileIdMap[agent._type._id];
+        const fileName = getTypedFilename(agent._id, type ? type : 'agent');
+        const filePath = getFilePath(fileName, true);
+        const exportData = createAgentExportTemplate();
+        exportData.agent[agent._id] = agent;
+        debugMessage(
+          `exportEachAgentToFile: exporting ${agent._id} to ${filePath}`
+        );
+        saveJsonToFile(exportData, filePath, includeMeta);
+        run.recordSuccess();
+      } catch (error) {
+        printError(error, `Error exporting agent ${agent._id} to file`);
+        run.recordFailure(agent._id, causeOf(error));
+      }
+    }
+    debugMessage(`exportEachAgentToFile: done.`);
+    return run.finish();
+  } catch (error) {
+    // not an item failure: the agents could not be read
+    printError(error, `Error exporting ${what} to files`);
+  }
+  return false;
+}
+
+/**
  * Export all agents to separate files
  * @param {boolean} global true to export global agents, false otherwise
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report agents that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportAgentsToFiles(
   global: boolean = false,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  try {
-    const agents = await readAgents(global);
-    debugMessage(`exportAgentsToFiles: ${agents.length} agents`);
-    for (const agent of agents) {
-      const type = agentTypeToFileIdMap[agent._type._id];
-      const fileName = getTypedFilename(agent._id, type ? type : 'agent');
-      const filePath = getFilePath(fileName, true);
-      const exportData = createAgentExportTemplate();
-      exportData.agent[agent._id] = agent;
-      debugMessage(
-        `exportAgentsToFiles: exporting ${agent._id} to ${filePath}`
-      );
-      saveJsonToFile(exportData, filePath, includeMeta);
-    }
-    debugMessage(`exportAgentsToFiles: done.`);
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting agents to files`);
-  }
-  return false;
+  return exportEachAgentToFile({
+    what: 'agents',
+    read: () => readAgents(global),
+    includeMeta,
+    allowFailures,
+  });
 }
 
 /**
  * Export all identity gateway agents to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report agents that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportIdentityGatewayAgentsToFiles(
-  includeMeta = true
+  includeMeta = true,
+  allowFailures = false
 ): Promise<boolean> {
-  try {
-    const agents = await readIdentityGatewayAgents();
-    for (const agent of agents) {
-      const fileName = getTypedFilename(
-        agent._id,
-        agentTypeToFileIdMap[agent._type._id]
-      );
-      const exportData = createAgentExportTemplate();
-      exportData.agent[agent._id] = agent;
-      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
-    }
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting identity gateway agents to files`);
-  }
-  return false;
+  return exportEachAgentToFile({
+    what: 'identity gateway agents',
+    read: () => readIdentityGatewayAgents(),
+    includeMeta,
+    allowFailures,
+  });
 }
 
 /**
  * Export all java agents to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report agents that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportJavaAgentsToFiles(
-  includeMeta = true
+  includeMeta = true,
+  allowFailures = false
 ): Promise<boolean> {
-  try {
-    const agents = await readJavaAgents();
-    for (const agent of agents) {
-      const fileName = getTypedFilename(
-        agent._id,
-        agentTypeToFileIdMap[agent._type._id]
-      );
-      const exportData = createAgentExportTemplate();
-      exportData.agent[agent._id] = agent;
-      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
-    }
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting java agents to files`);
-  }
-  return false;
+  return exportEachAgentToFile({
+    what: 'java agents',
+    read: () => readJavaAgents(),
+    includeMeta,
+    allowFailures,
+  });
 }
 
 /**
  * Export all web agents to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report agents that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportWebAgentsToFiles(
-  includeMeta = true
+  includeMeta = true,
+  allowFailures = false
 ): Promise<boolean> {
-  try {
-    const agents = await readWebAgents();
-    for (const agent of agents) {
-      const fileName = getTypedFilename(
-        agent._id,
-        agentTypeToFileIdMap[agent._type._id]
-      );
-      const exportData = createAgentExportTemplate();
-      exportData.agent[agent._id] = agent;
-      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
-    }
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting web agents to files`);
-  }
-  return false;
+  return exportEachAgentToFile({
+    what: 'web agents',
+    read: () => readWebAgents(),
+    includeMeta,
+    allowFailures,
+  });
 }
 
 /**
@@ -1580,35 +1601,19 @@ export async function exportAIAgentsToFile(
 /**
  * Export all AIAgents to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report AIAgents that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportAIAgentsToFiles(
-  includeMeta = true
+  includeMeta = true,
+  allowFailures = false
 ): Promise<boolean> {
-  try {
-    const agents = await readAIAgents();
-    debugMessage(`exportAIAgentsToFiles: ${agents.length} agents`);
-    for (const agent of agents) {
-      const fileName = getTypedFilename(
-        agent._id,
-        agentTypeToFileIdMap[agent._type._id]
-      );
-      const exportData = createAgentExportTemplate();
-      exportData.agent[agent._id] = agent;
-      debugMessage(
-        `exportAIAgentsToFiles: exporting ${agent._id} to ${getFilePath(
-          fileName,
-          true
-        )}`
-      );
-      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
-    }
-    debugMessage(`exportAIAgentsToFiles: done.`);
-    return true;
-  } catch (error) {
-    printError(error, `Error exporting AIAgents to files`);
-  }
-  return false;
+  return exportEachAgentToFile({
+    what: 'AIAgents',
+    read: () => readAIAgents(),
+    includeMeta,
+    allowFailures,
+  });
 }
 
 /**

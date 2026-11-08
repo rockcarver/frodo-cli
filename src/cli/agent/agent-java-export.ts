@@ -47,6 +47,7 @@ export default function setup() {
       options: ['agentId', 'all', 'allSeparate'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -81,7 +82,10 @@ export default function setup() {
           // --all-separate -A
           else if (options.allSeparate) {
             verboseMessage('Exporting all java agents to separate files...');
-            const outcome = await exportJavaAgentsToFiles(options.metadata);
+            const outcome = await exportJavaAgentsToFiles(
+              options.metadata,
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
         }
