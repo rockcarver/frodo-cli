@@ -96,6 +96,8 @@ describe('frodo agent delete', () => {
             expect(assertNoPollyReplayError(stdout, CMD)).toMatchSnapshot();
         });
 
+        // The bulk delete says so when there is nothing to delete ("No agents found to delete.", stderr): the snapshot
+        // was edited by hand from the empty string (cli record 0040, bulk deletes part 3a).
         test('"frodo agent delete --all -y": should do nothing when no agents can be deleted', async () => {
             const CMD = 'frodo agent delete --all -y';
             const { stderr } = await execWithRecordingProgress(CMD, env, isRecording);

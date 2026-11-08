@@ -36,6 +36,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['agentId', 'all'], purpose: 'what to delete' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -84,7 +85,9 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all agents...');
-            const outcome = await deleteIdentityGatewayAgents();
+            const outcome = await deleteIdentityGatewayAgents(
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
         }

@@ -6,7 +6,10 @@ exports[`frodo agent gateway delete "frodo agent gateway delete --agent-id frodo
 "
 `;
 
-exports[`frodo agent gateway delete "frodo agent gateway delete --all -y": should do nothing when no agent gateways can be deleted 1`] = `""`;
+exports[`frodo agent gateway delete "frodo agent gateway delete --all -y": should do nothing when no agent gateways can be deleted 1`] = `
+"No identity gateway agents found to delete.
+"
+`;
 
 exports[`frodo agent gateway delete "frodo agent gateway delete -a -y": should delete all agent gateways 1`] = `""`;
 

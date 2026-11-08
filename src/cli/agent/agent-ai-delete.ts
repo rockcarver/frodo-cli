@@ -33,6 +33,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['agentId', 'all'], purpose: 'what to delete' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -81,7 +82,7 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all AI agents...');
-            const outcome = await deleteAIAgents();
+            const outcome = await deleteAIAgents(options.allowFailures);
             if (!outcome) process.exitCode = 1;
           }
         } else {

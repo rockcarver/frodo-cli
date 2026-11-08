@@ -44,6 +44,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['agentId', 'all'], purpose: 'which agents' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -106,7 +107,7 @@ export default function setup() {
               verboseMessage(
                 `Deleting all agents in realm "${state.getRealm()}"...`
               );
-              const outcome = await deleteAgents();
+              const outcome = await deleteAgents(options.allowFailures);
               if (!outcome) process.exitCode = 1;
             }
           } else {

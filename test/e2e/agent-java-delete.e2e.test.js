@@ -57,6 +57,8 @@ describe('frodo agent java delete', () => {
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
+    // The bulk delete says so when there is nothing to delete ("No java agents found to delete.", stderr): the snapshot
+    // was edited by hand from the empty string (cli record 0040, bulk deletes part 3a).
     test('"frodo agent java delete --all -y": should do nothing when no java agent can be deleted since none exist', async () => {
         const CMD = 'frodo agent java delete --all -y';
         const { stderr } = await exec(CMD, env);

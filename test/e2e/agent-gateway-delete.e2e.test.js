@@ -61,6 +61,8 @@ describe('frodo agent gateway delete', () => {
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
+    // The bulk delete says so when there is nothing to delete ("No identity gateway agents found to delete.", stderr): the snapshot
+    // was edited by hand from the empty string (cli record 0040, bulk deletes part 3a).
     test('"frodo agent gateway delete --all -y": should do nothing when no agent gateways can be deleted', async () => {
         const CMD = 'frodo agent gateway delete --all -y';
         const { stderr } = await exec(CMD, env);

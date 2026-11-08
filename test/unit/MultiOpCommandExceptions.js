@@ -81,7 +81,6 @@ export const SWALLOWS_THE_FAILURE = [
   'frodo admin create-oauth2-client-with-admin-privileges',
   'frodo admin repair-org-model',
   'frodo agent ai export',
-  'frodo agent delete',
   'frodo agent export',
   'frodo agent gateway export',
   'frodo agent gateway import',
@@ -152,10 +151,6 @@ export const CONTINUES_BUT_EXITS_ZERO = [
 
 /** The other operations run, each failure is named in one combined error and the exit code is 1. Closest to the rule; still lacks the "N of M" summary and --allow-failures. */
 export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [
-  'frodo agent ai delete',
-  'frodo agent gateway delete',
-  'frodo agent java delete',
-  'frodo agent web delete',
   'frodo app export',
   'frodo app import',
   'frodo authz policy export',

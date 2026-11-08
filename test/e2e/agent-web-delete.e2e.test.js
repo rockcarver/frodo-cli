@@ -57,6 +57,8 @@ describe('frodo agent web delete', () => {
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
+    // The bulk delete says so when there is nothing to delete ("No web agents found to delete.", stderr): the snapshot
+    // was edited by hand from the empty string (cli record 0040, bulk deletes part 3a).
     test('"frodo agent web delete --all -y": should do nothing when no web agent can be deleted', async () => {
         const CMD = 'frodo agent web delete --all -y';
         const { stderr } = await exec(CMD, env);

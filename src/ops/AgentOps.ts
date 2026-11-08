@@ -14,6 +14,7 @@ import {
   printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getRealmName,
@@ -1399,59 +1400,96 @@ export async function deleteWebAgent(agentId: string): Promise<boolean> {
 }
 
 /**
- * Delete agents
+ * Runs one of the library's bulk agent deletes through an {@link OperationRun}.
+ * The library reports every agent to the result callback, so the agents that
+ * can be deleted are deleted whatever happens to the others, one summary names
+ * the ones that could not be, and a failure to read the list of agents (which
+ * the library always throws) ends the command whatever `--allow-failures` says.
+ * @param {string} what what is deleted, for the messages, e.g. 'AI agents'
+ * @param {Function} bulkDelete calls the library with the result callback
+ * @param {boolean} allowFailures true to report agents that could not be deleted but still succeed
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteAgents(): Promise<boolean> {
+async function deleteAllAgentsWith(
+  what: string,
+  bulkDelete: (
+    resultCallback: (error?: FrodoError, result?: unknown) => void
+  ) => Promise<void>,
+  allowFailures: boolean
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'agent', allowFailures });
+  const report = run.resultCallback();
+  let seen = 0;
   try {
-    await frodo.agent.deleteAgents();
-    return true;
+    await bulkDelete((error, result) => {
+      seen++;
+      report(error, result);
+    });
+    // nothing to delete is not a failure (record 0041)
+    if (seen === 0) printMessage(`No ${what} found to delete.`);
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even read the agents
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
+}
+
+/**
+ * Delete agents
+ * @param {boolean} allowFailures true to report agents that could not be deleted but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteAgents(allowFailures = false): Promise<boolean> {
+  return deleteAllAgentsWith(
+    'agents',
+    (resultCallback) => frodo.agent.deleteAgents(resultCallback),
+    allowFailures
+  );
 }
 
 /**
  * Delete identity gateway agents
+ * @param {boolean} allowFailures true to report agents that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteIdentityGatewayAgents(): Promise<boolean> {
-  try {
-    await frodo.agent.deleteIdentityGatewayAgents();
-    return true;
-  } catch (error) {
-    printError(error);
-  }
-  return false;
+export async function deleteIdentityGatewayAgents(
+  allowFailures = false
+): Promise<boolean> {
+  return deleteAllAgentsWith(
+    'identity gateway agents',
+    (resultCallback) => frodo.agent.deleteIdentityGatewayAgents(resultCallback),
+    allowFailures
+  );
 }
 
 /**
  * Delete java agents
+ * @param {boolean} allowFailures true to report agents that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteJavaAgents(): Promise<boolean> {
-  try {
-    await frodo.agent.deleteJavaAgents();
-    return true;
-  } catch (error) {
-    printError(error);
-  }
-  return false;
+export async function deleteJavaAgents(
+  allowFailures = false
+): Promise<boolean> {
+  return deleteAllAgentsWith(
+    'java agents',
+    (resultCallback) => frodo.agent.deleteJavaAgents(resultCallback),
+    allowFailures
+  );
 }
 
 /**
  * Delete web agents
+ * @param {boolean} allowFailures true to report agents that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteWebAgents(): Promise<boolean> {
-  try {
-    await frodo.agent.deleteWebAgents();
-    return true;
-  } catch (error) {
-    printError(error);
-  }
-  return false;
+export async function deleteWebAgents(allowFailures = false): Promise<boolean> {
+  return deleteAllAgentsWith(
+    'web agents',
+    (resultCallback) => frodo.agent.deleteWebAgents(resultCallback),
+    allowFailures
+  );
 }
 
 /**
@@ -1678,16 +1716,15 @@ export async function deleteAIAgent(agentId: string): Promise<boolean> {
 
 /**
  * Delete all AIAgents
+ * @param {boolean} allowFailures true to report AI agents that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteAIAgents(): Promise<boolean> {
-  try {
-    await deleteAIAgentsLib();
-    return true;
-  } catch (error) {
-    printError(error);
-  }
-  return false;
+export async function deleteAIAgents(allowFailures = false): Promise<boolean> {
+  return deleteAllAgentsWith(
+    'AI agents',
+    (resultCallback) => deleteAIAgentsLib(resultCallback),
+    allowFailures
+  );
 }
 
 /**
