@@ -77,6 +77,7 @@ export default function setup() {
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -90,7 +91,8 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting service objects');
         const outcome = await configManagerExportServiceObjectsFromFile(
-          options.file
+          options.file,
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       } else {

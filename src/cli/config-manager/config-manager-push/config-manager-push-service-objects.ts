@@ -21,6 +21,7 @@ export default function setup() {
 
   program
     .description('Import service objects.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -33,7 +34,9 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing service objects...');
-        const outcome = await configManagerImportServiceObjects();
+        const outcome = await configManagerImportServiceObjects(
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;

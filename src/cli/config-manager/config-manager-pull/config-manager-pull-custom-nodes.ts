@@ -15,6 +15,7 @@ export default function setup() {
         'Custom node display name. If specified, only one custom node is exported.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -33,7 +34,10 @@ export default function setup() {
       verboseMessage(
         `Exporting custom node${options.name ? ` with name ${options.name}` : 's'}`
       );
-      const outcome = await configManagerExportCustomNodes(options.name);
+      const outcome = await configManagerExportCustomNodes(
+        options.name,
+        options.allowFailures
+      );
       if (!outcome) process.exitCode = 1;
     });
 

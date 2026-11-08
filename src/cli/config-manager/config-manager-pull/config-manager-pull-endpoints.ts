@@ -28,6 +28,7 @@ export default function setup() {
         'Endpoint name. If specified, pulls only the endpoint with the given name.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -40,7 +41,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting custom endpoints.');
-        const outcome = await configManagerExportEndpoints(options.name);
+        const outcome = await configManagerExportEndpoints(
+          options.name,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).
