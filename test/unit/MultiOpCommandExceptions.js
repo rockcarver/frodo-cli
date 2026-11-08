@@ -73,10 +73,6 @@ export const STOPS_AT_THE_FIRST_ERROR = [
 export const SWALLOWS_THE_FAILURE = [
   'frodo admin create-oauth2-client-with-admin-privileges',
   'frodo admin repair-org-model',
-  'frodo agent gateway import',
-  'frodo agent import',
-  'frodo agent java import',
-  'frodo agent web import',
   'frodo config-manager pull connector-definitions',
   'frodo config-manager pull connector-mappings',
   'frodo config-manager pull custom-nodes',
@@ -105,7 +101,6 @@ export const SWALLOWS_THE_FAILURE = [
 /** The other operations run and the exit code is 1, but no summary names the items that failed. */
 export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
   'frodo admin federation import',
-  'frodo agent ai import',
   'frodo authz set import',
   'frodo config import',
   'frodo email template import',
