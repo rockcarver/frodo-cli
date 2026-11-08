@@ -99,7 +99,8 @@ describe('config-manager journey import validation', () => {
       expect.objectContaining({
         trees: expect.objectContaining({ login: expect.anything() }),
       }),
-      expect.objectContaining({ validate: expected })
+      expect.objectContaining({ validate: expected }),
+      expect.any(Function)
     );
   });
 
@@ -110,7 +111,8 @@ describe('config-manager journey import validation', () => {
 
     expect(importJourneys).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ validate: true })
+      expect.objectContaining({ validate: true }),
+      expect.any(Function)
     );
   });
 });

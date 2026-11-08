@@ -39,6 +39,7 @@ export default function setup() {
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -55,7 +56,10 @@ export default function setup() {
         return;
       }
       verboseMessage('Exporting all policy sets in the provided config file.');
-      const outcome = await configManagerExportAuthzPolicySets(options.file);
+      const outcome = await configManagerExportAuthzPolicySets(
+        options.file,
+        options.allowFailures
+      );
       if (!outcome) process.exitCode = 1;
     });
 

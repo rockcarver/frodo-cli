@@ -230,6 +230,9 @@ export function removePollyRecordingNoise(text) {
  * @param {string} directory The path to the directory the export files are located in. Default is the current directory "./".
  * @param checkForMetadata If true, ensures that metadata exists in each export. Default: true
  * @param checkStderr
+ * @param {boolean} allowMissingRecordings If true, the replay may report requests that the recording does not hold, which
+ * a command that runs all its steps and items does for the ones the recording predates. Use it only with a comment that
+ * names the recording that lacks them. Default: false
  * @returns {Promise<void>}
  */
 export async function testExport(
@@ -239,7 +242,8 @@ export async function testExport(
   fileName,
   directory = './',
   checkForMetadata = true,
-  checkStderr = false
+  checkStderr = false,
+  allowMissingRecordings = false
 ) {
   const isCurrentDirectory = directory === './' || directory === '.';
   const exportFileRegex = new RegExp(
@@ -263,8 +267,10 @@ export async function testExport(
       stderr = e.stderr;
       exitCode = e.code;
     }
-    assertNoPollyReplayError(stdout, command);
-    assertNoPollyReplayError(stderr, command);
+    if (!allowMissingRecordings) {
+      assertNoPollyReplayError(stdout, command);
+      assertNoPollyReplayError(stderr, command);
+    }
     expect(exitCode).toMatchSnapshot();
     // console.error(`stdout:\n${stdout}`);
     // console.error(`stderr:\n${stderr}`);

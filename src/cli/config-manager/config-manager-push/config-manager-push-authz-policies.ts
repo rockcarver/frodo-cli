@@ -5,7 +5,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager push authz-policies');
-  program.description('Import authorization policies.');
+  program.description('Import authorization policies.').multiOp();
 
   program.action(async (host, realm, user, password, options, command) => {
     command.handleDefaultArgsAndOpts(
@@ -23,7 +23,9 @@ export default function setup() {
       return;
     }
     printMessage(`Importing authorization policies...`);
-    const outcome = await configManagerImportAuthzPolicies();
+    const outcome = await configManagerImportAuthzPolicies(
+      options.allowFailures
+    );
     if (!outcome) process.exitCode = 1;
   });
 

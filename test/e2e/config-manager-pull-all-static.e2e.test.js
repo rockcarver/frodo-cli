@@ -35,9 +35,14 @@ describe('frodo config-manager pull all-static', () => {
   // The recording predates those steps, so their requests are missing ("Network error").
   // Until it is re-recorded (frodo-cli#1102), the exit code snapshot says so. Before a failed step failed
   // the command (decision record 0040) the exit code was 0, which hid it.
+  // Opted in to missing recordings until the recording is made again (frodo-cli#1102): the org-privileges step now
+  // tries every realm after the root realm failed (decision record 0040), and the recording holds the requests up to
+  // that failure only, so the replay asks for requests that are not in it (alphaOrgPrivileges, bravoOrgPrivileges).
+  // Recordings are made against the real environment, not edited. allowMissingRecordings lets the replay report them
+  // instead of failing on them; the exit code and the exported files are still compared with the snapshots.
   test('"frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir2';
     const CMD = `frodo config-manager pull all-static -D ${dirName} -m forgeops`;
-    await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false);
+    await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false, false, true);
   });
 });

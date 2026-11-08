@@ -1,9 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import {
-  configManagerExportOrgPrivileges,
-  configManagerExportOrgPrivilegesAllRealms,
-  configManagerExportOrgPrivilegesRealm,
-} from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
+import { configManagerExportOrgPrivilegesAllRealms } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -26,6 +22,7 @@ export default function setup() {
 
   program
     .description('Export organization privileges config.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -42,14 +39,19 @@ export default function setup() {
           printMessage(
             `Exporting organization privileges config from the realm: "${realm}"`
           );
-          outcome =
-            (await configManagerExportOrgPrivileges()) &&
-            (await configManagerExportOrgPrivilegesRealm(realm));
+          outcome = await configManagerExportOrgPrivilegesAllRealms(
+            realm,
+            options.allowFailures,
+            false
+          );
         } else {
           printMessage(
             'Exporting oranization privileges config from all realms'
           );
-          outcome = await configManagerExportOrgPrivilegesAllRealms();
+          outcome = await configManagerExportOrgPrivilegesAllRealms(
+            undefined,
+            options.allowFailures
+          );
         }
 
         if (!outcome) process.exitCode = 1;

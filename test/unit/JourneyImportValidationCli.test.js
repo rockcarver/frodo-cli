@@ -274,7 +274,23 @@ describe('CLI import validation option wiring', () => {
         undefined,
         'alpha',
         undefined,
-        validate
+        validate,
+        undefined
+      );
+    }
+  );
+
+  test.each([true, undefined])(
+    'config-manager push hands the value of --allow-failures (%s) to the ops function',
+    async (allowFailures) => {
+      const program = setupConfigManagerPush();
+      await invoke(program, { validate: true, allowFailures });
+      expect(configManagerImportJourneys).toHaveBeenCalledWith(
+        undefined,
+        'alpha',
+        undefined,
+        true,
+        allowFailures
       );
     }
   );

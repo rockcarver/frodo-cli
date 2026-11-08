@@ -8,6 +8,7 @@ export default function setup() {
 
   program
     .description('Import Oauth2 agents.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -25,7 +26,7 @@ export default function setup() {
       }
 
       verboseMessage('Importing agents.');
-      const outcome = await configManagerImportAgents();
+      const outcome = await configManagerImportAgents(options.allowFailures);
       if (!outcome) process.exitCode = 1;
     });
 
