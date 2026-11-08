@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-07
 decision-makers: maintainers
 applies-to:
@@ -7,6 +7,7 @@ applies-to:
   - src/configManagerOps/**
 issues:
   - rockcarver/frodo-cli#1087
+  - rockcarver/frodo-cli#1112
 ---
 
 # The config-manager plain form is what an unattended pipeline needs
@@ -27,5 +28,5 @@ The config-manager commands are meant for pipelines, and the maintainers agreed 
 
 - A typo in a conventional file name becomes a warning, not a failure. The warning names the folder it looked in, so the typo is visible.
 - Each command brought under this rule says so in its help and in `MIGRATION.md` when its exit code changes. The group is experimental (core 0019), so the entry is welcome, not required.
-- To keep in sync: the contract test of record 0040, which lists mandatory options of the group, and the help text of `pull all` that names the conventional files.
+- Commands that do not follow these rules yet are listed in rockcarver/frodo-cli#1112 and are brought under them one change at a time. To keep in sync: the help text of `pull all` that names the conventional files.
 - Not decided here: whether promotion, rollback and restart wait for completion by default; whether a non-empty `CI` variable switches prompts off (record 0014); how progress is drawn when there is no terminal; a default for the config folder of `pull all`. Each needs its own decision.
