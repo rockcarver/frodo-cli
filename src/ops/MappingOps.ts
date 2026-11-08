@@ -458,19 +458,39 @@ export async function deleteMapping(mappingId: string): Promise<boolean> {
 
 /**
  * Delete mappings
+ * The library reports every mapping to the result callback of an {@link OperationRun}, so the
+ * mappings that can be deleted are deleted whatever happens to the others, one summary names the
+ * ones that could not be, and a failure to read the mappings (which the library always throws)
+ * ends the command whatever `--allow-failures` says.
  * @param {string} connectorId limit mappings to connector
  * @param {string} moType limit mappings to managed object type
+ * @param {boolean} allowFailures true to report mappings that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteMappings(
   connectorId?: string,
-  moType?: string
+  moType?: string,
+  allowFailures = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'mapping', allowFailures });
+  const report = run.resultCallback();
+  let seen = 0;
   try {
-    await frodo.idm.mapping.deleteMappings(connectorId, moType);
-    return true;
+    await frodo.idm.mapping.deleteMappings(
+      connectorId,
+      moType,
+      (error?: FrodoError, result?: MappingSkeleton) => {
+        seen++;
+        report(error, result);
+      }
+    );
+    // nothing to delete is not a failure (record 0041)
+    if (seen === 0) printMessage('No mappings found to delete.');
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even read the mappings
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
