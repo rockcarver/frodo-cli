@@ -6,6 +6,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import {
   findVersionsToPruneOfAllSecrets,
   findVersionsToPruneOfSecret,
+  finishPrune,
   printPrunePlan,
   pruneVersionsOfPlan,
   pruneVersionsOfSecret,
@@ -92,7 +93,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Prune all secrets. Shows which versions will be deleted and asks for confirmation (see -y and --dry-run). Cannot be used with -i.'
+        'Prune all secrets. Shows which versions will be deleted and asks for confirmation (see -y and --dry-run). A secret that cannot be checked is listed and left alone, the others are still pruned, and the command exits with code 1. Cannot be used with -i.'
       ).conflicts(['secretId'])
     )
     .addOption(
@@ -227,24 +228,40 @@ export default function setup() {
             ? 'Finding the versions of all secrets to prune...'
             : `Finding the versions of secret ${target.secretId} to prune...`
         );
-        const plan =
+        const check =
           target.kind === 'all'
             ? await findVersionsToPruneOfAllSecrets(
                 options.keepLoaded,
-                options.keepDeactivated
+                options.keepDeactivated,
+                options.allowFailures
               )
             : await findVersionsToPruneOfSecret(
                 target.secretId,
                 options.keepLoaded,
-                options.keepDeactivated
+                options.keepDeactivated,
+                options.allowFailures
               );
-        if (!plan) {
+        // the list of secrets could not be read: nothing is known, the error has been printed
+        if (!check) {
           process.exitCode = 1;
           return;
         }
-        printPrunePlan(plan, options.keepLoaded, options.keepDeactivated);
-        const { affected, versions } = summarizePrunePlan(plan);
-        if (versions === 0) return;
+        // The secrets that could not be checked are failed operations of the
+        // run, which ends with one summary, whatever happens to the rest.
+        const end = () => {
+          if (!finishPrune(check)) process.exitCode = 1;
+        };
+        printPrunePlan(
+          check.plan,
+          options.keepLoaded,
+          options.keepDeactivated,
+          check.notChecked
+        );
+        const { affected, versions } = summarizePrunePlan(check.plan);
+        if (versions === 0) {
+          end();
+          return;
+        }
         const gate = pruneGate({
           yes: options.yes,
           dryRun: options.dryRun,
@@ -252,24 +269,31 @@ export default function setup() {
         });
         if (gate === 'dry-run') {
           printMessage('\nDry run: nothing was deleted.', 'info');
+          end();
           return;
         }
+        const gap = check.notChecked.length;
         if (
           gate === 'ask' &&
           !(await confirm({
-            message: `\nPermanently delete ${versions} ${versions === 1 ? 'version' : 'versions'} from ${affected} ${affected === 1 ? 'secret' : 'secrets'}?`,
+            message:
+              gap === 0
+                ? `\nPermanently delete ${versions} ${versions === 1 ? 'version' : 'versions'} from ${affected} ${affected === 1 ? 'secret' : 'secrets'}?`
+                : `\nCould not check ${gap} ${gap === 1 ? 'secret' : 'secrets'} (listed above). Permanently delete the ${versions} ${versions === 1 ? 'version' : 'versions'} found in the other ${check.plan.length} ${check.plan.length === 1 ? 'secret' : 'secrets'}?`,
             default: false,
           }))
         ) {
+          // declining is not a failure; the secrets that could not be checked still are
           printMessage('Nothing was deleted.', 'info');
+          end();
           return;
         }
         if (
           !(await pruneVersionsOfPlan(
-            plan,
+            check.plan,
             options.keepLoaded,
             options.keepDeactivated,
-            options.allowFailures
+            check.run
           ))
         ) {
           process.exitCode = 1;

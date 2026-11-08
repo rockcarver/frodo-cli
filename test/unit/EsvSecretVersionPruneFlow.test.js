@@ -10,10 +10,15 @@ import { Command } from 'commander';
  * - no terminal and no `-y` refuses before the tenant is touched;
  * - declining deletes nothing and is not an error;
  * - the versions deleted are exactly the plan that was shown;
+ * - a secret that could not be checked does not stop the others; it is shown,
+ *   named in the question, and ends the command with the one summary of the
+ *   run (the exit code is the answer of `finishPrune` or of the deletion);
  * - `-i` still prunes directly and never asks.
  *
  * The operations are mocked: this pins how the command wires them. The
- * operations themselves are tested in EsvSecretVersionPrunePlan.test.js.
+ * operations themselves are tested in EsvSecretVersionPrunePlan.test.js, and
+ * the exit codes with the real operations in
+ * EsvSecretVersionPruneFailLate.test.js.
  */
 
 const getTokens = jest.fn();
@@ -23,6 +28,7 @@ const findVersionsToPruneOfSecret = jest.fn();
 const printPrunePlan = jest.fn();
 const pruneVersionsOfPlan = jest.fn();
 const pruneVersionsOfSecret = jest.fn();
+const finishPrune = jest.fn();
 const printMessage = jest.fn();
 const verboseMessage = jest.fn();
 const resolveEntityPicks = jest.fn();
@@ -75,6 +81,7 @@ jest.unstable_mockModule('../../src/utils/interactive/EntityPickers', () => ({
 jest.unstable_mockModule('../../src/ops/cloud/SecretsOps', () => ({
   findVersionsToPruneOfAllSecrets,
   findVersionsToPruneOfSecret,
+  finishPrune,
   printPrunePlan,
   pruneVersionsOfPlan,
   pruneVersionsOfSecret,
@@ -95,6 +102,14 @@ const plan = [
   { secretId: 'esv-c', versions: [version('4')] },
 ];
 const emptyPlan = [{ secretId: 'esv-a', versions: [] }];
+// the run of the check, which the command hands on to the deletion
+const run = { name: 'the run of the check' };
+const check = (secrets, notChecked = []) => ({
+  plan: secrets,
+  notChecked,
+  run,
+});
+const gap = [{ secretId: 'esv-d', reason: 'forbidden' }];
 
 function setTerminal(isTTY) {
   Object.defineProperty(process.stdin, 'isTTY', {
@@ -140,8 +155,9 @@ describe('frodo esv secret version prune', () => {
     jest.resetAllMocks();
     getTokens.mockResolvedValue(true);
     resolveEntityPicks.mockResolvedValue(true);
-    findVersionsToPruneOfAllSecrets.mockResolvedValue(plan);
-    findVersionsToPruneOfSecret.mockResolvedValue([plan[0]]);
+    findVersionsToPruneOfAllSecrets.mockResolvedValue(check(plan));
+    findVersionsToPruneOfSecret.mockResolvedValue(check([plan[0]]));
+    finishPrune.mockReturnValue(true);
     pruneVersionsOfPlan.mockResolvedValue(true);
     pruneVersionsOfSecret.mockResolvedValue(true);
     confirm.mockResolvedValue(true);
@@ -156,29 +172,40 @@ describe('frodo esv secret version prune', () => {
   describe('-a (all secrets)', () => {
     it('shows the plan, asks (default no) and deletes exactly that plan on yes', async () => {
       expect(await invoke({ all: true })).toBe(0);
-      expect(printPrunePlan).toHaveBeenCalledWith(plan, undefined, undefined);
+      expect(printPrunePlan).toHaveBeenCalledWith(
+        plan,
+        undefined,
+        undefined,
+        []
+      );
       expect(confirm).toHaveBeenCalledTimes(1);
       const [question] = confirm.mock.calls[0];
       expect(question.default).toBe(false);
       expect(question.message).toContain('3 versions');
       expect(question.message).toContain('2 secrets');
+      expect(question.message).not.toContain('Could not check');
       expect(pruneVersionsOfPlan).toHaveBeenCalledWith(
         plan,
         undefined,
         undefined,
-        undefined
+        run
       );
     });
 
-    it('hands the value of --allow-failures to the deletion of the plan', async () => {
+    it('hands the value of --allow-failures to the check, whose run the deletion then continues', async () => {
       expect(await invoke({ all: true, yes: true, allowFailures: true })).toBe(
         0
+      );
+      expect(findVersionsToPruneOfAllSecrets).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+        true
       );
       expect(pruneVersionsOfPlan).toHaveBeenCalledWith(
         plan,
         undefined,
         undefined,
-        true
+        run
       );
     });
 
@@ -187,6 +214,7 @@ describe('frodo esv secret version prune', () => {
       expect(await invoke({ all: true })).toBe(0);
       expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
       expect(pruneVersionsOfSecret).not.toHaveBeenCalled();
+      expect(finishPrune).toHaveBeenCalledWith(check(plan));
     });
 
     it('does not ask with -y, and deletes the plan', async () => {
@@ -197,7 +225,7 @@ describe('frodo esv secret version prune', () => {
         plan,
         undefined,
         undefined,
-        undefined
+        run
       );
     });
 
@@ -227,22 +255,105 @@ describe('frodo esv secret version prune', () => {
         expect(confirm).not.toHaveBeenCalled();
         expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
         expect(pruneVersionsOfSecret).not.toHaveBeenCalled();
+        expect(finishPrune).toHaveBeenCalledTimes(1);
       }
     );
 
     it('neither asks nor deletes when there is nothing to prune', async () => {
-      findVersionsToPruneOfAllSecrets.mockResolvedValue(emptyPlan);
+      findVersionsToPruneOfAllSecrets.mockResolvedValue(check(emptyPlan));
       expect(await invoke({ all: true, yes: true })).toBe(0);
       expect(printPrunePlan).toHaveBeenCalledTimes(1);
       expect(confirm).not.toHaveBeenCalled();
       expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
+      expect(finishPrune).toHaveBeenCalledTimes(1);
     });
 
-    it('deletes nothing and fails when the plan could not be made', async () => {
+    it('deletes nothing and fails when the list of secrets could not be read', async () => {
       findVersionsToPruneOfAllSecrets.mockResolvedValue(undefined);
       expect(await invoke({ all: true, yes: true })).toBe(1);
       expect(confirm).not.toHaveBeenCalled();
       expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
+      expect(finishPrune).not.toHaveBeenCalled();
+    });
+
+    describe('with a secret that could not be checked', () => {
+      beforeEach(() => {
+        findVersionsToPruneOfAllSecrets.mockResolvedValue(check(plan, gap));
+      });
+
+      it('shows the plan together with the secrets that could not be checked', async () => {
+        await invoke({ all: true, yes: true });
+        expect(printPrunePlan).toHaveBeenCalledWith(
+          plan,
+          undefined,
+          undefined,
+          gap
+        );
+      });
+
+      it('deletes the plan of the checked secrets, on the run of the check, and fails when the run says so', async () => {
+        pruneVersionsOfPlan.mockResolvedValue(false);
+        expect(await invoke({ all: true, yes: true })).toBe(1);
+        expect(pruneVersionsOfPlan).toHaveBeenCalledWith(
+          plan,
+          undefined,
+          undefined,
+          run
+        );
+      });
+
+      it('names the gap in the question, which still defaults to no', async () => {
+        await invoke({ all: true });
+        const [question] = confirm.mock.calls[0];
+        expect(question.default).toBe(false);
+        expect(question.message).toContain(
+          'Could not check 1 secret (listed above)'
+        );
+        expect(question.message).toContain(
+          'the 3 versions found in the other 3 secrets'
+        );
+      });
+
+      it('deletes nothing when the answer is no, and the gap still fails the command', async () => {
+        confirm.mockResolvedValue(false);
+        finishPrune.mockReturnValue(false);
+        expect(await invoke({ all: true })).toBe(1);
+        expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
+        expect(finishPrune).toHaveBeenCalledWith(check(plan, gap));
+      });
+
+      it('--dry-run never deletes and ends with the summary of the run', async () => {
+        finishPrune.mockReturnValue(false);
+        expect(await invoke({ all: true, dryRun: true })).toBe(1);
+        expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
+        expect(confirm).not.toHaveBeenCalled();
+        expect(finishPrune).toHaveBeenCalledTimes(1);
+      });
+
+      it('--dry-run succeeds when the run does (--allow-failures)', async () => {
+        finishPrune.mockReturnValue(true);
+        expect(
+          await invoke({ all: true, dryRun: true, allowFailures: true })
+        ).toBe(0);
+      });
+
+      it('does not ask when nothing is left to delete in the checked secrets, and fails', async () => {
+        findVersionsToPruneOfAllSecrets.mockResolvedValue(
+          check(emptyPlan, gap)
+        );
+        finishPrune.mockReturnValue(false);
+        expect(await invoke({ all: true })).toBe(1);
+        expect(confirm).not.toHaveBeenCalled();
+        expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
+      });
+
+      it('fails when no secret could be checked, without asking', async () => {
+        findVersionsToPruneOfAllSecrets.mockResolvedValue(check([], gap));
+        finishPrune.mockReturnValue(false);
+        expect(await invoke({ all: true, yes: true })).toBe(1);
+        expect(confirm).not.toHaveBeenCalled();
+        expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
+      });
     });
 
     it('fails when a deletion fails', async () => {
@@ -261,14 +372,13 @@ describe('frodo esv secret version prune', () => {
       expect(
         await invoke({ all: true, keepLoaded: true, keepDeactivated: true })
       ).toBe(0);
-      expect(findVersionsToPruneOfAllSecrets).toHaveBeenCalledWith(true, true);
-      expect(printPrunePlan).toHaveBeenCalledWith(plan, true, true);
-      expect(pruneVersionsOfPlan).toHaveBeenCalledWith(
-        plan,
+      expect(findVersionsToPruneOfAllSecrets).toHaveBeenCalledWith(
         true,
         true,
         undefined
       );
+      expect(printPrunePlan).toHaveBeenCalledWith(plan, true, true, []);
+      expect(pruneVersionsOfPlan).toHaveBeenCalledWith(plan, true, true, run);
     });
   });
 
@@ -313,6 +423,7 @@ describe('frodo esv secret version prune', () => {
         expect(await invoke({ secretId: 'esv-a', dryRun: true })).toBe(0);
         expect(findVersionsToPruneOfSecret).toHaveBeenCalledWith(
           'esv-a',
+          undefined,
           undefined,
           undefined
         );

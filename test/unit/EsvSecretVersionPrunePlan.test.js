@@ -8,8 +8,10 @@ import {
 } from '@jest/globals';
 import { frodo } from '@rockcarver/frodo-lib';
 import {
+  createPruneRun,
   findVersionsToPruneOfAllSecrets,
   findVersionsToPruneOfSecret,
+  finishPrune,
   formatVersionRanges,
   printPrunePlan,
   pruneVersionsOfPlan,
@@ -18,10 +20,12 @@ import {
 
 /**
  * The operations behind `frodo esv secret version prune -a`: finding the plan
- * (all or nothing), showing it, and deleting exactly it. The command's use of
- * them is pinned in EsvSecretVersionPruneFlow.test.js. The library calls are
- * replaced on the facade, so no tenant is needed and the tests do not depend
- * on which library version is installed.
+ * (every secret is checked; one that cannot be checked is listed and does not
+ * stop the others), showing it, and deleting exactly it, with one summary for
+ * the checks and the deletions together. The command's use of them is pinned
+ * in EsvSecretVersionPruneFlow.test.js and EsvSecretVersionPruneFailLate.test.js.
+ * The library calls are replaced on the facade, so no tenant is needed and the
+ * tests do not depend on which library version is installed.
  */
 
 const ansi = /\u001b\[[0-9;]*m/g;
@@ -130,6 +134,49 @@ describe('esv secret version prune plan', () => {
       expect(printed()).toContain('Nothing to prune');
       expect(printed()).not.toContain('Selected for deletion');
     });
+
+    it('lists the secrets that could not be checked, with the reason, beside the plan', () => {
+      printPrunePlan(plan, false, false, [
+        { secretId: 'esv-d', reason: 'forbidden' },
+        { secretId: 'esv-e' },
+      ]);
+      const text = printed();
+      expect(text).toContain(
+        'Selected for deletion: 4 versions in 2 of 3 secrets.'
+      );
+      expect(text).toContain(
+        'Not checked, so nothing is selected for 2 secrets:'
+      );
+      expect(text).toContain('  - esv-d: forbidden');
+      expect(text).toContain('  - esv-e');
+      expect(text).not.toContain('esv-e:');
+    });
+
+    it('lists the secrets that could not be checked when nothing else is left to prune', () => {
+      printPrunePlan([{ secretId: 'esv-a', versions: [] }], false, false, [
+        { secretId: 'esv-d', reason: 'forbidden' },
+      ]);
+      expect(printed()).toContain('Nothing to prune: 1 secret checked');
+      expect(printed()).toContain(
+        'Not checked, so nothing is selected for 1 secret:'
+      );
+      expect(printed()).toContain('  - esv-d: forbidden');
+    });
+
+    it('says that no secret could be checked when none could', () => {
+      printPrunePlan([], false, false, [
+        { secretId: 'esv-a' },
+        { secretId: 'esv-b' },
+      ]);
+      expect(printed()).toContain(
+        'Nothing to prune: 2 secrets could not be checked.'
+      );
+    });
+
+    it('prints no list of unchecked secrets when every secret was checked', () => {
+      printPrunePlan(plan);
+      expect(printed()).not.toContain('Not checked');
+    });
   });
 
   describe('finding the plan', () => {
@@ -142,10 +189,11 @@ describe('esv secret version prune plan', () => {
         version(id === 'esv-a' ? '1' : '2'),
       ]);
       const found = await findVersionsToPruneOfAllSecrets(true, true);
-      expect(found).toEqual([
+      expect(found.plan).toEqual([
         { secretId: 'esv-a', versions: [version('1')] },
         { secretId: 'esv-b', versions: [version('2')] },
       ]);
+      expect(found.notChecked).toEqual([]);
       expect(secret.findVersionsToPrune.mock.calls).toEqual([
         ['esv-a', true, true],
         ['esv-b', true, true],
@@ -153,13 +201,13 @@ describe('esv secret version prune plan', () => {
       expect(secret.deleteVersionOfSecret).not.toHaveBeenCalled();
     });
 
-    it('returns no plan when the secrets cannot be read', async () => {
+    it('returns no check when the secrets cannot be read', async () => {
       secret.readSecrets.mockRejectedValue(new Error('boom'));
       expect(await findVersionsToPruneOfAllSecrets()).toBeUndefined();
       expect(secret.findVersionsToPrune).not.toHaveBeenCalled();
     });
 
-    it('returns no plan, never a partial one, when one secret cannot be checked', async () => {
+    it('keeps the plan of the secrets it could check when one cannot be checked', async () => {
       secret.readSecrets.mockResolvedValue([
         { _id: 'esv-a' },
         { _id: 'esv-b' },
@@ -168,14 +216,16 @@ describe('esv secret version prune plan', () => {
         if (id === 'esv-a') throw new Error('boom');
         return [version('1')];
       });
-      expect(await findVersionsToPruneOfAllSecrets()).toBeUndefined();
-      expect(printed()).toContain(
-        'Nothing was deleted: the plan is incomplete.'
-      );
+      const found = await findVersionsToPruneOfAllSecrets();
+      expect(found.plan).toEqual([
+        { secretId: 'esv-b', versions: [version('1')] },
+      ]);
+      expect(found.notChecked).toEqual([{ secretId: 'esv-a', reason: 'boom' }]);
+      expect(printed()).not.toContain('plan is incomplete');
       expect(secret.deleteVersionOfSecret).not.toHaveBeenCalled();
     });
 
-    it('checks every secret before it gives up, and names the ones it could not check in one summary', async () => {
+    it('checks every secret and names the ones it could not check in the one summary of the run', async () => {
       secret.readSecrets.mockResolvedValue([
         { _id: 'esv-a' },
         { _id: 'esv-b' },
@@ -185,29 +235,46 @@ describe('esv secret version prune plan', () => {
         if (id !== 'esv-b') throw new Error(`cannot read ${id}`);
         return [version('1')];
       });
-      expect(await findVersionsToPruneOfAllSecrets()).toBeUndefined();
+      const found = await findVersionsToPruneOfAllSecrets();
       expect(secret.findVersionsToPrune).toHaveBeenCalledTimes(3);
-      expect(printed()).toContain('2 of 3 secrets failed:');
-      expect(printed()).toContain('- esv-a: cannot read esv-a');
-      expect(printed()).toContain('- esv-c: cannot read esv-c');
-      expect(printed()).not.toContain('- esv-b');
-      expect(printed()).toContain(
-        'Nothing was deleted: the plan is incomplete.'
-      );
+      expect(found.notChecked.map((n) => n.secretId)).toEqual([
+        'esv-a',
+        'esv-c',
+      ]);
+      // the summary is the end of the whole command, not of the check
+      expect(printed()).not.toContain('failed:');
+      expect(finishPrune(found)).toBe(false);
+      expect(printed()).toContain('2 of 3 operations failed:');
+      expect(printed()).toContain('- check of secret esv-a: cannot read esv-a');
+      expect(printed()).toContain('- check of secret esv-c: cannot read esv-c');
+      expect(printed()).not.toContain('esv-b: ');
+    });
+
+    it('lets --allow-failures turn the secrets that could not be checked into a warning', async () => {
+      secret.readSecrets.mockResolvedValue([{ _id: 'esv-a' }]);
+      secret.findVersionsToPrune.mockRejectedValue(new Error('boom'));
+      const found = await findVersionsToPruneOfAllSecrets(false, false, true);
+      expect(finishPrune(found)).toBe(true);
+      expect(printed()).toContain('1 of 1 operation failed:');
+      expect(printed()).toContain('The exit code stays 0');
     });
 
     it('prints no summary when every secret was checked', async () => {
       secret.readSecrets.mockResolvedValue([{ _id: 'esv-a' }]);
       secret.findVersionsToPrune.mockResolvedValue([version('1')]);
-      expect(await findVersionsToPruneOfAllSecrets()).toHaveLength(1);
+      const found = await findVersionsToPruneOfAllSecrets();
+      expect(found.plan).toHaveLength(1);
+      expect(finishPrune(found)).toBe(true);
       expect(printed()).not.toContain('failed');
     });
 
     it('plans one secret', async () => {
       secret.findVersionsToPrune.mockResolvedValue([version('1')]);
-      expect(await findVersionsToPruneOfSecret('esv-a', false, true)).toEqual([
+      const found = await findVersionsToPruneOfSecret('esv-a', false, true);
+      expect(found.plan).toEqual([
         { secretId: 'esv-a', versions: [version('1')] },
       ]);
+      expect(found.notChecked).toEqual([]);
       expect(secret.findVersionsToPrune).toHaveBeenCalledWith(
         'esv-a',
         false,
@@ -215,9 +282,13 @@ describe('esv secret version prune plan', () => {
       );
     });
 
-    it('returns no plan when the one secret cannot be checked', async () => {
+    it('lists the one secret as not checked when it cannot be checked, and fails', async () => {
       secret.findVersionsToPrune.mockRejectedValue(new Error('boom'));
-      expect(await findVersionsToPruneOfSecret('esv-a')).toBeUndefined();
+      const found = await findVersionsToPruneOfSecret('esv-a');
+      expect(found.plan).toEqual([]);
+      expect(found.notChecked).toEqual([{ secretId: 'esv-a', reason: 'boom' }]);
+      expect(finishPrune(found)).toBe(false);
+      expect(printed()).toContain('1 of 1 operation failed:');
     });
   });
 
@@ -292,7 +363,7 @@ describe('esv secret version prune plan', () => {
         return {};
       });
       expect(await pruneVersionsOfPlan(plan)).toBe(false);
-      expect(printed()).toContain('2 of 4 versions failed:');
+      expect(printed()).toContain('2 of 4 operations failed:');
       expect(printed()).toContain('- version 1 of secret esv-a: boom');
       expect(printed()).toContain('- version 4 of secret esv-c: bang');
       expect(printed()).not.toContain('- version 2 of secret esv-a');
@@ -307,9 +378,11 @@ describe('esv secret version prune plan', () => {
         if (id === 'esv-a' && v === '1') throw new Error('boom');
         return {};
       });
-      expect(await pruneVersionsOfPlan(plan, false, false, true)).toBe(true);
+      expect(
+        await pruneVersionsOfPlan(plan, false, false, createPruneRun(true))
+      ).toBe(true);
       expect(deleted()).toEqual(['esv-a:1', 'esv-a:2', 'esv-a:3', 'esv-c:4']);
-      expect(printed()).toContain('1 of 4 versions failed:');
+      expect(printed()).toContain('1 of 4 operations failed:');
       expect(printed()).toContain('The exit code stays 0');
     });
 
@@ -327,7 +400,7 @@ describe('esv secret version prune plan', () => {
         return [version('4')];
       });
       expect(await pruneVersionsOfPlan(plan)).toBe(false);
-      expect(printed()).toContain('3 of 4 versions failed:');
+      expect(printed()).toContain('3 of 4 operations failed:');
       expect(printed()).toContain(
         '- version 2 of secret esv-a: cannot read esv-a'
       );
@@ -340,6 +413,61 @@ describe('esv secret version prune plan', () => {
       });
       expect(await pruneVersionsOfPlan(plan)).toBe(false);
       expect(deleted()).toEqual(['esv-c:4']);
+    });
+
+    describe('with a secret that could not be checked', () => {
+      const checkWithGap = async (allowFailures = false) => {
+        secret.readSecrets.mockResolvedValue([
+          { _id: 'esv-a' },
+          { _id: 'esv-b' },
+          { _id: 'esv-c' },
+        ]);
+        secret.findVersionsToPrune.mockImplementation(async (id) => {
+          if (id === 'esv-a') throw new Error('cannot read esv-a');
+          return id === 'esv-b' ? [version('1'), version('2')] : [];
+        });
+        return findVersionsToPruneOfAllSecrets(false, false, allowFailures);
+      };
+
+      it('deletes the versions of the checked secrets and still fails, with the one summary', async () => {
+        const check = await checkWithGap();
+        expect(
+          await pruneVersionsOfPlan(check.plan, false, false, check.run)
+        ).toBe(false);
+        expect(deleted()).toEqual(['esv-b:1', 'esv-b:2']);
+        expect(printed().match(/failed:/g)).toHaveLength(1);
+        expect(printed()).toContain('1 of 5 operations failed:');
+        expect(printed()).toContain(
+          '- check of secret esv-a: cannot read esv-a'
+        );
+      });
+
+      it('puts a failed check and a failed deletion in the same summary', async () => {
+        const check = await checkWithGap();
+        secret.deleteVersionOfSecret.mockImplementation(async (id, v) => {
+          if (v === '2') throw new Error('boom');
+          return {};
+        });
+        expect(
+          await pruneVersionsOfPlan(check.plan, false, false, check.run)
+        ).toBe(false);
+        expect(printed().match(/failed:/g)).toHaveLength(1);
+        expect(printed()).toContain('2 of 5 operations failed:');
+        expect(printed()).toContain(
+          '- check of secret esv-a: cannot read esv-a'
+        );
+        expect(printed()).toContain('- version 2 of secret esv-b: boom');
+      });
+
+      it('succeeds with --allow-failures and still prints the summary', async () => {
+        const check = await checkWithGap(true);
+        expect(
+          await pruneVersionsOfPlan(check.plan, false, false, check.run)
+        ).toBe(true);
+        expect(deleted()).toEqual(['esv-b:1', 'esv-b:2']);
+        expect(printed()).toContain('1 of 5 operations failed:');
+        expect(printed()).toContain('The exit code stays 0');
+      });
     });
   });
 });
