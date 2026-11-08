@@ -128,6 +128,13 @@ describe('frodo config import', () => {
     // form instead of a single file. --include-active-values is
     // intentionally not used here -- it would write real secret values
     // into the recorded cassette.
+    //
+    // The expected output changed with frodo-lib 5.0.0-26: a journey that
+    // fails in a bulk import used to be reported as "...the bravo realm
+    // journey undefined" and now carries its name ("...journey
+    // IntervieweeFullVerification"; lib commit 4bfd3d15f, "Fix failed journey
+    // name in bulk import errors"). The three lines in the snapshot were
+    // edited by hand for that; nothing else in the output changed.
     test(`"frodo config import -AD ${allSeparateCloudFullImportDirectory} --no-validate" Import everything from directory "${allSeparateCloudFullImportDirectory}"`, async () => {
       const CMD = `frodo config import -AD ${allSeparateCloudFullImportDirectory} --no-validate`;
       const testEnv = {
