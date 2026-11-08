@@ -24,6 +24,7 @@ export default function setup() {
       )
     )
 
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -43,7 +44,10 @@ export default function setup() {
         return;
       }
       verboseMessage('Importing variables');
-      const outcome = await configManagerImportVariables(options.name);
+      const outcome = await configManagerImportVariables(
+        options.name,
+        options.allowFailures
+      );
       if (!outcome) process.exitCode = 1;
     });
   return program;

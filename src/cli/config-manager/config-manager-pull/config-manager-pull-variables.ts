@@ -30,6 +30,7 @@ export default function setup() {
         'Dump decoded variable values to the console. Cannot be used with -r.'
       ).conflicts(['report'])
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -44,7 +45,8 @@ export default function setup() {
         verboseMessage('Exporting variables...');
         const outcome = await configManagerExportVariables(
           options.report,
-          options.dump
+          options.dump,
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       } else {

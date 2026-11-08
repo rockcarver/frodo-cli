@@ -29,8 +29,6 @@ export const STOPS_AT_THE_FIRST_ERROR = [
   'frodo admin generate-rfc7523-authz-grant-artefacts',
   'frodo admin grant-oauth2-client-admin-privileges',
   'frodo admin revoke-oauth2-client-admin-privileges',
-  'frodo config-manager pull managed-objects',
-  'frodo config-manager push csp',
   'frodo idm remote-proxy setup',
   'frodo idm remote-proxy teardown',
   'frodo mapping delete',
@@ -41,12 +39,6 @@ export const STOPS_AT_THE_FIRST_ERROR = [
 export const SWALLOWS_THE_FAILURE = [
   'frodo admin create-oauth2-client-with-admin-privileges',
   'frodo admin repair-org-model',
-  'frodo config-manager pull connector-definitions',
-  'frodo config-manager pull connector-mappings',
-  'frodo config-manager pull email-templates',
-  'frodo config-manager pull internal-roles',
-  'frodo config-manager pull remote-proxies',
-  'frodo config-manager pull variables',
   'frodo promote',
 ];
 
@@ -61,11 +53,6 @@ export const CONTINUES_BUT_EXITS_ZERO = ['frodo journey prune'];
 
 /** The other operations run, each failure is named in one combined error and the exit code is 1. Closest to the rule; still lacks the "N of M" summary and --allow-failures. */
 export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [
-  'frodo config-manager push connector-definitions',
-  'frodo config-manager push email-templates',
-  'frodo config-manager push internal-roles',
-  'frodo config-manager push remote-proxies',
-  'frodo config-manager push variables',
   'frodo journey validate',
 ];
 

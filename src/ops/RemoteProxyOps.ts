@@ -546,11 +546,51 @@ function namesRemoteProxy(error: unknown, proxyId: string): boolean {
 }
 
 /**
- * Import remote proxies and record the outcome in the run. The library checks every name and every
- * proxy before it sends one; if any is refused it imports nothing, and that is a failure the other
+ * Record the error of the library import in the run. The library checks every name and every proxy
+ * before it sends one; if any is refused it imports nothing, and that is a failure the other
  * proxies depend on: the refused ones are named, the others are "not attempted", and
  * `--allow-failures` does not apply. Once the check is passed the library sends every proxy, and
  * the ones it could not send are named in its one combined error.
+ * @param {OperationRun} run the run of the command
+ * @param {unknown} error the error the library threw, printed by the caller
+ * @param {string[]} names the names of the proxies that were handed to the library
+ * @param {string} source where the data came from, for the failure of an error that names no proxy
+ */
+async function recordImportError(
+  run: OperationRun,
+  error: unknown,
+  names: string[],
+  source: string
+): Promise<void> {
+  const nested = (error as FrodoError).originalErrors ?? [];
+  if (
+    nested.length > 0 &&
+    /nothing was imported/.test((error as Error).message ?? '')
+  ) {
+    const refused = new Set<string>();
+    for (const item of nested) {
+      const described = describeFailure(item);
+      run.recordFailure(described.name, described.reason, {
+        dependent: true,
+      });
+      for (const name of names) {
+        if (namesRemoteProxy(item, name)) refused.add(name);
+      }
+    }
+    // the run has stopped: these are counted as not attempted
+    for (const name of names.filter((it) => !refused.has(it))) {
+      await run.run(name, () => undefined);
+    }
+  } else {
+    run.recordCombinedError(error, {
+      total: names.length,
+      fallbackName: source,
+    });
+  }
+}
+
+/**
+ * Import remote proxies and record the outcome in the run (see {@link recordImportError}).
  * @param {OperationRun} run the run of the command
  * @param {RemoteProxyExportInterface} importData the data to import
  * @param {string} source where the data came from, for the messages
@@ -582,31 +622,7 @@ async function runImportInto(
       'fail'
     );
     printError(error);
-    const nested = (error as FrodoError).originalErrors ?? [];
-    if (
-      nested.length > 0 &&
-      /nothing was imported/.test((error as Error).message ?? '')
-    ) {
-      const refused = new Set<string>();
-      for (const item of nested) {
-        const described = describeFailure(item);
-        run.recordFailure(described.name, described.reason, {
-          dependent: true,
-        });
-        for (const name of names) {
-          if (namesRemoteProxy(item, name)) refused.add(name);
-        }
-      }
-      // the run has stopped: these are counted as not attempted
-      for (const name of names.filter((it) => !refused.has(it))) {
-        await run.run(name, () => undefined);
-      }
-    } else {
-      run.recordCombinedError(error, {
-        total: names.length,
-        fallbackName: source,
-      });
-    }
+    await recordImportError(run, error, names, source);
   }
 }
 
@@ -994,14 +1010,21 @@ export async function deleteRemoteProxies(
  * `remote-proxies/<name>.json`, holding the proxy as IDM returns it. Secrets
  * that only this tenant can decrypt are flagged; a tenant without remote proxies
  * writes nothing.
+ * Every remote proxy is one operation of an {@link OperationRun}: a proxy whose file cannot be
+ * written is printed and named in one summary, and the others are still written. A failure to read
+ * the remote proxies, or a named proxy that does not exist, ends the command whatever
+ * `--allow-failures` says.
  * @param {string} name optional name: export only that remote proxy
  * @param {boolean} quiet true to say nothing when there is no remote proxy (the step of `pull all`)
+ * @param {boolean} allowFailures true to report proxies that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportRemoteProxies(
   name?: string,
-  quiet: boolean = false
+  quiet: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'remote proxy', allowFailures });
   try {
     const proxies = name
       ? [await remoteProxy.readRemoteProxy(name)]
@@ -1009,22 +1032,25 @@ export async function configManagerExportRemoteProxies(
     const written: Record<string, RemoteProxySkeleton> = {};
     for (const proxy of proxies) {
       const proxyName = getName(proxy);
-      saveJsonToFile(
-        proxy,
-        getFilePath(`${CONFIG_MANAGER_DIRECTORY}/${proxyName}.json`, true),
-        false,
-        true
-      );
-      written[proxyName] = proxy;
+      await run.run(proxyName, () => {
+        saveJsonToFile(
+          proxy,
+          getFilePath(`${CONFIG_MANAGER_DIRECTORY}/${proxyName}.json`, true),
+          false,
+          true
+        );
+        written[proxyName] = proxy;
+      });
     }
     if (proxies.length === 0 && !quiet) {
       printMessage('No remote proxies found.', 'info');
     }
     warnTenantBoundSecrets(written);
     warnFixedHostUrls(written);
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, 'Error exporting remote proxies');
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -1034,12 +1060,19 @@ export async function configManagerExportRemoteProxies(
  * none: the library checks every name and proxy before it sends one. A secret
  * that was encrypted by a tenant is imported with a warning, because this tenant
  * may be unable to decrypt it; an ESV placeholder is the portable form.
+ * Every file is read on its own: a file that cannot be read is printed and named in the one
+ * summary, and the proxies of the other files are still imported. A proxy that the library refuses
+ * stops the import (see {@link recordImportError}). A missing folder, a folder without proxy files
+ * and a named proxy without a file end the command whatever `--allow-failures` says.
  * @param {string} name optional name: import only that remote proxy
+ * @param {boolean} allowFailures true to report proxies that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerImportRemoteProxies(
-  name?: string
+  name?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'remote proxy', allowFailures });
   try {
     const directory = getFilePath(CONFIG_MANAGER_DIRECTORY);
     const files = name
@@ -1065,16 +1098,33 @@ export async function configManagerImportRemoteProxies(
     }
     const importData: RemoteProxyExportInterface = { remoteProxy: {} };
     for (const file of files) {
-      importData.remoteProxy[file.replace(/\.json$/, '')] = readJsonFile(
-        getFilePath(`${CONFIG_MANAGER_DIRECTORY}/${file}`)
-      ) as RemoteProxySkeleton;
+      try {
+        importData.remoteProxy[file.replace(/\.json$/, '')] = readJsonFile(
+          getFilePath(`${CONFIG_MANAGER_DIRECTORY}/${file}`)
+        ) as RemoteProxySkeleton;
+      } catch (error) {
+        printError(error);
+        // the file that the command line names is read whatever the flag says
+        if (name) return false;
+        run.recordFailure(file, describeFailure(error).reason ?? error);
+      }
     }
-    warnForeignSecrets(importData);
-    warnFixedHostUrls(importData.remoteProxy);
-    await remoteProxy.importRemoteProxies(importData);
-    return true;
+    const names = Object.keys(importData.remoteProxy);
+    if (names.length > 0) {
+      warnForeignSecrets(importData);
+      warnFixedHostUrls(importData.remoteProxy);
+      try {
+        const imported = await remoteProxy.importRemoteProxies(importData);
+        for (let i = 0; i < imported.length; i++) run.recordSuccess();
+      } catch (error) {
+        printError(error);
+        await recordImportError(run, error, names, directory);
+      }
+    }
+    return run.finish();
   } catch (error) {
     printError(error, 'Error importing remote proxies');
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

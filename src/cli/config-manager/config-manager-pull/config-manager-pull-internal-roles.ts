@@ -29,6 +29,7 @@ export default function setup() {
         'Internal role name. If specified, only export the internal role with the specified name.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -41,7 +42,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting internal roles');
-        const outcome = await configManagerExportInternalRoles(options.name);
+        const outcome = await configManagerExportInternalRoles(
+          options.name,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

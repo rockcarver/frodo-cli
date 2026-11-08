@@ -25,6 +25,7 @@ export default function setup() {
       )
     )
     .description('Import content security policy.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -45,7 +46,10 @@ export default function setup() {
         return;
       }
       verboseMessage('Importing content security policy...');
-      const outcome = await configManagerImportCsp(options.name);
+      const outcome = await configManagerImportCsp(
+        options.name,
+        options.allowFailures
+      );
       if (!outcome) process.exitCode = 1;
     });
 

@@ -31,6 +31,8 @@ let exportedProxies = {};
 // where getFilePath puts relative paths; empty keeps them relative to the working directory
 let baseDirectory = '';
 let importFailure;
+// a path fragment: saving a file whose path contains it fails
+let failingSave;
 let testResult;
 let testFailure;
 const tested = [];
@@ -111,8 +113,12 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: {
     utils: {
       getTypedFilename: (name, type) => `${name}.${type}.json`,
-      saveJsonToFile: (data, file, includeMeta) =>
-        saved.push({ data, file, includeMeta }),
+      saveJsonToFile: (data, file, includeMeta) => {
+        if (failingSave && file.includes(failingSave)) {
+          throw new Error('could not write the file');
+        }
+        saved.push({ data, file, includeMeta });
+      },
       getFilePath: (file) => (baseDirectory ? path.join(baseDirectory, file) : file),
       readJsonFile: (file) => JSON.parse(fs.readFileSync(file, 'utf8')),
       getWorkingDirectory: () => '.',
@@ -175,6 +181,7 @@ beforeEach(() => {
   imported.length = 0;
   baseDirectory = '';
   importFailure = undefined;
+  failingSave = undefined;
   testFailure = undefined;
   tested.length = 0;
   testResult = { ok: true, status: 'ok', httpStatus: 200, authenticationId: 'frodo-proxy', roles: ['internal/role/openidm-admin', 'internal/role/openidm-authorized'], message: 'ok' };
@@ -428,6 +435,35 @@ describe('config-manager export', () => {
 
     expect(printed).toEqual([]);
   });
+
+  test('a proxy that cannot be written does not stop the others, is named in one summary and fails', async () => {
+    failingSave = 'remote-proxies/beta.json';
+
+    expect(await configManagerExportRemoteProxies()).toBe(false);
+
+    expect(saved.map((entry) => entry.file)).toEqual(['remote-proxies/alpha-two.json']);
+    expect(messages('error')).toContain(
+      '1 of 2 remote proxies failed:\n  - beta: could not write the file'
+    );
+    // the warnings are about the proxies that were written
+    expect(messages('warn').join('\n')).not.toContain('beta (');
+  });
+
+  test('--allow-failures keeps the command successful and still prints the summary as a warning', async () => {
+    failingSave = 'remote-proxies/beta.json';
+
+    expect(await configManagerExportRemoteProxies(undefined, false, true)).toBe(true);
+
+    expect(messages('warn').join('\n')).toContain('1 of 2 remote proxies failed');
+    expect(messages('warn').join('\n')).toContain('The exit code stays 0 because --allow-failures was given.');
+    expect(saved.map((entry) => entry.file)).toEqual(['remote-proxies/alpha-two.json']);
+  });
+
+  test('prints no summary when every proxy is written', async () => {
+    expect(await configManagerExportRemoteProxies()).toBe(true);
+
+    expect(everythingPrinted()).not.toContain('remote proxies failed');
+  });
 });
 
 describe('config-manager import', () => {
@@ -548,6 +584,79 @@ describe('config-manager import', () => {
     expect(await configManagerImportRemoteProxies()).toBe(false);
 
     expect(messages('error').join('\n')).toContain("has the id 'external.idm/x'");
+  });
+
+  const writeBrokenFile = (name) => {
+    fs.mkdirSync(path.join(baseDirectory, 'remote-proxies'), { recursive: true });
+    fs.writeFileSync(path.join(baseDirectory, 'remote-proxies', `${name}.json`), '{ this is not json');
+  };
+
+  test('a file that cannot be read is named in one summary, the other proxies are still imported, and the command fails', async () => {
+    writeProxy('beta');
+    writeProxy('alpha-two');
+    writeBrokenFile('gamma');
+
+    expect(await configManagerImportRemoteProxies()).toBe(false);
+
+    expect(Object.keys(imported[0].remoteProxy)).toEqual(['alpha-two', 'beta']);
+    expect(messages('error').join('\n')).toMatch(/1 of 3 remote proxies failed:\n {2}- gamma\.json: .+/);
+  });
+
+  test('--allow-failures keeps the command successful for a file that cannot be read', async () => {
+    writeProxy('beta');
+    writeBrokenFile('gamma');
+
+    expect(await configManagerImportRemoteProxies(undefined, true)).toBe(true);
+
+    expect(Object.keys(imported[0].remoteProxy)).toEqual(['beta']);
+    expect(messages('warn').join('\n')).toContain('1 of 2 remote proxies failed');
+  });
+
+  test('a named file that cannot be read fails the command whatever --allow-failures says', async () => {
+    writeBrokenFile('gamma');
+
+    expect(await configManagerImportRemoteProxies('gamma', true)).toBe(false);
+
+    expect(imported).toEqual([]);
+    expect(everythingPrinted()).not.toContain('remote proxies failed');
+  });
+
+  test('a proxy that the library cannot send is named in one summary, the others count as imported', async () => {
+    writeProxy('beta');
+    writeProxy('alpha-two');
+    importFailure = Object.assign(new Error('Error importing remote proxies'), {
+      originalErrors: [
+        Object.assign(new Error('Error importing remote proxy beta'), {
+          originalErrors: [new Error('http 500')],
+        }),
+      ],
+    });
+
+    expect(await configManagerImportRemoteProxies()).toBe(false);
+    expect(messages('error')).toContain(
+      '1 of 2 remote proxies failed:\n  - Error importing remote proxy beta: http 500'
+    );
+
+    printed.length = 0;
+    expect(await configManagerImportRemoteProxies(undefined, true)).toBe(true);
+    expect(messages('warn').join('\n')).toContain('1 of 2 remote proxies failed');
+  });
+
+  test('a proxy that the library refuses stops the import: the others are not attempted and --allow-failures does not apply', async () => {
+    writeProxy('beta');
+    writeProxy('alpha-two');
+    importFailure = Object.assign(
+      new Error('Remote proxies are not valid, nothing was imported'),
+      { originalErrors: [new Error("Remote proxy beta has the id 'external.idm/x'")] }
+    );
+
+    expect(await configManagerImportRemoteProxies(undefined, true)).toBe(false);
+
+    const output = messages('error').join('\n');
+    expect(output).toContain('1 of 2 remote proxies failed, 1 not attempted:');
+    expect(output).toContain("  - Remote proxy beta has the id 'external.idm/x'");
+    expect(output).toContain('  - alpha-two (not attempted)');
+    expect(output).toContain('--allow-failures does not apply to that.');
   });
 });
 

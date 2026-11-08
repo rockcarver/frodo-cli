@@ -28,6 +28,7 @@ export default function setup() {
         'Email-templates name. If specified, only export the email template with the specified name.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -40,7 +41,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting email templates');
-        const outcome = await configManagerExportEmailTemplates(options.name);
+        const outcome = await configManagerExportEmailTemplates(
+          options.name,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

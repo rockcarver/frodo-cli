@@ -40,6 +40,7 @@ export default function setup() {
           `  $ frodo config-manager pull remote-proxies -n ${s.remoteProxyId} ${s.connId}\n`
         )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -52,7 +53,11 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting remote proxies.');
-        const outcome = await configManagerExportRemoteProxies(options.name);
+        const outcome = await configManagerExportRemoteProxies(
+          options.name,
+          false,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).
