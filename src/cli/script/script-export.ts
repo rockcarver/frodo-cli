@@ -103,6 +103,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'script', 'scriptId', 'scriptName'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -167,7 +168,8 @@ export default function setup() {
               context: options.context,
               evaluatorVersion: options.evaluatorVersion,
               language: options.language,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -187,7 +189,8 @@ export default function setup() {
               context: options.context,
               evaluatorVersion: options.evaluatorVersion,
               language: options.language,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

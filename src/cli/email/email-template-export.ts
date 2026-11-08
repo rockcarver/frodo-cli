@@ -60,6 +60,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'templateId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -106,7 +107,10 @@ export default function setup() {
           (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Exporting all email templates to separate files...');
-          const outcome = await exportEmailTemplatesToFiles(options.metadata);
+          const outcome = await exportEmailTemplatesToFiles(
+            options.metadata,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way

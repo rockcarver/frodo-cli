@@ -69,6 +69,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'themeId', 'themeName'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -136,7 +137,8 @@ export default function setup() {
           verboseMessage('Exporting all themes to separate files...');
           const outcome = await exportThemesToFiles(
             options.metadata,
-            options.extract
+            options.extract,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

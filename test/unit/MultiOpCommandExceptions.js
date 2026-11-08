@@ -96,10 +96,7 @@ export const SWALLOWS_THE_FAILURE = [
   'frodo config-manager pull variables',
   'frodo config-manager push org-privileges',
   'frodo config-manager push secrets',
-  'frodo email template export',
   'frodo iga workflow import',
-  'frodo journey export',
-  'frodo node export',
   'frodo node import',
   'frodo promote',
   'frodo realm export',
@@ -107,9 +104,7 @@ export const SWALLOWS_THE_FAILURE = [
   'frodo role export',
   'frodo script import',
   'frodo secretstore import',
-  'frodo service export',
   'frodo service import',
-  'frodo theme export',
   'frodo theme import',
 ];
 
@@ -126,7 +121,6 @@ export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
   'frodo iga workflow export',
   'frodo journey describe',
   'frodo journey import',
-  'frodo script export',
   'frodo secretstore export',
 ];
 

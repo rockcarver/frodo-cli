@@ -104,13 +104,14 @@ function readScriptsWithFilterPassthrough(
  */
 function exportScriptsWithFilterPassthrough(
   options: ScriptExportOptions,
-  filters: ScriptFilters = {}
+  filters: ScriptFilters = {},
+  resultCallback?: (error?: FrodoError, result?: ScriptSkeleton) => void
 ): Promise<ScriptExportInterface> {
   const filter = createScriptFilter(filters);
   const optionsWithFilter: ScriptExportOptions = filter
     ? { ...options, filter }
     : options;
-  return exportScripts(optionsWithFilter, errorHandler);
+  return exportScripts(optionsWithFilter, resultCallback);
 }
 
 async function readFilteredScripts(
@@ -454,8 +455,13 @@ export async function exportScriptToFile(
       `Exporting script '${scriptId}' to '${filePath}'...`
     );
     const scriptExport = await exportScript(scriptId, options);
-    if (extract) {
-      extractScriptsToFiles(scriptExport, undefined, undefined, false);
+    if (
+      extract &&
+      !extractScriptsToFiles(scriptExport, undefined, undefined, false)
+    ) {
+      // extractScriptsToFiles has printed its error
+      failSpinner(`Error extracting script '${scriptId}'.`);
+      return false;
     }
     saveJsonToFile(
       scriptExport,
@@ -505,7 +511,11 @@ export async function exportScriptByNameToFile(
       `Exporting script '${name}' to '${filePath}'...`
     );
     const scriptExport = await exportScriptByName(name, options);
-    if (extract) extractScriptsToFiles(scriptExport);
+    if (extract && !extractScriptsToFiles(scriptExport)) {
+      // extractScriptsToFiles has printed its error
+      failSpinner(`Error extracting script '${name}'.`);
+      return false;
+    }
     saveJsonToFile(
       scriptExport,
       filePath,
@@ -525,10 +535,15 @@ export async function exportScriptByNameToFile(
 
 /**
  * Export all scripts to single file
+ * The library reports every script to the result callback of an {@link OperationRun}: the scripts that can be
+ * exported are written to the file, one summary names the ones that could not be, and a failure to read the
+ * scripts or to write the file ends the command whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {ScriptExportOptions} options Export options
+ * @param {ScriptFilters} filters Optional filters (language, context, evaluator version)
+ * @param {boolean} allowFailures true to report scripts that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptsToFile(
@@ -536,9 +551,11 @@ export async function exportScriptsToFile(
   includeMeta: boolean = true,
   keepModifiedProperties: boolean = false,
   options: ScriptExportOptions,
-  filters: ScriptFilters = {}
+  filters: ScriptFilters = {},
+  allowFailures: boolean = false
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFile: start`);
+  const run = new OperationRun({ unit: 'script', allowFailures });
   try {
     let fileName = getTypedFilename(
       `all${titleCase(state.getRealm())}Scripts`,
@@ -548,7 +565,11 @@ export async function exportScriptsToFile(
       fileName = file;
     }
     const scriptExport = filterTypedScriptExport(
-      await exportScriptsWithFilterPassthrough(options, filters),
+      await exportScriptsWithFilterPassthrough(
+        options,
+        filters,
+        run.resultCallback(scriptNameOf)
+      ),
       filters,
       options.deps
     );
@@ -560,19 +581,27 @@ export async function exportScriptsToFile(
       keepModifiedProperties
     );
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the scripts could not be read or the file not written
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Export all scripts to individual files
+ * The library reports a script that cannot be exported to the result callback of an {@link OperationRun}; every
+ * script that can be exported is saved to its own file, a script whose file cannot be written (or whose code
+ * cannot be extracted) is a failed script too, and one summary names them all. A failure to read the scripts
+ * ends the command whatever `--allow-failures` says.
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {ScriptExportOptions} options Export options
+ * @param {ScriptFilters} filters Optional filters (language, context, evaluator version)
+ * @param {boolean} allowFailures true to report scripts that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptsToFiles(
@@ -580,65 +609,88 @@ export async function exportScriptsToFiles(
   includeMeta: boolean = true,
   keepModifiedProperties: boolean = false,
   options: ScriptExportOptions,
-  filters: ScriptFilters = {}
+  filters: ScriptFilters = {},
+  allowFailures: boolean = false
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
-  const errors: Error[] = [];
-  const scriptExport = filterTypedScriptExport(
-    await exportScriptsWithFilterPassthrough(options, filters),
-    filters,
-    options.deps
-  );
-  const scriptList = Object.values(scriptExport.script);
-  const barId = createProgressIndicator(
-    'determinate',
-    scriptList.length,
-    'Exporting scripts to individual files...'
-  );
-  for (const script of scriptList) {
-    const fileBarId = createProgressIndicator(
-      'determinate',
-      1,
-      `Exporting script ${script.name}...`
+  const run = new OperationRun({ unit: 'script', allowFailures });
+  const report = run.resultCallback(scriptNameOf);
+  let barId: string;
+  try {
+    // a script that was exported is counted when its file is saved below, so only the failures are counted here
+    const scriptExport = filterTypedScriptExport(
+      await exportScriptsWithFilterPassthrough(options, filters, (error) => {
+        if (error) report(error);
+      }),
+      filters,
+      options.deps
     );
-    try {
-      const file = getFilePath(getTypedFilename(script.name, 'script'), true);
-      if (extract) {
-        extractScriptsToFiles({
-          script: {
-            [script._id]: script,
-          },
-        });
-      }
-      saveToFile(
-        'script',
-        script,
-        '_id',
-        file,
-        includeMeta,
-        keepModifiedProperties
+    const scriptList = Object.values(scriptExport.script);
+    barId = createProgressIndicator(
+      'determinate',
+      scriptList.length,
+      'Exporting scripts to individual files...'
+    );
+    for (const script of scriptList) {
+      const fileBarId = createProgressIndicator(
+        'determinate',
+        1,
+        `Exporting script ${script.name}...`
       );
-      updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
-      stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
-    } catch (error) {
+      const saved = await run.run(script.name, () => {
+        const file = getFilePath(getTypedFilename(script.name, 'script'), true);
+        // extractScriptsToFiles has printed its error when it returns false
+        if (
+          extract &&
+          !extractScriptsToFiles({
+            script: {
+              [script._id]: script,
+            },
+          })
+        ) {
+          return false;
+        }
+        saveToFile(
+          'script',
+          script,
+          '_id',
+          file,
+          includeMeta,
+          keepModifiedProperties
+        );
+        updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
+        stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
+      });
+      if (!saved) {
+        stopProgressIndicator(
+          fileBarId,
+          `Error exporting ${script.name}`,
+          'fail'
+        );
+      }
+      updateProgressIndicator(barId, `Exported script ${script.name}`);
+    }
+    if (run.hasFailures) {
       stopProgressIndicator(
-        fileBarId,
-        `Error exporting ${script.name}`,
+        barId,
+        `Error exporting scripts to individual files.`,
         'fail'
       );
-      errors.push(error);
+    } else {
+      stopProgressIndicator(
+        barId,
+        `Exported ${scriptList.length} scripts to individual files.`
+      );
     }
-    updateProgressIndicator(barId, `Exported script ${script.name}`);
+    debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
+    return run.finish();
+  } catch (error) {
+    // not an item failure: the scripts could not be read
+    if (barId) stopProgressIndicator(barId, `Error exporting scripts.`, 'fail');
+    printError(error);
+    if (run.hasFailures) run.finish();
   }
-  if (errors.length > 0) {
-    throw new FrodoError(`Error exporting scripts`, errors);
-  }
-  stopProgressIndicator(
-    barId,
-    `Exported ${scriptList.length} scripts to individual files.`
-  );
-  debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
-  return true;
+  return false;
 }
 
 /**

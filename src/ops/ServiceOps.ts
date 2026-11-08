@@ -129,30 +129,40 @@ export async function exportServiceToFile(
 
 /**
  * Export all services to separate files
+ * Every service is exported to its own file even after another failed; one summary names the services that
+ * could not be exported. A failure to read the services ends the command whatever `--allow-failures` says.
+ * @param {boolean} globalConfig true if the global services are the target of the operation, false otherwise. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report services that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportServicesToFiles(
   globalConfig: boolean = false,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'service', allowFailures });
   try {
     debugMessage(`cli.ServiceOps.exportServicesToFiles: start`);
     const services = await getFullServices(globalConfig);
     for (const service of services) {
-      const fileName = getTypedFilename(service._type._id, `service`);
-      const filePath = getFilePath(fileName, true);
-      const exportData = createServiceExportTemplate();
-      exportData.service[service._type._id] = service;
-      debugMessage(
-        `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
-      );
-      saveJsonToFile(exportData, filePath, includeMeta);
+      await run.run(service._type._id, () => {
+        const fileName = getTypedFilename(service._type._id, `service`);
+        const filePath = getFilePath(fileName, true);
+        const exportData = createServiceExportTemplate();
+        exportData.service[service._type._id] = service;
+        debugMessage(
+          `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
+        );
+        saveJsonToFile(exportData, filePath, includeMeta);
+      });
     }
     debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the services could not be read
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

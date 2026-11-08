@@ -23,6 +23,7 @@ export default function setup() {
     curlirize?: boolean;
     global?: boolean;
     metadata?: boolean;
+    allowFailures?: boolean;
   }
 
   program
@@ -62,6 +63,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'serviceId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       async (
         host: string,
@@ -108,7 +110,8 @@ export default function setup() {
           verboseMessage('Exporting all services to separate files...');
           const outcome = await exportServicesToFiles(
             globalConfig,
-            options.metadata
+            options.metadata,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

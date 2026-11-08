@@ -234,12 +234,18 @@ export async function exportEmailTemplatesToFile(
 
 /**
  * Export all email templates to separate files
+ * Every email template is exported to its own file even after another failed; one summary names the email
+ * templates that could not be exported. A failure to read the email templates ends the command whatever
+ * `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report email templates that could not be exported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportEmailTemplatesToFiles(
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'email template', allowFailures });
   let indicatorId;
   try {
     const exportData = Object.entries(
@@ -251,20 +257,32 @@ export async function exportEmailTemplatesToFiles(
       'Writing email templates'
     );
     for (const [templateId, template] of exportData) {
-      const fileName = getTypedFilename(templateId, EMAIL_TEMPLATE_FILE_TYPE);
-      const fileData = getFileDataTemplate();
-      updateProgressIndicator(indicatorId, `Exporting ${templateId}`);
-      fileData.emailTemplate[templateId] = template;
-      saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
+      await run.run(templateId, () => {
+        const fileName = getTypedFilename(templateId, EMAIL_TEMPLATE_FILE_TYPE);
+        const fileData = getFileDataTemplate();
+        updateProgressIndicator(indicatorId, `Exporting ${templateId}`);
+        fileData.emailTemplate[templateId] = template;
+        saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
+      });
     }
-    stopProgressIndicator(
-      indicatorId,
-      `${exportData.length} templates written.`
-    );
-    return true;
+    if (run.hasFailures) {
+      stopProgressIndicator(
+        indicatorId,
+        `Error writing email templates`,
+        'fail'
+      );
+    } else {
+      stopProgressIndicator(
+        indicatorId,
+        `${exportData.length} templates written.`
+      );
+    }
+    return run.finish();
   } catch (error) {
+    // not an item failure: the email templates could not be read
     stopProgressIndicator(indicatorId, `${error}`);
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

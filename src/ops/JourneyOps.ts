@@ -216,9 +216,13 @@ export async function exportJourneyToFile(
 
 /**
  * Export all journeys to file
+ * The library reports every journey to the result callback of an {@link OperationRun}: the journeys that can be
+ * exported are written to the file, one summary names the ones that could not be, and a failure to read the
+ * journeys or to write the file ends the command whatever `--allow-failures` says.
  * @param {string} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {TreeExportOptions} options export options
+ * @param {boolean} allowFailures true to report journeys that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function exportJourneysToFile(
@@ -228,8 +232,10 @@ export async function exportJourneysToFile(
     deps: false,
     useStringArrays: false,
     coords: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'journey', allowFailures });
   try {
     if (!file) {
       file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
@@ -237,19 +243,26 @@ export async function exportJourneysToFile(
     const filePath = getFilePath(file, true);
     const fileData: MultiTreeExportInterface = await exportJourneys(
       options,
-      errorHandler
+      run.resultCallback()
     );
     saveJsonToFile(fileData, filePath, includeMeta);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the journeys could not be read or the file not written
     printError(error);
+    if (run.hasFailures) run.finish();
   }
+  return false;
 }
 
 /**
  * Export all journeys to separate files
+ * The library reports a journey that cannot be exported to the result callback of an {@link OperationRun}; every
+ * journey that can be exported is saved to its own file, a file that cannot be written is a failed journey too, and
+ * one summary names them all. A failure to read the journeys ends the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {TreeExportOptions} options export options
+ * @param {boolean} allowFailures true to report journeys that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function exportJourneysToFiles(
@@ -258,10 +271,16 @@ export async function exportJourneysToFiles(
     deps: false,
     useStringArrays: false,
     coords: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'journey', allowFailures });
+  const report = run.resultCallback();
   try {
-    const journeysExport = await exportJourneys(options, errorHandler);
+    // a journey that was exported is counted when its file is saved below, so only the failures are counted here
+    const journeysExport = await exportJourneys(options, (error) => {
+      if (error) report(error);
+    });
     const trees = Object.entries(journeysExport.trees);
     for (const [treeId, treeValue] of trees) {
       const indicatorId = createProgressIndicator(
@@ -270,21 +289,27 @@ export async function exportJourneysToFiles(
         `Saving ${treeId}...`
       );
       const file = getFilePath(getTypedFilename(`${treeId}`, 'journey'), true);
-      try {
+      const saved = await run.run(treeId, () => {
         updateProgressIndicator(indicatorId, `Saving ${treeId} to ${file}`);
         saveJsonToFile(
           { trees: { [treeValue.tree._id]: treeValue } },
           file,
           includeMeta
         );
-        stopProgressIndicator(indicatorId, `${treeId} saved to ${file}`);
-      } catch {
-        stopProgressIndicator(indicatorId, `Error saving ${treeId} to ${file}`);
-      }
+      });
+      stopProgressIndicator(
+        indicatorId,
+        saved
+          ? `${treeId} saved to ${file}`
+          : `Error saving ${treeId} to ${file}`,
+        saved ? 'success' : 'fail'
+      );
     }
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the journeys could not be read
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

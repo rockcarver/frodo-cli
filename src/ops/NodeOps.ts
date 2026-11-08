@@ -379,13 +379,23 @@ export async function exportCustomNodeToFile(
       file = getTypedFilename(nodeName ? nodeName : nodeId, 'nodeTypes');
     }
     const filePath = getFilePath(file, true);
-    if (extract)
-      extractCustomNodeScriptsToFiles(
+    if (
+      extract &&
+      !extractCustomNodeScriptsToFiles(
         exportData,
         undefined,
         undefined,
         !!nodeName
+      )
+    ) {
+      // extractCustomNodeScriptsToFiles has printed its error
+      stopProgressIndicator(
+        indicatorId,
+        `Error extracting the scripts of custom node ${name}`,
+        'fail'
       );
+      return false;
+    }
     updateProgressIndicator(indicatorId, `Saving ${name} to ${filePath}...`);
     saveJsonToFile(exportData, filePath, includeMeta);
     stopProgressIndicator(
@@ -434,9 +444,12 @@ export async function exportCustomNodesToFile(
 
 /**
  * Export all custom nodes to separate files
+ * Every custom node is exported to its own file even after another failed; one summary names the custom nodes
+ * that could not be exported. A failure to read the custom nodes ends the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract extracts the scripts from the exports into separate files if true. Default: false
  * @param {CustomNodeExportOptions} options export options
+ * @param {boolean} allowFailures true to report custom nodes that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportCustomNodesToFiles(
@@ -444,26 +457,35 @@ export async function exportCustomNodesToFiles(
   extract: boolean = false,
   options: CustomNodeExportOptions = {
     useStringArrays: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
     const exportData = await exportCustomNodes(options);
-    if (extract) extractCustomNodeScriptsToFiles(exportData);
-    for (const customNode of Object.values(exportData.nodeTypes)) {
-      saveToFile(
-        'nodeTypes',
-        customNode,
-        '_id',
-        getFilePath(
-          getTypedFilename(customNode.displayName, 'nodeTypes'),
-          true
-        ),
-        includeMeta
-      );
+    for (const [nodeId, customNode] of Object.entries(exportData.nodeTypes)) {
+      await run.run(customNode.displayName, () => {
+        // extractCustomNodeScriptsToFiles has printed its error when it returns false
+        if (extract && !extractCustomNodeScriptsToFiles(exportData, nodeId)) {
+          return false;
+        }
+        saveToFile(
+          'nodeTypes',
+          customNode,
+          '_id',
+          getFilePath(
+            getTypedFilename(customNode.displayName, 'nodeTypes'),
+            true
+          ),
+          includeMeta
+        );
+      });
     }
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the custom nodes could not be read
     printError(error, `Error exporting custom nodes to files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
