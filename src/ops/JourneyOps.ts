@@ -1138,7 +1138,7 @@ export interface DescribeJourneysOptions {
   journeyId?: string;
   /** write markdown instead of text */
   markdown?: boolean;
-  /** the file the output goes to, which the markdown output resets first */
+  /** the file the output goes to, which the markdown output resets once, before the first journey is written */
   outputFile?: string;
   /** describe as if the tenant ran this version: '<major>.<minor>.<patch>' */
   overrideVersion?: string;
@@ -1148,11 +1148,13 @@ export interface DescribeJourneysOptions {
  * Describe one journey of the tenant. Throws when the journey cannot be exported.
  * @param {string} journeyId journey id/name
  * @param {DescribeJourneysOptions} options markdown, output file, version override
+ * @param {() => void} resetOutputFile called before the markdown of the journey is written, once the journey has been exported
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 async function describeJourneyOfTenant(
   journeyId: string,
-  options: DescribeJourneysOptions
+  options: DescribeJourneysOptions,
+  resetOutputFile: () => void
 ): Promise<boolean> {
   // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
   const multiTreeData = await exportJourney(journeyId);
@@ -1180,8 +1182,8 @@ async function describeJourneyOfTenant(
     if (!options.markdown) {
       return await describeJourney(treeData, runtimeResolver);
     }
-    // Markdown output: reset output file
-    if (options.outputFile) saveTextToFile('', options.outputFile);
+    // Markdown output
+    resetOutputFile();
     return await describeJourneyMd(treeData, runtimeResolver);
   } finally {
     // Always restore the original runtime version for subsequent operations.
@@ -1202,9 +1204,21 @@ export async function describeJourneys(
   options: DescribeJourneysOptions,
   allowFailures: boolean = false
 ): Promise<boolean> {
+  // The markdown of every journey is appended to the output file, so the file is reset once, not once per journey.
+  let outputFileReset = false;
+  const resetOutputFile = () => {
+    if (!outputFileReset && options.outputFile) {
+      saveTextToFile('', options.outputFile);
+    }
+    outputFileReset = true;
+  };
   if (typeof options.journeyId !== 'undefined') {
     try {
-      return await describeJourneyOfTenant(options.journeyId, options);
+      return await describeJourneyOfTenant(
+        options.journeyId,
+        options,
+        resetOutputFile
+      );
     } catch (error) {
       printError(error);
     }
@@ -1220,7 +1234,7 @@ export async function describeJourneys(
   const run = new OperationRun({ unit: 'journey', allowFailures });
   for (const journey of journeys) {
     await run.run(journey['_id'], () =>
-      describeJourneyOfTenant(journey['_id'], options)
+      describeJourneyOfTenant(journey['_id'], options, resetOutputFile)
     );
   }
   return run.finish();
