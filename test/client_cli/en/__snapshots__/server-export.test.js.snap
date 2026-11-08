@@ -38,6 +38,7 @@ Options:
   -f, --file <file>              Name of the export file. Cannot be used with
                                  -A.
   -i, --server-id <server-id>    Server id. Cannot be used with -u, -a or -A.
+                                 (pick from server)
   -N, --no-metadata              Does not include metadata in the export file.
   -u, --server-url <server-url>  Server url. Can be a unique substring of the
                                  full url (if not unique, it will error out).

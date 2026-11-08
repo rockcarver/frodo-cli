@@ -212,18 +212,20 @@ suite('RFC7523 commands, on a real terminal', () => {
     expect(footer(typed)).toContain('--iss a');
   });
 
-  test('execute asks for the client id, then goes on', async () => {
-    await fake();
+  // --client-id is picked from the OAuth2 clients of the realm by the framework
+  // (the admin family of EntityPickFamilies.ts, decision record 0038), after
+  // login; the free-text prompt for it is gone.
+  test('execute picks the client id from the realm, then goes on', async () => {
+    await fake({ oauth2Clients: ['c1', 'c2'] });
     const run = onTerminal(
       'execute-rfc7523-authz-grant-flow',
       ['--iss', issuerUrl, '--sub', 'user-1'],
       [
         {
           type: 'wait_plain',
-          regex: 'Enter a value for --client-id',
+          regex: 'Select OAuth2 client to act on',
           timeoutMs: 30000,
         },
-        { type: 'send', text: 'c1' },
         { type: 'key', name: 'enter' },
         {
           type: 'wait_plain',
@@ -232,7 +234,27 @@ suite('RFC7523 commands, on a real terminal', () => {
         },
       ]
     );
-    expect(run.plainOutput).toContain('Enter a value for --client-id');
+    expect(run.plainOutput).not.toContain('Enter a value for --client-id');
+    expect(requestedUrls().some((url) => url.includes('/OAuth2Client'))).toBe(
+      true
+    );
+  });
+
+  test('execute goes on without asking when the realm has one client', async () => {
+    await fake({ oauth2Clients: ['c1'] });
+    const run = onTerminal(
+      'execute-rfc7523-authz-grant-flow',
+      ['--iss', issuerUrl, '--sub', 'user-1'],
+      [
+        {
+          type: 'wait_plain',
+          regex: 'Executing RFC7523 authorization grant flow',
+          timeoutMs: 30000,
+        },
+      ]
+    );
+    expect(run.plainOutput).not.toContain('Enter a value for --client-id');
+    expect(run.plainOutput).not.toContain('Select OAuth2 client');
   });
 
   describe('--sub is picked from the users', () => {

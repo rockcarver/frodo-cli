@@ -24,7 +24,8 @@ Arguments:
   password                      Password.
 
 Options:
-  -i, --client-id <id>          Client id. (prompts if missing)
+  -i, --client-id <id>          Client id. (pick from OAuth2 client) (prompts if
+                                missing)
   -s, --client-secret [secret]  Client secret. Without a value, it is asked for
                                 (input hidden) or, when input is piped, read
                                 from stdin. (prompts if missing)
