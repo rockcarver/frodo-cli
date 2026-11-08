@@ -373,16 +373,23 @@ export async function exportResourceTypesToFile(
 
 /**
  * Export all resource types to separate files
+ * Every resource type is its own operation: a resource type that cannot be exported or saved is printed
+ * and counted, the others are still exported, and one summary names the ones that failed (record 0040).
+ * A failure to read the resource types fails the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
+ * @param {boolean} allowFailures true to report resource types that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypesToFiles(
   includeMeta: boolean = true,
-  keepModifiedProperties: boolean = false
+  keepModifiedProperties: boolean = false,
+  allowFailures = false
 ): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: begin`);
-  const errors = [];
+  const run = new OperationRun({ unit: 'resource type', allowFailures });
+  const errors: FrodoError[] = [];
+  let readFailed = false;
   let indicatorId: string;
   try {
     const resourceTypes: ResourceTypeSkeleton[] = await readResourceTypes();
@@ -404,17 +411,28 @@ export async function exportResourceTypesToFiles(
           keepModifiedProperties
         );
         updateProgressIndicator(indicatorId, `Exported ${resourceType.name}.`);
+        run.recordSuccess();
       } catch (error) {
-        errors.push(error);
+        errors.push(
+          new FrodoError(
+            `Error exporting resource type ${resourceType.name}`,
+            error
+          )
+        );
+        run.recordFailure(resourceType.name, error);
       }
     }
     if (errors.length > 0) {
-      throw new FrodoError(`Error exporting policies`, errors);
+      stopProgressIndicator(
+        indicatorId,
+        `Error exporting resource types to files`,
+        'fail'
+      );
+    } else {
+      stopProgressIndicator(indicatorId, `Export complete.`);
     }
-    stopProgressIndicator(indicatorId, `Export complete.`);
-    debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: end`);
-    return true;
   } catch (error) {
+    readFailed = true;
     stopProgressIndicator(
       indicatorId,
       `Error exporting resource types to files`,
@@ -422,7 +440,11 @@ export async function exportResourceTypesToFiles(
     );
     printError(error);
   }
-  return false;
+  for (const error of errors) {
+    printError(error);
+  }
+  debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: end`);
+  return run.finish() && !readFailed;
 }
 
 /**

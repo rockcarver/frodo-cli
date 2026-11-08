@@ -56,6 +56,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'idpId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -90,7 +91,8 @@ export default function setup() {
           else if (options.allSeparate) {
             verboseMessage('Exporting all providers to separate files...');
             const outcome = await exportAdminFederationProvidersToFiles(
-              options.metadata
+              options.metadata,
+              options.allowFailures
             );
             if (!outcome) process.exitCode = 1;
           }

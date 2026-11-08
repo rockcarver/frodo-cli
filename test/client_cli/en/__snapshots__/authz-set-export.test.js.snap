@@ -27,6 +27,10 @@ Options:
   -A, --all-separate         Export all applications/policy sets to separate
                              files (*.authz.json) in the current directory.
                              Cannot be used with -i, -f or -a.
+  --allow-failures           Report operations that fail, but still exit with
+                             code 0. Without this option the command runs every
+                             operation, prints a summary of what failed and
+                             exits with code 1.
   -f, --file <file>          Name of the export file. Cannot be used with -A.
   -i, --set-id <set-id>      Policy set id/name. Cannot be used with -a or -A.
   -M, --modified-properties  Include modified properties in export (e.g.

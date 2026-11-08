@@ -70,6 +70,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'policyId', 'setId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -143,7 +144,8 @@ export default function setup() {
               deps: options.deps,
               prereqs: options.prereqs,
               useStringArrays: true,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -159,7 +161,8 @@ export default function setup() {
               deps: options.deps,
               prereqs: options.prereqs,
               useStringArrays: true,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

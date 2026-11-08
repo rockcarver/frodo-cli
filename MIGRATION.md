@@ -184,8 +184,10 @@ export -A`, `agent gateway export -A`, `agent java export -A`, `agent web export
 remote-proxy export -A`, `mapping export -A`, `journey export`, `script export`,
 `theme export`, `node export`, `email template export`, `service export`, `realm
 export -A`, `role export -A`, `saml export -A`, `saml cot export -A`, `idp
-export -A`, `app export -A` and `oauth client export -A`. For the deletes this
-means a
+export -A`, `app export -A`, `oauth client export -A` and the bulk exports (`-a`
+and `-A`) of `authz policy`, `authz set`, `authz type`, `esv secret`, `esv
+variable`, `secretstore`, `server`, `iga workflow` and `admin federation`. For
+the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -206,6 +208,21 @@ are none. Listing the agents fails the command whatever `--allow-failures` says;
 since frodo-lib 5.0.0-26 `agent delete -a`, like `agent list` and `agent
 export`, also fails when an agent type cannot be listed for any reason other
 than HTTP 501 (not implemented), where it used to skip that type without a word.
+The bulk exports of these commands now export every item they can, print one
+summary that names the items that could not be exported or written, and exit 1
+(or 0 with `--allow-failures`). `esv secret export -A`, `esv variable export
+-A`, `server export -A` and `admin federation export -A` used to stop at the
+first item that failed and left the later ones unexported; `authz policy export
+-A`, `authz set export -A` and `authz type export -A` already exported the other
+items but ended with one combined error; `secretstore export` and `iga workflow
+export` already printed the error of each failed item and exited 1 but ended
+without a summary. `esv variable export -a` now says why it failed, where it used
+to exit 1 without a reason. A secret store or a workflow whose file cannot be
+written is named in the summary too. Exporting everything to one file (`-a`) of
+`authz policy`, `authz set`, `authz type`, `esv secret`, `esv variable`,
+`server` and `admin federation` reads everything in one library call: if it
+fails, no file is written and the command fails whatever `--allow-failures`
+says.
 `oauth client delete -a` did not delete anything; it now deletes all OAuth2
 clients, after asking for confirmation (add `--yes` in a script, cli record
 0037). `journey delete -a` printed "Deleted N journeys" with N counting the

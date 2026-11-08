@@ -60,6 +60,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'typeId', 'typeName'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -112,7 +113,8 @@ export default function setup() {
           );
           const outcome = await exportResourceTypesToFiles(
             options.metadata,
-            options.modifiedProperties
+            options.modifiedProperties,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

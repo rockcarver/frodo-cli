@@ -29,6 +29,10 @@ Options:
   -A, --all-separate             Export all servers to separate files
                                  (*.server.json) in the current directory.
                                  Cannot be used with -i, -u, -f or -a.
+  --allow-failures               Report operations that fail, but still exit
+                                 with code 0. Without this option the command
+                                 runs every operation, prints a summary of what
+                                 failed and exits with code 1.
   -d, --default                  Export server(s) along with the default server
                                  properties.
   -f, --file <file>              Name of the export file. Cannot be used with

@@ -498,31 +498,36 @@ export async function exportVariablesToFile(
       'success'
     );
     return true;
-  } catch {
+  } catch (error) {
     stopProgressIndicator(
       spinnerId,
       `Error exporting variables to ${c.heading(getFilePath(file))}`,
       'fail'
     );
+    printError(error);
   }
   debugMessage(`Cli.VariablesOps.exportVariablesToFile: end [file=${file}]`);
   return false;
 }
 
 /**
- * Export all variables to seperate files
+ * Export all variables to separate files
+ * Every variable is its own operation: a variable that cannot be exported or saved is printed and counted,
+ * the others are still exported, and one summary names the ones that failed (record 0040). A failure to
+ * read the variables fails the command whatever `--allow-failures` says.
  * @param {boolean} noDecode Do not decode variable values. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
+ * @param {boolean} allowFailures true to report variables that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFiles(
   noDecode: boolean = false,
   includeMeta: boolean = true,
-  keepModifiedProperties: boolean = false
+  keepModifiedProperties: boolean = false,
+  allowFailures = false
 ): Promise<boolean> {
   let spinnerId: string;
-  let indicatorId: string;
   let variableList: VariableSkeleton[];
   try {
     spinnerId = createProgressIndicator(
@@ -541,13 +546,14 @@ export async function exportVariablesToFiles(
     printError(error);
     return false;
   }
-  try {
-    indicatorId = createProgressIndicator(
-      'determinate',
-      variableList.length,
-      'Exporting variables'
-    );
-    for (const variable of variableList) {
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    variableList.length,
+    'Exporting variables'
+  );
+  const run = new OperationRun({ unit: 'variable', allowFailures });
+  for (const variable of variableList) {
+    await run.run(variable._id, async () => {
       const fileName = getTypedFilename(variable._id, 'variable');
       const exportData: VariablesExportInterface = await exportVariable(
         variable._id,
@@ -561,17 +567,16 @@ export async function exportVariablesToFiles(
         keepModifiedProperties
       );
       updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
-    }
-    stopProgressIndicator(
-      indicatorId,
-      `${variableList.length} variables exported`
-    );
-    return true;
-  } catch (error) {
-    stopProgressIndicator(indicatorId, `Error exporting variables`);
-    printError(error);
+    });
   }
-  return false;
+  stopProgressIndicator(
+    indicatorId,
+    run.hasFailures
+      ? `Some variables could not be exported`
+      : `${variableList.length} variables exported`,
+    run.hasFailures ? 'fail' : 'success'
+  );
+  return run.finish();
 }
 
 /**

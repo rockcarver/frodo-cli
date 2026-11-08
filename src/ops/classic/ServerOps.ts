@@ -16,6 +16,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../../utils/Console';
+import { OperationRun } from '../../utils/OperationRun';
 
 const {
   getTypedFilename,
@@ -144,9 +145,13 @@ export async function exportServersToFile(
 
 /**
  * Export all servers to separate files
+ * Every server is saved as its own operation: a server that cannot be saved is printed and counted, the
+ * others are still saved, and one summary names the ones that failed (record 0040). The library reads all
+ * servers or none, so a failure to read them fails the command whatever `--allow-failures` says.
  * @param {boolean} extract true to extract the server properties from the export, false otherwise
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {ServerExportOptions} options export options
+ * @param {boolean} allowFailures true to report servers that could not be saved but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportServersToFiles(
@@ -154,8 +159,10 @@ export async function exportServersToFiles(
   includeMeta: boolean = true,
   options: ServerExportOptions = {
     includeDefault: true,
-  }
+  },
+  allowFailures = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'server', allowFailures });
   try {
     const exportData = await exportServers(options);
     saveServersToFiles(
@@ -163,11 +170,13 @@ export async function exportServersToFiles(
       undefined,
       getWorkingDirectory(true),
       extract,
-      includeMeta
+      includeMeta,
+      run
     );
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting servers to files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -332,13 +341,16 @@ export async function importFirstServerFromFile(
  * @param {string} directory the optional directory to save to; default is working directory
  * @param {boolean} extract true to extract server properties to separate files. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {OperationRun} run Optional. When given and saving to a directory, every server is its own operation:
+ * a server that cannot be saved is printed and recorded in the run, and the others are still saved.
  */
 export function saveServersToFiles(
   exportData: ServerExportInterface,
   file?: string,
   directory: string = getWorkingDirectory(true),
   extract: boolean = false,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  run?: OperationRun
 ): void {
   const workingDirectory = getWorkingDirectory();
   const relativeDirectory = directory.substring(
@@ -362,29 +374,43 @@ export function saveServersToFiles(
   }
   Object.entries(exportData.server).forEach(
     ([serverId, server]: [string, any]) => {
-      if (extract) {
-        // Save server properties separately in their own directories
-        for (const [name, props] of Object.entries(server.properties)) {
-          server.properties[name] = extractDataToFile(
-            props,
-            `${serverId}/${getTypedFilename(name, 'properties.server')}`,
-            relativeDirectory
+      const saveServer = () => {
+        if (extract) {
+          // Save server properties separately in their own directories
+          for (const [name, props] of Object.entries(server.properties)) {
+            server.properties[name] = extractDataToFile(
+              props,
+              `${serverId}/${getTypedFilename(name, 'properties.server')}`,
+              relativeDirectory
+            );
+          }
+        }
+        if (!file) {
+          // Save server export data
+          const fileName = getTypedFilename(serverId, 'server');
+          saveJsonToFile(
+            {
+              server: {
+                [serverId]: server,
+              },
+              defaultProperties: exportData.defaultProperties,
+            },
+            `${directory}/${fileName}`,
+            includeMeta
           );
         }
+      };
+      // one operation per server when saving to a directory, otherwise the file is one operation
+      if (!run || file) {
+        saveServer();
+        return;
       }
-      if (!file) {
-        // Save server export data
-        const fileName = getTypedFilename(serverId, 'server');
-        saveJsonToFile(
-          {
-            server: {
-              [serverId]: server,
-            },
-            defaultProperties: exportData.defaultProperties,
-          },
-          `${directory}/${fileName}`,
-          includeMeta
-        );
+      try {
+        saveServer();
+        run.recordSuccess();
+      } catch (error) {
+        printError(error);
+        run.recordFailure(serverId, error);
       }
     }
   );

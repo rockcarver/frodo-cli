@@ -26,7 +26,6 @@
 
 /** The first failed operation ends the run: later operations are never attempted. */
 export const STOPS_AT_THE_FIRST_ERROR = [
-  'frodo admin federation export',
   'frodo admin generate-rfc7523-authz-grant-artefacts',
   'frodo admin grant-oauth2-client-admin-privileges',
   'frodo admin revoke-oauth2-client-admin-privileges',
@@ -63,14 +62,11 @@ export const STOPS_AT_THE_FIRST_ERROR = [
   'frodo config-manager push services',
   'frodo config-manager push telemetry',
   'frodo config-manager push themes',
-  'frodo esv secret export',
-  'frodo esv variable export',
   'frodo idm remote-proxy import',
   'frodo idm remote-proxy setup',
   'frodo idm remote-proxy teardown',
   'frodo mapping delete',
   'frodo mapping rename',
-  'frodo server export',
 ];
 
 /** A failure is caught or ignored (an empty catch, a logged error, an ignored result) and the command exits 0. */
@@ -116,10 +112,8 @@ export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
   'frodo esv secret version prune',
   'frodo idm import',
   'frodo idm schema object import',
-  'frodo iga workflow export',
   'frodo journey describe',
   'frodo journey import',
-  'frodo secretstore export',
 ];
 
 /** The other operations run and the failures are reported, but the exit code stays 0. */
@@ -131,10 +125,7 @@ export const CONTINUES_BUT_EXITS_ZERO = [
 /** The other operations run, each failure is named in one combined error and the exit code is 1. Closest to the rule; still lacks the "N of M" summary and --allow-failures. */
 export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [
   'frodo app import',
-  'frodo authz policy export',
   'frodo authz policy import',
-  'frodo authz set export',
-  'frodo authz type export',
   'frodo authz type import',
   'frodo config-manager push connector-definitions',
   'frodo config-manager push email-templates',
