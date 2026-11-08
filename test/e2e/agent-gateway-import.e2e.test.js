@@ -88,16 +88,26 @@ describe('frodo agent gateway import', () => {
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
+    // The recording of this test no longer replays: the library finds no recorded request for any of the agents, so every
+    // import fails in the replay. The command used to swallow that and exit 0; it now prints the failure summary and exits 1
+    // (cli record 0040, agent imports). The exit code snapshot below was added by hand, nothing was re-recorded; recording
+    // this test again needs a maintainer.
     test(`"frodo agent gateway import -AD ${allSeparateGatewayAgentsDirectory}": should import all agents from the ${allSeparateGatewayAgentsDirectory} directory"`, async () => {
         const CMD = `frodo agent gateway import -AD ${allSeparateGatewayAgentsDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
+        const { stdout, code } = await exec(CMD, env).catch((error) => error);
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+        expect(code).toMatchSnapshot();
     });
 
+    // The recording of this test no longer replays: the library finds no recorded request for any of the agents, so every
+    // import fails in the replay. The command used to swallow that and exit 0; it now prints the failure summary and exits 1
+    // (cli record 0040, agent imports). The exit code snapshot below was added by hand, nothing was re-recorded; recording
+    // this test again needs a maintainer.
     test(`"frodo agent gateway import --all-separate --directory ${allSeparateGatewayAgentsDirectory}": should import all agents from the ${allSeparateGatewayAgentsDirectory} directory"`, async () => {
         const CMD = `frodo agent gateway import --all-separate --directory ${allSeparateGatewayAgentsDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
+        const { stdout, code } = await exec(CMD, env).catch((error) => error);
+        expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+        expect(code).toMatchSnapshot();
     });
 
 });

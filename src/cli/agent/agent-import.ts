@@ -51,6 +51,7 @@ export default function setup() {
       options: ['agentId', 'all', 'allSeparate', 'file', 'global'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -86,14 +87,18 @@ export default function setup() {
             );
             const outcome = await importAgentsFromFile(
               options.file,
-              options.global
+              options.global,
+              options.allowFailures
             );
             if (!outcome) process.exitCode = 1;
           }
           // --all-separate -A
           else if (options.allSeparate && !options.file) {
             verboseMessage('Importing all agents from separate files...');
-            const outcome = await importAgentsFromFiles(options.global);
+            const outcome = await importAgentsFromFiles(
+              options.global,
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
           // import first agent in file
@@ -114,6 +119,8 @@ export default function setup() {
             program.help();
           }
         }
+        // the login failed (cli#1094)
+        else process.exitCode = 1;
       }
       // end command logic inside action handler
     );

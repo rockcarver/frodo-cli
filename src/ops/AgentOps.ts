@@ -89,6 +89,150 @@ function normalizeAgentImportData(
 }
 
 /**
+ * Reads and parses an agent import file.
+ * @param {string} file import file name
+ * @returns {AgentExportInterface} the import data
+ */
+function readAgentImportFile(file: string): AgentExportInterface {
+  const data = fs.readFileSync(getFilePath(file), 'utf8');
+  return normalizeAgentImportData(JSON.parse(data) as AgentImportData);
+}
+
+/**
+ * Imports the agents of one parsed import file through one of the library's
+ * bulk imports and counts every agent in the {@link OperationRun}. The library
+ * tries every agent of the file and, after all were tried, throws ONE error that
+ * carries one nested error per agent that could not be imported (naming it); the
+ * agents without a nested error were imported.
+ * @param {object} params structured and named parameters
+ * @param {OperationRun} params.run the run that counts the agents
+ * @param {string} params.what what is imported, for the messages, e.g. 'java agents'
+ * @param {string} params.file the file the agents come from, for the messages
+ * @param {AgentExportInterface} params.importData the parsed import file
+ * @param {Function} params.importAll calls the library's bulk import
+ */
+async function importAgentsOfData({
+  run,
+  what,
+  file,
+  importData,
+  importAll,
+}: {
+  run: OperationRun;
+  what: string;
+  file: string;
+  importData: AgentExportInterface;
+  importAll: (importData: AgentExportInterface) => Promise<unknown>;
+}): Promise<void> {
+  const total = Object.keys(importData.agent).length;
+  // nothing to import is not a failure (record 0041)
+  if (total === 0) return;
+  try {
+    await importAll(importData);
+    for (let i = 0; i < total; i++) run.recordSuccess();
+  } catch (error) {
+    printError(error, `Error importing ${what} from ${file}`);
+    run.recordCombinedError(error, { total, fallbackName: file });
+  }
+}
+
+/**
+ * Imports all agents of the file that the command line names. The file cannot be
+ * read or parsed: that is not an item failure, the command fails whatever
+ * `--allow-failures` says. Every agent in it that cannot be imported is named in
+ * one summary.
+ * @param {object} params structured and named parameters
+ * @param {string} params.file import file name
+ * @param {string} params.what what is imported, for the messages, e.g. 'java agents'
+ * @param {Function} params.importAll calls the library's bulk import
+ * @param {boolean} params.allowFailures true to report agents that could not be imported but still succeed
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+async function importAgentsFromNamedFile({
+  file,
+  what,
+  importAll,
+  allowFailures,
+}: {
+  file: string;
+  what: string;
+  importAll: (importData: AgentExportInterface) => Promise<unknown>;
+  allowFailures: boolean;
+}): Promise<boolean> {
+  const run = new OperationRun({ unit: 'agent', allowFailures });
+  let importData: AgentExportInterface;
+  try {
+    debugMessage(
+      `cli.AgentOps.importAgentsFromNamedFile: ${what} from ${file}`
+    );
+    importData = readAgentImportFile(file);
+  } catch (error) {
+    printError(error, `Error importing ${what} from file`);
+    return false;
+  }
+  await importAgentsOfData({ run, what, file, importData, importAll });
+  return run.finish();
+}
+
+/**
+ * Imports the agents of all the files in the working directory whose name ends in
+ * `fileSuffix`. Every agent of every file is its own operation, and a file that
+ * cannot be read or parsed is a failed operation named by its file name, so the
+ * other files are still imported. The directory cannot be read: that is not an
+ * item failure, the command fails whatever `--allow-failures` says.
+ * @param {object} params structured and named parameters
+ * @param {string} params.what what is imported, for the messages, e.g. 'java agents'
+ * @param {string} params.fileSuffix the end of the names of the files to import, e.g. '.agent.json'
+ * @param {string} [params.onlyType] when given, only the agents of this type (`_type._id`) are imported and agents of other types in the files are skipped: the files are found by their name, which does not tell the type
+ * @param {Function} params.importAll calls the library's bulk import
+ * @param {boolean} params.allowFailures true to report agents that could not be imported but still succeed
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+async function importAgentsFromSeparateFiles({
+  what,
+  fileSuffix,
+  onlyType,
+  importAll,
+  allowFailures,
+}: {
+  what: string;
+  fileSuffix: string;
+  onlyType?: string;
+  importAll: (importData: AgentExportInterface) => Promise<unknown>;
+  allowFailures: boolean;
+}): Promise<boolean> {
+  const run = new OperationRun({ unit: 'agent', allowFailures });
+  try {
+    debugMessage(`cli.AgentOps.importAgentsFromSeparateFiles: ${what}`);
+    const files = fs
+      .readdirSync(getWorkingDirectory())
+      .filter((name) => name.toLowerCase().endsWith(fileSuffix));
+    for (const file of files) {
+      let importData: AgentExportInterface;
+      try {
+        importData = readAgentImportFile(file);
+      } catch (error) {
+        printError(error, `Error importing ${what} from ${file}`);
+        run.recordFailure(file, causeOf(error));
+        continue;
+      }
+      if (onlyType) {
+        for (const [agentId, agent] of Object.entries(importData.agent)) {
+          if (agent?._type?._id !== onlyType) delete importData.agent[agentId];
+        }
+      }
+      await importAgentsOfData({ run, what, file, importData, importAll });
+    }
+    return run.finish();
+  } catch (error) {
+    // not an item failure: the directory could not be read
+    printError(error, `Error importing ${what} from files`);
+    if (run.hasFailures) run.finish();
+  }
+  return false;
+}
+
+/**
  * Resolve agent status based on agent type
  * @param {any} agent agent object
  * @returns {string} status value
@@ -1109,253 +1253,149 @@ export async function importFirstWebAgentFromFile(
  * Import agents from file
  * @param {String} file file name
  * @param {boolean} global true to export global agents, false otherwise
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importAgentsFromFile(
   file: string,
-  global: boolean = false
+  global: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  try {
-    debugMessage(`importAgentsFromFile: start`);
-    const filePath = getFilePath(file);
-    const data = fs.readFileSync(filePath, 'utf8');
-    debugMessage(`importAgentsFromFile: importing ${filePath}`);
-    const importData = normalizeAgentImportData(
-      JSON.parse(data) as AgentImportData
-    );
-    await importAgents(importData, global);
-    debugMessage(`importAgentsFromFile: end`);
-    return true;
-  } catch (error) {
-    printError(error, `Error importing agents from file`);
-  }
-  return false;
+  return importAgentsFromNamedFile({
+    file,
+    what: 'agents',
+    importAll: (importData) => importAgents(importData, global),
+    allowFailures,
+  });
 }
 
 /**
  * Import identity gateway agents from file
  * @param {String} file file name
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importIdentityGatewayAgentsFromFile(
-  file: string
+  file: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  try {
-    debugMessage(`cli.AgentOps.importIdentityGatewayAgentsFromFile: start`);
-    const filePath = getFilePath(file);
-    const data = fs.readFileSync(filePath, 'utf8');
-    debugMessage(
-      `cli.AgentOps.importIdentityGatewayAgentsFromFile: importing ${filePath}`
-    );
-    const importData = normalizeAgentImportData(
-      JSON.parse(data) as AgentImportData
-    );
-    await importIdentityGatewayAgents(importData);
-    debugMessage(`cli.AgentOps.importIdentityGatewayAgentsFromFile: end`);
-    return true;
-  } catch (error) {
-    printError(error, `Error importing identity gateway agents from file`);
-  }
-  return false;
+  return importAgentsFromNamedFile({
+    file,
+    what: 'identity gateway agents',
+    importAll: (importData) => importIdentityGatewayAgents(importData),
+    allowFailures,
+  });
 }
 
 /**
  * Import java agents from file
  * @param {String} file file name
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importJavaAgentsFromFile(file: string): Promise<boolean> {
-  try {
-    debugMessage(`cli.AgentOps.importJavaAgentsFromFile: start`);
-    const filePath = getFilePath(file);
-    const data = fs.readFileSync(filePath, 'utf8');
-    debugMessage(
-      `cli.AgentOps.importJavaAgentsFromFile: importing ${filePath}`
-    );
-    const importData = normalizeAgentImportData(
-      JSON.parse(data) as AgentImportData
-    );
-    await importJavaAgents(importData);
-    debugMessage(`cli.AgentOps.importJavaAgentsFromFile: end`);
-    return true;
-  } catch (error) {
-    printError(error, `Error importing java agents from file`);
-  }
-  return false;
+export async function importJavaAgentsFromFile(
+  file: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return importAgentsFromNamedFile({
+    file,
+    what: 'java agents',
+    importAll: (importData) => importJavaAgents(importData),
+    allowFailures,
+  });
 }
 
 /**
  * Import web agents from file
  * @param {String} file file name
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importWebAgentsFromFile(file: string): Promise<boolean> {
-  try {
-    debugMessage(`cli.AgentOps.importWebAgentsFromFile: start`);
-    const filePath = getFilePath(file);
-    const data = fs.readFileSync(filePath, 'utf8');
-    debugMessage(`cli.AgentOps.importWebAgentsFromFile: importing ${filePath}`);
-    const importData = normalizeAgentImportData(
-      JSON.parse(data) as AgentImportData
-    );
-    await importWebAgents(importData);
-    debugMessage(`cli.AgentOps.importWebAgentsFromFile: end`);
-    return true;
-  } catch (error) {
-    printError(error, `Error importing web agents from file`);
-  }
-  return false;
+export async function importWebAgentsFromFile(
+  file: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return importAgentsFromNamedFile({
+    file,
+    what: 'web agents',
+    importAll: (importData) => importWebAgents(importData),
+    allowFailures,
+  });
 }
 
 /**
  * Import all agents from separate files
  * @param {boolean} global true to export global agents, false otherwise
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importAgentsFromFiles(
-  global: boolean = false
+  global: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors: Error[] = [];
-  try {
-    const names = fs.readdirSync(getWorkingDirectory());
-    const agentFiles = names.filter((name) =>
-      name.toLowerCase().endsWith('.agent.json')
-    );
-    for (const file of agentFiles) {
-      try {
-        await importAgentsFromFile(file, global);
-      } catch (error) {
-        errors.push(
-          new FrodoError(`Error importing agents from ${file}`, error)
-        );
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`One or more errors importing agents`, errors);
-    }
-    return true;
-  } catch (error) {
-    if (errors.length > 0) {
-      printError(error);
-    } else {
-      printError(error, `Error importing agents from files`);
-    }
-  }
-  return false;
+  return importAgentsFromSeparateFiles({
+    what: 'agents',
+    fileSuffix: '.agent.json',
+    importAll: (importData) => importAgents(importData, global),
+    allowFailures,
+  });
 }
 
 /**
- * Import all identity gateway agents from separate files
+ * Import all identity gateway agents from separate files. The files are found by
+ * their name (*.agent.json), which does not tell the type of the agents in them:
+ * agents of other types are skipped.
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importIdentityGatewayAgentsFromFiles(): Promise<boolean> {
-  const errors: Error[] = [];
-  try {
-    debugMessage(`cli.AgentOps.importIdentityGatewayAgentsFromFiles: start`);
-    const names = fs.readdirSync(getWorkingDirectory());
-    const agentFiles = names.filter((name) =>
-      name.toLowerCase().endsWith('.agent.json')
-    );
-    for (const file of agentFiles) {
-      try {
-        await importIdentityGatewayAgentsFromFile(file);
-      } catch (error) {
-        errors.push(
-          new FrodoError(
-            `Error importing identity gateway agents from ${file}`,
-            error
-          )
-        );
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(
-        `One or more errors importing identity gateway agents`,
-        errors
-      );
-    }
-    debugMessage(`cli.AgentOps.importIdentityGatewayAgentsFromFiles: end`);
-    return true;
-  } catch (error) {
-    if (errors.length > 0) {
-      printError(error);
-    } else {
-      printError(error, `Error importing identity gateway agents from files`);
-    }
-  }
-  return false;
+export async function importIdentityGatewayAgentsFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return importAgentsFromSeparateFiles({
+    what: 'identity gateway agents',
+    fileSuffix: '.agent.json',
+    onlyType: 'IdentityGatewayAgent',
+    importAll: (importData) => importIdentityGatewayAgents(importData),
+    allowFailures,
+  });
 }
 
 /**
- * Import all java agents from separate files
+ * Import all java agents from separate files. The files are found by their name
+ * (*.agent.json), which does not tell the type of the agents in them: agents of
+ * other types are skipped.
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importJavaAgentsFromFiles(): Promise<boolean> {
-  const errors: Error[] = [];
-  try {
-    debugMessage(`cli.AgentOps.importJavaAgentsFromFiles: start`);
-    const names = fs.readdirSync(getWorkingDirectory());
-    const agentFiles = names.filter((name) =>
-      name.toLowerCase().endsWith('.agent.json')
-    );
-    for (const file of agentFiles) {
-      try {
-        await importJavaAgentsFromFile(file);
-      } catch (error) {
-        errors.push(
-          new FrodoError(`Error importing java agents from ${file}`, error)
-        );
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`One or more errors importing java agents`, errors);
-    }
-    debugMessage(`cli.AgentOps.importJavaAgentsFromFiles: end`);
-    return true;
-  } catch (error) {
-    if (errors.length > 0) {
-      printError(error);
-    } else {
-      printError(error, `Error importing java agents from files`);
-    }
-  }
-  return false;
+export async function importJavaAgentsFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return importAgentsFromSeparateFiles({
+    what: 'java agents',
+    fileSuffix: '.agent.json',
+    onlyType: 'J2EEAgent',
+    importAll: (importData) => importJavaAgents(importData),
+    allowFailures,
+  });
 }
 
 /**
- * Import all web agents from separate files
+ * Import all web agents from separate files. The files are found by their name
+ * (*.agent.json), which does not tell the type of the agents in them: agents of
+ * other types are skipped.
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importWebAgentsFromFiles(): Promise<boolean> {
-  const errors: Error[] = [];
-  try {
-    debugMessage(`cli.AgentOps.importWebAgentsFromFiles: start`);
-    const names = fs.readdirSync(getWorkingDirectory());
-    const agentFiles = names.filter((name) =>
-      name.toLowerCase().endsWith('.agent.json')
-    );
-    for (const file of agentFiles) {
-      try {
-        await importWebAgentsFromFile(file);
-      } catch (error) {
-        errors.push(
-          new FrodoError(`Error importing web agents from ${file}`, error)
-        );
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`One or more errors importing web agents`, errors);
-    }
-    debugMessage(`cli.AgentOps.importWebAgentsFromFiles: end`);
-    return true;
-  } catch (error) {
-    if (errors.length > 0) {
-      printError(error);
-    } else {
-      printError(error, `Error importing web agents from files`);
-    }
-  }
-  return false;
+export async function importWebAgentsFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return importAgentsFromSeparateFiles({
+    what: 'web agents',
+    fileSuffix: '.agent.json',
+    onlyType: 'WebAgent',
+    importAll: (importData) => importWebAgents(importData),
+    allowFailures,
+  });
 }
 
 /**
@@ -1684,24 +1724,19 @@ export async function importAIAgentFromFile(
 /**
  * Import AIAgents from file
  * @param {String} file file name
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importAIAgentsFromFile(file: string): Promise<boolean> {
-  try {
-    debugMessage(`cli.AgentOps.importAIAgentsFromFile: start`);
-    const filePath = getFilePath(file);
-    const data = fs.readFileSync(filePath, 'utf8');
-    debugMessage(`cli.AgentOps.importAIAgentsFromFile: importing ${filePath}`);
-    const importData = normalizeAgentImportData(
-      JSON.parse(data) as AgentImportData
-    );
-    await importAIAgents(importData);
-    debugMessage(`cli.AgentOps.importAIAgentsFromFile: end`);
-    return true;
-  } catch (error) {
-    printError(error, `Error importing AIAgents from file`);
-  }
-  return false;
+export async function importAIAgentsFromFile(
+  file: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return importAgentsFromNamedFile({
+    file,
+    what: 'AIAgents',
+    importAll: (importData) => importAIAgents(importData),
+    allowFailures,
+  });
 }
 
 /**
@@ -1933,36 +1968,18 @@ export async function describeAgents(
 
 /**
  * Import AIAgents from separate files
+ * @param {boolean} allowFailures true to report agents that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importAIAgentsFromFiles(): Promise<boolean> {
-  try {
-    debugMessage(`cli.AgentOps.importAIAgentsFromFiles: start`);
-    const workDir = getWorkingDirectory();
-    const files = fs.readdirSync(workDir);
-    const importFiles = files.filter((f) => f.endsWith('.ai.agent.json'));
-    let outcome = true;
-    for (const file of importFiles) {
-      const data = fs.readFileSync(getFilePath(file), 'utf8');
-      const importData = normalizeAgentImportData(
-        JSON.parse(data) as AgentImportData
-      );
-      if (!importData.agent) {
-        continue;
-      }
-      try {
-        await importAIAgents(importData);
-      } catch (error) {
-        printError(error, `Error importing AIAgents from file ${file}`);
-        outcome = false;
-      }
-    }
-    debugMessage(`cli.AgentOps.importAIAgentsFromFiles: end`);
-    return outcome;
-  } catch (error) {
-    printError(error, `Error importing AIAgents from files`);
-  }
-  return false;
+export async function importAIAgentsFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return importAgentsFromSeparateFiles({
+    what: 'AIAgents',
+    fileSuffix: '.ai.agent.json',
+    importAll: (importData) => importAIAgents(importData),
+    allowFailures,
+  });
 }
 
 /**

@@ -42,6 +42,7 @@ export default function setup() {
       options: ['agentId', 'all', 'allSeparate', 'file'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -70,13 +71,18 @@ export default function setup() {
             verboseMessage(
               `Importing all web agents from a single file (${options.file})...`
             );
-            const outcome = await importJavaAgentsFromFile(options.file);
+            const outcome = await importJavaAgentsFromFile(
+              options.file,
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
           // --all-separate -A
           else if (options.allSeparate && !options.file) {
             verboseMessage('Importing all web agents from separate files...');
-            const outcome = await importJavaAgentsFromFiles();
+            const outcome = await importJavaAgentsFromFiles(
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
           // import first journey in file
@@ -94,6 +100,8 @@ export default function setup() {
             program.help();
           }
         }
+        // the login failed (cli#1094)
+        else process.exitCode = 1;
       }
       // end command logic inside action handler
     );

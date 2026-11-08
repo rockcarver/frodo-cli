@@ -186,8 +186,9 @@ remote-proxy export -A`, `mapping export -A`, `journey export`, `script export`,
 export -A`, `role export -A`, `saml export -A`, `saml cot export -A`, `idp
 export -A`, `app export -A`, `oauth client export -A` and the bulk exports (`-a`
 and `-A`) of `authz policy`, `authz set`, `authz type`, `esv secret`, `esv
-variable`, `secretstore`, `server`, `iga workflow` and `admin federation`. For
-the deletes this means a
+variable`, `secretstore`, `server`, `iga workflow` and `admin federation`, and
+the agent imports `agent import`, `agent ai import`, `agent gateway import`,
+`agent java import` and `agent web import`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -275,7 +276,18 @@ which is now the summary. Reading the items fails the command whatever
 `--allow-failures` says. `-a` writes everything to one file and is one
 operation: when the library cannot export an item it reports it in one error
 and no file is written, so the command exits 1 and `--allow-failures` does not
-change that. See
+change that.
+The agent imports (`agent import`, `agent ai|gateway|java|web import`) with `-A`
+printed the error of every agent file that failed to import and exited 0,
+because the loop over the files never saw the failure; with `-a` they already
+exited 1 with one combined error. They now import every agent they can, print
+one summary that names the agents that could not be imported (and the files that
+are not valid JSON), and exit 1. A file named with `-f`, or a working directory,
+that cannot be read fails the command whatever `--allow-failures` says. `agent
+gateway|java|web import -A` took every `*.agent.json` file whatever the type of
+the agents in it and printed an error for each agent of another type; they now
+import the agents of their own type and skip the others. A failed login exited 0
+in the agent imports (frodo-cli#1094); it exits 1 now. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x
