@@ -1037,6 +1037,46 @@ export type SecretPrunePlan = {
   versions: VersionOfSecretSkeleton[];
 };
 
+/** A secret whose versions could not be read, so that nothing is known about what a prune would delete in it. */
+export type SecretNotChecked = {
+  secretId: string;
+  /** What went wrong, where it is known. */
+  reason?: string;
+};
+
+/**
+ * What the check of the secrets found: the plan for the secrets that could be
+ * checked, the secrets that could not, and the one run that the whole command
+ * is counted in (the checks and, later, the deletions), so that there is one
+ * summary at the end.
+ */
+export type SecretPruneCheck = {
+  plan: SecretPrunePlan[];
+  notChecked: SecretNotChecked[];
+  run: OperationRun;
+};
+
+/**
+ * The run of a prune of several secrets: every check of a secret and every
+ * deletion of a version is one operation, and one summary names the ones that
+ * failed.
+ * @param {boolean} allowFailures true to report what failed but still succeed. Default: false
+ * @returns {OperationRun} the run
+ */
+export function createPruneRun(allowFailures = false): OperationRun {
+  return new OperationRun({ unit: 'operation', allowFailures });
+}
+
+/**
+ * End the run of a prune with its one summary, for a command that does not
+ * delete (a dry run, a declined question, nothing to delete).
+ * @param {SecretPruneCheck} check what the check of the secrets found
+ * @returns {boolean} true if the command succeeded: nothing failed, or something failed and `--allow-failures` was given
+ */
+export function finishPrune(check: SecretPruneCheck): boolean {
+  return check.run.finish();
+}
+
 /**
  * Collapse version numbers into a compact list: 1, 2, 3 and 5 become "1-3, 5".
  * @param {string[]} versions version numbers
@@ -1077,29 +1117,29 @@ const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /**
  * Find the versions a prune would delete in each of the given secrets, without
- * deleting anything. The plan is all or nothing: when any secret cannot be
- * checked, no plan is returned, because a partial plan would understate what
- * pruning does.
+ * deleting anything. Every secret is checked; a secret that cannot be checked
+ * is a failed operation of the run, is listed as not checked, and does not
+ * stop the others.
  * @param {string[]} secretIds secret ids
  * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
  * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
- * @returns {Promise<SecretPrunePlan[] | undefined>} the plan, or undefined if any secret could not be checked
+ * @param {boolean} allowFailures true to report the secrets that could not be checked but still succeed. Default: false
+ * @returns {Promise<SecretPruneCheck>} the plan of the secrets that could be checked, the ones that could not, and the run
  */
 async function findPrunePlans(
   secretIds: string[],
   keepLoaded: boolean,
-  keepDeactivated: boolean
-): Promise<SecretPrunePlan[] | undefined> {
+  keepDeactivated: boolean,
+  allowFailures: boolean
+): Promise<SecretPruneCheck> {
   const indicatorId = createProgressIndicator(
     'determinate',
     secretIds.length,
     `Finding the versions to prune...`
   );
   const plan: SecretPrunePlan[] = [];
-  // The plan is all or nothing, so a secret that cannot be checked ends the command whatever `--allow-failures` says;
-  // every secret is still checked, and one summary names the ones that could not be.
-  const run = new OperationRun({ unit: 'secret' });
-  let failed = 0;
+  const notChecked: SecretNotChecked[] = [];
+  const run = createPruneRun(allowFailures);
   for (const secretId of secretIds) {
     try {
       plan.push({
@@ -1112,28 +1152,26 @@ async function findPrunePlans(
       });
       run.recordSuccess();
     } catch (error) {
-      failed++;
       printError(error);
-      run.recordFailure(secretId, causeOf(error));
+      notChecked.push({ secretId, reason: causeOf(error) });
+      run.recordFailure(`check of secret ${secretId}`, causeOf(error));
     }
     updateProgressIndicator(indicatorId, `Checked secret ${secretId}`);
   }
-  if (failed > 0) {
+  if (notChecked.length > 0) {
     stopProgressIndicator(
       indicatorId,
-      `Could not check ${failed} of ${count(secretIds.length, 'secret')}`,
+      `Could not check ${notChecked.length} of ${count(secretIds.length, 'secret')}`,
       'fail'
     );
-    run.finish();
-    printMessage('Nothing was deleted: the plan is incomplete.', 'error');
-    return undefined;
+  } else {
+    stopProgressIndicator(
+      indicatorId,
+      `Checked ${count(secretIds.length, 'secret')}.`,
+      'success'
+    );
   }
-  stopProgressIndicator(
-    indicatorId,
-    `Checked ${count(secretIds.length, 'secret')}.`,
-    'success'
-  );
-  return plan;
+  return { plan, notChecked, run };
 }
 
 /**
@@ -1141,26 +1179,30 @@ async function findPrunePlans(
  * @param {string} secretId secret id
  * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
  * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
- * @returns {Promise<SecretPrunePlan[] | undefined>} the plan, or undefined if the secret could not be checked
+ * @param {boolean} allowFailures true to report a secret that could not be checked but still succeed. Default: false
+ * @returns {Promise<SecretPruneCheck>} the plan, or the secret as not checked
  */
 export async function findVersionsToPruneOfSecret(
   secretId: string,
   keepLoaded = false,
-  keepDeactivated = false
-): Promise<SecretPrunePlan[] | undefined> {
-  return findPrunePlans([secretId], keepLoaded, keepDeactivated);
+  keepDeactivated = false,
+  allowFailures = false
+): Promise<SecretPruneCheck> {
+  return findPrunePlans([secretId], keepLoaded, keepDeactivated, allowFailures);
 }
 
 /**
  * Find the versions a prune would delete in all secrets, without deleting anything.
  * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
  * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
- * @returns {Promise<SecretPrunePlan[] | undefined>} the plan, or undefined if the secrets could not be read or checked
+ * @param {boolean} allowFailures true to report the secrets that could not be checked but still succeed. Default: false
+ * @returns {Promise<SecretPruneCheck | undefined>} the plan of the secrets that could be checked and the ones that could not, or undefined if the list of secrets could not be read (the error has been printed)
  */
 export async function findVersionsToPruneOfAllSecrets(
   keepLoaded = false,
-  keepDeactivated = false
-): Promise<SecretPrunePlan[] | undefined> {
+  keepDeactivated = false,
+  allowFailures = false
+): Promise<SecretPruneCheck | undefined> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -1183,28 +1225,52 @@ export async function findVersionsToPruneOfAllSecrets(
   return findPrunePlans(
     secrets.map((secret) => secret._id),
     keepLoaded,
-    keepDeactivated
+    keepDeactivated,
+    allowFailures
+  );
+}
+
+/**
+ * Print the secrets that could not be checked.
+ * @param {SecretNotChecked[]} notChecked the secrets
+ */
+function printNotChecked(notChecked: SecretNotChecked[]): void {
+  if (notChecked.length === 0) return;
+  printMessage(
+    `\nNot checked, so nothing is selected for ${count(notChecked.length, 'secret')}:\n` +
+      notChecked
+        .map(
+          ({ secretId, reason }) =>
+            `  - ${secretId}${reason ? `: ${reason}` : ''}`
+        )
+        .join('\n'),
+    'warn'
   );
 }
 
 /**
  * Print what a prune plan would delete: a table of the affected secrets, the
- * totals, and what is always kept.
- * @param {SecretPrunePlan[]} plan the plan
+ * totals, what is always kept and the secrets that could not be checked.
+ * @param {SecretPrunePlan[]} plan the plan of the secrets that could be checked
  * @param {boolean} keepLoaded the plan keeps the versions that are currently loaded. Default: false
  * @param {boolean} keepDeactivated the plan keeps the deactivated versions. Default: false
+ * @param {SecretNotChecked[]} notChecked the secrets that could not be checked. Default: none
  */
 export function printPrunePlan(
   plan: SecretPrunePlan[],
   keepLoaded = false,
-  keepDeactivated = false
+  keepDeactivated = false,
+  notChecked: SecretNotChecked[] = []
 ): void {
   const { secrets, affected, versions } = summarizePrunePlan(plan);
   if (versions === 0) {
     printMessage(
-      `Nothing to prune: ${count(secrets, 'secret')} checked, none has a version that is not kept.`,
+      secrets === 0 && notChecked.length > 0
+        ? `Nothing to prune: ${count(notChecked.length, 'secret')} could not be checked.`
+        : `Nothing to prune: ${count(secrets, 'secret')} checked, none has a version that is not kept.`,
       'info'
     );
+    printNotChecked(notChecked);
     return;
   }
   const table = createTable([
@@ -1231,6 +1297,7 @@ export function printPrunePlan(
     'data'
   );
   printMessage(`Always kept: ${kept.join(', ')}.`, 'data');
+  printNotChecked(notChecked);
   printMessage('Deleted versions cannot be recovered.', 'warn');
 }
 
@@ -1242,17 +1309,16 @@ export function printPrunePlan(
  * @param {SecretPrunePlan[]} plan the confirmed plan
  * @param {boolean} keepLoaded the plan keeps the versions that are currently loaded. Default: false
  * @param {boolean} keepDeactivated the plan keeps the deactivated versions. Default: false
- * @param {boolean} allowFailures true to report versions that could not be deleted but still succeed. Default: false
- * @returns {Promise<boolean>} true if no deletion failed (skipped versions are not failures), false otherwise
+ * @param {OperationRun} run the run of the command: the one of the check that made the plan, so that the secrets that could not be checked and the versions that could not be deleted are in one summary. Default: a new run
+ * @returns {Promise<boolean>} true if the command succeeded: no check and no deletion failed (skipped versions are not failures), or something failed and `--allow-failures` was given. False otherwise
  */
 export async function pruneVersionsOfPlan(
   plan: SecretPrunePlan[],
   keepLoaded = false,
   keepDeactivated = false,
-  allowFailures = false
+  run: OperationRun = createPruneRun()
 ): Promise<boolean> {
-  // every version is one operation; one summary names the versions that failed
-  const run = new OperationRun({ unit: 'version', allowFailures });
+  // every version is one operation; the summary names the versions that failed
   const work = plan.filter((p) => p.versions.length > 0);
   const total = summarizePrunePlan(work).versions;
   const indicatorId = createProgressIndicator(

@@ -542,16 +542,20 @@ nothing, and after a failed login only the error of the login, and exited 0
 either way; it now says what is missing and exits 1, and exits 1 after a failed
 login. `esv secret version prune` and `journey describe` already tried every
 version and every journey and exited 1; they now also print one summary that
-names the failed versions and journeys. The check of what `esv secret version
-prune -a` would delete is still all or nothing: a secret that cannot be checked
-deletes nothing and fails the command whatever `--allow-failures` says, and the
-summary names those secrets. `journey describe` now exits 1 after a failed
-login, as the other commands do. `journey prune` printed the error of each
-orphaned node it could not delete and exited 0; it now exits 1 and names the
-nodes. `journey validate` counts every journey as one operation: a journey with
-an error (or with a warning, with `--strict`) is a failed journey and is named
-in one summary, and a journey that cannot be validated (it is not in the file,
-or it cannot be exported) no longer hides the findings of the others. See
+names the failed versions and journeys. `esv secret version prune -a` checks
+every secret first: one that cannot be checked is listed as not checked and does
+not stop the others. The versions of the secrets that could be checked are still
+pruned (after the question, or with `-y`), and one summary at the end names the
+secrets that could not be checked together with any version that could not be
+deleted. The command then exits 1, or 0 with `--allow-failures`; `--dry-run`
+shows the same plan and ends the same way. `journey describe` now exits 1
+after a failed login, as the other commands do. `journey prune` printed the
+error of each orphaned node it could not delete and exited 0; it now exits 1 and
+names the nodes. `journey validate` counts every journey as one operation: a
+journey with an error (or with a warning, with `--strict`) is a failed journey
+and is named in one summary, and a journey that cannot be validated (it is not
+in the file, or it cannot be exported) no longer hides the findings of the
+others. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x
