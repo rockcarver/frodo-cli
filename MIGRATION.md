@@ -192,8 +192,10 @@ java import`, `agent web import`, `config import`, `idm import`, `idm schema
 object import -D`, `idm remote-proxy import`, `mapping import`, `journey
 import`, `node import`, `script import`, `theme import`, `email template
 import`, `service import`, `realm import`, `role import`, `saml import`, `saml
-cot import`, `idp import`, `app import` and `oauth client import`. For the
-deletes this means a
+cot import`, `idp import`, `app import`, `oauth client import`, `authz policy
+import`, `authz set import`, `authz type import`, `esv secret import`, `esv
+variable import`, `secretstore import`, `server import`, `iga workflow import`
+and `admin federation import`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -348,7 +350,26 @@ error and exited 1; there is nothing to import then, so it now warns and
 succeeds. After a failed login these commands used to print "Unrecognized
 combination of options or no options..." and the usage; they now print the login
 error only. The library does not say which circle of trust failed, so a file of
-circles of trust that fails is named as one failure. See
+circles of trust that fails is named as one failure.
+The bulk imports (`-a` and `-A`) of `authz policy`, `authz set`, `authz type`,
+`esv secret`, `esv variable`, `secretstore`, `server`, `iga workflow` and `admin
+federation` already tried every item and printed the error of each one they
+could not import, but said nothing about how many failed or which (the policies,
+policy sets, resource types, secrets, variables, servers and providers ended
+with one combined error per file); they now also print one summary that names
+the failed items. With `-A` a file that cannot be parsed is a failed item and
+the next file is imported anyway; `server import -A` used to read all files
+first and import nothing when one could not be parsed. `iga workflow import -A`
+ignored a file that could not be imported at all and could exit 0; it exits 1
+now. `secretstore import -i` printed "Successfully imported" after the error of
+a failed secret store; it now says the import failed. `secretstore import -f`
+without `-i`, `-a` or `-A` imported every secret store of the file instead of
+the first one; it imports the first one. `esv secret import`, `esv variable
+import`, `secretstore import`, `server import` and `admin federation import`
+printed "Unrecognized combination of options or no options..." and the help
+after a failed login; they now report the failed login and exit 1. A file that
+cannot be read or parsed with `-a`, and a directory that cannot be listed with
+`-A`, fail the command whatever `--allow-failures` says. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

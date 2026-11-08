@@ -63,6 +63,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'serverId', 'serverUrl'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -74,12 +75,26 @@ export default function setup() {
           options,
           command
         );
+        // an unrecognized combination of options is refused before the login
+        const importById =
+          (options.serverId || options.serverUrl) && options.file;
+        const importAll = options.all && options.file;
+        if (!(importById || importAll || options.allSeparate || options.file)) {
+          printMessage(
+            'Unrecognized combination of options or no options...',
+            'error'
+          );
+          process.exitCode = 1;
+          program.help();
+          return;
+        }
+        // a failed login is a failure of its own, not an unrecognized combination of options
+        if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
+          return;
+        }
         // import by id or url
-        if (
-          (options.serverId || options.serverUrl) &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        if (importById) {
           verboseMessage(
             `Importing server ${options.serverId || options.serverUrl}...`
           );
@@ -94,49 +109,37 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (
-          options.all &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (importAll) {
           verboseMessage(
             `Importing all servers from a single file (${options.file})...`
           );
-          const outcome = await importServersFromFile(options.file, {
-            includeDefault: options.default,
-          });
+          const outcome = await importServersFromFile(
+            options.file,
+            {
+              includeDefault: options.default,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.allSeparate) {
           verboseMessage('Importing all servers from separate files...');
-          const outcome = await importServersFromFiles({
-            includeDefault: options.default,
-          });
+          const outcome = await importServersFromFiles(
+            {
+              includeDefault: options.default,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import first server in file
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else {
           verboseMessage('Importing first server in file...');
           const outcome = await importFirstServerFromFile(options.file, {
             includeDefault: options.default,
           });
           if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

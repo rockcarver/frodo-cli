@@ -23,6 +23,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../utils/Console';
+import { countItems, recordImportOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -660,21 +661,44 @@ export async function importFirstPolicyFromFile(
 
 /**
  * Import policies from file
+ * Every policy of the file is one operation: the policies that cannot be imported are printed and named in one
+ * summary, and the others are still imported (record 0040). A file that cannot be read or parsed fails the command
+ * whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {PolicyImportOptions} options import options
+ * @param {boolean} allowFailures true to report policies that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importPoliciesFromFile(
   file: string,
-  options: PolicyImportOptions = { deps: true, prereqs: false }
+  options: PolicyImportOptions = { deps: true, prereqs: false },
+  allowFailures: boolean = false
 ): Promise<boolean> {
   debugMessage(`cli.PolicyOps.importPoliciesFromFile: begin`);
+  const run = new OperationRun({ unit: 'policy', allowFailures });
   const filePath = getFilePath(file);
+  const target = options.policySetName
+    ? ' into policy set ' + options.policySetName
+    : '.';
   showSpinner(`Importing ${filePath}...`);
+  let fileData: PolicyExportInterface;
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    const policies = await importPolicies(fileData, options);
+    fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    failSpinner(`Error importing ${filePath}${target}`);
+    printError(error);
+    return false;
+  }
+  const { result: policies, error } = await recordImportOfFile({
+    run,
+    itemCount: countItems(fileData, 'policy'),
+    fileName: filePath,
+    importItems: () => importPolicies(fileData, options),
+  });
+  if (error) {
+    failSpinner(`Error importing ${filePath}${target}`);
+    printError(error);
+  } else {
     (policies.length ? succeedSpinner : warnSpinner)(
       `Imported ${policies.length} policies from ${filePath}${
         options.policySetName
@@ -682,32 +706,26 @@ export async function importPoliciesFromFile(
           : '.'
       }`
     );
-    debugMessage(`cli.PolicyOps.importPoliciesFromFile: end`);
-    return true;
-  } catch (error) {
-    failSpinner(
-      `Error importing ${filePath}${
-        options.policySetName
-          ? ' into policy set ' + options.policySetName
-          : '.'
-      }`
-    );
-    printError(error);
   }
-  return false;
+  debugMessage(`cli.PolicyOps.importPoliciesFromFile: end`);
+  return run.finish();
 }
 
 /**
  * Import policies from files
+ * Every policy of every file is one operation, and a file that cannot be read or parsed is a failure that is named
+ * too: the others are still imported and one summary names the failures (record 0040). A directory that cannot be
+ * read fails the command whatever `--allow-failures` says.
  * @param {PolicyImportOptions} options import options
+ * @param {boolean} allowFailures true to report policies that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importPoliciesFromFiles(
-  options: PolicyImportOptions = { deps: true, prereqs: false }
+  options: PolicyImportOptions = { deps: true, prereqs: false },
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors = [];
+  const run = new OperationRun({ unit: 'policy', allowFailures });
   let indicatorId: string;
-  let failedFiles = 0;
   try {
     debugMessage(`cli.PolicyOps.importPoliciesFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
@@ -727,40 +745,52 @@ export async function importPoliciesFromFiles(
     );
     let total = 0;
     for (const file of files) {
+      let fileData: PolicyExportInterface;
       try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData: PolicyExportInterface = JSON.parse(data);
-        const policies = await importPolicies(fileData, options);
+        fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      } catch (error) {
+        printError(error);
+        run.recordFailure(file, error);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing policies from ${file}`
+        );
+        continue;
+      }
+      const { result: policies, error } = await recordImportOfFile({
+        run,
+        itemCount: countItems(fileData, 'policy'),
+        fileName: file,
+        importItems: () => importPolicies(fileData, options),
+      });
+      if (error) {
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing policies from ${file}`
+        );
+        printError(error);
+      } else {
         total += policies.length;
         updateProgressIndicator(
           indicatorId,
           `Imported ${policies.length} policies from ${file}`
         );
-      } catch (error) {
-        errors.push(error);
-        failedFiles += 1;
-        updateProgressIndicator(
-          indicatorId,
-          `Error importing policies from ${file}`
-        );
       }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(
-        `Failed after processing ${total} policies from ${files.length} files; ${failedFiles} files had errors.`,
-        errors
-      );
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} policies from ${files.length} files.`,
-      total ? 'success' : 'warn'
+      run.hasFailures
+        ? `Finished importing ${total} policies from ${files.length} files; some could not be imported.`
+        : `Finished importing ${total} policies from ${files.length} files.`,
+      run.hasFailures ? 'fail' : total ? 'success' : 'warn'
     );
     debugMessage(`cli.PolicyOps.importPoliciesFromFiles: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     stopProgressIndicator(indicatorId, `Error importing policies`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

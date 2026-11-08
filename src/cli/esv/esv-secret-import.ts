@@ -86,6 +86,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'secretId'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -96,11 +97,23 @@ export default function setup() {
           options,
           command
         );
+        // an unrecognized combination of options is refused before the login
+        const importById = options.secretId;
+        const importAll = options.all && options.file;
+        const importAllSeparate = options.allSeparate && !options.file;
+        if (!(importById || importAll || importAllSeparate || options.file)) {
+          printMessage('Unrecognized combination of options or no options...');
+          process.exitCode = 1;
+          program.help();
+          return;
+        }
+        // a failed login is a failure of its own, not an unrecognized combination of options
+        if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
+          return;
+        }
         // import
-        if (
-          options.secretId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        if (importById) {
           printMessage(`Importing secret ${options.secretId}...`);
           const outcome = await importSecretFromFile(
             options.secretId,
@@ -111,41 +124,32 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (
-          options.all &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (importAll) {
           printMessage(
             `Importing all secrets from a single file (${options.file})...`
           );
           const outcome = await importSecretsFromFile(
             options.file,
             options.includeActiveValues,
-            options.source
+            options.source,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          !options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (importAllSeparate) {
           printMessage(
             'Importing all secrets from separate files in working directory...'
           );
           const outcome = await importSecretsFromFiles(
             options.includeActiveValues,
-            options.source
+            options.source,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
         // import first
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else {
           printMessage('Importing first secret in file...');
           const outcome = await importSecretFromFile(
             null,
@@ -154,12 +158,6 @@ export default function setup() {
             options.source
           );
           if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

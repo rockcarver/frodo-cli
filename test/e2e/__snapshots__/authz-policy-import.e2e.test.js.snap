@@ -15,20 +15,26 @@ exports[`frodo authz policy import "frodo authz policy import --force-update --a
 `;
 
 exports[`frodo authz policy import "frodo authz policy import --force-update --all-separate --set-id test-policy-set --no-deps --prereqs --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policy": should fail when prerequisite definitions are not included in the separate export files 1`] = `
-"✖ Error importing policies
-Failed after processing 0 policies from 6 files; 6 files had errors.
-  Error importing alpha realm policies
-    Import data is missing prerequisite resource type definitions for policy FeatureStorePolicy. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
-  Error importing alpha realm policies
-    Import data is missing prerequisite resource type definitions for policy HR-webapp. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
-  Error importing alpha realm policies
-    Import data is missing prerequisite resource type definitions for policy Test Policy. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
-  Error importing alpha realm policies
-    Import data is missing prerequisite resource type definitions for policy actions. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
-  Error importing alpha realm policies
-    Import data is missing prerequisite resource type definitions for policy activity. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
-  Error importing alpha realm policies
-    Import data is missing prerequisite resource type definitions for policy apply. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+"Error importing alpha realm policies
+  Import data is missing prerequisite resource type definitions for policy FeatureStorePolicy. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policies
+  Import data is missing prerequisite resource type definitions for policy HR-webapp. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policies
+  Import data is missing prerequisite resource type definitions for policy Test Policy. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policies
+  Import data is missing prerequisite resource type definitions for policy actions. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policies
+  Import data is missing prerequisite resource type definitions for policy activity. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policies
+  Import data is missing prerequisite resource type definitions for policy apply. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+✖ Finished importing 0 policies from 6 files; some could not be imported.
+6 of 6 policies failed:
+  - Import data is missing prerequisite resource type definitions for policy FeatureStorePolicy. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+  - Import data is missing prerequisite resource type definitions for policy HR-webapp. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+  - Import data is missing prerequisite resource type definitions for policy Test Policy. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+  - Import data is missing prerequisite resource type definitions for policy actions. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+  - Import data is missing prerequisite resource type definitions for policy activity. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+  - Import data is missing prerequisite resource type definitions for policy apply. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
 "
 `;
 
@@ -56,10 +62,11 @@ exports[`frodo authz policy import "frodo authz policy import --no-deps -FAD tes
 `;
 
 exports[`frodo authz policy import "frodo authz policy import -FAD test/e2e/exports/all-separate/cloud/realm/root-alpha/policy": should fail when dependency definitions are not included in the separate export files 1`] = `
-"✖ Error importing policies
-Failed after processing 5 policies from 6 files; 1 files had errors.
-  Error importing alpha realm policies
-    Import data is missing dependency script definitions for policy Test Policy. Provide import data with dependency script definitions included, or omit dependency import handling.
+"Error importing alpha realm policies
+  Import data is missing dependency script definitions for policy Test Policy. Provide import data with dependency script definitions included, or omit dependency import handling.
+✖ Finished importing 5 policies from 6 files; some could not be imported.
+1 of 6 policies failed:
+  - Import data is missing dependency script definitions for policy Test Policy. Provide import data with dependency script definitions included, or omit dependency import handling.
 "
 `;
 

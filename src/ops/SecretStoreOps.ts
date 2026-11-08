@@ -17,7 +17,6 @@ import {
   updateProgressIndicator,
 } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
-import { errorHandler } from './utils/OpsUtils';
 
 const {
   readSecretStore,
@@ -508,6 +507,61 @@ export async function exportSecretStoresToFiles(
   return false;
 }
 
+type SecretStoreImportData = Parameters<typeof importSecretStores>[0];
+
+/**
+ * The result callback for the library's secret store import, reporting to the run of the command. When a mapping
+ * of a secret store cannot be imported, the library reports the error and then reports the secret store itself as
+ * imported, so the store would count as failed and as succeeded. A store that is reported with fewer mappings than
+ * the file has is that case, and is not counted again.
+ * @param {OperationRun} run the run of the command
+ * @param {SecretStoreImportData} importData the secret stores about to be imported
+ * @returns the callback to hand to the library
+ */
+function secretStoreResultCallback(
+  run: OperationRun,
+  importData: SecretStoreImportData
+): (error?: FrodoError, result?: { _id?: string }) => void {
+  const report = run.resultCallback();
+  // counted up front: the library replaces the mappings of a store while it imports them
+  const mappingCounts = new Map<string, number>(
+    Object.entries(importData.secretstore ?? {}).map(([id, store]) => [
+      id,
+      store.mappings?.length ?? 0,
+    ])
+  );
+  return (error, result) => {
+    if (!error && result) {
+      const imported =
+        (result as { mappings?: unknown[] }).mappings?.length ?? 0;
+      if (imported < (mappingCounts.get(result._id) ?? 0)) return;
+    }
+    report(error, result);
+  };
+}
+
+/**
+ * Imports the secret stores of a parsed file through the library, one operation per secret store and per mapping
+ * that cannot be imported (record 0040).
+ * @param {OperationRun} run the run of the command
+ * @param {SecretStoreImportData} importData the parsed file
+ * @param {boolean} global true to import global secret stores, false otherwise
+ * @returns {Promise<void>} resolves when every secret store was tried; rejects if the file is not a secret store export
+ */
+async function importParsedSecretStores(
+  run: OperationRun,
+  importData: SecretStoreImportData,
+  global: boolean
+): Promise<void> {
+  await importSecretStores(
+    importData,
+    global,
+    undefined,
+    undefined,
+    secretStoreResultCallback(run, importData)
+  );
+}
+
 /**
  * Import secret store from file
  * @param {string} secretStoreId the secret store id
@@ -523,6 +577,7 @@ export async function importSecretStoreFromFile(
   global: boolean = false
 ): Promise<boolean> {
   let indicatorId: string;
+  let failed = false;
   try {
     indicatorId = createProgressIndicator(
       'indeterminate',
@@ -536,8 +591,21 @@ export async function importSecretStoreFromFile(
       global,
       secretStoreId,
       secretStoreTypeId,
-      errorHandler
+      (error) => {
+        if (error) {
+          failed = true;
+          printError(error);
+        }
+      }
     );
+    if (failed) {
+      stopProgressIndicator(
+        indicatorId,
+        `Error importing secret store ${secretStoreId}.`,
+        'fail'
+      );
+      return false;
+    }
     stopProgressIndicator(
       indicatorId,
       `Successfully imported secret store ${secretStoreId}.`,
@@ -557,65 +625,71 @@ export async function importSecretStoreFromFile(
 
 /**
  * Import secret stores from file
+ * Every secret store of the file (and every mapping of it) that cannot be imported is printed and named in one
+ * summary, and the others are still imported (record 0040). A file that cannot be read or parsed fails the command
+ * whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {boolean} global true to import global secret stores, false otherwise
+ * @param {boolean} allowFailures true to report secret stores that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importSecretStoresFromFile(
   file: string,
-  global: boolean = false
+  global: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'secret store', allowFailures });
   try {
     debugMessage(`importSecretStoresFromFile: start`);
     debugMessage(`importSecretStoresFromFile: importing ${file}`);
     const importData = JSON.parse(fs.readFileSync(getFilePath(file), 'utf8'));
-    await importSecretStores(
-      importData,
-      global,
-      undefined,
-      undefined,
-      errorHandler
-    );
+    await importParsedSecretStores(run, importData, global);
     debugMessage(`importSecretStoresFromFile: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the file could not be read or is not a secret store export
     printError(error, `Error importing secret stores from file`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Import secret stores from separate files
+ * Every secret store of every file (and every mapping of it) that cannot be imported is printed and named in one
+ * summary, and a file that cannot be read or parsed is a failure that is named too: the others are still imported
+ * (record 0040). A directory that cannot be read fails the command whatever `--allow-failures` says.
  * @param {boolean} global true to import global secret stores, false otherwise
+ * @param {boolean} allowFailures true to report secret stores that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importSecretStoresFromFiles(
-  global: boolean = false
+  global: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors: Error[] = [];
+  const run = new OperationRun({ unit: 'secret store', allowFailures });
   try {
     const names = fs.readdirSync(getWorkingDirectory());
-    const roleFiles = names.filter((name) =>
+    const storeFiles = names.filter((name) =>
       name.toLowerCase().endsWith('.secretstore.json')
     );
-    for (const file of roleFiles) {
+    for (const file of storeFiles) {
       try {
-        await importSecretStoresFromFile(file, global);
-      } catch (error) {
-        errors.push(
-          new FrodoError(`Error importing secret stores from ${file}`, error)
+        debugMessage(`importSecretStoresFromFiles: importing ${file}`);
+        const importData = JSON.parse(
+          fs.readFileSync(getFilePath(file), 'utf8')
         );
+        await importParsedSecretStores(run, importData, global);
+      } catch (error) {
+        printError(error, `Error importing secret stores from ${file}`);
+        run.recordFailure(file, error);
       }
     }
-    if (errors.length > 0) {
-      throw new FrodoError(
-        `One or more errors importing secret stores`,
-        errors
-      );
-    }
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     printError(error, `Error importing secret stores from files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -631,6 +705,7 @@ export async function importFirstSecretStoreFromFile(
   global: boolean = false
 ): Promise<boolean> {
   let indicatorId: string;
+  let failed = false;
   try {
     indicatorId = createProgressIndicator(
       'indeterminate',
@@ -638,16 +713,30 @@ export async function importFirstSecretStoreFromFile(
       'Importing first secret store...'
     );
     const importData = JSON.parse(fs.readFileSync(getFilePath(file), 'utf8'));
+    // keep the first secret store only
     Object.keys(importData.secretstore)
       .slice(1)
-      .forEach((k) => delete importData[k]);
+      .forEach((k) => delete importData.secretstore[k]);
     await importSecretStores(
       importData,
       global,
       undefined,
       undefined,
-      errorHandler
+      (error) => {
+        if (error) {
+          failed = true;
+          printError(error);
+        }
+      }
     );
+    if (failed) {
+      stopProgressIndicator(
+        indicatorId,
+        `Error importing first secret store from ${file}`,
+        'fail'
+      );
+      return false;
+    }
     stopProgressIndicator(
       indicatorId,
       `Imported first secret store from ${file}`,

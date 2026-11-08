@@ -57,6 +57,7 @@ export default function setup() {
       options: ['workflowId', 'all', 'allSeparate', 'file'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement program logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -106,9 +107,13 @@ export default function setup() {
           verboseMessage(
             `Importing all workflows from a single file (${options.file})...`
           );
-          const outcome = await importWorkflowsFromFile(options.file, {
-            deps: options.deps,
-          });
+          const outcome = await importWorkflowsFromFile(
+            options.file,
+            {
+              deps: options.deps,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
@@ -116,9 +121,12 @@ export default function setup() {
           verboseMessage(
             'Importing all workflows from separate files (*.workflow.json) in current directory...'
           );
-          const outcome = await importWorkflowsFromFiles({
-            deps: options.deps,
-          });
+          const outcome = await importWorkflowsFromFiles(
+            {
+              deps: options.deps,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import first workflow from file

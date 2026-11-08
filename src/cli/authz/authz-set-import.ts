@@ -51,6 +51,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'setId'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -80,10 +81,14 @@ export default function setup() {
           verboseMessage(
             'Importing all authorization policy sets from file...'
           );
-          const outcome = await importPolicySetsFromFile(options.file, {
-            deps: options.deps,
-            prereqs: options.prereqs,
-          });
+          const outcome = await importPolicySetsFromFile(
+            options.file,
+            {
+              deps: options.deps,
+              prereqs: options.prereqs,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
@@ -91,10 +96,13 @@ export default function setup() {
           verboseMessage(
             'Importing all authorization policy sets from separate files...'
           );
-          const outcome = await importPolicySetsFromFiles({
-            deps: options.deps,
-            prereqs: options.prereqs,
-          });
+          const outcome = await importPolicySetsFromFiles(
+            {
+              deps: options.deps,
+              prereqs: options.prereqs,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import first policy set from file

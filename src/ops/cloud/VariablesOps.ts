@@ -1,7 +1,6 @@
 import fs from 'fs';
 import {
   frodo,
-  FrodoError,
   state,
   type ResolvedIdentity,
   type VariableExpressionType,
@@ -24,6 +23,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../../utils/Console';
+import { countItems, recordImportOfFile } from '../../utils/ImportItems';
 import { OperationRun } from '../../utils/OperationRun';
 import wordwrap from '../utils/Wordwrap';
 
@@ -615,35 +615,59 @@ export async function importVariableFromFile(
 
 /**
  * Import variables from file
+ * Every variable of the file is one operation: the variables that cannot be imported are printed and named in one
+ * summary, and the others are still imported (record 0040). A file that cannot be read or parsed fails the command
+ * whatever `--allow-failures` says.
  * @param {string} file file name
+ * @param {boolean} allowFailures true to report variables that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importVariablesFromFile(file: string): Promise<boolean> {
+export async function importVariablesFromFile(
+  file: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
   debugMessage(`cli.VariablesOps.importVariablesFromFile: begin`);
+  const run = new OperationRun({ unit: 'variable', allowFailures });
   const filePath = getFilePath(file);
   showSpinner(`Importing ${filePath}...`);
+  let fileData: VariablesExportInterface;
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    const variables = await importVariables(fileData);
-    (variables.length ? succeedSpinner : warnSpinner)(
-      `Imported ${variables.length} variable(s) from ${filePath}.`
-    );
-    debugMessage(`cli.VariablesOps.importVariablesFromFile: end`);
-    return true;
+    fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (error) {
     failSpinner(`Error importing ${filePath}`);
     printError(error);
+    return false;
   }
-  return false;
+  const { result: variables, error } = await recordImportOfFile({
+    run,
+    itemCount: countItems(fileData, 'variable'),
+    fileName: filePath,
+    importItems: () => importVariables(fileData),
+  });
+  if (error) {
+    failSpinner(`Error importing ${filePath}`);
+    printError(error);
+  } else {
+    (variables.length ? succeedSpinner : warnSpinner)(
+      `Imported ${variables.length} variable(s) from ${filePath}.`
+    );
+  }
+  debugMessage(`cli.VariablesOps.importVariablesFromFile: end`);
+  return run.finish();
 }
 
 /**
  * Import variables from files
+ * Every variable of every file is one operation, and a file that cannot be read or parsed is a failure that is
+ * named too: the others are still imported and one summary names the failures (record 0040). A directory that
+ * cannot be read fails the command whatever `--allow-failures` says.
+ * @param {boolean} allowFailures true to report variables that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importVariablesFromFiles(): Promise<boolean> {
-  const errors = [];
+export async function importVariablesFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'variable', allowFailures });
   let indicatorId: string;
   try {
     debugMessage(`cli.VariablesOps.importVariablesFromFiles: begin`);
@@ -658,32 +682,52 @@ export async function importVariablesFromFiles(): Promise<boolean> {
     );
     let total = 0;
     for (const file of files) {
+      let fileData: VariablesExportInterface;
       try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData: VariablesExportInterface = JSON.parse(data);
-        const variables = await importVariables(fileData);
+        fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      } catch (error) {
+        printError(error);
+        run.recordFailure(file, error);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing variables from ${file}`
+        );
+        continue;
+      }
+      const { result: variables, error } = await recordImportOfFile({
+        run,
+        itemCount: countItems(fileData, 'variable'),
+        fileName: file,
+        importItems: () => importVariables(fileData),
+      });
+      if (error) {
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing variables from ${file}`
+        );
+        printError(error);
+      } else {
         total += variables.length;
         updateProgressIndicator(
           indicatorId,
           `Imported ${variables.length} variables from ${file}`
         );
-      } catch (error) {
-        errors.push(error);
       }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing variables`, errors);
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} variables from ${files.length} files.`,
-      total ? 'success' : 'warn'
+      run.hasFailures
+        ? `Finished importing ${total} variables from ${files.length} files; some could not be imported.`
+        : `Finished importing ${total} variables from ${files.length} files.`,
+      run.hasFailures ? 'fail' : total ? 'success' : 'warn'
     );
     debugMessage(`cli.VariablesOps.importVariablesFromFiles: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     stopProgressIndicator(indicatorId, `Error importing variables`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

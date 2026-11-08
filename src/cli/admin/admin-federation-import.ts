@@ -51,6 +51,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'idpId'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -61,12 +62,23 @@ export default function setup() {
           options,
           command
         );
+        // an unrecognized combination of options is refused before the login
+        const importById = options.file && options.idpId;
+        const importAll = options.all && options.file;
+        const importAllSeparate = options.allSeparate && !options.file;
+        if (!(importById || importAll || importAllSeparate || options.file)) {
+          printMessage('Unrecognized combination of options or no options...');
+          process.exitCode = 1;
+          program.help();
+          return;
+        }
+        // a failed login is a failure of its own, not an unrecognized combination of options
+        if (!(await getTokens(true, true, deploymentTypes))) {
+          process.exitCode = 1;
+          return;
+        }
         // import by id
-        if (
-          options.file &&
-          options.idpId &&
-          (await getTokens(true, true, deploymentTypes))
-        ) {
+        if (importById) {
           verboseMessage(`Importing provider "${options.idpId}"...`);
           const outcome = await importAdminFederationProviderFromFile(
             options.idpId,
@@ -75,36 +87,28 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (
-          options.all &&
-          options.file &&
-          (await getTokens(true, true, deploymentTypes))
-        ) {
+        else if (importAll) {
           verboseMessage(
             `Importing all providers from a single file (${options.file})...`
           );
           const outcome = await importAdminFederationProvidersFromFile(
-            options.file
+            options.file,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          !options.file &&
-          (await getTokens(true, true, deploymentTypes))
-        ) {
+        else if (importAllSeparate) {
           verboseMessage(
             'Importing all providers from separate files in current directory...'
           );
-          const outcome = await importAdminFederationProvidersFromFiles();
+          const outcome = await importAdminFederationProvidersFromFiles(
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import first provider from file
-        else if (
-          options.file &&
-          (await getTokens(true, true, deploymentTypes))
-        ) {
+        else {
           verboseMessage(
             `Importing first provider from file "${options.file}"...`
           );
@@ -112,12 +116,6 @@ export default function setup() {
             options.file
           );
           if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

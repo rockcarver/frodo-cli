@@ -87,15 +87,11 @@ export const SWALLOWS_THE_FAILURE = [
   'frodo config-manager pull variables',
   'frodo config-manager push org-privileges',
   'frodo config-manager push secrets',
-  'frodo iga workflow import',
   'frodo promote',
-  'frodo secretstore import',
 ];
 
 /** The other operations run and the exit code is 1, but no summary names the items that failed. */
 export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
-  'frodo admin federation import',
-  'frodo authz set import',
   'frodo esv secret version prune',
   'frodo journey describe',
 ];
@@ -107,17 +103,12 @@ export const CONTINUES_BUT_EXITS_ZERO = [
 
 /** The other operations run, each failure is named in one combined error and the exit code is 1. Closest to the rule; still lacks the "N of M" summary and --allow-failures. */
 export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [
-  'frodo authz policy import',
-  'frodo authz type import',
   'frodo config-manager push connector-definitions',
   'frodo config-manager push email-templates',
   'frodo config-manager push internal-roles',
   'frodo config-manager push remote-proxies',
   'frodo config-manager push variables',
-  'frodo esv secret import',
-  'frodo esv variable import',
   'frodo journey validate',
-  'frodo server import',
 ];
 
 export const LEGACY_MULTI_OP_COMMANDS_WITHOUT_ALLOW_FAILURES = [
