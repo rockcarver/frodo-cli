@@ -147,6 +147,16 @@ named object never asks. This affects `frodo agent delete -a` and
 a command line that ran under 4.x keeps running: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
+**Deleting the mappings of one connector or type is disabled for now**:
+`frodo mapping delete -a` with `-c`/`--connector-id` or
+`-t`/`--managed-object-type` refuses before it connects to anything and exits
+with code 1. With a filter the library deletes all new-style mappings, not only
+the matching ones ([frodo-lib#948](https://github.com/rockcarver/frodo-lib/issues/948)),
+so the filtered form would remove more than its arguments name. Delete all
+mappings with `-a`, or one mapping with `-i`. `-c` and `-t` still limit the
+mappings offered when you pick one on a terminal. The refusal is lifted once the
+library is fixed and released.
+
 **Commands that run several operations now run them all and exit 1 if any
 failed**: `frodo config-manager pull all` and `pull all-static` carried on after
 a step failed, printed that step's error and exited with code 0, with no
