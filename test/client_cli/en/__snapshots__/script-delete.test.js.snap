@@ -26,6 +26,10 @@ Arguments:
 Options:
   -a, --all                      Delete all non-default scripts in a realm.
                                  Cannot be used with -i or -n.
+  --allow-failures               Report operations that fail, but still exit
+                                 with code 0. Without this option the command
+                                 runs every operation, prints a summary of what
+                                 failed and exits with code 1.
   --context <context>            Filter scripts by context when using -a. Values
                                  are case-insensitive; kebab-case and underscore
                                  formats are both accepted.

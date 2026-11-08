@@ -73,7 +73,6 @@ export const STOPS_AT_THE_FIRST_ERROR = [
   'frodo mapping delete',
   'frodo mapping rename',
   'frodo saml delete',
-  'frodo script delete',
   'frodo server export',
 ];
 
@@ -133,11 +132,6 @@ export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
   'frodo authz set import',
   'frodo config export',
   'frodo config import',
-  'frodo config-manager delete custom-nodes',
-  'frodo config-manager delete email-templates',
-  'frodo config-manager delete endpoints',
-  'frodo config-manager delete scripts',
-  'frodo config-manager delete themes',
   'frodo email template import',
   'frodo esv secret version prune',
   'frodo idm export',

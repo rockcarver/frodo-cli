@@ -2,6 +2,8 @@ import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError, printMessage } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
+import { OperationRun } from '../utils/OperationRun';
 
 const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
   frodo.utils;
@@ -125,11 +127,13 @@ export async function configManagerImportEmailTemplates(
  * deleted is reported and does not hide the others.
  * @param {string} name Optional exact template name. If omitted, targets all templates.
  * @param {boolean} dryRun Show which templates would be deleted without deleting them.
- * @returns {Promise<boolean>} False if a named template does not exist or a read or deletion fails; true otherwise, also when there is nothing to delete.
+ * @param {boolean} allowFailures True to succeed although some templates could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} False if a named template does not exist or a read or deletion fails (unless failures are allowed for a deletion); true otherwise, also when there is nothing to delete.
  */
 export async function configManagerDeleteEmailTemplates(
   name?: string,
-  dryRun: boolean = false
+  dryRun: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   try {
     const allTemplates = await readEmailTemplates();
@@ -146,15 +150,16 @@ export async function configManagerDeleteEmailTemplates(
       printMessage('No email templates found to delete.');
       return true;
     }
-    let failed = 0;
+    const run = new OperationRun({ unit: 'email template', allowFailures });
     for (const template of templates) {
       const templateName = template._id.split('/')[1];
       if (!dryRun) {
         try {
           await deleteEmailTemplate(templateName);
+          run.recordSuccess();
         } catch (error) {
           printError(error, `Failed to delete email template ${templateName}`);
-          failed++;
+          run.recordFailure(templateName, causeOf(error));
           continue;
         }
       }
@@ -162,14 +167,7 @@ export async function configManagerDeleteEmailTemplates(
         `${dryRun ? 'Dry run: ' : ''}Deleting emailTemplate: ${templateName}`
       );
     }
-    if (failed > 0) {
-      printMessage(
-        `Deleted ${templates.length - failed} email templates, ${failed} failed.`,
-        'error'
-      );
-      return false;
-    }
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, 'Error deleting email templates');
     return false;

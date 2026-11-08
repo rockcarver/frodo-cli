@@ -56,6 +56,7 @@ export default function setup() {
           `  $ frodo config-manager delete scripts -n 'Example Script' -d ${s.connId}\n`
         )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -108,7 +109,8 @@ export default function setup() {
         options.prefix,
         realm,
         options.name,
-        options.dryRun
+        options.dryRun,
+        options.allowFailures
       );
 
       if (!outcome) process.exitCode = 1;

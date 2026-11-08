@@ -68,6 +68,11 @@ Error deleting custom node PingOne Recognize Biometric Web Authentication
       Reason: Bad Request
       Message: Cannot delete node type that is in use
 Deleted 8 custom nodes.
+4 of 12 custom nodes failed:
+  - Debug: Cannot delete node type that is in use
+  - Display Message: Request failed with status code 500
+  - PingOne Recognize Biometric Web Enrollment: Cannot delete node type that is in use
+  - PingOne Recognize Biometric Web Authentication: Cannot delete node type that is in use
 "
 `;
 
