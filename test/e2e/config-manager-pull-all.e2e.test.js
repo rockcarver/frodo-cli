@@ -23,6 +23,11 @@ describe('frodo config-manager pull all', () => {
   // The recording predates those steps, so their requests are missing ("Network error").
   // Until it is re-recorded (frodo-cli#1102), the exit code snapshot says so. Before a failed step failed
   // the command (decision record 0040) the exit code was 0, which hid it.
+  // With frodo-lib 5.0.0-26 the themes step fails in this replay as well: the recorded theme "Test" holds
+  // its localized HTML as {file: ...} objects, not strings, and the library's file writer now throws for that
+  // where it used to print "can't save" and go on. So the replay no longer writes the realm's theme files, and the
+  // 16 snapshots of those files were removed from the snapshot file (they would be reported as obsolete, which fails
+  // CI). They come back when the test is recorded again (frodo-cli#1102).
   test('"frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style"', async () => {
     const dirName = 'allDir1';
     const CMD = `frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D ${dirName}`;

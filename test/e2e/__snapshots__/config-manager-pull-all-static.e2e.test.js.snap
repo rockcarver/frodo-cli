@@ -29735,7 +29735,6 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
   "jwtRequestParameterOption": "NONE",
   "jwtSigningAlgorithm": "NONE",
   "pkceMethod": "S256",
-  "privateKeyJwtAudience": "",
   "privateKeyJwtExpTime": 600,
   "redirectAfterFormPostURI": "https://idc.scheuber.io/login",
   "redirectURI": "https://idc.scheuber.io/am/oauth2/client/form_post/apple_web",
@@ -29791,7 +29790,6 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
   "jwtRequestParameterOption": "NONE",
   "jwtSigningAlgorithm": "NONE",
   "pkceMethod": "S256",
-  "privateKeyJwtAudience": "",
   "privateKeyJwtExpTime": 600,
   "redirectAfterFormPostURI": "https://openam-volker-dev.forgeblocks.com/login",
   "redirectURI": "https://openam-volker-dev.forgeblocks.com/am/oauth2/alpha/client/form_post/apple-stoyan",
@@ -29890,7 +29888,6 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
   "jwtRequestParameterOption": "NONE",
   "jwtSigningAlgorithm": "NONE",
   "pkceMethod": "S256",
-  "privateKeyJwtAudience": "",
   "privateKeyJwtExpTime": 600,
   "redirectURI": "https://idc.scheuber.io/login",
   "responseMode": "DEFAULT",
@@ -30021,50 +30018,421 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 }
 `;
 
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/services/pingOneWorkerService.json 1`] = `
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/services/oauth-oidc.json 1`] = `
 {
   "_id": "",
-  "_rev": "-945038405",
+  "_rev": "-1207691578",
   "_type": {
-    "_id": "pingOneWorkerService",
+    "_id": "oauth-oidc",
     "collection": false,
-    "name": "PingOne Worker Service",
+    "name": "OAuth2 Provider",
   },
-  "enabled": true,
-}
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/services/pingOneWorkerService/Encore.json 1`] = `
-{
-  "_id": "Encore",
-  "_type": {
-    "_id": "workers",
-    "collection": true,
-    "name": "PingOne Worker",
+  "advancedOAuth2Config": {
+    "acceptAudienceParametersInTokenExchangeRequests": false,
+    "allowClientCredentialsInTokenRequestQueryParameters": false,
+    "allowedAudienceValues": [],
+    "authenticationAttributes": [
+      "uid",
+    ],
+    "codeVerifierEnforced": "false",
+    "defaultScopes": [],
+    "displayNameAttribute": "cn",
+    "enableApplicationContext": false,
+    "enableRichAuthorizationRequests": false,
+    "expClaimRequiredInRequestObject": false,
+    "grantTypes": [
+      "implicit",
+      "urn:ietf:params:oauth:grant-type:saml2-bearer",
+      "refresh_token",
+      "password",
+      "client_credentials",
+      "urn:ietf:params:oauth:grant-type:device_code",
+      "authorization_code",
+      "urn:openid:params:grant-type:ciba",
+      "urn:ietf:params:oauth:grant-type:uma-ticket",
+      "urn:ietf:params:oauth:grant-type:token-exchange",
+      "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    ],
+    "hashSalt": "iAptzByZwxQgrj80jhpCWyEaU8c=",
+    "includeClientIdClaimInStatelessTokens": true,
+    "includeSubnameInTokenClaims": true,
+    "introspectionAudienceValidationEnabled": false,
+    "macaroonTokenFormat": "V2",
+    "maxAgeOfRequestObjectNbfClaim": 0,
+    "maxDifferenceBetweenRequestObjectNbfAndExp": 0,
+    "moduleMessageEnabledInPasswordGrant": false,
+    "nbfClaimRequiredInRequestObject": false,
+    "parRequestUriLifetime": 90,
+    "persistentClaims": [],
+    "refreshTokenGracePeriod": 0,
+    "requestObjectProcessing": "OIDC",
+    "requirePushedAuthorizationRequests": false,
+    "responseTypeClasses": [
+      "code|org.forgerock.oauth2.core.AuthorizationCodeResponseTypeHandler",
+      "id_token|org.forgerock.openidconnect.IdTokenResponseTypeHandler",
+      "token|org.forgerock.oauth2.core.TokenResponseTypeHandler",
+    ],
+    "restrictTokenExchangeScopesToSubjectTokenScopes": false,
+    "supportedScopes": [],
+    "supportedSubjectTypes": [
+      "public",
+      "pairwise",
+    ],
+    "tlsCertificateBoundAccessTokensEnabled": true,
+    "tlsCertificateRevocationCheckingEnabled": false,
+    "tlsClientCertificateChainValidationEnabled": false,
+    "tlsClientCertificateHeaderFormat": "BASE64_ENCODED_CERT",
+    "tokenCompressionEnabled": false,
+    "tokenEncryptionEnabled": false,
+    "tokenExchangeClasses": [
+      "urn:ietf:params:oauth:token-type:access_token=>urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.AccessTokenToAccessTokenExchanger",
+      "urn:ietf:params:oauth:token-type:id_token=>urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.IdTokenToIdTokenExchanger",
+      "urn:ietf:params:oauth:token-type:access_token=>urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.AccessTokenToIdTokenExchanger",
+      "urn:ietf:params:oauth:token-type:id_token=>urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.idtoken.IdTokenToAccessTokenExchanger",
+    ],
+    "tokenSigningAlgorithm": "HS256",
+    "tokenValidatorClasses": [
+      "urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.OidcIdTokenValidator",
+      "urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.OAuth2AccessTokenValidator",
+    ],
+    "useTokenIntrospectionClaimForJWT": false,
   },
-  "apiUrl": "https://api.pingone.com/v1",
-  "authUrl": "https://auth.pingone.com",
-  "clientId": "bogus",
-  "clientSecretPurpose": "bogus",
-  "environmentId": "bogus",
-  "useCredential": false,
-}
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/services/pingOneWorkerService/volker-pingone.json 1`] = `
-{
-  "_id": "volker-pingone",
-  "_type": {
-    "_id": "workers",
-    "collection": true,
-    "name": "PingOne Worker",
+  "advancedOIDCConfig": {
+    "alwaysAddClaimsToToken": false,
+    "amrMappings": {},
+    "authorisedIdmDelegationClients": [],
+    "authorisedOpenIdConnectSSOClients": [],
+    "claimsParameterSupported": false,
+    "defaultACR": [],
+    "idTokenInfoClientAuthenticationEnabled": true,
+    "includeAllKtyAlgCombinationsInJwksUri": false,
+    "jwtSigningKidHeaderMappings": {},
+    "loaMapping": {},
+    "minMaxAge": 60,
+    "storeOpsTokens": true,
+    "supportedAuthorizationResponseEncryptionAlgorithms": [
+      "ECDH-ES+A256KW",
+      "ECDH-ES+A192KW",
+      "RSA-OAEP",
+      "ECDH-ES+A128KW",
+      "RSA-OAEP-256",
+      "A128KW",
+      "A256KW",
+      "ECDH-ES",
+      "dir",
+      "A192KW",
+    ],
+    "supportedAuthorizationResponseEncryptionEnc": [
+      "A256GCM",
+      "A192GCM",
+      "A128GCM",
+      "A128CBC-HS256",
+      "A192CBC-HS384",
+      "A256CBC-HS512",
+    ],
+    "supportedAuthorizationResponseSigningAlgorithms": [
+      "PS384",
+      "RS384",
+      "EdDSA",
+      "ES384",
+      "HS256",
+      "HS512",
+      "ES256",
+      "RS256",
+      "HS384",
+      "ES512",
+      "PS256",
+      "PS512",
+      "RS512",
+    ],
+    "supportedRequestParameterEncryptionAlgorithms": [
+      "ECDH-ES+A256KW",
+      "ECDH-ES+A192KW",
+      "ECDH-ES+A128KW",
+      "RSA-OAEP",
+      "RSA-OAEP-256",
+      "A128KW",
+      "A256KW",
+      "ECDH-ES",
+      "dir",
+      "A192KW",
+    ],
+    "supportedRequestParameterEncryptionEnc": [
+      "A256GCM",
+      "A192GCM",
+      "A128GCM",
+      "A128CBC-HS256",
+      "A192CBC-HS384",
+      "A256CBC-HS512",
+    ],
+    "supportedRequestParameterSigningAlgorithms": [
+      "PS384",
+      "ES384",
+      "RS384",
+      "HS256",
+      "HS512",
+      "ES256",
+      "RS256",
+      "HS384",
+      "ES512",
+      "PS256",
+      "PS512",
+      "RS512",
+    ],
+    "supportedTokenEndpointAuthenticationSigningAlgorithms": [
+      "PS384",
+      "ES384",
+      "RS384",
+      "HS256",
+      "HS512",
+      "ES256",
+      "RS256",
+      "HS384",
+      "ES512",
+      "PS256",
+      "PS512",
+      "RS512",
+    ],
+    "supportedTokenIntrospectionResponseEncryptionAlgorithms": [
+      "ECDH-ES+A256KW",
+      "ECDH-ES+A192KW",
+      "RSA-OAEP",
+      "ECDH-ES+A128KW",
+      "RSA-OAEP-256",
+      "A128KW",
+      "A256KW",
+      "ECDH-ES",
+      "dir",
+      "A192KW",
+    ],
+    "supportedTokenIntrospectionResponseEncryptionEnc": [
+      "A256GCM",
+      "A192GCM",
+      "A128GCM",
+      "A128CBC-HS256",
+      "A192CBC-HS384",
+      "A256CBC-HS512",
+    ],
+    "supportedTokenIntrospectionResponseSigningAlgorithms": [
+      "PS384",
+      "RS384",
+      "EdDSA",
+      "ES384",
+      "HS256",
+      "HS512",
+      "ES256",
+      "RS256",
+      "HS384",
+      "ES512",
+      "PS256",
+      "PS512",
+      "RS512",
+    ],
+    "supportedUserInfoEncryptionAlgorithms": [
+      "ECDH-ES+A256KW",
+      "ECDH-ES+A192KW",
+      "RSA-OAEP",
+      "ECDH-ES+A128KW",
+      "RSA-OAEP-256",
+      "A128KW",
+      "A256KW",
+      "ECDH-ES",
+      "dir",
+      "A192KW",
+    ],
+    "supportedUserInfoEncryptionEnc": [
+      "A256GCM",
+      "A192GCM",
+      "A128GCM",
+      "A128CBC-HS256",
+      "A192CBC-HS384",
+      "A256CBC-HS512",
+    ],
+    "supportedUserInfoSigningAlgorithms": [
+      "ES384",
+      "HS256",
+      "HS512",
+      "ES256",
+      "RS256",
+      "HS384",
+      "ES512",
+    ],
+    "useForceAuthnForMaxAge": false,
+    "useForceAuthnForPromptLogin": false,
   },
-  "apiUrl": "https://api.pingone.com/v1",
-  "authUrl": "https://auth.pingone.com",
-  "clientId": "8d749c80-5ef2-4361-974d-c077f233b3a0",
-  "clientSecretPurpose": "volkerPingOne",
-  "environmentId": "62976c51-1de1-49ce-b29a-06b32b0c2e2c",
-  "useCredential": false,
+  "aiAgentsConfig": {
+    "aiAgentsEnabled": false,
+    "aiAgentsIdentityObjectMapping": [],
+  },
+  "cibaConfig": {
+    "cibaAuthReqIdLifetime": 600,
+    "cibaMinimumPollingInterval": 2,
+    "supportedCibaSigningAlgorithms": [
+      "ES256",
+      "PS256",
+    ],
+  },
+  "clientDynamicRegistrationConfig": {
+    "allowDynamicRegistration": false,
+    "dynamicClientRegistrationScope": "dynamic_client_registration",
+    "dynamicClientRegistrationScript": "[Empty]",
+    "dynamicClientRegistrationSoftwareStatementRequired": false,
+    "generateRegistrationAccessTokens": true,
+    "requiredSoftwareStatementAttestedAttributes": [
+      "redirect_uris",
+    ],
+    "storeSoftwareStatementInOAuth2Client": false,
+  },
+  "consent": {
+    "clientsCanSkipConsent": false,
+    "enableRemoteConsent": false,
+    "supportedRcsRequestEncryptionAlgorithms": [
+      "ECDH-ES+A256KW",
+      "ECDH-ES+A192KW",
+      "RSA-OAEP",
+      "ECDH-ES+A128KW",
+      "RSA-OAEP-256",
+      "A128KW",
+      "A256KW",
+      "ECDH-ES",
+      "dir",
+      "A192KW",
+    ],
+    "supportedRcsRequestEncryptionMethods": [
+      "A256GCM",
+      "A192GCM",
+      "A128GCM",
+      "A128CBC-HS256",
+      "A192CBC-HS384",
+      "A256CBC-HS512",
+    ],
+    "supportedRcsRequestSigningAlgorithms": [
+      "PS384",
+      "ES384",
+      "RS384",
+      "HS256",
+      "HS512",
+      "ES256",
+      "RS256",
+      "HS384",
+      "ES512",
+      "PS256",
+      "PS512",
+      "RS512",
+    ],
+    "supportedRcsResponseEncryptionAlgorithms": [
+      "ECDH-ES+A256KW",
+      "ECDH-ES+A192KW",
+      "ECDH-ES+A128KW",
+      "RSA-OAEP",
+      "RSA-OAEP-256",
+      "A128KW",
+      "A256KW",
+      "ECDH-ES",
+      "dir",
+      "A192KW",
+    ],
+    "supportedRcsResponseEncryptionMethods": [
+      "A256GCM",
+      "A192GCM",
+      "A128GCM",
+      "A128CBC-HS256",
+      "A192CBC-HS384",
+      "A256CBC-HS512",
+    ],
+    "supportedRcsResponseSigningAlgorithms": [
+      "PS384",
+      "ES384",
+      "RS384",
+      "HS256",
+      "HS512",
+      "ES256",
+      "RS256",
+      "HS384",
+      "ES512",
+      "PS256",
+      "PS512",
+      "RS512",
+    ],
+  },
+  "coreOAuth2Config": {
+    "accessTokenLifetime": 3600,
+    "accessTokenMayActScript": "[Empty]",
+    "codeLifetime": 120,
+    "issueRefreshToken": true,
+    "issueRefreshTokenOnRefreshedToken": true,
+    "macaroonTokensEnabled": false,
+    "oidcMayActScript": "[Empty]",
+    "refreshTokenLifetime": 604800,
+    "scopesPolicySet": "oauth2Scopes",
+    "statelessTokensEnabled": false,
+    "usePolicyEngineForScope": false,
+  },
+  "coreOIDCConfig": {
+    "jwtTokenLifetime": 3600,
+    "oidcDiscoveryEndpointEnabled": false,
+    "overrideableOIDCClaims": [],
+    "supportedClaims": [],
+    "supportedIDTokenEncryptionAlgorithms": [
+      "ECDH-ES+A256KW",
+      "ECDH-ES+A192KW",
+      "RSA-OAEP",
+      "ECDH-ES+A128KW",
+      "RSA-OAEP-256",
+      "A128KW",
+      "A256KW",
+      "ECDH-ES",
+      "dir",
+      "A192KW",
+    ],
+    "supportedIDTokenEncryptionMethods": [
+      "A256GCM",
+      "A192GCM",
+      "A128GCM",
+      "A128CBC-HS256",
+      "A192CBC-HS384",
+      "A256CBC-HS512",
+    ],
+    "supportedIDTokenSigningAlgorithms": [
+      "PS384",
+      "ES384",
+      "RS384",
+      "HS256",
+      "HS512",
+      "ES256",
+      "RS256",
+      "HS384",
+      "ES512",
+      "PS256",
+      "PS512",
+      "RS512",
+    ],
+  },
+  "deviceCodeConfig": {
+    "deviceCodeLifetime": 300,
+    "devicePollInterval": 5,
+    "deviceUserCodeCharacterSet": "234567ACDEFGHJKLMNPQRSTWXYZabcdefhijkmnopqrstwxyz",
+    "deviceUserCodeLength": 8,
+    "exposeDeviceUserCodeLength": false,
+    "realmAllowUnauthorisedAccessToUserCodeForm": false,
+  },
+  "pluginsConfig": {
+    "accessTokenEnricherClass": "org.forgerock.oauth2.core.plugins.registry.DefaultAccessTokenEnricher",
+    "accessTokenModificationPluginType": "SCRIPTED",
+    "accessTokenModificationScript": "[Empty]",
+    "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+    "authorizeEndpointDataProviderPluginType": "JAVA",
+    "authorizeEndpointDataProviderScript": "[Empty]",
+    "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+    "evaluateScopePluginType": "JAVA",
+    "evaluateScopeScript": "[Empty]",
+    "oidcClaimsPluginType": "SCRIPTED",
+    "oidcClaimsScript": "[Empty]",
+    "userCodeGeneratorClass": "org.forgerock.oauth2.core.plugins.registry.DefaultUserCodeGenerator",
+    "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+    "validateScopePluginType": "JAVA",
+    "validateScopeScript": "[Empty]",
+  },
 }
 `;
 
@@ -30162,10 +30530,30 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Contrast/Contrast.json 1`] = `
 {
   "_id": "be99b4f6-b7ed-4970-ba57-41b970c745a2",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#000000",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
   "accountFooter": {
     "file": "accountFooter.html",
   },
   "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
   "accountPageSections": {
     "accountControls": {
       "enabled": false,
@@ -30206,27 +30594,60 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
       "enabled": true,
     },
   },
+  "accountTableRowHoverColor": "#f6f8fa",
   "backgroundColor": "#FFFFFF",
   "backgroundImage": "",
   "bodyText": "#000000",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
   "buttonRounded": "0",
   "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
   "favicon": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
   "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
   "journeyFooter": {
     "file": "journeyFooter.html",
   },
   "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
   "journeyHeader": {
     "file": "journeyHeader.html",
   },
   "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#000000",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
   "journeyJustifiedContent": "",
   "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
   "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
   "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
   "linkActiveColor": "#000000",
+  "linkActiveColorOnDark": "#0a6eab",
   "linkColor": "#000000",
+  "linkColorOnDark": "#109cf1",
   "linkedTrees": [],
   "logo": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
   "logoAltText": "Contrast",
@@ -30248,7 +30669,14 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
   "profileMenuHoverTextColor": "#000000",
   "profileMenuTextHighlightColor": "#455469",
   "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
   "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
 }
 `;
 
@@ -30272,10 +30700,30 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/ForgeRock Theme/ForgeRock Theme.json 1`] = `
 {
   "_id": "462b8800-1f13-4a72-a6b1-388e031f56a0",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#109cf1",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
   "accountFooter": {
     "file": "accountFooter.html",
   },
   "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
   "accountPageSections": {
     "accountControls": {
       "enabled": false,
@@ -30316,30 +30764,64 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
       "enabled": true,
     },
   },
+  "accountTableRowHoverColor": "#f6f8fa",
   "backgroundColor": "#f6f8fa",
   "backgroundImage": "",
   "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
   "buttonRounded": 5,
   "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
   "favicon": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
   "isDefault": true,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
   "journeyFooter": {
     "file": "journeyFooter.html",
   },
   "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
   "journeyHeader": {
     "file": "journeyHeader.html",
   },
   "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#109cf1",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
   "journeyJustifiedContent": "",
   "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
   "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
   "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
   "linkActiveColor": "#0c85cf",
+  "linkActiveColorOnDark": "#0a6eab",
   "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
   "linkedTrees": [],
   "logo": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
   "logoAltText": "ForgeRock Logo",
+  "logoEnabled": true,
   "logoHeight": "40",
   "logoProfile": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock-full.svg",
   "logoProfileAltText": "ForgeRock Logo",
@@ -30357,7 +30839,14 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
   "profileMenuHoverTextColor": "#ffffff",
   "profileMenuTextHighlightColor": "#455469",
   "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
   "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
 }
 `;
 
@@ -30381,10 +30870,30 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Highlander/Highlander.json 1`] = `
 {
   "_id": "19b1792b-9d2d-4e29-bd91-7be476e27ada",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#EB0A1E",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
   "accountFooter": {
     "file": "accountFooter.html",
   },
   "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
   "accountPageSections": {
     "accountControls": {
       "enabled": false,
@@ -30425,27 +30934,60 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
       "enabled": true,
     },
   },
+  "accountTableRowHoverColor": "#f6f8fa",
   "backgroundColor": "#FFFFFF",
   "backgroundImage": "",
   "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
   "buttonRounded": "50",
   "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
   "favicon": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
   "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
   "journeyFooter": {
     "file": "journeyFooter.html",
   },
   "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
   "journeyHeader": {
     "file": "journeyHeader.html",
   },
   "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#EB0A1E",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
   "journeyJustifiedContent": "",
   "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
   "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
   "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
   "linkActiveColor": "#C60819",
+  "linkActiveColorOnDark": "#0a6eab",
   "linkColor": "#EB0A1E",
+  "linkColorOnDark": "#109cf1",
   "linkedTrees": [],
   "logo": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
   "logoAltText": "Highlander",
@@ -30467,7 +31009,14 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
   "profileMenuHoverTextColor": "#455469",
   "profileMenuTextHighlightColor": "#EB0A1E",
   "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
   "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
 }
 `;
 
@@ -30628,10 +31177,30 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Robroy/Robroy.json 1`] = `
 {
   "_id": "987e2468-75f9-46c7-b15b-886b24c2ea20",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#5AA625",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
   "accountFooter": {
     "file": "accountFooter.html",
   },
   "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
   "accountPageSections": {
     "accountControls": {
       "enabled": false,
@@ -30672,29 +31241,62 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
       "enabled": true,
     },
   },
+  "accountTableRowHoverColor": "#f6f8fa",
   "backgroundColor": "#FFFFFF",
   "backgroundImage": "",
   "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
   "buttonRounded": "50",
   "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
   "favicon": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
   "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
   "journeyFooter": {
     "file": "journeyFooter.html",
   },
   "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
   "journeyHeader": {
     "file": "journeyHeader.html",
   },
   "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#5AA625",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
   "journeyJustifiedContent": {
     "file": "journeyJustifiedContent.html",
   },
   "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": false,
   "journeyLayout": "justified-right",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
   "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
   "linkActiveColor": "#49871E",
+  "linkActiveColorOnDark": "#0a6eab",
   "linkColor": "#5AA625",
+  "linkColorOnDark": "#109cf1",
   "linkedTrees": [],
   "logo": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
   "logoAltText": "Robroy",
@@ -30716,7 +31318,14 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
   "profileMenuHoverTextColor": "#455469",
   "profileMenuTextHighlightColor": "#5AA625",
   "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
   "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
 }
 `;
 
@@ -30913,334 +31522,6 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 "
 `;
 
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test No HTML/Test No HTML.json 1`] = `
-{
-  "_id": "54a560a1-f02b-4a01-9906-2db258c7515a",
-  "accountCardBackgroundColor": "#ffffff",
-  "accountCardHeaderColor": "#23282e",
-  "accountCardInnerBorderColor": "#e7eef4",
-  "accountCardInputBackgroundColor": "#ffffff",
-  "accountCardInputBorderColor": "#c0c9d5",
-  "accountCardInputFocusBorderColor": "#324054",
-  "accountCardInputLabelColor": "#5e6d82",
-  "accountCardInputSelectColor": "#e4f4fd",
-  "accountCardInputSelectHoverColor": "#f6f8fa",
-  "accountCardInputTextColor": "#23282e",
-  "accountCardOuterBorderColor": "#e7eef4",
-  "accountCardShadow": 3,
-  "accountCardTabActiveBorderColor": "#109cf1",
-  "accountCardTabActiveColor": "#e4f4fd",
-  "accountCardTextColor": "#5e6d82",
-  "accountNavigationBackgroundColor": "#ffffff",
-  "accountNavigationTextColor": "#455469",
-  "accountNavigationToggleBorderColor": "#e7eef4",
-  "accountPageSections": {
-    "accountControls": {
-      "enabled": false,
-    },
-    "accountSecurity": {
-      "enabled": false,
-      "subsections": {
-        "password": {
-          "enabled": true,
-        },
-        "securityQuestions": {
-          "enabled": true,
-        },
-        "twoStepVerification": {
-          "enabled": true,
-        },
-        "username": {
-          "enabled": true,
-        },
-      },
-    },
-    "consent": {
-      "enabled": false,
-    },
-    "oauthApplications": {
-      "enabled": false,
-    },
-    "personalInformation": {
-      "enabled": false,
-    },
-    "preferences": {
-      "enabled": false,
-    },
-    "social": {
-      "enabled": false,
-    },
-    "trustedDevices": {
-      "enabled": false,
-    },
-  },
-  "accountTableRowHoverColor": "#f6f8fa",
-  "backgroundColor": "#ffffff",
-  "backgroundImage": "",
-  "bodyText": "#23282e",
-  "boldLinks": false,
-  "buttonFocusBorderColor": "#0778d6",
-  "buttonRounded": 5,
-  "dangerColor": "#dc3545",
-  "darkColor": "#23282e",
-  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
-  "fontFamily": "Open Sans",
-  "infoColor": "#109cf1",
-  "isDefault": false,
-  "journeyA11yAddFallbackErrorHeading": false,
-  "journeyCardBackgroundColor": "#ffffff",
-  "journeyCardBorderRadius": 4,
-  "journeyCardHeaderBackgroundColor": "#ffffff",
-  "journeyCardShadow": 3,
-  "journeyCardTextColor": "#5e6d82",
-  "journeyCardTitleColor": "#23282e",
-  "journeyFloatingLabels": false,
-  "journeyFocusElement": "content",
-  "journeyFocusFirstFocusableItemEnabled": false,
-  "journeyHeaderSkipLinkEnabled": true,
-  "journeyInputBackgroundColor": "#ffffff",
-  "journeyInputBorderColor": "#c0c9d5",
-  "journeyInputFocusBorderColor": "#324054",
-  "journeyInputLabelColor": "#5e6d82",
-  "journeyInputSelectColor": "#e4f4fd",
-  "journeyInputSelectHoverColor": "#f6f8fa",
-  "journeyInputTextColor": "#23282e",
-  "journeyJustifiedContentMobileViewEnabled": true,
-  "journeyLayout": "justified-left",
-  "journeyRememberMeEnabled": false,
-  "journeyRememberMeLabel": "remember me!",
-  "journeySignInButtonPosition": "justify-content-center",
-  "journeyTheaterMode": false,
-  "lightColor": "#f6f8fa",
-  "linkActiveColor": "#0a6eab",
-  "linkActiveColorOnDark": "#0a6eab",
-  "linkColor": "#109cf1",
-  "linkColorOnDark": "#109cf1",
-  "linkedTrees": [],
-  "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
-  "logoAltText": "Logo",
-  "logoEnabled": false,
-  "logoHeight": "43",
-  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
-  "logoProfileAltText": "Logo",
-  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
-  "logoProfileCollapsedAltText": "Logo",
-  "logoProfileHeight": "24",
-  "name": "Test No HTML",
-  "pageTitle": "#23282e",
-  "primaryColor": "#324054",
-  "primaryOffColor": "#242E3C",
-  "profileBackgroundColor": "#ffffff",
-  "profileMenuHighlightColor": "#f3f5f8",
-  "profileMenuHoverColor": "#f3f5f8",
-  "profileMenuHoverTextColor": "#455469",
-  "profileMenuTextHighlightColor": "#455469",
-  "secondaryColor": "#69788b",
-  "successColor": "#2ed47a",
-  "switchBackgroundColor": "#c0c9d5",
-  "textColor": "#ffffff",
-  "topBarBackgroundColor": "#ffffff",
-  "topBarBorderColor": "#e7eef4",
-  "topBarHeaderColor": "#23282e",
-  "topBarTextColor": "#69788b",
-  "warningColor": "#ffb946",
-}
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test Single HTML/Test Single HTML.json 1`] = `
-{
-  "_id": "31126921-feb3-493e-9eb2-a3a46262e3b5",
-  "accountCardBackgroundColor": "#ffffff",
-  "accountCardHeaderColor": "#23282e",
-  "accountCardInnerBorderColor": "#e7eef4",
-  "accountCardInputBackgroundColor": "#ffffff",
-  "accountCardInputBorderColor": "#c0c9d5",
-  "accountCardInputFocusBorderColor": "#324054",
-  "accountCardInputLabelColor": "#5e6d82",
-  "accountCardInputSelectColor": "#e4f4fd",
-  "accountCardInputSelectHoverColor": "#f6f8fa",
-  "accountCardInputTextColor": "#23282e",
-  "accountCardOuterBorderColor": "#e7eef4",
-  "accountCardShadow": 3,
-  "accountCardTabActiveBorderColor": "#109cf1",
-  "accountCardTabActiveColor": "#e4f4fd",
-  "accountCardTextColor": "#5e6d82",
-  "accountFooter": {
-    "file": "accountFooter.html",
-  },
-  "accountFooterEnabled": true,
-  "accountFooterScriptTag": {
-    "file": "accountFooterScriptTag.html",
-  },
-  "accountFooterScriptTagEnabled": true,
-  "accountNavigationBackgroundColor": "#ffffff",
-  "accountNavigationTextColor": "#455469",
-  "accountNavigationToggleBorderColor": "#e7eef4",
-  "accountPageSections": {
-    "accountControls": {
-      "enabled": true,
-    },
-    "accountSecurity": {
-      "enabled": true,
-      "subsections": {
-        "password": {
-          "enabled": true,
-        },
-        "securityQuestions": {
-          "enabled": true,
-        },
-        "twoStepVerification": {
-          "enabled": true,
-        },
-        "username": {
-          "enabled": true,
-        },
-      },
-    },
-    "consent": {
-      "enabled": true,
-    },
-    "oauthApplications": {
-      "enabled": true,
-    },
-    "personalInformation": {
-      "enabled": true,
-    },
-    "preferences": {
-      "enabled": true,
-    },
-    "social": {
-      "enabled": true,
-    },
-    "trustedDevices": {
-      "enabled": true,
-    },
-  },
-  "accountTableRowHoverColor": "#f6f8fa",
-  "backgroundColor": "#ffffff",
-  "backgroundImage": "",
-  "bodyText": "#23282e",
-  "boldLinks": false,
-  "buttonFocusBorderColor": "#0778d6",
-  "buttonRounded": 5,
-  "dangerColor": "#dc3545",
-  "darkColor": "#23282e",
-  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
-  "fontFamily": "Open Sans",
-  "infoColor": "#109cf1",
-  "isDefault": false,
-  "journeyA11yAddFallbackErrorHeading": true,
-  "journeyCardBackgroundColor": "#ffffff",
-  "journeyCardBorderRadius": 4,
-  "journeyCardHeaderBackgroundColor": "#ffffff",
-  "journeyCardShadow": 3,
-  "journeyCardTextColor": "#5e6d82",
-  "journeyCardTitleColor": "#23282e",
-  "journeyFloatingLabels": true,
-  "journeyFocusElement": "content",
-  "journeyFocusFirstFocusableItemEnabled": false,
-  "journeyFooter": {
-    "file": "journeyFooter.html",
-  },
-  "journeyFooterEnabled": true,
-  "journeyFooterScriptTag": {
-    "file": "journeyFooterScriptTag.html",
-  },
-  "journeyFooterScriptTagEnabled": true,
-  "journeyHeader": {
-    "file": "journeyHeader.html",
-  },
-  "journeyHeaderEnabled": true,
-  "journeyHeaderSkipLinkEnabled": true,
-  "journeyInputBackgroundColor": "#ffffff",
-  "journeyInputBorderColor": "#c0c9d5",
-  "journeyInputFocusBorderColor": "#324054",
-  "journeyInputLabelColor": "#5e6d82",
-  "journeyInputSelectColor": "#e4f4fd",
-  "journeyInputSelectHoverColor": "#f6f8fa",
-  "journeyInputTextColor": "#23282e",
-  "journeyJustifiedContent": {
-    "file": "journeyJustifiedContent.html",
-  },
-  "journeyJustifiedContentEnabled": true,
-  "journeyJustifiedContentMobileViewEnabled": true,
-  "journeyLayout": "justified-left",
-  "journeyRememberMeEnabled": true,
-  "journeyRememberMeLabel": "remember me!",
-  "journeySignInButtonPosition": "justify-content-center",
-  "journeyTheaterMode": true,
-  "lightColor": "#f6f8fa",
-  "linkActiveColor": "#0a6eab",
-  "linkActiveColorOnDark": "#0a6eab",
-  "linkColor": "#109cf1",
-  "linkColorOnDark": "#109cf1",
-  "linkedTrees": [],
-  "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
-  "logoAltText": "Logo",
-  "logoEnabled": true,
-  "logoHeight": "43",
-  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
-  "logoProfileAltText": "Logo",
-  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
-  "logoProfileCollapsedAltText": "Logo",
-  "logoProfileHeight": "24",
-  "name": "Test Single HTML",
-  "pageTitle": "#23282e",
-  "primaryColor": "#324054",
-  "primaryOffColor": "#242E3C",
-  "profileBackgroundColor": "#ffffff",
-  "profileMenuHighlightColor": "#f3f5f8",
-  "profileMenuHoverColor": "#f3f5f8",
-  "profileMenuHoverTextColor": "#455469",
-  "profileMenuTextHighlightColor": "#455469",
-  "secondaryColor": "#69788b",
-  "successColor": "#2ed47a",
-  "switchBackgroundColor": "#c0c9d5",
-  "textColor": "#ffffff",
-  "topBarBackgroundColor": "#ffffff",
-  "topBarBorderColor": "#e7eef4",
-  "topBarHeaderColor": "#23282e",
-  "topBarTextColor": "#69788b",
-  "warningColor": "#ffb946",
-}
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test Single HTML/accountFooter.html 1`] = `
-"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
-<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
-"
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test Single HTML/accountFooterScriptTag.html 1`] = `
-"����(��%zZ �e�j+���r����+��\\�{(��h�z%h˧v��r��
-"
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test Single HTML/journeyFooter.html 1`] = `
-"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
-<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
-"
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test Single HTML/journeyFooterScriptTag.html 1`] = `
-"����(��%zZ �e�j+���r����+��\\�{(��h�z%h˧v��r��
-"
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test Single HTML/journeyHeader.html 1`] = `
-"<div class="d-flex justify-content-center py-4 flex-grow-1">
-    Hello World!
-</div>
-"
-`;
-
-exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test Single HTML/journeyJustifiedContent.html 1`] = `
-"<p>
-    Hello World!
-</p>
-"
-`;
-
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/Test.json 1`] = `
 {
   "_id": "27d96c03-d55e-48a6-ba8b-ad2b144ab732",
@@ -31421,23 +31702,103 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 }
 `;
 
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/accountFooter/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/accountFooter/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100">
+  <span class="pr-1">© 2026</span>
+  <a href="#" target="_blank" class="text-body">Mi Empresa, Inc</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Política de Privacidad</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Términos &amp; Condiciones</a>
+</div>
+"
+`;
+
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/accountFooterScriptTag.html 1`] = `
-"����(��%zZ �e�j+���r����+��\\�{(��h�z%h˧v��r��
+"PHNjcmlwdD4KICAgIGNvbnNvbGUubG9nKCJIZWxsbyBXb3JsZCEiKTsKPC9zY3JpcHQ+CjxzY3JpcHQ+CiAgICBjb25zb2xlLmxvZygiSG9sYSBNdW5kbyEiKTsKPC9zY3JpcHQ+Cg==
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/journeyFooter/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Terms &amp; Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/journeyFooter/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100">
+  <span class="pr-1">© 2026</span>
+  <a href="#" target="_blank" class="text-body">Mi Empresa, Inc</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Política de Privacidad</a>
+  <a href="#" target="_blank" style="color:#0000ee" class="pl-3 text-body">Términos &amp; Condiciones</a>
+</div>
 "
 `;
 
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/journeyFooterScriptTag.html 1`] = `
-"����(��%zZ �e�j+���r����+��\\�{(��h�z%h˧v��r��
+"PHNjcmlwdD4KICAgIGNvbnNvbGUubG9nKCJIZWxsbyBXb3JsZCEiKTsKPC9zY3JpcHQ+CjxzY3JpcHQ+CiAgICBjb25zb2xlLmxvZygiSG9sYSBNdW5kbyEiKTsKPC9zY3JpcHQ+Cg==
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/journeyHeader/en.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hello World!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/journeyHeader/es.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">
+    Hola Mundo!
+</div>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/journeyJustifiedContent/en.html 1`] = `
+"<p>
+    Hello World!
+</p>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Test/journeyJustifiedContent/es.html 1`] = `
+"<p>
+    Hola Mundo!
+</p>
 "
 `;
 
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/Zardoz/Zardoz.json 1`] = `
 {
   "_id": "a9bc15cf-8d9c-4bfb-8979-67a5f5823227",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#009C80",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
   "accountFooter": {
     "file": "accountFooter.html",
   },
   "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
   "accountPageSections": {
     "accountControls": {
       "enabled": false,
@@ -31478,29 +31839,62 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
       "enabled": true,
     },
   },
+  "accountTableRowHoverColor": "#f6f8fa",
   "backgroundColor": "#FFFFFF",
   "backgroundImage": "",
   "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
   "buttonRounded": "50",
   "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
   "favicon": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
   "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
   "journeyFooter": {
     "file": "journeyFooter.html",
   },
   "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
   "journeyHeader": {
     "file": "journeyHeader.html",
   },
   "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#009C80",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
   "journeyJustifiedContent": {
     "file": "journeyJustifiedContent.html",
   },
   "journeyJustifiedContentEnabled": true,
+  "journeyJustifiedContentMobileViewEnabled": false,
   "journeyLayout": "justified-right",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
   "journeyTheaterMode": true,
+  "lightColor": "#f6f8fa",
   "linkActiveColor": "#007661",
+  "linkActiveColorOnDark": "#0a6eab",
   "linkColor": "#009C80",
+  "linkColorOnDark": "#109cf1",
   "linkedTrees": [],
   "logo": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
   "logoAltText": "Zardoz Logo",
@@ -31522,7 +31916,14 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
   "profileMenuHoverTextColor": "#455469",
   "profileMenuTextHighlightColor": "#009C80",
   "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
   "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
 }
 `;
 
@@ -31584,19 +31985,519 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 "
 `;
 
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/preston/accountFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/preston/journeyFooter.html 1`] = `
+"<div class="d-flex justify-content-center py-4 w-100"><span class="pr-1">© 2026</span>
+<a href="#" target="_blank" class="text-body">My Company, Inc</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Privacy Policy</a><a href="#" target="_blank" style="color: #0000ee" class="pl-3 text-body">Terms & Conditions</a></div>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/preston/journeyFooterScriptTag.html 1`] = `
+"<script>console.log("hello");</script>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/preston/journeyHeader.html 1`] = `
+"<div class="d-flex justify-content-center py-4 flex-grow-1">Header Content</div>
+"
+`;
+
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/realms/alpha/themes/preston/preston.json 1`] = `
+{
+  "_id": "c96b68f3-8976-452d-83ef-d3b4e38e46a5",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#324054",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html",
+  },
+  "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false,
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true,
+        },
+        "securityQuestions": {
+          "enabled": false,
+        },
+        "twoStepVerification": {
+          "enabled": true,
+        },
+        "username": {
+          "enabled": true,
+        },
+      },
+    },
+    "consent": {
+      "enabled": false,
+    },
+    "oauthApplications": {
+      "enabled": false,
+    },
+    "personalInformation": {
+      "enabled": true,
+    },
+    "preferences": {
+      "enabled": false,
+    },
+    "social": {
+      "enabled": false,
+    },
+    "trustedDevices": {
+      "enabled": true,
+    },
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": 5,
+  "dangerColor": "#dc3545",
+  "darkColor": "#23282e",
+  "endUserMenuItems": [
+    {
+      "icon": "dashboard",
+      "id": "dashboard",
+      "label": {
+        "en": "Dashboard",
+      },
+      "labelKey": "sideMenu.endUser.dashboard",
+    },
+    {
+      "icon": "summarize",
+      "id": "reports",
+      "label": {
+        "en": "Reports",
+      },
+      "labelKey": "sideMenu.endUser.reports",
+    },
+    {
+      "icon": "inbox",
+      "id": "inbox",
+      "label": {
+        "en": "My Inbox",
+      },
+      "labelKey": "sideMenu.endUser.inbox",
+      "selectedSubItems": [
+        "approvals",
+        "tasks",
+        "accessReviews",
+        "violations",
+      ],
+      "subItems": [
+        {
+          "icon": "approvals",
+          "id": "approvals",
+          "label": {
+            "en": "Approvals",
+          },
+          "labelKey": "sideMenu.endUser.approvals",
+        },
+        {
+          "icon": "tasks",
+          "id": "tasks",
+          "label": {
+            "en": "Tasks",
+          },
+          "labelKey": "sideMenu.endUser.tasks",
+        },
+        {
+          "icon": "accessReviews",
+          "id": "accessReviews",
+          "label": {
+            "en": "Access Reviews",
+          },
+          "labelKey": "sideMenu.endUser.accessReviews",
+        },
+        {
+          "icon": "violations",
+          "id": "violations",
+          "label": {
+            "en": "Violations",
+          },
+          "labelKey": "sideMenu.endUser.violations",
+        },
+      ],
+    },
+    {
+      "icon": "horizontal_rule",
+      "id": "divider",
+      "isDivider": true,
+      "label": {
+        "en": "Divider",
+      },
+      "labelKey": "sideMenu.endUser.divider",
+    },
+    {
+      "icon": "apps",
+      "id": "applications",
+      "label": {
+        "en": "Applications",
+      },
+      "labelKey": "sideMenu.endUser.applications",
+    },
+    {
+      "icon": "lock",
+      "id": "myAccess",
+      "label": {
+        "en": "My Access",
+      },
+      "labelKey": "sideMenu.endUser.myAccess",
+      "selectedSubItems": [
+        "myAccounts",
+        "myRoles",
+        "myEntitlements",
+        "machineAccounts",
+        "agents",
+      ],
+      "subItems": [
+        {
+          "icon": "myAccounts",
+          "id": "myAccounts",
+          "label": {
+            "en": "My Accounts",
+          },
+          "labelKey": "sideMenu.endUser.myAccounts",
+        },
+        {
+          "icon": "myRoles",
+          "id": "myRoles",
+          "label": {
+            "en": "My Roles",
+          },
+          "labelKey": "sideMenu.endUser.myRoles",
+        },
+        {
+          "icon": "myEntitlements",
+          "id": "myEntitlements",
+          "label": {
+            "en": "My Entitlements",
+          },
+          "labelKey": "sideMenu.endUser.myEntitlements",
+        },
+        {
+          "icon": "machineAccounts",
+          "id": "machineAccounts",
+          "label": {
+            "en": "Machine Accounts",
+          },
+          "labelKey": "sideMenu.endUser.machineAccounts",
+        },
+        {
+          "icon": "agents",
+          "id": "agents",
+          "label": {
+            "en": "Agents",
+          },
+          "labelKey": "sideMenu.endUser.agents",
+        },
+      ],
+    },
+    {
+      "icon": "folder",
+      "id": "directory",
+      "label": {
+        "en": "My Directory",
+      },
+      "labelKey": "sideMenu.endUser.directory",
+      "selectedSubItems": [
+        "delegates",
+        "directReports",
+      ],
+      "subItems": [
+        {
+          "icon": "delegates",
+          "id": "delegates",
+          "label": {
+            "en": "My Delegates",
+          },
+          "labelKey": "sideMenu.endUser.delegates",
+        },
+        {
+          "icon": "directReports",
+          "id": "directReports",
+          "label": {
+            "en": "Direct Reports",
+          },
+          "labelKey": "sideMenu.endUser.directReports",
+        },
+      ],
+    },
+    {
+      "icon": "send",
+      "id": "requests",
+      "label": {
+        "en": "My Requests",
+      },
+      "labelKey": "sideMenu.endUser.requests",
+    },
+    {
+      "icon": "person",
+      "id": "profile",
+      "label": {
+        "en": "Profile",
+      },
+      "labelKey": "sideMenu.endUser.profile",
+    },
+    {
+      "icon": "manage_accounts",
+      "id": "lcm",
+      "label": {
+        "en": "Administer",
+      },
+      "labelKey": "sideMenu.endUser.lcm",
+      "selectedSubItems": [
+        "lcmUsers",
+        "lcmEntitlements",
+        "adminRequests",
+        "adminCertifications",
+        "lcmRoles",
+      ],
+      "subItems": [
+        {
+          "icon": "lcmUsers",
+          "id": "lcmUsers",
+          "label": {
+            "en": "Users",
+          },
+          "labelKey": "sideMenu.endUser.lcmUsers",
+        },
+        {
+          "icon": "lcmEntitlements",
+          "id": "lcmEntitlements",
+          "label": {
+            "en": "Entitlements",
+          },
+          "labelKey": "sideMenu.endUser.lcmEntitlements",
+        },
+        {
+          "icon": "adminRequests",
+          "id": "adminRequests",
+          "label": {
+            "en": "Requests",
+          },
+          "labelKey": "sideMenu.endUser.adminRequests",
+        },
+        {
+          "icon": "adminCertifications",
+          "id": "adminCertifications",
+          "label": {
+            "en": "Certifications",
+          },
+          "labelKey": "sideMenu.endUser.adminCertifications",
+        },
+        {
+          "icon": "lcmRoles",
+          "id": "lcmRoles",
+          "label": {
+            "en": "Roles",
+          },
+          "labelKey": "sideMenu.endUser.lcmRoles",
+        },
+      ],
+    },
+    {
+      "icon": "check_box_outline_blank",
+      "id": "alpha_aiagent",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - AI Agent",
+      },
+      "labelKey": "Alpha realm - AI Agent",
+    },
+    {
+      "icon": "check_box_outline_blank",
+      "id": "alpha_aiagentprivilege",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - AI Agent Privilege",
+      },
+      "labelKey": "Alpha realm - AI Agent Privilege",
+    },
+    {
+      "icon": "group",
+      "id": "alpha_group",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - Group",
+      },
+      "labelKey": "Alpha realm - Group",
+    },
+    {
+      "icon": "domain",
+      "id": "alpha_organization",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - Organization",
+      },
+      "labelKey": "Alpha realm - Organization",
+    },
+    {
+      "icon": "assignment_ind",
+      "id": "alpha_role",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - Role",
+      },
+      "labelKey": "Alpha realm - Role",
+    },
+    {
+      "icon": "people",
+      "id": "alpha_user",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - User",
+      },
+      "labelKey": "Alpha realm - User",
+    },
+    {
+      "icon": "people",
+      "id": "internal/role",
+      "isManagedObject": true,
+      "label": {
+        "en": "Internal Role",
+      },
+      "labelKey": "Internal Role",
+    },
+    {
+      "icon": "check_box_outline_blank",
+      "id": "javascript",
+      "isManagedObject": true,
+      "label": {
+        "en": "Javascript",
+      },
+      "labelKey": "Javascript",
+    },
+    {
+      "icon": "directions_boat",
+      "id": "moSample",
+      "isManagedObject": true,
+      "label": {
+        "en": "Managed Object Example",
+      },
+      "labelKey": "Managed Object Example",
+    },
+  ],
+  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html",
+  },
+  "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": {
+    "file": "journeyFooterScriptTag.html",
+  },
+  "journeyFooterScriptTagEnabled": true,
+  "journeyHeader": {
+    "file": "journeyHeader.html",
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#324054",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0a6eab",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "img/placeholder.95d0bb8e.svg",
+  "logoAltText": "Logo",
+  "logoEnabled": true,
+  "logoHeight": "43",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+  "logoProfileAltText": "Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoProfileCollapsedAltText": "Logo",
+  "logoProfileHeight": "24",
+  "name": "preston",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#ffffff",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#f3f5f8",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946",
+}
+`;
+
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style": allStaticDir1/remote-proxies/volker-dev.json 1`] = `
 {
   "_id": "external.idm/volker-dev",
   "authType": "bearer",
-  "clientId": "frodo-proxy-test",
-  "clientSecret": "&{esv.frodo.proxy.test}",
+  "clientId": "frodo-remote-proxy-frodo-dev",
+  "clientSecret": "&{esv.remote.proxy.volker.dev}",
   "enabled": true,
-  "instanceUrl": "https://openam-volker-dev.forgeblocks.com/openidm/",
+  "instanceUrl": "https://&{esv.remote.proxy.volker.dev.host}/openidm/",
   "scope": [
     "fr:idm:*",
   ],
   "scopeDelimiter": " ",
-  "tokenEndpoint": "https://openam-volker-dev.forgeblocks.com/am/oauth2/realms/root/realms/alpha/access_token",
+  "tokenEndpoint": "https://&{esv.remote.proxy.volker.dev.host}/am/oauth2/realms/root/realms/alpha/access_token",
   "tokenEndpointAuthMethod": "client_secret_post",
 }
 `;
