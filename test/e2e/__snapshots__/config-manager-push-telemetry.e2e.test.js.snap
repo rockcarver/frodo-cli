@@ -3,8 +3,7 @@
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=all-test -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=all-secret -D test/e2e/exports/fr-config-manager/cloud": should fail to import all telemetry config 1`] = `
 "Experimental feature in use: 'frodo config-manager push telemetry'. This feature may change without notice.
 ✔ Successfully read 2 telemetry exporter(s).
-✖ Failed to import Telemetry.
-Error importing telemetry configuration
+Error importing telemetry exporter splunk/frodo-test-splunk-1
 Error importing telemetry exporters
   Error updating telemetry exporter
     Network error:
@@ -12,6 +11,9 @@ Error importing telemetry exporters
       Status: 409
       Code: ERR_BAD_REQUEST
       Message: maximum number of exporters reached
+✖ Telemetry import completed with failures.
+1 of 2 telemetry exporters failed:
+  - splunk/frodo-test-splunk-1: maximum number of exporters reached
 "
 `;
 

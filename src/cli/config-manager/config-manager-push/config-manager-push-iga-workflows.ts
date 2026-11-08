@@ -26,6 +26,7 @@ export default function setup() {
     .addOption(
       new Option('-d, --draft', 'Push as draft version instead of publishing.')
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -56,7 +57,8 @@ export default function setup() {
       verboseMessage('Importing IGA workflows.');
       const outcome = await configManagerImportIgaWorkflows(
         options.name,
-        options.draft
+        options.draft,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

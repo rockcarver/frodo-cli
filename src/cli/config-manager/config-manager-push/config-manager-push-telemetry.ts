@@ -24,6 +24,7 @@ export default function setup() {
       '-n, --name <name>',
       'Name of a single exporter to import. Requires --category.'
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -54,7 +55,8 @@ export default function setup() {
       verboseMessage('Importing telemetry.');
       const outcome = await configManagerImportTelemetry(
         options.category,
-        options.name
+        options.name,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

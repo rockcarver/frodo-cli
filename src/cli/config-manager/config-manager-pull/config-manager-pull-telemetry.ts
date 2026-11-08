@@ -21,6 +21,7 @@ export default function setup() {
       'Telemetry category to export (e.g. otlp, splunk).'
     )
     .option('-n, --name <name>', 'Name of a single exporter to export.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -42,7 +43,8 @@ export default function setup() {
       verboseMessage('Exporting telemetry configuration.');
       const outcome = await configManagerExportTelemetry(
         options.category,
-        options.name
+        options.name,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

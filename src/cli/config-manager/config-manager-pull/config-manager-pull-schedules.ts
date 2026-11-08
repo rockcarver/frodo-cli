@@ -29,6 +29,7 @@ export default function setup() {
         'Schedule name. If specified, only exports the schedule with the specified name.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -41,7 +42,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting schedules...');
-        const outcome = await configManagerExportSchedules(options.name);
+        const outcome = await configManagerExportSchedules(
+          options.name,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

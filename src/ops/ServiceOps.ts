@@ -271,7 +271,7 @@ export async function importFirstServiceFromFile(
  * @param {unknown} error the nested error of one failed service
  * @returns {string | undefined} the service id, or undefined if the message has another shape
  */
-function importedServiceNameOf(error: unknown): string | undefined {
+export function importedServiceNameOf(error: unknown): string | undefined {
   return (error as Error)?.message?.match(/ full service config (.+)$/)?.[1];
 }
 
@@ -281,7 +281,7 @@ function importedServiceNameOf(error: unknown): string | undefined {
  * @param {unknown} error the error `importServices` threw
  * @returns {unknown} the error that carries one nested error per failed service, or the error itself
  */
-function combinedServiceError(error: unknown): unknown {
+export function combinedServiceError(error: unknown): unknown {
   const nested = (error as FrodoError)?.originalErrors;
   const inner = Array.isArray(nested) && nested.length === 1 ? nested[0] : null;
   return Array.isArray((inner as FrodoError)?.originalErrors) ? inner : error;

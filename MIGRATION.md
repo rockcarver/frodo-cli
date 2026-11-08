@@ -198,8 +198,9 @@ variable import`, `secretstore import`, `server import`, `iga workflow import`,
 `admin federation import`, and `config-manager pull` and `push` of
 `authentication`, `authz-policies`, `journeys`, `oauth2-agents`,
 `org-privileges`, `password-policy`, `raw`, `saml`, `scripts`,
-`secret-mappings`, `secrets`, `service-objects`, `themes`, `custom-nodes` and
-`endpoints`. For the deletes this means a
+`secret-mappings`, `secrets`, `service-objects`, `themes`, `custom-nodes`,
+`endpoints`, `iga-workflows`, `locales`, `schedules`, `services` and
+`telemetry`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -444,6 +445,29 @@ exported or imported nothing and exited 0; they exit 1. `push themes` for all
 realms skips a realm without a `themes` folder with a warning, where it failed
 with a raw file-system error, and `push secrets` with nothing to push in
 `esvs/secrets` warns and exits 0, where it exited 1.
+`config-manager pull` and `push` of `iga-workflows`, `locales`, `schedules`,
+`services` and `telemetry` now try every workflow, locale, schedule, service
+or exporter they can, name the ones that failed in one summary and exit 1
+unless `--allow-failures` was given. They used to stop at the first item that
+failed and leave the later ones unexported or unimported; `push locales` and
+`push schedules` asked the library to import all entities in one call, which
+gives up at the first entity it cannot save, and `push telemetry` did the same
+with its exporters, so it now imports them one at a time. The library reads and
+imports the services of a realm in one call: `pull services` and `push
+services` name the services in its error, with the realm (`alpha/Foo`), and
+carry on with the other realms, but a service that cannot be read keeps the
+other services of its realm from being exported. A file of a push that cannot
+be read or parsed is a failed item and no longer ends the command. Following
+decision record 0041, naming an item that is not there (`-n`) fails with a
+plain message where `pull locales`, `pull schedules`, `pull services`, `pull
+telemetry`, `push locales`, `push schedules` and `push services` used to
+succeed without doing anything; a folder to push from that is missing (`push
+iga-workflows`, `push locales`, `push schedules`, `push telemetry`) is named in
+the message instead of a file-system error; and exporting or importing nothing,
+when no item was named, succeeds with a message (`push iga-workflows` and `push
+telemetry` used to exit 1). Inside `pull all`, the `locales`, `schedules` and
+`services` steps print their own summary of the items before the step appears
+in the summary of the steps.
 See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 

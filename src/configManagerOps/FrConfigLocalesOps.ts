@@ -1,30 +1,61 @@
 import fs from 'fs';
-import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import {
+  frodo,
+  type FrodoError,
+  type IdObjectSkeletonInterface,
+} from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
+import { OperationRun } from '../utils/OperationRun';
 
 const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
 const { saveJsonToFile, getFilePath, readJsonFile, getWorkingDirectory } =
   frodo.utils;
 
 /**
+ * The locale that the library names in the error of an entity it could not update.
+ * @param {FrodoError} error the error the library reported for one entity
+ * @returns {string | undefined} the locale name, or undefined if the message has another shape
+ */
+function importedLocaleNameOf(error: FrodoError): string | undefined {
+  return error.message?.match(/ config entity uilocale\/(.+)$/)?.[1];
+}
+
+/**
  * Export IDM locales configuration in fr-config-manager format.
  * @param {string} name optional name of the locale to export
- * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ * @param {boolean} allowFailures true to succeed although some locales could not be exported (the failures are still summarised)
+ * @return {Promise<boolean>} a promise that resolves to false if a named locale does not exist, the locales cannot be read, or a locale cannot be exported (unless failures are allowed). No locales when none was named is a success.
  */
 export async function configManagerExportLocales(
-  name?: string
+  name?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   try {
-    const locales = await readConfigEntitiesByType('uilocale');
-    locales.forEach((locale) => {
+    const locales = (await readConfigEntitiesByType('uilocale')).filter(
+      (locale) => !name || locale._id.split('/')[1] === name
+    );
+    if (name && locales.length === 0) {
+      printMessage(`Locale '${name}' not found.`, 'error');
+      return false;
+    }
+    if (locales.length === 0) {
+      printMessage('No locales found to export.');
+      return true;
+    }
+    const run = new OperationRun({ unit: 'locale', allowFailures });
+    for (const locale of locales) {
       const localeName = locale._id.split('/')[1];
-      if (name && name !== localeName) {
-        return;
+      try {
+        const localeFilename = `locales/${localeName}.json`;
+        saveJsonToFile(locale, getFilePath(localeFilename, true), false, true);
+        run.recordSuccess();
+      } catch (error) {
+        printError(error, `Error exporting locale ${localeName}`);
+        run.recordFailure(localeName, causeOf(error));
       }
-      const localeFilename = `locales/${localeName}.json`;
-      saveJsonToFile(locale, getFilePath(localeFilename, true), false, true);
-    });
-    return true;
+    }
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting locales`);
   }
@@ -34,27 +65,51 @@ export async function configManagerExportLocales(
 /**
  * Import IDM locales configuration from fr-config-manager format.
  * @param {string} name optional name of the locale to import
- * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ * @param {boolean} allowFailures true to succeed although some locales could not be imported (the failures are still summarised)
+ * @return {Promise<boolean>} a promise that resolves to false if the locales folder or a named locale does not exist, or a locale cannot be read or imported (unless failures are allowed). No locales when none was named is a success.
  */
 export async function configManagerImportLocales(
-  name?: string
+  name?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   try {
     printMessage(`Updating locale${name ? ` ${name}` : 's'}`);
-    const localeFiles = fs.readdirSync(
-      `${getWorkingDirectory()}/locales`,
-      'utf8'
-    );
+    const localesDir = `${getWorkingDirectory()}/locales`;
+    if (!fs.existsSync(localesDir)) {
+      printMessage(`Locales folder not found: ${localesDir}`, 'error');
+      return false;
+    }
+    const localeFiles = fs.readdirSync(localesDir, 'utf8');
+    const run = new OperationRun({ unit: 'locale', allowFailures });
     const importLocaleData = { idm: {} };
     for (const localeFile of localeFiles) {
-      const locale = readJsonFile(
-        getFilePath(`locales/${localeFile}`)
-      ) as IdObjectSkeletonInterface;
-      if (name && locale._id !== `uilocale/${name}`) continue;
-      importLocaleData.idm[locale._id] = locale;
+      try {
+        const locale = readJsonFile(
+          getFilePath(`locales/${localeFile}`)
+        ) as IdObjectSkeletonInterface;
+        if (name && locale._id !== `uilocale/${name}`) continue;
+        importLocaleData.idm[locale._id] = locale;
+      } catch (error) {
+        // a file that cannot be read or parsed is a failed locale
+        printError(error, `Error reading locale file ${localeFile}`);
+        run.recordFailure(localeFile, causeOf(error));
+      }
     }
-    await importConfigEntities(importLocaleData);
-    return true;
+    if (name && !importLocaleData.idm[`uilocale/${name}`]) {
+      printMessage(`Locale '${name}' not found in ${localesDir}`, 'error');
+      return false;
+    }
+    if (Object.keys(importLocaleData.idm).length === 0 && !run.hasFailures) {
+      printMessage(`No locales found to import in ${localesDir}`);
+      return true;
+    }
+    await importConfigEntities(
+      importLocaleData,
+      undefined,
+      undefined,
+      run.resultCallback(importedLocaleNameOf)
+    );
+    return run.finish();
   } catch (error) {
     printError(error, `Error importing locales`);
     return false;

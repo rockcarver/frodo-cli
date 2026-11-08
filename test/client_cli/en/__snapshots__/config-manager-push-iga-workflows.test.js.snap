@@ -23,6 +23,9 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
+  --allow-failures   Report operations that fail, but still exit with code 0.
+                     Without this option the command runs every operation,
+                     prints a summary of what failed and exits with code 1.
   -d, --draft        Push as draft version instead of publishing.
   -n, --name <name>  Workflow name. Only import the workflow with this name.
   -h, --help         Help

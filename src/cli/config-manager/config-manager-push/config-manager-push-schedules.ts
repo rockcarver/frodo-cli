@@ -34,6 +34,7 @@ export default function setup() {
         'Combine multiple files using comma, use ~ prefix on entry for wildcard match'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -47,7 +48,8 @@ export default function setup() {
         verboseMessage('Importing schedules');
         const outcome = await configManagerImportSchedules(
           options.name,
-          options.filenameFilter
+          options.filenameFilter,
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       } else {
