@@ -16,6 +16,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import { errorHandler } from './utils/OpsUtils';
 
 const {
@@ -674,23 +675,34 @@ export async function deleteSecretStore(
 /**
  * Delete secret stores
  * @param {boolean} global true to delete from global secret stores, false otherwise
+ * @param {boolean} allowFailures true to report secret stores that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteSecretStores(
-  global: boolean = false
+  global: boolean = false,
+  allowFailures = false
 ): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting secret stores...`
   );
+  const run = new OperationRun({ unit: 'secret store', allowFailures });
   try {
-    await frodo.secretStore.deleteSecretStores(global, errorHandler);
-    stopProgressIndicator(spinnerId, `Deleted all secret stores.`, 'success');
-    return true;
+    await frodo.secretStore.deleteSecretStores(global, run.resultCallback());
+    stopProgressIndicator(
+      spinnerId,
+      run.hasFailures
+        ? `Some secret stores could not be deleted.`
+        : `Deleted all secret stores.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even read what to delete
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -739,34 +751,41 @@ export async function deleteSecretStoreMapping(
  * @param {string} secretStoreId the secret store id
  * @param {string | undefined} secretStoreTypeId the secret store type id (optional)
  * @param {boolean} global true to delete from global secret stores, false otherwise
+ * @param {boolean} allowFailures true to report mappings that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteSecretStoreMappings(
   secretStoreId: string,
   secretStoreTypeId?: string,
-  global: boolean = false
+  global: boolean = false,
+  allowFailures = false
 ): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting secret store mappings from the secret store ${secretStoreId}...`
   );
+  const run = new OperationRun({ unit: 'mapping', allowFailures });
   try {
     await frodo.secretStore.deleteSecretStoreMappings(
       secretStoreId,
       secretStoreTypeId,
       global,
-      errorHandler
+      run.resultCallback()
     );
     stopProgressIndicator(
       spinnerId,
-      `Deleted all mappings from the secret store ${secretStoreId}.`,
-      'success'
+      run.hasFailures
+        ? `Some mappings of the secret store ${secretStoreId} could not be deleted.`
+        : `Deleted all mappings from the secret store ${secretStoreId}.`,
+      run.hasFailures ? 'fail' : 'success'
     );
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even read what to delete
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

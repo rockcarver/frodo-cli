@@ -21,6 +21,7 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import { formatOptionalStringArray } from './utils/ArrayFormat.js';
 
 const {
@@ -386,6 +387,42 @@ export async function deleteOauth2ClientById(
     await deleteOAuth2Client(clientId);
     stopProgressIndicator(spinnerId, `Deleted ${clientId}.`, 'success');
     return true;
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete all oauth2 clients
+ * @param {boolean} allowFailures true to report clients that could not be deleted but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteOauth2Clients(
+  allowFailures = false
+): Promise<boolean> {
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting all OAuth2 clients...`
+  );
+  try {
+    const clients = await readOAuth2Clients();
+    const run = new OperationRun({ unit: 'client', allowFailures });
+    for (const client of clients) {
+      await run.run(client._id, async () => {
+        await deleteOAuth2Client(client._id);
+      });
+    }
+    stopProgressIndicator(
+      spinnerId,
+      run.hasFailures
+        ? `Some OAuth2 clients could not be deleted.`
+        : `Deleted ${clients.length} OAuth2 clients.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);

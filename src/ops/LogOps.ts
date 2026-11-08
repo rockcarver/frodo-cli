@@ -15,6 +15,7 @@ import {
   succeedSpinner,
   verboseMessage,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import { getTokens } from './AuthenticateOps';
 
 const {
@@ -25,7 +26,6 @@ const {
   getDefaultNoiseFilter,
   resolvePayloadLevel,
   deleteLogApiKey: _deleteLogApiKey,
-  deleteLogApiKeys: _deleteLogApiKeys,
 } = frodo.cloud.log;
 const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 
@@ -164,14 +164,29 @@ export async function deleteLogApiKey(keyId) {
   return outcome;
 }
 
-export async function deleteLogApiKeys() {
+/**
+ * Delete all log API keys
+ * @param {boolean} allowFailures true to report keys that could not be deleted but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteLogApiKeys(allowFailures = false) {
   let outcome = false;
   debugMessage(`cli.LogOps.deleteKeys: start`);
   showSpinner(`Deleting all keys...`);
   try {
-    const response = await _deleteLogApiKeys();
-    succeedSpinner(`Deleted ${response.length} keys.`);
-    outcome = true;
+    const keys = await getLogApiKeys();
+    const run = new OperationRun({ unit: 'key', allowFailures });
+    for (const key of keys) {
+      await run.run(key.name || key.api_key_id, async () => {
+        await _deleteLogApiKey(key.api_key_id);
+      });
+    }
+    if (run.hasFailures) {
+      failSpinner(`Some keys could not be deleted`);
+    } else {
+      succeedSpinner(`Deleted ${keys.length} keys.`);
+    }
+    outcome = run.finish();
   } catch (error) {
     failSpinner(`Error deleting keys`);
     printError(error);

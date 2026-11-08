@@ -172,19 +172,26 @@ one that changes is added here, and the option is shown in its `-h`. So far
 these have the option and the new exit code: `config-manager pull all`,
 `config-manager pull all-static`, `esv secret delete -a`, `esv variable delete
 -a`, `email template delete -a`, `authz policy delete -a`, `authz type delete -a`,
-`authz set delete -a`, `script delete -a`, and `config-manager delete
-custom-nodes`, `email-templates`, `endpoints`, `scripts` and `themes`. For the
-deletes this means a failed delete used to be printed and the command still
-exited 0 (`esv secret delete -a`), or the run ended at the first failure (`esv
-variable delete -a`, `script delete -a` with a filter), and now every item is
-tried and the exit code is 1 if any failed. The `config-manager` deletes used to
-end with a count line of their own (`Deleted 2 scripts, 1 failed.`, `Deleted 2
-email templates, 1 failed.`, `Themes could not be deleted in 1 of 3 realms.`);
-the summary names the failed items instead (the realms, for themes).
-`config-manager delete endpoints` on a tenant without custom endpoints used to
-exit 1 and now exits 0, because nothing to delete is not a failure;
-`config-manager delete scripts` now says `No scripts found to delete.` when
-nothing matches. See
+`authz set delete -a`, `script delete -a`, `config-manager delete
+custom-nodes`, `email-templates`, `endpoints`, `scripts` and `themes`, `app
+delete -a`, `idm remote-proxy delete -a`, `log key delete`, `oauth client delete
+-a`, `node delete -a`, `secretstore delete -a`, `secretstore mapping delete -a`
+and `iga workflow delete -a`. For the deletes this means a failed delete used to
+be printed and the command still exited 0 (`esv secret delete -a`, `log key
+delete`), or the run ended at the first failure (`esv variable delete -a`,
+`script delete -a` with a filter), and now every item is tried and the exit code
+is 1 if any failed. The `config-manager` deletes used to end with a count line
+of their own (`Deleted 2 scripts, 1 failed.`, `Deleted 2 email templates, 1
+failed.`, `Themes could not be deleted in 1 of 3 realms.`); the summary names
+the failed items instead (the realms, for themes). `config-manager delete
+endpoints` on a tenant without custom endpoints used to exit 1 and now exits 0,
+because nothing to delete is not a failure; `config-manager delete scripts` now
+says `No scripts found to delete.` when nothing matches. `node delete -a`,
+`secretstore delete -a`, `secretstore mapping delete -a` and `iga workflow
+delete -a` already exited 1 but ended with "Deleted ..." after failures; they
+now say that some could not be deleted and name them. `oauth client delete -a`
+did not delete anything; it now deletes all OAuth2 clients, after asking for
+confirmation (add `--yes` in a script, cli record 0037). See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

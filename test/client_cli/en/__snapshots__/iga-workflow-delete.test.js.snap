@@ -30,6 +30,10 @@ Options:
   -a, --all                        Delete all workflows. By default, deletes
                                    both draft and published unless -d or -p are
                                    used exclusively. Cannot be used with -i.
+  --allow-failures                 Report operations that fail, but still exit
+                                   with code 0. Without this option the command
+                                   runs every operation, prints a summary of
+                                   what failed and exits with code 1.
   -d, --draft-only                 Delete only the draft workflow(s).
   -f, --force                      Force delete workflow(s), even if they are
                                    associated with request types.

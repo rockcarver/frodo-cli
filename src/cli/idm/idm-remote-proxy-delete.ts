@@ -59,6 +59,7 @@ export default function setup() {
         `  Delete all remote proxies:\n` +
         c.command(`  $ frodo idm remote-proxy delete -a ${s.connId}\n`)
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -100,7 +101,7 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all remote proxies...');
-            outcome = await deleteRemoteProxies();
+            outcome = await deleteRemoteProxies(options.allowFailures);
           }
           if (!outcome) process.exitCode = 1;
         } else {

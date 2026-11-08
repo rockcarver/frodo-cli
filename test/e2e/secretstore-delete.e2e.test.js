@@ -41,6 +41,10 @@ describe('frodo secretstore delete', () => {
             await testSuccess(CMD, classicEnv);
         });
         test('"frodo secretstore delete -agm classic -y": should delete all global keystores with exception of EnvironmentAndSystemPropertySecretStore', async () => {
+            // One store cannot be deleted. Before decision record 0040 the last line
+            // said "Deleted all secret stores." anyway. The run now says that some
+            // could not be deleted and names it. The command failed before and
+            // still does.
             const CMD = `frodo secretstore delete -agm classic -y`;
             await testFail(CMD, classicEnv);
         });

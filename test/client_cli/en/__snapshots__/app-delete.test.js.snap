@@ -23,6 +23,10 @@ Arguments:
 
 Options:
   -a, --all              Delete all applications. Cannot be used with -i or -n.
+  --allow-failures       Report operations that fail, but still exit with code
+                         0. Without this option the command runs every
+                         operation, prints a summary of what failed and exits
+                         with code 1.
   -i, --app-id <id>      Application id. Cannot be used with -n or -a. (pick
                          from application)
   -n, --app-name <name>  Application name. Cannot be used with -i or -a.

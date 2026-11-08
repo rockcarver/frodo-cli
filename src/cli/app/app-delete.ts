@@ -86,6 +86,7 @@ export default function setup() {
       options: ['all', 'appId', 'appName'],
       purpose: 'what to delete',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -151,7 +152,10 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all applications...');
-            const outcome = await deleteApplications(options.deep);
+            const outcome = await deleteApplications(
+              options.deep,
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
         }

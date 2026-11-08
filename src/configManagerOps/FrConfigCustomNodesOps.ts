@@ -5,7 +5,6 @@ import {
   type CustomNodeSkeleton,
 } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
-import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 
@@ -109,25 +108,16 @@ export async function configManagerImportCustomNodes(
 }
 
 /**
- * A result callback for the library's bulk delete that records every result in
- * the run: a success is counted, a failure is printed and named in the summary.
- * The library names the failed node only in the message of the error.
- * @param {OperationRun} run the run that collects the results
- * @returns the callback to pass to `deleteCustomNodes`
+ * The library names the node that could not be deleted only in the message of
+ * its error ("Error deleting custom node <name>").
+ * @param {FrodoError} error the error the library reported for one node
+ * @returns {string | undefined} the node name, or undefined if the message has another shape
  */
-function recordResults(run: OperationRun) {
+function nodeNameOf(error: FrodoError): string | undefined {
   const prefix = 'Error deleting custom node ';
-  return (error?: FrodoError): void => {
-    if (!error) {
-      run.recordSuccess();
-      return;
-    }
-    printError(error);
-    const name = error.message.startsWith(prefix)
-      ? error.message.slice(prefix.length)
-      : error.message.split('\n')[0];
-    run.recordFailure(name, causeOf(error));
-  };
+  return error.message.startsWith(prefix)
+    ? error.message.slice(prefix.length)
+    : undefined;
 }
 
 /**
@@ -160,7 +150,9 @@ export async function configManagerDeleteCustomNodes(
         printMessage(`Deleting node with displayName: ${name}`);
       });
     } else {
-      const deletedNodes = await deleteCustomNodes(recordResults(run));
+      const deletedNodes = await deleteCustomNodes(
+        run.resultCallback(nodeNameOf)
+      );
       printMessage(`Deleted ${deletedNodes.length} custom nodes.`);
     }
     return run.finish();

@@ -1,4 +1,6 @@
+import type { FrodoError } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from './Console';
+import { causeOf } from './ErrorCause';
 
 /**
  * Decision record 0040: a command that performs several operations (the items
@@ -45,6 +47,56 @@ interface Failure {
 function reasonOf(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   return message.split('\n')[0].trim();
+}
+
+/** The unit in the plural when there is not exactly one: policy, policies. */
+function pluralOf(unit: string, count: number): string {
+  if (count === 1) return unit;
+  return /[^aeiou]y$/i.test(unit) ? `${unit.slice(0, -1)}ies` : `${unit}s`;
+}
+
+/** The errors a library function nested in a combined error, if it did. */
+function nestedErrors(error: unknown): unknown[] {
+  const nested = (error as { originalErrors?: unknown })?.originalErrors;
+  return Array.isArray(nested) ? nested : [];
+}
+
+/** The last path segment of a request URL, without the query, or undefined. */
+function lastPathSegment(url: unknown): string | undefined {
+  if (typeof url !== 'string') return undefined;
+  const segment = url.split(/[?#]/)[0].split('/').filter(Boolean).pop();
+  if (!segment) return undefined;
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
+/**
+ * What to call a failed item in the summary, and why it failed. A library error
+ * that wraps another one names the item in its own message ("Error deleting
+ * workflow w1") and the reason is what went wrong at the bottom of the chain
+ * (`causeOf`). A raw HTTP error names the item by the last segment of its
+ * request URL, and the reason is its message. Anything else is named by its
+ * message.
+ * @param error the error the library reported for one item
+ * @returns the name and, when there is one beyond the name, the reason
+ */
+export function describeFailure(error: unknown): {
+  name: string;
+  reason?: string;
+} {
+  const nested = nestedErrors(error);
+  if (nested.length > 0) {
+    return { name: reasonOf(error), reason: causeOf(error) };
+  }
+  const fromUrl = lastPathSegment(
+    (error as { config?: { url?: unknown } })?.config?.url
+  );
+  return fromUrl
+    ? { name: fromUrl, reason: causeOf(error) }
+    : { name: reasonOf(error) };
 }
 
 /**
@@ -136,6 +188,31 @@ export class OperationRun {
     if (dependent) this.stopped = true;
   }
 
+  /**
+   * A result callback for a library function that reports every item through a
+   * callback (an error for a failed item, a result for a deleted one), in place
+   * of the shared `errorHandler`. A failed item is printed and recorded and a
+   * result is counted. Unlike `errorHandler` it does not set the exit code:
+   * {@link finish} decides, so that `--allow-failures` can apply.
+   * @param itemName Optional. Names the failed item, for a library function
+   * whose error says it only in its message ("Error deleting custom node N2"):
+   * the name to show, or undefined to fall back to {@link describeFailure}.
+   * @returns the callback to hand to the library
+   */
+  resultCallback<R>(
+    itemName?: (error: FrodoError) => string | undefined
+  ): (error?: FrodoError, result?: R) => void {
+    return (error?: FrodoError) => {
+      if (!error) {
+        this.recordSuccess();
+        return;
+      }
+      printError(error);
+      const described = describeFailure(error);
+      this.recordFailure(itemName?.(error) ?? described.name, described.reason);
+    };
+  }
+
   /** True if any operation failed or was not attempted. */
   get hasFailures(): boolean {
     return this.failures.length > 0 || this.notAttempted.length > 0;
@@ -151,9 +228,8 @@ export class OperationRun {
     if (!this.hasFailures) return true;
     const stoppedByFailure = this.stopped;
     const succeeded = this.allowFailures && !stoppedByFailure;
-    const plural = this.total === 1 ? '' : 's';
     const lines = [
-      `${this.failures.length} of ${this.total} ${this.unit}${plural} failed` +
+      `${this.failures.length} of ${this.total} ${pluralOf(this.unit, this.total)} failed` +
         (this.notAttempted.length > 0
           ? `, ${this.notAttempted.length} not attempted`
           : '') +

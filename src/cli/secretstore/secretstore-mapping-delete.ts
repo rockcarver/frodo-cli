@@ -86,6 +86,7 @@ export default function setup() {
       ],
       purpose: 'what to delete',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -163,7 +164,8 @@ export default function setup() {
           const outcome = await deleteSecretStoreMappings(
             options.secretstoreId,
             options.secretstoreType,
-            options.global
+            options.global,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

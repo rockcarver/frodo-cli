@@ -47,6 +47,7 @@ export default function setup() {
       options: ['all', 'nodeId', 'nodeName'],
       purpose: 'what to delete',
     })
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -108,7 +109,7 @@ export default function setup() {
             return;
           }
           verboseMessage(`Deleting all custom nodes...`);
-          const outcome = await deleteCustomNodes();
+          const outcome = await deleteCustomNodes(options.allowFailures);
           if (!outcome) process.exitCode = 1;
         }
       } else {

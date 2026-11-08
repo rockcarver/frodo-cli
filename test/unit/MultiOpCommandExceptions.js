@@ -112,7 +112,6 @@ export const SWALLOWS_THE_FAILURE = [
   'frodo mapping export',
   'frodo node export',
   'frodo node import',
-  'frodo oauth client delete',
   'frodo promote',
   'frodo realm export',
   'frodo realm import',
@@ -137,22 +136,17 @@ export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
   'frodo idm export',
   'frodo idm import',
   'frodo idm schema object import',
-  'frodo iga workflow delete',
   'frodo iga workflow export',
   'frodo journey describe',
   'frodo journey import',
-  'frodo node delete',
   'frodo script export',
-  'frodo secretstore delete',
   'frodo secretstore export',
-  'frodo secretstore mapping delete',
   'frodo service delete',
 ];
 
 /** The other operations run and the failures are reported, but the exit code stays 0. */
 export const CONTINUES_BUT_EXITS_ZERO = [
   'frodo journey prune',
-  'frodo log key delete',
   'frodo saml cot import',
 ];
 
@@ -162,7 +156,6 @@ export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [
   'frodo agent gateway delete',
   'frodo agent java delete',
   'frodo agent web delete',
-  'frodo app delete',
   'frodo app export',
   'frodo app import',
   'frodo authz policy export',
@@ -177,7 +170,6 @@ export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [
   'frodo config-manager push variables',
   'frodo esv secret import',
   'frodo esv variable import',
-  'frodo idm remote-proxy delete',
   'frodo idp export',
   'frodo idp import',
   'frodo journey validate',

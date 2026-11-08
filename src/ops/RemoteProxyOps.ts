@@ -18,6 +18,7 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getTypedFilename,
@@ -843,14 +844,28 @@ export async function deleteRemoteProxy(proxyId: string): Promise<boolean> {
 
 /**
  * Delete all remote proxies
+ * @param {boolean} allowFailures true to report remote proxies that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteRemoteProxies(): Promise<boolean> {
+export async function deleteRemoteProxies(
+  allowFailures = false
+): Promise<boolean> {
   showSpinner('Deleting all remote proxies...');
   try {
-    const deleted = await remoteProxy.deleteRemoteProxies();
-    succeedSpinner(`Deleted ${countProxies(deleted.length)}.`);
-    return true;
+    const proxies = await remoteProxy.readRemoteProxies();
+    const run = new OperationRun({ unit: 'remote proxy', allowFailures });
+    for (const proxy of proxies) {
+      const name = getName(proxy);
+      await run.run(name, async () => {
+        await remoteProxy.deleteRemoteProxy(name);
+      });
+    }
+    if (run.hasFailures) {
+      failSpinner('Some remote proxies could not be deleted');
+    } else {
+      succeedSpinner(`Deleted ${countProxies(proxies.length)}.`);
+    }
+    return run.finish();
   } catch (error) {
     failSpinner('Error deleting all remote proxies');
     printError(error);

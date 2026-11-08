@@ -24,6 +24,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import { isScriptExtracted } from './ScriptOps';
 import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
@@ -666,21 +667,33 @@ export async function deleteCustomNode(
 
 /**
  * Delete custom nodes
+ * @param {boolean} allowFailures true to report custom nodes that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteCustomNodes(): Promise<boolean> {
+export async function deleteCustomNodes(
+  allowFailures = false
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting custom nodes...`
   );
+  const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
-    await _deleteCustomNodes(errorHandler);
-    stopProgressIndicator(spinnerId, `Deleted custom nodes.`, 'success');
-    return true;
+    await _deleteCustomNodes(run.resultCallback());
+    stopProgressIndicator(
+      spinnerId,
+      run.hasFailures
+        ? `Some custom nodes could not be deleted.`
+        : `Deleted custom nodes.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even read what to delete
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

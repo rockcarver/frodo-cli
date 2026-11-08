@@ -62,6 +62,7 @@ export default function setup() {
       options: ['workflowId', 'all'],
       purpose: 'which workflows',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -130,7 +131,8 @@ export default function setup() {
           const outcome = await deleteWorkflows(
             options.draftOnly,
             options.publishedOnly,
-            options.force
+            options.force,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
