@@ -124,6 +124,7 @@ const { OperationRun } = await import(
 );
 const { readJourneys, exportJourney, getTreeDescendents } = frodo.authn.journey;
 const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
+const { saveTextToFile } = frodo.utils;
 
 const summary = () => printMessage.mock.calls.map(([text]) => text).join('\n');
 const summaryOf = (run) => {
@@ -368,5 +369,83 @@ describe('journey describe', () => {
     expect(exportJourney.mock.calls.map(([id]) => id)).toEqual(['a']);
     expect(printError.mock.calls).toHaveLength(1);
     expect(printMessage).not.toHaveBeenCalled();
+  });
+
+  describe('the markdown output file', () => {
+    const markdownOptions = { markdown: true, outputFile: 'journeys.md' };
+    /** The order in which a call to the spy happened, to compare with the other spies. */
+    const orderOf = (spy, index = 0) => spy.mock.invocationCallOrder[index];
+    /** The markdown headings (one per journey) that were written to the output file. */
+    const headings = () =>
+      printMessage.mock.calls.filter(
+        ([text, type]) => type === 'data' && String(text).startsWith('# ')
+      );
+
+    beforeEach(() => {
+      exportJourney.mockImplementation(async (id) => ({
+        trees: { [id]: exported(id) },
+      }));
+    });
+
+    test('is reset once, before the first journey, and every journey is written after it (cli#1135)', async () => {
+      expect(await describeJourneys(markdownOptions)).toBe(true);
+
+      expect(saveTextToFile.mock.calls).toEqual([['', 'journeys.md']]);
+      expect(headings()).toHaveLength(3);
+      // nothing is written before the reset, and the reset is not repeated between the journeys
+      const firstHeading =
+        printMessage.mock.invocationCallOrder[
+          printMessage.mock.calls.findIndex(
+            ([text, type]) => type === 'data' && String(text).startsWith('# ')
+          )
+        ];
+      expect(orderOf(saveTextToFile)).toBeLessThan(firstHeading);
+    });
+
+    test('is reset once for one journey', async () => {
+      expect(
+        await describeJourneys({ ...markdownOptions, journeyId: 'b' })
+      ).toBe(true);
+
+      expect(saveTextToFile.mock.calls).toEqual([['', 'journeys.md']]);
+      expect(headings()).toHaveLength(1);
+      expect(orderOf(saveTextToFile)).toBeLessThan(
+        orderOf(printMessage, printMessage.mock.calls.length - 1)
+      );
+    });
+
+    test('is not reset by a journey that cannot be exported, but the journeys after it are written to it', async () => {
+      exportJourney.mockImplementation(async (id) => {
+        if (id !== 'c')
+          throw new FrodoError(`Error exporting journey ${id}`, [
+            new Error('boom'),
+          ]);
+        return { trees: { [id]: exported(id) } };
+      });
+
+      expect(await describeJourneys(markdownOptions)).toBe(false);
+
+      expect(saveTextToFile.mock.calls).toEqual([['', 'journeys.md']]);
+      expect(headings()).toHaveLength(1);
+    });
+
+    test('is left alone when no journey could be exported', async () => {
+      exportJourney.mockRejectedValue(
+        new FrodoError('Error exporting journey')
+      );
+
+      expect(await describeJourneys(markdownOptions)).toBe(false);
+
+      expect(saveTextToFile.mock.calls).toHaveLength(0);
+    });
+
+    test('is not reset for the text output, nor without an output file', async () => {
+      expect(
+        await describeJourneys({ markdown: false, outputFile: 'journeys.txt' })
+      ).toBe(true);
+      expect(await describeJourneys({ markdown: true })).toBe(true);
+
+      expect(saveTextToFile.mock.calls).toHaveLength(0);
+    });
   });
 });

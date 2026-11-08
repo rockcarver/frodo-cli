@@ -3361,6 +3361,907 @@ exports[`frodo journey describe "frodo journey describe -O test3.json --markdown
 
 exports[`frodo journey describe "frodo journey describe -O test3.json --markdown": should describe all journeys and write output to test3.json file in markdown 2`] = `
 "
+# Agent - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Authentication\`
+
+CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.
+
+[![](./Agent.png)]()
+
+## Node Types (5)
+| Count | Type |
+| -----:| ---- |
+| 1 | ZeroPageLoginNode |
+| 1 | AgentDataStoreDecisionNode |
+| 1 | PageNode |
+| 1 | ValidatedUsernameNode |
+| 1 | ValidatedPasswordNode |
+## Nodes (5)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Platform Username | ValidatedUsernameNode | \`2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018\` |
+| Zero Page Login Collector | ZeroPageLoginNode | \`51e2cd24-cf1f-4313-8af0-35ea9e04d2fe\` |
+| Platform Password | ValidatedPasswordNode | \`6072842f-5f7c-4b62-8ae2-4f18a5701ba4\` |
+| Agent Data Store Decision | AgentDataStoreDecisionNode | \`6736a00a-fc65-438e-b4ea-23f66b4a8739\` |
+| Page Node | PageNode | \`cbd1f1af-eb0a-4274-a762-adacf04c7080\` |
+# DynamicConfiguration - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+Dynamic Node Configuration
+
+[![](./DynamicConfiguration.png)]()
+
+## Node Types (4)
+| Count | Type |
+| -----:| ---- |
+| 6 | PageNode |
+| 4 | ConfigProviderNode |
+| 1 | ChoiceCollectorNode |
+| 8 | ScriptedDecisionNode |
+## Nodes (19)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Success | PageNode | \`0b837a16-ffb4-453d-a53d-21138e4ee63d\` |
+| Node Config | ScriptedDecisionNode | \`149a4797-8f0f-4dc0-876f-8e1780c97f1c\` |
+| Remove Button | ScriptedDecisionNode | \`180b3e21-c32e-4611-85ff-94f59bd80755\` |
+| SAML2 Node | PageNode | \`1911c911-0bf3-407e-b1cc-2ce57cdefcad\` |
+| Dynamic Inner Tree Evaluator | ConfigProviderNode | \`26dd984a-3f8d-4d31-a57e-3a30d678c682\` |
+| Node Config | ScriptedDecisionNode | \`2f4f5438-a343-49fb-8cd4-cafccc2d3ee9\` |
+| Node Config | ScriptedDecisionNode | \`369d8794-1e43-4f8c-92d6-94e5ed295e0d\` |
+| Display States | ScriptedDecisionNode | \`41d53024-e2cb-4594-9539-845bc393c728\` |
+| Node Config | ScriptedDecisionNode | \`431cf085-c449-465b-bd84-6e391e0df804\` |
+| Display States | ScriptedDecisionNode | \`4cd8636a-2ebe-4190-a6a2-7fdf43274ae2\` |
+| Inner Tree Evaluator | PageNode | \`4e4bbd8a-8fcd-4db8-9ac0-0832c2a5c967\` |
+| Message Node | PageNode | \`5142a4e5-68f6-452a-af56-bb534fa26400\` |
+| Configuration Error | PageNode | \`5e098acb-7fa5-46fd-912f-9f4d0d48cce6\` |
+| Choice Collector | ChoiceCollectorNode | \`6958fb2d-aad3-4eef-abb7-04525de55e80\` |
+| Set Custom Cookie | PageNode | \`8dd7a7b0-6ce2-47d1-9225-fed27113cef3\` |
+| Dynamic Set Custom Cookie | ConfigProviderNode | \`980b82c5-4c44-42c3-a7e9-a1201da885d0\` |
+| Remove Button | ScriptedDecisionNode | \`a0d49552-eccf-40be-b67a-cdf911afdfcd\` |
+| Dynamic SAML2 Node | ConfigProviderNode | \`d4ab5309-9508-4bef-a95b-7bf8024a7ddf\` |
+| Dynamic Message Node | ConfigProviderNode | \`eda4c1c7-938b-4c96-8819-467af09c7200\` |
+## Scripts (7)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| Collect Message Node Config | JavaScript | Authentication Tree Decision Node | \`169150da-0bd1-4866-8095-eae0bbc269e4\` |
+| Remove Button - imported (1) | JavaScript | Authentication Tree Decision Node | \`3814d347-a2f2-4be9-a810-ab41a1e374bd\` |
+| Collect SAML2 Node Config | JavaScript | Authentication Tree Decision Node | \`48f17202-039f-4d40-b7fc-4ce380f1b929\` |
+| Config Provider | JavaScript | Config Provider Node | \`5e854779-6ec1-4c39-aeba-0477e0986646\` |
+| Collect Set Custom Cookie Node Config | JavaScript | Authentication Tree Decision Node | \`a31a1796-8410-46b8-82ca-eb0c6e901775\` |
+| Collect Inner Tree Evaluator Config | JavaScript | Authentication Tree Decision Node | \`d70df7a8-6390-409d-b821-166272a9a9c8\` |
+| Display States - imported (1) | JavaScript | Authentication Tree Decision Node | \`e49225eb-e7ad-4699-bf2a-d57689f9cd6e\` |
+# ForgottenUsername - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Username Reset\`
+
+Forgotten Username Tree
+
+[![](./ForgottenUsername.png)]()
+
+## Inner Tree Dependencies (1)
+- ForgottenUsername
+  - Login
+    - ProgressiveProfile
+
+## Node Types (5)
+| Count | Type |
+| -----:| ---- |
+| 1 | PageNode |
+| 1 | InnerTreeEvaluatorNode |
+| 1 | IdentifyExistingUserNode |
+| 1 | EmailSuspendNode |
+| 1 | AttributeCollectorNode |
+## Nodes (5)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Page Node | PageNode | \`5e2a7c95-94af-4b23-8724-deb13853726a\` |
+| Attribute Collector | AttributeCollectorNode | \`9f1e8d94-4922-481b-9e14-212b66548900\` |
+| Inner Tree Evaluator | InnerTreeEvaluatorNode | \`b93ce36e-1976-4610-b24f-8d6760b5463b\` |
+| Identify Existing User | IdentifyExistingUserNode | \`bf9ea8d5-9802-4f26-9664-a21840faac23\` |
+| Email Suspend Node | EmailSuspendNode | \`d9a79f01-2ce3-4be2-a28a-975f35c3c8ca\` |
+## Email Templates (1)
+| Display Name | Locale(s) | Subject | Id |
+| ------------ | --------- | ------- | ---|
+| forgottenUsername | en (fr) | Account Information - username | \`forgottenUsername\` |
+# FrodoTest - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Frodo\`, \`Prototype\`
+
+Frodo test journey utilizing a variety of nodes and dependencies to test support for complex journeys.
+
+[![](./FrodoTest.png)]()
+
+## Node Types (9)
+| Count | Type |
+| -----:| ---- |
+| 2 | PageNode |
+| 1 | product-Saml2Node |
+| 1 | EmailTemplateNode |
+| 1 | SocialProviderHandlerNode |
+| 1 | ScriptedDecisionNode |
+| 1 | IdentityStoreDecisionNode |
+| 1 | ValidatedUsernameNode |
+| 2 | ValidatedPasswordNode |
+| 2 | SelectIdPNode |
+## Nodes (12)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Select IDP | SelectIdPNode | \`038f9b2a-36b2-489b-9e03-386c9a62ea21\` |
+| Select IDP | SelectIdPNode | \`228a44d5-fd78-4278-8999-fdd470ea7ebf\` |
+| Login Page | PageNode | \`278bf084-9eea-46fe-8ce9-2600dde3b046\` |
+| SAML2 Authentication | product-Saml2Node | \`64157fca-bd5b-4405-a4c8-64ffd98a5461\` |
+| Login Page | PageNode | \`731c5810-020b-45c8-a7fc-3c21903ae2b3\` |
+| Username | ValidatedUsernameNode | \`7a351800-fb7e-4145-903c-388554747556\` |
+| Password | ValidatedPasswordNode | \`804e6a68-1720-442b-926a-007e90f02782\` |
+| Email Template Node | EmailTemplateNode | \`bf153f37-83dd-4f39-aa0c-74135430242e\` |
+| Social Login | SocialProviderHandlerNode | \`d5cc2d52-6ce4-452d-85ea-3a5b50218b67\` |
+| Password | ValidatedPasswordNode | \`dd16c8d4-baca-4ae0-bcd8-fb98b9040524\` |
+| Check Username | ScriptedDecisionNode | \`e2c39477-847a-4df2-9c5d-b449a752638b\` |
+| Validate Creds | IdentityStoreDecisionNode | \`fc7e47cd-c679-4211-8e05-a36654f23c67\` |
+## Themes (1)
+| Name | Linked Journey(s) | Id |
+| ---- | ----------------- | ---|
+| NoAccess | FrodoTest, AA-FrodoTest | \`63e19668-909f-479e-83d7-be7a01cd8187\` |
+## Scripts (2)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| Normalized Profile to Managed User | Groovy | Social Idp Profile Transformation | \`58c824ae-84ed-4724-82cd-db128fc3f6c\` |
+| Check Username | JavaScript | Authentication Tree Decision Node | \`739bdc48-fd24-4c52-b353-88706d75558a\` |
+## Email Templates (1)
+| Display Name | Locale(s) | Subject | Id |
+| ------------ | --------- | ------- | ---|
+| welcome | en | Your account has been created | \`welcome\` |
+## SAML2 Entity Providers (2)
+| Entity Id | Location | Role(s) |
+| --------- | -------- | ------- |
+| iSPAzure | hosted | SP |
+| urn:federation:MicrosoftOnline | remote | SP |
+## SAML2 Circles Of Trust (2)
+| Name/Id | Status | Trusted Providers |
+| ------- | ------ | ----------------- |
+| 2f04818d-561e-4f8a-82e8-af2426112138 | :white_check_mark: \`active\` | benefits-IDP<br>iSPAzure |
+| AzureCOT | :white_check_mark: \`active\` | iSPAzure<br>urn:federation:MicrosoftOnline<br>https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/<br>SPAzure<br>https://idc.scheuber.io/am/saml2/IDPAzure |
+# FrodoTestJourney13 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Frodo\`, \`Prototype\`
+
+Frodo test journey using v2.0 nodes
+
+[![](./FrodoTestJourney13.png)]()
+
+## Node Types (4)
+| Count | Type |
+| -----:| ---- |
+| 1 | DataStoreDecisionNode |
+| 1 | PageNode |
+| 1 | ValidatedUsernameNode |
+| 1 | ValidatedPasswordNode |
+## Nodes (4)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Username | ValidatedUsernameNode | \`64dceffc-2db4-468b-96d1-491824e037a2\` |
+| Validate Credentials | DataStoreDecisionNode | \`bdca20b7-ada8-4906-8b3a-e59c313f6491\` |
+| Login Page | PageNode | \`c847e93b-afa3-4d20-9a15-f75404ec353c\` |
+| Password | ValidatedPasswordNode | \`e4c5071f-acc8-47c9-b097-5c4144170742\` |
+# iExistingSession - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Helper\`, \`Proof Of Concept\`, \`TxAuthZ\`
+
+Detect and adopt existing session
+
+[![](./iExistingSession.png)]()
+
+## Node Types (3)
+| Count | Type |
+| -----:| ---- |
+| 1 | IdentifyExistingUserNode |
+| 1 | ScriptedDecisionNode |
+| 1 | SessionDataNode |
+## Nodes (3)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Lookup Profile | IdentifyExistingUserNode | \`3dc8f048-f79b-4767-86d1-d9e6e9b2baa0\` |
+| Existing Session? | ScriptedDecisionNode | \`8cf3cc43-df04-42ac-ad10-67fd2fb96ca2\` |
+| Get Session Data | SessionDataNode | \`c6515adb-d22b-4d33-906c-afbdebcac6b7\` |
+## Scripts (1)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| Check For Existing Session | JavaScript | Authentication Tree Decision Node | \`616d3541-14d6-4a54-94dd-46a146ef2423\` |
+# j00 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j00.png)]()
+
+## Node Types (1)
+| Count | Type |
+| -----:| ---- |
+| 6 | ScriptedDecisionNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| shared | ScriptedDecisionNode | \`01d3785f-7fb4-44a7-9458-72c380a9818f\` |
+| level | ScriptedDecisionNode | \`39b48197-f4be-42b9-800a-866587b4b9b5\` |
+| level | ScriptedDecisionNode | \`3c1e8d61-0c48-44ba-86dc-52e9555b6aeb\` |
+| mode | ScriptedDecisionNode | \`513a2ab4-f0b8-4f94-b840-6fe14796cc84\` |
+| debug | ScriptedDecisionNode | \`ba503a1e-633e-4d0d-ba18-c9a9b1105b5b\` |
+| shared | ScriptedDecisionNode | \`d17ffaa1-2c61-4abd-9bb1-2559160d0a5c\` |
+## Scripts (4)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| debug | JavaScript | Authentication Tree Decision Node | \`3cb43516-ae69-433a-8787-501d45db14e9\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j01 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j01.png)]()
+
+## Inner Tree Dependencies (1)
+- j01
+  - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| shared | ScriptedDecisionNode | \`6674b4ac-dd89-4e13-9440-6f81194e3a22\` |
+| shared | ScriptedDecisionNode | \`89ce5d57-82fa-4d58-8d15-0329f7dbd7e7\` |
+| nest | InnerTreeEvaluatorNode | \`bb1e96af-f316-4eb0-b1c6-36b3f1af9e35\` |
+| level | ScriptedDecisionNode | \`bdfbe97c-1ff4-4162-85bc-47f6f14b2c66\` |
+| level | ScriptedDecisionNode | \`e92d5139-b8a6-43dc-9b13-95ba1d0dc53c\` |
+| mode | ScriptedDecisionNode | \`f129f0df-b49e-453b-97fb-db508e3893ce\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j02 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j02.png)]()
+
+## Inner Tree Dependencies (1)
+- j02
+  - j01
+    - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| level | ScriptedDecisionNode | \`2dbd2d37-c659-48cf-8357-c9fc1166e3a7\` |
+| level | ScriptedDecisionNode | \`4416aff7-3ebd-47e6-9831-c2f6bbe3ae24\` |
+| nest | InnerTreeEvaluatorNode | \`56899fef-92a1-4f2a-ade3-973c81eb3af1\` |
+| mode | ScriptedDecisionNode | \`59b06306-a886-443d-92df-7a27a60c394e\` |
+| shared | ScriptedDecisionNode | \`cbb3d506-b267-4b99-9edd-363e90aac997\` |
+| shared | ScriptedDecisionNode | \`e0983ead-4918-48f6-858d-9aff0f03759c\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j03 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j03.png)]()
+
+## Inner Tree Dependencies (1)
+- j03
+  - j02
+    - j01
+      - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| level | ScriptedDecisionNode | \`35a4f94b-c895-46b9-bc0a-93cf59233759\` |
+| level | ScriptedDecisionNode | \`3a92300d-6d64-451d-8156-30cb51781026\` |
+| shared | ScriptedDecisionNode | \`6f9de973-9ed4-41f5-b43d-4036041e2b96\` |
+| nest | InnerTreeEvaluatorNode | \`bcb8c535-5ecd-4d3d-b970-26816de96bf2\` |
+| mode | ScriptedDecisionNode | \`e0cfbd13-6f1e-4924-9d2d-0f7c23507172\` |
+| shared | ScriptedDecisionNode | \`fae7424e-13c9-45bd-b3a2-045773671a3f\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j04 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j04.png)]()
+
+## Inner Tree Dependencies (1)
+- j04
+  - j03
+    - j02
+      - j01
+        - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 1 | InnerTreeEvaluatorNode |
+| 5 | ScriptedDecisionNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| nest | InnerTreeEvaluatorNode | \`00e75aa0-2f9b-4895-9257-d515286fd64b\` |
+| mode | ScriptedDecisionNode | \`040b6c89-313b-4664-92e0-6732017384b8\` |
+| level | ScriptedDecisionNode | \`69ae8ec1-de43-44ac-98e5-733db80ac176\` |
+| shared | ScriptedDecisionNode | \`9603ef52-30f0-4ddc-b3c0-28dac83c7bdb\` |
+| level | ScriptedDecisionNode | \`d10104e9-1f8d-4da6-a110-28d879d13959\` |
+| shared | ScriptedDecisionNode | \`f5c317ce-fabd-4a10-9907-c71cea037844\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j05 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j05.png)]()
+
+## Inner Tree Dependencies (1)
+- j05
+  - j04
+    - j03
+      - j02
+        - j01
+          - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| shared | ScriptedDecisionNode | \`11f1c31c-50a9-4717-8213-420f6932481f\` |
+| level | ScriptedDecisionNode | \`3c106772-ace7-4808-8f3a-9840de8f67f0\` |
+| mode | ScriptedDecisionNode | \`622179cb-98f1-484a-820d-9a0df6e45e95\` |
+| shared | ScriptedDecisionNode | \`a0782616-84b7-4bf5-87ed-a01fb3018563\` |
+| level | ScriptedDecisionNode | \`e90ae257-c279-46e0-9b43-5ecd89784d77\` |
+| nest | InnerTreeEvaluatorNode | \`f17ecb7c-abc3-4523-9943-4cbdd90305cb\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j06 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j06.png)]()
+
+## Inner Tree Dependencies (1)
+- j06
+  - j05
+    - j04
+      - j03
+        - j02
+          - j01
+            - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| shared | ScriptedDecisionNode | \`1d59caff-243c-45bd-b7d0-6dcc563989c5\` |
+| level | ScriptedDecisionNode | \`2de08e9e-bf7b-4fa1-8265-59a8e4a3f7c3\` |
+| nest | InnerTreeEvaluatorNode | \`409c251f-c23b-411d-9009-d3b3d26d1b90\` |
+| mode | ScriptedDecisionNode | \`44b8651c-7c1e-41f1-b9a6-2e441b0ce05a\` |
+| shared | ScriptedDecisionNode | \`da878771-421c-463f-aad7-4d5f2ad5e59a\` |
+| level | ScriptedDecisionNode | \`fe8f27df-8a27-4d88-9196-834ce398b2b7\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j07 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j07.png)]()
+
+## Inner Tree Dependencies (1)
+- j07
+  - j06
+    - j05
+      - j04
+        - j03
+          - j02
+            - j01
+              - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| mode | ScriptedDecisionNode | \`13b12fe6-cf53-46a4-a83d-0a3c1fda814f\` |
+| shared | ScriptedDecisionNode | \`ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0\` |
+| level | ScriptedDecisionNode | \`d90dd9f8-8b12-4e90-abaf-228ecc0174a7\` |
+| shared | ScriptedDecisionNode | \`d9a06d3a-7e3f-4244-9a32-63ffa0d26e00\` |
+| nest | InnerTreeEvaluatorNode | \`e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9\` |
+| level | ScriptedDecisionNode | \`f2fe740c-cd75-460a-8baa-fe4b52ecc947\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j08 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j08.png)]()
+
+## Inner Tree Dependencies (1)
+- j08
+  - j07
+    - j06
+      - j05
+        - j04
+          - j03
+            - j02
+              - j01
+                - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| shared | ScriptedDecisionNode | \`042b600b-71cb-45a8-93ae-a6f57b16a6e5\` |
+| nest | InnerTreeEvaluatorNode | \`66026170-5088-4fcd-a6c8-ed89d7a5c79d\` |
+| level | ScriptedDecisionNode | \`8096649e-973e-4209-88ce-e1d87ae2bb96\` |
+| level | ScriptedDecisionNode | \`87ced99b-bfa5-40d4-ba07-c8fc31f6cc6d\` |
+| shared | ScriptedDecisionNode | \`948e21f4-c512-450a-9d42-e0d629217834\` |
+| mode | ScriptedDecisionNode | \`d429b2b5-b215-46a5-b239-4994df65cb8b\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j09 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j09.png)]()
+
+## Inner Tree Dependencies (1)
+- j09
+  - j08
+    - j07
+      - j06
+        - j05
+          - j04
+            - j03
+              - j02
+                - j01
+                  - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| mode | ScriptedDecisionNode | \`251f35c3-1a32-4520-be10-1f4af9600935\` |
+| level | ScriptedDecisionNode | \`56b82371-0c61-4dc3-8d06-c1158415b8f9\` |
+| nest | InnerTreeEvaluatorNode | \`6df24fdd-0b6c-4def-bf42-77af998f28b8\` |
+| shared | ScriptedDecisionNode | \`8c5e9cb5-471b-4dd6-b150-ecaaeda98195\` |
+| level | ScriptedDecisionNode | \`bb294e05-6b6b-4478-b46f-b8d9e7711c66\` |
+| shared | ScriptedDecisionNode | \`f57cf53c-b4c6-48f7-84e8-91f535a2e8f8\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# j10 - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./j10.png)]()
+
+## Inner Tree Dependencies (1)
+- j10
+  - j09
+    - j08
+      - j07
+        - j06
+          - j05
+            - j04
+              - j03
+                - j02
+                  - j01
+                    - j00
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 5 | ScriptedDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+## Nodes (6)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| level | ScriptedDecisionNode | \`300feda0-3248-49a9-b60f-01df802b2229\` |
+| shared | ScriptedDecisionNode | \`40afb384-e9b6-4dcb-acde-04de109474c8\` |
+| level | ScriptedDecisionNode | \`8d7d64ee-da20-461f-a2ca-206b7479dd67\` |
+| shared | ScriptedDecisionNode | \`97ef9d96-99e7-4d2d-b6c6-4177b5397ead\` |
+| nest | InnerTreeEvaluatorNode | \`c7fcf7ae-1ab5-474b-b5b0-272e10468fbd\` |
+| mode | ScriptedDecisionNode | \`c91d626e-1156-41bd-b1fb-d292f640fba6\` |
+## Scripts (3)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+# Login - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Authentication\`
+
+Platform Login Tree
+
+[![](./Login.png)]()
+
+## Inner Tree Dependencies (1)
+- Login
+  - ProgressiveProfile
+
+## Node Types (8)
+| Count | Type |
+| -----:| ---- |
+| 1 | RetryLimitDecisionNode |
+| 1 | InnerTreeEvaluatorNode |
+| 1 | AccountLockoutNode |
+| 1 | IdentityStoreDecisionNode |
+| 1 | PageNode |
+| 1 | IncrementLoginCountNode |
+| 1 | ValidatedUsernameNode |
+| 1 | ValidatedPasswordNode |
+## Nodes (8)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Platform Password | ValidatedPasswordNode | \`0c80c39b-4813-4e67-b4fb-5a0bba85f994\` |
+| Retry Limit Decision | RetryLimitDecisionNode | \`2119f332-0f69-4088-a7a1-6582bf0f2001\` |
+| Inner Tree Evaluator | InnerTreeEvaluatorNode | \`33b24514-3e50-4180-8f08-ab6f4e51b07e\` |
+| Account Lockout | AccountLockoutNode | \`51e8c4c1-3509-4635-90e6-d2cc31c4a6a5\` |
+| Platform Username | ValidatedUsernameNode | \`7354982f-57b6-4b04-9ddc-f1dd1e1e07d0\` |
+| Identity Store Decision | IdentityStoreDecisionNode | \`7f0c2aee-8c74-4d02-82a6-9d4ed9d11708\` |
+| Page Node | PageNode | \`a12bc72f-ad97-4f1e-a789-a1fa3dd566c8\` |
+| Increment Login Count | IncrementLoginCountNode | \`bba3e0d8-8525-4e82-bf48-ac17f7988917\` |
+# OrphanedTest - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+Test orphaned nodes
+
+[![](./OrphanedTest.png)]()
+
+## Node Types (1)
+| Count | Type |
+| -----:| ---- |
+| 1 | IdentityStoreDecisionNode |
+## Nodes (1)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Identity Store Decision | IdentityStoreDecisionNode | \`343e745f-923a-43c4-8675-649a490fd0a3\` |
+# P1P-Test - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Helper\`, \`P1 Protect\`
+
+PingOne Protect Login Risk
+
+[![](./P1P-Test.png)]()
+
+## Node Types (8)
+| Count | Type |
+| -----:| ---- |
+| 7 | PageNode |
+| 2 | product-PingOneProtectResultNode |
+| 1 | product-PingOneProtectInitializeNode |
+| 1 | product-PingOneProtectEvaluationNode |
+| 1 | IdentityStoreDecisionNode |
+| 6 | designer-4b76e2122a0541498f380072cd115683 |
+| 1 | ValidatedUsernameNode |
+| 1 | ValidatedPasswordNode |
+## Nodes (20)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Low | PageNode | \`00a4835b-6e99-4938-9bb8-50d5569a68d4\` |
+| High | PageNode | \`084c3d2d-7d47-4f2e-81d1-57961d496939\` |
+| SUCCESS | product-PingOneProtectResultNode | \`167b87dd-a97c-4e3b-82ba-581090fd7863\` |
+| Debug | designer-4b76e2122a0541498f380072cd115683 | \`2c8f0d12-c373-4a25-9a30-b3184888d163\` |
+| Medium | PageNode | \`37f190ea-fa18-4d44-941b-4e5ac325f394\` |
+| Login Page | PageNode | \`4fdf4255-0236-4527-ae6d-d10d2c0ee8d5\` |
+| Debug | designer-4b76e2122a0541498f380072cd115683 | \`52ab689c-491b-4117-b729-ff590b5d1f61\` |
+| Initialize Signals SDK | product-PingOneProtectInitializeNode | \`6632fe0f-6395-4cc1-88d8-c9ca4a9061b6\` |
+| Password | ValidatedPasswordNode | \`6a428d9f-a221-44f6-a5c6-c6981f90f9fc\` |
+| P1P Failure | PageNode | \`8120e613-dee8-42b4-9668-71b8a25c1c92\` |
+| Debug | designer-4b76e2122a0541498f380072cd115683 | \`843dd22b-a890-461b-9a16-33d8bd871396\` |
+| Debug | designer-4b76e2122a0541498f380072cd115683 | \`8835fe59-3988-4121-8b15-ad16a7049d7a\` |
+| P1P Client Error | PageNode | \`a0059e3b-de04-4f0f-a5ed-49525d1da576\` |
+| Debug | designer-4b76e2122a0541498f380072cd115683 | \`c1804982-10dc-4668-bd53-909107cc4039\` |
+| Debug | designer-4b76e2122a0541498f380072cd115683 | \`de8fa10c-f4cc-44b7-b675-cdc75dcc600f\` |
+| P1P Risk Decision | product-PingOneProtectEvaluationNode | \`df827cfc-6e2d-4b9f-a8b1-d92c2910eb07\` |
+| FAILED | product-PingOneProtectResultNode | \`e5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece\` |
+| Identity Store Decision | IdentityStoreDecisionNode | \`ef1929b1-255e-446e-a597-7d7a3c4bf63f\` |
+| Exceeds Score Threshold | PageNode | \`f1cb199e-9e9a-4761-bacf-bc717ca6c540\` |
+| Username | ValidatedUsernameNode | \`f74e82e2-72ab-4a1a-9188-655622794a37\` |
+# PrestonTest - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+Test journey with a script that no longer exists, to fix a journey export issue.
+
+[![](./PrestonTest.png)]()
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 1 | SetFailureUrlNode |
+| 1 | MessageNode |
+## Nodes (2)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Failure URL | SetFailureUrlNode | \`ebce4ad5-8a1a-4d56-beca-193a8a5e7337\` |
+| True or false | MessageNode | \`f280317b-d7e7-4098-9f36-1ba429ec24df\` |
+# ProgressiveProfile - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Progressive Profile\`
+
+Prompt for missing preferences on 3rd login
+
+[![](./ProgressiveProfile.png)]()
+
+## Node Types (5)
+| Count | Type |
+| -----:| ---- |
+| 1 | PatchObjectNode |
+| 1 | LoginCountDecisionNode |
+| 1 | QueryFilterDecisionNode |
+| 1 | PageNode |
+| 1 | AttributeCollectorNode |
+## Nodes (5)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Attribute Collector | AttributeCollectorNode | \`0a042e10-b22e-4e02-86c4-65e26e775f7a\` |
+| Patch Object | PatchObjectNode | \`423a959a-a1b9-498a-b0f7-596b6b6e775a\` |
+| Login Count Decision | LoginCountDecisionNode | \`8afdaec3-275e-4301-bb53-34f03e6a4b29\` |
+| Query Filter Decision | QueryFilterDecisionNode | \`a1f45b44-5bf7-4c57-aa3f-75c619c7db8e\` |
+| Page Node | PageNode | \`a5aecad8-854a-4ed5-b719-ff6c90e858c0\` |
+# RadioChoice - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./RadioChoice.png)]()
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 1 | PageNode |
+| 1 | ChoiceCollectorNode |
+## Nodes (2)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Page Node | PageNode | \`5d6cd20e-5074-43de-8832-fddd95fb078e\` |
+| Choice Collector | ChoiceCollectorNode | \`a566e474-99f3-46e4-9e70-682402bfaa84\` |
+# RecognizeBackChannel - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`PingOne Recognize\`
+
+Securely authenticate candidates throughout the interview process.
+
+[![](./RecognizeBackChannel.png)]()
+
+## Node Types (6)
+| Count | Type |
+| -----:| ---- |
+| 3 | PageNode |
+| 3 | MessageNode |
+| 1 | ScriptedDecisionNode |
+| 1 | SetSuccessUrlNode |
+| 1 | designer-5e75b06c44e344b4b39b9b8a7377bfd3 |
+| 1 | designer-c5a8d1b2e4f06a9b3c5d7e8f1a2b3c4d |
+## Nodes (10)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Biometric Authentication | PageNode | \`1fc92eed-08b7-412a-905b-097db5daab48\` |
+| Biometric Enrollment | designer-c5a8d1b2e4f06a9b3c5d7e8f1a2b3c4d | \`27827c52-30b2-4443-8256-c3431ab1e0ab\` |
+| Enrollment Complete | PageNode | \`502d5c39-aa9d-4212-b757-a20af3895d73\` |
+| Cancelled | MessageNode | \`6cff13ad-1789-4ea1-af99-a5bda1bc2343\` |
+| Enrollment Succeeded | MessageNode | \`a8ecc82a-6aaf-4d00-a72c-f516b2b9dfbe\` |
+| Debug | ScriptedDecisionNode | \`d515d9ff-8559-4126-8977-19bf1513d5b0\` |
+| Success URL | SetSuccessUrlNode | \`db4b696c-f83c-487c-a335-71e6b2cfa252\` |
+| Biometric Enrollment | PageNode | \`f6f1ee45-a332-48dd-9b4b-31989963d6b5\` |
+| Retry or Cancelled | MessageNode | \`f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b\` |
+| Biometric Authentication | designer-5e75b06c44e344b4b39b9b8a7377bfd3 | \`ff346ac8-8a29-44b0-baa3-c8aaecc84240\` |
+## Scripts (1)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| aic-debug.js | JavaScript | Authentication Tree Decision Node | \`3043cd81-2f2f-4972-9b0c-aaa694dcdba3\` |
+# RecognizeBackChannelSuccess - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :o: \`mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Helper\`
+
+Candidate authentication success
+
+
+[![](./RecognizeBackChannelSuccess.png)]()
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 1 | PageNode |
+| 1 | ScriptedDecisionNode |
+## Nodes (2)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Remove Button | ScriptedDecisionNode | \`0486dffc-a0b1-444a-9ee7-1f114a17ebc0\` |
+| Success Message | PageNode | \`5e3400c4-4f1e-4694-bc6f-26f21acad322\` |
+## Scripts (1)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| Remove Button | JavaScript | Authentication Tree Decision Node | \`9535446c-0ff6-4a76-8576-616599119d64\` |
+# RecognizeFrontChannel - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Prototype\`
+
+Helpdesk agents or candidate interviewers can launch this journey to biometrically verify caller or candidate.
+
+[![](./RecognizeFrontChannel.png)]()
+
+## Inner Tree Dependencies (1)
+- RecognizeFrontChannel
+  - iExistingSession
+
+## Node Types (10)
+| Count | Type |
+| -----:| ---- |
+| 10 | PageNode |
+| 1 | InnerTreeEvaluatorNode |
+| 10 | ScriptedDecisionNode |
+| 1 | UpdateJourneyTimeoutNode |
+| 1 | BackChannelInitNode |
+| 1 | PollingWaitNode |
+| 1 | BackChannelStatusNode |
+| 3 | designer-9baced97d9314337bcd202d28f3fd17b |
+| 1 | ChoiceCollectorNode |
+| 1 | MessageNode |
+## Nodes (30)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Unknown | PageNode | \`00e7ebb9-7303-4f81-bd92-c97b9c3d1fb0\` |
+| Debug | ScriptedDecisionNode | \`144f5888-05a7-40a8-8f6f-e76a854eb2a6\` |
+| Existing Session? | InnerTreeEvaluatorNode | \`15722040-21fd-4c10-8321-99ea34cecc1a\` |
+| SMS | ScriptedDecisionNode | \`27063442-891e-404c-ad6d-bc062786a748\` |
+| Select Candidate | PageNode | \`371d3ca2-d2dc-4d34-b167-65d71b5137a6\` |
+| EMAIL | ScriptedDecisionNode | \`39a46d9f-f879-4606-b4c7-268f5e31d4a0\` |
+| Remove Button | ScriptedDecisionNode | \`3cf4bbb6-0427-492f-8795-b619ee3a6067\` |
+| Page Node | PageNode | \`5467e10f-1d5d-4fe0-bf99-a6fc21b5893a\` |
+| Set Timeout | UpdateJourneyTimeoutNode | \`547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac\` |
+| Search User | PageNode | \`600d92ce-6055-4226-97c4-c11e77c5a3fa\` |
+| Success | PageNode | \`642d3d2c-49d1-4167-916b-c26d12f84647\` |
+| QR Code | ScriptedDecisionNode | \`76307759-e5cd-476a-af54-0a665c20eed6\` |
+| Aborted | PageNode | \`7661153f-a42c-4183-a7e8-0bbae910e161\` |
+| Search Field | ScriptedDecisionNode | \`7846f0da-172f-4114-a7b1-87f108a213e1\` |
+| Remove Button | ScriptedDecisionNode | \`810d7409-2df0-4a8e-8ba8-3a810ae072e2\` |
+| Display Message | designer-9baced97d9314337bcd202d28f3fd17b | \`81f4b5bf-0563-4d06-b177-98d4c8f92643\` |
+| Backchannel Initialize | BackChannelInitNode | \`954588db-2d3d-4ee9-b447-e184382af1db\` |
+| Debug | ScriptedDecisionNode | \`965976a3-5a8f-4820-b7fc-b5635f456f4c\` |
+| Method of Delivery | PageNode | \`b5de01d5-1e2d-4427-bedb-5d27206701c3\` |
+| Failure | PageNode | \`cdca977d-8264-4933-ac9b-d4769c8f5e23\` |
+| Choice Collector | ChoiceCollectorNode | \`d7f7924b-8d08-43eb-8636-164db1f302e8\` |
+| Display Message | designer-9baced97d9314337bcd202d28f3fd17b | \`d80b362c-2e66-4607-94b7-13fd8745ac4e\` |
+| Remove Button | ScriptedDecisionNode | \`d8b25caa-946e-4a64-a2f8-562add04030e\` |
+| Timeout | PageNode | \`de8b09b8-ce4b-4d34-8ce9-6cfd81e63e8a\` |
+| Polling Wait Node | PollingWaitNode | \`e22606c4-a25f-4bee-89cd-1a90d5f264ac\` |
+| QR | PageNode | \`e3a74b62-6eec-40f4-a2f6-2dceb73acce9\` |
+| Try again? | MessageNode | \`e59a28c3-cae6-4317-b48a-dd4379c78a82\` |
+| Select User | ScriptedDecisionNode | \`f462428b-6b03-4db9-9589-0608c0b80909\` |
+| Display Message | designer-9baced97d9314337bcd202d28f3fd17b | \`fe15e89b-be29-46ab-aa2a-ab3014982e99\` |
+| Backchannel Status | BackChannelStatusNode | \`fe68e233-373e-49db-b264-b1e79d3ee759\` |
+## Scripts (7)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| Twilio SMS Sender | JavaScript | Authentication Tree Decision Node | \`2a196ca6-6da2-46e5-8224-764fdbdd2007\` |
+| Send EMAIL Message | JavaScript | Authentication Tree Decision Node | \`48df3aaf-ea53-4dba-a913-3c2e18e69de0\` |
+| QR Code | JavaScript | Authentication Tree Decision Node | \`663d0f65-ddf3-419c-8369-a90fde43d521\` |
+| Select User From Search Results | JavaScript | Authentication Tree Decision Node | \`9228b1f7-53c6-4f34-ae14-45b90db22ccb\` |
+| Remove Button | JavaScript | Authentication Tree Decision Node | \`9535446c-0ff6-4a76-8576-616599119d64\` |
+| User Search Field | JavaScript | Authentication Tree Decision Node | \`af055ddb-9635-4b90-aec9-529ddc4e78fe\` |
+| FR-Debug | JavaScript | Authentication Tree Decision Node | \`c0413dae-fdd1-45b7-9302-61d6ae02b194\` |
+# Registration - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Registration\`
+
+Platform Registration Tree
+
+[![](./Registration.png)]()
+
+## Node Types (9)
+| Count | Type |
+| -----:| ---- |
+| 1 | PageNode |
+| 1 | EmailSuspendNode |
+| 1 | IncrementLoginCountNode |
+| 1 | CreateObjectNode |
+| 1 | ValidatedUsernameNode |
+| 1 | AttributeCollectorNode |
+| 1 | ValidatedPasswordNode |
+| 1 | KbaCreateNode |
+| 1 | AcceptTermsAndConditionsNode |
+## Nodes (9)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Page Node | PageNode | \`0c091c49-f3af-48fb-ac6f-07fba0499dd6\` |
+| KBA Definition | KbaCreateNode | \`120c69d3-90b4-4ad4-b7af-380e8b119340\` |
+| Platform Password | ValidatedPasswordNode | \`3d8709a1-f09f-4d1f-8094-2850e472c1db\` |
+| Email Suspend Node | EmailSuspendNode | \`466f8b54-07fb-4e31-a11d-a6842618cc37\` |
+| Platform Username | ValidatedUsernameNode | \`7fcaf48e-a754-4959-858b-05b2933b825f\` |
+| Increment Login Count | IncrementLoginCountNode | \`97a15eb2-a015-4b6d-81a0-be78c3aa1a3b\` |
+| Create Object | CreateObjectNode | \`ad5dcbb3-7335-49b7-b3e7-7d850bb88237\` |
+| Accept Terms and Conditions | AcceptTermsAndConditionsNode | \`b4a0e915-c15d-4b83-9c9d-18347d645976\` |
+| Attribute Collector | AttributeCollectorNode | \`d3ce2036-1523-4ce8-b1a2-895a2a036667\` |
+## Email Templates (1)
+| Display Name | Locale(s) | Subject | Id |
+| ------------ | --------- | ------- | ---|
+| registration | en (fr) | Register new account | \`registration\` |
+# ResetPassword - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+\`Password Reset\`
+
+Reset Password Tree
+
+[![](./ResetPassword.png)]()
+
+## Node Types (6)
+| Count | Type |
+| -----:| ---- |
+| 1 | EmailSuspendNode |
+| 1 | IdentifyExistingUserNode |
+| 1 | PatchObjectNode |
+| 2 | PageNode |
+| 1 | AttributeCollectorNode |
+| 1 | ValidatedPasswordNode |
+## Nodes (7)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Platform Password | ValidatedPasswordNode | \`009c19c8-9572-47bb-adb2-1f092c559a43\` |
+| Email Suspend Node | EmailSuspendNode | \`06c97be5-7fdd-4739-aea1-ecc7fe082865\` |
+| Identify Existing User | IdentifyExistingUserNode | \`21b8ddf3-0203-4ae1-ab05-51cf3a3a707a\` |
+| Attribute Collector | AttributeCollectorNode | \`276afa7c-a680-4cf4-a5f6-d6c78191f5c9\` |
+| Patch Object | PatchObjectNode | \`989f0bf8-a328-4217-b82b-5275d79ca8bd\` |
+| Page Node | PageNode | \`cc3e1ed2-25f1-47bf-83c6-17084f8b2b2b\` |
+| Page Node | PageNode | \`e4c752f9-c625-48c9-9644-a58802fa9e9c\` |
+## Email Templates (1)
+| Display Name | Locale(s) | Subject | Id |
+| ------------ | --------- | ------- | ---|
+| resetPassword | en (fr) | Reset your password | \`resetPassword\` |
+# SocialProviderHandler - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./SocialProviderHandler.png)]()
+
+## Node Types (2)
+| Count | Type |
+| -----:| ---- |
+| 1 | SocialProviderHandlerNode |
+| 1 | SocialProviderHandlerNodeV2 |
+## Nodes (2)
+| Display Name | Type | Id |
+| ------------ | ---- | -- |
+| Legacy Social Provider Handler Node | SocialProviderHandlerNode | \`3af612be-340e-4dc9-80fb-62319a187b74\` |
+| Social Provider Handler Node | SocialProviderHandlerNodeV2 | \`e15c8efe-b7a7-42bf-845e-861a9419af32\` |
+## Scripts (2)
+| Name | Language | Type | Id |
+| ---- | -------- | ---- | ---|
+| Normalized Profile to Managed User | Groovy | Social Idp Profile Transformation | \`58c824ae-84ed-4724-82cd-db128fc3f6c\` |
+| Normalized Profile to Identity | Groovy | Social Idp Profile Transformation | \`ed685f9f-5909-4726-86e8-22bd38b47663\` |
+# test - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
+
+[![](./test.png)]()
+
 # UpdatePassword - :white_check_mark: \`enabled\`, :white_check_mark: \`not innerTreeOnly\`, :white_check_mark: \`not mustRun\`, :white_check_mark: \`sessionAllowed\`, :white_check_mark: \`not transactionalOnly\`, identity resource: \`managed/alpha_user\`
 \`Password Reset\`
 
