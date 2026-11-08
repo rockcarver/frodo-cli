@@ -26,30 +26,20 @@
 
 /** The first failed operation ends the run: later operations are never attempted. */
 export const STOPS_AT_THE_FIRST_ERROR = [
-  'frodo idm remote-proxy setup',
-  'frodo idm remote-proxy teardown',
   'frodo mapping delete',
-  'frodo mapping rename',
 ];
 
 /** A failure is caught or ignored (an empty catch, a logged error, an ignored result) and the command exits 0. */
-export const SWALLOWS_THE_FAILURE = [
-  'frodo promote',
-];
+export const SWALLOWS_THE_FAILURE = [];
 
 /** The other operations run and the exit code is 1, but no summary names the items that failed. */
-export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
-  'frodo esv secret version prune',
-  'frodo journey describe',
-];
+export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [];
 
 /** The other operations run and the failures are reported, but the exit code stays 0. */
-export const CONTINUES_BUT_EXITS_ZERO = ['frodo journey prune'];
+export const CONTINUES_BUT_EXITS_ZERO = [];
 
 /** The other operations run, each failure is named in one combined error and the exit code is 1. Closest to the rule; still lacks the "N of M" summary and --allow-failures. */
-export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [
-  'frodo journey validate',
-];
+export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [];
 
 export const LEGACY_MULTI_OP_COMMANDS_WITHOUT_ALLOW_FAILURES = [
   ...STOPS_AT_THE_FIRST_ERROR,

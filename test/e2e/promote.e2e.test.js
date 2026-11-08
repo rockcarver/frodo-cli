@@ -147,7 +147,9 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./global/mapping", "./realm/root-bravo/journey"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        // The mapping files of this export are not in the format promote reads (it finds no mapping id), so all three
+        // mappings fail. That was recorded with exit code 0 because promote did not count the failures; it exits 1 now.
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 1)
     });
 
     test.skip('"service frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on service changes', async () => {

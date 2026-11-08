@@ -20,6 +20,7 @@ import {
   showSpinner,
   succeedSpinner,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import { findSavedProfileByHostName } from '../utils/SavedProfiles';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -186,6 +187,8 @@ export type SetupRemoteProxyOptions = {
   timeout?: number;
   dryRun?: boolean;
   yes?: boolean;
+  /** report a failed final test of the proxy but still succeed (the other steps depend on each other) */
+  allowFailures?: boolean;
 };
 
 /**
@@ -391,125 +394,180 @@ export async function setupRemoteProxy(
     });
     if (!go) return false;
 
+    // The steps need each other: the secret written to the client is the one the
+    // ESV secret must hold, the proxy refers to the secret and the variable, and
+    // the apply and the test need the proxy. So a failed step ends the run (the
+    // later steps are listed as not attempted, whatever --allow-failures says);
+    // only the final test of the proxy has nothing after it.
+    const run = new OperationRun({
+      unit: 'step',
+      allowFailures: options.allowFailures,
+    });
+    const step = (
+      name: string,
+      operation: () => Promise<boolean | void>,
+      dependent = true
+    ) => run.run(name, operation, { dependent });
+
     // the receiving tenant: the client and its mapping
     const generated = newSecret
       ? remoteProxy.generateRemoteProxySecret()
       : undefined;
-    if (!client) {
-      await receiver.oauth2oidc.client.createOAuth2Client(
-        clientId,
-        remoteProxy.buildRemoteProxyClient({
-          clientId,
-          clientSecret: generated!,
-          description: `Remote proxy from ${senderName}`,
-        })
-      );
-      printMessage(`Created OAuth2 client "${clientId}".`, 'info');
-    } else if (generated) {
-      client.coreOAuth2ClientConfig = {
-        ...client.coreOAuth2ClientConfig,
-        userpassword: generated,
-      };
-      await receiver.oauth2oidc.client.updateOAuth2Client(clientId, client);
-      printMessage(`Set a new secret on OAuth2 client "${clientId}".`, 'info');
-    }
-    const ensured =
-      await receiver.idm.staticUserMapping.ensureStaticUserMapping({
-        subject: clientId,
-        ...ADMIN_STATIC_MAPPING,
+    if (generated) {
+      await step(`OAuth2 client "${clientId}"`, async () => {
+        if (!client) {
+          await receiver.oauth2oidc.client.createOAuth2Client(
+            clientId,
+            remoteProxy.buildRemoteProxyClient({
+              clientId,
+              clientSecret: generated,
+              description: `Remote proxy from ${senderName}`,
+            })
+          );
+          printMessage(`Created OAuth2 client "${clientId}".`, 'info');
+        } else {
+          client.coreOAuth2ClientConfig = {
+            ...client.coreOAuth2ClientConfig,
+            userpassword: generated,
+          };
+          await receiver.oauth2oidc.client.updateOAuth2Client(clientId, client);
+          printMessage(
+            `Set a new secret on OAuth2 client "${clientId}".`,
+            'info'
+          );
+        }
       });
-    printMessage(
-      `Static user mapping of "${clientId}": ${ensured.outcome}.`,
-      'info'
-    );
+    }
+    await step(`static user mapping of "${clientId}"`, async () => {
+      const ensured =
+        await receiver.idm.staticUserMapping.ensureStaticUserMapping({
+          subject: clientId,
+          ...ADMIN_STATIC_MAPPING,
+        });
+      printMessage(
+        `Static user mapping of "${clientId}": ${ensured.outcome}.`,
+        'info'
+      );
+    });
 
     // this tenant: the ESV secret and variable, and the remote proxy
-    if (!secret) {
-      await frodo.cloud.secret.createSecret(
-        secretId,
-        generated!,
-        `Client secret of the remote proxy ${proxyId}`,
-        'generic',
-        true
-      );
-      printMessage(`Created ESV secret "${secretId}".`, 'info');
-    } else if (generated) {
-      await frodo.cloud.secret.updateSecret(secretId, undefined, generated);
-      printMessage(`Set a new value of ESV secret "${secretId}".`, 'info');
+    if (generated) {
+      await step(`ESV secret "${secretId}"`, async () => {
+        if (!secret) {
+          await frodo.cloud.secret.createSecret(
+            secretId,
+            generated,
+            `Client secret of the remote proxy ${proxyId}`,
+            'generic',
+            true
+          );
+          printMessage(`Created ESV secret "${secretId}".`, 'info');
+        } else {
+          await frodo.cloud.secret.updateSecret(secretId, undefined, generated);
+          printMessage(`Set a new value of ESV secret "${secretId}".`, 'info');
+        }
+      });
     }
-    if (!variable) {
-      await frodo.cloud.variable.createVariable(
-        hostVariableId,
-        hostName,
-        `Host name of the receiving tenant of the remote proxy ${proxyId}`,
-        'string'
-      );
-      printMessage(`Created ESV variable "${hostVariableId}".`, 'info');
-    } else if (variable.value !== hostName) {
-      await frodo.cloud.variable.updateVariable(hostVariableId, hostName);
-      printMessage(`Updated ESV variable "${hostVariableId}".`, 'info');
+    if (!variable || variable.value !== hostName) {
+      await step(`ESV variable "${hostVariableId}"`, async () => {
+        if (!variable) {
+          await frodo.cloud.variable.createVariable(
+            hostVariableId,
+            hostName,
+            `Host name of the receiving tenant of the remote proxy ${proxyId}`,
+            'string'
+          );
+          printMessage(`Created ESV variable "${hostVariableId}".`, 'info');
+        } else {
+          await frodo.cloud.variable.updateVariable(hostVariableId, hostName);
+          printMessage(`Updated ESV variable "${hostVariableId}".`, 'info');
+        }
+      });
     }
-    if (!existingProxy) {
-      await remoteProxy.createRemoteProxy(proxyId, configuration);
-      printMessage(`Created remote proxy "${proxyId}".`, 'info');
-    } else if (!proxyUpToDate) {
-      await remoteProxy.updateRemoteProxy(proxyId, configuration);
-      printMessage(`Updated remote proxy "${proxyId}".`, 'info');
+    if (!existingProxy || !proxyUpToDate) {
+      await step(`remote proxy "${proxyId}"`, async () => {
+        if (!existingProxy) {
+          await remoteProxy.createRemoteProxy(proxyId, configuration);
+          printMessage(`Created remote proxy "${proxyId}".`, 'info');
+        } else {
+          await remoteProxy.updateRemoteProxy(proxyId, configuration);
+          printMessage(`Updated remote proxy "${proxyId}".`, 'info');
+        }
+      });
     }
 
     // apply the ESV changes: IDM does not load a proxy whose placeholders it cannot resolve
     const nextSteps = `Apply the ESV changes (frodo esv apply), then check the proxy with frodo idm remote-proxy test -i ${proxyId}.`;
     if (!apply) {
-      printMessage(`The ESV changes are not applied. ${nextSteps}`, 'info');
-      return true;
+      if (!run.hasFailures) {
+        printMessage(`The ESV changes are not applied. ${nextSteps}`, 'info');
+      }
+      return run.finish();
     }
-    const updates = await frodo.cloud.startup.checkForUpdates();
-    const pending = [...(updates.secrets ?? []), ...(updates.variables ?? [])]
-      .filter((item) => !item['loaded'])
-      .map((item) => item['_id'] as string);
-    const others = pending.filter(
-      (id) => id !== secretId && id !== hostVariableId
-    );
-    if (others.length > 0) {
-      printMessage(
-        `Other ESV changes are pending on ${senderHost} (${others.join(', ')}). Applying would apply them too, so they were not applied. Review them, then ${nextSteps.charAt(0).toLowerCase()}${nextSteps.slice(1)}`,
-        'warn'
+    await step('apply of the ESV changes', async () => {
+      const updates = await frodo.cloud.startup.checkForUpdates();
+      const pending = [...(updates.secrets ?? []), ...(updates.variables ?? [])]
+        .filter((item) => !item['loaded'])
+        .map((item) => item['_id'] as string);
+      const others = pending.filter(
+        (id) => id !== secretId && id !== hostVariableId
       );
-      return false;
-    }
-    if (pending.length > 0) {
-      printMessage(
-        `Applying the ESV changes on ${senderHost}. This restarts services and can take up to 10 minutes.`,
-        'info'
-      );
-      if (!(await frodo.cloud.startup.applyUpdates(wait, timeout * 1000))) {
-        printMessage(`The ESV changes were not applied. ${nextSteps}`, 'error');
+      if (others.length > 0) {
+        printMessage(
+          `Other ESV changes are pending on ${senderHost} (${others.join(', ')}). Applying would apply them too, so they were not applied. Review them, then ${nextSteps.charAt(0).toLowerCase()}${nextSteps.slice(1)}`,
+          'warn'
+        );
         return false;
       }
-    }
+      if (pending.length > 0) {
+        printMessage(
+          `Applying the ESV changes on ${senderHost}. This restarts services and can take up to 10 minutes.`,
+          'info'
+        );
+        if (!(await frodo.cloud.startup.applyUpdates(wait, timeout * 1000))) {
+          printMessage(
+            `The ESV changes were not applied. ${nextSteps}`,
+            'error'
+          );
+          return false;
+        }
+      }
+    });
     if (!wait) {
-      printMessage(
-        `The ESV changes are being applied. When they are done, check the proxy with frodo idm remote-proxy test -i ${proxyId}.`,
-        'info'
-      );
-      return true;
+      if (!run.hasFailures) {
+        printMessage(
+          `The ESV changes are being applied. When they are done, check the proxy with frodo idm remote-proxy test -i ${proxyId}.`,
+          'info'
+        );
+      }
+      return run.finish();
     }
 
-    const result = await waitUntilRemoteProxyAnswers(proxyId, timeout, deps);
-    if (!result.ok) {
-      printMessage(
-        `The remote proxy "${proxyId}" is set up but does not answer yet. Check it with frodo idm remote-proxy test -i ${proxyId}.`,
-        'error'
-      );
-      return false;
-    }
-    const table = createTable([c.heading('Property'), c.heading('Value')]);
-    table.push(['Remote proxy', proxyId]);
-    table.push(['Receiving tenant', receiverHost]);
-    table.push(['Acts as', result.authenticationId ?? '']);
-    table.push(['Roles', (result.roles ?? []).join(', ')]);
-    printMessage(table.toString(), 'data');
-    return true;
+    await step(
+      `test of the remote proxy "${proxyId}"`,
+      async () => {
+        const result = await waitUntilRemoteProxyAnswers(
+          proxyId,
+          timeout,
+          deps
+        );
+        if (!result.ok) {
+          printMessage(
+            `The remote proxy "${proxyId}" is set up but does not answer yet. Check it with frodo idm remote-proxy test -i ${proxyId}.`,
+            'error'
+          );
+          return false;
+        }
+        const table = createTable([c.heading('Property'), c.heading('Value')]);
+        table.push(['Remote proxy', proxyId]);
+        table.push(['Receiving tenant', receiverHost]);
+        table.push(['Acts as', result.authenticationId ?? '']);
+        table.push(['Roles', (result.roles ?? []).join(', ')]);
+        printMessage(table.toString(), 'data');
+      },
+      false
+    );
+    return run.finish();
   } catch (error) {
     printError(error);
   }
@@ -528,6 +586,8 @@ export type TeardownRemoteProxyOptions = {
   timeout?: number;
   dryRun?: boolean;
   yes?: boolean;
+  /** report a failed delete of the ESV variable or secret but still succeed (the mapping, the client and the proxy depend on each other) */
+  allowFailures?: boolean;
 };
 
 /** Seconds between two attempts to delete an ESV secret or variable the removed proxy still seems to use. */
@@ -743,18 +803,39 @@ export async function teardownRemoteProxy(
     // user mapping stops the proxy at once, while deleting only the client would
     // leave a proxy that holds a token working until the token expires (up to an
     // hour). If this fails midway, the proxy is still there to point at the client,
-    // so running teardown again finishes the job.
+    // so running teardown again finishes the job. So the mapping, the client and
+    // the proxy are in that order and a failed one ends the run (the later ones
+    // are listed as not attempted, whatever --allow-failures says). The ESV
+    // variable and the ESV secret do not depend on each other: both are tried.
+    const run = new OperationRun({
+      unit: 'step',
+      allowFailures: options.allowFailures,
+    });
     if (receiver && !keepClient) {
       if (mappingExists) {
-        await receiver.idm.staticUserMapping.deleteStaticUserMapping(clientId!);
-        printMessage(
-          `Deleted the static user mapping of "${clientId}".`,
-          'info'
+        await run.run(
+          `static user mapping of "${clientId}"`,
+          async () => {
+            await receiver.idm.staticUserMapping.deleteStaticUserMapping(
+              clientId!
+            );
+            printMessage(
+              `Deleted the static user mapping of "${clientId}".`,
+              'info'
+            );
+          },
+          { dependent: true }
         );
       }
       if (clientExists) {
-        await receiver.oauth2oidc.client.deleteOAuth2Client(clientId!);
-        printMessage(`Deleted OAuth2 client "${clientId}".`, 'info');
+        await run.run(
+          `OAuth2 client "${clientId}"`,
+          async () => {
+            await receiver.oauth2oidc.client.deleteOAuth2Client(clientId!);
+            printMessage(`Deleted OAuth2 client "${clientId}".`, 'info');
+          },
+          { dependent: true }
+        );
       }
     } else if (keepClient && clientId) {
       printMessage(
@@ -766,26 +847,36 @@ export async function teardownRemoteProxy(
     // then refuses to delete the variable for about a minute, hence the retries. A
     // secret is not refused. No ESV apply is needed afterwards.
     if (proxy) {
-      await remoteProxy.deleteRemoteProxy(proxyId);
-      printMessage(`Deleted remote proxy "${proxyId}".`, 'info');
+      await run.run(
+        `remote proxy "${proxyId}"`,
+        async () => {
+          await remoteProxy.deleteRemoteProxy(proxyId);
+          printMessage(`Deleted remote proxy "${proxyId}".`, 'info');
+        },
+        { dependent: true }
+      );
     }
     if (variable) {
-      await deleteWhenUnused(
-        () => frodo.cloud.variable.deleteVariable(hostVariableId),
-        timeout,
-        deps
-      );
-      printMessage(`Deleted ESV variable "${hostVariableId}".`, 'info');
+      await run.run(`ESV variable "${hostVariableId}"`, async () => {
+        await deleteWhenUnused(
+          () => frodo.cloud.variable.deleteVariable(hostVariableId),
+          timeout,
+          deps
+        );
+        printMessage(`Deleted ESV variable "${hostVariableId}".`, 'info');
+      });
     }
     if (secret) {
-      await deleteWhenUnused(
-        () => frodo.cloud.secret.deleteSecret(secretId),
-        timeout,
-        deps
-      );
-      printMessage(`Deleted ESV secret "${secretId}".`, 'info');
+      await run.run(`ESV secret "${secretId}"`, async () => {
+        await deleteWhenUnused(
+          () => frodo.cloud.secret.deleteSecret(secretId),
+          timeout,
+          deps
+        );
+        printMessage(`Deleted ESV secret "${secretId}".`, 'info');
+      });
     }
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error);
   }

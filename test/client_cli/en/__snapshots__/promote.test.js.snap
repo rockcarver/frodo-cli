@@ -25,6 +25,11 @@ Arguments:
   password                            Password.
 
 Options:
+  --allow-failures                    Report operations that fail, but still
+                                      exit with code 0. Without this option the
+                                      command runs every operation, prints a
+                                      summary of what failed and exits with code
+                                      1.
   -e, --frodo-export-dir <directory>  The directory where the frodo export is
                                       located.
   -M, --master-dir <directory>        The directory where the master

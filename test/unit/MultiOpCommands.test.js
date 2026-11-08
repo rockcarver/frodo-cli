@@ -37,10 +37,9 @@ import {
  *   fails until its line is removed;
  * - a command that performs one operation, in NOT_MULTI_OP_BULK_CANDIDATES.
  *
- * Eleven multi-op commands have neither a bulk option nor a config-manager
- * path (the admin helpers, remote-proxy setup and teardown, promote, journey
- * prune, ...). They are found only through the legacy list, so the test also
- * checks that every listed command exists.
+ * Some multi-op commands have neither a bulk option nor a config-manager
+ * path (the admin helpers, ...). They are found only through the legacy list,
+ * so the test also checks that every listed command exists.
  *
  * What this does not check: what a command does when an operation fails (the
  * others run, the failure is named, the exit code is 1, `--allow-failures`

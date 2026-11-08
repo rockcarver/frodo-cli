@@ -21,6 +21,10 @@ Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
 Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
 Error deleting mapping undefined
   Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
+3 of 3 changes failed:
+  - global/mapping/managedAlpha_user_systemAzureUser.mapping.json
+  - global/mapping/managedBravo_group_managedBravo_group.mapping.json
+  - global/mapping/managedBravo_organization_managedBravo_group.mapping.json
 "
 `;
 

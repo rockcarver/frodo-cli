@@ -55,6 +55,7 @@ export default function setup() {
         `  Validate all journeys exported to separate files in a directory (no login needed):\n` +
         c.command(`  $ frodo journey validate -A -D ${s.journeysDirectory}\n`)
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -93,7 +94,8 @@ export default function setup() {
         options.journeyId ? [options.journeyId] : undefined,
         options.file,
         options.strict,
-        options.allSeparate ? options.directory : undefined
+        options.allSeparate ? options.directory : undefined,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

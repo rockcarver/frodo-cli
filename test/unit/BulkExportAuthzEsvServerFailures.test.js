@@ -70,7 +70,7 @@ const FILES = {
 };
 
 // every relative import of the modules under test becomes spies, except the
-// run tracker
+// run tracker and the module that reads causes
 const mocked = new Map();
 for (const file of Object.values(FILES)) {
   const source = fs.readFileSync(path.resolve(root, file), 'utf8');
@@ -79,7 +79,11 @@ for (const file of Object.values(FILES)) {
     /^import (?!type )([^;]*?) from '(\.[^']+)';/gms
   )) {
     const target = path.resolve(importer, from).replace(/\.(js|ts)$/, '');
-    if (target.endsWith('/utils/OperationRun')) continue;
+    if (
+      target.endsWith('/utils/OperationRun') ||
+      target.endsWith('/utils/ErrorCause')
+    )
+      continue;
     const names = mocked.get(target) ?? new Set();
     const named = clause.match(/\{([^}]*)\}/s)?.[1] ?? '';
     for (const part of named.split(',')) {

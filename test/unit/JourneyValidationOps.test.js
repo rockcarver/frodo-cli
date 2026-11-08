@@ -7,13 +7,14 @@ let workingDirectory;
 let realm;
 let verbose;
 const validateJourneys = jest.fn();
+const readJourneys = jest.fn();
 const printMessage = jest.fn();
 const printError = jest.fn();
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError: class FrodoError extends Error {},
   frodo: {
-    authn: { journey: { validateJourneys } },
+    authn: { journey: { validateJourneys, readJourneys } },
     utils: {
       constants: { DEFAULT_REALM_KEY: '__default__realm__' },
       getFilePath: (file) => path.join(workingDirectory, file),
@@ -46,6 +47,7 @@ describe('validateJourneyExports', () => {
     );
     jest.resetAllMocks();
     validateJourneys.mockResolvedValue([]);
+    readJourneys.mockResolvedValue([{ _id: 'login' }]);
   });
 
   afterEach(() => {
@@ -154,7 +156,7 @@ describe('validateJourneyExports', () => {
         validateJourneyExports(undefined, `${name}.json`)
       ).resolves.toBe(true);
 
-      expect(validateJourneys).toHaveBeenCalledWith(undefined, {
+      expect(validateJourneys).toHaveBeenCalledWith([name], {
         trees: { [name]: journey },
       });
     }
@@ -197,8 +199,100 @@ describe('validateJourneyExports', () => {
       validateJourneyExports(undefined, undefined, false, '.')
     ).resolves.toBe(true);
 
-    expect(validateJourneys).toHaveBeenCalledWith(undefined, {
+    // one call per journey: the library drops all findings when one journey cannot be read
+    expect(validateJourneys).toHaveBeenCalledWith(['first'], {
       trees: journeys,
+    });
+    expect(validateJourneys).toHaveBeenCalledWith(['second'], {
+      trees: journeys,
+    });
+  });
+
+  describe('when a journey fails (decision record 0040)', () => {
+    const finding = (journeyId, severity = 'error') => ({
+      code: severity === 'error' ? 'MISSING_ENTRY_NODE' : 'UNREACHABLE_NODE',
+      severity,
+      journeyId,
+      message: `${severity} of ${journeyId}`,
+    });
+    const messages = () => printMessage.mock.calls.map(([text]) => text);
+
+    beforeEach(() => {
+      readJourneys.mockResolvedValue([
+        { _id: 'a' },
+        { _id: 'b' },
+        { _id: 'c' },
+      ]);
+    });
+
+    test('a journey that cannot be validated does not drop the findings of the others', async () => {
+      validateJourneys.mockImplementation(async ([journeyId]) => {
+        if (journeyId === 'a') throw new Error('cannot export a');
+        return journeyId === 'b' ? [finding('b')] : [];
+      });
+
+      await expect(validateJourneyExports()).resolves.toBe(false);
+
+      expect(validateJourneys).toHaveBeenCalledTimes(3);
+      expect(messages()).toContain('  [MISSING_ENTRY_NODE] error of b');
+      expect(printError).toHaveBeenCalledTimes(1);
+      const summary = messages().find((text) => text.includes('failed'));
+      expect(summary).toContain('2 of 3 journeys failed:');
+      expect(summary).toContain('- a: cannot export a');
+      expect(summary).toContain('- b: 1 error');
+      expect(summary).not.toContain('- c');
+      expect(messages()).not.toContain('No journey validation findings.');
+    });
+
+    test('--allow-failures reports the failed journeys but succeeds', async () => {
+      validateJourneys.mockImplementation(async ([journeyId]) => {
+        if (journeyId === 'a') throw new Error('cannot export a');
+        return journeyId === 'b' ? [finding('b')] : [];
+      });
+
+      await expect(
+        validateJourneyExports(undefined, undefined, false, undefined, true)
+      ).resolves.toBe(true);
+
+      const summary = messages().find((text) => text.includes('failed'));
+      expect(summary).toContain('2 of 3 journeys failed:');
+      expect(summary).toContain('--allow-failures');
+    });
+
+    test('a warning fails a journey only in strict mode', async () => {
+      validateJourneys.mockImplementation(async ([journeyId]) =>
+        journeyId === 'b' ? [finding('b', 'warning')] : []
+      );
+
+      await expect(validateJourneyExports()).resolves.toBe(true);
+      expect(messages().some((text) => text.includes('failed'))).toBe(false);
+
+      printMessage.mockClear();
+      await expect(
+        validateJourneyExports(undefined, undefined, true)
+      ).resolves.toBe(false);
+      const summary = messages().find((text) => text.includes('failed'));
+      expect(summary).toContain('1 of 3 journeys failed:');
+      expect(summary).toContain('- b: 1 warning');
+    });
+
+    test('a clean run prints no summary', async () => {
+      await expect(validateJourneyExports()).resolves.toBe(true);
+      expect(messages()).toEqual(['No journey validation findings.']);
+    });
+
+    test('a failed read of the journeys ends the command, whatever --allow-failures says', async () => {
+      readJourneys.mockRejectedValue(new Error('cannot read journeys'));
+
+      await expect(
+        validateJourneyExports(undefined, undefined, false, undefined, true)
+      ).resolves.toBe(false);
+
+      expect(validateJourneys).not.toHaveBeenCalled();
+      expect(printError).toHaveBeenCalledWith(
+        expect.any(Error),
+        'Error validating journeys'
+      );
     });
   });
 

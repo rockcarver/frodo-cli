@@ -4,6 +4,7 @@ import * as path from 'path';
 import confirm from '@inquirer/confirm';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { printError, verboseMessage } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import {
   deleteAgent,
   deleteIdentityGatewayAgent,
@@ -28,7 +29,11 @@ import {
   deleteConfigEntityById,
   importFirstConfigEntityFromFile,
 } from './IdmOps';
-import { deleteJourney, importJourneyFromFile } from './JourneyOps';
+import {
+  deleteJourney,
+  importJourneyFromFile,
+  pruneOrphanedNodesInRun,
+} from './JourneyOps';
 import { deleteMapping, importMappingFromFile } from './MappingOps';
 import { deleteCustomNode, importCustomNodeFromFile } from './NodeOps';
 import {
@@ -42,8 +47,6 @@ import {
 } from './ResourceTypeOps';
 import { deleteScriptId, importScriptsFromFile } from './ScriptOps';
 import { deleteService, importFirstServiceFromFile } from './ServiceOps.js';
-
-const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
 
 const { applyUpdates } = frodo.cloud.startup;
 
@@ -76,6 +79,13 @@ interface CompareObj {
  * @param noPrune when true pruning of orphaned nodes will not occur
  * @param printDiff when true outputs two files, one that shows the files that were changed in some way and another that
  * gives a log for if the changes were successful or not
+ * @param validateJourneys when false journeys are imported without validation
+ * @param allowFailures true to report changes that could not be effected but still succeed
+ * @returns true if every change was effected (or failures were allowed), false otherwise
+ *
+ * Every added, changed or deleted file is one operation of an {@link OperationRun}: one that cannot be effected does not
+ * stop the others, and one summary names the ones that failed. The comparison of the directories ends the command
+ * whatever `--allow-failures` says, as there is nothing to effect without it.
  */
 export async function compareExportToDirectory(
   masterDir: string,
@@ -86,8 +96,13 @@ export async function compareExportToDirectory(
   promptPrune: boolean = false,
   noPrune: boolean = false,
   printDiff: boolean = false,
-  validateJourneys: boolean = true
+  validateJourneys: boolean = true,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'change', allowFailures });
+  // a second comparison in the same process starts from nothing, not from the files of the first
+  for (const list of [added, changed, deleted, logmessages]) list.length = 0;
+  realms.clear();
   try {
     PromptPrune = promptPrune;
     NoPrune = noPrune;
@@ -161,7 +176,8 @@ export async function compareExportToDirectory(
           masterDir,
           exportDir,
           effectSecrets,
-          validateJourneys
+          validateJourneys,
+          run
         );
       }
     }
@@ -169,18 +185,23 @@ export async function compareExportToDirectory(
     if (!whatIf) {
       const globalSync = changed.find((val) => val === 'global/idm/sync.json');
       if (globalSync) {
-        await changeFile(
-          'global/idm/sync.json',
-          masterDir,
-          effectSecrets,
-          validateJourneys
+        await run.run('global/idm/sync.json (second pass)', () =>
+          changeFile(
+            'global/idm/sync.json',
+            masterDir,
+            effectSecrets,
+            validateJourneys
+          )
         );
       }
       if (enviornmentChanged(compareObj) && effectSecrets) {
-        await applyUpdates(wait);
-        verboseMessage(
-          'Must wait around 10 minutes because the enviornment is updating'
-        );
+        await run.run('apply of the environment updates', async () => {
+          const applied = await applyUpdates(wait);
+          verboseMessage(
+            'Must wait around 10 minutes because the enviornment is updating'
+          );
+          return applied;
+        });
       }
     }
 
@@ -188,9 +209,10 @@ export async function compareExportToDirectory(
       saveJsonToFile(logmessages, getFilePath('a2' + fileDiffname, true));
     }
 
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -236,22 +258,29 @@ function enviornmentChanged(files: CompareObj): boolean {
  * @param masterDir path to the master directory
  * @param exportDir path to the export directory
  * @param effectSecrets true if we want esv's to be effected
+ * @param validateJourneys when false journeys are imported without validation
+ * @param run the run that records what happens to every file
  */
 export async function effectDifferences(
   compObj: CompareObj,
   masterDir: string,
   exportDir: string,
   effectSecrets: boolean = false,
-  validateJourneys: boolean = true
+  validateJourneys: boolean = true,
+  run: OperationRun = new OperationRun({ unit: 'change' })
 ) {
   for (const add of compObj.added) {
-    await addFile(add, masterDir, effectSecrets, validateJourneys);
+    await run.run(add, () =>
+      addFile(add, masterDir, effectSecrets, validateJourneys)
+    );
   }
   for (const change of compObj.changed) {
-    await changeFile(change, masterDir, effectSecrets, validateJourneys);
+    await run.run(change, () =>
+      changeFile(change, masterDir, effectSecrets, validateJourneys)
+    );
   }
   for (const del of compObj.deleted) {
-    await deleteFile(del, exportDir, effectSecrets);
+    await run.run(del, () => deleteFile(del, exportDir, effectSecrets, run));
   }
   verboseMessage(`finished effect differences`);
 }
@@ -474,16 +503,17 @@ function checkChange(path: string, dir: string, counterpartPath: string) {
  * @param path sub-path to the config object
  * @param dir path to the base directory where the sub-path starts
  * @param effectSecrets true if we want to change esv's
+ * @returns false if the config object could not be imported
  */
 async function changeFile(
   path: string,
   dir: string,
   effectSecrets: boolean = false,
   validateJourneys: boolean = true
-) {
+): Promise<boolean> {
   logmessages.push('file changed:');
   verboseMessage('File Changed: ');
-  await addFile(path, dir, effectSecrets, validateJourneys);
+  return await addFile(path, dir, effectSecrets, validateJourneys);
 }
 
 /**
@@ -491,20 +521,21 @@ async function changeFile(
  * @param path sub-path to the config object
  * @param dir path to the base directory where the sub-path starts
  * @param effectSecrets true if we want to change esv's
+ * @returns false if the config object could not be imported
  */
 async function addFile(
   path: string,
   dir: string,
   effectSecrets: boolean = false,
   validateJourneys: boolean = true
-) {
+): Promise<boolean> {
   const type = getTypeFromPath(path);
   const importFilePath = dir + '/' + path;
   const global = path.substring(0, path.indexOf('/')) === 'global';
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   setRealmFromPath(path, inRealm);
 
-  await addSwitch(
+  return await addSwitch(
     importFilePath,
     type,
     global,
@@ -522,6 +553,7 @@ async function addFile(
  * @param global tru if the config is in the global realm
  * @param inRealm true if the object is in any realm other than the global realm
  * @param effectSecrets set to true if we want esv's to be changed
+ * @returns false if the config object could not be imported
  */
 async function addSwitch(
   importFilePath: string,
@@ -530,12 +562,13 @@ async function addSwitch(
   inRealm: boolean,
   effectSecrets: boolean = false,
   validateJourneys: boolean = true
-) {
+): Promise<boolean> {
+  let outcome = true;
   switch (type) {
     case 'application': {
       const application = getJsonObjectTwoDown(importFilePath);
       verboseMessage(`application id: ${application._id}`);
-      const outcome = await importOAuth2ClientFromFile(
+      outcome = await importOAuth2ClientFromFile(
         application._id,
         importFilePath,
         {
@@ -561,7 +594,7 @@ async function addSwitch(
       const journey = getJsonObjectOneDown(importFilePath);
       const journeyId = Object.keys(journey)[0];
       verboseMessage(`journey Id: ${journeyId}`);
-      const outcome = await importJourneyFromFile(journeyId, importFilePath, {
+      outcome = await importJourneyFromFile(journeyId, importFilePath, {
         reUuid: false,
         deps: true,
         validate: validateJourneys,
@@ -573,7 +606,7 @@ async function addSwitch(
       break;
     }
     case 'managedApplication': {
-      const outcome = await importApplicationsFromFile(importFilePath, {
+      outcome = await importApplicationsFromFile(importFilePath, {
         deps: true,
       });
       logmessages.push(`add managedApplication ${importFilePath}`);
@@ -583,7 +616,7 @@ async function addSwitch(
       break;
     }
     case 'resourcetype': {
-      const outcome = await importResourceTypesFromFile(importFilePath);
+      outcome = await importResourceTypesFromFile(importFilePath);
       logmessages.push(`add resourcetype ${importFilePath}`);
       verboseMessage(`add resourcetype ${importFilePath}\n`);
       logmessages.push(`outcome: ${outcome}`);
@@ -611,7 +644,7 @@ async function addSwitch(
       const script = getJsonObjectTwoDown(importFilePath);
       verboseMessage(`script name: ${script.name}`);
       verboseMessage(`script id: ${script._id}`);
-      const outcome = await importScriptsFromFile(
+      outcome = await importScriptsFromFile(
         script._id,
         script.name,
         importFilePath,
@@ -631,14 +664,14 @@ async function addSwitch(
       logmessages.push(`add service ${importFilePath}`);
       verboseMessage(`add service ${importFilePath}\n`);
       if (global) {
-        const outcome = await importFirstServiceFromFile(importFilePath, {
+        outcome = await importFirstServiceFromFile(importFilePath, {
           clean: false,
           global: global,
           realm: inRealm,
         });
         logmessages.push(`outcome: ${outcome}`);
       } else {
-        const outcome = await importFirstServiceFromFile(importFilePath, {
+        outcome = await importFirstServiceFromFile(importFilePath, {
           clean: true,
           global: global,
           realm: inRealm,
@@ -656,7 +689,7 @@ async function addSwitch(
     case 'emailTemplate': {
       const emailTemplate = getJsonObjectTwoDown(importFilePath);
       verboseMessage(`Email Template Id: ${emailTemplate._id}`);
-      const outcome = await importEmailTemplateFromFile(
+      outcome = await importEmailTemplateFromFile(
         emailTemplate._id,
         importFilePath,
         false
@@ -671,7 +704,7 @@ async function addSwitch(
       if (importFilePath.includes('emailTemplate')) {
         break;
       }
-      const outcome = await importFirstConfigEntityFromFile(importFilePath);
+      outcome = await importFirstConfigEntityFromFile(importFilePath);
       logmessages.push(`add idm ${importFilePath}`);
       verboseMessage(`add idm ${importFilePath}\n`);
       logmessages.push(`outcome: ${outcome}`);
@@ -696,7 +729,7 @@ async function addSwitch(
       const node = getJsonObjectTwoDown(importFilePath);
       verboseMessage(`custom node display name: ${node.displayName}`);
       verboseMessage(`custom node id: ${node._id}`);
-      const outcome = await importCustomNodeFromFile(
+      outcome = await importCustomNodeFromFile(
         node._id,
         node.displayName,
         importFilePath,
@@ -717,7 +750,7 @@ async function addSwitch(
         const secret = getJsonObjectTwoDown(importFilePath);
 
         verboseMessage(`Importing secret ${secret._id}...`);
-        // const outcome = await importSecretFromFile(
+        // outcome = await importSecretFromFile(
         //   nestedSecret._id,
         //   importFilePath,
         //   false,
@@ -734,13 +767,9 @@ async function addSwitch(
       const data = fs.readFileSync(importFilePath, 'utf8');
       const importData = JSON.parse(data);
       verboseMessage(`sync Id: ${importData._id}`);
-      const outcome = await importMappingFromFile(
-        importData._id,
-        importFilePath,
-        {
-          deps: true,
-        }
-      );
+      outcome = await importMappingFromFile(importData._id, importFilePath, {
+        deps: true,
+      });
       logmessages.push(`add sync ${importFilePath}`);
       verboseMessage(`add sync ${importFilePath}\n`);
       logmessages.push(`outcome: ${outcome}`);
@@ -751,10 +780,7 @@ async function addSwitch(
       if (effectSecrets) {
         const variable = getJsonObjectOneDown(importFilePath);
         verboseMessage(`Importing variable ${variable._id}...`);
-        const outcome = await importVariableFromFile(
-          variable._id,
-          importFilePath
-        );
+        outcome = await importVariableFromFile(variable._id, importFilePath);
         logmessages.push(`add variable ${importFilePath}`);
         verboseMessage(`add variable ${importFilePath}\n`);
         logmessages.push(`outcome: ${outcome}`);
@@ -766,13 +792,9 @@ async function addSwitch(
       const data = fs.readFileSync(importFilePath, 'utf8');
       const importData = JSON.parse(data);
       verboseMessage(`mapping Id: ${importData._id}`);
-      const outcome = await importMappingFromFile(
-        importData._id,
-        importFilePath,
-        {
-          deps: true,
-        }
-      );
+      outcome = await importMappingFromFile(importData._id, importFilePath, {
+        deps: true,
+      });
       logmessages.push(`add mapping ${importFilePath}`);
       verboseMessage(`add mapping ${importFilePath}\n`);
       logmessages.push(`outcome: ${outcome}`);
@@ -785,17 +807,14 @@ async function addSwitch(
       verboseMessage(`Agent id: ${agent._id} and type: ${agentType}`);
       switch (agentType) {
         case 'WebAgent': {
-          const outcome = await importWebAgentFromFile(
-            agent._id,
-            importFilePath
-          );
+          outcome = await importWebAgentFromFile(agent._id, importFilePath);
           logmessages.push(`add agents ${importFilePath}`);
           verboseMessage(`add agents ${importFilePath}\n`);
           logmessages.push(`outcome: ${outcome}`);
           break;
         }
         case 'IdentityGatewayAgent': {
-          const outcome = await importIdentityGatewayAgentFromFile(
+          outcome = await importIdentityGatewayAgentFromFile(
             agent._id,
             importFilePath
           );
@@ -805,17 +824,14 @@ async function addSwitch(
           break;
         }
         case 'J2EEAgent': {
-          const outcome = await importJavaAgentFromFile(
-            agent._id,
-            importFilePath
-          );
+          outcome = await importJavaAgentFromFile(agent._id, importFilePath);
           logmessages.push(`add agents ${importFilePath}`);
           verboseMessage(`add agents ${importFilePath}\n`);
           logmessages.push(`outcome: ${outcome}`);
           break;
         }
         default: {
-          const outcome = importAgentFromFile(agent._id, importFilePath);
+          outcome = await importAgentFromFile(agent._id, importFilePath);
           logmessages.push(`add agents ${importFilePath}`);
           verboseMessage(`add agents ${importFilePath}\n`);
           logmessages.push(`outcome: ${outcome}`);
@@ -832,7 +848,7 @@ async function addSwitch(
     case 'policy': {
       const policy = getJsonObjectTwoDown(importFilePath);
       verboseMessage(`Add Policy with id: ${policy._id}`);
-      const outcome = await importPolicyFromFile(policy._id, importFilePath, {
+      outcome = await importPolicyFromFile(policy._id, importFilePath, {
         deps: true,
         prereqs: false,
       });
@@ -859,7 +875,7 @@ async function addSwitch(
       break;
     }
   }
-  return;
+  return outcome;
 }
 
 /**
@@ -867,19 +883,22 @@ async function addSwitch(
  * @param path path to the config object
  * @param dir the base directory that leads to the config object
  * @param effectSecrets true if we want to effect changes to esv's
+ * @param run the run that records what happens to the orphaned nodes pruned after a journey is deleted
+ * @returns false if the config object could not be deleted
  */
 async function deleteFile(
   path: string,
   dir: string,
-  effectSecrets: boolean = false
-) {
+  effectSecrets: boolean = false,
+  run: OperationRun = new OperationRun({ unit: 'change' })
+): Promise<boolean> {
   const type = getTypeFromPath(path);
   const deleteFilePath = dir + '/' + path;
   const global = path.substring(0, path.indexOf('/')) === 'global';
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   setRealmFromPath(path, inRealm);
 
-  await deleteSwitch(deleteFilePath, type, global, effectSecrets);
+  return await deleteSwitch(deleteFilePath, type, global, effectSecrets, run);
 }
 
 /**
@@ -888,19 +907,23 @@ async function deleteFile(
  * @param type the type of object to delete
  * @param global true if the object is in the global config
  * @param effectSecrets set to true if we want esv's to be changed
+ * @param run the run that records what happens to the orphaned nodes pruned after a journey is deleted
+ * @returns false if the config object could not be deleted
  */
 async function deleteSwitch(
   deleteFilePath: string,
   type: string,
   global: boolean,
-  effectSecrets: boolean = false
-) {
+  effectSecrets: boolean = false,
+  run: OperationRun = new OperationRun({ unit: 'change' })
+): Promise<boolean> {
+  let outcome = true;
   switch (type) {
     case 'application': {
       const application = getJsonObjectTwoDown(deleteFilePath);
       logmessages.push(`delete application with id ${application._id}`);
       verboseMessage(`delete application with id ${application._id}`);
-      const outcome = await deleteOauth2ClientById(application._id);
+      outcome = await deleteOauth2ClientById(application._id);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
@@ -919,7 +942,7 @@ async function deleteSwitch(
       verboseMessage(
         `Deleting journey ${journeyId} in realm "${state.getRealm()}"...`
       );
-      const outcome = await deleteJourney(journeyId, {
+      outcome = await deleteJourney(journeyId, {
         deep: true,
         verbose: false,
         progress: false,
@@ -932,26 +955,20 @@ async function deleteSwitch(
         verboseMessage(
           `Pruning orphaned configuration artifacts in realm "${state.getRealm()}"...`
         );
-        try {
-          const orphanedNodes = await findOrphanedNodes();
-          if (orphanedNodes.length > 0) {
-            if (PromptPrune) {
-              const ok = await confirm({
-                message: `Prune (permanently delete) orphaned nodes from journey ${journeyId}?`,
-                default: false,
-              });
-              if (ok) {
-                await removeOrphanedNodes(orphanedNodes);
-              }
-            } else {
-              await removeOrphanedNodes(orphanedNodes);
-            }
-          } else {
-            verboseMessage('No orphaned nodes found.');
-          }
-        } catch (error) {
-          printError(error);
-          process.exitCode = 1;
+        if (
+          !(await pruneOrphanedNodesInRun(
+            run,
+            PromptPrune
+              ? () =>
+                  confirm({
+                    message: `Prune (permanently delete) orphaned nodes from journey ${journeyId}?`,
+                    default: false,
+                  })
+              : undefined,
+            true
+          ))
+        ) {
+          outcome = false;
         }
       }
       break;
@@ -961,7 +978,7 @@ async function deleteSwitch(
       verboseMessage(
         `Deleting Managed Application with name ${managedApplication.name}`
       );
-      const outcome = await deleteApplication(
+      outcome = await deleteApplication(
         managedApplication._id,
         managedApplication.name,
         true
@@ -977,7 +994,7 @@ async function deleteSwitch(
       verboseMessage(
         `Deleting authorization resource type ${resourcetype.name}`
       );
-      const outcome = await deleteResourceTypeUsingName(resourcetype.name);
+      outcome = await deleteResourceTypeUsingName(resourcetype.name);
       logmessages.push(`delete resourcetype ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
@@ -1006,7 +1023,7 @@ async function deleteSwitch(
       verboseMessage(
         `Deleting script ${script._id} in realm "${state.getRealm()}"...`
       );
-      const outcome = await deleteScriptId(script._id);
+      outcome = await deleteScriptId(script._id);
       logmessages.push(`delete script ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
@@ -1017,7 +1034,7 @@ async function deleteSwitch(
       const service = getJsonObjectOneDown(deleteFilePath);
       const serviceId = Object.keys(service)[0];
       verboseMessage(`service Id: ${serviceId}`);
-      const outcome = await deleteService(serviceId, global);
+      outcome = await deleteService(serviceId, global);
       logmessages.push(`delete service ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
@@ -1038,7 +1055,7 @@ async function deleteSwitch(
       const entityId = fileData._id;
       verboseMessage(`delete Idm config with entity Id: ${entityId}`);
       logmessages.push(`delete Idm config with entity Id: ${entityId}`);
-      const outcome = await deleteConfigEntityById(entityId);
+      outcome = await deleteConfigEntityById(entityId);
       logmessages.push(`No delete written for idm`);
       logmessages.push(`delete idm ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
@@ -1065,7 +1082,7 @@ async function deleteSwitch(
       verboseMessage(
         `Deleting custom node ${node._id} in realm "${state.getRealm()}"...`
       );
-      const outcome = await deleteCustomNode(node._id, node.displayName);
+      outcome = await deleteCustomNode(node._id, node.displayName);
       logmessages.push(`delete custom node ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
@@ -1077,7 +1094,7 @@ async function deleteSwitch(
       if (effectSecrets) {
         const secret = getJsonObjectTwoDown(deleteFilePath);
         verboseMessage(`Deleting secret with id ${secret._id}`);
-        // const outcome = await deleteSecret(secret._id);
+        // outcome = await deleteSecret(secret._id);
         logmessages.push(`delete secret ${deleteFilePath}`);
         // logmessages.push(`outcome: ${outcome}`)
         logmessages.push(' ');
@@ -1089,7 +1106,7 @@ async function deleteSwitch(
       const data = fs.readFileSync(deleteFilePath, 'utf8');
       const sync = JSON.parse(data);
       verboseMessage(`sync Id: ${sync._id}`);
-      const outcome = await deleteMapping(sync._id);
+      outcome = await deleteMapping(sync._id);
       logmessages.push(`delete sync ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
@@ -1100,7 +1117,7 @@ async function deleteSwitch(
       if (effectSecrets) {
         const variable = getJsonObjectTwoDown(deleteFilePath);
         verboseMessage(`Deleting variable with id: ${variable._id}`);
-        const outcome = await deleteVariableById(variable._id);
+        outcome = await deleteVariableById(variable._id);
         logmessages.push(`delete variable ${deleteFilePath}`);
         logmessages.push(`outcome: ${outcome}`);
         logmessages.push(' ');
@@ -1112,7 +1129,7 @@ async function deleteSwitch(
       const data = fs.readFileSync(deleteFilePath, 'utf8');
       const mapping = JSON.parse(data);
       verboseMessage(`mapping Id: ${mapping._id}`);
-      const outcome = await deleteMapping(mapping._id);
+      outcome = await deleteMapping(mapping._id);
       logmessages.push(`delete mapping ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
@@ -1127,28 +1144,28 @@ async function deleteSwitch(
       );
       switch (agentType) {
         case 'WebAgent': {
-          const outcome = await deleteWebAgent(agent._id);
+          outcome = await deleteWebAgent(agent._id);
           logmessages.push(`delete WebAgent ${deleteFilePath}`);
           logmessages.push(`outcome: ${outcome}`);
           verboseMessage(`delete agents ${deleteFilePath}\n`);
           break;
         }
         case 'IdentityGatewayAgent': {
-          const outcome = await deleteIdentityGatewayAgent(agent._id);
+          outcome = await deleteIdentityGatewayAgent(agent._id);
           logmessages.push(`delete IdentityGatewayAgent ${deleteFilePath}`);
           logmessages.push(`outcome: ${outcome}`);
           verboseMessage(`delete agents ${deleteFilePath}\n`);
           break;
         }
         case 'J2EEAgent': {
-          const outcome = await deleteJavaAgent(agent._id);
+          outcome = await deleteJavaAgent(agent._id);
           logmessages.push(`delete IdentityGatewayAgent ${deleteFilePath}`);
           logmessages.push(`outcome: ${outcome}`);
           verboseMessage(`delete agents ${deleteFilePath}\n`);
           break;
         }
         default: {
-          const outcome = await deleteAgent(agent._id);
+          outcome = await deleteAgent(agent._id);
           logmessages.push(`delete agents ${deleteFilePath}`);
           logmessages.push(`outcome: ${outcome}`);
           verboseMessage(`delete agents ${deleteFilePath}\n`);
@@ -1166,7 +1183,7 @@ async function deleteSwitch(
     case 'policy': {
       const policy = getJsonObjectTwoDown(deleteFilePath);
       verboseMessage(`policy id: ${policy._id}`);
-      const outcome = await deletePolicyById(policy._id);
+      outcome = await deletePolicyById(policy._id);
       logmessages.push(`delete policy ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
@@ -1194,7 +1211,7 @@ async function deleteSwitch(
       break;
     }
   }
-  return;
+  return outcome;
 }
 
 /**
@@ -1207,8 +1224,8 @@ function getJsonObjectTwoDown(filePath: string): any {
     const fileData = JSON.parse(data);
     const jsonObject = fileData[Object.keys(fileData)[0]];
     return jsonObject[Object.keys(jsonObject)[0]];
-  } catch {
-    new FrodoError('error in json parsing');
+  } catch (error) {
+    throw new FrodoError(`Error parsing ${filePath}`, error);
   }
 }
 
@@ -1221,8 +1238,8 @@ function getJsonObjectOneDown(filePath: string): any {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     return fileData[Object.keys(fileData)[0]];
-  } catch {
-    new FrodoError('error in json parsing');
+  } catch (error) {
+    throw new FrodoError(`Error parsing ${filePath}`, error);
   }
 }
 

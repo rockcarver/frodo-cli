@@ -48,6 +48,7 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage: jest.fn(),
   stopProgressIndicator: jest.fn(),
   updateProgressIndicator: jest.fn(),
+  verboseMessage: jest.fn(),
 }));
 for (const modulePath of [
   '../../src/ops/CirclesOfTrustOps',

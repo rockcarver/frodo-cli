@@ -9,7 +9,6 @@ const noop = jest.fn();
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError: class FrodoError extends Error {},
   frodo: {
-    authn: { node: { findOrphanedNodes: noop, removeOrphanedNodes: noop } },
     cloud: { startup: { applyUpdates: noop } },
     utils: {
       saveJsonToFile: noop,
@@ -22,6 +21,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
 
 jest.unstable_mockModule('../../src/utils/Console', () => ({
   printError: noop,
+  printMessage: noop,
   verboseMessage: noop,
 }));
 jest.unstable_mockModule('../../src/ops/AgentOps', () => ({
@@ -56,6 +56,7 @@ jest.unstable_mockModule('../../src/ops/IdmOps', () => ({
 jest.unstable_mockModule('../../src/ops/JourneyOps', () => ({
   deleteJourney: noop,
   importJourneyFromFile,
+  pruneOrphanedNodesInRun: noop,
 }));
 jest.unstable_mockModule('../../src/ops/MappingOps', () => ({
   deleteMapping: noop,

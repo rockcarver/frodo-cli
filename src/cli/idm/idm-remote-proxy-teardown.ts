@@ -84,6 +84,7 @@ export default function setup() {
           `  $ frodo idm remote-proxy teardown -i ${s.remoteProxyId} --keep-client -y ${s.connId}\n`
         )
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -107,6 +108,7 @@ export default function setup() {
             timeout: Number(options.timeout),
             dryRun: options.dryRun,
             yes: options.yes,
+            allowFailures: options.allowFailures,
           });
           if (!outcome) process.exitCode = 1;
         } else {

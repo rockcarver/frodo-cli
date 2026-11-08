@@ -3,18 +3,17 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
+import {
+  describeJourney,
+  describeJourneyMd,
+  describeJourneys,
+} from '../../ops/JourneyOps';
 import c from '../../utils/ColorTheme';
-import { printError, printMessage, verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { saveTextToFile } = frodo.utils;
-const {
-  createFileParamTreeExportResolver,
-  readJourneys,
-  exportJourney,
-  onlineTreeExportResolver,
-} = frodo.authn.journey;
+const { createFileParamTreeExportResolver } = frodo.authn.journey;
 
 export default function setup() {
   const program = new FrodoCommand('frodo journey describe');
@@ -65,6 +64,7 @@ export default function setup() {
           `  $ frodo journey describe -i ${s.journeyId} --markdown -O ${s.journeyMarkdownFile} ${s.connId}\n`
         )
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -163,116 +163,20 @@ export default function setup() {
           verboseMessage(
             `Describing journey(s) in realm "${state.getRealm()}"...`
           );
-          if (typeof options.journeyId === 'undefined') {
-            const journeys = await readJourneys();
-            for (const journey of journeys) {
-              try {
-                // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
-                const multiTreeData = await exportJourney(journey['_id']);
-                const treeData = multiTreeData.trees[journey['_id']];
-                if (!treeData) {
-                  throw new Error(
-                    `Journey '${journey['_id']}' not found in export response`
-                  );
-                }
-                const originalAmVersion = state.getAmVersion();
-                const runtimeResolver = async (treeId) => {
-                  // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
-                  const resolverVersion = state.getAmVersion();
-                  state.setAmVersion(originalAmVersion);
-                  try {
-                    return await onlineTreeExportResolver(treeId, state);
-                  } finally {
-                    state.setAmVersion(resolverVersion);
-                  }
-                };
-                try {
-                  // Override is for compatibility rendering only, not for live fetch/export transport behavior.
-                  if (typeof options.overrideVersion !== 'undefined') {
-                    state.setAmVersion(options.overrideVersion);
-                  }
-                  // ANSI text output
-                  if (!options.markdown) {
-                    const outcome = await describeJourney(
-                      treeData,
-                      runtimeResolver
-                    );
-                    if (!outcome) process.exitCode = 1;
-                  }
-                  // Markdown output
-                  else {
-                    // reset output file
-                    if (options.outputFile)
-                      saveTextToFile('', options.outputFile);
-                    const outcome = await describeJourneyMd(
-                      treeData,
-                      runtimeResolver
-                    );
-                    if (!outcome) process.exitCode = 1;
-                  }
-                } finally {
-                  // Always restore the original runtime version for subsequent operations.
-                  state.setAmVersion(originalAmVersion);
-                }
-              } catch (error) {
-                printError(error);
-                process.exitCode = 1;
-              }
-            }
-          } else {
-            try {
-              // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
-              const multiTreeData = await exportJourney(options.journeyId);
-              const treeData = multiTreeData.trees[options.journeyId];
-              if (!treeData) {
-                throw new Error(
-                  `Journey '${options.journeyId}' not found in export response`
-                );
-              }
-              const originalAmVersion = state.getAmVersion();
-              const runtimeResolver = async (treeId) => {
-                // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
-                const resolverVersion = state.getAmVersion();
-                state.setAmVersion(originalAmVersion);
-                try {
-                  return await onlineTreeExportResolver(treeId, state);
-                } finally {
-                  state.setAmVersion(resolverVersion);
-                }
-              };
-              try {
-                // Override is for compatibility rendering only, not for live fetch/export transport behavior.
-                if (typeof options.overrideVersion !== 'undefined') {
-                  state.setAmVersion(options.overrideVersion);
-                }
-                // ANSI text output
-                if (!options.markdown) {
-                  const outcome = await describeJourney(
-                    treeData,
-                    runtimeResolver
-                  );
-                  if (!outcome) process.exitCode = 1;
-                }
-                // Markdown output
-                else {
-                  // reset output file
-                  if (options.outputFile)
-                    saveTextToFile('', options.outputFile);
-                  const outcome = await describeJourneyMd(
-                    treeData,
-                    runtimeResolver
-                  );
-                  if (!outcome) process.exitCode = 1;
-                }
-              } finally {
-                // Always restore the original runtime version for subsequent operations.
-                state.setAmVersion(originalAmVersion);
-              }
-            } catch (error) {
-              printError(error);
-              process.exitCode = 1;
-            }
-          }
+          const outcome = await describeJourneys(
+            {
+              journeyId: options.journeyId,
+              markdown: options.markdown,
+              outputFile: options.outputFile,
+              overrideVersion: options.overrideVersion,
+            },
+            options.allowFailures
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // a failed login has been reported by getTokens
+        else {
+          process.exitCode = 1;
         }
       }
       // end command logic inside action handler

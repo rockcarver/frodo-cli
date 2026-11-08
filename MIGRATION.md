@@ -205,8 +205,10 @@ create-oauth2-client-with-admin-privileges`, `admin repair-org-model`, and
 `custom-nodes`, `endpoints`, `iga-workflows`, `locales`, `schedules`,
 `services`, `telemetry`, `connector-definitions`, `email-templates`,
 `internal-roles`, `remote-proxies` and `variables`, and `config-manager pull
-managed-objects`, `pull connector-mappings` and `push csp`. For the deletes this
-means a
+managed-objects`, `pull connector-mappings` and `push csp`, and `idm
+remote-proxy setup` and `teardown`, `mapping rename -a`, `promote`, `esv secret
+version prune`, `journey describe`, `journey prune` and `journey validate`. For
+the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -516,7 +518,40 @@ no repair, and exited 0 after a model it could not repair; it checks both and
 exits 1. `admin generate-rfc7523-authz-grant-artefacts` saves the JWK and the
 JWKS independently of each other and no longer names a JWKS file that was not
 written.
-See
+`idm remote-proxy setup` is one chain of steps (the client and its static user
+mapping on the receiving tenant, the ESV secret and variable and the remote
+proxy on this one, the apply of the ESV changes, the test through the proxy),
+and each step needs the ones before it. A failed step now ends the run with a
+summary that names it and lists the steps that were not attempted, and exits 1
+whatever `--allow-failures` says; only the last step, the test through the
+proxy, can be allowed to fail. `idm remote-proxy teardown` removes the static
+user mapping, the OAuth2 client and the remote proxy in that order and stops at
+the first one that fails, so that the access is cut before the proxy that points
+at it is gone; the ESV variable and the ESV secret do not depend on each other,
+so both are tried, and `--allow-failures` applies to those two. `mapping rename
+-a` ended at the first mapping it could not rename and left the ones after it in
+the old naming scheme; it now renames every mapping it can and names the others
+in one summary. A mapping that is in the new naming scheme already is found from
+the list of the mappings, not from a failed read, so a read that fails is a
+failed mapping instead of "already renamed". `promote` wrote the outcome of
+every file it imported or deleted to the log only and exited 0 when some could
+not be; it now counts every file as one operation, prints one summary that names
+the files that failed (and the orphaned nodes that could not be pruned), and
+exits 1 unless `--allow-failures` was given. Without `-M` and `-e` it printed
+nothing, and after a failed login only the error of the login, and exited 0
+either way; it now says what is missing and exits 1, and exits 1 after a failed
+login. `esv secret version prune` and `journey describe` already tried every
+version and every journey and exited 1; they now also print one summary that
+names the failed versions and journeys. The check of what `esv secret version
+prune -a` would delete is still all or nothing: a secret that cannot be checked
+deletes nothing and fails the command whatever `--allow-failures` says, and the
+summary names those secrets. `journey describe` now exits 1 after a failed
+login, as the other commands do. `journey prune` printed the error of each
+orphaned node it could not delete and exited 0; it now exits 1 and names the
+nodes. `journey validate` counts every journey as one operation: a journey with
+an error (or with a warning, with `--strict`) is a failed journey and is named
+in one summary, and a journey that cannot be validated (it is not in the file,
+or it cannot be exported) no longer hides the findings of the others. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

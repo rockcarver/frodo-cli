@@ -1,8 +1,8 @@
-import { frodo, FrodoError } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { compareExportToDirectory } from '../../ops/PromoteOps';
-import { verboseMessage } from '../../utils/Console.js';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -91,6 +91,7 @@ export default function setup() {
         'Host URL of the environment to perform secret value encryption. The URL must resolve to an existing connection profile. Use this option to generate an export that can be imported into the target environment without requiring admin access to the source environment.'
       )
     )
+    .multiOp()
     .action(
       async (host, realm, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
@@ -101,11 +102,16 @@ export default function setup() {
           options,
           command
         );
-        if (
-          (await getTokens(false, true, deploymentTypes)) &&
-          options.masterDir &&
-          options.frodoExportDir
-        ) {
+        // naming the two directories is the part the command line has to do
+        if (!options.masterDir || !options.frodoExportDir) {
+          printMessage(
+            'Need to designate a master dir (-M) and an export dir (-e).',
+            'error'
+          );
+          process.exitCode = 1;
+          return;
+        }
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage('Comparing export...');
           verboseMessage('comparing');
           const outcome = await compareExportToDirectory(
@@ -117,12 +123,15 @@ export default function setup() {
             options.promptPrune,
             options.noPrune,
             options.printDiff,
-            options.validate
+            options.validate,
+            options.allowFailures
           );
           verboseMessage('done');
           if (!outcome) process.exitCode = 1;
-        } else {
-          new FrodoError('need to designate a master dir and export directory');
+        }
+        // a failed login has been reported by getTokens
+        else {
+          process.exitCode = 1;
         }
       }
       //end command logic inside action handler

@@ -21,6 +21,7 @@ import {
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
+  verboseMessage,
 } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { describeFailure, OperationRun } from '../utils/OperationRun';
@@ -40,6 +41,7 @@ import wordwrap from './utils/Wordwrap';
 const {
   getTypedFilename,
   saveJsonToFile,
+  saveTextToFile,
   getRealmString,
   getFilePath,
   getWorkingDirectory,
@@ -59,6 +61,7 @@ const {
   deleteJourney: _deleteJourney,
   deleteJourneys: _deleteJourneys,
 } = frodo.authn.journey;
+const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
 
 /**
  * List all the journeys/trees
@@ -1127,6 +1130,159 @@ export async function describeJourneyMd(
     printError(error);
   }
   return false;
+}
+
+/** What the description of a journey of the tenant is made with. */
+export interface DescribeJourneysOptions {
+  /** describe this journey; undefined: describe every journey of the realm */
+  journeyId?: string;
+  /** write markdown instead of text */
+  markdown?: boolean;
+  /** the file the output goes to, which the markdown output resets first */
+  outputFile?: string;
+  /** describe as if the tenant ran this version: '<major>.<minor>.<patch>' */
+  overrideVersion?: string;
+}
+
+/**
+ * Describe one journey of the tenant. Throws when the journey cannot be exported.
+ * @param {string} journeyId journey id/name
+ * @param {DescribeJourneysOptions} options markdown, output file, version override
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ */
+async function describeJourneyOfTenant(
+  journeyId: string,
+  options: DescribeJourneysOptions
+): Promise<boolean> {
+  // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
+  const multiTreeData = await exportJourney(journeyId);
+  const treeData = multiTreeData.trees[journeyId];
+  if (!treeData) {
+    throw new Error(`Journey '${journeyId}' not found in export response`);
+  }
+  const originalAmVersion = state.getAmVersion();
+  const runtimeResolver = async (treeId) => {
+    // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
+    const resolverVersion = state.getAmVersion();
+    state.setAmVersion(originalAmVersion);
+    try {
+      return await onlineTreeExportResolver(treeId, state);
+    } finally {
+      state.setAmVersion(resolverVersion);
+    }
+  };
+  try {
+    // Override is for compatibility rendering only, not for live fetch/export transport behavior.
+    if (typeof options.overrideVersion !== 'undefined') {
+      state.setAmVersion(options.overrideVersion);
+    }
+    // ANSI text output
+    if (!options.markdown) {
+      return await describeJourney(treeData, runtimeResolver);
+    }
+    // Markdown output: reset output file
+    if (options.outputFile) saveTextToFile('', options.outputFile);
+    return await describeJourneyMd(treeData, runtimeResolver);
+  } finally {
+    // Always restore the original runtime version for subsequent operations.
+    state.setAmVersion(originalAmVersion);
+  }
+}
+
+/**
+ * Describe the journey indicated by the journey id, or every journey of the realm if there is none.
+ * Every journey of the realm is one operation of an {@link OperationRun}: a journey that cannot be described does not
+ * stop the others from being described, and one summary names the ones that failed. A failure to read the journeys
+ * ends the command whatever `--allow-failures` says.
+ * @param {DescribeJourneysOptions} options journey id, markdown, output file, version override
+ * @param {boolean} allowFailures true to report journeys that could not be described but still succeed. Default: false
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ */
+export async function describeJourneys(
+  options: DescribeJourneysOptions,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  if (typeof options.journeyId !== 'undefined') {
+    try {
+      return await describeJourneyOfTenant(options.journeyId, options);
+    } catch (error) {
+      printError(error);
+    }
+    return false;
+  }
+  let journeys;
+  try {
+    journeys = await readJourneys();
+  } catch (error) {
+    printError(error);
+    return false;
+  }
+  const run = new OperationRun({ unit: 'journey', allowFailures });
+  for (const journey of journeys) {
+    await run.run(journey['_id'], () =>
+      describeJourneyOfTenant(journey['_id'], options)
+    );
+  }
+  return run.finish();
+}
+
+/**
+ * Find the orphaned nodes of the realm and delete them, each node being one operation of the run. A node that cannot
+ * be deleted does not stop the others. When the orphaned nodes cannot even be found, the error is printed and the
+ * answer is false: there is no node to count.
+ * @param {OperationRun} run the run that records what happens to the nodes
+ * @param {() => Promise<boolean>} ask the question to ask before anything is deleted, answering true for yes, or undefined to delete without asking
+ * @param {boolean} quietWhenNone true to say "No orphaned nodes found." only in verbose mode. Default: false
+ * @returns {Promise<boolean>} a promise resolving to false if the orphaned nodes could not be found or deleted at all, true otherwise
+ */
+export async function pruneOrphanedNodesInRun(
+  run: OperationRun,
+  ask?: () => Promise<boolean>,
+  quietWhenNone: boolean = false
+): Promise<boolean> {
+  try {
+    const orphanedNodes = await findOrphanedNodes();
+    if (orphanedNodes.length === 0) {
+      if (quietWhenNone) verboseMessage('No orphaned nodes found.');
+      else printMessage('No orphaned nodes found.');
+      return true;
+    }
+    if (ask && !(await ask())) return true;
+    // the library prints the error of every node it cannot delete and returns those nodes
+    const failedNodes = await removeOrphanedNodes(orphanedNodes);
+    const failedIds = new Set(failedNodes.map((node) => node._id));
+    const nodeIds = new Set(orphanedNodes.map((node) => node._id));
+    for (const nodeId of nodeIds) {
+      if (failedIds.has(nodeId)) {
+        const node = orphanedNodes.find((n) => n._id === nodeId);
+        run.recordFailure(`orphaned node ${nodeId} (${node?._type?._id})`);
+      } else {
+        run.recordSuccess();
+      }
+    }
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Prune orphaned configuration artifacts left behind after deleting authentication trees, after asking for confirmation.
+ * Every orphaned node is one operation of an {@link OperationRun}: a node that cannot be deleted does not stop the
+ * others, and one summary names the ones that failed. Orphaned nodes that cannot be found fail the command whatever
+ * `--allow-failures` says.
+ * @param {() => Promise<boolean>} ask the question to ask before anything is deleted, answering true for yes
+ * @param {boolean} allowFailures true to report nodes that could not be deleted but still succeed. Default: false
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ */
+export async function pruneOrphanedNodes(
+  ask: () => Promise<boolean>,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'node', allowFailures });
+  const found = await pruneOrphanedNodesInRun(run, ask);
+  return run.finish() && found;
 }
 
 /**

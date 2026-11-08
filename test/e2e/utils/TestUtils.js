@@ -398,12 +398,21 @@ export async function testPromote(
   modifiedFilesDir,
   referenceSubDirs,
   env,
-  name
+  name,
+  expectedExitCode = 0
 ) {
   env.env.FRODO_TEST_NAME = name
   const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
   const CMD = `frodo promote -M ${sourceDir} -e ${tempDir}`;
-  const { stdout, stderr } = await exec(CMD, env);
+  let stdout, stderr;
+  let exitCode = 0;
+  try {
+    ({ stdout, stderr } = await exec(CMD, env));
+  } catch (error) {
+    ({ stdout, stderr } = error);
+    exitCode = error.code;
+  }
+  expect(exitCode).toBe(expectedExitCode);
   assertNoPollyReplayError(stdout, CMD);
   assertNoPollyReplayError(stderr, CMD);
   expect(normalizeSnapshotText(stdout)).toMatchSnapshot();

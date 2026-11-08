@@ -21,6 +21,17 @@ const messages = (type) =>
   printed.filter((entry) => entry.type === type).map((entry) => entry.msg);
 const everythingPrinted = () => printed.map((entry) => entry.msg).join('\n');
 
+/** The library calls that fail (by the label they put in `calls`) in the test at hand. */
+const failing = new Set();
+function maybeFail(label) {
+  if (failing.has(label)) {
+    throw new FakeFrodoError(
+      `Error in ${label}`,
+      new Error(`${label} refused`)
+    );
+  }
+}
+
 const notFound = (what) =>
   Object.assign(new Error(`${what} not found`), { httpStatus: 404 });
 const placeholder = (id) => `&{${id.replaceAll('-', '.')}}`;
@@ -83,6 +94,7 @@ function receiverFacade() {
         },
         createOAuth2Client: async (id, data) => {
           calls.push(`receiver:createClient:${id}`);
+          maybeFail('receiver:createClient');
           r.clients.set(id, structuredClone(data));
           return data;
         },
@@ -93,6 +105,7 @@ function receiverFacade() {
         },
         deleteOAuth2Client: async (id) => {
           calls.push(`receiver:deleteClient:${id}`);
+          maybeFail('receiver:deleteClient');
           r.clients.delete(id);
         },
       },
@@ -108,6 +121,7 @@ function receiverFacade() {
         },
         deleteStaticUserMapping: async (subject) => {
           calls.push(`receiver:deleteMapping:${subject}`);
+          maybeFail('receiver:deleteMapping');
           r.mappings.delete(subject);
         },
       },
@@ -157,6 +171,7 @@ const remoteProxy = {
     [...world.sender.proxies.values()].map((p) => structuredClone(p)),
   createRemoteProxy: async (name, data) => {
     calls.push(`sender:createProxy:${name}`);
+    maybeFail('sender:createProxy');
     world.sender.proxies.set(name, {
       _id: `external.idm/${name}`,
       ...structuredClone(data),
@@ -171,6 +186,7 @@ const remoteProxy = {
   },
   deleteRemoteProxy: async (name) => {
     calls.push(`sender:deleteProxy:${name}`);
+    maybeFail('sender:deleteProxy');
     world.sender.proxies.delete(name);
   },
   testRemoteProxy: async () => {
@@ -193,6 +209,7 @@ const cloud = {
       useInPlaceholders
     ) => {
       calls.push(`sender:createSecret:${id}`);
+      maybeFail('sender:createSecret');
       world.sender.secrets.set(id, { value, encoding, useInPlaceholders });
       world.sender.pending.add(id);
     },
@@ -202,6 +219,7 @@ const cloud = {
       world.sender.pending.add(id);
     },
     deleteSecret: async (id) => {
+      maybeFail('sender:deleteSecret');
       if (world.sender.deleteFailure) throw world.sender.deleteFailure;
       if (world.sender.deleteRefusals.secret > 0) {
         world.sender.deleteRefusals.secret -= 1;
@@ -218,6 +236,7 @@ const cloud = {
     },
     createVariable: async (id, value) => {
       calls.push(`sender:createVariable:${id}`);
+      maybeFail('sender:createVariable');
       world.sender.variables.set(id, value);
       world.sender.pending.add(id);
     },
@@ -227,6 +246,7 @@ const cloud = {
       world.sender.pending.add(id);
     },
     deleteVariable: async (id) => {
+      maybeFail('sender:deleteVariable');
       if (world.sender.deleteFailure) throw world.sender.deleteFailure;
       if (world.sender.deleteRefusals.variable > 0) {
         world.sender.deleteRefusals.variable -= 1;
@@ -401,6 +421,7 @@ const SETUP = { target: RECEIVER, yes: true };
 
 beforeEach(() => {
   world = freshWorld();
+  failing.clear();
   calls.length = 0;
   printed.length = 0;
   guardCalls.length = 0;
@@ -1062,5 +1083,201 @@ describe('teardown', () => {
     expect(outcome).toBe(false);
     expect(messages('error').join('\n')).toContain('"a/b" is not allowed');
     expect(calls).toEqual([]);
+  });
+});
+
+describe('decision record 0040: the steps of setup', () => {
+  const summary = () => messages('error').join('\n');
+  const failedSteps = (text) => text.match(/(\d+) of (\d+) steps? failed/)?.[0];
+
+  test('a failed step ends the run: the later steps are not attempted, whatever --allow-failures says', async () => {
+    failing.add('receiver:createClient');
+
+    const { outcome } = await runSetup({ allowFailures: true });
+
+    expect(outcome).toBe(false);
+    // nothing of this tenant was written without the client its secret belongs to
+    expect(world.sender.secrets.size + world.sender.proxies.size).toBe(0);
+    expect(calls).not.toContain('sender:test');
+    expect(failedSteps(summary())).toBe('1 of 7 steps failed');
+    expect(summary()).toContain('6 not attempted');
+    expect(summary()).toContain(
+      '  - OAuth2 client "frodo-remote-proxy-matrix": '
+    );
+    expect(summary()).toContain(
+      '  - ESV secret "esv-remote-proxy-zion" (not attempted)'
+    );
+    expect(summary()).toContain(
+      'test of the remote proxy "zion" (not attempted)'
+    );
+    expect(summary()).toContain('--allow-failures does not apply');
+  });
+
+  test('a failed step of this tenant names the step that was reached', async () => {
+    failing.add('sender:createVariable');
+
+    const { outcome } = await runSetup();
+
+    expect(outcome).toBe(false);
+    expect(world.receiver.clients.size).toBe(1);
+    expect(world.sender.secrets.size).toBe(1);
+    expect(world.sender.proxies.size).toBe(0);
+    expect(failedSteps(summary())).toBe('1 of 7 steps failed');
+    expect(summary()).toContain(
+      '  - ESV variable "esv-remote-proxy-zion-host"'
+    );
+    expect(summary()).toContain('remote proxy "zion" (not attempted)');
+  });
+
+  test('an apply that failed ends the run before the test, whatever --allow-failures says', async () => {
+    world.applyResult = false;
+
+    const { outcome } = await runSetup({ allowFailures: true });
+
+    expect(outcome).toBe(false);
+    expect(calls).not.toContain('sender:test');
+    expect(failedSteps(summary())).toBe('1 of 7 steps failed');
+    expect(summary()).toContain('  - apply of the ESV changes');
+    expect(summary()).toContain(
+      'test of the remote proxy "zion" (not attempted)'
+    );
+  });
+
+  test('pending changes of others fail the apply step', async () => {
+    world.sender.otherPending = ['esv-other'];
+
+    const { outcome } = await runSetup();
+
+    expect(outcome).toBe(false);
+    expect(failedSteps(summary())).toBe('1 of 7 steps failed');
+    expect(summary()).toContain('  - apply of the ESV changes');
+  });
+
+  test.each([
+    [false, false],
+    [true, true],
+  ])(
+    'a proxy that does not answer is a failed last step; with --allow-failures=%s the command succeeds: %s',
+    async (allowFailures, expected) => {
+      world.testResults = Array.from({ length: 100 }, () => ({
+        ok: false,
+        status: 'not-found',
+        httpStatus: 404,
+        message: 'not loaded yet',
+      }));
+
+      const { outcome } = await runSetup({ timeout: 35, allowFailures });
+
+      expect(outcome).toBe(expected);
+      const text = everythingPrinted();
+      expect(text).toContain('1 of 7 steps failed:');
+      expect(text).toContain('  - test of the remote proxy "zion"');
+      expect(text.includes('The exit code stays 0')).toBe(allowFailures);
+      // the remote proxy is there, only its test failed
+      expect(world.sender.proxies.has('zion')).toBe(true);
+    }
+  );
+
+  test('a run that works prints no summary', async () => {
+    const { outcome } = await runSetup({ allowFailures: true });
+
+    expect(outcome).toBe(true);
+    expect(everythingPrinted()).not.toMatch(/steps? failed/);
+  });
+});
+
+describe('decision record 0040: the steps of teardown', () => {
+  const summary = () => messages('error').join('\n');
+  const failedSteps = (text) => text.match(/(\d+) of (\d+) steps? failed/)?.[0];
+  const TEARDOWN = { proxyId: 'zion', target: RECEIVER, yes: true };
+  async function setupThenForget() {
+    await runSetup();
+    calls.length = 0;
+    printed.length = 0;
+  }
+  const runTeardown = async (options = {}) => {
+    const clock = fakeClock();
+    const outcome = await teardownRemoteProxy(
+      { ...TEARDOWN, ...options },
+      clock.deps
+    );
+    return { outcome, clock };
+  };
+
+  test('the mapping, the client and the proxy depend on each other: a failed delete of the mapping stops the run, whatever --allow-failures says', async () => {
+    await setupThenForget();
+    failing.add('receiver:deleteMapping');
+
+    const { outcome } = await runTeardown({ allowFailures: true });
+
+    expect(outcome).toBe(false);
+    // the proxy still points at the client that is still there
+    expect(world.sender.proxies.has('zion')).toBe(true);
+    expect(world.receiver.clients.size).toBe(1);
+    expect(calls).not.toContain('sender:deleteProxy:zion');
+    expect(failedSteps(summary())).toBe('1 of 5 steps failed');
+    expect(summary()).toContain('4 not attempted');
+    expect(summary()).toContain(
+      '  - static user mapping of "frodo-remote-proxy-matrix": '
+    );
+    expect(summary()).toContain('  - remote proxy "zion" (not attempted)');
+    expect(summary()).toContain('--allow-failures does not apply');
+  });
+
+  test('a failed delete of the proxy leaves the ESV variable and secret alone', async () => {
+    await setupThenForget();
+    failing.add('sender:deleteProxy');
+
+    const { outcome } = await runTeardown();
+
+    expect(outcome).toBe(false);
+    expect(world.sender.variables.has(HOST_VARIABLE_ID)).toBe(true);
+    expect(world.sender.secrets.has(SECRET_ID)).toBe(true);
+    expect(failedSteps(summary())).toBe('1 of 5 steps failed');
+    expect(summary()).toContain(
+      'ESV variable "esv-remote-proxy-zion-host" (not attempted)'
+    );
+  });
+
+  test.each([
+    [false, false],
+    [true, true],
+  ])(
+    'the ESV variable and the ESV secret do not depend on each other: the secret is deleted although the variable is not; with --allow-failures=%s the command succeeds: %s',
+    async (allowFailures, expected) => {
+      await setupThenForget();
+      failing.add('sender:deleteVariable');
+
+      const { outcome } = await runTeardown({ allowFailures });
+
+      expect(outcome).toBe(expected);
+      expect(world.sender.secrets.has(SECRET_ID)).toBe(false);
+      expect(world.sender.variables.has(HOST_VARIABLE_ID)).toBe(true);
+      const text = everythingPrinted();
+      expect(text).toContain('1 of 5 steps failed:');
+      expect(text).toContain('  - ESV variable "esv-remote-proxy-zion-host": ');
+      expect(text).not.toContain('not attempted');
+      expect(text.includes('The exit code stays 0')).toBe(allowFailures);
+    }
+  );
+
+  test('the variable is not left alone when the secret cannot be deleted', async () => {
+    await setupThenForget();
+    failing.add('sender:deleteSecret');
+
+    const { outcome } = await runTeardown();
+
+    expect(outcome).toBe(false);
+    expect(world.sender.variables.has(HOST_VARIABLE_ID)).toBe(false);
+    expect(summary()).toContain('  - ESV secret "esv-remote-proxy-zion": ');
+  });
+
+  test('a teardown that works prints no summary', async () => {
+    await setupThenForget();
+
+    const { outcome } = await runTeardown({ allowFailures: true });
+
+    expect(outcome).toBe(true);
+    expect(everythingPrinted()).not.toMatch(/steps? failed/);
   });
 });
