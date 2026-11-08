@@ -108,6 +108,34 @@ export class OperationRun {
     return false;
   }
 
+  /**
+   * Counts an operation that the caller ran itself and that succeeded, for ops
+   * code that has its own loop. New code uses {@link run}.
+   */
+  recordSuccess(): void {
+    this.total++;
+  }
+
+  /**
+   * Records an operation that the caller ran itself and that failed. The
+   * caller has printed the error already: this prints nothing.
+   * @param name what the operation is called in the summary
+   * @param error what went wrong, for the reason in the summary
+   * @param settings `dependent`: see {@link RunSettings}
+   */
+  recordFailure(
+    name: string,
+    error?: unknown,
+    { dependent = false }: RunSettings = {}
+  ): void {
+    this.total++;
+    this.failures.push({
+      name,
+      reason: error === undefined ? undefined : reasonOf(error),
+    });
+    if (dependent) this.stopped = true;
+  }
+
   /** True if any operation failed or was not attempted. */
   get hasFailures(): boolean {
     return this.failures.length > 0 || this.notAttempted.length > 0;

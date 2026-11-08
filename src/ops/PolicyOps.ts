@@ -23,6 +23,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getRealmName,
@@ -160,10 +161,13 @@ export async function deletePolicyById(policyId: string): Promise<boolean> {
 
 /**
  * Delete all policies
+ * @param {boolean} allowFailures true to report policies that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deletePolicies(): Promise<boolean> {
+export async function deletePolicies(allowFailures = false): Promise<boolean> {
   debugMessage(`cli.PolicyOps.deletePolicies: begin`);
+  const run = new OperationRun({ unit: 'policy', allowFailures });
+  let readFailed = false;
   const errors = [];
   let policies: PolicySkeleton[] = [];
   let indicatorId: string;
@@ -188,12 +192,15 @@ export async function deletePolicies(): Promise<boolean> {
         debugMessage(`Deleting policy ${policyId}`);
         await deletePolicy(policyId);
         updateProgressIndicator(indicatorId, `Deleted ${policyId}`);
+        run.recordSuccess();
       } catch (error) {
         errors.push(new FrodoError(`Error deleting policy ${policyId}`, error));
+        run.recordFailure(policyId, error);
       }
     }
   } catch (error) {
     errors.push(new FrodoError(`Error deleting policies`, error));
+    readFailed = true;
   } finally {
     if (errors.length > 0) {
       if (policies.length)
@@ -214,7 +221,7 @@ export async function deletePolicies(): Promise<boolean> {
     }
   }
   debugMessage(`cli.PolicyOps.deletePolicies: end`);
-  return errors.length === 0;
+  return run.finish() && !readFailed;
 }
 
 /**

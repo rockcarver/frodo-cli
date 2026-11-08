@@ -59,6 +59,7 @@ export default function setup() {
       options: ['all', 'policyId', 'setId'],
       purpose: 'what to delete',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -121,7 +122,7 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all authorization policies...');
-            const outcome = await deletePolicies();
+            const outcome = await deletePolicies(options.allowFailures);
             if (!outcome) process.exitCode = 1;
           }
         }

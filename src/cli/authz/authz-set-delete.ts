@@ -32,6 +32,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['all', 'setId'], purpose: 'what to delete' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -75,7 +76,7 @@ export default function setup() {
             return;
           }
           verboseMessage('Deleting all authorization policy sets...');
-          const outcome = await deletePolicySets();
+          const outcome = await deletePolicySets(options.allowFailures);
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way

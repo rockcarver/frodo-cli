@@ -45,6 +45,7 @@ export default function setup() {
       options: ['all', 'typeId', 'typeName'],
       purpose: 'what to delete',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -94,7 +95,7 @@ export default function setup() {
             return;
           }
           verboseMessage('Deleting all authorization resource types...');
-          const outcome = await deleteResourceTypes();
+          const outcome = await deleteResourceTypes(options.allowFailures);
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way

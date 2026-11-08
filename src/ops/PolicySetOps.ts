@@ -18,6 +18,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getRealmName,
@@ -141,10 +142,18 @@ export async function deletePolicySetById(
 
 /**
  * Delete all policy sets
+ * @param {boolean} allowFailures true to report policy sets and policies that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deletePolicySets(): Promise<boolean> {
+export async function deletePolicySets(
+  allowFailures = false
+): Promise<boolean> {
   debugMessage(`cli.PolicySetOps.deletePolicySets: begin`);
+  const run = new OperationRun({
+    unit: 'deletion',
+    allowFailures,
+  });
+  let readFailed = false;
   const errors = [];
   let policySets: PolicySetSkeleton[] = [];
   let indicatorId: string;
@@ -185,6 +194,7 @@ export async function deletePolicySets(): Promise<boolean> {
           try {
             debugMessage(`Deleting policy ${policy._id}`);
             await deletePolicy(policy._id);
+            run.recordSuccess();
           } catch (error) {
             errors.push(
               new FrodoError(
@@ -192,27 +202,39 @@ export async function deletePolicySets(): Promise<boolean> {
                 error
               )
             );
+            run.recordFailure(
+              `policy ${policy._id} in policy set ${policySetId}`,
+              error
+            );
           }
         }
       } catch (error) {
         errors.push(error);
+        run.recordFailure(`policies of policy set ${policySetId}`, error);
       }
       try {
         debugMessage(`Deleting policy set ${policySetId}`);
         await deletePolicySet(policySetId);
         updateProgressIndicator(indicatorId2, `Deleted ${policySetId}`);
+        run.recordSuccess();
       } catch (error) {
         errors.push(
           new FrodoError(`Error deleting policy set ${policySetId}`, error)
         );
+        run.recordFailure(`policy set ${policySetId}`, error);
       }
     }
   } catch (error) {
     errors.push(new FrodoError(`Error deleting policy sets`, error));
+    readFailed = true;
   } finally {
     if (errors.length) {
       if (policySets.length)
         stopProgressIndicator(indicatorId2, `Error deleting all policy sets`);
+      // the failures were collected but never shown
+      for (const error of errors) {
+        printError(error);
+      }
     } else {
       if (policySets.length)
         stopProgressIndicator(
@@ -222,7 +244,7 @@ export async function deletePolicySets(): Promise<boolean> {
     }
   }
   debugMessage(`cli.PolicySetOps.deletePolicySets: end`);
-  return errors.length === 0;
+  return run.finish() && !readFailed;
 }
 
 /**

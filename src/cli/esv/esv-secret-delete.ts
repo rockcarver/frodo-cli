@@ -46,6 +46,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['secretId', 'all'], purpose: 'which secrets' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -103,7 +104,7 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all secrets...');
-            const outcome = await deleteSecrets();
+            const outcome = await deleteSecrets(options.allowFailures);
             if (!outcome) process.exitCode = 1;
           }
         }
