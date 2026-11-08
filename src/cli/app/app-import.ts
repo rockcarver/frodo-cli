@@ -56,7 +56,10 @@ export default function setup() {
       ).conflicts(['appId', 'appName', 'file', 'all'])
     )
     .addOption(
-      new Option('--no-deps', 'Do not include any dependencies (scripts).')
+      new Option(
+        '--no-deps',
+        'Do not include any dependencies (scripts, OAuth2 clients, SAML providers, circles of trust, connectors, mappings, and on Identity Governance tenants the glossary and request forms).'
+      )
     )
     .addHelpText(
       'after',
