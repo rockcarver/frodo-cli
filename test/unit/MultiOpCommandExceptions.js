@@ -25,9 +25,7 @@
  */
 
 /** The first failed operation ends the run: later operations are never attempted. */
-export const STOPS_AT_THE_FIRST_ERROR = [
-  'frodo mapping delete',
-];
+export const STOPS_AT_THE_FIRST_ERROR = [];
 
 /** A failure is caught or ignored (an empty catch, a logged error, an ignored result) and the command exits 0. */
 export const SWALLOWS_THE_FAILURE = [];

@@ -192,7 +192,7 @@ delete -a`, `idm remote-proxy delete -a`, `log key delete`, `oauth client delete
 -a`, `node delete -a`, `secretstore delete -a`, `secretstore mapping delete -a`,
 `iga workflow delete -a`, `agent delete -a`, `agent ai delete -a`, `agent
 gateway delete -a`, `agent java delete -a`, `agent web delete -a`, `saml delete
--a`, `service delete -a`, `journey delete -a`, `agent export -A`, `agent ai
+-a`, `service delete -a`, `journey delete -a`, `mapping delete -a`, `agent export -A`, `agent ai
 export -A`, `agent gateway export -A`, `agent java export -A`, `agent web export
 -A`, `config export`, `idm export`, `idm schema object export -A`, `idm
 remote-proxy export -A`, `mapping export -A`, `journey export`, `script export`,
@@ -243,6 +243,11 @@ are none. Listing the agents fails the command whatever `--allow-failures` says;
 since frodo-lib 5.0.0-26 `agent delete -a`, like `agent list` and `agent
 export`, also fails when an agent type cannot be listed for any reason other
 than HTTP 501 (not implemented), where it used to skip that type without a word.
+`mapping delete -a` (with or without `-c` and `-t`) stopped at the first mapping
+that could not be deleted and exited 1; it now deletes every mapping it can,
+prints one summary that names the mappings that failed, and still exits 1. It
+says `No mappings found to delete.` and exits 0 when there are none. Reading the
+mappings fails the command whatever `--allow-failures` says.
 The bulk exports of these commands now export every item they can, print one
 summary that names the items that could not be exported or written, and exit 1
 (or 0 with `--allow-failures`). `esv secret export -A`, `esv variable export

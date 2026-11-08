@@ -66,6 +66,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['all', 'mappingId'], purpose: 'what to delete' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -125,7 +126,8 @@ export default function setup() {
             verboseMessage(`Deleting all mappings...`);
             const outcome = await deleteMappings(
               options.connectorId,
-              options.managedObjectType
+              options.managedObjectType,
+              options.allowFailures
             );
             if (!outcome) process.exitCode = 1;
           }
