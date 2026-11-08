@@ -138,16 +138,38 @@ describe('frodo realm import', () => {
         expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
     });
 
+    // The recording of this test holds update requests for the realms alpha and bravo, but the directory holds the realms
+    // first, second and root, so every realm import finds no recording. The old loop ignored the failed imports and exited 0;
+    // the command now reports "3 of 3 realms failed" and exits 1 (cli record 0040, imports). The test expects that exit code,
+    // the stdout snapshot is unchanged. It needs a new recording against a classic tenant (a maintainer ask), or fixtures that
+    // match the recording.
     test(`"frodo realm import -AD ${allSeparateClassicRealmsDirectory} -m classic": should import all realms from the ${allSeparateClassicRealmsDirectory} directory"`, async () => {
         const CMD = `frodo realm import -AD ${allSeparateClassicRealmsDirectory} -m classic`;
-        const { stdout } = await exec(CMD, classicEnv);
-        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
+    let failure;
+    try {
+        await exec(CMD, classicEnv);
+    } catch (e) {
+        failure = e;
+    }
+    expect(failure.code).toBe(1);
+    expect(normalizeSnapshotText(failure.stdout)).toMatchSnapshot()
     });
 
+    // The recording of this test holds update requests for the realms alpha and bravo, but the directory holds the realms
+    // first, second and root, so every realm import finds no recording. The old loop ignored the failed imports and exited 0;
+    // the command now reports "3 of 3 realms failed" and exits 1 (cli record 0040, imports). The test expects that exit code,
+    // the stdout snapshot is unchanged. It needs a new recording against a classic tenant (a maintainer ask), or fixtures that
+    // match the recording.
     test(`"frodo realm import --all-separate --directory ${allSeparateClassicRealmsDirectory} --type classic": should import all realms from the ${allSeparateClassicRealmsDirectory} directory"`, async () => {
         const CMD = `frodo realm import --all-separate --directory ${allSeparateClassicRealmsDirectory} --type classic`;
-        const { stdout } = await exec(CMD, classicEnv);
-        expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
+    let failure;
+    try {
+        await exec(CMD, classicEnv);
+    } catch (e) {
+        failure = e;
+    }
+    expect(failure.code).toBe(1);
+    expect(normalizeSnapshotText(failure.stdout)).toMatchSnapshot()
     });
 
 });

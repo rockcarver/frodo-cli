@@ -29,6 +29,10 @@ Options:
   -A, --all-separate           Import all entity providers from separate files
                                (*.saml.json) in the current directory. Cannot be
                                used with -i or -a.
+  --allow-failures             Report operations that fail, but still exit with
+                               code 0. Without this option the command runs
+                               every operation, prints a summary of what failed
+                               and exits with code 1.
   -f, --file <file>            Name of the file to import the entity provider(s)
                                from.
   -i, --entity-id <entity-id>  Entity id. If specified, only one provider is

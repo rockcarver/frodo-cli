@@ -26,6 +26,9 @@ Options:
                       -i.
   -A, --all-separate  Import all clients from separate files (*.app.json) in the
                       current directory. Cannot be used with -i or -a.
+  --allow-failures    Report operations that fail, but still exit with code 0.
+                      Without this option the command runs every operation,
+                      prints a summary of what failed and exits with code 1.
   -f, --file <file>   Name of the file to import.
   -i, --app-id <id>   Client id. If specified, only one client is imported and
                       the options -a or -A cannot be used.

@@ -1,7 +1,7 @@
 import fs from 'fs';
+import path from 'path';
 import {
   frodo,
-  FrodoError,
   state,
   type OAuth2ClientExportInterface,
   type OAuth2ClientExportOptions,
@@ -21,6 +21,7 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
+import { importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 import { formatOptionalStringArray } from './utils/ArrayFormat.js';
 
@@ -308,86 +309,105 @@ export async function importFirstOAuth2ClientFromFile(
 
 /**
  * Import OAuth2 clients from file
+ * Every client in the file is tried: one that cannot be imported is printed and named in one summary,
+ * and the others are still imported. A file that cannot be read or parsed ends the command
+ * whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {OAuth2ClientImportOptions} options import options
+ * @param {boolean} allowFailures true to report clients that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importOAuth2ClientsFromFile(
   file: string,
-  options: OAuth2ClientImportOptions = { deps: true }
+  options: OAuth2ClientImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'client', allowFailures });
   debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFile: begin`);
   const filePath = getFilePath(file);
   showSpinner(`Importing ${filePath}...`);
+  let clientData: OAuth2ClientExportInterface;
   try {
     const data = fs.readFileSync(filePath, 'utf8');
-    const clientData = JSON.parse(data);
-    await importOAuth2Clients(clientData, options);
-    succeedSpinner(`Imported ${filePath}.`);
-    debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFile: end`);
-    return true;
+    clientData = JSON.parse(data);
   } catch (error) {
+    // not an item failure: the file that was named cannot be read
     failSpinner(`Error importing ${filePath}.`);
     printError(error);
+    return false;
   }
-  return false;
+  await importItemsOfFile(run, clientData, {
+    count: (data) => Object.keys(data.application).length,
+    importItems: (data) => importOAuth2Clients(data, options),
+    fallbackName: file,
+  });
+  const outcome = run.finish();
+  if (outcome) succeedSpinner(`Imported ${filePath}.`);
+  else failSpinner(`Error importing ${filePath}.`);
+  debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFile: end`);
+  return outcome;
 }
 
 /**
  * Import OAuth2 clients from files
+ * Every file is tried: a file that cannot be read, or a client in it that cannot be imported, is
+ * printed and named in one summary, and the others are still imported. A directory that cannot be
+ * read ends the command whatever `--allow-failures` says.
  * @param {OAuth2ClientImportOptions} options import options
+ * @param {boolean} allowFailures true to report clients that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importOAuth2ClientsFromFiles(
-  options: OAuth2ClientImportOptions = { deps: true }
+  options: OAuth2ClientImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors = [];
-  let indicatorId: string;
+  const run = new OperationRun({ unit: 'client', allowFailures });
+  debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: begin`);
+  let files: string[];
   try {
-    debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
-    const files = names
+    files = names
       .filter((name) => name.toLowerCase().endsWith('.oauth2.app.json'))
       .map((name) => getFilePath(name));
-    indicatorId = createProgressIndicator(
-      'determinate',
-      files.length,
-      'Importing clients...'
-    );
-    let total = 0;
-    for (const file of files) {
-      try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData: OAuth2ClientExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.application).length;
-        total += count;
-        await importOAuth2Clients(fileData, options);
-        updateProgressIndicator(
-          indicatorId,
-          `Imported ${count} client(s) from ${file}`
-        );
-      } catch (error) {
-        errors.push(error);
-        updateProgressIndicator(
-          indicatorId,
-          `Error importing client(s) from ${file}`
-        );
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing oauth2 clients`, errors);
-    }
-    stopProgressIndicator(
-      indicatorId,
-      `Finished importing ${total} client(s) from ${files.length} file(s).`
-    );
-    debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: end`);
-    return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error importing oauth2 clients.`);
     printError(error);
+    return false;
   }
-  return false;
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    files.length,
+    'Importing clients...'
+  );
+  for (const file of files) {
+    let fileData: OAuth2ClientExportInterface;
+    try {
+      fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (error) {
+      printError(error);
+      run.recordFailure(path.basename(file), error);
+      updateProgressIndicator(
+        indicatorId,
+        `Error importing client(s) from ${file}`
+      );
+      continue;
+    }
+    await importItemsOfFile(run, fileData, {
+      count: (data) => Object.keys(data.application).length,
+      importItems: (data) => importOAuth2Clients(data, options),
+      fallbackName: path.basename(file),
+    });
+    updateProgressIndicator(indicatorId, `Imported client(s) from ${file}`);
+  }
+  const outcome = run.finish();
+  stopProgressIndicator(
+    indicatorId,
+    outcome
+      ? `Finished importing client(s) from ${files.length} file(s).`
+      : `Error importing oauth2 clients.`,
+    outcome ? 'success' : 'fail'
+  );
+  debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: end`);
+  return outcome;
 }
 
 /**

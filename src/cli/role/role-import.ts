@@ -51,6 +51,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'roleId', 'roleName'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -62,51 +63,42 @@ export default function setup() {
           options,
           command
         );
+        // decide what to do from the options alone, so that a failed login is
+        // reported as such and not as an unrecognized combination of options
+        let task: { message: string; run: () => Promise<boolean> } | undefined;
         // import by id or name
-        if (
-          (options.roleId || options.roleName) &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Importing internal role ${options.roleId || options.roleName}...`
-          );
-          const outcome = await importInternalRoleFromFile(
-            options.roleId,
-            options.roleName,
-            options.file
-          );
-          if (!outcome) process.exitCode = 1;
+        if ((options.roleId || options.roleName) && options.file) {
+          task = {
+            message: `Importing internal role ${options.roleId || options.roleName}...`,
+            run: () =>
+              importInternalRoleFromFile(
+                options.roleId,
+                options.roleName,
+                options.file
+              ),
+          };
         }
         // --all -a
-        else if (
-          options.all &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Importing all internal roles from a single file (${options.file})...`
-          );
-          const outcome = await importInternalRolesFromFile(options.file);
-          if (!outcome) process.exitCode = 1;
+        else if (options.all && options.file) {
+          task = {
+            message: `Importing all internal roles from a single file (${options.file})...`,
+            run: () =>
+              importInternalRolesFromFile(options.file, options.allowFailures),
+          };
         }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Importing all internal roles from separate files...');
-          const outcome = await importInternalRolesFromFiles();
-          if (!outcome) process.exitCode = 1;
+        else if (options.allSeparate) {
+          task = {
+            message: 'Importing all internal roles from separate files...',
+            run: () => importInternalRolesFromFiles(options.allowFailures),
+          };
         }
         // import first role in file
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Importing first internal role in file...');
-          const outcome = await importFirstInternalRoleFromFile(options.file);
-          if (!outcome) process.exitCode = 1;
+        else if (options.file) {
+          task = {
+            message: 'Importing first internal role in file...',
+            run: () => importFirstInternalRoleFromFile(options.file),
+          };
         }
         // unrecognized combination of options or no options
         else {
@@ -116,7 +108,16 @@ export default function setup() {
           );
           process.exitCode = 1;
           program.help();
+          return;
         }
+        if (!(await getTokens(false, true, deploymentTypes))) {
+          // getTokens has said why
+          process.exitCode = 1;
+          return;
+        }
+        verboseMessage(task.message);
+        const outcome = await task.run();
+        if (!outcome) process.exitCode = 1;
       }
       // end command logic inside action handler
     );

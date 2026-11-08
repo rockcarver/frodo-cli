@@ -46,8 +46,9 @@ export default function setup() {
       options: ['all', 'allSeparate', 'entityId', 'file'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
-      // implement program logic inside action handler
+      // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
@@ -57,62 +58,78 @@ export default function setup() {
           options,
           command
         );
+        // decide what to do from the options alone, so that a failed login is
+        // reported as such and not as an unrecognized combination of options
+        let task:
+          { message: () => string; run: () => Promise<boolean> } | undefined;
         // import by id
-        if (options.file && options.entityId && (await getTokens())) {
-          verboseMessage(
-            `Importing provider "${
-              options.entityId
-            }" into realm "${state.getRealm()}"...`
-          );
-          const outcome = await importSaml2ProviderFromFile(
-            options.entityId,
-            options.file,
-            {
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
+        if (options.file && options.entityId) {
+          task = {
+            message: () =>
+              `Importing provider "${
+                options.entityId
+              }" into realm "${state.getRealm()}"...`,
+            run: () =>
+              importSaml2ProviderFromFile(options.entityId, options.file, {
+                deps: options.deps,
+              }),
+          };
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
-          verboseMessage(
-            `Importing all providers from a single file (${options.file})...`
-          );
-          const outcome = await importSaml2ProvidersFromFile(options.file, {
-            deps: options.deps,
-          });
-          if (!outcome) process.exitCode = 1;
+        else if (options.all && options.file) {
+          task = {
+            message: () =>
+              `Importing all providers from a single file (${options.file})...`,
+            run: () =>
+              importSaml2ProvidersFromFile(
+                options.file,
+                { deps: options.deps },
+                options.allowFailures
+              ),
+          };
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
-          verboseMessage(
-            'Importing all providers from separate files (*.saml.json) in current directory...'
-          );
-          const outcome = await importSaml2ProvidersFromFiles({
-            deps: options.deps,
-          });
-          if (!outcome) process.exitCode = 1;
+        else if (options.allSeparate && !options.file) {
+          task = {
+            message: () =>
+              'Importing all providers from separate files (*.saml.json) in current directory...',
+            run: () =>
+              importSaml2ProvidersFromFiles(
+                { deps: options.deps },
+                options.allowFailures
+              ),
+          };
         }
         // import first provider from file
-        else if (options.file && (await getTokens())) {
-          verboseMessage(
-            `Importing first provider from file "${
-              options.file
-            }" into realm "${state.getRealm()}"...`
-          );
-          const outcome = await importFirstSaml2ProviderFromFile(options.file, {
-            deps: options.deps,
-          });
-          if (!outcome) process.exitCode = 1;
+        else if (options.file) {
+          task = {
+            message: () =>
+              `Importing first provider from file "${
+                options.file
+              }" into realm "${state.getRealm()}"...`,
+            run: () =>
+              importFirstSaml2ProviderFromFile(options.file, {
+                deps: options.deps,
+              }),
+          };
         }
         // unrecognized combination of options or no options
         else {
           printMessage('Unrecognized combination of options or no options...');
           process.exitCode = 1;
           program.help();
+          return;
         }
+        if (!(await getTokens())) {
+          // getTokens has said why
+          process.exitCode = 1;
+          return;
+        }
+        verboseMessage(task.message());
+        const outcome = await task.run();
+        if (!outcome) process.exitCode = 1;
       }
-      // end program logic inside action handler
+      // end command logic inside action handler
     );
 
   return program;

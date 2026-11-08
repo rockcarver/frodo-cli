@@ -1,7 +1,7 @@
 import fs from 'fs';
+import path from 'path';
 import {
   frodo,
-  FrodoError,
   type Saml2EntitiesExportOptions,
   type Saml2EntitiesImportOptions,
   type Saml2ExportInterface,
@@ -19,6 +19,7 @@ import {
   updateProgressIndicator,
 } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
+import { importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const { decodeBase64, saveTextToFile, getFilePath, getWorkingDirectory } =
@@ -406,73 +407,104 @@ export async function importFirstSaml2ProviderFromFile(
 
 /**
  * Import all SAML entity providers from file
+ * Every provider in the file is tried: one that cannot be imported is printed and named in one summary,
+ * and the others are still imported. A file that cannot be read or parsed ends the command
+ * whatever `--allow-failures` says.
  * @param {String} file Import file name
  * @param {Saml2ProviderImportOptions} options import options
+ * @param {boolean} allowFailures true to report providers that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importSaml2ProvidersFromFile(
   file: string,
-  options: Saml2EntitiesImportOptions = { deps: true }
+  options: Saml2EntitiesImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'SAML provider', allowFailures });
+  let fileData: Saml2ExportInterface;
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const fileData = JSON.parse(data);
-    await importSaml2Providers(fileData, options);
-    return true;
+    fileData = JSON.parse(data);
   } catch (error) {
+    // not an item failure: the file that was named cannot be read
     printError(error);
+    return false;
   }
-  return false;
+  await importItemsOfFile(run, fileData, {
+    count: countSaml2Providers,
+    importItems: (data) => importSaml2Providers(data, options),
+    fallbackName: file,
+  });
+  return run.finish();
+}
+
+/**
+ * The number of providers in a SAML export file
+ * @param {Saml2ExportInterface} fileData the parsed import file
+ * @returns {number} the number of hosted and remote providers
+ */
+function countSaml2Providers(fileData: Saml2ExportInterface): number {
+  return (
+    Object.keys(fileData.saml.hosted).length +
+    Object.keys(fileData.saml.remote).length
+  );
 }
 
 /**
  * Import all SAML entity providers from all *.saml.json files in the current directory
+ * Every file is tried: a file that cannot be read, or a provider in it that cannot be imported, is
+ * printed and named in one summary, and the others are still imported. A directory that cannot be
+ * read ends the command whatever `--allow-failures` says.
  * @param {Saml2ProviderImportOptions} options import options
+ * @param {boolean} allowFailures true to report providers that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importSaml2ProvidersFromFiles(
-  options: Saml2EntitiesImportOptions = { deps: true }
+  options: Saml2EntitiesImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors: Error[] = [];
-  let indicatorId: string;
+  const run = new OperationRun({ unit: 'SAML provider', allowFailures });
+  let jsonFiles: string[];
   try {
     const names = fs.readdirSync(getWorkingDirectory());
-    const jsonFiles = names
+    jsonFiles = names
       .filter((name) => name.toLowerCase().endsWith('.saml.json'))
       .map((name) => getFilePath(name));
-    indicatorId = createProgressIndicator(
-      'determinate',
-      jsonFiles.length,
-      'Importing providers...'
-    );
-    let total = 0;
-    for (const file of jsonFiles) {
-      try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData = JSON.parse(data);
-        const result = await importSaml2Providers(fileData, options);
-        total += result.length;
-        updateProgressIndicator(
-          indicatorId,
-          `Imported ${result.length} provider(s) from ${file}.`
-        );
-      } catch (error) {
-        errors.push(error);
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing providers`, errors);
-    }
-    stopProgressIndicator(
-      indicatorId,
-      `Imported ${total} provider(s) from ${jsonFiles.length} file(s).`
-    );
-    return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error importing providers`);
     printError(error);
+    return false;
   }
-  return false;
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    jsonFiles.length,
+    'Importing providers...'
+  );
+  for (const file of jsonFiles) {
+    let fileData: Saml2ExportInterface;
+    try {
+      fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (error) {
+      printError(error, `Error importing providers from ${file}`);
+      run.recordFailure(path.basename(file), error);
+      updateProgressIndicator(indicatorId, `Error reading ${file}.`);
+      continue;
+    }
+    await importItemsOfFile(run, fileData, {
+      count: countSaml2Providers,
+      importItems: (data) => importSaml2Providers(data, options),
+      fallbackName: path.basename(file),
+    });
+    updateProgressIndicator(indicatorId, `Imported providers from ${file}.`);
+  }
+  const outcome = run.finish();
+  stopProgressIndicator(
+    indicatorId,
+    outcome
+      ? `Finished importing providers from ${jsonFiles.length} file(s).`
+      : `Error importing providers`,
+    outcome ? 'success' : 'fail'
+  );
+  return outcome;
 }
 
 /**

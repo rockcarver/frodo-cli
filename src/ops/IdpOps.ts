@@ -1,7 +1,7 @@
 import fs from 'fs';
+import path from 'path';
 import {
   frodo,
-  FrodoError,
   type SocialIdentityProviderImportOptions,
   type SocialIdpSkeleton,
 } from '@rockcarver/frodo-lib';
@@ -14,6 +14,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const { getRealmString, getTypedFilename, saveJsonToFile } = frodo.utils;
@@ -28,6 +29,9 @@ const {
 } = frodo.oauth2oidc.external;
 
 const { getFilePath, getWorkingDirectory } = frodo.utils;
+
+/** The content of an import file of providers. */
+type IdpImportData = Parameters<typeof importSocialIdentityProviders>[0];
 
 /**
  * Get a one-line description of the social idp object
@@ -277,91 +281,114 @@ export async function importFirstSocialIdentityProviderFromFile(
 
 /**
  * Import all providers from file
+ * Every provider in the file is tried: one that cannot be imported is printed and named in one summary,
+ * and the others are still imported. A file that cannot be read or parsed ends the command
+ * whatever `--allow-failures` says.
  * @param {string} file import file name
  * @param {SocialIdentityProviderImportOptions} options import options
+ * @param {boolean} allowFailures true to report providers that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if all providers were imported successfully, false otherwise
  */
 export async function importSocialIdentityProvidersFromFile(
   file: string,
-  options: SocialIdentityProviderImportOptions = { deps: true }
+  options: SocialIdentityProviderImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'identity provider', allowFailures });
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
     `Importing providers from ${filePath}...`
   );
+  let fileData: IdpImportData;
   try {
     const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    await importSocialIdentityProviders(fileData, options);
-    stopProgressIndicator(
-      indicatorId,
-      `Successfully imported providers from ${filePath}.`,
-      'success'
-    );
-    return true;
+    fileData = JSON.parse(data);
   } catch (error) {
+    // not an item failure: the file that was named cannot be read
     stopProgressIndicator(
       indicatorId,
       `Error importing providers from ${filePath}.`,
       'fail'
     );
     printError(error);
+    return false;
   }
-  return false;
+  await importItemsOfFile(run, fileData, {
+    count: (data) => Object.keys(data.idp).length,
+    importItems: (data) => importSocialIdentityProviders(data, options),
+    fallbackName: file,
+  });
+  const outcome = run.finish();
+  stopProgressIndicator(
+    indicatorId,
+    outcome
+      ? `Successfully imported providers from ${filePath}.`
+      : `Error importing providers from ${filePath}.`,
+    outcome ? 'success' : 'fail'
+  );
+  return outcome;
 }
 
 /**
  * Import providers from *.idp.json files in current working directory
+ * Every file is tried: a file that cannot be read, or a provider in it that cannot be imported, is
+ * printed and named in one summary, and the others are still imported. A directory that cannot be
+ * read ends the command whatever `--allow-failures` says.
  * @param {SocialIdentityProviderImportOptions} options import options
+ * @param {boolean} allowFailures true to report providers that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function importSocialIdentityProvidersFromFiles(
-  options: SocialIdentityProviderImportOptions = { deps: true }
+  options: SocialIdentityProviderImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  let indicatorId: string;
-  const errors: Error[] = [];
+  const run = new OperationRun({ unit: 'identity provider', allowFailures });
+  let jsonFiles: string[];
   try {
     const names = fs.readdirSync(getWorkingDirectory());
-    const jsonFiles = names
+    jsonFiles = names
       .filter((name) => name.toLowerCase().endsWith('.idp.json'))
       .map((name) => getFilePath(name));
-
-    indicatorId = createProgressIndicator(
-      'determinate',
-      jsonFiles.length,
-      'Importing providers...'
-    );
-    let total = 0;
-    for (const file of jsonFiles) {
-      try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData = JSON.parse(data);
-        const count = Object.keys(fileData.idp).length;
-        total += count;
-        await importSocialIdentityProviders(fileData, options);
-        updateProgressIndicator(
-          indicatorId,
-          `Imported ${count} provider(s) from ${file}`
-        );
-      } catch (error) {
-        errors.push(error);
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing providers`, errors);
-    }
-    stopProgressIndicator(
-      indicatorId,
-      `Finished importing ${total} provider(s) from ${jsonFiles.length} file(s).`
-    );
-    return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error importing providers`, 'fail');
     printError(error);
+    return false;
   }
-  return false;
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    jsonFiles.length,
+    'Importing providers...'
+  );
+  for (const file of jsonFiles) {
+    let fileData: IdpImportData;
+    try {
+      fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (error) {
+      printError(error);
+      run.recordFailure(path.basename(file), error);
+      updateProgressIndicator(
+        indicatorId,
+        `Error importing provider(s) from ${file}`
+      );
+      continue;
+    }
+    await importItemsOfFile(run, fileData, {
+      count: (data) => Object.keys(data.idp).length,
+      importItems: (data) => importSocialIdentityProviders(data, options),
+      fallbackName: path.basename(file),
+    });
+    updateProgressIndicator(indicatorId, `Imported provider(s) from ${file}`);
+  }
+  const outcome = run.finish();
+  stopProgressIndicator(
+    indicatorId,
+    outcome
+      ? `Finished importing provider(s) from ${jsonFiles.length} file(s).`
+      : `Error importing providers`,
+    outcome ? 'success' : 'fail'
+  );
+  return outcome;
 }
 
 /**

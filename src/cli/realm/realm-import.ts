@@ -55,6 +55,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'realmId', 'realmName'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -66,61 +67,78 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens(false, true, deploymentTypes)) {
-          // import by id
-          if (options.realmId && options.file) {
-            verboseMessage(`Importing realm ${options.realmId}...`);
-            const outcome = await importRealmFromFile(
-              options.realmId,
-              options.realmName,
-              options.file
-            );
-            if (!outcome) process.exitCode = 1;
-          }
-          // import by name
-          else if (options.realmName && options.file) {
-            verboseMessage(`Importing realm ${options.realmName}...`);
-            const outcome = await importRealmFromFile(
-              options.realmId,
-              options.realmName,
-              options.file
-            );
-            if (!outcome) process.exitCode = 1;
-          }
-          // --all / -a
-          else if (options.all && options.file) {
-            verboseMessage(
-              `Importing all realms from a single file (${options.file})...`
-            );
-            const outcome = await importRealmsFromFile(options.file);
-            if (!outcome) process.exitCode = 1;
-          }
-          // --all-separate / -A
-          else if (options.allSeparate) {
-            verboseMessage('Importing all realms from separate files...');
-            const outcome = await importRealmsFromFiles();
-            if (!outcome) process.exitCode = 1;
-          }
-          // import first realm in file
-          else if (options.file) {
-            verboseMessage(`Importing first realm in file...`);
-            const outcome = await importRealmFromFile(
-              options.realmId,
-              options.realmName,
-              options.file
-            );
-            if (!outcome) process.exitCode = 1;
-          }
-          // unrecognized combination of options or no options
-          else {
-            printMessage(
-              'Unrecognized combination of options or no options...',
-              'error'
-            );
-            process.exitCode = 1;
-            program.help();
-          }
+        // decide what to do from the options alone, so that a failed login is
+        // reported as such and not as an unrecognized combination of options
+        let task: { message: string; run: () => Promise<boolean> } | undefined;
+        // import by id
+        if (options.realmId && options.file) {
+          task = {
+            message: `Importing realm ${options.realmId}...`,
+            run: () =>
+              importRealmFromFile(
+                options.realmId,
+                options.realmName,
+                options.file
+              ),
+          };
         }
+        // import by name
+        else if (options.realmName && options.file) {
+          task = {
+            message: `Importing realm ${options.realmName}...`,
+            run: () =>
+              importRealmFromFile(
+                options.realmId,
+                options.realmName,
+                options.file
+              ),
+          };
+        }
+        // --all / -a
+        else if (options.all && options.file) {
+          task = {
+            message: `Importing all realms from a single file (${options.file})...`,
+            run: () =>
+              importRealmsFromFile(options.file, options.allowFailures),
+          };
+        }
+        // --all-separate / -A
+        else if (options.allSeparate) {
+          task = {
+            message: 'Importing all realms from separate files...',
+            run: () => importRealmsFromFiles(options.allowFailures),
+          };
+        }
+        // import first realm in file
+        else if (options.file) {
+          task = {
+            message: `Importing first realm in file...`,
+            run: () =>
+              importRealmFromFile(
+                options.realmId,
+                options.realmName,
+                options.file
+              ),
+          };
+        }
+        // unrecognized combination of options or no options
+        else {
+          printMessage(
+            'Unrecognized combination of options or no options...',
+            'error'
+          );
+          process.exitCode = 1;
+          program.help();
+          return;
+        }
+        if (!(await getTokens(false, true, deploymentTypes))) {
+          // getTokens has said why
+          process.exitCode = 1;
+          return;
+        }
+        verboseMessage(task.message);
+        const outcome = await task.run();
+        if (!outcome) process.exitCode = 1;
       }
       // end command logic inside action handler
     );

@@ -1,9 +1,5 @@
 import fs from 'fs';
-import {
-  frodo,
-  FrodoError,
-  type InternalRoleExportInterface,
-} from '@rockcarver/frodo-lib';
+import { frodo, type InternalRoleExportInterface } from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   createTable,
@@ -13,6 +9,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -212,62 +209,80 @@ export async function importInternalRoleFromFile(
 
 /**
  * Import internal roles from file
+ * Every role in the file is tried: one that cannot be imported is printed and named in one summary,
+ * and the others are still imported. A file that cannot be read or parsed ends the command
+ * whatever `--allow-failures` says.
  * @param {String} file file name
+ * @param {boolean} allowFailures true to report roles that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importInternalRolesFromFile(
-  file: string
+  file: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'internal role', allowFailures });
+  let importData: InternalRoleExportInterface;
   try {
     debugMessage(`importInternalRolesFromFile: start`);
     debugMessage(`importInternalRolesFromFile: importing ${file}`);
-    const importData = JSON.parse(fs.readFileSync(getFilePath(file), 'utf8'));
-    await importInternalRoles(importData);
-    debugMessage(`importInternalRolesFromFile: end`);
-    return true;
+    importData = JSON.parse(fs.readFileSync(getFilePath(file), 'utf8'));
   } catch (error) {
+    // not an item failure: the file that was named cannot be read
     printError(error, `Error importing internal roles from file`);
+    return false;
   }
-  return false;
+  await importItemsOfFile(run, importData, {
+    count: (data) => Object.keys(data.internalRole).length,
+    importItems: (data) => importInternalRoles(data),
+    fallbackName: file,
+  });
+  debugMessage(`importInternalRolesFromFile: end`);
+  return run.finish();
 }
 
 /**
  * Import all internal roles from separate files
+ * Every file is tried: a file that cannot be read, or a role in it that cannot be imported, is
+ * printed and named in one summary, and the others are still imported. A directory that cannot be
+ * read ends the command whatever `--allow-failures` says. No role files is nothing to import,
+ * which is not a failure.
+ * @param {boolean} allowFailures true to report roles that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importInternalRolesFromFiles(): Promise<boolean> {
-  const errors: Error[] = [];
+export async function importInternalRolesFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'internal role', allowFailures });
+  let roleFiles: string[];
   try {
     const names = fs.readdirSync(getWorkingDirectory());
-    const roleFiles = names.filter((name) =>
+    roleFiles = names.filter((name) =>
       name.toLowerCase().endsWith('.internalrole.json')
     );
-    if (roleFiles.length === 0) {
-      printMessage('No internal role files found to import.', 'error');
-      return false;
-    }
-    for (const file of roleFiles) {
-      try {
-        if (!(await importInternalRolesFromFile(file))) {
-          throw new FrodoError(`Error importing internal roles from ${file}`);
-        }
-      } catch (error) {
-        errors.push(
-          new FrodoError(`Error importing internal roles from ${file}`, error)
-        );
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(
-        `One or more errors importing internal roles`,
-        errors
-      );
-    }
-    return true;
   } catch (error) {
     printError(error, `Error importing internal roles from files`);
+    return false;
   }
-  return false;
+  if (roleFiles.length === 0) {
+    printMessage('No internal role files found to import.', 'warn');
+    return true;
+  }
+  for (const file of roleFiles) {
+    let importData: InternalRoleExportInterface;
+    try {
+      importData = JSON.parse(fs.readFileSync(getFilePath(file), 'utf8'));
+    } catch (error) {
+      printError(error, `Error importing internal roles from ${file}`);
+      run.recordFailure(file, error);
+      continue;
+    }
+    await importItemsOfFile(run, importData, {
+      count: (data) => Object.keys(data.internalRole).length,
+      importItems: (data) => importInternalRoles(data),
+      fallbackName: file,
+    });
+  }
+  return run.finish();
 }
 
 /**
