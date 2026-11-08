@@ -22,6 +22,8 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
+import { describeFailure, OperationRun } from '../utils/OperationRun';
 import * as CirclesOfTrust from './CirclesOfTrustOps';
 import * as EmailTemplate from './EmailTemplateOps';
 import * as Idp from './IdpOps';
@@ -1125,6 +1127,52 @@ export async function disableJourney(journeyId: string): Promise<boolean> {
 }
 
 /**
+ * Why a journey was not deleted as asked, from the status the library returns:
+ * it does not throw for a journey that could not be deleted, it returns
+ * `{ status: 'error', error }`, and with a deep delete the nodes it could not
+ * delete are listed in `nodes`.
+ * @param {unknown} journeyStatus the status of one journey from the library
+ * @returns {{ reason: string; error?: Error } | undefined} why not, with the error when there is one, or undefined if the journey was deleted
+ */
+function whyNotDeleted(
+  journeyStatus: unknown
+): { reason: string; error?: Error } | undefined {
+  const { status, error, nodes } = (journeyStatus ?? {}) as {
+    status?: string;
+    error?: Error;
+    nodes?: Record<string, { status?: string; error?: unknown }>;
+  };
+  if (status === 'error') return { reason: causeOf(error), error };
+  const failedNodes = Object.values(nodes ?? {}).filter(
+    (node) => node?.status === 'error'
+  );
+  if (failedNodes.length > 0) {
+    return {
+      reason: `the journey is deleted, but ${failedNodes.length} of ${
+        Object.keys(nodes).length
+      } nodes could not be deleted: ${causeOf(failedNodes[0].error)}`,
+    };
+  }
+  return undefined;
+}
+
+/**
+ * Print why a journey was not deleted
+ * @param {string} journeyId id/name of journey
+ * @param {{ reason: string; error?: Error }} why what whyNotDeleted answered
+ */
+function printNotDeleted(
+  journeyId: string,
+  why: { reason: string; error?: Error }
+): void {
+  if (why.error) {
+    printError(why.error, `Error deleting journey ${journeyId}`);
+  } else {
+    printMessage(`Error deleting journey ${journeyId}: ${why.reason}`, 'error');
+  }
+}
+
+/**
  * Delete a journey
  * @param {string} journeyId id/name of journey
  * @param {{ deep: boolean; verbose: boolean }} [options] delete journey options
@@ -1139,8 +1187,9 @@ export async function deleteJourney(
   }
 ): Promise<boolean> {
   try {
-    await _deleteJourney(journeyId, options);
-    return true;
+    const why = whyNotDeleted(await _deleteJourney(journeyId, options));
+    if (!why) return true;
+    printNotDeleted(journeyId, why);
   } catch (error) {
     printError(error);
   }
@@ -1150,13 +1199,15 @@ export async function deleteJourney(
 /**
  * Delete all journeys
  * @param {{ deep: boolean; verbose: boolean }} [options] delete journey options
+ * @param {boolean} allowFailures true to report journeys that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function deleteJourneys(
   options: { deep: boolean; verbose: boolean } = {
     deep: true,
     verbose: false,
-  }
+  },
+  allowFailures = false
 ): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -1164,15 +1215,37 @@ export async function deleteJourneys(
     `Deleting journeys...`
   );
   try {
+    const run = new OperationRun({ unit: 'journey', allowFailures });
+    // The library puts the result of every journey in the returned status and
+    // does not throw for one that could not be deleted. It only calls the
+    // callback with an error for a journey that failed in some other way, and
+    // that journey is not in the status. A failed read of the journeys throws.
     const status: DeleteJourneysStatus = await _deleteJourneys(
       options,
-      errorHandler
+      (error?: Error) => {
+        if (!error) return;
+        printError(error);
+        const described = describeFailure(error);
+        run.recordFailure(described.name, described.reason);
+      }
     );
+    for (const [journeyId, journeyStatus] of Object.entries(status)) {
+      const why = whyNotDeleted(journeyStatus);
+      if (!why) {
+        run.recordSuccess();
+      } else {
+        printNotDeleted(journeyId, why);
+        run.recordFailure(journeyId, why.reason);
+      }
+    }
     stopProgressIndicator(
       indicatorId,
-      `Deleted ${Object.keys(status).length} journeys`
+      run.hasFailures
+        ? `Some journeys could not be deleted.`
+        : `Deleted ${Object.keys(status).length} journeys`,
+      run.hasFailures ? 'fail' : 'success'
     );
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error deleting journeys`);
     printError(error);

@@ -14,6 +14,7 @@ import {
   printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getRealmName,
@@ -340,13 +341,48 @@ export async function deleteService(
 }
 
 /**
+ * What a service is called in the summary: the library names it in quotes in the
+ * message of the error ("Error deleting service 'id-repositories'").
+ * @param {unknown} error the nested error of one failed service
+ * @returns {string | undefined} the service id, or undefined to show the message
+ */
+function serviceNameOf(error: unknown): string | undefined {
+  return /'([^']+)'/.exec((error as Error)?.message ?? '')?.[1];
+}
+
+/**
  * Delete all services
+ * @param {boolean} globalConfig true to delete the global services, false for the services of the realm. Default: false
+ * @param {boolean} allowFailures true to report services that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteServices(globalConfig = false): Promise<boolean> {
+export async function deleteServices(
+  globalConfig = false,
+  allowFailures = false
+): Promise<boolean> {
   try {
-    await deleteFullServices(globalConfig);
-    return true;
+    // The library tries every service and throws one combined error for those
+    // that failed. Reading the list first tells a failed read (nothing was
+    // tried, the command fails whatever the flag says) from failed deletes, and
+    // gives the number of services for the summary.
+    const services = await getListOfServices(globalConfig);
+    if (services.length === 0) {
+      printMessage('No services found to delete.');
+      return true;
+    }
+    const run = new OperationRun({ unit: 'service', allowFailures });
+    try {
+      await deleteFullServices(globalConfig);
+      for (let i = 0; i < services.length; i++) run.recordSuccess();
+    } catch (error) {
+      printError(error);
+      run.recordCombinedError(error, {
+        total: services.length,
+        fallbackName: 'services',
+        itemName: serviceNameOf,
+      });
+    }
+    return run.finish();
   } catch (error) {
     printError(error);
   }

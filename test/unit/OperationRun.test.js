@@ -381,6 +381,76 @@ describe('resultCallback (a library function that reports every item through a c
   });
 });
 
+describe('recordCombinedError (a library bulk function that threw one combined error)', () => {
+  const combined = (...items) => {
+    const error = new Error('Error deleting services');
+    error.originalErrors = items;
+    return error;
+  };
+
+  it('records one failure per nested error, names it, and counts the other items as succeeded', () => {
+    const run = new OperationRun({ unit: 'service' });
+    run.recordCombinedError(
+      combined(
+        Object.assign(new Error("Error deleting service 'b'"), {
+          originalErrors: [new Error('could not delete b')],
+        })
+      ),
+      { total: 4, fallbackName: 'services' }
+    );
+
+    expect(run.finish()).toBe(false);
+    expect(summary()).toBe(
+      "1 of 4 services failed:\n  - Error deleting service 'b': could not delete b"
+    );
+  });
+
+  it('shows the name of the caller instead of the message when it knows one, and falls back to the message when it does not', () => {
+    const run = new OperationRun({ unit: 'mapping' });
+    const named = Object.assign(new Error('Error deleting mapping sync/b'), {
+      originalErrors: [new Error('nope')],
+    });
+    const other = new Error('Error updating sync.json');
+    run.recordCombinedError(combined(named, other), {
+      total: 5,
+      fallbackName: 'mappings',
+      itemName: (error) =>
+        error.message === named.message ? 'sync/b' : undefined,
+    });
+
+    run.finish();
+    expect(summary()).toBe(
+      '2 of 5 mappings failed:\n  - sync/b: nope\n  - Error updating sync.json'
+    );
+  });
+
+  it('records an error without nested errors as one failure named by the caller', () => {
+    const run = new OperationRun({ unit: 'service' });
+    run.recordCombinedError(new Error('everything broke'), {
+      total: 4,
+      fallbackName: 'services',
+    });
+
+    run.finish();
+    expect(summary()).toBe(
+      '1 of 1 service failed:\n  - services: everything broke'
+    );
+  });
+
+  it('prints nothing itself, and --allow-failures turns the summary into a warning', () => {
+    const run = new OperationRun({ unit: 'service', allowFailures: true });
+    run.recordCombinedError(combined(new Error('b failed')), {
+      total: 2,
+      fallbackName: 'services',
+    });
+
+    expect(printError).not.toHaveBeenCalled();
+    expect(printMessage).not.toHaveBeenCalled();
+    expect(run.finish()).toBe(true);
+    expect(level()).toBe('warn');
+  });
+});
+
 describe('the unit in the summary', () => {
   it('is plural unless there is exactly one, also for a unit that ends in y', () => {
     const one = new OperationRun({ unit: 'policy' });

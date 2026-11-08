@@ -30,10 +30,12 @@ export default function setup() {
     curlirize?: boolean;
     all?: boolean;
     global?: boolean;
+    allowFailures?: boolean;
   }
 
   program
     .description('Delete AM services.')
+    .multiOp()
     .addOption(
       new Option(
         '-i, --id <id>',
@@ -112,7 +114,10 @@ export default function setup() {
               process.exitCode = 1;
               return;
             }
-            const outcome = await deleteServices(globalConfig);
+            const outcome = await deleteServices(
+              globalConfig,
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
         }

@@ -1,6 +1,7 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
+import { deleteSaml2Providers } from '../../ops/Saml2Ops';
 import {
   checkBulkDelete,
   confirmBulkDelete,
@@ -13,8 +14,7 @@ import {
 } from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { deleteSaml2Provider, deleteSaml2Providers } =
-  frodo.saml2.entityProvider;
+const { deleteSaml2Provider } = frodo.saml2.entityProvider;
 
 /**
  * The stub type isn't exported from frodo-lib's root; derive it from the
@@ -29,6 +29,7 @@ export default function setup() {
 
   program
     .description('Delete SAML entity providers.')
+    .multiOp()
     .addOption(
       new Option(
         '-i, --entity-id <entity-id>',
@@ -100,7 +101,8 @@ export default function setup() {
               return;
             }
             verboseMessage(`Deleting all entity providers...`);
-            await deleteSaml2Providers();
+            const outcome = await deleteSaml2Providers(options.allowFailures);
+            if (!outcome) process.exitCode = 1;
           }
         }
         // No branch ran: with requireOneOf satisfied, the only ways here

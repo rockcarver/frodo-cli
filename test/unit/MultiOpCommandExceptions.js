@@ -72,7 +72,6 @@ export const STOPS_AT_THE_FIRST_ERROR = [
   'frodo idm schema object export',
   'frodo mapping delete',
   'frodo mapping rename',
-  'frodo saml delete',
   'frodo server export',
 ];
 
@@ -106,7 +105,6 @@ export const SWALLOWS_THE_FAILURE = [
   'frodo config-manager push secrets',
   'frodo email template export',
   'frodo iga workflow import',
-  'frodo journey delete',
   'frodo journey export',
   'frodo mapping export',
   'frodo node export',
@@ -140,7 +138,6 @@ export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
   'frodo journey import',
   'frodo script export',
   'frodo secretstore export',
-  'frodo service delete',
 ];
 
 /** The other operations run and the failures are reported, but the exit code stays 0. */
