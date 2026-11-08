@@ -27,6 +27,10 @@ Options:
   -A, --all-separate       Import all the themes from separate files (*.json) in
                            the current directory. Cannot be used with -i, -n, -f
                            or -a.
+  --allow-failures         Report operations that fail, but still exit with code
+                           0. Without this option the command runs every
+                           operation, prints a summary of what failed and exits
+                           with code 1.
   -f, --file <file>        Name of the file to import the theme(s) from. Cannot
                            be used with -A.
   -i, --theme-id <uuid>    Uuid of the theme. Cannot be used with -n, -a or A.

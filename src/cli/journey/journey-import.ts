@@ -1,6 +1,6 @@
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
-import { getTokens } from '../../ops/AuthenticateOps';
+import { trackLogin } from '../../ops/AuthenticateOps';
 import {
   importFirstJourneyFromFile,
   importJourneyFromFile,
@@ -77,6 +77,7 @@ export default function setup() {
         `  Import journeys from separate JSON files in the current directory:\n` +
         c.command(`  $ frodo journey import -A ${s.connId} ${s.realm}\n`)
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -88,8 +89,10 @@ export default function setup() {
           options,
           command
         );
+        // a failed login has said why: it must not be reported as unrecognized options
+        const { login, loginFailed } = trackLogin();
         // import
-        if (options.journeyId && (await getTokens())) {
+        if (options.journeyId && (await login())) {
           printMessage(`Importing journey ${options.journeyId}...`);
           const outcome = await importJourneyFromFile(
             options.journeyId,
@@ -103,31 +106,38 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
+        else if (options.all && options.file && (await login())) {
           printMessage(
             `Importing all journeys from a single file (${options.file})...`
           );
-          const outcome = await importJourneysFromFile(options.file, {
-            reUuid: options.reUuid,
-            deps: options.deps,
-            validate: options.validate,
-          });
+          const outcome = await importJourneysFromFile(
+            options.file,
+            {
+              reUuid: options.reUuid,
+              deps: options.deps,
+              validate: options.validate,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
+        else if (options.allSeparate && !options.file && (await login())) {
           printMessage(
             'Importing all journeys from separate files in current directory...'
           );
-          const outcome = await importJourneysFromFiles({
-            reUuid: options.reUuid,
-            deps: options.deps,
-            validate: options.validate,
-          });
+          const outcome = await importJourneysFromFiles(
+            {
+              reUuid: options.reUuid,
+              deps: options.deps,
+              validate: options.validate,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import first journey in file
-        else if (options.file && (await getTokens())) {
+        else if (options.file && (await login())) {
           printMessage('Importing first journey in file...');
           const outcome = await importFirstJourneyFromFile(options.file, {
             reUuid: options.reUuid,
@@ -135,6 +145,10 @@ export default function setup() {
             validate: options.validate,
           });
           if (!outcome) process.exitCode = 1;
+        }
+        // a failed login has been reported by getTokens
+        else if (loginFailed()) {
+          process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

@@ -46,8 +46,14 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     }
   },
 }));
+// journey import logs in through trackLogin(), which hands out getTokens and remembers a failed login
+const trackLogin = () => ({
+  login: (...args) => getTokens(...args),
+  loginFailed: () => false,
+});
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
+  trackLogin,
 }));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage,
@@ -141,7 +147,8 @@ describe('CLI import validation option wiring', () => {
       });
       expect(importJourneysFromFile).toHaveBeenLastCalledWith(
         'journeys.json',
-        expect.objectContaining({ validate })
+        expect.objectContaining({ validate }),
+        undefined
       );
 
       await invoke(setupJourneyImport(), { file: 'journey.json', validate });
@@ -152,10 +159,33 @@ describe('CLI import validation option wiring', () => {
 
       await invoke(setupJourneyImport(), { allSeparate: true, validate });
       expect(importJourneysFromFiles).toHaveBeenLastCalledWith(
-        expect.objectContaining({ validate })
+        expect.objectContaining({ validate }),
+        undefined
       );
     }
   );
+
+  test('journey import forwards --allow-failures to the bulk imports', async () => {
+    await invoke(setupJourneyImport(), {
+      all: true,
+      file: 'journeys.json',
+      allowFailures: true,
+    });
+    expect(importJourneysFromFile).toHaveBeenLastCalledWith(
+      'journeys.json',
+      expect.anything(),
+      true
+    );
+
+    await invoke(setupJourneyImport(), {
+      allSeparate: true,
+      allowFailures: true,
+    });
+    expect(importJourneysFromFiles).toHaveBeenLastCalledWith(
+      expect.anything(),
+      true
+    );
+  });
 
   test('default validation failure for the invalid journey fixture makes import fail', async () => {
     const program = setupJourneyImport();

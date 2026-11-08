@@ -29,6 +29,10 @@ Options:
   -A, --all-separate             Import all services from separate files
                                  <id>.service.json. Cannot be used with -i, -f
                                  or -a.
+  --allow-failures               Report operations that fail, but still exit
+                                 with code 0. Without this option the command
+                                 runs every operation, prints a summary of what
+                                 failed and exits with code 1.
   -C, --clean                    Remove existing service(s) before importing.
   -f, --file <file>              Name of the file to import SAML Entity(s) from.
                                  Cannot be used with -A.

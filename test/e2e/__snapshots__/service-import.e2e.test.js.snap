@@ -21,6 +21,9 @@ exports[`frodo service import "frodo service import --clean --global --all --fil
           Code: ERR_BAD_REQUEST
           Reason: Bad Request
           Message: The singleton resource cannot be deleted
+2 of 2 services failed:
+  - CorsService: The singleton resource cannot be deleted
+  - dashboard: The singleton resource cannot be deleted
 "
 `;
 

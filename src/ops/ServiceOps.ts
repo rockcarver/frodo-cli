@@ -202,7 +202,9 @@ export async function importServiceFromFile(
         'success'
       );
     } else {
+      // nothing in the file matched: that is not an import
       stopProgressIndicator(indicatorId, `${serviceId} not found`, 'fail');
+      return false;
     }
     debugMessage(`cli.ServiceOps.importServiceFromFile: end`);
     return true;
@@ -252,6 +254,7 @@ export async function importFirstServiceFromFile(
         `No service found in import data`,
         'fail'
       );
+      return false;
     }
     debugMessage(`cli.ServiceOps.importFirstServiceFromFile: end`);
     return true;
@@ -263,9 +266,35 @@ export async function importFirstServiceFromFile(
 }
 
 /**
+ * What an imported service is called in the summary: the library names it at the end of the message of the error
+ * ("Error putting alpha realm full service config id-repositories").
+ * @param {unknown} error the nested error of one failed service
+ * @returns {string | undefined} the service id, or undefined if the message has another shape
+ */
+function importedServiceNameOf(error: unknown): string | undefined {
+  return (error as Error)?.message?.match(/ full service config (.+)$/)?.[1];
+}
+
+/**
+ * The library wraps the errors of the services twice ("Error importing services" holds "Error putting ... full
+ * service configs", which holds one error per failed service).
+ * @param {unknown} error the error `importServices` threw
+ * @returns {unknown} the error that carries one nested error per failed service, or the error itself
+ */
+function combinedServiceError(error: unknown): unknown {
+  const nested = (error as FrodoError)?.originalErrors;
+  const inner = Array.isArray(nested) && nested.length === 1 ? nested[0] : null;
+  return Array.isArray((inner as FrodoError)?.originalErrors) ? inner : error;
+}
+
+/**
  * Import services from file
+ * The library tries every service and throws one error with one nested error per service that failed; the summary
+ * ({@link OperationRun}) names them. A file that cannot be read or parsed ends the command whatever
+ * `--allow-failures` says.
  * @param {String} file file name
  * @param {ServiceImportOptions} options import options
+ * @param {boolean} allowFailures true to report services that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importServicesFromFile(
@@ -274,30 +303,50 @@ export async function importServicesFromFile(
     clean: false,
     global: false,
     realm: false,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'service', allowFailures });
+  let filePath: string;
+  let importData: ServiceExportInterface;
   try {
-    const filePath = getFilePath(file);
+    filePath = getFilePath(file);
     debugMessage(
       `cli.ServiceOps.importServiceFromFile: start [file=${filePath}]`
     );
     const data = fs.readFileSync(filePath, 'utf8');
     debugMessage(`cli.ServiceOps.importServiceFromFile: importing ${filePath}`);
-    const importData = JSON.parse(data) as ServiceExportInterface;
+    importData = JSON.parse(data) as ServiceExportInterface;
+  } catch (error) {
+    // not an item failure: the file could not be read
+    printError(error);
+    return false;
+  }
+  const total = Object.keys(importData?.service ?? {}).length;
+  try {
     await importServices(importData, options);
+    for (let i = 0; i < total; i++) run.recordSuccess();
     debugMessage(
       `cli.ServiceOps.importServiceFromFile: end [file=${filePath}]`
     );
-    return true;
   } catch (error) {
     printError(error);
+    run.recordCombinedError(combinedServiceError(error), {
+      total,
+      fallbackName: filePath,
+      itemName: importedServiceNameOf,
+    });
   }
-  return false;
+  return run.finish();
 }
 
 /**
  * Import all services from separate files
+ * Every service file is imported even after another failed: a file that cannot be read or parsed is a failed file,
+ * the services of a file that the library cannot import are named in the summary ({@link OperationRun}). No service
+ * file at all is not a failure.
  * @param {ServiceImportOptions} options import options
+ * @param {boolean} allowFailures true to report services that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importServicesFromFiles(
@@ -305,29 +354,46 @@ export async function importServicesFromFiles(
     clean: false,
     global: false,
     realm: false,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'service', allowFailures });
   try {
     debugMessage(`cli.ServiceOps.importServicesFromFiles: start`);
-    const errors: Error[] = [];
     const names = fs.readdirSync(getWorkingDirectory());
     const serviceFiles = names.filter((name) =>
       name.toLowerCase().endsWith('.service.json')
     );
     for (const file of serviceFiles) {
+      let importData: ServiceExportInterface;
       try {
-        await importServicesFromFile(file, options);
+        importData = JSON.parse(
+          fs.readFileSync(getFilePath(file), 'utf8')
+        ) as ServiceExportInterface;
       } catch (error) {
-        errors.push(error);
+        printError(error, `Error reading ${file}`);
+        run.recordFailure(file, error);
+        continue;
+      }
+      const total = Object.keys(importData?.service ?? {}).length;
+      try {
+        await importServices(importData, options);
+        for (let i = 0; i < total; i++) run.recordSuccess();
+      } catch (error) {
+        printError(error);
+        run.recordCombinedError(combinedServiceError(error), {
+          total,
+          fallbackName: file,
+          itemName: importedServiceNameOf,
+        });
       }
     }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing services from files`, errors);
-    }
     debugMessage(`cli.ServiceOps.importServicesFromFiles: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the working directory could not be read
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

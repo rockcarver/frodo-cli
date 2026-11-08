@@ -5,7 +5,7 @@ import {
   importScriptsFromFile,
   importScriptsFromFiles,
 } from '../../ops/ScriptOps';
-import { verboseMessage } from '../../utils/Console';
+import { printError, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -67,6 +67,7 @@ export default function setup() {
       options: ['allSeparate', 'file'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -91,7 +92,8 @@ export default function setup() {
               deps: options.deps,
               reUuid: options.reUuid,
               includeDefault: options.default,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         } else if (options.allSeparate && (await getTokens())) {
@@ -99,16 +101,19 @@ export default function setup() {
             `Importing all script files into realm "${state.getRealm()}"...`
           );
           try {
-            await importScriptsFromFiles(
+            const outcome = await importScriptsFromFiles(
               options.watch,
               {
                 deps: options.deps,
                 reUuid: options.reUuid,
                 includeDefault: options.default,
               },
-              true
+              true,
+              options.allowFailures
             );
-          } catch {
+            if (!outcome) process.exitCode = 1;
+          } catch (error) {
+            printError(error);
             process.exitCode = 1;
           }
         }

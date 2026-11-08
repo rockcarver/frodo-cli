@@ -342,12 +342,27 @@ export async function importEmailTemplateFromFile(
 }
 
 /**
+ * What an email template is called in the summary: the library names it only in the message of the error
+ * ("Error updating email template welcome").
+ * @param {unknown} error the nested error of one failed email template
+ * @returns {string | undefined} the template id, or undefined if the message has another shape
+ */
+function emailTemplateNameOf(error: unknown): string | undefined {
+  return (error as Error)?.message?.match(/ email template (.+)$/)?.[1];
+}
+
+/**
  * Import all email templates from file
+ * The library tries every email template and throws one error with one nested error per template that failed; the
+ * summary ({@link OperationRun}) names them. A file that cannot be read or parsed ends the command whatever
+ * `--allow-failures` says.
  * @param {string} file optional filename
+ * @param {boolean} allowFailures true to report email templates that could not be imported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importEmailTemplatesFromFile(
-  file: string
+  file: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
@@ -355,16 +370,9 @@ export async function importEmailTemplatesFromFile(
     0,
     `Importing email templates from ${filePath}...`
   );
+  let fileData;
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    await importEmailTemplates(fileData);
-    stopProgressIndicator(
-      indicatorId,
-      `Successfully imported email templates from ${filePath}.`,
-      'success'
-    );
-    return true;
+    fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
@@ -372,8 +380,32 @@ export async function importEmailTemplatesFromFile(
       'fail'
     );
     printError(error);
+    return false;
   }
-  return false;
+  const run = new OperationRun({ unit: 'email template', allowFailures });
+  const total = Object.keys(fileData?.emailTemplate ?? {}).length;
+  try {
+    await importEmailTemplates(fileData);
+    for (let i = 0; i < total; i++) run.recordSuccess();
+    stopProgressIndicator(
+      indicatorId,
+      `Successfully imported email templates from ${filePath}.`,
+      'success'
+    );
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing email templates from ${filePath}.`,
+      'fail'
+    );
+    printError(error);
+    run.recordCombinedError(error, {
+      total,
+      fallbackName: filePath,
+      itemName: emailTemplateNameOf,
+    });
+  }
+  return run.finish();
 }
 
 /**
@@ -418,75 +450,91 @@ function s2sConvert(
 
 /**
  * Import all email templates from separate files
+ * Every email template is its own operation: one that fails (or a file that cannot be parsed, or that fails
+ * validation) is printed and the others are still imported. One summary names what failed ({@link OperationRun}).
+ * No email template file at all is not a failure.
  * @param {boolean} raw import raw data file lacking frodo export envelop
+ * @param {boolean} allowFailures true to report email templates that could not be imported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importEmailTemplatesFromFiles(
-  raw: boolean = false
+  raw: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const names = fs.readdirSync(getWorkingDirectory());
-  const jsonFiles = names
-    .filter((name) =>
-      raw
-        ? name.startsWith(`${EMAIL_TEMPLATE_TYPE}-`) && name.endsWith(`.json`)
-        : name.toLowerCase().endsWith(`${EMAIL_TEMPLATE_FILE_TYPE}.json`)
-    )
-    .map((name) => getFilePath(name));
-  const indicatorId = createProgressIndicator(
-    'determinate',
-    jsonFiles.length,
-    'Importing email templates...'
-  );
-  let total = 0;
-  let totalErrors = 0;
-  for (const file of jsonFiles) {
-    const data = fs.readFileSync(file, 'utf8');
-    const fileData = JSON.parse(data);
-    if (
-      (raw && file.startsWith('emailTemplate-')) ||
-      validateImport(fileData.meta)
-    ) {
-      let errors = 0;
-      if (raw) {
+  const run = new OperationRun({ unit: 'email template', allowFailures });
+  let indicatorId: string;
+  try {
+    const names = fs.readdirSync(getWorkingDirectory());
+    const jsonFiles = names
+      .filter((name) =>
+        raw
+          ? name.startsWith(`${EMAIL_TEMPLATE_TYPE}-`) && name.endsWith(`.json`)
+          : name.toLowerCase().endsWith(`${EMAIL_TEMPLATE_FILE_TYPE}.json`)
+      )
+      .map((name) => getFilePath(name));
+    indicatorId = createProgressIndicator(
+      'determinate',
+      jsonFiles.length,
+      'Importing email templates...'
+    );
+    let total = 0;
+    let imported = 0;
+    for (const file of jsonFiles) {
+      let fileData;
+      try {
+        fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      } catch (error) {
+        printError(error, `Error reading ${file}`);
         total++;
-        const templateId = getTemplateIdFromFileName(file);
-        try {
-          const templateData = s2sConvert(fileData);
-          await updateEmailTemplate(templateId, templateData);
-        } catch (error) {
-          errors += 1;
-          printError(error);
-        }
-      } else {
-        total += Object.keys(fileData.emailTemplate).length;
-        for (const id in fileData.emailTemplate) {
-          if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
+        run.recordFailure(file, error);
+        continue;
+      }
+      if (
+        (raw && file.startsWith('emailTemplate-')) ||
+        validateImport(fileData.meta)
+      ) {
+        if (raw) {
+          total++;
+          // the file name says which template this is
+          const success = await run.run(file, async () => {
+            const id = getTemplateIdFromFileName(file);
+            await updateEmailTemplate(id, s2sConvert(fileData));
+          });
+          if (success) imported++;
+        } else {
+          for (const id of Object.keys(fileData.emailTemplate ?? {})) {
+            total++;
             const templateId = id.replace(regexEmailTemplateType, '');
-            try {
-              await updateEmailTemplate(
-                templateId,
-                fileData.emailTemplate[templateId]
-              );
-            } catch (error) {
-              errors += 1;
-              printError(error);
-            }
+            const success = await run.run(templateId, async () => {
+              await updateEmailTemplate(templateId, fileData.emailTemplate[id]);
+            });
+            if (success) imported++;
           }
         }
+        updateProgressIndicator(indicatorId, `Imported ${file}`);
+      } else {
+        printMessage(`Validation of ${file} failed!`, 'error');
+        total++;
+        run.recordFailure(file, new Error('validation failed'));
       }
-      totalErrors += errors;
-      updateProgressIndicator(indicatorId, `Imported ${file}`);
-    } else {
-      printMessage(`Validation of ${file} failed!`, 'error');
     }
+    stopProgressIndicator(
+      indicatorId,
+      `Imported ${imported} of ${total} email template(s) from ${
+        jsonFiles.length
+      } file(s).`
+    );
+    return run.finish();
+  } catch (error) {
+    // not an item failure: the working directory could not be read
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing email templates`,
+      'fail'
+    );
+    printError(error);
+    if (run.hasFailures) run.finish();
   }
-  stopProgressIndicator(
-    indicatorId,
-    `Imported ${total - totalErrors} of ${total} email template(s) from ${
-      jsonFiles.length
-    } file(s).`
-  );
-  if (totalErrors === 0) return true;
   return false;
 }
 

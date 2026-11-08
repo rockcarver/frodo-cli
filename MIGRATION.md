@@ -189,8 +189,9 @@ and `-A`) of `authz policy`, `authz set`, `authz type`, `esv secret`, `esv
 variable`, `secretstore`, `server`, `iga workflow` and `admin federation`, and
 the imports `agent import`, `agent ai import`, `agent gateway import`, `agent
 java import`, `agent web import`, `config import`, `idm import`, `idm schema
-object import -D`, `idm remote-proxy import` and `mapping import`. For the
-deletes this means a
+object import -D`, `idm remote-proxy import`, `mapping import`, `journey
+import`, `node import`, `script import`, `theme import`, `email template import`
+and `service import`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -308,7 +309,26 @@ directory that the command line names must exist and parse: otherwise the
 command fails whatever `--allow-failures` says. After a failed login `config
 import`, `idm import`, `idm schema object import` and `mapping import` now end
 with the login error and exit code 1; they used to print "Unrecognized
-combination of options" or the help of the command after it. See
+combination of options" or the help of the command after it.
+The imports `journey import`, `node import`, `script import`,
+`theme import`, `email template import` and `service import` now import every object or file
+they can, name the ones that failed in one summary and exit 1 (with `-A`, and
+with `-a` or `-f` when one file holds several objects). `theme import -A` and
+`service import -A` printed the error of a file that could not be imported and
+exited 0, `script import -A` and `node import -A` did so for a file they could
+not parse, and `email template import -A` neither counted a file that failed
+validation nor went on after a file it could not parse; all of these are failed
+files now. `journey import -A` imported nothing when one file could not be
+parsed. A file that the command line names and that cannot be read fails the
+command whatever `--allow-failures` says, and so does a batch that the library
+rejects as a whole: `journey import` validates all journeys first and rejects
+the batch if one is invalid or a dependency is missing. `theme import -a`
+imports the themes of a file in one library call and is one operation. `node
+import -i`, `service import -i` and `service import -f` exited 0 when the file
+did not hold what was asked for; they exit 1. `journey import -A` in a directory
+without journey files says so and exits 0; it exited 1. A failed login shows the
+error of the login and exits 1, instead of printing "Unrecognized combination of
+options or no options" and the help. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

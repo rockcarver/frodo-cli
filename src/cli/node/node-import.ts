@@ -1,5 +1,5 @@
 import { Option } from 'commander';
-import { getTokens } from '../../ops/AuthenticateOps';
+import { trackLogin } from '../../ops/AuthenticateOps';
 import {
   importCustomNodeFromFile,
   importCustomNodesFromFile,
@@ -53,6 +53,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'nodeId', 'nodeName'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -62,11 +63,13 @@ export default function setup() {
         options,
         command
       );
+      // a failed login has said why: it must not be reported as unrecognized options
+      const { login, loginFailed } = trackLogin();
       // import by id or name
       if (
         (options.nodeId || options.nodeName) &&
         options.file &&
-        (await getTokens())
+        (await login())
       ) {
         verboseMessage(
           `Importing custom node ${options.nodeId || options.nodeName}...`
@@ -83,33 +86,44 @@ export default function setup() {
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
-      else if (options.all && options.file && (await getTokens())) {
+      else if (options.all && options.file && (await login())) {
         verboseMessage(
           `Importing all custom nodes from a single file (${options.file})...`
         );
-        const outcome = await importCustomNodesFromFile(options.file, {
-          reUuid: options.reUuid,
-          wait: false,
-        });
+        const outcome = await importCustomNodesFromFile(
+          options.file,
+          {
+            reUuid: options.reUuid,
+            wait: false,
+          },
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate && (await login())) {
         verboseMessage('Importing all custom nodes from separate files...');
-        const outcome = await importCustomNodesFromFiles({
-          reUuid: options.reUuid,
-          wait: false,
-        });
+        const outcome = await importCustomNodesFromFiles(
+          {
+            reUuid: options.reUuid,
+            wait: false,
+          },
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       }
       // import first node in file
-      else if (options.file && (await getTokens())) {
+      else if (options.file && (await login())) {
         verboseMessage('Importing first custom node in file...');
         const outcome = await importFirstCustomNodeFromFile(options.file, {
           reUuid: options.reUuid,
           wait: false,
         });
         if (!outcome) process.exitCode = 1;
+      }
+      // a failed login has been reported by getTokens
+      else if (loginFailed()) {
+        process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

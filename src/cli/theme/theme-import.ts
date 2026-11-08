@@ -1,6 +1,6 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import { getTokens } from '../../ops/AuthenticateOps';
+import { trackLogin } from '../../ops/AuthenticateOps';
 import {
   importFirstThemeFromFile,
   importThemeById,
@@ -58,6 +58,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'themeId', 'themeName'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -69,11 +70,13 @@ export default function setup() {
           options,
           command
         );
+        // a failed login has said why: it must not be reported as unrecognized options
+        const { login, loginFailed } = trackLogin();
         // import by name
         if (
           options.file &&
           options.themeName &&
-          (await getTokens(false, true, deploymentTypes))
+          (await login(false, true, deploymentTypes))
         ) {
           verboseMessage(
             `Importing theme with name "${
@@ -90,7 +93,7 @@ export default function setup() {
         else if (
           options.file &&
           options.themeId &&
-          (await getTokens(false, true, deploymentTypes))
+          (await login(false, true, deploymentTypes))
         ) {
           verboseMessage(
             `Importing theme with id "${
@@ -104,7 +107,7 @@ export default function setup() {
         else if (
           options.all &&
           options.file &&
-          (await getTokens(false, true, deploymentTypes))
+          (await login(false, true, deploymentTypes))
         ) {
           verboseMessage(
             `Importing all themes from a single file (${options.file})...`
@@ -116,19 +119,16 @@ export default function setup() {
         else if (
           options.allSeparate &&
           !options.file &&
-          (await getTokens(false, true, deploymentTypes))
+          (await login(false, true, deploymentTypes))
         ) {
           verboseMessage(
             'Importing all themes from separate files in current directory...'
           );
-          const outcome = await importThemesFromFiles();
+          const outcome = await importThemesFromFiles(options.allowFailures);
           if (!outcome) process.exitCode = 1;
         }
         // import single theme from file
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.file && (await login(false, true, deploymentTypes))) {
           verboseMessage(
             `Importing first theme from file "${
               options.file
@@ -136,6 +136,10 @@ export default function setup() {
           );
           const outcome = await importFirstThemeFromFile(options.file);
           if (!outcome) process.exitCode = 1;
+        }
+        // a failed login has been reported by getTokens
+        else if (loginFailed()) {
+          process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

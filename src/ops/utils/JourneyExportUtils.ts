@@ -44,9 +44,12 @@ export function readJourneyExportFromFile(
 
 /**
  * Read journey exports from the current working directory.
+ * @param onUnreadable Optional. Called with a file that cannot be read or parsed and the error, and the file is skipped. Without it, such a file throws.
  * @returns journey exports and any duplicate or unsupported files
  */
-export function readJourneyExportsFromDirectory(): JourneyDirectoryExport {
+export function readJourneyExportsFromDirectory(
+  onUnreadable?: (file: string, error: unknown) => void
+): JourneyDirectoryExport {
   const journeysExport: MultiTreeExportInterface = { trees: {} };
   const duplicateJourneyIds: DuplicateJourneyExport[] = [];
   const unsupportedFiles: string[] = [];
@@ -57,7 +60,14 @@ export function readJourneyExportsFromDirectory(): JourneyDirectoryExport {
     .map((name) => getFilePath(name));
 
   for (const file of files) {
-    const fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+    let fileData;
+    try {
+      fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (error) {
+      if (!onUnreadable) throw error;
+      onUnreadable(file, error);
+      continue;
+    }
     let trees: Record<string, SingleTreeExportInterface>;
     if (fileData?.trees && typeof fileData.trees === 'object') {
       trees = fileData.trees;

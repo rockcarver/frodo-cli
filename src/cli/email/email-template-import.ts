@@ -1,6 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import { getTokens } from '../../ops/AuthenticateOps';
+import { trackLogin } from '../../ops/AuthenticateOps';
 import {
   importEmailTemplateFromFile,
   importEmailTemplatesFromFile,
@@ -61,6 +61,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'templateId'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement program logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -72,11 +73,13 @@ export default function setup() {
           options,
           command
         );
+        // a failed login has said why: it must not be reported as unrecognized options
+        const { login, loginFailed } = trackLogin();
         // import by id
         if (
           options.file &&
           options.templateId &&
-          (await getTokens(false, true, deploymentTypes))
+          (await login(false, true, deploymentTypes))
         ) {
           verboseMessage(`Importing email template "${options.templateId}"...`);
           const outcome = await importEmailTemplateFromFile(
@@ -90,31 +93,34 @@ export default function setup() {
         else if (
           options.all &&
           options.file &&
-          (await getTokens(false, true, deploymentTypes))
+          (await login(false, true, deploymentTypes))
         ) {
           verboseMessage(
             `Importing all email templates from a single file (${options.file})...`
           );
-          const outcome = await importEmailTemplatesFromFile(options.file);
+          const outcome = await importEmailTemplatesFromFile(
+            options.file,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
         else if (
           options.allSeparate &&
           !options.file &&
-          (await getTokens(false, true, deploymentTypes))
+          (await login(false, true, deploymentTypes))
         ) {
           verboseMessage(
             'Importing all email templates from separate files (*.template.email.json) in current directory...'
           );
-          const outcome = await importEmailTemplatesFromFiles(options.raw);
+          const outcome = await importEmailTemplatesFromFiles(
+            options.raw,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import first template from file
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.file && (await login(false, true, deploymentTypes))) {
           verboseMessage(
             `Importing first email template from file "${options.file}"...`
           );
@@ -123,6 +129,10 @@ export default function setup() {
             options.raw
           );
           if (!outcome) process.exitCode = 1;
+        }
+        // a failed login has been reported by getTokens
+        else if (loginFailed()) {
+          process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {
