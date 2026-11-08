@@ -35,16 +35,12 @@ An application is a record that points at other objects: the OAuth2 client or th
 - **A delete removes the application and what it owns.** The record goes first, then the owned objects, never the shared pieces; an owned object that another application still names is kept. It asks first and offers a preview (record 0037), and each removal is one operation of the run (record 0040). A provisioning application whose connector is active is not deleted: the refusal names the command that switches the application off, and there is no override option.
 - **Other records apply.** Run all, one summary, `--allow-failures` (record 0040); a named application that does not exist fails the command whatever the flag says (record 0041). New code lives in `src/ops` (record 0023).
 
-### Proposed, not yet decided
-
-- A prompt on overwrite is a separate setting and is not decided here.
-
 ## Consequences
 
 - Reviewing or promoting one application is one folder, and an object has one writer. The cost is a second layout that the standalone kinds must know about.
 - The no-duplicate rule and the delete of owned objects need the library's ownership index (frodo-lib#965); the refusal of an active application needs the commands that read and change whether an application is active (frodo-cli#1153, frodo-lib#966). None of them can ship before those.
 - To keep in sync once accepted: the help of the new kind and of the four standalone kinds (the skip), the contract test of record 0040 for the new kind, `MIGRATION.md` for the migration step, and the usage examples.
-- Not covered: the file names inside an application folder, the name of the migration command, glossary values and request forms.
+- Not covered: the file names inside an application folder, the name of the migration command, glossary values and request forms, and a prompt on overwrite, which is a separate setting for its own record (frodo-cli#104).
 
 ## Alternatives considered
 
