@@ -6,7 +6,10 @@ exports[`frodo agent java delete "frodo agent java delete --agent-id frodo-test-
 "
 `;
 
-exports[`frodo agent java delete "frodo agent java delete --all -y": should do nothing when no java agent can be deleted since none exist 1`] = `""`;
+exports[`frodo agent java delete "frodo agent java delete --all -y": should do nothing when no java agent can be deleted since none exist 1`] = `
+"No java agents found to delete.
+"
+`;
 
 exports[`frodo agent java delete "frodo agent java delete -a -y": should delete all java agents 1`] = `""`;
 
