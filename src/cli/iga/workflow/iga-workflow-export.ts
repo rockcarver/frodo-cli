@@ -94,6 +94,7 @@ export default function setup() {
       options: ['workflowId', 'all', 'allSeparate'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -152,7 +153,8 @@ export default function setup() {
               useStringArrays: options.useStringArrays,
               coords: options.coords,
               includeReadOnly: options.readOnly,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -168,7 +170,8 @@ export default function setup() {
               useStringArrays: options.useStringArrays,
               coords: options.coords,
               includeReadOnly: options.readOnly,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

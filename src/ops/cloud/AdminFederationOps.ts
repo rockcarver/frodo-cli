@@ -9,6 +9,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../../utils/Console';
+import { OperationRun } from '../../utils/OperationRun';
 
 const {
   readAdminFederationProviders,
@@ -119,41 +120,46 @@ export async function exportAdminFederationProvidersToFile(
 
 /**
  * Export all providers to individual files
+ * Every provider is its own operation: a provider that cannot be exported or saved is printed and counted,
+ * the others are still exported, and one summary names the ones that failed (record 0040). A failure to
+ * read the providers fails the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report providers that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportAdminFederationProvidersToFiles(
-  includeMeta = true
+  includeMeta = true,
+  allowFailures = false
 ): Promise<boolean> {
-  let outcome = false;
-  let indicatorId: string;
+  let allIdpsData: Awaited<ReturnType<typeof readAdminFederationProviders>>;
   try {
-    const allIdpsData = await readAdminFederationProviders();
-    indicatorId = createProgressIndicator(
-      'determinate',
-      allIdpsData.length,
-      'Exporting providers'
-    );
-    for (const idpData of allIdpsData) {
+    allIdpsData = await readAdminFederationProviders();
+  } catch (error) {
+    printError(error);
+    return false;
+  }
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    allIdpsData.length,
+    'Exporting providers'
+  );
+  const run = new OperationRun({ unit: 'provider', allowFailures });
+  for (const idpData of allIdpsData) {
+    await run.run(idpData._id, async () => {
       updateProgressIndicator(indicatorId, `Writing provider ${idpData._id}`);
       const fileName = getTypedFilename(idpData._id, 'admin.federation');
       const fileData = await exportAdminFederationProvider(idpData._id);
       saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
-    }
-    stopProgressIndicator(
-      indicatorId,
-      `${allIdpsData.length} providers exported.`
-    );
-    outcome = true;
-  } catch (error) {
-    stopProgressIndicator(
-      indicatorId,
-      `Error exporting all providers.`,
-      'fail'
-    );
-    printError(error);
+    });
   }
-  return outcome;
+  stopProgressIndicator(
+    indicatorId,
+    run.hasFailures
+      ? `Error exporting providers.`
+      : `${allIdpsData.length} providers exported.`,
+    run.hasFailures ? 'fail' : 'success'
+  );
+  return run.finish();
 }
 
 /**

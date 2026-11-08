@@ -258,10 +258,14 @@ export async function exportWorkflowToFile(
 
 /**
  * Export all workflows to file
+ * The library reports every workflow to the result callback of an {@link OperationRun}, so a workflow that
+ * cannot be exported is named in one summary and the file is still written with the others (record 0040).
+ * A failure to read the workflows fails the command whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {WorkflowExportOptions} options export options
+ * @param {boolean} allowFailures true to report workflows that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportWorkflowsToFile(
@@ -273,10 +277,12 @@ export async function exportWorkflowsToFile(
     useStringArrays: true,
     coords: true,
     includeReadOnly: false,
-  }
+  },
+  allowFailures = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'workflow', allowFailures });
   try {
-    const exportData = await exportWorkflows(options, errorHandler);
+    const exportData = await exportWorkflows(options, run.resultCallback());
     if (!file) {
       file = getTypedFilename(`allWorkflows`, 'workflow');
     }
@@ -287,19 +293,25 @@ export async function exportWorkflowsToFile(
       false,
       keepModifiedProperties
     );
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting workflows to file`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Export all workflows to separate files
+ * The library reports every workflow to the result callback, and every workflow is saved as its own
+ * operation: a workflow that cannot be exported or saved is printed and counted, the others are still
+ * saved, and one summary names the ones that failed (record 0040). A failure to read the workflows fails
+ * the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} extract extracts the scripts from the exports into separate files if true. Default: false
  * @param {WorkflowExportOptions} options export options
+ * @param {boolean} allowFailures true to report workflows that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportWorkflowsToFiles(
@@ -311,33 +323,39 @@ export async function exportWorkflowsToFiles(
     useStringArrays: true,
     coords: true,
     includeReadOnly: false,
-  }
+  },
+  allowFailures = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'workflow', allowFailures });
+  const report = run.resultCallback();
   try {
     // We use the result callback here in order to ensure each saved file contains it's respective dependencies in the event options.deps is true
     await exportWorkflows(options, (e, workflowExport) => {
       if (e) {
-        errorHandler(e);
-      } else {
+        report(e);
+        return;
+      }
+      const workflowId = Object.keys(workflowExport.workflow)[0];
+      // a failed save is recorded here and not thrown: the library would report a throwing callback a second time
+      try {
         if (extract) extractWorkflowScriptsToFiles(workflowExport);
         saveJsonToFile(
           workflowExport,
-          getFilePath(
-            getTypedFilename(
-              Object.keys(workflowExport.workflow)[0],
-              'workflow'
-            ),
-            true
-          ),
+          getFilePath(getTypedFilename(workflowId, 'workflow'), true),
           includeMeta,
           false,
           keepModifiedProperties
         );
+        run.recordSuccess();
+      } catch (error) {
+        printError(error);
+        run.recordFailure(workflowId, error);
       }
     });
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting workflows to files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

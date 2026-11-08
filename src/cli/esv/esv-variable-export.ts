@@ -68,6 +68,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'variableId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -115,7 +116,8 @@ export default function setup() {
           const outcome = await exportVariablesToFiles(
             options.decode,
             options.metadata,
-            options.modifiedProperties
+            options.modifiedProperties,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

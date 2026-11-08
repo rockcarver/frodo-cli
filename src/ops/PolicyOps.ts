@@ -448,30 +448,48 @@ export async function exportPoliciesByPolicySetToFile(
 }
 
 /**
- * Export all policies to separate files
- * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
- * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
- * @param {PolicyExportOptions} options export options
+ * Export the policies that `readList` returns to separate files. Every policy is its own operation: a policy
+ * that cannot be exported or saved is printed and counted, the others are still exported, and one summary
+ * names the ones that failed (record 0040). A failure to read the policies fails the command whatever
+ * `--allow-failures` says.
+ * @param {object} params structured and named parameters
+ * @param {string} params.debugName name used in the debug messages
+ * @param {Function} params.readList reads the policies to export
+ * @param {string} params.message message of the progress indicator
+ * @param {boolean} params.includeMeta true to include metadata, false otherwise
+ * @param {boolean} params.keepModifiedProperties true to keep modified properties, otherwise delete them
+ * @param {PolicyExportOptions} params.options export options
+ * @param {boolean} params.allowFailures true to report policies that could not be exported but still succeed
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportPoliciesToFiles(
-  includeMeta: boolean = true,
-  keepModifiedProperties: boolean = false,
-  options: PolicyExportOptions = {
-    deps: true,
-    prereqs: false,
-    useStringArrays: true,
-  }
-): Promise<boolean> {
-  debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
-  const errors = [];
+async function exportEachPolicyToFile({
+  debugName,
+  readList,
+  message,
+  includeMeta,
+  keepModifiedProperties,
+  options,
+  allowFailures,
+}: {
+  debugName: string;
+  readList: () => Promise<PolicySkeleton[]>;
+  message: string;
+  includeMeta: boolean;
+  keepModifiedProperties: boolean;
+  options: PolicyExportOptions;
+  allowFailures: boolean;
+}): Promise<boolean> {
+  debugMessage(`cli.PolicyOps.${debugName}: begin`);
+  const run = new OperationRun({ unit: 'policy', allowFailures });
+  const errors: FrodoError[] = [];
+  let readFailed = false;
   let indicatorId: string;
   try {
-    const policies: PolicySkeleton[] = await readPolicies();
+    const policies: PolicySkeleton[] = await readList();
     indicatorId = createProgressIndicator(
       'determinate',
       policies.length,
-      'Exporting policies...'
+      message
     );
     for (const policy of policies) {
       const file = getTypedFilename(policy._id, 'policy.authz');
@@ -488,21 +506,29 @@ export async function exportPoliciesToFiles(
           keepModifiedProperties
         );
         updateProgressIndicator(indicatorId, `Exported ${policy._id}.`);
+        run.recordSuccess();
       } catch (error) {
-        errors.push(error);
+        errors.push(
+          new FrodoError(`Error exporting policy ${policy._id}`, error)
+        );
+        run.recordFailure(policy._id, error);
       }
     }
     if (errors.length > 0) {
-      throw new FrodoError(`Error exporting policies`, errors);
+      stopProgressIndicator(indicatorId, `Error exporting policies`, 'fail');
+    } else {
+      stopProgressIndicator(indicatorId, `Export complete.`);
     }
-    stopProgressIndicator(indicatorId, `Export complete.`);
-    debugMessage(`cli.PolicyOps.exportPoliciesToFiles: end`);
-    return true;
   } catch (error) {
+    readFailed = true;
     stopProgressIndicator(indicatorId, `Error exporting policies`, 'fail');
     printError(error);
   }
-  return false;
+  for (const error of errors) {
+    printError(error);
+  }
+  debugMessage(`cli.PolicyOps.${debugName}: end`);
+  return run.finish() && !readFailed;
 }
 
 /**
@@ -510,6 +536,37 @@ export async function exportPoliciesToFiles(
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicyExportOptions} options export options
+ * @param {boolean} allowFailures true to report policies that could not be exported but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function exportPoliciesToFiles(
+  includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
+  options: PolicyExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  },
+  allowFailures = false
+): Promise<boolean> {
+  return exportEachPolicyToFile({
+    debugName: 'exportPoliciesToFiles',
+    readList: () => readPolicies(),
+    message: 'Exporting policies...',
+    includeMeta,
+    keepModifiedProperties,
+    options,
+    allowFailures,
+  });
+}
+
+/**
+ * Export all policies of a policy set to separate files
+ * @param {string} policySetId policy set id/name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
+ * @param {PolicyExportOptions} options export options
+ * @param {boolean} allowFailures true to report policies that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesByPolicySetToFiles(
@@ -520,49 +577,18 @@ export async function exportPoliciesByPolicySetToFiles(
     deps: true,
     prereqs: false,
     useStringArrays: true,
-  }
+  },
+  allowFailures = false
 ): Promise<boolean> {
-  debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
-  const errors = [];
-  let indicatorId: string;
-  try {
-    const policies: PolicySkeleton[] =
-      await readPoliciesByPolicySet(policySetId);
-    indicatorId = createProgressIndicator(
-      'determinate',
-      policies.length,
-      `Exporting policies in policy set ${policySetId}...`
-    );
-    for (const policy of policies) {
-      const file = getTypedFilename(policy._id, 'policy.authz');
-      try {
-        const exportData: PolicyExportInterface = await exportPolicy(
-          policy._id,
-          options
-        );
-        saveJsonToFile(
-          exportData,
-          getFilePath(file, true),
-          includeMeta,
-          false,
-          keepModifiedProperties
-        );
-        updateProgressIndicator(indicatorId, `Exported ${policy._id}.`);
-      } catch (error) {
-        errors.push(error);
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error exporting policies`, errors);
-    }
-    stopProgressIndicator(indicatorId, `Export complete.`);
-    debugMessage(`cli.PolicyOps.exportPoliciesToFiles: end`);
-    return true;
-  } catch (error) {
-    stopProgressIndicator(indicatorId, `Error exporting policies`, 'fail');
-    printError(error);
-  }
-  return false;
+  return exportEachPolicyToFile({
+    debugName: 'exportPoliciesByPolicySetToFiles',
+    readList: () => readPoliciesByPolicySet(policySetId),
+    message: `Exporting policies in policy set ${policySetId}...`,
+    includeMeta,
+    keepModifiedProperties,
+    options,
+    allowFailures,
+  });
 }
 
 /**

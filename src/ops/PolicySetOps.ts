@@ -362,9 +362,13 @@ export async function exportPolicySetsToFile(
 
 /**
  * Export all policy sets to separate files
+ * Every policy set is its own operation: a policy set that cannot be exported or saved is printed and
+ * counted, the others are still exported, and one summary names the ones that failed (record 0040). A
+ * failure to read the policy sets fails the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicySetExportOptions} options export options
+ * @param {boolean} allowFailures true to report policy sets that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPolicySetsToFiles(
@@ -374,10 +378,13 @@ export async function exportPolicySetsToFiles(
     deps: true,
     prereqs: false,
     useStringArrays: true,
-  }
+  },
+  allowFailures = false
 ): Promise<boolean> {
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: begin`);
-  const errors = [];
+  const run = new OperationRun({ unit: 'policy set', allowFailures });
+  const errors: FrodoError[] = [];
+  let readFailed = false;
   let indicatorId: string;
   try {
     const policySets: PolicySetSkeleton[] = await readPolicySets();
@@ -401,8 +408,12 @@ export async function exportPolicySetsToFiles(
           keepModifiedProperties
         );
         updateProgressIndicator(indicatorId, `Exported ${policySet.name}.`);
+        run.recordSuccess();
       } catch (error) {
-        errors.push(error);
+        errors.push(
+          new FrodoError(`Error exporting policy set ${policySet.name}`, error)
+        );
+        run.recordFailure(policySet.name, error);
         updateProgressIndicator(
           indicatorId,
           `Error exporting ${policySet.name}.`
@@ -410,16 +421,20 @@ export async function exportPolicySetsToFiles(
       }
     }
     if (errors.length > 0) {
-      throw new FrodoError(`Error exporting policy sets`, errors);
+      stopProgressIndicator(indicatorId, `Error exporting policy sets`, 'fail');
+    } else {
+      stopProgressIndicator(indicatorId, `Export complete.`);
     }
-    stopProgressIndicator(indicatorId, `Export complete.`);
-    debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: end`);
-    return true;
   } catch (error) {
+    readFailed = true;
     stopProgressIndicator(indicatorId, `Error exporting policy sets`, 'fail');
     printError(error);
   }
-  return false;
+  for (const error of errors) {
+    printError(error);
+  }
+  debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: end`);
+  return run.finish() && !readFailed;
 }
 
 /**

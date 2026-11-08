@@ -430,18 +430,24 @@ export async function exportSecretStoreToFile(
 
 /**
  * Export all secret stores to file
+ * The library reports every secret store to the result callback of an {@link OperationRun}, so a secret
+ * store that cannot be read completely is named in one summary and the file is still written with the
+ * others (record 0040). A failure to read the secret stores fails the command whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {boolean} global true to export global secret stores, false otherwise
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report secret stores that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretStoresToFile(
   file: string,
   global: boolean = false,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'secret store', allowFailures });
   try {
-    const exportData = await exportSecretStores(global, errorHandler);
+    const exportData = await exportSecretStores(global, run.resultCallback());
     if (!file) {
       file = getTypedFilename(
         `all${global ? 'Global' : titleCase(getRealmName(state.getRealm()))}SecretStores`,
@@ -449,36 +455,55 @@ export async function exportSecretStoresToFile(
       );
     }
     saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting secret stores to file`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
+
 /**
  * Export all secret stores to separate files
+ * The library reports a secret store that cannot be read completely to the result callback of an
+ * {@link OperationRun}, and every secret store is saved as its own operation: a secret store that cannot
+ * be saved is printed and counted, the others are still saved, and one summary names the ones that failed
+ * (record 0040). A failure to read the secret stores fails the command whatever `--allow-failures` says.
  * @param {boolean} global true to export global secret stores, false otherwise
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} allowFailures true to report secret stores that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretStoresToFiles(
   global: boolean = false,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  allowFailures = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'secret store', allowFailures });
+  // the saves count the secret stores that were exported, so the export only reports failures
+  const report = run.resultCallback();
   try {
-    const exportData = await exportSecretStores(global, errorHandler);
+    const exportData = await exportSecretStores(
+      global,
+      (error?: FrodoError) => {
+        if (error) report(error);
+      }
+    );
     for (const store of Object.values(exportData.secretstore)) {
-      saveToFile(
-        'secretstore',
-        store,
-        '_id',
-        getFilePath(getTypedFilename(store._id, 'secretstore'), true),
-        includeMeta
-      );
+      await run.run(store._id, () => {
+        saveToFile(
+          'secretstore',
+          store,
+          '_id',
+          getFilePath(getTypedFilename(store._id, 'secretstore'), true),
+          includeMeta
+        );
+      });
     }
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting secret stores to files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

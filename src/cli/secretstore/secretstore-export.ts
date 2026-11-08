@@ -76,6 +76,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'secretstoreId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -120,7 +121,8 @@ export default function setup() {
           const outcome = await exportSecretStoresToFile(
             options.file,
             options.global,
-            options.metadata
+            options.metadata,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -138,7 +140,8 @@ export default function setup() {
           );
           const outcome = await exportSecretStoresToFiles(
             options.global,
-            options.metadata
+            options.metadata,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

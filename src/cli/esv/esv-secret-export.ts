@@ -99,6 +99,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'secretId'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -149,7 +150,8 @@ export default function setup() {
             options.metadata,
             options.modifiedProperties,
             options.includeActiveValues,
-            options.target
+            options.target,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

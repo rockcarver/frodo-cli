@@ -41,6 +41,10 @@ describe(`frodo iga workflow export`, () => {
     await testExport(CMD, igaEnv, type, exportFile, undefined, true, true);
   });
 
+  // The stderr snapshots of the four bulk tests below were edited by hand (not re-recorded): the recordings
+  // contain a workflow that cannot be exported ("Workflow 'testWorkflow1' not found."), which the command
+  // already printed and counted in the exit code; it now also ends with one summary of the workflows that
+  // failed (cli record 0040, bulk exports).
   test(`"frodo iga workflow export --no-metadata -a --directory testWorkflowExportDir2": should export all workflows with no metadata`, async () => {
     const exportFile = 'allWorkflows.workflow.json';
     const exportDirectory = "testWorkflowExportDir2";

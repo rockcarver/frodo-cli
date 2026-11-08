@@ -568,17 +568,22 @@ export async function exportSecretsToFile(
 
 /**
  * Export all secrets to individual files
+ * Every secret is its own operation: a secret that cannot be exported or saved is printed and counted, the
+ * others are still exported, and one summary names the ones that failed (record 0040). A failure to read the
+ * secrets fails the command whatever `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} includeActiveValues include active value of secret (default: false)
  * @param {string} target Host URL of target environment to encrypt secret value for
+ * @param {boolean} allowFailures true to report secrets that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretsToFiles(
   includeMeta: boolean,
   keepModifiedProperties: boolean = false,
   includeActiveValues?: boolean,
-  target?: string
+  target?: string,
+  allowFailures = false
 ): Promise<boolean> {
   let secrets: SecretSkeleton[];
   const spinnerId = createProgressIndicator(
@@ -594,12 +599,23 @@ export async function exportSecretsToFiles(
       `Successfully read ${secrets.length} secrets.`,
       'success'
     );
-    const indicatorId = createProgressIndicator(
-      'determinate',
-      secrets.length,
-      'Exporting secrets'
+  } catch (error) {
+    stopProgressIndicator(
+      spinnerId,
+      `Error exporting secrets to files`,
+      'fail'
     );
-    for (const secret of secrets) {
+    printError(error);
+    return false;
+  }
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    secrets.length,
+    'Exporting secrets'
+  );
+  const run = new OperationRun({ unit: 'secret', allowFailures });
+  for (const secret of secrets) {
+    await run.run(secret._id, async () => {
       const fileName = getTypedFilename(secret._id, 'secret');
       const exportData: SecretsExportInterface = await exportSecret(
         secret._id,
@@ -614,18 +630,16 @@ export async function exportSecretsToFiles(
         keepModifiedProperties
       );
       updateProgressIndicator(indicatorId, `Exported secret ${secret._id}`);
-    }
-    stopProgressIndicator(indicatorId, `${secrets.length} secrets exported.`);
-    return true;
-  } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error exporting secrets to files`,
-      'fail'
-    );
-    printError(error);
+    });
   }
-  return false;
+  stopProgressIndicator(
+    indicatorId,
+    run.hasFailures
+      ? `Some secrets could not be exported.`
+      : `${secrets.length} secrets exported.`,
+    run.hasFailures ? 'fail' : 'success'
+  );
+  return run.finish();
 }
 
 /**
