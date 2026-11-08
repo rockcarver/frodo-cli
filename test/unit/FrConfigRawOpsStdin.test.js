@@ -41,6 +41,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
 jest.unstable_mockModule('../../src/utils/Console', () => ({
   createProgressIndicator: jest.fn(() => 'id'),
   printError,
+  printMessage: jest.fn(),
   stopProgressIndicator: jest.fn(),
   verboseMessage: jest.fn(),
 }));

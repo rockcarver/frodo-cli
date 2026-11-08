@@ -10,7 +10,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment  -D test/e2e/exports/fr-config-manager/cloud
 */
 
-import { getEnv, testSuccess } from './utils/TestUtils';
+import { exec, getEnv, testSuccess } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 import { connection as c } from './utils/TestConfig';
 import {readFileSync} from 'fs'
@@ -23,6 +23,26 @@ const forgeopsDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 const cloudDirectory = "test/e2e/exports/fr-config-manager/cloud"
 const stdinFile = "test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config/cluster.json"
 
+/*
+ * The path of -p is the path of the configuration in the tenant, below the raw
+ * folder (for example /openidm/config/cluster), not a file-system path. The two
+ * tests below name a file-system path, which matches no raw configuration. The
+ * command used to import nothing and exit 0; a named path that matches nothing
+ * is a failure now (decision record 0041, cli#1112), so they pin exit code 1.
+ * Their old snapshots (exit code 0, "Raw config import completed.") were
+ * removed by hand, and nothing is recorded again: the output is not asserted,
+ * because the replay's expiry warnings come with it.
+ */
+async function expectNoMatchingPath(command, env) {
+    let failure;
+    try {
+        await exec(command, env);
+    } catch (e) {
+        failure = e;
+    }
+    expect(failure?.code).toBe(1);
+}
+
 describe('frodo config-manager push raw ', () => {
     //Forgeops
     test(`"frodo config-manager push raw -D ${forgeopsDirectory} -m forgeops": should import raw configuration into forgeops"`, async () => {
@@ -33,9 +53,9 @@ describe('frodo config-manager push raw ', () => {
         const CMD = `frodo config-manager push raw -p /openidm/config/cluster -i -m forgeops`;
         await testSuccess(CMD, forgeopsEnv, 0, readFileSync(stdinFile));
     });
-    test(`"frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -m forgeops": should import raw configuration into forgeops"`, async () => {
+    test(`"frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -m forgeops": should fail because the path matches no raw configuration"`, async () => {
         const CMD = `frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -D ${forgeopsDirectory} -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await expectNoMatchingPath(CMD, forgeopsEnv);
     });
 
     //Cloud
@@ -43,8 +63,8 @@ describe('frodo config-manager push raw ', () => {
         const CMD = `frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -D ${cloudDirectory} `;
         await testSuccess(CMD, cloudEnv);
     });
-    test(`"frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment -D ${cloudDirectory}: should import raw configuration into cloud"`, async () => {
+    test(`"frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment -D ${cloudDirectory}: should fail because the path matches no raw configuration"`, async () => {
         const CMD = `frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment  -D ${cloudDirectory}`;
-        await testSuccess(CMD, cloudEnv);
+        await expectNoMatchingPath(CMD, cloudEnv);
     });
 });

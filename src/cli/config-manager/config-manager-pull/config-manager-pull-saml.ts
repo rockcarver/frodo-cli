@@ -11,7 +11,10 @@ export default function setup() {
   program
     .description('Export saml.')
     .addOption(
-      new Option('-f, --file <file>', 'The file path of the SAML config file. ')
+      new Option(
+        '-f, --file <file>',
+        'The file path of the SAML config file. '
+      ).makeOptionMandatory()
     )
     .addHelpText(
       'after',
@@ -42,6 +45,7 @@ export default function setup() {
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -57,7 +61,10 @@ export default function setup() {
 
       if (await getTokens()) {
         verboseMessage('Exporting config entity saml');
-        const outcome = await configManagerExportSaml(options.file);
+        const outcome = await configManagerExportSaml(
+          options.file,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

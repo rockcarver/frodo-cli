@@ -14,6 +14,7 @@ export default function setup() {
         'The entityId of a single SAML entity to import.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -29,7 +30,11 @@ export default function setup() {
         return;
       }
       verboseMessage('Importing SAML configuration.');
-      const outcome = await configManagerImportSaml(realm, options.name);
+      const outcome = await configManagerImportSaml(
+        realm,
+        options.name,
+        options.allowFailures
+      );
       if (!outcome) process.exitCode = 1;
     });
   return program;

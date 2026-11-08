@@ -21,6 +21,7 @@ export default function setup() {
 
   program
     .description('Import password-policy objects.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -32,7 +33,10 @@ export default function setup() {
       );
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing config entity password-policy');
-        const outcome = await configManagerImportPasswordPolicy(realm);
+        const outcome = await configManagerImportPasswordPolicy(
+          realm,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

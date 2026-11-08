@@ -21,6 +21,7 @@ export default function setup() {
         'Read configuration from standard input. Requires --path.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -47,7 +48,11 @@ export default function setup() {
       }
 
       verboseMessage('Importing raw configurations.');
-      const outcome = await configManagerImportRaw(options.path, options.stdin);
+      const outcome = await configManagerImportRaw(
+        options.path,
+        options.stdin,
+        options.allowFailures
+      );
       if (!outcome) process.exitCode = 1;
     });
 

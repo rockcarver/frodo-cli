@@ -13,7 +13,7 @@ export default function setup() {
       new Option(
         '-f, --config-file <file>',
         'The file path of the service object config file. '
-      )
+      ).makeOptionMandatory()
     )
     .addHelpText(
       'after',
@@ -36,6 +36,7 @@ export default function setup() {
         ']  \n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -48,7 +49,8 @@ export default function setup() {
 
       if (await getTokens()) {
         const outcome: boolean = await configManagerExportRaw(
-          options.configFile
+          options.configFile,
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       } else {
