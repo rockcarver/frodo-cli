@@ -1,5 +1,5 @@
 import { Option } from 'commander';
-import { getTokens } from '../../ops/AuthenticateOps';
+import { trackLogin } from '../../ops/AuthenticateOps';
 import {
   importFirstServiceFromFile,
   importServiceFromFile,
@@ -26,6 +26,7 @@ export default function setup() {
     curlirize?: boolean;
     global?: boolean;
     currentRealm?: boolean;
+    allowFailures?: boolean;
   }
 
   program
@@ -73,6 +74,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'serviceId'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       async (
         host: string,
@@ -90,6 +92,8 @@ export default function setup() {
           options,
           command
         );
+        // a failed login has said why: it must not be reported as unrecognized options
+        const { login, loginFailed } = trackLogin();
 
         const clean = options.clean ?? false;
         const globalConfig = options.global ?? false;
@@ -98,7 +102,7 @@ export default function setup() {
           : (options.currentRealm ?? false);
 
         // import by id
-        if (options.serviceId && options.file && (await getTokens())) {
+        if (options.serviceId && options.file && (await login())) {
           verboseMessage('Importing service...');
           const outcome = await importServiceFromFile(
             options.serviceId,
@@ -112,27 +116,34 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a / --all
-        else if (options.all && options.file && (await getTokens())) {
+        else if (options.all && options.file && (await login())) {
           verboseMessage('Importing all services from a single file...');
-          const outcome = await importServicesFromFile(options.file, {
-            clean,
-            global: globalConfig,
-            realm: realmConfig,
-          });
+          const outcome = await importServicesFromFile(
+            options.file,
+            {
+              clean,
+              global: globalConfig,
+              realm: realmConfig,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // -A / --all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (options.allSeparate && (await login())) {
           verboseMessage('Importing all services from separate files...');
-          const outcome = await importServicesFromFiles({
-            clean,
-            global: globalConfig,
-            realm: realmConfig,
-          });
+          const outcome = await importServicesFromFiles(
+            {
+              clean,
+              global: globalConfig,
+              realm: realmConfig,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import file
-        else if (options.file && (await getTokens())) {
+        else if (options.file && (await login())) {
           verboseMessage('Importing service...');
           const outcome = await importFirstServiceFromFile(options.file, {
             clean,
@@ -140,6 +151,10 @@ export default function setup() {
             realm: realmConfig,
           });
           if (!outcome) process.exitCode = 1;
+        }
+        // a failed login has been reported by getTokens
+        else if (loginFailed()) {
+          process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

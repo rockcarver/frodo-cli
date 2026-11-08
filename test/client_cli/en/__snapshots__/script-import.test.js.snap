@@ -25,6 +25,10 @@ Options:
   -A, --all-separate        Import all scripts from separate files
                             (*.script.json) in the current directory. Cannot be
                             used with -i or -n.
+  --allow-failures          Report operations that fail, but still exit with
+                            code 0. Without this option the command runs every
+                            operation, prints a summary of what failed and exits
+                            with code 1.
   -d, --default             Import all scripts including the default scripts.
   -f, --file <file>         Name of the file to import.
   -i, --script-id <uuid>    Uuid of the script. If specified, -n and -A cannot

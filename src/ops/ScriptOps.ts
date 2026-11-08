@@ -32,7 +32,6 @@ import {
 } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
-import { errorHandler } from './utils/OpsUtils';
 import {
   createScriptFilter,
   filterScriptExport,
@@ -749,10 +748,14 @@ export function isScriptExtracted(script: string | string[]): boolean {
 
 /**
  * Import script(s) from file
+ * The library reports every script to the result callback of an {@link OperationRun}: the scripts that can be
+ * imported are imported, one summary names the ones that could not be. A file that cannot be read ends the command
+ * whatever `--allow-failures` says.
  * @param {string} id Optional id of script. If supplied, only the script of that id is imported. Takes priority over the name if both are provided.
  * @param {string} name Optional name of script. If supplied, only the script of that name is imported
  * @param {string} file file name
  * @param {ScriptImportOptions} options Script import options
+ * @param {boolean} allowFailures true to report scripts that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importScriptsFromFile(
@@ -763,41 +766,55 @@ export async function importScriptsFromFile(
     deps: true,
     reUuid: false,
     includeDefault: false,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
   const filePath = getFilePath(file);
   debugMessage(`Cli.ScriptOps.importScriptsFromFile: start`);
+  const run = new OperationRun({ unit: 'script', allowFailures });
   try {
-    await handleScriptFileImport(id, name, filePath, options, false);
+    await handleScriptFileImport(id, name, filePath, options, false, run);
     debugMessage(`Cli.ScriptOps.importScriptsFromFile: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the file could not be read or imported as a whole
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Import extracted scripts.
+ * Without `watch`, every script file in the working directory is imported, a file that cannot be read or imported is
+ * a failed file and the others are still imported, and the function resolves when all of them are done, with one
+ * summary of the scripts and files that failed ({@link OperationRun}). With `watch` it resolves when the watcher
+ * is set up and the process keeps running; a failure on a change is printed and does not end the watcher.
  *
  * @param {boolean} watch whether or not to watch for file changes
  * @param {ScriptImportOptions} options Script import options
  * @param {boolean} validateScripts If true, validates Javascript scripts to ensure no errors exist in them. Default: false
+ * @param {boolean} allowFailures true to report scripts that could not be imported but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importScriptsFromFiles(
   watch: boolean,
   options: ScriptImportOptions,
-  validateScripts: boolean
-): Promise<void> {
+  validateScripts: boolean,
+  allowFailures: boolean = false
+): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.importScriptsFromFiles: start`);
 
   // If watch is true, it doesn't make sense to reUuid.
   options.reUuid = watch ? false : options.reUuid;
 
+  const run = new OperationRun({ unit: 'script', allowFailures });
   let initialImport = true;
   // Generate mappings while importing to identify script files with their script ids and json files for use in watching.
   const scriptPathToJsonMapping = {};
   const scriptPathToIdMapping = {};
+  // the imports of the initial run, to wait for them
+  const pending: Promise<void>[] = [];
 
   /**
    * Run on file change detection, as well as on initial run.
@@ -819,7 +836,14 @@ export async function importScriptsFromFiles(
             scriptPathToIdMapping[extracted.path] = extracted.id;
           }
         } else {
-          await handleScriptFileImport('', '', path, options, validateScripts);
+          await handleScriptFileImport(
+            '',
+            '',
+            path,
+            options,
+            validateScripts,
+            run
+          );
         }
       } else if (!initialImport) {
         await handleScriptFileImport(
@@ -832,6 +856,8 @@ export async function importScriptsFromFiles(
       }
     } catch (error) {
       printError(error, `${path}`);
+      // a failure of the initial import is a failed file
+      if (initialImport && !watch) run.recordFailure(path, error);
     }
     debugMessage(`Cli.ScriptOps.importScriptsFromFiles.onChange: end`);
   }
@@ -855,26 +881,39 @@ export async function importScriptsFromFiles(
     ignoreInitial: false,
   });
 
-  watcher
-    .on('add', onChange)
-    .on('change', onChange)
-    .on('error', (error) => {
-      printError(error as Error, `Watcher error`);
-      watcher.close();
-    })
-    .on('ready', async () => {
-      debugMessage(
-        `Cli.ScriptOps.importScriptsFromFiles: Watcher ready: ${JSON.stringify(watcher.getWatched())}`
-      );
-      if (watch) {
-        initialImport = false;
-        printMessage('Watching for changes...');
-      } else {
-        await watcher.close();
-      }
-    });
-
-  debugMessage(`Cli.ScriptOps.importScriptsFromFiles: end`);
+  return new Promise<boolean>((resolve) => {
+    const onEvent = (path: string, stats?: fs.Stats) => {
+      const done = onChange(path, stats);
+      if (initialImport) pending.push(done);
+      return done;
+    };
+    watcher
+      .on('add', onEvent)
+      .on('change', onEvent)
+      .on('error', (error) => {
+        printError(error as Error, `Watcher error`);
+        watcher.close();
+        // a watcher that fails while the initial import runs ends the command
+        if (!watch) resolve(false);
+      })
+      .on('ready', async () => {
+        debugMessage(
+          `Cli.ScriptOps.importScriptsFromFiles: Watcher ready: ${JSON.stringify(watcher.getWatched())}`
+        );
+        if (watch) {
+          initialImport = false;
+          printMessage('Watching for changes...');
+          debugMessage(`Cli.ScriptOps.importScriptsFromFiles: end`);
+          resolve(true);
+        } else {
+          await watcher.close();
+          // wait for the imports the watcher started: they are not awaited by it
+          await Promise.all(pending);
+          debugMessage(`Cli.ScriptOps.importScriptsFromFiles: end`);
+          resolve(run.finish());
+        }
+      });
+  });
 }
 
 /**
@@ -884,17 +923,26 @@ export async function importScriptsFromFiles(
  * @param {string} file The script json file
  * @param {ScriptImportOptions} options Script import options
  * @param {boolean} validateScripts If true, validates Javascript scripts to ensure no errors exist in them. Default: false
+ * @param {OperationRun} run Optional. The run the library reports every script to. Without it, a failed script is printed.
+ * @throws {Error} if the file cannot be read, or the library fails to import it as a whole
  */
 async function handleScriptFileImport(
   id: string = '',
   name: string = '',
   file: string,
   options: ScriptImportOptions,
-  validateScripts: boolean
+  validateScripts: boolean,
+  run?: OperationRun
 ) {
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: start`);
   const script = getScriptExportByScriptFile(file);
   const indicatorId = createProgressIndicator('determinate', 1, `${file}`);
+  // without a run (a change seen by the watcher) a failed script is printed
+  const resultCallback = run
+    ? run.resultCallback()
+    : (error?: FrodoError) => {
+        if (error) printError(error);
+      };
   try {
     const scripts = await importScripts(
       id,
@@ -902,7 +950,7 @@ async function handleScriptFileImport(
       script,
       options,
       validateScripts,
-      errorHandler
+      resultCallback
     );
     let message;
     if (id || name) {
@@ -921,6 +969,7 @@ async function handleScriptFileImport(
     );
   } catch (error) {
     stopProgressIndicator(indicatorId, `${file}: ${error}`, 'fail');
+    throw error;
   }
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
 }

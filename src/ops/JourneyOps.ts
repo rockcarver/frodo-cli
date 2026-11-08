@@ -35,7 +35,6 @@ import {
   readJourneyExportFromFile,
   readJourneyExportsFromDirectory,
 } from './utils/JourneyExportUtils';
-import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -509,42 +508,71 @@ export async function importFirstJourneyFromFile(
 }
 
 /**
+ * What a journey is called in the summary: the library names it only in the
+ * message of the error ("Error importing the alpha realm journey Login").
+ * @param {FrodoError} error the error the library reported for one journey
+ * @returns {string | undefined} the journey name, or undefined if the message has another shape
+ */
+function journeyNameOf(error: FrodoError): string | undefined {
+  return error.message.match(/ journey (.+)$/)?.[1];
+}
+
+/**
  * Import all journeys from file
+ * The library reports every journey to the result callback of an {@link OperationRun}: the journeys that can be
+ * imported are imported, one summary names the ones that could not be. A file that cannot be read, a batch that does
+ * not validate or has unresolved dependencies (the library rejects it as a whole) ends the command whatever
+ * `--allow-failures` says.
  * @param {string} file import file name
  * @param {TreeImportOptions} options import options
+ * @param {boolean} allowFailures true to report journeys that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function importJourneysFromFile(
   file: string,
-  options: TreeImportOptions
+  options: TreeImportOptions,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'journey', allowFailures });
   try {
     await importJourneys(
       readJourneyExportFromFile(file),
       options,
-      errorHandler
+      run.resultCallback(journeyNameOf)
     );
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the file could not be read or the library rejected the batch
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Import all journeys from separate files
+ * A file that cannot be read or parsed is a failed file and the others are still imported. The library reports every
+ * journey to the result callback of an {@link OperationRun}; one summary names the files and journeys that failed.
+ * A batch that does not validate or has unresolved dependencies (the library rejects it as a whole) ends the command
+ * whatever `--allow-failures` says. No journey file at all is not a failure.
  * @param {TreeImportOptions} options import options
+ * @param {boolean} allowFailures true to report journeys that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function importJourneysFromFiles(
-  options: TreeImportOptions
+  options: TreeImportOptions,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'journey', allowFailures });
   try {
     const {
       journeysExport: allJourneysData,
       duplicateJourneyIds,
       unsupportedFiles,
-    } = readJourneyExportsFromDirectory();
+    } = readJourneyExportsFromDirectory((file, error) => {
+      printError(error as Error, `Error reading ${file}`);
+      run.recordFailure(file, error);
+    });
     for (const file of unsupportedFiles) {
       printMessage(`Skipping unsupported journey file format: ${file}`, 'warn');
     }
@@ -555,14 +583,23 @@ export async function importJourneysFromFiles(
       );
     }
     if (Object.keys(allJourneysData.trees).length === 0) {
-      throw new FrodoError(
-        `No valid journeys found in ${getWorkingDirectory()}. Expected files with either a top-level "trees" object or a top-level "tree" object.`
+      // nothing to import is not a failure (record 0041); a file that could not be read is
+      printMessage(
+        `No valid journeys found in ${getWorkingDirectory()}. Expected files with either a top-level "trees" object or a top-level "tree" object.`,
+        'warn'
       );
+      return run.finish();
     }
-    await importJourneys(allJourneysData, options, errorHandler);
-    return true;
+    await importJourneys(
+      allJourneysData,
+      options,
+      run.resultCallback(journeyNameOf)
+    );
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library rejected the batch
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

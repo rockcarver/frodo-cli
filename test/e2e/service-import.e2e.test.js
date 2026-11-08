@@ -108,6 +108,8 @@ describe('frodo service import', () => {
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
+  // The stderr snapshot of this test was edited by hand: the failure now ends with the summary of the services that failed
+  // (two lines and the header added at the end, cli record 0040, imports).
   test(`"frodo service import --clean --global --all --file ${allGlobalServicesExport}": should fail because global singleton services cannot be deleted (--clean option).`, async () => {
     const CMD = `frodo service import --clean --global --all --file ${allGlobalServicesExport}`;
     try {
@@ -124,21 +126,51 @@ describe('frodo service import', () => {
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
+    // The recording of this test does not hold every request of the import: the replay of some services fails ("Recording
+    // for the following request is not found"). The import of the files used to swallow that and exit 0; it now names the
+    // failed services in one summary and exits 1 (cli record 0040, imports). The test expects that exit code, the stdout
+    // snapshot is unchanged. Recording the test again (a maintainer ask) would make the replay succeed.
   test(`"frodo service import -ACrD ${allSeparateAlphaServicesDirectory}": should import all services from the directory "${allSeparateAlphaServicesDirectory}", and clean the old ones`, async () => {
     const CMD = `frodo service import -ACrD ${allSeparateAlphaServicesDirectory}`;
-    const { stdout } = await exec(CMD, env);
-    expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
+    let failure;
+    try {
+      await exec(CMD, env);
+    } catch (e) {
+      failure = e;
+    }
+    expect(failure.code).toBe(1);
+    expect(normalizeSnapshotText(failure.stdout)).toMatchSnapshot()
   });
 
+    // The recording of this test does not hold every request of the import: the replay of some services fails ("Recording
+    // for the following request is not found"). The import of the files used to swallow that and exit 0; it now names the
+    // failed services in one summary and exits 1 (cli record 0040, imports). The test expects that exit code, the stdout
+    // snapshot is unchanged. Recording the test again (a maintainer ask) would make the replay succeed.
   test(`"frodo service import --global --all-separate --directory ${allSeparateGlobalServicesDirectory}": should import all global services from the directory "${allSeparateGlobalServicesDirectory}"`, async () => {
     const CMD = `frodo service import --global --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
-    const { stdout } = await exec(CMD, env);
-    expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
+    let failure;
+    try {
+      await exec(CMD, env);
+    } catch (e) {
+      failure = e;
+    }
+    expect(failure.code).toBe(1);
+    expect(normalizeSnapshotText(failure.stdout)).toMatchSnapshot()
   });
 
+    // The recording of this test does not hold every request of the import: the replay of some services fails ("Recording
+    // for the following request is not found"). The import of the files used to swallow that and exit 0; it now names the
+    // failed services in one summary and exits 1 (cli record 0040, imports). The test expects that exit code, the stdout
+    // snapshot is unchanged. Recording the test again (a maintainer ask) would make the replay succeed.
   test(`"frodo service import --clean --global --all-separate --directory ${allSeparateGlobalServicesDirectory}": should import all global services from the directory "${allSeparateGlobalServicesDirectory}", and clean the old ones`, async () => {
     const CMD = `frodo service import --clean --global --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
-    const { stdout } = await exec(CMD, env);
-    expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
+    let failure;
+    try {
+      await exec(CMD, env);
+    } catch (e) {
+      failure = e;
+    }
+    expect(failure.code).toBe(1);
+    expect(normalizeSnapshotText(failure.stdout)).toMatchSnapshot()
   });
 });

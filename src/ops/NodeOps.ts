@@ -26,7 +26,6 @@ import {
 } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
 import { isScriptExtracted } from './ScriptOps';
-import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -491,6 +490,36 @@ export async function exportCustomNodesToFiles(
 }
 
 /**
+ * Imports the custom nodes of an import data set that match the id or name, printing every failure the library
+ * reports. For the imports of one custom node: it is not multi-op, so a failure is returned, not summarised.
+ * @param {string} nodeId custom node id
+ * @param {string} nodeName custom node name
+ * @param {CustomNodeExportInterface} importData the import data
+ * @param {CustomNodeImportOptions} options import options
+ * @returns {Promise<{ imported: number; failed: boolean }>} how many custom nodes were imported and whether one failed
+ */
+async function importMatchingCustomNodes(
+  nodeId: string,
+  nodeName: string,
+  importData: CustomNodeExportInterface,
+  options: CustomNodeImportOptions
+): Promise<{ imported: number; failed: boolean }> {
+  let failed = false;
+  const imported = await importCustomNodes(
+    nodeId,
+    nodeName,
+    importData,
+    options,
+    (error?: FrodoError) => {
+      if (!error) return;
+      failed = true;
+      printError(error);
+    }
+  );
+  return { imported: imported.length, failed };
+}
+
+/**
  * Import a custom node from file
  * @param {string} nodeId custom node id
  * @param {string} nodeName custom node name
@@ -516,13 +545,29 @@ export async function importCustomNodeFromFile(
     );
     const importData = getCustomNodeExportFromFile(getFilePath(file));
     updateProgressIndicator(indicatorId, 'Importing custom node...');
-    await importCustomNodes(
+    const { imported, failed } = await importMatchingCustomNodes(
       nodeId,
       nodeName,
       importData,
-      options,
-      errorHandler
+      options
     );
+    if (!failed && imported === 0) {
+      // nothing in the file matched: that is not an import
+      stopProgressIndicator(
+        indicatorId,
+        `Custom node ${nodeName ? nodeName : nodeId} not found in ${file}.`,
+        'fail'
+      );
+      return false;
+    }
+    if (failed) {
+      stopProgressIndicator(
+        indicatorId,
+        `Error importing custom node ${nodeName ? nodeName : nodeId}`,
+        'fail'
+      );
+      return false;
+    }
     stopProgressIndicator(
       indicatorId,
       `Successfully imported custom node ${nodeName ? nodeName : nodeId}.`,
@@ -542,8 +587,12 @@ export async function importCustomNodeFromFile(
 
 /**
  * Import custom nodes from file
+ * The library reports every custom node to the result callback of an {@link OperationRun}: the custom nodes that can
+ * be imported are imported, one summary names the ones that could not be. A file that cannot be read ends the command
+ * whatever `--allow-failures` says.
  * @param {String} file file name
  * @param {CustomNodeImportOptions} options import options
+ * @param {boolean} allowFailures true to report custom nodes that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importCustomNodesFromFile(
@@ -551,8 +600,10 @@ export async function importCustomNodesFromFile(
   options: CustomNodeImportOptions = {
     reUuid: false,
     wait: false,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
     debugMessage(`importCustomNodesFromFile: start`);
     debugMessage(`importCustomNodesFromFile: importing ${file}`);
@@ -562,28 +613,35 @@ export async function importCustomNodesFromFile(
       undefined,
       importData,
       options,
-      errorHandler
+      run.resultCallback()
     );
     debugMessage(`importCustomNodesFromFile: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the file could not be read
     printError(error, `Error importing custom nodes from file`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Import all custom nodes from separate files
+ * A file that cannot be read is a failed file and the others are still imported. The library reports every custom
+ * node to the result callback of one {@link OperationRun}; one summary names the files and custom nodes that failed.
+ * No custom node file at all is not a failure.
  * @param {CustomNodeImportOptions} options import options
+ * @param {boolean} allowFailures true to report custom nodes that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importCustomNodesFromFiles(
   options: CustomNodeImportOptions = {
     reUuid: false,
     wait: false,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors: Error[] = [];
+  const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
     const names = fs.readdirSync(getWorkingDirectory());
     const customNodeFiles = names.filter((name) =>
@@ -591,19 +649,24 @@ export async function importCustomNodesFromFiles(
     );
     for (const file of customNodeFiles) {
       try {
-        await importCustomNodesFromFile(file, options);
-      } catch (error) {
-        errors.push(
-          new FrodoError(`Error importing custom nodes from ${file}`, error)
+        const importData = getCustomNodeExportFromFile(getFilePath(file));
+        await importCustomNodes(
+          undefined,
+          undefined,
+          importData,
+          options,
+          run.resultCallback()
         );
+      } catch (error) {
+        printError(error, `Error importing custom nodes from ${file}`);
+        run.recordFailure(file, error);
       }
     }
-    if (errors.length > 0) {
-      throw new FrodoError(`One or more errors importing custom nodes`, errors);
-    }
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the working directory could not be read
     printError(error, `Error importing custom nodes from files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -633,13 +696,20 @@ export async function importFirstCustomNodeFromFile(
     if (ids.length === 0)
       throw new FrodoError(`No custom nodes found in import data`);
     const firstNode = importData.nodeTypes[ids[0]];
-    await importCustomNodes(
+    const { failed } = await importMatchingCustomNodes(
       firstNode._id,
       firstNode.displayName,
       importData,
-      options,
-      errorHandler
+      options
     );
+    if (failed) {
+      stopProgressIndicator(
+        indicatorId,
+        `Error importing custom node from ${file}`,
+        'fail'
+      );
+      return false;
+    }
     stopProgressIndicator(
       indicatorId,
       `Imported custom node from ${file}`,

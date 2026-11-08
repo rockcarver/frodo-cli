@@ -436,9 +436,15 @@ export async function importThemesFromFile(file: string): Promise<boolean> {
 
 /**
  * Import themes from separate files
+ * Every theme file is its own operation: a file that cannot be read or imported is printed, and the others are still
+ * imported. One summary names the files that failed ({@link OperationRun}). No theme file at all is not a failure.
+ * @param {boolean} allowFailures true to report theme files that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importThemesFromFiles(): Promise<boolean> {
+export async function importThemesFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'theme file', allowFailures });
   let indicatorId: string;
   try {
     const names = fs.readdirSync(getWorkingDirectory());
@@ -471,19 +477,23 @@ export async function importThemesFromFiles(): Promise<boolean> {
     );
     let numFiles = 0;
     for (const file of jsonFiles) {
-      const success = await importThemesFromFile(file);
+      // importThemesFromFile has printed its error when it answers false
+      const success = await run.run(file, () => importThemesFromFile(file));
       if (!success) continue;
       numFiles += 1;
       updateProgressIndicator(indicatorId, `Imported theme(s) from ${file}`);
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing themes from ${numFiles} file(s).`
+      `Finished importing themes from ${numFiles} file(s).`,
+      run.hasFailures ? 'fail' : undefined
     );
-    return true;
+    return run.finish();
   } catch (error) {
+    // not a file failure: the working directory could not be read
     stopProgressIndicator(indicatorId, `Error importing themes`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

@@ -304,6 +304,29 @@ export async function getTokens(
 }
 
 /**
+ * For a command that tries a list of option combinations, each with `&& (await getTokens())`, and reports
+ * "unrecognized combination of options" when none ran: a login that failed has said why already, so the command
+ * must not blame its options. `login` is `getTokens` that remembers that it failed and does not try again after that.
+ * @returns {{ login: Function, loginFailed: Function }} `login` to use in place of `getTokens`, and `loginFailed()` to ask whether it failed
+ */
+export function trackLogin(): {
+  login: (...args: Parameters<typeof getTokens>) => Promise<boolean>;
+  loginFailed: () => boolean;
+} {
+  let failed = false;
+  return {
+    login: async (...args) => {
+      // one failed login ends the attempts of this invocation
+      if (failed) return false;
+      const loggedIn = await getTokens(...args);
+      if (!loggedIn) failed = true;
+      return loggedIn;
+    },
+    loginFailed: () => failed,
+  };
+}
+
+/**
  * Get tokens via a real interactive browser login (loopback-redirect or
  * device-authorization grant), bypassing `getTokens()`'s password/service-
  * account/Amster fallback chain entirely. Used by `frodo login --browser`.

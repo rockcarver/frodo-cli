@@ -88,23 +88,17 @@ export const SWALLOWS_THE_FAILURE = [
   'frodo config-manager push org-privileges',
   'frodo config-manager push secrets',
   'frodo iga workflow import',
-  'frodo node import',
   'frodo promote',
   'frodo realm import',
-  'frodo script import',
   'frodo secretstore import',
-  'frodo service import',
-  'frodo theme import',
 ];
 
 /** The other operations run and the exit code is 1, but no summary names the items that failed. */
 export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
   'frodo admin federation import',
   'frodo authz set import',
-  'frodo email template import',
   'frodo esv secret version prune',
   'frodo journey describe',
-  'frodo journey import',
 ];
 
 /** The other operations run and the failures are reported, but the exit code stays 0. */
