@@ -66,13 +66,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-c, --connector-id <connector-id>',
-        'Connector id. Limits the mappings offered when picking one. Deleting all mappings of a connector is disabled for now: https://github.com/rockcarver/frodo-lib/issues/948. Cannot be used with -i.'
+        'Connector id. Limits the mappings offered when picking one. Deleting all mappings of a connector is disabled for now (frodo-lib issue 948). Cannot be used with -i.'
       ).conflicts(['mappingId'])
     )
     .addOption(
       new Option(
         '-t, --managed-object-type <managed-object-type>',
-        'Managed object type. Limits the mappings offered when picking one. Deleting all mappings of a type is disabled for now: https://github.com/rockcarver/frodo-lib/issues/948. Cannot be used with -i.'
+        'Managed object type. Limits the mappings offered when picking one. Deleting all mappings of a type is disabled for now (frodo-lib issue 948). Cannot be used with -i.'
       ).conflicts(['mappingId'])
     )
     .addOption(
