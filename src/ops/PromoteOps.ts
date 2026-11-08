@@ -1,8 +1,8 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import confirm from '@inquirer/confirm';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
+import { checkBulkDelete, confirmBulkDelete } from '../utils/BulkDeleteGuard';
 import { printError, verboseMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
 import {
@@ -58,8 +58,10 @@ const added = new Array<string>();
 const realms = new Set<string>();
 const logmessages = new Array<string>();
 
-let PromptPrune = false;
+let PruneYes = false;
 let NoPrune = false;
+// whether the orphaned nodes of a realm may be pruned, per realm: the question is asked, or the refusal made, once
+const pruneAnswers = new Map<string, boolean>();
 
 interface CompareObj {
   added: Array<string>;
@@ -75,7 +77,7 @@ interface CompareObj {
  * @param whatIf flag to run the comparison but not affect the differences if true
  * @param effectSecrets if true esv's will be effected
  * @param wait causes function to wait for an environment refresh to finish before letting to of control if a refresh is necessary
- * @param promptPrune when true the user is asked before the orphaned nodes of the realm are pruned after a deleted journey
+ * @param yes when true the orphaned nodes of the realm are pruned after a deleted journey without asking (a terminal is asked otherwise, and without one the prune is refused and fails the run, cli record 0037)
  * @param noPrune when true the orphaned nodes are not pruned after a deleted journey (every orphaned node of the realm is pruned otherwise)
  * @param printDiff when true outputs two files, one that shows the files that were changed in some way and another that
  * gives a log for if the changes were successful or not
@@ -93,7 +95,7 @@ export async function compareExportToDirectory(
   whatIf: boolean,
   effectSecrets: boolean = false,
   wait: boolean = false,
-  promptPrune: boolean = false,
+  yes: boolean = false,
   noPrune: boolean = false,
   printDiff: boolean = false,
   validateJourneys: boolean = true,
@@ -103,8 +105,9 @@ export async function compareExportToDirectory(
   // a second comparison in the same process starts from nothing, not from the files of the first
   for (const list of [added, changed, deleted, logmessages]) list.length = 0;
   realms.clear();
+  pruneAnswers.clear();
   try {
-    PromptPrune = promptPrune;
+    PruneYes = yes;
     NoPrune = noPrune;
     verboseMessage(`Master dir: ${masterDir}`);
     verboseMessage(`Export dir: ${exportDir}`);
@@ -902,6 +905,36 @@ async function deleteFile(
 }
 
 /**
+ * Whether the orphaned nodes of the current realm may be pruned (cli record 0037). The prune deletes every orphaned
+ * node of the realm, not only those of the journey that was deleted, so `--yes` proceeds, a terminal is asked (the
+ * default answer is no) and anything else is refused. A refusal is a failed change of the run, never a silent skip, and
+ * a "no" is not a failure. The answer holds for the rest of the run in the same realm, so the question is asked once.
+ * @param run the run that records a refused prune
+ * @returns true if the orphaned nodes may be pruned
+ */
+async function mayPrune(run: OperationRun): Promise<boolean> {
+  const realm = state.getRealm();
+  const known = pruneAnswers.get(realm);
+  if (known !== undefined) return known;
+  const guard = {
+    what: `every orphaned node of realm "${realm}" (not only those of the deleted journey)`,
+    yes: PruneYes,
+    dryRunOption: '--what-if',
+  };
+  let answer = false;
+  if (checkBulkDelete(guard)) {
+    answer = await confirmBulkDelete(guard);
+  } else {
+    run.recordFailure(
+      `prune of the orphaned nodes of realm "${realm}"`,
+      'there is no terminal to ask: pass -y/--yes to prune them or --no-prune to skip the prune'
+    );
+  }
+  pruneAnswers.set(realm, answer);
+  return answer;
+}
+
+/**
  * A switch statement for effecting deletes to different config files
  * @param deleteFilePath the path to the delete config object
  * @param type the type of object to delete
@@ -955,19 +988,7 @@ async function deleteSwitch(
         verboseMessage(
           `Pruning orphaned configuration artifacts in realm "${state.getRealm()}"...`
         );
-        if (
-          !(await pruneOrphanedNodesInRun(
-            run,
-            PromptPrune
-              ? () =>
-                  confirm({
-                    message: `Journey ${journeyId} was deleted. Prune (permanently delete) every orphaned node of realm "${state.getRealm()}", not only those of this journey?`,
-                    default: false,
-                  })
-              : undefined,
-            true
-          ))
-        ) {
+        if (!(await pruneOrphanedNodesInRun(run, () => mayPrune(run), true))) {
           outcome = false;
         }
       }

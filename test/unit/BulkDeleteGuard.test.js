@@ -103,6 +103,29 @@ describe('confirmBulkDelete', () => {
     expect(messages('error').join('\n')).not.toContain('--dry-run');
   });
 
+  test('a command can name its own preview option instead of --dry-run', async () => {
+    terminal = false;
+
+    expect(
+      await confirmBulkDelete({
+        what: 'all scripts',
+        dryRunOption: '--what-if',
+      })
+    ).toBe(false);
+    expect(
+      checkBulkDelete({ what: 'all scripts', dryRunOption: '--what-if' })
+    ).toBe(false);
+
+    const errors = messages('error');
+    expect(errors).toHaveLength(2);
+    for (const error of errors) {
+      expect(error).toContain(
+        'or --what-if to only show what would be deleted'
+      );
+      expect(error).not.toContain('--dry-run');
+    }
+  });
+
   test('--yes passes without a question, with or without a terminal', async () => {
     expect(await confirmBulkDelete({ what: 'all scripts', yes: true })).toBe(
       true

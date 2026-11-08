@@ -29,12 +29,19 @@ canonical commands; use the canonical name):
 config-manager journey pushes, and `frodo promote` now validate journey
 references by default. Pass `--no-validate` to restore the previous behavior.
 
-**`frodo promote` prune options**: after `promote` deletes a journey it prunes
-(permanently deletes) every orphaned node of the realm, without asking. The two
-options that were meant to control this had no effect: `--propmt-prune` was
-misspelled and `--no-prune` was read under the wrong name. `--prompt-prune` and
-`--no-prune` now work; `--propmt-prune` is still accepted. Without either option
-the prune runs as before.
+**`frodo promote` asks before it prunes**: after `promote` deletes a journey it
+prunes (permanently deletes) every orphaned node of the realm, not only those of
+that journey. In 4.x it did so without asking, and the two options that were
+meant to control it had no effect: `--propmt-prune` was misspelled and
+`--no-prune` was read under the wrong name. In 5.x a terminal is asked first
+(the default answer is no), `-y`/`--yes` prunes without asking, and
+`--no-prune` skips the prune without a question. Without a terminal and without
+`--yes` the prune is refused: it is a failed change in the summary and the
+command exits 1 (unless `--allow-failures` was given). A script or a pipeline
+that relied on the prune adds `--yes`; one that does not want it adds
+`--no-prune`. `--prompt-prune` (and the old spelling `--propmt-prune`) is
+accepted and is what happens on a terminal anyway; it cannot be combined with
+`--yes`, and `--yes` cannot be combined with `--no-prune`.
 
 **Mutually exclusive options are now rejected**: 4.x accepted many option
 combinations in which one option was silently ignored (the help said "Ignored

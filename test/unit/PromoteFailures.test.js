@@ -16,14 +16,17 @@ import {
  * deleted is one operation. A file that cannot be imported or deleted is
  * printed and named in one summary, the other files are still effected, and the
  * command fails, unless --allow-failures was given. The orphaned nodes that are
- * pruned after a deleted journey are recorded in the same run. Files and
- * directories are real (a temporary directory); the operations on the tenant
- * are spies.
+ * pruned after a deleted journey are recorded in the same run, and the prune
+ * itself is guarded by cli record 0037: the shared guard asks a terminal,
+ * `--yes` proceeds, and without a terminal the prune is refused, which is a
+ * failed change. Files and directories are real (a temporary directory); the
+ * operations on the tenant are spies.
  *
  * The real import graph of the ops module pulls in all of frodo-lib, whose
  * bundled ESM cannot load under jest's ESM runtime, so the library is a deep
  * stub and every relative import of the module under test is a set of spies
- * (OperationRun and the module it needs to read causes stay real).
+ * (OperationRun, the module it needs to read causes and the shared bulk delete
+ * guard stay real; the terminal and the question are the test's).
  */
 
 const root = path.resolve(
@@ -52,20 +55,26 @@ class FrodoError extends Error {
   }
 }
 const frodo = deepStub();
+const state = deepStub();
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo,
-  state: deepStub(),
+  state,
   FrodoError,
 }));
 
-// the question that is asked before the orphaned nodes are pruned
+// the question that is asked before the orphaned nodes are pruned, and whether anybody can be asked
 const confirm = jest.fn();
 jest.unstable_mockModule('@inquirer/confirm', () => ({ default: confirm }));
+let terminal = true;
+jest.unstable_mockModule(
+  path.resolve(root, 'src/utils/interactive/PromptGateState'),
+  () => ({ canPrompt: () => terminal })
+);
 
 const FILE = 'src/ops/PromoteOps.ts';
 
 // every relative import of the module under test becomes spies, except the run
-// tracker and the module that reads causes
+// tracker, the module that reads causes and the shared bulk delete guard
 const mocked = new Map();
 {
   const source = fs.readFileSync(path.resolve(root, FILE), 'utf8');
@@ -76,7 +85,8 @@ const mocked = new Map();
     const target = path.resolve(importer, from).replace(/\.(js|ts)$/, '');
     if (
       target.endsWith('/utils/OperationRun') ||
-      target.endsWith('/utils/ErrorCause')
+      target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/BulkDeleteGuard')
     )
       continue;
     const names = mocked.get(target) ?? new Set();
@@ -337,74 +347,219 @@ describe('promote', () => {
       expect(printMessage).not.toHaveBeenCalled();
     });
 
-    test.each([
-      ['asks first with the prompt option', { promptPrune: true }, 'function'],
-      ['asks nothing without it', {}, 'undefined'],
-    ])(
-      'prunes the orphaned nodes of a deleted journey: %s',
-      async (_, o, type) => {
-        await compareExportToDirectory(
+    describe('the prune of the orphaned nodes after a deleted journey (cli record 0037)', () => {
+      let currentRealm;
+      let answers;
+
+      const compareWith = ({
+        yes = false,
+        noPrune = false,
+        whatIf = false,
+        allowFailures = false,
+      } = {}) =>
+        compareExportToDirectory(
           master,
           current,
+          whatIf,
           false,
           false,
-          false,
-          o.promptPrune ?? false,
-          false,
+          yes,
+          noPrune,
           false,
           true,
-          false
+          allowFailures
         );
+      const errors = () =>
+        printMessage.mock.calls
+          .filter(([, type]) => type === 'error')
+          .map(([text]) => text)
+          .join('\n');
+      const warnings = () =>
+        printMessage.mock.calls
+          .filter(([, type]) => type === 'warn')
+          .map(([text]) => text)
+          .join('\n');
 
-        expect(pruneOrphanedNodesInRun.mock.calls).toHaveLength(1);
-        expect(typeof pruneOrphanedNodesInRun.mock.calls[0][1]).toBe(type);
-      }
-    );
+      beforeEach(() => {
+        terminal = true;
+        currentRealm = 'alpha';
+        answers = [];
+        confirm.mockReset().mockResolvedValue(true);
+        state.getRealm.mockImplementation(() => currentRealm);
+        state.getHost.mockReturnValue('https://openam-matrix.example.com/am');
+        importJourneyFromFile.mockReset().mockResolvedValue(true);
+        deleteJourney.mockReset().mockImplementation(async (id) => {
+          currentRealm = id.startsWith('b') ? 'bravo' : 'alpha';
+          return true;
+        });
+        // as the ops function does when it found orphaned nodes: ask once per deleted journey
+        pruneOrphanedNodesInRun
+          .mockReset()
+          .mockImplementation(async (_, ask) => {
+            answers.push(await ask());
+            return true;
+          });
+      });
 
-    test('does not prune with the no-prune option', async () => {
-      await compareExportToDirectory(
-        master,
-        current,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        true,
-        false
+      afterEach(() => {
+        state.getRealm.mockReset();
+        state.getHost.mockReset();
+        terminal = true;
+      });
+
+      test('a terminal is asked, with the default answer no, and the question says that every orphaned node of the realm is deleted, not only those of the journey', async () => {
+        expect(await compareWith()).toBe(true);
+
+        expect(answers).toEqual([true]);
+        expect(confirm.mock.calls).toHaveLength(1);
+        expect(confirm.mock.calls[0][0].message).toBe(
+          'Delete every orphaned node of realm "alpha" (not only those of the deleted journey)? This cannot be undone. Continue?'
+        );
+        expect(confirm.mock.calls[0][0].default).toBe(false);
+        expect(warnings()).toContain(
+          'This permanently deletes every orphaned node of realm "alpha" (not only those of the deleted journey) from https://openam-matrix.example.com/am (realm alpha).'
+        );
+        expect(errors()).toBe('');
+      });
+
+      test('a no prunes nothing and is not a failure', async () => {
+        confirm.mockResolvedValue(false);
+
+        expect(await compareWith()).toBe(true);
+
+        expect(answers).toEqual([false]);
+        expect(warnings()).toContain('Delete aborted.');
+        expect(errors()).toBe('');
+      });
+
+      test.each([
+        ['with a terminal', true],
+        ['without a terminal', false],
+      ])('--yes prunes without asking, %s', async (_, hasTerminal) => {
+        terminal = hasTerminal;
+
+        expect(await compareWith({ yes: true })).toBe(true);
+
+        expect(answers).toEqual([true]);
+        expect(confirm).not.toHaveBeenCalled();
+        expect(printMessage).not.toHaveBeenCalled();
+      });
+
+      test('without a terminal and without --yes the prune is refused: it names --yes and --what-if, asks nothing and fails the run', async () => {
+        terminal = false;
+
+        expect(await compareWith()).toBe(false);
+
+        expect(answers).toEqual([false]);
+        expect(confirm).not.toHaveBeenCalled();
+        expect(errors()).toContain(
+          'Refusing to delete every orphaned node of realm "alpha" (not only those of the deleted journey) without confirmation'
+        );
+        expect(errors()).toContain('-y/--yes');
+        expect(errors()).toContain('--what-if');
+        expect(errors()).not.toContain('--dry-run');
+        expect(summary()).toContain('1 of 4 changes failed:');
+        expect(summary()).toContain(
+          '  - prune of the orphaned nodes of realm "alpha": there is no terminal to ask: pass -y/--yes to prune them or --no-prune to skip the prune'
+        );
+      });
+
+      test('the journey itself is still deleted when the prune is refused', async () => {
+        terminal = false;
+
+        await compareWith();
+
+        expect(deleteJourney.mock.calls).toHaveLength(1);
+      });
+
+      test('--allow-failures reports the refused prune but succeeds', async () => {
+        terminal = false;
+
+        expect(await compareWith({ allowFailures: true })).toBe(true);
+
+        expect(answers).toEqual([false]);
+        expect(summary()).toContain('1 of 4 changes failed:');
+        expect(summary()).toContain('The exit code stays 0');
+      });
+
+      test.each([
+        ['with a terminal', true],
+        ['without a terminal', false],
+      ])(
+        '--no-prune skips the prune quietly, %s: no question, no refusal, no failure',
+        async (_, hasTerminal) => {
+          terminal = hasTerminal;
+
+          expect(await compareWith({ noPrune: true })).toBe(true);
+
+          expect(deleteJourney.mock.calls).toHaveLength(1);
+          expect(pruneOrphanedNodesInRun).not.toHaveBeenCalled();
+          expect(confirm).not.toHaveBeenCalled();
+          expect(printMessage).not.toHaveBeenCalled();
+        }
       );
 
-      expect(deleteJourney.mock.calls).toHaveLength(1);
-      expect(pruneOrphanedNodesInRun.mock.calls).toHaveLength(0);
-    });
+      test.each([
+        ['with a terminal', true],
+        ['without a terminal', false],
+      ])(
+        'a what-if deletes and prunes nothing and never asks or refuses, %s',
+        async (_, hasTerminal) => {
+          terminal = hasTerminal;
 
-    test('the question says that every orphaned node of the realm is deleted, not only those of the journey', async () => {
-      confirm.mockReset().mockResolvedValue(false);
+          expect(await compareWith({ whatIf: true })).toBe(true);
 
-      await compareExportToDirectory(
-        master,
-        current,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        true,
-        false
+          expect(deleteJourney).not.toHaveBeenCalled();
+          expect(pruneOrphanedNodesInRun).not.toHaveBeenCalled();
+          expect(confirm).not.toHaveBeenCalled();
+          expect(printMessage).not.toHaveBeenCalled();
+        }
       );
-      const ask = pruneOrphanedNodesInRun.mock.calls[0][1];
 
-      expect(await ask()).toBe(false);
-      expect(confirm.mock.calls).toHaveLength(1);
-      expect(confirm.mock.calls[0][0].message).toContain(
-        'every orphaned node of realm'
-      );
-      expect(confirm.mock.calls[0][0].message).toContain(
-        'not only those of this journey'
-      );
-      expect(confirm.mock.calls[0][0].default).toBe(false);
+      test('the question is asked once per realm, however many journeys are deleted in it', async () => {
+        write(current, {
+          [JOURNEY('j4')]: journeyFile('j4'),
+          [JOURNEY('j5')]: journeyFile('j5'),
+        });
+
+        expect(await compareWith()).toBe(true);
+
+        expect(deleteJourney.mock.calls).toHaveLength(3);
+        expect(answers).toEqual([true, true, true]);
+        expect(confirm.mock.calls).toHaveLength(1);
+      });
+
+      test('a refused prune is one failed change per realm, not one per deleted journey', async () => {
+        terminal = false;
+        write(current, { [JOURNEY('j4')]: journeyFile('j4') });
+
+        expect(await compareWith()).toBe(false);
+
+        expect(answers).toEqual([false, false]);
+        expect(summary()).toContain('1 of 5 changes failed:');
+        expect(errors().match(/Refusing to delete/g)).toHaveLength(1);
+      });
+
+      test('another realm is asked about on its own', async () => {
+        write(current, { [JOURNEY('b4')]: journeyFile('b4') });
+
+        expect(await compareWith()).toBe(true);
+
+        expect(confirm.mock.calls).toHaveLength(2);
+        expect(
+          confirm.mock.calls.map(([question]) => question.message).sort()
+        ).toEqual([
+          expect.stringContaining('realm "alpha"'),
+          expect.stringContaining('realm "bravo"'),
+        ]);
+      });
+
+      test('a second comparison in the same process asks again', async () => {
+        await compareWith();
+        await compareWith();
+
+        expect(confirm.mock.calls).toHaveLength(2);
+      });
     });
 
     test('a what-if effects nothing and succeeds', async () => {
