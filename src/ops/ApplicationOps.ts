@@ -16,6 +16,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -29,7 +30,6 @@ const {
   readApplications: _readApplications,
   deleteApplication: _deleteApplication,
   deleteApplicationByName: _deleteApplicationByName,
-  deleteApplications: _deleteApplications,
   exportApplication: _exportApplication,
   exportApplicationByName: _exportApplicationByName,
   exportApplications: _exportApplications,
@@ -129,25 +129,51 @@ export async function deleteApplication(
 /**
  * Delete all applications
  * @param {boolean} deep deep delete (include dependencies)
+ * @param {boolean} allowFailures true to report applications that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteApplications(deep: boolean): Promise<boolean> {
-  let spinnerId: string;
+export async function deleteApplications(
+  deep: boolean,
+  allowFailures = false
+): Promise<boolean> {
+  debugMessage(`cli.ApplicationOps.deleteApplications: begin`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Reading applications...`
+  );
   try {
-    debugMessage(`cli.ApplicationOps.deleteApplications: begin`);
-    spinnerId = createProgressIndicator(
-      'indeterminate',
-      0,
-      `Deleting applications...`
-    );
-    const deleted = await _deleteApplications(deep);
+    const applications = await _readApplications();
+    applications.sort((a, b) => a._id.localeCompare(b._id));
     stopProgressIndicator(
       spinnerId,
-      `Deleted ${deleted.length} applications`,
+      `Successfully read ${applications.length} applications.`,
       'success'
     );
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      applications.length,
+      `Deleting applications...`
+    );
+    const run = new OperationRun({ unit: 'application', allowFailures });
+    for (const application of applications) {
+      await run.run(application.name || application._id, async () => {
+        await _deleteApplication(application._id, deep);
+        updateProgressIndicator(
+          indicatorId,
+          `Deleted application ${application.name || application._id}`
+        );
+      });
+    }
+    stopProgressIndicator(
+      indicatorId,
+      run.hasFailures
+        ? `Some applications could not be deleted.`
+        : `Deleted ${applications.length} applications.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
     debugMessage(`cli.ApplicationOps.deleteApplications: end`);
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error deleting applications`, 'fail');
     printError(error);

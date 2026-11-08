@@ -979,24 +979,13 @@ export async function deleteScriptName(name: string): Promise<boolean> {
 }
 
 /**
- * A result callback for the library's bulk delete that records every result in
- * the run: a success is counted, a failure is printed and named in the summary.
- * The library names the failed script only in the message of the error
- * ("Error deleting <realm> realm script <name>").
- * @param {OperationRun} run the run that collects the results
- * @returns the callback to pass to `deleteScripts`
+ * The library names the script that could not be deleted only in the message of
+ * its error ("Error deleting <realm> realm script <name>").
+ * @param {FrodoError} error the error the library reported for one script
+ * @returns {string | undefined} the script name, or undefined if the message has another shape
  */
-function recordResults(run: OperationRun) {
-  return (error?: FrodoError): void => {
-    if (!error) {
-      run.recordSuccess();
-      return;
-    }
-    printError(error);
-    const name =
-      error.message.match(/ script (.+)$/)?.[1] ?? error.message.split('\n')[0];
-    run.recordFailure(name, causeOf(error));
-  };
+function scriptNameOf(error: FrodoError): string | undefined {
+  return error.message.match(/ script (.+)$/)?.[1];
 }
 
 /**
@@ -1039,7 +1028,9 @@ export async function deleteAllScripts(
       );
       return run.finish();
     }
-    const deletedScripts = await deleteScripts(recordResults(run));
+    const deletedScripts = await deleteScripts(
+      run.resultCallback(scriptNameOf)
+    );
     stopProgressIndicator(
       spinnerId,
       run.hasFailures

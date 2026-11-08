@@ -1,4 +1,11 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from '@jest/globals';
 
 /**
  * OperationRun (src/utils/OperationRun.ts), decision record 0040: a command that
@@ -14,8 +21,12 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage,
 }));
 
-const { ALLOW_FAILURES_HELP, ALLOW_FAILURES_OPTION, OperationRun } =
-  await import('../../src/utils/OperationRun.ts');
+const {
+  ALLOW_FAILURES_HELP,
+  ALLOW_FAILURES_OPTION,
+  OperationRun,
+  describeFailure,
+} = await import('../../src/utils/OperationRun.ts');
 
 beforeEach(() => {
   printError.mockClear();
@@ -228,5 +239,167 @@ describe('operations that the caller ran itself', () => {
     expect(run.hasFailures).toBe(false);
     expect(run.finish()).toBe(true);
     expect(printMessage).not.toHaveBeenCalled();
+  });
+});
+
+/** A library error that wraps others: a message and the nested errors. */
+function libraryError(message, originalErrors = []) {
+  const error = new Error(message);
+  error.name = 'FrodoError';
+  error.originalErrors = originalErrors;
+  return error;
+}
+
+/** A raw HTTP error as the library's client throws it. */
+function httpError(message, url) {
+  const error = new Error(message);
+  error.name = 'AxiosError';
+  error.config = { url };
+  return error;
+}
+
+describe('describeFailure', () => {
+  it('names an item by the message of the library error that wraps the reason', () => {
+    const error = libraryError('Error deleting workflow w1', [
+      libraryError('Error deleting draft w1', [
+        httpError('Request failed with status code 409', '/x/w1'),
+      ]),
+    ]);
+    expect(describeFailure(error)).toEqual({
+      name: 'Error deleting workflow w1',
+      reason: 'Request failed with status code 409',
+    });
+  });
+
+  it('names an item of a raw HTTP error by the last segment of its URL, without the query', () => {
+    const error = httpError(
+      'Request failed with status code 404',
+      'https://tenant.example.com/openidm/config/remote-proxy/my%20proxy?_queryFilter=true&token=secret'
+    );
+    expect(describeFailure(error)).toEqual({
+      name: 'my proxy',
+      reason: 'Request failed with status code 404',
+    });
+  });
+
+  it('falls back to the message when the error names nothing else, and keeps only its first line', () => {
+    expect(describeFailure(new Error('boom\nstack line'))).toEqual({
+      name: 'boom',
+    });
+    expect(describeFailure('plain text')).toEqual({ name: 'plain text' });
+    expect(describeFailure(httpError('no url', undefined))).toEqual({
+      name: 'no url',
+    });
+  });
+
+  it('gives the answer of the server as the reason when the error chain carries one', () => {
+    const cause = httpError('Request failed with status code 409', '/x/w1');
+    cause.httpMessage = 'Cannot delete node type that is in use';
+    const error = libraryError('Error deleting workflow w1', [cause]);
+    expect(describeFailure(error)).toEqual({
+      name: 'Error deleting workflow w1',
+      reason: 'Cannot delete node type that is in use',
+    });
+    const raw = httpError('Request failed with status code 404', '/x/p1');
+    raw.httpMessage = 'No such proxy';
+    expect(describeFailure(raw)).toEqual({
+      name: 'p1',
+      reason: 'No such proxy',
+    });
+  });
+
+  it('survives a URL that cannot be decoded', () => {
+    expect(describeFailure(httpError('bad', '/a/%E0%A4%A')).name).toBe(
+      '%E0%A4%A'
+    );
+  });
+});
+
+describe('resultCallback (a library function that reports every item through a callback)', () => {
+  let exitCode;
+  beforeEach(() => {
+    exitCode = process.exitCode;
+    process.exitCode = undefined;
+  });
+  afterEach(() => {
+    process.exitCode = exitCode;
+  });
+
+  it('prints and records a failed item, counts a result, and leaves the exit code to finish()', () => {
+    const run = new OperationRun({ unit: 'node' });
+    const callback = run.resultCallback();
+    callback(undefined, { _id: 'n1' });
+    callback(
+      libraryError('Error deleting custom node N2', [
+        httpError('Request failed with status code 500', '/nodes/n2'),
+      ])
+    );
+    callback(undefined, { _id: 'n3' });
+
+    expect(printError).toHaveBeenCalledTimes(1);
+    expect(process.exitCode).toBeUndefined();
+    expect(run.finish()).toBe(false);
+    expect(summary()).toBe(
+      '1 of 3 nodes failed:\n  - Error deleting custom node N2: Request failed with status code 500'
+    );
+  });
+
+  it('names the failed item with the extractor of the caller, and falls back to describeFailure when it names nothing', () => {
+    const run = new OperationRun({ unit: 'node' });
+    const callback = run.resultCallback((error) =>
+      error.message.startsWith('Error deleting custom node ')
+        ? error.message.slice('Error deleting custom node '.length)
+        : undefined
+    );
+    callback(
+      libraryError('Error deleting custom node N2', [
+        httpError('Request failed with status code 500', '/nodes/n2'),
+      ])
+    );
+    callback(libraryError('Something else happened', [new Error('boom')]));
+    expect(run.finish()).toBe(false);
+    expect(summary()).toBe(
+      '2 of 2 nodes failed:\n  - N2: Request failed with status code 500\n  - Something else happened: boom'
+    );
+  });
+
+  it('keeps a clean run quiet', () => {
+    const run = new OperationRun({ unit: 'node' });
+    const callback = run.resultCallback();
+    callback(undefined, { _id: 'n1' });
+    expect(run.finish()).toBe(true);
+    expect(printMessage).not.toHaveBeenCalled();
+  });
+
+  it('lets --allow-failures succeed with a warning, and still prints the failed item', () => {
+    const run = new OperationRun({ unit: 'node', allowFailures: true });
+    const callback = run.resultCallback();
+    callback(new Error('no'));
+    expect(printError).toHaveBeenCalledTimes(1);
+    expect(run.finish()).toBe(true);
+    expect(level()).toBe('warn');
+  });
+});
+
+describe('the unit in the summary', () => {
+  it('is plural unless there is exactly one, also for a unit that ends in y', () => {
+    const one = new OperationRun({ unit: 'policy' });
+    one.recordFailure('a');
+    one.finish();
+    expect(summary()).toBe('1 of 1 policy failed:\n  - a');
+
+    printMessage.mockClear();
+    const two = new OperationRun({ unit: 'policy' });
+    two.recordFailure('a');
+    two.recordSuccess();
+    two.finish();
+    expect(summary()).toMatch(/^1 of 2 policies failed/);
+
+    printMessage.mockClear();
+    const key = new OperationRun({ unit: 'key' });
+    key.recordFailure('a');
+    key.recordSuccess();
+    key.finish();
+    expect(summary()).toMatch(/^1 of 2 keys failed/);
   });
 });

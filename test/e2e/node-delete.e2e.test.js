@@ -49,6 +49,10 @@ describe('frodo node delete', () => {
     });
 
     test('"frodo node delete -a -y": should delete all nodes that are not being used', async () => {
+      // Nodes that are in use cannot be deleted. Before decision record 0040 the
+      // last line said "Deleted custom nodes." although most of them had failed.
+      // The run now says so and names the nodes that failed. The command failed
+      // before and still does.
       const CMD = `frodo node delete -a -y`;
       try {
         await exec(CMD, env);
@@ -59,6 +63,10 @@ describe('frodo node delete', () => {
     });
 
     test('"frodo node delete --all -y": should not delete any nodes if they are all in use', async () => {
+      // Nodes that are in use cannot be deleted. Before decision record 0040 the
+      // last line said "Deleted custom nodes." although most of them had failed.
+      // The run now says so and names the nodes that failed. The command failed
+      // before and still does.
       const CMD = `frodo node delete --all -y`;
       try {
         await exec(CMD, env);

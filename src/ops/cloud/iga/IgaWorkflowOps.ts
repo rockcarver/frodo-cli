@@ -22,6 +22,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../../../utils/Console';
+import { OperationRun } from '../../../utils/OperationRun';
 import * as EmailTemplate from '../../EmailTemplateOps';
 import { isScriptExtracted } from '../../ScriptOps';
 import { errorHandler } from '../../utils/OpsUtils';
@@ -557,30 +558,41 @@ export async function deleteWorkflow(
  * @param {boolean} deleteDraft true to delete only the draft workflows, false otherwise
  * @param {boolean} deletePublished true to delete only the published workflows, false otherwise
  * @param {boolean} force true to forcefully delete the workflow, false otherwise
+ * @param {boolean} allowFailures true to report workflows that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteWorkflows(
   deleteDraft?: boolean,
   deletePublished?: boolean,
-  force?: boolean
+  force?: boolean,
+  allowFailures = false
 ): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting workflows...`
   );
+  const run = new OperationRun({ unit: 'workflow', allowFailures });
   try {
     await _deleteWorkflows(
       deleteDraft || !deletePublished,
       deletePublished || !deleteDraft,
       { force },
-      errorHandler
+      run.resultCallback()
     );
-    stopProgressIndicator(spinnerId, `Deleted workflows.`, 'success');
-    return true;
+    stopProgressIndicator(
+      spinnerId,
+      run.hasFailures
+        ? `Some workflows could not be deleted.`
+        : `Deleted workflows.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even read what to delete
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

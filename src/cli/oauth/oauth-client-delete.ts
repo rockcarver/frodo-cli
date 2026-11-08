@@ -1,7 +1,15 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { deleteOauth2ClientById } from '../../ops/OAuth2ClientOps';
+import {
+  deleteOauth2ClientById,
+  deleteOauth2Clients,
+} from '../../ops/OAuth2ClientOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../utils/BulkDeleteGuard';
+import { verboseMessage } from '../../utils/Console';
 import {
   deferEntityPicks,
   entityPick,
@@ -31,8 +39,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all cmds in a realm. Cannot be used with -i.'
+        'Delete all OAuth2 clients in a realm. Cannot be used with -i.'
       ).conflicts(['appId'])
+    )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting all OAuth2 clients. Required with -a when there is no terminal.'
+      )
     )
     .addOption(
       new Option(
@@ -40,6 +54,8 @@ export default function setup() {
         'No deep delete. This leaves orphaned configuration artifacts behind.'
       )
     )
+    .requireOneOf({ options: ['all', 'appId'], purpose: 'what to delete' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -51,13 +67,43 @@ export default function setup() {
           options,
           command
         );
+        // a run that nobody can be asked about is refused before the login
+        // (cli record 0037)
+        if (
+          options.all &&
+          !checkBulkDelete({
+            what: 'all OAuth2 clients',
+            yes: options.yes,
+            dryRunAvailable: false,
+          })
+        ) {
+          process.exitCode = 1;
+          return;
+        }
+        // -a/--all
+        if (options.all && (await getTokens())) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all OAuth2 clients',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
+          }
+          verboseMessage('Deleting all OAuth2 clients...');
+          const outcome = await deleteOauth2Clients(options.allowFailures);
+          if (!outcome) process.exitCode = 1;
+        }
         // An unspecified appId prompts for a client from the live system
         // (no-op outside the prompt gate) before getTokens.
-        if (
+        else if (
+          !options.all &&
           (options.appId || (await resolveEntityPicks(command))) &&
           (await getTokens())
         ) {
-          const outcome = deleteOauth2ClientById(options.appId);
+          const outcome = await deleteOauth2ClientById(options.appId);
           if (!outcome) process.exitCode = 1;
         }
         // The only ways no branch runs are getTokens() failing (keep the

@@ -58,6 +58,7 @@ export default function setup() {
       options: ['all', 'secretstoreId'],
       purpose: 'what to delete',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -110,7 +111,10 @@ export default function setup() {
           verboseMessage(
             `Deleting all${options.global ? ' global' : ''} secret stores...`
           );
-          const outcome = await deleteSecretStores(options.global);
+          const outcome = await deleteSecretStores(
+            options.global,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied above, the only way

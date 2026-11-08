@@ -26,6 +26,10 @@ Arguments:
 Options:
   -a, --all                    Delete all custom nodes. Cannot be used with -i
                                or -n.
+  --allow-failures             Report operations that fail, but still exit with
+                               code 0. Without this option the command runs
+                               every operation, prints a summary of what failed
+                               and exits with code 1.
   -i, --node-id <node-id>      Custom node id or service name. Cannot be used
                                with -n or -a. (pick from custom node)
   -n, --node-name <node-name>  Custom node display name. Cannot be used with -i

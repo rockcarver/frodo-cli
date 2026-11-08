@@ -38,6 +38,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['all', 'keyId'], purpose: 'what to delete' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -64,7 +65,10 @@ export default function setup() {
         // delete by id
         if (options.keyId && (await getTokens(true, true, deploymentTypes))) {
           verboseMessage(`Deleting key ${options.keyId}`);
-          deleteLogApiKey(options.keyId);
+          // the outcome decides the exit code (it was not awaited, so a failed
+          // delete exited 0)
+          const outcome = await deleteLogApiKey(options.keyId);
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (
@@ -82,7 +86,8 @@ export default function setup() {
             return;
           }
           verboseMessage('Deleting keys...');
-          deleteLogApiKeys();
+          const outcome = await deleteLogApiKeys(options.allowFailures);
+          if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way
         // here is getTokens() failing -- keep the old exit-1 semantics
