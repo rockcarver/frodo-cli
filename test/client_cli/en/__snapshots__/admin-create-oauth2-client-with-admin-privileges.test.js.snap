@@ -22,6 +22,10 @@ Arguments:
   password                  Password.
 
 Options:
+  --allow-failures          Report operations that fail, but still exit with
+                            code 0. Without this option the command runs every
+                            operation, prints a summary of what failed and exits
+                            with code 1.
   --client-id <id>          Client id.
   --client-secret [secret]  Client secret. Without a value, it is asked for
                             (input hidden) or, when input is piped, read from

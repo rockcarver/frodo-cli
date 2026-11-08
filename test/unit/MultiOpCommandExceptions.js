@@ -26,9 +26,6 @@
 
 /** The first failed operation ends the run: later operations are never attempted. */
 export const STOPS_AT_THE_FIRST_ERROR = [
-  'frodo admin generate-rfc7523-authz-grant-artefacts',
-  'frodo admin grant-oauth2-client-admin-privileges',
-  'frodo admin revoke-oauth2-client-admin-privileges',
   'frodo idm remote-proxy setup',
   'frodo idm remote-proxy teardown',
   'frodo mapping delete',
@@ -37,8 +34,6 @@ export const STOPS_AT_THE_FIRST_ERROR = [
 
 /** A failure is caught or ignored (an empty catch, a logged error, an ignored result) and the command exits 0. */
 export const SWALLOWS_THE_FAILURE = [
-  'frodo admin create-oauth2-client-with-admin-privileges',
-  'frodo admin repair-org-model',
   'frodo promote',
 ];
 

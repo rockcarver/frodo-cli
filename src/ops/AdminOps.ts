@@ -22,6 +22,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import GENERIC_EXTENSION_ATTRIBUTES from './templates/GenericExtensionAttributesTemplate.json' with { type: 'json' };
 import OAUTH2_CLIENT from './templates/OAuth2ClientTemplate.json' with { type: 'json' };
 import { cloneDeep } from './utils/OpsUtils';
@@ -525,46 +526,57 @@ export async function addAutoIdStaticUserMapping(): Promise<boolean> {
   return false;
 }
 
+/**
+ * Grant an oauth2 client admin privileges: admin scopes and the client credentials grant type on the
+ * client, and a static user mapping that maps the client to the admin roles. The mapping is only
+ * made when the client was updated: it would otherwise give the admin roles to a client that has
+ * no admin scopes, or that does not exist.
+ * @param {string} clientId id of the oauth2 client
+ * @param {boolean} allowFailures true to report a failed step but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
 export async function grantOAuth2ClientAdminPrivileges(
-  clientId: string
+  clientId: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  try {
-    let client = await readOAuth2Client(clientId);
-    if (
-      (client.coreOAuth2ClientConfig.clientName as Readable<string[]>)
-        .length === 0
-    ) {
-      client.coreOAuth2ClientConfig.clientName = {
-        inherited: false,
-        value: [clientId],
-      };
-    }
-    if (
-      client.advancedOAuth2ClientConfig.descriptions.value.length === 0 ||
-      client.advancedOAuth2ClientConfig.descriptions.value[0].startsWith(
-        'Modified by Frodo'
-      ) ||
-      client.advancedOAuth2ClientConfig.descriptions.value[0].startsWith(
-        'Created by Frodo'
-      )
-    ) {
-      client.advancedOAuth2ClientConfig.descriptions.value = [
-        `Modified by Frodo on ${new Date().toLocaleString()}`,
-      ];
-    }
-    client = await addAdminScopes(clientId, client);
-    client = addClientCredentialsGrantType(clientId, client);
-    await updateOAuth2Client(clientId, client);
-    await addAdminStaticUserMapping(clientId);
-    printMessage('Done.');
-    return true;
-  } catch (error) {
-    printError(
-      error,
-      `Error granting oauth2 client ${clientId} admin privileges`
-    );
-  }
-  return false;
+  const run = new OperationRun({ unit: 'step', allowFailures });
+  await run.run(
+    `oauth2 client ${clientId}`,
+    async () => {
+      let client = await readOAuth2Client(clientId);
+      if (
+        (client.coreOAuth2ClientConfig.clientName as Readable<string[]>)
+          .length === 0
+      ) {
+        client.coreOAuth2ClientConfig.clientName = {
+          inherited: false,
+          value: [clientId],
+        };
+      }
+      if (
+        client.advancedOAuth2ClientConfig.descriptions.value.length === 0 ||
+        client.advancedOAuth2ClientConfig.descriptions.value[0].startsWith(
+          'Modified by Frodo'
+        ) ||
+        client.advancedOAuth2ClientConfig.descriptions.value[0].startsWith(
+          'Created by Frodo'
+        )
+      ) {
+        client.advancedOAuth2ClientConfig.descriptions.value = [
+          `Modified by Frodo on ${new Date().toLocaleString()}`,
+        ];
+      }
+      client = await addAdminScopes(clientId, client);
+      client = addClientCredentialsGrantType(clientId, client);
+      await updateOAuth2Client(clientId, client);
+    },
+    { dependent: true }
+  );
+  await run.run(`static user mapping ${clientId}`, () =>
+    addAdminStaticUserMapping(clientId)
+  );
+  if (!run.hasFailures) printMessage('Done.');
+  return run.finish();
 }
 
 async function removeAdminScopes(name: string, client: OAuth2ClientSkeleton) {
@@ -704,10 +716,20 @@ async function removeAdminStaticUserMapping(name: string) {
   }
 }
 
+/**
+ * Revoke admin privileges from an oauth2 client: admin scopes and the client credentials grant type
+ * on the client, and the admin roles of its static user mapping. The two steps do not depend on each
+ * other: a client that cannot be read or updated does not keep its mapping from being removed.
+ * @param {string} clientId id of the oauth2 client
+ * @param {boolean} allowFailures true to report a failed step but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
 export async function revokeOAuth2ClientAdminPrivileges(
-  clientId: string
+  clientId: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  try {
+  const run = new OperationRun({ unit: 'step', allowFailures });
+  await run.run(`oauth2 client ${clientId}`, async () => {
     let client = await readOAuth2Client(clientId);
     if (
       (client.coreOAuth2ClientConfig.clientName as Readable<string[]>)
@@ -734,41 +756,93 @@ export async function revokeOAuth2ClientAdminPrivileges(
     client = await removeAdminScopes(clientId, client);
     client = removeClientCredentialsGrantType(clientId, client);
     await updateOAuth2Client(clientId, client);
-    await removeAdminStaticUserMapping(clientId);
-    printMessage('Done.');
-    return true;
-  } catch (error) {
-    printError(
-      error,
-      `Error revoking oauth2 client ${clientId} admin privileges`
-    );
-  }
-  return false;
+  });
+  await run.run(`static user mapping ${clientId}`, () =>
+    removeAdminStaticUserMapping(clientId)
+  );
+  if (!run.hasFailures) printMessage('Done.');
+  return run.finish();
 }
 
+/** What `--llt` asks for: the token that is created for a new client. */
+export interface LongLivedTokenRequest {
+  /** The scope(s) to request. */
+  scope: string;
+  /** Name of the secret to store the token in. Omit it to output the token instead. */
+  esv?: string;
+  /** Token lifetime in seconds. */
+  ttl: number;
+}
+
+/**
+ * Create an oauth2 client with admin privileges and, when asked, a long-lived token for it. The
+ * table with the client id and secret is printed as soon as the client exists, whatever happens to
+ * the steps after it: a generated secret that was not printed would be lost. The static user
+ * mapping is a step the token depends on (a token without it has no admin rights), so a token is
+ * only requested after the mapping was made.
+ * @param {string} clientId id of the new oauth2 client
+ * @param {string} clientSecret secret of the new oauth2 client
+ * @param {LongLivedTokenRequest} [longLivedToken] set it to create a long-lived token
+ * @param {boolean} allowFailures true to report a failed step but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
 export async function createOAuth2ClientWithAdminPrivileges(
   clientId: string,
-  clientSecret: string
+  clientSecret: string,
+  longLivedToken?: LongLivedTokenRequest,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  try {
-    let client = cloneDeep(OAUTH2_CLIENT);
-    client.coreOAuth2ClientConfig.userpassword = clientSecret;
-    client.coreOAuth2ClientConfig.clientName.value = [clientId];
-    client.advancedOAuth2ClientConfig.descriptions.value = [
-      `Created by Frodo on ${new Date().toLocaleString()}`,
-    ];
-    client = await addAdminScopes(clientId, client);
-    await updateOAuth2Client(clientId, client);
-    await addAdminStaticUserMapping(clientId);
-    printMessage('Done.');
-    return true;
-  } catch (error) {
-    printError(
-      error,
-      `Error creating oauth2 client ${clientId} with admin privileges`
-    );
+  const run = new OperationRun({ unit: 'step', allowFailures });
+  // The mapping and the token are made for this client: nothing else is attempted without it.
+  const created = await run.run(
+    `oauth2 client ${clientId}`,
+    async () => {
+      let client = cloneDeep(OAUTH2_CLIENT);
+      client.coreOAuth2ClientConfig.userpassword = clientSecret;
+      client.coreOAuth2ClientConfig.clientName.value = [clientId];
+      client.advancedOAuth2ClientConfig.descriptions.value = [
+        `Created by Frodo on ${new Date().toLocaleString()}`,
+      ];
+      client = await addAdminScopes(clientId, client);
+      await updateOAuth2Client(clientId, client);
+    },
+    { dependent: true }
+  );
+  await run.run(
+    `static user mapping ${clientId}`,
+    () => addAdminStaticUserMapping(clientId),
+    { dependent: !!longLivedToken }
+  );
+  let tokenResponse: lltResponseType;
+  if (longLivedToken) {
+    await run.run(`long-lived token for ${clientId}`, async () => {
+      tokenResponse = await createLongLivedToken(
+        clientId,
+        clientSecret,
+        longLivedToken.scope,
+        longLivedToken.esv,
+        longLivedToken.ttl
+      );
+    });
   }
-  return false;
+  if (created) {
+    if (!run.hasFailures) printMessage('Done.');
+    const table = createKeyValueTable();
+    table.push([c.heading('Client ID'), clientId]);
+    table.push([c.heading('Client Secret'), clientSecret]);
+    if (tokenResponse) {
+      if (longLivedToken.esv)
+        table.push([c.heading('Secret Name'), tokenResponse.secret]);
+      table.push([c.heading('Scope'), tokenResponse.scope]);
+      table.push([c.heading('Expires'), tokenResponse.expires_on]);
+    }
+    printMessage(table.toString());
+    if (tokenResponse && !longLivedToken.esv) {
+      printMessage(`\nBearer token:`, 'info');
+      printMessage(`${tokenResponse.access_token}`, 'data');
+    }
+  }
+  return run.finish();
 }
 
 export type lltResponseType = Omit<AccessTokenMetaType, 'access_token'> & {
@@ -798,22 +872,38 @@ export async function createLongLivedToken(
       value: lifetime,
     };
     await updateOAuth2Client(clientId, client);
-    const tokenResponse = await clientCredentialsGrant(
-      state.getHost(),
-      clientId,
-      clientSecret,
-      scope
-    );
-    const lltResponse: lltResponseType = cloneDeep(tokenResponse);
-    delete lltResponse.access_token;
-    const expires = new Date().getTime() + 1000 * tokenResponse.expires_in;
-    lltResponse.expires_on = new Date(expires).toLocaleString();
-    // reset token lifetime
+    let tokenResponse: AccessTokenResponseType;
+    let grantError: unknown;
+    try {
+      tokenResponse = await clientCredentialsGrant(
+        state.getHost(),
+        clientId,
+        clientSecret,
+        scope
+      );
+    } catch (error) {
+      grantError = error;
+    }
+    // reset token lifetime, also when the token was not issued: a client that keeps the long
+    // lifetime issues every token with it
     client.coreOAuth2ClientConfig.accessTokenLifetime = {
       inherited: false,
       value: rememberedLifetime,
     };
-    await updateOAuth2Client(clientId, client);
+    try {
+      await updateOAuth2Client(clientId, client);
+    } catch (error) {
+      throw new FrodoError(
+        `Error resetting the access token lifetime of client ${clientId} to ${rememberedLifetime} seconds, it still issues tokens that live ${lifetime} seconds`,
+        grantError ? [grantError as Error, error] : error
+      );
+    }
+    if (grantError) throw grantError;
+    const lltResponse: lltResponseType = cloneDeep(tokenResponse);
+    // the token is part of the result only when it is not stored in a secret
+    if (secret) delete lltResponse.access_token;
+    const expires = new Date().getTime() + 1000 * tokenResponse.expires_in;
+    lltResponse.expires_on = new Date(expires).toLocaleString();
     // create secret with token as value
     if (secret) {
       const description = 'Long-lived admin token';
@@ -841,6 +931,9 @@ export async function createLongLivedToken(
             description
           );
           lltResponse.secret = newSecret;
+        } else {
+          // a token that is not stored where it was asked to be stored is not a result
+          throw error;
         }
       }
     }
@@ -1016,7 +1109,7 @@ async function repairOrgModelUser(dryRun: boolean): Promise<boolean> {
       await updateConfigEntity('managed', managed);
     }
   } catch (error) {
-    printError(error, `Error repairing org model user`);
+    throw new FrodoError(`Error repairing org model user`, error);
   }
   return repairData;
 }
@@ -1056,7 +1149,7 @@ async function repairOrgModelOrg(dryRun: boolean): Promise<boolean> {
       await updateConfigEntity('managed', managed);
     }
   } catch (error) {
-    printError(error, `Error repairing org model org`);
+    throw new FrodoError(`Error repairing org model org`, error);
   }
   return repairData;
 }
@@ -1073,33 +1166,44 @@ async function extendOrgModelPermissins(dryRun = false) {
   }
 }
 
+/**
+ * Repair the org model. The user model and the organization model are repaired independently of each
+ * other: one that cannot be repaired does not keep the other one from being checked.
+ * @param {boolean} excludeCustomized true to exclude customized properties from repair
+ * @param {boolean} extendPermissions true to extend permissions to include custom attributes
+ * @param {boolean} dryRun true to check only, without saving changes
+ * @param {boolean} allowFailures true to report a failed step but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
 export async function repairOrgModel(
   excludeCustomized: boolean,
   extendPermissions: boolean,
-  dryRun: boolean
+  dryRun: boolean,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  try {
-    let repairData = false;
-    repairData = repairData || (await repairOrgModelUser(dryRun));
-    repairData = repairData || (await repairOrgModelOrg(dryRun));
-    if (excludeCustomized) {
-      //
-    }
-    if (repairData) {
-      await repairOrgModelData(dryRun);
-    }
-    if (extendPermissions) {
-      await extendOrgModelPermissins(dryRun);
-    }
-    if (dryRun) {
-      printMessage('Dry-run only. Changes are not saved.', 'warn');
-    }
-    printMessage('Done.');
-    return true;
-  } catch (error) {
-    printError(error, `Error repairing the org model`);
+  const run = new OperationRun({ unit: 'step', allowFailures });
+  let repairData = false;
+  // the callbacks return nothing: a returned false would count as a failed step
+  await run.run('user model', async () => {
+    if (await repairOrgModelUser(dryRun)) repairData = true;
+  });
+  await run.run('organization model', async () => {
+    if (await repairOrgModelOrg(dryRun)) repairData = true;
+  });
+  if (excludeCustomized) {
+    //
   }
-  return false;
+  if (repairData) {
+    await run.run('data', () => repairOrgModelData(dryRun));
+  }
+  if (extendPermissions) {
+    await run.run('permissions', () => extendOrgModelPermissins(dryRun));
+  }
+  if (dryRun) {
+    printMessage('Dry-run only. Changes are not saved.', 'warn');
+  }
+  if (!run.hasFailures) printMessage('Done.');
+  return run.finish();
 }
 
 // Rfc7523 functions
@@ -1112,6 +1216,21 @@ function getJwksFilePath(clientId: string): string {
   return getFilePath(getTypedFilename(clientId + '_public', 'jwks'), true);
 }
 
+/**
+ * Generate the artefacts of an RFC7523 authorization grant flow. With `options.save` the library
+ * also creates the oauth2 client and the trusted issuer, and the key pair is saved to two files.
+ * Nothing is done without the artefacts. The two files are saved independently of each other: a
+ * private key that cannot be written does not keep the public key from being written.
+ * @param {string} clientId id of the oauth2 client
+ * @param {string} iss trusted issuer
+ * @param {JwkRsa} [jwk] private key to use instead of generating one
+ * @param {string} [sub] subject the trusted issuer is restricted to
+ * @param {string[]} [scope] scopes of the oauth2 client
+ * @param {{ save: boolean }} [options] `save`: create the client and issuer and save the keys to files
+ * @param {boolean} [json] true to output the artefacts as json
+ * @param {boolean} allowFailures true to report a failed step but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
 export async function generateRfc7523AuthZGrantArtefacts(
   clientId: string,
   iss: string,
@@ -1119,61 +1238,93 @@ export async function generateRfc7523AuthZGrantArtefacts(
   sub?: string,
   scope?: string[],
   options?: { save: boolean },
-  json?: boolean
+  json?: boolean,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'step', allowFailures });
   let artefacts: {
     jwk: JwkRsa;
     jwks: JwksInterface;
     client: OAuth2ClientSkeleton;
     issuer: OAuth2TrustedJwtIssuerSkeleton;
   };
-  try {
-    const barId = createProgressIndicator(
-      'determinate',
-      options.save ? 3 : 1,
-      'Generating artefacts...'
-    );
-    artefacts = await _generateRfc7523AuthZGrantArtefacts(
-      clientId,
-      iss,
-      jwk,
-      sub,
-      scope,
-      options
-    );
-    updateProgressIndicator(barId, 'Successfully generated artefacts.');
-    let jwkFile: string;
-    let jwksFile: string;
+  const barId = createProgressIndicator(
+    'determinate',
+    options.save ? 3 : 1,
+    'Generating artefacts...'
+  );
+  const generated = await run.run(
+    'artefacts',
+    async () => {
+      artefacts = await _generateRfc7523AuthZGrantArtefacts(
+        clientId,
+        iss,
+        jwk,
+        sub,
+        scope,
+        options
+      );
+      updateProgressIndicator(barId, 'Successfully generated artefacts.');
+    },
+    { dependent: true }
+  );
+  if (!generated) {
+    stopProgressIndicator(barId, 'Error generating artefacts.', 'fail');
+    cleanupProgressIndicators();
     if (options.save) {
-      const jwkBarId = createProgressIndicator(
-        'determinate',
-        1,
-        'Saving JWK (private key)...'
-      );
-      jwkFile = getJwkFilePath(clientId);
-      saveJsonToFile(artefacts.jwk, jwkFile, false);
-      updateProgressIndicator(jwkBarId, `Saved JWK to ${jwkFile}.`);
-      updateProgressIndicator(barId, 'Successfully saved JWK (private key).');
-      stopProgressIndicator(jwkBarId);
-      const jwksBarId = createProgressIndicator(
-        'determinate',
-        1,
-        'Saving JWKS (public key)...'
-      );
-      jwksFile = getJwksFilePath(clientId);
-      saveJsonToFile(artefacts.jwks, jwksFile, false);
-      updateProgressIndicator(jwksBarId, `Saved JWKS to ${jwksFile}.`);
-      stopProgressIndicator(jwksBarId);
-      updateProgressIndicator(barId, 'Successfully saved JWKS (public key).');
+      // the run has stopped: the summary names these as not attempted
+      await run.run('JWK file', () => undefined);
+      await run.run('JWKS file', () => undefined);
     }
+    return run.finish();
+  }
+  let jwksFile: string;
+  if (options.save) {
+    const jwkBarId = createProgressIndicator(
+      'determinate',
+      1,
+      'Saving JWK (private key)...'
+    );
+    const jwkSaved = await run.run('JWK file', () => {
+      const file = getJwkFilePath(clientId);
+      saveJsonToFile(artefacts.jwk, file, false);
+      updateProgressIndicator(jwkBarId, `Saved JWK to ${file}.`);
+      updateProgressIndicator(barId, 'Successfully saved JWK (private key).');
+    });
+    if (jwkSaved) stopProgressIndicator(jwkBarId);
+    else stopProgressIndicator(jwkBarId, 'Error saving JWK.', 'fail');
+    const jwksBarId = createProgressIndicator(
+      'determinate',
+      1,
+      'Saving JWKS (public key)...'
+    );
+    const jwksSaved = await run.run('JWKS file', () => {
+      const file = getJwksFilePath(clientId);
+      saveJsonToFile(artefacts.jwks, file, false);
+      jwksFile = file;
+      updateProgressIndicator(jwksBarId, `Saved JWKS to ${file}.`);
+      updateProgressIndicator(barId, 'Successfully saved JWKS (public key).');
+    });
+    if (jwksSaved) stopProgressIndicator(jwksBarId);
+    else stopProgressIndicator(jwksBarId, 'Error saving JWKS.', 'fail');
+  }
+  if (run.hasFailures) {
+    stopProgressIndicator(
+      barId,
+      'Generated artefacts, but could not save all of them.',
+      'fail'
+    );
+  } else {
     stopProgressIndicator(
       barId,
       `Successfully generated ${
         options.save ? 'and saved artefacts' : 'artefacts'
       }.`
     );
-    cleanupProgressIndicators();
-
+  }
+  cleanupProgressIndicators();
+  const jwksLocation = options.save ? (jwksFile ?? 'Not saved') : 'See below';
+  try {
     if (json) {
       printMessage(artefacts, 'data');
     } else {
@@ -1225,10 +1376,7 @@ export async function generateRfc7523AuthZGrantArtefacts(
             .publicKeyLocation as Writable<string>
         ).value,
       ]);
-      client.push([
-        c.heading('JWKS (Public Key)'),
-        options.save ? `${jwksFile}` : 'See below',
-      ]);
+      client.push([c.heading('JWKS (Public Key)'), jwksLocation]);
       printMessage(`\n${client.toString()}`);
 
       printMessage(
@@ -1250,10 +1398,7 @@ export async function generateRfc7523AuthZGrantArtefacts(
             )?.value.join(', ')
           : `Any ${state.getRealm()} realm user`,
       ]);
-      issuer.push([
-        c.heading('JWKS (Public Key)'),
-        options.save ? `${jwksFile}` : 'See below',
-      ]);
+      issuer.push([c.heading('JWKS (Public Key)'), jwksLocation]);
       printMessage(`\n${issuer.toString()}`);
       if (!options.save) {
         printMessage(c.command('\nJWK (Private Key)'));
@@ -1262,11 +1407,11 @@ export async function generateRfc7523AuthZGrantArtefacts(
         printMessage(stringify(artefacts.jwks));
       }
     }
-    return true;
   } catch (error) {
-    printMessage(error, 'error');
-    return false;
+    printError(error);
+    run.recordFailure('report', error);
   }
+  return run.finish();
 }
 
 export async function executeRfc7523AuthZGrantFlow(
