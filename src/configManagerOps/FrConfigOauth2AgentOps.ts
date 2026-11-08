@@ -9,9 +9,11 @@ import {
 import {
   createProgressIndicator,
   printError,
+  printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
 import { clearOperationalAttributes } from '../utils/FrConfig';
+import { OperationRun } from '../utils/OperationRun';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const {
@@ -27,13 +29,16 @@ const { readAgentByTypeAndId, importAgent } = frodo.agent;
 /**
  * Export all agents based on values in provided config file.
  * @param {string} configFile The path to the file
- * @returns True if all specified agents were exported successfully
+ * @param {boolean} allowFailures True to succeed although some agents could not be exported (the failures are still summarised)
+ * @returns False if the config file cannot be read or an agent cannot be exported (unless failures are allowed), true otherwise
  */
 export async function configManagerExportOAuth2Agents(
-  configFile: string
+  configFile: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   try {
     const configFileData = readJsonFile(configFile, false);
+    const run = new OperationRun({ unit: 'agent', allowFailures });
     for (const realm of Object.keys(configFileData)) {
       if (
         realm === '/' &&
@@ -43,26 +48,31 @@ export async function configManagerExportOAuth2Agents(
       state.setRealm(realm);
       for (const agentType of Object.keys(configFileData[realm])) {
         for (const agent of configFileData[realm][agentType]) {
-          const agentResponse = await readAgentByTypeAndId(
-            agentType as AgentType,
-            agent.id
-          );
-          let config = escapePlaceholders(agentResponse);
-          if (agent.overrides) config = mergeDeep(config, agent.overrides);
-          saveJsonToFile(
-            config,
-            getFilePath(
-              `realms/${realm === '/' ? 'root' : realm}/realm-config/agents/${agentType}/${agent.id}.json`,
-              true
-            ),
-            false,
-            false,
-            true
+          await run.run(
+            `${realm === '/' ? 'root' : realm}/${agentType}/${agent.id}`,
+            async () => {
+              const agentResponse = await readAgentByTypeAndId(
+                agentType as AgentType,
+                agent.id
+              );
+              let config = escapePlaceholders(agentResponse);
+              if (agent.overrides) config = mergeDeep(config, agent.overrides);
+              saveJsonToFile(
+                config,
+                getFilePath(
+                  `realms/${realm === '/' ? 'root' : realm}/realm-config/agents/${agentType}/${agent.id}.json`,
+                  true
+                ),
+                false,
+                false,
+                true
+              );
+            }
           );
         }
       }
     }
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, 'Error exporting OAuth2 agents');
     return false;
@@ -70,9 +80,12 @@ export async function configManagerExportOAuth2Agents(
 }
 /**
  * Import all agent configurations.
- * @returns {Promise<boolean>} True if all specified agents were imported successfully
+ * @param {boolean} allowFailures True to succeed although some agents could not be imported (the failures are still summarised)
+ * @returns {Promise<boolean>} False if the realms folder is missing or an agent cannot be imported (unless failures are allowed), true otherwise
  */
-export async function configManagerImportAgents(): Promise<boolean> {
+export async function configManagerImportAgents(
+  allowFailures: boolean = false
+): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
@@ -80,19 +93,31 @@ export async function configManagerImportAgents(): Promise<boolean> {
   );
   try {
     const realmsDir = `${getWorkingDirectory()}/realms`;
+    if (!fs.existsSync(realmsDir)) {
+      stopProgressIndicator(
+        indicatorId,
+        'Oauth2 Agents import failed.',
+        'fail'
+      );
+      printMessage(
+        `No realms folder found to import OAuth2 agents from: ${realmsDir}`,
+        'error'
+      );
+      return false;
+    }
     const realms: string[] = fs
       .readdirSync(realmsDir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
 
+    const run = new OperationRun({ unit: 'agent', allowFailures });
     for (const realmDir of realms) {
+      const realm = realmDir === 'root' ? '/' : realmDir;
       if (
-        realmDir === '/' &&
+        realm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
-
-      const realm = realmDir === 'root' ? '/' : realmDir;
 
       state.setRealm(realm);
       const agentDir = getFilePath(`realms/${realmDir}/realm-config/agents`);
@@ -107,22 +132,26 @@ export async function configManagerImportAgents(): Promise<boolean> {
         for (const file of fs
           .readdirSync(agentTypeDir)
           .filter((f) => path.extname(f) === '.json')) {
-          const agent = readJsonFile(
-            path.join(agentTypeDir, file)
-          ) as IdObjectSkeletonInterface;
-          const agentId = agent._id;
-          clearOperationalAttributes(agent);
+          await run.run(`${realmDir}/${agentType}/${file}`, async () => {
+            const agent = readJsonFile(
+              path.join(agentTypeDir, file)
+            ) as IdObjectSkeletonInterface;
+            const agentId = agent._id;
+            clearOperationalAttributes(agent);
 
-          await importAgent(agentId, { agent: { [agentId]: agent } }, false);
+            await importAgent(agentId, { agent: { [agentId]: agent } }, false);
+          });
         }
       }
     }
     stopProgressIndicator(
       indicatorId,
-      'Oauth2 Agents import completed.',
-      'success'
+      run.hasFailures
+        ? 'Oauth2 Agents import completed with errors.'
+        : 'Oauth2 Agents import completed.',
+      run.hasFailures ? 'fail' : 'success'
     );
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(indicatorId, 'Oauth2 Agents import failed.', 'fail');
     printError(error, 'Oauth2 Agents import failed');

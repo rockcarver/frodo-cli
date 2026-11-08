@@ -9,7 +9,9 @@ import {
 } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError, printMessage } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import { existScript, realmList, safeFileName } from '../utils/FrConfig';
+import { OperationRun } from '../utils/OperationRun';
 
 const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
 const { exportScript } = frodo.script;
@@ -19,21 +21,27 @@ const { DEFAULT_REALM_KEY } = frodo.utils.constants;
 
 /**
  * Export journeys in fr-config-manager format
+ * Every journey is exported even when another one failed, and one summary names the failed ones. A failure to list
+ * the realms or the journeys of a realm ends the command whatever `allowFailures` says.
  * @param {string} name exports only the specifically named journey
  * @param {string} realm exports journeys only in specified realm
  * @param {boolean} pullDependencies include journey dependencies
  * @param {boolean} clean if true clear existing configuration, otherwise false
- * @returns {Promise<boolean>} A promise that resolves to true if successful, false otherwise
+ * @param {boolean} allowFailures true to succeed although some journeys could not be exported (the failures are still summarised)
+ * @returns {Promise<boolean>} A promise that resolves to false if a journey cannot be exported (unless failures are allowed) or the named journey does not exist, true otherwise
  */
 export async function configManagerExportJourneys(
   name?: string,
   realm?: string,
   pullDependencies: boolean = false,
-  clean: boolean = false
+  clean: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'journey', allowFailures });
   try {
     const realmNames =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    let found = false;
     for (const realmName of realmNames) {
       if (
         realmName === '/' &&
@@ -42,21 +50,38 @@ export async function configManagerExportJourneys(
       )
         continue;
       state.setRealm(realmName);
-      const exportData = await exportJourneys({
-        deps: false,
-        useStringArrays: false,
-        coords: true,
-      });
+      // a journey that was read is counted when its files are written, so only the failures are counted here
+      const report = run.resultCallback();
+      const exportData = await exportJourneys(
+        {
+          deps: false,
+          useStringArrays: false,
+          coords: true,
+        },
+        (error) => {
+          if (error) report(error);
+        }
+      );
+      if (name && exportData.trees[name]) found = true;
       await processJourneysExport(
         exportData.trees,
         name,
         pullDependencies,
-        clean
+        clean,
+        run
       );
     }
-    return true;
+    const succeeded = run.finish();
+    // a journey that failed to be read has been reported already
+    if (name && !found && !run.hasFailures) {
+      printMessage(`Journey '${name}' not found.`, 'error');
+      return false;
+    }
+    return succeeded;
   } catch (error) {
+    // not an item failure: the realms or the journeys could not be listed
     printError(error, `Error exporting journeys`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -132,52 +157,58 @@ async function processNodeExport(
  * @param {string} name processes only the specifically named journey
  * @param {boolean} pullDependencies include journey dependencies
  * @param {boolean} clean if true clear existing configuration, otherwise false
+ * @param {OperationRun} run Optional. Runs the export of each journey as an operation of this run, so that a journey that cannot be written does not stop the others. Without it the first error is thrown.
  */
 async function processJourneysExport(
   journeys: Record<string, SingleTreeExportInterface>,
   name?: string,
   pullDependencies: boolean = false,
-  clean: boolean = false
+  clean: boolean = false,
+  run?: OperationRun
 ): Promise<void> {
   const realmDir = state.getRealm() === '/' ? 'root' : state.getRealm();
   for (const [treeId, journey] of Object.entries(journeys)) {
     if (name && treeId !== name) {
       continue;
     }
-    const journeyDir = `realms/${realmDir}/journeys/${treeId}`;
-    const nodeDir = `${journeyDir}/nodes`;
-    if (clean) {
-      fs.rmSync(nodeDir, { recursive: true, force: true });
-    }
-    for (const node of Object.values(journey.nodes)) {
-      if (
-        name &&
-        pullDependencies &&
-        node._type._id === 'InnerTreeEvaluatorNode'
-      ) {
-        await processJourneysExport(
-          journeys,
-          node.tree,
+    const exportJourney = async () => {
+      const journeyDir = `realms/${realmDir}/journeys/${treeId}`;
+      const nodeDir = `${journeyDir}/nodes`;
+      if (clean) {
+        fs.rmSync(nodeDir, { recursive: true, force: true });
+      }
+      for (const node of Object.values(journey.nodes)) {
+        if (
+          name &&
+          pullDependencies &&
+          node._type._id === 'InnerTreeEvaluatorNode'
+        ) {
+          await processJourneysExport(
+            journeys,
+            node.tree,
+            pullDependencies,
+            clean
+          );
+        }
+        await processNodeExport(
+          node,
+          journey.tree.nodes[node._id].displayName,
+          nodeDir,
+          realmDir,
           pullDependencies,
-          clean
+          journey
         );
       }
-      await processNodeExport(
-        node,
-        journey.tree.nodes[node._id].displayName,
-        nodeDir,
-        realmDir,
-        pullDependencies,
-        journey
+      saveJsonToFile(
+        journey.tree,
+        getFilePath(`${journeyDir}/${journey.tree._id}.json`, true),
+        false,
+        true,
+        true
       );
-    }
-    saveJsonToFile(
-      journey.tree,
-      getFilePath(`${journeyDir}/${journey.tree._id}.json`, true),
-      false,
-      true,
-      true
-    );
+    };
+    if (run) await run.run(`${realmDir}/${treeId}`, exportJourney);
+    else await exportJourney();
   }
 }
 
@@ -310,18 +341,25 @@ function processJourneyImport(
 
 /**
  * Import journeys from fr-config-manager file structure
+ * Every journey is imported even when another one failed, and one summary names the failed ones. The library imports
+ * the journeys of a realm as one batch, reports each journey to the result callback, and rejects the batch as a whole
+ * when it does not validate or has unresolved dependencies: that fails the realm, and the other realms are still
+ * imported.
  * @param {string} name optional journey name to import
  * @param {string} realm optional realm to import to
  * @param {boolean} dependencies if true, push scripts and inner tree dependencies
  * @param {boolean} validate if true, validate the journeys on import
- * @returns true if successful, false otherwise
+ * @param {boolean} allowFailures true to succeed although some journeys could not be imported (the failures are still summarised)
+ * @returns false if there is no journey to import (no journey files, or the named one does not exist) or a journey or realm cannot be imported (unless failures are allowed), true otherwise
  */
 export async function configManagerImportJourneys(
   name?: string,
   realm?: string,
   dependencies: boolean = false,
-  validate: boolean = true
+  validate: boolean = true,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'journey', allowFailures });
   try {
     const pushInnerJourneys = !name || dependencies;
     const pushScripts = dependencies;
@@ -338,7 +376,7 @@ export async function configManagerImportJourneys(
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name);
 
-    let imported = false;
+    let found = false;
 
     for (const realmDir of realmDirs) {
       state.setRealm(realmDir === 'root' ? '/' : realmDir);
@@ -367,34 +405,48 @@ export async function configManagerImportJourneys(
       for (const journeyName of journeyNames) {
         const journeyDir = `${journeysBaseDir}/${journeyName}`;
         if (!fs.existsSync(journeyDir)) continue;
+        found = true;
 
-        Object.assign(
-          trees,
-          processJourneyImport(
-            journeyName,
-            pushInnerJourneys,
-            pushScripts,
-            journeysBaseDir,
-            realmDir,
-            processed
-          )
-        );
+        try {
+          Object.assign(
+            trees,
+            processJourneyImport(
+              journeyName,
+              pushInnerJourneys,
+              pushScripts,
+              journeysBaseDir,
+              realmDir,
+              processed
+            )
+          );
+        } catch (error) {
+          // the files of this journey cannot be read: the others are still imported
+          printError(error, `Error reading journey ${journeyName}`);
+          run.recordFailure(`${realmDir}/${journeyName}`, causeOf(error));
+        }
       }
 
       if (Object.keys(trees).length) {
-        await importJourneys({ trees }, options);
-        imported = true;
+        try {
+          // the library counts each journey it imported or failed to import
+          await importJourneys({ trees }, options, run.resultCallback());
+        } catch (error) {
+          // not a journey failure: the library rejected the whole batch of this realm
+          printError(error, `Error importing journeys of realm ${realmDir}`);
+          run.recordFailure(`${realmDir} realm`, causeOf(error));
+        }
       }
     }
 
-    if (!imported) {
+    if (!found) {
       printMessage('No journey files found to import.', 'error');
       return false;
     }
 
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error importing journeys`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

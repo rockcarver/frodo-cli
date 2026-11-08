@@ -194,8 +194,10 @@ import`, `node import`, `script import`, `theme import`, `email template
 import`, `service import`, `realm import`, `role import`, `saml import`, `saml
 cot import`, `idp import`, `app import`, `oauth client import`, `authz policy
 import`, `authz set import`, `authz type import`, `esv secret import`, `esv
-variable import`, `secretstore import`, `server import`, `iga workflow import`
-and `admin federation import`. For the deletes this means a
+variable import`, `secretstore import`, `server import`, `iga workflow import`,
+`admin federation import`, and `config-manager pull` and `push` of
+`authentication`, `authz-policies`, `journeys`, `oauth2-agents` and
+`org-privileges`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -369,7 +371,27 @@ import`, `secretstore import`, `server import` and `admin federation import`
 printed "Unrecognized combination of options or no options..." and the help
 after a failed login; they now report the failed login and exit 1. A file that
 cannot be read or parsed with `-a`, and a directory that cannot be listed with
-`-A`, fail the command whatever `--allow-failures` says. See
+`-A`, fail the command whatever `--allow-failures` says.
+`config-manager pull` and `push` of `authentication`, `authz-policies`,
+`journeys`, `oauth2-agents` and `org-privileges` stopped at the first realm,
+policy set, agent or journey that failed, and left the later ones undone. They
+now do every one they can, name the ones that failed in one summary (a realm for
+`authentication`, a policy set, an agent, a journey, and for `org-privileges`
+the privilege assignments or the configuration of a realm) and exit 1, or 0 with
+`--allow-failures`. `push org-privileges` ignored the privilege assignments
+(an import that failed still exited 0) and failed at the first realm of the
+tenant that had no file; a realm without a file has nothing to import now, a
+folder without `privilegeAssignments.json` warns, and a missing `org-privileges`
+folder, or a file named with `-n` that is not there, is said plainly and exits 1.
+`pull org-privileges` with a realm exported nothing for the realm when the
+privilege assignments failed; it tries both. `push journeys` rejects the batch
+of a realm when the library finds an invalid journey or a missing dependency:
+that realm fails, and the other realms are imported. `pull journeys -n` exits 1
+and says so when no realm has the journey (it exited 0 and exported nothing).
+`push oauth2-agents` skips the root realm on Identity Cloud, as the other kinds
+do (frodo-cli#1097). Listing the realms, reading the config file given with
+`-f`, and a missing `realms` folder fail the command whatever `--allow-failures`
+says. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

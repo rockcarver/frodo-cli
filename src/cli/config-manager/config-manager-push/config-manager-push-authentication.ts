@@ -21,6 +21,7 @@ export default function setup() {
 
   program
     .description('Import authentication objects.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -32,7 +33,10 @@ export default function setup() {
       );
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing config entity authentication');
-        const outcome = await configManagerImportAuthentication(realm);
+        const outcome = await configManagerImportAuthentication(
+          realm,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

@@ -19,6 +19,7 @@ export default function setup() {
     .addOption(
       new Option('-c, --clean', 'Clear existing configuration before pull.')
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -35,7 +36,8 @@ export default function setup() {
           options.name,
           realm,
           options.pullDependencies,
-          options.clean
+          options.clean,
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       } else {

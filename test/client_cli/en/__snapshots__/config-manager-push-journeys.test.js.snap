@@ -22,6 +22,10 @@ Arguments:
   password                 Password.
 
 Options:
+  --allow-failures         Report operations that fail, but still exit with code
+                           0. Without this option the command runs every
+                           operation, prints a summary of what failed and exits
+                           with code 1.
   -d, --push-dependencies  Push scripts and inner journeys
   -n, --name <name>        Journey name, imports the specified Journey.
   --no-validate            Do not validate journeys before import.

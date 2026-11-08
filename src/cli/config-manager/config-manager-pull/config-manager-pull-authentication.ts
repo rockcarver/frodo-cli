@@ -8,6 +8,7 @@ export default function setup() {
 
   program
     .description('Export authentication settings.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -19,7 +20,10 @@ export default function setup() {
       );
       if (await getTokens()) {
         verboseMessage('Exporting authentication settings');
-        const outcome = await configManagerExportAuthentication(realm);
+        const outcome = await configManagerExportAuthentication(
+          realm,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

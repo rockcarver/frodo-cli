@@ -79,6 +79,7 @@ export default function setup() {
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -95,7 +96,10 @@ export default function setup() {
         return;
       }
       verboseMessage('Exporting OAuth2 agents.');
-      const outcome = await configManagerExportOAuth2Agents(options.file);
+      const outcome = await configManagerExportOAuth2Agents(
+        options.file,
+        options.allowFailures
+      );
       if (!outcome) process.exitCode = 1;
     });
 

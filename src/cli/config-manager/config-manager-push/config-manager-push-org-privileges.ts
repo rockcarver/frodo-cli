@@ -31,6 +31,7 @@ export default function setup() {
         'Organization Privileges name; only imports the privileges with the specified name.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -52,7 +53,9 @@ export default function setup() {
           printMessage(
             'Importing organization privileges config to all realms'
           );
-          outcome = await configManagerImportOrgPrivilegesAllRealms();
+          outcome = await configManagerImportOrgPrivilegesAllRealms(
+            options.allowFailures
+          );
         }
         if (!outcome) process.exitCode = 1;
       }

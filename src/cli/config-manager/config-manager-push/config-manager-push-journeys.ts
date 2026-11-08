@@ -22,7 +22,7 @@ export default function setup() {
     .addOption(
       new Option('--no-validate', 'Do not validate journeys before import.')
     )
-
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -43,7 +43,8 @@ export default function setup() {
         options.name,
         realm,
         options.pushDependencies,
-        options.validate
+        options.validate,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });
