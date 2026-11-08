@@ -21,6 +21,7 @@ export default function setup() {
 
   program
     .description('Delete journeys/trees.')
+    .multiOp()
     .addOption(
       new Option(
         '-i, --journey-id <journey>',
@@ -139,7 +140,10 @@ export default function setup() {
               return;
             }
             verboseMessage('Deleting all journeys...');
-            const outcome = await deleteJourneys(deleteJourneysOptions);
+            const outcome = await deleteJourneys(
+              deleteJourneysOptions,
+              options.allowFailures
+            );
             if (!outcome) process.exitCode = 1;
           }
         }

@@ -18,6 +18,8 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
+import { OperationRun } from '../utils/OperationRun';
 
 const { decodeBase64, saveTextToFile, getFilePath, getWorkingDirectory } =
   frodo.utils;
@@ -482,6 +484,66 @@ export async function deleteSaml2ProviderById(
     return true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete all entity providers. The CLI reads the providers and deletes them one
+ * by one, so that a failed read (nothing was tried) is told from a failed delete
+ * (the others still run) without looking at the library's error messages.
+ * @param {boolean} allowFailures true to report providers that could not be deleted but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteSaml2Providers(
+  allowFailures = false
+): Promise<boolean> {
+  debugMessage(`cli.Saml2Ops.deleteSaml2Providers: begin`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Reading entity providers...`
+  );
+  try {
+    const stubs = await readSaml2ProviderStubs();
+    stubs.sort((a, b) => a.entityId.localeCompare(b.entityId));
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully read ${stubs.length} entity providers.`,
+      'success'
+    );
+    if (stubs.length === 0) {
+      printMessage('No entity providers found to delete.');
+      return true;
+    }
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      stubs.length,
+      `Deleting entity providers...`
+    );
+    const run = new OperationRun({ unit: 'entity provider', allowFailures });
+    for (const stub of stubs) {
+      try {
+        await deleteSaml2Provider(stub.entityId);
+        run.recordSuccess();
+        updateProgressIndicator(indicatorId, `Deleted ${stub.entityId}`);
+      } catch (error) {
+        printError(error);
+        run.recordFailure(stub.entityId, causeOf(error));
+      }
+    }
+    stopProgressIndicator(
+      indicatorId,
+      run.hasFailures
+        ? `Some entity providers could not be deleted.`
+        : `Deleted ${stubs.length} entity providers.`,
+      run.hasFailures ? 'fail' : 'success'
+    );
+    debugMessage(`cli.Saml2Ops.deleteSaml2Providers: end`);
+    return run.finish();
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error deleting entity providers`, 'fail');
     printError(error);
   }
   return false;

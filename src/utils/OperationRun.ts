@@ -213,6 +213,44 @@ export class OperationRun {
     };
   }
 
+  /**
+   * Records the outcome of a library bulk function that tried every item and
+   * threw ONE combined error that carries one nested error per failed item
+   * (the library's bulk deletes do that). The caller has read the items first,
+   * so a failed read is not the case here, prints the combined error itself, and
+   * says how many items there were: the items without a nested error count as
+   * succeeded. A thrown error without nested errors is one failure, named
+   * `fallbackName`.
+   * @param error the error the library function threw
+   * @param settings `total`: how many items the library function was given.
+   * `fallbackName`: what to call the failure of an error that names no item.
+   * `itemName`: Optional. The name to show for one nested error, or undefined to
+   * fall back to {@link describeFailure}.
+   */
+  recordCombinedError(
+    error: unknown,
+    {
+      total,
+      fallbackName,
+      itemName,
+    }: {
+      total: number;
+      fallbackName: string;
+      itemName?: (error: unknown) => string | undefined;
+    }
+  ): void {
+    const nested = nestedErrors(error);
+    if (nested.length === 0) {
+      this.recordFailure(fallbackName, causeOf(error));
+      return;
+    }
+    for (let i = nested.length; i < total; i++) this.recordSuccess();
+    for (const item of nested) {
+      const described = describeFailure(item);
+      this.recordFailure(itemName?.(item) ?? described.name, described.reason);
+    }
+  }
+
   /** True if any operation failed or was not attempted. */
   get hasFailures(): boolean {
     return this.failures.length > 0 || this.notAttempted.length > 0;

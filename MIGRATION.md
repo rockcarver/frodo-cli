@@ -177,30 +177,34 @@ custom-nodes`, `email-templates`, `endpoints`, `scripts` and `themes`, `app
 delete -a`, `idm remote-proxy delete -a`, `log key delete`, `oauth client delete
 -a`, `node delete -a`, `secretstore delete -a`, `secretstore mapping delete -a`,
 `iga workflow delete -a`, `agent delete -a`, `agent ai delete -a`, `agent
-gateway delete -a`, `agent java delete -a` and `agent web delete -a`. For the
-deletes this means a failed delete used to be printed and the command still
-exited 0 (`esv secret delete -a`, `log key delete`), or the run ended at the
-first failure (`esv variable delete -a`, `script delete -a` with a filter), and
-now every item is tried and the exit code is 1 if any failed. The
-`config-manager` deletes used to end with a count line of their own (`Deleted 2
-scripts, 1 failed.`, `Deleted 2 email templates, 1 failed.`, `Themes could not
-be deleted in 1 of 3 realms.`); the summary names the failed items instead (the
-realms, for themes). `config-manager delete endpoints` on a tenant without
-custom endpoints used to exit 1 and now exits 0, because nothing to delete is
-not a failure; `config-manager delete scripts` now says `No scripts found to
-delete.` when nothing matches. `node delete -a`, `secretstore delete -a`,
-`secretstore mapping delete -a` and `iga workflow delete -a` already exited 1
-but ended with "Deleted ..." after failures; they now say that some could not be
-deleted and name them. The agent deletes already exited 1 after a failed delete,
-with one combined error; they now delete every agent they can, print one summary
-that names the agents that failed, and say `No agents found to delete.` and exit
-0 when there are none. Listing the agents fails the command whatever
-`--allow-failures` says; since frodo-lib 5.0.0-26 `agent delete -a`, like `agent
-list` and `agent export`, also fails when an agent type cannot be listed for any
-reason other than HTTP 501 (not implemented), where it used to skip that type
-without a word. `oauth client delete -a` did not delete anything; it now deletes
-all OAuth2 clients, after asking for confirmation (add `--yes` in a script, cli
-record 0037). See
+gateway delete -a`, `agent java delete -a`, `agent web delete -a`, `saml delete
+-a`, `service delete -a` and `journey delete -a`. For the deletes this means a
+failed delete used to be printed and the command still exited 0 (`esv secret
+delete -a`, `log key delete`), or the run ended at the first failure (`esv
+variable delete -a`, `script delete -a` with a filter), and now every item is
+tried and the exit code is 1 if any failed. The `config-manager` deletes used to
+end with a count line of their own (`Deleted 2 scripts, 1 failed.`, `Deleted 2
+email templates, 1 failed.`, `Themes could not be deleted in 1 of 3 realms.`);
+the summary names the failed items instead (the realms, for themes).
+`config-manager delete endpoints` on a tenant without custom endpoints used to
+exit 1 and now exits 0, because nothing to delete is not a failure;
+`config-manager delete scripts` now says `No scripts found to delete.` when
+nothing matches. `node delete -a`, `secretstore delete -a`, `secretstore mapping
+delete -a` and `iga workflow delete -a` already exited 1 but ended with "Deleted
+..." after failures; they now say that some could not be deleted and name them.
+The agent deletes already exited 1 after a failed delete, with one combined
+error; they now delete every agent they can, print one summary that names the
+agents that failed, and say `No agents found to delete.` and exit 0 when there
+are none. Listing the agents fails the command whatever `--allow-failures` says;
+since frodo-lib 5.0.0-26 `agent delete -a`, like `agent list` and `agent
+export`, also fails when an agent type cannot be listed for any reason other
+than HTTP 501 (not implemented), where it used to skip that type without a word.
+`oauth client delete -a` did not delete anything; it now deletes all OAuth2
+clients, after asking for confirmation (add `--yes` in a script, cli record
+0037). `journey delete -a` printed "Deleted N journeys" with N counting the
+journeys it could not delete, and `journey delete -i` exited 0 after one failed;
+a journey that could not be deleted (or, with `--deep`, whose nodes could not be
+deleted) is now named in the summary and the exit code is 1. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x
