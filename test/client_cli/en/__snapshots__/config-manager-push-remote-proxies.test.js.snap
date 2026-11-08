@@ -24,6 +24,9 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
+  --allow-failures   Report operations that fail, but still exit with code 0.
+                     Without this option the command runs every operation,
+                     prints a summary of what failed and exits with code 1.
   -n, --name <name>  Remote proxy name. If specified, imports only the remote
                      proxy with the given name.
   -h, --help         Help

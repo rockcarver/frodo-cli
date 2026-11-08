@@ -21,6 +21,9 @@ Arguments:
   password           Password.
 
 Options:
+  --allow-failures   Report operations that fail, but still exit with code 0.
+                     Without this option the command runs every operation,
+                     prints a summary of what failed and exits with code 1.
   -n, --name <name>  Connector definition name; imports only the specified
                      connector definition.
   -h, --help         Help

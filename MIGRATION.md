@@ -199,8 +199,10 @@ variable import`, `secretstore import`, `server import`, `iga workflow import`,
 `authentication`, `authz-policies`, `journeys`, `oauth2-agents`,
 `org-privileges`, `password-policy`, `raw`, `saml`, `scripts`,
 `secret-mappings`, `secrets`, `service-objects`, `themes`, `custom-nodes`,
-`endpoints`, `iga-workflows`, `locales`, `schedules`, `services` and
-`telemetry`. For the deletes this means a
+`endpoints`, `iga-workflows`, `locales`, `schedules`, `services`, `telemetry`,
+`connector-definitions`, `email-templates`, `internal-roles`, `remote-proxies`
+and `variables`, and `config-manager pull managed-objects`, `pull
+connector-mappings` and `push csp`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -468,6 +470,26 @@ when no item was named, succeeds with a message (`push iga-workflows` and `push
 telemetry` used to exit 1). Inside `pull all`, the `locales`, `schedules` and
 `services` steps print their own summary of the items before the step appears
 in the summary of the steps.
+The config-manager `pull` and `push` commands for connector definitions, email
+templates, internal roles, remote proxies and variables, `pull managed-objects`,
+`pull connector-mappings` and `push csp` now try every item, name the ones that
+failed in one summary and exit 1 unless `--allow-failures` was given. They
+stopped at the first item that failed, so the items after it were not written or
+imported, and a `push` that could not read one file imported nothing. A failure
+to read the tenant, a file named with `-n` that cannot be read, a named item
+that does not exist and a missing source folder fail the command whatever the
+flag says. Some exit codes changed (decision record 0041): `pull managed-objects
+-n <name>` for an object the tenant does not have, and `push internal-roles -n
+<name>` and `push email-templates -n <name>` for an item that no file holds,
+succeeded without a word and now say so and exit 1; `push
+connector-definitions`, `push internal-roles` and `push email-templates` from an
+empty folder succeeded without a word and now say that they found no files and
+exit 1, as `push variables` and `push remote-proxies` always did. A missing
+source folder is now said plainly (`No internal roles folder found: <path> does
+not exist.`) instead of with a file system error. A pull of a kind that the
+tenant has none of succeeds and says so (`No email templates found to export.`).
+In `config-manager pull all` an item that cannot be written fails its step, as
+before, and the step is named in the summary of steps.
 See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 

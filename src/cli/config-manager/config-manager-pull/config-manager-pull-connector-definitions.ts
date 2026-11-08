@@ -28,6 +28,7 @@ export default function setup() {
         'Get connector definition from specified name/id, without the type prefix.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -48,7 +49,8 @@ export default function setup() {
           : 'Exporting all connector defitions.'
       );
       const outcome = await configManagerExportConnectorDefinitions(
-        options.name
+        options.name,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

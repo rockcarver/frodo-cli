@@ -28,6 +28,7 @@ export default function setup() {
         'Connector definition name; imports only the specified connector definition.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -40,7 +41,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing connector definitions');
-        const outcome = await configManagerImportConnectors(options.name);
+        const outcome = await configManagerImportConnectors(
+          options.name,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;

@@ -33,6 +33,7 @@ jest.unstable_mockModule('../../src/utils/Config', () => ({
 }));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
   printError: jest.fn(),
+  printMessage: jest.fn(),
 }));
 
 const { configManagerExportManagedObjects } =

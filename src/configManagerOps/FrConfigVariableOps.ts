@@ -7,12 +7,15 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import {
   csvEscape,
   escapePlaceholders,
   esvToEnv,
   friendlyTimestamp,
 } from '../utils/FrConfig';
+import { countItems, recordImportOfFile } from '../utils/ImportItems';
+import { OperationRun } from '../utils/OperationRun';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { readVariables, importVariables } = frodo.cloud.variable;
@@ -32,13 +35,19 @@ export function formatEnvAssignment(name: string, value: unknown): string {
 
 /**
  * Export all variables to individual files in fr-config-manager format
+ * Every variable is one operation of an {@link OperationRun}: a variable whose file cannot be
+ * written is printed and named in one summary, and the others are still written. A failure to read
+ * the variables ends the command whatever `--allow-failures` says, and so does the report, which
+ * is one operation.
  * @param {boolean} report true to report in csv format
  * @param {boolean} dump true to dump variable values to the console
+ * @param {boolean} allowFailures true to report variables that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportVariables(
   report?: boolean,
-  dump?: boolean
+  dump?: boolean,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   let spinnerId: string;
   let variableList: VariableSkeleton[];
@@ -77,6 +86,7 @@ export async function configManagerExportVariables(
     return true;
   }
 
+  const run = new OperationRun({ unit: 'variable', allowFailures });
   let indicatorId: string;
   try {
     indicatorId = createProgressIndicator(
@@ -85,47 +95,68 @@ export async function configManagerExportVariables(
       'Exporting variables'
     );
     for (const variable of variableList) {
-      const envVariable = esvToEnv(variable._id);
+      await run.run(variable._id, () => {
+        const envVariable = esvToEnv(variable._id);
 
-      const variableObject = {
-        _id: variable._id,
-        expressionType: variable.expressionType,
-        description: escapePlaceholders(variable.description),
-        valueBase64: '${' + envVariable + '}',
-      };
+        const variableObject = {
+          _id: variable._id,
+          expressionType: variable.expressionType,
+          description: escapePlaceholders(variable.description),
+          valueBase64: '${' + envVariable + '}',
+        };
 
-      saveJsonToFile(
-        variableObject,
-        getFilePath(`esvs/variables/${variable._id}.json`, true),
-        false
-      );
+        saveJsonToFile(
+          variableObject,
+          getFilePath(`esvs/variables/${variable._id}.json`, true),
+          false
+        );
 
-      if (dump) {
-        printMessage(formatEnvAssignment(envVariable, variable.value), 'data');
-      }
+        if (dump) {
+          printMessage(
+            formatEnvAssignment(envVariable, variable.value),
+            'data'
+          );
+        }
+      });
 
       updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
     }
-    stopProgressIndicator(
-      indicatorId,
-      `${variableList.length} variables exported`
-    );
-    return true;
+    if (run.hasFailures) {
+      stopProgressIndicator(
+        indicatorId,
+        'Some variables could not be exported.',
+        'fail'
+      );
+    } else {
+      stopProgressIndicator(
+        indicatorId,
+        `${variableList.length} variables exported`
+      );
+    }
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error exporting variables`);
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Import variables to tenant
+ * Every file is read on its own: a file that cannot be read is printed and named in the one
+ * summary, and the variables of the other files are still imported. The variables that the library
+ * cannot import are named in the summary too. A missing folder, a folder without variable files and
+ * a named variable without a file end the command whatever `--allow-failures` says.
  * @param { string } variableName name of the variable to import
+ * @param {boolean} allowFailures true to report variables that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerImportVariables(
-  variableName?: string
+  variableName?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'variable', allowFailures });
   let indicatorId: string;
   const spinnerId = createProgressIndicator(
     'indeterminate',
@@ -168,20 +199,44 @@ export async function configManagerImportVariables(
       'Importing variables'
     );
 
-    const importData = {
-      variable: Object.fromEntries(
-        fileNames.map((fileName) => {
-          const variable = readJsonFile(
-            `${variablesDir}/${fileName}`
-          ) as VariableSkeleton;
-          // valueBase64 will not be encoded by this point, so set value so it encodes on import
-          variable.value = variable.valueBase64;
-          return [variable._id, variable];
-        })
-      ),
-    };
+    const importData = { variable: {} as Record<string, VariableSkeleton> };
+    for (const fileName of fileNames) {
+      try {
+        const variable = readJsonFile(
+          `${variablesDir}/${fileName}`
+        ) as VariableSkeleton;
+        // valueBase64 will not be encoded by this point, so set value so it encodes on import
+        variable.value = variable.valueBase64;
+        importData.variable[variable._id] = variable;
+      } catch (error) {
+        // the file that the command line names is read whatever the flag says
+        if (variableName) throw error;
+        printError(error);
+        run.recordFailure(fileName, causeOf(error));
+      }
+    }
 
-    const imported = await importVariables(importData);
+    if (countItems(importData, 'variable') === 0) {
+      // every file failed to read: the summary names them
+      stopProgressIndicator(
+        indicatorId,
+        'No variable could be read, nothing is imported.',
+        'fail'
+      );
+      return run.finish();
+    }
+
+    const { result: imported, error: importError } = await recordImportOfFile({
+      run,
+      itemCount: countItems(importData, 'variable'),
+      fileName: variablesDir,
+      importItems: () => importVariables(importData),
+    });
+    if (importError) {
+      stopProgressIndicator(indicatorId, `Error importing variables`, 'fail');
+      printError(importError);
+      return run.finish();
+    }
 
     let unchanged = 0;
     let updated = 0;
@@ -225,10 +280,11 @@ export async function configManagerImportVariables(
         'warn'
       );
     }
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error importing variables`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
     return false;
   }
 }

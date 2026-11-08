@@ -1,7 +1,9 @@
+import fs from 'fs';
 import { readFile } from 'fs/promises';
 import { frodo, type ContentSecurityPolicy } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { printError, printMessage } from '../utils/Console';
 import { lodashMerge } from '../utils/FrConfig';
+import { OperationRun } from '../utils/OperationRun';
 
 const { env } = frodo.cloud;
 const {
@@ -47,22 +49,40 @@ export async function configManagerExportCsp(
 
 /**
  * Import the content security policy in fr-config manager format
+ * The enforced and the report-only policy are two operations of an {@link OperationRun}: a policy
+ * that cannot be updated is printed and named in one summary, and the other policy is still
+ * updated. A missing or unreadable file and a name that is neither policy end the command whatever
+ * `--allow-failures` says.
  * @param {string} name optional csp name to import
+ * @param {boolean} allowFailures true to report a policy that could not be updated but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function configManagerImportCsp(name?: string): Promise<boolean> {
+export async function configManagerImportCsp(
+  name?: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
   try {
-    const importData = readJsonFile(getFilePath('csp/csp.json')) as CSPExport;
-    if (!name || name === 'enforced')
-      await updateEnforcedContentSecurityPolicy(importData.enforced);
-    if (!name || name === 'report-only')
-      await updateReportOnlyContentSecurityPolicy(importData['report-only']);
     if (name && name !== 'enforced' && name !== 'report-only') {
       throw new Error(
         `Invalid CSP name '${name}'. Valid values are 'enforced' or 'report-only'.`
       );
     }
-    return true;
+    const cspFile = getFilePath('csp/csp.json');
+    if (!fs.existsSync(cspFile)) {
+      printMessage(`No CSP file found: ${cspFile} does not exist.`, 'error');
+      return false;
+    }
+    const importData = readJsonFile(cspFile) as CSPExport;
+    const run = new OperationRun({ unit: 'policy', allowFailures });
+    if (!name || name === 'enforced')
+      await run.run('enforced', async () => {
+        await updateEnforcedContentSecurityPolicy(importData.enforced);
+      });
+    if (!name || name === 'report-only')
+      await run.run('report-only', async () => {
+        await updateReportOnlyContentSecurityPolicy(importData['report-only']);
+      });
+    return run.finish();
   } catch (error) {
     printError(error);
     return false;

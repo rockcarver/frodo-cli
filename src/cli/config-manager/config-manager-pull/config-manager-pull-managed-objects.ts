@@ -35,6 +35,7 @@ export default function setup() {
       )
     )
 
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -49,7 +50,8 @@ export default function setup() {
         verboseMessage('Exporting managed objects...');
         const outcome = await configManagerExportManagedObjects(
           options.name,
-          options.customRelationships
+          options.customRelationships,
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       } else {

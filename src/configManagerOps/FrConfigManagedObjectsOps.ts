@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { printError } from '../utils/Console';
+import { printError, printMessage } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
@@ -55,64 +56,88 @@ function extractScripts(
 
 /**
  * Export IDM managed objects in fr-config-manager format.
+ * Every managed object is one operation of an {@link OperationRun}: an object whose files cannot be
+ * written is printed and named in one summary, and the others are still written. A failure to read
+ * the configuration, or a named object that does not exist, ends the command whatever
+ * `--allow-failures` says.
  * @param {string} name The managed object name to export
  * @param {boolean} pullCustomRelationships True to pull custom relationship schema
+ * @param {boolean} allowFailures True to report objects that could not be exported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportManagedObjects(
   name?: string,
-  pullCustomRelationships = false
+  pullCustomRelationships = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'managed object', allowFailures });
   try {
     const repoMapping = pullCustomRelationships
       ? await readConfigEntity('repo.ds')
       : null;
     const managedObjects = (await readConfigEntity('managed')).objects as any[];
-    for (const managedObject of managedObjects) {
-      if (name && name !== managedObject.name) continue;
-      const objectPath = `managed-objects/${managedObject.name}`;
-      extractScripts(
-        managedObject,
-        objectPath,
-        (k) => `${managedObject.name}.${k}.js`
-      );
-      if (managedObject.actions)
+    const selected = managedObjects.filter(
+      (managedObject) => !name || name === managedObject.name
+    );
+    if (selected.length === 0) {
+      if (name) {
+        printMessage(`Managed object ${name} not found.`, 'error');
+        return false;
+      }
+      printMessage('No managed objects found to export.', 'info');
+      return true;
+    }
+    for (const managedObject of selected) {
+      await run.run(managedObject.name, async () => {
+        const objectPath = `managed-objects/${managedObject.name}`;
         extractScripts(
-          managedObject.actions,
+          managedObject,
           objectPath,
-          (k) => `${managedObject.name}.actions.${k}.js`
+          (k) => `${managedObject.name}.${k}.js`
         );
-      SCRIPT_HOOKS.forEach((hook) => {
-        extractScripts(
-          managedObject.schema.properties,
-          objectPath,
-          (k) => `${managedObject.name}.${k}.${hook}.js`,
-          hook
+        if (managedObject.actions)
+          extractScripts(
+            managedObject.actions,
+            objectPath,
+            (k) => `${managedObject.name}.actions.${k}.js`
+          );
+        SCRIPT_HOOKS.forEach((hook) => {
+          extractScripts(
+            managedObject.schema.properties,
+            objectPath,
+            (k) => `${managedObject.name}.${k}.${hook}.js`,
+            hook
+          );
+        });
+        if (pullCustomRelationships) {
+          const customRelationships = getCustomRelationships(
+            managedObject,
+            repoMapping
+          );
+          for (const customRelationship of customRelationships) {
+            const schemaData = await readManagedObjectSchemaProperty(
+              managedObject.name,
+              customRelationship
+            );
+            const schemaFileName = `${objectPath}/schema/${managedObject.name}.schema.${customRelationship}.json`;
+            saveJsonToFile(
+              schemaData,
+              getFilePath(schemaFileName, true),
+              false
+            );
+          }
+        }
+        saveJsonToFile(
+          managedObject,
+          getFilePath(`${objectPath}/${managedObject.name}.json`, true),
+          false
         );
       });
-      if (pullCustomRelationships) {
-        const customRelationships = getCustomRelationships(
-          managedObject,
-          repoMapping
-        );
-        for (const customRelationship of customRelationships) {
-          const schemaData = await readManagedObjectSchemaProperty(
-            managedObject.name,
-            customRelationship
-          );
-          const schemaFileName = `${objectPath}/schema/${managedObject.name}.schema.${customRelationship}.json`;
-          saveJsonToFile(schemaData, getFilePath(schemaFileName, true), false);
-        }
-      }
-      saveJsonToFile(
-        managedObject,
-        getFilePath(`${objectPath}/${managedObject.name}.json`, true),
-        false
-      );
     }
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting IDM managed objects`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

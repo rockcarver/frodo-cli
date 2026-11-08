@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { printError } from '../utils/Console';
+import { printError, printMessage } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
@@ -10,44 +11,64 @@ const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
 
 /**
  * Export all mappings to separate files in fr-config-manager format
+ * Every mapping is one operation of an {@link OperationRun}: a mapping whose files cannot be
+ * written is printed and named in one summary, and the others are still written. A failure to read
+ * the sync configuration, or a named mapping that does not exist, ends the command whatever
+ * `--allow-failures` says.
  * @param {string} name connector mapping name
+ * @param {boolean} allowFailures true to report mappings that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportMappings(
-  name?: string
+  name?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'mapping', allowFailures });
   try {
     const exportData = await readConfigEntity('sync');
     const fileDir = `sync/mappings`;
-    for (const mapping of Object.values(exportData.mappings)) {
-      if (name && name !== mapping.name) continue;
-      const mappingPath = `${fileDir}/${mapping.name}`;
-
-      Object.entries(mapping).forEach(([key, value]: [string, any]) => {
-        if (
-          value &&
-          typeof value === 'object' &&
-          value.type === 'text/javascript' &&
-          value.source
-        ) {
-          const scriptText = Array.isArray(value.source)
-            ? value.source.join('\n')
-            : value.source;
-
-          const scriptFilename = `${mapping.name}.${key}.js`;
-          (value as any).file = scriptFilename; // Replace source code with file reference
-          extractFrConfigDataToFile(scriptText, scriptFilename, mappingPath);
-
-          delete value.source;
-        }
-      });
-
-      const fileName = `${mappingPath}/${mapping.name}.json`;
-      saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
+    const selected = Object.values(exportData.mappings ?? {}).filter(
+      (mapping: any) => !name || name === mapping.name
+    );
+    if (selected.length === 0) {
+      if (name) {
+        printMessage(`Mapping ${name} not found.`, 'error');
+        return false;
+      }
+      printMessage('No connector mappings found to export.', 'info');
+      return true;
     }
-    return true;
+    for (const mapping of selected as any[]) {
+      await run.run(mapping.name, () => {
+        const mappingPath = `${fileDir}/${mapping.name}`;
+
+        Object.entries(mapping).forEach(([key, value]: [string, any]) => {
+          if (
+            value &&
+            typeof value === 'object' &&
+            value.type === 'text/javascript' &&
+            value.source
+          ) {
+            const scriptText = Array.isArray(value.source)
+              ? value.source.join('\n')
+              : value.source;
+
+            const scriptFilename = `${mapping.name}.${key}.js`;
+            (value as any).file = scriptFilename; // Replace source code with file reference
+            extractFrConfigDataToFile(scriptText, scriptFilename, mappingPath);
+
+            delete value.source;
+          }
+        });
+
+        const fileName = `${mappingPath}/${mapping.name}.json`;
+        saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
+      });
+    }
+    return run.finish();
   } catch (error) {
     printError(error, `Error exporting mappings to files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
