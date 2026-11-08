@@ -75,6 +75,7 @@ export default function setup() {
         `\nRelated Commands:\n` +
         `  Run ${c.command('frodo admin execute-rfc7523-authz-grant-flow --help')} to see how to test your configuration created with ${c.command('frodo admin generate-rfc7523-authz-grant-artefacts')}:\n`
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -116,7 +117,8 @@ export default function setup() {
             options.sub,
             options.scope.split(' '),
             { save: options.save },
-            options.json
+            options.json,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         } else {

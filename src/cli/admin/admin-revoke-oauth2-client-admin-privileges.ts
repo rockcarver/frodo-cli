@@ -29,6 +29,7 @@ export default function setup() {
         'Name of the oauth2 client.'
       ).hideHelp()
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -43,11 +44,12 @@ export default function setup() {
         if (await getTokens(false, true, deploymentTypes)) {
           printMessage(
             `Revoking admin privileges from oauth2 client "${
-              options.target
+              options.clientId || options.target
             }" in realm "${state.getRealm()}"...`
           );
           const outcome = await revokeOAuth2ClientAdminPrivileges(
-            options.clientId || options.target
+            options.clientId || options.target,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         } else {

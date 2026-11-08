@@ -1,14 +1,9 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import Table from 'cli-table3';
 import { Option } from 'commander';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  createLongLivedToken,
-  createOAuth2ClientWithAdminPrivileges,
-} from '../../ops/AdminOps';
+import { createOAuth2ClientWithAdminPrivileges } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
-import c from '../../utils/ColorTheme';
-import { printError, printMessage } from '../../utils/Console.js';
+import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand, SecretOption } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -60,6 +55,7 @@ export default function setup() {
         'Token lifetime (seconds). This option only applies if used with the --llt option.'
       ).default(315360000, '315,360,000 seconds (10 years)')
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -83,59 +79,20 @@ export default function setup() {
           if (options.clientSecret) {
             clientSecret = options.clientSecret;
           }
-          if (
-            await createOAuth2ClientWithAdminPrivileges(clientId, clientSecret)
-          ) {
-            const table = new Table({
-              chars: {
-                top: '',
-                'top-mid': '',
-                'top-left': '',
-                'top-right': '',
-                bottom: '',
-                'bottom-mid': '',
-                'bottom-left': '',
-                'bottom-right': '',
-                left: '',
-                'left-mid': '',
-                mid: '',
-                'mid-mid': '',
-                right: '',
-                'right-mid': '',
-              },
-              style: { 'padding-left': 0, 'padding-right': 0 },
-              wordWrap: true,
-            });
-            table.push([c.heading('Client ID'), clientId]);
-            table.push([c.heading('Client Secret'), clientSecret]);
-            if (options.llt) {
-              try {
-                const response = await createLongLivedToken(
-                  clientId,
-                  clientSecret,
-                  options.lltScope,
-                  options.lltEsv,
-                  options.lltTtl
-                );
-                if (options.lltEsv)
-                  table.push([c.heading('Secret Name'), response.secret]);
-                table.push([c.heading('Scope'), response.scope]);
-                table.push([c.heading('Expires'), response.expires_on]);
-                printMessage(table.toString());
-                if (options.lltEsv === false) {
-                  printMessage(`\nBearer token:`, 'info');
-                  printMessage(`${response.access_token}`, 'data');
+          const outcome = await createOAuth2ClientWithAdminPrivileges(
+            clientId,
+            clientSecret,
+            options.llt
+              ? {
+                  scope: options.lltScope,
+                  // --no-llt-esv: the token is output instead of stored
+                  esv: options.lltEsv || undefined,
+                  ttl: options.lltTtl,
                 }
-              } catch (error) {
-                printError(error);
-                process.exitCode = 1;
-              }
-            } else {
-              printMessage(table.toString());
-            }
-          } else {
-            process.exitCode = 1;
-          }
+              : undefined,
+            options.allowFailures
+          );
+          if (!outcome) process.exitCode = 1;
         } else {
           process.exitCode = 1;
         }

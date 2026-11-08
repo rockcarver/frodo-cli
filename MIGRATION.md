@@ -195,14 +195,18 @@ import`, `service import`, `realm import`, `role import`, `saml import`, `saml
 cot import`, `idp import`, `app import`, `oauth client import`, `authz policy
 import`, `authz set import`, `authz type import`, `esv secret import`, `esv
 variable import`, `secretstore import`, `server import`, `iga workflow import`,
-`admin federation import`, and `config-manager pull` and `push` of
-`authentication`, `authz-policies`, `journeys`, `oauth2-agents`,
-`org-privileges`, `password-policy`, `raw`, `saml`, `scripts`,
-`secret-mappings`, `secrets`, `service-objects`, `themes`, `custom-nodes`,
-`endpoints`, `iga-workflows`, `locales`, `schedules`, `services`, `telemetry`,
-`connector-definitions`, `email-templates`, `internal-roles`, `remote-proxies`
-and `variables`, and `config-manager pull managed-objects`, `pull
-connector-mappings` and `push csp`. For the deletes this means a
+`admin federation import`, `admin generate-rfc7523-authz-grant-artefacts`,
+`admin grant-oauth2-client-admin-privileges`, `admin
+revoke-oauth2-client-admin-privileges`, `admin
+create-oauth2-client-with-admin-privileges`, `admin repair-org-model`, and
+`config-manager pull` and `push` of `authentication`, `authz-policies`,
+`journeys`, `oauth2-agents`, `org-privileges`, `password-policy`, `raw`, `saml`,
+`scripts`, `secret-mappings`, `secrets`, `service-objects`, `themes`,
+`custom-nodes`, `endpoints`, `iga-workflows`, `locales`, `schedules`,
+`services`, `telemetry`, `connector-definitions`, `email-templates`,
+`internal-roles`, `remote-proxies` and `variables`, and `config-manager pull
+managed-objects`, `pull connector-mappings` and `push csp`. For the deletes this
+means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -490,6 +494,28 @@ not exist.`) instead of with a file system error. A pull of a kind that the
 tenant has none of succeeds and says so (`No email templates found to export.`).
 In `config-manager pull all` an item that cannot be written fails its step, as
 before, and the step is named in the summary of steps.
+The five `admin` commands that change an oauth2 client or the org model used to
+stop at the first failed step, or ignore the failure and exit 0; they now run
+every step they can, print one summary that names the steps that failed, and
+exit 1 unless `--allow-failures` was given. `admin
+grant-oauth2-client-admin-privileges` makes the static user mapping only when
+the client was updated, and a client that cannot be updated fails the command
+whatever the flag says; `admin revoke-oauth2-client-admin-privileges` removes
+the static user mapping even when the client could not be updated (and named the
+client "undefined" in its first message with `-i`). `admin
+create-oauth2-client-with-admin-privileges` prints the client id and secret as
+soon as the client exists, also when a later step failed; it printed nothing
+then, and a generated secret was lost. With `--llt` a static user mapping that
+cannot be made also fails the command whatever the flag says, because the token
+would have no admin rights. A secret for the token that cannot be created is now
+an error (it printed an empty secret name), `--no-llt-esv` prints the token (it
+printed "undefined"), and the access token lifetime of the client is reset also
+when the token could not be issued. `admin
+repair-org-model` checked the organization model only when the user model needed
+no repair, and exited 0 after a model it could not repair; it checks both and
+exits 1. `admin generate-rfc7523-authz-grant-artefacts` saves the JWK and the
+JWKS independently of each other and no longer names a JWKS file that was not
+written.
 See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 

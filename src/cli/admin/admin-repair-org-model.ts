@@ -35,6 +35,7 @@ export default function setup() {
       )
     )
     .addOption(new Option('--dry-run', 'Dry-run only, do not perform changes.'))
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -51,7 +52,8 @@ export default function setup() {
           const outcome = await repairOrgModel(
             options.excludeCustomized,
             options.extendPermissions,
-            options.dryRun
+            options.dryRun,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         } else {
