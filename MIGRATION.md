@@ -196,8 +196,9 @@ cot import`, `idp import`, `app import`, `oauth client import`, `authz policy
 import`, `authz set import`, `authz type import`, `esv secret import`, `esv
 variable import`, `secretstore import`, `server import`, `iga workflow import`,
 `admin federation import`, and `config-manager pull` and `push` of
-`authentication`, `authz-policies`, `journeys`, `oauth2-agents` and
-`org-privileges`. For the deletes this means a
+`authentication`, `authz-policies`, `journeys`, `oauth2-agents`,
+`org-privileges`, `password-policy`, `raw`, `saml`, `scripts` and
+`secret-mappings`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -391,7 +392,39 @@ and says so when no realm has the journey (it exited 0 and exported nothing).
 `push oauth2-agents` skips the root realm on Identity Cloud, as the other kinds
 do (frodo-cli#1097). Listing the realms, reading the config file given with
 `-f`, and a missing `realms` folder fail the command whatever `--allow-failures`
-says. See
+says.
+`config-manager pull` and `push` for `password-policy`, `raw`, `saml`, `scripts`
+and `secret-mappings` stopped at the first realm, script, secret mapping, SAML
+provider, circle of trust or raw config that failed and exited 1 with one error.
+They now do every one they can, print one summary that names the ones that
+failed, and exit 1 unless `--allow-failures` was given. `push saml` handed all
+providers of a realm to the library in one call, which could not say which one
+failed; it now imports them one by one, in the same order. A script without a
+name, a script whose content file is missing and a file that is not JSON (or,
+for `push password-policy`, is not a password policy) used to stop the whole
+command; each is one failed item now. What the command line names must exist,
+and when it does not the command says so in plain words and fails whatever
+`--allow-failures` says: the file of `pull raw -f` and `pull saml -f` (both
+options are mandatory now; without one the command failed with `The "path"
+argument must be of type string`), the `raw` folder of `push raw` and the
+`realms` folder of `push password-policy`, `push scripts` and `push saml` (the
+file-system error is gone), a realm given as an argument whose password policy,
+script config, SAML config or secret-mappings folder is missing, a name that is
+in no file or not in the tenant (`push scripts -n` printed a warning and exited
+0; `push saml -n`, `pull secret-mappings -n` and `push secret-mappings -n`
+printed nothing and exited 0), a script that `pull scripts -n` finds but that is
+not a JavaScript script, and a `push raw -p` that matches no file (it imported
+nothing and exited 0; the path is that of the config in the tenant, for example
+`/openidm/config/cluster`, not a file-system path). A realm folder that holds no
+password policy or script config is only skipped, with a warning that names the
+file or folder (`push password-policy` used to fail), and a realm of the tenant
+that has no secret-mappings folder has nothing to push. A realm in the file of
+`pull saml` without `samlProviders` or without `circlesOfTrust` is no longer an
+error. `push raw --stdin` is one configuration and fails whatever
+`--allow-failures` says. `config-manager pull all` runs these pull commands as
+steps: a failed item is named in the summary of its command, and the step in the
+summary of the steps.
+See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

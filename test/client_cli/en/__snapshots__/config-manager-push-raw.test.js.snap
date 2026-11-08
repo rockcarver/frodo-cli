@@ -21,6 +21,9 @@ Arguments:
   password           Password.
 
 Options:
+  --allow-failures   Report operations that fail, but still exit with code 0.
+                     Without this option the command runs every operation,
+                     prints a summary of what failed and exits with code 1.
   -i, --stdin        Read configuration from standard input. Requires --path.
   -p, --path <path>  The path of the service object configuration.
   -h, --help         Help

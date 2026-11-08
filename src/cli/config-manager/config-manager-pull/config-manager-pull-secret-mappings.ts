@@ -24,6 +24,7 @@ export default function setup() {
         'Name of the secret mapping, If specified, only exports the secret mapping with the specified name.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -38,7 +39,8 @@ export default function setup() {
         verboseMessage('Exporting secret mappings...');
         const outcome = await configManagerExportSecretMappings(
           options.name,
-          realm
+          realm,
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       } else {

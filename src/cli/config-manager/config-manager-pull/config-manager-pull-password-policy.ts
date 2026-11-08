@@ -21,6 +21,7 @@ export default function setup() {
 
   program
     .description('Export password policy.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -32,7 +33,10 @@ export default function setup() {
       );
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting password policies...');
-        const outcome = await configManagerExportPasswordPolicy(realm);
+        const outcome = await configManagerExportPasswordPolicy(
+          realm,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

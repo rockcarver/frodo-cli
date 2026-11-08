@@ -22,6 +22,8 @@ export default function setup() {
       )
     );
 
+  program.multiOp();
+
   program.action(async (host, realm, user, password, options, command) => {
     command.handleDefaultArgsAndOpts(
       host,
@@ -41,7 +43,8 @@ export default function setup() {
     const outcome = await configManagerImportScripts(
       realm,
       options.name,
-      options.filenameFilter
+      options.filenameFilter,
+      options.allowFailures
     );
     if (!outcome) process.exitCode = 1;
   });

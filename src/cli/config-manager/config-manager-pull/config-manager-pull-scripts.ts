@@ -22,6 +22,7 @@ export default function setup() {
         'Export all scripts that start with a certain prefix. Repetition of this flag is allowed. Cannot be used with -n.'
       ).conflicts(['scriptName'])
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -45,7 +46,8 @@ export default function setup() {
       const outcome = await configManagerExportScripts(
         options.prefix,
         realm,
-        options.scriptName
+        options.scriptName,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

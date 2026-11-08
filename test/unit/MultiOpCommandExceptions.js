@@ -30,11 +30,6 @@ export const STOPS_AT_THE_FIRST_ERROR = [
   'frodo admin grant-oauth2-client-admin-privileges',
   'frodo admin revoke-oauth2-client-admin-privileges',
   'frodo config-manager pull managed-objects',
-  'frodo config-manager pull password-policy',
-  'frodo config-manager pull raw',
-  'frodo config-manager pull saml',
-  'frodo config-manager pull scripts',
-  'frodo config-manager pull secret-mappings',
   'frodo config-manager pull secrets',
   'frodo config-manager pull service-objects',
   'frodo config-manager pull themes',
@@ -43,12 +38,7 @@ export const STOPS_AT_THE_FIRST_ERROR = [
   'frodo config-manager push endpoints',
   'frodo config-manager push iga-workflows',
   'frodo config-manager push locales',
-  'frodo config-manager push password-policy',
-  'frodo config-manager push raw',
-  'frodo config-manager push saml',
   'frodo config-manager push schedules',
-  'frodo config-manager push scripts',
-  'frodo config-manager push secret-mappings',
   'frodo config-manager push service-objects',
   'frodo config-manager push services',
   'frodo config-manager push telemetry',
@@ -87,9 +77,7 @@ export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
 ];
 
 /** The other operations run and the failures are reported, but the exit code stays 0. */
-export const CONTINUES_BUT_EXITS_ZERO = [
-  'frodo journey prune',
-];
+export const CONTINUES_BUT_EXITS_ZERO = ['frodo journey prune'];
 
 /** The other operations run, each failure is named in one combined error and the exit code is 1. Closest to the rule; still lacks the "N of M" summary and --allow-failures. */
 export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [

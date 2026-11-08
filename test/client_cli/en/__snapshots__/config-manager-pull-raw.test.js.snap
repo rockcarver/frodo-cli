@@ -22,7 +22,12 @@ Arguments:
   password                  Password.
 
 Options:
+  --allow-failures          Report operations that fail, but still exit with
+                            code 0. Without this option the command runs every
+                            operation, prints a summary of what failed and exits
+                            with code 1.
   -f, --config-file <file>  The file path of the service object config file.
+                            (prompts if missing)
   -h, --help                Help
   -hh, --help-more          Help with all options.
   -hhh, --help-all          Help with all options, environment variables, and

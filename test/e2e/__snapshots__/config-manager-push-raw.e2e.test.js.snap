@@ -16,14 +16,6 @@ exports[`frodo config-manager push raw  "frodo config-manager push raw -E ESV_VA
 "
 `;
 
-exports[`frodo config-manager push raw  "frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment -D test/e2e/exports/fr-config-manager/cloud: should import raw configuration into cloud" 1`] = `""`;
-
-exports[`frodo config-manager push raw  "frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment -D test/e2e/exports/fr-config-manager/cloud: should import raw configuration into cloud" 2`] = `
-"Experimental feature in use: 'frodo config-manager push raw'. This feature may change without notice.
-✔ Raw config import completed.
-"
-`;
-
 exports[`frodo config-manager push raw  "frodo config-manager push raw -p /openidm/config/cluster -i -m forgeops": should import raw configuration into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push raw  "frodo config-manager push raw -p /openidm/config/cluster -i -m forgeops": should import raw configuration into forgeops" 2`] = `
@@ -32,10 +24,3 @@ exports[`frodo config-manager push raw  "frodo config-manager push raw -p /openi
 "
 `;
 
-exports[`frodo config-manager push raw  "frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -m forgeops": should import raw configuration into forgeops" 1`] = `""`;
-
-exports[`frodo config-manager push raw  "frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -m forgeops": should import raw configuration into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push raw'. This feature may change without notice.
-✔ Raw config import completed.
-"
-`;

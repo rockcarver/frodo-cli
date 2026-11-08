@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, state, type ScriptSkeleton } from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printError,
@@ -27,12 +27,14 @@ const { readScripts, readScriptByName, updateScript, deleteScript } =
  * @param {string} prefixes optional prefixes array; if not empty, will look only for scripts that start with the prefixes
  * @param {string} realm Designates the specific realm to pull from
  * @param {string} name only exports specifically named script
- * @returns {boolean} True if export was successful
+ * @param {boolean} allowFailures True to succeed although some scripts could not be exported (the failures are still summarised)
+ * @returns {boolean} True if export was successful. A script or a realm that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A named script that cannot be read, or that is not a JavaScript script, fails the command whatever the option says.
  */
 export async function configManagerExportScripts(
   prefixes: string[] = [],
   realm?: string,
-  name?: string
+  name?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -50,16 +52,35 @@ export async function configManagerExportScripts(
       );
       return false;
     }
-    for (const realm of realms) {
+    const run = new OperationRun({ unit: 'script', allowFailures });
+    let cannotExportNamed = false;
+    for (const currentRealm of realms) {
       if (
-        realm === '/' &&
+        currentRealm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
-      state.setRealm(realm);
-      const scripts = name
-        ? [await readScriptByName(name)]
-        : await readScripts();
+      state.setRealm(currentRealm);
+      let scripts: ScriptSkeleton[];
+      try {
+        scripts = name ? [await readScriptByName(name)] : await readScripts();
+      } catch (error) {
+        if (name) {
+          // the one script that was asked for: nothing for the flag to allow
+          printError(
+            error,
+            `Error reading script '${name}' in realm '${currentRealm}'`
+          );
+          cannotExportNamed = true;
+        } else {
+          printError(
+            error,
+            `Error reading the scripts of realm '${currentRealm}'`
+          );
+          run.recordFailure(`realm ${currentRealm}`, causeOf(error));
+        }
+        continue;
+      }
       for (const s of scripts) {
         if (
           !name &&
@@ -67,37 +88,64 @@ export async function configManagerExportScripts(
           !prefixes.some((p) => s.name.startsWith(p))
         )
           continue;
-        if (s.language !== 'JAVASCRIPT') continue;
+        if (s.language !== 'JAVASCRIPT') {
+          if (name) {
+            printMessage(
+              `Script '${name}' is not a JavaScript script and cannot be exported.`,
+              'error'
+            );
+            cannotExportNamed = true;
+          }
+          continue;
+        }
 
-        const decodedScript = decodeBase64(
-          Array.isArray(s.script) ? s.script.join('\n') : s.script
-        );
-        const scriptName = safeFileName(s.name);
-        const relScriptPath = `scripts-content/${s.context}/${scriptName}.js`;
-        const fileObj = { file: relScriptPath };
-        const realmDir = realm === '/' ? 'root' : realm;
-        saveJsonToFile(
-          { ...s, script: fileObj },
-          getFilePath(
-            `realms/${realmDir}/scripts/scripts-config/${s._id}.json`,
+        try {
+          const decodedScript = decodeBase64(
+            Array.isArray(s.script) ? s.script.join('\n') : s.script
+          );
+          const scriptName = safeFileName(s.name);
+          const relScriptPath = `scripts-content/${s.context}/${scriptName}.js`;
+          const fileObj = { file: relScriptPath };
+          const realmDir = currentRealm === '/' ? 'root' : currentRealm;
+          saveJsonToFile(
+            { ...s, script: fileObj },
+            getFilePath(
+              `realms/${realmDir}/scripts/scripts-config/${s._id}.json`,
+              true
+            ),
+            false,
+            false,
             true
-          ),
-          false,
-          false,
-          true
-        );
-        saveTextToFile(
-          decodedScript,
-          getFilePath(`realms/${realmDir}/scripts/${relScriptPath}`, true)
-        );
+          );
+          saveTextToFile(
+            decodedScript,
+            getFilePath(`realms/${realmDir}/scripts/${relScriptPath}`, true)
+          );
+          run.recordSuccess();
+        } catch (error) {
+          printError(
+            error,
+            `Error exporting script '${s.name}' of realm '${currentRealm}'`
+          );
+          run.recordFailure(
+            `${s.name} in realm ${currentRealm}`,
+            causeOf(error)
+          );
+        }
       }
     }
+    const failed = run.hasFailures || cannotExportNamed;
     stopProgressIndicator(
       indicatorId,
-      'Finished exporting scripts.',
-      'success'
+      failed
+        ? 'Finished exporting scripts with errors.'
+        : 'Finished exporting scripts.',
+      failed ? 'fail' : 'success'
     );
-    return true;
+    // the named script, when it cannot be read or is of another language, is
+    // not an operation that failed among others: it fails the command whatever
+    // --allow-failures says
+    return run.finish() && !cannotExportNamed;
   } catch (error) {
     stopProgressIndicator(indicatorId, 'Error exporting scripts.', 'fail');
     printError(error, 'Error exporting scripts.');
@@ -110,12 +158,14 @@ export async function configManagerExportScripts(
  * @param {string} realm option to determine which realm to import
  * @param {string} name option to import a specific script by name
  * @param {string} filenameFilter option to filter imported scripts
- * @returns True if Import was successful
+ * @param {boolean} allowFailures True to succeed although some scripts could not be imported (the failures are still summarised)
+ * @returns True if Import was successful. A script that cannot be imported does not stop the others; the result is false if any failed, unless failures are allowed. A named script that is not in the config folder, a named realm without script config, and a config folder without a realms folder fail the command whatever the option says; a realm folder without script config is skipped with a warning.
  */
 export async function configManagerImportScripts(
   realm?: string,
   name?: string,
-  filenameFilter?: string
+  filenameFilter?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -124,14 +174,25 @@ export async function configManagerImportScripts(
   );
 
   try {
+    const named = !!realm && realm !== DEFAULT_REALM_KEY;
     const realmsDir = `${getWorkingDirectory()}/realms`;
-    const realms: string[] =
-      realm && realm !== DEFAULT_REALM_KEY
-        ? [realm === '/' ? 'root' : realm]
-        : fs
-            .readdirSync(realmsDir, { withFileTypes: true })
-            .filter((entry) => entry.isDirectory())
-            .map((entry) => entry.name);
+    let realms: string[];
+    if (named) {
+      realms = [realm === '/' ? 'root' : realm];
+    } else {
+      if (!fs.existsSync(realmsDir)) {
+        stopProgressIndicator(
+          indicatorId,
+          `There is no 'realms' folder in '${getWorkingDirectory()}', so there are no scripts to push.`,
+          'fail'
+        );
+        return false;
+      }
+      realms = fs
+        .readdirSync(realmsDir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name);
+    }
 
     if (name && realms.length !== 1) {
       stopProgressIndicator(
@@ -142,10 +203,12 @@ export async function configManagerImportScripts(
       return false;
     }
 
-    let scriptNotFound = !!name;
+    const run = new OperationRun({ unit: 'script', allowFailures });
+    let scriptFound = false;
+    let missingNamedConfig = false;
 
-    for (const realm of realms) {
-      const realmName = realm === 'root' ? '/' : realm;
+    for (const currentRealm of realms) {
+      const realmName = currentRealm === 'root' ? '/' : currentRealm;
 
       if (
         realmName === '/' &&
@@ -155,12 +218,20 @@ export async function configManagerImportScripts(
 
       state.setRealm(realmName);
 
-      const configDir = `${getWorkingDirectory()}/realms/${realm}/scripts/scripts-config`;
+      const configDir = `${getWorkingDirectory()}/realms/${currentRealm}/scripts/scripts-config`;
       if (!fs.existsSync(configDir)) {
-        printMessage(
-          `Warning: no script config defined in realm ${realm}. Expecting directory ${configDir}`,
-          'warn'
-        );
+        if (named) {
+          printMessage(
+            `No script config defined in realm ${currentRealm}. Expecting directory ${configDir}`,
+            'error'
+          );
+          missingNamedConfig = true;
+        } else {
+          printMessage(
+            `Warning: no script config defined in realm ${currentRealm}. Expecting directory ${configDir}`,
+            'warn'
+          );
+        }
         continue;
       }
       const configFiles = fs
@@ -169,49 +240,74 @@ export async function configManagerImportScripts(
 
       for (const file of configFiles) {
         const configPath = `${configDir}/${file}`;
-        const importData = readJsonFile(configPath) as any;
+        let label = file;
+        try {
+          const importData = readJsonFile(configPath) as any;
+          label = importData.name || importData._id || file;
 
-        if (!fileFilter(importData.script.file, filenameFilter)) {
-          continue;
-        }
+          if (!fileFilter(importData.script.file, filenameFilter)) {
+            continue;
+          }
 
-        if (!importData.name || importData.name.trim() === '') {
-          stopProgressIndicator(
-            indicatorId,
-            `Script ${importData._id} must have a valid (non-blank) name!`,
-            'fail'
+          if (!importData.name || importData.name.trim() === '') {
+            printMessage(
+              `Script ${importData._id} must have a valid (non-blank) name!`,
+              'error'
+            );
+            run.recordFailure(`${file} in realm ${currentRealm}`, 'blank name');
+            continue;
+          }
+
+          if (name && importData.name !== name) continue;
+          scriptFound = true;
+
+          const fullScriptPath = getFilePath(
+            `realms/${currentRealm}/scripts/${importData.script.file}`
           );
-          return false;
-        }
+          delete importData.script.file;
+          importData.script = fs.readFileSync(fullScriptPath, 'utf8');
 
-        if (name && importData.name !== name) continue;
-        scriptNotFound = false;
-
-        const fullScriptPath = getFilePath(
-          `realms/${realm}/scripts/${importData.script.file}`
-        );
-        delete importData.script.file;
-        importData.script = fs.readFileSync(fullScriptPath, 'utf8');
-
-        const importedScript = await updateScript(importData._id, importData);
-        if (!importedScript)
-          printMessage(
-            `No change in script ${importData.name} - skipping update`
+          const importedScript = await updateScript(importData._id, importData);
+          if (!importedScript)
+            printMessage(
+              `No change in script ${importData.name} - skipping update`
+            );
+          run.recordSuccess();
+        } catch (error) {
+          printError(
+            error,
+            `Error importing script '${label}' of realm '${currentRealm}'`
           );
+          run.recordFailure(
+            `${label} in realm ${currentRealm}`,
+            causeOf(error)
+          );
+        }
       }
     }
 
-    if (name && scriptNotFound) {
-      printMessage(`Script "${name}" not found`, 'warn');
+    const notFound =
+      !!name && !scriptFound && !missingNamedConfig && !run.hasFailures;
+    if (notFound) {
+      printMessage(
+        `Script "${name}" not found in the script config of realm ${realms[0]}.`,
+        'error'
+      );
     }
 
+    const failed = run.hasFailures || missingNamedConfig || notFound;
     stopProgressIndicator(
       indicatorId,
-      'Finished importing scripts.',
-      'success'
+      failed
+        ? 'Finished importing scripts with errors.'
+        : 'Finished importing scripts.',
+      failed ? 'fail' : 'success'
     );
 
-    return true;
+    // a named realm without script config, or a named script that is in no file,
+    // is not an operation that failed among others: it fails the command
+    // whatever --allow-failures says
+    return run.finish() && !missingNamedConfig && !notFound;
   } catch (error) {
     stopProgressIndicator(indicatorId, 'Error importing scripts', 'fail');
     printError(error, 'Error importing scripts.');

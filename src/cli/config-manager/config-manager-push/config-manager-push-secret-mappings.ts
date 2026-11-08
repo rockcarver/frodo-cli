@@ -24,6 +24,7 @@ export default function setup() {
         'Secret mapping name. It will only import secret mapping with the specified name.'
       )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -56,7 +57,8 @@ export default function setup() {
       verboseMessage('Importing secret mappings configuration.');
       const outcome = await configManagerImportSecretMappings(
         options.name,
-        realm
+        realm,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });
