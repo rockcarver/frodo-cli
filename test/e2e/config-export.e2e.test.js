@@ -103,11 +103,17 @@ describe('frodo config export', () => {
       const CMD = `frodo config export --all --static --file ${exportFile}`;
       await testExport(CMD, cloudEnv, type, exportFile, undefined, true, true);
     });
+    // The recording replays a failing SAML2 export of the library (a script that does not exist in realm alpha). The export
+    // still writes everything else, and the run now ends with the failure summary (cli record 0040, exports): the stderr
+    // snapshot of this test was edited by hand, two lines added at the end.
     test('"frodo config export --all --dynamic --file testExportAllDynamic.json": should export only dynamic configurations.', async () => {
       const exportFile = 'testExportAllDynamic.json';
       const CMD = `frodo config export --all --dynamic --file ${exportFile}`;
       await testExport(CMD, cloudEnv, type, exportFile, undefined, true, true);
     });
+    // The recording replays a failing SAML2 export of the library (a script that does not exist in realm alpha). The export
+    // still writes everything else, and the run now ends with the failure summary (cli record 0040, exports): the stderr
+    // snapshot of this test was edited by hand, two lines added at the end.
     test('"frodo config export --all --static --dynamic --file testExportAllBoth.json": should export both static and dynamic configurations.', async () => {
       const exportFile = 'testExportAllBoth.json';
       const CMD = `frodo config export --all --static --dynamic --file ${exportFile}`;

@@ -183,6 +183,7 @@ export default function setup() {
       options: ['all', 'allSeparate'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -214,7 +215,8 @@ export default function setup() {
               onlyCustom: options.onlyCustom,
               includeStatic: options.static || !options.dynamic,
               includeDynamic: options.dynamic || !options.static,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -247,7 +249,8 @@ export default function setup() {
               onlyCustom: options.onlyCustom,
               includeStatic: options.static || !options.dynamic,
               includeDynamic: options.dynamic || !options.static,
-            }
+            },
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }

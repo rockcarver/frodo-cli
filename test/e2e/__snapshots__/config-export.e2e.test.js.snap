@@ -64,6 +64,8 @@ Error Exporting SAML2 Providers
 • Exported 0 bravo realm policies.
 • Exported 3 bravo realm policy sets.
 • Exported 3 bravo realm resource types.
+1 of 30 items failed:
+  - Error Exporting SAML2 Providers: Script with UUID 85523e71-2d77-4577-b078-6f9674cc54e2 could not be found in realm /alpha
 "
 `;
 
@@ -12033,6 +12035,8 @@ Error Exporting SAML2 Providers
 • Exported 1 secret stores.
 • Exported 2 bravo realm services.
 • Exported 8 bravo realm themes.
+1 of 56 items failed:
+  - Error Exporting SAML2 Providers: Script with UUID 85523e71-2d77-4577-b078-6f9674cc54e2 could not be found in realm /alpha
 "
 `;
 

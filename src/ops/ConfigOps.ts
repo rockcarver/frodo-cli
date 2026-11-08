@@ -26,6 +26,7 @@ import {
   printError,
   printMessage,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import { saveServersToFiles } from './classic/ServerOps';
 import { extractWorkflowScriptsToFiles } from './cloud/iga/IgaWorkflowOps';
 import {
@@ -53,11 +54,15 @@ const {
 const { exportFullConfiguration, importFullConfiguration } = frodo.config;
 
 /**
- * Export everything to separate files
+ * Export everything to a single file
+ * The library reports every part of the configuration it could or could not export to the result
+ * callback of an {@link OperationRun}: what can be exported is written to the file, and one
+ * summary names what could not be.
  * @param {String} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {FullExportOptions} options export options
+ * @param {boolean} allowFailures true to report what could not be exported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportEverythingToFile(
@@ -77,24 +82,34 @@ export async function exportEverythingToFile(
     onlyGlobal: false,
     includeStatic: true,
     includeDynamic: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'item', allowFailures });
   try {
-    const exportData = await exportFullConfiguration(options, errorHandler);
+    const exportData = await exportFullConfiguration(
+      options,
+      run.resultCallback()
+    );
     let fileName = 'all.config.json';
     if (file) {
       fileName = file;
     }
-    saveJsonToFile(
-      exportData,
-      getFilePath(fileName, true),
-      includeMeta,
-      false,
-      keepModifiedProperties
+    // the file is one more operation: when it cannot be written, that is named too
+    await run.run(fileName, () =>
+      saveJsonToFile(
+        exportData,
+        getFilePath(fileName, true),
+        includeMeta,
+        false,
+        keepModifiedProperties
+      )
     );
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even start the export
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -105,6 +120,7 @@ export async function exportEverythingToFile(
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {FullExportOptions} options export options
+ * @param {boolean} allowFailures true to report what could not be exported but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportEverythingToFiles(
@@ -124,47 +140,68 @@ export async function exportEverythingToFiles(
     onlyGlobal: false,
     includeStatic: true,
     includeDynamic: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'item', allowFailures });
   try {
-    const collectErrors: Error[] = [];
+    // what the library could not export is named in the summary; what it could is counted when it is written
+    const reportFailure = run.resultCallback();
     const exportData: FullExportInterface = await exportFullConfiguration(
       options,
-      errorHandler
+      (error, result) => {
+        if (error) reportFailure(error, result);
+      }
     );
     delete exportData.meta;
     const baseDirectory = getWorkingDirectory(true);
 
-    Object.entries(exportData.global).forEach(([type, obj]: [string, any]) =>
-      exportItem(
-        exportData.global,
-        type,
-        obj,
-        `${baseDirectory}/global`,
-        includeMeta,
-        keepModifiedProperties,
-        extract
-      )
-    );
-    Object.entries(exportData.realm).forEach(([realm, data]: [string, any]) =>
-      Object.entries(data).forEach(([type, obj]: [string, any]) =>
+    // every kind of configuration is one operation: a failure is printed and named, the others are still written
+    const exportKind = async (
+      name: string,
+      data: any,
+      type: string,
+      obj: any,
+      directory: string
+    ) => {
+      if (!obj || !Object.keys(obj).length) return;
+      await run.run(name, () =>
         exportItem(
           data,
           type,
           obj,
-          `${baseDirectory}/realm/${realm}`,
+          directory,
           includeMeta,
           keepModifiedProperties,
           extract
         )
-      )
-    );
-    if (collectErrors.length > 0) {
-      throw new FrodoError(`Errors occurred during full export`, collectErrors);
+      );
+    };
+    for (const [type, obj] of Object.entries(exportData.global)) {
+      await exportKind(
+        `global/${type}`,
+        exportData.global,
+        type,
+        obj,
+        `${baseDirectory}/global`
+      );
     }
-    return true;
+    for (const [realm, data] of Object.entries(exportData.realm)) {
+      for (const [type, obj] of Object.entries(data)) {
+        await exportKind(
+          `realm/${realm}/${type}`,
+          data,
+          type,
+          obj,
+          `${baseDirectory}/realm/${realm}`
+        );
+      }
+    }
+    return run.finish();
   } catch (error) {
+    // not an item failure: the library could not even start the export
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

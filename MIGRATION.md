@@ -179,8 +179,9 @@ delete -a`, `idm remote-proxy delete -a`, `log key delete`, `oauth client delete
 `iga workflow delete -a`, `agent delete -a`, `agent ai delete -a`, `agent
 gateway delete -a`, `agent java delete -a`, `agent web delete -a`, `saml delete
 -a`, `service delete -a`, `journey delete -a`, `agent export -A`, `agent ai export
--A`, `agent gateway export -A`, `agent java export -A` and `agent web export -A`.
-For the deletes this means a
+-A`, `agent gateway export -A`, `agent java export -A`, `agent web export -A`,
+`config export`, `idm export`, `idm schema object export -A`, `idm remote-proxy
+export -A` and `mapping export -A`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -213,7 +214,16 @@ stopped at the first agent that could not be exported, and before frodo-lib
 0; they now export every agent they can, print one summary that names the agents
 that failed (including a file that could not be saved), and exit 1. Reading the
 agents fails the command whatever `--allow-failures` says. `-a` and `-i` export
-one thing and are unchanged: a failure is printed and the exit code is 1. See
+one thing and are unchanged: a failure is printed and the exit code is 1.
+`config export` and `idm export` already exported every object the library could read, printed
+the error of each one it could not and exited 1, with `-a` as well as `-A`; they
+now also print one summary that names those objects (and, with `-a`, the file if
+it could not be written). `config export -A` used to stop at the first kind of
+configuration whose files could not be written, and `idm schema object export
+-A`, `idm remote-proxy export -A` and `mapping export -A` used to stop at the
+first object whose file could not be written, leaving the later ones, and the
+file that lists them, unwritten and printing a single error; they now write every
+object they can, name the ones that failed in the summary and exit 1. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

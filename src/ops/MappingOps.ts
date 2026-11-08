@@ -20,6 +20,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { OperationRun } from '../utils/OperationRun';
 import {
   findIdmScripts,
   getLastString,
@@ -165,8 +166,14 @@ export async function exportMappingsToFile(
 
 /**
  * Export all mappings to separate files
+ * Every mapping, new and legacy, is one operation of an {@link OperationRun}: a mapping whose file
+ * cannot be written (or whose scripts cannot be extracted) is printed and named in one summary, and
+ * the others are still written. A failure to read the mappings ends the command whatever
+ * `--allow-failures` says.
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} extract true to extract the mapping scripts into separate files, false otherwise
  * @param {MappingExportOptions} options export options
+ * @param {boolean} allowFailures true to report mappings that could not be exported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportMappingsToFiles(
@@ -175,17 +182,29 @@ export async function exportMappingsToFiles(
   options: MappingExportOptions = {
     deps: true,
     useStringArrays: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'mapping', allowFailures });
   try {
     const exportData = await exportMappings(options);
     for (const mapping of Object.values(exportData.mapping)) {
-      writeMappingJsonToDirectory(mapping, 'mapping', includeMeta, extract);
+      await run.run(mapping._id ?? mapping.name, () =>
+        writeMappingJsonToDirectory(mapping, 'mapping', includeMeta, extract)
+      );
     }
-    writeSyncJsonToDirectory(exportData.sync, 'sync', includeMeta, extract);
-    return true;
+    writeSyncJsonToDirectory(
+      exportData.sync,
+      'sync',
+      includeMeta,
+      extract,
+      run
+    );
+    return run.finish();
   } catch (error) {
+    // not an item failure: the mappings could not be read
     printError(error, `Error exporting mappings to files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
@@ -530,38 +549,58 @@ export function extractMappingScriptsToDirectory(
  * @param {string} directory The directory to save the entity to within the base directory
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract true to extract idm scripts, false otherwise. Default: false
+ * @param {OperationRun} run Optional. When given, every legacy mapping and the file that lists them are one operation of the run: a failure is printed and recorded and the others are still written. Without it the first failure is thrown.
  */
 export function writeSyncJsonToDirectory(
   sync: SyncSkeleton,
   directory: string = 'sync',
   includeMeta: boolean = true,
-  extract: boolean = false
+  extract: boolean = false,
+  run?: OperationRun
 ) {
+  // one operation of the run, or just the operation when there is no run
+  const attempt = (name: string, operation: () => void) => {
+    try {
+      operation();
+      run?.recordSuccess();
+    } catch (error) {
+      if (!run) throw error;
+      printError(error);
+      run.recordFailure(name, error);
+    }
+  };
   const mappingPaths = [];
   for (const mapping of sync.mappings) {
     if (!mapping) {
       // Skip null/malformed entries in the tenant's sync.json mappings array.
       continue;
     }
-    const fileName = getTypedFilename(mapping.name, 'sync');
-    if (
-      extract &&
-      extractMappingScriptsToDirectory(mapping, `${directory}/${mapping.name}`)
-    ) {
-      mappingPaths.push(
-        extractDataToFile(mapping, `${mapping.name}/${fileName}`, directory)
-      );
-    } else {
-      mappingPaths.push(extractDataToFile(mapping, fileName, directory));
-    }
+    attempt(`sync/${mapping.name}`, () => {
+      const fileName = getTypedFilename(mapping.name, 'sync');
+      if (
+        extract &&
+        extractMappingScriptsToDirectory(
+          mapping,
+          `${directory}/${mapping.name}`
+        )
+      ) {
+        mappingPaths.push(
+          extractDataToFile(mapping, `${mapping.name}/${fileName}`, directory)
+        );
+      } else {
+        mappingPaths.push(extractDataToFile(mapping, fileName, directory));
+      }
+    });
   }
   sync.mappings = mappingPaths;
-  saveToFile(
-    'idm',
-    sync,
-    '_id',
-    getFilePath(`${directory}/sync.idm.json`, true),
-    includeMeta
+  attempt('sync.idm.json', () =>
+    saveToFile(
+      'idm',
+      sync,
+      '_id',
+      getFilePath(`${directory}/sync.idm.json`, true),
+      includeMeta
+    )
   );
 }
 

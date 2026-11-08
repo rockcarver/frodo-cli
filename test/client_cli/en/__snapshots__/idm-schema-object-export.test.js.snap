@@ -30,6 +30,10 @@ Options:
   -A, --all-separate           Export all managed object schema definitions into
                                separate JSON files in directory -D. Cannot be
                                used with -o, -f or -a.
+  --allow-failures             Report operations that fail, but still exit with
+                               code 0. Without this option the command runs
+                               every operation, prints a summary of what failed
+                               and exits with code 1.
   -f, --file [file]            Export file if -x or -a are included. Cannot be
                                used with -A.
   -N, --no-metadata            Do not include metadata in the export file.
