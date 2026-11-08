@@ -114,6 +114,9 @@ const { importVariableFromFile } = spies.get(
 const { importResourceTypesFromFile } = spies.get(
   path.resolve(root, 'src/ops/ResourceTypeOps')
 );
+const { importMappingFromFile, deleteMapping } = spies.get(
+  path.resolve(root, 'src/ops/MappingOps')
+);
 const { OperationRun } = await import(
   path.resolve(root, 'src/utils/OperationRun')
 );
@@ -124,6 +127,20 @@ const summary = () => printMessage.mock.calls.map(([text]) => text).join('\n');
 const JOURNEY = (id) => `realm/root-alpha/journey/${id}.journey.json`;
 const journeyFile = (id) =>
   JSON.stringify({ trees: { [id]: { tree: { _id: id } } } });
+
+// The mapping files frodo writes, copied from the separate-files export that the end-to-end test of promote uses.
+const MAPPING_FIXTURES = path.resolve(
+  root,
+  'test/e2e/exports/full-export-separate/global/mapping'
+);
+const MAPPINGS = [
+  'managedAlpha_user_systemAzureUser',
+  'managedBravo_group_managedBravo_group',
+  'systemAzureUser_managedAlpha_user',
+];
+const MAPPING = (name) => `global/mapping/${name}.mapping.json`;
+const mappingFile = (name) =>
+  fs.readFileSync(path.join(MAPPING_FIXTURES, `${name}.mapping.json`), 'utf8');
 
 describe('promote', () => {
   let master;
@@ -148,6 +165,8 @@ describe('promote', () => {
     importJourneyFromFile.mockReset().mockResolvedValue(true);
     importVariableFromFile.mockReset().mockResolvedValue(true);
     importResourceTypesFromFile.mockReset().mockResolvedValue(true);
+    importMappingFromFile.mockReset().mockResolvedValue(true);
+    deleteMapping.mockReset().mockResolvedValue(true);
     deleteJourney.mockReset().mockResolvedValue(true);
     pruneOrphanedNodesInRun.mockReset().mockResolvedValue(true);
     applyUpdates.mockReset().mockResolvedValue(true);
@@ -251,6 +270,112 @@ describe('promote', () => {
       expect(summary()).toContain('2 of 3 changes failed:');
       expect(summary()).toContain(`  - ${JOURNEY('a')}`);
       expect(summary()).toContain(`  - ${JOURNEY('d')}`);
+    });
+
+    describe('mapping files', () => {
+      test('an added or changed mapping file is imported under the id that it holds', async () => {
+        write(
+          master,
+          Object.fromEntries(
+            MAPPINGS.map((name) => [MAPPING(name), mappingFile(name)])
+          )
+        );
+
+        const run = await effect({
+          added: [MAPPING(MAPPINGS[0]), MAPPING(MAPPINGS[1])],
+          changed: [MAPPING(MAPPINGS[2])],
+          deleted: [],
+        });
+
+        expect(importMappingFromFile.mock.calls).toEqual(
+          MAPPINGS.map((name) => [
+            `mapping/${name}`,
+            `${master}/${MAPPING(name)}`,
+            { deps: true },
+          ])
+        );
+        expect(run.finish()).toBe(true);
+        expect(printError).not.toHaveBeenCalled();
+      });
+
+      test('a deleted mapping file is deleted under the id that it holds', async () => {
+        write(
+          current,
+          Object.fromEntries(
+            MAPPINGS.map((name) => [MAPPING(name), mappingFile(name)])
+          )
+        );
+
+        const run = await effect({
+          added: [],
+          changed: [],
+          deleted: MAPPINGS.map(MAPPING),
+        });
+
+        expect(deleteMapping.mock.calls).toEqual(
+          MAPPINGS.map((name) => [`mapping/${name}`])
+        );
+        expect(run.finish()).toBe(true);
+      });
+
+      test.each([
+        [
+          'the mapping itself, without the wrapper',
+          '{"_id":"mapping/x","name":"x"}',
+        ],
+        ['an empty object', '{}'],
+        ['an empty mapping object', '{"mapping":{}}'],
+        ['a null mapping', '{"mapping":null}'],
+        ['a mapping that is not an object', '{"mapping":"mapping/x"}'],
+        ['a mapping list', '{"mapping":[{"_id":"mapping/x"}]}'],
+        ['two mappings', '{"mapping":{"mapping/a":{},"mapping/b":{}}}'],
+      ])(
+        'a file with %s is a failed change that names the file, and nothing is imported or deleted for it',
+        async (_title, content) => {
+          const bad = 'global/mapping/bad.mapping.json';
+          write(master, {
+            [bad]: content,
+            [MAPPING(MAPPINGS[0])]: mappingFile(MAPPINGS[0]),
+          });
+          write(current, { [bad]: content });
+
+          const run = await effect({
+            added: [bad, MAPPING(MAPPINGS[0])],
+            changed: [],
+            deleted: [bad],
+          });
+
+          expect(importMappingFromFile.mock.calls.map(([id]) => id)).toEqual([
+            `mapping/${MAPPINGS[0]}`,
+          ]);
+          expect(deleteMapping).not.toHaveBeenCalled();
+          expect(run.finish()).toBe(false);
+          expect(summary()).toContain('2 of 3 changes failed:');
+          expect(summary()).toContain(`  - ${bad}: `);
+          expect(summary()).toContain('is not a mapping file');
+          expect(summary()).not.toContain(MAPPINGS[0]);
+        }
+      );
+
+      test('a mapping file that is not JSON is a failed change with the reason', async () => {
+        write(master, {
+          [MAPPING('broken')]: '{ not json',
+          [MAPPING(MAPPINGS[1])]: mappingFile(MAPPINGS[1]),
+        });
+
+        const run = await effect({
+          added: [MAPPING('broken'), MAPPING(MAPPINGS[1])],
+          changed: [],
+          deleted: [],
+        });
+
+        expect(importMappingFromFile.mock.calls.map(([id]) => id)).toEqual([
+          `mapping/${MAPPINGS[1]}`,
+        ]);
+        expect(run.finish()).toBe(false);
+        expect(summary()).toContain('1 of 2 changes failed:');
+        expect(summary()).toContain(`  - ${MAPPING('broken')}: Error parsing`);
+      });
     });
 
     test('the orphaned nodes pruned after a deleted journey are recorded in the same run', async () => {
