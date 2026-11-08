@@ -132,7 +132,9 @@ describe('delete all eligible scripts', () => {
 
     expect(deletedIds.sort()).toEqual(['/alpha:id-Mine Too', '/bravo:id-Theirs']);
     expect(messages('error').join('\n')).toContain('Failed to delete script Mine (id-Mine) in realm /alpha');
-    expect(messages('error').join('\n')).toContain('Deleted 2 scripts, 1 failed.');
+    expect(messages('error').join('\n')).toContain(
+      '1 of 3 scripts failed:\n  - Mine in realm /alpha: refused id-Mine'
+    );
   });
 
   test('the root realm of a cloud tenant is skipped', async () => {

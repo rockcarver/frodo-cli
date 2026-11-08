@@ -66,6 +66,7 @@ export default function setup() {
           `  $ frodo config-manager delete endpoints -n Javascript -d ${s.connId}\n`
         )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -111,7 +112,8 @@ export default function setup() {
       verboseMessage('Deleting custom endpoints');
       const outcome = await configManagerDeleteEndpoints(
         options.name,
-        options.dryRun
+        options.dryRun,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

@@ -50,6 +50,7 @@ export default function setup() {
           `  $ frodo config-manager delete themes -n 'Example Theme' -d ${s.connId}\n`
         )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -90,7 +91,8 @@ export default function setup() {
       const outcome = await configManagerDeleteThemes(
         options.name,
         realm,
-        options.dryRun
+        options.dryRun,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

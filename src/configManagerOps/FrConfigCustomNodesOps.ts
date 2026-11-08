@@ -4,9 +4,10 @@ import {
   FrodoError,
   type CustomNodeSkeleton,
 } from '@rockcarver/frodo-lib';
-import { errorHandler } from '../ops/utils/OpsUtils';
 import { printError, printMessage } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   saveJsonToFile,
@@ -108,17 +109,42 @@ export async function configManagerImportCustomNodes(
 }
 
 /**
- * Delete custom nodes from the configured tenant.
+ * A result callback for the library's bulk delete that records every result in
+ * the run: a success is counted, a failure is printed and named in the summary.
+ * The library names the failed node only in the message of the error.
+ * @param {OperationRun} run the run that collects the results
+ * @returns the callback to pass to `deleteCustomNodes`
+ */
+function recordResults(run: OperationRun) {
+  const prefix = 'Error deleting custom node ';
+  return (error?: FrodoError): void => {
+    if (!error) {
+      run.recordSuccess();
+      return;
+    }
+    printError(error);
+    const name = error.message.startsWith(prefix)
+      ? error.message.slice(prefix.length)
+      : error.message.split('\n')[0];
+    run.recordFailure(name, causeOf(error));
+  };
+}
+
+/**
+ * Delete custom nodes from the configured tenant. A node that cannot be deleted
+ * does not stop the others; one summary names the nodes that failed.
  * @param {string} name Optional display name. If omitted, all custom nodes are targeted.
  * @param {boolean} dryRun Show matching nodes without deleting them.
- * @returns {Promise<boolean>} True if no errors were reported.
+ * @param {boolean} allowFailures True to succeed although some nodes could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} False if the nodes cannot be read or a node cannot be deleted (unless failures are allowed).
  */
 export async function configManagerDeleteCustomNodes(
   name?: string,
-  dryRun: boolean = false
+  dryRun: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
-    const successful = true;
     if (dryRun) {
       const nodes = name
         ? [await readCustomNode(undefined, name)]
@@ -129,15 +155,19 @@ export async function configManagerDeleteCustomNodes(
         );
       }
     } else if (name) {
-      await deleteCustomNode(undefined, name);
-      printMessage(`Deleting node with displayName: ${name}`);
+      await run.run(name, async () => {
+        await deleteCustomNode(undefined, name);
+        printMessage(`Deleting node with displayName: ${name}`);
+      });
     } else {
-      const deletedNodes = await deleteCustomNodes(errorHandler);
+      const deletedNodes = await deleteCustomNodes(recordResults(run));
       printMessage(`Deleted ${deletedNodes.length} custom nodes.`);
     }
-    return successful;
+    return run.finish();
   } catch (error) {
     printError(error, 'Error deleting custom nodes');
+    // what failed before the error that ended the run is still summarised
+    run.finish();
     return false;
   }
 }

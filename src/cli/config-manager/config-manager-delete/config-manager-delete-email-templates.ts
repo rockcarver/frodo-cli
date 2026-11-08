@@ -66,6 +66,7 @@ export default function setup() {
           `  $ frodo config-manager delete email-templates -n 'Example Template' -d ${s.connId}\n`
         )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -103,7 +104,8 @@ export default function setup() {
       verboseMessage('Deleting email templates');
       const outcome = await configManagerDeleteEmailTemplates(
         options.name,
-        options.dryRun
+        options.dryRun,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

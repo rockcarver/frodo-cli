@@ -27,6 +27,7 @@ let realms = ['/', 'alpha', 'bravo'];
 /** An error like the library's: the message of the outer error, the nested one in the combined message. */
 const libraryError = (outer, inner) =>
   Object.assign(new Error(outer), {
+    originalErrors: [new Error(inner)],
     getCombinedMessage: () => `${outer}\n  ${inner}`,
   });
 
@@ -206,7 +207,9 @@ describe('delete all themes', () => {
     const errors = messages('error').join('\n');
     expect(errors).toContain("Error deleting themes in realm 'alpha'");
     expect(errors).toContain('Request failed with status code 500');
-    expect(errors).toContain('Themes could not be deleted in 1 of 3 realms.');
+    expect(errors).toContain(
+      '1 of 3 realms failed:\n  - alpha: Request failed with status code 500'
+    );
   });
 
   test('the root realm of a cloud tenant is skipped', async () => {

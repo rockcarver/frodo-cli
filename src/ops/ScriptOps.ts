@@ -30,6 +30,8 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
+import { OperationRun } from '../utils/OperationRun';
 import { errorHandler } from './utils/OpsUtils';
 import {
   createScriptFilter,
@@ -977,37 +979,75 @@ export async function deleteScriptName(name: string): Promise<boolean> {
 }
 
 /**
- * Delete all non-default scripts
+ * A result callback for the library's bulk delete that records every result in
+ * the run: a success is counted, a failure is printed and named in the summary.
+ * The library names the failed script only in the message of the error
+ * ("Error deleting <realm> realm script <name>").
+ * @param {OperationRun} run the run that collects the results
+ * @returns the callback to pass to `deleteScripts`
+ */
+function recordResults(run: OperationRun) {
+  return (error?: FrodoError): void => {
+    if (!error) {
+      run.recordSuccess();
+      return;
+    }
+    printError(error);
+    const name =
+      error.message.match(/ script (.+)$/)?.[1] ?? error.message.split('\n')[0];
+    run.recordFailure(name, causeOf(error));
+  };
+}
+
+/**
+ * Delete all non-default scripts. A script that cannot be deleted does not stop
+ * the others; one summary names the scripts that failed.
+ * @param {ScriptFilters} filters Optional filters (language, context, evaluator version)
+ * @param {boolean} allowFailures True to succeed although some scripts could not be deleted (the failures are still summarised)
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteAllScripts(
-  filters: ScriptFilters = {}
+  filters: ScriptFilters = {},
+  allowFailures: boolean = false
 ): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting all non-default scripts...`
   );
+  const run = new OperationRun({ unit: 'script', allowFailures });
   try {
     if (hasScriptFilters(filters)) {
       const scripts = await readFilteredNonDefaultScripts(filters);
+      let deleted = 0;
       for (const script of scripts) {
-        await deleteScript(script._id);
+        try {
+          await deleteScript(script._id);
+          deleted++;
+          run.recordSuccess();
+        } catch (error) {
+          printError(error);
+          run.recordFailure(script.name, causeOf(error));
+        }
       }
       stopProgressIndicator(
         spinnerId,
-        `Deleted ${scripts.length} matching non-default script${scripts.length === 1 ? '' : 's'}.`,
-        'success'
+        run.hasFailures
+          ? `Deleted ${deleted} of ${scripts.length} matching non-default script${scripts.length === 1 ? '' : 's'}.`
+          : `Deleted ${scripts.length} matching non-default script${scripts.length === 1 ? '' : 's'}.`,
+        run.hasFailures ? 'fail' : 'success'
       );
-      return true;
+      return run.finish();
     }
-    await deleteScripts(errorHandler);
+    const deletedScripts = await deleteScripts(recordResults(run));
     stopProgressIndicator(
       spinnerId,
-      `Deleted all non-default scripts.`,
-      'success'
+      run.hasFailures
+        ? `Deleted ${deletedScripts.length} non-default scripts.`
+        : `Deleted all non-default scripts.`,
+      run.hasFailures ? 'fail' : 'success'
     );
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);

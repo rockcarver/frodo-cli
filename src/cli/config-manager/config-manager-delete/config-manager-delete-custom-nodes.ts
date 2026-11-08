@@ -52,6 +52,7 @@ export default function setup() {
           `  $ frodo config-manager delete custom-nodes -n 'Example Node' -d ${s.connId} /\n`
         )
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -97,7 +98,8 @@ export default function setup() {
       );
       const outcome = await configManagerDeleteCustomNodes(
         options.name,
-        options.dryRun
+        options.dryRun,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

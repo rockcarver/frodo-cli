@@ -22,6 +22,9 @@ Arguments:
   password           Password.
 
 Options:
+  --allow-failures   Report operations that fail, but still exit with code 0.
+                     Without this option the command runs every operation,
+                     prints a summary of what failed and exits with code 1.
   -d, --dry-run      Show which themes would be deleted.
   -n, --name <name>  Name of the theme to delete.
   -y, --yes          Do not ask for confirmation before deleting more than one

@@ -6,7 +6,9 @@ import {
   printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import { fileFilter, realmList, safeFileName } from '../utils/FrConfig';
+import { OperationRun } from '../utils/OperationRun';
 
 const {
   getFilePath,
@@ -225,14 +227,17 @@ export async function configManagerImportScripts(
  * @param {string} realm Optional realm to process. If omitted, uses the configured realm list.
  * @param {string} name Optional exact name of a script to delete.
  * @param {boolean} dryRun Preview matching scripts without deleting them. For unnamed previews, show counts by context.
- * @returns {Promise<boolean>} True if the operation succeeds, otherwise false. A script that cannot be deleted does not stop the others; the result is false if any failed.
+ * @param {boolean} allowFailures True to succeed although some scripts could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} True if the operation succeeds, otherwise false. A script that cannot be deleted does not stop the others; the result is false if any failed, unless failures are allowed. A realm whose scripts cannot be read ends the run.
  */
 export async function configManagerDeleteScripts(
   prefixes: string[] = [],
   realm?: string,
   name?: string,
-  dryRun: boolean = false
+  dryRun: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'script', allowFailures });
   try {
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
@@ -241,8 +246,7 @@ export async function configManagerDeleteScripts(
       return false;
     }
     const scriptCountsByContext = new Map<string, number>();
-    let deleted = 0;
-    let failed = 0;
+    let eligible = 0;
     for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&
@@ -278,6 +282,7 @@ export async function configManagerDeleteScripts(
       const eligibleScripts = matching
         .filter((script) => !script.default)
         .sort((a, b) => a.context.localeCompare(b.context));
+      eligible += eligibleScripts.length;
       for (const script of eligibleScripts) {
         const label = `${script.name} (${script._id}) in realm ${currentRealm}`;
         if (dryRun) {
@@ -289,30 +294,30 @@ export async function configManagerDeleteScripts(
         try {
           await deleteScript(script._id);
           printMessage(`Successfully deleted script ${label}`);
-          deleted++;
+          run.recordSuccess();
         } catch (error) {
           printError(error, `Failed to delete script ${label}`);
-          failed++;
+          run.recordFailure(
+            `${script.name} in realm ${currentRealm}`,
+            causeOf(error)
+          );
         }
       }
     }
-    if (dryRun && !name) {
+    if (eligible === 0) {
+      printMessage('No scripts found to delete.');
+    } else if (dryRun && !name) {
       let summary = '--- Scripts Deletion Summary by Type ---';
       for (const [context, count] of scriptCountsByContext) {
         summary += `\n- ${context}: ${count}`;
       }
       printMessage(summary);
     }
-    if (!dryRun && failed > 0) {
-      printMessage(
-        `Deleted ${deleted} script${deleted === 1 ? '' : 's'}, ${failed} failed.`,
-        'error'
-      );
-      return false;
-    }
-    return true;
+    return run.finish();
   } catch (error) {
     printError(error, 'Error deleting scripts.');
+    // what failed before the read that failed is still summarised
+    run.finish();
     return false;
   }
 }

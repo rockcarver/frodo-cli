@@ -96,7 +96,9 @@ describe('delete all email templates', () => {
     ]);
     const errors = messages('error').join('\n');
     expect(errors).toContain('Failed to delete email template registration refused registration');
-    expect(errors).toContain('Deleted 2 email templates, 1 failed.');
+    expect(errors).toContain(
+      '1 of 3 email templates failed:\n  - registration: refused registration'
+    );
   });
 
   test('a tenant without email templates is told so and it is not an error', async () => {
