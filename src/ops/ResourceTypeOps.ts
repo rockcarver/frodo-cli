@@ -20,6 +20,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../utils/Console';
+import { countItems, recordImportOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -544,37 +545,59 @@ export async function importFirstResourceTypeFromFile(
 
 /**
  * Import resource types from file
+ * Every resource type of the file is one operation: the resource types that cannot be imported are printed and
+ * named in one summary, and the others are still imported (record 0040). A file that cannot be read or parsed
+ * fails the command whatever `--allow-failures` says.
  * @param {string} file file name
+ * @param {boolean} allowFailures true to report resource types that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importResourceTypesFromFile(
-  file: string
+  file: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: begin`);
+  const run = new OperationRun({ unit: 'resource type', allowFailures });
   const filePath = getFilePath(file);
   showSpinner(`Importing ${filePath}...`);
+  let fileData: ResourceTypeExportInterface;
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    const types = await importResourceTypes(fileData);
-    (types.length ? succeedSpinner : warnSpinner)(
-      `Imported ${types.length} resource types from ${filePath}.`
-    );
-    debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: end`);
-    return true;
+    fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (error) {
     failSpinner(`Error importing resource types`);
     printError(error);
+    return false;
   }
-  return false;
+  const { result: types, error } = await recordImportOfFile({
+    run,
+    itemCount: countItems(fileData, 'resourcetype'),
+    fileName: filePath,
+    importItems: () => importResourceTypes(fileData),
+  });
+  if (error) {
+    failSpinner(`Error importing resource types`);
+    printError(error);
+  } else {
+    (types.length ? succeedSpinner : warnSpinner)(
+      `Imported ${types.length} resource types from ${filePath}.`
+    );
+  }
+  debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: end`);
+  return run.finish();
 }
 
 /**
  * Import resource types from files
+ * Every resource type of every file is one operation, and a file that cannot be read or parsed is a failure that is
+ * named too: the others are still imported and one summary names the failures (record 0040). A directory that
+ * cannot be read fails the command whatever `--allow-failures` says.
+ * @param {boolean} allowFailures true to report resource types that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importResourceTypesFromFiles(): Promise<boolean> {
-  const errors = [];
+export async function importResourceTypesFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'resource type', allowFailures });
   let indicatorId: string;
   try {
     debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: begin`);
@@ -595,36 +618,56 @@ export async function importResourceTypesFromFiles(): Promise<boolean> {
     );
     let total = 0;
     for (const file of files) {
+      let fileData: ResourceTypeExportInterface;
       try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData: ResourceTypeExportInterface = JSON.parse(data);
-        const types = await importResourceTypes(fileData);
+        fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      } catch (error) {
+        printError(error);
+        run.recordFailure(file, error);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing resource types from ${file}`
+        );
+        continue;
+      }
+      const { result: types, error } = await recordImportOfFile({
+        run,
+        itemCount: countItems(fileData, 'resourcetype'),
+        fileName: file,
+        importItems: () => importResourceTypes(fileData),
+      });
+      if (error) {
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing resource types from ${file}`
+        );
+        printError(error);
+      } else {
         total += types.length;
         updateProgressIndicator(
           indicatorId,
           `Imported ${types.length} resource types from ${file}`
         );
-      } catch (error) {
-        errors.push(error);
       }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing resource types`, errors);
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} resource types from ${files.length} files.`,
-      total ? 'success' : 'warn'
+      run.hasFailures
+        ? `Finished importing ${total} resource types from ${files.length} files; some could not be imported.`
+        : `Finished importing ${total} resource types from ${files.length} files.`,
+      run.hasFailures ? 'fail' : total ? 'success' : 'warn'
     );
     debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     stopProgressIndicator(
       indicatorId,
       `Error importing resource types`,
       'fail'
     );
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

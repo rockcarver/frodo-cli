@@ -49,6 +49,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'typeId', 'typeName'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -87,7 +88,10 @@ export default function setup() {
           verboseMessage(
             'Importing all authorization resource types from file...'
           );
-          const outcome = await importResourceTypesFromFile(options.file);
+          const outcome = await importResourceTypesFromFile(
+            options.file,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
@@ -95,7 +99,9 @@ export default function setup() {
           verboseMessage(
             'Importing all authorization resource types from separate files...'
           );
-          const outcome = await importResourceTypesFromFiles();
+          const outcome = await importResourceTypesFromFiles(
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import first

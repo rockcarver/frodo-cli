@@ -403,16 +403,23 @@ export async function importWorkflowFromFile(
 
 /**
  * Import workflows from file
+ * The library reports every workflow (and every dependency) to the result callback of an {@link OperationRun}, so
+ * the ones that can be imported are imported whatever happens to the others and one summary names the ones that
+ * could not be (record 0040). A file that cannot be read or parsed, or the workflows of the tenant that cannot be
+ * read, fail the command whatever `--allow-failures` says.
  * @param {String} file file name
  * @param {WorkflowImportOptions} options import options
+ * @param {boolean} allowFailures true to report workflows that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importWorkflowsFromFile(
   file: string,
   options: WorkflowImportOptions = {
     deps: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'workflow', allowFailures });
   let indicatorId: string;
   try {
     indicatorId = createProgressIndicator(
@@ -422,32 +429,41 @@ export async function importWorkflowsFromFile(
     );
     const importData = getWorkflowExportFromFile(getFilePath(file));
     updateProgressIndicator(indicatorId, 'Importing workflows...');
-    await importWorkflows(undefined, importData, options, errorHandler);
+    await importWorkflows(undefined, importData, options, run.resultCallback());
     stopProgressIndicator(
       indicatorId,
-      `Successfully imported workflow(s) from file ${file}.`,
-      'success'
+      run.hasFailures
+        ? `Error(s) importing workflow(s) from file ${file}.`
+        : `Successfully imported workflow(s) from file ${file}.`,
+      run.hasFailures ? 'fail' : 'success'
     );
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the file could not be read or the workflows of the tenant not be listed
     stopProgressIndicator(indicatorId, `Error importing workflow(s).`, 'fail');
     printError(error, `Error importing workflow(s) from file ${file}`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }
 
 /**
  * Import all workflows from separate files
+ * Every workflow (and every dependency) of every file is one operation, and a file that cannot be read or parsed is
+ * a failure that is named too: the others are still imported and one summary names the failures (record 0040). A
+ * directory that cannot be read fails the command whatever `--allow-failures` says.
  * @param {WorkflowImportOptions} options import options
+ * @param {boolean} allowFailures true to report workflows that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importWorkflowsFromFiles(
   options: WorkflowImportOptions = {
     deps: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'workflow', allowFailures });
   let indicatorId: string;
-  const errors: Error[] = [];
   try {
     const names = fs.readdirSync(getWorkingDirectory());
     const workflowFiles = names.filter((name) =>
@@ -464,25 +480,31 @@ export async function importWorkflowsFromFiles(
           indicatorId,
           `Importing workflows from file ${file}...`
         );
-        await importWorkflowsFromFile(file, options);
-      } catch (error) {
-        errors.push(
-          new FrodoError(`Error importing workflows from ${file}`, error)
+        const importData = getWorkflowExportFromFile(getFilePath(file));
+        await importWorkflows(
+          undefined,
+          importData,
+          options,
+          run.resultCallback()
         );
+      } catch (error) {
+        printError(error, `Error importing workflows from ${file}`);
+        run.recordFailure(file, error);
       }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`One or more errors importing workflows`, errors);
     }
     stopProgressIndicator(
       indicatorId,
-      `Successfully imported workflows.`,
-      'success'
+      run.hasFailures
+        ? `Error(s) importing workflows.`
+        : `Successfully imported workflows.`,
+      run.hasFailures ? 'fail' : 'success'
     );
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     stopProgressIndicator(indicatorId, `Error(s) importing workflows.`, 'fail');
     printError(error, `Error importing workflows from files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

@@ -16,6 +16,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../../utils/Console';
+import { countItems, recordImportOfFile } from '../../utils/ImportItems';
 import { OperationRun } from '../../utils/OperationRun';
 
 const {
@@ -232,58 +233,98 @@ export async function importServerFromFile(
 
 /**
  * Import servers from file
+ * Every server of the file is one operation: the servers that cannot be imported are printed and named in one
+ * summary, and the others are still imported (record 0040). A file that cannot be read or parsed fails the command
+ * whatever `--allow-failures` says.
  * @param {String} file file name
  * @param {ServerImportOptions} options import options
+ * @param {boolean} allowFailures true to report servers that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importServersFromFile(
   file: string,
   options: ServerImportOptions = {
     includeDefault: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  debugMessage(`importServersFromFile: start`);
+  debugMessage(`importServersFromFile: importing ${file}`);
+  const run = new OperationRun({ unit: 'server', allowFailures });
+  let importData: ServerExportInterface;
   try {
-    debugMessage(`importServersFromFile: start`);
-    debugMessage(`importServersFromFile: importing ${file}`);
     const path = getFilePath(file);
     const content = fs.readFileSync(path, 'utf8');
-    const importData = readServersFromFiles([
+    importData = readServersFromFiles([
       {
         path,
         content,
       },
     ]);
-    await importServers(importData, options);
-    debugMessage(`importServersFromFile: end`);
-    return true;
   } catch (error) {
     printError(error, `Error importing servers from file`);
+    return false;
   }
-  return false;
+  const { error } = await recordImportOfFile({
+    run,
+    itemCount: countItems(importData, 'server'),
+    fileName: file,
+    importItems: () => importServers(importData, options),
+  });
+  if (error) printError(error, `Error importing servers from file`);
+  debugMessage(`importServersFromFile: end`);
+  return run.finish();
 }
 
 /**
  * Import all servers from separate files
+ * Every server of every file is one operation, and a file that cannot be read or parsed is a failure that is named
+ * too: the servers of the other files are still imported and one summary names the failures (record 0040). A
+ * directory that cannot be read fails the command whatever `--allow-failures` says.
  * @param {ServerImportOptions} options import options
+ * @param {boolean} allowFailures true to report servers that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importServersFromFiles(
   options: ServerImportOptions = {
     includeDefault: true,
-  }
+  },
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'server', allowFailures });
   try {
-    const importData = readServersFromFiles(
-      (await readFiles(getWorkingDirectory())).filter(
-        (f) =>
-          f.path.endsWith('.server.json') &&
-          !f.path.endsWith('.properties.server.json')
-      )
+    const files = (await readFiles(getWorkingDirectory())).filter(
+      (f) =>
+        f.path.endsWith('.server.json') &&
+        !f.path.endsWith('.properties.server.json')
     );
-    await importServers(importData, options);
-    return true;
+    // read the files one by one, so that a file that cannot be read does not keep the others from being imported
+    const importData = {
+      server: {},
+      defaultProperties: {},
+    } as ServerExportInterface;
+    for (const f of files) {
+      try {
+        const data = readServersFromFiles([f]);
+        Object.assign(importData.server, data.server);
+        Object.assign(importData.defaultProperties, data.defaultProperties);
+      } catch (error) {
+        printError(error);
+        run.recordFailure(f.path, error);
+      }
+    }
+    const { error } = await recordImportOfFile({
+      run,
+      itemCount: countItems(importData, 'server'),
+      fileName: 'servers',
+      importItems: () => importServers(importData, options),
+    });
+    if (error) printError(error, `Error importing servers from files`);
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     printError(error, `Error importing servers from files`);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

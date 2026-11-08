@@ -9,6 +9,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../../utils/Console';
+import { countItems, recordImportOfFile } from '../../utils/ImportItems';
 import { OperationRun } from '../../utils/OperationRun';
 
 const {
@@ -22,6 +23,14 @@ const {
 
 const { getTypedFilename, saveJsonToFile, getFilePath, getWorkingDirectory } =
   frodo.utils;
+
+/**
+ * The export interface isn't exported from frodo-lib's root; derive it from the
+ * import function instead of importing an unexported name.
+ */
+type AdminFederationExportInterface = Parameters<
+  typeof importAdminFederationProviders
+>[0];
 
 /**
  * List providers
@@ -244,48 +253,69 @@ export async function importFirstAdminFederationProviderFromFile(
 
 /**
  * Import all providers from file
+ * Every provider of the file is one operation: the providers that cannot be imported are printed and named in one
+ * summary, and the others are still imported (record 0040). A file that cannot be read or parsed fails the command
+ * whatever `--allow-failures` says.
  * @param {string} file import file name
+ * @param {boolean} allowFailures true to report providers that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importAdminFederationProvidersFromFile(
-  file: string
+  file: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(
     `cli.AdminFederationOps.importAdminFederationProvidersFromFile: begin`
   );
+  const run = new OperationRun({ unit: 'provider', allowFailures });
   const filePath = getFilePath(file);
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
     `Importing providers from ${filePath}...`
   );
+  let fileData: AdminFederationExportInterface;
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    await importAdminFederationProviders(fileData);
+    fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error importing ${filePath}.`, 'fail');
+    printError(error);
+    return false;
+  }
+  const { error } = await recordImportOfFile({
+    run,
+    itemCount: countItems(fileData, 'idp'),
+    fileName: filePath,
+    importItems: () => importAdminFederationProviders(fileData),
+  });
+  if (error) {
+    stopProgressIndicator(spinnerId, `Error importing ${filePath}.`, 'fail');
+    printError(error);
+  } else {
     stopProgressIndicator(
       spinnerId,
       `Imported providers from ${filePath}.`,
       'success'
     );
-    outcome = true;
-  } catch (error) {
-    stopProgressIndicator(spinnerId, `Error importing ${filePath}.`, 'fail');
-    printError(error);
   }
   debugMessage(
     `cli.AdminFederationOps.importAdminFederationProvidersFromFile: end`
   );
-  return outcome;
+  return run.finish();
 }
 
 /**
- * Import providers from *.idp.json files in current working directory
+ * Import providers from *.admin.federation.json files in current working directory
+ * Every provider of every file is one operation, and a file that cannot be read or parsed is a failure that is
+ * named too: the others are still imported and one summary names the failures (record 0040). A directory that
+ * cannot be read fails the command whatever `--allow-failures` says.
+ * @param {boolean} allowFailures true to report providers that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importAdminFederationProvidersFromFiles(): Promise<boolean> {
-  const errors = [];
+export async function importAdminFederationProvidersFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'provider', allowFailures });
   let indicatorId: string;
   try {
     debugMessage(
@@ -302,39 +332,59 @@ export async function importAdminFederationProvidersFromFiles(): Promise<boolean
     );
     let total = 0;
     for (const file of files) {
+      let fileData: AdminFederationExportInterface;
       try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData = JSON.parse(data);
-        const count = Object.keys(fileData.idp).length;
-        total += count;
-        await importAdminFederationProviders(fileData);
+        fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      } catch (error) {
+        printError(error);
+        run.recordFailure(file, error);
         updateProgressIndicator(
           indicatorId,
-          `Imported ${count} provider(s) from ${file}`
+          `Error importing provider(s) from ${file}`
         );
-      } catch (error) {
-        errors.push(error);
+        continue;
+      }
+      const count = countItems(fileData, 'idp');
+      const { error } = await recordImportOfFile({
+        run,
+        itemCount: count,
+        fileName: file,
+        importItems: () => importAdminFederationProviders(fileData),
+      });
+      if (error) {
         updateProgressIndicator(
           indicatorId,
           `Error importing provider(s) from ${file}`
         );
         printError(error);
+      } else {
+        total += count;
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} provider(s) from ${file}`
+        );
       }
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} provider(s) from ${files.length} file(s).`
+      run.hasFailures
+        ? `Finished importing ${total} provider(s) from ${files.length} file(s); some could not be imported.`
+        : `Finished importing ${total} provider(s) from ${files.length} file(s).`,
+      run.hasFailures ? 'fail' : 'success'
     );
+    debugMessage(
+      `cli.AdminFederationOps.importAdminFederationProvidersFromFiles: end`
+    );
+    return run.finish();
   } catch (error) {
-    errors.push(error);
+    // not an item failure: the directory could not be read
     stopProgressIndicator(
       indicatorId,
-      `Error importing provider(s) from file(s).`
+      `Error importing provider(s) from file(s).`,
+      'fail'
     );
     printError(error);
+    if (run.hasFailures) run.finish();
   }
-  debugMessage(
-    `cli.AdminFederationOps.importAdminFederationProvidersFromFiles: end`
-  );
-  return 0 === errors.length;
+  return false;
 }

@@ -76,6 +76,8 @@ describe('frodo authz set import', () => {
         await testSuccess(CMD, env);
     });
 
+    // The stderr snapshot of this test was edited by hand (not re-recorded): the failing import prints each file's error
+    // as before and now ends with the failure summary that names the policy sets (cli record 0040, bulk imports).
     test(`"frodo authz set import --all-separate --no-deps --prereqs --directory ${allSeparatePolicySetsDirectory}": should fail when prerequisite resource type definitions are not included in the separate export files`, async () => {
         const CMD = `frodo authz set import --all-separate --no-deps --prereqs --directory ${allSeparatePolicySetsDirectory}`;
         await testFail(CMD, env);

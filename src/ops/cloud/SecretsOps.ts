@@ -1,7 +1,6 @@
 import fs from 'fs';
 import {
   frodo,
-  FrodoError,
   state,
   type SecretEncodingType,
   type SecretsExportInterface,
@@ -24,6 +23,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../../utils/Console';
+import { countItems, recordImportOfFile } from '../../utils/ImportItems';
 import { OperationRun } from '../../utils/OperationRun';
 import wordwrap from '../utils/Wordwrap';
 
@@ -687,46 +687,67 @@ export async function importSecretFromFile(
 
 /**
  * Import secrets from file
+ * Every secret of the file is one operation: the secrets that cannot be imported are printed and named in one
+ * summary, and the others are still imported (record 0040). A file that cannot be read or parsed fails the command
+ * whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {boolean} includeActiveValues include active values of secrets (default: false)
  * @param {string} source Host URL of source environment where the secrets were exported from
+ * @param {boolean} allowFailures true to report secrets that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importSecretsFromFile(
   file: string,
   includeActiveValues: boolean = false,
-  source: string
+  source: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   debugMessage(`cli.SecretsOps.importSecretsFromFile: begin`);
+  const run = new OperationRun({ unit: 'secret', allowFailures });
   const filePath = getFilePath(file);
   showSpinner(`Importing ${filePath}...`);
+  let fileData: SecretsExportInterface;
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    const secrets = await importSecrets(fileData, includeActiveValues, source);
-    (secrets.length ? succeedSpinner : warnSpinner)(
-      `Imported ${secrets.length} secrets from ${filePath}.`
-    );
-    debugMessage(`cli.SecretsOps.importSecretsFromFile: end`);
-    return true;
+    fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (error) {
     failSpinner(`Error importing ${filePath}`);
     printError(error);
+    return false;
   }
-  return false;
+  const { result: secrets, error } = await recordImportOfFile({
+    run,
+    itemCount: countItems(fileData, 'secret'),
+    fileName: filePath,
+    importItems: () => importSecrets(fileData, includeActiveValues, source),
+  });
+  if (error) {
+    failSpinner(`Error importing ${filePath}`);
+    printError(error);
+  } else {
+    (secrets.length ? succeedSpinner : warnSpinner)(
+      `Imported ${secrets.length} secrets from ${filePath}.`
+    );
+  }
+  debugMessage(`cli.SecretsOps.importSecretsFromFile: end`);
+  return run.finish();
 }
 
 /**
  * Import secrets from files
+ * Every secret of every file is one operation, and a file that cannot be read or parsed is a failure that is named
+ * too: the others are still imported and one summary names the failures (record 0040). A directory that cannot be
+ * read fails the command whatever `--allow-failures` says.
  * @param {boolean} includeActiveValues include active values of secrets (default: false)
  * @param {string} source Host URL of source environment where the secrets were exported from
+ * @param {boolean} allowFailures true to report secrets that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importSecretsFromFiles(
   includeActiveValues: boolean = false,
-  source: string
+  source: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors = [];
+  const run = new OperationRun({ unit: 'secret', allowFailures });
   let indicatorId: string;
   try {
     debugMessage(`cli.SecretsOps.importSecretsFromFiles: begin`);
@@ -741,36 +762,52 @@ export async function importSecretsFromFiles(
     );
     let total = 0;
     for (const file of files) {
+      let fileData: SecretsExportInterface;
       try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData = JSON.parse(data);
-        const secrets = await importSecrets(
-          fileData,
-          includeActiveValues,
-          source
+        fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      } catch (error) {
+        printError(error);
+        run.recordFailure(file, error);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing secrets from ${file}`
         );
+        continue;
+      }
+      const { result: secrets, error } = await recordImportOfFile({
+        run,
+        itemCount: countItems(fileData, 'secret'),
+        fileName: file,
+        importItems: () => importSecrets(fileData, includeActiveValues, source),
+      });
+      if (error) {
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing secrets from ${file}`
+        );
+        printError(error);
+      } else {
         total += secrets.length;
         updateProgressIndicator(
           indicatorId,
           `Imported ${secrets.length} secrets from ${file}`
         );
-      } catch (error) {
-        errors.push(error);
       }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing secrets`, errors);
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} secrets from ${files.length} files.`,
-      total ? 'success' : 'warn'
+      run.hasFailures
+        ? `Finished importing ${total} secrets from ${files.length} files; some could not be imported.`
+        : `Finished importing ${total} secrets from ${files.length} files.`,
+      run.hasFailures ? 'fail' : total ? 'success' : 'warn'
     );
     debugMessage(`cli.SecretsOps.importSecretsFromFiles: end`);
-    return true;
+    return run.finish();
   } catch (error) {
+    // not an item failure: the directory could not be read
     stopProgressIndicator(indicatorId, `Error importing secrets`, 'fail');
     printError(error);
+    if (run.hasFailures) run.finish();
   }
   return false;
 }

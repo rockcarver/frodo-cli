@@ -76,11 +76,15 @@ describe('frodo authz policy import', () => {
         await testSuccess(CMD, env);
     });
 
+    // The stderr snapshot of this test was edited by hand (not re-recorded): the failing import prints each file's error
+    // as before and now ends with the failure summary that names the policies (cli record 0040, bulk imports).
     test(`"frodo authz policy import -FAD ${allSeparatePoliciesDirectory}": should fail when dependency definitions are not included in the separate export files`, async () => {
         const CMD = `frodo authz policy import -FAD ${allSeparatePoliciesDirectory}`;
         await testFail(CMD, env);
     });
 
+    // The stderr snapshot of this test was edited by hand (not re-recorded): the failing import prints each file's error
+    // as before and now ends with the failure summary that names the policies (cli record 0040, bulk imports).
     test(`"frodo authz policy import --force-update --all-separate --set-id test-policy-set --no-deps --prereqs --directory ${allSeparatePoliciesDirectory}": should fail when prerequisite definitions are not included in the separate export files`, async () => {
         const CMD = `frodo authz policy import --force-update --all-separate --set-id test-policy-set --no-deps --prereqs --directory ${allSeparatePoliciesDirectory}`;
         await testFail(CMD, env);

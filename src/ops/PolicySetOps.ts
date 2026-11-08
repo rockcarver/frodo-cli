@@ -18,6 +18,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { countItems, recordImportOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -530,50 +531,70 @@ export async function importFirstPolicySetFromFile(
 
 /**
  * Import policy sets from file
+ * Every policy set of the file is one operation: the policy sets that cannot be imported are printed and named in
+ * one summary, and the others are still imported (record 0040). A file that cannot be read or parsed fails the
+ * command whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {PolicySetImportOptions} options import options
+ * @param {boolean} allowFailures true to report policy sets that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importPolicySetsFromFile(
   file: string,
-  options: PolicySetImportOptions = { deps: true, prereqs: false }
+  options: PolicySetImportOptions = { deps: true, prereqs: false },
+  allowFailures: boolean = false
 ): Promise<boolean> {
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: begin`);
+  const run = new OperationRun({ unit: 'policy set', allowFailures });
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
     `Importing ${filePath}...`
   );
+  let fileData: PolicySetExportInterface;
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    const sets = await importPolicySets(fileData, options);
+    fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `Error importing policy sets`, 'fail');
+    printError(error);
+    return false;
+  }
+  const { result: sets, error } = await recordImportOfFile({
+    run,
+    itemCount: countItems(fileData, 'policyset'),
+    fileName: filePath,
+    importItems: () => importPolicySets(fileData, options),
+  });
+  if (error) {
+    stopProgressIndicator(indicatorId, `Error importing policy sets`, 'fail');
+    printError(error);
+  } else {
     stopProgressIndicator(
       indicatorId,
       `Imported ${sets.length} policy sets from ${filePath}.`,
       sets.length ? 'success' : 'warn'
     );
-    debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: end`);
-    return true;
-  } catch (error) {
-    stopProgressIndicator(indicatorId, `Error importing policy sets`, 'fail');
-    printError(error);
   }
-  return false;
+  debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: end`);
+  return run.finish();
 }
 
 /**
  * Import policy sets from files
- * @param {OAuth2ClientImportOptions} options import options
+ * Every policy set of every file is one operation, and a file that cannot be read or parsed is a failure that is
+ * named too: the others are still imported and one summary names the failures (record 0040). A directory that
+ * cannot be read fails the command whatever `--allow-failures` says.
+ * @param {PolicySetImportOptions} options import options
+ * @param {boolean} allowFailures true to report policy sets that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importPolicySetsFromFiles(
-  options: PolicySetImportOptions = { deps: true, prereqs: false }
+  options: PolicySetImportOptions = { deps: true, prereqs: false },
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors = [];
+  const run = new OperationRun({ unit: 'policy set', allowFailures });
   let indicatorId: string;
-  let failedFiles = 0;
   try {
     debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
@@ -593,29 +614,42 @@ export async function importPolicySetsFromFiles(
     );
     let total = 0;
     for (const file of files) {
+      let fileData: PolicySetExportInterface;
       try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData: PolicySetExportInterface = JSON.parse(data);
-        const sets = await importPolicySets(fileData, options);
-        total += sets.length;
+        fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      } catch (error) {
+        printError(error);
+        run.recordFailure(file, error);
         updateProgressIndicator(
           indicatorId,
-          `Imported ${sets.length} policy sets from ${file}`
+          `Error importing policy sets from ${file}`
         );
-      } catch (error) {
-        errors.push(error);
-        failedFiles += 1;
+        continue;
+      }
+      const { result: sets, error } = await recordImportOfFile({
+        run,
+        itemCount: countItems(fileData, 'policyset'),
+        fileName: file,
+        importItems: () => importPolicySets(fileData, options),
+      });
+      if (error) {
         updateProgressIndicator(
           indicatorId,
           `Error importing policy sets from ${file}`
         );
         printError(error);
+      } else {
+        total += sets.length;
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${sets.length} policy sets from ${file}`
+        );
       }
     }
-    if (errors.length > 0) {
+    if (run.hasFailures) {
       stopProgressIndicator(
         indicatorId,
-        `Failed after processing ${total} policy sets from ${files.length} files; ${failedFiles} files had errors.`,
+        `Failed after processing ${total} policy sets from ${files.length} files; some could not be imported.`,
         'fail'
       );
     } else {
@@ -625,15 +659,17 @@ export async function importPolicySetsFromFiles(
         total ? 'success' : 'warn'
       );
     }
+    debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: end`);
+    return run.finish();
   } catch (error) {
-    errors.push(error);
+    // not an item failure: the directory could not be read
     stopProgressIndicator(
       indicatorId,
       `Error importing policy sets from files.`,
       'fail'
     );
     printError(error);
+    if (run.hasFailures) run.finish();
   }
-  debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: end`);
-  return 0 === errors.length;
+  return false;
 }

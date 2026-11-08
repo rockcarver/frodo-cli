@@ -50,6 +50,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'variableId'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -60,11 +61,23 @@ export default function setup() {
           options,
           command
         );
+        // an unrecognized combination of options is refused before the login
+        const importById = options.variableId;
+        const importAll = options.all && options.file;
+        const importAllSeparate = options.allSeparate && !options.file;
+        if (!(importById || importAll || importAllSeparate || options.file)) {
+          printMessage('Unrecognized combination of options or no options...');
+          process.exitCode = 1;
+          program.help();
+          return;
+        }
+        // a failed login is a failure of its own, not an unrecognized combination of options
+        if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
+          return;
+        }
         // import
-        if (
-          options.variableId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        if (importById) {
           printMessage(`Importing variable ${options.variableId}...`);
           const outcome = await importVariableFromFile(
             options.variableId,
@@ -73,43 +86,29 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (
-          options.all &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (importAll) {
           printMessage(
             `Importing all variables from a single file (${options.file})...`
           );
-          const outcome = await importVariablesFromFile(options.file);
+          const outcome = await importVariablesFromFile(
+            options.file,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          !options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (importAllSeparate) {
           printMessage(
             'Importing all variables from separate files in working directory...'
           );
-          const outcome = await importVariablesFromFiles();
+          const outcome = await importVariablesFromFiles(options.allowFailures);
           if (!outcome) process.exitCode = 1;
         }
         // import first
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else {
           printMessage('Importing first variable in file...');
           const outcome = await importVariableFromFile(null, options.file);
           if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler
