@@ -6,7 +6,7 @@ import {
   exportVariablesToFiles,
   exportVariableToFile,
 } from '../../ops/cloud/VariablesOps';
-import { verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -79,52 +79,48 @@ export default function setup() {
           options,
           command
         );
-        if (
-          options.variableId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Exporting variable "${
-              options.variableId
-            }" from realm "${state.getRealm()}"...`
-          );
-          const outcome = await exportVariableToFile(
-            options.variableId,
-            options.file,
-            options.decode,
-            options.metadata,
-            options.modifiedProperties
-          );
-          if (!outcome) process.exitCode = 1;
-        } else if (
-          options.all &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Exporting all variables to a single file...');
-          const outcome = await exportVariablesToFile(
-            options.file,
-            options.decode,
-            options.metadata,
-            options.modifiedProperties
-          );
-          if (!outcome) process.exitCode = 1;
-        } else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Exporting all variables to separate files...');
-          const outcome = await exportVariablesToFiles(
-            options.decode,
-            options.metadata,
-            options.modifiedProperties,
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
+        // The login comes first: a variable that was not given is asked for
+        // by the framework once it worked (a variable picker, record 0038),
+        // and a declined pick makes getTokens fail.
+        if (await getTokens(false, true, deploymentTypes)) {
+          if (options.variableId) {
+            verboseMessage(
+              `Exporting variable "${
+                options.variableId
+              }" from realm "${state.getRealm()}"...`
+            );
+            const outcome = await exportVariableToFile(
+              options.variableId,
+              options.file,
+              options.decode,
+              options.metadata,
+              options.modifiedProperties
+            );
+            if (!outcome) process.exitCode = 1;
+          } else if (options.all) {
+            verboseMessage('Exporting all variables to a single file...');
+            const outcome = await exportVariablesToFile(
+              options.file,
+              options.decode,
+              options.metadata,
+              options.modifiedProperties
+            );
+            if (!outcome) process.exitCode = 1;
+          } else if (options.allSeparate) {
+            verboseMessage('Exporting all variables to separate files...');
+            const outcome = await exportVariablesToFiles(
+              options.decode,
+              options.metadata,
+              options.modifiedProperties,
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          } else {
+            // none of -i, -a and -A: the picker had no variable to offer
+            printMessage('There is no variable to choose from.', 'error');
+            process.exitCode = 1;
+          }
+        } else {
           process.exitCode = 1;
         }
       }

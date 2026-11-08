@@ -21,8 +21,11 @@ import {
   type RemoteProxySkeleton,
   type ResourceTypeSkeleton,
   type ScriptSkeleton,
+  type SecretSkeleton,
+  type SecretStoreMappingSkeleton,
   type ThemeSkeleton,
   type TreeSkeleton,
+  type VariableSkeleton,
   type WorkflowGroup,
 } from '@rockcarver/frodo-lib';
 import {
@@ -30,6 +33,7 @@ import {
   savedConnectionProfiles,
   type SavedProfile,
 } from '../SavedProfiles';
+import { getActiveActionCommand } from './ActiveActionCommandState';
 import { entityPick } from './EntityPickers';
 import { registerEntityPickFamily } from './EntityPickRegistry';
 
@@ -85,6 +89,23 @@ type EmailTemplateSkeleton = Awaited<
 /** The name of an email template: its configuration id without the type prefix. */
 function emailTemplateName(template: EmailTemplateSkeleton): string {
   return template._id?.replace('emailTemplate/', '') ?? '';
+}
+
+/** A secret store (the library exports no name for the union of the store types). */
+type SecretStore = Awaited<
+  ReturnType<typeof frodo.secretStore.readSecretStores>
+>[number];
+
+/**
+ * The value of an option of the command that is being run. A loader that has
+ * to narrow its list by another option (the global secret stores of `-g`, the
+ * store a mapping belongs to) reads it here, because a loader has no
+ * parameters.
+ * @param {string} name attribute name of the option
+ * @returns {unknown} the value, undefined when it is not set or no command is active
+ */
+function activeOption(name: string): unknown {
+  return getActiveActionCommand()?.getOptionValue(name);
 }
 
 export function registerEntityPickFamilies(): void {
@@ -692,4 +713,82 @@ export function registerEntityPickFamilies(): void {
   // ask twice, and the second answer would replace the first. Add the name
   // picks when the runner skips a pick that conflicts with an option set
   // earlier in the same run.
+
+  // Secrets of the environment (cloud only). `create` and `import` name a new
+  // secret or one in a file and get no pick.
+  registerEntityPickFamily({
+    family: 'esv secret',
+    picks: [
+      entityPick<SecretSkeleton>({
+        name: 'secretId',
+        kind: 'secret',
+        load: () => frodo.cloud.secret.readSecrets(),
+        label: (secret) => secret._id ?? '',
+        description: (secret) => secret.description,
+      }),
+    ],
+  });
+
+  // Variables of the environment (cloud only).
+  registerEntityPickFamily({
+    family: 'esv variable',
+    picks: [
+      entityPick<VariableSkeleton>({
+        name: 'variableId',
+        kind: 'variable',
+        load: () => frodo.cloud.variable.readVariables(),
+        label: (variable) => variable._id ?? '',
+        description: (variable) => variable.description,
+      }),
+    ],
+  });
+
+  // Secret stores of the realm, or the global ones when the command is run
+  // with `-g`. A store is addressed by its id; when two stores of different
+  // types share an id the command still asks for `-t`, so the row shows the
+  // type. Every command below `secretstore` that has the option inherits the
+  // pick, including the mapping and alias commands (their `create` verbs
+  // name something new and are left out).
+  registerEntityPickFamily({
+    family: 'secretstore',
+    picks: [
+      entityPick<SecretStore>({
+        name: 'secretstoreId',
+        kind: 'secret store',
+        load: async () =>
+          (
+            await frodo.secretStore.readSecretStores(
+              Boolean(activeOption('global'))
+            )
+          ).sort((a, b) => (a._id ?? '').localeCompare(b._id ?? '')),
+        label: (store) => store._id ?? '',
+        description: (store) => store._type?._id,
+      }),
+    ],
+  });
+
+  // The mappings of a secret store. Registered after the store, so that the
+  // store is picked first: the loader reads the store (and its type and
+  // scope) from the command, and offers nothing while there is none.
+  registerEntityPickFamily({
+    family: 'secretstore mapping',
+    picks: [
+      entityPick<SecretStoreMappingSkeleton>({
+        name: 'secretId',
+        kind: 'secret store mapping',
+        load: async () => {
+          const secretstoreId = activeOption('secretstoreId');
+          return secretstoreId
+            ? frodo.secretStore.readSecretStoreMappings(
+                secretstoreId as string,
+                activeOption('secretstoreType') as string | undefined,
+                Boolean(activeOption('global'))
+              )
+            : [];
+        },
+        label: (mapping) => mapping.secretId ?? '',
+        description: (mapping) => mapping.aliases?.join(', '),
+      }),
+    ],
+  });
 }

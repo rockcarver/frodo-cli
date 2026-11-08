@@ -1,13 +1,8 @@
-import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deactivateVersionOfSecret } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -39,11 +34,10 @@ export default function setup() {
           options,
           command
         );
-        // An unspecified secretId (version is still asked for by the
-        // requireAllOf resolver) prompts for a secret from the live system
-        // (no-op outside the prompt gate) before getTokens.
+        // An unspecified secretId is asked for by the framework once the
+        // login worked (a secret picker, record 0038); the version is still
+        // asked for by the requireAllOf resolver.
         if (
-          (options.secretId || (await resolveEntityPicks(command))) &&
           options.version &&
           (await getTokens(false, true, deploymentTypes))
         ) {
@@ -54,8 +48,8 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // No branch ran: with requireAllOf satisfied, the only ways here
-        // are getTokens() failing or the user escaping the entity picker --
+        // No branch ran: with requireAllOf satisfied, the only way here is
+        // getTokens() failing, which includes the user declining the picker --
         // keep the old exit-1 semantics.
         else {
           process.exitCode = 1;
@@ -63,16 +57,6 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<SecretSkeleton>({
-      name: 'secretId',
-      kind: 'secret',
-      load: frodo.cloud.secret.readSecrets,
-      label: (secret) => secret._id ?? '',
-      description: (secret) => secret.description,
-    }),
-  ]);
 
   return program;
 }

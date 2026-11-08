@@ -1,13 +1,8 @@
-import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeSecret } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -52,12 +47,9 @@ export default function setup() {
           options,
           command
         );
-        // An unspecified mandatory secretId prompts for a secret from the
-        // live system (no-op outside the prompt gate) before getTokens.
-        if (
-          (options.secretId || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        // An unspecified mandatory secretId is asked for by the framework
+        // once the login worked (a secret picker, record 0038).
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Describing secret ${options.secretId}...`);
           const outcome = await describeSecret(
             options.secretId,
@@ -67,24 +59,14 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // secretId is mandatory (above); the only ways no branch runs are
-        // getTokens() failing or the user escaping the entity picker.
+        // secretId is mandatory (above); the only way no branch runs is
+        // getTokens() failing, which includes the user declining the picker.
         else {
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<SecretSkeleton>({
-      name: 'secretId',
-      kind: 'secret',
-      load: frodo.cloud.secret.readSecrets,
-      label: (secret) => secret._id ?? '',
-      description: (secret) => secret.description,
-    }),
-  ]);
 
   return program;
 }

@@ -2,11 +2,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { updateVariable } from '../../ops/cloud/VariablesOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -53,14 +48,9 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        // An unspecified mandatory variableId prompts for a variable from
-        // the live system (no-op outside the prompt gate) now that tokens
-        // are available.
-        if (!options.variableId && !(await resolveEntityPicks(command))) {
-          // User escaped the entity picker -- declined to run.
-          process.exitCode = 1;
-          return;
-        }
+        // An unspecified mandatory variableId was asked for by the framework
+        // while logging in (a variable picker, record 0038); declining it
+        // made getTokens fail above.
         verboseMessage('Updating variable...');
         const outcome = await updateVariable(
           options.variableId,
@@ -71,18 +61,6 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<
-      Awaited<ReturnType<typeof frodo.cloud.variable.readVariables>>[number]
-    >({
-      name: 'variableId',
-      kind: 'variable',
-      load: () => frodo.cloud.variable.readVariables(),
-      label: (variable) => variable._id ?? '',
-      description: (variable) => variable.description,
-    }),
-  ]);
 
   return program;
 }

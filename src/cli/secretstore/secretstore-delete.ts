@@ -9,7 +9,7 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLASSIC_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -83,44 +83,44 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        if (
-          options.secretstoreId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(`Deleting secret store ${options.secretstoreId}...`);
-          const outcome = await deleteSecretStore(
-            options.secretstoreId,
-            options.secretstoreType,
-            options.global
-          );
-          if (!outcome) process.exitCode = 1;
-        } else if (
-          options.all &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          if (
-            !(await confirmBulkDelete({
-              what: 'all secret stores',
-              yes: options.yes,
-              dryRunAvailable: false,
-            }))
-          ) {
+        // The login comes first: a secret store that was not given is asked
+        // for by the framework once it worked (a secret store picker, record
+        // 0038), and a declined pick makes getTokens fail.
+        if (await getTokens(false, true, deploymentTypes)) {
+          if (options.secretstoreId) {
+            verboseMessage(`Deleting secret store ${options.secretstoreId}...`);
+            const outcome = await deleteSecretStore(
+              options.secretstoreId,
+              options.secretstoreType,
+              options.global
+            );
+            if (!outcome) process.exitCode = 1;
+          } else if (options.all) {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all secret stores',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
+            verboseMessage(
+              `Deleting all${options.global ? ' global' : ''} secret stores...`
+            );
+            const outcome = await deleteSecretStores(
+              options.global,
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          } else {
+            // neither -i nor -a: the picker had no secret store to offer.
+            // Never fall through to deleting all secret stores.
+            printMessage('There is no secret store to choose from.', 'error');
             process.exitCode = 1;
-            return;
           }
-          verboseMessage(
-            `Deleting all${options.global ? ' global' : ''} secret stores...`
-          );
-          const outcome = await deleteSecretStores(
-            options.global,
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // No branch ran: with requireOneOf satisfied above, the only way
-        // here is getTokens() failing -- preserve the old exit-1 semantics
-        // (the removed else also handled auth failure).
-        else {
+        } else {
           process.exitCode = 1;
         }
       }

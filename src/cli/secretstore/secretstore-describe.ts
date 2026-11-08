@@ -2,7 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeSecretStore } from '../../ops/SecretStoreOps';
-import { verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const {
@@ -53,25 +53,30 @@ export default function setup() {
           options,
           command
         );
+        // The login comes first: a secret store that was not given is asked
+        // for by the framework once it worked (a secret store picker, record
+        // 0038), and a declined pick makes getTokens fail.
         if (
-          options.secretstoreId &&
-          (await getTokens(
+          await getTokens(
             false,
             true,
             options.global ? globalDeploymentTypes : deploymentTypes
-          ))
+          )
         ) {
-          verboseMessage(`Describing secret store ${options.secretstoreId}`);
-          const outcome = await describeSecretStore(
-            options.secretstoreId,
-            options.secretstoreType,
-            options.global
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // No branch ran: with requireOneOf satisfied, the only way here is
-        // getTokens() failing -- keep the old exit-1 semantics.
-        else {
+          if (options.secretstoreId) {
+            verboseMessage(`Describing secret store ${options.secretstoreId}`);
+            const outcome = await describeSecretStore(
+              options.secretstoreId,
+              options.secretstoreType,
+              options.global
+            );
+            if (!outcome) process.exitCode = 1;
+          } else {
+            // the picker had no secret store to offer
+            printMessage('There is no secret store to choose from.', 'error');
+            process.exitCode = 1;
+          }
+        } else {
           process.exitCode = 1;
         }
       }

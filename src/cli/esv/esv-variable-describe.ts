@@ -47,10 +47,9 @@ export default function setup() {
           options,
           command
         );
-        if (
-          options.variableId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        // An unspecified mandatory variableId is asked for by the framework
+        // once the login worked (a variable picker, record 0038).
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Describing variable ${options.variableId}...`);
           const outcome = await describeVariable(
             options.variableId,
@@ -61,7 +60,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // variableId is mandatory (above); the only way no branch runs is
-        // getTokens() failing.
+        // getTokens() failing, which includes the user declining the picker.
         else {
           process.exitCode = 1;
         }
