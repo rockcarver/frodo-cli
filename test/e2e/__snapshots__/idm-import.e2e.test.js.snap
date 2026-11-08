@@ -8,7 +8,9 @@ exports[`frodo idm import "frodo idm import --all --file all.idm.json -D test/e2
     Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: Access denied
-✔ Imported config entities
+✖ Some config entities could not be imported from test/e2e/exports/all/all.idm.json.
+1 of 59 config entities failed:
+  - Error updating config entity bravoOrgPrivileges: Access denied
 "
 `;
 
@@ -51,7 +53,10 @@ Error updating config entity endpoint/testEndpoint2
     Code: ERR_BAD_REQUEST
     Reason: Unauthorized
     Message: Access Denied
-✔ Imported config entities
+✖ Some config entities could not be imported from test/e2e/exports/all-separate/cloud/global/idm.
+2 of 40 config entities failed:
+  - Error updating config entity endpoint/Test: Access Denied
+  - Error updating config entity endpoint/testEndpoint2: Access Denied
 "
 `;
 

@@ -100,6 +100,7 @@ export default function setup() {
       options: ['directory', 'file'],
       purpose: 'where to import from',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -131,12 +132,12 @@ export default function setup() {
           // command silently exits 0 despite the error just printed.
           process.exitCode = 1;
           program.help();
+        }
+        // a failed login has printed its reason: that is the whole answer
+        else if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
         } // -o, --managed-object
-        else if (
-          options.managedObject &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.managedObject && options.file) {
           const fileData = fs.readFileSync(
             path.resolve(process.cwd(), options.file),
             'utf8'
@@ -155,10 +156,7 @@ export default function setup() {
             undefined
           );
           if (!outcome) process.exitCode = 1;
-        } else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        } else if (options.file) {
           const fileData = fs.readFileSync(
             path.resolve(process.cwd(), options.file),
             'utf8'
@@ -182,10 +180,8 @@ export default function setup() {
             options.file
           );
           if (!outcome) process.exitCode = 1;
-        } else if (
-          state.getDirectory() &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        } else {
+          // the directory with the separate files of every config entity
           const importData = await getIdmImportDataFromIdmDirectory(
             state.getDirectory()
           );
@@ -201,19 +197,12 @@ export default function setup() {
           verboseMessage(
             `Importing IDM configuration objects ${envMessage}${directoryMessage}`
           );
-          const outcome = await importAllConfigEntitiesFromFiles(undefined);
-          if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
+          const outcome = await importAllConfigEntitiesFromFiles(
+            undefined,
+            false,
+            options.allowFailures
           );
-          // See the matching comment above -- `process.exitCode` must be set
-          // before `program.help()`, which reads it when it force-exits.
-          process.exitCode = 1;
-          program.help();
+          if (!outcome) process.exitCode = 1;
         }
       }
       // end command logic inside action handler

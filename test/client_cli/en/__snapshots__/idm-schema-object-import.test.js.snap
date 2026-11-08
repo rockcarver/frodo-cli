@@ -22,6 +22,9 @@ Arguments:
   password              Password.
 
 Options:
+  --allow-failures      Report operations that fail, but still exit with code 0.
+                        Without this option the command runs every operation,
+                        prints a summary of what failed and exits with code 1.
   -f, --file [file]     Import file.
   -o, --managed-object  Import a single managed object type. Requires -f to
                         specify the file.

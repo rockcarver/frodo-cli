@@ -53,6 +53,7 @@ export default function setup() {
       options: ['file', 'allSeparate'],
       purpose: 'what to import',
     })
+    .multiOp()
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -88,7 +89,7 @@ export default function setup() {
             verboseMessage(
               'Importing all remote proxies from separate files (*.remoteproxy.idm.json) in the current directory...'
             );
-            outcome = await importRemoteProxiesFromFiles();
+            outcome = await importRemoteProxiesFromFiles(options.allowFailures);
           } else if (options.proxyId) {
             verboseMessage(`Importing remote proxy "${options.proxyId}"...`);
             outcome = await importRemoteProxyFromFile(
@@ -99,7 +100,10 @@ export default function setup() {
             verboseMessage(
               `Importing all remote proxies from a single file (${options.file})...`
             );
-            outcome = await importRemoteProxiesFromFile(options.file);
+            outcome = await importRemoteProxiesFromFile(
+              options.file,
+              options.allowFailures
+            );
           } else {
             verboseMessage(
               `Importing the first remote proxy from file "${options.file}"...`

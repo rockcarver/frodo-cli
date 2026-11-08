@@ -119,6 +119,15 @@ Error importing the bravo realm journey IntervieweeRegistration
 • Finished importing bravo realm journeys
 ✔ Finished Importing Everything to root-bravo realm!
 ✔ Finished Importing all other AM config entities!
+8 of 48 items failed:
+  - Error updating alpha realm script: This operation is not available in PingOne Advanced Identity Cloud.
+  - Error updating alpha realm script: This operation is not available in PingOne Advanced Identity Cloud.
+  - Error Importing Services: Data validation failed for the attribute, Transport Type
+  - Error updating bravo realm script: This operation is not available in PingOne Advanced Identity Cloud.
+  - Error updating bravo realm script: This operation is not available in PingOne Advanced Identity Cloud.
+  - Error importing the bravo realm journey IntervieweeFullVerification: Data validation failed for the attribute, PingOne Service
+  - Error importing the bravo realm journey IntervieweeSelfieAuthentication: Data validation failed for the attribute, PingOne Service
+  - Error importing the bravo realm journey IntervieweeRegistration: Data validation failed for the attribute, Tree Name
 "
 `;
 
@@ -169,6 +178,12 @@ Error updating bravo realm script
 • Finished importing bravo realm journeys
 ✔ Finished Importing Everything to root-bravo realm!
 ✔ Finished Importing all other AM config entities!
+5 of 62 items failed:
+  - Error Importing Circles of Trust: This operation is not available in PingOne Advanced Identity Cloud.
+  - Error updating alpha realm script: This operation is not available in PingOne Advanced Identity Cloud.
+  - Error updating alpha realm script: This operation is not available in PingOne Advanced Identity Cloud.
+  - Error updating bravo realm script: Request failed with status code 502
+  - Error updating bravo realm script: This operation is not available in PingOne Advanced Identity Cloud.
 "
 `;
 
@@ -208,6 +223,8 @@ exports[`frodo config import Forgeops "frodo config import --all --static --dyna
 • Finished importing bravo realm journeys
 ✔ Finished Importing Everything to root-bravo realm!
 ✔ Finished Importing all other AM config entities!
+1 of 65 items failed:
+  - Error Importing Services: The request body must include 'bindPassword'.
 "
 `;
 
@@ -236,6 +253,8 @@ exports[`frodo config import Forgeops "frodo config import --all --static --file
 • Finished importing bravo realm journeys
 ✔ Finished Importing Everything to root-bravo realm!
 ✔ Finished Importing all other AM config entities!
+1 of 31 items failed:
+  - Error Importing Services: The request body must include 'bindPassword'.
 "
 `;
 

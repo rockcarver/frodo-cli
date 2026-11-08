@@ -62,7 +62,6 @@ export const STOPS_AT_THE_FIRST_ERROR = [
   'frodo config-manager push services',
   'frodo config-manager push telemetry',
   'frodo config-manager push themes',
-  'frodo idm remote-proxy import',
   'frodo idm remote-proxy setup',
   'frodo idm remote-proxy teardown',
   'frodo mapping delete',
@@ -102,11 +101,8 @@ export const SWALLOWS_THE_FAILURE = [
 export const CONTINUES_BUT_NAMES_NO_FAILED_ITEM = [
   'frodo admin federation import',
   'frodo authz set import',
-  'frodo config import',
   'frodo email template import',
   'frodo esv secret version prune',
-  'frodo idm import',
-  'frodo idm schema object import',
   'frodo journey describe',
   'frodo journey import',
 ];
@@ -131,7 +127,6 @@ export const NAMES_THE_FAILURES_BUT_HAS_NO_SUMMARY = [
   'frodo esv variable import',
   'frodo idp import',
   'frodo journey validate',
-  'frodo mapping import',
   'frodo oauth client import',
   'frodo role import',
   'frodo saml import',

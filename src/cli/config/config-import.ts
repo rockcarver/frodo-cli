@@ -139,6 +139,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -150,29 +151,24 @@ export default function setup() {
           options,
           command
         );
+        const importOptions = {
+          reUuidJourneys: options.reUuidJourneys,
+          reUuidScripts: options.reUuidScripts,
+          reUuidCustomNodes: options.reUuidCustomNodes,
+          cleanServices: options.clean,
+          includeDefault: options.default,
+          includeActiveValues: options.includeActiveValues,
+          source: options.source,
+          onlyCustom: options.onlyCustom,
+          validateJourneys: options.validate,
+          includeStatic: options.static || !options.dynamic,
+          includeDynamic: options.dynamic || !options.static,
+        };
         // Require --file -f for all function
         if (options.all && !options.file) {
           printMessage('-f or --file required when using -a or --all', 'error');
           process.exitCode = 1;
           program.help();
-        }
-        // --all -a
-        else if (options.all && (await getTokens())) {
-          verboseMessage('Exporting everything from a single file...');
-          const outcome = await importEverythingFromFile(options.file, {
-            reUuidJourneys: options.reUuidJourneys,
-            reUuidScripts: options.reUuidScripts,
-            reUuidCustomNodes: options.reUuidCustomNodes,
-            cleanServices: options.clean,
-            includeDefault: options.default,
-            includeActiveValues: options.includeActiveValues,
-            source: options.source,
-            onlyCustom: options.onlyCustom,
-            validateJourneys: options.validate,
-            includeStatic: options.static || !options.dynamic,
-            includeDynamic: options.dynamic || !options.static,
-          });
-          if (!outcome) process.exitCode = 1;
         }
         // require --directory -D for all-separate function
         else if (options.allSeparate && !state.getDirectory()) {
@@ -183,53 +179,46 @@ export default function setup() {
           process.exitCode = 1;
           program.help();
         }
-        // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
-          verboseMessage('Importing everything from separate files...');
-          const outcome = await importEverythingFromFiles({
-            reUuidJourneys: options.reUuidJourneys,
-            reUuidScripts: options.reUuidScripts,
-            reUuidCustomNodes: options.reUuidCustomNodes,
-            cleanServices: options.clean,
-            includeDefault: options.default,
-            includeActiveValues: options.includeActiveValues,
-            source: options.source,
-            onlyCustom: options.onlyCustom,
-            validateJourneys: options.validate,
-            includeStatic: options.static || !options.dynamic,
-            includeDynamic: options.dynamic || !options.static,
-          });
-          if (!outcome) process.exitCode = 1;
-        }
-        // Import entity from file
-        else if (options.file && (await getTokens())) {
-          verboseMessage('Importing config entity from file...');
-          const outcome = await importEntityfromFile(
-            options.file,
-            options.global,
-            {
-              reUuidJourneys: options.reUuidJourneys,
-              reUuidScripts: options.reUuidScripts,
-              reUuidCustomNodes: options.reUuidCustomNodes,
-              cleanServices: options.clean,
-              includeDefault: options.default,
-              includeActiveValues: options.includeActiveValues,
-              source: options.source,
-              onlyCustom: options.onlyCustom,
-              validateJourneys: options.validate,
-              includeStatic: options.static || !options.dynamic,
-              includeDynamic: options.dynamic || !options.static,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
-        }
         // unrecognized combination of options or no options
-        else {
+        else if (!(options.all || options.allSeparate || options.file)) {
           verboseMessage(
             'Unrecognized combination of options or no options...'
           );
           process.exitCode = 1;
           program.help();
+        }
+        // a failed login has printed its reason: that is the whole answer
+        else if (!(await getTokens())) {
+          process.exitCode = 1;
+        }
+        // --all -a
+        else if (options.all) {
+          verboseMessage('Importing everything from a single file...');
+          const outcome = await importEverythingFromFile(
+            options.file,
+            importOptions,
+            options.allowFailures
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // --all-separate -A
+        else if (options.allSeparate) {
+          verboseMessage('Importing everything from separate files...');
+          const outcome = await importEverythingFromFiles(
+            importOptions,
+            options.allowFailures
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // Import entity from file
+        else {
+          verboseMessage('Importing config entity from file...');
+          const outcome = await importEntityfromFile(
+            options.file,
+            options.global,
+            importOptions
+          );
+          if (!outcome) process.exitCode = 1;
         }
       }
       // end command logic inside action handler

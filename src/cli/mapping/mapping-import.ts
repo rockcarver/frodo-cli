@@ -52,6 +52,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'mappingId'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -63,11 +64,21 @@ export default function setup() {
           options,
           command
         );
+        // unrecognized combination of options (-a needs -f) or no options
+        if (!(options.mappingId || options.allSeparate || options.file)) {
+          printMessage(
+            'Unrecognized combination of options or no options...',
+            'error'
+          );
+          process.exitCode = 1;
+          program.help();
+        }
+        // a failed login has printed its reason: that is the whole answer
+        else if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
+        }
         // import by id/name
-        if (
-          options.mappingId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.mappingId) {
           verboseMessage(`Importing mapping ${options.mappingId}...`);
           const outcome = await importMappingFromFile(
             options.mappingId,
@@ -79,49 +90,37 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (
-          options.all &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.all && options.file) {
           verboseMessage(
             `Importing all mappings from a single file (${options.file})...`
           );
-          const outcome = await importMappingsFromFile(options.file, {
-            deps: options.deps,
-          });
+          const outcome = await importMappingsFromFile(
+            options.file,
+            {
+              deps: options.deps,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.allSeparate) {
           verboseMessage('Importing all mappings from separate files...');
-          const outcome = await importMappingsFromFiles({
-            deps: options.deps,
-          });
+          const outcome = await importMappingsFromFiles(
+            {
+              deps: options.deps,
+            },
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // import first mapping in file
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else {
           verboseMessage('Importing first mapping in file...');
           const outcome = await importFirstMappingFromFile(options.file, {
             deps: options.deps,
           });
           if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

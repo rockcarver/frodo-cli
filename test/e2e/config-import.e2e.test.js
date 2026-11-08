@@ -103,6 +103,8 @@ describe('frodo config import', () => {
     // service, pushed by -a regardless of what's in the export) fail
     // validation against current Identity Cloud, so the command exits
     // non-zero overall.
+    // The command now ends with the one summary of what could not be imported (cli record 0040, imports): the stderr
+    // snapshot of this test was edited by hand, the summary lines added at its end (not re-recorded).
     test(`"frodo config import -adf ${allCloudFullImportExport} --no-validate" Import everything from "${allCloudFullImportFileName}", including default scripts.`, async () => {
       const CMD = `frodo config import -adf ${allCloudFullImportExport} --no-validate`;
       const testEnv = {
@@ -135,6 +137,8 @@ describe('frodo config import', () => {
     // IntervieweeFullVerification"; lib commit 4bfd3d15f, "Fix failed journey
     // name in bulk import errors"). The three lines in the snapshot were
     // edited by hand for that; nothing else in the output changed.
+    // The command now ends with the one summary of what could not be imported (cli record 0040, imports): the stderr
+    // snapshot of this test was edited by hand, the summary lines added at its end (not re-recorded).
     test(`"frodo config import -AD ${allSeparateCloudFullImportDirectory} --no-validate" Import everything from directory "${allSeparateCloudFullImportDirectory}"`, async () => {
       const CMD = `frodo config import -AD ${allSeparateCloudFullImportDirectory} --no-validate`;
       const testEnv = {
@@ -222,6 +226,9 @@ describe('frodo config import', () => {
     // The exported services hold no secrets (they are never exported in the
     // clear), so the DataStoreService import is refused for lack of its
     // bindPassword and the command exits with 1; everything else is imported.
+    // The recording replays the DataStoreService that is refused without a bindPassword. The command now ends with the one
+    // summary of what could not be imported (cli record 0040, imports): the stderr snapshot of this test was edited by
+    // hand, the two summary lines added at its end (not re-recorded).
     test(`"frodo config import --all --static --file ${allForgeopsExport}": should import only static configurations and report that the DataStoreService needs a bindPassword.`, async () => {
       const CMD = `frodo config import --all --static --file ${allForgeopsExport} --type forgeops`;
       await testFail(CMD, forgeopsEnv);
@@ -230,6 +237,9 @@ describe('frodo config import', () => {
       const CMD = `frodo config import --all --dynamic --file ${allForgeopsExport} --type forgeops`;
       await testSuccess(CMD, forgeopsEnv);
     });
+    // The recording replays the DataStoreService that is refused without a bindPassword. The command now ends with the one
+    // summary of what could not be imported (cli record 0040, imports): the stderr snapshot of this test was edited by
+    // hand, the two summary lines added at its end (not re-recorded).
     test(`"frodo config import --all --static --dynamic --file ${allForgeopsExport}": should import both static and dynamic configurations and report that the DataStoreService needs a bindPassword.`, async () => {
       const CMD = `frodo config import --all --static --dynamic --file ${allForgeopsExport} --type forgeops`;
       await testFail(CMD, forgeopsEnv);

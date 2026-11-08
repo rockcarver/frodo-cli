@@ -41,6 +41,9 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     requireOneOf() {
       return this;
     }
+    multiOp() {
+      return this;
+    }
   },
 }));
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
@@ -185,7 +188,8 @@ describe('CLI import validation option wiring', () => {
       });
       expect(importEverythingFromFile).toHaveBeenLastCalledWith(
         'config.json',
-        expect.objectContaining({ validateJourneys })
+        expect.objectContaining({ validateJourneys }),
+        undefined
       );
 
       await invoke(setupConfigImport(), {
@@ -193,7 +197,8 @@ describe('CLI import validation option wiring', () => {
         validate: validateJourneys,
       });
       expect(importEverythingFromFiles).toHaveBeenLastCalledWith(
-        expect.objectContaining({ validateJourneys })
+        expect.objectContaining({ validateJourneys }),
+        undefined
       );
 
       await invoke(setupConfigImport(), {
@@ -207,6 +212,28 @@ describe('CLI import validation option wiring', () => {
       );
     }
   );
+
+  test('full config import forwards --allow-failures in -a and -A', async () => {
+    await invoke(setupConfigImport(), {
+      all: true,
+      file: 'config.json',
+      allowFailures: true,
+    });
+    expect(importEverythingFromFile).toHaveBeenLastCalledWith(
+      'config.json',
+      expect.anything(),
+      true
+    );
+
+    await invoke(setupConfigImport(), {
+      allSeparate: true,
+      allowFailures: true,
+    });
+    expect(importEverythingFromFiles).toHaveBeenLastCalledWith(
+      expect.anything(),
+      true
+    );
+  });
 
   test.each([false, true])(
     'config-manager push forwards validate=%s',

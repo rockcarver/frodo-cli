@@ -34,6 +34,7 @@ export default function setup() {
     all?: string;
     allSeparate?: string;
     directory?: string;
+    allowFailures?: boolean;
   }
 
   program
@@ -72,6 +73,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'entityId', 'file'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (
@@ -100,11 +102,30 @@ export default function setup() {
         const directoryMessage = state.getDirectory()
           ? ` from separate files in ${state.getDirectory()}`
           : '';
+        // require --directory -D for all-separate functions
+        if (options.allSeparate && !state.getDirectory()) {
+          printMessage(
+            '-D or --directory required when using -A or --all-separate',
+            'error'
+          );
+          process.exitCode = 1;
+          program.help();
+        }
+        // unrecognized combination of options (-a needs -f) or no options
+        else if (!(options.entityId || options.file || options.allSeparate)) {
+          printMessage(
+            'Unrecognized combination of options or no options...',
+            'error'
+          );
+          process.exitCode = 1;
+          program.help();
+        }
+        // a failed login has printed its reason: that is the whole answer
+        else if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
+        }
         // import by id/name
-        if (
-          options.entityId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.entityId) {
           verboseMessage(
             `Importing object "${options.entityId}"${envMessage}${fileMessage}...`
           );
@@ -115,61 +136,37 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (
-          options.all &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.all && options.file) {
           verboseMessage(
             `Importing IDM configuration objects${entitiesMessage}${envMessage}${fileMessage}`
           );
           const outcome = await importAllConfigEntitiesFromFile(
             options.file,
-            options.entitiesFile
+            options.entitiesFile,
+            false,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
         }
         // import from file
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.file) {
           verboseMessage(
             `Importing first object${envMessage}${fileMessage}...`
           );
           const outcome = await importFirstConfigEntityFromFile(options.file);
           if (!outcome) process.exitCode = 1;
         }
-        // require --directory -D for all-separate functions
-        else if (options.allSeparate && !state.getDirectory()) {
-          printMessage(
-            '-D or --directory required when using -A or --all-separate',
-            'error'
-          );
-          process.exitCode = 1;
-          program.help();
-        }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.allSeparate) {
           verboseMessage(
             `Importing IDM configuration objects${entitiesMessage}${envMessage}${directoryMessage}`
           );
           const outcome = await importAllConfigEntitiesFromFiles(
-            options.entitiesFile
+            options.entitiesFile,
+            false,
+            options.allowFailures
           );
           if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler
