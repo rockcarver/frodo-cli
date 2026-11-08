@@ -74,8 +74,11 @@ export default function setup() {
           options,
           command
         );
+        // the framework resolves a missing entity option (a pick) inside getTokens
+        // (cli record 0038), so log in before the options are read
+        const loggedIn = await getTokens();
         // export
-        if (options.setId && (await getTokens())) {
+        if (loggedIn && options.setId) {
           verboseMessage('Exporting authorization policy set to file...');
           const outcome = await exportPolicySetToFile(
             options.setId,
@@ -91,7 +94,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (loggedIn && options.all) {
           verboseMessage('Exporting all authorization policy sets to file...');
           const outcome = await exportPolicySetsToFile(
             options.file,
@@ -106,7 +109,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (loggedIn && options.allSeparate) {
           verboseMessage(
             'Exporting all authorization policy sets to separate files...'
           );

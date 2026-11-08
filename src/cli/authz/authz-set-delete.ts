@@ -57,14 +57,17 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
+        // the framework resolves a missing entity option (a pick) inside getTokens
+        // (cli record 0038), so log in before the options are read
+        const loggedIn = await getTokens();
         // delete by id
-        if (options.setId && (await getTokens())) {
+        if (loggedIn && options.setId) {
           verboseMessage('Deleting authorization policy set...');
           const outcome = await deletePolicySetById(options.setId);
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (loggedIn && options.all) {
           if (
             !(await confirmBulkDelete({
               what: 'all policy sets',

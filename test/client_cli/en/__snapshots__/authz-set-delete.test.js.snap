@@ -28,7 +28,8 @@ Options:
                          0. Without this option the command runs every
                          operation, prints a summary of what failed and exits
                          with code 1.
-  -i, --set-id <set-id>  Policy set id/name. Cannot be used with -a.
+  -i, --set-id <set-id>  Policy set id/name. Cannot be used with -a. (pick from
+                         policy set)
   -y, --yes              Do not ask for confirmation before deleting all policy
                          sets. Required with -a when there is no terminal.
   -h, --help             Help

@@ -24,9 +24,11 @@ Arguments:
   password                     Password.
 
 Options:
-  -i, --type-id <type-uuid>    Resource type uuid. Cannot be used with -n.
+  -i, --type-id <type-uuid>    Resource type uuid. Cannot be used with -n. (pick
+                               from resource type)
   --json                       Output in JSON format.
-  -n, --type-name <type-name>  Resource type name. Cannot be used with -i.
+  -n, --type-name <type-name>  Resource type name. Cannot be used with -i. (pick
+                               from resource type)
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

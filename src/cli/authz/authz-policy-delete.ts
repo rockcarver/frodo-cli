@@ -1,4 +1,3 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -11,20 +10,7 @@ import {
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
 import { verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
-
-/**
- * The policy skeleton type isn't exported from frodo-lib's root; derive it
- * from the read function instead of importing an unexported name.
- */
-type PolicySkeleton = Awaited<
-  ReturnType<typeof frodo.authz.policy.readPolicies>
->[number];
 
 export default function setup() {
   const program = new FrodoCommand('frodo authz policy delete');
@@ -84,66 +70,50 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
+        // the framework resolves a missing policy id (a pick, from the
+        // `authz policy` family of EntityPickFamilies.ts) inside getTokens
+        // (cli record 0038), so log in before the options are read
+        const loggedIn = await getTokens();
         // delete by id
-        if (options.policyId && (await getTokens())) {
+        if (loggedIn && options.policyId) {
           verboseMessage('Deleting authorization policy...');
           const outcome = await deletePolicyById(options.policyId);
           if (!outcome) process.exitCode = 1;
         }
         // --all -a by policy set
-        else if (options.setId && options.all && (await getTokens())) {
+        else if (loggedIn && options.setId && options.all) {
           verboseMessage(
             `Deleting all authorization policies in policy set ${options.setId}...`
           );
           const outcome = await deletePoliciesByPolicySet(options.setId);
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deletePolicies here -- same as before
-        // in the pre-picker layout, where the error branch below handled that case).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens())
-        ) {
-          if (options.policyId) {
-            verboseMessage('Deleting authorization policy...');
-            const outcome = await deletePolicyById(options.policyId);
-            if (!outcome) process.exitCode = 1;
-          } else {
-            if (
-              !(await confirmBulkDelete({
-                what: 'all policies',
-                yes: options.yes,
-                dryRunAvailable: false,
-              }))
-            ) {
-              process.exitCode = 1;
-              return;
-            }
-            verboseMessage('Deleting all authorization policies...');
-            const outcome = await deletePolicies(options.allowFailures);
-            if (!outcome) process.exitCode = 1;
+        // --all -a
+        else if (loggedIn) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all policies',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
           }
+          verboseMessage('Deleting all authorization policies...');
+          const outcome = await deletePolicies(options.allowFailures);
+          if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only ways here
         // are getTokens() failing (keep the old exit-1 semantics) or the
-        // user escaping the entity picker (declined to run).
+        // user escaping the entity picker (declined to run, getTokens()
+        // returns false).
         else {
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<PolicySkeleton>({
-      name: 'policyId',
-      kind: 'authorization policy',
-      load: () => frodo.authz.policy.readPolicies(),
-      label: (policy) => policy.name || policy._id || '',
-    }),
-  ]);
 
   return program;
 }

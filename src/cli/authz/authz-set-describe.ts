@@ -27,9 +27,12 @@ export default function setup() {
           options,
           command
         );
+        // the framework resolves a missing entity option (a pick) inside getTokens
+        // (cli record 0038), so log in before the options are read
+        const loggedIn = await getTokens();
         // setId is mandatory (above); the only way no branch runs is
         // getTokens() failing.
-        if (options.setId && (await getTokens())) {
+        if (loggedIn && options.setId) {
           verboseMessage(
             `Describing authorization policy set ${options.setId}...`
           );

@@ -35,12 +35,12 @@ Options:
                                and exits with code 1.
   -f, --file <file>            Name of the export file. Cannot be used with -A.
   -i, --type-id <type-uuid>    Resource type uuid. Cannot be used with -n, -a or
-                               -A.
+                               -A. (pick from resource type)
   -M, --modified-properties    Include modified properties in export (e.g.
                                lastModifiedDate, lastModifiedBy, createdBy,
                                creationDate, etc.) (default: false)
   -n, --type-name <type-name>  Resource type name. Cannot be used with -i, -a or
-                               -A.
+                               -A. (pick from resource type)
   -N, --no-metadata            Does not include metadata in the export file.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
