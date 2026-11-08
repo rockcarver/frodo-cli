@@ -21,6 +21,7 @@ export default function setup() {
 
   program
     .description('Import themes.')
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -33,7 +34,10 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing themes');
-        const outcome = await configManagerImportThemes(realm);
+        const outcome = await configManagerImportThemes(
+          realm,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

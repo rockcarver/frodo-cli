@@ -48,6 +48,9 @@ describe('frodo config-manager pull all', () => {
   // that failure only, so the replay asks for requests that are not in it (alphaOrgPrivileges, bravoOrgPrivileges).
   // Recordings are made against the real environment, not edited. allowMissingRecordings lets the replay report them
   // instead of failing on them; the exit code and the exported files are still compared with the snapshots.
+  // The service-objects step now exports every object of service-objects.json (it used to stop at the first one
+  // that was not found), so the replay also reports the queries of the 2nd and 3rd object, which the recording
+  // predates, as missing recordings.
   test('"frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style"', async () => {
     const dirName = 'allDir2';
     const CMD = `frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D ${dirName} -m forgeops`;

@@ -197,8 +197,9 @@ import`, `authz set import`, `authz type import`, `esv secret import`, `esv
 variable import`, `secretstore import`, `server import`, `iga workflow import`,
 `admin federation import`, and `config-manager pull` and `push` of
 `authentication`, `authz-policies`, `journeys`, `oauth2-agents`,
-`org-privileges`, `password-policy`, `raw`, `saml`, `scripts` and
-`secret-mappings`. For the deletes this means a
+`org-privileges`, `password-policy`, `raw`, `saml`, `scripts`,
+`secret-mappings`, `secrets`, `service-objects`, `themes`, `custom-nodes` and
+`endpoints`. For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -424,6 +425,25 @@ error. `push raw --stdin` is one configuration and fails whatever
 `--allow-failures` says. `config-manager pull all` runs these pull commands as
 steps: a failed item is named in the summary of its command, and the step in the
 summary of the steps.
+`config-manager pull` and `push` of `secrets`, `service-objects`, `themes`,
+`custom-nodes` and `endpoints` now treat every secret, service object, custom
+node and endpoint as its own operation (every realm, for themes), and print one
+summary that names the ones that failed. They used to stop at the first one
+that failed and print its error; `push secrets` printed the error of a secret
+file it could not import and exited 0. They now exit 1 after a failure, or 0
+with `--allow-failures`. In `config-manager pull all` a step of these kinds that
+fails prints its own summary before the summary of the steps. What the command
+line names must be there, whatever `--allow-failures` says: the file of `pull
+service-objects -f`, a secret, custom node or endpoint named with `-n`, and the
+folder a push reads (`esvs/secrets`, `service-objects`, `realms`,
+`custom-nodes/nodes`, `endpoints`). The command now says what is missing in
+plain words and exits 1; `push service-objects`, `push themes`, `push
+custom-nodes` and `push endpoints` printed a raw file-system error.
+`pull endpoints -n` and `push endpoints -n` with a name that does not exist
+exported or imported nothing and exited 0; they exit 1. `push themes` for all
+realms skips a realm without a `themes` folder with a warning, where it failed
+with a raw file-system error, and `push secrets` with nothing to push in
+`esvs/secrets` warns and exits 0, where it exited 1.
 See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 

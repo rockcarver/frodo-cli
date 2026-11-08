@@ -32,6 +32,7 @@ export default function setup() {
       )
     )
 
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -54,7 +55,8 @@ export default function setup() {
       verboseMessage('Importing secrets to cloud');
       const outcome = await configManagerImportSecrets(
         options.name,
-        options.prune
+        options.prune,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

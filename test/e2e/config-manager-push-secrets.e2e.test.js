@@ -8,7 +8,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets -p -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3 -D test/e2e/exports/fr-config-manager/cloud 
 */
 
-import { getEnv, testSuccess } from './utils/TestUtils';
+import { getEnv, testFail, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 
@@ -19,9 +19,13 @@ const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 const envDir = "test/e2e/env/configManager1.env"
 
 describe('frodo config-manager push secrets', () => {
+    // This replay fails: the env file has no value for ESV_PRUNE_SECRETS, so the file of esv-prune-secrets cannot be read
+    // (the recording holds no request for it). The other secrets are imported, a summary names esv-prune-secrets and
+    // the exit code is 1 (decision record 0040). Before the command failed on a secret that failed, the exit code was 0,
+    // which hid it. The recording needs an env file with the value to show a clean import (frodo-cli#1102).
     test(`"frodo config-manager push secrets --env-file ${envDir} -D ${allDirectory} ": should import the secrets into cloud"`, async () => {
         const CMD = `frodo config-manager push secrets --env-file ${envDir} -D ${allDirectory} `;
-        await testSuccess(CMD, cloudEnv)
+        await testFail(CMD, cloudEnv)
     });
     test(`"frodo config-manager push secrets -n esv-fr-test-secret -E ESV_FR_TEST_SECRET="test1" ${allDirectory}": should import the specified secret into cloud`, async () => {
         const CMD = `frodo config-manager push secrets -n esv-fr-test-secret -E ESV_FR_TEST_SECRET="test1"  -D ${allDirectory}`;

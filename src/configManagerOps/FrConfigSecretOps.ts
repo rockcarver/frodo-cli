@@ -11,7 +11,9 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import { csvEscape, esvToEnv, friendlyTimestamp } from '../utils/FrConfig';
+import { OperationRun } from '../utils/OperationRun';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const {
@@ -27,14 +29,19 @@ type FrConfigSecret = SecretSkeleton & {
 };
 
 /**
- * Export all secrets to individual files in fr-config-manager format
+ * Export all secrets to individual files in fr-config-manager format. Every
+ * secret is its own operation: one that cannot be exported is reported and does
+ * not stop the others, and one summary names the secrets that failed. Secrets
+ * that cannot be read fail the command whatever `allowFailures` says.
  * @param {boolean} activeOnly true to export only active secret versions, false to export all secrets versions
  * @param {boolean} report true to report in csv format
+ * @param {boolean} allowFailures true to succeed although some secrets could not be exported (the failures are still summarised)
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportSecrets(
   activeOnly?: boolean,
-  report?: boolean
+  report?: boolean,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   let secrets: FrConfigSecret[];
   const spinnerId = createProgressIndicator(
@@ -77,41 +84,54 @@ export async function configManagerExportSecrets(
       'Exporting secrets'
     );
 
+    const run = new OperationRun({ unit: 'secret', allowFailures });
+    let exported = 0;
     for (const secret of secrets) {
-      const cleanSecret: Partial<SecretSkeleton> = {
-        _id: secret._id,
-        description: secret.description,
-        encoding: secret.encoding,
-        useInPlaceholders: secret.useInPlaceholders,
-      };
-      if (activeOnly) {
-        cleanSecret.valueBase64 = `\${${esvToEnv(secret._id)}}`;
-      } else {
-        const versionsResponse = await readVersionsOfSecret(secret._id);
-        const versions = versionsResponse.filter(
-          (version) => version.status !== 'DESTROYED'
+      try {
+        const cleanSecret: Partial<SecretSkeleton> = {
+          _id: secret._id,
+          description: secret.description,
+          encoding: secret.encoding,
+          useInPlaceholders: secret.useInPlaceholders,
+        };
+        if (activeOnly) {
+          cleanSecret.valueBase64 = `\${${esvToEnv(secret._id)}}`;
+        } else {
+          const versionsResponse = await readVersionsOfSecret(secret._id);
+          const versions = versionsResponse.filter(
+            (version) => version.status !== 'DESTROYED'
+          );
+          const versionInfo = versions.map((version, i) => {
+            const versionNumber = (i + 1).toString();
+
+            return {
+              version: versionNumber,
+              status: version.status,
+              valueBase64: `\${${esvToEnv(`${secret._id}_${versionNumber}`)}}`,
+            };
+          });
+          cleanSecret.versions = versionInfo;
+        }
+
+        saveJsonToFile(
+          cleanSecret,
+          getFilePath(`esvs/secrets/${secret._id}.json`, true),
+          false
         );
-        const versionInfo = versions.map((version, i) => {
-          const versionNumber = (i + 1).toString();
-
-          return {
-            version: versionNumber,
-            status: version.status,
-            valueBase64: `\${${esvToEnv(`${secret._id}_${versionNumber}`)}}`,
-          };
-        });
-        cleanSecret.versions = versionInfo;
+        run.recordSuccess();
+        exported++;
+        updateProgressIndicator(indicatorId, `Exported secret ${secret._id}`);
+      } catch (error) {
+        printError(error, `Error exporting secret ${secret._id}`);
+        run.recordFailure(secret._id, causeOf(error));
       }
-
-      saveJsonToFile(
-        cleanSecret,
-        getFilePath(`esvs/secrets/${secret._id}.json`, true),
-        false
-      );
-      updateProgressIndicator(indicatorId, `Exported secret ${secret._id}`);
     }
-    stopProgressIndicator(indicatorId, `${secrets.length} secrets exported.`);
-    return true;
+    stopProgressIndicator(
+      indicatorId,
+      `${exported} secrets exported.`,
+      run.hasFailures ? 'fail' : undefined
+    );
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(
       spinnerId,
@@ -124,14 +144,20 @@ export async function configManagerExportSecrets(
 }
 
 /**
- * Import secrets to cloud from fr-config-manager format
+ * Import secrets to cloud from fr-config-manager format. Every secret file is
+ * its own operation: one that cannot be read or imported is reported and does
+ * not stop the others, and one summary names the secrets that failed. A missing
+ * secrets folder, or a named secret that has no file, fails the command whatever
+ * `allowFailures` says.
  * @param {string} secretName optional name of secret to import
  * @param {boolean} prune if true, prunes old enabled versions before importing new versions.
+ * @param {boolean} allowFailures true to succeed although some secrets could not be imported (the failures are still summarised)
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerImportSecrets(
   secretName?: string,
-  prune?: boolean
+  prune?: boolean,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -141,7 +167,11 @@ export async function configManagerImportSecrets(
   try {
     const secretsDir = getFilePath(`esvs/secrets/`);
     if (!fs.existsSync(secretsDir)) {
-      stopProgressIndicator(indicatorId, `No secrets found`, 'fail');
+      stopProgressIndicator(
+        indicatorId,
+        `No secrets to import: the folder '${secretsDir}' does not exist`,
+        'fail'
+      );
       return false;
     }
 
@@ -151,20 +181,24 @@ export async function configManagerImportSecrets(
       .filter((name) => !secretName || name === `${secretName}.json`);
 
     if (fileNames.length === 0) {
-      stopProgressIndicator(
-        indicatorId,
-        secretName
-          ? `No matching secret found for ${secretName}`
-          : 'No secrets found to import',
-        'fail'
-      );
-      return false;
+      if (secretName) {
+        stopProgressIndicator(
+          indicatorId,
+          `No matching secret found for ${secretName}`,
+          'fail'
+        );
+        return false;
+      }
+      // nothing to import, when no secret was named, is a success
+      stopProgressIndicator(indicatorId, 'No secrets found to import', 'warn');
+      return true;
     }
 
     const remoteSecrets = Object.fromEntries(
       (await readSecrets()).map((s) => [s._id, s])
     );
     const secrets = {} as Record<string, SecretSkeleton>;
+    const run = new OperationRun({ unit: 'secret', allowFailures });
 
     for (const fileName of fileNames) {
       try {
@@ -222,9 +256,11 @@ export async function configManagerImportSecrets(
           secret.activeVersion = versionResponse.version;
         }
         secrets[secret._id] = secret;
+        run.recordSuccess();
       } catch (e) {
         const errorMessage = `Error importing secret from "${fileName}"`;
         printError(e, errorMessage);
+        run.recordFailure(fileName.replace(/\.json$/i, ''), causeOf(e));
       }
     }
 
@@ -242,7 +278,11 @@ export async function configManagerImportSecrets(
       }
     }
 
-    stopProgressIndicator(indicatorId, `Finished importing secrets.`);
+    stopProgressIndicator(
+      indicatorId,
+      `Finished importing secrets.`,
+      run.hasFailures ? 'fail' : undefined
+    );
 
     printMessage(
       updated > 0
@@ -250,7 +290,7 @@ export async function configManagerImportSecrets(
         : `No changes, (${unchanged} secrets(s) already up to date)`
     );
 
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error importing secrets.`, 'fail');
     printError(error, `Error importing secrets.`);

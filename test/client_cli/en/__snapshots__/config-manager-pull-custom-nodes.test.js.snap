@@ -21,6 +21,9 @@ Arguments:
   password           Password.
 
 Options:
+  --allow-failures   Report operations that fail, but still exit with code 0.
+                     Without this option the command runs every operation,
+                     prints a summary of what failed and exits with code 1.
   -n, --name <name>  Custom node display name. If specified, only one custom
                      node is exported.
   -h, --help         Help
