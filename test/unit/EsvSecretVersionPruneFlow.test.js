@@ -47,6 +47,10 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     requireOneOf() {
       return this;
     }
+
+    multiOp() {
+      return this;
+    }
   },
 }));
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
@@ -161,7 +165,20 @@ describe('frodo esv secret version prune', () => {
       expect(pruneVersionsOfPlan).toHaveBeenCalledWith(
         plan,
         undefined,
+        undefined,
         undefined
+      );
+    });
+
+    it('hands the value of --allow-failures to the deletion of the plan', async () => {
+      expect(await invoke({ all: true, yes: true, allowFailures: true })).toBe(
+        0
+      );
+      expect(pruneVersionsOfPlan).toHaveBeenCalledWith(
+        plan,
+        undefined,
+        undefined,
+        true
       );
     });
 
@@ -178,6 +195,7 @@ describe('frodo esv secret version prune', () => {
       expect(confirm).not.toHaveBeenCalled();
       expect(pruneVersionsOfPlan).toHaveBeenCalledWith(
         plan,
+        undefined,
         undefined,
         undefined
       );
@@ -245,7 +263,12 @@ describe('frodo esv secret version prune', () => {
       ).toBe(0);
       expect(findVersionsToPruneOfAllSecrets).toHaveBeenCalledWith(true, true);
       expect(printPrunePlan).toHaveBeenCalledWith(plan, true, true);
-      expect(pruneVersionsOfPlan).toHaveBeenCalledWith(plan, true, true);
+      expect(pruneVersionsOfPlan).toHaveBeenCalledWith(
+        plan,
+        true,
+        true,
+        undefined
+      );
     });
   });
 
@@ -255,10 +278,21 @@ describe('frodo esv secret version prune', () => {
       expect(pruneVersionsOfSecret).toHaveBeenCalledWith(
         'esv-a',
         undefined,
+        undefined,
         undefined
       );
       expect(confirm).not.toHaveBeenCalled();
       expect(findVersionsToPruneOfSecret).not.toHaveBeenCalled();
+    });
+
+    it('hands the value of --allow-failures to the prune of the secret', async () => {
+      expect(await invoke({ secretId: 'esv-a', allowFailures: true })).toBe(0);
+      expect(pruneVersionsOfSecret).toHaveBeenCalledWith(
+        'esv-a',
+        undefined,
+        undefined,
+        true
+      );
     });
 
     it('ignores -y (there is nothing to answer)', async () => {

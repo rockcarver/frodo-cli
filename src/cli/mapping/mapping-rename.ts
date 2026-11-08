@@ -39,6 +39,7 @@ export default function setup() {
       )
     )
     .requireOneOf({ options: ['all', 'mappingId'], purpose: 'what to rename' })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -68,7 +69,10 @@ export default function setup() {
           (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Renaming all mappings...');
-          const outcome = await renameMappings(options.legacy);
+          const outcome = await renameMappings(
+            options.legacy,
+            options.allowFailures
+          );
           if (!outcome) process.exitCode = 1;
         }
         // No branch ran: with requireOneOf satisfied, the only way

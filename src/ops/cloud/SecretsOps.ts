@@ -23,6 +23,7 @@ import {
   updateProgressIndicator,
   warnSpinner,
 } from '../../utils/Console';
+import { causeOf } from '../../utils/ErrorCause';
 import { countItems, recordImportOfFile } from '../../utils/ImportItems';
 import { OperationRun } from '../../utils/OperationRun';
 import wordwrap from '../utils/Wordwrap';
@@ -991,36 +992,43 @@ export async function deleteVersionOfSecret(
 
 /**
  * Prune the versions of a secret: delete every version except the active one
- * (the library never deletes the active version). The library reports its own
- * progress; this function reports each failure and returns the outcome.
+ * (the library never deletes the active version). The library reports each
+ * version it cannot delete to the result callback of an {@link OperationRun}
+ * and goes on with the others; one summary names the versions that failed. A
+ * secret or versions that cannot be read end the command whatever
+ * `--allow-failures` says.
  * @param {String} secretId secret id
  * @param {boolean} keepLoaded keep the versions that are currently loaded. Default: false
  * @param {boolean} keepDeactivated keep the deactivated versions. Default: false
+ * @param {boolean} allowFailures true to report versions that could not be pruned but still succeed. Default: false
  * @returns {Promise<boolean>} true if every version was pruned, false otherwise
  */
 export async function pruneVersionsOfSecret(
   secretId: string,
   keepLoaded = false,
-  keepDeactivated = false
+  keepDeactivated = false,
+  allowFailures = false
 ): Promise<boolean> {
-  let failures = 0;
+  const run = new OperationRun({ unit: 'version', allowFailures });
+  const report = run.resultCallback();
   try {
-    await _pruneVersionsOfSecret(
+    // a pruned version is counted from what the library returns, so only the failures are counted here
+    const pruned = await _pruneVersionsOfSecret(
       secretId,
       keepLoaded,
       keepDeactivated,
       (error) => {
-        if (error) {
-          failures++;
-          printError(error);
-        }
+        if (error) report(error);
       }
     );
+    for (const version of pruned) if (version) run.recordSuccess();
   } catch (error) {
+    // not a version failure: the secret or its versions could not be read
     printError(error);
+    if (run.hasFailures) run.finish();
     return false;
   }
-  return failures === 0;
+  return run.finish();
 }
 
 /** The versions of one secret that a prune would delete. */
@@ -1088,6 +1096,9 @@ async function findPrunePlans(
     `Finding the versions to prune...`
   );
   const plan: SecretPrunePlan[] = [];
+  // The plan is all or nothing, so a secret that cannot be checked ends the command whatever `--allow-failures` says;
+  // every secret is still checked, and one summary names the ones that could not be.
+  const run = new OperationRun({ unit: 'secret' });
   let failed = 0;
   for (const secretId of secretIds) {
     try {
@@ -1099,9 +1110,11 @@ async function findPrunePlans(
           keepDeactivated
         ),
       });
+      run.recordSuccess();
     } catch (error) {
       failed++;
       printError(error);
+      run.recordFailure(secretId, causeOf(error));
     }
     updateProgressIndicator(indicatorId, `Checked secret ${secretId}`);
   }
@@ -1111,6 +1124,7 @@ async function findPrunePlans(
       `Could not check ${failed} of ${count(secretIds.length, 'secret')}`,
       'fail'
     );
+    run.finish();
     printMessage('Nothing was deleted: the plan is incomplete.', 'error');
     return undefined;
   }
@@ -1228,13 +1242,17 @@ export function printPrunePlan(
  * @param {SecretPrunePlan[]} plan the confirmed plan
  * @param {boolean} keepLoaded the plan keeps the versions that are currently loaded. Default: false
  * @param {boolean} keepDeactivated the plan keeps the deactivated versions. Default: false
+ * @param {boolean} allowFailures true to report versions that could not be deleted but still succeed. Default: false
  * @returns {Promise<boolean>} true if no deletion failed (skipped versions are not failures), false otherwise
  */
 export async function pruneVersionsOfPlan(
   plan: SecretPrunePlan[],
   keepLoaded = false,
-  keepDeactivated = false
+  keepDeactivated = false,
+  allowFailures = false
 ): Promise<boolean> {
+  // every version is one operation; one summary names the versions that failed
+  const run = new OperationRun({ unit: 'version', allowFailures });
   const work = plan.filter((p) => p.versions.length > 0);
   const total = summarizePrunePlan(work).versions;
   const indicatorId = createProgressIndicator(
@@ -1260,12 +1278,16 @@ export async function pruneVersionsOfPlan(
     } catch (error) {
       printError(error);
       failed += versions.length;
-      versions.forEach(() =>
+      versions.forEach((v) => {
+        run.recordFailure(
+          `version ${v.version} of secret ${secretId}`,
+          causeOf(error)
+        );
         updateProgressIndicator(
           indicatorId,
           `Could not check secret ${secretId}`
-        )
-      );
+        );
+      });
       continue;
     }
     for (const v of versions) {
@@ -1275,9 +1297,14 @@ export async function pruneVersionsOfPlan(
         try {
           await frodo.cloud.secret.deleteVersionOfSecret(secretId, v.version);
           deleted++;
+          run.recordSuccess();
         } catch (error) {
           failed++;
           printError(error);
+          run.recordFailure(
+            `version ${v.version} of secret ${secretId}`,
+            causeOf(error)
+          );
         }
       }
       updateProgressIndicator(
@@ -1299,5 +1326,5 @@ export async function pruneVersionsOfPlan(
       'warn'
     );
   }
-  return failed === 0;
+  return run.finish();
 }

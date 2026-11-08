@@ -123,6 +123,7 @@ export default function setup() {
       options: ['secretId', 'all'],
       purpose: 'which secrets to prune',
     })
+    .multiOp()
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -213,7 +214,8 @@ export default function setup() {
             !(await pruneVersionsOfSecret(
               target.secretId,
               options.keepLoaded,
-              options.keepDeactivated
+              options.keepDeactivated,
+              options.allowFailures
             ))
           ) {
             process.exitCode = 1;
@@ -266,7 +268,8 @@ export default function setup() {
           !(await pruneVersionsOfPlan(
             plan,
             options.keepLoaded,
-            options.keepDeactivated
+            options.keepDeactivated,
+            options.allowFailures
           ))
         ) {
           process.exitCode = 1;

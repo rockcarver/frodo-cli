@@ -521,13 +521,25 @@ export async function renameMapping(
 
 /**
  * Rename all mappings
+ * Every mapping is one operation of an {@link OperationRun}: a mapping that cannot be renamed does not stop the others
+ * from being renamed, and one summary names the ones that failed. A failure to read the mappings ends the command whatever
+ * `--allow-failures` says.
  * @param {boolean} [legacy=false] true to rename from new to legacy naming scheme, false otherwise. Default: false
+ * @param {boolean} [allowFailures=false] true to report mappings that could not be renamed but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function renameMappings(
-  legacy: boolean = false
+  legacy: boolean = false,
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const mappings = await readMappings();
+  let mappings: MappingSkeleton[];
+  try {
+    mappings = await readMappings();
+  } catch (error) {
+    printError(error);
+    return false;
+  }
+  const run = new OperationRun({ unit: 'mapping', allowFailures });
   const spinnerId = createProgressIndicator(
     'determinate',
     mappings.length,
@@ -540,39 +552,31 @@ export async function renameMappings(
     mapping.syncAfter = syncAfter.slice();
     syncAfter.push(mapping.name);
     const name = mapping.name;
-    try {
-      updateProgressIndicator(spinnerId, `Renaming mapping ${name}...`);
-      const oldId = `${legacy ? 'mapping' : 'sync'}/${name}`;
-      const newId = `${legacy ? 'sync' : 'mapping'}/${name}`;
-      let oldMapping;
-      try {
-        oldMapping = await readMapping(oldId);
-        oldMapping.syncAfter = mapping.syncAfter;
-      } catch {
-        // Old mapping doesn't exist, meaning the mapping is already new, so just update it with the new syncAfter property
+    updateProgressIndicator(spinnerId, `Renaming mapping ${name}...`);
+    const oldId = `${legacy ? 'mapping' : 'sync'}/${name}`;
+    const newId = `${legacy ? 'sync' : 'mapping'}/${name}`;
+    await run.run(name, async () => {
+      // The list says which scheme a mapping is in. One that has the new id already just gets the new syncAfter property.
+      if (mapping._id === newId) {
         await updateMapping(newId, mapping);
-        continue;
+        return;
       }
+      const oldMapping = await readMapping(oldId);
+      oldMapping.syncAfter = mapping.syncAfter;
       await createMapping(newId, oldMapping);
       await frodo.idm.mapping.deleteMapping(oldId);
-    } catch (error) {
-      stopProgressIndicator(
-        spinnerId,
-        error.response ? `Error renaming mapping ${name}` : error,
-        'fail'
-      );
-      printError(error);
-      return false;
-    }
+    });
   }
   stopProgressIndicator(
     spinnerId,
-    `Successfully renamed ${mappings.length} mappings to ${
-      legacy ? 'legacy' : 'new'
-    } naming scheme.`,
-    'success'
+    run.hasFailures
+      ? 'Some mappings could not be renamed.'
+      : `Successfully renamed ${mappings.length} mappings to ${
+          legacy ? 'legacy' : 'new'
+        } naming scheme.`,
+    run.hasFailures ? 'fail' : 'success'
   );
-  return true;
+  return run.finish();
 }
 
 /**

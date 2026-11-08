@@ -1,12 +1,11 @@
 import confirm from '@inquirer/confirm';
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
+import { pruneOrphanedNodes } from '../../ops/JourneyOps';
 import c from '../../utils/ColorTheme';
-import { printError, printMessage, verboseMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
 
 export default function setup() {
   const program = new FrodoCommand('frodo journey prune');
@@ -25,6 +24,7 @@ export default function setup() {
           `  $ frodo journey prune ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         )
     )
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -40,23 +40,15 @@ export default function setup() {
           verboseMessage(
             `Pruning orphaned configuration artifacts in realm "${state.getRealm()}"...`
           );
-          try {
-            const orphanedNodes = await findOrphanedNodes();
-            if (orphanedNodes.length > 0) {
-              const ok = await confirm({
+          const outcome = await pruneOrphanedNodes(
+            () =>
+              confirm({
                 message: 'Prune (permanently delete) orphaned nodes?',
                 default: false,
-              });
-              if (ok) {
-                await removeOrphanedNodes(orphanedNodes);
-              }
-            } else {
-              printMessage('No orphaned nodes found.');
-            }
-          } catch (error) {
-            printError(error);
-            process.exitCode = 1;
-          }
+              }),
+            options.allowFailures
+          );
+          if (!outcome) process.exitCode = 1;
         } else {
           process.exitCode = 1;
         }

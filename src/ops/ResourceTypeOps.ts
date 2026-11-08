@@ -173,7 +173,7 @@ export async function deleteResourceTypeById(
  */
 export async function deleteResourceTypeUsingName(
   resourceTypeName: string
-): Promise<boolean | ResourceTypeSkeleton> {
+): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceTypeByName: begin`);
   showSpinner(`Deleting ${resourceTypeName}...`);
   try {
