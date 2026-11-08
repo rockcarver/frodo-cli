@@ -24,6 +24,7 @@ export default function setup() {
     .addOption(
       new Option('-i, --include-immutable ', 'Include immutable IGA workflows.')
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -53,7 +54,8 @@ export default function setup() {
       verboseMessage('Exporting IGA workflows');
       const outcome = await configManagerExportIgaWorkflows(
         options.name,
-        options.includeImmutable
+        options.includeImmutable,
+        options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
     });

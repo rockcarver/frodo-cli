@@ -51,6 +51,9 @@ describe('frodo config-manager push telemetry', () => {
     const CMD = `frodo config-manager push telemetry -c splunk -D ${telemetryDir}`;
     await testSuccess(CMD, env);
   });
+  // The stderr snapshot of this test was edited by hand (not re-recorded): the exporter that cannot be imported is
+  // named in the error as before, and the command now imports each exporter on its own and ends with the failure
+  // summary (cli records 0040 and 0041).
   test(`"frodo config-manager push telemetry -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=all-test -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=all-secret -D ${telemetryDir}": should fail to import all telemetry config`, async () => {
     const CMD = `frodo config-manager push telemetry -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=all-test -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=all-secret -D ${telemetryDir}`;
     await testFail(CMD, env);

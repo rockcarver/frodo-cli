@@ -49,6 +49,8 @@ describe('frodo config-manager pull iga-workflows', () => {
     const CMD = `frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D ${dirName}`;
     await testExport(CMD, env, undefined, undefined, dirName, false, true);
   });
+  // The stderr snapshot of this test was edited by hand (not re-recorded): a workflow that is not there is now a plain
+  // message, without the "Error exporting IGA workflows to files" line in front of it (cli record 0041).
   test('"frodo config-manager pull iga-workflows --name BasicApplicationGrant -D igaTestDir05": should fail because the non-mutable workflow is not found without -i"', async () => {
     const dirName = 'igaTestDir05';
     const CMD = `frodo config-manager pull iga-workflows --name BasicApplicationGrant -D ${dirName}`;

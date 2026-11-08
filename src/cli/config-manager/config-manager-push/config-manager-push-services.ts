@@ -12,6 +12,7 @@ export default function setup() {
     .addOption(
       new Option('-n, --name <name>', 'Name of the service to import.')
     )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -28,7 +29,11 @@ export default function setup() {
         return;
       }
       verboseMessage('Importing services.');
-      const outcome = await configManagerImportServices(options.name, realm);
+      const outcome = await configManagerImportServices(
+        options.name,
+        realm,
+        options.allowFailures
+      );
       if (!outcome) process.exitCode = 1;
     });
 

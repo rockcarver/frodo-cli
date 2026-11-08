@@ -2,7 +2,6 @@
 
 exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-workflows --name BasicApplicationGrant -D igaTestDir05": should fail because the non-mutable workflow is not found without -i" 1`] = `
 "Experimental feature in use: 'frodo config-manager pull iga-workflows'. This feature may change without notice.
-Error exporting IGA workflows to files
 Workflow BasicApplicationGrant not found
 "
 `;

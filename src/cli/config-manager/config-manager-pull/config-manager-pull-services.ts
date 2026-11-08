@@ -16,6 +16,7 @@ export default function setup() {
       )
     )
 
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -28,7 +29,11 @@ export default function setup() {
 
       if (await getTokens()) {
         verboseMessage('Exporting services...');
-        const outcome = await configManagerExportServices(realm, options.name);
+        const outcome = await configManagerExportServices(
+          realm,
+          options.name,
+          options.allowFailures
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

@@ -8,8 +8,11 @@ import {
 import {
   createProgressIndicator,
   printError,
+  printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
+import { OperationRun } from '../utils/OperationRun';
 
 const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
 const { exportTelemetry, importTelemetry } = frodo.cloud.telemetry;
@@ -18,17 +21,30 @@ const { exportTelemetry, importTelemetry } = frodo.cloud.telemetry;
  * Exports telemetry configuration in config manager format
  * @param {TelemetryExporterCategory} category optional parameter to export telemetry by category.
  * @param {string} name optional parameter to export telemetry config by name.
- * @returns { Promise<boolean> } returns true if telemetry was successfully exported
+ * @param {boolean} allowFailures true to succeed although some exporters could not be exported (the failures are still summarised)
+ * @returns { Promise<boolean> } returns false if a named exporter does not exist, the telemetry cannot be read, or an exporter cannot be exported (unless failures are allowed). No exporters when none was named is a success.
  */
 export async function configManagerExportTelemetry(
   category?: TelemetryExporterCategory,
-  name?: string
+  name?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   try {
     const exporters = await exportTelemetry(name, category);
-
-    for (const [cat, providers] of Object.entries(exporters.telemetry)) {
-      for (const provider of providers) {
+    const items = Object.entries(exporters.telemetry).flatMap(
+      ([cat, providers]) => providers.map((provider) => ({ cat, provider }))
+    );
+    if (name && items.length === 0) {
+      printMessage(`Telemetry exporter '${name}' not found.`, 'error');
+      return false;
+    }
+    if (items.length === 0) {
+      printMessage('No telemetry exporters found to export.');
+      return true;
+    }
+    const run = new OperationRun({ unit: 'telemetry exporter', allowFailures });
+    for (const { cat, provider } of items) {
+      try {
         const exportProvider = provider as any;
         if (exportProvider.headers) {
           const placeholders: Record<string, string> = {};
@@ -45,9 +61,13 @@ export async function configManagerExportTelemetry(
           getFilePath(`telemetry/${cat}/${provider.id}.json`, true),
           false
         );
+        run.recordSuccess();
+      } catch (error) {
+        printError(error, `Error exporting telemetry exporter ${provider.id}`);
+        run.recordFailure(`${cat}/${provider.id}`, causeOf(error));
       }
     }
-    return true;
+    return run.finish();
   } catch (e) {
     printError(e);
   }
@@ -58,11 +78,13 @@ export async function configManagerExportTelemetry(
  * Imports telemetry configuration in config manager format
  * @param {TelemetryExporterCategory} category optional parameter to import telemetry by category.
  * @param {string} name optional parameter to import telemetry config by name.
- * @returns { Promise<boolean> } returns true if telemetry was successfully imported
+ * @param {boolean} allowFailures true to succeed although some exporters could not be imported (the failures are still summarised)
+ * @returns { Promise<boolean> } returns false if the telemetry folder or a named exporter does not exist, or an exporter cannot be read or imported (unless failures are allowed). No exporters when none was named is a success.
  */
 export async function configManagerImportTelemetry(
   category?: TelemetryExporterCategory,
-  name?: string
+  name?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
   let indicatorId = createProgressIndicator(
     'indeterminate',
@@ -76,7 +98,7 @@ export async function configManagerImportTelemetry(
     if (!fs.existsSync(telemetryDir)) {
       stopProgressIndicator(
         indicatorId,
-        'No telemetry exporters found to import',
+        `Telemetry folder not found: ${telemetryDir}`,
         'fail'
       );
       return false;
@@ -88,11 +110,12 @@ export async function configManagerImportTelemetry(
       .map((entry) => entry.name as TelemetryExporterCategory)
       .filter((cat) => !category || cat === category);
 
-    const importData = {
-      telemetry: Object.fromEntries(categories.map((cat) => [cat, []])),
-    } as TelemetryExportInterface;
-
-    let exportCounter = 0;
+    const run = new OperationRun({ unit: 'telemetry exporter', allowFailures });
+    const exporters: {
+      cat: TelemetryExporterCategory;
+      id: string;
+      provider: LogExporterSkeleton;
+    }[] = [];
 
     for (const cat of categories) {
       const catDir = getFilePath(`telemetry/${cat}`);
@@ -105,25 +128,40 @@ export async function configManagerImportTelemetry(
         .filter((f) => !name || f === `${name}.json`);
       for (const file of files) {
         const filePath = `${catDir}/${file}`;
-        const provider = readJsonFile(filePath) as LogExporterSkeleton;
-        (importData.telemetry[cat] as LogExporterSkeleton[]).push(provider);
-        exportCounter++;
+        try {
+          const provider = readJsonFile(filePath) as LogExporterSkeleton;
+          exporters.push({
+            cat,
+            id: `${cat}/${provider.id ?? file}`,
+            provider,
+          });
+        } catch (error) {
+          // a file that cannot be read or parsed is a failed exporter
+          printError(error, `Error reading telemetry exporter ${cat}/${file}`);
+          run.recordFailure(`${cat}/${file}`, causeOf(error));
+        }
       }
     }
-    if (exportCounter === 0) {
+    if (exporters.length === 0 && !run.hasFailures) {
+      if (name) {
+        stopProgressIndicator(
+          indicatorId,
+          `No matching telemetry exporter found for ${name}`,
+          'fail'
+        );
+        return false;
+      }
       stopProgressIndicator(
         indicatorId,
-        name
-          ? `No matching telemetry exporter found for ${name}`
-          : 'No telemetry exporters found to import',
-        'fail'
+        'No telemetry exporters found to import',
+        'success'
       );
-      return false;
+      return true;
     }
 
     stopProgressIndicator(
       indicatorId,
-      `Successfully read ${exportCounter} telemetry exporter(s).`,
+      `Successfully read ${exporters.length} telemetry exporter(s).`,
       'success'
     );
 
@@ -133,15 +171,29 @@ export async function configManagerImportTelemetry(
       'Importing telemetry exporters...'
     );
 
-    await importTelemetry(importData);
+    // The library stops at the first exporter it cannot import: one call per
+    // exporter tries every one of them.
+    for (const { cat, id, provider } of exporters) {
+      try {
+        await importTelemetry({
+          telemetry: { [cat]: [provider] },
+        } as TelemetryExportInterface);
+        run.recordSuccess();
+      } catch (error) {
+        printError(error, `Error importing telemetry exporter ${id}`);
+        run.recordFailure(id, causeOf(error));
+      }
+    }
 
     stopProgressIndicator(
       indicatorId,
-      `Successfully imported ${exportCounter} telemetry exporter(s).`,
-      'success'
+      run.hasFailures
+        ? 'Telemetry import completed with failures.'
+        : `Successfully imported ${exporters.length} telemetry exporter(s).`,
+      run.hasFailures ? 'fail' : 'success'
     );
 
-    return true;
+    return run.finish();
   } catch (error) {
     stopProgressIndicator(indicatorId, `Failed to import Telemetry.`, 'fail');
     printError(error, 'Error importing telemetry configuration');
