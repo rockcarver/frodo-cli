@@ -310,8 +310,8 @@ describe('CLI import validation option wiring', () => {
         false,
         false,
         false,
-        undefined,
-        undefined,
+        false,
+        false,
         false,
         validate,
         undefined

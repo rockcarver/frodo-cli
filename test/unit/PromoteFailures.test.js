@@ -58,6 +58,10 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError,
 }));
 
+// the question that is asked before the orphaned nodes are pruned
+const confirm = jest.fn();
+jest.unstable_mockModule('@inquirer/confirm', () => ({ default: confirm }));
+
 const FILE = 'src/ops/PromoteOps.ts';
 
 // every relative import of the module under test becomes spies, except the run
@@ -498,6 +502,34 @@ describe('promote', () => {
 
       expect(deleteJourney.mock.calls).toHaveLength(1);
       expect(pruneOrphanedNodesInRun.mock.calls).toHaveLength(0);
+    });
+
+    test('the question says that every orphaned node of the realm is deleted, not only those of the journey', async () => {
+      confirm.mockReset().mockResolvedValue(false);
+
+      await compareExportToDirectory(
+        master,
+        current,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false
+      );
+      const ask = pruneOrphanedNodesInRun.mock.calls[0][1];
+
+      expect(await ask()).toBe(false);
+      expect(confirm.mock.calls).toHaveLength(1);
+      expect(confirm.mock.calls[0][0].message).toContain(
+        'every orphaned node of realm'
+      );
+      expect(confirm.mock.calls[0][0].message).toContain(
+        'not only those of this journey'
+      );
+      expect(confirm.mock.calls[0][0].default).toBe(false);
     });
 
     test('a what-if effects nothing and succeeds', async () => {

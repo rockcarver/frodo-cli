@@ -54,14 +54,16 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--propmt-prune',
-        'Will prompt for Frodo Journey Prune on all realms'
+        '--prompt-prune',
+        'Ask before the orphaned nodes are pruned (permanently deleted) after a journey was deleted. The prune covers every orphaned node of the realm, not only those of the deleted journey.'
       ).default(false, 'false')
     )
+    // the spelling this option had before it worked; kept so that nothing that passes it breaks
+    .addOption(new Option('--propmt-prune').hideHelp())
     .addOption(
-      new Option('--no-prune', 'Will stop prune from running').default(
-        false,
-        'false'
+      new Option(
+        '--no-prune',
+        'Do not prune orphaned nodes after a journey was deleted. Without this option, and without --prompt-prune, every orphaned node of the realm is pruned (permanently deleted) without asking.'
       )
     )
     .addOption(
@@ -120,8 +122,9 @@ export default function setup() {
             options.whatIf,
             options.effectSecrets,
             options.waitSecrets,
-            options.promptPrune,
-            options.noPrune,
+            Boolean(options.promptPrune || options.propmtPrune),
+            // commander stores the negated --no-prune as `prune`, true unless the option was given
+            options.prune === false,
             options.printDiff,
             options.validate,
             options.allowFailures
