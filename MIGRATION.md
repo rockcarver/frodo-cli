@@ -178,7 +178,9 @@ delete -a`, `idm remote-proxy delete -a`, `log key delete`, `oauth client delete
 -a`, `node delete -a`, `secretstore delete -a`, `secretstore mapping delete -a`,
 `iga workflow delete -a`, `agent delete -a`, `agent ai delete -a`, `agent
 gateway delete -a`, `agent java delete -a`, `agent web delete -a`, `saml delete
--a`, `service delete -a` and `journey delete -a`. For the deletes this means a
+-a`, `service delete -a`, `journey delete -a`, `agent export -A`, `agent ai export
+-A`, `agent gateway export -A`, `agent java export -A` and `agent web export -A`.
+For the deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -204,7 +206,14 @@ clients, after asking for confirmation (add `--yes` in a script, cli record
 0037). `journey delete -a` printed "Deleted N journeys" with N counting the
 journeys it could not delete, and `journey delete -i` exited 0 after one failed;
 a journey that could not be deleted (or, with `--deep`, whose nodes could not be
-deleted) is now named in the summary and the exit code is 1. See
+deleted) is now named in the summary and the exit code is 1. The agent exports
+to separate files (`agent export -A`, `agent ai|gateway|java|web export -A`)
+stopped at the first agent that could not be exported, and before frodo-lib
+5.0.0-26 a file that could not be saved was only printed and the command exited
+0; they now export every agent they can, print one summary that names the agents
+that failed (including a file that could not be saved), and exit 1. Reading the
+agents fails the command whatever `--allow-failures` says. `-a` and `-i` export
+one thing and are unchanged: a failure is printed and the exit code is 1. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

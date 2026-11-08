@@ -47,6 +47,7 @@ export default function setup() {
       options: ['agentId', 'all', 'allSeparate'],
       purpose: 'what to export',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -86,7 +87,8 @@ export default function setup() {
               'Exporting all identity gateway agents to separate files...'
             );
             const outcome = await exportIdentityGatewayAgentsToFiles(
-              options.metadata
+              options.metadata,
+              options.allowFailures
             );
             if (!outcome) process.exitCode = 1;
           }
