@@ -43,8 +43,9 @@ export default function setup() {
       options: ['all', 'allSeparate', 'cotId', 'file'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
-      // implement program logic inside action handler
+      // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
@@ -54,44 +55,46 @@ export default function setup() {
           options,
           command
         );
+        // decide what to do from the options alone, so that a failed login is
+        // reported as such and not as an unrecognized combination of options
+        let task:
+          { message: () => string; run: () => Promise<boolean> } | undefined;
         // import by id
-        if (options.file && options.cotId && (await getTokens())) {
-          verboseMessage(
-            `Importing circle of trust "${
-              options.cotId
-            }" into realm "${state.getRealm()}"...`
-          );
-          const outcome = await importCircleOfTrustFromFile(
-            options.cotId,
-            options.file
-          );
-          if (!outcome) process.exitCode = 1;
+        if (options.file && options.cotId) {
+          task = {
+            message: () =>
+              `Importing circle of trust "${
+                options.cotId
+              }" into realm "${state.getRealm()}"...`,
+            run: () => importCircleOfTrustFromFile(options.cotId, options.file),
+          };
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
-          verboseMessage(
-            `Importing all circles of trust from a single file (${options.file})...`
-          );
-          const outcome = await importCirclesOfTrustFromFile(options.file);
-          if (!outcome) process.exitCode = 1;
+        else if (options.all && options.file) {
+          task = {
+            message: () =>
+              `Importing all circles of trust from a single file (${options.file})...`,
+            run: () =>
+              importCirclesOfTrustFromFile(options.file, options.allowFailures),
+          };
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
-          verboseMessage(
-            'Importing all circles of trust from separate files (*.saml.json) in current directory...'
-          );
-          const outcome = await importCirclesOfTrustFromFiles();
-          if (!outcome) process.exitCode = 1;
+        else if (options.allSeparate && !options.file) {
+          task = {
+            message: () =>
+              'Importing all circles of trust from separate files (*.saml.json) in current directory...',
+            run: () => importCirclesOfTrustFromFiles(options.allowFailures),
+          };
         }
         // import first from file
-        else if (options.file && (await getTokens())) {
-          verboseMessage(
-            `Importing first circle of trust from file "${
-              options.file
-            }" into realm "${state.getRealm()}"...`
-          );
-          const outcome = await importFirstCircleOfTrustFromFile(options.file);
-          if (!outcome) process.exitCode = 1;
+        else if (options.file) {
+          task = {
+            message: () =>
+              `Importing first circle of trust from file "${
+                options.file
+              }" into realm "${state.getRealm()}"...`,
+            run: () => importFirstCircleOfTrustFromFile(options.file),
+          };
         }
         // unrecognized combination of options or no options
         else {
@@ -101,9 +104,18 @@ export default function setup() {
           );
           process.exitCode = 1;
           program.help();
+          return;
         }
+        if (!(await getTokens())) {
+          // getTokens has said why
+          process.exitCode = 1;
+          return;
+        }
+        verboseMessage(task.message());
+        const outcome = await task.run();
+        if (!outcome) process.exitCode = 1;
       }
-      // end program logic inside action handler
+      // end command logic inside action handler
     );
 
   return program;

@@ -87,6 +87,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'appId', 'appName', 'file'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -98,72 +99,75 @@ export default function setup() {
           options,
           command
         );
+        // decide what to do from the options alone, so that a failed login is
+        // reported as such and not as an unrecognized combination of options
+        let task:
+          { message: () => string; run: () => Promise<boolean> } | undefined;
         // -i/--app-id or -n/--app-name
-        if (
-          options.file &&
-          (options.appId || options.appName) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Importing application "${options.appName ?? options.appId}"...`
-          );
-          const outcome = await importApplicationFromFile(
-            options.appId,
-            options.appName,
-            options.file,
-            {
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
+        if (options.file && (options.appId || options.appName)) {
+          task = {
+            message: () =>
+              `Importing application "${options.appName ?? options.appId}"...`,
+            run: () =>
+              importApplicationFromFile(
+                options.appId,
+                options.appName,
+                options.file,
+                { deps: options.deps }
+              ),
+          };
         }
         // --all -a
-        else if (
-          options.all &&
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Importing all applications from a single file (${options.file})...`
-          );
-          const outcome = await importApplicationsFromFile(options.file, {
-            deps: options.deps,
-          });
-          if (!outcome) process.exitCode = 1;
+        else if (options.all && options.file) {
+          task = {
+            message: () =>
+              `Importing all applications from a single file (${options.file})...`,
+            run: () =>
+              importApplicationsFromFile(
+                options.file,
+                { deps: options.deps },
+                options.allowFailures
+              ),
+          };
         }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          !options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            'Importing all applications from separate files in current directory...'
-          );
-          const outcome = await importApplicationsFromFiles({
-            deps: options.deps,
-          });
-          if (!outcome) process.exitCode = 1;
+        else if (options.allSeparate && !options.file) {
+          task = {
+            message: () =>
+              'Importing all applications from separate files in current directory...',
+            run: () =>
+              importApplicationsFromFiles(
+                { deps: options.deps },
+                options.allowFailures
+              ),
+          };
         }
-        // import first provider from file
-        else if (
-          options.file &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Importing first application from file "${options.file}"...`
-          );
-          const outcome = await importFirstApplicationFromFile(options.file, {
-            deps: options.deps,
-          });
-          if (!outcome) process.exitCode = 1;
+        // import first application from file
+        else if (options.file) {
+          task = {
+            message: () =>
+              `Importing first application from file "${options.file}"...`,
+            run: () =>
+              importFirstApplicationFromFile(options.file, {
+                deps: options.deps,
+              }),
+          };
         }
         // unrecognized combination of options or no options
         else {
           printMessage('Unrecognized combination of options or no options...');
           process.exitCode = 1;
           program.help();
+          return;
         }
+        if (!(await getTokens(false, true, deploymentTypes))) {
+          // getTokens has said why
+          process.exitCode = 1;
+          return;
+        }
+        verboseMessage(task.message());
+        const outcome = await task.run();
+        if (!outcome) process.exitCode = 1;
       }
       // end command logic inside action handler
     );

@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import {
   frodo,
   state,
@@ -15,6 +16,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -328,85 +330,111 @@ export async function importFirstCircleOfTrustFromFile(
 
 /**
  * Import all SAML circles of trust from file
+ * Every circle of trust in the file is tried: one that cannot be imported is printed and named in one
+ * summary, and the others are still imported. A file that cannot be read or parsed ends the command
+ * whatever `--allow-failures` says.
  * @param {String} file Import file name
+ * @param {boolean} allowFailures true to report circles of trust that could not be imported but still succeed. Default: false
  */
 export async function importCirclesOfTrustFromFile(
-  file: string
+  file: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'trust circle', allowFailures });
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
     `Importing circles of trust from ${filePath}...`
   );
+  let fileData: CirclesOfTrustExportInterface;
   try {
     const data = fs.readFileSync(filePath, 'utf8');
-    const fileData = JSON.parse(data);
-    await importCirclesOfTrust(fileData);
-    stopProgressIndicator(indicatorId, `Imported circles of trust`, 'success');
-    return true;
+    fileData = JSON.parse(data);
   } catch (error) {
+    // not an item failure: the file that was named cannot be read
     stopProgressIndicator(
       indicatorId,
       `Error importing circles of trust`,
       'fail'
     );
     printError(error);
+    return false;
   }
-  return false;
+  // the library throws one error for the circles of trust that failed and
+  // names none of them (frodo-lib issue: the nested errors are dropped)
+  await importItemsOfFile(run, fileData, {
+    count: (data) => Object.keys(data.saml.cot).length,
+    importItems: (data) => importCirclesOfTrust(data),
+    fallbackName: file,
+  });
+  const outcome = run.finish();
+  stopProgressIndicator(
+    indicatorId,
+    outcome ? `Imported circles of trust` : `Error importing circles of trust`,
+    outcome ? 'success' : 'fail'
+  );
+  return outcome;
 }
 
 /**
  * Import all SAML circles of trust from all *.cot.saml.json files in the current directory
+ * Every file is tried: a file that cannot be read, or a circle of trust in it that cannot be
+ * imported, is printed and named in one summary, and the others are still imported. A directory
+ * that cannot be read ends the command whatever `--allow-failures` says.
+ * @param {boolean} allowFailures true to report circles of trust that could not be imported but still succeed. Default: false
  */
-export async function importCirclesOfTrustFromFiles(): Promise<boolean> {
-  const errors = [];
-  let indicatorId: string;
+export async function importCirclesOfTrustFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'trust circle', allowFailures });
+  debugMessage(`cli.CirclesOfTrustOps.importCirclesOfTrustFromFiles: begin`);
+  let files: string[];
   try {
-    debugMessage(`cli.CirclesOfTrustOps.importCirclesOfTrustFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
-    const files = names
+    files = names
       .filter((name) => name.toLowerCase().endsWith('.cot.saml.json'))
       .map((name) => getFilePath(name));
-    indicatorId = createProgressIndicator(
-      'determinate',
-      files.length,
-      'Importing circles of trust...'
-    );
-    let total = 0;
-    for (const file of files) {
-      try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData: CirclesOfTrustExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.saml.cot).length;
-        total += count;
-        await importCirclesOfTrust(fileData);
-        updateProgressIndicator(
-          indicatorId,
-          `Imported ${count} circles of trust from ${file}`
-        );
-      } catch (error) {
-        errors.push(error);
-        updateProgressIndicator(
-          indicatorId,
-          `Error importing circles of trust from ${file}`
-        );
-        printError(error);
-      }
-    }
-    stopProgressIndicator(
-      indicatorId,
-      `Imported ${total} circles of trust from ${files.length} files.`
-    );
-    return true;
   } catch (error) {
-    errors.push(error);
-    stopProgressIndicator(
-      indicatorId,
-      `Error importing circles of trust from files.`
-    );
     printError(error);
+    return false;
   }
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    files.length,
+    'Importing circles of trust...'
+  );
+  for (const file of files) {
+    let fileData: CirclesOfTrustExportInterface;
+    try {
+      fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (error) {
+      printError(error);
+      run.recordFailure(path.basename(file), error);
+      updateProgressIndicator(
+        indicatorId,
+        `Error importing circles of trust from ${file}`
+      );
+      continue;
+    }
+    await importItemsOfFile(run, fileData, {
+      count: (data) => Object.keys(data.saml.cot).length,
+      importItems: (data) => importCirclesOfTrust(data),
+      fallbackName: path.basename(file),
+    });
+    updateProgressIndicator(
+      indicatorId,
+      `Imported circles of trust from ${file}`
+    );
+  }
+  const outcome = run.finish();
+  stopProgressIndicator(
+    indicatorId,
+    outcome
+      ? `Finished importing circles of trust from ${files.length} file(s).`
+      : `Error importing circles of trust from files.`,
+    outcome ? 'success' : 'fail'
+  );
   debugMessage(`cli.CirclesOfTrustOps.importCirclesOfTrustFromFiles: end`);
-  return false;
+  return outcome;
 }

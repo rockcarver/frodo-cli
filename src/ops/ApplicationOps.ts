@@ -1,7 +1,7 @@
 import fs from 'fs';
+import path from 'path';
 import {
   frodo,
-  FrodoError,
   state,
   type ApplicationExportInterface,
   type ApplicationExportOptions,
@@ -16,6 +16,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 import wordwrap from './utils/Wordwrap';
 
@@ -437,94 +438,110 @@ export async function importFirstApplicationFromFile(
 
 /**
  * Import applications from file
+ * Every application in the file is tried: one that cannot be imported is printed and named in one
+ * summary, and the others are still imported. A file that cannot be read or parsed ends the command
+ * whatever `--allow-failures` says.
  * @param {string} file file name
  * @param {ApplicationImportOptions} options import options
+ * @param {boolean} allowFailures true to report applications that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importApplicationsFromFile(
   file: string,
-  options: ApplicationImportOptions = { deps: true }
+  options: ApplicationImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  let spinnerId: string;
+  const run = new OperationRun({ unit: 'application', allowFailures });
+  debugMessage(`cli.ApplicationOps.importApplicationsFromFile: begin`);
+  const filePath = getFilePath(file);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing ${filePath}...`
+  );
+  let applicationData: ApplicationExportInterface;
   try {
-    debugMessage(`cli.ApplicationOps.importApplicationsFromFile: begin`);
-    const filePath = getFilePath(file);
-    spinnerId = createProgressIndicator(
-      'indeterminate',
-      0,
-      `Importing ${filePath}...`
-    );
     const data = fs.readFileSync(filePath, 'utf8');
-    const applicationData = JSON.parse(data);
-    await _importApplications(applicationData, options);
-    stopProgressIndicator(spinnerId, `Imported ${filePath}`, 'success');
-    debugMessage(`cli.ApplicationOps.importApplicationsFromFile: end`);
-    return true;
+    applicationData = JSON.parse(data);
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error importing first application`,
-      'fail'
-    );
+    // not an item failure: the file that was named cannot be read
+    stopProgressIndicator(spinnerId, `Error importing ${filePath}`, 'fail');
     printError(error);
+    return false;
   }
-  return false;
+  await importItemsOfFile(run, applicationData, {
+    count: (data) => Object.keys(data.managedApplication).length,
+    importItems: (data) => _importApplications(data, options),
+    fallbackName: file,
+  });
+  const outcome = run.finish();
+  stopProgressIndicator(
+    spinnerId,
+    outcome ? `Imported ${filePath}` : `Error importing ${filePath}`,
+    outcome ? 'success' : 'fail'
+  );
+  debugMessage(`cli.ApplicationOps.importApplicationsFromFile: end`);
+  return outcome;
 }
 
 /**
  * Import applications from files
+ * Every file is tried: a file that cannot be read, or an application in it that cannot be imported,
+ * is printed and named in one summary, and the others are still imported. A directory that cannot be
+ * read ends the command whatever `--allow-failures` says.
  * @param {ApplicationImportOptions} options import options
+ * @param {boolean} allowFailures true to report applications that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importApplicationsFromFiles(
-  options: ApplicationImportOptions = { deps: true }
+  options: ApplicationImportOptions = { deps: true },
+  allowFailures: boolean = false
 ): Promise<boolean> {
-  const errors = [];
-  let barId: string;
+  const run = new OperationRun({ unit: 'application', allowFailures });
+  debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: begin`);
+  let files: string[];
   try {
-    debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
-    const files = names
+    files = names
       .filter((name) => name.toLowerCase().endsWith('.application.json'))
       .map((name) => getFilePath(name));
-    barId = createProgressIndicator(
-      'determinate',
-      files.length,
-      'Importing applications...'
-    );
-    let total = 0;
-    for (const file of files) {
-      try {
-        const data = fs.readFileSync(file, 'utf8');
-        const fileData: ApplicationExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.managedApplication).length;
-        total += count;
-        await _importApplications(fileData, options);
-        updateProgressIndicator(
-          barId,
-          `Imported ${count} application(s) from ${file}`
-        );
-      } catch (error) {
-        errors.push(error);
-        updateProgressIndicator(
-          barId,
-          `Error importing application(s) from ${file}`
-        );
-        printMessage(error, 'error');
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error importing applications`, errors);
-    }
-    stopProgressIndicator(
-      barId,
-      `Finished importing ${total} application(s) from ${files.length} file(s).`
-    );
-    debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: end`);
-    return true;
   } catch (error) {
-    stopProgressIndicator(barId, `Error importing applications`);
-    printMessage(error, 'error');
+    printError(error);
+    return false;
   }
-  return false;
+  const barId = createProgressIndicator(
+    'determinate',
+    files.length,
+    'Importing applications...'
+  );
+  for (const file of files) {
+    let fileData: ApplicationExportInterface;
+    try {
+      fileData = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (error) {
+      printError(error);
+      run.recordFailure(path.basename(file), error);
+      updateProgressIndicator(
+        barId,
+        `Error importing application(s) from ${file}`
+      );
+      continue;
+    }
+    await importItemsOfFile(run, fileData, {
+      count: (data) => Object.keys(data.managedApplication).length,
+      importItems: (data) => _importApplications(data, options),
+      fallbackName: path.basename(file),
+    });
+    updateProgressIndicator(barId, `Imported application(s) from ${file}`);
+  }
+  const outcome = run.finish();
+  stopProgressIndicator(
+    barId,
+    outcome
+      ? `Finished importing application(s) from ${files.length} file(s).`
+      : `Error importing applications`,
+    outcome ? 'success' : 'fail'
+  );
+  debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: end`);
+  return outcome;
 }

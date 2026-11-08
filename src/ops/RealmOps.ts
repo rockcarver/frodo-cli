@@ -1,9 +1,5 @@
 import fs from 'fs';
-import {
-  frodo,
-  FrodoError,
-  type RealmExportInterface,
-} from '@rockcarver/frodo-lib';
+import { frodo, type RealmExportInterface } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
   createKeyValueTable,
@@ -15,6 +11,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -314,57 +311,77 @@ export async function importRealmFromFile(
 
 /**
  * Import all realms from file
+ * Every realm in the file is tried: one that cannot be imported is printed and named in one summary,
+ * and the others are still imported. A file that cannot be read or parsed ends the command
+ * whatever `--allow-failures` says.
  * @param {string} file import file name
+ * @param {boolean} allowFailures true to report realms that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importRealmsFromFile(file: string): Promise<boolean> {
+export async function importRealmsFromFile(
+  file: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'realm', allowFailures });
+  let importData: RealmExportInterface;
   try {
     debugMessage(`importRealmsFromFile: start`);
     const filePath = getFilePath(file);
     const data = fs.readFileSync(filePath, 'utf8');
     debugMessage(`importRealmsFromFile: importing ${filePath}`);
-    const importData = JSON.parse(data);
-    await importRealms(importData);
-    debugMessage(`importRealmsFromFile: end`);
-    return true;
+    importData = JSON.parse(data);
   } catch (error) {
+    // not an item failure: the file that was named cannot be read
     printError(error, `Error importing realms from file`);
+    return false;
   }
-  return false;
+  await importItemsOfFile(run, importData, {
+    count: (data) => Object.keys(data.realm).length,
+    importItems: (data) => importRealms(data),
+    fallbackName: file,
+  });
+  debugMessage(`importRealmsFromFile: end`);
+  return run.finish();
 }
 
 /**
  * Import all realms from separate files
+ * Every file is tried: a file that cannot be read, or a realm in it that cannot be imported, is
+ * printed and named in one summary, and the others are still imported. A directory that cannot be
+ * read ends the command whatever `--allow-failures` says.
+ * @param {boolean} allowFailures true to report realms that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importRealmsFromFiles(): Promise<boolean> {
-  const errors: Error[] = [];
+export async function importRealmsFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'realm', allowFailures });
+  let realmFiles: string[];
   try {
     const names = fs.readdirSync(getWorkingDirectory());
-    const realmFiles = names.filter((name) =>
+    realmFiles = names.filter((name) =>
       name.toLowerCase().endsWith('.realm.json')
     );
-    for (const file of realmFiles) {
-      try {
-        await importRealmsFromFile(file);
-      } catch (error) {
-        errors.push(
-          new FrodoError(`Error importing realms from ${file}`, error)
-        );
-      }
-    }
-    if (errors.length > 0) {
-      throw new FrodoError(`One or more errors importing realms`, errors);
-    }
-    return true;
   } catch (error) {
-    if (errors.length > 0) {
-      printError(error);
-    } else {
-      printError(error, `Error importing realms from files`);
-    }
+    printError(error, `Error importing realms from files`);
+    return false;
   }
-  return false;
+  for (const file of realmFiles) {
+    let importData: RealmExportInterface;
+    try {
+      importData = JSON.parse(fs.readFileSync(getFilePath(file), 'utf8'));
+    } catch (error) {
+      printError(error, `Error importing realms from ${file}`);
+      run.recordFailure(file, error);
+      continue;
+    }
+    await importItemsOfFile(run, importData, {
+      count: (data) => Object.keys(data.realm).length,
+      importItems: (data) => importRealms(data),
+      fallbackName: file,
+    });
+  }
+  return run.finish();
 }
 
 /**

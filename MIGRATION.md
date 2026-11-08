@@ -190,8 +190,10 @@ variable`, `secretstore`, `server`, `iga workflow` and `admin federation`, and
 the imports `agent import`, `agent ai import`, `agent gateway import`, `agent
 java import`, `agent web import`, `config import`, `idm import`, `idm schema
 object import -D`, `idm remote-proxy import`, `mapping import`, `journey
-import`, `node import`, `script import`, `theme import`, `email template import`
-and `service import`. For the deletes this means a
+import`, `node import`, `script import`, `theme import`, `email template
+import`, `service import`, `realm import`, `role import`, `saml import`, `saml
+cot import`, `idp import`, `app import` and `oauth client import`. For the
+deletes this means a
 failed delete used to be printed and the command still exited 0 (`esv secret
 delete -a`, `log key delete`), or the run ended at the first failure (`esv
 variable delete -a`, `script delete -a` with a filter), and now every item is
@@ -328,7 +330,25 @@ import -i`, `service import -i` and `service import -f` exited 0 when the file
 did not hold what was asked for; they exit 1. `journey import -A` in a directory
 without journey files says so and exits 0; it exited 1. A failed login shows the
 error of the login and exits 1, instead of printing "Unrecognized combination of
-options or no options" and the help. See
+options or no options" and the help.
+The imports of realms, roles, SAML providers, circles of trust, identity
+providers, applications and OAuth2 clients (`realm import`, `role import`, `saml
+import`, `saml cot import`, `idp import`, `app import` and `oauth client
+import`) with `-a` or `-A` now try every item and every file, print one summary
+that names the items and files that could not be imported, and exit 1 unless
+`--allow-failures` was given. A file named with `-f` that cannot be read or
+parsed still fails the command whatever the flag says, and so does a failed
+login. `realm import -A` printed the error of each realm it could not import and
+exited 0, and a failed login in `realm import` exited 0; both now exit 1. `saml
+cot import -A` printed the error of each file it could not import and exited 0;
+it now exits 1. `saml import`, `idp import`, `app import` and `oauth client
+import` already tried every item and exited 1 with one combined error, which is
+now the summary. `role import -A` in a directory without role files printed an
+error and exited 1; there is nothing to import then, so it now warns and
+succeeds. After a failed login these commands used to print "Unrecognized
+combination of options or no options..." and the usage; they now print the login
+error only. The library does not say which circle of trust failed, so a file of
+circles of trust that fails is named as one failure. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
 ### Node.js version matrix changes in 5.x

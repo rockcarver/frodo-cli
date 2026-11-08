@@ -46,6 +46,7 @@ export default function setup() {
       options: ['all', 'allSeparate', 'file', 'idpId'],
       purpose: 'what to import',
     })
+    .multiOp()
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -57,66 +58,78 @@ export default function setup() {
           options,
           command
         );
+        // decide what to do from the options alone, so that a failed login is
+        // reported as such and not as an unrecognized combination of options
+        let task:
+          { message: () => string; run: () => Promise<boolean> } | undefined;
         // import by id
-        if (options.file && options.idpId && (await getTokens())) {
-          verboseMessage(
-            `Importing provider "${
-              options.idpId
-            }" into realm "${state.getRealm()}"...`
-          );
-          const outcome = await importSocialIdentityProviderFromFile(
-            options.idpId,
-            options.file,
-            {
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
+        if (options.file && options.idpId) {
+          task = {
+            message: () =>
+              `Importing provider "${
+                options.idpId
+              }" into realm "${state.getRealm()}"...`,
+            run: () =>
+              importSocialIdentityProviderFromFile(
+                options.idpId,
+                options.file,
+                { deps: options.deps }
+              ),
+          };
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
-          verboseMessage(
-            `Importing all providers from a single file (${options.file})...`
-          );
-          const outcome = await importSocialIdentityProvidersFromFile(
-            options.file,
-            {
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
+        else if (options.all && options.file) {
+          task = {
+            message: () =>
+              `Importing all providers from a single file (${options.file})...`,
+            run: () =>
+              importSocialIdentityProvidersFromFile(
+                options.file,
+                { deps: options.deps },
+                options.allowFailures
+              ),
+          };
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
-          verboseMessage(
-            'Importing all providers from separate files in current directory...'
-          );
-          const outcome = await importSocialIdentityProvidersFromFiles({
-            deps: options.deps,
-          });
-          if (!outcome) process.exitCode = 1;
+        else if (options.allSeparate && !options.file) {
+          task = {
+            message: () =>
+              'Importing all providers from separate files in current directory...',
+            run: () =>
+              importSocialIdentityProvidersFromFiles(
+                { deps: options.deps },
+                options.allowFailures
+              ),
+          };
         }
         // import first provider from file
-        else if (options.file && (await getTokens())) {
-          verboseMessage(
-            `Importing first provider from file "${
-              options.file
-            }" into realm "${state.getRealm()}"...`
-          );
-          const outcome = await importFirstSocialIdentityProviderFromFile(
-            options.file,
-            {
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
+        else if (options.file) {
+          task = {
+            message: () =>
+              `Importing first provider from file "${
+                options.file
+              }" into realm "${state.getRealm()}"...`,
+            run: () =>
+              importFirstSocialIdentityProviderFromFile(options.file, {
+                deps: options.deps,
+              }),
+          };
         }
         // unrecognized combination of options or no options
         else {
           printMessage('Unrecognized combination of options or no options...');
           process.exitCode = 1;
           program.help();
+          return;
         }
+        if (!(await getTokens())) {
+          // getTokens has said why
+          process.exitCode = 1;
+          return;
+        }
+        verboseMessage(task.message());
+        const outcome = await task.run();
+        if (!outcome) process.exitCode = 1;
       }
       // end command logic inside action handler
     );

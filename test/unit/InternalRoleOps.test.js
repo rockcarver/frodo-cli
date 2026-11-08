@@ -76,18 +76,19 @@ describe('importInternalRolesFromFiles', () => {
     { filenames: [] },
     { filenames: ['other.json', 'role.internalRole.json.bak'] },
   ])(
-    'reports failure when no matching files exist (%j)',
+    // nothing to import is not a failure (cli record 0041): the command says so and succeeds
+    'warns and succeeds when no matching files exist (%j)',
     async ({ filenames }) => {
       for (const name of filenames) {
         fs.writeFileSync(path.join(workingDirectory, name), '{}');
       }
 
-      await expect(importInternalRolesFromFiles()).resolves.toBe(false);
+      await expect(importInternalRolesFromFiles()).resolves.toBe(true);
 
       expect(importInternalRoles).not.toHaveBeenCalled();
       expect(printMessage).toHaveBeenCalledWith(
         'No internal role files found to import.',
-        'error'
+        'warn'
       );
     }
   );
@@ -106,9 +107,16 @@ describe('importInternalRolesFromFiles', () => {
     await expect(importInternalRolesFromFiles()).resolves.toBe(false);
 
     expect(importInternalRoles).toHaveBeenCalledWith(data);
+    // the failed file is named, and the run ends with one summary (cli record 0040)
     expect(printError).toHaveBeenCalledWith(
       expect.any(Error),
-      'Error importing internal roles from files'
+      'Error importing internal roles from a-broken.internalRole.json'
+    );
+    expect(printMessage).toHaveBeenCalledWith(
+      expect.stringContaining(
+        '1 of 2 internal roles failed:\n  - a-broken.internalRole.json'
+      ),
+      'error'
     );
   });
 });
