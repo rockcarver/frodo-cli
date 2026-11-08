@@ -789,10 +789,9 @@ async function addSwitch(
       break;
     }
     case 'mapping': {
-      const data = fs.readFileSync(importFilePath, 'utf8');
-      const importData = JSON.parse(data);
-      verboseMessage(`mapping Id: ${importData._id}`);
-      outcome = await importMappingFromFile(importData._id, importFilePath, {
+      const mappingId = getMappingIdFromFile(importFilePath);
+      verboseMessage(`mapping Id: ${mappingId}`);
+      outcome = await importMappingFromFile(mappingId, importFilePath, {
         deps: true,
       });
       logmessages.push(`add mapping ${importFilePath}`);
@@ -1126,10 +1125,9 @@ async function deleteSwitch(
       break;
     }
     case 'mapping': {
-      const data = fs.readFileSync(deleteFilePath, 'utf8');
-      const mapping = JSON.parse(data);
-      verboseMessage(`mapping Id: ${mapping._id}`);
-      outcome = await deleteMapping(mapping._id);
+      const mappingId = getMappingIdFromFile(deleteFilePath);
+      verboseMessage(`mapping Id: ${mappingId}`);
+      outcome = await deleteMapping(mappingId);
       logmessages.push(`delete mapping ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
@@ -1227,6 +1225,34 @@ function getJsonObjectTwoDown(filePath: string): any {
   } catch (error) {
     throw new FrodoError(`Error parsing ${filePath}`, error);
   }
+}
+
+/**
+ * Opens a mapping file as frodo writes it, { mapping: { <mapping id>: { ... } } }, and returns the id of the mapping.
+ * A file that holds no mapping, or more than one, is an error: the id is never guessed.
+ * @param filePath path to the mapping file
+ * @returns the id of the mapping, for example mapping/managedAlpha_user_systemAzureUser
+ */
+function getMappingIdFromFile(filePath: string): string {
+  let fileData: any;
+  try {
+    fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    throw new FrodoError(`Error parsing ${filePath}`, error);
+  }
+  const mappings = fileData?.mapping;
+  const ids =
+    typeof mappings === 'object' &&
+    mappings !== null &&
+    !Array.isArray(mappings)
+      ? Object.keys(mappings)
+      : [];
+  if (ids.length !== 1) {
+    throw new FrodoError(
+      `${filePath} is not a mapping file: expected one mapping under "mapping", found ${ids.length}`
+    );
+  }
+  return ids[0];
 }
 
 /**
