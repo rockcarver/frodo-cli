@@ -578,6 +578,44 @@ in the file, or it cannot be exported) no longer hides the findings of the
 others. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
+**`config-manager` can keep an application and everything it owns in one
+folder (experimental)**: `config-manager pull applications` writes one folder per
+application, `realms/<realm>/applications/<name>/`, with the application
+(`application.json`) and the objects it owns (the OAuth2 client, the SAML
+providers, the connector and its mappings); `push applications` and `delete
+applications` read and remove the same set. A tree records the layout it uses in
+`frodo-config-manager.json` at its root. In a tree whose marker says
+`"applications": "folders"`, `pull oauth2-agents`, `pull saml`, `pull
+connector-definitions` and `pull connector-mappings` no longer write an object
+that an application owns: they say which application owns it and skip it, and so
+do they for an entry of `oauth2-agents.json` or `saml.json` that names one (those
+files are inputs of yours and are never edited). A tree without the marker keeps
+every object at the path of its own kind, exactly as before, and nothing switches
+it silently: `pull applications` refuses there and names the migration command,
+and the `applications` step of `pull all` is skipped with a warning. A new tree
+(none of `realm-config/agents`, `realm-config/saml`, `sync/connectors` and
+`sync/mappings` exists yet) gets the layout that `frodo settings
+config-manager-layout` shows, `folders` unless you chose `--kind-paths`; the
+setting is read for a new tree only.
+To move an existing tree, run `frodo config-manager migrate applications`, and
+look first with `-d` (`--dry-run`), which lists the folders it would write, the
+files it would remove and the entries of your config files that name owned
+objects, and changes nothing. The command reads the tenant, because only the
+tenant knows which objects belong to an application. It writes each application
+as `pull applications` does, removes the files of the OAuth2 clients, SAML
+providers, connectors and mappings that applications own from the paths of their
+own kinds (never a script or a circle of trust, and never a file that holds
+anything else), and writes `frodo-config-manager.json` last, only if every
+operation succeeded and no realm was given. An application that cannot be written
+keeps its files where they are, the command exits 1 (unless `--allow-failures`)
+and can be run again; the tree keeps the old layout until it succeeds. It does
+not ask a question: the tree is a working copy, so review the result with `git
+diff`. Run on a tree that is marked already, it does nothing. A script or a
+pipeline that reads an OAuth2 client, a SAML provider, a connector or a mapping
+of an application from its old path has to read it from the application folder
+after the migration; one that never migrates is not affected. See
+[config-manager keeps everything an application owns in one folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0042-config-manager-keeps-everything-an-application-owns-in-one-folder.md).
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

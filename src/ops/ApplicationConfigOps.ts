@@ -259,7 +259,7 @@ export async function configManagerExportApplications(
           await pullApplication(
             application,
             currentRealm,
-            `realms/${realmDir}/applications/${folderName}`,
+            applicationFolderPath(currentRealm, folderName),
             readMappingsOnce
           );
         });
@@ -277,15 +277,30 @@ export async function configManagerExportApplications(
 }
 
 /**
+ * The folder of an application, relative to the working directory:
+ * `realms/<realm>/applications/<folder name>` (the root realm is written as `root`).
+ * @param {string} realm the realm of the application
+ * @param {string} folderName the folder name of the application, see applicationFolderName
+ * @returns {string} the folder
+ */
+export function applicationFolderPath(
+  realm: string,
+  folderName: string
+): string {
+  return `realms/${realm === '/' ? 'root' : realm}/applications/${folderName}`;
+}
+
+/**
  * Pull one application into its folder, as far as it goes: every object is its
- * own step, and what cannot be pulled does not stop the others.
+ * own step, and what cannot be pulled does not stop the others. Shared by
+ * `pull applications` and `migrate applications`.
  * @param {ApplicationRecord} application the record, as the library reads it
  * @param {string} realm the realm of the application (the current realm of the state)
  * @param {string} folder the folder of the application, relative to the working directory
  * @param {() => Promise<any[]>} readMappings reads all mappings of the tenant, once per command
  * @throws {Error} after the work, if an object could not be pulled or the application refers to an object that does not exist, naming each
  */
-async function pullApplication(
+export async function pullApplication(
   application: ApplicationRecord,
   realm: string,
   folder: string,
