@@ -10,6 +10,7 @@ import { Command } from 'commander';
 
 const getTokens = jest.fn();
 const verboseMessage = jest.fn();
+const printMessage = jest.fn();
 const checkBulkDelete = jest.fn();
 const confirmBulkDelete = jest.fn();
 
@@ -72,9 +73,13 @@ jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
 }));
 jest.unstable_mockModule('../../src/utils/Console.js', () => ({
+  printMessage,
   verboseMessage,
 }));
-jest.unstable_mockModule('../../src/utils/Console', () => ({ verboseMessage }));
+jest.unstable_mockModule('../../src/utils/Console', () => ({
+  printMessage,
+  verboseMessage,
+}));
 jest.unstable_mockModule('../../src/utils/BulkDeleteGuard', () => ({
   checkBulkDelete,
   confirmBulkDelete,
@@ -219,6 +224,72 @@ describe('authz commands log in before they read the options', () => {
     checkBulkDelete.mockReturnValue(false);
     await invoke(program, { all: true });
     expect(getTokens).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  // frodo-cli#1163: --set-id narrows -a. The option rules reject it without -a
+  // before the action runs; if it ever got here, it must not delete anything.
+  test.each([
+    ['--set-id alone', { setId: 'zion-set' }],
+    ['--set-id alone with --yes', { setId: 'zion-set', yes: true }],
+    ['no -a and no -i', {}],
+  ])(
+    'policy delete with %s deletes nothing and exits 1',
+    async (_, options) => {
+      const program = setups['policy delete']();
+      getTokens.mockResolvedValue(true);
+      await invoke(program, options);
+      for (const operation of allOperations) {
+        expect(operation).not.toHaveBeenCalled();
+      }
+      expect(confirmBulkDelete).not.toHaveBeenCalled();
+      expect(printMessage).toHaveBeenCalledTimes(1);
+      expect(printMessage.mock.calls[0][1]).toBe('error');
+      expect(process.exitCode).toBe(1);
+    }
+  );
+
+  test('policy delete -a names all policies in the refusal and in the question', async () => {
+    const program = setups['policy delete']();
+    getTokens.mockResolvedValue(true);
+    await invoke(program, { all: true, yes: true });
+    expect(checkBulkDelete.mock.calls[0][0].what).toBe('all policies');
+    expect(confirmBulkDelete.mock.calls[0][0].what).toBe('all policies');
+    expect(policyOps.deletePoliciesByPolicySet).not.toHaveBeenCalled();
+  });
+
+  test('policy delete -a --set-id names the policy set in the refusal and in the question', async () => {
+    const program = setups['policy delete']();
+    getTokens.mockResolvedValue(true);
+    await invoke(program, { all: true, setId: 'zion-set', yes: true });
+    expect(checkBulkDelete).toHaveBeenCalledTimes(1);
+    expect(checkBulkDelete.mock.calls[0][0].what).toBe(
+      'all policies in policy set zion-set'
+    );
+    expect(confirmBulkDelete).toHaveBeenCalledTimes(1);
+    expect(confirmBulkDelete.mock.calls[0][0].what).toBe(
+      'all policies in policy set zion-set'
+    );
+  });
+
+  test('policy delete -a --set-id deletes nothing when the question is declined', async () => {
+    const program = setups['policy delete']();
+    getTokens.mockResolvedValue(true);
+    confirmBulkDelete.mockResolvedValue(false);
+    await invoke(program, { all: true, setId: 'zion-set' });
+    expect(confirmBulkDelete).toHaveBeenCalledTimes(1);
+    for (const operation of allOperations) {
+      expect(operation).not.toHaveBeenCalled();
+    }
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('policy delete -a --set-id fails when deleting the policies of the set fails', async () => {
+    const program = setups['policy delete']();
+    getTokens.mockResolvedValue(true);
+    policyOps.deletePoliciesByPolicySet.mockResolvedValue(false);
+    await invoke(program, { all: true, setId: 'zion-set', yes: true });
+    expect(policyOps.deletePolicies).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 });

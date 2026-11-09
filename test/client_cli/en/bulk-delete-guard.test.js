@@ -20,7 +20,7 @@ const COMMANDS = [
   ['agent java delete', '-a', '-i x'],
   ['agent web delete', '-a', '-i x'],
   ['app delete', '-a', '-i x'],
-  ['authz policy delete', '-a', '-i x --set-id s'],
+  ['authz policy delete', '-a', '-i x'],
   ['authz set delete', '-a', '-i x'],
   ['authz type delete', '-a', '-i x'],
   ['email template delete', '-a', '-i x'],
