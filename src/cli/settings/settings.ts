@@ -6,6 +6,7 @@ import {
 import { EXIT_ALL_SIGNAL } from '../../utils/interactive/ExitAll';
 import { canPrompt } from '../../utils/interactive/PromptGateState';
 import { FrodoStubCommand, STEP_BACK_FROM_ACTION } from '../FrodoCommand';
+import ConfigManagerLayoutCmd from './settings-config-manager-layout';
 import DefaultsCmd from './settings-defaults';
 import GuidedCmd from './settings-guided';
 import ThemeCmd, { runInteractiveThemePicker } from './settings-theme';
@@ -36,6 +37,7 @@ export default function setup() {
   program.addCommand(ThemeCmd().name('theme'));
   program.addCommand(GuidedCmd().name('guided'));
   program.addCommand(DefaultsCmd().name('defaults'));
+  program.addCommand(ConfigManagerLayoutCmd().name('config-manager-layout'));
 
   program.action(async () => {
     try {
