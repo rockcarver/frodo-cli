@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-24] - 2026-11-09
+
+### Added
+- Introduced `frodo config-manager migrate applications`, which moves a kind-path tree to the application layout, keeping everything an application owns in one folder. This is part of the application management enhancements. (#1173)
+- Added `frodo config-manager delete applications`, allowing deletion of an application and the objects it owns, following the Admin UI's approach. (#1171)
+- Implemented `frodo config-manager pull applications`, which writes one folder per application with its record and owned objects. This is integrated into `pull all`. (#1167)
+- Introduced `frodo config-manager push applications`, which reads application folders and pushes each application with its owned objects. (#1169)
+- Added `frodo config-manager` standalone pull and push commands that skip what an application owns, ensuring application-specific operations are handled separately. (#1170, #1172)
+- Introduced `frodo connector` commands: `list`, `describe`, `export`, `import`, and `delete`, expanding connector management capabilities. (#1178)
+- Added `frodo app enable` and `frodo app disable` commands to switch a provisioning application on or off, with status visibility in `app list -l`. (#1165)
+- Implemented entity pickers for various command families, including `agent`, `authz`, `iga workflow`, `app`, `idp`, `oauth client`, `realm`, `role`, `saml`, `saml cot`, `journey`, `node`, `script`, `theme`, `email template`, `admin`, `feature`, `idm`, `mapping`, `server`, `esv secret`, `esv variable`, `secretstore`, and `secretstore mapping`. This enhances interactive command options. (#1155, #1157, #1158, #1159, #1162, #1156, #1176, #1179)
+
+### Changed
+- Updated `frodo authz policy delete --set-id` to require `-a`, preventing accidental deletion of all policies in a realm. (#1175)
+- Enhanced `frodo mcp server start` to end sessions it created upon shutdown, ensuring proper session management. (#1174)
+
+### Fixed
+- Corrected `frodo journey describe --markdown -O` to preserve descriptions of all journeys, not just the last one. (#1146)
+- Fixed `frodo promote` to correctly read the ID of a wrapped mapping file, resolving issues with mapping imports and deletions. (#1145)
+- Updated `frodo app export` and `frodo app import` help for `--no-deps` to list all dependencies, not just scripts. (#1142)
+- Resolved an issue where `frodo esv secret version prune -a` would block pruning if one secret couldn't be checked. Now, it checks all secrets and reports failures. (#1151)
+
 ## [v5.0.0-23] - 2026-11-07
 
 ### Added
@@ -3198,6 +3220,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-24]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-23...v5.0.0-24
 [v5.0.0-23]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-22...v5.0.0-23
 [v5.0.0-22]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-21...v5.0.0-22
 [v5.0.0-21]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-20...v5.0.0-21
