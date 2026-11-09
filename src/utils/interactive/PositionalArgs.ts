@@ -73,3 +73,24 @@ export function setPositionalValue(
     }
   }
 }
+
+/**
+ * The realm a command runs with, read when the operation starts: the value of
+ * the realm positional NOW, so a realm that the post-auth realm picker wrote
+ * is seen. The picker runs inside `getTokens()`, after the action has bound
+ * its `realm` parameter, so the parameter alone is stale for a realm that was
+ * picked. A command that passes its realm to an operation after login passes
+ * `realmOfRun(command, realm)`.
+ *
+ * With no pick this is the value the parameter already has: the realm the user
+ * typed, or frodo-lib's sentinel default.
+ * @param command the command that is running
+ * @param bound the value of the action's `realm` parameter
+ * @returns the realm positional of the command, else `bound`
+ */
+export function realmOfRun(
+  command: Command,
+  bound: string | undefined
+): string | undefined {
+  return positionalValue(command, 'realm') ?? bound;
+}

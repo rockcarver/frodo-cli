@@ -2,6 +2,7 @@ import { Option } from 'commander';
 import { configManagerImportServices } from '../../../configManagerOps/FrConfigServiceOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -13,6 +14,7 @@ export default function setup() {
       new Option('-n, --name <name>', 'Name of the service to import.')
     )
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -31,7 +33,7 @@ export default function setup() {
       verboseMessage('Importing services.');
       const outcome = await configManagerImportServices(
         options.name,
-        realm,
+        realmOfRun(command, realm),
         options.allowFailures
       );
       if (!outcome) process.exitCode = 1;

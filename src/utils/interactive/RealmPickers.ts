@@ -24,6 +24,12 @@
  * "wrong" continuation to protect here (the default is a valid choice),
  * so backing out just means "keep the default".
  *
+ * A `config-manager` command is different (see RealmUse): one that uses its
+ * realm positional reads "no realm" as every realm, so its picker has an
+ * `All realms` row first and makes it the default, and a realm that is picked
+ * really narrows the run (the command reads it after login with
+ * `realmOfRun`); one that ignores its realm gets no picker at all.
+ *
  * The loader failing (permission denied on realm listing, older servers,
  * classic deployments where the endpoint differs) is swallowed and the
  * default kept: the command is about to run against the default realm
@@ -38,9 +44,17 @@ import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { positionalValue } from './PositionalArgs';
 import { canPrompt } from './PromptGateState';
+import { ignoresRealm, realmUseOf } from './RealmUse';
 
 /** frodo-lib's sentinel default for "no realm chosen yet". */
 const DEFAULT_REALM_KEY = '__default__realm__';
+
+/**
+ * The value of the `All realms` row of a command that uses its realm (see
+ * RealmUse). It is never written anywhere: choosing it leaves the realm
+ * positional at the sentinel, which those commands read as every realm.
+ */
+const ALL_REALMS = '__all_realms__';
 
 /** Cache of the realms read during this invocation (one fetch per run). */
 let cachedRealms: { name: string; active: boolean }[] | undefined;
@@ -109,6 +123,9 @@ export function resetRealmPickerStateForTests(): void {
 export async function resolveRealmPick(command: Command): Promise<void> {
   if (!canPrompt()) return;
   if (!command.registeredArguments.some((a) => a.name() === 'realm')) return;
+  // A config-manager command that ignores its realm: the choice would change
+  // nothing, so do not ask (see RealmUse).
+  if (ignoresRealm(command)) return;
   if (realmUserSpecified) return;
   if (!requiredInputPrompted) return;
 
@@ -133,6 +150,11 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   if (realms.length <= 1) return;
 
   const current = state.getRealm();
+  // A command that uses its realm reads "no realm" as every realm, so the
+  // first and default row is `All realms` and leaving the realm out is a
+  // choice that is shown as one. The deployment's default realm is just one
+  // of the rows there.
+  const realmUse = realmUseOf(command);
   // The picker runs POST-AUTH, so `current` is already frodo-lib's mapped
   // deployment default (alpha on cloud, / on classic/forgeops) -- passing
   // it as the select's default pre-highlights the TRUE default instead of
@@ -151,19 +173,40 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   for (;;) {
     const { livePositionalPreviewFor, runInvocationEditorForCommand } =
       await import('../../cli/ResolveInteractiveInputs');
+    const livePreview = livePositionalPreviewFor(command, 'realm');
+    const realmChoices = realms.map((realm) => ({
+      value: realm.name,
+      name: realm.name,
+      description: realm.active ? undefined : 'inactive',
+    }));
     const answer = await escapableSelect<string>({
-      message: `Choose a realm (default: ${current}):`,
-      default: current,
+      message: realmUse
+        ? realmUse.tenantWide
+          ? 'Choose a realm (realm-specific config only; tenant-wide config is always included):'
+          : 'Choose a realm (All realms is the default):'
+        : `Choose a realm (default: ${current}):`,
+      default: realmUse ? ALL_REALMS : current,
       hint: editableOptionsHint(command),
       // LIVE footer: the highlighted realm shadows the realm positional
       // per render, so the footer's realm token moves with the cursor
-      // BEFORE <enter> commits (live preview).
-      preview: livePositionalPreviewFor(command, 'realm'),
-      choices: realms.map((realm) => ({
-        value: realm.name,
-        name: realm.name,
-        description: realm.active ? undefined : 'inactive',
-      })),
+      // BEFORE <enter> commits (live preview). The `All realms` row shadows
+      // the sentinel, which the preview prints as no realm token.
+      preview: livePreview
+        ? (highlighted: unknown) =>
+            livePreview(
+              highlighted === ALL_REALMS ? DEFAULT_REALM_KEY : highlighted
+            )
+        : undefined,
+      choices: realmUse
+        ? [
+            {
+              value: ALL_REALMS,
+              name: 'All realms',
+              description: 'every realm',
+            },
+            ...realmChoices,
+          ]
+        : realmChoices,
     });
     if (answer === EXIT_ALL) throw EXIT_ALL_SIGNAL;
     if (answer === RIGHT) {
@@ -183,10 +226,20 @@ export async function resolveRealmPick(command: Command): Promise<void> {
     // left the terminal idle with no explanation (user report
     // 2026-10-13: "the picker wasn't active" -- the prompt had actually
     // concluded; nothing showed why nothing then happened).
-    verboseMessage(`Keeping the default realm ${current}.`);
+    verboseMessage(
+      realmUse ? 'Using all realms.' : `Keeping the default realm ${current}.`
+    );
     return;
   }
-  if (!choice || choice === current) {
+  if (realmUse && choice === ALL_REALMS) {
+    // The default row of a command that uses its realm: nothing is written,
+    // the realm positional stays at the sentinel, which means every realm.
+    verboseMessage('Using all realms.');
+    return;
+  }
+  // For a command that uses its realm the deployment's default realm is a
+  // realm like any other, so choosing it narrows the run to that realm.
+  if (!choice || (!realmUse && choice === current)) {
     // <enter> on the already-highlighted default: an explicit "keep
     // it". The pick is DONE -- do NOT loop back into another picker
     // instance (the old silent re-prompt read as a dead screen: the

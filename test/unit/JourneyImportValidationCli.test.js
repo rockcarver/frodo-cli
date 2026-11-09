@@ -41,6 +41,9 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     requireOneOf() {
       return this;
     }
+    usesRealm() {
+      return this;
+    }
     multiOp() {
       return this;
     }

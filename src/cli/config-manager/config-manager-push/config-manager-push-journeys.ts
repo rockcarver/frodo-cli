@@ -2,6 +2,7 @@ import { Option } from 'commander';
 import { configManagerImportJourneys } from '../../../configManagerOps/FrConfigJourneysOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -23,6 +24,7 @@ export default function setup() {
       new Option('--no-validate', 'Do not validate journeys before import.')
     )
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -41,7 +43,7 @@ export default function setup() {
       verboseMessage('Importing email provider configuration.');
       const outcome = await configManagerImportJourneys(
         options.name,
-        realm,
+        realmOfRun(command, realm),
         options.pushDependencies,
         options.validate,
         options.allowFailures

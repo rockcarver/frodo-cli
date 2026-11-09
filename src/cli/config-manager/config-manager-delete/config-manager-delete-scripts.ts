@@ -8,6 +8,7 @@ import {
 } from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand, ListOption } from '../../FrodoCommand';
 
 export default function setup() {
@@ -57,6 +58,7 @@ export default function setup() {
         )
     )
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -95,7 +97,12 @@ export default function setup() {
           yes: options.yes,
           dryRun: options.dryRun,
           showPlan: () =>
-            configManagerDeleteScripts(options.prefix, realm, undefined, true),
+            configManagerDeleteScripts(
+              options.prefix,
+              realmOfRun(command, realm),
+              undefined,
+              true
+            ),
         }))
       ) {
         process.exitCode = 1;
@@ -107,7 +114,7 @@ export default function setup() {
       );
       const outcome = await configManagerDeleteScripts(
         options.prefix,
-        realm,
+        realmOfRun(command, realm),
         options.name,
         options.dryRun,
         options.allowFailures

@@ -154,6 +154,22 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   Cloud; `/` on classic and ForgeOps). Escape keeps that default; Enter on the
   highlighted default also keeps it and concludes the picker.
 
+  **`config-manager` commands** differ, because they read "no realm" as every
+  realm. A command that uses its realm declares `.usesRealm()`
+  (`FrodoCommand`; `RealmUse.ts`): its picker has an `All realms` row first
+  and makes it the default, Enter, Escape and that row leave the realm unset
+  (every realm, and the command preview prints no realm), and a realm that is
+  picked really narrows the run, including the deployment's default realm
+  (`alpha`), which is an ordinary row there. The prompt says what a realm
+  means (`pull all` and `pull all-static` also cover configuration of the
+  tenant that no realm limits, and the prompt says so). The picker runs inside
+  `getTokens()`, after the action has bound its `realm` parameter, so such a
+  command passes `realmOfRun(command, realm)` (`PositionalArgs.ts`) to its
+  operation after login, not the parameter. A `config-manager` command that
+  does not declare it ignores the realm and gets no realm picker.
+  `test/unit/ConfigManagerRealmUse.test.js` lists the commands that declare
+  it and reads the source of every one, so a new command has to choose.
+
 - **Entity pickers** (`EntityPickers.ts`) — a command whose
   target-entity option (`-i/--secret-id`, `-i/--tree-id`, ...) was left
   unspecified offers a dropdown populated from the live system. A
@@ -425,7 +441,8 @@ USER provided this invocation (commander defaults and unset options
 never serialize; user-typed negatable flags serialize as the flag
 alone; repeated list options serialize as repeated flags). Realm
 sentinels never display — the deployment type's realm prints instead
-when known.
+when known, except for a `config-manager` command that uses its realm
+(`.usesRealm()`): there the sentinel means every realm, so no realm prints.
 
 ## Erase-on-conclude
 

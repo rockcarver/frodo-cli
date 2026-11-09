@@ -2,6 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { configManagerExportThemes } from '../../../configManagerOps/FrConfigThemeOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -22,6 +23,7 @@ export default function setup() {
   program
     .description('Export themes.')
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -35,7 +37,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting themes...');
         const outcome = await configManagerExportThemes(
-          realm,
+          realmOfRun(command, realm),
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
