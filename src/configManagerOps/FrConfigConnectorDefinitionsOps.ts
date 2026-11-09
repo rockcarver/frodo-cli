@@ -1,9 +1,15 @@
 import fs from 'fs';
 import { frodo, type ConnectorSkeleton } from '@rockcarver/frodo-lib';
+import {
+  ownedObjectMessage,
+  OwnedObjects,
+  skipsOwnedObjects,
+} from '../ops/ApplicationOwnedObjects';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
+import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 
 const { getFilePath, readJsonFile, saveJsonToFile, getWorkingDirectory } =
   frodo.utils;
@@ -15,24 +21,45 @@ const { readConnector, readConnectors, importConnectors } = frodo.idm.connector;
  * written is printed and named in one summary, and the others are still written. A failure to read
  * the connectors, or a named connector that does not exist, ends the command whatever
  * `--allow-failures` says.
+ * In a tree that uses the application layout (decision record 0042) a connector that an
+ * application owns is not exported here: `pull applications` writes it into the folder of the
+ * application. It is named and skipped, which is not a failure. Connectors belong to the tenant,
+ * not to a realm, so the applications of every realm are asked; if they cannot be read the command
+ * fails.
  * @param {string} name The connector name
  * @param {boolean} allowFailures true to report connectors that could not be exported but still succeed. Default: false
+ * @param {ApplicationLayoutDecision} layout The layout of the tree, when `pull all` has decided it before its first step; default: read from the marker of the tree
  * @returns {Promise<boolean>} True if successful, false otherwise
  */
 export async function configManagerExportConnectorDefinitions(
   name?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  layout?: ApplicationLayoutDecision
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'connector', allowFailures });
   try {
+    const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
+    if (owned) await owned.loadAllRealms();
     const connectors = name
       ? [await readConnector(name)]
       : await readConnectors();
     let exportable = 0;
+    let skipped = 0;
     for (const connector of connectors) {
       const connectorName = connector._id.split('/')[1];
       // This filters out the RCS configuration (which we want since it's not technically a connector)
       if (!connectorName) continue;
+      const owners = owned
+        ? owned.ownersInAnyRealm('connector', connectorName)
+        : [];
+      if (owners.length > 0) {
+        printMessage(
+          ownedObjectMessage('connector', connectorName, owners, true),
+          'info'
+        );
+        skipped++;
+        continue;
+      }
       exportable++;
       await run.run(connectorName, () => {
         saveJsonToFile(
@@ -43,7 +70,7 @@ export async function configManagerExportConnectorDefinitions(
         );
       });
     }
-    if (exportable === 0) {
+    if (exportable === 0 && skipped === 0) {
       printMessage('No connector definitions found to export.', 'info');
     }
     return run.finish();

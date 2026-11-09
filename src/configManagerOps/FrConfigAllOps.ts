@@ -65,6 +65,25 @@ const step = (name: string, run: ExportStep['run']): ExportStep => ({
   run,
 });
 
+/**
+ * A step that reads a file from the config folder, like {@link configFileStep}, and hands the layout
+ * decision of `pull all` to the exporter (decision record 0042): the standalone kinds that the
+ * decision concerns leave out what an application owns.
+ */
+const layoutFileStep =
+  (
+    label: string,
+    fileName: string,
+    exporter: (
+      filePath: string,
+      layout?: ApplicationLayoutDecision
+    ) => Promise<boolean>
+  ): ExportStep['run'] =>
+  (options) =>
+    configFileStep(label, fileName, (filePath) =>
+      exporter(filePath, options.applicationLayout)
+    )(options);
+
 export const deploymentMapAll: Record<string, ExportStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),
@@ -80,17 +99,6 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
         configManagerExportAuthzPolicySets
       )
     ),
-    step(
-      'oauth2-agents',
-      configFileStep(
-        'OAuth2 agents',
-        'oauth2-agents.json',
-        configManagerExportOAuth2Agents
-      )
-    ),
-    step('connector-definitions', () =>
-      configManagerExportConnectorDefinitions()
-    ),
     step('cors', () => configManagerExportCors()),
     step('custom-nodes', () => configManagerExportCustomNodes()),
     step('email-provider', () =>
@@ -105,7 +113,6 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('kba', () => configManagerExportKbaConfig()),
     step('locales', () => configManagerExportLocales()),
     step('managed-objects', () => configManagerExportManagedObjects()),
-    step('connector-mappings', () => configManagerExportMappings()),
     step('org-privileges', (options) =>
       configManagerExportOrgPrivilegesAllRealms(options.realm)
     ),
@@ -119,7 +126,6 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
       })
     ),
     step('remote-servers', () => configManagerExportRemoteServers()),
-    step('saml', configFileStep('SAML', 'saml.json', configManagerExportSaml)),
     step('schedules', () => configManagerExportSchedules()),
     step('scripts', (options) =>
       configManagerExportScripts(undefined, options.realm)
@@ -136,9 +142,33 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('terms-and-conditions', () => configManagerExportTermsAndConditions()),
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
-    // The last step: the layout of the tree is decided before the first step runs (see runSteps), so the
-    // position does not matter for that, and the requests it adds come after those of the steps before it
-    // (the recorded replays of `pull all` hand out their recordings in order).
+    // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
+    // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
+    // does not matter for that, and the requests they add (the ownership of the applications) come after those of
+    // the steps before them (the recorded replays of `pull all` hand out their recordings in order).
+    step('connector-definitions', (options) =>
+      configManagerExportConnectorDefinitions(
+        undefined,
+        false,
+        options.applicationLayout
+      )
+    ),
+    step(
+      'oauth2-agents',
+      layoutFileStep('OAuth2 agents', 'oauth2-agents.json', (file, layout) =>
+        configManagerExportOAuth2Agents(file, false, layout)
+      )
+    ),
+    step('connector-mappings', (options) =>
+      configManagerExportMappings(undefined, false, options.applicationLayout)
+    ),
+    step(
+      'saml',
+      layoutFileStep('SAML', 'saml.json', (file, layout) =>
+        configManagerExportSaml(file, false, layout)
+      )
+    ),
+    // The last step: it writes the marker of a new tree.
     step('applications', (options) =>
       configManagerExportApplications(
         undefined,
@@ -163,17 +193,6 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
         configManagerExportAuthzPolicySets
       )
     ),
-    step(
-      'oauth2-agents',
-      configFileStep(
-        'OAuth2 agents',
-        'oauth2-agents.json',
-        configManagerExportOAuth2Agents
-      )
-    ),
-    step('connector-definitions', () =>
-      configManagerExportConnectorDefinitions()
-    ),
     step('cookie-domains', () => configManagerExportCookieDomains()),
     step('cors', () => configManagerExportCors()),
     step('csp', (options) =>
@@ -196,7 +215,6 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('managed-objects', () =>
       configManagerExportManagedObjects(undefined, true)
     ),
-    step('connector-mappings', () => configManagerExportMappings()),
     step('org-privileges', (options) =>
       configManagerExportOrgPrivilegesAllRealms(options.realm)
     ),
@@ -213,7 +231,6 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
       configManagerExportRemoteProxies(undefined, true)
     ),
     step('remote-servers', () => configManagerExportRemoteServers()),
-    step('saml', configFileStep('SAML', 'saml.json', configManagerExportSaml)),
     step('schedules', () => configManagerExportSchedules()),
     step('scripts', (options) =>
       configManagerExportScripts(undefined, options.realm)
@@ -235,9 +252,33 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
     step('variables', () => configManagerExportVariables()),
-    // The last step: the layout of the tree is decided before the first step runs (see runSteps), so the
-    // position does not matter for that, and the requests it adds come after those of the steps before it
-    // (the recorded replays of `pull all` hand out their recordings in order).
+    // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
+    // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
+    // does not matter for that, and the requests they add (the ownership of the applications) come after those of
+    // the steps before them (the recorded replays of `pull all` hand out their recordings in order).
+    step('connector-definitions', (options) =>
+      configManagerExportConnectorDefinitions(
+        undefined,
+        false,
+        options.applicationLayout
+      )
+    ),
+    step(
+      'oauth2-agents',
+      layoutFileStep('OAuth2 agents', 'oauth2-agents.json', (file, layout) =>
+        configManagerExportOAuth2Agents(file, false, layout)
+      )
+    ),
+    step('connector-mappings', (options) =>
+      configManagerExportMappings(undefined, false, options.applicationLayout)
+    ),
+    step(
+      'saml',
+      layoutFileStep('SAML', 'saml.json', (file, layout) =>
+        configManagerExportSaml(file, false, layout)
+      )
+    ),
+    // The last step: it writes the marker of a new tree.
     step('applications', (options) =>
       configManagerExportApplications(
         undefined,

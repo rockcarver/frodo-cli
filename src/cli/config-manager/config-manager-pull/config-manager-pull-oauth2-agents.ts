@@ -1,6 +1,7 @@
 import { Option } from 'commander';
 import { configManagerExportOAuth2Agents } from '../../../configManagerOps/FrConfigOauth2AgentOps';
 import * as s from '../../../help/SampleData';
+import { ownedObjectsHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -79,6 +80,7 @@ export default function setup() {
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
+    .addHelpText('after', ownedObjectsHelp('OAuth2 clients'))
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

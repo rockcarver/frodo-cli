@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { configManagerExportMappings } from '../../../configManagerOps/FrConfigConnectorMappingOps';
+import { ownedObjectsHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -21,6 +22,7 @@ export default function setup() {
 
   program
     .description('Export connector mappings.')
+    .addHelpText('after', ownedObjectsHelp('mappings'))
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

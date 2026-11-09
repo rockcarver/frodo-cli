@@ -1,9 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
+import {
+  ownedObjectMessage,
+  OwnedObjects,
+  skipsOwnedObjects,
+} from '../ops/ApplicationOwnedObjects';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
+import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
@@ -52,16 +58,25 @@ export function exportMappingToDirectory(
  * written is printed and named in one summary, and the others are still written. A failure to read
  * the sync configuration, or a named mapping that does not exist, ends the command whatever
  * `--allow-failures` says.
+ * In a tree that uses the application layout (decision record 0042) a mapping that an
+ * application owns is not exported here: `pull applications` writes it into the folder of the
+ * application. It is named and skipped, which is not a failure. Mappings belong to the tenant,
+ * not to a realm, so the applications of every realm are asked; if they cannot be read the
+ * command fails.
  * @param {string} name connector mapping name
  * @param {boolean} allowFailures true to report mappings that could not be exported but still succeed. Default: false
+ * @param {ApplicationLayoutDecision} layout The layout of the tree, when `pull all` has decided it before its first step; default: read from the marker of the tree
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportMappings(
   name?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  layout?: ApplicationLayoutDecision
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'mapping', allowFailures });
   try {
+    const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
+    if (owned) await owned.loadAllRealms();
     const exportData = await readConfigEntity('sync');
     const fileDir = `sync/mappings`;
     const selected = Object.values(exportData.mappings ?? {}).filter(
@@ -76,6 +91,16 @@ export async function configManagerExportMappings(
       return true;
     }
     for (const mapping of selected as any[]) {
+      const owners = owned
+        ? owned.ownersInAnyRealm('mapping', mapping.name)
+        : [];
+      if (owners.length > 0) {
+        printMessage(
+          ownedObjectMessage('mapping', mapping.name, owners, true),
+          'info'
+        );
+        continue;
+      }
       await run.run(mapping.name, () => {
         exportMappingToDirectory(mapping, `${fileDir}/${mapping.name}`);
       });

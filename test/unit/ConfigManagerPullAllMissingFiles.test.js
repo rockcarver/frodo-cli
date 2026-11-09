@@ -194,7 +194,13 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       ).toBe(true);
 
       const [authz, oauth, saml] = FILE_STEPS;
-      expect(saml.exporter()).toHaveBeenCalledWith(`${folder}/saml.json`);
+      // on Cloud and ForgeOps the step also hands the exporter the allow-failures default and the layout
+      // decision of `pull all` (none here: the decision is faked), see PullAllHandsLayoutToStandaloneKinds.test.js
+      expect(saml.exporter()).toHaveBeenCalledWith(
+        ...(deployment === 'classic'
+          ? [`${folder}/saml.json`]
+          : [`${folder}/saml.json`, false, undefined])
+      );
       expect(authz.exporter()).toHaveBeenCalledWith(
         `${folder}/authz-policies.json`
       );
