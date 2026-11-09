@@ -15,10 +15,14 @@
 import {
   frodo,
   state,
+  type CustomNodeSkeleton,
   type PolicySetSkeleton,
   type PolicySkeleton,
   type RemoteProxySkeleton,
   type ResourceTypeSkeleton,
+  type ScriptSkeleton,
+  type ThemeSkeleton,
+  type TreeSkeleton,
   type WorkflowGroup,
 } from '@rockcarver/frodo-lib';
 import {
@@ -69,6 +73,19 @@ type Mapping = Awaited<
 >[number];
 
 type Server = Awaited<ReturnType<typeof frodo.server.readServers>>[number];
+
+/**
+ * The template skeleton type isn't exported from frodo-lib's root; derive it
+ * from the read function instead of importing an unexported name.
+ */
+type EmailTemplateSkeleton = Awaited<
+  ReturnType<typeof frodo.email.template.readEmailTemplates>
+>[number];
+
+/** The name of an email template: its configuration id without the type prefix. */
+function emailTemplateName(template: EmailTemplateSkeleton): string {
+  return template._id?.replace('emailTemplate/', '') ?? '';
+}
 
 export function registerEntityPickFamilies(): void {
   // The agents (`frodo agent`). Each type has a group of its own and an entry of
@@ -586,4 +603,93 @@ export function registerEntityPickFamilies(): void {
       }),
     ],
   });
+
+  // `import` names a template in a file (left out by default).
+  registerEntityPickFamily({
+    family: 'email template',
+    picks: [
+      entityPick<EmailTemplateSkeleton>({
+        name: 'templateId',
+        kind: 'email template',
+        load: () => frodo.email.template.readEmailTemplates(false),
+        label: emailTemplateName,
+      }),
+    ],
+  });
+
+  // `describe` and `validate` take -i as an optional filter: without it they
+  // cover every journey, so nothing is missing for a pick to fill. `import`
+  // names a journey in a file (left out by default).
+  registerEntityPickFamily({
+    family: 'journey',
+    except: ['describe', 'validate'],
+    picks: [
+      entityPick<TreeSkeleton>({
+        name: 'journeyId',
+        kind: 'journey',
+        load: () => frodo.authn.journey.readJourneys(),
+        label: (journey) => journey._id ?? '',
+      }),
+    ],
+  });
+
+  // `describe` and `type describe` take -i and -n as an optional filter
+  // (every custom node, or every node type, without them). `import` names a
+  // node in a file (left out by default). Only the id has a pick, see the
+  // note on the name options at the end of this function.
+  registerEntityPickFamily({
+    family: 'node',
+    except: ['describe', 'type describe'],
+    picks: [
+      entityPick<CustomNodeSkeleton>({
+        name: 'nodeId',
+        kind: 'custom node',
+        load: () => frodo.authn.node.readCustomNodes(),
+        label: (node) => node.displayName || node._id || '',
+        value: (node) => node._id ?? '',
+        description: (node) => node.description,
+      }),
+    ],
+  });
+
+  // `import` names a script in a file (left out by default). Only the id has
+  // a pick, see the note on the name options at the end of this function.
+  registerEntityPickFamily({
+    family: 'script',
+    picks: [
+      entityPick<ScriptSkeleton>({
+        name: 'scriptId',
+        kind: 'script',
+        load: () => frodo.script.readScripts(),
+        label: (script) => script.name,
+        value: (script) => script._id,
+        description: (script) => script.description,
+      }),
+    ],
+  });
+
+  // `import` names a theme in a file (left out by default). Only the id has a
+  // pick, see the note on the name options at the end of this function.
+  registerEntityPickFamily({
+    family: 'theme',
+    picks: [
+      entityPick<ThemeSkeleton>({
+        name: 'themeId',
+        kind: 'theme',
+        load: () => frodo.theme.readThemes(),
+        label: (theme) => theme.name ?? '',
+        value: (theme) => theme._id ?? '',
+        description: (theme) => (theme.isDefault ? 'default theme' : undefined),
+      }),
+    ],
+  });
+
+  // The name options (-n of node, script and theme) have no pick yet, and stay
+  // on the legacy list. A pick fills one option, and the runner offers the next
+  // pick even after an earlier one has filled a conflicting option: it treats
+  // an option the resolver set as not typed by the user, so `blockersOf` does
+  // not block the name pick. A command with an id pick and a name pick would
+  // ask twice, and the second answer would replace the first. Add the name
+  // picks when the runner skips a pick that conflicts with an option set
+  // earlier in the same run.
 }

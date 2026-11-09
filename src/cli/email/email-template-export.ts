@@ -73,10 +73,13 @@ export default function setup() {
           command
         );
         // export by id/name
-        if (
-          options.templateId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        // On a terminal the framework offers an email template to pick, after
+        // the login, when none of -i, -a and -A was given (cli record 0038).
+        if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
+          return;
+        }
+        if (options.templateId) {
           verboseMessage(
             `Exporting email template "${
               options.templateId
@@ -90,10 +93,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (
-          options.all &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.all) {
           verboseMessage('Exporting all email templates to a single file...');
           const outcome = await exportEmailTemplatesToFile(
             options.file,
@@ -102,10 +102,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.allSeparate) {
           verboseMessage('Exporting all email templates to separate files...');
           const outcome = await exportEmailTemplatesToFiles(
             options.metadata,
@@ -113,9 +110,8 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
+        // No branch ran: with requireOneOf satisfied, the only way here is a
+        // realm with no email template to pick from -- exit 1, as before.
         else {
           process.exitCode = 1;
         }

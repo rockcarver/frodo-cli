@@ -1,4 +1,4 @@
-import { frodo, state, type ThemeSkeleton } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -10,12 +10,7 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -83,11 +78,15 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
+        // On a terminal the framework offers a theme to pick, after the
+        // login, when -i and -n were both left out (cli record 0038). A
+        // failed login, a declined pick and a failed read all stop here.
+        if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by name
-        if (
-          options.themeName &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        if (options.themeName) {
           verboseMessage(
             `Deleting theme with name "${
               options.themeName
@@ -97,10 +96,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // delete by id
-        else if (
-          options.themeId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        else if (options.themeId) {
           verboseMessage(
             `Deleting theme with id "${
               options.themeId
@@ -109,67 +105,30 @@ export default function setup() {
           const outcome = await deleteTheme(options.themeId);
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deleteThemes here -- same as before Phase
-        // 3, where the error branch below handled that case).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          if (options.themeName) {
-            verboseMessage(
-              `Deleting theme with name "${
-                options.themeName
-              }" from realm "${state.getRealm()}"...`
-            );
-            const outcome = await deleteThemeByName(options.themeName);
-            if (!outcome) process.exitCode = 1;
-          } else if (options.themeId) {
-            verboseMessage(
-              `Deleting theme with id "${
-                options.themeId
-              }" from realm "${state.getRealm()}"...`
-            );
-            const outcome = await deleteTheme(options.themeId);
-            if (!outcome) process.exitCode = 1;
-          } else {
-            if (
-              !(await confirmBulkDelete({
-                what: 'all themes',
-                yes: options.yes,
-                dryRunAvailable: false,
-              }))
-            ) {
-              process.exitCode = 1;
-              return;
-            }
-            verboseMessage(
-              `Deleting all themes from realm "${state.getRealm()}"...`
-            );
-            const outcome = await deleteThemes();
-            if (!outcome) process.exitCode = 1;
+        // --all -a
+        else if (options.all) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all themes',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
           }
-        }
-        // No branch ran: with requireOneOf satisfied, the only ways here
-        // are getTokens() failing (keep the old exit-1 semantics) or the
-        // user escaping the entity picker (declined to run).
-        else {
-          process.exitCode = 1;
+          verboseMessage(
+            `Deleting all themes from realm "${state.getRealm()}"...`
+          );
+          const outcome = await deleteThemes();
+          if (!outcome) process.exitCode = 1;
+        } else {
+          // an empty list leaves nothing to pick from
+          printMessage('No themes found to delete.');
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<ThemeSkeleton>({
-      name: 'themeId',
-      kind: 'theme',
-      load: () => frodo.theme.readThemes(),
-      label: (theme) => theme.name ?? '',
-      description: (theme) => (theme.isDefault ? 'default theme' : undefined),
-    }),
-  ]);
 
   return program;
 }

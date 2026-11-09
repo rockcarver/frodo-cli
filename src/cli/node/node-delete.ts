@@ -1,4 +1,3 @@
-import { frodo, type CustomNodeSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteCustomNode, deleteCustomNodes } from '../../ops/NodeOps';
@@ -6,12 +5,7 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -70,7 +64,14 @@ export default function setup() {
         process.exitCode = 1;
         return;
       }
-      if ((options.nodeId || options.nodeName) && (await getTokens())) {
+      // On a terminal the framework offers a custom node to pick, after the
+      // login, when -i and -n were both left out (cli record 0038). A failed
+      // login, a declined pick and a failed read all stop here.
+      if (!(await getTokens())) {
+        process.exitCode = 1;
+        return;
+      }
+      if (options.nodeId || options.nodeName) {
         verboseMessage(
           `Deleting custom node ${options.nodeName ? options.nodeName : options.nodeId}...`
         );
@@ -79,56 +80,25 @@ export default function setup() {
           options.nodeName
         );
         if (!outcome) process.exitCode = 1;
-      }
-      // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-      // outside the prompt gate, so a non-interactive run with neither
-      // option never reaches deleteCustomNodes here -- same as before
-      // in the pre-picker layout, where the error branch below handled that case).
-      else if (
-        (options.all || (await resolveEntityPicks(command))) &&
-        (await getTokens())
-      ) {
-        if (options.nodeId || options.nodeName) {
-          verboseMessage(
-            `Deleting custom node ${options.nodeName ? options.nodeName : options.nodeId}...`
-          );
-          const outcome = await deleteCustomNode(
-            options.nodeId,
-            options.nodeName
-          );
-          if (!outcome) process.exitCode = 1;
-        } else {
-          if (
-            !(await confirmBulkDelete({
-              what: 'all custom nodes',
-              yes: options.yes,
-              dryRunAvailable: false,
-            }))
-          ) {
-            process.exitCode = 1;
-            return;
-          }
-          verboseMessage(`Deleting all custom nodes...`);
-          const outcome = await deleteCustomNodes(options.allowFailures);
-          if (!outcome) process.exitCode = 1;
+      } else if (options.all) {
+        if (
+          !(await confirmBulkDelete({
+            what: 'all custom nodes',
+            yes: options.yes,
+            dryRunAvailable: false,
+          }))
+        ) {
+          process.exitCode = 1;
+          return;
         }
+        verboseMessage(`Deleting all custom nodes...`);
+        const outcome = await deleteCustomNodes(options.allowFailures);
+        if (!outcome) process.exitCode = 1;
       } else {
-        // No branch ran: with requireOneOf satisfied, the only ways here
-        // are getTokens() failing (keep the old exit-1 semantics) or the
-        // user escaping the entity picker (declined to run).
-        process.exitCode = 1;
+        // an empty list leaves nothing to pick from
+        printMessage('No custom nodes found to delete.');
       }
     });
-
-  deferEntityPicks(program, [
-    entityPick<CustomNodeSkeleton>({
-      name: 'nodeId',
-      kind: 'custom node',
-      load: () => frodo.authn.node.readCustomNodes(),
-      label: (node) => node.displayName || node._id || '',
-      description: (node) => node.description,
-    }),
-  ]);
 
   return program;
 }

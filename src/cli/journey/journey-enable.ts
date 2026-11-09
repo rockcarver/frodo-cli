@@ -41,14 +41,15 @@ export default function setup() {
           options,
           command
         );
-        // enable
-        if (options.journeyId && (await getTokens())) {
+        // enable. On a terminal the framework offers a journey to pick, after
+        // the login, when -i was left out (cli record 0038).
+        if ((await getTokens()) && options.journeyId) {
           const outcome = await enableJourney(options.journeyId);
           if (!outcome) process.exitCode = 1;
         }
-        // No branch ran: with requireOneOf satisfied, the only way here is
-        // getTokens() failing -- keep the old exit-1 semantics (the removed
-        // else handled auth failure too).
+        // No branch ran: with requireOneOf satisfied, the only ways here are
+        // getTokens() failing, a declined pick, or a realm with no journey to
+        // pick from -- all exit 1, as before.
         else {
           process.exitCode = 1;
         }

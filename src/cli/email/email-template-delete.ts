@@ -1,4 +1,3 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -9,21 +8,8 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-/**
- * The template skeleton type isn't exported from frodo-lib's root; derive
- * it from the read function instead of importing an unexported name.
- */
-type EmailTemplateSkeleton = Awaited<
-  ReturnType<typeof frodo.email.template.readEmailTemplates>
->[number];
 
 export default function setup() {
   const program = new FrodoCommand('frodo email template delete');
@@ -74,60 +60,41 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
+        // On a terminal the framework offers an email template to pick, after
+        // the login, when -i was left out (cli record 0038). A failed login, a
+        // declined pick and a failed read all stop here.
+        if (!(await getTokens())) {
+          process.exitCode = 1;
+          return;
+        }
         // delete by id
-        if (options.templateId && (await getTokens())) {
+        if (options.templateId) {
           verboseMessage('Deleting email template...');
           const outcome = await deleteEmailTemplateById(options.templateId);
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deleteAllEmailTemplates here -- same as
-        // in the pre-picker layout, where the error branch below handled that case).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens())
-        ) {
-          if (options.templateId) {
-            verboseMessage('Deleting email template...');
-            const outcome = await deleteEmailTemplateById(options.templateId);
-            if (!outcome) process.exitCode = 1;
-          } else {
-            if (
-              !(await confirmBulkDelete({
-                what: 'all email templates',
-                yes: options.yes,
-                dryRunAvailable: false,
-              }))
-            ) {
-              process.exitCode = 1;
-              return;
-            }
-            verboseMessage('Deleting all email templates...');
-            const outcome = await deleteAllEmailTemplates(
-              options.allowFailures
-            );
-            if (!outcome) process.exitCode = 1;
+        // --all -a
+        else if (options.all) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all email templates',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
           }
-        }
-        // No branch ran: with requireOneOf satisfied, the only ways here
-        // are getTokens() failing (keep the old exit-1 semantics) or the
-        // user escaping the entity picker (declined to run).
-        else {
-          process.exitCode = 1;
+          verboseMessage('Deleting all email templates...');
+          const outcome = await deleteAllEmailTemplates(options.allowFailures);
+          if (!outcome) process.exitCode = 1;
+        } else {
+          // an empty list leaves nothing to pick from
+          printMessage('No email templates found to delete.');
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<EmailTemplateSkeleton>({
-      name: 'templateId',
-      kind: 'email template',
-      load: () => frodo.email.template.readEmailTemplates(false),
-      label: (template) => template._id?.replace('emailTemplate/', '') ?? '',
-    }),
-  ]);
 
   return program;
 }

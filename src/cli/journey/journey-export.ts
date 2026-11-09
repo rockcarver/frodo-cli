@@ -1,4 +1,3 @@
-import { frodo, type TreeSkeleton } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -9,11 +8,6 @@ import {
 } from '../../ops/JourneyOps';
 import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -108,8 +102,15 @@ export default function setup() {
           options,
           command
         );
+        // On a terminal the framework offers a journey to pick, after the
+        // login, when -i was left out (cli record 0038). A failed login, a
+        // declined pick and a failed read all stop here.
+        if (!(await getTokens())) {
+          process.exitCode = 1;
+          return;
+        }
         // export
-        if (options.journeyId && (await getTokens())) {
+        if (options.journeyId) {
           verboseMessage('Exporting journey...');
           const outcome = await exportJourneyToFile(
             options.journeyId,
@@ -123,45 +124,23 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches exportJourneysToFile here -- same as before
-        // in the pre-picker layout, where the resolver's error handled that case).
-        else if (
-          (options.all ||
-            (!options.allSeparate && (await resolveEntityPicks(command)))) &&
-          (await getTokens())
-        ) {
-          if (options.journeyId) {
-            verboseMessage('Exporting journey...');
-            const outcome = await exportJourneyToFile(
-              options.journeyId,
-              options.file,
-              options.metadata,
-              {
-                useStringArrays: options.useStringArrays,
-                deps: options.deps,
-                coords: options.coords,
-              }
-            );
-            if (!outcome) process.exitCode = 1;
-          } else {
-            verboseMessage('Exporting all journeys to a single file...');
-            const outcome = await exportJourneysToFile(
-              options.file,
-              options.metadata,
-              {
-                useStringArrays: options.useStringArrays,
-                deps: options.deps,
-                coords: options.coords,
-              },
-              options.allowFailures
-            );
-            if (!outcome) process.exitCode = 1;
-          }
+        // --all -a
+        else if (options.all) {
+          verboseMessage('Exporting all journeys to a single file...');
+          const outcome = await exportJourneysToFile(
+            options.file,
+            options.metadata,
+            {
+              useStringArrays: options.useStringArrays,
+              deps: options.deps,
+              coords: options.coords,
+            },
+            options.allowFailures
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (options.allSeparate) {
           verboseMessage('Exporting all journeys to separate files...');
           const outcome = await exportJourneysToFiles(
             options.metadata,
@@ -174,24 +153,14 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
+        // No branch ran: with requireOneOf satisfied, the only way here is a
+        // realm with no journey to pick from -- exit 1, as before.
         else {
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<TreeSkeleton>({
-      name: 'journeyId',
-      kind: 'journey',
-      load: () => frodo.authn.journey.readJourneys(),
-      label: (journey) => journey._id ?? '',
-    }),
-  ]);
 
   return program;
 }
