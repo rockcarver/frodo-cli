@@ -28,7 +28,8 @@ Options:
                              code 0. Without this option the command runs every
                              operation, prints a summary of what failed and
                              exits with code 1.
-  -i, --agent-id <agent-id>  Agent id. Cannot be used with -a.
+  -i, --agent-id <agent-id>  Agent id. Cannot be used with -a. (pick from
+                             identity gateway agent)
   -y, --yes                  Do not ask for confirmation before deleting all
                              identity gateway agents. Required with -a when
                              there is no terminal.
