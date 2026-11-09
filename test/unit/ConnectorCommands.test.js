@@ -39,6 +39,15 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     }
 
     handleDefaultArgsAndOpts() {}
+
+    // the rules of the other verbs are covered by ConnectorVerbs.test.js
+    requireOneOf() {
+      return this;
+    }
+
+    multiOp() {
+      return this;
+    }
   },
   FrodoStubCommand: class extends Command {},
 }));
@@ -52,6 +61,18 @@ jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
 jest.unstable_mockModule('../../src/ops/ConnectorOps', () => ({
   enableConnector,
   disableConnector,
+  // the other verbs of the group are covered by ConnectorVerbs.test.js
+  deleteConnector: jest.fn(),
+  deleteConnectors: jest.fn(),
+  describeConnector: jest.fn(),
+  exportConnectorToFile: jest.fn(),
+  exportConnectorsToFile: jest.fn(),
+  exportConnectorsToFiles: jest.fn(),
+  importConnectorFromFile: jest.fn(),
+  importConnectorsFromFile: jest.fn(),
+  importConnectorsFromFiles: jest.fn(),
+  importFirstConnectorFromFile: jest.fn(),
+  listConnectors: jest.fn(),
 }));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage: jest.fn(),
@@ -211,12 +232,17 @@ describe('connector disable', () => {
 });
 
 describe('the connector group', () => {
-  test('has enable and disable, and says it is not frodo conn', () => {
+  test('has all its verbs, and says it is not frodo conn', () => {
     const group = setupGroup();
 
     expect(group.commands.map((command) => command.name()).sort()).toEqual([
+      'delete',
+      'describe',
       'disable',
       'enable',
+      'export',
+      'import',
+      'list',
     ]);
     expect(group.name()).toBe('connector');
   });

@@ -20,7 +20,21 @@ const connector = {
   disableConnector: jest.fn(),
 };
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
-  frodo: { idm: { connector } },
+  state: {},
+  frodo: {
+    // the file functions of the other verbs are read when the module loads
+    utils: {
+      getTypedFilename: jest.fn(),
+      saveJsonToFile: jest.fn(),
+      getFilePath: jest.fn(),
+      getWorkingDirectory: jest.fn(),
+    },
+    idm: { connector },
+  },
+}));
+// the colour theme reads the terminal theme of the library
+jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
+  default: new Proxy({}, { get: () => (text) => text }),
 }));
 
 const printError = jest.fn();
@@ -32,6 +46,12 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   createProgressIndicator: jest.fn(() => 'spinner'),
   stopProgressIndicator,
   debugMessage: jest.fn(),
+  // used by the other verbs of the module
+  createTable: jest.fn(),
+  failSpinner: jest.fn(),
+  showSpinner: jest.fn(),
+  succeedSpinner: jest.fn(),
+  updateProgressIndicator: jest.fn(),
 }));
 
 const { enableConnector, disableConnector } =
