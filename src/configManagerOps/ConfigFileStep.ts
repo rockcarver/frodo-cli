@@ -3,6 +3,57 @@ import { printError, printMessage, verboseMessage } from '../utils/Console';
 
 export type ConfigFileExporter = (filePath: string) => Promise<boolean>;
 
+/** What a step needs to know about the config folder. */
+export interface ConfigFileStepOptions {
+  configFolder?: string;
+  /**
+   * True when the config folder does not exist or is not a folder (see {@link configFolderProblem}) and
+   * the command has said so once. The step then skips quietly, because its own warning would only repeat
+   * that.
+   */
+  configFolderUnusable?: boolean;
+}
+
+/** Says which file a step reads from the config folder, for the one warning about a config folder that is not there. */
+export interface ConfigFileStepInfo {
+  /** The name of the file in the config folder. */
+  fileName: string;
+  /** True for a file that most config folders do not have: its step skips quietly even when the folder is there. */
+  optional: boolean;
+}
+
+/** A step that reads a file from the config folder, with the file it reads. */
+export type ConfigFileStepRun = ((
+  options: ConfigFileStepOptions
+) => Promise<boolean>) & { configFile: ConfigFileStepInfo };
+
+/**
+ * The file a step reads from the config folder, if it is a step made by {@link configFileStep}.
+ * @param {unknown} run the function of a step
+ * @returns {ConfigFileStepInfo | undefined} the file, or undefined for any other step
+ */
+export function configFileOf(run: unknown): ConfigFileStepInfo | undefined {
+  return (run as Partial<ConfigFileStepRun>)?.configFile;
+}
+
+/**
+ * Whether the config folder that was given can hold config files at all: it has to exist and to be a
+ * folder. A folder that is not there is almost always a mistyped path, and every step that reads a file
+ * from it would say so on its own.
+ * @param {string | undefined} configFolder the config folder, if one was given
+ * @returns {'missing' | 'not-a-folder' | undefined} what is wrong with it, or undefined when it is fine or none was given
+ */
+export function configFolderProblem(
+  configFolder: string | undefined
+): 'missing' | 'not-a-folder' | undefined {
+  if (!configFolder) return undefined;
+  try {
+    return fs.statSync(configFolder).isDirectory() ? undefined : 'not-a-folder';
+  } catch {
+    return 'missing';
+  }
+}
+
 /**
  * The path of a file in the config folder when the file exists, otherwise
  * `null`. For configuration that is exported without any input and only
@@ -36,7 +87,10 @@ export function existingConfigFile(
  * output) when the file does not exist, for items that most config folders do
  * not have, instead of with a warning
  * @returns the step: it never throws, and it answers whether it succeeded (false
- * when the exporter failed or threw, true when it exported or was skipped)
+ * when the exporter failed or threw, true when it exported or was skipped). It
+ * carries the file it reads as `configFile`. When the command has found the
+ * config folder unusable (`configFolderUnusable`) it has said so once, and the
+ * step skips quietly.
  */
 export function configFileStep(
   label: string,
@@ -44,9 +98,9 @@ export function configFileStep(
   exporter: ConfigFileExporter,
   { optional = false }: { optional?: boolean } = {}
 ) {
-  return async (options: { configFolder?: string }): Promise<boolean> => {
+  const run = async (options: ConfigFileStepOptions): Promise<boolean> => {
     if (!existingConfigFile(options.configFolder, fileName)) {
-      if (optional) {
+      if (optional || options.configFolderUnusable) {
         verboseMessage(
           `Skipping ${label}: no ${fileName} in the config folder.`
         );
@@ -72,4 +126,5 @@ export function configFileStep(
       return false;
     }
   };
+  return Object.assign(run, { configFile: { fileName, optional } });
 }

@@ -26,9 +26,12 @@ const root = path.resolve(
 const allOps = path.resolve(root, 'src/configManagerOps/FrConfigAllOps.ts');
 
 let deploymentType = 'cloud';
+let workingDirectory = '.';
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: {
     utils: {
+      // where `pull all` says it writes
+      getWorkingDirectory: () => workingDirectory,
       constants: {
         CLASSIC_DEPLOYMENT_TYPE_KEY: 'classic',
         CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud',
@@ -133,6 +136,7 @@ const configFolder = (...files) => {
 beforeEach(() => {
   jest.clearAllMocks();
   deploymentType = 'cloud';
+  workingDirectory = '.';
   for (const exports of spies.values()) {
     for (const fn of Object.values(exports)) {
       if (jest.isMockFunction(fn) && fn !== printMessage) {
@@ -143,6 +147,10 @@ beforeEach(() => {
       }
     }
   }
+  // the layout of the tree is not what these tests are about: `pull all` decides none (the exporters get undefined)
+  spies
+    .get(path.resolve(root, 'src/utils/TreeLayout'))
+    .decideApplicationLayout.mockImplementation(() => undefined);
 });
 
 describe.each(['cloud', 'forgeops', 'classic'])(
@@ -288,5 +296,185 @@ describe('pull all-static', () => {
       `1 of ${deploymentMapAllStatic.cloud.length} steps failed:\n  - scripts`,
     ]);
     expect(warnings()).toEqual([]);
+  });
+});
+
+/**
+ * A config folder that is not there (usually a mistyped path) is said once, not once per step that reads
+ * a file from it. The steps still skip and still succeed (decision record 0040).
+ */
+describe.each(['cloud', 'forgeops', 'classic'])(
+  'pull all on a %s deployment, with a config folder that does not exist',
+  (deployment) => {
+    const fileSteps = FILE_STEPS.filter(({ step }) =>
+      deploymentMapAll[deployment].some(({ name }) => name === step)
+    );
+    const missing = () =>
+      path.join(os.tmpdir(), `cm-no-such-folder-${process.pid}-${Date.now()}`);
+
+    beforeEach(() => {
+      deploymentType = deployment;
+    });
+
+    test('says so once, naming the steps that read a file, and the steps are skipped without failing', async () => {
+      const folder = missing();
+
+      expect(
+        await configManagerExportAllWithConfigFolder({ configFolder: folder })
+      ).toBe(true);
+
+      expect(warnings()).toEqual([
+        `The config folder '${folder}' does not exist, so the steps that read a file from it are skipped: ${fileSteps
+          .map(({ step }) => step)
+          .sort()
+          .join(', ')}.`,
+      ]);
+      for (const { exporter: of } of fileSteps) {
+        expect(of()).not.toHaveBeenCalled();
+      }
+      // the per-step lines are still there for whoever asks for the details
+      for (const { file, label } of fileSteps) {
+        expect(verboseMessage).toHaveBeenCalledWith(
+          `Skipping ${label}: no ${file} in the config folder.`
+        );
+      }
+      expect(scriptsExporter()).toHaveBeenCalledTimes(1);
+      expect(errors()).toEqual([]);
+      expect(printError).not.toHaveBeenCalled();
+    });
+
+    test('does not name raw config, which is a quiet skip even when the folder is there', async () => {
+      await configManagerExportAllWithConfigFolder({
+        configFolder: missing(),
+      });
+
+      expect(warnings().join('\n')).not.toMatch(/raw/);
+    });
+
+    test('a failing step still fails the command', async () => {
+      scriptsExporter().mockImplementation(async () => false);
+
+      expect(
+        await configManagerExportAllWithConfigFolder({
+          configFolder: missing(),
+        })
+      ).toBe(false);
+
+      expect(errors()).toHaveLength(1);
+      expect(errors()[0]).toMatch(/- scripts$/);
+    });
+
+    test('a config folder that is a file is not a folder', async () => {
+      const folder = path.join(configFolder(), 'a-file');
+      fs.writeFileSync(folder, '[]');
+
+      expect(
+        await configManagerExportAllWithConfigFolder({ configFolder: folder })
+      ).toBe(true);
+
+      expect(warnings()).toHaveLength(1);
+      expect(warnings()[0]).toMatch(
+        new RegExp(
+          `^The config folder '.*a-file' is not a folder, so the steps`
+        )
+      );
+    });
+
+    test('a folder that is there keeps one warning per missing file and does not say the folder is missing', async () => {
+      const folder = configFolder();
+
+      await configManagerExportAllWithConfigFolder({ configFolder: folder });
+
+      expect(warnings()).toHaveLength(fileSteps.length);
+      expect(warnings().join('\n')).not.toMatch(/config folder '/);
+      // the steps warned on their own, so nothing of theirs is a quiet skip (raw config always is)
+      expect(
+        verboseMessage.mock.calls
+          .map(([text]) => text)
+          .filter((text) => !/raw config/.test(text))
+      ).toEqual([]);
+    });
+  }
+);
+
+describe('pull all, without a config folder in the options', () => {
+  test('keeps the warning of every step and does not claim that a folder is missing', async () => {
+    deploymentType = 'cloud';
+
+    expect(await configManagerExportAllWithConfigFolder({})).toBe(true);
+
+    expect(warnings()).toHaveLength(4);
+    expect(warnings().join('\n')).toMatch(/in the config folder\.$/m);
+    expect(warnings().join('\n')).not.toMatch(/does not exist|not a folder/);
+  });
+});
+
+/**
+ * The config folder only says where config files are read from. The exported files go to the working
+ * directory (-D or the current directory), and `pull all` names it, at the start and again before the
+ * summary of failed steps.
+ */
+describe('pull all says where it writes', () => {
+  const info = () =>
+    printMessage.mock.calls
+      .filter(([, level]) => level === 'info')
+      .map(([text]) => text);
+  const orderOf = (pick) =>
+    printMessage.mock.calls
+      .map((call, i) =>
+        pick(call) ? printMessage.mock.invocationCallOrder[i] : 0
+      )
+      .find(Boolean);
+
+  test('names the absolute working directory before the first step and after the last', async () => {
+    workingDirectory = path.join(os.tmpdir(), 'matrix-out');
+
+    expect(
+      await configManagerExportAllWithConfigFolder({
+        configFolder: configFolder(),
+      })
+    ).toBe(true);
+
+    expect(info()).toEqual([
+      `Exporting to ${workingDirectory}`,
+      `Exported to ${workingDirectory}`,
+    ]);
+    const first = orderOf(([text]) => text.startsWith('Exporting to '));
+    const last = orderOf(([text]) => text.startsWith('Exported to '));
+    expect(first).toBeLessThan(scriptsExporter().mock.invocationCallOrder[0]);
+    expect(last).toBeGreaterThan(scriptsExporter().mock.invocationCallOrder[0]);
+  });
+
+  test('turns a relative working directory (-D out) into an absolute path', async () => {
+    workingDirectory = 'out/zion';
+
+    await configManagerExportAllWithConfigFolder({
+      configFolder: configFolder(),
+    });
+
+    expect(info()).toEqual([
+      `Exporting to ${path.resolve('out/zion')}`,
+      `Exported to ${path.resolve('out/zion')}`,
+    ]);
+    expect(path.isAbsolute(path.resolve('out/zion'))).toBe(true);
+  });
+
+  test('also names it when a step failed, before the summary of the failed steps', async () => {
+    workingDirectory = path.join(os.tmpdir(), 'matrix-out');
+    scriptsExporter().mockImplementation(async () => false);
+
+    expect(
+      await configManagerExportAllWithConfigFolder({
+        configFolder: configFolder(),
+      })
+    ).toBe(false);
+
+    expect(info()).toEqual([
+      `Exporting to ${workingDirectory}`,
+      `Exported to ${workingDirectory}`,
+    ]);
+    expect(orderOf(([text]) => text.startsWith('Exported to '))).toBeLessThan(
+      orderOf(([text]) => /steps? failed/.test(text))
+    );
   });
 });

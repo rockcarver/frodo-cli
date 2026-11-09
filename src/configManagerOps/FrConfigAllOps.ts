@@ -1,13 +1,19 @@
+import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { configManagerExportApplications } from '../ops/ApplicationConfigOps';
 import { configManagerExportRemoteProxies } from '../ops/RemoteProxyOps';
-import { printError } from '../utils/Console';
+import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
 import {
   decideApplicationLayout,
   type ApplicationLayoutDecision,
 } from '../utils/TreeLayout';
-import { configFileStep, existingConfigFile } from './ConfigFileStep';
+import {
+  configFileOf,
+  configFileStep,
+  configFolderProblem,
+  existingConfigFile,
+} from './ConfigFileStep';
 import { configManagerExportAccessConfig } from './FrConfigAccessConfigOps';
 import { configManagerExportAudit } from './FrConfigAuditOps';
 import { configManagerExportAuthentication } from './FrConfigAuthenticationOps';
@@ -70,19 +76,22 @@ const step = (name: string, run: ExportStep['run']): ExportStep => ({
  * decision of `pull all` to the exporter (decision record 0042): the standalone kinds that the
  * decision concerns leave out what an application owns.
  */
-const layoutFileStep =
-  (
-    label: string,
-    fileName: string,
-    exporter: (
-      filePath: string,
-      layout?: ApplicationLayoutDecision
-    ) => Promise<boolean>
-  ): ExportStep['run'] =>
-  (options) =>
-    configFileStep(label, fileName, (filePath) =>
-      exporter(filePath, options.applicationLayout)
-    )(options);
+const layoutFileStep = (
+  label: string,
+  fileName: string,
+  exporter: (
+    filePath: string,
+    layout?: ApplicationLayoutDecision
+  ) => Promise<boolean>
+): ExportStep['run'] =>
+  Object.assign(
+    (options: ConfigManagerAllOptions) =>
+      configFileStep(label, fileName, (filePath) =>
+        exporter(filePath, options.applicationLayout)
+      )(options),
+    // what a step made by configFileStep says about itself, see withConfigFolderCheck
+    { configFile: { fileName, optional: false } }
+  );
 
 export const deploymentMapAll: Record<string, ExportStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
@@ -436,6 +445,11 @@ export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
 
 export interface ConfigManagerAllOptions {
   configFolder?: string;
+  /**
+   * Set by the runner, not by the caller: the config folder does not exist or is not a folder, and the
+   * runner has said so once, so the steps that read a file from it skip quietly.
+   */
+  configFolderUnusable?: boolean;
   realm?: string;
   /** Report failed steps but succeed anyway (`--allow-failures`, decision record 0040). */
   allowFailures?: boolean;
@@ -450,20 +464,67 @@ export interface ConfigManagerAllOptions {
 /**
  * Runs every step even after one failed, prints one summary of the failed
  * steps and answers whether the command succeeded (decision record 0040).
+ * @param {ExportStep[]} steps the steps of the deployment
+ * @param {ConfigManagerAllOptions} options what the command was given
+ * @param {{ announceOutput?: boolean }} settings `announceOutput`: say where the files are written, before the
+ * first step and again before the summary of failures (the config folder only says where config files are read from)
+ * @returns {Promise<boolean>} true if the command succeeded
  */
 async function runSteps(
   steps: ExportStep[],
-  options: ConfigManagerAllOptions
+  options: ConfigManagerAllOptions,
+  { announceOutput = false }: { announceOutput?: boolean } = {}
 ): Promise<boolean> {
   const run = new OperationRun({
     unit: 'step',
     allowFailures: options.allowFailures,
   });
-  const stepOptions = withApplicationLayout(steps, options);
+  const outputDirectory = announceOutput
+    ? path.resolve(getWorkingDirectory())
+    : undefined;
+  if (outputDirectory) printMessage(`Exporting to ${outputDirectory}`, 'info');
+  const stepOptions = withConfigFolderCheck(
+    steps,
+    withApplicationLayout(steps, options)
+  );
   for (const { name, run: stepRun } of steps) {
     await run.run(name, () => stepRun(stepOptions));
   }
+  if (outputDirectory) printMessage(`Exported to ${outputDirectory}`, 'info');
   return run.finish();
+}
+
+/**
+ * Say once that the config folder is not there, instead of once per step that reads a file from it. A
+ * config folder that does not exist is almost always a mistyped path. The steps still skip and still
+ * succeed (decision record 0040): they just do not repeat the warning. A folder that exists but lacks a
+ * file keeps one warning per missing file.
+ * @param {ExportStep[]} steps the steps of the deployment
+ * @param {ConfigManagerAllOptions} options what the command was given
+ * @returns {ConfigManagerAllOptions} the options for the steps
+ */
+function withConfigFolderCheck(
+  steps: ExportStep[],
+  options: ConfigManagerAllOptions
+): ConfigManagerAllOptions {
+  const problem = configFolderProblem(options.configFolder);
+  if (!problem) return options;
+  const skipped = steps
+    .filter(({ run }) => {
+      const file = configFileOf(run);
+      return file && !file.optional;
+    })
+    .map(({ name }) => name)
+    .sort();
+  if (skipped.length > 0) {
+    printMessage(
+      `The config folder '${options.configFolder}' ${
+        problem === 'missing' ? 'does not exist' : 'is not a folder'
+      }, so the steps that read a file from it are skipped: ${skipped.join(', ')}.`,
+      'warn'
+    );
+  }
+  return { ...options, configFolderUnusable: true };
 }
 
 /**
@@ -490,7 +551,13 @@ export async function configManagerExportAllWithConfigFolder(
   options: ConfigManagerAllOptions = {}
 ): Promise<boolean> {
   try {
-    return await runSteps(deploymentMapAll[state.getDeploymentType()], options);
+    return await runSteps(
+      deploymentMapAll[state.getDeploymentType()],
+      options,
+      {
+        announceOutput: true,
+      }
+    );
   } catch (error) {
     printError(error, 'Error exporting all in fr-config-manager format');
     return false;

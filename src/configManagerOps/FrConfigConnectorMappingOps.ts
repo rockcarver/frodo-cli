@@ -8,7 +8,8 @@ import {
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { printError, printMessage } from '../utils/Console';
+import { printError, printMessage, verboseMessage } from '../utils/Console';
+import { isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 
@@ -55,6 +56,22 @@ export function exportMappingToDirectory(
 }
 
 /**
+ * Read the sync configuration, which holds the mappings. A tenant that never had a mapping has no
+ * such configuration at all and answers 404: that is no mappings, not a failure. Every other error,
+ * a refused request included, is thrown.
+ * @returns {Promise<any | undefined>} the sync configuration, or undefined when the tenant has none
+ */
+async function readSyncConfig(): Promise<any | undefined> {
+  try {
+    return await readConfigEntity('sync');
+  } catch (error) {
+    if (!isNotFoundError(error)) throw error;
+    verboseMessage('The tenant has no sync configuration.');
+    return undefined;
+  }
+}
+
+/**
  * Export all mappings to separate files in fr-config-manager format
  * Every mapping is one operation of an {@link OperationRun}: a mapping whose files cannot be
  * written is printed and named in one summary, and the others are still written. A failure to read
@@ -79,9 +96,9 @@ export async function configManagerExportMappings(
   try {
     const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
     if (owned) await owned.loadAllRealms();
-    const exportData = await readConfigEntity('sync');
+    const exportData = await readSyncConfig();
     const fileDir = `sync/mappings`;
-    const selected = Object.values(exportData.mappings ?? {}).filter(
+    const selected = Object.values(exportData?.mappings ?? {}).filter(
       (mapping: any) => !name || name === mapping.name
     );
     if (selected.length === 0) {
