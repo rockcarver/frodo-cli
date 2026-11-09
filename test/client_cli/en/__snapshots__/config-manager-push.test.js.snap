@@ -18,6 +18,8 @@ Runtime Options:
 
 Commands:
   access-config          [Experimental] Import access configuration.
+  applications           [Experimental] Import applications, one folder per
+                         application with the objects it owns.
   audit                  [Experimental] Import audit configuration.
   authentication         [Experimental] Import authentication objects.
   authz-policies         [Experimental] Import authorization policies.

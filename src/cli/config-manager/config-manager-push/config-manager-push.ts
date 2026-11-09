@@ -1,6 +1,7 @@
 import Test from '../../conn/conn-test';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-push-access-config';
+import Applications from './config-manager-push-applications';
 import Audit from './config-manager-push-audit';
 import Authentication from './config-manager-push-authentication';
 import AuthzPolicies from './config-manager-push-authz-policies';
@@ -65,6 +66,7 @@ export default function setup() {
   program.addCommand(OAuth2Agents().name('oauth2-agents'));
   program.addCommand(ManagedObjects().name('managed-objects'));
   program.addCommand(AccessConfig().name('access-config'));
+  program.addCommand(Applications().name('applications'));
   program.addCommand(Audit().name('audit'));
   program.addCommand(Metadata().name('config-metadata'));
   program.addCommand(CookieDomains().name('cookie-domains'));
