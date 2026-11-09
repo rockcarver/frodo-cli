@@ -1,7 +1,12 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { configManagerExportApplications } from '../ops/ApplicationConfigOps';
 import { configManagerExportRemoteProxies } from '../ops/RemoteProxyOps';
 import { printError } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
+import {
+  decideApplicationLayout,
+  type ApplicationLayoutDecision,
+} from '../utils/TreeLayout';
 import { configFileStep, existingConfigFile } from './ConfigFileStep';
 import { configManagerExportAccessConfig } from './FrConfigAccessConfigOps';
 import { configManagerExportAudit } from './FrConfigAuditOps';
@@ -44,6 +49,8 @@ const {
   CLOUD_DEPLOYMENT_TYPE_KEY,
   FORGEOPS_DEPLOYMENT_TYPE_KEY,
 } = frodo.utils.constants;
+
+const { getWorkingDirectory } = frodo.utils;
 
 /** One step of `config-manager pull all` or `pull all-static`. */
 export interface ExportStep {
@@ -129,6 +136,18 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('terms-and-conditions', () => configManagerExportTermsAndConditions()),
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
+    // The last step: the layout of the tree is decided before the first step runs (see runSteps), so the
+    // position does not matter for that, and the requests it adds come after those of the steps before it
+    // (the recorded replays of `pull all` hand out their recordings in order).
+    step('applications', (options) =>
+      configManagerExportApplications(
+        undefined,
+        options.realm,
+        true,
+        false,
+        options.applicationLayout
+      )
+    ),
   ],
   [CLOUD_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),
@@ -216,6 +235,18 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
     step('variables', () => configManagerExportVariables()),
+    // The last step: the layout of the tree is decided before the first step runs (see runSteps), so the
+    // position does not matter for that, and the requests it adds come after those of the steps before it
+    // (the recorded replays of `pull all` hand out their recordings in order).
+    step('applications', (options) =>
+      configManagerExportApplications(
+        undefined,
+        options.realm,
+        true,
+        false,
+        options.applicationLayout
+      )
+    ),
   ],
   [CLASSIC_DEPLOYMENT_TYPE_KEY]: [
     step('authentication', (options) =>
@@ -367,6 +398,12 @@ export interface ConfigManagerAllOptions {
   realm?: string;
   /** Report failed steps but succeed anyway (`--allow-failures`, decision record 0040). */
   allowFailures?: boolean;
+  /**
+   * What the tree is and which layout it uses, decided once before the first step runs (set by
+   * the runner, not by the caller): the steps that write at the paths of a kind change the tree,
+   * so a step that runs later could not tell a new tree from one that these steps made.
+   */
+  applicationLayout?: ApplicationLayoutDecision;
 }
 
 /**
@@ -381,10 +418,31 @@ async function runSteps(
     unit: 'step',
     allowFailures: options.allowFailures,
   });
+  const stepOptions = withApplicationLayout(steps, options);
   for (const { name, run: stepRun } of steps) {
-    await run.run(name, () => stepRun(options));
+    await run.run(name, () => stepRun(stepOptions));
   }
   return run.finish();
+}
+
+/**
+ * Decide the layout of the tree before any step writes into it, for the steps
+ * that need it (the `applications` step). A marker that cannot be read is left
+ * for the step to report.
+ */
+function withApplicationLayout(
+  steps: ExportStep[],
+  options: ConfigManagerAllOptions
+): ConfigManagerAllOptions {
+  if (!steps.some((s) => s.name === 'applications')) return options;
+  try {
+    return {
+      ...options,
+      applicationLayout: decideApplicationLayout(getWorkingDirectory()),
+    };
+  } catch {
+    return options;
+  }
 }
 
 export async function configManagerExportAllWithConfigFolder(

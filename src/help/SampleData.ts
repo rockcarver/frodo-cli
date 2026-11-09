@@ -43,3 +43,4 @@ export const remoteProxyClientId = 'frodo-proxy';
 export const remoteProxySecretPlaceholder = '&{esv.zion.proxy.secret}';
 export const applicationName = 'ZionDirectory';
 export const connectorId = 'ZionDirectory';
+export const pullApplicationName = 'Zion Portal';

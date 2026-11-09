@@ -3,6 +3,7 @@ import { FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-pull-access-config';
 import All from './config-manager-pull-all';
 import AllStatic from './config-manager-pull-all-static';
+import Applications from './config-manager-pull-applications';
 import Audit from './config-manager-pull-audit';
 import Authentication from './config-manager-pull-authentication';
 import AuthzPolicies from './config-manager-pull-authz-policies';
@@ -50,6 +51,7 @@ export default function setup() {
   program.addCommand(All().name('all'));
   program.addCommand(AllStatic().name('all-static'));
   program.addCommand(AccessConfig().name('access-config'));
+  program.addCommand(Applications().name('applications'));
   program.addCommand(Audit().name('audit'));
   program.addCommand(Authentication().name('authentication'));
   program.addCommand(AuthzPolicies().name('authz-policies'));

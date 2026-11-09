@@ -23,6 +23,40 @@ const { readScripts, readScriptByName, updateScript, deleteScript } =
   frodo.script;
 
 /**
+ * Write one script in config-manager format: the configuration as
+ * `realms/<realm>/scripts/scripts-config/<id>.json` and the text of the script
+ * as `realms/<realm>/scripts/scripts-content/<context>/<name>.js`. Shared by
+ * `pull scripts` and by the commands that pull a script because something else
+ * (an application) uses it.
+ * @param {ScriptSkeleton} script the script, as the library reads it
+ * @param {string} realm the realm the script belongs to (`/` is written as `root`)
+ * @throws {FrodoError} if a file cannot be written
+ */
+export function exportScriptToFiles(script: ScriptSkeleton, realm: string) {
+  const decodedScript = decodeBase64(
+    Array.isArray(script.script) ? script.script.join('\n') : script.script
+  );
+  const scriptName = safeFileName(script.name);
+  const relScriptPath = `scripts-content/${script.context}/${scriptName}.js`;
+  const fileObj = { file: relScriptPath };
+  const realmDir = realm === '/' ? 'root' : realm;
+  saveJsonToFile(
+    { ...script, script: fileObj },
+    getFilePath(
+      `realms/${realmDir}/scripts/scripts-config/${script._id}.json`,
+      true
+    ),
+    false,
+    false,
+    true
+  );
+  saveTextToFile(
+    decodedScript,
+    getFilePath(`realms/${realmDir}/scripts/${relScriptPath}`, true)
+  );
+}
+
+/**
  * Export scripts in config-manager format
  * @param {string} prefixes optional prefixes array; if not empty, will look only for scripts that start with the prefixes
  * @param {string} realm Designates the specific realm to pull from
@@ -100,27 +134,7 @@ export async function configManagerExportScripts(
         }
 
         try {
-          const decodedScript = decodeBase64(
-            Array.isArray(s.script) ? s.script.join('\n') : s.script
-          );
-          const scriptName = safeFileName(s.name);
-          const relScriptPath = `scripts-content/${s.context}/${scriptName}.js`;
-          const fileObj = { file: relScriptPath };
-          const realmDir = currentRealm === '/' ? 'root' : currentRealm;
-          saveJsonToFile(
-            { ...s, script: fileObj },
-            getFilePath(
-              `realms/${realmDir}/scripts/scripts-config/${s._id}.json`,
-              true
-            ),
-            false,
-            false,
-            true
-          );
-          saveTextToFile(
-            decodedScript,
-            getFilePath(`realms/${realmDir}/scripts/${relScriptPath}`, true)
-          );
+          exportScriptToFiles(s, currentRealm);
           run.recordSuccess();
         } catch (error) {
           printError(

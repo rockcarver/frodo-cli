@@ -20,6 +20,8 @@ Commands:
   access-config          [Experimental] Export access-config objects.
   all                    [Experimental] Export all config.
   all-static             [Experimental] Export all static config.
+  applications           [Experimental] Export applications, one folder per
+                         application with the objects it owns.
   audit                  [Experimental] Export audit objects.
   authentication         [Experimental] Export authentication settings.
   authz-policies         [Experimental] Export authorization policies.

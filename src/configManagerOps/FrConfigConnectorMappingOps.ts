@@ -10,6 +10,43 @@ const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
 
 /**
+ * Write one mapping in fr-config-manager format: the script sources of the mapping
+ * become files next to it (`<name>.<key>.js`, referenced by `file`) and the rest is
+ * `<name>.json`, all in one directory. Shared by `pull connector-mappings` and by the
+ * commands that pull a mapping because an application owns it. The mapping object is
+ * changed: its script sources are replaced by the file references.
+ * @param {any} mapping the mapping, with its `name`
+ * @param {string} mappingPath the directory (relative to the working directory) that holds the files of this mapping
+ * @throws {FrodoError} if a file cannot be written
+ */
+export function exportMappingToDirectory(
+  mapping: any,
+  mappingPath: string
+): void {
+  Object.entries(mapping).forEach(([key, value]: [string, any]) => {
+    if (
+      value &&
+      typeof value === 'object' &&
+      value.type === 'text/javascript' &&
+      value.source
+    ) {
+      const scriptText = Array.isArray(value.source)
+        ? value.source.join('\n')
+        : value.source;
+
+      const scriptFilename = `${mapping.name}.${key}.js`;
+      (value as any).file = scriptFilename; // Replace source code with file reference
+      extractFrConfigDataToFile(scriptText, scriptFilename, mappingPath);
+
+      delete value.source;
+    }
+  });
+
+  const fileName = `${mappingPath}/${mapping.name}.json`;
+  saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
+}
+
+/**
  * Export all mappings to separate files in fr-config-manager format
  * Every mapping is one operation of an {@link OperationRun}: a mapping whose files cannot be
  * written is printed and named in one summary, and the others are still written. A failure to read
@@ -40,29 +77,7 @@ export async function configManagerExportMappings(
     }
     for (const mapping of selected as any[]) {
       await run.run(mapping.name, () => {
-        const mappingPath = `${fileDir}/${mapping.name}`;
-
-        Object.entries(mapping).forEach(([key, value]: [string, any]) => {
-          if (
-            value &&
-            typeof value === 'object' &&
-            value.type === 'text/javascript' &&
-            value.source
-          ) {
-            const scriptText = Array.isArray(value.source)
-              ? value.source.join('\n')
-              : value.source;
-
-            const scriptFilename = `${mapping.name}.${key}.js`;
-            (value as any).file = scriptFilename; // Replace source code with file reference
-            extractFrConfigDataToFile(scriptText, scriptFilename, mappingPath);
-
-            delete value.source;
-          }
-        });
-
-        const fileName = `${mappingPath}/${mapping.name}.json`;
-        saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
+        exportMappingToDirectory(mapping, `${fileDir}/${mapping.name}`);
       });
     }
     return run.finish();
