@@ -61,7 +61,10 @@ describe('frodo login (argument-validation error paths)', () => {
         cwd: process.cwd(),
       })
     ).rejects.toMatchObject({
-      stderr: expect.stringContaining('requires an OAuth2 client id'),
+      // the library states the fact, the CLI gives the advice
+      stderr: expect.stringMatching(
+        /requires an OAuth2 client id[\s\S]*Pass --login-client-id[\s\S]*'frodo login setup'/
+      ),
     });
   });
 
@@ -72,7 +75,10 @@ describe('frodo login (argument-validation error paths)', () => {
         cwd: process.cwd(),
       })
     ).rejects.toMatchObject({
-      stderr: expect.stringContaining('requires an OAuth2 client id'),
+      // the library states the fact, the CLI gives the advice
+      stderr: expect.stringMatching(
+        /requires an OAuth2 client id[\s\S]*Pass --login-client-id[\s\S]*'frodo login setup'/
+      ),
     });
   });
 
@@ -87,7 +93,9 @@ describe('frodo login (argument-validation error paths)', () => {
         cwd: process.cwd(),
       })
     ).rejects.toMatchObject({
-      stderr: expect.stringContaining('could not determine the deployment type'),
+      stderr: expect.stringMatching(
+        /could not determine the deployment type[\s\S]*Pass --type cloud, forgeops or classic/
+      ),
     });
   });
 

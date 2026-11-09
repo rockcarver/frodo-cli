@@ -22,6 +22,7 @@ import { getActiveActionCommand } from '../utils/interactive/ActiveActionCommand
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
 import { EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
 import { canPrompt } from '../utils/interactive/PromptGateState';
+import { printLoginHint } from '../utils/LoginErrorHints';
 import { question } from '../utils/Prompt';
 
 export type { CredentialOverrideType };
@@ -291,6 +292,8 @@ export async function getTokens(
     // signal from inside this try).
     if (error === EXIT_ALL_SIGNAL) throw error;
     printError(error);
+    // the library states what is wrong; the advice is ours (LoginErrorHints)
+    printLoginHint(error);
     // Auth failed: the command never ran -- revoke the deferred print so
     // the postAction fallback (whose only remaining purpose is non-auth
     // commands) leaves nothing behind for a failed auth attempt.
@@ -350,6 +353,7 @@ export async function getTokensInteractive(
     return tokens;
   } catch (error) {
     printError(error);
+    printLoginHint(error);
   }
   return null;
 }
