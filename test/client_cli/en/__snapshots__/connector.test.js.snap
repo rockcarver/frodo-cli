@@ -16,8 +16,13 @@ Runtime Options:
                     FRODO_NO_PROMPT).
 
 Commands:
+  delete            Delete IDM connectors.
+  describe          Describe an IDM connector.
   disable           Disable a connector (switch it off).
   enable            Enable a connector (switch it on).
+  export            Export IDM connectors.
+  import            Import IDM connectors.
+  list              List IDM connectors.
 
 Utilities:
   help              display help for command

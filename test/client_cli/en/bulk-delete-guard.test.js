@@ -23,6 +23,7 @@ const COMMANDS = [
   ['authz policy delete', '-a', '-i x'],
   ['authz set delete', '-a', '-i x'],
   ['authz type delete', '-a', '-i x'],
+  ['connector delete', '-a', '-i x'],
   ['email template delete', '-a', '-i x'],
   ['esv secret delete', '-a', '-i x'],
   ['esv variable delete', '-a', '-i x'],
@@ -70,7 +71,7 @@ describe('a bulk delete without a terminal and without --yes', () => {
     expect(stderr).toContain('-y/--yes');
     // these commands have no dry run to name
     expect(stderr).not.toContain('--dry-run');
-    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+    expect(stderr).not.toMatch(/ECONNREFUSED|\bconnect\b/i);
   });
 });
 
