@@ -24,25 +24,28 @@ Arguments:
   password                     Password.
 
 Options:
-  -a, --all                    Delete all policies in a realm. Cannot be used
-                               with -i.
+  -a, --all                    Delete all policies in a realm, or with --set-id
+                               all policies in a policy set. Cannot be used with
+                               -i.
   --allow-failures             Report operations that fail, but still exit with
                                code 0. Without this option the command runs
                                every operation, prints a summary of what failed
                                and exits with code 1.
   -i, --policy-id <policy-id>  Policy id/name. Cannot be used with --set-id or
                                -a. (pick from authorization policy)
-  --set-id <set-id>            Policy set id/name. Cannot be used with -i.
+  --set-id <set-id>            Policy set id/name: delete only the policies of
+                               this policy set. Only with -a. Cannot be used
+                               with -i.
   -y, --yes                    Do not ask for confirmation before deleting all
-                               policies. Required with -a when there is no
-                               terminal.
+                               policies (of a policy set). Required with -a when
+                               there is no terminal.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and
                                usage examples.
 
 Rule:
-  one of -a, --all | -i, --policy-id <policy-id> | --set-id <set-id> is required -- choose what to delete
+  one of -a, --all | -i, --policy-id <policy-id> is required -- choose what to delete
 
 "
 `;

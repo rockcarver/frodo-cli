@@ -19,7 +19,6 @@
  */
 export const LEGACY_ENTITY_OPTIONS_WITHOUT_PICKER = [
   'frodo agent export::agentId',
-  'frodo authz policy delete::setId',
   'frodo authz policy export::setId',
   'frodo conn service-account describe::name',
   'frodo conn service-account remove::name',
