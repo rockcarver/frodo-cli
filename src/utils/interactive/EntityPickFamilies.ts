@@ -1,4 +1,9 @@
 /**
+ * Registers the families. Called once when the commands are set up;
+ * registering again replaces the entries.
+ */
+
+/**
  * The command families that have a registered entity picker (decision record
  * 0038). One entry says how to list the entities of a family; every command
  * of the family that has the option gets the picker from the framework
@@ -7,8 +12,15 @@
  * To give a family its pickers, add an entry here. Nothing changes in the
  * command files.
  */
-
-import { frodo, state, type RemoteProxySkeleton } from '@rockcarver/frodo-lib';
+import {
+  frodo,
+  state,
+  type PolicySetSkeleton,
+  type PolicySkeleton,
+  type RemoteProxySkeleton,
+  type ResourceTypeSkeleton,
+  type WorkflowGroup,
+} from '@rockcarver/frodo-lib';
 import {
   sameHost,
   savedConnectionProfiles,
@@ -24,10 +36,18 @@ function remoteProxyName(proxy: RemoteProxySkeleton): string {
   return (proxy._id ?? '').slice(REMOTE_PROXY_ID_PREFIX.length);
 }
 
-/**
- * Registers the families. Called once when the commands are set up;
- * registering again replaces the entries.
- */
+/** The resource types of the realm, by name. */
+async function readResourceTypesByName(): Promise<ResourceTypeSkeleton[]> {
+  return (await frodo.authz.resourceType.readResourceTypes()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+}
+
+/** The workflow a group stands for: the published one, else the draft. */
+function workflowOf(group: WorkflowGroup) {
+  return group.published ?? group.draft;
+}
+
 export function registerEntityPickFamilies(): void {
   // The agents (`frodo agent`). Each type has a group of its own and an entry of
   // its own, so the generic entry leaves the typed groups out: a command would
@@ -39,8 +59,10 @@ export function registerEntityPickFamilies(): void {
   type AgentSkeleton = Awaited<
     ReturnType<typeof frodo.agent.readAgents>
   >[number];
+
   const byAgentId = (a: AgentSkeleton, b: AgentSkeleton) =>
     (a._id ?? '').localeCompare(b._id ?? '');
+
   const typedAgents = [
     {
       group: 'ai',
@@ -63,6 +85,7 @@ export function registerEntityPickFamilies(): void {
       read: () => frodo.agent.readWebAgents(),
     },
   ];
+
   registerEntityPickFamily({
     family: 'agent',
     name: 'agent: agents of every type',
@@ -83,6 +106,7 @@ export function registerEntityPickFamilies(): void {
       }),
     ],
   });
+
   for (const { group, kind, read } of typedAgents) {
     registerEntityPickFamily({
       family: `agent ${group}`,
@@ -146,6 +170,94 @@ export function registerEntityPickFamilies(): void {
         label: remoteProxyName,
         description: (proxy) =>
           [proxy.authType, proxy.instanceUrl].filter(Boolean).join(' · '),
+      }),
+    ],
+  });
+
+  // Authorization policies: the policy that `-i` names. `--set-id` of `delete`
+  // and `export` is not offered a pick: it narrows `-a` to one policy set, so a
+  // pick would open on a complete command line such as `delete -a` (record
+  // 0030). `import` takes its option from a file (see `NEW_ENTITY_VERBS`).
+  registerEntityPickFamily({
+    family: 'authz policy',
+    picks: [
+      entityPick<PolicySkeleton>({
+        name: 'policyId',
+        kind: 'authorization policy',
+        load: async () =>
+          (await frodo.authz.policy.readPolicies()).sort((a, b) =>
+            (a.name || a._id || '').localeCompare(b.name || b._id || '')
+          ),
+        label: (policy) => policy.name || policy._id || '',
+        description: (policy) =>
+          policy.applicationName
+            ? `policy set ${policy.applicationName}`
+            : undefined,
+      }),
+    ],
+  });
+
+  // Authorization policy sets: the set that `-i` names.
+  registerEntityPickFamily({
+    family: 'authz set',
+    picks: [
+      entityPick<PolicySetSkeleton>({
+        name: 'setId',
+        kind: 'policy set',
+        load: async () =>
+          (await frodo.authz.policySet.readPolicySets()).sort((a, b) =>
+            a.name.localeCompare(b.name)
+          ),
+        label: (policySet) => policySet.name,
+      }),
+    ],
+  });
+
+  // Authorization resource types, named by `-n` or addressed by `-i`. The two
+  // options exclude each other, so the pick that comes first fills one of them
+  // and the other is not offered: the name comes first because it is what a
+  // person reads, and the uuid is the row's description.
+  registerEntityPickFamily({
+    family: 'authz type',
+    picks: [
+      entityPick<ResourceTypeSkeleton>({
+        name: 'typeName',
+        kind: 'resource type',
+        load: readResourceTypesByName,
+        label: (type) => type.name,
+        description: (type) => type.uuid,
+      }),
+      entityPick<ResourceTypeSkeleton>({
+        name: 'typeId',
+        kind: 'resource type',
+        load: readResourceTypesByName,
+        label: (type) => type.name,
+        value: (type) => type.uuid,
+        description: (type) => type.uuid,
+      }),
+    ],
+  });
+
+  // IGA workflows: the workflow that `-i` names. `describe` is left out: it
+  // takes `-i` together with `-f` (the workflow inside a file), so a complete
+  // command line can lack `-i` and a pick must not open on it (record 0030).
+  // A tenant without IGA has no workflows to offer: the commands say so
+  // themselves once the pick is satisfied.
+  registerEntityPickFamily({
+    family: 'iga workflow',
+    except: ['describe'],
+    picks: [
+      entityPick<WorkflowGroup>({
+        name: 'workflowId',
+        kind: 'workflow',
+        load: async () =>
+          state.getIsIGA()
+            ? (await frodo.cloud.iga.workflow.readWorkflowGroups()).sort(
+                (a, b) => workflowOf(a).id.localeCompare(workflowOf(b).id)
+              )
+            : [],
+        label: (group) => workflowOf(group).id,
+        description: (group) => workflowOf(group).name,
       }),
     ],
   });

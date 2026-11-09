@@ -27,7 +27,7 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -i, --workflow-id <workflow-id>  Workflow id.
+  -i, --workflow-id <workflow-id>  Workflow id. (pick from workflow)
   -h, --help                       Help
   -hh, --help-more                 Help with all options.
   -hhh, --help-all                 Help with all options, environment variables,

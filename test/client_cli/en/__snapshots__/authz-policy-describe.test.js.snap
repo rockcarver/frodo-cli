@@ -24,7 +24,8 @@ Arguments:
   password                     Password.
 
 Options:
-  -i, --policy-id <policy-id>  Policy id/name. (prompts if missing)
+  -i, --policy-id <policy-id>  Policy id/name. (pick from authorization policy)
+                               (prompts if missing)
   --json                       Output in JSON format.
   -h, --help                   Help
   -hh, --help-more             Help with all options.

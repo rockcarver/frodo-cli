@@ -40,14 +40,17 @@ export default function setup() {
           options,
           command
         );
-        if (options.typeId && (await getTokens())) {
+        // the framework resolves a missing entity option (a pick) inside getTokens
+        // (cli record 0038), so log in before the options are read
+        const loggedIn = await getTokens();
+        if (loggedIn && options.typeId) {
           verboseMessage(`Describing authorization resource type by uuid...`);
           const outcome = await describeResourceType(
             options.typeId,
             options.json
           );
           if (!outcome) process.exitCode = 1;
-        } else if (options.typeName && (await getTokens())) {
+        } else if (loggedIn && options.typeName) {
           verboseMessage(`Describing authorization resource type by name...`);
           const outcome = await describeResourceTypeByName(
             options.typeName,

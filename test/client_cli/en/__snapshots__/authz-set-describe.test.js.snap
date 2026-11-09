@@ -22,7 +22,8 @@ Arguments:
   password               Password.
 
 Options:
-  -i, --set-id <set-id>  Policy set id/name. (prompts if missing)
+  -i, --set-id <set-id>  Policy set id/name. (pick from policy set) (prompts if
+                         missing)
   --json                 Output in JSON format.
   -h, --help             Help
   -hh, --help-more       Help with all options.

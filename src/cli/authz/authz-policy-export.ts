@@ -82,8 +82,11 @@ export default function setup() {
           options,
           command
         );
+        // the framework resolves a missing entity option (a pick) inside getTokens
+        // (cli record 0038), so log in before the options are read
+        const loggedIn = await getTokens();
         // export
-        if (options.policyId && (await getTokens())) {
+        if (loggedIn && options.policyId) {
           verboseMessage('Exporting authorization policy to file...');
           const outcome = await exportPolicyToFile(
             options.policyId,
@@ -99,7 +102,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all by policy set
-        else if (options.setId && options.all && (await getTokens())) {
+        else if (loggedIn && options.setId && options.all) {
           verboseMessage(
             `Exporting all authorization policies in policy set ${options.setId} to file...`
           );
@@ -117,7 +120,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (loggedIn && options.all) {
           verboseMessage('Exporting all authorization policies to file...');
           const outcome = await exportPoliciesToFile(
             options.file,
@@ -132,7 +135,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate by policy set
-        else if (options.setId && options.allSeparate && (await getTokens())) {
+        else if (loggedIn && options.setId && options.allSeparate) {
           verboseMessage(
             `Exporting all authorization policies in policy set ${options.setId} to separate files...`
           );
@@ -150,7 +153,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (loggedIn && options.allSeparate) {
           verboseMessage(
             'Exporting all authorization policies to separate files...'
           );

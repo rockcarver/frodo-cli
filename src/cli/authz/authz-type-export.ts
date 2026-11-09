@@ -72,8 +72,11 @@ export default function setup() {
           options,
           command
         );
+        // the framework resolves a missing entity option (a pick) inside getTokens
+        // (cli record 0038), so log in before the options are read
+        const loggedIn = await getTokens();
         // export by uuid
-        if (options.typeId && (await getTokens())) {
+        if (loggedIn && options.typeId) {
           verboseMessage('Exporting authorization resource type to file...');
           const outcome = await exportResourceTypeToFile(
             options.typeId,
@@ -84,7 +87,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // export by name
-        else if (options.typeName && (await getTokens())) {
+        else if (loggedIn && options.typeName) {
           verboseMessage('Exporting authorization resource type to file...');
           const outcome = await exportResourceTypeByNameToFile(
             options.typeName,
@@ -95,7 +98,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (loggedIn && options.all) {
           verboseMessage(
             'Exporting all authorization resource types to file...'
           );
@@ -107,7 +110,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (loggedIn && options.allSeparate) {
           verboseMessage(
             'Exporting all authorization resource types to separate files...'
           );
