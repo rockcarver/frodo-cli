@@ -23,7 +23,7 @@ Arguments:
   password                    Password.
 
 Options:
-  -i, --journey-id <journey>  Name of a journey/tree.
+  -i, --journey-id <journey>  Name of a journey/tree. (pick from journey)
   -h, --help                  Help
   -hh, --help-more            Help with all options.
   -hhh, --help-all            Help with all options, environment variables, and

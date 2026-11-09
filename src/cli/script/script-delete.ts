@@ -1,4 +1,4 @@
-import { frodo, state, type ScriptSkeleton } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -10,12 +10,7 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -94,7 +89,14 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        if (options.scriptId && (await getTokens())) {
+        // On a terminal the framework offers a script to pick, after the
+        // login, when -i and -n were both left out (cli record 0038). A
+        // failed login, a declined pick and a failed read all stop here.
+        if (!(await getTokens())) {
+          process.exitCode = 1;
+          return;
+        }
+        if (options.scriptId) {
           verboseMessage(
             `Deleting script ${
               options.scriptId
@@ -102,7 +104,7 @@ export default function setup() {
           );
           const outcome = await deleteScriptId(options.scriptId);
           if (!outcome) process.exitCode = 1;
-        } else if (options.scriptName && (await getTokens())) {
+        } else if (options.scriptName) {
           verboseMessage(
             `Deleting script ${
               options.scriptName
@@ -110,73 +112,34 @@ export default function setup() {
           );
           const outcome = await deleteScriptName(options.scriptName);
           if (!outcome) process.exitCode = 1;
-        }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deleteAllScripts here -- same as before
-        // in the pre-picker layout, where the error branch below handled that case).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens())
-        ) {
-          if (options.scriptId) {
-            verboseMessage(
-              `Deleting script ${
-                options.scriptId
-              } in realm "${state.getRealm()}"...`
-            );
-            const outcome = await deleteScriptId(options.scriptId);
-            if (!outcome) process.exitCode = 1;
-          } else if (options.scriptName) {
-            verboseMessage(
-              `Deleting script ${
-                options.scriptName
-              } in realm "${state.getRealm()}"...`
-            );
-            const outcome = await deleteScriptName(options.scriptName);
-            if (!outcome) process.exitCode = 1;
-          } else {
-            if (
-              !(await confirmBulkDelete({
-                what: 'all non-default scripts',
-                yes: options.yes,
-                dryRunAvailable: false,
-              }))
-            ) {
-              process.exitCode = 1;
-              return;
-            }
-            verboseMessage('Deleting all non-default scripts...');
-            const outcome = await deleteAllScripts(
-              {
-                context: options.context,
-                evaluatorVersion: options.evaluatorVersion,
-                language: options.language,
-              },
-              options.allowFailures
-            );
-            if (!outcome) process.exitCode = 1;
+        } else if (options.all) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all non-default scripts',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
           }
-        }
-        // No branch ran: with requireOneOf satisfied, the only ways here
-        // are getTokens() failing (keep the old exit-1 semantics) or the
-        // user escaping the entity picker (declined to run).
-        else {
-          process.exitCode = 1;
+          verboseMessage('Deleting all non-default scripts...');
+          const outcome = await deleteAllScripts(
+            {
+              context: options.context,
+              evaluatorVersion: options.evaluatorVersion,
+              language: options.language,
+            },
+            options.allowFailures
+          );
+          if (!outcome) process.exitCode = 1;
+        } else {
+          // an empty list leaves nothing to pick from
+          printMessage('No scripts found to delete.');
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<ScriptSkeleton>({
-      name: 'scriptId',
-      kind: 'script',
-      load: () => frodo.script.readScripts(),
-      label: (script) => script.name,
-      description: (script) => script.description,
-    }),
-  ]);
 
   return program;
 }

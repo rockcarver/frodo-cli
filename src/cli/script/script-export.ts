@@ -18,13 +18,13 @@ export default function setup() {
       new Option(
         '-i, --script-id <uuid>',
         'Uuid of the script. If specified, -n, -a or -A cannot be used.'
-      ).conflicts(['scriptName', 'all', 'allSeparate'])
+      ).conflicts(['scriptName', 'script', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --script-name <name>',
         'Name of the script. If specified, -i, -a or -A cannot be used.'
-      ).conflicts(['scriptId', 'all', 'allSeparate'])
+      ).conflicts(['scriptId', 'script', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
@@ -61,7 +61,7 @@ export default function setup() {
       new Option(
         '-s, --script <script>',
         'DEPRECATED! Use -n/--script-name instead. Name of the script.'
-      )
+      ).conflicts(['scriptId', 'scriptName', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
@@ -116,7 +116,13 @@ export default function setup() {
           command
         );
         // export by id
-        if (options.scriptId && (await getTokens())) {
+        // On a terminal the framework offers a script to pick, after the
+        // login, when none of -i, -n, -a and -A was given (cli record 0038).
+        if (!(await getTokens())) {
+          process.exitCode = 1;
+          return;
+        }
+        if (options.scriptId) {
           verboseMessage('Exporting script...');
           const outcome = await exportScriptToFile(
             options.scriptId,
@@ -133,10 +139,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // export by name
-        else if (
-          (options.scriptName || options.script) &&
-          (await getTokens())
-        ) {
+        else if (options.scriptName || options.script) {
           verboseMessage('Exporting script...');
           const outcome = await exportScriptByNameToFile(
             options.scriptName || options.script,
@@ -153,7 +156,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a / --all
-        else if (options.all && (await getTokens())) {
+        else if (options.all) {
           verboseMessage('Exporting all scripts to a single file...');
           const outcome = await exportScriptsToFile(
             options.file,
@@ -174,7 +177,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A / --all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (options.allSeparate) {
           verboseMessage('Exporting all scripts to separate files...');
           const outcome = await exportScriptsToFiles(
             options.extract,
@@ -195,14 +198,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
 
-        // unrecognized combination of options or no options
+        // No branch ran: with requireOneOf satisfied, the only way here is a
+        // realm with no script to pick from.
         else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
+          printMessage('No scripts found to export.', 'error');
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

@@ -35,7 +35,7 @@ Options:
                                and exits with code 1.
   -f, --file <file>            Name of the export file. Cannot be used with -A.
   -i, --node-id <node-id>      Custom node id or service name. Cannot be used
-                               with -n, -a or -A.
+                               with -n, -a or -A. (pick from custom node)
   -n, --node-name <node-name>  Custom node display name. Cannot be used with -i,
                                -a or -A.
   -N, --no-metadata            Does not include metadata in the export file.

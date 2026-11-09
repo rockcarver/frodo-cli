@@ -1,4 +1,4 @@
-import { frodo, state, type TreeSkeleton } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -8,12 +8,7 @@ import {
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
 import c from '../../utils/ColorTheme';
-import { verboseMessage } from '../../utils/Console';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -96,8 +91,14 @@ export default function setup() {
         const verbose = state.getVerbose();
         const deleteJourneyOptions = { deep, verbose, progress: true };
         const deleteJourneysOptions = { deep, verbose };
-        // delete by id
-        if (options.journeyId && (await getTokens())) {
+        // On a terminal the framework offers a journey to pick, after the
+        // login, when -i was left out (cli record 0038). A failed login, a
+        // declined pick and a failed read all stop here.
+        if (!(await getTokens())) {
+          process.exitCode = 1;
+          return;
+        }
+        if (options.journeyId) {
           verboseMessage(
             `Deleting journey ${
               options.journeyId
@@ -108,63 +109,30 @@ export default function setup() {
             deleteJourneyOptions
           );
           if (!outcome) process.exitCode = 1;
-        }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deleteJourneys here -- same as before
-        // in the pre-picker layout, where the resolver's error handled that case).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens())
-        ) {
-          if (options.journeyId) {
-            verboseMessage(
-              `Deleting journey ${
-                options.journeyId
-              } in realm "${state.getRealm()}"...`
-            );
-            const outcome = await deleteJourney(
-              options.journeyId,
-              deleteJourneyOptions
-            );
-            if (!outcome) process.exitCode = 1;
-          } else {
-            if (
-              !(await confirmBulkDelete({
-                what: 'all journeys',
-                yes: options.yes,
-                dryRunAvailable: false,
-              }))
-            ) {
-              process.exitCode = 1;
-              return;
-            }
-            verboseMessage('Deleting all journeys...');
-            const outcome = await deleteJourneys(
-              deleteJourneysOptions,
-              options.allowFailures
-            );
-            if (!outcome) process.exitCode = 1;
+        } else if (options.all) {
+          if (
+            !(await confirmBulkDelete({
+              what: 'all journeys',
+              yes: options.yes,
+              dryRunAvailable: false,
+            }))
+          ) {
+            process.exitCode = 1;
+            return;
           }
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
-          process.exitCode = 1;
+          verboseMessage('Deleting all journeys...');
+          const outcome = await deleteJourneys(
+            deleteJourneysOptions,
+            options.allowFailures
+          );
+          if (!outcome) process.exitCode = 1;
+        } else {
+          // an empty list leaves nothing to pick from
+          printMessage('No journeys found to delete.');
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<TreeSkeleton>({
-      name: 'journeyId',
-      kind: 'journey',
-      load: () => frodo.authn.journey.readJourneys(),
-      label: (journey) => journey._id ?? '',
-    }),
-  ]);
 
   return program;
 }

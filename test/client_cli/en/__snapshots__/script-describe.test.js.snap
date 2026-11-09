@@ -25,7 +25,7 @@ Options:
   -f, --file [file]         Optional export file to use to determine usage.
                             Overrides -D, --directory. Only used if -u or
                             --usage is provided as well.
-  -i, --script-id <uuid>    Uuid of the script.
+  -i, --script-id <uuid>    Uuid of the script. (pick from script)
   --json                    Output in JSON format.
   -n, --script-name <name>  Name of the script.
   -u, --usage               List all uses of the script. If a file is provided

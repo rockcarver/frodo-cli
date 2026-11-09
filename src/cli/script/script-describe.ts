@@ -39,7 +39,9 @@ export default function setup() {
           options,
           command
         );
-        if ((options.scriptName || options.scriptId) && (await getTokens())) {
+        // On a terminal the framework offers a script to pick, after the
+        // login, when -i and -n were both left out (cli record 0038).
+        if ((await getTokens()) && (options.scriptName || options.scriptId)) {
           verboseMessage(
             `Describing script ${options.scriptName ? options.scriptName : options.scriptId}...`
           );

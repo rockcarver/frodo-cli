@@ -44,7 +44,7 @@ Options:
   -f, --file <file>              Name of the export file. Cannot be used with
                                  -A.
   -i, --script-id <uuid>         Uuid of the script. If specified, -n, -a or -A
-                                 cannot be used.
+                                 cannot be used. (pick from script)
   --language <language>          Filter scripts by language when using -a or -A.
                                  Use lowercase values such as javascript or
                                  groovy. (choices: "javascript", "groovy")

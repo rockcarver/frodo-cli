@@ -38,7 +38,7 @@ Options:
                                    <template-id>.template.email.json. Cannot be
                                    used with -A.
   -i, --template-id <template-id>  Email template id/name. Cannot be used with
-                                   -a or -A.
+                                   -a or -A. (pick from email template)
   -N, --no-metadata                Does not include metadata in the export file.
   -h, --help                       Help
   -hh, --help-more                 Help with all options.

@@ -75,8 +75,14 @@ export default function setup() {
         options,
         command
       );
+      // On a terminal the framework offers a custom node to pick, after the
+      // login, when none of -i, -n, -a and -A was given (cli record 0038).
+      if (!(await getTokens())) {
+        process.exitCode = 1;
+        return;
+      }
       // export by id or name
-      if ((options.nodeId || options.nodeName) && (await getTokens())) {
+      if (options.nodeId || options.nodeName) {
         verboseMessage(
           `Exporting custom node ${options.nodeId || options.nodeName}...`
         );
@@ -93,7 +99,7 @@ export default function setup() {
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
-      else if (options.all && (await getTokens())) {
+      else if (options.all) {
         verboseMessage(`Exporting all custom nodes to a single file...`);
         const outcome = await exportCustomNodesToFile(
           options.file,
@@ -105,7 +111,7 @@ export default function setup() {
         if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate) {
         verboseMessage('Exporting all custom nodes to separate files...');
         const outcome = await exportCustomNodesToFiles(
           options.metadata,
@@ -117,14 +123,11 @@ export default function setup() {
         );
         if (!outcome) process.exitCode = 1;
       }
-      // unrecognized combination of options or no options
+      // No branch ran: with requireOneOf satisfied, the only way here is a
+      // tenant with no custom node to pick from.
       else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
+        printMessage('No custom nodes found to export.', 'error');
         process.exitCode = 1;
-        program.help();
       }
     });
 
