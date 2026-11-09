@@ -35,6 +35,8 @@ let workingDirectory;
 let currentRealm;
 let verbose;
 const exportJourneys = jest.fn();
+const validateJourneys = jest.fn();
+const realmList = jest.fn();
 const printError = jest.fn();
 const printMessage = jest.fn();
 
@@ -44,6 +46,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
       journey: {
         createSingleTreeExportTemplate: () => ({}),
         exportJourneys,
+        validateJourneys,
         importJourneys: jest.fn(),
       },
     },
@@ -72,10 +75,11 @@ jest.unstable_mockModule('../../src/utils/Config', () => ({
 }));
 jest.unstable_mockModule('../../src/utils/FrConfig', () => ({
   existScript: jest.fn(),
-  realmList: jest.fn().mockResolvedValue(['alpha']),
+  realmList,
   safeFileName: (name) => name,
 }));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
+  debugMessage: jest.fn(),
   printError,
   printMessage,
 }));
@@ -125,6 +129,8 @@ beforeEach(() => {
   );
   currentRealm = undefined;
   verbose = false;
+  realmList.mockReset().mockResolvedValue(['alpha']);
+  validateJourneys.mockReset().mockResolvedValue([]);
   printError.mockReset();
   printMessage.mockReset();
 });
@@ -292,5 +298,104 @@ describe('when nothing fails', () => {
 
     expect(printError).not.toHaveBeenCalled();
     expect(printMessage).not.toHaveBeenCalled();
+  });
+});
+
+const HINT =
+  'Run with --verbose to list the validation findings of each journey.';
+const FINDING = {
+  journeyId: 'Login',
+  code: 'UNREACHABLE_NODE',
+  severity: 'warning',
+  message: 'Tree node x is not reachable from the entry node',
+};
+const hints = () => messages().filter((m) => m === HINT);
+
+describe('the hint at --verbose when the exported journeys have validation findings', () => {
+  test('is printed once, as information, when there are findings and the output is not verbose', async () => {
+    arrange({});
+    validateJourneys.mockResolvedValue([FINDING]);
+
+    expect(await run()).toBe(true);
+
+    expect(hints()).toHaveLength(1);
+    expect(printMessage).toHaveBeenCalledWith(HINT, 'info');
+    // the export was validated offline: no journey ids, the export itself
+    expect(validateJourneys).toHaveBeenCalledTimes(1);
+    expect(validateJourneys.mock.calls[0][0]).toBeUndefined();
+    expect(Object.keys(validateJourneys.mock.calls[0][1].trees)).toEqual(IDS);
+  });
+
+  test('is printed once for several realms, not once per realm', async () => {
+    realmList.mockResolvedValue(['alpha', 'bravo']);
+    arrange({});
+    validateJourneys.mockResolvedValue([FINDING]);
+
+    expect(await run()).toBe(true);
+
+    expect(exportJourneys).toHaveBeenCalledTimes(2);
+    expect(hints()).toHaveLength(1);
+  });
+
+  test('is printed once when only the second realm has findings', async () => {
+    realmList.mockResolvedValue(['alpha', 'bravo']);
+    arrange({});
+    validateJourneys.mockResolvedValueOnce([]).mockResolvedValueOnce([FINDING]);
+
+    expect(await run()).toBe(true);
+
+    expect(hints()).toHaveLength(1);
+  });
+
+  test('is printed once when only the first realm has findings', async () => {
+    realmList.mockResolvedValue(['alpha', 'bravo']);
+    arrange({});
+    validateJourneys.mockResolvedValueOnce([FINDING]).mockResolvedValueOnce([]);
+
+    expect(await run()).toBe(true);
+
+    expect(hints()).toHaveLength(1);
+  });
+
+  test('comes before the summary of the failed journeys, which stays last', async () => {
+    arrange({ PasswordBreachDetection: passwordBreachDetectionError() });
+    validateJourneys.mockResolvedValue([FINDING]);
+
+    expect(await run()).toBe(false);
+
+    const lines = messages();
+    expect(lines.indexOf(HINT)).toBeGreaterThan(-1);
+    expect(lines.indexOf(HINT)).toBeLessThan(
+      lines.findIndex((m) => /^\d+ of \d+ journeys? failed/.test(m))
+    );
+  });
+
+  test('is not printed when there are no findings', async () => {
+    arrange({});
+
+    expect(await run()).toBe(true);
+
+    expect(hints()).toHaveLength(0);
+    expect(printMessage).not.toHaveBeenCalled();
+  });
+
+  test('is not printed when the output is verbose', async () => {
+    verbose = true;
+    arrange({});
+    validateJourneys.mockResolvedValue([FINDING]);
+
+    expect(await run()).toBe(true);
+
+    expect(hints()).toHaveLength(0);
+  });
+
+  test('is not printed, and the export is not failed, when the validation throws', async () => {
+    arrange({});
+    validateJourneys.mockRejectedValue(new Error('journeysExport is invalid'));
+
+    expect(await run()).toBe(true);
+
+    expect(hints()).toHaveLength(0);
+    expect(printError).not.toHaveBeenCalled();
   });
 });

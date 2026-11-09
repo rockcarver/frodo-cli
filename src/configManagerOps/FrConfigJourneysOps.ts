@@ -7,6 +7,10 @@ import {
   type SingleTreeExportInterface,
   type TreeSkeleton,
 } from '@rockcarver/frodo-lib';
+import {
+  printJourneyFindingsHint,
+  wantsJourneyFindingsHint,
+} from '../ops/JourneyFindingsHint';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -48,6 +52,7 @@ export async function configManagerExportJourneys(
     const realmNames =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     let found = false;
+    let hintAtFindings = false;
     for (const realmName of realmNames) {
       if (
         realmName === '/' &&
@@ -82,6 +87,7 @@ export async function configManagerExportJourneys(
         }
       );
       if (name && exportData.trees[name]) found = true;
+      hintAtFindings ||= await wantsJourneyFindingsHint(exportData);
       await processJourneysExport(
         exportData.trees,
         name,
@@ -90,6 +96,7 @@ export async function configManagerExportJourneys(
         run
       );
     }
+    if (hintAtFindings) printJourneyFindingsHint();
     const succeeded = run.finish();
     // a journey that failed to be read has been reported already
     if (name && !found && !run.hasFailures) {
