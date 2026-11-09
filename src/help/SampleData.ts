@@ -41,3 +41,5 @@ export const remoteProxyTokenEndpoint =
   'https://openam-zion.id.forgerock.io/am/oauth2/realms/root/realms/alpha/access_token';
 export const remoteProxyClientId = 'frodo-proxy';
 export const remoteProxySecretPlaceholder = '&{esv.zion.proxy.secret}';
+export const applicationName = 'ZionDirectory';
+export const connectorId = 'ZionDirectory';

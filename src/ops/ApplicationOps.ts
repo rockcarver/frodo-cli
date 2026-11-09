@@ -18,6 +18,7 @@ import {
 } from '../utils/Console';
 import { importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
+import { secondsToMilliseconds } from '../utils/SecondsOption';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -41,13 +42,38 @@ const {
 } = frodo.app;
 
 /**
+ * The words of the status column of the long list. Only a provisioning
+ * application has a status, and it is the state of its connector; the other
+ * applications have none and show nothing.
+ */
+const STATUS_WORDS = { active: 'Active', inactive: 'Inactive', none: '' };
+
+/**
  * List applications
+ * @param {boolean} long true to list all fields, including the status of the provisioning applications. Default: false
  */
 export async function listApplications(long = false): Promise<boolean> {
   try {
     const applications = await _readApplications();
     applications.sort((a, b) => a.name.localeCompare(b.name));
     if (long) {
+      // the applications and the state of every connector, each read once. The
+      // status is an addition to the list: when it cannot be read the list is
+      // printed as it always was, without the column, and a warning says why
+      let statuses: Map<string, keyof typeof STATUS_WORDS> | undefined;
+      try {
+        statuses = new Map(
+          (await frodo.app.readApplicationStatuses()).map((status) => [
+            status.applicationId,
+            status.status,
+          ])
+        );
+      } catch (error) {
+        printMessage(
+          `The status of the applications could not be read, so the Status column is left out: ${error instanceof Error ? error.message : error}`,
+          'warn'
+        );
+      }
       const table = createTable([
         'Name',
         'Id',
@@ -60,6 +86,7 @@ export async function listApplications(long = false): Promise<boolean> {
           hAlign: 'right',
           content: 'Authoritative',
         },
+        ...(statuses ? ['Status'] : []),
         'Description',
       ]);
       applications.forEach((app) => {
@@ -75,6 +102,7 @@ export async function listApplications(long = false): Promise<boolean> {
             hAlign: 'right',
             content: app.authoritative,
           },
+          ...(statuses ? [STATUS_WORDS[statuses.get(app._id) ?? 'none']] : []),
           wordwrap(app.description, 30),
         ]);
       });
@@ -122,6 +150,108 @@ export async function deleteApplication(
     return true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error deleting ${name}`, 'fail');
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Enable (switch on) an application: its connector is enabled, the way the
+ * Admin UI does it, and the call waits until the connector answers its
+ * connection test. Only a provisioning application, one with a connector, can
+ * be enabled; for any other application the library says so and this fails.
+ * @param {string | undefined} applicationId application id
+ * @param {string | undefined} applicationName application name
+ * @param {number} timeout how long to wait for the connector to answer, in seconds. Default: the library default
+ * @returns {Promise<boolean>} true if the application is enabled and its connector answers, false otherwise
+ */
+export async function enableApplication(
+  applicationId: string | undefined,
+  applicationName: string | undefined,
+  timeout?: number
+): Promise<boolean> {
+  const name = applicationName ?? applicationId;
+  let spinnerId: string;
+  try {
+    debugMessage(`cli.ApplicationOps.enableApplication: begin`);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Enabling ${name}...`
+    );
+    // without --timeout the library default applies: no timeout key is passed
+    const options =
+      timeout === undefined
+        ? undefined
+        : { timeout: secondsToMilliseconds(timeout) };
+    const result = applicationId
+      ? options
+        ? await frodo.app.enableApplication(applicationId, options)
+        : await frodo.app.enableApplication(applicationId)
+      : options
+        ? await frodo.app.enableApplicationByName(applicationName, options)
+        : await frodo.app.enableApplicationByName(applicationName);
+    if (result.ready === false) {
+      stopProgressIndicator(
+        spinnerId,
+        `${name} is switched on, but its connector does not answer yet`,
+        'fail'
+      );
+      printMessage(
+        `The connector ${result.connectorId} of application ${name} is enabled, but it did not answer its connection test in time` +
+          (result.error ? ` (the last answer: ${result.error})` : '') +
+          `. It may need longer: enable again with a longer --timeout, or look at the status with "frodo app list -l".`,
+        'error'
+      );
+      return false;
+    }
+    stopProgressIndicator(
+      spinnerId,
+      result.changed ? `Enabled ${name}` : `${name} is active already`,
+      'success'
+    );
+    debugMessage(`cli.ApplicationOps.enableApplication: end`);
+    return true;
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error enabling ${name}`, 'fail');
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Disable (switch off) an application: its connector is disabled, the way the
+ * Admin UI does it. Only a provisioning application, one with a connector, can
+ * be disabled; for any other application the library says so and this fails.
+ * @param {string | undefined} applicationId application id
+ * @param {string | undefined} applicationName application name
+ * @returns {Promise<boolean>} true if the application is disabled, false otherwise
+ */
+export async function disableApplication(
+  applicationId: string | undefined,
+  applicationName: string | undefined
+): Promise<boolean> {
+  const name = applicationName ?? applicationId;
+  let spinnerId: string;
+  try {
+    debugMessage(`cli.ApplicationOps.disableApplication: begin`);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Disabling ${name}...`
+    );
+    const result = applicationId
+      ? await frodo.app.disableApplication(applicationId)
+      : await frodo.app.disableApplicationByName(applicationName);
+    stopProgressIndicator(
+      spinnerId,
+      result.changed ? `Disabled ${name}` : `${name} is inactive already`,
+      'success'
+    );
+    debugMessage(`cli.ApplicationOps.disableApplication: end`);
+    return true;
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error disabling ${name}`, 'fail');
     printError(error);
   }
   return false;

@@ -17,6 +17,8 @@ Runtime Options:
 
 Commands:
   delete            Delete applications.
+  disable           Disable an application (switch it off).
+  enable            Enable an application (switch it on).
   export            Export applications.
   import            Import applications.
   list              List applications.
