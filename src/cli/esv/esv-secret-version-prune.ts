@@ -1,5 +1,5 @@
 import confirm from '@inquirer/confirm';
-import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -14,11 +14,6 @@ import {
 } from '../../ops/cloud/SecretsOps';
 import c from '../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -161,23 +156,12 @@ export default function setup() {
           options,
           command
         );
-        // With neither -i nor -a a terminal session picks a secret (a no-op
-        // outside the prompt gate). A declined or failed pick ends the
-        // command: nothing here ever falls through to pruning all secrets.
-        if (
-          !options.secretId &&
-          !options.all &&
-          !(await resolveEntityPicks(command))
-        ) {
-          process.exitCode = 1;
-          return;
-        }
-        const target = pruneTarget(options);
-        if (target.kind === 'none') {
+        // A secret id beside --all (a prompted or saved value can arrive
+        // beside it) is refused before anything else.
+        const requested = pruneTarget(options);
+        if (requested.kind === 'none' && requested.reason === 'ambiguous') {
           printMessage(
-            target.reason === 'ambiguous'
-              ? 'Cannot prune with both a secret id and --all; nothing was pruned.'
-              : 'No secret was selected; nothing was pruned.',
+            'Cannot prune with both a secret id and --all; nothing was pruned.',
             'error'
           );
           process.exitCode = 1;
@@ -187,7 +171,7 @@ export default function setup() {
         // Fail before reading the tenant when the run could never be allowed
         // to delete: all secrets, no --yes, and nobody to ask.
         if (
-          target.kind === 'all' &&
+          requested.kind === 'all' &&
           pruneGate({
             yes: options.yes,
             dryRun: options.dryRun,
@@ -201,7 +185,22 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
+        // With neither -i nor -a a terminal session is asked for a secret by
+        // the framework once the login worked (a secret picker, record 0038).
+        // A declined or failed pick makes getTokens fail: nothing here ever
+        // falls through to pruning all secrets.
         if (!(await getTokens(false, true, deploymentTypes))) {
+          process.exitCode = 1;
+          return;
+        }
+        const target = pruneTarget(options);
+        if (target.kind === 'none') {
+          printMessage(
+            target.reason === 'ambiguous'
+              ? 'Cannot prune with both a secret id and --all; nothing was pruned.'
+              : 'No secret was selected; nothing was pruned.',
+            'error'
+          );
           process.exitCode = 1;
           return;
         }
@@ -301,16 +300,6 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<SecretSkeleton>({
-      name: 'secretId',
-      kind: 'secret',
-      load: frodo.cloud.secret.readSecrets,
-      label: (secret) => secret._id ?? '',
-      description: (secret) => secret.description,
-    }),
-  ]);
 
   return program;
 }

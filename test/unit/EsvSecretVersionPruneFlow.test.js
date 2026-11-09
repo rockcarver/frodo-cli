@@ -31,7 +31,6 @@ const pruneVersionsOfSecret = jest.fn();
 const finishPrune = jest.fn();
 const printMessage = jest.fn();
 const verboseMessage = jest.fn();
-const resolveEntityPicks = jest.fn();
 
 jest.unstable_mockModule('@inquirer/confirm', () => ({ default: confirm }));
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
@@ -72,11 +71,6 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
 }));
 jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
   default: { command: (text) => text },
-}));
-jest.unstable_mockModule('../../src/utils/interactive/EntityPickers', () => ({
-  deferEntityPicks: jest.fn(),
-  entityPick: jest.fn(),
-  resolveEntityPicks,
 }));
 jest.unstable_mockModule('../../src/ops/cloud/SecretsOps', () => ({
   findVersionsToPruneOfAllSecrets,
@@ -130,6 +124,29 @@ async function invoke(options) {
   return exitCode;
 }
 
+/**
+ * Runs the command the way the framework does for a secret that was not given
+ * (decision record 0038): the picker runs inside getTokens, after the login,
+ * and sets the option on the command, which the action then reads.
+ */
+async function invokeWithPick(options, picked) {
+  process.exitCode = 0;
+  const program = setupPrune();
+  for (const [key, value] of Object.entries(options)) {
+    program.setOptionValue(key, value);
+  }
+  getTokens.mockImplementation(async () => {
+    for (const [key, value] of Object.entries(picked)) {
+      program.setOptionValue(key, value);
+    }
+    return true;
+  });
+  await program._actionHandler.call(program, [undefined, undefined, undefined]);
+  const exitCode = process.exitCode;
+  process.exitCode = 0;
+  return exitCode;
+}
+
 const errors = () =>
   printMessage.mock.calls.filter(([, type]) => type === 'error');
 
@@ -154,7 +171,6 @@ describe('frodo esv secret version prune', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     getTokens.mockResolvedValue(true);
-    resolveEntityPicks.mockResolvedValue(true);
     findVersionsToPruneOfAllSecrets.mockResolvedValue(check(plan));
     findVersionsToPruneOfSecret.mockResolvedValue(check([plan[0]]));
     finishPrune.mockReturnValue(true);
@@ -443,10 +459,32 @@ describe('frodo esv secret version prune', () => {
       expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
     });
 
-    it('prunes nothing when the pick is declined or fails', async () => {
-      resolveEntityPicks.mockResolvedValue(false);
+    it('prunes nothing when the pick is declined or fails (getTokens fails, the framework runs the pick inside it)', async () => {
+      getTokens.mockResolvedValue(false);
       expect(await invoke({ yes: true })).toBe(1);
-      expect(getTokens).not.toHaveBeenCalled();
+      expect(getTokens).toHaveBeenCalledTimes(1);
+      expect(pruneVersionsOfSecret).not.toHaveBeenCalled();
+      expect(findVersionsToPruneOfAllSecrets).not.toHaveBeenCalled();
+      expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
+    });
+
+    it('logs in first when neither option was given, so that the framework can ask for the secret, and prunes the secret that was picked', async () => {
+      expect(
+        await invokeWithPick({ yes: true }, { secretId: 'esv-picked' })
+      ).toBe(0);
+      expect(getTokens).toHaveBeenCalledTimes(1);
+      expect(pruneVersionsOfSecret).toHaveBeenCalledWith(
+        'esv-picked',
+        undefined,
+        undefined,
+        undefined
+      );
+      expect(findVersionsToPruneOfAllSecrets).not.toHaveBeenCalled();
+    });
+
+    it('never prunes all secrets after a pick that found nothing to offer', async () => {
+      expect(await invokeWithPick({ yes: true }, {})).toBe(1);
+      expect(findVersionsToPruneOfAllSecrets).not.toHaveBeenCalled();
       expect(pruneVersionsOfPlan).not.toHaveBeenCalled();
     });
 

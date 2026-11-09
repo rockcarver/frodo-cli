@@ -23,7 +23,6 @@ import { Command } from 'commander';
 
 const getTokens = jest.fn();
 const confirm = jest.fn();
-const resolveEntityPicks = jest.fn();
 
 jest.unstable_mockModule('@inquirer/confirm', () => ({ default: confirm }));
 jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
@@ -45,11 +44,6 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
 }));
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
-}));
-jest.unstable_mockModule('../../src/utils/interactive/EntityPickers', () => ({
-  deferEntityPicks: jest.fn(),
-  entityPick: jest.fn(),
-  resolveEntityPicks,
 }));
 
 const { default: setupPrune } =
@@ -92,7 +86,6 @@ describe('frodo esv secret version prune, a secret that cannot be checked', () =
     secret.deleteVersionOfSecret = jest.fn(async () => ({}));
     getTokens.mockReset().mockResolvedValue(true);
     confirm.mockReset().mockResolvedValue(true);
-    resolveEntityPicks.mockReset().mockResolvedValue(true);
     setTerminal(false);
     output = [];
     const capture = (...args) => {

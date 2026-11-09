@@ -6,7 +6,7 @@ import {
   exportSecretStoresToFiles,
   exportSecretStoreToFile,
 } from '../../ops/SecretStoreOps';
-import { verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const {
@@ -88,67 +88,59 @@ export default function setup() {
           options,
           command
         );
+        // The login comes first: a secret store that was not given is asked
+        // for by the framework once it worked (a secret store picker, record
+        // 0038), and a declined pick makes getTokens fail.
         if (
-          options.secretstoreId &&
-          (await getTokens(
+          await getTokens(
             false,
             true,
             options.global ? globalDeploymentTypes : deploymentTypes
-          ))
+          )
         ) {
-          verboseMessage(`Exporting secret store ${options.secretstoreId}...`);
-          const outcome = await exportSecretStoreToFile(
-            options.secretstoreId,
-            options.secretstoreType,
-            options.file,
-            options.global,
-            options.metadata
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all -a
-        else if (
-          options.all &&
-          (await getTokens(
-            false,
-            true,
-            options.global ? globalDeploymentTypes : deploymentTypes
-          ))
-        ) {
-          verboseMessage(
-            `Exporting all${options.global ? ' global' : ''} secret stores to a single file...`
-          );
-          const outcome = await exportSecretStoresToFile(
-            options.file,
-            options.global,
-            options.metadata,
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all-separate -A
-        else if (
-          options.allSeparate &&
-          (await getTokens(
-            false,
-            true,
-            options.global ? globalDeploymentTypes : deploymentTypes
-          ))
-        ) {
-          verboseMessage(
-            `Exporting all${options.global ? ' global' : ''} secret stores to separate files...`
-          );
-          const outcome = await exportSecretStoresToFiles(
-            options.global,
-            options.metadata,
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
+          if (options.secretstoreId) {
+            verboseMessage(
+              `Exporting secret store ${options.secretstoreId}...`
+            );
+            const outcome = await exportSecretStoreToFile(
+              options.secretstoreId,
+              options.secretstoreType,
+              options.file,
+              options.global,
+              options.metadata
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // --all -a
+          else if (options.all) {
+            verboseMessage(
+              `Exporting all${options.global ? ' global' : ''} secret stores to a single file...`
+            );
+            const outcome = await exportSecretStoresToFile(
+              options.file,
+              options.global,
+              options.metadata,
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // --all-separate -A
+          else if (options.allSeparate) {
+            verboseMessage(
+              `Exporting all${options.global ? ' global' : ''} secret stores to separate files...`
+            );
+            const outcome = await exportSecretStoresToFiles(
+              options.global,
+              options.metadata,
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          } else {
+            // none of -i, -a and -A: the picker had no secret store to offer
+            printMessage('There is no secret store to choose from.', 'error');
+            process.exitCode = 1;
+          }
+        } else {
           process.exitCode = 1;
         }
       }

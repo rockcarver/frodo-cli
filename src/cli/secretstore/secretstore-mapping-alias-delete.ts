@@ -10,6 +10,7 @@ import {
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
 import { printMessage, verboseMessage } from '../../utils/Console';
+import { canPrompt } from '../../utils/interactive/PromptGateState';
 import { FrodoCommand } from '../FrodoCommand';
 
 const {
@@ -109,10 +110,31 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        if (
+        const tokenTypes = options.global
+          ? globalDeploymentTypes
+          : deploymentTypes;
+        const typeHasNoMappings =
           options.secretstoreType &&
-          !canSecretStoreHaveMappings(options.secretstoreType)
+          !canSecretStoreHaveMappings(options.secretstoreType);
+        // What was not given is asked for by the framework once the login
+        // worked (a secret store and mapping picker, record 0038), so in a
+        // terminal the login comes first. Without a terminal nothing is asked
+        // and the command runs as it always did.
+        let loggedIn = false;
+        if (
+          !typeHasNoMappings &&
+          canPrompt() &&
+          (!options.secretstoreId || !options.secretId)
         ) {
+          if (!(await getTokens(false, true, tokenTypes))) {
+            process.exitCode = 1;
+            return;
+          }
+          loggedIn = true;
+        }
+        const login = async () =>
+          loggedIn || (await getTokens(false, true, tokenTypes));
+        if (typeHasNoMappings) {
           printMessage(
             `'${options.secretstoreType}' does not have mappings.`,
             'error'
@@ -122,11 +144,7 @@ export default function setup() {
           options.secretstoreId &&
           options.secretId &&
           options.alias &&
-          (await getTokens(
-            false,
-            true,
-            options.global ? globalDeploymentTypes : deploymentTypes
-          ))
+          (await login())
         ) {
           verboseMessage(
             `Deleting alias ${options.alias} from secret store mapping ${options.secretId} from secret store ${options.secretstoreId}...`
@@ -143,11 +161,7 @@ export default function setup() {
           options.secretstoreId &&
           options.secretId &&
           options.all &&
-          (await getTokens(
-            false,
-            true,
-            options.global ? globalDeploymentTypes : deploymentTypes
-          ))
+          (await login())
         ) {
           if (
             !(await confirmBulkDelete({

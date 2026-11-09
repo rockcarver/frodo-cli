@@ -1,4 +1,4 @@
-import { frodo, type VariableSkeleton } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -9,12 +9,7 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -79,28 +74,15 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        // delete by id
-        if (
-          options.variableId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Deleting variable...');
-          const outcome = await deleteVariableById(options.variableId);
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deleteVariables here -- same as before
-        // in the pre-picker layout, where the resolver's error handled that case).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        // The login comes first: a variable that was not given is asked for by
+        // the framework once it worked (a variable picker, record 0038), and
+        // a declined pick makes getTokens fail.
+        if (await getTokens(false, true, deploymentTypes)) {
           if (options.variableId) {
             verboseMessage(`Deleting variable ${options.variableId}...`);
             const outcome = await deleteVariableById(options.variableId);
             if (!outcome) process.exitCode = 1;
-          } else {
+          } else if (options.all) {
             if (
               !(await confirmBulkDelete({
                 what: 'all variables',
@@ -114,27 +96,18 @@ export default function setup() {
             verboseMessage('Deleting all variabless...');
             const outcome = await deleteVariables(options.allowFailures);
             if (!outcome) process.exitCode = 1;
+          } else {
+            // neither -i nor -a: the picker had no variable to offer. Never
+            // fall through to deleting all variables.
+            printMessage('There is no variable to choose from.', 'error');
+            process.exitCode = 1;
           }
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
+        } else {
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<VariableSkeleton>({
-      name: 'variableId',
-      kind: 'variable',
-      load: () => frodo.cloud.variable.readVariables(),
-      label: (variable) => variable._id ?? '',
-      description: (variable) => variable.description,
-    }),
-  ]);
 
   return program;
 }

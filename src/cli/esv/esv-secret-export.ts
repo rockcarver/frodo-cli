@@ -8,7 +8,7 @@ import {
   exportSecretToFile,
 } from '../../ops/cloud/SecretsOps';
 import c from '../../utils/ColorTheme';
-import { verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -110,55 +110,51 @@ export default function setup() {
           options,
           command
         );
-        if (
-          options.secretId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Exporting secret "${
-              options.secretId
-            }" from realm "${state.getRealm()}"...`
-          );
-          const outcome = await exportSecretToFile(
-            options.secretId,
-            options.file,
-            options.metadata,
-            options.modifiedProperties,
-            options.includeActiveValues,
-            options.target
-          );
-          if (!outcome) process.exitCode = 1;
-        } else if (
-          options.all &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Exporting all secrets to a single file...');
-          const outcome = await exportSecretsToFile(
-            options.file,
-            options.metadata,
-            options.modifiedProperties,
-            options.includeActiveValues,
-            options.target
-          );
-          if (!outcome) process.exitCode = 1;
-        } else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Exporting all secrets to separate files...');
-          const outcome = await exportSecretsToFiles(
-            options.metadata,
-            options.modifiedProperties,
-            options.includeActiveValues,
-            options.target,
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
+        // The login comes first: a secret that was not given is asked for by
+        // the framework once it worked (a secret picker, record 0038), and a
+        // declined pick makes getTokens fail.
+        if (await getTokens(false, true, deploymentTypes)) {
+          if (options.secretId) {
+            verboseMessage(
+              `Exporting secret "${
+                options.secretId
+              }" from realm "${state.getRealm()}"...`
+            );
+            const outcome = await exportSecretToFile(
+              options.secretId,
+              options.file,
+              options.metadata,
+              options.modifiedProperties,
+              options.includeActiveValues,
+              options.target
+            );
+            if (!outcome) process.exitCode = 1;
+          } else if (options.all) {
+            verboseMessage('Exporting all secrets to a single file...');
+            const outcome = await exportSecretsToFile(
+              options.file,
+              options.metadata,
+              options.modifiedProperties,
+              options.includeActiveValues,
+              options.target
+            );
+            if (!outcome) process.exitCode = 1;
+          } else if (options.allSeparate) {
+            verboseMessage('Exporting all secrets to separate files...');
+            const outcome = await exportSecretsToFiles(
+              options.metadata,
+              options.modifiedProperties,
+              options.includeActiveValues,
+              options.target,
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          } else {
+            // none of -i, -a and -A: the picker had no secret to offer
+            printMessage('There is no secret to choose from.', 'error');
+            process.exitCode = 1;
+          }
+        } else {
           process.exitCode = 1;
         }
       }

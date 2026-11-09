@@ -1,4 +1,4 @@
-import { frodo, type SecretStoreMappingSkeleton } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -10,11 +10,7 @@ import {
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
 import { printMessage, verboseMessage } from '../../utils/Console';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { canPrompt } from '../../utils/interactive/PromptGateState';
 import { FrodoCommand } from '../FrodoCommand';
 
 const {
@@ -111,10 +107,31 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        if (
+        const tokenTypes = options.global
+          ? globalDeploymentTypes
+          : deploymentTypes;
+        const typeHasNoMappings =
           options.secretstoreType &&
-          !canSecretStoreHaveMappings(options.secretstoreType)
+          !canSecretStoreHaveMappings(options.secretstoreType);
+        // What was not given is asked for by the framework once the login
+        // worked (a secret store and mapping picker, record 0038), so in a
+        // terminal the login comes first. Without a terminal nothing is asked
+        // and the command runs as it always did.
+        let loggedIn = false;
+        if (
+          !typeHasNoMappings &&
+          canPrompt() &&
+          (!options.secretstoreId || (!options.secretId && !options.all))
         ) {
+          if (!(await getTokens(false, true, tokenTypes))) {
+            process.exitCode = 1;
+            return;
+          }
+          loggedIn = true;
+        }
+        const login = async () =>
+          loggedIn || (await getTokens(false, true, tokenTypes));
+        if (typeHasNoMappings) {
           printMessage(
             `'${options.secretstoreType}' does not have mappings.`,
             'error'
@@ -123,11 +140,7 @@ export default function setup() {
         } else if (
           options.secretstoreId &&
           options.secretId &&
-          (await getTokens(
-            false,
-            true,
-            options.global ? globalDeploymentTypes : deploymentTypes
-          ))
+          (await login())
         ) {
           verboseMessage(
             `Deleting secret store mapping ${options.secretId} from secret store ${options.secretstoreId}...`
@@ -139,15 +152,7 @@ export default function setup() {
             options.global
           );
           if (!outcome) process.exitCode = 1;
-        } else if (
-          options.secretstoreId &&
-          options.all &&
-          (await getTokens(
-            false,
-            true,
-            options.global ? globalDeploymentTypes : deploymentTypes
-          ))
-        ) {
+        } else if (options.secretstoreId && options.all && (await login())) {
           if (
             !(await confirmBulkDelete({
               what: 'all mappings',
@@ -169,51 +174,17 @@ export default function setup() {
           );
           if (!outcome) process.exitCode = 1;
         }
-        // No pair given: offer the mappings of a secret store from the live
-        // system (resolveEntityPicks is a no-op outside the prompt gate, so
-        // a non-interactive run falls through to the error branch below,
-        // same as in the pre-picker layout). Escape or an unresolved store = declined
-        // to run.
-        else if (await resolveEntityPicks(command)) {
-          // A mapping was picked, but the store it belongs to wasn't
-          // identified (the requireOneOf member picker asks for the store
-          // interactively; without it the mapping has no target).
+        // No pair given (and nothing the framework could ask for): the mapping
+        // has no target.
+        else {
           printMessage(
             '-i, --secretstore-id required to act on a secret store mapping',
             'error'
           );
           process.exitCode = 1;
-        } else {
-          // User escaped the entity picker (or nothing to pick) --
-          // declined to run.
-          process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-  deferEntityPicks(program, [
-    // Mappings live under a secret store; the loader reads the option
-    // values at pick time, so -i/--secretstore-id (and -t/-g) scope the
-    // dropdown. With no store identified, the picker stays empty and the
-    // action falls through to its error branch -- the requireOneOf member
-    // picker is what asks for the store interactively.
-    entityPick<SecretStoreMappingSkeleton>({
-      name: 'secretId',
-      kind: 'secret store mapping',
-      load: () => {
-        const secretstoreId = program.getOptionValue('secretstoreId');
-        return secretstoreId
-          ? frodo.secretStore.readSecretStoreMappings(
-              secretstoreId,
-              program.getOptionValue('secretstoreType'),
-              program.getOptionValue('global') ?? false
-            )
-          : Promise.resolve([]);
-      },
-      label: (mapping) => mapping.secretId ?? '',
-      description: (mapping) => mapping.aliases?.join(', '),
-    }),
-  ]);
-
   return program;
 }
