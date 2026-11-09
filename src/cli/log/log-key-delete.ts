@@ -6,7 +6,7 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -62,36 +62,43 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        // delete by id
-        if (options.keyId && (await getTokens(true, true, deploymentTypes))) {
-          verboseMessage(`Deleting key ${options.keyId}`);
-          // the outcome decides the exit code (it was not awaited, so a failed
-          // delete exited 0)
-          const outcome = await deleteLogApiKey(options.keyId);
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all -a
-        else if (
-          options.all &&
-          (await getTokens(true, true, deploymentTypes))
-        ) {
-          if (
-            !(await confirmBulkDelete({
-              what: 'all log API keys',
-              yes: options.yes,
-              dryRunAvailable: false,
-            }))
-          ) {
-            process.exitCode = 1;
-            return;
+        // The login comes first: a key that was not given is asked for by the
+        // framework once it worked (a log API key picker, record 0038), and a
+        // declined pick makes getTokens fail.
+        if (await getTokens(true, true, deploymentTypes)) {
+          // delete by id
+          if (options.keyId) {
+            verboseMessage(`Deleting key ${options.keyId}`);
+            // the outcome decides the exit code (it was not awaited, so a failed
+            // delete exited 0)
+            const outcome = await deleteLogApiKey(options.keyId);
+            if (!outcome) process.exitCode = 1;
           }
-          verboseMessage('Deleting keys...');
-          const outcome = await deleteLogApiKeys(options.allowFailures);
-          if (!outcome) process.exitCode = 1;
+          // --all -a
+          else if (options.all) {
+            if (
+              !(await confirmBulkDelete({
+                what: 'all log API keys',
+                yes: options.yes,
+                dryRunAvailable: false,
+              }))
+            ) {
+              process.exitCode = 1;
+              return;
+            }
+            verboseMessage('Deleting keys...');
+            const outcome = await deleteLogApiKeys(options.allowFailures);
+            if (!outcome) process.exitCode = 1;
+          }
+          // neither -i nor -a: the picker had no key to offer. Never fall
+          // through to deleting all keys.
+          else {
+            printMessage('There is no log API key to choose from.', 'error');
+            process.exitCode = 1;
+          }
         }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
+        // getTokens() failed, or the user escaped the entity picker (declined
+        // to run): keep the old exit-1 semantics.
         else {
           process.exitCode = 1;
         }

@@ -5,7 +5,7 @@ import {
   exportServicesToFiles,
   exportServiceToFile,
 } from '../../ops/ServiceOps.js';
-import { verboseMessage } from '../../utils/Console.js';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -84,40 +84,49 @@ export default function setup() {
 
         const globalConfig = options.global ?? false;
 
-        // export by name
-        if (options.serviceId && (await getTokens())) {
-          verboseMessage('Exporting service...');
-          const outcome = await exportServiceToFile(
-            options.serviceId,
-            options.file,
-            globalConfig,
-            options.metadata
-          );
-          if (!outcome) process.exitCode = 1;
+        // The login comes first: a service that was not given is asked for by
+        // the framework once it worked (a service picker, record 0038), and a
+        // declined pick makes getTokens fail.
+        if (await getTokens()) {
+          // export by name
+          if (options.serviceId) {
+            verboseMessage('Exporting service...');
+            const outcome = await exportServiceToFile(
+              options.serviceId,
+              options.file,
+              globalConfig,
+              options.metadata
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // -a / --all
+          else if (options.all) {
+            verboseMessage('Exporting all services to a single file...');
+            const outcome = await exportServicesToFile(
+              options.file,
+              globalConfig,
+              options.metadata
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // -A / --all-separate
+          else if (options.allSeparate) {
+            verboseMessage('Exporting all services to separate files...');
+            const outcome = await exportServicesToFiles(
+              globalConfig,
+              options.metadata,
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // neither -i, -a nor -A: the picker had no service to offer
+          else {
+            printMessage('There is no service to choose from.', 'error');
+            process.exitCode = 1;
+          }
         }
-        // -a / --all
-        else if (options.all && (await getTokens())) {
-          verboseMessage('Exporting all services to a single file...');
-          const outcome = await exportServicesToFile(
-            options.file,
-            globalConfig,
-            options.metadata
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // -A / --all-separate
-        else if (options.allSeparate && (await getTokens())) {
-          verboseMessage('Exporting all services to separate files...');
-          const outcome = await exportServicesToFiles(
-            globalConfig,
-            options.metadata,
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
+        // getTokens() failed, or the user escaped the entity picker (declined
+        // to run): keep the old exit-1 semantics.
         else {
           process.exitCode = 1;
         }

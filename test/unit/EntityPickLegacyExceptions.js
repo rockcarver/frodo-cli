@@ -18,15 +18,18 @@
  * Generated from the command tree on 2026-11-07.
  */
 export const LEGACY_ENTITY_OPTIONS_WITHOUT_PICKER = [
+  // `--set-id` is a member of the one-of group but does not select what to
+  // export on its own (frodo-cli#1081)
   'frodo authz policy export::setId',
+  // local commands never log in, and the framework runs a pick after the login
   'frodo conn service-account describe::name',
   'frodo conn service-account remove::name',
-  'frodo iga workflow describe::workflowId',
-  'frodo log key delete::keyId',
+  // the three `create` options below name an existing secret store or mapping,
+  // but the commands declare a one-of group of five options where they need
+  // three, so a pick would open on no line a person can finish
   'frodo secretstore mapping alias create::secretId',
   'frodo secretstore mapping alias create::secretstoreId',
   'frodo secretstore mapping create::secretstoreId',
-  'frodo service export::serviceId',
 ];
 
 /**

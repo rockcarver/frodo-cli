@@ -185,16 +185,15 @@ describe('the IGA workflow picker', () => {
     ({ published, draft }) as unknown as WorkflowGroup;
   const flags = ['-i, --workflow-id <workflow-id>'];
 
-  it('belongs to delete, export and publish', () => {
-    for (const verb of ['delete', 'export', 'publish']) {
+  it('belongs to delete, describe, export and publish', () => {
+    for (const verb of ['delete', 'describe', 'export', 'publish']) {
       expect(
         picksOf(['iga', 'workflow', verb], ...flags).map((pick) => pick.name)
       ).toEqual(['workflowId']);
     }
   });
 
-  it('leaves out describe, which takes -i together with -f, and import', () => {
-    expect(picksOf(['iga', 'workflow', 'describe'], ...flags)).toEqual([]);
+  it('leaves out import, whose option names a workflow in a file', () => {
     expect(picksOf(['iga', 'workflow', 'import'], ...flags)).toEqual([]);
   });
 

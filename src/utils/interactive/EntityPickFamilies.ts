@@ -304,14 +304,13 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  // IGA workflows: the workflow that `-i` names. `describe` is left out: it
-  // takes `-i` together with `-f` (the workflow inside a file), so a complete
-  // command line can lack `-i` and a pick must not open on it (record 0030).
-  // A tenant without IGA has no workflows to offer: the commands say so
+  // IGA workflows: the workflow that `-i` names. `describe` takes `-i` or `-f`
+  // (the workflow inside a file) as one of two; the framework does not open the
+  // pick when `-f` is given, so a complete command line is left alone (record
+  // 0030). A tenant without IGA has no workflows to offer: the commands say so
   // themselves once the pick is satisfied.
   registerEntityPickFamily({
     family: 'iga workflow',
-    except: ['describe'],
     picks: [
       entityPick<WorkflowGroup>({
         name: 'workflowId',
@@ -824,14 +823,58 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  // The name options (-n of node, script and theme) have no pick yet, and stay
-  // on the legacy list. A pick fills one option, and the runner offers the next
-  // pick even after an earlier one has filled a conflicting option: it treats
-  // an option the resolver set as not typed by the user, so `blockersOf` does
-  // not block the name pick. A command with an id pick and a name pick would
-  // ask twice, and the second answer would replace the first. Add the name
-  // picks when the runner skips a pick that conflicts with an option set
-  // earlier in the same run.
+  // The Log API keys of the tenant (`log key delete -i`), by key id with the
+  // name of the key as the description. `describe` takes `-i` as optional, so
+  // it gets no pick (record 0030); with `-a` the option is a regex filter and
+  // the framework does not open the pick.
+  type LogApiKeyEntity = Awaited<
+    ReturnType<typeof frodo.cloud.log.getLogApiKeys>
+  >[number];
+
+  registerEntityPickFamily({
+    family: 'log key',
+    except: ['describe'],
+    picks: [
+      entityPick<LogApiKeyEntity>({
+        name: 'keyId',
+        kind: 'log API key',
+        load: async () =>
+          (await frodo.cloud.log.getLogApiKeys()).sort((a, b) =>
+            a.api_key_id.localeCompare(b.api_key_id)
+          ),
+        label: (key) => key.api_key_id,
+        description: (key) => key.name,
+      }),
+    ],
+  });
+
+  // The AM services (`service export -i`). `-g` switches between the services
+  // of the realm and the global ones, so the loader reads it from the command.
+  // `service delete` keeps its own picker for its `-i` (`--id`).
+  type AmService = Awaited<
+    ReturnType<typeof frodo.service.getListOfServices>
+  >[number];
+
+  const services = async (global: boolean) =>
+    (await frodo.service.getListOfServices(global)).sort((a, b) =>
+      (a._id ?? '').localeCompare(b._id ?? '')
+    );
+
+  registerEntityPickFamily({
+    family: 'service',
+    picks: [
+      entityPick<AmService>({
+        name: 'serviceId',
+        kind: 'service',
+        load: () => services(false),
+        loadFor: (command) =>
+          services(Boolean(command.getOptionValue('global'))),
+        label: (service) => service._id ?? '',
+        description: (service) =>
+          typeof service.name === 'string' ? service.name : undefined,
+      }),
+    ],
+  });
 
   // `connector`: the IDM connectors, by id. The configuration of the connector
   // info provider (`provisioner.openicf.connectorinfoprovider`) is not a

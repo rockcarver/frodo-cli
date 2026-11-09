@@ -33,6 +33,7 @@ Options:
                                    the tenant.
   -i, --workflow-id <workflow-id>  Workflow id. If not specified, will describe
                                    first workflow in the provided export file.
+                                   (pick from workflow)
   -h, --help                       Help
   -hh, --help-more                 Help with all options.
   -hhh, --help-all                 Help with all options, environment variables,
