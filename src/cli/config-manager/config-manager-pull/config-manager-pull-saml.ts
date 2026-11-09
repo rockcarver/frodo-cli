@@ -1,6 +1,7 @@
 import { Option } from 'commander';
 import { configManagerExportSaml } from '../../../configManagerOps/FrConfigSamlOps';
 import * as s from '../../../help/SampleData';
+import { ownedObjectsHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -45,6 +46,7 @@ export default function setup() {
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
     )
+    .addHelpText('after', ownedObjectsHelp('SAML providers'))
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

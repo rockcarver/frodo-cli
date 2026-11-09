@@ -8,6 +8,11 @@ import {
   type Saml2ProviderSkeleton,
 } from '@rockcarver/frodo-lib';
 import {
+  ownedObjectMessage,
+  OwnedObjects,
+  skipsOwnedObjects,
+} from '../ops/ApplicationOwnedObjects';
+import {
   createProgressIndicator,
   printError,
   printMessage,
@@ -20,6 +25,7 @@ import {
   safeFileNameUnderscore,
 } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
+import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 
 const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
   frodo.utils;
@@ -92,13 +98,20 @@ export async function readSamlProviderForFile(entityId: string): Promise<{
 
 /**
  * Export SAML configurations in fr-config-manager format.
+ * In a tree that uses the application layout (decision record 0042) a provider that an
+ * application owns is not exported here: `pull applications` writes it into the folder of the
+ * application. It is named and skipped, which is not a failure, and the config file is not
+ * changed. The circles of trust are shared and are always exported. A realm whose applications
+ * cannot be read is one failed operation, and its providers are not exported.
  * @param {string} file File that determines what SAML config is exported
  * @param {boolean} allowFailures True to succeed although some providers or circles of trust could not be exported (the failures are still summarised)
+ * @param {ApplicationLayoutDecision} layout The layout of the tree, when `pull all` has decided it before its first step; default: read from the marker of the tree
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise. A provider or a circle of trust that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A file that does not exist, or that cannot be read, is a failure.
  */
 export async function configManagerExportSaml(
   file: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  layout?: ApplicationLayoutDecision
 ): Promise<boolean> {
   try {
     if (!fs.existsSync(file)) {
@@ -107,6 +120,7 @@ export async function configManagerExportSaml(
     }
     const objects = JSON.parse(fs.readFileSync(file, 'utf8'));
     const run = new OperationRun({ unit: 'item', allowFailures });
+    const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
     for (const realm of Object.keys(objects)) {
       if (
         realm === '/' &&
@@ -116,7 +130,32 @@ export async function configManagerExportSaml(
         continue;
       state.setRealm(realm);
       const realmDir = realm === '/' ? 'root' : realm;
-      for (const samlProvider of objects[realm].samlProviders ?? []) {
+      let ownershipKnown = true;
+      if (owned) {
+        try {
+          await owned.loadCurrentRealm();
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the applications of realm '${realm}'`
+          );
+          run.recordFailure(`ownership of realm ${realmDir}`, causeOf(error));
+          ownershipKnown = false;
+        }
+      }
+      for (const samlProvider of ownershipKnown
+        ? (objects[realm].samlProviders ?? [])
+        : []) {
+        const owners = owned
+          ? owned.ownersInCurrentRealm('saml2Provider', samlProvider.entityId)
+          : [];
+        if (owners.length > 0) {
+          printMessage(
+            ownedObjectMessage('saml2Provider', samlProvider.entityId, owners),
+            'info'
+          );
+          continue;
+        }
         try {
           const result = await exportSaml2Provider(samlProvider.entityId, {
             deps: false,
