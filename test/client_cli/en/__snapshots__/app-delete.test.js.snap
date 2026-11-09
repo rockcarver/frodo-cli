@@ -29,7 +29,8 @@ Options:
                          with code 1.
   -i, --app-id <id>      Application id. Cannot be used with -n or -a. (pick
                          from application)
-  -n, --app-name <name>  Application name. Cannot be used with -i or -a.
+  -n, --app-name <name>  Application name. Cannot be used with -i or -a. (pick
+                         from application)
   --no-deep              No deep delete. This leaves orphaned configuration
                          artifacts behind.
   -y, --yes              Do not ask for confirmation before deleting all

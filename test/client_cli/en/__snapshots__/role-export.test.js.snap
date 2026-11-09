@@ -36,10 +36,10 @@ Options:
   -f, --file <file>            Name of the export file. Cannot be used with -A.
   -i, --role-id <role-id>      Internal role id. If specified, only one internal
                                role is exported and the options -n, -a or -A
-                               cannot be used.
+                               cannot be used. (pick from role)
   -n, --role-name <role-name>  Internal role name. If specified, only one
                                internal role is exported and the options -i, -a
-                               or -A cannot be used.
+                               or -A cannot be used. (pick from role)
   -N, --no-metadata            Does not include metadata in the export file.
   -h, --help                   Help
   -hh, --help-more             Help with all options.

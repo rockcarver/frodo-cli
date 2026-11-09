@@ -101,63 +101,60 @@ export default function setup() {
           options,
           command
         );
-        // -i/--app-id or -n/--app-name
-        if (
-          (options.appId || options.appName) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Exporting application...');
-          const outcome = await exportApplicationToFile(
-            options.appId,
-            options.appName,
-            options.file,
-            options.metadata,
-            {
-              useStringArrays: true,
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // -a/--all
-        else if (
-          options.all &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Exporting all applications to file...');
-          const outcome = await exportApplicationsToFile(
-            options.file,
-            options.metadata,
-            {
-              useStringArrays: true,
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // -A/--all-separate
-        else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Exporting all applications to separate files...');
-          const outcome = await exportApplicationsToFiles(
-            options.metadata,
-            {
-              useStringArrays: true,
-              deps: options.deps,
-            },
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          verboseMessage(
-            'Unrecognized combination of options or no options...'
-          );
+        // the framework offers a picker for a missing -i/-n after the login
+        // (decision record 0038), so the login comes before the branches
+        if (await getTokens(false, true, deploymentTypes)) {
+          // -i/--app-id or -n/--app-name
+          if (options.appId || options.appName) {
+            verboseMessage('Exporting application...');
+            const outcome = await exportApplicationToFile(
+              options.appId,
+              options.appName,
+              options.file,
+              options.metadata,
+              {
+                useStringArrays: true,
+                deps: options.deps,
+              }
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // -a/--all
+          else if (options.all) {
+            verboseMessage('Exporting all applications to file...');
+            const outcome = await exportApplicationsToFile(
+              options.file,
+              options.metadata,
+              {
+                useStringArrays: true,
+                deps: options.deps,
+              }
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // -A/--all-separate
+          else if (options.allSeparate) {
+            verboseMessage('Exporting all applications to separate files...');
+            const outcome = await exportApplicationsToFiles(
+              options.metadata,
+              {
+                useStringArrays: true,
+                deps: options.deps,
+              },
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // unrecognized combination of options or no options
+          else {
+            verboseMessage(
+              'Unrecognized combination of options or no options...'
+            );
+            process.exitCode = 1;
+            program.help();
+          }
+        } else {
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

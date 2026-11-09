@@ -34,7 +34,7 @@ Options:
   -f, --file [file]      Name of the export file. Cannot be used with -A.
                          Defaults to <cot-id>.cot.saml.json.
   -i, --cot-id <cot-id>  Circle of trust id/name. If specified, -a or -A cannot
-                         be used.
+                         be used. (pick from circle of trust)
   -N, --no-metadata      Does not include metadata in the export file.
   -h, --help             Help
   -hh, --help-more       Help with all options.

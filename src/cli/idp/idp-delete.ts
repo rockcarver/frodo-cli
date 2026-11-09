@@ -1,13 +1,8 @@
-import { frodo, state, type SocialIdpSkeleton } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteSocialIdentityProviderById } from '../../ops/IdpOps';
 import { verboseMessage } from '../../utils/Console';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -28,35 +23,29 @@ export default function setup() {
           options,
           command
         );
-        // An unspecified idpId prompts for a provider from the live system
-        // (no-op outside the prompt gate) before getTokens.
-        if (
-          (options.idpId || (await resolveEntityPicks(command))) &&
-          (await getTokens())
-        ) {
-          verboseMessage(
-            `Deleting idp ${options.idpId} in realm "${state.getRealm()}"...`
-          );
-          const outcome = await deleteSocialIdentityProviderById(options.idpId);
-          if (!outcome) process.exitCode = 1;
-        }
-        // The only ways no branch runs are getTokens() failing (keep the
-        // old exit-1 semantics) or the user escaping the entity picker.
-        else {
+        // an unspecified idpId gets a picker from the framework after the
+        // login (decision record 0038), so the login comes first
+        if (await getTokens()) {
+          if (options.idpId) {
+            verboseMessage(
+              `Deleting idp ${options.idpId} in realm "${state.getRealm()}"...`
+            );
+            const outcome = await deleteSocialIdentityProviderById(
+              options.idpId
+            );
+            if (!outcome) process.exitCode = 1;
+          } else {
+            // the picker had nothing to offer
+            verboseMessage('No identity provider to delete.');
+            process.exitCode = 1;
+          }
+        } else {
+          // getTokens() failed, or the user declined the pick
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<SocialIdpSkeleton>({
-      name: 'idpId',
-      kind: 'identity provider',
-      load: () => frodo.oauth2oidc.external.readSocialIdentityProviders(),
-      label: (idp) => idp._id ?? '',
-    }),
-  ]);
 
   return program;
 }
