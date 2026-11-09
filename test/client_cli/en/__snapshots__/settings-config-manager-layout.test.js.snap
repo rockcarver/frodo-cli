@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'settings config-manager-layout' should be expected english 1`] = `
+"Usage: frodo settings config-manager-layout [options]
+
+Show or set the layout of a NEW config-manager tree. A tree records its own
+layout in frodo-config-manager.json at its root, and an existing tree keeps that
+layout: this setting is only read when a command creates a tree. "folders" keeps
+each application in its own folder together with the objects it owns;
+"kind-paths" keeps every object at the path of its own kind, as config-manager
+did before applications.
+
+Options:
+  --folders         New trees get one folder per application (the default).
+  --kind-paths      New trees keep every object at the path of its own kind, as
+                    before applications.
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
+`;
