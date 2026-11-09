@@ -117,6 +117,16 @@ steps above run, so everything this pass writes goes through `commitOption`
 - An entity picker whose loader reads other options to narrow its list
   (`mapping delete -c <connector>`) declares them with `scopedBy`: they do not
   block the pick, and the pick drops them from the command.
+- An entity picker is not offered when an option that conflicts with its own
+  is set already, whoever set it: the user, the choice made in the one-of
+  picker, a saved default or an earlier pick of the run. So a command with an
+  id option and a name option (`frodo node delete`) asks for one of them, the
+  one the user chose in the one-of picker, and never replaces the first answer
+  with a second. It is also not offered when another member of its `requireOneOf`
+  group is given, even one that does not conflict with it (`frodo agent export -g`
+  does not ask for `-i`), because the command line is complete (record 0030).
+  A group that needs every member (`requireAllOf`) does not answer for its
+  members.
 - After the pass, `assertNoConflicts` fails with commander's text if anything
   slipped through. A test forbids any other `setOptionValueWithSource` call in
   `src/` (the preview's shadow values excepted).
@@ -160,7 +170,12 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   command moves to its family). Either way the
   resolver skips the free-text value step for pickable options. The
   loader is per-deployment-type by construction (whatever read
-  function the command family's ops layer provides). A row is the
+  function the command family's ops layer provides). A loader that has to
+  narrow its list by other options of the command (`-c` and `-t` of
+  `mapping delete`) is given as `loadFor(command)` instead: a family loader is
+  shared by all the commands of the family and has no command of its own to
+  close over, and `load` is never given an argument, so a library read function
+  can be passed as `load`. A row is the
   entity's `label` and, unless the spec has a `value`, also the option
   value; a spec whose rows say more than the value (a user row shows the
   username, name and id, the option gets the id) sets `value`, and one

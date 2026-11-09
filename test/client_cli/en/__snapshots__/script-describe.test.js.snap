@@ -27,7 +27,7 @@ Options:
                             --usage is provided as well.
   -i, --script-id <uuid>    Uuid of the script. (pick from script)
   --json                    Output in JSON format.
-  -n, --script-name <name>  Name of the script.
+  -n, --script-name <name>  Name of the script. (pick from script)
   -u, --usage               List all uses of the script. If a file is provided
                             with -f or --file, it will search for usage in the
                             file. If a directory is provided with -D or

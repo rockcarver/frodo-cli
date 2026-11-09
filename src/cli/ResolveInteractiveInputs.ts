@@ -93,6 +93,12 @@ import {
   selectableMembers,
 } from '../utils/interactive/OptionConflicts';
 import {
+  getOneOfGroups,
+  isOptionGiven,
+  noteDeferredChoice,
+  type OptionRequirementSpec,
+} from '../utils/interactive/OptionRequirements';
+import {
   positionalIndex,
   positionalValue,
   setPositionalValue,
@@ -150,70 +156,15 @@ const pendingMandatoryViolations = new WeakMap<Command, string[]>();
  */
 const connectionReadiness = new WeakMap<Command, boolean>();
 
-/**
- * Option-requiredness rule registered on a command via `requireOneOf`
- * (at least one member present) or `requireAllOf` (every member present --
- * pairwise-required members, e.g. esv secret version activate's `-i` +
- * `-v`). Weaker than `makeOptionMandatory`: instead of "this one option
- * must always be present", it says "one of / all of these options must be
- * present" -- the shape of the `Unrecognized combination of options or no
- * options...` dead-ends that 113 command action bodies enforce only AFTER
- * authenticating. Evaluated in the resolution pass (below), where a
- * violation becomes an interactive prompt on a prompt-capable session and
- * commander's own error otherwise.
- */
-export type OptionRequirementSpec = {
-  /** Long names (no dashes) of the group's member options. */
-  options: string[];
-  /**
-   * Whether every member (true) or at least one member (false) must be
-   * present. OPTIONAL -- set by the requireOneOf/requireAllOf wrappers
-   * (requireOneOf defaults it to false, requireAllOf to true); callers
-   * never pass it.
-   */
-  all?: boolean;
-  /**
-   * Human-readable purpose shown in prompts/errors, e.g. "what to
-   * delete". Derived from the command description when omitted.
-   */
-  purpose?: string;
-};
-
-/**
- * Pre-requireAllOf spelling kept as an alias so the part-1/part-2 call
- * sites keep compiling while they migrate to the split methods.
- */
-export type OneOfGroupSpec = OptionRequirementSpec;
-
-const pendingOneOfGroups = new WeakMap<
-  Command,
-  (OptionRequirementSpec & { all: boolean })[]
->();
-
-/**
- * Registers option-requiredness groups on a command for resolution-pass
- * evaluation. Called from FrodoCommand.requireOneOf/requireAllOf.
- */
-export function deferOneOfGroups(
-  command: Command,
-  groups: (OptionRequirementSpec & { all: boolean })[]
-): void {
-  pendingOneOfGroups.set(command, [
-    ...(pendingOneOfGroups.get(command) ?? []),
-    ...groups,
-  ]);
-}
-
-/**
- * The option-requiredness groups registered on a command (empty when
- * none). Read by FrodoStubHelp to render the rule in help output -- the
- * help annotation and the resolver consume the same metadata.
- */
-export function getOneOfGroups(
-  command: Command
-): (OptionRequirementSpec & { all: boolean })[] {
-  return pendingOneOfGroups.get(command) ?? [];
-}
+// The option-requiredness rules (requireOneOf / requireAllOf) live in a
+// zero-import module so that the entity pickers can read them without this
+// file's graph; re-exported here under the historical names.
+export {
+  deferOneOfGroups,
+  getOneOfGroups,
+  type OneOfGroupSpec,
+  type OptionRequirementSpec,
+} from '../utils/interactive/OptionRequirements';
 
 const connectionPromptsSkippedWhen = new WeakMap<
   Command,
@@ -840,10 +791,7 @@ function groupSatisfied(
   command: Command,
   group: OptionRequirementSpec
 ): boolean {
-  const defined = (name: string): boolean => {
-    const value = command.getOptionValue(name);
-    return value !== undefined && value !== false && value !== '';
-  };
+  const defined = (name: string): boolean => isOptionGiven(command, name);
   return group.all ? group.options.every(defined) : group.options.some(defined);
 }
 
@@ -852,7 +800,7 @@ function groupSatisfied(
  * not satisfy.
  */
 function findUnsatisfiedOneOfGroups(command: Command): OptionRequirementSpec[] {
-  const groups = pendingOneOfGroups.get(command) ?? [];
+  const groups = getOneOfGroups(command);
   return groups.filter((group) => !groupSatisfied(command, group));
 }
 
@@ -950,6 +898,8 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
       verboseMessage(
         `${chosen.option.flags} will be offered from the target system after login.`
       );
+      // the other members of the group that have a picker are not offered then
+      noteDeferredChoice(command, chosen.name);
       continue;
     }
 

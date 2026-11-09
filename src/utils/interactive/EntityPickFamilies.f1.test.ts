@@ -83,8 +83,8 @@ describe('which agent commands get a picker', () => {
     }
   });
 
-  it('leaves out the generic export, whose -g is an alternative to -i that the framework cannot tell apart yet', () => {
-    expect(pickOf(['agent', 'export'])).toEqual([]);
+  it('gives the generic export a picker for -i: the framework leaves it out when -g or another member of the one-of group is given', () => {
+    expect(pickOf(['agent', 'export'])).toHaveLength(1);
   });
 });
 

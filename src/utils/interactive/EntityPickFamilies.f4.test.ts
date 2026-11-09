@@ -176,7 +176,8 @@ describe('the configuration entity picker of idm', () => {
 describe('the mapping picker', () => {
   const MAPPING = '-i, --mapping-id <mapping-id>';
 
-  it('belongs to export and rename, and not to import', () => {
+  it('belongs to delete, export and rename, and not to import', () => {
+    expect(picksOf(['mapping', 'delete'], MAPPING)).toEqual(['mappingId']);
     expect(picksOf(['mapping', 'export'], MAPPING)).toEqual(['mappingId']);
     expect(picksOf(['mapping', 'rename'], MAPPING)).toEqual(['mappingId']);
     expect(picksOf(['mapping', 'import'], MAPPING)).toEqual([]);
@@ -203,12 +204,12 @@ describe('the mapping picker', () => {
     ]);
   });
 
-  it('reads all mappings: the family has no -c or -t narrowing, which mapping delete keeps in its own pick', async () => {
+  it('reads all mappings when it is not given a command: the narrowing by -c and -t is in the loader that takes one', async () => {
     const read = jest
       .spyOn(frodo.idm.mapping, 'readMappings')
       .mockResolvedValue([]);
     await pickOf(['mapping', 'rename'], MAPPING).load();
-    expect(read).toHaveBeenCalledWith();
+    expect(read).toHaveBeenCalledWith(undefined, undefined);
   });
 });
 
