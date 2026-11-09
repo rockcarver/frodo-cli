@@ -21,6 +21,7 @@ Commands:
   authz             Manage authorization policies, policy sets, and resource
                     types.
   config            Manage full cloud configuration.
+  connector         Manage IDM connectors.
   email             Manage email templates and configuration.
   esv               [Cloud-only] Manage environment secrets and variables
                     (ESVs).
