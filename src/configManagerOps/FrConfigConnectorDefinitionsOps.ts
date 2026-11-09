@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { frodo, type ConnectorSkeleton } from '@rockcarver/frodo-lib';
 import {
+  objectNameInFile,
   ownedObjectMessage,
   OwnedObjects,
   skipsOwnedObjects,
@@ -87,6 +88,12 @@ export async function configManagerExportConnectorDefinitions(
  * summary, and the connectors of the other files are still imported. The connectors that the
  * library cannot import are named in the summary too. A folder without connector files, and a
  * named connector without a file, end the command whatever `--allow-failures` says.
+ * In a tree that uses the application layout (decision record 0042) a connector that an
+ * application owns is not imported here: `push applications` imports it from the folder of the
+ * application. A connector file that an application folder of any realm owns is named and skipped,
+ * which is not a failure, and no file of the tree is changed. Connectors belong to the tenant, not
+ * to a realm, so the application folders of every realm are asked; if one cannot be read the
+ * command fails and nothing is imported.
  * @param {string} name optional name of connector definition to import
  * @param {boolean} allowFailures true to report connectors that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -122,8 +129,34 @@ export async function configManagerImportConnectors(
       );
       return false;
     }
+    const owned = skipsOwnedObjects() ? new OwnedObjects() : undefined;
+    owned?.loadAllRealmsOfTree(getWorkingDirectory());
     const importData = { connector: {} };
     for (const connMappingFile of connMappingFiles) {
+      const connectorName = owned
+        ? objectNameInFile(
+            `${connectorDir}/${connMappingFile}`,
+            (content) => content?._id?.split('/')[1],
+            connMappingFile.replace(/\.json$/, '')
+          )
+        : undefined;
+      const owners =
+        connectorName === undefined
+          ? []
+          : owned.ownersInAnyRealm('connector', connectorName);
+      if (owners.length > 0) {
+        printMessage(
+          ownedObjectMessage(
+            'connector',
+            connectorName,
+            owners,
+            true,
+            'pushed'
+          ),
+          'info'
+        );
+        continue;
+      }
       try {
         const connector = readJsonFile(
           `${connectorDir}/${connMappingFile}`

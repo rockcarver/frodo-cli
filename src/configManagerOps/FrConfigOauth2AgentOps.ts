@@ -7,6 +7,7 @@ import {
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
 import {
+  objectNameInFile,
   ownedObjectMessage,
   OwnedObjects,
   skipsOwnedObjects,
@@ -124,6 +125,12 @@ export async function configManagerExportOAuth2Agents(
 }
 /**
  * Import all agent configurations.
+ * In a tree that uses the application layout (decision record 0042) an OAuth2 client that an
+ * application owns is not imported here: `push applications` imports it from the folder of the
+ * application. The application folders of the realm tell which clients those are; an OAuth2 client
+ * file that one of them owns is named and skipped, which is not a failure, and no file of the tree
+ * is changed. A realm whose application folders cannot be read is one failed operation, and its
+ * OAuth2 clients are not imported (the other agents of the realm are).
  * @param {boolean} allowFailures True to succeed although some agents could not be imported (the failures are still summarised)
  * @returns {Promise<boolean>} False if the realms folder is missing or an agent cannot be imported (unless failures are allowed), true otherwise
  */
@@ -155,6 +162,7 @@ export async function configManagerImportAgents(
       .map((entry) => entry.name);
 
     const run = new OperationRun({ unit: 'agent', allowFailures });
+    const owned = skipsOwnedObjects() ? new OwnedObjects() : undefined;
     for (const realmDir of realms) {
       const realm = realmDir === 'root' ? '/' : realmDir;
       if (
@@ -168,14 +176,58 @@ export async function configManagerImportAgents(
 
       if (!fs.existsSync(agentDir)) continue;
 
+      let ownershipKnown = true;
+      if (owned) {
+        try {
+          owned.loadRealmOfTree(getWorkingDirectory(), realm);
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the application folders of realm '${realm}'`
+          );
+          run.recordFailure(
+            `application folders of realm ${realmDir}`,
+            causeOf(error)
+          );
+          ownershipKnown = false;
+        }
+      }
+
       const agentTypes = fs.readdirSync(agentDir);
 
       for (const agentType of agentTypes) {
+        // Only an OAuth2 client can be owned, so only its push depends on the answer.
+        if (!ownershipKnown && agentType === 'OAuth2Client') continue;
         const agentTypeDir = path.join(agentDir, agentType);
 
         for (const file of fs
           .readdirSync(agentTypeDir)
           .filter((f) => path.extname(f) === '.json')) {
+          const clientId =
+            owned && agentType === 'OAuth2Client'
+              ? objectNameInFile(
+                  path.join(agentTypeDir, file),
+                  (content) => content?._id,
+                  path.basename(file, '.json')
+                )
+              : undefined;
+          const owners =
+            clientId === undefined
+              ? []
+              : owned.ownersInCurrentRealm('oauth2Client', clientId);
+          if (owners.length > 0) {
+            printMessage(
+              ownedObjectMessage(
+                'oauth2Client',
+                clientId,
+                owners,
+                false,
+                'pushed'
+              ),
+              'info'
+            );
+            continue;
+          }
           await run.run(`${realmDir}/${agentType}/${file}`, async () => {
             const agent = readJsonFile(
               path.join(agentTypeDir, file)

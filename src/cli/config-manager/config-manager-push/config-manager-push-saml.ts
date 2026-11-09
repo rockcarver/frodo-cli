@@ -1,5 +1,6 @@
 import { Option } from 'commander';
 import { configManagerImportSaml } from '../../../configManagerOps/FrConfigSamlOps';
+import { ownedObjectsPushHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -14,6 +15,7 @@ export default function setup() {
         'The entityId of a single SAML entity to import.'
       )
     )
+    .addHelpText('after', ownedObjectsPushHelp('SAML providers'))
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

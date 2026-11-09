@@ -1,4 +1,5 @@
 import { configManagerImportAgents } from '../../../configManagerOps/FrConfigOauth2AgentOps';
+import { ownedObjectsPushHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -8,6 +9,7 @@ export default function setup() {
 
   program
     .description('Import Oauth2 agents.')
+    .addHelpText('after', ownedObjectsPushHelp('OAuth2 clients'))
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

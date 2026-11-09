@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
 import {
+  objectNameInFile,
   ownedObjectMessage,
   OwnedObjects,
   skipsOwnedObjects,
@@ -11,7 +12,8 @@ import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
 import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 
-const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
+  frodo.utils;
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
 
@@ -147,6 +149,14 @@ function getConnectorMappingImportData(file: string): object {
 
 /**
  * Import all mappings in fr-config-manager format
+ * In a tree that uses the application layout (decision record 0042) a mapping that an application
+ * owns is not imported here: `push applications` imports it from the folder of the application. A
+ * mapping that an application folder of any realm owns is named and skipped, which is not a
+ * failure, and no file of the tree is changed. Mappings belong to the tenant, not to a realm, so the
+ * application folders of every realm are asked; if one cannot be read the command fails and nothing
+ * is imported. Such a tree does not hold the mappings that applications own, so pushing all mappings
+ * adds them to the sync configuration of the tenant, one by one, instead of replacing it: replacing
+ * it would delete the mappings of the applications.
  * @param {string} name optional connector name to import
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
@@ -154,8 +164,26 @@ export async function configManagerImportMappings(
   name?: string
 ): Promise<boolean> {
   try {
+    const owned = skipsOwnedObjects() ? new OwnedObjects() : undefined;
+    owned?.loadAllRealmsOfTree(getWorkingDirectory());
+    const skipIfOwned = (folderName: string, file: string): boolean => {
+      if (!owned) return false;
+      const mappingName = objectNameInFile(
+        file,
+        (content) => content?.name,
+        folderName
+      );
+      const owners = owned.ownersInAnyRealm('mapping', mappingName);
+      if (owners.length === 0) return false;
+      printMessage(
+        ownedObjectMessage('mapping', mappingName, owners, true, 'pushed'),
+        'info'
+      );
+      return true;
+    };
     if (name) {
       const jsonFilePath = getFilePath(`sync/mappings/${name}/${name}.json`);
+      if (skipIfOwned(name, jsonFilePath)) return true;
       const importData = getConnectorMappingImportData(jsonFilePath) as any;
       await importSubConfigEntity('sync', importData);
       return true;
@@ -169,6 +197,7 @@ export async function configManagerImportMappings(
         const jsonFilePath = getFilePath(
           `sync/mappings/${mappingFile}/${mappingFile}.json`
         );
+        if (skipIfOwned(mappingFile, jsonFilePath)) continue;
         const importData = getConnectorMappingImportData(jsonFilePath) as any;
         if (importData.file) {
           const scriptPath = getFilePath(
@@ -179,7 +208,13 @@ export async function configManagerImportMappings(
         }
         importMappingData.idm.sync.mappings.push(importData);
       }
-      await importConfigEntities(importMappingData);
+      if (owned) {
+        for (const mapping of importMappingData.idm.sync.mappings) {
+          await importSubConfigEntity('sync', mapping);
+        }
+      } else {
+        await importConfigEntities(importMappingData);
+      }
     }
     return true;
   } catch (error) {
