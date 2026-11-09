@@ -32,7 +32,8 @@ Options:
                          operation, prints a summary of what failed and exits
                          with code 1.
   -f, --file <file>      Name of the export file. Cannot be used with -A.
-  -i, --app-id <app-id>  App id. If specified, -a or -A cannot be used.
+  -i, --app-id <app-id>  App id. If specified, -a or -A cannot be used. (pick
+                         from OAuth2 client)
   -N, --no-metadata      Does not include metadata in the export file.
   --no-deps              Do not include any dependencies (scripts).
   -h, --help             Help

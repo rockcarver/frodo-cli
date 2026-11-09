@@ -62,50 +62,55 @@ export default function setup() {
           options,
           command
         );
-        // export
-        if (options.appId && (await getTokens())) {
-          verboseMessage('Exporting OAuth2 client...');
-          const outcome = await exportOAuth2ClientToFile(
-            options.appId,
-            options.file,
-            options.metadata,
-            {
-              useStringArrays: true,
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // -a/--all
-        else if (options.all && (await getTokens())) {
-          verboseMessage('Exporting all OAuth2 clients to file...');
-          const outcome = await exportOAuth2ClientsToFile(
-            options.file,
-            options.metadata,
-            {
-              useStringArrays: true,
-              deps: options.deps,
-            }
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
-          verboseMessage('Exporting all clients to separate files...');
-          const outcome = await exportOAuth2ClientsToFiles(
-            options.metadata,
-            {
-              useStringArrays: true,
-              deps: options.deps,
-            },
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
+        // the framework offers a picker for a missing -i/-n after the login
+        // (decision record 0038), so the login comes before the branches
+        if (await getTokens()) {
+          // export
+          if (options.appId) {
+            verboseMessage('Exporting OAuth2 client...');
+            const outcome = await exportOAuth2ClientToFile(
+              options.appId,
+              options.file,
+              options.metadata,
+              {
+                useStringArrays: true,
+                deps: options.deps,
+              }
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // -a/--all
+          else if (options.all) {
+            verboseMessage('Exporting all OAuth2 clients to file...');
+            const outcome = await exportOAuth2ClientsToFile(
+              options.file,
+              options.metadata,
+              {
+                useStringArrays: true,
+                deps: options.deps,
+              }
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // -A/--all-separate
+          else if (options.allSeparate) {
+            verboseMessage('Exporting all clients to separate files...');
+            const outcome = await exportOAuth2ClientsToFiles(
+              options.metadata,
+              {
+                useStringArrays: true,
+                deps: options.deps,
+              },
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // No branch ran: with requireOneOf satisfied, the only way here is a
+          // picker that had nothing to offer (an empty list).
+          else {
+            process.exitCode = 1;
+          }
+        } else {
           process.exitCode = 1;
         }
       }

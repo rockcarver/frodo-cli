@@ -38,28 +38,33 @@ export default function setup() {
           options,
           command
         );
-        // export by id/name
-        if (options.entityId && (await getTokens())) {
-          printMessage(
-            `Exporting metadata for provider "${
-              options.entityId
-            }" from realm "${state.getRealm()}"...`
-          );
-          const outcome = await exportSaml2MetadataToFile(
-            options.entityId,
-            options.file
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // // --all-separate -A
-        // else if (options.allSeparate && (await getTokens())) {
-        //   printMessage('Exporting all providers to separate files...');
-        //   exportProvidersToFiles();
-        // }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
+        // the framework offers a picker for a missing -i/-n after the login
+        // (decision record 0038), so the login comes before the branches
+        if (await getTokens()) {
+          // export by id/name
+          if (options.entityId) {
+            printMessage(
+              `Exporting metadata for provider "${
+                options.entityId
+              }" from realm "${state.getRealm()}"...`
+            );
+            const outcome = await exportSaml2MetadataToFile(
+              options.entityId,
+              options.file
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // // --all-separate -A
+          // else if (options.allSeparate && (await getTokens())) {
+          //   printMessage('Exporting all providers to separate files...');
+          //   exportProvidersToFiles();
+          // }
+          // No branch ran: with requireOneOf satisfied, the only way here is a
+          // picker that had nothing to offer (an empty list).
+          else {
+            process.exitCode = 1;
+          }
+        } else {
           process.exitCode = 1;
         }
       }

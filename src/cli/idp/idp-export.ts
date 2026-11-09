@@ -60,42 +60,47 @@ export default function setup() {
           options,
           command
         );
-        // export by id/name
-        if (options.idpId && (await getTokens())) {
-          verboseMessage(
-            `Exporting provider "${
-              options.idpId
-            }" from realm "${state.getRealm()}"...`
-          );
-          const outcome = await exportSocialIdentityProviderToFile(
-            options.idpId,
-            options.file,
-            options.metadata
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all -a
-        else if (options.all && (await getTokens())) {
-          verboseMessage('Exporting all providers to a single file...');
-          const outcome = await exportSocialIdentityProvidersToFile(
-            options.file,
-            options.metadata
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
-          verboseMessage('Exporting all providers to separate files...');
-          const outcome = await exportSocialIdentityProvidersToFiles(
-            options.metadata,
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // No branch ran: with requireOneOf satisfied, the only way
-        // here is getTokens() failing -- keep the old exit-1 semantics
-        // (the removed else handled auth failure too).
-        else {
+        // the framework offers a picker for a missing -i/-n after the login
+        // (decision record 0038), so the login comes before the branches
+        if (await getTokens()) {
+          // export by id/name
+          if (options.idpId) {
+            verboseMessage(
+              `Exporting provider "${
+                options.idpId
+              }" from realm "${state.getRealm()}"...`
+            );
+            const outcome = await exportSocialIdentityProviderToFile(
+              options.idpId,
+              options.file,
+              options.metadata
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // --all -a
+          else if (options.all) {
+            verboseMessage('Exporting all providers to a single file...');
+            const outcome = await exportSocialIdentityProvidersToFile(
+              options.file,
+              options.metadata
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // --all-separate -A
+          else if (options.allSeparate) {
+            verboseMessage('Exporting all providers to separate files...');
+            const outcome = await exportSocialIdentityProvidersToFiles(
+              options.metadata,
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // No branch ran: with requireOneOf satisfied, the only way here is a
+          // picker that had nothing to offer (an empty list).
+          else {
+            process.exitCode = 1;
+          }
+        } else {
           process.exitCode = 1;
         }
       }

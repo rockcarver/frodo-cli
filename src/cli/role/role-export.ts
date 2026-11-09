@@ -74,54 +74,51 @@ export default function setup() {
           options,
           command
         );
-        // export by id or name
-        if (
-          (options.roleId || options.roleName) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Exporting internal role ${options.roleId || options.roleName}...`
-          );
-          const outcome = await exportInternalRoleToFile(
-            options.roleId,
-            options.roleName,
-            options.file,
-            options.metadata
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all -a
-        else if (
-          options.all &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(`Exporting all internal roles to a single file...`);
-          const outcome = await exportInternalRolesToFile(
-            options.file,
-            options.metadata
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all-separate -A
-        else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Exporting all internal roles to separate files...');
-          const outcome = await exportInternalRolesToFiles(
-            options.metadata,
-            options.allowFailures
-          );
-          if (!outcome) process.exitCode = 1;
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
+        // the framework offers a picker for a missing -i/-n after the login
+        // (decision record 0038), so the login comes before the branches
+        if (await getTokens(false, true, deploymentTypes)) {
+          // export by id or name
+          if (options.roleId || options.roleName) {
+            verboseMessage(
+              `Exporting internal role ${options.roleId || options.roleName}...`
+            );
+            const outcome = await exportInternalRoleToFile(
+              options.roleId,
+              options.roleName,
+              options.file,
+              options.metadata
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // --all -a
+          else if (options.all) {
+            verboseMessage(`Exporting all internal roles to a single file...`);
+            const outcome = await exportInternalRolesToFile(
+              options.file,
+              options.metadata
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // --all-separate -A
+          else if (options.allSeparate) {
+            verboseMessage('Exporting all internal roles to separate files...');
+            const outcome = await exportInternalRolesToFiles(
+              options.metadata,
+              options.allowFailures
+            );
+            if (!outcome) process.exitCode = 1;
+          }
+          // unrecognized combination of options or no options
+          else {
+            printMessage(
+              'Unrecognized combination of options or no options...',
+              'error'
+            );
+            process.exitCode = 1;
+            program.help();
+          }
+        } else {
           process.exitCode = 1;
-          program.help();
         }
       }
       // end command logic inside action handler

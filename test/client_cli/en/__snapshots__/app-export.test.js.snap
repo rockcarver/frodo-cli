@@ -32,8 +32,10 @@ Options:
                          operation, prints a summary of what failed and exits
                          with code 1.
   -f, --file <file>      Name of the export file. Cannot be used with -A.
-  -i, --app-id <id>      Application id. Cannot be used with -n, -a or -A.
+  -i, --app-id <id>      Application id. Cannot be used with -n, -a or -A. (pick
+                         from application)
   -n, --app-name <name>  Application name. Cannot be used with -i, -a or -A.
+                         (pick from application)
   -N, --no-metadata      Does not include metadata in the export file.
   --no-deps              Do not include any dependencies (scripts, OAuth2
                          clients, SAML providers, circles of trust, connectors,

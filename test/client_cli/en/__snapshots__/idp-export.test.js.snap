@@ -34,6 +34,7 @@ Options:
   -f, --file [file]      Name of the file to write the exported provider(s) to.
                          Cannot be used with -A.
   -i, --idp-id <idp-id>  Id/name of a provider. Cannot be used with -a or -A.
+                         (pick from identity provider)
   -N, --no-metadata      Does not include metadata in the export file.
   -h, --help             Help
   -hh, --help-more       Help with all options.

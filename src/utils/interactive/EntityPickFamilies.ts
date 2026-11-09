@@ -400,4 +400,190 @@ export function registerEntityPickFamilies(): void {
       }),
     ],
   });
+
+  // `app`: the applications of the realm. `-i` takes the id, `-n` the name;
+  // the picker shows the name either way. An `app` command that takes an
+  // application by `-i, --app-id` or `-n, --app-name` inherits both picks.
+  type Application = Awaited<
+    ReturnType<typeof frodo.app.readApplications>
+  >[number];
+
+  const applications = async () =>
+    (await frodo.app.readApplications()).sort((a, b) =>
+      (a.name || a._id || '').localeCompare(b.name || b._id || '')
+    );
+
+  registerEntityPickFamily({
+    family: 'app',
+    picks: [
+      entityPick<Application>({
+        name: 'appId',
+        kind: 'application',
+        load: applications,
+        label: (application) => application.name || application._id || '',
+        value: (application) => application._id ?? '',
+        description: (application) => application.description,
+        search: (application, query) =>
+          `${application.name ?? ''} ${application._id ?? ''}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      }),
+      entityPick<Application>({
+        name: 'appName',
+        kind: 'application',
+        load: applications,
+        label: (application) => application.name || application._id || '',
+        description: (application) => application.description,
+      }),
+    ],
+  });
+
+  // `idp`: the social identity providers of the realm, by id.
+  type SocialIdp = Awaited<
+    ReturnType<typeof frodo.oauth2oidc.external.readSocialIdentityProviders>
+  >[number];
+
+  registerEntityPickFamily({
+    family: 'idp',
+    picks: [
+      entityPick<SocialIdp>({
+        name: 'idpId',
+        kind: 'identity provider',
+        load: async () =>
+          (await frodo.oauth2oidc.external.readSocialIdentityProviders()).sort(
+            (a, b) => (a._id ?? '').localeCompare(b._id ?? '')
+          ),
+        label: (idp) => idp._id ?? '',
+      }),
+    ],
+  });
+
+  // `oauth client`: the OAuth2 clients of the realm, by client id.
+
+  registerEntityPickFamily({
+    family: 'oauth client',
+    picks: [
+      entityPick<OAuth2Client>({
+        name: 'appId',
+        kind: 'OAuth2 client',
+        load: async () =>
+          (await frodo.oauth2oidc.client.readOAuth2Clients()).sort((a, b) =>
+            (a._id ?? '').localeCompare(b._id ?? '')
+          ),
+        label: (client) => client._id ?? '',
+      }),
+    ],
+  });
+
+  // `realm`: the realms of the tenant. `-i` takes the id, `-n` the name; the
+  // picker shows the name either way.
+  type Realm = Awaited<ReturnType<typeof frodo.realm.readRealms>>[number];
+
+  const realms = async () =>
+    (await frodo.realm.readRealms()).sort((a, b) =>
+      (a.name || a._id || '').localeCompare(b.name || b._id || '')
+    );
+
+  registerEntityPickFamily({
+    family: 'realm',
+    picks: [
+      entityPick<Realm>({
+        name: 'realmId',
+        kind: 'realm',
+        load: realms,
+        label: (realm) => realm.name || realm._id || '',
+        value: (realm) => realm._id ?? '',
+        description: (realm) => realm._id,
+        search: (realm, query) =>
+          `${realm.name ?? ''} ${realm._id ?? ''}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      }),
+      entityPick<Realm>({
+        name: 'realmName',
+        kind: 'realm',
+        load: realms,
+        label: (realm) => realm.name || realm._id || '',
+        description: (realm) => realm._id,
+      }),
+    ],
+  });
+
+  // `role`: the internal roles. `-i` takes the id, `-n` the name; the picker
+  // shows the name either way.
+  type InternalRole = Awaited<
+    ReturnType<typeof frodo.role.readInternalRoles>
+  >[number];
+
+  const roles = async () =>
+    (await frodo.role.readInternalRoles()).sort((a, b) =>
+      (a.name || a._id || '').localeCompare(b.name || b._id || '')
+    );
+
+  registerEntityPickFamily({
+    family: 'role',
+    picks: [
+      entityPick<InternalRole>({
+        name: 'roleId',
+        kind: 'role',
+        load: roles,
+        label: (role) => role.name || role._id || '',
+        value: (role) => role._id ?? '',
+        description: (role) => role.description,
+        search: (role, query) =>
+          `${role.name ?? ''} ${role._id ?? ''}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      }),
+      entityPick<InternalRole>({
+        name: 'roleName',
+        kind: 'role',
+        load: roles,
+        label: (role) => role.name || role._id || '',
+        description: (role) => role.description,
+      }),
+    ],
+  });
+
+  // `saml`: the SAML entity providers of the realm, by entity id. `saml cot`
+  // has its own entry below; its commands have no `entityId` option.
+  type Saml2ProviderStub = Awaited<
+    ReturnType<typeof frodo.saml2.entityProvider.readSaml2ProviderStubs>
+  >[number];
+
+  registerEntityPickFamily({
+    family: 'saml',
+    picks: [
+      entityPick<Saml2ProviderStub>({
+        name: 'entityId',
+        kind: 'entity provider',
+        load: async () =>
+          (await frodo.saml2.entityProvider.readSaml2ProviderStubs()).sort(
+            (a, b) => a.entityId.localeCompare(b.entityId)
+          ),
+        label: (provider) => provider.entityId,
+        description: (provider) => provider.location,
+      }),
+    ],
+  });
+
+  // `saml cot`: the circles of trust of the realm, by id.
+  type CircleOfTrust = Awaited<
+    ReturnType<typeof frodo.saml2.circlesOfTrust.readCirclesOfTrust>
+  >[number];
+
+  registerEntityPickFamily({
+    family: 'saml cot',
+    picks: [
+      entityPick<CircleOfTrust>({
+        name: 'cotId',
+        kind: 'circle of trust',
+        load: async () =>
+          (await frodo.saml2.circlesOfTrust.readCirclesOfTrust()).sort((a, b) =>
+            a._id.localeCompare(b._id)
+          ),
+        label: (cot) => cot._id,
+      }),
+    ],
+  });
 }

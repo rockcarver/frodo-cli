@@ -36,9 +36,9 @@ Options:
   -f, --file <file>              Name of the export file. Cannot be used with
                                  -A.
   -i, --realm-id <realm-id>      Realm id. If specified, -n, -a, and -A cannot
-                                 be used.
+                                 be used. (pick from realm)
   -n, --realm-name <realm-name>  Realm name. If specified, -i, -a or -A cannot
-                                 be used.
+                                 be used. (pick from realm)
   -N, --no-metadata              Does not include metadata in the export file.
   -h, --help                     Help
   -hh, --help-more               Help with all options.

@@ -38,6 +38,7 @@ Options:
                                specified, the export file is named
                                <id>.saml.json.
   -i, --entity-id <entity-id>  Entity id. If specified, -a or -A cannot be used.
+                               (pick from entity provider)
   -N, --no-metadata            Does not include metadata in the export file.
   --no-deps                    Do not include any dependencies (scripts).
   -h, --help                   Help

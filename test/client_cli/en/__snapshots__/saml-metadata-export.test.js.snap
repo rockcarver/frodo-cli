@@ -27,7 +27,7 @@ Options:
   -f, --file [file]            Name of the file to write the exported metadata
                                to. If not specified, the export file is named
                                <entity-id>.metadata.xml.
-  -i, --entity-id <entity-id>  Entity id.
+  -i, --entity-id <entity-id>  Entity id. (pick from entity provider)
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and
