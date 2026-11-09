@@ -30,6 +30,7 @@ import {
   startStdioTransport,
   type McpOAuthResourceServerOptions,
 } from '../../../ops/McpServerOps.js';
+import { createMcpSessionKeeper } from '../../../ops/McpSessionKeeper.js';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
 import { setNeverPrompt } from '../../../utils/interactive/PromptGate';
@@ -530,6 +531,13 @@ export default function setup() {
         );
       }
       const logger = new McpLogger(opts.mcpLogLevel);
+      // Ends the sessions this process creates when it stops, which the token
+      // cache decides (core 0021): with it on, a session that went into the
+      // cache may be in use by another server and is left to expire; with
+      // `--no-cache`, the sessions this process created are logged out.
+      const sessions = createMcpSessionKeeper(frodo, {
+        report: (level, message) => logger[level]('shutdown', message),
+      });
       // OAuth-resource-server mode never authenticates at the process
       // level — there is no single startup identity to establish; each
       // request brings its own, verified independently (see
@@ -564,7 +572,7 @@ export default function setup() {
         onEvent: (event) => logDiscoveryHydrationEvent(logger, event),
       });
       const policySelection = resolvePolicySelection(opts.policy);
-      const service = frodo.mcp.createService({
+      const createdService = frodo.mcp.createService({
         profileName: opts.profile,
         policyPreset: policySelection.policyPreset,
         policyOverride: policySelection.policyOverride,
@@ -581,6 +589,8 @@ export default function setup() {
         // resolveFrodoForMcpRequest for why a per-call realm override
         // still needs to fall back to a genuinely scoped instance.
         runtimeOptions: {
+          // The instances created here are request-scoped: the keeper ends
+          // their sessions when the request is over (see executeTool below).
           // OAuth-resource-server mode has no authenticated singleton to
           // reuse — resolveFrodoForMcpRequest's short-circuit ("no realm
           // override → reuse the singleton") would otherwise silently
@@ -588,10 +598,12 @@ export default function setup() {
           // try the empty, never-logged-in singleton instead. Every
           // request in this mode must construct its own scoped instance,
           // regardless of realm.
-          resolveFrodoForRequest: opts.oauthResourceServer
-            ? (context) => frodo.mcp.resolveRequestScopedFrodo(context)
-            : (context) =>
-                resolveFrodoForMcpRequest(context, frodo, state.getRealm()),
+          resolveFrodoForRequest: async (context) =>
+            sessions.adopt(
+              await (opts.oauthResourceServer
+                ? frodo.mcp.resolveRequestScopedFrodo(context)
+                : resolveFrodoForMcpRequest(context, frodo, state.getRealm()))
+            ),
           executeRecommendedByDefault: true,
           // Only matters for a per-call realm override that forces a new
           // scoped instance (the common case reuses the already-logged-in
@@ -599,6 +611,11 @@ export default function setup() {
           browserLoginPromptHandler: cliBrowserLoginPromptHandler,
         },
       });
+      const service: typeof createdService = {
+        ...createdService,
+        executeTool: (request) =>
+          sessions.runRequest(() => createdService.executeTool(request)),
+      };
 
       const startupSummary = {
         policy: service.policy.name,
@@ -689,13 +706,14 @@ export default function setup() {
           printStartupSummary(startupSummary);
         }
         printMessage('Dry run completed successfully.', 'info');
+        await sessions.endAll();
         return;
       }
 
       logStartupSummary(logger, startupSummary);
       const startupInfo: McpServerStartupInfo = { logger };
       if (transport === 'stdio') {
-        await startStdioTransport(service, startupInfo);
+        await startStdioTransport(service, startupInfo, sessions);
       } else {
         const resolvedPort = parseMcpHttpPortOption(opts.port);
         let oauthResourceServerOptions:
@@ -755,6 +773,7 @@ export default function setup() {
             maxBodySizeBytes,
             maxConcurrentRequests,
             oauthResourceServer: oauthResourceServerOptions,
+            sessions,
           }
         );
       }

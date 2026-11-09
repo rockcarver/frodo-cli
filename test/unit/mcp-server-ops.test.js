@@ -1096,6 +1096,171 @@ describe('registerServerCrashHandlers', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Ending the sessions of the server (frodo-cli#1057)
+// ---------------------------------------------------------------------------
+
+describe('startHttpTransport ends the sessions of the server', () => {
+  // The transport writes a PID lockfile into the config directory: a private
+  // one, so that these tests never touch the real ~/.frodo.
+  let tmpConfigDir;
+  let savedConfigPath;
+
+  beforeEach(() => {
+    savedConfigPath = process.env.FRODO_CONFIG_PATH;
+    tmpConfigDir = fsPromise.mkdtempSync(
+      pathPromise.join(osPromise.tmpdir(), 'frodo-mcp-sessions-')
+    );
+    process.env.FRODO_CONFIG_PATH = tmpConfigDir;
+  });
+
+  afterEach(() => {
+    if (savedConfigPath === undefined) {
+      delete process.env.FRODO_CONFIG_PATH;
+    } else {
+      process.env.FRODO_CONFIG_PATH = savedConfigPath;
+    }
+    fsPromise.rmSync(tmpConfigDir, { recursive: true, force: true });
+  });
+
+  test('a shutdown signal ends the sessions of the server, after the port is released, and resolves once they are ended', async () => {
+    const port = await getFreePort();
+    let finishEnding;
+    const ending = new Promise((resolve) => (finishEnding = resolve));
+    const sessions = { endAll: jest.fn(() => ending) };
+    const done = startHttpTransport(
+      { listTools: () => [] },
+      '127.0.0.1',
+      port,
+      undefined,
+      { sessions }
+    );
+    await waitForListening('127.0.0.1', port);
+    let resolved = false;
+    done.then(() => (resolved = true));
+
+    process.emit('SIGTERM', 'SIGTERM');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // The logout is under way, and the listener is already closed: a restart
+    // does not wait for it. The shutdown itself is not over yet.
+    expect(sessions.endAll).toHaveBeenCalledTimes(1);
+    const rebind = await new Promise((resolve, reject) => {
+      const server = http.createServer();
+      server.on('error', reject);
+      server.listen(port, '127.0.0.1', () => {
+        server.close(() => resolve(true));
+      });
+    });
+    expect(rebind).toBe(true);
+    expect(resolved).toBe(false);
+
+    finishEnding();
+    await done;
+    expect(resolved).toBe(true);
+  }, 30000);
+
+  test('the sessions are ended once a request that is still running has finished', async () => {
+    const port = await getFreePort();
+    const sessions = { endAll: jest.fn(async () => undefined) };
+    const done = startHttpTransport(
+      { listTools: () => [] },
+      '127.0.0.1',
+      port,
+      undefined,
+      { sessions }
+    );
+    await waitForListening('127.0.0.1', port);
+    // A request whose headers have not all arrived: the connection is busy,
+    // not idle, so closing the server waits for it.
+    const socket = net.connect(port, '127.0.0.1');
+    await new Promise((resolve) => socket.once('connect', resolve));
+    socket.write('POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\n');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    process.emit('SIGTERM', 'SIGTERM');
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      expect(sessions.endAll).not.toHaveBeenCalled();
+    } finally {
+      // Whatever the outcome, the request ends and the server can stop.
+      socket.destroy();
+    }
+
+    await done;
+    expect(sessions.endAll).toHaveBeenCalledTimes(1);
+  }, 30000);
+
+  test('every shutdown signal ends the sessions of the server', async () => {
+    for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP', 'SIGQUIT']) {
+      const port = await getFreePort();
+      const sessions = { endAll: jest.fn(async () => undefined) };
+      const done = startHttpTransport(
+        { listTools: () => [] },
+        '127.0.0.1',
+        port,
+        undefined,
+        { sessions }
+      );
+      await waitForListening('127.0.0.1', port);
+
+      process.emit(signal, signal);
+      await done;
+
+      expect(sessions.endAll).toHaveBeenCalledTimes(1);
+    }
+  }, 30000);
+
+  test('a failing logout does not fail the shutdown or change the exit code', async () => {
+    const port = await getFreePort();
+    const exitCodeBefore = process.exitCode;
+    const sessions = {
+      endAll: jest.fn(async () => {
+        throw new Error('logout failed');
+      }),
+    };
+    const done = startHttpTransport(
+      { listTools: () => [] },
+      '127.0.0.1',
+      port,
+      undefined,
+      { sessions }
+    );
+    await waitForListening('127.0.0.1', port);
+
+    process.emit('SIGTERM', 'SIGTERM');
+
+    await expect(done).resolves.toBeUndefined();
+    expect(sessions.endAll).toHaveBeenCalledTimes(1);
+    expect(process.exitCode).toBe(exitCodeBefore);
+  }, 30000);
+
+  test('a server that cannot bind its port ends its sessions before it gives up', async () => {
+    const port = await getFreePort();
+    const incumbent = http.createServer();
+    await new Promise((r) => incumbent.listen(port, '127.0.0.1', r));
+    try {
+      const exitCodeBefore = process.exitCode;
+      const sessions = { endAll: jest.fn(async () => undefined) };
+
+      const done = startHttpTransport(
+        { listTools: () => [] },
+        '127.0.0.1',
+        port,
+        undefined,
+        { sessions }
+      );
+
+      await expect(done).resolves.toBeUndefined();
+      expect(process.exitCode).toBe(1);
+      expect(sessions.endAll).toHaveBeenCalledTimes(1);
+      process.exitCode = exitCodeBefore;
+    } finally {
+      incumbent.close();
+    }
+  }, 30000);
+});
+
+// ---------------------------------------------------------------------------
 // HTTP integration through the real listener
 // ---------------------------------------------------------------------------
 

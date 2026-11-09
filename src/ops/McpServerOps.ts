@@ -79,6 +79,7 @@ import {
   MCP_SERVER_VERSION,
   MCP_SUPPORTED_PROTOCOL_VERSIONS,
 } from './McpServerMetadata.js';
+import type { McpSessionEnder } from './McpSessionKeeper.js';
 
 // ---------------------------------------------------------------------------
 // Internal constants
@@ -688,21 +689,66 @@ export function buildMcpServer(
 // Public transport functions
 // ---------------------------------------------------------------------------
 
+/** The signals that stop a long-lived MCP server (see `startHttpTransport`). */
+const SHUTDOWN_SIGNALS = ['SIGTERM', 'SIGINT', 'SIGHUP', 'SIGQUIT'] as const;
+
+/**
+ * Ends the sessions of a stdio server when its client stops it: stdin reaching
+ * end-of-file (the way the MCP stdio binding has a client stop a server) or
+ * one of the shutdown signals.
+ *
+ * A signal used to end the process at once, and still does: once the sessions
+ * are ended (or the time limit has passed), the handlers are removed and the
+ * signal is sent again, so the process ends the way it did before, by the
+ * signal, with whatever other listener the process has. After end-of-file the
+ * process ends by itself, as it did before, once the logout has finished.
+ */
+function endSessionsWhenStdioStops(
+  sessions: McpSessionEnder,
+  startupInfo?: McpServerStartupInfo
+): void {
+  const endSessions = () => sessions.endAll().catch(() => undefined);
+  const onSignal = (signal: NodeJS.Signals): void => {
+    for (const name of SHUTDOWN_SIGNALS) {
+      process.off(name, onSignal);
+    }
+    const line = `received ${signal}, ending the sessions of the MCP server`;
+    if (startupInfo) {
+      startupInfo.logger.info('shutdown', line);
+    } else {
+      printMessage(line, 'info');
+    }
+    void endSessions().then(() => process.kill(process.pid, signal));
+  };
+  for (const name of SHUTDOWN_SIGNALS) {
+    process.on(name, onSignal);
+  }
+  process.stdin.once('end', () => void endSessions());
+  process.stdin.once('close', () => void endSessions());
+}
+
 /**
  * Starts an MCP stdio server that reads JSON-RPC from stdin and writes
  * responses to stdout.  The process runs until stdin is closed.
  *
  * @param service Fully composed MCP service.
+ * @param startupInfo Startup logger context.
+ * @param sessions When given, ends the sessions the server created once
+ *   stdin is closed or the process is told to stop.
  */
 export async function startStdioTransport(
   service: McpService,
-  startupInfo?: McpServerStartupInfo
+  startupInfo?: McpServerStartupInfo,
+  sessions?: McpSessionEnder
 ): Promise<void> {
   // The stdio server lives for the process lifetime, so its crash handlers
   // do too — the dispose function is intentionally not kept (a live stdio
   // server never un-registers).
   registerServerCrashHandlers(startupInfo);
   serveStdio(() => buildMcpServer(service, startupInfo));
+  if (sessions) {
+    endSessionsWhenStdioStops(sessions, startupInfo);
+  }
 }
 
 /** Runtime configuration for the HTTP transport. */
@@ -754,6 +800,14 @@ export type McpHttpTransportOptions = {
    * resource server, never both.
    */
   oauthResourceServer?: McpOAuthResourceServerOptions;
+  /**
+   * Ends the sessions the server created (frodo-cli#1057). Called on every
+   * shutdown signal, once the listener has drained, and when the server stops
+   * because its port is taken. The port and the lockfile are released first,
+   * and the shutdown ends once the sessions are ended or the keeper's time
+   * limit has passed.
+   */
+  sessions?: McpSessionEnder;
 };
 
 /**
@@ -1575,6 +1629,15 @@ export async function startHttpTransport(
 
   heartbeat.unref();
 
+  // A logout must never fail or hold up the shutdown (the keeper bounds it).
+  const endSessions = async (): Promise<void> => {
+    try {
+      await options?.sessions?.endAll();
+    } catch {
+      // Reported by the keeper; the shutdown goes on.
+    }
+  };
+
   return new Promise<void>((resolve, reject) => {
     httpServer.listen(port, bindHost, () => {
       // The resolved port, not the requested one: with `--port auto` (or a
@@ -1667,6 +1730,9 @@ export async function startHttpTransport(
           'error'
         );
         process.exitCode = 1;
+        // The server logged in before it tried to bind: its session ends here,
+        // since no shutdown signal will come for a server that never served.
+        await endSessions();
         resolve();
         return;
       }
@@ -1696,15 +1762,18 @@ export async function startHttpTransport(
       // closeIdleConnections is what makes SIGHUP from a closing SSH
       // session actually free the port.
       httpServer.closeIdleConnections?.();
-      httpServer.close(() => resolve());
+      // The sessions end once the listener has drained, so that a request that
+      // is still running finishes with the credentials it started with. The
+      // port and the lockfile are already released: a supervisor that restarts
+      // the server does not wait for the logout.
+      httpServer.close(() => void endSessions().then(() => resolve()));
     };
     // SIGHUP (terminal closed) and SIGQUIT (Ctrl+\) join SIGTERM/SIGINT so
     // closing the SSH session that launched the server releases the port
     // instead of orphaning the listener.
-    process.once('SIGTERM', shutdown);
-    process.once('SIGINT', shutdown);
-    process.once('SIGHUP', shutdown);
-    process.once('SIGQUIT', shutdown);
+    for (const name of SHUTDOWN_SIGNALS) {
+      process.once(name, shutdown);
+    }
   });
 }
 
