@@ -108,6 +108,13 @@ function activeOption(name: string): unknown {
   return getActiveActionCommand()?.getOptionValue(name);
 }
 
+const CONNECTOR_ID_PREFIX = 'provisioner.openicf/';
+
+/** The id of a connector: its configuration id without the type prefix. */
+function connectorId(connector: { _id?: string }): string {
+  return (connector._id ?? '').slice(CONNECTOR_ID_PREFIX.length);
+}
+
 export function registerEntityPickFamilies(): void {
   // The agents (`frodo agent`). Each type has a group of its own and an entry of
   // its own, so the generic entry leaves the typed groups out: a command would
@@ -788,6 +795,46 @@ export function registerEntityPickFamilies(): void {
         },
         label: (mapping) => mapping.secretId ?? '',
         description: (mapping) => mapping.aliases?.join(', '),
+      }),
+    ],
+  });
+
+  // The name options (-n of node, script and theme) have no pick yet, and stay
+  // on the legacy list. A pick fills one option, and the runner offers the next
+  // pick even after an earlier one has filled a conflicting option: it treats
+  // an option the resolver set as not typed by the user, so `blockersOf` does
+  // not block the name pick. A command with an id pick and a name pick would
+  // ask twice, and the second answer would replace the first. Add the name
+  // picks when the runner skips a pick that conflicts with an option set
+  // earlier in the same run.
+
+  // `connector`: the IDM connectors, by id. The configuration of the connector
+  // info provider (`provisioner.openicf.connectorinfoprovider`) is not a
+  // connector and is left out.
+  type Connector = Awaited<
+    ReturnType<typeof frodo.idm.connector.readConnectors>
+  >[number];
+
+  registerEntityPickFamily({
+    family: 'connector',
+    picks: [
+      entityPick<Connector>({
+        name: 'connectorId',
+        kind: 'connector',
+        load: async () =>
+          (await frodo.idm.connector.readConnectors())
+            .filter((connector) =>
+              (connector._id ?? '').startsWith(CONNECTOR_ID_PREFIX)
+            )
+            .sort((a, b) => connectorId(a).localeCompare(connectorId(b))),
+        label: connectorId,
+        description: (connector) =>
+          [
+            connector.connectorRef?.displayName,
+            connector.enabled === false ? 'disabled' : 'enabled',
+          ]
+            .filter(Boolean)
+            .join(' · '),
       }),
     ],
   });
