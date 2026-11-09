@@ -168,16 +168,24 @@ const shared = {
     );
   }),
 };
+// the exports the push side of ApplicationConfigOps imports too: unused by a pull
 jest.unstable_mockModule(src('configManagerOps/FrConfigSamlOps'), () => ({
   readSamlProviderForFile: shared.readSamlProviderForFile,
   exportCircleOfTrustToFile: shared.exportCircleOfTrustToFile,
+  findCirclesOfTrustOfProviders: jest.fn(),
+  importCircleOfTrustFromFile: jest.fn(),
+  importSamlProviderFromFile: jest.fn(),
 }));
 jest.unstable_mockModule(src('configManagerOps/FrConfigScriptOps'), () => ({
   exportScriptToFiles: shared.exportScriptToFiles,
+  importScriptFromFiles: jest.fn(),
 }));
 jest.unstable_mockModule(
   src('configManagerOps/FrConfigConnectorMappingOps'),
-  () => ({ exportMappingToDirectory: shared.exportMappingToDirectory })
+  () => ({
+    exportMappingToDirectory: shared.exportMappingToDirectory,
+    readMappingFromDirectory: jest.fn(),
+  })
 );
 
 const { configManagerExportApplications, clientSecretVariable } = await import(

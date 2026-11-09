@@ -168,6 +168,38 @@ export async function configManagerExportScripts(
 }
 
 /**
+ * Import one script from the files of config-manager format:
+ * `realms/<realm>/scripts/scripts-config/<id>.json` and the text it refers to.
+ * Shared by the commands that push a script because something else (an
+ * application) uses it.
+ * @param {string} scriptId the id of the script (the name of its configuration file)
+ * @param {string} realm the realm of the script (`/` is read from `root`); it must be the current realm of the state
+ * @throws {FrodoError} if the files cannot be read, the name of the script is blank or the script cannot be updated
+ */
+export async function importScriptFromFiles(
+  scriptId: string,
+  realm: string
+): Promise<void> {
+  const realmDir = realm === '/' ? 'root' : realm;
+  const importData = readJsonFile(
+    getFilePath(`realms/${realmDir}/scripts/scripts-config/${scriptId}.json`)
+  ) as any;
+  if (!importData.name || importData.name.trim() === '') {
+    throw new Error(
+      `Script ${importData._id} must have a valid (non-blank) name!`
+    );
+  }
+  const fullScriptPath = getFilePath(
+    `realms/${realmDir}/scripts/${importData.script.file}`
+  );
+  importData.script = fs.readFileSync(fullScriptPath, 'utf8');
+  const importedScript = await updateScript(importData._id, importData);
+  if (!importedScript) {
+    printMessage(`No change in script ${importData.name} - skipping update`);
+  }
+}
+
+/**
  * Import scripts in fr-config-manager format
  * @param {string} realm option to determine which realm to import
  * @param {string} name option to import a specific script by name

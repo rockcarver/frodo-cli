@@ -211,6 +211,82 @@ export async function configManagerExportSaml(
 }
 
 /**
+ * Import one SAML provider from the content of a file of config-manager format
+ * (`{ config, metadata }`, as `pull saml` and `pull applications` write it).
+ * Shared by the commands that push a provider because an application owns it.
+ * @param {Saml2PullExportInterface} file the configuration of the provider and its metadata
+ * @param {'hosted' | 'remote'} location where the provider lives
+ * @throws {FrodoError} if the provider cannot be imported
+ */
+export async function importSamlProviderFromFile(
+  file: { config: Saml2ProviderSkeleton; metadata: string },
+  location: 'hosted' | 'remote'
+): Promise<void> {
+  const entityId = file.config.entityId;
+  const saml: Saml2ExportInterface['saml'] = {
+    hosted: {},
+    remote: {},
+    metadata: { [entityId]: [file.metadata] },
+  };
+  saml[location][entityId] = file.config;
+  await importSaml2Providers({ script: {}, saml }, { deps: false });
+}
+
+/**
+ * Find the circles of trust in the files of a realm that have one of the given
+ * providers as a member.
+ * @param {string} realm the realm of the circles of trust (`/` is read from `root`)
+ * @param {string[]} entityIds entity ids of SAML providers
+ * @returns {string[]} the ids of the circles of trust, sorted; none if the realm has no circle of trust files
+ * @throws {FrodoError} if a circle of trust file cannot be read
+ */
+export function findCirclesOfTrustOfProviders(
+  realm: string,
+  entityIds: string[]
+): string[] {
+  const realmDir = realm === '/' ? 'root' : realm;
+  const cotDir = `${getWorkingDirectory()}/realms/${realmDir}/realm-config/saml/COT`;
+  if (!fs.existsSync(cotDir)) return [];
+  const members = new Set(entityIds.map((id) => `${id}|saml2`.toLowerCase()));
+  const found: string[] = [];
+  for (const file of fs.readdirSync(cotDir).sort()) {
+    if (!file.endsWith('.json')) continue;
+    const cot = readJsonFile(`${cotDir}/${file}`) as CircleOfTrustSkeleton;
+    if (
+      (cot.trustedProviders ?? []).some((member) =>
+        members.has(String(member).toLowerCase())
+      )
+    ) {
+      found.push(cot._id);
+    }
+  }
+  return found;
+}
+
+/**
+ * Import one circle of trust from its file,
+ * `realms/<realm>/realm-config/saml/COT/<id>.json`. The library adds the members
+ * of the file to the circle that exists (it never removes one) and ignores
+ * members that are not providers of the tenant, so import the providers first.
+ * @param {string} cotId id of the circle of trust
+ * @param {string} realm the realm of the circle of trust (`/` is read from `root`); it must be the current realm of the state
+ * @throws {FrodoError} if the file cannot be read or the circle of trust cannot be imported
+ */
+export async function importCircleOfTrustFromFile(
+  cotId: string,
+  realm: string
+): Promise<void> {
+  const realmDir = realm === '/' ? 'root' : realm;
+  const cot = readJsonFile(
+    `${getWorkingDirectory()}/realms/${realmDir}/realm-config/saml/COT/${cotId}.json`
+  ) as CircleOfTrustSkeleton;
+  await importCirclesOfTrust({
+    script: {},
+    saml: { hosted: {}, remote: {}, metadata: {}, cot: { [cot._id]: cot } },
+  });
+}
+
+/**
  * Import SAML configuration that was exported in config-manager format
  * @param {string} realm name of realm to import SAML entity
  * @param {string} entityName option parameter to import SAML entity by name

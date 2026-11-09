@@ -162,3 +162,22 @@ export async function configManagerImportMappings(
   }
   return false;
 }
+
+/**
+ * Read one mapping from its directory, `<dir>/<name>.json` with the script
+ * sources that it refers to put back in (the format `pull connector-mappings`
+ * and `pull applications` write). Shared by the commands that push a mapping
+ * because an application owns it.
+ * @param {string} mappingPath the directory of the mapping (relative to the working directory)
+ * @param {string} name the name of the mapping
+ * @returns {any} the mapping, with the script sources inline
+ * @throws {FrodoError} if a file cannot be read
+ */
+export function readMappingFromDirectory(
+  mappingPath: string,
+  name: string
+): any {
+  return getConnectorMappingImportData(
+    getFilePath(`${mappingPath}/${name}.json`)
+  );
+}
