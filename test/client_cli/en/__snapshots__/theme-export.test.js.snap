@@ -36,6 +36,7 @@ Options:
   -i, --theme-id <uuid>    Uuid of the theme. Cannot be used with -n, -a or -A.
                            (pick from theme)
   -n, --theme-name <name>  Name of the theme. Cannot be used with -i, -a or -A.
+                           (pick from theme)
   -N, --no-metadata        Does not include metadata in the export file.
   -x, --no-extract         Do not extract the HTML from the exported file to a
                            separate file.

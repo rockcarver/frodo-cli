@@ -5,6 +5,8 @@ import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
 
 const { getEntityPicks } =
   await import('../../src/utils/interactive/EntityPickers.ts');
+const { oneOfMemberAnswering } =
+  await import('../../src/utils/interactive/OptionRequirements.ts');
 
 /**
  * The entity pickers of the real agent commands (decision record 0038,
@@ -38,6 +40,7 @@ describe('the pickers of the agent commands', () => {
       'frodo agent ai delete',
       'frodo agent ai export',
       'frodo agent delete',
+      'frodo agent export',
       'frodo agent gateway delete',
       'frodo agent gateway export',
       'frodo agent java delete',
@@ -69,10 +72,19 @@ describe('the pickers of the agent commands', () => {
         'frodo agent import',
         'frodo agent java import',
         'frodo agent web import',
-        // -g answers the question without -i, and does not conflict with it
-        'frodo agent export',
       ].sort()
     );
+  });
+
+  it('does not ask for -i of the generic export when -g answers the question, and does when nothing does', () => {
+    const leaf = leaves.find((l) => fullName(l) === 'frodo agent export');
+    expect(oneOfMemberAnswering(leaf, 'agentId')).toBeUndefined();
+    leaf.setOptionValue('global', true);
+    try {
+      expect(oneOfMemberAnswering(leaf, 'agentId')).toBe('global');
+    } finally {
+      leaf.setOptionValue('global', undefined);
+    }
   });
 
   it('declares no picker in a command file: the framework resolves it', () => {

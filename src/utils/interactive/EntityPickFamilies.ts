@@ -158,7 +158,6 @@ export function registerEntityPickFamilies(): void {
     name: 'agent: agents of every type',
     except: [
       'describe',
-      'export',
       ...typedAgents.flatMap(({ group }) =>
         ['delete', 'describe', 'export'].map((verb) => `${group} ${verb}`)
       ),
@@ -407,19 +406,29 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  // `mapping delete` keeps its own pick: it narrows the list by `-c` and `-t`,
-  // which a family loader cannot read.
+  // `mapping delete` narrows the list by `-c` and `-t`: the loader reads them
+  // from the command that runs the pick. The other commands of the family have
+  // no such options, and get the whole list.
+  const mappings = async (connectorId?: string, managedObjectType?: string) =>
+    (await frodo.idm.mapping.readMappings(connectorId, managedObjectType)).sort(
+      (a, b) =>
+        (a.displayName || a.name || '').localeCompare(
+          b.displayName || b.name || ''
+        )
+    );
+
   registerEntityPickFamily({
     family: 'mapping',
     picks: [
       entityPick<Mapping>({
         name: 'mappingId',
         kind: 'mapping',
-        load: async () =>
-          (await frodo.idm.mapping.readMappings()).sort((a, b) =>
-            (a.displayName || a.name || '').localeCompare(
-              b.displayName || b.name || ''
-            )
+        scopedBy: ['connectorId', 'managedObjectType'],
+        load: () => mappings(),
+        loadFor: (command) =>
+          mappings(
+            command.getOptionValue('connectorId'),
+            command.getOptionValue('managedObjectType')
           ),
         label: (mapping) => mapping.displayName || mapping.name,
         // the commands take the id of the mapping: `mapping/<name>` or `sync/<name>`
@@ -663,8 +672,8 @@ export function registerEntityPickFamilies(): void {
 
   // `describe` and `type describe` take -i and -n as an optional filter
   // (every custom node, or every node type, without them). `import` names a
-  // node in a file (left out by default). Only the id has a pick, see the
-  // note on the name options at the end of this function.
+  // node in a file (left out by default). The id and the name conflict: the
+  // runner asks for one of them, see EntityPickers.
   registerEntityPickFamily({
     family: 'node',
     except: ['describe', 'type describe'],
@@ -677,11 +686,22 @@ export function registerEntityPickFamilies(): void {
         value: (node) => node._id ?? '',
         description: (node) => node.description,
       }),
+      // `-n` is the display name of the node: a node without one cannot be named
+      entityPick<CustomNodeSkeleton>({
+        name: 'nodeName',
+        kind: 'custom node',
+        load: async () =>
+          (await frodo.authn.node.readCustomNodes()).filter(
+            (node) => node.displayName
+          ),
+        label: (node) => node.displayName ?? '',
+        description: (node) => node.description,
+      }),
     ],
   });
 
-  // `import` names a script in a file (left out by default). Only the id has
-  // a pick, see the note on the name options at the end of this function.
+  // `import` names a script in a file (left out by default). The id and the
+  // name conflict: the runner asks for one of them, see EntityPickers.
   registerEntityPickFamily({
     family: 'script',
     picks: [
@@ -693,11 +713,18 @@ export function registerEntityPickFamilies(): void {
         value: (script) => script._id,
         description: (script) => script.description,
       }),
+      entityPick<ScriptSkeleton>({
+        name: 'scriptName',
+        kind: 'script',
+        load: () => frodo.script.readScripts(),
+        label: (script) => script.name,
+        description: (script) => script.description,
+      }),
     ],
   });
 
-  // `import` names a theme in a file (left out by default). Only the id has a
-  // pick, see the note on the name options at the end of this function.
+  // `import` names a theme in a file (left out by default). The id and the
+  // name conflict: the runner asks for one of them, see EntityPickers.
   registerEntityPickFamily({
     family: 'theme',
     picks: [
@@ -709,17 +736,15 @@ export function registerEntityPickFamilies(): void {
         value: (theme) => theme._id ?? '',
         description: (theme) => (theme.isDefault ? 'default theme' : undefined),
       }),
+      entityPick<ThemeSkeleton>({
+        name: 'themeName',
+        kind: 'theme',
+        load: () => frodo.theme.readThemes(),
+        label: (theme) => theme.name ?? '',
+        description: (theme) => (theme.isDefault ? 'default theme' : undefined),
+      }),
     ],
   });
-
-  // The name options (-n of node, script and theme) have no pick yet, and stay
-  // on the legacy list. A pick fills one option, and the runner offers the next
-  // pick even after an earlier one has filled a conflicting option: it treats
-  // an option the resolver set as not typed by the user, so `blockersOf` does
-  // not block the name pick. A command with an id pick and a name pick would
-  // ask twice, and the second answer would replace the first. Add the name
-  // picks when the runner skips a pick that conflicts with an option set
-  // earlier in the same run.
 
   // Secrets of the environment (cloud only). `create` and `import` name a new
   // secret or one in a file and get no pick.

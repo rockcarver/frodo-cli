@@ -37,7 +37,7 @@ Options:
   -i, --node-id <node-id>      Custom node id or service name. Cannot be used
                                with -n, -a or -A. (pick from custom node)
   -n, --node-name <node-name>  Custom node display name. Cannot be used with -i,
-                               -a or -A.
+                               -a or -A. (pick from custom node)
   -N, --no-metadata            Does not include metadata in the export file.
   --use-string-arrays          Where applicable, use string arrays to store
                                scripts. (default: off)

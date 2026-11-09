@@ -51,6 +51,9 @@
  * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
  * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
  * the OAuth2 client picker of the admin commands reads it.
+ * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
+ * (`.../scripts`) answer with scripts of those names, the way the script
+ * picker of the script commands reads it.
  * FAKE_AM_SESSION_TTL_SECONDS=<n> gives the session of a plain login a lifetime
  * of n seconds from the lookup (default: it expires in 2099).
  * The logout call (`POST .../sessions?_action=logout`) is answered like AM
@@ -81,6 +84,7 @@ const users = readJson(process.env.FAKE_AM_USERS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
+const scripts = (process.env.FAKE_AM_SCRIPTS ?? '').split(',').filter(Boolean);
 
 /** The users an IDM or AM `_queryFilter` of the shapes above selects. */
 function selectUsers(filter) {
@@ -166,6 +170,24 @@ const server = http.createServer((req, res) => {
         pagedResultsCookie: null,
         totalPagedResultsPolicy: 'EXACT',
         totalPagedResults: oauth2Clients.length,
+        remainingPagedResults: -1,
+      });
+    }
+    if (scripts.length > 0 && pathname.endsWith('/scripts')) {
+      return send(200, {
+        result: scripts.map((name, index) => ({
+          _id: `0000000${index + 1}-aaaa-bbbb-cccc-dddddddddddd`,
+          name,
+          description: '',
+          default: false,
+          language: 'JAVASCRIPT',
+          context: 'SOCIAL_IDP_PROFILE_TRANSFORMATION',
+          script: Buffer.from('// nothing').toString('base64'),
+        })),
+        resultCount: scripts.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: scripts.length,
         remainingPagedResults: -1,
       });
     }

@@ -18,23 +18,15 @@
  * Generated from the command tree on 2026-11-07.
  */
 export const LEGACY_ENTITY_OPTIONS_WITHOUT_PICKER = [
-  'frodo agent export::agentId',
   'frodo authz policy export::setId',
   'frodo conn service-account describe::name',
   'frodo conn service-account remove::name',
   'frodo iga workflow describe::workflowId',
   'frodo log key delete::keyId',
-  'frodo node delete::nodeName',
-  'frodo node export::nodeName',
-  'frodo script delete::scriptName',
-  'frodo script describe::scriptName',
-  'frodo script export::scriptName',
   'frodo secretstore mapping alias create::secretId',
   'frodo secretstore mapping alias create::secretstoreId',
   'frodo secretstore mapping create::secretstoreId',
   'frodo service export::serviceId',
-  'frodo theme delete::themeName',
-  'frodo theme export::themeName',
 ];
 
 /**

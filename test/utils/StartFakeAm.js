@@ -20,6 +20,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {'refuse' | 'hang'} [options.logout] makes the logout call fail with `400` (`refuse`) or never answer (`hang`); default: it succeeds
  * @param {number} [options.usersCap] stops the AM users endpoint (not IDM) at this many results, in the list and in the count
  * @param {string[]} [options.oauth2Clients] client ids the OAuth2 client list of the realm answers with (default: it answers 404)
+ * @param {string[]} [options.scripts] script names the script list of the realm answers with (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @returns {Promise<{ port: number, stop: () => void }>}
@@ -32,6 +33,7 @@ export async function startFakeAm({
   issuer,
   users,
   oauth2Clients,
+  scripts,
   usersCap,
   sessionTtlSeconds,
   logout,
@@ -56,6 +58,7 @@ export async function startFakeAm({
       ...(oauth2Clients
         ? { FAKE_AM_OAUTH2_CLIENTS: oauth2Clients.join(',') }
         : {}),
+      ...(scripts ? { FAKE_AM_SCRIPTS: scripts.join(',') } : {}),
       ...(usersCap ? { FAKE_AM_USERS_CAP: String(usersCap) } : {}),
       ...(sessionTtlSeconds
         ? { FAKE_AM_SESSION_TTL_SECONDS: String(sessionTtlSeconds) }

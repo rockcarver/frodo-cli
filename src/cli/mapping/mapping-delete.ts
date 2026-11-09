@@ -6,21 +6,8 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-/**
- * The mapping skeleton type isn't exported from frodo-lib's root; derive
- * it from the read function instead of importing an unexported name.
- */
-type MappingSkeleton = Awaited<
-  ReturnType<typeof frodo.idm.mapping.readMappings>
->[number];
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -91,28 +78,18 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        // delete by id/name
-        if (
-          options.mappingId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(`Deleting mapping ${options.mappingId}...`);
-          const outcome = await deleteMapping(options.mappingId);
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all -a, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deleteMappings here -- same as before
-        // (the error branch below handled that case in the pre-picker layout).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        // The family's picker (record 0038) has run inside getTokens when -i was
+        // missing on a terminal, narrowed by -c and -t; a declined pick or a
+        // failed load ends up in the else below, like a failed login.
+        if (await getTokens(false, true, deploymentTypes)) {
+          // delete by id/name
           if (options.mappingId) {
             verboseMessage(`Deleting mapping ${options.mappingId}...`);
             const outcome = await deleteMapping(options.mappingId);
             if (!outcome) process.exitCode = 1;
-          } else {
+          }
+          // --all -a
+          else if (options.all) {
             if (
               !(await confirmBulkDelete({
                 what: 'all mappings',
@@ -131,33 +108,17 @@ export default function setup() {
             );
             if (!outcome) process.exitCode = 1;
           }
-        }
-        // No branch ran: with requireOneOf satisfied, the only ways here
-        // are getTokens() failing (keep the old exit-1 semantics) or the
-        // user escaping the entity picker (declined to run).
-        else {
+          // Neither was given and the pick found no mapping (an empty list counts
+          // as satisfied): there is nothing to delete, and nothing to confirm.
+          else {
+            printMessage('No mappings found to delete.');
+          }
+        } else {
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    // The loader reads the option values at pick time, so -c/--connector-id
-    // and -t/--managed-object-type still scope the dropdown.
-    entityPick<MappingSkeleton>({
-      name: 'mappingId',
-      kind: 'mapping',
-      scopedBy: ['connectorId', 'managedObjectType'],
-      load: () =>
-        frodo.idm.mapping.readMappings(
-          program.getOptionValue('connectorId'),
-          program.getOptionValue('managedObjectType')
-        ),
-      label: (mapping) => mapping.displayName || mapping.name,
-      description: (mapping) => mapping._id ?? '',
-    }),
-  ]);
 
   return program;
 }

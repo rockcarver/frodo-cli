@@ -20,13 +20,13 @@ const EXPECTED = {
   'frodo journey disable': ['journeyId'],
   'frodo journey enable': ['journeyId'],
   'frodo journey export': ['journeyId'],
-  'frodo node delete': ['nodeId'],
-  'frodo node export': ['nodeId'],
-  'frodo script delete': ['scriptId'],
-  'frodo script describe': ['scriptId'],
-  'frodo script export': ['scriptId'],
-  'frodo theme delete': ['themeId'],
-  'frodo theme export': ['themeId'],
+  'frodo node delete': ['nodeId', 'nodeName'],
+  'frodo node export': ['nodeId', 'nodeName'],
+  'frodo script delete': ['scriptId', 'scriptName'],
+  'frodo script describe': ['scriptId', 'scriptName'],
+  'frodo script export': ['scriptId', 'scriptName'],
+  'frodo theme delete': ['themeId', 'themeName'],
+  'frodo theme export': ['themeId', 'themeName'],
 };
 
 const FAMILIES = /^frodo (email template|journey|node|script|theme) /;
@@ -70,9 +70,14 @@ describe('entity pickers of journey, node, script, theme and email template', ()
     }
   });
 
-  it('has no pick for the name options (-n), which stay on the legacy list', () => {
+  it('has a pick for a name option (-n) only on a command that has the pick for the id as well, so the runner asks for one of them', () => {
     for (const leaf of leaves) {
-      expect(picksOf(leaf).filter((name) => /Name$/.test(name))).toEqual([]);
+      for (const name of picksOf(leaf).filter((n) => /Name$/.test(n))) {
+        expect([fullName(leaf), picksOf(leaf)]).toEqual([
+          fullName(leaf),
+          expect.arrayContaining([name.replace(/Name$/, 'Id')]),
+        ]);
+      }
     }
   });
 

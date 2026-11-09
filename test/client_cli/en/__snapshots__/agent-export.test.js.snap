@@ -33,7 +33,8 @@ Options:
                              exits with code 1.
   -f, --file <file>          Name of the export file. Cannot be used with -A.
   -g, --global               Export global agents.
-  -i, --agent-id <agent-id>  Agent id. Cannot be used with -a or -A.
+  -i, --agent-id <agent-id>  Agent id. Cannot be used with -a or -A. (pick from
+                             agent)
   -N, --no-metadata          Does not include metadata in the export file.
   -h, --help                 Help
   -hh, --help-more           Help with all options.

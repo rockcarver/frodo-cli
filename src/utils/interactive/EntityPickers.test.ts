@@ -7,6 +7,7 @@ import {
   hasEntityPick,
   resolveEntityPicks,
 } from './EntityPickers';
+import { deferOneOfGroups } from './OptionRequirements';
 
 // resolveEntityPicks is gated by canPrompt(), and the jest harness is
 // never a TTY, so every prompt path here collapses to the "no-op" result
@@ -46,6 +47,28 @@ afterEach(() => {
 });
 
 describe('resolveEntityPicks (non-interactive preservation)', () => {
+  it('opens no pick without a terminal, whatever the options and the one-of group say', async () => {
+    process.env.FRODO_TEST = '1';
+    const { command } = makeCommand();
+    command.addOption(new Option('-n, --secret-name <secret-name>'));
+    command.setOptionValue('secretName', 'chosen');
+    deferOneOfGroups(command, [
+      { options: ['all', 'secretId', 'secretName'], all: false },
+    ]);
+    deferEntityPicks(command, [
+      secretPick(),
+      entityPick<Entity>({
+        name: 'secretName',
+        kind: 'secret',
+        load: loaders.never,
+        label: (entity) => entity._id,
+      }),
+    ]);
+    expect(await resolveEntityPicks(command)).toBe(true);
+    expect(command.getOptionValue('secretId')).toBeUndefined();
+    expect(command.getOptionValue('secretName')).toBe('chosen');
+  });
+
   it('is a no-op under FRODO_TEST=1: loader never called, option untouched, true returned', async () => {
     process.env.FRODO_TEST = '1';
     const { command } = makeCommand();

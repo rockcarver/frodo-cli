@@ -36,6 +36,12 @@
  *    action proceeds exactly as before (usually to its existing "required"
  *    error).
  *
+ * A pick is not offered when the command line answers it already: when an
+ * option that conflicts with its own is set (whoever set it: typed, chosen in
+ * the one-of picker, a saved default, or an earlier pick of the run, so an id
+ * and a name are asked for once), or when another member of its one-of group
+ * is given or was chosen in the resolution pass (record 0030).
+ *
  * Escape backs out of a picker without setting anything -- callers treat
  * that as "declined to run" and return (same shape as a failed
  * getTokens()). A returned `false` from `resolveEntityPicks` is the
@@ -51,7 +57,12 @@ import { editableOptionsHint } from './EditableOptions';
 import { familyEntityPicks } from './EntityPickRegistry';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
-import { blockersOf, commitOption, failWithConflict } from './OptionConflicts';
+import {
+  activeConflicts,
+  commitOption,
+  failWithConflict,
+} from './OptionConflicts';
+import { oneOfMemberAnswering } from './OptionRequirements';
 import { promptInput } from './PromptGate';
 import { canPrompt } from './PromptGateState';
 
@@ -63,6 +74,14 @@ import { canPrompt } from './PromptGateState';
  * destructive --all branch.
  */
 export type EntityPickLoader<T> = () => Promise<T[]>;
+
+/**
+ * Loads the candidate entities for one command: the same as an
+ * `EntityPickLoader`, for a loader that reads other options of the command
+ * (a family loader is shared by all the commands of the family and has no
+ * command of its own to close over).
+ */
+export type CommandEntityPickLoader<T> = (command: Command) => Promise<T[]>;
 
 /**
  * The registry-facing shape of an entity pick spec: the entity type is
@@ -81,6 +100,15 @@ export type EntityPickSpec<T = any> = {
   name: string;
   /** Loads the candidates from the live system. */
   load: EntityPickLoader<T>;
+  /**
+   * Loads the candidates for the command that runs the pick, instead of
+   * `load`, which is then only the list without a command. Use it when the
+   * list is narrowed by other options of the command (`-c` and `-t` of
+   * `mapping delete`): the loader reads them from the command it is given.
+   * `load` is never given the command, because a library read function
+   * passed as `load` would take it for its own first argument.
+   */
+  loadFor?: CommandEntityPickLoader<T>;
   /** Renders an entity as the picker row label (and the option value, see `value`). */
   label: (entity: T) => string;
   /**
@@ -219,12 +247,32 @@ async function runEntityPicks(
     // through setOptionValueWithSource keeps both that object and the
     // resolver's own getOptionValue reads consistent.
     if (command.getOptionValue(pick.name)) continue;
-    // An option the user gave cannot be combined with the one this pick
+    // An option that is set already cannot be combined with the one this pick
     // fills (`-a` with `-i`): picking would build a command the CLI rejects.
-    const [blocker] = blockersOf(command, pick.name, pick.scopedBy);
+    // It counts whoever set it: the user, the choice made in the resolution
+    // pass, a saved default, or an earlier pick of this run (the id of a node
+    // and its name conflict, and one answer is enough). Only the options that
+    // narrow the list are not in the way: the pick replaces them.
+    const [blocker] = activeConflicts(command, pick.name).filter(
+      (option) => !pick.scopedBy?.includes(option.attributeName())
+    );
     if (blocker) {
       verboseMessage(
         `Not offering a ${pick.kind} to pick: it cannot be used with ${blocker.flags}.`
+      );
+      continue;
+    }
+    // A member of the same one-of group that is set already answers the
+    // group, even when it does not conflict with this option (`-g` of
+    // `agent export`): the command line is complete (record 0030). So does a
+    // member the user chose in the resolution pass whose own pick comes later.
+    const answering = oneOfMemberAnswering(command, pick.name);
+    if (answering) {
+      const flags =
+        command.options.find((option) => option.attributeName() === answering)
+          ?.flags ?? answering;
+      verboseMessage(
+        `Not offering a ${pick.kind} to pick: ${flags} is given already.`
       );
       continue;
     }
@@ -238,7 +286,9 @@ async function runEntityPicks(
         revokeAuthoringPrint();
         return false;
       }
-      entities = searched ?? (await pick.load());
+      entities =
+        searched ??
+        (await (pick.loadFor ? pick.loadFor(command) : pick.load()));
     } catch (error) {
       // Loader failure is a DECLINED pick, not a satisfied one: returning
       // true here lets `(options.all || (await resolveEntityPicks(...)))`

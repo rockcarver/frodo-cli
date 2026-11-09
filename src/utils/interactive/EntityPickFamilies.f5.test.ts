@@ -121,9 +121,9 @@ describe('the custom node picker', () => {
   const node = (id: string, displayName?: string, description?: string) =>
     ({ _id: id, displayName, description }) as CustomNodeSkeleton;
 
-  it('offers the id of a node on the commands that need one, and leaves the name option without a pick', () => {
+  it('offers the id and the name of a node on the commands that need one', () => {
     for (const verb of ['delete', 'export']) {
-      expect(names(['node', verb], ...flags)).toEqual(['nodeId']);
+      expect(names(['node', verb], ...flags)).toEqual(['nodeId', 'nodeName']);
     }
   });
 
@@ -156,6 +156,23 @@ describe('the custom node picker', () => {
     ]);
     expect(idPick.description?.(entities[0])).toBe('opens the gate');
   });
+
+  it('writes the display name for -n, and leaves out a node that has none', async () => {
+    jest
+      .spyOn(frodo.authn.node, 'readCustomNodes')
+      .mockResolvedValue([
+        node('zion-node', 'Zion Node', 'opens the gate'),
+        node('matrix'),
+      ]);
+    const [, namePick] = picksOf(['node', 'delete'], ...flags);
+    expect(namePick.name).toBe('nodeName');
+    const entities = await namePick.load();
+    expect(entities.map((entity) => namePick.label(entity))).toEqual([
+      'Zion Node',
+    ]);
+    expect(namePick.value).toBeUndefined();
+    expect(namePick.description?.(entities[0])).toBe('opens the gate');
+  });
 });
 
 describe('the script picker', () => {
@@ -163,9 +180,12 @@ describe('the script picker', () => {
   const script = (id: string, name: string, description = '') =>
     ({ _id: id, name, description }) as ScriptSkeleton;
 
-  it('offers the id of a script on the commands that need one, and leaves the name option without a pick', () => {
+  it('offers the id and the name of a script on the commands that need one', () => {
     for (const verb of ['delete', 'describe', 'export']) {
-      expect(names(['script', verb], ...flags)).toEqual(['scriptId']);
+      expect(names(['script', verb], ...flags)).toEqual([
+        'scriptId',
+        'scriptName',
+      ]);
     }
     expect(names(['script', 'import'], ...flags)).toEqual([]);
   });
@@ -182,6 +202,19 @@ describe('the script picker', () => {
     expect(idPick.value?.(entities[0])).toBe('0001-aaaa');
     expect(idPick.description?.(entities[0])).toBe('checks the matrix');
   });
+
+  it('writes the name for -n', async () => {
+    jest
+      .spyOn(frodo.script, 'readScripts')
+      .mockResolvedValue([
+        script('0001-aaaa', 'Matrix Check', 'checks the matrix'),
+      ]);
+    const [, namePick] = picksOf(['script', 'delete'], ...flags);
+    expect(namePick.name).toBe('scriptName');
+    const entities = await namePick.load();
+    expect(namePick.label(entities[0])).toBe('Matrix Check');
+    expect(namePick.value).toBeUndefined();
+  });
 });
 
 describe('the theme picker', () => {
@@ -189,9 +222,12 @@ describe('the theme picker', () => {
   const theme = (id: string, name: string, isDefault = false) =>
     ({ _id: id, name, isDefault }) as ThemeSkeleton;
 
-  it('offers the id of a theme on the commands that need one, and leaves the name option without a pick', () => {
+  it('offers the id and the name of a theme on the commands that need one', () => {
     for (const verb of ['delete', 'export']) {
-      expect(names(['theme', verb], ...flags)).toEqual(['themeId']);
+      expect(names(['theme', verb], ...flags)).toEqual([
+        'themeId',
+        'themeName',
+      ]);
     }
     expect(names(['theme', 'import'], ...flags)).toEqual([]);
   });

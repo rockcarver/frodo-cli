@@ -52,7 +52,7 @@ Options:
                                  lastModifiedDate, lastModifiedBy, createdBy,
                                  creationDate, etc.) (default: false)
   -n, --script-name <name>       Name of the script. If specified, -i, -a or -A
-                                 cannot be used.
+                                 cannot be used. (pick from script)
   -N, --no-metadata              Does not include metadata in the export file.
   --no-deps                      Do not include script dependencies (i.e.
                                  library scripts). Cannot be used with -a or -A.

@@ -42,7 +42,7 @@ Options:
                                  lowercase values such as javascript or groovy.
                                  (choices: "javascript", "groovy")
   -n, --script-name <name>       Name of the script. If specified, -i or -a
-                                 cannot be used.
+                                 cannot be used. (pick from script)
   -y, --yes                      Do not ask for confirmation before deleting all
                                  non-default scripts. Required with -a when
                                  there is no terminal.
