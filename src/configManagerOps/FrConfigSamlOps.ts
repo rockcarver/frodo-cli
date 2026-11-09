@@ -8,6 +8,7 @@ import {
   type Saml2ProviderSkeleton,
 } from '@rockcarver/frodo-lib';
 import {
+  objectNameInFile,
   ownedObjectMessage,
   OwnedObjects,
   skipsOwnedObjects,
@@ -327,6 +328,13 @@ export async function importCircleOfTrustFromFile(
 
 /**
  * Import SAML configuration that was exported in config-manager format
+ * In a tree that uses the application layout (decision record 0042) a provider that an application
+ * owns is not imported here: `push applications` imports it from the folder of the application. The
+ * application folders of the realm tell which providers those are; a provider file that one of them
+ * owns is named and skipped, which is not a failure (a named entity that is skipped for that reason
+ * counts as found), and no file of the tree is changed. The circles of trust are shared and are
+ * always imported. A realm whose application folders cannot be read is one failed operation, and its
+ * providers are not imported.
  * @param {string} realm name of realm to import SAML entity
  * @param {string} entityName option parameter to import SAML entity by name
  * @param {boolean} allowFailures True to succeed although some providers or circles of trust could not be imported (the failures are still summarised)
@@ -373,6 +381,7 @@ export async function configManagerImportSaml(
     }
 
     const run = new OperationRun({ unit: 'item', allowFailures });
+    const owned = skipsOwnedObjects() ? new OwnedObjects() : undefined;
     let entityFound = false;
     let missingNamedConfig = false;
 
@@ -407,18 +416,62 @@ export async function configManagerImportSaml(
         );
       };
 
+      let ownershipKnown = true;
+      if (owned && (fs.existsSync(hostedDir) || fs.existsSync(remoteDir))) {
+        try {
+          owned.loadRealmOfTree(
+            getWorkingDirectory(),
+            isRootRealm ? '/' : currentRealm
+          );
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the application folders of realm '${currentRealm}'`
+          );
+          run.recordFailure(
+            `application folders of realm ${currentRealm}`,
+            causeOf(error)
+          );
+          ownershipKnown = false;
+        }
+      }
+
       // Hosted providers first, then remote ones, as the library imports them.
       for (const [location, dir] of [
         ['hosted', hostedDir],
         ['remote', remoteDir],
       ] as const) {
-        if (!fs.existsSync(dir)) continue;
+        if (!fs.existsSync(dir) || !ownershipKnown) continue;
         for (const file of fs.readdirSync(dir)) {
           if (!file.endsWith('.json')) continue;
           let label = file;
           try {
             if (!matchesName(dir, file)) continue;
             entityFound = true;
+            if (owned) {
+              const entityId = objectNameInFile(
+                `${dir}/${file}`,
+                (content) => content?.config?.entityId,
+                file.slice(0, -'.json'.length)
+              );
+              const owners = owned.ownersInCurrentRealm(
+                'saml2Provider',
+                entityId
+              );
+              if (owners.length > 0) {
+                printMessage(
+                  ownedObjectMessage(
+                    'saml2Provider',
+                    entityId,
+                    owners,
+                    false,
+                    'pushed'
+                  ),
+                  'info'
+                );
+                continue;
+              }
+            }
             const providerData = readJsonFile(
               `${dir}/${file}`
             ) as Saml2PullExportInterface;

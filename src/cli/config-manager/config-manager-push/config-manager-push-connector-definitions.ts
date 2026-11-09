@@ -1,6 +1,7 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerImportConnectors } from '../../../configManagerOps/FrConfigConnectorDefinitionsOps';
+import { ownedObjectsPushHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -28,6 +29,7 @@ export default function setup() {
         'Connector definition name; imports only the specified connector definition.'
       )
     )
+    .addHelpText('after', ownedObjectsPushHelp('connectors'))
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
