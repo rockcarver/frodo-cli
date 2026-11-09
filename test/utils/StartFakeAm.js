@@ -17,6 +17,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string} [options.grantError] makes the service-account journey refuse other token requests with `invalid_grant` and this description
  * @param {{ issuer?: string, allowedSubjects: string[] }} [options.issuer] what every trusted JWT issuer read answers with
  * @param {number} [options.sessionTtlSeconds] lifetime of the session of a plain login, from the moment it is looked up (default: it expires in 2099)
+ * @param {'refuse' | 'hang'} [options.logout] makes the logout call fail with `400` (`refuse`) or never answer (`hang`); default: it succeeds
  * @param {number} [options.usersCap] stops the AM users endpoint (not IDM) at this many results, in the list and in the count
  * @param {string[]} [options.oauth2Clients] client ids the OAuth2 client list of the realm answers with (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
@@ -33,6 +34,7 @@ export async function startFakeAm({
   oauth2Clients,
   usersCap,
   sessionTtlSeconds,
+  logout,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
   const written = (name, data) => {
@@ -58,6 +60,7 @@ export async function startFakeAm({
       ...(sessionTtlSeconds
         ? { FAKE_AM_SESSION_TTL_SECONDS: String(sessionTtlSeconds) }
         : {}),
+      ...(logout ? { FAKE_AM_LOGOUT: logout } : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });

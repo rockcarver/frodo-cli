@@ -53,6 +53,10 @@
  * the OAuth2 client picker of the admin commands reads it.
  * FAKE_AM_SESSION_TTL_SECONDS=<n> gives the session of a plain login a lifetime
  * of n seconds from the lookup (default: it expires in 2099).
+ * The logout call (`POST .../sessions?_action=logout`) is answered like AM
+ * answers it; every request is recorded, so a test counts the logouts in the
+ * request log. FAKE_AM_LOGOUT=refuse makes AM refuse it (`400`), and
+ * FAKE_AM_LOGOUT=hang makes it never answer.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -247,6 +251,21 @@ const server = http.createServer((req, res) => {
         });
       }
       return send(200, { tokenId: 'fake-token', successUrl: '/', realm: '/' });
+    }
+    if (
+      req.method === 'POST' &&
+      pathname.endsWith('/sessions') &&
+      new URL(req.url, 'http://fake').searchParams.get('_action') === 'logout'
+    ) {
+      if (process.env.FAKE_AM_LOGOUT === 'hang') return;
+      if (process.env.FAKE_AM_LOGOUT === 'refuse') {
+        return send(400, {
+          code: 400,
+          reason: 'Bad Request',
+          message: 'fake AM: logout refused',
+        });
+      }
+      return send(200, { result: 'Successfully logged out' });
     }
     if (req.url.includes('getSessionInfo')) {
       if (plainLogin) {
