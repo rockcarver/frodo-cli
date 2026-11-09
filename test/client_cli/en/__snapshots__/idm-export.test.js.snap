@@ -43,6 +43,7 @@ Options:
   -i, --entity-id <id>                 Config entity id/name. E.g. "managed",
                                        "sync", "provisioner-<connector-name>",
                                        etc. Cannot be used with -e, -a or -A.
+                                       (pick from config entity)
   -N, --no-metadata                    Does not include metadata in the export
                                        file.
   -x, --no-extract                     Do not extract and save idm scripts and

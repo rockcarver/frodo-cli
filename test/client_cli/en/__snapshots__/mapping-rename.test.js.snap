@@ -38,7 +38,7 @@ Options:
                                  mapping's order is lost through renaming, and
                                  relies on the default ordering of wherever it
                                  ends up (usually that means it ends up last in
-                                 sync order)
+                                 sync order) (pick from mapping)
   -l, --legacy                   Rename all mappings from the new naming scheme
                                  back to the legacy naming scheme.
   -h, --help                     Help

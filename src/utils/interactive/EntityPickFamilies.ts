@@ -48,6 +48,28 @@ function workflowOf(group: WorkflowGroup) {
   return group.published ?? group.draft;
 }
 
+type OAuth2Client = Awaited<
+  ReturnType<typeof frodo.oauth2oidc.client.readOAuth2Clients>
+>[number];
+
+type AdminFederationProvider = Awaited<
+  ReturnType<typeof frodo.cloud.adminFed.readAdminFederationProviders>
+>[number];
+
+type IdmFeature = Awaited<
+  ReturnType<typeof frodo.cloud.idmFeature.readIdmFeatures>
+>[number];
+
+type ConfigEntity = Awaited<
+  ReturnType<typeof frodo.idm.config.readConfigEntities>
+>[number];
+
+type Mapping = Awaited<
+  ReturnType<typeof frodo.idm.mapping.readMappings>
+>[number];
+
+type Server = Awaited<ReturnType<typeof frodo.server.readServers>>[number];
+
 export function registerEntityPickFamilies(): void {
   // The agents (`frodo agent`). Each type has a group of its own and an entry of
   // its own, so the generic entry leaves the typed groups out: a command would
@@ -258,6 +280,123 @@ export function registerEntityPickFamilies(): void {
             : [],
         label: (group) => workflowOf(group).id,
         description: (group) => workflowOf(group).name,
+      }),
+    ],
+  });
+
+  // The OAuth2 client a command acts as (`--client-id` of `get-access-token`
+  // and `execute-rfc7523-authz-grant-flow`). Left out are the commands whose
+  // `--client-id` is optional, or names a client that does not exist yet.
+  registerEntityPickFamily({
+    family: 'admin',
+    except: [
+      'create-oauth2-client-with-admin-privileges',
+      'generate-rfc7523-authz-grant-artefacts',
+      'grant-oauth2-client-admin-privileges',
+      'revoke-oauth2-client-admin-privileges',
+    ],
+    picks: [
+      entityPick<OAuth2Client>({
+        name: 'clientId',
+        kind: 'OAuth2 client',
+        load: async () =>
+          (await frodo.oauth2oidc.client.readOAuth2Clients()).sort((a, b) =>
+            (a._id ?? '').localeCompare(b._id ?? '')
+          ),
+        label: (client) => client._id ?? '',
+      }),
+    ],
+  });
+
+  registerEntityPickFamily({
+    family: 'admin federation',
+    picks: [
+      entityPick<AdminFederationProvider>({
+        name: 'idpId',
+        kind: 'admin federation provider',
+        load: async () =>
+          (await frodo.cloud.adminFed.readAdminFederationProviders()).sort(
+            (a, b) => a._id.localeCompare(b._id)
+          ),
+        label: (provider) => provider._id,
+      }),
+    ],
+  });
+
+  registerEntityPickFamily({
+    family: 'feature',
+    picks: [
+      entityPick<IdmFeature>({
+        name: 'featureId',
+        kind: 'feature',
+        load: async () =>
+          (await frodo.cloud.idmFeature.readIdmFeatures()).sort((a, b) =>
+            (a._id ?? '').localeCompare(b._id ?? '')
+          ),
+        label: (feature) => feature._id ?? '',
+        description: (feature) =>
+          feature.installedVersion
+            ? `installed ${feature.installedVersion}`
+            : 'not installed',
+      }),
+    ],
+  });
+
+  // The configuration entities of the tenant: `export -i` and `delete -i`
+  // (`import` takes its entity from a file and is left out by default).
+  registerEntityPickFamily({
+    family: 'idm',
+    picks: [
+      entityPick<ConfigEntity>({
+        name: 'entityId',
+        kind: 'config entity',
+        load: () => frodo.idm.config.readConfigEntities(),
+        label: (entity) => entity._id ?? '',
+      }),
+      entityPick<ConfigEntity>({
+        name: 'id',
+        kind: 'config entity',
+        load: () => frodo.idm.config.readConfigEntities(),
+        label: (entity) => entity._id ?? '',
+      }),
+    ],
+  });
+
+  // `mapping delete` keeps its own pick: it narrows the list by `-c` and `-t`,
+  // which a family loader cannot read.
+  registerEntityPickFamily({
+    family: 'mapping',
+    picks: [
+      entityPick<Mapping>({
+        name: 'mappingId',
+        kind: 'mapping',
+        load: async () =>
+          (await frodo.idm.mapping.readMappings()).sort((a, b) =>
+            (a.displayName || a.name || '').localeCompare(
+              b.displayName || b.name || ''
+            )
+          ),
+        label: (mapping) => mapping.displayName || mapping.name,
+        // the commands take the id of the mapping: `mapping/<name>` or `sync/<name>`
+        value: (mapping) => mapping._id ?? '',
+        description: (mapping) => mapping._id ?? '',
+      }),
+    ],
+  });
+
+  registerEntityPickFamily({
+    family: 'server',
+    picks: [
+      entityPick<Server>({
+        name: 'serverId',
+        kind: 'server',
+        load: async () =>
+          (await frodo.server.readServers()).sort((a, b) =>
+            (a._id ?? '').localeCompare(b._id ?? '')
+          ),
+        label: (server) => server._id ?? '',
+        description: (server) =>
+          [server.url, server.siteName].filter(Boolean).join(' · '),
       }),
     ],
   });

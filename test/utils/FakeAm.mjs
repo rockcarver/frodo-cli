@@ -48,6 +48,9 @@
  * the username filtered as `uid`. FAKE_AM_USERS_CAP=<n> makes that endpoint
  * stop at n results, in the list and in the count, as AM does at the data
  * store's maximum results (1000 by default).
+ * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
+ * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
+ * the OAuth2 client picker of the admin commands reads it.
  * FAKE_AM_SESSION_TTL_SECONDS=<n> gives the session of a plain login a lifetime
  * of n seconds from the lookup (default: it expires in 2099).
  */
@@ -71,6 +74,9 @@ const readJson = (file) =>
   file ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined;
 const issuer = readJson(process.env.FAKE_AM_ISSUER_FILE);
 const users = readJson(process.env.FAKE_AM_USERS_FILE);
+const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
+  .split(',')
+  .filter(Boolean);
 
 /** The users an IDM or AM `_queryFilter` of the shapes above selects. */
 function selectUsers(filter) {
@@ -146,6 +152,19 @@ const server = http.createServer((req, res) => {
       });
     }
     const pathname = new URL(req.url, 'http://fake').pathname;
+    if (
+      oauth2Clients.length > 0 &&
+      pathname.endsWith('/realm-config/agents/OAuth2Client')
+    ) {
+      return send(200, {
+        result: oauth2Clients.map((_id) => ({ _id })),
+        resultCount: oauth2Clients.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: oauth2Clients.length,
+        remainingPagedResults: -1,
+      });
+    }
     if (users && pathname.includes('/json/') && pathname.endsWith('/users')) {
       const query = new URL(req.url, 'http://fake').searchParams;
       const cap = Number(process.env.FAKE_AM_USERS_CAP ?? Infinity);

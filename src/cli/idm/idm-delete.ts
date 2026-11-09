@@ -1,17 +1,7 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteConfigEntityById } from '../../ops/IdmOps';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
-
-type IdObjectSkeletonInterface = Awaited<
-  ReturnType<typeof frodo.idm.config.readConfigEntities>
->[number];
 
 export default function setup() {
   const program = new FrodoCommand('frodo idm delete');
@@ -50,31 +40,21 @@ export default function setup() {
 
         // const globalConfig = options.global ?? false;
 
-        // An unspecified id prompts for a config entity from the live
-        // system (no-op outside the prompt gate) before getTokens.
-        if (
-          (options.id || (await resolveEntityPicks(command))) &&
-          (await getTokens())
-        ) {
+        // An unspecified id is picked from the config entities of the live
+        // system by the framework (the `idm` family of EntityPickFamilies.ts,
+        // run by getTokens when prompting is allowed); declining the pick fails
+        // getTokens like a failed login does.
+        if (await getTokens()) {
           const outcome = await deleteConfigEntityById(options.id);
           if (!outcome) process.exitCode = 1;
         }
-        // The only ways no branch runs are getTokens() failing (keep the
-        // old exit-1 semantics) or the user escaping the entity picker.
+        // The only way no branch runs is getTokens() failing (keep the old
+        // exit-1 semantics) or the user escaping the entity picker.
         else {
           process.exitCode = 1;
         }
       }
     );
-
-  deferEntityPicks(program, [
-    entityPick<IdObjectSkeletonInterface>({
-      name: 'id',
-      kind: 'config entity',
-      load: () => frodo.idm.config.readConfigEntities(),
-      label: (entity) => entity._id ?? '',
-    }),
-  ]);
 
   return program;
 }

@@ -17,7 +17,7 @@ Options:
   --allow-failures                                 Report operations that fail, but still exit with code 0. Without this option the command runs every operation, prints a summary of what failed and exits with code 1.
   -c, --connector-id <connector-id>                Connector id. If specified, limits mappings to that particular connector; Cannot be used with -i.
   -f, --file <file>                                Export file if -x or -a is provided. Cannot be used with -A.
-  -i, --mapping-id <mapping-id>                    Mapping id. Cannot be used with -c, -t, -a or -A.
+  -i, --mapping-id <mapping-id>                    Mapping id. Cannot be used with -c, -t, -a or -A. (pick from mapping)
   -N, --no-metadata                                Does not include metadata in the export file.
   --no-deps                                        Do not include any dependencies in export.
   -t, --managed-object-type <managed-object-type>  Managed object type. If specified, limits mappings to that particular managed object type. Cannot be used with -i.
