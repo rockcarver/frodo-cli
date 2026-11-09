@@ -26,8 +26,8 @@ import {
  * commands can perform several operations, and that each of them accepts
  * `--allow-failures`. The command tree is built the way src/app.ts builds it.
  * A command is a candidate when it has a bulk option (-a, -A, --all,
- * --all-separate) or sits under config-manager pull, push or delete (those
- * loop over the items of a kind without a bulk option).
+ * --all-separate) or sits under config-manager pull, push, delete or migrate
+ * (those loop over the items of a kind without a bulk option).
  *
  * Every candidate is one of:
  * - a command that accepts `--allow-failures`;
@@ -55,6 +55,7 @@ const FAMILIES = [
   'frodo config-manager pull ',
   'frodo config-manager push ',
   'frodo config-manager delete ',
+  'frodo config-manager migrate ',
 ];
 const HOW_TO_FIX =
   'A command that performs several operations accepts --allow-failures (decision record 0040). ' +
@@ -119,6 +120,7 @@ describe('multi-op commands accept --allow-failures', () => {
     // anchors: bulk options, a config-manager loop, one that is not a candidate
     expect(candidates).toContain('frodo journey export');
     expect(candidates).toContain('frodo config-manager pull all-static');
+    expect(candidates).toContain('frodo config-manager migrate applications');
     expect(candidates).toContain('frodo esv secret delete');
     expect(candidates).not.toContain('frodo journey list');
     expect(candidates).not.toContain('frodo idm remote-proxy test');

@@ -19,6 +19,7 @@ Runtime Options:
 Commands:
   delete            [Experimental] Delete configuration optimized for CI/CD
                     pipelines (format compatible with fr-config-manager).
+  migrate           [Experimental] Move a config-manager tree to a newer layout.
   promote           [Experimental] [Cloud-only] Promote configuration optimized
                     for CI/CD pipelines (format compatible with
                     fr-config-manager).

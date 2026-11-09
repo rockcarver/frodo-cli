@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../FrodoCommand';
 import DeleteCmd from './config-manager-delete/config-manager-delete';
+import MigrateCmd from './config-manager-migrate/config-manager-migrate';
 import PromoteCMD from './config-manager-promote/config-manager-promote';
 import PullCmd from './config-manager-pull/config-manager-pull';
 import PushCmd from './config-manager-push/config-manager-push';
@@ -14,6 +15,7 @@ export default function setup() {
   program.addCommand(PullCmd().name('pull'));
   program.addCommand(PushCmd().name('push'));
   program.addCommand(DeleteCmd().name('delete'));
+  program.addCommand(MigrateCmd().name('migrate'));
   program.addCommand(PromoteCMD().name('promote'));
 
   return program;
