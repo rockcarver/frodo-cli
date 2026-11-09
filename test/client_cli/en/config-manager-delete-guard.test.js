@@ -25,6 +25,7 @@ async function run(command) {
 
 describe('a delete of more than one object without a terminal and without --yes', () => {
   test.each([
+    'frodo config-manager delete applications',
     'frodo config-manager delete custom-nodes',
     'frodo config-manager delete endpoints',
     'frodo config-manager delete scripts',
@@ -59,21 +60,31 @@ describe('a delete of more than one object without a terminal and without --yes'
 
     expect(stderr).toContain('all email templates');
   });
+
+  test('the refusal of applications says that the objects they own go too', async () => {
+    const { stderr } = await run('frodo config-manager delete applications');
+
+    expect(stderr).toContain('all applications and the objects they own');
+  });
 });
 
 describe('what is not refused', () => {
   test.each([
+    'frodo config-manager delete applications -n Example',
     'frodo config-manager delete custom-nodes -n Example',
     'frodo config-manager delete endpoints -n Example',
     'frodo config-manager delete scripts -n Example',
     'frodo config-manager delete themes -n Example',
     'frodo config-manager delete email-templates -n Example',
+    'frodo config-manager delete applications -d',
+    'frodo config-manager delete applications -n Example -d',
     'frodo config-manager delete custom-nodes -d',
     'frodo config-manager delete endpoints -d',
     'frodo config-manager delete scripts -d',
     'frodo config-manager delete scripts -p Example -d',
     'frodo config-manager delete themes -d',
     'frodo config-manager delete email-templates -d',
+    'frodo config-manager delete applications -y',
     'frodo config-manager delete custom-nodes -y',
     'frodo config-manager delete endpoints -y',
     'frodo config-manager delete scripts -y',
