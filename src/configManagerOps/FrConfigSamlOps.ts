@@ -35,6 +35,62 @@ type Saml2PullExportInterface = {
 };
 
 /**
+ * Write one circle of trust in config-manager format:
+ * `realms/<realm>/realm-config/saml/COT/<id>.json`. Shared by `pull saml` and
+ * by the commands that pull a circle of trust because an application uses it.
+ * @param {string} cotId id of the circle of trust
+ * @param {string} realm the realm of the circle of trust (`/` is written as `root`); it must be the current realm of the state
+ * @throws {FrodoError} if the circle of trust cannot be read or its file cannot be written
+ */
+export async function exportCircleOfTrustToFile(
+  cotId: string,
+  realm: string
+): Promise<void> {
+  const cotResult = await exportCircleOfTrust(cotId);
+  const realmDir = realm === '/' ? 'root' : realm;
+  const fileDirectory = `realms/${realmDir}/realm-config/saml/COT`;
+  saveJsonToFile(
+    cotResult.saml.cot[cotId],
+    getFilePath(`${fileDirectory}/${cotId}.json`, true),
+    false,
+    true
+  );
+}
+
+/**
+ * Read one SAML provider in the shape of the files of config-manager: the
+ * configuration of the hosted or remote provider and its metadata. Placeholders
+ * in the content are escaped (`${` stays literal), as `pull saml` does.
+ * @param {string} entityId entity id of the provider
+ * @returns {Promise<{ location: 'hosted' | 'remote'; config: Saml2ProviderSkeleton; metadata: string }>} where the provider lives, its configuration and its metadata
+ * @throws {FrodoError} if the provider cannot be exported, or is neither hosted nor remote
+ */
+export async function readSamlProviderForFile(entityId: string): Promise<{
+  location: 'hosted' | 'remote';
+  config: Saml2ProviderSkeleton;
+  metadata: string;
+}> {
+  const result = escapePlaceholders(
+    await exportSaml2Provider(entityId, { deps: false })
+  );
+  const hosted = Object.values(result.saml.hosted);
+  const remote = Object.values(result.saml.remote);
+  if (hosted.length === 0 && remote.length === 0) {
+    throw new Error(
+      `SAML provider ${entityId} is neither a hosted nor a remote provider.`
+    );
+  }
+  const metadata = Object.values(result.saml.metadata)[0];
+  return {
+    location: hosted.length > 0 ? 'hosted' : 'remote',
+    config: (hosted.length > 0
+      ? hosted[0]
+      : remote[0]) as Saml2ProviderSkeleton,
+    metadata: Array.isArray(metadata) ? metadata.join('\n') : metadata,
+  };
+}
+
+/**
  * Export SAML configurations in fr-config-manager format.
  * @param {string} file File that determines what SAML config is exported
  * @param {boolean} allowFailures True to succeed although some providers or circles of trust could not be exported (the failures are still summarised)
@@ -133,15 +189,7 @@ export async function configManagerExportSaml(
       }
       for (const cot of objects[realm].circlesOfTrust ?? []) {
         try {
-          const cotResult = await exportCircleOfTrust(cot);
-          const fileDirectory = `realms/${realmDir}/realm-config/saml/COT`;
-
-          saveJsonToFile(
-            cotResult.saml.cot[cot],
-            getFilePath(`${fileDirectory}/${cot}.json`, true),
-            false,
-            true
-          );
+          await exportCircleOfTrustToFile(cot, realm);
           run.recordSuccess();
         } catch (error) {
           printError(
