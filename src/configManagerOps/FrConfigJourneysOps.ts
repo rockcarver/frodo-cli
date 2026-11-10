@@ -7,10 +7,20 @@ import {
   type SingleTreeExportInterface,
   type TreeSkeleton,
 } from '@rockcarver/frodo-lib';
+import {
+  printJourneyFindingsHint,
+  wantsJourneyFindingsHint,
+} from '../ops/JourneyFindingsHint';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { existScript, realmList, safeFileName } from '../utils/FrConfig';
+import {
+  missingNodesMessage,
+  missingNodesName,
+  missingNodesOf,
+  missingNodesReason,
+} from '../utils/JourneyExportErrors';
 import { OperationRun } from '../utils/OperationRun';
 
 const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
@@ -42,6 +52,7 @@ export async function configManagerExportJourneys(
     const realmNames =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     let found = false;
+    let hintAtFindings = false;
     for (const realmName of realmNames) {
       if (
         realmName === '/' &&
@@ -59,10 +70,24 @@ export async function configManagerExportJourneys(
           coords: true,
         },
         (error) => {
-          if (error) report(error);
+          if (!error) return;
+          // a journey whose nodes are not on the tenant is one line, unless the output is verbose
+          const missing = state.getVerbose()
+            ? undefined
+            : missingNodesOf(error);
+          if (!missing) {
+            report(error);
+            return;
+          }
+          printMessage(missingNodesMessage(missing), 'error');
+          run.recordFailure(
+            missingNodesName(missing),
+            missingNodesReason(missing)
+          );
         }
       );
       if (name && exportData.trees[name]) found = true;
+      hintAtFindings ||= await wantsJourneyFindingsHint(exportData);
       await processJourneysExport(
         exportData.trees,
         name,
@@ -71,6 +96,7 @@ export async function configManagerExportJourneys(
         run
       );
     }
+    if (hintAtFindings) printJourneyFindingsHint();
     const succeeded = run.finish();
     // a journey that failed to be read has been reported already
     if (name && !found && !run.hasFailures) {

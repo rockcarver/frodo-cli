@@ -28,6 +28,10 @@ import { describeFailure, OperationRun } from '../utils/OperationRun';
 import * as CirclesOfTrust from './CirclesOfTrustOps';
 import * as EmailTemplate from './EmailTemplateOps';
 import * as Idp from './IdpOps';
+import {
+  printJourneyFindingsHint,
+  wantsJourneyFindingsHint,
+} from './JourneyFindingsHint';
 import * as Node from './NodeOps';
 import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
@@ -248,6 +252,7 @@ export async function exportJourneysToFile(
       run.resultCallback()
     );
     saveJsonToFile(fileData, filePath, includeMeta);
+    if (await wantsJourneyFindingsHint(fileData)) printJourneyFindingsHint();
     return run.finish();
   } catch (error) {
     // not an item failure: the journeys could not be read or the file not written
@@ -306,6 +311,9 @@ export async function exportJourneysToFiles(
           : `Error saving ${treeId} to ${file}`,
         saved ? 'success' : 'fail'
       );
+    }
+    if (await wantsJourneyFindingsHint(journeysExport)) {
+      printJourneyFindingsHint();
     }
     return run.finish();
   } catch (error) {

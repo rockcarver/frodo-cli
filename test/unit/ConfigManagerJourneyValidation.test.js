@@ -53,6 +53,7 @@ jest.unstable_mockModule('../../src/utils/FrConfig', () => ({
 }));
 
 jest.unstable_mockModule('../../src/utils/Console', () => ({
+  debugMessage: jest.fn(),
   printError,
   printMessage,
 }));
