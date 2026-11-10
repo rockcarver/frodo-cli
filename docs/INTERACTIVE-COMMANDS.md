@@ -558,6 +558,8 @@ difference visible in help and behavior:
   opens the sub-command picker; its help carries the framework's
   standard line ("Run without a sub-command to enter interactive
   mode.") and lists `--no-prompt` only (legacy help-exit restored).
+  The picker lists the sub-commands alphabetically, the order of the
+  command's help, whatever order the group registered them in.
 - **Action stub** (`conn`, `settings`) — a full command of its own
   whose bare invocation runs its own interactive mode (declared in its
   DESCRIPTION, not a marker line; one-line `.summary()` keeps the
