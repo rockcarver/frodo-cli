@@ -30,6 +30,11 @@
  * really narrows the run (the command reads it after login with
  * `realmOfRun`); one that ignores its realm gets no picker at all.
  *
+ * A command whose realm matters only when an option is set (`frodo config
+ * export`, `-r`) declares it with `realmPickerOnlyWith` (see RealmUse): its
+ * picker is the ordinary one and opens under the same conditions as above, and
+ * only when that option is set.
+ *
  * The loader failing (permission denied on realm listing, older servers,
  * classic deployments where the endpoint differs) is swallowed and the
  * default kept: the command is about to run against the default realm
@@ -44,7 +49,7 @@ import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { positionalValue } from './PositionalArgs';
 import { canPrompt } from './PromptGateState';
-import { ignoresRealm, realmUseOf } from './RealmUse';
+import { ignoresRealm, realmPickerWanted, realmUseOf } from './RealmUse';
 
 /** frodo-lib's sentinel default for "no realm chosen yet". */
 const DEFAULT_REALM_KEY = '__default__realm__';
@@ -126,6 +131,9 @@ export async function resolveRealmPick(command: Command): Promise<void> {
   // A config-manager command that ignores its realm: the choice would change
   // nothing, so do not ask (see RealmUse).
   if (ignoresRealm(command)) return;
+  // A command whose realm matters only with an option (`config export -r`):
+  // without it the realm changes nothing, so do not ask (see RealmUse).
+  if (!realmPickerWanted(command)) return;
   if (realmUserSpecified) return;
   if (!requiredInputPrompted) return;
 
