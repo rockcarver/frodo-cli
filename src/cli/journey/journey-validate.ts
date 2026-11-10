@@ -55,6 +55,12 @@ export default function setup() {
         `  Validate all journeys exported to separate files in a directory (no login needed):\n` +
         c.command(`  $ frodo journey validate -A -D ${s.journeysDirectory}\n`)
     )
+    // Which journeys to validate is required: the framework asks for it when
+    // it is missing, and offers a picker over the journeys of the tenant for -i
+    .requireOneOf({
+      options: ['journeyId', 'all', 'allSeparate'],
+      purpose: 'which journeys to validate',
+    })
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
@@ -73,9 +79,7 @@ export default function setup() {
             ? '-f cannot be combined with -A.'
             : options.directory && !options.file && !options.allSeparate
               ? '-D requires -f or -A.'
-              : !options.allSeparate && !options.journeyId && !options.all
-                ? 'Specify -i or -a to select journeys; -A -D validates all directory journeys.'
-                : undefined;
+              : undefined;
       if (invalidCombination) {
         printMessage(`Error: ${invalidCombination}`, 'error');
         process.exitCode = 1;
