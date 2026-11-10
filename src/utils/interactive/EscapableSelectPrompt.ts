@@ -110,8 +110,9 @@ export type EscapableSelectConfig<Value> = {
   enterLabel?: string | ((highlighted: unknown) => string);
   /**
    * What the Navigate menu says Escape does, and what the grace hint offers
-   * after a first press ('back' and 'go back one level' when omitted). A
-   * prompt that ends the session on Escape says so ('cancel').
+   * after a first press ('back · [ESC]×2 exit all' and 'go back one level'
+   * when omitted). A prompt that ends the session on Escape says so
+   * ('cancel').
    */
   escapeLabel?: string;
 };
