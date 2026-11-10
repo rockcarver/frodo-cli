@@ -1,5 +1,5 @@
 /**
- * Entity pickers (docs/INTERACTIVE-COMMANDS.md, post-auth pickers).
+ * Entity pickers (docs/INTERACTIVE-COMMANDS.md, "Pickers that need a login").
  *
  * A command whose target-entity option (`-i/--secret-id`, `-i/--tree-id`
  * etc.) was left unspecified can offer a dropdown populated from the live
@@ -13,8 +13,8 @@
  *
  * A family of commands can register its picks once instead (decision record
  * 0038, EntityPickRegistry.ts): every command of the family that has the
- * option inherits the pick, and the framework runs it after login, from
- * `getTokens`, so the command declares nothing and calls nothing.
+ * option inherits the pick, so the command declares nothing and calls
+ * nothing.
  *
  * The flow spans two stages:
  *
@@ -25,9 +25,14 @@
  *    value step for it (asking the user to type an id by hand would defeat
  *    the picker's purpose) and leaves the option unset.
  *
- * 2. ACTION BODY: after `getTokens()` succeeds (the loaders need tokens),
- *    the command calls `resolveEntityPicks(command)`, which runs the
- *    dropdown for every still-unspecified pickable option. A prompt only
+ * 2. THE PASS: once the mandatory options and the one-of groups are resolved
+ *    (and again after the invocation editor), the pass runs
+ *    `resolvePassEntityPicks(command)`, which runs the dropdown for every
+ *    still-unspecified pickable option. The loaders need tokens, so the pass
+ *    logs in first when one of the picks that will open needs them (record
+ *    0044); the Ready step follows. A pick the pass has run is not run
+ *    again: `resolveEntityPicks(command)` in an action body and the
+ *    `getTokens` wrapper skip it. A prompt only
  *    happens when the gate allows prompting (canPrompt()), the option is
  *    still unspecified, and the loader returned at least one entity. Every
  *    other path is a no-op, so non-interactive behavior stays
@@ -63,8 +68,13 @@ import {
   failWithConflict,
 } from './OptionConflicts';
 import { deferredChoicesOf, oneOfMemberAnswering } from './OptionRequirements';
+import {
+  notePassEntityPickAttempted,
+  passEntityPickAttempted,
+} from './PassLogin';
 import { promptInput } from './PromptGate';
 import { canPrompt } from './PromptGateState';
+import { NEXT_LABEL } from './ReadyStep';
 
 /**
  * Loads the candidate entities for a picker. Returns the raw skeletons;
@@ -152,6 +162,12 @@ export type EntityPickSpec<T = any> = {
    * preview) is the one you could type again.
    */
   scopedBy?: string[];
+  /**
+   * Whether the loader needs a login. Default: true. A loader that reads
+   * only what is on this machine (the saved connection profiles) says false,
+   * and the resolution pass then opens the pick without logging in for it.
+   */
+  needsLogin?: boolean;
 };
 
 const pendingEntityPicks = new WeakMap<Command, EntityPickSpec<unknown>[]>();
@@ -175,7 +191,7 @@ export function deferEntityPicks(
 /**
  * The entity pickers registered on a command (empty when none). Read by
  * ResolveInteractiveInputs to know which options it should NOT free-text
- * prompt for -- those belong to the post-auth dropdown.
+ * prompt for -- those belong to the entity picker of the pass.
  */
 export function getEntityPicks(command: Command): EntityPickSpec<unknown>[] {
   return [...ownEntityPicks(command), ...inheritedEntityPicks(command)];
@@ -261,45 +277,95 @@ export async function resolveFamilyEntityPicks(
   return runEntityPicks(command, inheritedEntityPicks(command));
 }
 
+/**
+ * Why a pick is not offered now, or undefined when it is. An empty reason means
+ * the option is set already, which needs no word. A pick is not offered when
+ * its option has a value, when an option that conflicts with it is set (whoever
+ * set it: the user, the choice made in the resolution pass, a saved default or
+ * an earlier pick of the run; the id of a node and its name conflict, and one
+ * answer is enough; only the options that narrow the list are not in the way,
+ * the pick replaces them), or when a member of its one-of group answers the
+ * group already (`-g` of `agent export`, or a member chosen in the pass whose
+ * own pick comes later: the command line is complete, record 0030).
+ */
+function whyNotOffered(
+  command: Command,
+  pick: EntityPickSpec<unknown>
+): string | undefined {
+  // Commands branch on the RAW option value (options.secretId); writing
+  // through setOptionValueWithSource keeps both that object and the
+  // resolver's own getOptionValue reads consistent.
+  if (command.getOptionValue(pick.name)) return '';
+  const [blocker] = activeConflicts(command, pick.name).filter(
+    (option) => !pick.scopedBy?.includes(option.attributeName())
+  );
+  if (blocker) {
+    return `Not offering a ${pick.kind} to pick: it cannot be used with ${blocker.flags}.`;
+  }
+  const answering = oneOfMemberAnswering(command, pick.name);
+  if (answering) {
+    const flags =
+      command.options.find((option) => option.attributeName() === answering)
+        ?.flags ?? answering;
+    return `Not offering a ${pick.kind} to pick: ${flags} is given already.`;
+  }
+  return undefined;
+}
+
+/**
+ * The entity picks that will open in the resolution pass: the picks of the
+ * command (its own, those of its family, and the ones the user asked for on
+ * the options page) that are offered now and that the pass has not run yet.
+ * The pass reads it to decide whether it must log in (record 0044).
+ * @param command the command that is being resolved
+ * @returns the picks that will open
+ */
+export function pendingPassPicks(command: Command): EntityPickSpec<unknown>[] {
+  return getEntityPicks(command).filter(
+    (pick) =>
+      !passEntityPickAttempted(pick.name) &&
+      whyNotOffered(command, pick) === undefined
+  );
+}
+
+/**
+ * Whether a pick needs a login for its loader (default: it does).
+ * @param pick the pick
+ * @returns true when the loader needs tokens
+ */
+export function pickNeedsLogin(pick: EntityPickSpec<unknown>): boolean {
+  return pick.needsLogin !== false;
+}
+
+/**
+ * Runs the picks of the command for the resolution pass (record 0044). Same
+ * contract as `resolveEntityPicks`: false means the user declined or a load
+ * failed, and the command must not run. A pick that was run is remembered, so
+ * neither the action nor the `getTokens` wrapper runs it again.
+ * @param command the command that is being resolved
+ * @returns false when the command must not run
+ */
+export async function resolvePassEntityPicks(
+  command: Command
+): Promise<boolean> {
+  return runEntityPicks(command, getEntityPicks(command), { inPass: true });
+}
+
 async function runEntityPicks(
   command: Command,
-  picks: EntityPickSpec<unknown>[]
+  picks: EntityPickSpec<unknown>[],
+  options: { inPass?: boolean } = {}
 ): Promise<boolean> {
   if (!canPrompt()) return true;
   for (const pick of picks) {
-    // Commands branch on the RAW option value (options.secretId); writing
-    // through setOptionValueWithSource keeps both that object and the
-    // resolver's own getOptionValue reads consistent.
-    if (command.getOptionValue(pick.name)) continue;
-    // An option that is set already cannot be combined with the one this pick
-    // fills (`-a` with `-i`): picking would build a command the CLI rejects.
-    // It counts whoever set it: the user, the choice made in the resolution
-    // pass, a saved default, or an earlier pick of this run (the id of a node
-    // and its name conflict, and one answer is enough). Only the options that
-    // narrow the list are not in the way: the pick replaces them.
-    const [blocker] = activeConflicts(command, pick.name).filter(
-      (option) => !pick.scopedBy?.includes(option.attributeName())
-    );
-    if (blocker) {
-      verboseMessage(
-        `Not offering a ${pick.kind} to pick: it cannot be used with ${blocker.flags}.`
-      );
+    // The pass ran it already: asked once, whatever the answer was.
+    if (passEntityPickAttempted(pick.name)) continue;
+    const why = whyNotOffered(command, pick);
+    if (why !== undefined) {
+      if (why) verboseMessage(why);
       continue;
     }
-    // A member of the same one-of group that is set already answers the
-    // group, even when it does not conflict with this option (`-g` of
-    // `agent export`): the command line is complete (record 0030). So does a
-    // member the user chose in the resolution pass whose own pick comes later.
-    const answering = oneOfMemberAnswering(command, pick.name);
-    if (answering) {
-      const flags =
-        command.options.find((option) => option.attributeName() === answering)
-          ?.flags ?? answering;
-      verboseMessage(
-        `Not offering a ${pick.kind} to pick: ${flags} is given already.`
-      );
-      continue;
-    }
+    if (options.inPass) notePassEntityPickAttempted(pick.name);
     let entities: unknown[];
     try {
       const searched = pick.searchFirst
@@ -341,6 +407,8 @@ async function runEntityPicks(
       chosen = await escapableSelect<unknown>({
         message: pick.message ?? `Select ${pick.kind} to act on:`,
         hint: editableOptionsHint(command),
+        // in the pass the Ready step follows; outside it nothing can be promised
+        ...(options.inPass ? { enterLabel: NEXT_LABEL } : {}),
         // LIVE footer: the highlighted entity's label (the exact value
         // the real apply writes) shadows the target option per render,
         // so the footer shows the command gaining that pick BEFORE
@@ -403,8 +471,9 @@ async function runEntityPicks(
   // print (the command never ran). When auth has NOT succeeded yet, the
   // getTokens wrapper flushes instead (no picks pending -> it doesn't
   // skip). Non-interactive sessions (canPrompt false, early return)
-  // never reach this.
-  {
+  // never reach this. The pass prints nothing: the print is armed when the
+  // pass ends, and the wrapper flushes it above the results.
+  if (!options.inPass) {
     const { authSucceededForFlush, flushAuthoringPrint } =
       await import('./AuthoringPrintState');
     if (authSucceededForFlush()) {

@@ -113,7 +113,7 @@ export type EscapableSelectConfig<Value> = {
   preview?: string | ((highlighted: unknown) => string);
   /**
    * What the Navigate menu says Enter does ('select' when omitted): a prompt
-   * says what its Enter does to the command, never more (record 0043). The
+   * says what its Enter does to the command, never more (records 0043 and 0044). The
    * prompts of the resolution pass say 'next', the Ready step 'run'. The
    * function form is re-invoked on every render with the highlighted choice's
    * value (undefined when the filter matched nothing); an empty string hides

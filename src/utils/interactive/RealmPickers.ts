@@ -1,13 +1,15 @@
 /**
- * Realm picker (docs/INTERACTIVE-COMMANDS.md, post-auth pickers).
+ * Realm picker (docs/INTERACTIVE-COMMANDS.md, "Pickers that need a login").
  *
- * After authentication succeeds, a command whose realm argument was left
+ * Once a login exists, a command whose realm argument was left
  * at its default can offer a dropdown of the target system's realms --
  * but ONLY when the system actually has more than one (a single-realm
  * tenant has no choice to offer; the default is already correct). The
- * pick fires from the getTokens wrapper (AuthenticateOps) immediately
- * after auth succeeds, so every command gets it without per-command
- * wiring; a prompt only happens when
+ * pick fires in the resolution pass, right after the login the pass makes
+ * for it (record 0044), so every command gets it without per-command
+ * wiring; the getTokens wrapper (AuthenticateOps) offers it only to a
+ * command whose pass made no login, and never a second time. A prompt only
+ * happens when
  *
  * - the gate allows prompting (canPrompt()),
  * - the command declares a realm positional argument,
@@ -49,6 +51,7 @@ import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import { positionalValue } from './PositionalArgs';
 import { canPrompt } from './PromptGateState';
+import { NEXT_LABEL } from './ReadyStep';
 import { ignoresRealm, realmPickerWanted, realmUseOf } from './RealmUse';
 
 /** frodo-lib's sentinel default for "no realm chosen yet". */
@@ -120,22 +123,42 @@ export function resetRealmPickerStateForTests(): void {
 }
 
 /**
- * Offers the realm dropdown for `command`'s realm argument when the
- * conditions in the module doc hold. Called by the getTokens wrapper
- * after a successful login. Never throws; on any problem it simply keeps
- * the default.
+ * Whether the realm picker can open for this command: every condition of
+ * record 0001 that is known before the login. Only the last one, that the
+ * system has more than one realm, needs the login to be known. The resolution
+ * pass asks it to decide whether it must log in for the picker.
+ * @param command the command that is being resolved
+ * @returns true when the picker may open once a login exists
  */
-export async function resolveRealmPick(command: Command): Promise<void> {
-  if (!canPrompt()) return;
-  if (!command.registeredArguments.some((a) => a.name() === 'realm')) return;
+export function realmPickerApplies(command: Command): boolean {
+  if (!canPrompt()) return false;
+  if (!command.registeredArguments.some((a) => a.name() === 'realm')) {
+    return false;
+  }
   // A config-manager command that ignores its realm: the choice would change
   // nothing, so do not ask (see RealmUse).
-  if (ignoresRealm(command)) return;
+  if (ignoresRealm(command)) return false;
   // A command whose realm matters only with an option (`config export -r`):
   // without it the realm changes nothing, so do not ask (see RealmUse).
-  if (!realmPickerWanted(command)) return;
-  if (realmUserSpecified) return;
-  if (!requiredInputPrompted) return;
+  if (!realmPickerWanted(command)) return false;
+  if (realmUserSpecified) return false;
+  return requiredInputPrompted;
+}
+
+/**
+ * Offers the realm dropdown for `command`'s realm argument when the
+ * conditions in the module doc hold. Called by the resolution pass right
+ * after the login it makes for the picker, and by the getTokens wrapper for a
+ * command whose pass made no login. Never throws; on any problem it simply
+ * keeps the default.
+ * @param command the command that is being resolved
+ * @param options.inPass the picker runs in the resolution pass, which the Ready step follows: Enter says `next`
+ */
+export async function resolveRealmPick(
+  command: Command,
+  options: { inPass?: boolean } = {}
+): Promise<void> {
+  if (!realmPickerApplies(command)) return;
 
   let realms: { name: string; active: boolean }[];
   try {
@@ -195,6 +218,8 @@ export async function resolveRealmPick(command: Command): Promise<void> {
         : `Choose a realm (default: ${current}):`,
       default: realmUse ? ALL_REALMS : current,
       hint: editableOptionsHint(command),
+      // in the pass the Ready step follows; outside it nothing can be promised
+      ...(options.inPass ? { enterLabel: NEXT_LABEL } : {}),
       // LIVE footer: the highlighted realm shadows the realm positional
       // per render, so the footer's realm token moves with the cursor
       // BEFORE <enter> commits (live preview). The `All realms` row shadows

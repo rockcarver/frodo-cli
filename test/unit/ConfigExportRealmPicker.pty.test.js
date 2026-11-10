@@ -114,8 +114,8 @@ suite('the realm picker of frodo config export, on a real terminal', () => {
 
   /**
    * `frodo config export` with the host left out: the host is asked for, the
-   * Ready step is answered with Run, the login succeeds and the picker opens
-   * (or does not). `choose` are the keys
+   * pass logs in and the picker opens (or does not), then the Ready step is
+   * answered with Run. `choose` are the keys
    * after the host was entered; `picker` is whether the picker is expected,
    * `waitFor` the request that proves the export got as far as it should.
    */
@@ -133,8 +133,8 @@ suite('the realm picker of frodo config export, on a real terminal', () => {
         { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
         { type: 'send_line', text: host() },
         // the host prompt put a prompt on the screen, so the pass ends in the Ready step;
-        // the realm picker opens after Run, because it needs the login (records 0001, 0043)
-        ...answerReady(),
+        // the realm picker needs the login, which the pass makes, so it comes first
+        // (records 0001, 0044)
         ...(picker
           ? [
               {
@@ -148,6 +148,7 @@ suite('the realm picker of frodo config export, on a real terminal', () => {
               ...choose,
             ]
           : []),
+        ...answerReady(),
         {
           type: 'wait_request',
           path: recordPath,

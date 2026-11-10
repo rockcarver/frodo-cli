@@ -64,6 +64,11 @@
  * answers it; every request is recorded, so a test counts the logouts in the
  * request log. FAKE_AM_LOGOUT=refuse makes AM refuse it (`400`), and
  * FAKE_AM_LOGOUT=hang makes it never answer.
+ * FAKE_AM_LOGIN=refuse makes AM refuse the credentials of every login: the
+ * authenticate call that carries callbacks is answered `401 Login failure`, as
+ * AM answers a wrong password. A login is one authenticate call without
+ * callbacks (it starts the journey), so a test counts the logins in the
+ * request log by counting those.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -79,6 +84,7 @@ const sessionExpiry = () =>
     ? new Date(Date.now() + sessionTtlSeconds * 1000).toISOString()
     : '2099-01-01T00:00:00Z';
 const plainLogin = process.env.FAKE_AM_JOURNEY === 'password';
+const loginRefused = process.env.FAKE_AM_LOGIN === 'refuse';
 const serviceAccountLogin = process.env.FAKE_AM_JOURNEY === 'service-account';
 const realms = (process.env.FAKE_AM_REALMS ?? '').split(',').filter(Boolean);
 const readJson = (file) =>
@@ -276,6 +282,13 @@ const server = http.createServer((req, res) => {
     }
     if (req.url.includes('/authenticate')) {
       const posted = body ? JSON.parse(body) : {};
+      if (posted.callbacks && loginRefused) {
+        return send(401, {
+          code: 401,
+          reason: 'Unauthorized',
+          message: 'Login failure',
+        });
+      }
       if (!posted.callbacks) {
         step = 1;
         return send(200, {

@@ -22,6 +22,14 @@ import { getActiveActionCommand } from '../utils/interactive/ActiveActionCommand
 // established import path.
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
 import { EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
+// The login the resolution pass made for its pickers (record 0044): zero-import
+// state, so this module stays loadable where frodo-lib is mocked.
+import {
+  passEntityPickAttempted,
+  passRealmPickDone,
+  takePassLogin,
+  unsupportedDeploymentTypeMessage,
+} from '../utils/interactive/PassLogin';
 import { canPrompt } from '../utils/interactive/PromptGateState';
 import { question } from '../utils/Prompt';
 
@@ -185,11 +193,93 @@ export const cliBrowserLoginPromptHandler: BrowserLoginPromptHandler = async (
 };
 
 /**
+ * Logs in with the library, as every command does, and says who is logged in.
+ * Throws what the library throws; the callers report it.
+ * @param forceLoginAsUser the caller's own request to log in as a user (the global override is added here)
+ * @param autoRefresh true to automatically refresh tokens before they expire
+ * @param types supported deployment types
+ */
+async function login(
+  forceLoginAsUser: boolean,
+  autoRefresh: boolean,
+  types: string[]
+): Promise<void> {
+  const tokens = await _getTokens(
+    // The caller's own explicit request always wins; otherwise fall back
+    // to the global --force-login-as-user/FRODO_FORCE_LOGIN_AS_USER
+    // override, so any implicit command (not just conn-save.ts's own
+    // hardcoded call) can force a plain username/password login over a
+    // profile's configured service account/Amster credential. Ignored by
+    // frodo-lib whenever credentialOverride below is also set.
+    forceLoginAsUser || getForceLoginAsUserOverride(),
+    autoRefresh,
+    types,
+    otpCallbackHandler,
+    getUseDeviceFlow(),
+    cliBrowserLoginPromptHandler,
+    getCredentialOverride()
+  );
+  verboseMessage(
+    `Connected to ${state.getHost()} [${
+      state.getRealm() ? state.getRealm() : 'root'
+    }] as ${tokens.subject}`
+  );
+  // A browser or device login runs as whoever is signed in to the browser,
+  // which the command line does not say, so always name the account.
+  // Other logins keep the verbose line above: their account is the one
+  // that was passed in or saved.
+  if (state.getActiveCredentialSource() === 'browser') {
+    printMessage(
+      browserLoginPrompted
+        ? `Logged in as ${tokens.subject}`
+        : `Using the saved browser login of ${tokens.subject}`,
+      'info'
+    );
+  }
+}
+
+/**
+ * The login the resolution pass makes for a picker that needs one (decision
+ * record 0044): the same machinery as `getTokens` below (the callback for a
+ * second factor, the browser and device prompts, service account, saved
+ * credentials, `--credential`, the global force-login-as-user override) with
+ * the default arguments and the deployment types the command registers. A
+ * type the command does not support is refused by the library, before any
+ * picker opens, as a login made by the command would refuse it. A failure is
+ * reported the way `getTokens` reports it: the error and the hint for it. The
+ * pass remembers what it used, so the command's own `getTokens()` does not log
+ * in a second time.
+ * @param types the deployment types the command supports (default: all of them)
+ * @returns what the login used, or undefined when it failed (the failure is reported)
+ */
+export async function loginInPass(
+  types: string[] = DEPLOYMENT_TYPES
+): Promise<{ forceLoginAsUser: boolean; autoRefresh: boolean } | undefined> {
+  const forceLoginAsUser = getForceLoginAsUserOverride();
+  const autoRefresh = true;
+  try {
+    await login(forceLoginAsUser, autoRefresh, types);
+    return { forceLoginAsUser, autoRefresh };
+  } catch (error) {
+    if (error === EXIT_ALL_SIGNAL) throw error;
+    printError(error);
+    printErrorHint(error);
+  }
+  return undefined;
+}
+
+/**
  * Get tokens and store them in State
+ *
+ * A command whose resolution pass logged in for a picker (record 0044) uses
+ * that login when this is its first call and it asks for the same
+ * `forceLoginAsUser` and `autoRefresh`: no second round trip. The command's own
+ * list of deployment types is still enforced, with the library's error. With
+ * other arguments, or on a later call, it logs in as usual.
  * @param {boolean} forceLoginAsUser true to force login as user even if a service account is available (default: false). Also forced by the global --force-login-as-user option/FRODO_FORCE_LOGIN_AS_USER env var (see getForceLoginAsUserOverride()) regardless of this parameter. Deprecated — use --credential user (getCredentialOverride()) instead; kept for backward compatibility and overridden by it when both are set.
  * @param {boolean} autoRefresh true to automatically refresh tokens before they expire (default: true)
  * @param {string[]} types Array of supported deployment types. The function will throw an error if an unsupported type is detected (default: ['classic', 'cloud', 'forgeops'])
- * @returns {Promise<Tokens>} object containing the tokens
+ * @returns {Promise<boolean>} true when logged in and the pickers that follow the login were satisfied
  */
 export async function getTokens(
   forceLoginAsUser: boolean = false,
@@ -197,49 +287,41 @@ export async function getTokens(
   types: string[] = DEPLOYMENT_TYPES
 ): Promise<boolean> {
   try {
-    const tokens = await _getTokens(
-      // The caller's own explicit request always wins; otherwise fall back
-      // to the global --force-login-as-user/FRODO_FORCE_LOGIN_AS_USER
-      // override, so any implicit command (not just conn-save.ts's own
-      // hardcoded call) can force a plain username/password login over a
-      // profile's configured service account/Amster credential. Ignored by
-      // frodo-lib whenever credentialOverride below is also set.
-      forceLoginAsUser || getForceLoginAsUserOverride(),
-      autoRefresh,
-      types,
-      otpCallbackHandler,
-      getUseDeviceFlow(),
-      cliBrowserLoginPromptHandler,
-      getCredentialOverride()
-    );
-    verboseMessage(
-      `Connected to ${state.getHost()} [${
-        state.getRealm() ? state.getRealm() : 'root'
-      }] as ${tokens.subject}`
-    );
-    // A browser or device login runs as whoever is signed in to the browser,
-    // which the command line does not say, so always name the account.
-    // Other logins keep the verbose line above: their account is the one
-    // that was passed in or saved.
-    if (state.getActiveCredentialSource() === 'browser') {
-      printMessage(
-        browserLoginPrompted
-          ? `Logged in as ${tokens.subject}`
-          : `Using the saved browser login of ${tokens.subject}`,
-        'info'
+    if (
+      takePassLogin(
+        forceLoginAsUser || getForceLoginAsUserOverride(),
+        autoRefresh
+      )
+    ) {
+      // The pass logged in with these arguments. Only this command's own list of
+      // deployment types is left to check, and the library's refusal is the
+      // error that says so (what a login made here would have raised).
+      const refusal = unsupportedDeploymentTypeMessage(
+        types,
+        state.getDeploymentType()
       );
+      if (refusal) {
+        const { unsupportedDeploymentTypeError } =
+          await import('./UnsupportedDeploymentTypeError');
+        throw unsupportedDeploymentTypeError(refusal);
+      }
+      verboseMessage('Using the login made while the command was completed.');
+    } else {
+      await login(forceLoginAsUser, autoRefresh, types);
     }
     // Post-auth realm picker: offers the target system's realms when the
     // command has a realm argument, the user left it at its default, the
     // resolution pass prompted for required connection input, and the system
     // has multiple realms. The active command is recorded by the resolution
     // pass (preAction), so commands that bypass it naturally skip the picker.
+    // The pass offers it itself when it logs in for it (record 0044); it is
+    // never offered a second time here.
     //
     // Gated on canPrompt() and lazy-imported: this module must stay loadable
     // in tests that mock frodo-lib wholesale (the picker's graph reaches
     // ColorTheme's `theme` import), and a non-interactive session doesn't
     // need the picker's machinery.
-    if (canPrompt()) {
+    if (canPrompt() && !passRealmPickDone()) {
       const { resolveRealmPick } =
         await import('../utils/interactive/RealmPickers');
       await resolveRealmPick(getActiveActionCommand());
@@ -250,11 +332,11 @@ export async function getTokens(
     // it) -- every auth command's action prints its results only after
     // getTokens returns true, and the realm pick (which can still change
     // the command) has concluded by now. SKIPPED when the command has entity
-    // picks still PENDING (registered and their option unset -- they run
-    // later in the action body and may still change the command):
-    // resolveEntityPicks flushes after its picks conclude instead. Picks
-    // already applied before auth (the pick-first pattern) do NOT block
-    // this flush -- their option is set, nothing pending.
+    // picks still PENDING (registered and their option unset, and the pass has
+    // not run them -- they run later in the action body and may still change
+    // the command): resolveEntityPicks flushes after its picks conclude
+    // instead. Picks already applied before auth (the pick-first pattern) do
+    // NOT block this flush -- their option is set, nothing pending.
     // Arming-only sessions (no prompts, not explicitly interactive) flush
     // as a no-op via the closure's gate.
     {
@@ -266,6 +348,7 @@ export async function getTokens(
       // (decision record 0038) run here, once the loaders have a login, so
       // a command in such a family calls no resolver of its own. A declined
       // pick or a failed load stops the command like a failed login does.
+      // The picks the pass ran are skipped (record 0044).
       if (activeCommand) {
         const { resolveFamilyEntityPicks } =
           await import('../utils/interactive/EntityPickers');
@@ -278,7 +361,9 @@ export async function getTokens(
         const { getEntityPicks } =
           await import('../utils/interactive/EntityPickers');
         return getEntityPicks(activeCommand).some(
-          (pick) => !activeCommand.getOptionValue(pick.name)
+          (pick) =>
+            !activeCommand.getOptionValue(pick.name) &&
+            !passEntityPickAttempted(pick.name)
         );
       })();
       if (!hasPendingPicks) {

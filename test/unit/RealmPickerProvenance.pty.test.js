@@ -155,11 +155,11 @@ suite('default realm behavior, on a real terminal', () => {
           { type: 'wait_plain', regex: 'password: ••••••••', timeoutMs: 10000 },
           { type: 'key', name: 'down' },
           { type: 'key', name: 'enter' },
-          // the realm picker needs the login, so it follows the Ready step
-          ...answerReady(),
+          // the pass logs in for the realm picker, which comes before the Ready step
           { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
           { type: 'sleep', ms: 300 },
           { type: 'key', name: 'escape' },
+          ...answerReady(),
           { type: 'sleep', ms: 6000 },
         ],
       });
@@ -180,10 +180,10 @@ suite('default realm behavior, on a real terminal', () => {
           { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
           { type: 'send', text: `http://127.0.0.1:${fakeAm.port}/am` },
           { type: 'key', name: 'enter' },
-          ...answerReady(),
           { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
           { type: 'sleep', ms: 300 },
           { type: 'key', name: 'escape' },
+          ...answerReady(),
           { type: 'sleep', ms: 6000 },
         ]
       );
