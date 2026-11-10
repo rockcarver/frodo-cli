@@ -54,7 +54,7 @@
 import { Command } from 'commander';
 import { printError, verboseMessage } from '../Console';
 import { editableOptionsHint } from './EditableOptions';
-import { familyEntityPicks } from './EntityPickRegistry';
+import { familyEntityPicks, requestablePicks } from './EntityPickRegistry';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
 import {
@@ -62,7 +62,7 @@ import {
   commitOption,
   failWithConflict,
 } from './OptionConflicts';
-import { oneOfMemberAnswering } from './OptionRequirements';
+import { deferredChoicesOf, oneOfMemberAnswering } from './OptionRequirements';
 import { promptInput } from './PromptGate';
 import { canPrompt } from './PromptGateState';
 
@@ -193,8 +193,32 @@ function ownEntityPicks(command: Command): EntityPickSpec<unknown>[] {
  */
 function inheritedEntityPicks(command: Command): EntityPickSpec<unknown>[] {
   const own = ownEntityPicks(command);
-  return familyEntityPicks(command).filter(
+  const inherited = familyEntityPicks(command);
+  // plus the picks the user asked for on the options page ("choose after
+  // connecting"), for the options whose pick is available on request only
+  const asked = requestablePicks(command).filter(
+    (pick) =>
+      deferredChoicesOf(command).has(pick.name) &&
+      !inherited.some((familyPick) => familyPick.name === pick.name)
+  );
+  return [...inherited, ...asked].filter(
     (pick) => !own.some((ownPick) => ownPick.name === pick.name)
+  );
+}
+
+/**
+ * Whether the user can ask for the pick of this option on the options page,
+ * to be made after login: the command has a pick for it, or its family offers
+ * one on request. Picks that open by themselves need no asking, but asking is
+ * harmless.
+ */
+export function canChooseAfterConnecting(
+  command: Command,
+  name: string
+): boolean {
+  return (
+    hasEntityPick(command, name) ||
+    requestablePicks(command).some((pick) => pick.name === name)
   );
 }
 

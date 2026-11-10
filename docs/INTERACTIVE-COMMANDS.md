@@ -407,7 +407,18 @@ framed VALUE BOX under the panel:
   draft pre-filled with the current value.
 
 Either way the option joins the selection only when a real value is
-committed; `<esc>` rejects the mark. Opening or closing the editor
+committed; `<esc>` rejects the mark. One exception: an option that names
+an entity of a command family (`-i` of `journey describe`) can be left
+for later. The box says `(type a value, or press ENTER to choose it after
+connecting)` and the menu `[ENTER] choose after connecting`; `<enter>` on
+an empty value then marks the option without a value, and the picker for
+it opens after login, like the pickers that open by themselves. This is
+how a picker is asked for on a command whose entity option is an optional
+filter (the family lists such commands in `onRequest`, see
+`EntityPickRegistry.ts`): the command line is complete without it, so
+record 0030 keeps the picker from opening on its own, and the host that
+the picker needs is chosen in a prompt that may run the command. Unmarking
+the option forgets the request, and a value typed instead replaces it. Opening or closing the editor
 scrubs the readline buffer (replaying its own ctrl+u binding) — the
 filter query that positioned the cursor must not leak into the value
 as a prefix. All of it stays in ONE prompt: the earlier design that

@@ -100,6 +100,11 @@ export function noteDeferredChoice(command: Command, name: string): void {
   deferredChoices.set(command, set);
 }
 
+/** Takes back a choice made with `noteDeferredChoice`, for an option the user unmarked. */
+export function forgetDeferredChoice(command: Command, name: string): void {
+  deferredChoices.get(command)?.delete(name);
+}
+
 /** The options the user chose in the resolution pass whose value is still to come. */
 export function deferredChoicesOf(command: Command): ReadonlySet<string> {
   return deferredChoices.get(command) ?? new Set<string>();

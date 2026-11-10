@@ -104,6 +104,15 @@ export type EscapableMultiSelectConfig<Value> = {
    */
   currentValueFor?: (value: Value) => string | undefined;
   onValue?: (value: Value, collected: string) => void;
+  /**
+   * Members whose value can come later: <enter> on an empty value then marks
+   * the member without one (the invocation editor's entity options, whose
+   * picker runs after login), instead of waiting for text. The value box says
+   * so.
+   */
+  laterFor?: (value: Value) => boolean;
+  /** Called when such a member is marked without a value. */
+  onLater?: (value: Value) => void;
 };
 
 /**
@@ -363,7 +372,18 @@ const escapableMultiSelectImpl = createPrompt(
           // readline already consumed its buffer (textPrompt pattern);
           // read the mirror.
           const line = draft || rl.line || '';
-          if (line.trim().length === 0) return; // empty = no value yet
+          if (line.trim().length === 0) {
+            // empty = no value yet, unless the value is to come later
+            if (!config.laterFor?.(editing)) return;
+            config.onLater?.(editing);
+            setSelected((previous) => {
+              const next = new Set(previous);
+              next.add(editing);
+              return next;
+            });
+            closeInlineEditor(rl, editing);
+            return;
+          }
           config.onValue?.(editing, line);
           setSelected((previous) => {
             const next = new Set(previous);
@@ -671,7 +691,12 @@ const escapableMultiSelectImpl = createPrompt(
           ? {
               // Value-editor surface: typing does not filter (a picker
               // owns the values; a text draft IS the value).
-              enter: editingChoices.length > 0 ? 'pick' : 'commit value',
+              enter:
+                editingChoices.length > 0
+                  ? 'pick'
+                  : !draft && config.laterFor?.(editing)
+                    ? 'choose after connecting'
+                    : 'commit value',
               escape: 'rejects',
             }
           : {
@@ -749,6 +774,9 @@ const escapableMultiSelectImpl = createPrompt(
     // The inline value editor: its own framed box directly under the
     // panel. An enum option renders its choices as a picker list; a
     // free text option renders the draft with readline's echo muted.
+    const valuePlaceholder = config.laterFor?.(editing)
+      ? '(type a value, or press ENTER to choose it after connecting)'
+      : '(type a value)';
     const valueBox =
       editing === null
         ? ''
@@ -769,8 +797,8 @@ const escapableMultiSelectImpl = createPrompt(
               title: `Value for ${editingName}`,
               lines: [
                 {
-                  text: c.command(draft || '(type a value)'),
-                  plain: draft || '(type a value)',
+                  text: c.command(draft || valuePlaceholder),
+                  plain: draft || valuePlaceholder,
                 },
               ],
               width,

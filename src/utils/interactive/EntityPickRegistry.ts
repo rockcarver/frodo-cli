@@ -32,6 +32,14 @@ export type EntityPickFamily = {
    */
   except?: string[];
   /**
+   * Commands of the family (their path after the family, and also listed in
+   * `except`) whose option is an optional filter: without it they cover every
+   * entity, so the command line is complete and the pick never opens by
+   * itself (record 0030). The user can still ask for it on the options page
+   * ("choose after connecting"), and then the pick runs after login.
+   */
+  onRequest?: string[];
+  /**
    * Commands of the family whose verb is one of `NEW_ENTITY_VERBS` but whose
    * option still refers to an existing entity (for example a `create` that
    * adds a version to an existing secret), so they do get the picks.
@@ -75,6 +83,32 @@ export function commandPathOf(command: Command): string {
     current = current.parent;
   }
   return names.join(' ').replace(/^frodo( |$)/, '');
+}
+
+/**
+ * The picks the user can ask for on a command that does not inherit them
+ * because its option is an optional filter (the family lists it in
+ * `onRequest`).
+ * @param {Command} command the command
+ * @returns {EntityPickSpec[]} the picks available on request
+ */
+export function requestablePicks(command: Command): EntityPickSpec[] {
+  const path = commandPathOf(command);
+  const picks: EntityPickSpec[] = [];
+  for (const entry of families.values()) {
+    if (!path.startsWith(`${entry.family} `)) continue;
+    if (!entry.onRequest?.includes(path.slice(entry.family.length + 1))) {
+      continue;
+    }
+    for (const pick of entry.picks) {
+      if (
+        command.options.some((option) => option.attributeName() === pick.name)
+      ) {
+        picks.push(pick);
+      }
+    }
+  }
+  return picks;
 }
 
 /**
