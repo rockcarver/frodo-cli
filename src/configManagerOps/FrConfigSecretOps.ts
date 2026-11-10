@@ -22,6 +22,7 @@ const {
   createVersionOfSecret,
   readVersionsOfSecret,
   pruneVersionsOfSecret,
+  deleteSecret,
 } = frodo.cloud.secret;
 
 type FrConfigSecret = SecretSkeleton & {
@@ -296,4 +297,102 @@ export async function configManagerImportSecrets(
     printError(error, `Error importing secrets.`);
     return false;
   }
+}
+
+/**
+ * Reads the secrets of the tenant for a delete. A listing that fails, or that
+ * is not a list, is reported and is not "no secrets": the caller deletes
+ * nothing then.
+ * @returns {Promise<SecretSkeleton[] | undefined>} the secrets, or undefined if they could not be read (the error has been printed)
+ */
+async function readSecretsToDelete(): Promise<SecretSkeleton[] | undefined> {
+  try {
+    const secrets = await readSecrets();
+    if (!Array.isArray(secrets)) {
+      throw new Error('Error reading secrets: the answer is not a list.');
+    }
+    return secrets;
+  } catch (error) {
+    printError(error);
+    return undefined;
+  }
+}
+
+/**
+ * Shows what deleting all secrets would delete, for the question that is asked
+ * first: every secret by name, how many there are, and that the values of a
+ * deleted secret cannot be recovered. Nothing is deleted.
+ * @returns {Promise<boolean>} False if the secrets cannot be read; otherwise true.
+ */
+export async function showSecretDeletePlan(): Promise<boolean> {
+  const secrets = await readSecretsToDelete();
+  if (!secrets) return false;
+  if (secrets.length === 0) {
+    printMessage('No secrets found to delete.');
+    return true;
+  }
+  for (const secret of secrets) {
+    printMessage(`Dry run: Deleting secret: ${secret._id}`);
+  }
+  printMessage(
+    `${secrets.length} ${secrets.length === 1 ? 'secret' : 'secrets'} would be deleted. The values of a deleted secret cannot be recovered.`,
+    'warn'
+  );
+  return true;
+}
+
+/**
+ * Delete secrets from the tenant: the one with the given name, or all of them.
+ * A secret that cannot be deleted does not stop the others; one summary names
+ * the secrets that failed. Secrets that cannot be read fail the command and
+ * nothing is deleted, whatever `allowFailures` says.
+ * @param {string} name Optional exact secret ID. If omitted (undefined), targets all secrets. An empty name is an error, never "all".
+ * @param {boolean} dryRun Show matching secret IDs without deleting them.
+ * @param {boolean} allowFailures True to succeed although some secrets could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} False if the name is empty, reading or any deletion fails (unless failures are allowed for a deletion), or a named secret is not found; true otherwise, also when there is nothing to delete.
+ */
+export async function configManagerDeleteSecrets(
+  name?: string,
+  dryRun = false,
+  allowFailures = false
+): Promise<boolean> {
+  // "not given" and "given but empty" are different: an empty name must never
+  // select every secret
+  const named = name !== undefined;
+  if (named && name.trim() === '') {
+    printMessage(
+      'The secret name must not be empty. To delete all secrets, leave out the name.',
+      'error'
+    );
+    return false;
+  }
+  const secrets = await readSecretsToDelete();
+  if (!secrets) return false;
+  const selectedSecrets = named
+    ? secrets.filter((secret) => secret._id === name)
+    : secrets;
+  if (selectedSecrets.length === 0) {
+    if (named) {
+      printMessage(`Secret '${name}' not found.`, 'error');
+      return false;
+    }
+    printMessage('No secrets found to delete.');
+    return true;
+  }
+  const run = new OperationRun({ unit: 'secret', allowFailures });
+  for (const secret of selectedSecrets) {
+    if (dryRun) {
+      printMessage(`Dry run: Deleting secret: ${secret._id}`);
+      continue;
+    }
+    try {
+      await deleteSecret(secret._id);
+      printMessage(`Deleted secret: ${secret._id}`);
+      run.recordSuccess();
+    } catch (error) {
+      printError(error, `Failed to delete secret ${secret._id}`);
+      run.recordFailure(secret._id, causeOf(error));
+    }
+  }
+  return run.finish();
 }
