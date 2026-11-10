@@ -67,7 +67,6 @@ The rejected combinations follow these patterns:
 | `--no-deps` with `-A`                                                                                  | `script import`                                                                                                                                                                                                                                     |
 | `-t, --secretstore-type` with `-a` or `-A`                                                             | `secretstore delete`, `export`, `import`                                                                                                                                                                                                            |
 | `-g, --global` with `-a` or `-A`                                                                       | `config import`                                                                                                                                                                                                                                     |
-| `-s, --separate-mappings` or `-o, --separate-objects` with `-a`                                        | `config export`                                                                                                                                                                                                                                     |
 | `--raw` with `-a`                                                                                      | `email template import`                                                                                                                                                                                                                             |
 | `-x, --no-extract` with `-a`                                                                           | `iga workflow export`                                                                                                                                                                                                                               |
 | `-c, --connector-id` or `-t, --managed-object-type` with `-i, --mapping-id`                            | `mapping delete`, `mapping export`                                                                                                                                                                                                                  |
@@ -643,11 +642,18 @@ no longer exists and is rejected. This affects `config export`,
 | `frodo config export -A -x ...` | `frodo config export -A ...`    |
 | `frodo config export -A ...`    | `frodo config export -A -x ...` |
 
-**Removed option**:
+**Removed options**:
 
-| Removed option                                            | Replacement                                                      |
-| --------------------------------------------------------- | ---------------------------------------------------------------- |
-| `-s, --separate-mappings` (`config export`, `idm export`) | None needed: sync mappings are always written to separate files. |
+| Removed option                                            | Replacement                                                                                                                                                          |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-s, --separate-mappings` (`config export`, `idm export`) | None needed: sync mappings are always written to separate files.                                                                                                     |
+| `-o, --separate-objects` (`config export`, `idm export`)  | None needed: managed objects are written to separate files whenever extraction is on, which is the default; `-x, --no-extract` keeps them in one `managed.idm.json`. |
+
+Both options are gone from every 4.x release and from 5.x, and a command line
+that passes one is rejected as an unknown option. The 5.0.0 prereleases
+5.0.0-15 to 5.0.0-25 declared them on `config export` again by mistake: the
+command accepted them and did nothing with them. To get separate files from
+`config export`, use `-A` (with `-D <directory>`).
 
 ---
 
