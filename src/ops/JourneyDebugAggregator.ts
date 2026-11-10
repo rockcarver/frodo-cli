@@ -81,6 +81,7 @@
  * an `AM-NODE-LOGIN-COMPLETED` event with no timeout data at all).
  */
 import { frodo, state, type LogEventSkeleton } from '@rockcarver/frodo-lib';
+import { isNotFoundError } from '../utils/ErrorCause';
 import {
   compactFailureReason,
   decodeHtmlEntities,
@@ -1076,7 +1077,7 @@ export class JourneyDebugAggregator {
         // A 404 means this id genuinely isn't a service account frodo can
         // read (or no longer exists) -- permanent, not worth retrying or
         // warning about, same reasoning as the tree-export 404 case above.
-        if ((error as { httpStatus?: number })?.httpStatus === 404) {
+        if (isNotFoundError(error)) {
           this.serviceAccountCache.set(serviceAccountId, {
             name: undefined,
             resolved: true,
@@ -1142,7 +1143,7 @@ export class JourneyDebugAggregator {
         // waste. Treat it as permanently resolved with no overrides instead
         // of leaving it unresolved for retry, and don't warn -- an internal
         // system tree having no exportable definition isn't an error.
-        if ((error as { httpStatus?: number })?.httpStatus === 404) {
+        if (isNotFoundError(error)) {
           this.treeCache.set(treeName, {
             overrides: [],
             canSuspend: false,
