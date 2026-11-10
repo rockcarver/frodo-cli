@@ -461,6 +461,17 @@ describe('phase 5 slice 4: command preview', () => {
    */
   describe('footer color (red+italic = incomplete, green = ready)', () => {
     const COLOR_ENV = { NO_COLOR: '__FRODO_PTY_DELETE__' };
+    // The entity picker is a prompt of the resolution pass, which logs in for it
+    // (record 0044), and `esv` commands are cloud-only. The replayed login
+    // cassette tells the deployment types apart by the ORDER of the requests,
+    // and that depends on whether the connection profile of the host can be
+    // read (it detects forgeops where it can, as in CI; cloud where it cannot),
+    // so the scenario says what the tenant is: a service account is a cloud
+    // login, as in the realm picker scenarios.
+    const CLOUD_LOGIN = {
+      FRODO_SA_ID: connection.saId,
+      FRODO_SA_JWK: connection.saJwk,
+    };
     const DROP = '__FRODO_PTY_DELETE__';
     const stripSgr = (text) => text.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, '');
     // The footer is the first `frodo ...` line under the last panel wall.
@@ -686,7 +697,7 @@ describe('phase 5 slice 4: command preview', () => {
             homeDir,
             allowPrompting: true,
             args: ['esv', 'secret', 'delete'],
-            env: { ...ENV, ...COLOR_ENV },
+            env: { ...ENV, ...COLOR_ENV, ...CLOUD_LOGIN },
             actions: [
               {
                 type: 'wait_plain',
@@ -738,7 +749,7 @@ describe('phase 5 slice 4: command preview', () => {
             homeDir,
             allowPrompting: true,
             args: ['esv', 'secret', 'delete'],
-            env: ENV,
+            env: { ...ENV, ...CLOUD_LOGIN },
             actions: [
               {
                 type: 'wait_plain',
@@ -1021,10 +1032,10 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
               timeoutMs: 15000,
             },
             { type: 'sleep', ms: 400 },
-            { type: 'send', text: 'env-file' },
+            { type: 'send', text: 'idm-host' },
             {
               type: 'wait_plain',
-              regex: 'query: env-file',
+              regex: 'query: idm-host',
               timeoutMs: 15000,
             },
             { type: 'sleep', ms: 300 },
@@ -1036,7 +1047,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
             { type: 'key', name: 'space' },
             {
               type: 'wait_plain',
-              regex: 'Value for --env-file',
+              regex: 'Value for --idm-host',
               timeoutMs: 8000,
             },
             { type: 'sleep', ms: 300 },
@@ -1064,12 +1075,14 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         });
 
         // The committed value marked the option, and the footer
-        // serializes the REAL value (the filter query "env-file" did
-        // not leak into the buffer as a prefix of the value).
+        // serializes the REAL value (the filter query "idm-host" did
+        // not leak into the buffer as a prefix of the value). The option
+        // is a text one: a path option (--env-file) is picked in the file
+        // system picker after the page, not typed in this box.
         const afterCommit = result.captures.afterCommit.plain;
-        expect(afterCommit).toMatch(/◉ (?:› )?\s*--env-file/);
+        expect(afterCommit).toMatch(/◉ (?:› )?\s*--idm-host/);
         expect(afterCommit).toMatch(
-          /frodo esv secret delete -k --retry network --env-file FOO=bar/
+          /frodo esv secret delete --idm-host FOO=bar -k --retry network/
         );
         // The reject path opens the same framed box for -E/--env...
         const rejectOpen = result.captures.rejectOpen.plain;
@@ -1078,14 +1091,13 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         );
         expect(rejectFrame).toMatch(/┌ Value for -E, --env <key=value> ─/);
         // ...and escaping it leaves the option UNMARKED (the committed
-        // --env-file stands; "--env" is a PREFIX of "--env-file", so the
-        // boundary assertions anchor on a space/end, never \b -- dash is
-        // a non-word char and \b would match inside the committed
-        // option's name).
+        // --idm-host stands; the boundary assertions anchor on a
+        // space/end, never \b -- dash is a non-word char and \b would
+        // match inside an option's name).
         const afterReject = result.captures.afterReject.plain;
         expect(afterReject).not.toMatch(/◉ (?:› )?--env /);
         expect(afterReject).not.toMatch(/◉ (?:› )?--env$/m);
-        expect(afterReject).toMatch(/--env-file/);
+        expect(afterReject).toMatch(/--idm-host/);
       } finally {
         removeShellTestHome(homeDir);
       }
