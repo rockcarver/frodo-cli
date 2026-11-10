@@ -436,10 +436,11 @@ export async function resolveInteractiveInputs(
   //   results. The realm pick and the entity picks that need a login ran in
   //   this pass (record 0044); the wrapper still runs them for a command whose
   //   pass made no login. SKIPPED when the command has entity picks the pass did
-  //   not run and that are still pending (resolveEntityPicks flushes instead).
-  // - resolveEntityPicks (EntityPickers): after the last entity pick
-  //   concludes -- the pick-after-auth commands (esv variable set, secret
-  //   store mapping delete) print here, with the picked values in.
+  //   not run and that are still pending (resolveFamilyEntityPicks flushes
+  //   instead).
+  // - resolveFamilyEntityPicks (EntityPickers): after the last entity pick
+  //   concludes -- a command whose pass made no login prints here, with the
+  //   picked values in.
   // - postAction hook (FrodoCommand): the fallback for commands whose
   //   interactive flow ends elsewhere (settings/conn/stub commands -- no
   //   auth, no picks); a no-op for anything the first two sites already
@@ -673,8 +674,15 @@ export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
  */
 async function selectWithEditorRouting<Value>(
   command: Command,
-  config: EscapableSelectConfig<Value>
+  {
+    autoSelectSingle,
+    ...config
+  }: EscapableSelectConfig<Value> & { autoSelectSingle?: boolean }
 ): Promise<Value | typeof ESCAPE> {
+  // a menu of one row asks for nothing the caller could not answer itself
+  if (autoSelectSingle && config.choices.length === 1) {
+    return config.choices[0].value;
+  }
   const hint = editableOptionsHint(command);
   // Preview discipline: callers pass their own (a LIVE callback when the
   // pick maps onto a command token); the default is a static-committed-
@@ -1030,7 +1038,9 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
       .filter(
         (member): member is { name: string; option: Option } =>
           member !== undefined
-      );
+      )
+      // a group that needs every member asks for the ones still missing
+      .filter((member) => !group.all || !isAnswered(command, member.name));
     if (memberOptions.length === 0) continue;
 
     // A member that cannot be combined with an option the user already gave
@@ -1060,6 +1070,8 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     // reads SATISFIED in the same frame (green before any commit).
     const picked = await selectWithEditorRouting(command, {
       message: `Choose ${subject}:`,
+      // the one member that a group needing every member still lacks is no choice
+      autoSelectSingle: group.all,
       ...(commandReadinessFor(command)
         ? {
             preview: (highlighted: unknown) => {
@@ -1131,7 +1143,27 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     }
     verboseMessage(`Using ${chosen.option.flags}.`);
   }
+  // each member of a group that needs every member is asked for in turn
+  if (hasMissingMembers(command)) return resolveOneOfGroups(command);
   return true;
+}
+
+/** Whether an option has a value, or is chosen in the pass and gets its value from a pick later. */
+function isAnswered(command: Command, name: string): boolean {
+  return isOptionGiven(command, name) || deferredChoicesOf(command).has(name);
+}
+
+/** Whether a group that needs every member still has a member nobody supplied. */
+function hasMissingMembers(command: Command): boolean {
+  return findUnsatisfiedOneOfGroups(command).some(
+    (group) =>
+      group.all &&
+      group.options.some(
+        (name) =>
+          command.options.some((option) => option.attributeName() === name) &&
+          !isAnswered(command, name)
+      )
+  );
 }
 
 /**

@@ -333,10 +333,10 @@ export async function getTokens(
     // getTokens returns true, and the realm pick (which can still change
     // the command) has concluded by now. SKIPPED when the command has entity
     // picks still PENDING (registered and their option unset, and the pass has
-    // not run them -- they run later in the action body and may still change
-    // the command): resolveEntityPicks flushes after its picks conclude
-    // instead. Picks already applied before auth (the pick-first pattern) do
-    // NOT block this flush -- their option is set, nothing pending.
+    // not run them -- they may still change the command):
+    // resolveFamilyEntityPicks flushes after its picks conclude instead. Picks
+    // already applied do NOT block this flush -- their option is set, nothing
+    // pending.
     // Arming-only sessions (no prompts, not explicitly interactive) flush
     // as a no-op via the closure's gate.
     {

@@ -22,6 +22,9 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {number} [options.usersCap] stops the AM users endpoint (not IDM) at this many results, in the list and in the count
  * @param {string[]} [options.oauth2Clients] client ids the OAuth2 client list of the realm answers with (default: it answers 404)
  * @param {string[]} [options.scripts] script names the script list of the realm answers with (default: it answers 404)
+ * @param {string[]} [options.secrets] ids the list of environment secrets answers with (a cloud tenant; default: it answers 404)
+ * @param {string[]} [options.services] ids the list of AM services (realm and global) answers with (default: it answers 404)
+ * @param {{ stores: { _id: string, type: string }[], mappings?: Record<string, { secretId: string, aliases?: string[] }[]> }} [options.secretStores] the secret stores of the realm and their mappings (default: they answer 404)
  * @param {string[]} [options.trees] journey names the journey list of the realm answers with; an empty array is a realm without journeys (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
@@ -36,6 +39,9 @@ export async function startFakeAm({
   users,
   oauth2Clients,
   scripts,
+  secrets,
+  services,
+  secretStores,
   trees,
   usersCap,
   sessionTtlSeconds,
@@ -63,6 +69,16 @@ export async function startFakeAm({
         ? { FAKE_AM_OAUTH2_CLIENTS: oauth2Clients.join(',') }
         : {}),
       ...(scripts ? { FAKE_AM_SCRIPTS: scripts.join(',') } : {}),
+      ...(secrets ? { FAKE_AM_SECRETS: secrets.join(',') } : {}),
+      ...(services ? { FAKE_AM_SERVICES: services.join(',') } : {}),
+      ...(secretStores
+        ? {
+            FAKE_AM_SECRET_STORES_FILE: written(
+              'secret-stores.json',
+              secretStores
+            ),
+          }
+        : {}),
       ...(trees ? { FAKE_AM_TREES: trees.join(',') } : {}),
       ...(usersCap ? { FAKE_AM_USERS_CAP: String(usersCap) } : {}),
       ...(sessionTtlSeconds

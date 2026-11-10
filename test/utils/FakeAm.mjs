@@ -54,6 +54,19 @@
  * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
  * (`.../scripts`) answer with scripts of those names, the way the script
  * picker of the script commands reads it.
+ * FAKE_AM_SECRETS=<id,id,...> makes the list of environment secrets
+ * (`/environment/secrets`, a cloud tenant) answer with secrets of those ids; an
+ * empty value is a tenant without secrets. Without it the list answers 404. The
+ * calls that delete a secret or add a version to one are answered `200`, and
+ * reading one of them answers its skeleton.
+ * FAKE_AM_SERVICES=<id,id,...> makes the list of the AM services of the realm
+ * and of the global ones (`.../services?_action=nextdescendents`) answer with
+ * services of those ids; an empty value is a realm without services. Without it
+ * the list answers 404. Deleting one is answered `200`.
+ * FAKE_AM_SECRET_STORES_FILE=<path> names a JSON file `{ stores: [{ _id, type }],
+ * mappings: { <store id>: [{ secretId, aliases }] } }` the fake serves the secret
+ * stores of the realm (`.../secrets/stores?_action=nextdescendents`) and their
+ * mappings from; creating or replacing a mapping is answered `200`.
  * FAKE_AM_TREES=<name,name,...> makes the journey list of the realm
  * (`.../authenticationtrees/trees`) answer with trees of those names; an empty
  * value is a realm without journeys. Without it the list answers 404. The
@@ -95,6 +108,11 @@ const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
 const scripts = (process.env.FAKE_AM_SCRIPTS ?? '').split(',').filter(Boolean);
+const idList = (value) =>
+  value === undefined ? undefined : value.split(',').filter(Boolean);
+const secrets = idList(process.env.FAKE_AM_SECRETS);
+const services = idList(process.env.FAKE_AM_SERVICES);
+const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
 const trees =
   process.env.FAKE_AM_TREES === undefined
     ? undefined
@@ -186,6 +204,105 @@ const server = http.createServer((req, res) => {
         totalPagedResults: oauth2Clients.length,
         remainingPagedResults: -1,
       });
+    }
+    if (secrets && pathname.endsWith('/environment/secrets')) {
+      return send(200, {
+        result: secrets.map((_id) => ({
+          _id,
+          description: `the secret ${_id}`,
+          activeVersion: '1',
+          loadedVersion: '1',
+        })),
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: secrets.length,
+        remainingPagedResults: -1,
+      });
+    }
+    if (
+      secrets &&
+      req.method === 'GET' &&
+      pathname.includes('/environment/secrets/')
+    ) {
+      const _id = decodeURIComponent(
+        pathname.split('/environment/secrets/')[1]
+      );
+      return secrets.includes(_id.split('/')[0])
+        ? send(200, { _id, encoding: 'generic', useInPlaceholders: true })
+        : send(404, { code: 404, message: 'not found' });
+    }
+    if (
+      secrets &&
+      pathname.includes('/environment/secrets/') &&
+      ['DELETE', 'POST'].includes(req.method)
+    ) {
+      return send(200, {});
+    }
+    if (
+      services &&
+      req.method === 'POST' &&
+      pathname.endsWith('/services') &&
+      new URL(req.url, 'http://fake').searchParams.get('_action') ===
+        'nextdescendents'
+    ) {
+      return send(200, {
+        result: services.map((_id) => ({
+          _id,
+          name: `the service ${_id}`,
+          _type: { _id, name: _id, collection: false },
+        })),
+      });
+    }
+    if (
+      services &&
+      req.method === 'DELETE' &&
+      pathname.includes('/services/')
+    ) {
+      return send(200, {});
+    }
+    if (secretStores && pathname.includes('/secrets/stores')) {
+      const search = new URL(req.url, 'http://fake').searchParams;
+      if (
+        req.method === 'POST' &&
+        pathname.endsWith('/secrets/stores') &&
+        search.get('_action') === 'nextdescendents'
+      ) {
+        return send(200, {
+          result: secretStores.stores.map(({ _id, type }) => ({
+            _id,
+            _type: { _id: type, name: type, collection: true },
+          })),
+        });
+      }
+      const mappings = pathname.match(
+        /\/secrets\/stores\/[^/]+\/([^/]*)\/?mappings$/
+      );
+      if (mappings && req.method === 'GET') {
+        const wanted =
+          mappings[1] ||
+          secretStores.stores.find(({ type }) =>
+            pathname.includes(`/stores/${type}/`)
+          )?._id;
+        return send(200, {
+          result: (secretStores.mappings?.[wanted] ?? []).map((mapping) => ({
+            _id: mapping.secretId,
+            ...mapping,
+          })),
+        });
+      }
+      if (mappings && req.method === 'POST') return send(200, {});
+      const mapping = pathname.match(
+        /\/secrets\/stores\/[^/]+\/([^/]*)\/?mappings\/([^/]+)$/
+      );
+      if (mapping && req.method === 'GET') {
+        const found = (secretStores.mappings?.[mapping[1]] ?? []).find(
+          ({ secretId }) => secretId === decodeURIComponent(mapping[2])
+        );
+        return found
+          ? send(200, { _id: found.secretId, ...found })
+          : send(404, { code: 404, message: 'not found' });
+      }
+      if (mapping && req.method === 'PUT') return send(200, {});
     }
     if (trees && pathname.endsWith('/authenticationtrees/trees')) {
       return send(200, {

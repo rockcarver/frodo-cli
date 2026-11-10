@@ -3482,9 +3482,9 @@ class FrodoStubHelp extends Help {
       super.optionDescription(option),
       option
     );
-    // "(pick from <kind>)": the option has an entity picker registered
-    // (deferEntityPicks), so an interactive session offers a dropdown of
-    // the live system's entities for it.
+    // "(pick from <kind>)": the option has an entity picker registered by
+    // its command family (EntityPickFamilies.ts), so an interactive session
+    // offers a dropdown of the live system's entities for it.
     const pick = (
       this.renderedCommand ? getEntityPicks(this.renderedCommand) : []
     ).find((candidate) => candidate.name === option.attributeName());
