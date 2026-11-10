@@ -464,7 +464,7 @@ readlines fighting over stdin and froze the frame.
 
 An option that names a place in the file system (`-f, --file`, `-D,
 --directory`, `-C, --config-folder`, ...) is not asked for as a line of text
-([record 0044](decisions/0044-a-path-option-gets-a-file-system-picker-where-the-pass-would-ask-for-text.md)):
+([record 0045](decisions/0045-a-path-option-gets-a-file-system-picker-where-the-pass-would-ask-for-text.md)):
 the user walks the file system and picks. `FileSystemPicker.ts` draws it as every
 prompt is drawn (the Navigate menu, the question in a box, the command
 underneath), one `escapableSelect` page per folder, with the text prompt for a

@@ -64,6 +64,7 @@ const settle = (ms = 400) => ({ type: 'sleep', ms });
 
 suite('the file system picker, on a real terminal', () => {
   let home;
+  let base;
   let work;
   let outside;
   let fakeAm;
@@ -75,10 +76,17 @@ suite('the file system picker, on a real terminal', () => {
 
   beforeEach(async () => {
     home = createShellTestHome();
-    // realpath: the tree is reported by the process as it resolves it
-    work = fs.realpathSync(
+    // realpath: the tree is reported by the process as it resolves it. The
+    // working directory has a folder of its own to sit in, so the folder above
+    // it holds nothing but it and the folder to pick from outside it: the
+    // temporary folder of the machine is busy and long.
+    base = fs.realpathSync(
       fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-picker-'))
     );
+    work = path.join(base, 'work');
+    outside = path.join(base, 'outside');
+    fs.mkdirSync(work);
+    fs.mkdirSync(outside);
     for (const folder of [
       'exports',
       'imports',
@@ -93,10 +101,6 @@ suite('the file system picker, on a real terminal', () => {
     fs.writeFileSync(path.join(work, 'notes.txt'), 'x');
     fs.writeFileSync(path.join(work, 'saml.json'), '[]');
     fs.writeFileSync(path.join(work, '.secret'), 'x');
-    // a folder beside the working directory, to pick from outside it
-    outside = fs.realpathSync(
-      fs.mkdtempSync(path.join(path.dirname(work), 'frodo-picker-outside-'))
-    );
     recordPath = path.join(home, 'requests.jsonl');
     fakeAm = await startFakeAm({
       journey: 'password',
@@ -109,8 +113,7 @@ suite('the file system picker, on a real terminal', () => {
     fakeAm?.stop();
     fakeAm = undefined;
     removeShellTestHome(home);
-    fs.rmSync(work, { recursive: true, force: true });
-    fs.rmSync(outside, { recursive: true, force: true });
+    fs.rmSync(base, { recursive: true, force: true });
   });
 
   const host = () => `http://127.0.0.1:${fakeAm.port}/am`;
@@ -239,8 +242,8 @@ suite('the file system picker, on a real terminal', () => {
         ...down(1), // `..`
         { type: 'key', name: 'enter' },
         settle(600),
-        // the folder above holds the folders of other runs: find ours by its name
-        { type: 'send', text: path.basename(outside) },
+        // the folder above holds `outside/` and `work/`, the cursor on work/
+        { type: 'key', name: 'up' },
         settle(),
         { type: 'key', name: 'enter' }, // open it
         settle(600),
