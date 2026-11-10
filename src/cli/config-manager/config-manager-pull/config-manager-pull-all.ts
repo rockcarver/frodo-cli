@@ -16,7 +16,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-C, --config-folder <config-folder-path>',
-        'Path to the folder containing the config files.\n'
+        'Path to the folder containing the config files that the entities below read. It is only read from: the exported files are written to the working directory (-D), which the command names when it starts.\n'
       ).makeOptionMandatory()
     )
     .addHelpText(

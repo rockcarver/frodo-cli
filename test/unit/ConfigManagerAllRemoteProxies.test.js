@@ -22,6 +22,8 @@ let deploymentType = 'cloud';
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: {
     utils: {
+      // where `pull all` says it writes
+      getWorkingDirectory: () => '/work',
       constants: {
         CLASSIC_DEPLOYMENT_TYPE_KEY: 'classic',
         CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud',
@@ -59,6 +61,9 @@ for (const [, names, from] of imports) {
 }
 // the file steps are built when the lists are, so they have to return a step
 spies.configFileStep.mockImplementation(() => async () => true);
+// no config folder is given here, so none is unusable, and no step reads a file
+spies.configFolderProblem.mockImplementation(() => undefined);
+spies.configFileOf.mockImplementation(() => undefined);
 
 const { configManagerExportAllStatic, configManagerExportAllWithConfigFolder } =
   await import('../../src/configManagerOps/FrConfigAllOps.ts');
@@ -106,8 +111,15 @@ describe.each(commands)('%s when a step fails', (_name, run) => {
     spies.printMessage.mockClear();
     spies.printError.mockClear();
   });
+  // `pull all` also says where it writes (see ConfigManagerPullAllMissingFiles.test.js); that is not the summary
+  const reported = () =>
+    spies.printMessage.mock.calls.filter(
+      ([text]) => !/^Export(ing|ed) to /.test(text)
+    );
   const summary = () =>
-    spies.printMessage.mock.calls.map(([text]) => text).join('\n');
+    reported()
+      .map(([text]) => text)
+      .join('\n');
 
   test('runs every other step, names the failed one in one summary and fails the command', async () => {
     spies.configManagerExportJourneys.mockResolvedValueOnce(false);
@@ -117,8 +129,8 @@ describe.each(commands)('%s when a step fails', (_name, run) => {
     // the steps after the failed one still ran
     expect(spies.configManagerExportScripts).toHaveBeenCalledTimes(1);
     expect(spies.configManagerExportThemes).toHaveBeenCalledTimes(1);
-    expect(spies.printMessage).toHaveBeenCalledTimes(1);
-    expect(spies.printMessage.mock.calls[0][1]).toBe('error');
+    expect(reported()).toHaveLength(1);
+    expect(reported()[0][1]).toBe('error');
     expect(summary()).toMatch(/^1 of \d+ steps failed:\n {2}- journeys$/);
   });
 
@@ -149,7 +161,7 @@ describe.each(commands)('%s when a step fails', (_name, run) => {
 
     expect(await run({ allowFailures: true })).toBe(true);
 
-    expect(spies.printMessage.mock.calls[0][1]).toBe('warn');
+    expect(reported()[0][1]).toBe('warn');
     expect(summary()).toContain('- journeys');
     expect(summary()).toContain(
       'The exit code stays 0 because --allow-failures was given.'
@@ -158,6 +170,6 @@ describe.each(commands)('%s when a step fails', (_name, run) => {
 
   test('prints nothing extra when every step succeeds', async () => {
     expect(await run()).toBe(true);
-    expect(spies.printMessage).not.toHaveBeenCalled();
+    expect(reported()).toEqual([]);
   });
 });
