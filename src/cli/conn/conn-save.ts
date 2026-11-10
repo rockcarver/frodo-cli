@@ -261,7 +261,7 @@ export default function setup() {
             options.saJwkFile &&
             options.sa
           ) {
-            addExistingServiceAccount(
+            await addExistingServiceAccount(
               options.saId,
               options.saJwkFile,
               options.validate

@@ -24,6 +24,8 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string[]} [options.trees] journey names the journey list of the realm answers with; an empty array is a realm without journeys (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
+ * @param {{method: string, path: string}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment)
+ * @param {object[]} [options.logApiKeys] keys returned by the log API key list
  * @returns {Promise<{ port: number, stop: () => void }>}
  */
 export async function startFakeAm({
@@ -39,6 +41,8 @@ export async function startFakeAm({
   usersCap,
   sessionTtlSeconds,
   logout,
+  failRequests,
+  logApiKeys,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
   const written = (name, data) => {
@@ -67,6 +71,12 @@ export async function startFakeAm({
         ? { FAKE_AM_SESSION_TTL_SECONDS: String(sessionTtlSeconds) }
         : {}),
       ...(logout ? { FAKE_AM_LOGOUT: logout } : {}),
+      ...(failRequests
+        ? { FAKE_AM_FAIL_REQUESTS: JSON.stringify(failRequests) }
+        : {}),
+      ...(logApiKeys
+        ? { FAKE_AM_LOG_API_KEYS_FILE: written('log-keys.json', logApiKeys) }
+        : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });

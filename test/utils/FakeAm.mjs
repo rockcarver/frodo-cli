@@ -85,6 +85,8 @@ const readJson = (file) =>
   file ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined;
 const issuer = readJson(process.env.FAKE_AM_ISSUER_FILE);
 const users = readJson(process.env.FAKE_AM_USERS_FILE);
+const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
+const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
@@ -140,7 +142,34 @@ const server = http.createServer((req, res) => {
       res.writeHead(status, { 'content-type': 'application/json' });
       res.end(JSON.stringify(payload));
     };
-    if (serviceAccountLogin && req.url.includes('/access_token')) {
+    if (
+      failRequests.some(
+        ({ method, path }) => req.method === method && req.url.includes(path)
+      )
+    ) {
+      return send(500, {
+        code: 500,
+        reason: 'Internal Server Error',
+        message: 'fake tenant operation failed',
+      });
+    }
+    if (logApiKeys && req.method === 'GET' && req.url === '/keys') {
+      return send(200, { result: logApiKeys });
+    }
+    if (logApiKeys && req.method === 'GET' && req.url.startsWith('/keys/')) {
+      const key = logApiKeys.find(
+        ({ api_key_id }) => req.url === `/keys/${api_key_id}`
+      );
+      return send(key ? 200 : 404, key ?? {});
+    }
+    if (logApiKeys && req.url.includes('/oauth2/authorize')) {
+      res.writeHead(302, { location: '/?code=fake-auth-code' });
+      return res.end();
+    }
+    if (
+      (serviceAccountLogin || logApiKeys) &&
+      req.url.includes('/access_token')
+    ) {
       if (
         process.env.FAKE_AM_GRANT_ERROR &&
         !body.includes('client_id=service-account')

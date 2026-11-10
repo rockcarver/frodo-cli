@@ -46,7 +46,7 @@ export default function setup() {
           )
         ) {
           verboseMessage('Exporting authentication settings to file...');
-          const outcome = exportAuthenticationSettingsToFile(
+          const outcome = await exportAuthenticationSettingsToFile(
             options.file,
             options.global,
             options.metadata
