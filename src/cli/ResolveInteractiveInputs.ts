@@ -72,7 +72,10 @@ import {
   editableOptionsHint,
   sortEditableOptions,
 } from '../utils/interactive/EditableOptions';
-import { hasEntityPick } from '../utils/interactive/EntityPickers';
+import {
+  canChooseAfterConnecting,
+  hasEntityPick,
+} from '../utils/interactive/EntityPickers';
 import {
   escapableMultiSelect,
   MULTISEL_ESCAPE,
@@ -93,6 +96,8 @@ import {
   selectableMembers,
 } from '../utils/interactive/OptionConflicts';
 import {
+  deferredChoicesOf,
+  forgetDeferredChoice,
   getOneOfGroups,
   isOptionGiven,
   noteDeferredChoice,
@@ -1345,11 +1350,17 @@ async function runInvocationEditor(command: Command): Promise<void> {
   // selections that are already in the command, not an empty slate --
   // the user's markers ARE the command state. Commander defaults stay
   // unmarked (they are not the user's input).
+  const previouslyDeferred = new Set(deferredChoicesOf(command));
   const preselected = candidates
     .filter(
-      (option) => command.getOptionValueSource(option.attributeName()) === 'cli'
+      (option) =>
+        command.getOptionValueSource(option.attributeName()) === 'cli' ||
+        previouslyDeferred.has(option.attributeName())
     )
     .map((option) => option.attributeName());
+  // options marked in this session without a value: the entity pick that
+  // fills them runs after login
+  const markedForLater = new Set<string>();
 
   // The per-option value step, shared by both paths that can collect a
   // value: the <space> side step (below) and the post-commit loop.
@@ -1466,11 +1477,19 @@ async function runInvocationEditor(command: Command): Promise<void> {
         return undefined;
       return String(current);
     },
+    laterFor: (attributeName) =>
+      canChooseAfterConnecting(command, attributeName),
+    onLater: (attributeName) => {
+      markedForLater.add(attributeName);
+    },
     onValue: (attributeName, value) => {
       const option = command.options.find(
         (candidate) => candidate.attributeName() === attributeName
       );
       if (!option) return;
+      // a value typed now replaces an earlier "after connecting"
+      markedForLater.delete(attributeName);
+      forgetDeferredChoice(command, attributeName);
       // Array-collecting options (ListOption family) accumulate:
       // a repeated mark appends, mirroring repeated CLI flags.
       const collectsArrays = Array.isArray(option.defaultValue);
@@ -1525,6 +1544,18 @@ async function runInvocationEditor(command: Command): Promise<void> {
     verboseMessage('Invocation editor dismissed; values unchanged.');
     return;
   }
+  // "Choose after connecting": a mark without a value stays a request for the
+  // pick that runs after login; an option unmarked again is forgotten
+  for (const attributeName of previouslyDeferred) {
+    if (!picked.includes(attributeName)) {
+      forgetDeferredChoice(command, attributeName);
+    }
+  }
+  for (const attributeName of markedForLater) {
+    if (picked.includes(attributeName)) {
+      noteDeferredChoice(command, attributeName);
+    }
+  }
   // With --save-defaults, every value committed in THIS editor
   // session (set/changed below) persists as the command's defaults. Only
   // options actually committed are saved -- a dismissed editor or an
@@ -1552,6 +1583,17 @@ async function runInvocationEditor(command: Command): Promise<void> {
           verboseMessage(`Using ${pickedOption.flags}.`);
         }
       }
+      continue;
+    }
+    // An option marked "choose after connecting" has no value on purpose:
+    // asking for one here would ask twice, the picker does it after login
+    if (deferredChoicesOf(command).has(attributeName)) {
+      const deferredOption = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      verboseMessage(
+        `Choosing ${deferredOption?.flags ?? attributeName} after connecting.`
+      );
       continue;
     }
     // Options valued INLINE (the multiselect's onValue committed the

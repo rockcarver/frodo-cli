@@ -83,13 +83,13 @@ describe('the journey picker', () => {
   const tree = (id: string) => ({ _id: id }) as TreeSkeleton;
 
   it('belongs to the commands that need a journey', () => {
-    for (const verb of ['delete', 'export', 'enable', 'disable']) {
+    for (const verb of ['delete', 'export', 'enable', 'disable', 'validate']) {
       expect(names(['journey', verb], ...flags)).toEqual(['journeyId']);
     }
   });
 
-  it('does not belong to describe and validate, where -i only narrows what is covered, nor to import, which names a journey in a file', () => {
-    for (const verb of ['describe', 'validate', 'import']) {
+  it('does not belong to describe, where -i only narrows what is covered, nor to import, which names a journey in a file', () => {
+    for (const verb of ['describe', 'import']) {
       expect(names(['journey', verb], ...flags)).toEqual([]);
     }
   });

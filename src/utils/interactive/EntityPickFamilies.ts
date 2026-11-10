@@ -653,12 +653,14 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  // `describe` and `validate` take -i as an optional filter: without it they
-  // cover every journey, so nothing is missing for a pick to fill. `import`
-  // names a journey in a file (left out by default).
+  // `describe` takes -i as an optional filter: without it it covers every
+  // journey, so nothing is missing for a pick to fill. `validate` selects the
+  // journeys with -i, -a or -A (a one-of group), so it gets the picker.
+  // `import` names a journey in a file (left out by default).
   registerEntityPickFamily({
     family: 'journey',
-    except: ['describe', 'validate'],
+    except: ['describe'],
+    onRequest: ['describe'],
     picks: [
       entityPick<TreeSkeleton>({
         name: 'journeyId',
@@ -676,6 +678,7 @@ export function registerEntityPickFamilies(): void {
   registerEntityPickFamily({
     family: 'node',
     except: ['describe', 'type describe'],
+    onRequest: ['describe', 'type describe'],
     picks: [
       entityPick<CustomNodeSkeleton>({
         name: 'nodeId',
