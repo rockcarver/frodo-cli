@@ -14,7 +14,9 @@
  * the CLI looks at, which both shapes satisfy.
  *
  * Delete this file, and read `success`, `message` and `failures` from the result
- * directly, once the CLI pins a library that contains rockcarver/frodo-lib#989.
+ * directly, once the CLI pins a library that contains rockcarver/frodo-lib#989
+ * (FeatureAdvice.ts imports the type below and is not part of the bridge: give
+ * it a type of its own then).
  */
 
 /** What the CLI reads of an install or validate result; every field may be missing. */

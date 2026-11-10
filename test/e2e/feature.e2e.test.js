@@ -50,7 +50,7 @@ describe('frodo feature (list/describe/validate)', () => {
     expect(assertNoPollyReplayError(stderr, CMD)).toMatchSnapshot();
   });
 
-  test(`"frodo feature validate -i groups": should say that the installed groups feature is already installed`, async () => {
+  test(`"frodo feature validate -i groups": should report already-installed as invalid to (re-)install`, async () => {
     const CMD = `frodo feature validate -i groups`;
     const { stdout, stderr } = await execWithRecordingProgress(CMD, env, isRecording);
     expect(assertNoPollyReplayError(stdout, CMD)).toMatchSnapshot();

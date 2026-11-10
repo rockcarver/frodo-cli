@@ -25,6 +25,6 @@ password/timestamps"
 
 exports[`frodo feature (list/describe/validate) "frodo feature list": should list tenant-configuration features 2`] = `""`;
 
-exports[`frodo feature (list/describe/validate) "frodo feature validate -i groups": should say that the installed groups feature is already installed 1`] = `""`;
+exports[`frodo feature (list/describe/validate) "frodo feature validate -i groups": should report already-installed as invalid to (re-)install 1`] = `"Invalid: Validate complete. Managed configuration for alpha_user and bravo_user must NOT already define the groups or effectiveGroups properties. Managed configuration must NOT already define the alpha_group or bravo_group objects. Repo.ds configuration for alpha_user and bravo_user genericMapping must NOT already define the groups or effectiveGroups properties.Resources must NOT already exist in the repository for: alpha_group."`;
 
-exports[`frodo feature (list/describe/validate) "frodo feature validate -i groups": should say that the installed groups feature is already installed 2`] = `"Feature "groups" is already installed."`;
+exports[`frodo feature (list/describe/validate) "frodo feature validate -i groups": should report already-installed as invalid to (re-)install 2`] = `""`;

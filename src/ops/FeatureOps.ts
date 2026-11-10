@@ -2,6 +2,7 @@ import confirm from '@inquirer/confirm';
 import { frodo } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import { createTable, printError, printMessage } from '../utils/Console';
+import { featureAdvice } from './FeatureAdvice';
 import { featureOutcome } from './FeatureOutcome';
 
 const {
@@ -101,8 +102,8 @@ export async function describeFeature(featureId: string): Promise<boolean> {
 /**
  * Validate whether an IDM tenant-configuration feature is installable,
  * without installing it. Prints the summary and, when the feature cannot be
- * installed, the reasons, one per line. A feature that is already installed is
- * not validated: validating it only lists that its configuration is present.
+ * installed, the reasons, one per line; when every reason says that the
+ * configuration is already in the tenant, one more line says what that means.
  * Finding that a feature cannot be installed is a result, not an error: the
  * check ran, so this returns true.
  * @param {string} featureId feature id, e.g. 'aiagent'
@@ -110,13 +111,8 @@ export async function describeFeature(featureId: string): Promise<boolean> {
  */
 export async function validateFeature(featureId: string): Promise<boolean> {
   try {
-    if (await hasIdmFeature(featureId)) {
-      printMessage(`Feature "${featureId}" is already installed.`, 'info');
-      return true;
-    }
-    const { succeeded, message, failures } = featureOutcome(
-      await validateIdmFeature(featureId)
-    );
+    const result = await validateIdmFeature(featureId);
+    const { succeeded, message, failures } = featureOutcome(result);
     printMessage(
       [
         `${succeeded ? c.positive('Valid') : c.negative('Invalid')}${message ? `: ${message}` : ''}`,
@@ -124,6 +120,8 @@ export async function validateFeature(featureId: string): Promise<boolean> {
       ].join('\n'),
       'data'
     );
+    const advice = featureAdvice(result);
+    if (advice) printMessage(advice, 'info');
     return true;
   } catch (error) {
     printError(error, `Error validating feature "${featureId}"`);

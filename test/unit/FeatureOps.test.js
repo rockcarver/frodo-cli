@@ -16,8 +16,9 @@ import {
  *   one is not a failure; a failed install prints the message and each failure
  *   on its own line and exits 1;
  * - a validation that finds failures prints them under the summary and still
- *   exits 0 (the check ran); a feature that is already installed is not
- *   validated;
+ *   exits 0 (the check ran); when every failure says that the configuration is
+ *   already in the tenant, one more line of advice follows; it asks the tenant
+ *   for nothing but the validation (no read of the feature first);
  * - both work with the library that is pinned (the response as the tenant sent
  *   it) and with a library that states the outcome itself (all four fields).
  * The library and the terminal are spies: install is irreversible, so no test
@@ -63,6 +64,11 @@ const FAILURES = [
   'config/managed: /objects/-: value already present at /objects/14',
 ];
 // What the tenant sends, and what a library that states the outcome returns.
+// A failure that does not say that the configuration exists already.
+const OTHER_FAILURE =
+  'config/managed: /objects/-: value does not match the schema';
+const ADVICE =
+  'All failures say that the configuration is already in the tenant: the feature is installed, or its content came with the tenant. Installing it again cannot work.';
 const rawInstallOk = { status: 200, message: 'Install complete.' };
 const normalizedInstallOk = {
   status: 200,
@@ -317,7 +323,7 @@ describe('validateFeature', () => {
       { ...rawValidateFailed, failures: [...FAILURES] },
     ],
   ])(
-    '%s: prints the summary and each failure under it, and succeeds',
+    '%s: prints the summary, each failure under it and the advice, and succeeds',
     async (_name, body) => {
       idmFeature.validateIdmFeature.mockResolvedValue(body);
 
@@ -330,10 +336,21 @@ describe('validateFeature', () => {
           'data',
           `-Invalid-: Validate complete. 2 failure(s).\n  - ${FAILURES[0]}\n  - ${FAILURES[1]}`,
         ],
+        ['info', ADVICE],
       ]);
       expect(printError).not.toHaveBeenCalled();
     }
   );
+
+  test('asks the tenant for the validation only: the feature is not read first', async () => {
+    idmFeature.validateIdmFeature.mockResolvedValue(rawValidateFailed);
+
+    await validateFeature(ID);
+
+    expect(idmFeature.hasIdmFeature).not.toHaveBeenCalled();
+    expect(idmFeature.readIdmFeature).not.toHaveBeenCalled();
+    expect(idmFeature.readIdmFeatures).not.toHaveBeenCalled();
+  });
 
   test.each([
     ['the response as the tenant sent it', rawValidateOk],
@@ -347,7 +364,7 @@ describe('validateFeature', () => {
     ],
     ['failures that is not an array', { ...rawValidateOk, failures: 'none' }],
   ])(
-    'a feature that can be installed (%s): Valid, no failure lines',
+    'a feature that can be installed (%s): Valid, no failure lines, no advice',
     async (_name, body) => {
       idmFeature.validateIdmFeature.mockResolvedValue(body);
 
@@ -357,7 +374,7 @@ describe('validateFeature', () => {
     }
   );
 
-  test('success false without a failures list (the response of an older tenant): the summary only', async () => {
+  test('success false without a failures list (the response of an older tenant): the summary only, no advice', async () => {
     idmFeature.validateIdmFeature.mockResolvedValue({
       status: 200,
       success: false,
@@ -378,7 +395,7 @@ describe('validateFeature', () => {
     idmFeature.validateIdmFeature.mockResolvedValue({
       status: 200,
       message: 'Validate complete. 1 failure(s).',
-      failures: [FAILURES[0]],
+      failures: [OTHER_FAILURE],
     });
 
     await expect(validateFeature(ID)).resolves.toBe(true);
@@ -386,7 +403,7 @@ describe('validateFeature', () => {
     expect(printed()).toEqual([
       [
         'data',
-        `-Invalid-: Validate complete. 1 failure(s).\n  - ${FAILURES[0]}`,
+        `-Invalid-: Validate complete. 1 failure(s).\n  - ${OTHER_FAILURE}`,
       ],
     ]);
   });
@@ -394,13 +411,13 @@ describe('validateFeature', () => {
   test('success true with failures listed: Invalid, the failures are never hidden', async () => {
     idmFeature.validateIdmFeature.mockResolvedValue({
       ...rawValidateOk,
-      failures: [FAILURES[1]],
+      failures: [OTHER_FAILURE],
     });
 
     await expect(validateFeature(ID)).resolves.toBe(true);
 
     expect(printed()).toEqual([
-      ['data', `-Invalid-: Validate complete.\n  - ${FAILURES[1]}`],
+      ['data', `-Invalid-: Validate complete.\n  - ${OTHER_FAILURE}`],
     ]);
   });
 
@@ -415,26 +432,124 @@ describe('validateFeature', () => {
     expect(printed()).toEqual([['data', '+Valid+']]);
   });
 
-  test('an installed feature says so, succeeds and is not validated', async () => {
-    idmFeature.hasIdmFeature.mockResolvedValue(true);
+  describe('advice when the configuration is in the tenant already', () => {
+    const invalid = (failures) => ({
+      status: 200,
+      success: false,
+      message: `Validate complete. ${failures.length} failure(s).`,
+      failures,
+    });
 
-    await expect(validateFeature('groups')).resolves.toBe(true);
+    test.each([
+      [
+        'is already present',
+        'config/managed: /objects/3/schema: is already present',
+      ],
+      [
+        'must not already exist',
+        'config/repo.ds: /resourceMapping/explicitMapping/managed/alpha_aiagent: must not already exist',
+      ],
+      [
+        'value already present',
+        'config/managed: /objects/-: value already present at /objects/14',
+      ],
+    ])(
+      'a failure with the wording "%s" alone gets the advice, after the failures',
+      async (_wording, failure) => {
+        idmFeature.validateIdmFeature.mockResolvedValue(invalid([failure]));
 
-    expect(idmFeature.hasIdmFeature).toHaveBeenCalledWith('groups');
-    expect(printed()).toEqual([
-      ['info', 'Feature "groups" is already installed.'],
-    ]);
-    expect(idmFeature.validateIdmFeature).not.toHaveBeenCalled();
-  });
+        await expect(validateFeature(ID)).resolves.toBe(true);
 
-  test('a feature that is not installed is validated after the check', async () => {
-    idmFeature.hasIdmFeature.mockResolvedValue(false);
-    idmFeature.validateIdmFeature.mockResolvedValue(rawValidateOk);
+        expect(printed()).toEqual([
+          [
+            'data',
+            `-Invalid-: Validate complete. 1 failure(s).\n  - ${failure}`,
+          ],
+          ['info', ADVICE],
+        ]);
+      }
+    );
 
-    await validateFeature(ID);
+    test('all of the three wordings together get the advice once', async () => {
+      const failures = [
+        'config/managed: /objects/3/schema: is already present',
+        FAILURES[0],
+        FAILURES[1],
+      ];
+      idmFeature.validateIdmFeature.mockResolvedValue(invalid(failures));
 
-    expect(idmFeature.hasIdmFeature).toHaveBeenCalledWith(ID);
-    expect(idmFeature.validateIdmFeature).toHaveBeenCalledTimes(1);
+      await validateFeature(ID);
+
+      expect(printedOfType('info')).toEqual([ADVICE]);
+    });
+
+    test('one failure that says something else: no advice, every failure still listed', async () => {
+      idmFeature.validateIdmFeature.mockResolvedValue(
+        invalid([FAILURES[0], OTHER_FAILURE, FAILURES[1]])
+      );
+
+      await expect(validateFeature(ID)).resolves.toBe(true);
+
+      expect(printed()).toEqual([
+        [
+          'data',
+          `-Invalid-: Validate complete. 3 failure(s).\n  - ${FAILURES[0]}\n  - ${OTHER_FAILURE}\n  - ${FAILURES[1]}`,
+        ],
+      ]);
+    });
+
+    test('the one other failure may come first or last', async () => {
+      for (const failures of [
+        [OTHER_FAILURE, FAILURES[0]],
+        [FAILURES[0], OTHER_FAILURE],
+      ]) {
+        printMessage.mockClear();
+        idmFeature.validateIdmFeature.mockResolvedValue(invalid(failures));
+
+        await validateFeature(ID);
+
+        expect(printedOfType('info')).toEqual([]);
+      }
+    });
+
+    test('an entry that is not a text among matching failures: no advice, the entry is shown', async () => {
+      idmFeature.validateIdmFeature.mockResolvedValue(
+        invalid([FAILURES[0], { reason: 'is already present' }])
+      );
+
+      await validateFeature(ID);
+
+      expect(printedOfType('info')).toEqual([]);
+      expect(printedOfType('data')).toEqual([
+        `-Invalid-: Validate complete. 2 failure(s).\n  - ${FAILURES[0]}\n  - {"reason":"is already present"}`,
+      ]);
+    });
+
+    test('a failures list that is empty or not an array: no advice', async () => {
+      for (const failures of [[], 'is already present', null]) {
+        printMessage.mockClear();
+        idmFeature.validateIdmFeature.mockResolvedValue({
+          status: 200,
+          success: false,
+          message: 'Validate complete.',
+          failures,
+        });
+
+        await validateFeature(ID);
+
+        expect(printedOfType('info')).toEqual([]);
+      }
+    });
+
+    test('the advice is a message of its own, type info, not part of the failures', async () => {
+      idmFeature.validateIdmFeature.mockResolvedValue(rawValidateFailed);
+
+      await validateFeature(ID);
+
+      expect(printMessage).toHaveBeenCalledTimes(2);
+      expect(printMessage.mock.calls[0][0]).not.toContain(ADVICE);
+      expect(printMessage.mock.calls[1]).toEqual([ADVICE, 'info']);
+    });
   });
 
   test('a request that fails (HTTP or network error) is reported by printError and fails', async () => {
@@ -449,18 +564,5 @@ describe('validateFeature', () => {
       `Error validating feature "${ID}"`
     );
     expect(printMessage).not.toHaveBeenCalled();
-  });
-
-  test('a failed check for the installed feature fails before anything is validated', async () => {
-    const error = new Error('Error reading IDM feature aiagent');
-    idmFeature.hasIdmFeature.mockRejectedValue(error);
-
-    await expect(validateFeature(ID)).resolves.toBe(false);
-
-    expect(printError).toHaveBeenCalledWith(
-      error,
-      `Error validating feature "${ID}"`
-    );
-    expect(idmFeature.validateIdmFeature).not.toHaveBeenCalled();
   });
 });
