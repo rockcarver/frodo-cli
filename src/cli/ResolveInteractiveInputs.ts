@@ -117,7 +117,6 @@ import {
   noteDeferredChoice,
   type OptionRequirementSpec,
 } from '../utils/interactive/OptionRequirements';
-import { pathOptionOf } from '../utils/interactive/PathOptions';
 import {
   connectionChangedSinceApply,
   forgetPassLogin,
@@ -131,6 +130,7 @@ import {
   recordPassLogin,
   resetPassLogin,
 } from '../utils/interactive/PassLogin';
+import { pathOptionOf } from '../utils/interactive/PathOptions';
 import {
   positionalIndex,
   positionalValue,
