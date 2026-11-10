@@ -198,12 +198,13 @@ export const cliBrowserLoginPromptHandler: BrowserLoginPromptHandler = async (
  * @param forceLoginAsUser the caller's own request to log in as a user (the global override is added here)
  * @param autoRefresh true to automatically refresh tokens before they expire
  * @param types supported deployment types
+ * @returns who is logged in (the subject of the tokens)
  */
 async function login(
   forceLoginAsUser: boolean,
   autoRefresh: boolean,
   types: string[]
-): Promise<void> {
+): Promise<string> {
   const tokens = await _getTokens(
     // The caller's own explicit request always wins; otherwise fall back
     // to the global --force-login-as-user/FRODO_FORCE_LOGIN_AS_USER
@@ -236,32 +237,71 @@ async function login(
       'info'
     );
   }
+  return tokens.subject;
 }
 
 /**
  * The login the resolution pass makes for a picker that needs one (decision
- * record 0044): the same machinery as `getTokens` below (the callback for a
- * second factor, the browser and device prompts, service account, saved
+ * records 0044 and 0046): the same machinery as `getTokens` below (the callback
+ * for a second factor, the browser and device prompts, service account, saved
  * credentials, `--credential`, the global force-login-as-user override) with
- * the default arguments. A failure is reported the way `getTokens` reports it:
- * the error and the hint for it. The pass remembers what it used, so the
- * command's own `getTokens()` does not log in a second time.
+ * the default arguments. The pass remembers what it used, so the command's own
+ * `getTokens()` does not log in a second time. A failure is returned, not
+ * reported: the connection page shows it in its frame and reports it when it is
+ * closed (`reportLoginFailure`).
+ * @returns what the login used and who is logged in, or the error the login failed with
+ */
+export async function tryLoginInPass(): Promise<
+  | {
+      session: {
+        forceLoginAsUser: boolean;
+        autoRefresh: boolean;
+        subject: string;
+      };
+    }
+  | { error: unknown }
+> {
+  const forceLoginAsUser = getForceLoginAsUserOverride();
+  const autoRefresh = true;
+  try {
+    const subject = await login(
+      forceLoginAsUser,
+      autoRefresh,
+      DEPLOYMENT_TYPES
+    );
+    return { session: { forceLoginAsUser, autoRefresh, subject } };
+  } catch (error) {
+    if (error === EXIT_ALL_SIGNAL) throw error;
+    return { error };
+  }
+}
+
+/**
+ * Reports a failed login the way `getTokens` does: the error, and the hint for
+ * it (the library states what is wrong; the advice is ours, ErrorCodeHints).
+ * @param error what the login failed with
+ */
+export function reportLoginFailure(error: unknown): void {
+  printError(error as Error);
+  printErrorHint(error as Error);
+}
+
+/**
+ * The login of the pass, reported where it fails: see `tryLoginInPass`.
  * @returns what the login used, or undefined when it failed (the failure is reported)
  */
 export async function loginInPass(): Promise<
   { forceLoginAsUser: boolean; autoRefresh: boolean } | undefined
 > {
-  const forceLoginAsUser = getForceLoginAsUserOverride();
-  const autoRefresh = true;
-  try {
-    await login(forceLoginAsUser, autoRefresh, DEPLOYMENT_TYPES);
-    return { forceLoginAsUser, autoRefresh };
-  } catch (error) {
-    if (error === EXIT_ALL_SIGNAL) throw error;
-    printError(error);
-    printErrorHint(error);
+  const attempt = await tryLoginInPass();
+  if ('error' in attempt) {
+    reportLoginFailure(attempt.error);
+    return undefined;
   }
-  return undefined;
+  return {
+    forceLoginAsUser: attempt.session.forceLoginAsUser,
+    autoRefresh: attempt.session.autoRefresh,
+  };
 }
 
 /**

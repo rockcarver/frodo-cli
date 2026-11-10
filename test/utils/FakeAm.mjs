@@ -69,6 +69,8 @@
  * AM answers a wrong password. A login is one authenticate call without
  * callbacks (it starts the journey), so a test counts the logins in the
  * request log by counting those.
+ * FAKE_AM_LOGIN_DELAY_MS=<n> holds every authenticate answer for n ms, so a
+ * terminal test can see what the CLI shows while a login is running.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -85,6 +87,7 @@ const sessionExpiry = () =>
     : '2099-01-01T00:00:00Z';
 const plainLogin = process.env.FAKE_AM_JOURNEY === 'password';
 const loginRefused = process.env.FAKE_AM_LOGIN === 'refuse';
+const loginDelayMs = Number(process.env.FAKE_AM_LOGIN_DELAY_MS) || 0;
 const serviceAccountLogin = process.env.FAKE_AM_JOURNEY === 'service-account';
 const realms = (process.env.FAKE_AM_REALMS ?? '').split(',').filter(Boolean);
 const readJson = (file) =>
@@ -143,8 +146,15 @@ const server = http.createServer((req, res) => {
       );
     }
     const send = (status, payload) => {
-      res.writeHead(status, { 'content-type': 'application/json' });
-      res.end(JSON.stringify(payload));
+      const answer = () => {
+        res.writeHead(status, { 'content-type': 'application/json' });
+        res.end(JSON.stringify(payload));
+      };
+      if (loginDelayMs > 0 && req.url.includes('/authenticate')) {
+        setTimeout(answer, loginDelayMs);
+      } else {
+        answer();
+      }
     };
     if (serviceAccountLogin && req.url.includes('/access_token')) {
       if (
