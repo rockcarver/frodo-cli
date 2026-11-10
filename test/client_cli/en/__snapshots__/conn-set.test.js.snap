@@ -15,9 +15,9 @@ Arguments:
 Options:
   --alias <name>                               Alias name for this connection profile.
   --allow-insecure                             Allow insecure connections when using SSL/TLS (persisted on the profile).
-  --authentication-header-overrides <headers>  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests. The values are secrets: they are masked wherever the command is shown.
+  --authentication-header-overrides <headers>  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests. The values are secrets: they are stored encrypted in the connection profile and masked wherever the command is shown.
   --authentication-service <service>           Name of the authentication service/tree to use.
-  --configuration-header-overrides <headers>   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests. The values are secrets: they are masked wherever the command is shown.
+  --configuration-header-overrides <headers>   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests. The values are secrets: they are stored encrypted in the connection profile and masked wherever the command is shown.
   --log-api-key <key>                          Log API key.
   --log-api-secret [secret]                    Log API secret. It goes with the profile's log API key; give --log-api-key as well to change both. Without a value, it is asked for (input hidden) or, when input is piped, read from stdin.
   --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead).

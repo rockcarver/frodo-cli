@@ -149,7 +149,10 @@ JSON map whose values are secrets, and a bare flag is still rejected (see
 `parseHeaderOverrides` (`ConnectionProfileOps.ts`) reads the map and, when it
 is not valid, reports that without quoting the text (the message of
 `JSON.parse` quotes its start). `conn describe` shows the header names of both
-maps and `[present]` for each value; `--show-secrets` shows the values.
+maps and `[present]` for each value; `--show-secrets` shows the values. The
+connection profile stores both maps encrypted, like the password (frodo-lib):
+a profile that an older version saved with plain maps is still read, and the
+next save of it encrypts them.
 
 **Conflicts.** Commander enforces `.conflicts()` while it parses, before the
 steps above run, so everything this pass writes goes through `commitOption`

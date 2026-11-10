@@ -618,6 +618,17 @@ of an application from its old path has to read it from the application folder
 after the migration; one that never migrates is not affected. See
 [config-manager keeps everything an application owns in one folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0042-config-manager-keeps-everything-an-application-owns-in-one-folder.md).
 
+**Header overrides are stored encrypted**: a connection profile kept the values
+of `--authentication-header-overrides` and `--configuration-header-overrides`
+in `Connections.json` in the clear. Now both maps are encrypted with the master
+key, like the password. A profile saved with plain maps by an earlier version is
+read as it is and is not rewritten by reading it; the next save of that profile
+(any `conn save` or `conn set` for it) encrypts them. In the other direction, an
+earlier version reads only the profile fields it knows, so it does not see the
+encrypted maps: it sends no override headers, and a gateway that needs them
+refuses the request. For such a run set `FRODO_AUTHENTICATION_HEADER_OVERRIDES`
+and `FRODO_CONFIGURATION_HEADER_OVERRIDES`, or use the newer version.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

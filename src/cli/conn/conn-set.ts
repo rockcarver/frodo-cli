@@ -67,7 +67,7 @@ export default function setup() {
       markSecret(
         new Option(
           '--authentication-header-overrides <headers>',
-          'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests. The values are secrets: they are masked wherever the command is shown.'
+          'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests. The values are secrets: they are stored encrypted in the connection profile and masked wherever the command is shown.'
         )
       )
     )
@@ -75,7 +75,7 @@ export default function setup() {
       markSecret(
         new Option(
           '--configuration-header-overrides <headers>',
-          'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests. The values are secrets: they are masked wherever the command is shown.'
+          'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests. The values are secrets: they are stored encrypted in the connection profile and masked wherever the command is shown.'
         )
       )
     )
