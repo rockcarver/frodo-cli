@@ -115,6 +115,14 @@ import {
   promptsRendered,
 } from '../utils/interactive/PromptGate';
 import {
+  NEXT_LABEL,
+  READY_ESCAPE_LABEL,
+  readyChoices,
+  readyEnterLabel,
+  readyStepWanted,
+  type ReadyAnswer,
+} from '../utils/interactive/ReadyStep';
+import {
   noteRealmProvenance,
   noteRequiredInputPrompted,
 } from '../utils/interactive/RealmPickers';
@@ -257,6 +265,11 @@ export async function resolveInteractiveInputs(
     return;
   }
 
+  // The Ready step at the end is asked only when this pass put a prompt on
+  // the screen (record 0043): a sub-command picked before the pass began
+  // does not count.
+  const promptsBeforePass = promptsRendered();
+
   // Interactive: connection args first (they give the mandatory-option
   // prompts their tenant context), then mandatory options, then one-of
   // groups (which may prompt for a member option; after that step the
@@ -354,6 +367,12 @@ export async function resolveInteractiveInputs(
     await runInvocationEditor(command);
   }
 
+  // The last prompt of a session that asked for anything: the command as it
+  // will run, and the choice to run it. Until here no prompt ran the command.
+  if (readyStepWanted(promptsBeforePass, promptsRendered())) {
+    await confirmReady(command);
+  }
+
   // Safety net: every option above went through commitOption, so this only
   // fires for a path that bypassed it. The command about to run (and the
   // preview of it) must be one the command line itself would accept.
@@ -410,6 +429,39 @@ export async function resolveInteractiveInputs(
       'text'
     );
   });
+}
+
+/**
+ * The Ready step (record 0043): the last prompt of a session that asked for
+ * anything. It shows the command as it will run (the usual footer) and offers
+ * Run (the default), Edit options (the invocation editor, then back here) and
+ * Cancel. Escape cancels as well: nothing runs, nothing is printed, and the
+ * session ends quietly through the exit-all signal. Pickers that need a login
+ * (the realm, the entities) follow after Run, because their loaders need tokens.
+ */
+async function confirmReady(command: Command): Promise<void> {
+  for (;;) {
+    const readiness = commandReadinessFor(command);
+    const answer = await selectWithEditorRouting<ReadyAnswer>(command, {
+      message: 'Ready to run?',
+      choices: readyChoices({
+        canEdit: editableOptionalOptions(command).length > 0,
+        // what the pass left for the pickers that run after login: a choice
+        // made for later, or a mandatory option with a picker
+        openAfterLogin:
+          deferredChoicesOf(command).size > 0 ||
+          (readiness?.missingMandatoryOptionLabels.length ?? 0) > 0,
+      }),
+      enterLabel: readyEnterLabel,
+      escapeLabel: READY_ESCAPE_LABEL,
+    });
+    if (answer === 'run') return;
+    if (answer === 'edit') {
+      await runInvocationEditor(command);
+      continue;
+    }
+    throw EXIT_ALL_SIGNAL;
+  }
 }
 
 /**
@@ -485,6 +537,8 @@ async function selectWithEditorRouting<Value>(
   const preview = config.preview ?? (() => commandPreviewFor(command) ?? '');
   for (;;) {
     const choice = await escapableSelect<Value>({
+      // No prompt of the pass runs the command; the Ready step does.
+      enterLabel: NEXT_LABEL,
       ...config,
       hint,
       preview,

@@ -290,7 +290,7 @@ const connectionPageImpl = createPrompt(
       }),
       (() => {
         const cursor = active === doneIndex ? '›' : ' ';
-        const line = `${cursor} Done — run with these values`;
+        const line = `${cursor} Done — continue with these values`;
         return {
           text: c.command(line),
           plain: line,

@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -117,6 +118,7 @@ suite('a secret option used without a value', () => {
           { type: 'sleep', ms: 300 },
           { type: 'capture', label: 'typed' },
           { type: 'key', name: 'enter' },
+          ...answerReady(),
           {
             type: 'wait_plain',
             regex: 'Saved connection profile',
@@ -150,6 +152,7 @@ suite('a secret option used without a value', () => {
           { type: 'sleep', ms: 300 },
           { type: 'send', text: 'second' },
           { type: 'key', name: 'enter' },
+          ...answerReady(),
           {
             type: 'wait_plain',
             regex: 'Saved connection profile',
@@ -275,11 +278,15 @@ suite('a secret option used without a value', () => {
           { type: 'send', text: 'editor-secret' },
           { type: 'sleep', ms: 300 },
           { type: 'key', name: 'enter' },
-          { type: 'sleep', ms: 2500 },
+          // the editor was the last prompt: the Ready step shows the command
+          { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 20000 },
+          { type: 'sleep', ms: 500 },
         ],
         connected
       );
       expect(run.plainOutput).not.toContain('editor-secret');
+      // the command the step shows masks the secret
+      expect(run.plainOutput).toContain('--client-secret ********');
       const defaults = path.join(home, '.frodo', 'Defaults.json');
       if (fs.existsSync(defaults)) {
         expect(fs.readFileSync(defaults, 'utf8')).not.toContain(

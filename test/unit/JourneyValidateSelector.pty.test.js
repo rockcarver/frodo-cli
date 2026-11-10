@@ -2,6 +2,7 @@ import cp from 'child_process';
 import { createRequire } from 'module';
 import path from 'path';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -60,7 +61,11 @@ suite('journey validate, on a real terminal', () => {
     removeShellTestHome(home);
   });
 
-  /** `journey validate` on the fake AM with no selector; `choose` are the keys after the menu opened. */
+  /**
+   * `journey validate` on the fake AM with no selector; `choose` are the keys
+   * after the menu opened. The Ready step follows the menu and is answered
+   * with Run: the journey picker needs the login, so it comes after.
+   */
   function validate(choose, after) {
     return runShellScenario({
       homeDir: home,
@@ -88,6 +93,7 @@ suite('journey validate, on a real terminal', () => {
         { type: 'clear_output' },
         ...choose,
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         ...after,
       ],
     });
