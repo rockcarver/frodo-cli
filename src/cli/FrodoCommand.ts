@@ -38,7 +38,10 @@ import {
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
-import { declareRealmUse } from '../utils/interactive/RealmUse.js';
+import {
+  declareRealmPickerOnlyWith,
+  declareRealmUse,
+} from '../utils/interactive/RealmUse.js';
 import {
   markSecret,
   SECRET_OPTION_HELP,
@@ -3864,6 +3867,27 @@ export class FrodoCommand extends FrodoStubCommand {
    */
   usesRealm(use: { tenantWide?: boolean } = {}): this {
     declareRealmUse(this, { tenantWide: use.tenantWide === true });
+    return this;
+  }
+
+  /**
+   * Declares that the command's realm matters only when an option is set (the
+   * realm limits `frodo config export` with `-r`, `--realm-only`, and changes
+   * nothing without it), so the post-auth realm picker may open only then. The
+   * picker is the ordinary one and keeps every other condition (records 0001
+   * and 0030): it opens for a command line that was incomplete, never for a
+   * complete one. Call it after the option is added.
+   * See src/utils/interactive/RealmUse.ts.
+   * @param option The attribute name of the option, for example `realmOnly` for `-r, --realm-only`.
+   * @returns This command for chaining.
+   */
+  realmPickerOnlyWith(option: string): this {
+    if (!this.options.some((o) => o.attributeName() === option)) {
+      throw new Error(
+        `${this.name()}: realmPickerOnlyWith('${option}') names an option the command does not have (add the option first)`
+      );
+    }
+    declareRealmPickerOnlyWith(this, option);
     return this;
   }
 
