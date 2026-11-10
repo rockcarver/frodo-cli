@@ -73,92 +73,44 @@ const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function listJourneys(long: boolean = false): Promise<boolean> {
-  let journeys;
   try {
-    journeys = await readJourneys();
+    // The list of journeys holds every field that the long version shows, so
+    // it needs no export of the journeys (an export reads every node of every
+    // journey, and fails for a journey that names a node the tenant does not
+    // have, which then took the whole table down with it)
+    const journeys = await readJourneys();
     if (!long) {
       for (const journeyStub of journeys) {
         printMessage(`${journeyStub['_id']}`, 'data');
       }
       return true;
-    } else {
-      const spinnerId = createProgressIndicator(
-        'indeterminate',
-        0,
-        `Retrieving details of all journeys...`
-      );
-      try {
-        const journeyExportPromises: {
-          journeyId: string;
-          promise: Promise<MultiTreeExportInterface>;
-        }[] = journeys.map((journeyStub) => ({
-          journeyId: journeyStub['_id'],
-          promise: exportJourney(journeyStub['_id'], {
-            useStringArrays: false,
-            deps: false,
-            coords: true,
-          }),
-        }));
-        const journeyExports = await Promise.all(
-          journeyExportPromises.map((p) => p.promise)
-        );
-        stopProgressIndicator(
-          spinnerId,
-          'Retrieved details of all journeys.',
-          'success'
-        );
-        const table = createTable([
-          'Name',
-          'Status',
-          'Inner Only',
-          'Must Run',
-          'No Session',
-          'Tx Only',
-          'Resource',
-          'Tags',
-        ]);
-        for (let i = 0; i < journeyExports.length; i++) {
-          const { journeyId } = journeyExportPromises[i];
-          const treeExport = journeyExports[i].trees[journeyId];
-          if (!treeExport) {
-            debugMessage(
-              `listJourneys: journey '${journeyId}' not found in export response, skipping`
-            );
-            continue;
-          }
-          table.push([
-            `${treeExport.tree._id}`,
-            treeExport.tree.enabled === false
-              ? c.negative('disabled')
-              : c.positive('enabled'),
-            treeExport.tree.innerTreeOnly ? c.warning('yes') : c.positive('no'),
-            treeExport.tree.mustRun ? c.warning('yes') : c.positive('no'),
-            treeExport.tree.noSession ? c.warning('yes') : c.positive('no'),
-            treeExport.tree.transactionalOnly
-              ? c.warning('yes')
-              : c.positive('no'),
-            treeExport.tree.identityResource
-              ? treeExport.tree.identityResource
-              : '',
-            treeExport.tree.uiConfig?.categories
-              ? wordwrap(
-                  JSON.parse(treeExport.tree.uiConfig.categories).join(', '),
-                  60
-                )
-              : '',
-          ]);
-        }
-        printMessage(table.toString(), 'data');
-        return true;
-      } catch (error) {
-        stopProgressIndicator(
-          spinnerId,
-          'Error retrieving details of all journeys.',
-          'fail'
-        );
-        printError(error);
-      }
     }
+    const table = createTable([
+      'Name',
+      'Status',
+      'Inner Only',
+      'Must Run',
+      'No Session',
+      'Tx Only',
+      'Resource',
+      'Tags',
+    ]);
+    for (const tree of journeys) {
+      table.push([
+        `${tree._id}`,
+        tree.enabled === false ? c.negative('disabled') : c.positive('enabled'),
+        tree.innerTreeOnly ? c.warning('yes') : c.positive('no'),
+        tree.mustRun ? c.warning('yes') : c.positive('no'),
+        tree.noSession ? c.warning('yes') : c.positive('no'),
+        tree.transactionalOnly ? c.warning('yes') : c.positive('no'),
+        tree.identityResource ? tree.identityResource : '',
+        tree.uiConfig?.categories
+          ? wordwrap(JSON.parse(tree.uiConfig.categories).join(', '), 60)
+          : '',
+      ]);
+    }
+    printMessage(table.toString(), 'data');
+    return true;
   } catch (error) {
     printError(error);
   }
