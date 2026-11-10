@@ -13,6 +13,10 @@ import { connection as c } from './utils/TestConfig';
 process.env['FRODO_MOCK'] ||= '1';
 const cloudEnv = getEnv(c);
 
+// Deleting all variables has no recorded case: a recording would have to delete
+// every variable of a real tenant. The unit tests
+// (test/unit/FrConfigVariableDelete.test.js) and the guard tests
+// (test/client_cli/en/config-manager-delete-guard.test.js) cover it.
 describe('Should delete variables from cloud', () => {
     test(`"frodo config-manager delete variables --dry-run -n esv-josh-delete-test": should print a dryrun message deleting by name from cloud."`, async () => {
         const CMD = `frodo config-manager delete variables --dry-run -n esv-josh-delete-test`;
@@ -22,7 +26,7 @@ describe('Should delete variables from cloud', () => {
         const CMD = `frodo config-manager delete variables -n esv-josh-delete-test`;
         await testSuccess(CMD, cloudEnv);
     });
-    test(`"frodo config-manager delete variables -d": should print a dryrun message deleting by name from cloud."`, async () => {
+    test(`"frodo config-manager delete variables -d": should print a dryrun message listing all variables from cloud."`, async () => {
         const CMD = `frodo config-manager delete variables -d`;
         await testSuccess(CMD, cloudEnv);
     });

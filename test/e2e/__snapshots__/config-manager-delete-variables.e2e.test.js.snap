@@ -8,9 +8,9 @@ Dry run: Deleting variable: esv-josh-delete-test
 "
 `;
 
-exports[`Should delete variables from cloud "frodo config-manager delete variables -d": should print a dryrun message deleting by name from cloud." 1`] = `""`;
+exports[`Should delete variables from cloud "frodo config-manager delete variables -d": should print a dryrun message listing all variables from cloud." 1`] = `""`;
 
-exports[`Should delete variables from cloud "frodo config-manager delete variables -d": should print a dryrun message deleting by name from cloud." 2`] = `
+exports[`Should delete variables from cloud "frodo config-manager delete variables -d": should print a dryrun message listing all variables from cloud." 2`] = `
 "Experimental feature in use: 'frodo config-manager delete variables'. This feature may change without notice.
 Dry run: Deleting variable: esv-asdf
 Dry run: Deleting variable: esv-blue-piller

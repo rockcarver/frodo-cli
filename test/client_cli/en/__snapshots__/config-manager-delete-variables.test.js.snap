@@ -28,8 +28,10 @@ Options:
                      prints a summary of what failed and exits with code 1.
   -d, --dry-run      Show which variables would be deleted without deleting
                      them.
-  -n, --name <name>  Variable name; delete only the specified variable. If
-                     omitted, all variables are deleted.
+  -n, --name <name>  Variable id, the whole id (for example esv-example); delete
+                     only that variable. If omitted, all variables are deleted.
+  -y, --yes          Do not ask for confirmation before deleting more than one
+                     variable (no -n). Required without a terminal.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage
