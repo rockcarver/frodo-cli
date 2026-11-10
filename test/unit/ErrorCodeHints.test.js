@@ -1,9 +1,10 @@
 import { FrodoError } from '@rockcarver/frodo-lib';
+import { Command } from 'commander';
 import {
-  LOGIN_ERROR_HINTS,
-  loginErrorCodeOf,
-  loginHintFor,
-} from '../../src/utils/LoginErrorHints.ts';
+  ERROR_CODE_HINTS,
+  errorCodeOf,
+  errorHintFor,
+} from '../../src/utils/ErrorCodeHints.ts';
 import {
   fullName,
   loadCommandTree,
@@ -29,13 +30,13 @@ function allCommands(groups) {
 
 describe('the hints for the login errors of frodo-lib', () => {
   test('1: there is a hint for every code of the library, and for no other', () => {
-    expect(Object.keys(LOGIN_ERROR_HINTS).sort()).toEqual(
+    expect(Object.keys(ERROR_CODE_HINTS).sort()).toEqual(
       [...FrodoError.codes].sort()
     );
   });
 
   test('2: a hint is one line of advice', () => {
-    for (const [code, hint] of Object.entries(LOGIN_ERROR_HINTS)) {
+    for (const [code, hint] of Object.entries(ERROR_CODE_HINTS)) {
       expect({ code, hint }).toEqual({
         code,
         hint: expect.stringMatching(/^[^\n]+$/),
@@ -52,20 +53,39 @@ describe('the hints for the login errors of frodo-lib', () => {
         command.options.map((option) => option.long)
       )
     );
+    // the environment variables a command lists depend on the command: the
+    // connection ones on any command with a host, the log ones on `frodo log`
     const journeyList = commands.get('frodo journey list');
+    const logCommand = [...commands.values()].find(
+      (command) =>
+        fullName(command).startsWith('frodo log ') &&
+        command.commands.length === 0
+    );
     expect(journeyList).toBeDefined();
+    expect(logCommand).toBeDefined();
+    // the tree of the helpers has no root program, and which environment
+    // variables a command lists depends on its path from the root (`frodo log
+    // list`), so give the group the root that the real program has
+    const topOf = (command) =>
+      command.parent ? topOf(command.parent) : command;
+    for (const command of [journeyList, logCommand]) {
+      const top = topOf(command);
+      if (top.name() !== 'frodo') new Command('frodo').addCommand(top);
+    }
     // the environment variables are listed from help level 2 on
     const savedArgv = process.argv;
     process.argv = [...savedArgv, '--help-all'];
     let help;
     try {
-      help = renderFullHelp(journeyList).replace(ANSI, '');
+      help = [journeyList, logCommand]
+        .map((command) => renderFullHelp(command).replace(ANSI, ''))
+        .join('\n');
     } finally {
       process.argv = savedArgv;
     }
 
     const named = { options: [], commands: [], variables: [] };
-    for (const hint of Object.values(LOGIN_ERROR_HINTS)) {
+    for (const hint of Object.values(ERROR_CODE_HINTS)) {
       named.options.push(...(hint.match(/--[a-z][a-z-]*/g) ?? []));
       named.variables.push(...(hint.match(/\bFRODO_[A-Z_]+\b/g) ?? []));
       for (const [, quoted] of hint.matchAll(/'(frodo [^']+)'/g)) {
@@ -98,14 +118,14 @@ describe('the hints for the login errors of frodo-lib', () => {
   });
 
   test('4: no hint names an option that is not one (a user and a password are arguments)', () => {
-    expect(LOGIN_ERROR_HINTS.LOGIN_NO_STORED_PASSWORD).not.toMatch(
+    expect(ERROR_CODE_HINTS.LOGIN_NO_STORED_PASSWORD).not.toMatch(
       /--(user|username|password)\b/
     );
   });
 
   test('5: the document a hint points to exists in this repository', async () => {
     const fs = await import('fs');
-    const urls = Object.values(LOGIN_ERROR_HINTS).flatMap(
+    const urls = Object.values(ERROR_CODE_HINTS).flatMap(
       (hint) => hint.match(/https:\/\/\S+/g) ?? []
     );
     expect(urls.length).toBeGreaterThan(0);
@@ -121,12 +141,12 @@ describe('the hints for the login errors of frodo-lib', () => {
   });
 });
 
-describe('loginErrorCodeOf', () => {
+describe('errorCodeOf', () => {
   const coded = (code, message = 'the facts') =>
     new FrodoError(message, null, code);
 
   test('6: reads the code of the error itself', () => {
-    expect(loginErrorCodeOf(coded('BROWSER_LOGIN_NO_SESSION'))).toBe(
+    expect(errorCodeOf(coded('BROWSER_LOGIN_NO_SESSION'))).toBe(
       'BROWSER_LOGIN_NO_SESSION'
     );
   });
@@ -137,7 +157,7 @@ describe('loginErrorCodeOf', () => {
       coded('LOGIN_NO_STORED_PASSWORD')
     );
     expect(wrapped.code).toBeUndefined();
-    expect(loginErrorCodeOf(wrapped)).toBe('LOGIN_NO_STORED_PASSWORD');
+    expect(errorCodeOf(wrapped)).toBe('LOGIN_NO_STORED_PASSWORD');
   });
 
   test('8: reads the code through several wrappers, and the first coded error wins', () => {
@@ -148,19 +168,19 @@ describe('loginErrorCodeOf', () => {
         new FrodoError('inner', coded('BROWSER_LOGIN_NO_SESSION'))
       )
     );
-    expect(loginErrorCodeOf(deep)).toBe('BROWSER_LOGIN_NO_SESSION');
+    expect(errorCodeOf(deep)).toBe('BROWSER_LOGIN_NO_SESSION');
 
     const two = new FrodoError('outer', [
       new Error('no code'),
       coded('BROWSER_LOGIN_DEPLOYMENT_TYPE_UNKNOWN'),
       coded('BROWSER_LOGIN_NO_SESSION'),
     ]);
-    expect(loginErrorCodeOf(two)).toBe('BROWSER_LOGIN_DEPLOYMENT_TYPE_UNKNOWN');
+    expect(errorCodeOf(two)).toBe('BROWSER_LOGIN_DEPLOYMENT_TYPE_UNKNOWN');
   });
 
   test('9: an error without a code has none, so a library that words the advice itself gets no second hint', () => {
     expect(
-      loginErrorCodeOf(
+      errorCodeOf(
         new FrodoError(
           'Error getting tokens',
           new FrodoError(
@@ -169,7 +189,7 @@ describe('loginErrorCodeOf', () => {
         )
       )
     ).toBeUndefined();
-    expect(loginHintFor(new Error('plain'))).toBeUndefined();
+    expect(errorHintFor(new Error('plain'))).toBeUndefined();
   });
 
   test('10: the code of a transport error is not a login code', () => {
@@ -178,9 +198,9 @@ describe('loginErrorCodeOf', () => {
       name: 'AxiosError',
       code: 'ECONNREFUSED',
     });
-    expect(loginErrorCodeOf(transport)).toBeUndefined();
+    expect(errorCodeOf(transport)).toBeUndefined();
     expect(
-      loginErrorCodeOf(new FrodoError('Error getting tokens', transport))
+      errorCodeOf(new FrodoError('Error getting tokens', transport))
     ).toBeUndefined();
   });
 
@@ -188,23 +208,34 @@ describe('loginErrorCodeOf', () => {
     const lookalike = Object.assign(new Error('x'), {
       code: 'BROWSER_LOGIN_NO_SESSION',
     });
-    expect(loginErrorCodeOf(lookalike)).toBeUndefined();
+    expect(errorCodeOf(lookalike)).toBeUndefined();
     const unknown = Object.assign(new FrodoError('x'), {
       code: 'SOMETHING_THE_LIBRARY_ADDS_LATER',
     });
-    expect(loginErrorCodeOf(unknown)).toBeUndefined();
+    expect(errorCodeOf(unknown)).toBeUndefined();
     expect(
-      loginErrorCodeOf(Object.assign(new FrodoError('x'), { code: 7 }))
+      errorCodeOf(Object.assign(new FrodoError('x'), { code: 7 }))
     ).toBeUndefined();
   });
 
   test('12: anything that is not an error has no code, and a loop ends', () => {
     for (const value of [undefined, null, 'text', 42, {}, []]) {
-      expect(loginErrorCodeOf(value)).toBeUndefined();
+      expect(errorCodeOf(value)).toBeUndefined();
     }
     const loop = new FrodoError('loop');
     loop.originalErrors = [loop];
-    expect(loginErrorCodeOf(loop)).toBeUndefined();
+    expect(errorCodeOf(loop)).toBeUndefined();
+  });
+
+  test('13b: an MCP tool error with a code of its own gets its own hint', () => {
+    const error = new FrodoError(
+      'MCP runtime error: requires a Log API key/secret',
+      null,
+      'LOG_API_CREDENTIAL_MISSING'
+    );
+    expect(errorCodeOf(error)).toBe('LOG_API_CREDENTIAL_MISSING');
+    expect(errorHintFor(error)).toContain('FRODO_LOG_KEY');
+    expect(errorHintFor(error)).toContain('--log-api-key');
   });
 
   test('13: the hint is the line of the table', () => {
@@ -212,9 +243,7 @@ describe('loginErrorCodeOf', () => {
       'Error getting tokens',
       coded('BROWSER_LOGIN_NO_SESSION')
     );
-    expect(loginHintFor(error)).toBe(
-      LOGIN_ERROR_HINTS.BROWSER_LOGIN_NO_SESSION
-    );
-    expect(loginHintFor(error)).toBe("Run 'frodo login --browser' first.");
+    expect(errorHintFor(error)).toBe(ERROR_CODE_HINTS.BROWSER_LOGIN_NO_SESSION);
+    expect(errorHintFor(error)).toBe("Run 'frodo login --browser' first.");
   });
 });

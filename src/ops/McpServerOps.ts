@@ -60,6 +60,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import { z } from 'zod';
 import { printMessage } from '../utils/Console.js';
+import { errorHintFor } from '../utils/ErrorCodeHints.js';
 import { getUseDeviceFlow } from './AuthenticateOps.js';
 import {
   resolveServiceAccountForClaims,
@@ -3597,7 +3598,13 @@ function formatByteSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MiB`;
 }
 
-function buildErrorResult(err: unknown): {
+/**
+ * The result of an MCP tool that failed: the error of the library, then the advice of this command line for
+ * the conditions that have a code (ErrorCodeHints), then the note for a session that needs re-authentication.
+ * @param {unknown} err the error that the tool raised
+ * @returns {{content: {type: 'text'; text: string}[]; isError: true}} the result to send to the MCP client
+ */
+export function buildErrorResult(err: unknown): {
   content: { type: 'text'; text: string }[];
   isError: true;
 } {
@@ -3623,6 +3630,10 @@ function buildErrorResult(err: unknown): {
   } else {
     errorText += String(err);
   }
+
+  // The library states what is wrong; how to fix it is ours
+  const hint = errorHintFor(err);
+  if (hint) errorText += `\n\n${hint}`;
 
   // A browser-login session's credential expired with no unattended
   // refresh path (see BaseApi.ts's throwCannotSilentlyRefresh(), which sets
