@@ -5,6 +5,8 @@ const { familyEntityPicks } =
   await import('../../src/utils/interactive/EntityPickRegistry.ts');
 const { blockersOf } =
   await import('../../src/utils/interactive/OptionConflicts.ts');
+const { getOneOfGroups } =
+  await import('../../src/utils/interactive/OptionRequirements.ts');
 
 /**
  * Decision record 0038 for the families journey, node, script, theme and email
@@ -20,6 +22,7 @@ const EXPECTED = {
   'frodo journey disable': ['journeyId'],
   'frodo journey enable': ['journeyId'],
   'frodo journey export': ['journeyId'],
+  'frodo journey validate': ['journeyId'],
   'frodo node delete': ['nodeId', 'nodeName'],
   'frodo node export': ['nodeId', 'nodeName'],
   'frodo script delete': ['scriptId', 'scriptName'],
@@ -55,7 +58,6 @@ describe('entity pickers of journey, node, script, theme and email template', ()
   it('leaves out the commands whose -i and -n only narrow what they cover, and import', () => {
     for (const path of [
       'frodo journey describe',
-      'frodo journey validate',
       'frodo journey import',
       'frodo node describe',
       'frodo node type describe',
@@ -81,17 +83,24 @@ describe('entity pickers of journey, node, script, theme and email template', ()
     }
   });
 
-  it('opens no picker when -a, -A or another selector was given: each blocks the picks it conflicts with', () => {
+  it('opens no picker when -a, -A or another selector was given: each blocks the picks it conflicts with, or answers the one-of group that the pick belongs to', () => {
     for (const leaf of leaves.filter((l) => picksOf(l).length > 0)) {
       for (const selector of ['all', 'allSeparate', 'script']) {
         if (!leaf.options.some((o) => o.attributeName() === selector)) continue;
         leaf.setOptionValue(selector, true);
         for (const pick of picksOf(leaf)) {
+          // `journey validate` accepts -i with -a (4.x did), so they do not
+          // conflict; the selector answers the group that -i belongs to, and a
+          // group that is answered asks for nothing more
+          const answersTheGroup = getOneOfGroups(leaf).some(
+            (group) =>
+              group.options.includes(selector) && group.options.includes(pick)
+          );
           expect([
             fullName(leaf),
             selector,
             pick,
-            blockersOf(leaf, pick).length > 0,
+            blockersOf(leaf, pick).length > 0 || answersTheGroup,
           ]).toEqual([fullName(leaf), selector, pick, true]);
         }
         leaf.setOptionValue(selector, undefined);

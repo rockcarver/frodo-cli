@@ -95,7 +95,13 @@ describe('frodo journey validate offline', () => {
 
   test.each([
     ['--all-separate', '-A requires -D'],
-    [`--directory ${journeyDirectory}`, '-D requires -f or -A'],
+    // with a selector the command's own rule is reached; with none, the
+    // framework asks for one before the command runs (see the next case)
+    [`--all --directory ${journeyDirectory}`, '-D requires -f or -A'],
+    [
+      `--directory ${journeyDirectory}`,
+      'is required to choose which journeys to validate',
+    ],
     [
       `--file ${brokenJourneyFile} --all-separate --directory ${journeyDirectory}`,
       '-f cannot be combined with -A',
