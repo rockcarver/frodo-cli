@@ -457,6 +457,17 @@ describe('phase 5 slice 4: command preview', () => {
    */
   describe('footer color (red+italic = incomplete, green = ready)', () => {
     const COLOR_ENV = { NO_COLOR: '__FRODO_PTY_DELETE__' };
+    // The entity picker is a prompt of the resolution pass, which logs in for it
+    // (record 0044), and `esv` commands are cloud-only. The replayed login
+    // cassette tells the deployment types apart by the ORDER of the requests,
+    // and that depends on whether the connection profile of the host can be
+    // read (it detects forgeops where it can, as in CI; cloud where it cannot),
+    // so the scenario says what the tenant is: a service account is a cloud
+    // login, as in the realm picker scenarios.
+    const CLOUD_LOGIN = {
+      FRODO_SA_ID: connection.saId,
+      FRODO_SA_JWK: connection.saJwk,
+    };
     const DROP = '__FRODO_PTY_DELETE__';
     const stripSgr = (text) => text.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, '');
     // The footer is the first `frodo ...` line under the last panel wall.
@@ -682,7 +693,7 @@ describe('phase 5 slice 4: command preview', () => {
             homeDir,
             allowPrompting: true,
             args: ['esv', 'secret', 'delete'],
-            env: { ...ENV, ...COLOR_ENV },
+            env: { ...ENV, ...COLOR_ENV, ...CLOUD_LOGIN },
             actions: [
               {
                 type: 'wait_plain',
@@ -734,7 +745,7 @@ describe('phase 5 slice 4: command preview', () => {
             homeDir,
             allowPrompting: true,
             args: ['esv', 'secret', 'delete'],
-            env: ENV,
+            env: { ...ENV, ...CLOUD_LOGIN },
             actions: [
               {
                 type: 'wait_plain',
