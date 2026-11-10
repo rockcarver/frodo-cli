@@ -3027,11 +3027,16 @@ export class FrodoStubCommand extends Command {
    */
   private async pickAndDispatchSubCommand(unknown: string[]): Promise<unknown> {
     const self = this as unknown as CommandInternal;
-    const candidates = this.commands.filter(
-      (command) =>
-        command !== self._getHelpCommand() &&
-        !(command as unknown as CommandInternal)._hidden
-    );
+    // Alphabetical, like the help of the same command (sortSubcommands in
+    // the constructor): the picker used to list them in the order the group
+    // registered them, which is not an order a person can predict.
+    const candidates = this.commands
+      .filter(
+        (command) =>
+          command !== self._getHelpCommand() &&
+          !(command as unknown as CommandInternal)._hidden
+      )
+      .sort((left, right) => left.name().localeCompare(right.name()));
     if (candidates.length === 0) {
       // Nothing pickable: fall through with the ORIGINAL arguments --
       // unknown may still carry --help/-h or options commander must see
