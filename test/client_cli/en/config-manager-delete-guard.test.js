@@ -34,6 +34,8 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete themes',
     'frodo config-manager delete email-templates',
     'frodo config-manager delete secrets',
+    'frodo config-manager delete terms-and-conditions',
+    'frodo config-manager delete variables',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -68,6 +70,18 @@ describe('a delete of more than one object without a terminal and without --yes'
     expect(stderr).toContain('all secrets');
   });
 
+  test('the refusal of terms and conditions says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete terms-and-conditions');
+
+    expect(stderr).toContain('all terms and conditions versions');
+  });
+
+  test('the refusal of variables says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete variables');
+
+    expect(stderr).toContain('all variables');
+  });
+
   test('the refusal of applications says that the objects they own go too', async () => {
     const { stderr } = await run('frodo config-manager delete applications');
 
@@ -84,6 +98,11 @@ describe('what is not refused', () => {
     'frodo config-manager delete themes -n Example',
     'frodo config-manager delete email-templates -n Example',
     'frodo config-manager delete secrets -n esv-example',
+    'frodo config-manager delete terms-and-conditions -n 0.1',
+    'frodo config-manager delete variables -n esv-example',
+    // a name that is given but empty is not "delete all": it is not asked about,
+    // it fails after the login because no variable has that id
+    "frodo config-manager delete variables -n ''",
     'frodo config-manager delete applications -d',
     'frodo config-manager delete applications -n Example -d',
     'frodo config-manager delete custom-nodes -d',
@@ -93,6 +112,8 @@ describe('what is not refused', () => {
     'frodo config-manager delete themes -d',
     'frodo config-manager delete email-templates -d',
     'frodo config-manager delete secrets -d',
+    'frodo config-manager delete terms-and-conditions -d',
+    'frodo config-manager delete variables -d',
     'frodo config-manager delete applications -y',
     'frodo config-manager delete custom-nodes -y',
     'frodo config-manager delete endpoints -y',
@@ -100,6 +121,8 @@ describe('what is not refused', () => {
     'frodo config-manager delete themes -y',
     'frodo config-manager delete email-templates -y',
     'frodo config-manager delete secrets -y',
+    'frodo config-manager delete terms-and-conditions -y',
+    'frodo config-manager delete variables -y',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
@@ -120,5 +143,16 @@ describe('an empty secret name', () => {
     expect(stderr).toContain('The secret name (-n) must not be empty');
     expect(stderr).not.toContain('Refusing to delete');
     expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('an empty name', () => {
+  // an unset shell variable, as in -n "$VERSION", is a name that is not there:
+  // it is not "all" and it is not asked about as if it were
+  test('is not taken for a delete of all terms and conditions versions', async () => {
+    const { stderr } = await run("frodo config-manager delete terms-and-conditions -n ''");
+
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toContain('all terms and conditions versions');
   });
 });

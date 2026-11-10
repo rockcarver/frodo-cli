@@ -7,6 +7,8 @@ import Themes from '../config-manager-delete/config-manager-delete-themes';
 import CustomNodes from './config-manager-delete-custom-nodes';
 import Scripts from './config-manager-delete-scripts';
 import Secrets from './config-manager-delete-secrets';
+import TermsConditions from './config-manager-delete-terms-and-conditions';
+import Variables from './config-manager-delete-variables';
 
 export default function setup() {
   const program = new FrodoStubCommand('delete').description(
@@ -20,5 +22,7 @@ export default function setup() {
   program.addCommand(Themes().name('themes'));
   program.addCommand(EmailTemplates().name('email-templates'));
   program.addCommand(Secrets().name('secrets'));
+  program.addCommand(TermsConditions().name('terms-and-conditions'));
+  program.addCommand(Variables().name('variables'));
   return program;
 }

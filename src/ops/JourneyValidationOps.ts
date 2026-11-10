@@ -12,6 +12,22 @@ import {
   readJourneyExportsFromDirectory,
 } from './utils/JourneyExportUtils';
 
+/** The findings of the library that say a journey names a node that is not there. */
+const MISSING_NODE_FINDINGS = ['MISSING_NODE_DEFINITION', 'MISSING_INNER_NODE'];
+
+/**
+ * What to do about journeys that name nodes which are not there. The library
+ * states the fact (the findings name each node); the advice is ours: it names
+ * the commands of this command line.
+ * @param {boolean} fromTenant true if the journeys were read from the tenant, false if from export files
+ * @returns {string} one line of advice
+ */
+export function missingNodesHint(fromTenant: boolean): string {
+  return fromTenant
+    ? "These journeys name nodes that do not exist on the tenant, so 'frodo journey export' and 'frodo journey describe' cannot read them either. Import the journey again from an export that has the nodes ('frodo journey import'), or repair its Page Nodes in the journey editor."
+    : 'These journeys name nodes that the export does not contain. Export them again from a tenant that has the nodes.';
+}
+
 /**
  * Validate the journeys of the tenant, of an export file, or of the files of a directory, and report each finding.
  * Every journey is one operation of an {@link OperationRun}: a journey that cannot be validated (it cannot be exported,
@@ -137,6 +153,12 @@ export async function validateJourneyExports(
           finding.severity === 'error' ? 'error' : 'warn'
         );
       }
+    }
+
+    if (
+      findings.some((finding) => MISSING_NODE_FINDINGS.includes(finding.code))
+    ) {
+      printMessage(missingNodesHint(!file && !directory), 'info');
     }
 
     for (const [journeyId, why] of verdicts) {

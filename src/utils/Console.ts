@@ -452,6 +452,14 @@ export function updateProgressIndicator(
   current?: number,
   total?: number
 ) {
+  // frodo-lib stops an indicator in a catch block also when the operation failed
+  // before it created one, and then passes the id it never got: nothing to update
+  if (id === undefined || id === null) {
+    debugMessage(
+      `updateProgressIndicator: no indicator was created, nothing to update`
+    );
+    return;
+  }
   const ind = indicators.get(id);
   if (!ind) {
     warn(`Progress indicator ${id} not found.`);
@@ -482,6 +490,14 @@ export function stopProgressIndicator(
 ) {
   debugMessage(`stopProgressIndicator: start [${id}]`);
 
+  // frodo-lib stops an indicator in a catch block also when the operation failed
+  // before it created one, and then passes the id it never got: nothing to stop
+  if (id === undefined || id === null) {
+    debugMessage(
+      `stopProgressIndicator: no indicator was created, nothing to stop`
+    );
+    return;
+  }
   const ind = indicators.get(id);
   if (!ind) {
     warn(`Progress indicator ${id} not found.`);

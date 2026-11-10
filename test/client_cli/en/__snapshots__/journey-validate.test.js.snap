@@ -32,11 +32,15 @@ Options:
                               exits with code 1.
   -f, --file <file>           Name of the journey export file to validate.
   -i, --journey-id <journey>  Name of a journey/tree. If specified, -a is
-                              ignored.
+                              ignored. (pick from journey)
   --strict                    Treat warnings as validation failures.
   -h, --help                  Help
   -hh, --help-more            Help with all options.
   -hhh, --help-all            Help with all options, environment variables, and
                               usage examples.
+
+Rule:
+  one of -i, --journey-id <journey> | -a, --all | -A, --all-separate is required -- choose which journeys to validate
+
 "
 `;

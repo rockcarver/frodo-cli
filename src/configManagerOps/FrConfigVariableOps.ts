@@ -18,7 +18,7 @@ import { countItems, recordImportOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
-const { readVariables, importVariables } = frodo.cloud.variable;
+const { readVariables, importVariables, deleteVariable } = frodo.cloud.variable;
 
 /**
  * Format a variable as a shell assignment, `NAME='value'`, that can be sourced.
@@ -287,4 +287,55 @@ export async function configManagerImportVariables(
     if (run.hasFailures) run.finish();
     return false;
   }
+}
+
+/**
+ * Delete variables from the tenant: the one with the given id, or all of them.
+ * The variables are read once and deleted one by one, so that a variable that
+ * cannot be deleted is reported and does not hide the others.
+ * @param {string} name Optional exact variable id (`esv-...`). If omitted (undefined), targets all variables; an empty name names no variable: it is not found, and it never means "all".
+ * @param {boolean} dryRun Show which variables would be deleted without deleting them.
+ * @param {boolean} allowFailures True to succeed although some variables could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} False if a named variable does not exist (an empty name is one that does not), the variables cannot be read, or a variable cannot be deleted (unless failures are allowed for a deletion). Nothing to delete is a success when no variable was named.
+ */
+export async function configManagerDeleteVariables(
+  name?: string,
+  dryRun = false,
+  allowFailures = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'variable', allowFailures });
+  let variables: VariableSkeleton[];
+  try {
+    variables = await readVariables();
+  } catch (error) {
+    printError(error);
+    return false;
+  }
+  const selectedVariables = variables.filter(
+    (variable) => name === undefined || variable._id === name
+  );
+  if (selectedVariables.length === 0) {
+    if (name !== undefined) {
+      printMessage(`Variable '${name}' not found.`, 'error');
+      return false;
+    }
+    printMessage('No variables found to delete.', 'warn');
+    return true;
+  }
+  for (const variable of selectedVariables) {
+    if (dryRun) {
+      printMessage(`Dry run: Deleting variable: ${variable._id}`);
+      continue;
+    }
+    try {
+      await deleteVariable(variable._id);
+      printMessage(`Deleted variable: ${variable._id}`);
+      run.recordSuccess();
+    } catch (error) {
+      // the library's error names the variable, so no message of our own
+      printError(error);
+      run.recordFailure(variable._id, causeOf(error));
+    }
+  }
+  return run.finish();
 }
