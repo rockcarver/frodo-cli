@@ -100,21 +100,16 @@ test.each([
   ['/tmp/frodo', 'binary release'],
   ['/tmp/frodo.exe', 'binary release'],
   ['/opt/homebrew/bin/frodo', 'homebrew release'],
-])(
-  'opt-out preserves installation information for %s',
-  async (execPath, label) => {
-    jest.replaceProperty(process, 'execPath', execPath);
-    process.env.FRODO_NO_UPDATE_CHECK = '1';
-    expectInstalledVersions(await getVersions(false), label);
-    expect(await getVersions(true)).toBe('');
-    expectNoUpdateIO();
-  }
-);
+])('opt-out preserves installation information for %s', async (execPath, label) => {
+  jest.replaceProperty(process, 'execPath', execPath);
+  process.env.FRODO_NO_UPDATE_CHECK = '1';
+  expectInstalledVersions(await getVersions(false), label);
+  expect(await getVersions(true)).toBe('');
+  expectNoUpdateIO();
+});
 
 test('opt-out ignores remote data retained by an earlier call', async () => {
-  expect(await getVersions(true)).toContain(
-    'A new version of frodo is available'
-  );
+  expect(await getVersions(true)).toContain('A new version of frodo is available');
   jest.clearAllMocks();
   process.env.FRODO_NO_UPDATE_CHECK = 'true';
   expectInstalledVersions(await getVersions(false));
@@ -159,9 +154,7 @@ test('uses cached versions within 24 hours', async () => {
     })
   );
   expect(await getVersions(false)).toContain('Newer version(s) available');
-  expect(await getVersions(true)).toContain(
-    'A new version of frodo is available'
-  );
+  expect(await getVersions(true)).toContain('A new version of frodo is available');
   expect(fs.readFileSync).toHaveBeenCalledWith(cacheFile, 'utf8');
   expect(getAllVersions).not.toHaveBeenCalled();
   expect(fs.writeFileSync).not.toHaveBeenCalled();
@@ -215,12 +208,13 @@ test.each([undefined, 'false', 'true'])(
 test.each(['{', 'null', '{"enabled":"false"}', '{"enabled":true}', undefined])(
   'invalid, enabled or missing setting %s leaves update checks enabled',
   async (contents) => {
-    fs.readFileSync.mockImplementation((file) => {
-      expect(file).toBe(settingsFile);
+    fs.readFileSync.mockImplementation(() => {
       if (contents === undefined) throw new Error('ENOENT');
       return contents;
     });
     expect(await getVersions(false)).toContain('Newer version(s) available');
+    expect(fs.readFileSync).toHaveBeenCalledTimes(1);
+    expect(fs.readFileSync).toHaveBeenCalledWith(settingsFile, 'utf8');
     expect(getAllVersions).toHaveBeenCalledTimes(1);
     expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
     expect(fs.writeFileSync.mock.calls[0][0]).toBe(cacheFile);
