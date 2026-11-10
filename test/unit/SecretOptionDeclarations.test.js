@@ -26,6 +26,19 @@ const SECRETS = [
   'frodo idm remote-proxy update --client-secret',
 ];
 
+/**
+ * The options whose value is a secret but that need a value (`--x <value>`),
+ * as the 5.x migration notes say of these options: a bare flag is rejected.
+ * They are marked secret so that the command preview masks them and no default
+ * is saved, and they cannot be asked for.
+ */
+const MASKED_ONLY = [
+  'frodo conn save --authentication-header-overrides',
+  'frodo conn save --configuration-header-overrides',
+  'frodo conn set --authentication-header-overrides',
+  'frodo conn set --configuration-header-overrides',
+];
+
 let rows;
 
 beforeAll(async () => {
@@ -46,11 +59,21 @@ describe('secret options in the command tree', () => {
         .filter((r) => isSecretOption(r.option))
         .map((r) => r.id)
         .sort()
-    ).toEqual([...SECRETS].sort());
+    ).toEqual([...SECRETS, ...MASKED_ONLY].sort());
+  });
+
+  it('need a value when they cannot be asked for, and show no preset', () => {
+    for (const { option, id } of rows.filter((r) =>
+      MASKED_ONLY.includes(r.id)
+    )) {
+      expect(`${id}: ${option.required}`).toBe(`${id}: true`);
+      expect(`${id}: ${option.optional}`).toBe(`${id}: false`);
+      expect(`${id}: ${option.presetArg}`).toBe(`${id}: undefined`);
+    }
   });
 
   it('take an optional value, show no preset in the help, and say what a bare flag does', () => {
-    for (const { option, id } of rows.filter((r) => isSecretOption(r.option))) {
+    for (const { option, id } of rows.filter((r) => SECRETS.includes(r.id))) {
       expect(`${id}: ${option.optional}`).toBe(`${id}: true`);
       expect(`${id}: ${option.presetArg}`).toBe(`${id}: undefined`);
       expect(option.description).toContain(SECRET_OPTION_HELP);

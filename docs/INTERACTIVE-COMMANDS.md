@@ -139,6 +139,18 @@ class) is what makes every other surface treat it as a secret:
   host and a `--password` are given, because that password is the one its
   validating login uses.
 
+A value can be secret without its option being able to be asked for:
+`--authentication-header-overrides <headers>` and
+`--configuration-header-overrides <headers>` (`conn save`, `conn set`) carry a
+JSON map whose values are secrets, and a bare flag is still rejected (see
+`MIGRATION.md`, "Options that need a value now say so"). They are marked with
+`markSecret` alone, so the command preview shows `********` for the map,
+`--save-defaults` never writes it and a saved default is never applied.
+`parseHeaderOverrides` (`ConnectionProfileOps.ts`) reads the map and, when it
+is not valid, reports that without quoting the text (the message of
+`JSON.parse` quotes its start). `conn describe` shows the header names of both
+maps and `[present]` for each value; `--show-secrets` shows the values.
+
 **Conflicts.** Commander enforces `.conflicts()` while it parses, before the
 steps above run, so everything this pass writes goes through `commitOption`
 (`OptionConflicts.ts`), which applies the same rules
