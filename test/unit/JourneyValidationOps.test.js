@@ -35,7 +35,7 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage,
 }));
 
-const { validateJourneyExports } =
+const { missingNodesHint, validateJourneyExports } =
   await import('../../src/ops/JourneyValidationOps');
 
 describe('validateJourneyExports', () => {
@@ -161,6 +161,97 @@ describe('validateJourneyExports', () => {
       });
     }
   );
+
+  describe('journeys that name nodes that are not there', () => {
+    const missingInner = {
+      code: 'MISSING_INNER_NODE',
+      severity: 'error',
+      journeyId: 'broken',
+      message:
+        "Page Node 'page' references missing inner node 'inner' (MessageNode)",
+    };
+    const hints = () =>
+      printMessage.mock.calls.filter(([message]) =>
+        message.startsWith('These journeys name nodes')
+      );
+
+    test('the findings come first, then one line of advice for the tenant, in the words of this command line', async () => {
+      validateJourneys.mockResolvedValue([
+        missingInner,
+        {
+          ...missingInner,
+          message:
+            "Page Node 'page' references missing inner node 'other' (MessageNode)",
+        },
+      ]);
+
+      await expect(validateJourneyExports(['broken'])).resolves.toBe(false);
+
+      expect(hints()).toEqual([[missingNodesHint(true), 'info']]);
+      expect(hints()[0][0]).toContain("'frodo journey export'");
+      expect(hints()[0][0]).toContain("'frodo journey import'");
+      const order = printMessage.mock.calls.map(([message]) => message);
+      expect(order.indexOf('2 errors in journey broken')).toBeLessThan(
+        order.indexOf(missingNodesHint(true))
+      );
+    });
+
+    test('a node of the tree that is not there gets the same advice', async () => {
+      validateJourneys.mockResolvedValue([
+        {
+          ...missingInner,
+          code: 'MISSING_NODE_DEFINITION',
+          message: "Tree node 'page' has no node definition (PageNode)",
+        },
+      ]);
+
+      await validateJourneyExports(['broken']);
+
+      expect(hints()).toHaveLength(1);
+    });
+
+    test('journeys read from an export file are told to export them again', async () => {
+      fs.writeFileSync(
+        path.join(workingDirectory, 'journeys.json'),
+        JSON.stringify({
+          trees: { broken: { tree: { _id: 'broken', nodes: {} } } },
+        })
+      );
+      validateJourneys.mockResolvedValue([missingInner]);
+
+      await validateJourneyExports(['broken'], 'journeys.json');
+
+      expect(hints()).toEqual([[missingNodesHint(false), 'info']]);
+      expect(missingNodesHint(false)).not.toContain('frodo ');
+    });
+
+    test('other findings get no such advice', async () => {
+      validateJourneys.mockResolvedValue([
+        {
+          code: 'MISSING_ENTRY_NODE',
+          severity: 'error',
+          journeyId: 'broken',
+          message: 'Entry node is missing',
+        },
+        {
+          code: 'UNREACHABLE_NODE',
+          severity: 'warning',
+          journeyId: 'broken',
+          message: 'Node is unreachable',
+        },
+      ]);
+
+      await validateJourneyExports(['broken']);
+
+      expect(hints()).toEqual([]);
+    });
+
+    test('a journey without findings gets none either', async () => {
+      await validateJourneyExports(['login']);
+
+      expect(hints()).toEqual([]);
+    });
+  });
 
   test('passes multi-journey export files to the library unchanged', async () => {
     const journeys = {
