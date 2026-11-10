@@ -15,7 +15,9 @@ import { createPromptHarness } from '../utils/PromptHarness.js';
 
 // Render-level frame integrity for the connection page (host / username /
 // password): the panel and the menu follow the terminal width and survive
-// hostile text. State is seeded by hook order, pinned by STATE below.
+// hostile text. State is seeded by hook order, pinned by STATE below. The
+// second half is its behaviour once a login was made on it (record 0046): the
+// status line, the Realm row and its choice box, the key hints.
 
 const harness = createPromptHarness();
 jest.unstable_mockModule('@inquirer/core', () => harness.module);
@@ -48,6 +50,8 @@ const STATE = {
   resolving: 5,
   escapeGraceOpen: 6,
   width: 7,
+  realm: 8,
+  realmCursor: 9,
 };
 
 const stdoutProperties = {
@@ -221,5 +225,412 @@ describe('connectionPage behaviour', () => {
     expect(harness.states[STATE.status]).toBe('escaped');
     // No grace window: nothing waits for a second press.
     expect(harness.states[STATE.escapeGraceOpen]).toBe(false);
+  });
+});
+
+// -- record 0046: the page once it has logged in ----------------------------
+
+const { connectionSnapshot } =
+  await import('../../src/utils/interactive/ConnectionPageState.ts');
+
+const fieldRows = (values = ['h', 'u', 'p']) =>
+  ['host', 'username', 'password'].map((key, index) => ({
+    key,
+    label: key,
+    value: values[index],
+  }));
+
+const REALM = {
+  label: 'realm',
+  defaultValue: 'alpha',
+  defaultText: 'alpha',
+  choices: [
+    { value: 'alpha', name: 'alpha' },
+    { value: 'bravo', name: 'bravo' },
+    { value: 'charlie', name: 'charlie', description: 'inactive' },
+  ],
+  message: 'Choose a realm (default: alpha):',
+};
+
+/** A page that logged in with `rows`, offering the realms. */
+const connectedConfig = (extra = {}) => ({
+  message: 'Connection:',
+  rows: fieldRows(),
+  logsIn: true,
+  connected: { who: 'someone', snapshot: connectionSnapshot(fieldRows()) },
+  realm: REALM,
+  ...extra,
+});
+
+/** Draws the view on the current state and delivers one key to the handler it registered. */
+function press(config, key, line = '') {
+  harness.stateIndex = 0;
+  harness.refIndex = 0;
+  harness.effects = [];
+  const done = jest.fn();
+  view(config, done);
+  harness.keypress(key, { line, clearLine: () => {} });
+  return done;
+}
+
+describe('connectionPage once logged in', () => {
+  beforeEach(() => {
+    setTerminal(100);
+  });
+
+  it('says who is logged in, shows the Realm row with its default, and Done says next', () => {
+    const frame = render(connectedConfig());
+    expect(frame).toContain('Connected as someone');
+    expect(frame).toMatch(/realm: alpha \(default\)/);
+    expect(frame).toContain('Done — continue with these values');
+    expect(frame).toContain('[ENTER] next');
+    expect(frame).not.toContain('Logging in');
+  });
+
+  it('opens on Done: Enter keeps the default realm', () => {
+    render(connectedConfig());
+    // three field rows, the Realm row, then Done
+    expect(harness.states[STATE.active]).toBe(4);
+  });
+
+  it('shows no status and no Realm row on a page that has not logged in, and Done says connect', () => {
+    const frame = render(
+      {
+        message: 'Connection:',
+        rows: fieldRows(),
+        logsIn: true,
+      },
+      { [STATE.active]: 3 }
+    );
+    expect(frame).not.toContain('Connected');
+    expect(frame).not.toContain('realm:');
+    expect(frame).toContain('Done — log in with these values');
+    expect(frame).toContain('[ENTER] connect');
+  });
+
+  it('says next, not connect, on a page that does not log in', () => {
+    const frame = render(
+      { message: 'Connection:', rows: fieldRows(), logsIn: false },
+      { [STATE.active]: 3 }
+    );
+    expect(frame).toContain('[ENTER] next');
+    expect(frame).not.toContain('connect');
+  });
+
+  it('says next on an incomplete page: it cannot log in', () => {
+    const frame = render(
+      {
+        message: 'Connection:',
+        rows: fieldRows(['h', 'u', undefined]),
+        logsIn: true,
+      },
+      { [STATE.active]: 3 }
+    );
+    expect(frame).toContain('[ENTER] next');
+  });
+
+  it('drops the status line, the Realm row and the connect label with an edit made after the login', () => {
+    // the rows on the page are no longer the rows the login was made with
+    const frame = render(connectedConfig(), {
+      [STATE.rows]: fieldRows(['h', 'u', 'changed']),
+      [STATE.active]: 3,
+    });
+    expect(frame).not.toContain('Connected');
+    expect(frame).not.toContain('realm:');
+    expect(frame).toContain('[ENTER] connect');
+  });
+
+  it('shows a field row as the key hint says: edit', () => {
+    const frame = render(connectedConfig(), { [STATE.active]: 0 });
+    expect(frame).toContain('[ENTER] edit');
+  });
+
+  it('shows the choice made on the row, without the default note', () => {
+    const frame = render(connectedConfig(), { [STATE.realm]: 'bravo' });
+    expect(frame).toMatch(/realm: bravo\s*│/);
+    expect(frame).not.toMatch(/realm: bravo \(default\)/);
+  });
+
+  it.each(FRAME_WIDTHS)(
+    'keeps the silhouette at %i columns with hostile text in the status, the notes and the realms',
+    (width) => {
+      setTerminal(width);
+      harness.reset();
+      const hostile = connectedConfig({
+        connected: {
+          who: HOSTILE_TEXTS.multiLine,
+          snapshot: connectionSnapshot(fieldRows()),
+        },
+        realm: {
+          ...REALM,
+          defaultText: HOSTILE_TEXTS.longDottedNames,
+          message: HOSTILE_TEXTS.longTitleText,
+          choices: [
+            { value: 'alpha', name: HOSTILE_TEXTS.veryLongWord },
+            {
+              value: 'bravo',
+              name: HOSTILE_TEXTS.tabbedStackTrace,
+              description: HOSTILE_TEXTS.deepIndent,
+            },
+          ],
+        },
+      });
+      assertFrame(render(hostile), width);
+      for (const seed of [
+        { [STATE.editing]: 'realm' },
+        { [STATE.editing]: 'realm', [STATE.draft]: 'b' },
+        { [STATE.editing]: 'realm', [STATE.draft]: 'no match at all' },
+        { [STATE.editing]: 'realm', [STATE.realmCursor]: 1 },
+      ]) {
+        harness.reset();
+        assertFrame(render(hostile, seed), width);
+      }
+    }
+  );
+
+  it('keeps the silhouette with the failure shown, at every width', () => {
+    for (const width of FRAME_WIDTHS) {
+      setTerminal(width);
+      harness.reset();
+      assertFrame(
+        render({
+          message: 'Connection:',
+          rows: fieldRows(),
+          failure: HOSTILE_TEXTS.multiLine,
+        }),
+        width
+      );
+    }
+  });
+});
+
+describe('connectionPage failure', () => {
+  beforeEach(() => {
+    setTerminal(100);
+  });
+
+  it('shows the failure in the frame, no Done row, and only close as the key', () => {
+    const frame = render({
+      message: 'Connection:',
+      rows: fieldRows(),
+      logsIn: true,
+      failure: 'Error getting tokens: Login failure',
+    });
+    expect(frame).toContain(
+      'Login failed: Error getting tokens: Login failure'
+    );
+    expect(frame).toContain('[ENTER] close');
+    expect(frame).not.toContain('Done —');
+    expect(frame).not.toContain('›');
+  });
+
+  it.each([['enter'], ['escape']])(
+    '%s closes it and resolves the page; nothing is edited',
+    (name) => {
+      harness.reset();
+      const done = press(
+        { message: 'Connection:', rows: fieldRows(), failure: 'x' },
+        { name }
+      );
+      expect(done).toHaveBeenCalledTimes(1);
+      expect(done.mock.calls[0][0]).not.toBe(EXIT_ALL);
+    }
+  );
+
+  it('ignores the other keys', () => {
+    harness.reset();
+    const done = press(
+      { message: 'Connection:', rows: fieldRows(), failure: 'x' },
+      { name: 'down' }
+    );
+    expect(done).not.toHaveBeenCalled();
+  });
+});
+
+describe('connectionPage Realm row keys', () => {
+  beforeEach(() => {
+    setTerminal(100);
+    harness.reset();
+  });
+
+  it('concludes with the rows and no realm when Done is pressed on the connected page', () => {
+    const done = press(connectedConfig(), { name: 'enter' });
+    expect(done).toHaveBeenCalledTimes(1);
+    const result = done.mock.calls[0][0];
+    expect(result.host).toBe('h');
+    expect(result.realm).toBeUndefined();
+    expect(result.rows).toHaveLength(3);
+    expect(result.openEditor).toBeUndefined();
+  });
+
+  it('opens the realms on Enter at the Realm row, with the cursor on the row in effect', () => {
+    // render once so the state exists, then move to the Realm row (index 3)
+    render(connectedConfig());
+    harness.states[STATE.active] = 3;
+    harness.states[STATE.realm] = 'bravo';
+    press(connectedConfig(), { name: 'enter' });
+    expect(harness.states[STATE.editing]).toBe('realm');
+    expect(harness.states[STATE.realmCursor]).toBe(1);
+    expect(harness.states[STATE.draft]).toBe('');
+  });
+
+  it('picks the highlighted realm on Enter and closes the box', () => {
+    render(connectedConfig());
+    harness.states[STATE.editing] = 'realm';
+    harness.states[STATE.realmCursor] = 1;
+    press(connectedConfig(), { name: 'enter' });
+    expect(harness.states[STATE.realm]).toBe('bravo');
+    expect(harness.states[STATE.editing]).toBe(null);
+  });
+
+  it('keeps the default when the default is picked', () => {
+    render(connectedConfig());
+    harness.states[STATE.editing] = 'realm';
+    harness.states[STATE.realm] = 'bravo';
+    harness.states[STATE.realmCursor] = 0;
+    press(connectedConfig(), { name: 'enter' });
+    expect(harness.states[STATE.realm]).toBeUndefined();
+  });
+
+  it('picks from the narrowed list: the cursor is on the first match', () => {
+    render(connectedConfig());
+    harness.states[STATE.editing] = 'realm';
+    harness.states[STATE.draft] = 'char';
+    harness.states[STATE.realmCursor] = 0;
+    press(connectedConfig(), { name: 'enter' });
+    expect(harness.states[STATE.realm]).toBe('charlie');
+  });
+
+  it('moves the cursor within the list and clamps at both ends', () => {
+    render(connectedConfig());
+    harness.states[STATE.editing] = 'realm';
+    harness.states[STATE.realmCursor] = 2;
+    press(connectedConfig(), { name: 'down' });
+    expect(harness.states[STATE.realmCursor]).toBe(2);
+    press(connectedConfig(), { name: 'up' });
+    expect(harness.states[STATE.realmCursor]).toBe(1);
+    harness.states[STATE.realmCursor] = 0;
+    press(connectedConfig(), { name: 'up' });
+    expect(harness.states[STATE.realmCursor]).toBe(0);
+  });
+
+  it('narrows the list by what is typed and puts the cursor on the first match', () => {
+    render(connectedConfig());
+    harness.states[STATE.active] = 3;
+    harness.states[STATE.editing] = 'realm';
+    harness.states[STATE.realmCursor] = 2;
+    press(connectedConfig(), { name: 'r' }, 'br');
+    expect(harness.states[STATE.draft]).toBe('br');
+    expect(harness.states[STATE.realmCursor]).toBe(0);
+    const box = harness
+      .render(view, connectedConfig())
+      .split('Choose a realm')[1];
+    // one row is left in the box: bravo, under the cursor
+    const rows = box.split('\n').filter((line) => line.startsWith('│'));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatch(/^│ › bravo/);
+  });
+
+  it('does nothing on Enter when no realm matches', () => {
+    render(connectedConfig());
+    harness.states[STATE.editing] = 'realm';
+    harness.states[STATE.draft] = 'zzz';
+    harness.states[STATE.realm] = 'bravo';
+    press(connectedConfig(), { name: 'enter' });
+    expect(harness.states[STATE.realm]).toBe('bravo');
+    expect(harness.states[STATE.editing]).toBe(null);
+  });
+
+  it('opens the grace window on Escape in the box instead of leaving the page', () => {
+    render(connectedConfig());
+    harness.states[STATE.editing] = 'realm';
+    const done = press(connectedConfig(), { name: 'escape' });
+    expect(done).not.toHaveBeenCalled();
+    expect(harness.states[STATE.escapeGraceOpen]).toBe(true);
+    expect(harness.states[STATE.editing]).toBe('realm');
+  });
+
+  it('forgets the realm chosen when a row is edited after the login', () => {
+    render(connectedConfig());
+    harness.states[STATE.realm] = 'bravo';
+    harness.states[STATE.editing] = 'username';
+    harness.states[STATE.draft] = 'someone-else';
+    press(connectedConfig(), { name: 'enter' });
+    expect(harness.states[STATE.realm]).toBeUndefined();
+    expect(
+      harness.states[STATE.rows].find((row) => row.key === 'username').value
+    ).toBe('someone-else');
+  });
+
+  it('returns no realm when the page is no longer the one the login was made for', () => {
+    render(connectedConfig());
+    harness.states[STATE.realm] = 'bravo';
+    harness.states[STATE.rows] = fieldRows(['other', 'u', 'p']);
+    const done = press(connectedConfig(), { name: 'enter' });
+    // Done was not on the Realm row's index any more, but the page concludes only
+    // on Done: the active row is the first
+    expect(done).not.toHaveBeenCalledWith(
+      expect.objectContaining({ realm: 'bravo' })
+    );
+  });
+
+  it('gives the footer the chosen realm, and the highlighted one while the box is open', () => {
+    const preview = jest.fn(() => 'footer');
+    const config = connectedConfig({ preview });
+    render(config, { [STATE.realm]: 'bravo' });
+    expect(preview).toHaveBeenLastCalledWith(expect.any(Array), {
+      realm: 'bravo',
+    });
+    harness.reset();
+    render(config, {
+      [STATE.editing]: 'realm',
+      [STATE.realm]: 'bravo',
+      [STATE.realmCursor]: 2,
+    });
+    expect(preview).toHaveBeenLastCalledWith(expect.any(Array), {
+      realm: 'bravo',
+      highlightedRealm: 'charlie',
+    });
+    harness.reset();
+    render(config);
+    expect(preview).toHaveBeenLastCalledWith(expect.any(Array), {});
+  });
+});
+
+describe('connectionPage editor key', () => {
+  beforeEach(() => {
+    setTerminal(100);
+    harness.reset();
+  });
+
+  it('advertises the key and resolves with openEditor while the Realm row is shown', () => {
+    const config = connectedConfig({ hint: '→ 26 options' });
+    expect(render(config)).toContain('[⏵] 26 options');
+    harness.reset();
+    const done = press(config, { name: 'right' });
+    expect(done).toHaveBeenCalledTimes(1);
+    expect(done.mock.calls[0][0].openEditor).toBe(true);
+  });
+
+  it('is silent without the hint, and on a page without the Realm row', () => {
+    harness.reset();
+    expect(render(connectedConfig())).not.toContain('[⏵]');
+    harness.reset();
+    expect(press(connectedConfig(), { name: 'right' })).not.toHaveBeenCalled();
+    harness.reset();
+    const idle = {
+      message: 'Connection:',
+      rows: fieldRows(),
+      logsIn: true,
+      hint: '→ 26 options',
+    };
+    expect(render(idle)).not.toContain('[⏵]');
+    harness.reset();
+    expect(press(idle, { name: 'right' })).not.toHaveBeenCalled();
+  });
+
+  it('opens again with the realm that was chosen', () => {
+    render(connectedConfig({ realmChoice: 'bravo' }));
+    expect(harness.states[STATE.realm]).toBe('bravo');
   });
 });
