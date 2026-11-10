@@ -5,6 +5,7 @@ import {
   connectionFingerprint,
   forgetPassLogin,
   loginNeededForPickers,
+  loginTypesOf,
   notePassEntityPickAttempted,
   notePassRealmPickDone,
   notePassStateApplied,
@@ -262,6 +263,33 @@ describe('connectionChangedSinceApply: the editor changed who logs in to what', 
     forgetPassLogin();
     notePassStateApplied(command);
     expect(connectionChangedSinceApply(command)).toBe(false);
+  });
+});
+
+describe('loginTypesOf: the deployment types the pass logs in with', () => {
+  const withTypes = (types: unknown): Command => {
+    const command = makeCommand();
+    (command as Command & { types?: unknown }).types = types;
+    return command;
+  };
+
+  it('is the list the command registers', () => {
+    expect(loginTypesOf(withTypes(['cloud']))).toEqual(['cloud']);
+    expect(loginTypesOf(withTypes(['classic', 'forgeops']))).toEqual([
+      'classic',
+      'forgeops',
+    ]);
+  });
+
+  it('is nothing for a command that registers no list: the default applies', () => {
+    expect(loginTypesOf(makeCommand())).toBeUndefined();
+    expect(loginTypesOf(withTypes(undefined))).toBeUndefined();
+  });
+
+  it('is nothing for an empty or malformed list', () => {
+    expect(loginTypesOf(withTypes([]))).toBeUndefined();
+    expect(loginTypesOf(withTypes('cloud'))).toBeUndefined();
+    expect(loginTypesOf(withTypes(['cloud', 7]))).toBeUndefined();
   });
 });
 

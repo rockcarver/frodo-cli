@@ -245,13 +245,19 @@ async function login(
  * records 0044 and 0046): the same machinery as `getTokens` below (the callback
  * for a second factor, the browser and device prompts, service account, saved
  * credentials, `--credential`, the global force-login-as-user override) with
- * the default arguments. The pass remembers what it used, so the command's own
- * `getTokens()` does not log in a second time. A failure is returned, not
- * reported: the connection page shows it in its frame and reports it when it is
- * closed (`reportLoginFailure`).
+ * the default arguments and the deployment types the command registers (see
+ * `loginTypesOf`). A type the command does not support is refused by the
+ * library, before any picker opens, as a login made by the command would refuse
+ * it. The pass remembers what it used, so the command's own `getTokens()` does
+ * not log in a second time. A failure is returned, not reported: the connection
+ * page shows it in its frame and reports it when it is closed
+ * (`reportLoginFailure`).
+ * @param types the deployment types the command supports (default: all of them)
  * @returns what the login used and who is logged in, or the error the login failed with
  */
-export async function tryLoginInPass(): Promise<
+export async function tryLoginInPass(
+  types: string[] = DEPLOYMENT_TYPES
+): Promise<
   | {
       session: {
         forceLoginAsUser: boolean;
@@ -264,11 +270,7 @@ export async function tryLoginInPass(): Promise<
   const forceLoginAsUser = getForceLoginAsUserOverride();
   const autoRefresh = true;
   try {
-    const subject = await login(
-      forceLoginAsUser,
-      autoRefresh,
-      DEPLOYMENT_TYPES
-    );
+    const subject = await login(forceLoginAsUser, autoRefresh, types);
     return { session: { forceLoginAsUser, autoRefresh, subject } };
   } catch (error) {
     if (error === EXIT_ALL_SIGNAL) throw error;
@@ -288,12 +290,13 @@ export function reportLoginFailure(error: unknown): void {
 
 /**
  * The login of the pass, reported where it fails: see `tryLoginInPass`.
+ * @param types the deployment types the command supports (default: all of them)
  * @returns what the login used, or undefined when it failed (the failure is reported)
  */
-export async function loginInPass(): Promise<
-  { forceLoginAsUser: boolean; autoRefresh: boolean } | undefined
-> {
-  const attempt = await tryLoginInPass();
+export async function loginInPass(
+  types: string[] = DEPLOYMENT_TYPES
+): Promise<{ forceLoginAsUser: boolean; autoRefresh: boolean } | undefined> {
+  const attempt = await tryLoginInPass(types);
   if ('error' in attempt) {
     reportLoginFailure(attempt.error);
     return undefined;

@@ -261,6 +261,26 @@ describe('loginInPass', () => {
     expect(device).toBe(false);
   });
 
+  it('logs in for the deployment types the command registers', async () => {
+    await loginInPass(['cloud']);
+    expect(frodoGetTokens.mock.calls[0][2]).toEqual(['cloud']);
+  });
+
+  it('reports the library refusal of another type the way getTokens does, before any picker, and returns nothing', async () => {
+    const refusal = new FrodoError(
+      'Error getting tokens',
+      new FrodoError("Unsupported deployment type 'classic'")
+    );
+    frodoGetTokens.mockRejectedValue(refusal);
+    expect(await loginInPass(['cloud'])).toBeUndefined();
+    expect(printError).toHaveBeenCalledWith(refusal);
+    expect(printError.mock.calls[0][0].getCombinedMessage()).toBe(
+      "Error getting tokens | Unsupported deployment type 'classic'"
+    );
+    expect(resolveRealmPick).not.toHaveBeenCalled();
+    expect(resolveFamilyEntityPicks).not.toHaveBeenCalled();
+  });
+
   it('follows the global force-login-as-user override, and says so', async () => {
     process.env.FRODO_FORCE_LOGIN_AS_USER = '1';
     const used = await loginInPass();

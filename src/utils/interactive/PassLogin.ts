@@ -143,6 +143,23 @@ export function loginNeededForPickers(facts: {
 }
 
 /**
+ * The deployment types the pass logs in with: those its command registers (the
+ * list `handleDefaultArgsAndOpts` enforces), so a login that finds another type
+ * is refused by the library before any picker opens. A command that registers
+ * no list, or an empty one, is not limited here.
+ * @param command the command that is being resolved
+ * @returns the registered deployment types, undefined when there are none
+ */
+export function loginTypesOf(command: Command): string[] | undefined {
+  const types = (command as Command & { types?: unknown }).types;
+  return Array.isArray(types) &&
+    types.length > 0 &&
+    types.every((type) => typeof type === 'string')
+    ? (types as string[])
+    : undefined;
+}
+
+/**
  * The message of the library's refusal of a deployment type that a command
  * does not support, so the reused login of the pass fails the same way a login
  * made by the command would.

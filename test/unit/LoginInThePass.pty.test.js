@@ -441,6 +441,73 @@ suite('the login in the resolution pass, on a real terminal', () => {
     );
   });
 
+  describe('a tenant of a deployment type the command does not support', () => {
+    // `esv secret describe` is cloud-only and asks for a secret, a pick that needs the
+    // login; the fake tenant is a classic deployment
+    const refusal = "Unsupported deployment type 'classic'";
+
+    test(
+      'is refused with the library error before any picker, exit code 1, in the words of a command line that is complete',
+      async () => {
+        const tenant = await startTenant();
+        const asked = run(
+          tenant,
+          ['esv', 'secret', 'describe', tenant],
+          [
+            { type: 'wait_exit', timeoutMs: 30000 },
+            { type: 'sleep', ms: 300 },
+          ]
+        );
+        expect(asked.exitCode).toBe(1);
+        expect(asked.plainOutput).toContain('Error getting tokens');
+        expect(asked.plainOutput).toContain(refusal);
+        expect(asked.plainOutput).not.toContain('Select secret to act on');
+        expect(asked.plainOutput).not.toContain('Ready to run?');
+        expect(asked.plainOutput).not.toContain('Error reading');
+        // one login attempt, and nothing was read from the tenant for a picker
+        const log = requests();
+        expect(loginCount(log)).toBeLessThanOrEqual(1);
+        expect(firstRequestIndex(log, '/esv/')).toBe(-1);
+
+        // the same refusal, word for word, as the login of a command line that is complete
+        const given = run(
+          tenant,
+          ['esv', 'secret', 'describe', tenant, '-i', 'a-secret'],
+          [
+            { type: 'wait_exit', timeoutMs: 30000 },
+            { type: 'sleep', ms: 300 },
+          ]
+        );
+        expect(given.exitCode).toBe(1);
+        const words = (output) =>
+          output.split('Error getting tokens').pop().trim();
+        expect(words(asked.plainOutput)).toBe(words(given.plainOutput));
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a command that supports the type goes on to its picker',
+      async () => {
+        const tenant = await startTenant();
+        const result = run(
+          tenant,
+          ['journey', 'export', tenant, '/alpha'],
+          [
+            ...chooseJourneyOption,
+            ...chooseJourney,
+            ...atReady,
+            { type: 'key', name: 'enter' },
+            { type: 'sleep', ms: 3000 },
+          ]
+        );
+        expect(result.captures.journey.plain).toContain('matrix-login');
+        expect(result.plainOutput).not.toContain(refusal);
+      },
+      TIMEOUT
+    );
+  });
+
   describe('a command that needs no picker', () => {
     // FRODO_REALM names the realm, so the realm picker does not open
     const named = { FRODO_REALM: 'alpha' };

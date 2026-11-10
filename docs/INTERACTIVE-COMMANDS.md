@@ -252,7 +252,9 @@ its own, and its Enter says `next`:
   that it has several realms) or when an entity pick that needs tokens will
   open (`pendingPassPicks`; a pick whose loader reads this machine only says
   `needsLogin: false`). It is the command's login: the same machinery as
-  `getTokens`, with the default arguments, after the pass has written the
+  `getTokens`, with the default arguments and the deployment types the command
+  registers (a tenant of another type is refused with the library's error before
+  any picker opens), after the pass has written the
   connection into frodo-lib's state the way the action would
   (`handleDefaultArgsAndOpts`, which the action then skips). A failed login ends
   the command with the error and the hint, exit code 1, no Ready step. The
