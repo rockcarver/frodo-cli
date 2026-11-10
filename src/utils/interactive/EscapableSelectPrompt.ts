@@ -51,6 +51,13 @@ export type EscapableSelectChoice<Value> = {
 };
 
 /**
+ * A line of text inside the panel, above the list: where the user is (the
+ * folder of a file picker) or a note about the last step. `error` draws it in
+ * the negative color, `muted` (the default) as furniture.
+ */
+export type EscapableSelectIntro = { text: string; tone?: 'muted' | 'error' };
+
+/**
  * Matches a choice against the current search query. `query` is the raw
  * (not lowercased) buffer content -- the predicate decides on casing
  * itself, so e.g. the connection-profile pickers can do case-insensitive
@@ -69,6 +76,11 @@ export type EscapableSelectConfig<Value> = {
   choices: EscapableSelectChoice<Value>[];
   default?: Value;
   pageSize?: number;
+  /**
+   * Lines inside the panel above the list, wrapped to the frame. They stay
+   * where they are while the list is filtered or scrolled.
+   */
+  intro?: EscapableSelectIntro[];
   /**
    * Custom match predicate for type-to-search (see the class doc for the
    * full interaction contract). Omitted, every list is still filterable --
@@ -375,6 +387,18 @@ const escapableSelectImpl = createPrompt(
       // second half obvious -- this line lives until the grace resolves.
       const graceHint = `esc again to exit all -- or wait to ${config.escapeLabel ?? 'go back one level'}`;
       panelLines.push({ text: c.muted(graceHint), plain: graceHint });
+    }
+    if (config.intro && config.intro.length > 0) {
+      for (const line of config.intro) {
+        for (const row of descriptionPanelLines(line.text, width)) {
+          panelLines.push(
+            line.tone === 'error'
+              ? { text: c.negative(row.plain), plain: row.plain }
+              : row
+          );
+        }
+      }
+      panelLines.push({ text: '', plain: '' });
     }
     if (filtered.length > 0) {
       for (const row of page.split('\n')) {
