@@ -27,6 +27,9 @@ Options:
   -d, --dry-run      Show which terms and conditions versions would be deleted.
   -n, --name <name>  Version identifier; deletes only the specified terms and
                      conditions version.
+  -y, --yes          Do not ask for confirmation before deleting more than one
+                     terms and conditions version (no -n). Required without a
+                     terminal.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

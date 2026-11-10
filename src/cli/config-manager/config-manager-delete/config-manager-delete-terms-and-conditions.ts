@@ -3,6 +3,10 @@ import { Option } from 'commander';
 import { configManagerDeleteTermsAndConditions } from '../../../configManagerOps/FrConfigTermsAndConditionsOps';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
+import {
+  checkBulkDelete,
+  confirmBulkDelete,
+} from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -35,12 +39,22 @@ export default function setup() {
         'Show which terms and conditions versions would be deleted.'
       )
     )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before deleting more than one terms and conditions version (no -n). Required without a terminal.'
+      )
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Delete all eligible terms and conditions versions:\n` +
+        `  Delete all terms and conditions versions without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(
-          `  $ frodo config-manager delete terms-and-conditions ${s.connId}\n`
+          `  $ frodo config-manager delete terms-and-conditions -y ${s.connId}\n`
+        ) +
+        `  Preview the deletion of all terms and conditions versions:\n` +
+        c.command(
+          `  $ frodo config-manager delete terms-and-conditions -d ${s.connId}\n`
         ) +
         `  Delete a specific version:\n` +
         c.command(
@@ -61,7 +75,31 @@ export default function setup() {
         options,
         command
       );
+      // a run that nobody can be asked about is refused before the login; an
+      // empty name is not "all" and is reported by the delete itself
+      const what = 'all terms and conditions versions';
+      const deletesAll = options.name === undefined;
+      if (
+        deletesAll &&
+        !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
+      ) {
+        process.exitCode = 1;
+        return;
+      }
       if (!(await getTokens(false, true, deploymentTypes))) {
+        process.exitCode = 1;
+        return;
+      }
+      if (
+        deletesAll &&
+        !(await confirmBulkDelete({
+          what,
+          yes: options.yes,
+          dryRun: options.dryRun,
+          showPlan: () =>
+            configManagerDeleteTermsAndConditions(undefined, true),
+        }))
+      ) {
         process.exitCode = 1;
         return;
       }

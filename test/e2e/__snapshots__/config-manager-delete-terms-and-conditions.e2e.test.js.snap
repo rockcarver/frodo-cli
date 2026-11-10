@@ -17,9 +17,9 @@ Dry run: Deleting terms and conditions version: 0.1
 "
 `;
 
-exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -m forgeops": should delete all terms and conditions versions from forgeops 1`] = `""`;
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -y -m forgeops": should delete all terms and conditions versions from forgeops 1`] = `""`;
 
-exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -m forgeops": should delete all terms and conditions versions from forgeops 2`] = `
+exports[`frodo config-manager delete terms-and-conditions "frodo config-manager delete terms-and-conditions -y -m forgeops": should delete all terms and conditions versions from forgeops 2`] = `
 "Experimental feature in use: 'frodo config-manager delete terms-and-conditions'. This feature may change without notice.
 Deleting terms and conditions version: 0.0
 Deleting terms and conditions version: 0.1
