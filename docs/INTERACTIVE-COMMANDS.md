@@ -170,6 +170,22 @@ need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
   `test/unit/ConfigManagerRealmUse.test.js` lists the commands that declare
   it and reads the source of every one, so a new command has to choose.
 
+  **A command whose realm matters only with an option** declares
+  `.realmPickerOnlyWith(option)` (`FrodoCommand`; `RealmUse.ts`), with the
+  attribute name of the option. `frodo config export` is the one: the realm
+  limits the export with `-r`, `--realm-only`, and changes nothing without it,
+  so its picker opens only when `-r` is set. `-r` is a boolean flag and the
+  realm is the positional after the host, so there is no "`-r` without a
+  value": the declaration only narrows the picker and adds no condition that
+  opens it. It is the ordinary picker (the realms only, the deployment's
+  default highlighted, no `All realms` row), and every condition above still
+  holds: the command line has to be incomplete anyway (a host or other
+  connection input was asked for), and a realm that was named opens nothing.
+  `frodo config export -ar <connection>` and the other complete lines never
+  prompt, as before ([record 0030](decisions/0030-interactive-mode-never-prompts-for-what-4x-accepted.md)).
+  `test/unit/RealmPickerOptionDeclarations.test.js` lists the commands that
+  declare it.
+
 - **Entity pickers** (`EntityPickers.ts`) — a command whose
   target-entity option (`-i/--secret-id`, `-i/--tree-id`, ...) was left
   unspecified offers a dropdown populated from the live system. A

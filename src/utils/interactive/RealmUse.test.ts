@@ -6,9 +6,12 @@ import {
 } from './CommandPreview';
 import { realmOfRun } from './PositionalArgs';
 import {
+  declareRealmPickerOnlyWith,
   declareRealmUse,
   ignoresRealm,
   isConfigManagerCommand,
+  realmPickerOptionOf,
+  realmPickerWanted,
   realmUseOf,
 } from './RealmUse';
 
@@ -147,5 +150,73 @@ describe('the command as the preview prints it', () => {
     expect(serializeCommand(command)).toBe(
       'frodo config-manager pull journeys matrix alpha'
     );
+  });
+});
+
+/** A parsed `frodo config export` with the realm positional and `-r, --realm-only`. */
+async function exportLeaf(args: string[]): Promise<Command> {
+  const root = new Command('frodo');
+  const command = root
+    .command('config')
+    .command('export')
+    .argument('[host]')
+    .argument('[realm]', 'Realm.', SENTINEL)
+    .option('-a, --all')
+    .option('-r, --realm-only')
+    .action(async () => {});
+  await root.parseAsync(['node', 'frodo', 'config', 'export', ...args]);
+  return command;
+}
+
+describe('a realm picker that needs an option', () => {
+  it('records nothing until the command declares it, and then wants the picker as before', async () => {
+    const command = await exportLeaf(['matrix']);
+    expect(realmPickerOptionOf(command)).toBeUndefined();
+    expect(realmPickerWanted(command)).toBe(true);
+  });
+
+  it('records the option', async () => {
+    const command = await exportLeaf(['matrix']);
+    declareRealmPickerOnlyWith(command, 'realmOnly');
+    expect(realmPickerOptionOf(command)).toBe('realmOnly');
+  });
+
+  it('does not want the picker while the option is not set', async () => {
+    const command = await exportLeaf(['matrix', '-a']);
+    declareRealmPickerOnlyWith(command, 'realmOnly');
+    expect(realmPickerWanted(command)).toBe(false);
+  });
+
+  it('wants the picker when the option is set, alone or in a cluster of flags', async () => {
+    const alone = await exportLeaf(['matrix', '-r']);
+    declareRealmPickerOnlyWith(alone, 'realmOnly');
+    expect(realmPickerWanted(alone)).toBe(true);
+    const clustered = await exportLeaf(['-ar']);
+    declareRealmPickerOnlyWith(clustered, 'realmOnly');
+    expect(realmPickerWanted(clustered)).toBe(true);
+  });
+
+  it('is not changed by a realm that was typed: that is judged elsewhere', async () => {
+    const command = await exportLeaf(['matrix', 'bravo', '-a']);
+    declareRealmPickerOnlyWith(command, 'realmOnly');
+    expect(realmPickerWanted(command)).toBe(false);
+    const withOption = await exportLeaf(['matrix', 'bravo', '-r']);
+    declareRealmPickerOnlyWith(withOption, 'realmOnly');
+    expect(realmPickerWanted(withOption)).toBe(true);
+  });
+
+  it('keeps one command apart from another', async () => {
+    const declared = await exportLeaf(['matrix']);
+    const other = await exportLeaf(['matrix']);
+    declareRealmPickerOnlyWith(declared, 'realmOnly');
+    expect(realmPickerOptionOf(other)).toBeUndefined();
+    expect(realmPickerWanted(other)).toBe(true);
+  });
+
+  it('does not make a config-manager command use or ignore its realm', async () => {
+    const command = await exportLeaf(['matrix']);
+    declareRealmPickerOnlyWith(command, 'realmOnly');
+    expect(realmUseOf(command)).toBeUndefined();
+    expect(ignoresRealm(command)).toBe(false);
   });
 });

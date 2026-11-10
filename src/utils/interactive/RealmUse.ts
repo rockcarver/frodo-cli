@@ -21,6 +21,14 @@
  * A `config-manager` command that does NOT declare it ignores the realm
  * (cors, secrets, promote, ...): the picker would offer a choice that changes
  * nothing, so it does not open.
+ *
+ * A command whose realm matters only when an option is set (`frodo config
+ * export`: the realm limits the export with `-r`, `--realm-only`, and changes
+ * nothing without it) declares `FrodoCommand.realmPickerOnlyWith(option)`.
+ * Its picker is the ordinary one (the realms only, the deployment's default
+ * highlighted) and it still opens only where records 0001 and 0030 allow it,
+ * for a command line that was incomplete; the declaration only closes it when
+ * the option is not set.
  */
 
 import type { Command } from 'commander';
@@ -87,4 +95,42 @@ export function isConfigManagerCommand(command: Command): boolean {
  */
 export function ignoresRealm(command: Command): boolean {
   return isConfigManagerCommand(command) && !realmUseOf(command);
+}
+
+const declaredRealmPickerOption = new WeakMap<Command, string>();
+
+/**
+ * Records that the command's realm picker is only worth opening when the
+ * option is set (see the module doc). It never opens the picker: the other
+ * conditions of `resolveRealmPick` still apply.
+ * @param command the command
+ * @param option the attribute name of the option (`realmOnly` for `-r, --realm-only`)
+ */
+export function declareRealmPickerOnlyWith(
+  command: Command,
+  option: string
+): void {
+  declaredRealmPickerOption.set(command, option);
+}
+
+/**
+ * The option that the command's realm picker depends on.
+ * @param command the command
+ * @returns the attribute name of the option, or undefined if the command did not declare one
+ */
+export function realmPickerOptionOf(command: Command): string | undefined {
+  return declaredRealmPickerOption.get(command);
+}
+
+/**
+ * Whether the realm picker may open for the command as far as its options are
+ * concerned: a command that declared `realmPickerOnlyWith` needs that option
+ * set (typed, from the environment or chosen in the editor); any other command
+ * has no such condition.
+ * @param command the command
+ * @returns false if the command declared an option and it is not set
+ */
+export function realmPickerWanted(command: Command): boolean {
+  const option = declaredRealmPickerOption.get(command);
+  return option === undefined || !!command.getOptionValue(option);
 }
