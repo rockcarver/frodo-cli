@@ -187,6 +187,20 @@ function idmAccessEvent({
   };
 }
 
+// What frodo-lib throws: a FrodoError that wraps the error of the request. The
+// wrapper carries no status of its own, the 404 sits in the error it wraps.
+function wrapped404(message) {
+  return Object.assign(new Error(message), {
+    name: 'FrodoError',
+    originalErrors: [
+      Object.assign(new Error('Request failed with status code 404'), {
+        name: 'AxiosError',
+        response: { status: 404 },
+      }),
+    ],
+  });
+}
+
 beforeEach(() => {
   mockTailResult = { result: [], pagedResultsCookie: undefined };
   mockTail = async () => mockTailResult;
@@ -557,6 +571,25 @@ describe('JourneyDebugAggregator - abandoned detection', () => {
       true
     );
   });
+
+  test('a journey whose definition cannot be exported (a 404 wrapped by the library) is not warned about and not retried', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    let exports = 0;
+    mockExportJourney = async () => {
+      exports += 1;
+      throw wrapped404('Error exporting journey');
+    };
+    const aggregator = new JourneyDebugAggregator();
+    const warnings = [];
+    mockTailResult = { result: [nodeEvent({ transactionId: 'tx-tree-404' })] };
+    await aggregator.poll((m) => warnings.push(m));
+    jest.setSystemTime(new Date('2026-01-01T00:10:00Z'));
+    mockTailResult = { result: [] };
+    await aggregator.poll((m) => warnings.push(m));
+    expect(warnings).toEqual([]);
+    expect(exports).toBe(1);
+  });
 });
 
 describe('JourneyDebugAggregator - pinning and eviction', () => {
@@ -723,6 +756,69 @@ describe('JourneyDebugAggregator - service account name resolution', () => {
     await aggregator.poll((m) => warnings.push(m));
     expect(aggregator.getSessions()[0].userDisplayName).toBeUndefined();
     expect(warnings).toEqual([]);
+  });
+
+  test('a 404 wrapped by the library is as final as a bare one: no warning, no retry', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    let lookups = 0;
+    mockGetServiceAccount = async () => {
+      lookups += 1;
+      throw wrapped404('Error reading service account');
+    };
+    const aggregator = new JourneyDebugAggregator();
+    const warnings = [];
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-svcacct-wrapped-404',
+          treeName: 'FRServiceAccountInternal',
+          principal: 'not-a-real-service-account',
+        }),
+      ],
+    };
+    await aggregator.poll((m) => warnings.push(m));
+    await aggregator.poll((m) => warnings.push(m));
+    jest.setSystemTime(new Date('2026-01-01T00:10:00Z'));
+    await aggregator.poll((m) => warnings.push(m));
+    expect(warnings).toEqual([]);
+    expect(lookups).toBe(1);
+  });
+
+  test('a failure that is not a 404 is warned about and retried after the cooldown', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    let lookups = 0;
+    mockGetServiceAccount = async () => {
+      lookups += 1;
+      throw Object.assign(new Error('Error reading service account'), {
+        name: 'FrodoError',
+        originalErrors: [
+          Object.assign(new Error('Request failed with status code 500'), {
+            response: { status: 500 },
+          }),
+        ],
+      });
+    };
+    const aggregator = new JourneyDebugAggregator();
+    const warnings = [];
+    mockTailResult = {
+      result: [
+        nodeEvent({
+          transactionId: 'tx-svcacct-500',
+          treeName: 'FRServiceAccountInternal',
+          principal: 'some-service-account',
+        }),
+      ],
+    };
+    await aggregator.poll((m) => warnings.push(m));
+    await aggregator.poll((m) => warnings.push(m));
+    expect(
+      warnings.some((w) => w.includes('could not resolve service account'))
+    ).toBe(true);
+    jest.setSystemTime(new Date('2026-01-01T00:10:00Z'));
+    await aggregator.poll((m) => warnings.push(m));
+    expect(lookups).toBe(2);
   });
 
   test('a non-FRServiceAccountInternal tree never attempts service-account resolution', async () => {

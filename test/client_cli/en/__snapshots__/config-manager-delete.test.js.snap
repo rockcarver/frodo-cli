@@ -7,30 +7,32 @@ exports[`CLI help interface for 'config-manager delete' should be expected engli
 compatible with fr-config-manager).
 
 Options:
-  -h, --help        Help
-  -hh, --help-more  Help with all options.
-  -hhh, --help-all  Help with all options, environment variables, and usage
-                    examples.
+  -h, --help            Help
+  -hh, --help-more      Help with all options.
+  -hhh, --help-all      Help with all options, environment variables, and usage
+                        examples.
 
 Runtime Options:
-  --no-prompt       Never prompt interactively (same as setting
-                    FRODO_NO_PROMPT).
+  --no-prompt           Never prompt interactively (same as setting
+                        FRODO_NO_PROMPT).
 
 Commands:
-  applications      [Experimental] Delete applications together with the objects
-                    they own.
-  custom-nodes      [Experimental] Delete custom nodes.
-  email-templates   [Experimental] Delete email template objects.
-  endpoints         [Experimental] Delete custom endpoint objects.
-  scripts           [Experimental] Delete AM scripts. Default scripts are never
-                    deleted.
-  test              [Experimental] Test connection and authentication.
-  themes            [Experimental] Delete themes by name or delete all themes in
-                    the selected realms.
-  variables         [Experimental] [Cloud-only] Delete variables.
+  applications          [Experimental] Delete applications together with the
+                        objects they own.
+  custom-nodes          [Experimental] Delete custom nodes.
+  email-templates       [Experimental] Delete email template objects.
+  endpoints             [Experimental] Delete custom endpoint objects.
+  scripts               [Experimental] Delete AM scripts. Default scripts are
+                        never deleted.
+  secrets               [Experimental] [Cloud-only] Delete secrets.
+  terms-and-conditions  [Experimental] Delete terms and conditions versions.
+  test                  [Experimental] Test connection and authentication.
+  themes                [Experimental] Delete themes by name or delete all
+                        themes in the selected realms.
+  variables             [Experimental] [Cloud-only] Delete variables.
 
 Utilities:
-  help              display help for command
+  help                  display help for command
 
 
 Run without a sub-command to enter interactive mode."
