@@ -186,7 +186,7 @@ export default function setup() {
     .multiOp()
     // the realm limits the export only with -r, --realm-only: only then is it
     // worth asking for one, and only on a command line that was incomplete
-    // anyway (records 0001 and 0030)
+    // anyway (records 0001 and 0047)
     .realmPickerOnlyWith('realmOnly')
     .action(
       // implement command logic inside action handler

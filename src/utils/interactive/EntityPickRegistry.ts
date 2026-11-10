@@ -35,7 +35,7 @@ export type EntityPickFamily = {
    * Commands of the family (their path after the family, and also listed in
    * `except`) whose option is an optional filter: without it they cover every
    * entity, so the command line is complete and the pick never opens by
-   * itself (record 0030). The user can still ask for it on the options page
+   * itself (record 0047). The user can still ask for it on the options page
    * ("choose after connecting"), and then the pick runs after login.
    */
   onRequest?: string[];

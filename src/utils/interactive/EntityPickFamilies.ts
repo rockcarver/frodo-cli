@@ -119,7 +119,8 @@ export function registerEntityPickFamilies(): void {
   // The agents (`frodo agent`). Each type has a group of its own and an entry of
   // its own, so the generic entry leaves the typed groups out: a command would
   // inherit two pickers for -i otherwise. `describe` takes -i as optional (without
-  // it every agent is described), so it gets no picker (record 0030). `export` of
+  // it every agent is described), so its command line is complete without it and it
+  // gets no picker (record 0047). `export` of
   // the generic group stays out: its -g is an alternative to -i that does not
   // conflict with it, and the framework cannot yet tell that -g already answers
   // the question (cli#1081).
@@ -245,7 +246,7 @@ export function registerEntityPickFamilies(): void {
   // Authorization policies: the policy that `-i` names. `--set-id` of `delete`
   // and `export` is not offered a pick: it narrows `-a` to one policy set, so a
   // pick would open on a complete command line such as `delete -a` (record
-  // 0030). `import` takes its option from a file (see `NEW_ENTITY_VERBS`).
+  // 0047). `import` takes its option from a file (see `NEW_ENTITY_VERBS`).
   registerEntityPickFamily({
     family: 'authz policy',
     picks: [
@@ -309,7 +310,7 @@ export function registerEntityPickFamilies(): void {
   // IGA workflows: the workflow that `-i` names. `describe` takes `-i` or `-f`
   // (the workflow inside a file) as one of two; the framework does not open the
   // pick when `-f` is given, so a complete command line is left alone (record
-  // 0030). A tenant without IGA has no workflows to offer: the commands say so
+  // 0047). A tenant without IGA has no workflows to offer: the commands say so
   // themselves once the pick is satisfied.
   registerEntityPickFamily({
     family: 'iga workflow',
@@ -830,8 +831,9 @@ export function registerEntityPickFamilies(): void {
 
   // The Log API keys of the tenant (`log key delete -i`), by key id with the
   // name of the key as the description. `describe` takes `-i` as optional, so
-  // it gets no pick (record 0030); with `-a` the option is a regex filter and
-  // the framework does not open the pick.
+  // its command line is complete without it and it gets no pick (record
+  // 0047); with `-a` the option is a regex filter and the framework does not
+  // open the pick.
   type LogApiKeyEntity = Awaited<
     ReturnType<typeof frodo.cloud.log.getLogApiKeys>
   >[number];

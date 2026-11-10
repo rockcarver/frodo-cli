@@ -3,7 +3,7 @@ import { Command, Option } from 'commander';
 
 /**
  * Decision record 0038 and the rules of the entity picker runner that keep a
- * pick from asking for what the command line already answers (record 0030).
+ * pick from asking for what the command line already answers (record 0047).
  * This drives the runner as an interactive session (the prompt gate open, the
  * dropdown replaced by a stub), on small fake commands and on the registered
  * `mapping` family:

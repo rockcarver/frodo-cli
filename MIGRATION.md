@@ -138,8 +138,9 @@ issuer's allowed subject only when there is exactly one (4.x took the first of
 several); with several, or with an issuer that allows any user, you name the
 user with `--sub` or, on a terminal, pick one from a list. A `--jwk-file` that cannot be read stops
 either command with exit code 1 (`generate-rfc7523-authz-grant-artefacts` used
-to make a new key instead). These are fixes for defects in the sense of
-[a fix for a defect is not a departure from the 4.x rule](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0034-a-fix-for-a-defect-is-not-a-departure-from-the-4x-rule.md).
+to make a new key instead). These are fixes for defects, behaviour that no
+valid input could mean (see
+[record 0048](docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)).
 
 **Deleting everything of a kind now asks first**: a delete that can remove
 more than the one object it names (`-a`/`--all`) used to run without a
@@ -160,8 +161,7 @@ named object never asks. This affects `frodo agent delete -a` and
 `log key delete -a`, `mapping delete -a`, `node delete -a`, `saml delete -a`,
 `script delete -a`, `secretstore delete --all`, `secretstore mapping delete
 --all`, `secretstore mapping alias delete --all`, `service delete -a` and
-`theme delete -a`. It is a safety guard, a deliberate exception to the rule that
-a command line that ran under 4.x keeps running: see
+`theme delete -a`. It is a safety guard added in a major release: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
 **Commands that run several operations now run them all and exit 1 if any

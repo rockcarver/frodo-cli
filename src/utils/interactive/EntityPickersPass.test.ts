@@ -129,7 +129,7 @@ describe('pendingPassPicks: the picks that will open', () => {
 
   it('counts a pick of the family only when the user asked for it on the options page', () => {
     // the command line is complete without the option (an optional filter), so
-    // the pick does not open by itself (record 0030)
+    // the pick does not open by itself (record 0047)
     registerEntityPickFamily({
       family: 'esv secret',
       except: ['delete'],
