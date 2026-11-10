@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 
 // A failed login prints the error of frodo-lib, then one line of advice from
-// the CLI, only for an error that carries a code (see LoginErrorHints).
+// the CLI, only for an error that carries a code (see ErrorCodeHints).
 
 const frodoGetTokens = jest.fn();
 const frodoGetTokensInteractive = jest.fn();
@@ -47,8 +47,7 @@ jest.unstable_mockModule(
 
 const { getTokens, getTokensInteractive } =
   await import('../../src/ops/AuthenticateOps.ts');
-const { LOGIN_ERROR_HINTS } =
-  await import('../../src/utils/LoginErrorHints.ts');
+const { ERROR_CODE_HINTS } = await import('../../src/utils/ErrorCodeHints.ts');
 
 /** What frodo-lib throws: a FrodoError, with a code on the condition and a wrapper around it. */
 function libError(message, { code, inner } = {}) {
@@ -86,7 +85,7 @@ describe('getTokens() after a failed login', () => {
     expect(printError).toHaveBeenCalledTimes(1);
     expect(printError).toHaveBeenCalledWith(wrapper);
     expect(hintsPrinted()).toEqual([
-      [LOGIN_ERROR_HINTS.BROWSER_LOGIN_NO_SESSION, 'info'],
+      [ERROR_CODE_HINTS.BROWSER_LOGIN_NO_SESSION, 'info'],
     ]);
     expect(printError.mock.invocationCallOrder[0]).toBeLessThan(
       printMessage.mock.invocationCallOrder[0]
@@ -94,7 +93,7 @@ describe('getTokens() after a failed login', () => {
   });
 
   test('2: gives each code its own advice', async () => {
-    for (const [code, hint] of Object.entries(LOGIN_ERROR_HINTS)) {
+    for (const [code, hint] of Object.entries(ERROR_CODE_HINTS)) {
       printMessage.mockClear();
       frodoGetTokens.mockRejectedValue(
         libError('Error getting tokens', { inner: libError('facts', { code }) })
@@ -152,7 +151,7 @@ describe('getTokensInteractive() (frodo login --browser) after a failed login', 
 
     expect(printError).toHaveBeenCalledWith(wrapper);
     expect(hintsPrinted()).toEqual([
-      [LOGIN_ERROR_HINTS.BROWSER_LOGIN_DEPLOYMENT_TYPE_UNKNOWN, 'info'],
+      [ERROR_CODE_HINTS.BROWSER_LOGIN_DEPLOYMENT_TYPE_UNKNOWN, 'info'],
     ]);
   });
 
