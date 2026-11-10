@@ -51,13 +51,14 @@ FRODO_USERNAME`). The page is the only prompt for them: it opens on the
 3. **Deferred mandatory options** — `FrodoCommand` overrides commander's
    `missingMandatoryOptionValue()` to DEFER violations into a registry
    instead of throwing at parse time; the pass then prompts for each
-   (dropdown for `choices()` options, free text otherwise). All
-   `makeOptionMandatory()` call sites become prompt-capable with zero
-   syntax change.
+   (dropdown for `choices()` options, the file system picker for a path
+   option, free text otherwise). All `makeOptionMandatory()` call sites
+   become prompt-capable with zero syntax change.
 4. **Option-requiredness groups** — `requireOneOf()`/`requireAllOf()`
    replace the old `Unrecognized combination` dead-ends: an unsatisfied
-   group prompts (pick the member, then its value), non-interactive
-   runs fail with commander-shaped errors before auth.
+   group prompts (pick the member, then its value: a dropdown, the file
+   system picker or free text), non-interactive runs fail with
+   commander-shaped errors before auth.
 5. **Secret values** (`SecretCollector.ts`) — an option declared with
    `SecretOption` (`--password` on `conn set`, `--log-api-secret`,
    `--client-secret`) may be used without a value. The pass asks for each
@@ -459,6 +460,82 @@ as a prefix. All of it stays in ONE prompt: the earlier design that
 nested a second @inquirer prompt inside the keypress handler had two
 readlines fighting over stdin and froze the frame.
 
+## The file system picker
+
+An option that names a place in the file system (`-f, --file`, `-D,
+--directory`, `-C, --config-folder`, ...) is not asked for as a line of text
+([record 0044](decisions/0044-a-path-option-gets-a-file-system-picker-where-the-pass-would-ask-for-text.md)):
+the user walks the file system and picks. `FileSystemPicker.ts` draws it as every
+prompt is drawn (the Navigate menu, the question in a box, the command
+underneath), one `escapableSelect` page per folder, with the text prompt for a
+name.
+
+**Where it opens.** Only where the pass would ask for the option's value as
+text: a mandatory path option that is missing (`frodo config-manager pull all`
+without `-C`), the path option the user chose in a one-of group (`frodo journey
+import`: `-f`), and the value step of the invocation editor (`--prompt`,
+guided mode). The editor opens it once the options page is
+committed, for each path option marked there (marking one again, after it was
+unmarked, asks for it again), starting from the option's value; the value box
+of the editor, which takes text, is not used for a path option. A complete
+command line, an optional `-f` or `-D` that was left out, `--no-prompt`,
+`FRODO_NO_PROMPT` and a run without a terminal open nothing (record 0030).
+
+**Which options.** `PathOptions.ts` (zero-import) classifies them by long name,
+with overrides per command (`config-manager pull saml --file`): a **file** or a
+**directory**, read or written, and optionally the extensions to show
+(`.json`; folders are always shown). Read or written follows the verb of the
+command's path (`export` and `pull` write, every other verb reads) unless the
+table says otherwise: `-C` of `config-manager pull all` is only read, and its
+`-D` is written. `test/unit/PathOptionsCoverage.test.js` walks the command tree
+and fails for an option that takes a value and looks like a path (its long name
+or placeholder has "file", "dir", "folder" or "path" in it) and is neither
+classified nor listed in `NOT_FILE_SYSTEM_PATHS` with a reason (`--path` of
+`config-manager push raw` is a place inside a configuration, `--filename-filter`
+is a pattern), and for an entry that matches no option. A new command with a
+path option therefore needs one line in `PathOptions.ts`, and no code.
+
+**The page.** The first line names the folder. The rows are, in this order:
+
+| Row             | When                            | Enter                                              |
+| --------------- | ------------------------------- | -------------------------------------------------- |
+| Use this folder | a folder is picked              | picks the folder                                   |
+| New file…       | a file is written               | asks for a name; makes no file, only names it      |
+| New folder…     | something is written            | asks for a name and makes that one folder          |
+| `..`            | not at the top of a file system | opens the parent, the cursor on where it came from |
+| `name/`         | each sub-folder                 | opens it                                           |
+| `name`          | each file (a file is picked)    | picks it                                           |
+
+Folders come before files, each sorted by name without regard to case and with
+numbers by value; entries whose name starts with a dot are not shown (except
+for an option whose usual value is one: `--env-file`, `showHidden` in the table);
+links are followed; a folder that cannot be read shows why on the page and offers `..`
+only. Typing filters the rows like in every picker. A name for a new folder or
+file is one name: not empty, not `.` or `..`, no `/` or `\`, and for a folder
+one that does not exist; a refused name is asked for again with the reason in
+the prompt. A new folder is made with a plain `mkdir` and entered; if that
+fails the reason is a line on the page. A folder to be read gets no "New
+folder…" (a new folder has nothing in it).
+
+**Start and value.** The picker opens in the folder of the option's current value
+if it exists, else in the working directory, with the cursor on the file of the
+value, "Use this folder" (a folder is picked), "New file…" (a file is written) or
+the first entry (a file is read). The value is the path relative to the working
+directory when it is inside it (`.` for the directory itself) and absolute
+otherwise. The command underneath shows the highlighted file, or the folder on
+"Use this folder", as the option's value, and quotes a value with a space or
+another character a shell would read as its own, so it is a command to type
+again (record 0019).
+
+**Keys.** Up, down, type to filter and Enter as everywhere; Enter says `open`
+on a folder and `..`, `ask for a name` on the two "New" rows, `next` on the pick
+in the resolution pass and `commit` in the editor. Escape makes no selection
+(`[ESC] cancel the pick`): a missing mandatory option or an unsatisfied one-of
+group then fails like a declined text prompt (the command does not run, the
+usual error, exit code 1); in the editor the option stays as it was. Escape twice
+exits all. The name prompt's Escape goes back to the page. A folder made stays
+when the pick is cancelled.
+
 ## The command preview
 
 `CommandPreview.ts` (zero-import: pure commander serialization) renders
@@ -653,7 +730,7 @@ Everything the tests must reach therefore lives in zero-import modules
 under `src/utils/interactive/`: `PromptGateState`,
 `ActiveActionCommandState`, `AuthoringPrintState`, `PositionalArgs`,
 `EditableOptions`, `CommandPreview`, `EntityPickers` (registry only),
-`DefaultsStore`. Each is pure fs/commander/none; the resolver and
+`DefaultsStore`, `PathOptions`, `FileSystemPaths`. Each is pure fs/commander/none; the resolver and
 command wiring lazy-import whatever carries a frodo-lib graph.
 
 ## Layering: where interactive code lives

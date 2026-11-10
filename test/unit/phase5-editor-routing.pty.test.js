@@ -1021,10 +1021,10 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
               timeoutMs: 15000,
             },
             { type: 'sleep', ms: 400 },
-            { type: 'send', text: 'env-file' },
+            { type: 'send', text: 'idm-host' },
             {
               type: 'wait_plain',
-              regex: 'query: env-file',
+              regex: 'query: idm-host',
               timeoutMs: 15000,
             },
             { type: 'sleep', ms: 300 },
@@ -1036,7 +1036,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
             { type: 'key', name: 'space' },
             {
               type: 'wait_plain',
-              regex: 'Value for --env-file',
+              regex: 'Value for --idm-host',
               timeoutMs: 8000,
             },
             { type: 'sleep', ms: 300 },
@@ -1064,12 +1064,14 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         });
 
         // The committed value marked the option, and the footer
-        // serializes the REAL value (the filter query "env-file" did
-        // not leak into the buffer as a prefix of the value).
+        // serializes the REAL value (the filter query "idm-host" did
+        // not leak into the buffer as a prefix of the value). The option
+        // is a text one: a path option (--env-file) is picked in the file
+        // system picker after the page, not typed in this box.
         const afterCommit = result.captures.afterCommit.plain;
-        expect(afterCommit).toMatch(/◉ (?:› )?\s*--env-file/);
+        expect(afterCommit).toMatch(/◉ (?:› )?\s*--idm-host/);
         expect(afterCommit).toMatch(
-          /frodo esv secret delete -k --retry network --env-file FOO=bar/
+          /frodo esv secret delete --idm-host FOO=bar -k --retry network/
         );
         // The reject path opens the same framed box for -E/--env...
         const rejectOpen = result.captures.rejectOpen.plain;
@@ -1078,14 +1080,13 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         );
         expect(rejectFrame).toMatch(/┌ Value for -E, --env <key=value> ─/);
         // ...and escaping it leaves the option UNMARKED (the committed
-        // --env-file stands; "--env" is a PREFIX of "--env-file", so the
-        // boundary assertions anchor on a space/end, never \b -- dash is
-        // a non-word char and \b would match inside the committed
-        // option's name).
+        // --idm-host stands; the boundary assertions anchor on a
+        // space/end, never \b -- dash is a non-word char and \b would
+        // match inside an option's name).
         const afterReject = result.captures.afterReject.plain;
         expect(afterReject).not.toMatch(/◉ (?:› )?--env /);
         expect(afterReject).not.toMatch(/◉ (?:› )?--env$/m);
-        expect(afterReject).toMatch(/--env-file/);
+        expect(afterReject).toMatch(/--idm-host/);
       } finally {
         removeShellTestHome(homeDir);
       }
