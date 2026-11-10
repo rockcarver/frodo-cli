@@ -33,6 +33,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete scripts -p Example -p Other',
     'frodo config-manager delete themes',
     'frodo config-manager delete email-templates',
+    'frodo config-manager delete secrets',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -61,6 +62,12 @@ describe('a delete of more than one object without a terminal and without --yes'
     expect(stderr).toContain('all email templates');
   });
 
+  test('the refusal of secrets says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete secrets');
+
+    expect(stderr).toContain('all secrets');
+  });
+
   test('the refusal of applications says that the objects they own go too', async () => {
     const { stderr } = await run('frodo config-manager delete applications');
 
@@ -76,6 +83,7 @@ describe('what is not refused', () => {
     'frodo config-manager delete scripts -n Example',
     'frodo config-manager delete themes -n Example',
     'frodo config-manager delete email-templates -n Example',
+    'frodo config-manager delete secrets -n esv-example',
     'frodo config-manager delete applications -d',
     'frodo config-manager delete applications -n Example -d',
     'frodo config-manager delete custom-nodes -d',
@@ -84,15 +92,33 @@ describe('what is not refused', () => {
     'frodo config-manager delete scripts -p Example -d',
     'frodo config-manager delete themes -d',
     'frodo config-manager delete email-templates -d',
+    'frodo config-manager delete secrets -d',
     'frodo config-manager delete applications -y',
     'frodo config-manager delete custom-nodes -y',
     'frodo config-manager delete endpoints -y',
     'frodo config-manager delete scripts -y',
     'frodo config-manager delete themes -y',
     'frodo config-manager delete email-templates -y',
+    'frodo config-manager delete secrets -y',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
     expect(stderr).not.toContain('Refusing to delete');
+  });
+});
+
+describe('an empty secret name', () => {
+  test.each([
+    "frodo config-manager delete secrets -n ''",
+    "frodo config-manager delete secrets -n '' -y",
+    "frodo config-manager delete secrets -n '' -d",
+    'frodo config-manager delete secrets --name=',
+  ])('"%s" is an error before the login, not a delete of all secrets', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The secret name (-n) must not be empty');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
   });
 });
