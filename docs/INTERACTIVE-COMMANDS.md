@@ -48,17 +48,28 @@ FRODO_USERNAME`). The page is the only prompt for them: it opens on the
    (red until every row has a value, then green, the password masked),
    and `<esc>` cancels the command. No unframed `Username:`/`Password:`
    prompt sits behind it.
-3. **Deferred mandatory options** — `FrodoCommand` overrides commander's
+3. **The login, if a picker needs it, and the realm picker**
+   ([record 0044](decisions/0044-the-login-happens-in-the-resolution-pass-when-a-picker-needs-it-and-the-ready-step-is-the-last-prompt.md);
+   see "Pickers that need a login"). The pickers read the target system, so
+   the pass logs in as soon as the connection is settled, and only when the
+   realm picker can open or an entity pick that needs tokens will. A command
+   for which neither is true makes no login here; it logs in after the Ready
+   step, as before.
+4. **Deferred mandatory options** — `FrodoCommand` overrides commander's
    `missingMandatoryOptionValue()` to DEFER violations into a registry
    instead of throwing at parse time; the pass then prompts for each
    (dropdown for `choices()` options, free text otherwise). All
    `makeOptionMandatory()` call sites become prompt-capable with zero
    syntax change.
-4. **Option-requiredness groups** — `requireOneOf()`/`requireAllOf()`
+5. **Option-requiredness groups** — `requireOneOf()`/`requireAllOf()`
    replace the old `Unrecognized combination` dead-ends: an unsatisfied
    group prompts (pick the member, then its value), non-interactive
    runs fail with commander-shaped errors before auth.
-5. **Secret values** (`SecretCollector.ts`) — an option declared with
+6. **Entity pickers** (see "Pickers that need a login") — the options the
+   two steps above left unset because an entity picker fills them are filled
+   now, after the login of step 3 (the pass makes it here when step 3 did not
+   need it).
+7. **Secret values** (`SecretCollector.ts`) — an option declared with
    `SecretOption` (`--password` on `conn set`, `--log-api-secret`,
    `--client-secret`) may be used without a value. The pass asks for each
    one last of the required inputs, in declaration order, with
@@ -66,27 +77,34 @@ FRODO_USERNAME`). The page is the only prompt for them: it opens on the
    anyone type a secret for nothing. A mandatory secret that was left out is
    asked for in the same step. Escape or an empty answer ends the command
    with the usual error. See "Secret options" below.
-6. **The invocation editor** (`EditableOptions.ts` builds the candidate
+8. **The invocation editor** (`EditableOptions.ts` builds the candidate
    list) — on `--prompt` (or the persisted guided mode,
    `frodo settings guided`), a multi-select over the command's optional
    options, with per-option value steps. `--save-defaults` persists
-   what this editor commits.
-7. **The Ready step** (`ReadyStep.ts`, `confirmReady` in
+   what this editor commits. An entity the user marked "choose after
+   connecting" is picked right after it, with the login of step 3 or one made
+   for it.
+9. **The Ready step** (`ReadyStep.ts`, `confirmReady` in
    `ResolveInteractiveInputs.ts`;
-   [record 0043](decisions/0043-an-interactive-session-ends-in-a-ready-step-and-enter-says-what-it-does.md))
-   — when the steps above put at least one prompt on the screen, the pass ends
-   with one more: the command as it will run (the usual footer) and the rows
-   **Run** (the default), **Edit options** (the invocation editor, then back to
-   this step; left out when there is nothing to edit) and **Cancel**. `<esc>`
-   cancels as well: nothing runs, nothing is printed, and the session ends
-   quietly with exit code 0 (the exit-all signal). A pass that rendered nothing
-   never asks it: a complete command line, a script, `--no-prompt`,
-   `FRODO_NO_PROMPT` and a run without a terminal behave as before (record
-   0030). A sub-command picked in a container's picker before the pass does not
-   count; the prompts of the pass do, and so does the editor opened by
-   `--prompt`. The pickers that need a login (realm, entities, see "Post-auth
-   pickers") come after Run, and the Ready step's footer is red while input is
-   still open for them.
+   [record 0044](decisions/0044-the-login-happens-in-the-resolution-pass-when-a-picker-needs-it-and-the-ready-step-is-the-last-prompt.md),
+   which restates record 0043) — when the steps above put at least one prompt
+   on the screen, the pass ends with one more, **the last prompt**: the command
+   as it will run (the usual footer) and the rows **Run** (the default),
+   **Edit options** (the invocation editor, then back to this step; left out
+   when there is nothing to edit) and **Cancel**. `<esc>` cancels as well:
+   nothing runs, nothing is printed, and the session ends quietly with exit
+   code 0 (the exit-all signal), also when the pass has logged in already. A
+   pass that rendered nothing never asks it: a complete command line, a
+   script, `--no-prompt`, `FRODO_NO_PROMPT` and a run without a terminal behave
+   as before (record 0030) and never log in in the pass. A sub-command picked
+   in a container's picker before the pass does not count; the prompts of the
+   pass do, the pickers of steps 3 and 6 among them, and so does the editor
+   opened by `--prompt`. Nothing prompts after Run except the command's own
+   prompts (the confirmation of a bulk delete, record 0037). **Edit options**
+   keeps the login and the picks unless it changed who logs in to what (the
+   host, the credentials, an option of the Authentication or Connection
+   groups): then they are dropped and the pickers log in and ask again, with
+   the values already chosen kept.
 
 A command that needs no connection for some invocations says so with
 `skipConnectionPromptsWhen(predicate)`, and the pass then skips step 2
@@ -152,14 +170,33 @@ from) and `command.args` (what `handleDefaultArgsAndOpts` iterates) —
 commander's `_processArguments` never writes back, so a single-surface
 write would be invisible to one of the two consumers.
 
-## Post-auth pickers
+## Pickers that need a login
 
-The realm and entity pickers fire after `getTokens()` succeeds (their loaders
-need tokens), from the getTokens wrapper (`AuthenticateOps.ts`). They come after
-the Ready step, which is the last prompt of the resolution pass and cannot know
-what a login will offer; their Enter says `select`:
+The realm and entity pickers read the target system, so their loaders need
+tokens. They run in the resolution pass, right after the login the pass makes
+for them (decision record 0044), and the Ready step comes after them. Their
+Enter says `next`:
 
-- **The realm picker** (`RealmPickers.ts`) — offered only when the command
+- **The login of the pass** (`PassLogin.ts` holds its state and the decision;
+  `loginInPass` in `AuthenticateOps.ts` makes it). It is made when the realm
+  picker can open (the conditions below, bar the one that needs the system:
+  that it has several realms) or when an entity pick that needs tokens will
+  open (`pendingPassPicks`; a pick whose loader reads this machine only says
+  `needsLogin: false`). It is the command's login: the same machinery as
+  `getTokens`, with the default arguments and the deployment types the command
+  registers (a tenant of another type is refused with the library's error before
+  any picker opens), after the pass has written the
+  connection into frodo-lib's state the way the action would
+  (`handleDefaultArgsAndOpts`, which the action then skips). A failed login ends
+  the command with the error and the hint, exit code 1, no Ready step. The
+  command's first `getTokens()` call uses the login of the pass when it asks for
+  the same `forceLoginAsUser` and `autoRefresh`, and still checks its own list
+  of deployment types (the library's error); other arguments, and later calls,
+  log in as usual. The realm picker and each entity pick run once: the
+  `getTokens` wrapper offers them only to a command whose pass made no login.
+
+- **The realm picker** (`RealmPickers.ts`; `realmPickerApplies` is the
+  decision the pass reads) — offered only when the command
   declares a `[realm]` argument, the user did not specify it (positionally or
   with `FRODO_REALM`), the resolution pass prompted for another required
   connection input (such as a missing host, credentials, or connection-profile
@@ -180,8 +217,8 @@ what a login will offer; their Enter says `select`:
   picked really narrows the run, including the deployment's default realm
   (`alpha`), which is an ordinary row there. The prompt says what a realm
   means (`pull all` and `pull all-static` also cover configuration of the
-  tenant that no realm limits, and the prompt says so). The picker runs inside
-  `getTokens()`, after the action has bound its `realm` parameter, so such a
+  tenant that no realm limits, and the prompt says so). The picker runs in the
+  pass, but the action binds its `realm` parameter from the arguments, so such a
   command passes `realmOfRun(command, realm)` (`PositionalArgs.ts`) to its
   operation after login, not the parameter. A `config-manager` command that
   does not declare it ignores the realm and gets no realm picker.
@@ -209,10 +246,10 @@ what a login will offer; their Enter says `select`:
   unspecified offers a dropdown populated from the live system. A
   family of commands registers its specs once, in `EntityPickFamilies.ts`
   (decision record 0038): every command of the family that has the option
-  inherits the pick, declares nothing and calls no resolver, and
-  `getTokens()` runs the pick once the login worked (a declined pick or a
-  failed load makes `getTokens()` return false, so the command does not
-  run). `create` and `import` commands never inherit a pick, because their
+  inherits the pick, declares nothing and calls no resolver, and the pass runs
+  the pick (a declined pick or a failed load ends the command with exit code 1,
+  so it does not run; `getTokens()` does the same for a command whose pass made
+  no login). `create` and `import` commands never inherit a pick, because their
   `-i` names an entity that does not exist yet or one in a file; a family
   lists such a command in `include` when its option still names an
   existing entity. A command can also register specs itself at setup via
@@ -446,12 +483,13 @@ an entity of a command family (`-i` of `journey describe`) can be left
 for later. The box says `(type a value, or press ENTER to choose it after
 connecting)` and the menu `[ENTER] choose after connecting`; `<enter>` on
 an empty value then marks the option without a value, and the picker for
-it opens after login, like the pickers that open by themselves. This is
+it opens in the pass once the editor is done, like the pickers that open by
+themselves. This is
 how a picker is asked for on a command whose entity option is an optional
 filter (the family lists such commands in `onRequest`, see
 `EntityPickRegistry.ts`): the command line is complete without it, so
-record 0030 keeps the picker from opening on its own, and the host that
-the picker needs is chosen in a prompt that may run the command. Unmarking
+record 0030 keeps the picker from opening on its own, and it opens on request,
+after the host is chosen and the login the pass makes for it. Unmarking
 the option forgets the request, and a value typed instead replaces it. Opening or closing the editor
 scrubs the readline buffer (replaying its own ctrl+u binding) — the
 filter query that positioned the cursor must not leak into the value
@@ -505,13 +543,16 @@ unsatisfied groups, failed auth) print nothing.
   type-to-filter narrows it.
 - `<enter>` — conclude/advance. The Navigate menu says what Enter does to the
   command, never more: `next` on every prompt of the resolution pass (at least
-  the Ready step follows), `run` on the Ready step's Run row (`edit options`
+  the Ready step follows), the realm and entity pickers among them,
+  `run` on the Ready step's Run row (`edit options`
   and `cancel` on its other rows), and `select` where nothing can be promised:
-  the container pickers (the sub-command chosen may run at once) and the
-  pickers that open after login. A prompt sets its label with the `enterLabel`
+  the container pickers (the sub-command chosen may run at once) and a realm
+  or entity picker that runs outside a pass (from the `getTokens` wrapper of a
+  command whose pass made no login). A prompt sets its label with the `enterLabel`
   option of `escapableSelect` (a string, or a function of the highlighted
   value; an empty string hides the key); `selectWithEditorRouting` gives `next`
-  to every picker of the pass, so a new picker there needs nothing. The
+  to every picker of the pass, and the realm and entity pickers set it when
+  they run there, so a new picker needs nothing. The
   Connection page's `Done` row says `continue`, not `run`.
 - `<space>` — multi-value select only (the invocation editor). Marking
   an option that needs a value side-steps straight into its inline
@@ -596,8 +637,8 @@ traverses commander's async action/hooks and every intermediate loop
 untouched (the per-surface STEP_BACK catches already let non-STEP_BACK
 errors propagate) until app.ts's top-level handler converts it into a
 clean exit. Throwing is what makes the unwind work from pickers called
-INSIDE nested loops (realm/entity pickers inside the action body,
-editors inside routing loops) — each of those would otherwise need its
+INSIDE nested loops (the realm and entity pickers of the pass, editors
+inside routing loops) — each of those would otherwise need its
 own EXIT_ALL branch. Catch-all handlers between a throw site and the
 top (`getTokens`, the settings/conn/theme bare actions) rethrow the
 signal before their own error reporting.
@@ -653,7 +694,7 @@ Everything the tests must reach therefore lives in zero-import modules
 under `src/utils/interactive/`: `PromptGateState`,
 `ActiveActionCommandState`, `AuthoringPrintState`, `PositionalArgs`,
 `EditableOptions`, `CommandPreview`, `EntityPickers` (registry only),
-`DefaultsStore`. Each is pure fs/commander/none; the resolver and
+`PassLogin`, `ReadyStep`, `DefaultsStore`. Each is pure fs/commander/none; the resolver and
 command wiring lazy-import whatever carries a frodo-lib graph.
 
 ## Layering: where interactive code lives

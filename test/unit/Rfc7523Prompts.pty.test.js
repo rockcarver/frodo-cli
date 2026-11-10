@@ -216,8 +216,9 @@ suite('RFC7523 commands, on a real terminal', () => {
   });
 
   // --client-id is picked from the OAuth2 clients of the realm by the framework
-  // (the admin family of EntityPickFamilies.ts, decision record 0038), after
-  // login; the free-text prompt for it is gone.
+  // (the admin family of EntityPickFamilies.ts, decision record 0038), in the
+  // resolution pass after the login it makes (record 0044), so the Ready step
+  // follows the pick; the free-text prompt for it is gone.
   test('execute picks the client id from the realm, then goes on', async () => {
     await fake({ oauth2Clients: ['c1', 'c2'] });
     const run = onTerminal(
@@ -230,6 +231,7 @@ suite('RFC7523 commands, on a real terminal', () => {
           timeoutMs: 30000,
         },
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         {
           type: 'wait_plain',
           regex: 'Executing RFC7523 authorization grant flow',
@@ -243,9 +245,9 @@ suite('RFC7523 commands, on a real terminal', () => {
     );
   });
 
-  // The client is still open when the host has been typed: the Ready step
-  // comes first and says so, and the picker follows once the login worked.
-  test('execute asks for the host, says on the Ready step that the client is chosen after login, then picks it', async () => {
+  // The client is still open when the host has been typed: the pass logs in,
+  // the picker follows, and the Ready step shows the command with the client.
+  test('execute asks for the host, logs in, picks the client, and shows it on the Ready step', async () => {
     await fake({ oauth2Clients: ['c1', 'c2'] });
     const run = runShellScenario({
       homeDir: home,
@@ -270,22 +272,26 @@ suite('RFC7523 commands, on a real terminal', () => {
         { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
         { type: 'send', text: `http://127.0.0.1:${fakeAm.port}/am` },
         { type: 'key', name: 'enter' },
-        { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 30000 },
-        { type: 'sleep', ms: 400 },
-        { type: 'capture', label: 'ready' },
-        { type: 'key', name: 'enter' },
         {
           type: 'wait_plain',
           regex: 'Select OAuth2 client to act on',
           timeoutMs: 30000,
         },
+        { type: 'sleep', ms: 400 },
+        { type: 'capture', label: 'picker' },
+        { type: 'key', name: 'enter' },
+        { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 30000 },
+        { type: 'sleep', ms: 400 },
+        { type: 'capture', label: 'ready' },
       ],
     });
+    // the picker is a prompt of the pass: Enter says next
+    expect(lastFrame(run.captures.picker.plain)).toContain('[ENTER] next');
     const ready = lastFrame(run.captures.ready.plain);
-    expect(ready).toContain('chosen from the target system after login');
-    // the command as it stands: the footer wraps on this terminal, so look for the option, not for its value
+    expect(ready).not.toContain('after login');
+    // the command as it stands: the footer wraps on this terminal, so look for the options, not for their values
     expect(ready.split('└').pop()).toContain('--iss');
-    expect(ready.split('└').pop()).not.toContain('--client-id');
+    expect(ready.split('└').pop()).toContain('--client-id');
   });
 
   test('execute goes on without asking when the realm has one client', async () => {
@@ -335,6 +341,7 @@ suite('RFC7523 commands, on a real terminal', () => {
         { type: 'capture', label: 'list' },
         { type: 'key', name: 'down' },
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         done,
       ]);
       const list = lastFrame(run.captures.list.plain);
@@ -371,6 +378,7 @@ suite('RFC7523 commands, on a real terminal', () => {
         { type: 'sleep', ms: 500 },
         { type: 'capture', label: 'filtered' },
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         done,
       ]);
       const filtered = lastFrame(run.captures.filtered.plain);
@@ -393,6 +401,7 @@ suite('RFC7523 commands, on a real terminal', () => {
         { type: 'capture', label: 'list' },
         { type: 'key', name: 'down' },
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         done,
       ]);
       const list = lastFrame(run.captures.list.plain);
@@ -468,6 +477,7 @@ suite('RFC7523 commands, on a real terminal', () => {
             { type: 'capture', label: 'list' },
             { type: 'key', name: 'down' },
             { type: 'key', name: 'enter' },
+            ...answerReady(),
             sent(),
           ],
           classic
@@ -504,6 +514,7 @@ suite('RFC7523 commands, on a real terminal', () => {
             { type: 'send', text },
             { type: 'sleep', ms: 500 },
             { type: 'key', name: 'enter' },
+            ...answerReady(),
             sent(),
           ],
           classic
@@ -525,6 +536,7 @@ suite('RFC7523 commands, on a real terminal', () => {
             { type: 'sleep', ms: 400 },
             { type: 'capture', label: 'list' },
             { type: 'key', name: 'enter' },
+            ...answerReady(),
             sent(),
           ],
           classic
@@ -611,6 +623,7 @@ suite('RFC7523 commands, on a real terminal', () => {
             { type: 'sleep', ms: 400 },
             { type: 'key', name: 'down' },
             { type: 'key', name: 'enter' },
+            ...answerReady(),
             sent(),
           ],
           classic
@@ -659,6 +672,7 @@ suite('RFC7523 commands, on a real terminal', () => {
           { type: 'capture', label: 'matches' },
           { type: 'key', name: 'down' },
           { type: 'key', name: 'enter' },
+          ...answerReady(),
           done,
         ]);
         // the search text is asked for in a frame, and so is the "too many" answer
