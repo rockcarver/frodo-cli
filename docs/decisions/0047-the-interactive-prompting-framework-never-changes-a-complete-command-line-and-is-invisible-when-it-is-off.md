@@ -35,3 +35,4 @@ On 2026-10-24 and 2026-10-28, records 0030 and 0034 tied the rule for prompts to
 
 - Keep record 0030 and add a note that narrows it: accepted records are not edited, and the note would leave the version wording in place.
 - Narrow only how the gates quote the old records: the records themselves would still mislead.
+- Prompt for every optional input that is unset: rejected, it would prompt on command lines that are complete.
