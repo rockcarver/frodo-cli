@@ -743,3 +743,130 @@ describe('the `Security Audit` of the `build` job', () => {
     expect(lines[at + 1].replace(/^\s*run:\s*/, '').trim()).toBe('npm audit --audit-level critical');
   });
 });
+
+/**
+ * The `Proxy Tests` step of the live job runs the CLI through a squid proxy
+ * (`HTTPS_PROXY`). Two commands that succeed prove nothing if the proxy
+ * setting is ignored, so the step ends with a negative control: the same
+ * command through a proxy nobody listens on must fail, and a success fails
+ * the step. The step is real bash here, run the way GitHub runs `run:`
+ * (`bash -eo pipefail`) against a stand-in for `frodo` that fails exactly when
+ * its proxy is the closed port, as the real one does (ProxySupport.test.js
+ * shows that for the built CLI). docs/PIPELINE.md, "Test"; frodo-lib#982.
+ */
+describe('the `Proxy Tests` step of the `test-live` job', () => {
+  const STEP = 'name: Proxy Tests';
+  const SQUID = 'http://127.0.0.1:3128';
+  const DEAD = 'http://127.0.0.1:9';
+
+  /** The lines of the step, from its name to the next step. */
+  const stepText = () => {
+    const lines = job('test-live').split('\n');
+    const at = lines.findIndex((l) => l.includes(STEP));
+    const next = lines.findIndex((l, i) => i > at && /^ {6}- /.test(l));
+    return lines.slice(at, next < 0 ? undefined : next).join('\n');
+  };
+
+  it('keeps the squid service and sends the commands through it', () => {
+    expect(job('test-live')).toContain('- 3128:3128');
+    expect(stepText()).toContain(`HTTPS_PROXY: '${SQUID}'`);
+  });
+
+  it('runs after the direct commands, in the live job that does not run for pull requests', () => {
+    const names = job('test-live')
+      .split('\n')
+      .filter((l) => /^ {6}- name: /.test(l))
+      .map((l) => l.replace(/^ {6}- name: /, ''));
+    expect(names.indexOf('Proxy Tests')).toBeGreaterThan(names.indexOf('Direct Tests'));
+    expect(job('test-live')).toContain("if: github.event_name != 'pull_request'");
+  });
+
+  it('holds the negative control: the same command through the closed port, inside an if', () => {
+    const script = stepRun(STEP);
+    expect(script).toMatch(/^frodo conn save "\$FIDC_TENANT_URL" --no-log-api$/m);
+    expect(script).toMatch(/^frodo info "\$FIDC_TENANT_URL"$/m);
+    expect(script).toMatch(/^if HTTPS_PROXY=http:\/\/127\.0\.0\.1:9 frodo info "\$FIDC_TENANT_URL"; then$/m);
+  });
+
+  describeIfBash('as bash', () => {
+    const script = stepRun(STEP);
+    let dir;
+
+    beforeAll(() => {
+      dir = fs.mkdtempSync(path.join(os.tmpdir(), 'proxy-step-'));
+      fs.mkdirSync(path.join(dir, 'bin'));
+      // A stand-in for `frodo`: logs what it was asked and with which proxy,
+      // and fails the way the real one does through a proxy that is not there.
+      fs.writeFileSync(
+        path.join(dir, 'bin/frodo'),
+        [
+          '#!/usr/bin/env bash',
+          'echo "$1 ${HTTPS_PROXY:-}" >> "$FAKE_FRODO_LOG"',
+          'case "$1" in',
+          '  conn) exit "${FAKE_CONN_EXIT:-0}" ;;',
+          '  info)',
+          '    case "${HTTPS_PROXY:-}" in',
+          `      ${DEAD}) exit "\${FAKE_DEAD_PROXY_EXIT:-1}" ;;`,
+          '      *) exit "${FAKE_INFO_EXIT:-0}" ;;',
+          '    esac ;;',
+          'esac',
+          'exit 2',
+          '',
+        ].join('\n'),
+        { mode: 0o755 }
+      );
+    });
+
+    afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+    function runStep(env = {}) {
+      const log = path.join(dir, 'frodo-calls');
+      fs.writeFileSync(log, '');
+      const result = spawnSync('bash', ['--noprofile', '--norc', '-eo', 'pipefail', '-c', script], {
+        encoding: 'utf8',
+        env: {
+          PATH: `${path.join(dir, 'bin')}:${process.env.PATH}`,
+          HTTPS_PROXY: SQUID,
+          FIDC_TENANT_URL: 'https://tenant.example.invalid/am',
+          FAKE_FRODO_LOG: log,
+          ...env,
+        },
+      });
+      return { ...result, calls: fs.readFileSync(log, 'utf8').split('\n').filter(Boolean) };
+    }
+
+    it('passes when the commands work through the proxy and fail through the closed port', () => {
+      const result = runStep();
+      expect(result.status).toBe(0);
+      expect(result.calls).toEqual([`conn ${SQUID}`, `info ${SQUID}`, `info ${DEAD}`]);
+      expect(result.stdout).toContain('as it must');
+    });
+
+    it('fails when the command succeeds through the closed port: the proxy setting is not honoured', () => {
+      const result = runStep({ FAKE_DEAD_PROXY_EXIT: '0' });
+      expect(result.status).toBe(1);
+      expect(result.calls).toEqual([`conn ${SQUID}`, `info ${SQUID}`, `info ${DEAD}`]);
+      expect(result.stdout).toContain('::error::');
+      expect(result.stdout).toContain('closed port');
+      expect(result.stdout).not.toContain('as it must');
+    });
+
+    it('fails, without the control, when the command does not work through the proxy', () => {
+      const result = runStep({ FAKE_INFO_EXIT: '1' });
+      expect(result.status).not.toBe(0);
+      expect(result.calls).toEqual([`conn ${SQUID}`, `info ${SQUID}`]);
+    });
+
+    it('fails, without the control, when the connection cannot be saved', () => {
+      const result = runStep({ FAKE_CONN_EXIT: '1' });
+      expect(result.status).not.toBe(0);
+      expect(result.calls).toEqual([`conn ${SQUID}`]);
+    });
+
+    it.each(['1', '2', '255'])('does not let the failure the control expects stop the step (exit code %s)', (code) => {
+      const result = runStep({ FAKE_DEAD_PROXY_EXIT: code });
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain('as it must');
+    });
+  });
+});
