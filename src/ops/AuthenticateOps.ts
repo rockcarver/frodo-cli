@@ -243,18 +243,22 @@ async function login(
  * record 0044): the same machinery as `getTokens` below (the callback for a
  * second factor, the browser and device prompts, service account, saved
  * credentials, `--credential`, the global force-login-as-user override) with
- * the default arguments. A failure is reported the way `getTokens` reports it:
- * the error and the hint for it. The pass remembers what it used, so the
- * command's own `getTokens()` does not log in a second time.
+ * the default arguments and the deployment types the command registers. A
+ * type the command does not support is refused by the library, before any
+ * picker opens, as a login made by the command would refuse it. A failure is
+ * reported the way `getTokens` reports it: the error and the hint for it. The
+ * pass remembers what it used, so the command's own `getTokens()` does not log
+ * in a second time.
+ * @param types the deployment types the command supports (default: all of them)
  * @returns what the login used, or undefined when it failed (the failure is reported)
  */
-export async function loginInPass(): Promise<
-  { forceLoginAsUser: boolean; autoRefresh: boolean } | undefined
-> {
+export async function loginInPass(
+  types: string[] = DEPLOYMENT_TYPES
+): Promise<{ forceLoginAsUser: boolean; autoRefresh: boolean } | undefined> {
   const forceLoginAsUser = getForceLoginAsUserOverride();
   const autoRefresh = true;
   try {
-    await login(forceLoginAsUser, autoRefresh, DEPLOYMENT_TYPES);
+    await login(forceLoginAsUser, autoRefresh, types);
     return { forceLoginAsUser, autoRefresh };
   } catch (error) {
     if (error === EXIT_ALL_SIGNAL) throw error;

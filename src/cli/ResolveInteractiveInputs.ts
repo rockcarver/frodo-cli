@@ -120,6 +120,7 @@ import {
   connectionChangedSinceApply,
   forgetPassLogin,
   loginNeededForPickers,
+  loginTypesOf,
   notePassRealmPickDone,
   notePassStateApplied,
   passLoginSession,
@@ -546,12 +547,14 @@ function reconcileConnection(command: Command): void {
 
 /**
  * Logs in for a picker (record 0044); the callers ask `loginNeededForPickers`
- * first, so this runs once per connection. A failed login ends the command with
+ * first, so this runs once per connection. The login is made for the deployment
+ * types the command registers, so a tenant of another type is refused here, with
+ * the library's error, before any picker. A failed login ends the command with
  * the error and the hint the login reported, exit code 1, and no Ready step.
  */
 async function loginForPickers(command: Command): Promise<void> {
   await applyConnectionForPass(command);
-  const login = await loginInPass();
+  const login = await loginInPass(loginTypesOf(command));
   if (!login) endCommand(1);
   recordPassLogin(login);
 }
