@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-25] - 2026-11-10
+
+### Added
+- Introduced `frodo config-manager delete terms-and-conditions`, allowing deletion of terms and conditions versions with options for single version deletion and dry runs. (#1198)
+- Added `frodo config-manager delete secrets`, enabling deletion of secrets by ID or all secrets if no ID is specified, with a dry run option. (#1199)
+- Implemented `frodo config-manager delete variables`, supporting deletion of all environment variables or a specific variable by ID, with options for dry runs and allowing failures. (#1197)
+- Enhanced interactive commands with a "Ready" step, prompting users before execution and accurately labeling the Enter key's function. (#1203)
+- Added functionality to choose an entity option after connecting, providing a picker for entity selection post-login. (#1196)
+- Introduced advice for failed logins, offering CLI-specific guidance on resolving login issues. (#1187)
+
+### Changed
+- Updated `frodo config export` to open the realm picker only when the `-r` flag is set, improving command efficiency. (#1202)
+- Enhanced `frodo journey validate` to provide advice on handling missing nodes, offering clearer guidance during validation. (#1191)
+- Improved `frodo journey list --long` to build its table directly from the list without exporting each journey, enhancing performance. (#1193)
+- Alphabetized the sub-command picker in interactive mode for consistent command order. (#1190)
+
+### Fixed
+- Resolved an issue in `frodo debug --topic journey` where a 404 error from the tenant was not properly recognized, improving error handling. (#1200)
+- Corrected the usage listings to remove unnecessary error messages and progress warnings, streamlining output. (#1194)
+- Fixed `frodo config-manager pull journeys` to provide concise output for journeys with missing nodes, reducing error verbosity. (#1181)
+- Improved `frodo config-manager pull all` to clearly indicate output locations and handle tenants without sync configurations more gracefully. (#1180)
+
 ## [v5.0.0-24] - 2026-11-09
 
 ### Added
@@ -3220,6 +3242,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-25]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-24...v5.0.0-25
 [v5.0.0-24]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-23...v5.0.0-24
 [v5.0.0-23]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-22...v5.0.0-23
 [v5.0.0-22]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-21...v5.0.0-22
