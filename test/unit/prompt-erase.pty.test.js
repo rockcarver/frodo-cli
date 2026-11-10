@@ -150,7 +150,13 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
             { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
             { type: 'send', text: ENV.FRODO_HOST },
             { type: 'key', name: 'enter' },
-            // the pass logs in for the realm picker, which comes before the Ready step
+            // the pass logs in for the realm, which is a row of the connection
+            // page and comes before the Ready step (records 0044 and 0046)
+            { type: 'wait_plain', regex: 'Connected as', timeoutMs: 30000 },
+            { type: 'sleep', ms: 400 },
+            // the cursor is on Done: up to the realm row, Enter opens the realms
+            { type: 'key', name: 'up' },
+            { type: 'key', name: 'enter' },
             { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
             { type: 'sleep', ms: 400 },
             { type: 'key', name: 'down' },
@@ -158,6 +164,9 @@ describe('phase 5 prompt erase + deferred authoring print', () => {
             // Mid-prompt capture: the footer must already show the
             // HIGHLIGHTED realm (live preview), before <enter> commits.
             { type: 'capture', label: 'midPrompt' },
+            { type: 'key', name: 'enter' },
+            { type: 'sleep', ms: 300 },
+            { type: 'key', name: 'down' },
             { type: 'key', name: 'enter' },
             ...answerReady(),
             { type: 'sleep', ms: 2500 },

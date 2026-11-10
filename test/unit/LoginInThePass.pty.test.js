@@ -18,9 +18,11 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * Decision record 0044, on a real terminal against a fake tenant: the pass
- * logs in when a realm picker or an entity picker needs it, the pickers run in
- * the pass, and the Ready step is the LAST prompt. The request log of the fake
+ * Decision records 0044 and 0046, on a real terminal against a fake tenant: the
+ * pass logs in when a realm picker or an entity picker needs it, the pickers run
+ * in the pass, and the Ready step is the LAST prompt. The realm is a row of the
+ * connection page, which opens (already connected) after the host was chosen
+ * from the saved connections. The request log of the fake
  * tenant is the proof of what happened when: a login is the authenticate call
  * that starts a journey (see test/utils/FakeAmLog.js).
  *
@@ -155,13 +157,24 @@ suite('the login in the resolution pass, on a real terminal', () => {
     { type: 'key', name: 'enter' },
   ];
 
-  /** The realm picker, choosing bravo. */
+  /**
+   * The connection page with the realm row (the pass logged in for it), choosing
+   * bravo in the box of the realms and going on with Done.
+   */
   const chooseRealm = [
-    { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
+    { type: 'wait_plain', regex: 'Connected as', timeoutMs: 30000 },
     { type: 'sleep', ms: 500 },
     { type: 'capture', label: 'realm' },
+    // the cursor is on Done: up to the realm row, Enter opens the realms
+    { type: 'key', name: 'up' },
+    { type: 'key', name: 'enter' },
+    { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
+    { type: 'sleep', ms: 400 },
     { type: 'send', text: 'bravo' },
     { type: 'sleep', ms: 400 },
+    { type: 'key', name: 'enter' },
+    { type: 'sleep', ms: 300 },
+    { type: 'key', name: 'down' },
     { type: 'key', name: 'enter' },
   ];
 
@@ -678,8 +691,9 @@ suite('the login in the resolution pass, on a real terminal', () => {
             ...chooseJourney,
             ...atReady,
             ...editOption('insecure'),
-            // the connection changed: the realm is asked again, after a new login
-            { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
+            // the connection changed: the realm is asked again, after a new login,
+            // on the page (Done keeps the default)
+            { type: 'wait_plain', regex: 'Connected as', timeoutMs: 30000 },
             { type: 'sleep', ms: 500 },
             { type: 'clear_output' },
             { type: 'key', name: 'enter' },

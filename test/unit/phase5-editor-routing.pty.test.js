@@ -229,14 +229,15 @@ describe('phase 5 slice 1: hint + segment routing', () => {
   );
 
   test(
-    'realm picker: → opens the editor; ← returns to the realm picker',
+    'connected page with the realm row: → opens the editor; ← returns to the page',
     async () => {
       const homeDir = createShellTestHome();
       try {
         // `realm list` with env-resolved service-account credentials:
-        // auth succeeds on the mock cassette, then the post-auth realm
-        // picker (alpha/bravo) arms the → hint. REGRESSION (user report
-        // 2026-10-13): this picker answered → by re-prompting itself
+        // auth succeeds on the mock cassette, then the connection page
+        // (record 0046) opens with the realm row (alpha/bravo) and arms the →
+        // hint, as the realm picker it replaces did. REGRESSION (user report
+        // 2026-10-13): the picker answered → by re-prompting itself
         // without ever opening the editor, so the key looked dead while
         // the Navigate bar still advertised "N options".
         const result = runShellScenario({
@@ -254,8 +255,9 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
             { type: 'send', text: ENV.FRODO_HOST },
             { type: 'key', name: 'enter' },
-            // the pass logs in for the realm picker, which comes before the Ready step
-            { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
+            // the pass logs in for the realm, which is a row of the page that
+            // comes before the Ready step
+            { type: 'wait_plain', regex: 'Connected as', timeoutMs: 30000 },
             { type: 'sleep', ms: 400 },
             { type: 'capture', label: 'picker' },
             { type: 'key', name: 'right' },
@@ -267,10 +269,10 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'sleep', ms: 300 },
             { type: 'capture', label: 'editor' },
             // wait_plain scans ALL accumulated output, so drop it first:
-            // the next 'Choose a realm' must be the picker RE-OPENING.
+            // the next 'Connected as' must be the page RE-OPENING.
             { type: 'clear_output' },
             { type: 'key', name: 'left' },
-            { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 15000 },
+            { type: 'wait_plain', regex: 'Connected as', timeoutMs: 15000 },
             { type: 'sleep', ms: 300 },
             { type: 'capture', label: 'back' },
           ],
@@ -280,7 +282,9 @@ describe('phase 5 slice 1: hint + segment routing', () => {
         expect(result.captures.editor.plain).toMatch(
           /Optional options for 'list'/
         );
-        expect(result.captures.back.plain).toMatch(/Choose a realm/);
+        // the page is back, still logged in, with its realm row
+        expect(result.captures.back.plain).toMatch(/Connected as/);
+        expect(result.captures.back.plain).toMatch(/realm: /);
       } finally {
         removeShellTestHome(homeDir);
       }
@@ -657,7 +661,7 @@ describe('phase 5 slice 4: command preview', () => {
               { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
               { type: 'send', text: ENV.FRODO_HOST },
               { type: 'key', name: 'enter' },
-              { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
+              { type: 'wait_plain', regex: 'Connected as', timeoutMs: 30000 },
               { type: 'sleep', ms: 400 },
               { type: 'capture', label: 'realm' },
             ],

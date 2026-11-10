@@ -4,6 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { atConnectedPage } from '../utils/ConnectionPage.js';
 import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
@@ -116,10 +117,11 @@ suite(
 
     /**
      * `frodo config-manager <command> --type cloud` with no host: the host is
-     * asked for, the pass logs in, and the realm picker opens (or does not): it
-     * needs the login, which the pass makes, so it comes before the Ready step,
-     * which is answered with Run.
-     * `choose` are the keys after the picker opened; `waitFor` is the request
+     * asked for, the pass logs in, and the connection page opens with the realm
+     * row (record 0046): it needs the login, which the pass makes, so it comes
+     * before the Ready step, which is answered with Run.
+     * `choose` are the keys in the box of the realms that Enter opens on the row
+     * (Escape closes it, keeping the default); `waitFor` is the request
      * that proves the run got as far as it should; `settleMs` lets any request
      * that must NOT happen show up before the log is read.
      */
@@ -135,6 +137,10 @@ suite(
         actions: [
           { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
           { type: 'send_line', text: host() },
+          ...atConnectedPage('page'),
+          // the cursor is on Done: up to the realm row, Enter opens the realms
+          { type: 'key', name: 'up' },
+          { type: 'key', name: 'enter' },
           { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
           { type: 'sleep', ms: 500 },
           // the keys that move the cursor without choosing: the footer follows them
@@ -143,6 +149,11 @@ suite(
           { type: 'capture', label: 'picker' },
           { type: 'clear_output' },
           ...choose,
+          // (the first Escape waits for a second one before it closes the box)
+          { type: 'sleep', ms: 900 },
+          { type: 'key', name: 'down' },
+          { type: 'sleep', ms: 300 },
+          { type: 'key', name: 'enter' },
           ...answerReady(),
           {
             type: 'wait_request',
@@ -185,8 +196,11 @@ suite(
           'Choose a realm (All realms is the default):'
         );
         // the rows, in order, with the pointer on the first
+        // (the default row says so)
         const rows = [
-          ...frame.matchAll(/^│ ([› ]) (All realms|alpha|bravo)\s*│$/gm),
+          ...frame.matchAll(
+            /^│ ([› ]) (All realms|alpha|bravo)(?: \([^)]*\))?\s*│$/gm
+          ),
         ];
         expect(rows.map((row) => row[2])).toEqual([
           'All realms',
