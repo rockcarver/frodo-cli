@@ -3,7 +3,9 @@
 This page summarizes the breaking changes between major versions of
 `@rockcarver/frodo-cli` — everything you need to migrate scripts and
 automation from one major version to the next without deciphering the full
-[changelog](CHANGELOG.md).
+[changelog](CHANGELOG.md). What a release may change, and what has to be
+listed here, is decided by
+[record 0048](docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md).
 
 ---
 
