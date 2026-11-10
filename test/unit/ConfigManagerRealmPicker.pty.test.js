@@ -116,9 +116,9 @@ suite(
 
     /**
      * `frodo config-manager <command> --type cloud` with no host: the host is
-     * asked for, the Ready step is answered with Run, the login succeeds, and
-     * the realm picker opens (or does not): it needs the login, so it follows
-     * the Ready step.
+     * asked for, the pass logs in, and the realm picker opens (or does not): it
+     * needs the login, which the pass makes, so it comes before the Ready step,
+     * which is answered with Run.
      * `choose` are the keys after the picker opened; `waitFor` is the request
      * that proves the run got as far as it should; `settleMs` lets any request
      * that must NOT happen show up before the log is read.
@@ -135,7 +135,6 @@ suite(
         actions: [
           { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
           { type: 'send_line', text: host() },
-          ...answerReady(),
           { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
           { type: 'sleep', ms: 500 },
           // the keys that move the cursor without choosing: the footer follows them
@@ -144,6 +143,7 @@ suite(
           { type: 'capture', label: 'picker' },
           { type: 'clear_output' },
           ...choose,
+          ...answerReady(),
           {
             type: 'wait_request',
             path: recordPath,

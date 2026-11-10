@@ -37,6 +37,7 @@ import {
   RIGHT,
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
+import { passStateApplied } from '../utils/interactive/PassLogin.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import {
   declareRealmPickerOnlyWith,
@@ -3901,9 +3902,17 @@ export class FrodoCommand extends FrodoStubCommand {
   handleDefaultArgsAndOpts(...args: any) {
     const command = args.pop();
     const options = args.pop();
+    // When the resolution pass wrote the connection into the state already (it
+    // does so before it logs in for a picker, record 0044), the action must not
+    // write it again: the login has replaced the alias of the host by the
+    // tenant's URL and the sentinel realm by the deployment's realm, the
+    // credentials of the profile are in the state, and putting the typed values
+    // back would break the login the command is about to use. Only the options
+    // are applied again, for the ones a later step of the pass committed.
+    const writtenByPass = passStateApplied();
 
     // handle arguments first
-    for (const [i, v] of command.args.entries()) {
+    for (const [i, v] of writtenByPass ? [] : command.args.entries()) {
       if (!command._args[i]) {
         printMessage(
           `${command.args.length} arguments supplied but command only supports ${command._args.length}.`,
@@ -3935,6 +3944,8 @@ export class FrodoCommand extends FrodoStubCommand {
       if (k2 === envOption.attributeName()) return 1;
       return 0;
     })) {
+      // `--flush-cache` empties the cache once; the pass did it already
+      if (writtenByPass && k === flushCacheOption.attributeName()) continue;
       // handle only default options
       if (Object.keys(stateMap).includes(k)) {
         debugMessage(
@@ -3950,8 +3961,12 @@ export class FrodoCommand extends FrodoStubCommand {
       }
     }
 
-    // fail fast if an incompatible deployment type option (-m or --type) was provided
+    // fail fast if an incompatible deployment type option (-m or --type) was
+    // provided. After the pass wrote the connection (and logged in), the type is
+    // known from the login, and getTokens() refuses a type the command does not
+    // support with the library's own error.
     if (
+      !writtenByPass &&
       state.getDeploymentType() &&
       !this.types.includes(state.getDeploymentType())
     ) {

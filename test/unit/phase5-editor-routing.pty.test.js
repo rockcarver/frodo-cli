@@ -254,8 +254,7 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
             { type: 'send', text: ENV.FRODO_HOST },
             { type: 'key', name: 'enter' },
-            // the realm picker needs the login, so it follows the Ready step
-            ...answerReady(),
+            // the pass logs in for the realm picker, which comes before the Ready step
             { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
             { type: 'sleep', ms: 400 },
             { type: 'capture', label: 'picker' },
@@ -647,7 +646,6 @@ describe('phase 5 slice 4: command preview', () => {
               { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
               { type: 'send', text: ENV.FRODO_HOST },
               { type: 'key', name: 'enter' },
-              ...answerReady(),
               { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
               { type: 'sleep', ms: 400 },
               { type: 'capture', label: 'realm' },
@@ -692,7 +690,6 @@ describe('phase 5 slice 4: command preview', () => {
                 timeoutMs: 30000,
               },
               { type: 'key', name: 'enter' }, // -i: defers to the entity pick
-              ...answerReady(), // the pick needs the login, so it follows the step
               {
                 type: 'wait_plain',
                 regex: 'Select secret to act on',
@@ -745,7 +742,6 @@ describe('phase 5 slice 4: command preview', () => {
                 timeoutMs: 30000,
               },
               { type: 'key', name: 'enter' }, // -i: defers to the entity pick
-              ...answerReady(), // the pick needs the login, so it follows the step
               {
                 type: 'wait_plain',
                 regex: 'Select secret to act on',

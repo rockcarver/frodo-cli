@@ -4,6 +4,14 @@
  * docs/INTERACTIVE-COMMANDS.md). Wired from FrodoCommand's preAction
  * hook; never modifies frodo-lib.
  *
+ * The pass runs in this order (docs/INTERACTIVE-COMMANDS.md, "The resolution
+ * pass"): persisted defaults, the connection arguments, the realm picker, the
+ * deferred mandatory options, the option-requiredness groups, the entity
+ * pickers, the secrets, the invocation editor and, last, the Ready step. The two
+ * pickers need a login for their loaders. The pass makes it when one of them is
+ * going to open and not before (record 0044), so the Ready step is the last
+ * prompt and nothing prompts after Run.
+ *
  * Two resolver kinds run here, connection arguments first (the host gives
  * the later prompts their context), then deferred mandatory options:
  *
@@ -38,9 +46,11 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
+import { loginInPass } from '../ops/AuthenticateOps';
 import { printMessage, successMessage, verboseMessage } from '../utils/Console';
 import {
   armAuthoringPrint,
+  revokeAuthoringPrint,
   setAuthoringPrintFlush,
 } from '../utils/interactive/AuthoringPrintState';
 import {
@@ -75,6 +85,9 @@ import {
 import {
   canChooseAfterConnecting,
   hasEntityPick,
+  pendingPassPicks,
+  pickNeedsLogin,
+  resolvePassEntityPicks,
 } from '../utils/interactive/EntityPickers';
 import {
   escapableMultiSelect,
@@ -104,6 +117,18 @@ import {
   type OptionRequirementSpec,
 } from '../utils/interactive/OptionRequirements';
 import {
+  connectionChangedSinceApply,
+  forgetPassLogin,
+  loginNeededForPickers,
+  notePassRealmPickDone,
+  notePassStateApplied,
+  passLoginSession,
+  passRealmPickDone,
+  passStateApplied,
+  recordPassLogin,
+  resetPassLogin,
+} from '../utils/interactive/PassLogin';
+import {
   positionalIndex,
   positionalValue,
   setPositionalValue,
@@ -125,6 +150,8 @@ import {
 import {
   noteRealmProvenance,
   noteRequiredInputPrompted,
+  realmPickerApplies,
+  resolveRealmPick,
 } from '../utils/interactive/RealmPickers';
 import {
   assertNoPendingSecrets,
@@ -246,6 +273,10 @@ function missingMandatoryOptionMessage(optionLabel: string): string {
 export async function resolveInteractiveInputs(
   command: Command
 ): Promise<void> {
+  // Nothing is remembered from an earlier command of the process (the frodo
+  // shell runs many): the login of the pass and the pickers it ran are this
+  // command's own.
+  resetPassLogin();
   const violations = pendingMandatoryViolations.get(command) ?? [];
 
   if (!canPrompt()) {
@@ -266,7 +297,7 @@ export async function resolveInteractiveInputs(
   }
 
   // The Ready step at the end is asked only when this pass put a prompt on
-  // the screen (record 0043): a sub-command picked before the pass began
+  // the screen (records 0043 and 0044): a sub-command picked before the pass began
   // does not count.
   const promptsBeforePass = promptsRendered();
 
@@ -322,6 +353,12 @@ export async function resolveInteractiveInputs(
     (await resolveConnectionArgs(command));
   connectionReadiness.set(command, connectionResolved);
   noteRequiredInputPrompted(promptsRendered() > promptCountBeforeConnection);
+  // The realm picker comes right after the connection (record 0001), and the
+  // pass logs in for it when it will open (record 0044): its list is read from
+  // the target system.
+  if (connectionResolved) {
+    await resolveRealmStep(command);
+  }
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
     : false;
@@ -340,6 +377,9 @@ export async function resolveInteractiveInputs(
       throwOneOfUnsatisfied(command, unsatisfied[0]);
     }
   }
+  // The entity pickers: the mandatory options and the groups above left the
+  // options they name unset. The pass logs in for them when one will open.
+  await resolveEntityPickStep(command);
   // Secrets come last of the required inputs: every other prompt has
   // succeeded by now, so a declined earlier prompt never makes anyone type a
   // secret for nothing. Asked for in declaration order, input hidden.
@@ -366,9 +406,13 @@ export async function resolveInteractiveInputs(
   if (explicitlyInteractive) {
     await runInvocationEditor(command);
   }
+  // What the editor asked for (an entity "chosen after connecting") or changed
+  // (the connection) is settled before the last prompt.
+  await resolvePassPickers(command);
 
   // The last prompt of a session that asked for anything: the command as it
-  // will run, and the choice to run it. Until here no prompt ran the command.
+  // will run, and the choice to run it. Until here no prompt ran the command,
+  // and nothing prompts after it (record 0044).
   if (readyStepWanted(promptsBeforePass, promptsRendered())) {
     await confirmReady(command);
   }
@@ -386,11 +430,12 @@ export async function resolveInteractiveInputs(
   // them). Flush sites, chosen so every flow's print lands at its last
   // command-mutating moment:
   //
-  // - getTokens wrapper (AuthenticateOps): after the post-auth realm pick
-  //   concludes -- every auth command's action output starts after its
-  //   getTokens returns, so the print sits directly above the results.
-  //   SKIPPED when the command has entity picks pending (the picks may
-  //   still change the command; resolveEntityPicks flushes instead).
+  // - getTokens wrapper (AuthenticateOps): every auth command's action output
+  //   starts after its getTokens returns, so the print sits directly above the
+  //   results. The realm pick and the entity picks that need a login ran in
+  //   this pass (record 0044); the wrapper still runs them for a command whose
+  //   pass made no login. SKIPPED when the command has entity picks the pass did
+  //   not run and that are still pending (resolveEntityPicks flushes instead).
   // - resolveEntityPicks (EntityPickers): after the last entity pick
   //   concludes -- the pick-after-auth commands (esv variable set, secret
   //   store mapping delete) print here, with the picked values in.
@@ -404,10 +449,10 @@ export async function resolveInteractiveInputs(
   // leaves nothing behind.
   //
   // Armed UNCONDITIONALLY (registration is free); the PRINT GATE lives in
-  // the flush closure, evaluated at flush time -- NOT here. It must be
-  // evaluated late: post-auth realm/entity pickers render AFTER this pass
-  // ends, so a gate evaluated now would miss a session whose only prompt
-  // was a picker. The gate itself
+  // the flush closure, evaluated at flush time -- NOT here. Pickers of a
+  // command whose pass made no login can still render after this pass ends,
+  // so a gate evaluated now could miss a session whose only prompt was one.
+  // The gate itself
   // is unchanged: at least one prompt rendered this process, or the user
   // explicitly requested the flow (--prompt / guided mode). Fully
   // specified non-TTY runs (e2e snapshots) render no prompts and never
@@ -432,25 +477,21 @@ export async function resolveInteractiveInputs(
 }
 
 /**
- * The Ready step (record 0043): the last prompt of a session that asked for
- * anything. It shows the command as it will run (the usual footer) and offers
- * Run (the default), Edit options (the invocation editor, then back here) and
- * Cancel. Escape cancels as well: nothing runs, nothing is printed, and the
- * session ends quietly through the exit-all signal. Pickers that need a login
- * (the realm, the entities) follow after Run, because their loaders need tokens.
+ * The Ready step (records 0043 and 0044): the last prompt of a session that
+ * asked for anything. It shows the command as it will run (the usual footer)
+ * and offers Run (the default), Edit options (the invocation editor, then back
+ * here) and Cancel. Escape cancels as well: nothing runs, nothing is printed,
+ * and the session ends quietly through the exit-all signal. The pickers that
+ * need a login ran before it; Edit options can ask for more or change the
+ * connection, and they are settled before the step is shown again.
  */
 async function confirmReady(command: Command): Promise<void> {
   for (;;) {
-    const readiness = commandReadinessFor(command);
+    await resolvePassPickers(command);
     const answer = await selectWithEditorRouting<ReadyAnswer>(command, {
       message: 'Ready to run?',
       choices: readyChoices({
         canEdit: editableOptionalOptions(command).length > 0,
-        // what the pass left for the pickers that run after login: a choice
-        // made for later, or a mandatory option with a picker
-        openAfterLogin:
-          deferredChoicesOf(command).size > 0 ||
-          (readiness?.missingMandatoryOptionLabels.length ?? 0) > 0,
       }),
       enterLabel: readyEnterLabel,
       escapeLabel: READY_ESCAPE_LABEL,
@@ -462,6 +503,109 @@ async function confirmReady(command: Command): Promise<void> {
     }
     throw EXIT_ALL_SIGNAL;
   }
+}
+
+/**
+ * Ends the command from inside the pass without running it, and without a
+ * word of its own: what went wrong has been said. The exit code is the one the
+ * command would have set when the same thing happened after Run (a failed login,
+ * a declined or failed pick: 1). Nothing the pass armed is printed.
+ * @param code the exit code
+ */
+function endCommand(code: number): never {
+  process.exitCode = code;
+  revokeAuthoringPrint();
+  throw EXIT_ALL_SIGNAL;
+}
+
+/**
+ * Writes the connection of the command (host, credentials, the options that
+ * decide who logs in) into frodo-lib's state, as the action would, once. The
+ * action skips it afterwards (FrodoCommand.handleDefaultArgsAndOpts).
+ */
+async function applyConnectionForPass(command: Command): Promise<void> {
+  if (passStateApplied()) return;
+  const { FrodoCommand } = await import('./FrodoCommand');
+  if (!(command instanceof FrodoCommand)) return;
+  command.handleDefaultArgsAndOpts(command.opts(), command);
+  notePassStateApplied(command);
+}
+
+/**
+ * Forgets the login and the pickers when the invocation editor changed who logs
+ * in to what: the pickers then log in again and ask again (the values already
+ * chosen stay). Anything else the editor changes leaves them alone.
+ */
+function reconcileConnection(command: Command): void {
+  if (!connectionChangedSinceApply(command)) return;
+  verboseMessage(
+    'The connection changed: the login and the pickers are redone.'
+  );
+  forgetPassLogin();
+}
+
+/**
+ * Logs in for a picker (record 0044); the callers ask `loginNeededForPickers`
+ * first, so this runs once per connection. A failed login ends the command with
+ * the error and the hint the login reported, exit code 1, and no Ready step.
+ */
+async function loginForPickers(command: Command): Promise<void> {
+  await applyConnectionForPass(command);
+  const login = await loginInPass();
+  if (!login) endCommand(1);
+  recordPassLogin(login);
+}
+
+/**
+ * The realm picker (record 0001), run in the pass right after the login the
+ * pass makes for it. A command the picker does not apply to makes no login here.
+ */
+async function resolveRealmStep(command: Command): Promise<void> {
+  reconcileConnection(command);
+  if (passRealmPickDone()) return;
+  const applies = realmPickerApplies(command);
+  if (
+    loginNeededForPickers({
+      loggedIn: passLoginSession() !== undefined,
+      realmPickerApplies: applies,
+      entityPicksNeedingLogin: 0,
+    })
+  ) {
+    await loginForPickers(command);
+  }
+  if (!applies) return;
+  await resolveRealmPick(command, { inPass: true });
+  notePassRealmPickDone();
+}
+
+/**
+ * The entity pickers (records 0038 and 0044): every pick that will open, with
+ * the login the pass makes for them when their loaders need one. A pick that
+ * was declined or whose load failed ends the command like it does after Run
+ * (exit code 1); nothing runs.
+ */
+async function resolveEntityPickStep(command: Command): Promise<void> {
+  reconcileConnection(command);
+  const pending = pendingPassPicks(command);
+  if (pending.length === 0) return;
+  // the loaders read the host (the receiving tenant is not the one logged in to)
+  await applyConnectionForPass(command);
+  if (
+    loginNeededForPickers({
+      loggedIn: passLoginSession() !== undefined,
+      realmPickerApplies: false,
+      entityPicksNeedingLogin: pending.filter(pickNeedsLogin).length,
+    })
+  ) {
+    await loginForPickers(command);
+  }
+  if (!(await resolvePassEntityPicks(command))) endCommand(1);
+}
+
+/** The pickers that need a login, realm first: what is left for them after the editor ran. */
+async function resolvePassPickers(command: Command): Promise<void> {
+  await resolveRealmStep(command);
+  await resolveEntityPickStep(command);
 }
 
 /**
@@ -805,14 +949,13 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
     // here would echo it.
     if (isSecretOption(option)) continue;
 
-    // Entity-pickable options are deferred to the action body's post-auth
-    // dropdown (resolveEntityPicks) -- free-texting an id here would defeat
-    // the picker's purpose. Leave the violation unresolved; the action
-    // resolves it after getTokens (or errors non-interactively).
+    // Entity-pickable options are left to the entity picker of the pass
+    // (resolveEntityPickStep, once the groups are resolved) -- free-texting an
+    // id here would defeat the picker's purpose. Leave the violation
+    // unresolved; the pass resolves it after its login (or the command errors
+    // non-interactively).
     if (hasEntityPick(command, attributeName)) {
-      verboseMessage(
-        `${option.flags} will be offered from the target system after login.`
-      );
+      verboseMessage(`${option.flags} will be chosen from the target system.`);
       continue;
     }
 
@@ -951,11 +1094,11 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
 
     const chosen = offered.find((member) => member.name === picked)!;
 
-    // Entity-pickable members are deferred to the action body's post-auth
-    // dropdown (resolveEntityPicks) -- see resolveMandatoryOptions.
+    // Entity-pickable members are left to the entity picker of the pass --
+    // see resolveMandatoryOptions.
     if (hasEntityPick(command, chosen.name)) {
       verboseMessage(
-        `${chosen.option.flags} will be offered from the target system after login.`
+        `${chosen.option.flags} will be chosen from the target system.`
       );
       // the other members of the group that have a picker are not offered then
       noteDeferredChoice(command, chosen.name);

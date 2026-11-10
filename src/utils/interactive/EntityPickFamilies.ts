@@ -199,6 +199,8 @@ export function registerEntityPickFamilies(): void {
         name: 'target',
         kind: 'connection profile',
         message: 'Select the receiving tenant:',
+        // the saved profiles are read from this machine
+        needsLogin: false,
         load: async () =>
           savedConnectionProfiles().filter(
             (profile) => !sameHost(profile.host, state.getHost() ?? '')
