@@ -3,6 +3,7 @@ import { Option } from 'commander';
 import { configManagerImportSecretMappings } from '../../../configManagerOps/FrConfigSecretMappingsOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, DEFAULT_REALM_KEY } = frodo.utils.constants;
@@ -25,6 +26,7 @@ export default function setup() {
       )
     )
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -57,7 +59,7 @@ export default function setup() {
       verboseMessage('Importing secret mappings configuration.');
       const outcome = await configManagerImportSecretMappings(
         options.name,
-        realm,
+        realmOfRun(command, realm),
         options.allowFailures
       );
       if (!outcome) process.exitCode = 1;

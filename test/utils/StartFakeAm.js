@@ -21,6 +21,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {number} [options.usersCap] stops the AM users endpoint (not IDM) at this many results, in the list and in the count
  * @param {string[]} [options.oauth2Clients] client ids the OAuth2 client list of the realm answers with (default: it answers 404)
  * @param {string[]} [options.scripts] script names the script list of the realm answers with (default: it answers 404)
+ * @param {string[]} [options.trees] journey names the journey list of the realm answers with; an empty array is a realm without journeys (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @returns {Promise<{ port: number, stop: () => void }>}
@@ -34,6 +35,7 @@ export async function startFakeAm({
   users,
   oauth2Clients,
   scripts,
+  trees,
   usersCap,
   sessionTtlSeconds,
   logout,
@@ -59,6 +61,7 @@ export async function startFakeAm({
         ? { FAKE_AM_OAUTH2_CLIENTS: oauth2Clients.join(',') }
         : {}),
       ...(scripts ? { FAKE_AM_SCRIPTS: scripts.join(',') } : {}),
+      ...(trees ? { FAKE_AM_TREES: trees.join(',') } : {}),
       ...(usersCap ? { FAKE_AM_USERS_CAP: String(usersCap) } : {}),
       ...(sessionTtlSeconds
         ? { FAKE_AM_SESSION_TTL_SECONDS: String(sessionTtlSeconds) }

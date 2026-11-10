@@ -2,6 +2,7 @@ import { Option } from 'commander';
 import { configManagerExportServices } from '../../../configManagerOps/FrConfigServiceOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -17,6 +18,7 @@ export default function setup() {
     )
 
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -30,7 +32,7 @@ export default function setup() {
       if (await getTokens()) {
         verboseMessage('Exporting services...');
         const outcome = await configManagerExportServices(
-          realm,
+          realmOfRun(command, realm),
           options.name,
           options.allowFailures
         );

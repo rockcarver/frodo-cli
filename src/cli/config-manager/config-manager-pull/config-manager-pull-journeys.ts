@@ -2,6 +2,7 @@ import { Option } from 'commander';
 import { configManagerExportJourneys } from '../../../configManagerOps/FrConfigJourneysOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -20,6 +21,7 @@ export default function setup() {
       new Option('-c, --clean', 'Clear existing configuration before pull.')
     )
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -34,7 +36,7 @@ export default function setup() {
         verboseMessage('Exporting journeys...');
         const outcome = await configManagerExportJourneys(
           options.name,
-          realm,
+          realmOfRun(command, realm),
           options.pullDependencies,
           options.clean,
           options.allowFailures

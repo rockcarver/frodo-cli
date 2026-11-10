@@ -2,6 +2,7 @@ import { Option } from 'commander';
 import { configManagerImportScripts } from '../../../configManagerOps/FrConfigScriptOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -24,6 +25,8 @@ export default function setup() {
 
   program.multiOp();
 
+  program.usesRealm();
+
   program.action(async (host, realm, user, password, options, command) => {
     command.handleDefaultArgsAndOpts(
       host,
@@ -41,7 +44,7 @@ export default function setup() {
     }
     verboseMessage('Importing scripts');
     const outcome = await configManagerImportScripts(
-      realm,
+      realmOfRun(command, realm),
       options.name,
       options.filenameFilter,
       options.allowFailures

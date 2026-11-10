@@ -2,6 +2,7 @@ import { Option } from 'commander';
 import { configManagerExportScripts } from '../../../configManagerOps/FrConfigScriptOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand, ListOption } from '../../FrodoCommand';
 
 export default function setup() {
@@ -23,6 +24,7 @@ export default function setup() {
       ).conflicts(['scriptName'])
     )
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -45,7 +47,7 @@ export default function setup() {
       );
       const outcome = await configManagerExportScripts(
         options.prefix,
-        realm,
+        realmOfRun(command, realm),
         options.scriptName,
         options.allowFailures
       );

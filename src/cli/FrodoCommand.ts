@@ -38,6 +38,7 @@ import {
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
+import { declareRealmUse } from '../utils/interactive/RealmUse.js';
 import {
   markSecret,
   SECRET_OPTION_HELP,
@@ -3833,6 +3834,23 @@ export class FrodoCommand extends FrodoStubCommand {
     if (!this.hasDefaultOption('allowFailures')) {
       this.addOption(new Option(ALLOW_FAILURES_OPTION, ALLOW_FAILURES_HELP));
     }
+    return this;
+  }
+
+  /**
+   * Declares that the command uses its realm positional and reads "no realm"
+   * as "every realm" (the `config-manager` commands that loop over realms).
+   * The post-auth realm picker then offers an `All realms` row first and makes
+   * it the default, the command preview prints no realm token for the default,
+   * and the command passes `realmOfRun(command, realm)` (not the stale `realm`
+   * parameter) to its operation after login. A `config-manager` command that
+   * does not declare it ignores the realm and gets no realm picker.
+   * See src/utils/interactive/RealmUse.ts.
+   * @param use.tenantWide the command also covers configuration of the tenant that no realm limits (`pull all`); the picker says so. Default: false
+   * @returns This command for chaining.
+   */
+  usesRealm(use: { tenantWide?: boolean } = {}): this {
+    declareRealmUse(this, { tenantWide: use.tenantWide === true });
     return this;
   }
 

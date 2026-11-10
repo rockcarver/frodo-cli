@@ -8,6 +8,7 @@ import {
 } from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -51,6 +52,7 @@ export default function setup() {
         )
     )
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -80,7 +82,12 @@ export default function setup() {
           what,
           yes: options.yes,
           dryRun: options.dryRun,
-          showPlan: () => configManagerDeleteThemes(undefined, realm, true),
+          showPlan: () =>
+            configManagerDeleteThemes(
+              undefined,
+              realmOfRun(command, realm),
+              true
+            ),
         }))
       ) {
         process.exitCode = 1;
@@ -90,7 +97,7 @@ export default function setup() {
       verboseMessage('Deleting themes');
       const outcome = await configManagerDeleteThemes(
         options.name,
-        realm,
+        realmOfRun(command, realm),
         options.dryRun,
         options.allowFailures
       );

@@ -15,6 +15,7 @@
 
 import type { Command, Option } from 'commander';
 import c from '../ColorTheme';
+import { realmUseOf } from './RealmUse';
 import { isSecretOption, SECRET_MASK } from './SecretOptions';
 
 /**
@@ -67,9 +68,18 @@ export function setDeploymentTypeForPreview(type: string | undefined): void {
  * final authoring print the type is always resolved, so the pipeline
  * guarantee is unaffected.
  */
-function serializePositionalValue(argumentName: string, value: string): string {
+function serializePositionalValue(
+  argumentName: string,
+  value: string,
+  allRealms: boolean
+): string {
   if (argumentName === 'password') return '********';
   if (argumentName === 'realm' && value === DEFAULT_REALM_KEY) {
+    // A command that uses its realm (see RealmUse) reads the sentinel as
+    // "every realm": printing the deployment's default realm would name a
+    // realm the command does not run in. No realm token is the command as it
+    // runs.
+    if (allRealms) return '';
     const translated =
       previewDeploymentType && DEPLOYMENT_TYPE_REALM_MAP[previewDeploymentType];
     return translated ?? '';
@@ -148,7 +158,11 @@ export function serializeCommand(command: Command): string {
   command.registeredArguments.forEach((argument, index) => {
     const value = command.processedArgs?.[index];
     if (typeof value !== 'string' || value.length === 0) return;
-    const serialized = serializePositionalValue(argument.name(), value);
+    const serialized = serializePositionalValue(
+      argument.name(),
+      value,
+      !!realmUseOf(command)
+    );
     // A positional the serializer declines (the realm sentinel before
     // the deployment type is known) drops out entirely -- never a bare
     // placeholder in the token stream.

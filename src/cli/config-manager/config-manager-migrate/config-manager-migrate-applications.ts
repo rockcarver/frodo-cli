@@ -5,6 +5,7 @@ import { configManagerMigrateApplications } from '../../../ops/ApplicationMigrat
 import { getTokens } from '../../../ops/AuthenticateOps';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { TREE_LAYOUT_MARKER_FILE } from '../../../utils/TreeLayout';
 import { FrodoCommand } from '../../FrodoCommand';
 
@@ -63,6 +64,7 @@ export default function setup() {
         )
     )
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -80,7 +82,7 @@ export default function setup() {
             : 'Moving the tree to one folder per application.'
         );
         const outcome = await configManagerMigrateApplications(
-          realm,
+          realmOfRun(command, realm),
           options.dryRun,
           options.allowFailures,
           options.configFolder

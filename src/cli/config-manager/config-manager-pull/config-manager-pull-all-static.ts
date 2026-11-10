@@ -1,6 +1,7 @@
 import { configManagerExportAllStatic } from '../../../configManagerOps/FrConfigAllOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -12,6 +13,7 @@ export default function setup() {
       'after',
       '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n'
     )
+    .usesRealm({ tenantWide: true })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -28,7 +30,7 @@ export default function setup() {
       }
       verboseMessage('Exporting all static config');
       const outcome = await configManagerExportAllStatic({
-        realm,
+        realm: realmOfRun(command, realm),
         allowFailures: options.allowFailures,
       });
       if (!outcome) process.exitCode = 1;

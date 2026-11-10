@@ -2,6 +2,7 @@ import { Option } from 'commander';
 import { configManagerExportAllWithConfigFolder } from '../../../configManagerOps/FrConfigAllOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -34,6 +35,7 @@ export default function setup() {
         'Please refer to the help message of each command to see an example config file by running:\n' +
         '"frodo config-manager pull <entity-name> -h"'
     )
+    .usesRealm({ tenantWide: true })
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -51,7 +53,7 @@ export default function setup() {
       verboseMessage('Exporting config files that fr-config-manager supports.');
       const outcome = await configManagerExportAllWithConfigFolder({
         configFolder: options.configFolder,
-        realm,
+        realm: realmOfRun(command, realm),
         allowFailures: options.allowFailures,
       });
       if (!outcome) process.exitCode = 1;

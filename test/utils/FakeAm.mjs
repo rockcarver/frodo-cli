@@ -54,6 +54,10 @@
  * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
  * (`.../scripts`) answer with scripts of those names, the way the script
  * picker of the script commands reads it.
+ * FAKE_AM_TREES=<name,name,...> makes the journey list of the realm
+ * (`.../authenticationtrees/trees`) answer with trees of those names; an empty
+ * value is a realm without journeys. Without it the list answers 404. The
+ * trees themselves are not served, so a command that reads one fails on it.
  * FAKE_AM_SESSION_TTL_SECONDS=<n> gives the session of a plain login a lifetime
  * of n seconds from the lookup (default: it expires in 2099).
  * The logout call (`POST .../sessions?_action=logout`) is answered like AM
@@ -85,6 +89,10 @@ const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
 const scripts = (process.env.FAKE_AM_SCRIPTS ?? '').split(',').filter(Boolean);
+const trees =
+  process.env.FAKE_AM_TREES === undefined
+    ? undefined
+    : process.env.FAKE_AM_TREES.split(',').filter(Boolean);
 
 /** The users an IDM or AM `_queryFilter` of the shapes above selects. */
 function selectUsers(filter) {
@@ -170,6 +178,16 @@ const server = http.createServer((req, res) => {
         pagedResultsCookie: null,
         totalPagedResultsPolicy: 'EXACT',
         totalPagedResults: oauth2Clients.length,
+        remainingPagedResults: -1,
+      });
+    }
+    if (trees && pathname.endsWith('/authenticationtrees/trees')) {
+      return send(200, {
+        result: trees.map((_id) => ({ _id })),
+        resultCount: trees.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: trees.length,
         remainingPagedResults: -1,
       });
     }

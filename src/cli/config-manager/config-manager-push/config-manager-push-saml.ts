@@ -3,6 +3,7 @@ import { configManagerImportSaml } from '../../../configManagerOps/FrConfigSamlO
 import { ownedObjectsPushHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -17,6 +18,7 @@ export default function setup() {
     )
     .addHelpText('after', ownedObjectsPushHelp('SAML providers'))
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -33,7 +35,7 @@ export default function setup() {
       }
       verboseMessage('Importing SAML configuration.');
       const outcome = await configManagerImportSaml(
-        realm,
+        realmOfRun(command, realm),
         options.name,
         options.allowFailures
       );

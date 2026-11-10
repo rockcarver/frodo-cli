@@ -2,6 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { configManagerExportOrgPrivilegesAllRealms } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -23,6 +24,7 @@ export default function setup() {
   program
     .description('Export organization privileges config.')
     .multiOp()
+    .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -35,12 +37,13 @@ export default function setup() {
 
       if (await getTokens(false, true, deploymentTypes)) {
         let outcome: boolean;
-        if (realm !== constants.DEFAULT_REALM_KEY) {
+        const pickedRealm = realmOfRun(command, realm);
+        if (pickedRealm !== constants.DEFAULT_REALM_KEY) {
           printMessage(
-            `Exporting organization privileges config from the realm: "${realm}"`
+            `Exporting organization privileges config from the realm: "${pickedRealm}"`
           );
           outcome = await configManagerExportOrgPrivilegesAllRealms(
-            realm,
+            pickedRealm,
             options.allowFailures,
             false
           );
