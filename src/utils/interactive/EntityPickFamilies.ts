@@ -660,6 +660,7 @@ export function registerEntityPickFamilies(): void {
   registerEntityPickFamily({
     family: 'journey',
     except: ['describe'],
+    onRequest: ['describe'],
     picks: [
       entityPick<TreeSkeleton>({
         name: 'journeyId',
@@ -677,6 +678,7 @@ export function registerEntityPickFamilies(): void {
   registerEntityPickFamily({
     family: 'node',
     except: ['describe', 'type describe'],
+    onRequest: ['describe', 'type describe'],
     picks: [
       entityPick<CustomNodeSkeleton>({
         name: 'nodeId',
