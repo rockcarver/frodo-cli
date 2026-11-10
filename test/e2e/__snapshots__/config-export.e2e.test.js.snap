@@ -12008,10 +12008,7 @@ Error Exporting SAML2 Providers
 • Exported 15 alpha realm agents.
 • Exported 19 alpha realm OAuth2 clients.
 • 5 alpha realm providers exported.
-2 warnings in journey DynamicConfiguration
-1 warning in journey FrodoTest
-2 warnings in journey RecognizeFrontChannel
-1 error in journey test
+4 of 35 journeys have validation findings (1 error and 5 warnings): 4 unconnected outcomes, 1 unknown connection outcome, 1 unresolved entry node.
 • Exported 35 alpha realm journeys.
 • Exported 5 alpha realm applications
 • Exported 6 alpha realm policies.
@@ -64015,10 +64012,7 @@ exports[`frodo config export Cloud "frodo config export --all --static --file te
 • Exported 2 global services.
 • Exported 0 / realm themes.
 • 5 alpha realm providers exported.
-2 warnings in journey DynamicConfiguration
-1 warning in journey FrodoTest
-2 warnings in journey RecognizeFrontChannel
-1 error in journey test
+4 of 35 journeys have validation findings (1 error and 5 warnings): 4 unconnected outcomes, 1 unknown connection outcome, 1 unresolved entry node.
 • Exported 35 alpha realm journeys.
 • Exported alpha realm 7 scripts.
 • Exported 1 secret stores.
