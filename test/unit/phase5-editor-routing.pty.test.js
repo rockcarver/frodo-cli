@@ -1,4 +1,5 @@
 import { connection } from '../e2e/utils/TestConfig.js';
+import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -253,6 +254,8 @@ describe('phase 5 slice 1: hint + segment routing', () => {
             { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
             { type: 'send', text: ENV.FRODO_HOST },
             { type: 'key', name: 'enter' },
+            // the realm picker needs the login, so it follows the Ready step
+            ...answerReady(),
             { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
             { type: 'sleep', ms: 400 },
             { type: 'capture', label: 'picker' },
@@ -346,7 +349,10 @@ describe('phase 5 slice 4: command preview', () => {
             { type: 'capture', label: 'incomplete' },
             { type: 'key', name: 'down' },
             { type: 'key', name: 'enter' },
-            { type: 'sleep', ms: 600 },
+            // Run, with the Ready step's own footer (the command on a line of
+            // its own) dropped: the assertion is about what the run prints
+            ...answerReady({ clear: true }),
+            { type: 'sleep', ms: 3000 },
             { type: 'capture', label: 'final' },
           ],
         });
@@ -641,6 +647,7 @@ describe('phase 5 slice 4: command preview', () => {
               { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
               { type: 'send', text: ENV.FRODO_HOST },
               { type: 'key', name: 'enter' },
+              ...answerReady(),
               { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 30000 },
               { type: 'sleep', ms: 400 },
               { type: 'capture', label: 'realm' },
@@ -685,6 +692,7 @@ describe('phase 5 slice 4: command preview', () => {
                 timeoutMs: 30000,
               },
               { type: 'key', name: 'enter' }, // -i: defers to the entity pick
+              ...answerReady(), // the pick needs the login, so it follows the step
               {
                 type: 'wait_plain',
                 regex: 'Select secret to act on',
@@ -737,6 +745,7 @@ describe('phase 5 slice 4: command preview', () => {
                 timeoutMs: 30000,
               },
               { type: 'key', name: 'enter' }, // -i: defers to the entity pick
+              ...answerReady(), // the pick needs the login, so it follows the step
               {
                 type: 'wait_plain',
                 regex: 'Select secret to act on',
@@ -826,6 +835,8 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
             { type: 'sleep', ms: 400 },
             { type: 'capture', label: 'editor' },
             { type: 'key', name: 'enter' },
+            // the editor was the last prompt: the Ready step follows it
+            { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 15000 },
             { type: 'sleep', ms: 800 },
             { type: 'capture', label: 'after' },
           ],
@@ -854,10 +865,13 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
         });
         expect(filtered.captures.filtered.plain).toMatch(/-l, --long/);
 
-        // Enter committed the empty set; the authoring print fired.
+        // Enter committed the empty set; the Ready step shows the command
+        // as it will run (the authoring print comes after Run, with the
+        // results; prompt-erase.pty.test.js covers it).
         expect(result.captures.after.plain).toMatch(
           /\(none -- run with defaults\)/
         );
+        expect(result.captures.after.plain).toMatch(/Ready to run\?/);
         expect(result.captures.after.plain).toMatch(/frodo esv secret list/);
       } finally {
         removeShellTestHome(homeDir);

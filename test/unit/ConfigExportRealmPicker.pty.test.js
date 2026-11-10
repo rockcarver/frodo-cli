@@ -4,6 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -113,7 +114,8 @@ suite('the realm picker of frodo config export, on a real terminal', () => {
 
   /**
    * `frodo config export` with the host left out: the host is asked for, the
-   * login succeeds and the picker opens (or does not). `choose` are the keys
+   * Ready step is answered with Run, the login succeeds and the picker opens
+   * (or does not). `choose` are the keys
    * after the host was entered; `picker` is whether the picker is expected,
    * `waitFor` the request that proves the export got as far as it should.
    */
@@ -130,6 +132,9 @@ suite('the realm picker of frodo config export, on a real terminal', () => {
       actions: [
         { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
         { type: 'send_line', text: host() },
+        // the host prompt put a prompt on the screen, so the pass ends in the Ready step;
+        // the realm picker opens after Run, because it needs the login (records 0001, 0043)
+        ...answerReady(),
         ...(picker
           ? [
               {

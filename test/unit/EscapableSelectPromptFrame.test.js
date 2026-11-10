@@ -177,3 +177,77 @@ describe('escapableSelect frames', () => {
     expect(output).not.toContain('┌');
   });
 });
+
+describe('escapableSelect Navigate menu keys', () => {
+  const CHOICES = [
+    { value: 'run', name: 'Run' },
+    { value: 'edit', name: 'Edit options' },
+    { value: 'cancel', name: 'Cancel' },
+  ];
+  /** The text of the Navigate box: the first framed box of the output. */
+  const navigate = (config, seed = {}) => {
+    setTerminal(120);
+    return visibleLines(
+      render({ message: 'Pick one', choices: CHOICES, ...config }, seed)
+    )
+      .slice(0, 3)
+      .join('\n');
+  };
+
+  it('says select on Enter when the prompt does not say otherwise', () => {
+    expect(navigate({})).toContain('[ENTER] select');
+  });
+
+  it('says what the prompt configures on Enter, and nothing else', () => {
+    const menu = navigate({ enterLabel: 'next' });
+    expect(menu).toContain('[ENTER] next');
+    expect(menu).not.toContain('select');
+  });
+
+  it('asks a function label about the highlighted row, on every render', () => {
+    const label = (highlighted) =>
+      ({ run: 'run', edit: 'edit options', cancel: 'cancel' })[highlighted] ??
+      '';
+    expect(navigate({ enterLabel: label }, { [STATE.active]: 0 })).toContain(
+      '[ENTER] run'
+    );
+    harness.reset();
+    expect(navigate({ enterLabel: label }, { [STATE.active]: 1 })).toContain(
+      '[ENTER] edit options'
+    );
+    harness.reset();
+    expect(navigate({ enterLabel: label }, { [STATE.active]: 2 })).toContain(
+      '[ENTER] cancel'
+    );
+  });
+
+  it('hides the Enter key when a function label answers with nothing', () => {
+    // a filter that matches no row: Enter does nothing, so the menu is silent about it
+    const menu = navigate(
+      { enterLabel: (highlighted) => (highlighted === undefined ? '' : 'run') },
+      { [STATE.query]: 'zzz' }
+    );
+    expect(menu).not.toContain('[ENTER]');
+    expect(menu).toContain('[ESC]');
+  });
+
+  it('says what Escape does, in the menu and in the hint after a first press', () => {
+    const menu = navigate({ escapeLabel: 'cancel' });
+    expect(menu).toContain('[ESC] cancel');
+    expect(menu).not.toContain('back');
+    harness.reset();
+    setTerminal(120);
+    const grace = visibleLines(
+      render(
+        { message: 'Pick one', choices: CHOICES, escapeLabel: 'cancel' },
+        { [STATE.escapeGraceOpen]: true }
+      )
+    ).join('\n');
+    expect(grace).toContain('esc again to exit all -- or wait to cancel');
+    expect(grace).not.toContain('go back one level');
+  });
+
+  it('keeps the usual Escape wording when the prompt does not set one', () => {
+    expect(navigate({})).toContain('[ESC] back · [ESC]×2 exit all');
+  });
+});

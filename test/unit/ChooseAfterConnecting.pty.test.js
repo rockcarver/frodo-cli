@@ -1,6 +1,7 @@
 import cp from 'child_process';
 import path from 'path';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -126,6 +127,11 @@ suite('choose after connecting, on a real terminal', () => {
       { type: 'sleep', ms: 500 },
       { type: 'clear_output' },
       { type: 'key', name: 'enter' }, // commit the options page
+      // the Ready step is the last prompt of the pass; the picker needs the login
+      { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 30000 },
+      { type: 'sleep', ms: 400 },
+      { type: 'capture', label: 'ready' },
+      { type: 'key', name: 'enter' },
       {
         type: 'wait_plain',
         regex: 'Select journey to act on',
@@ -138,6 +144,10 @@ suite('choose after connecting, on a real terminal', () => {
       { type: 'sleep', ms: 3000 },
       { type: 'capture', label: 'after' },
     ]);
+    // the step says that a pick is still open, and the picker comes after it
+    expect(lastFrame(run.captures.ready.plain)).toContain(
+      'chosen from the target system after login'
+    );
     const picker = lastFrame(run.captures.picker.plain);
     expect(picker.indexOf('matrix-login')).toBeGreaterThan(-1);
     expect(picker.indexOf('matrix-login')).toBeLessThan(
@@ -155,9 +165,15 @@ suite('choose after connecting, on a real terminal', () => {
   test('without the mark, the command is complete and no picker opens', () => {
     const run = describeJourney([
       { type: 'key', name: 'enter' }, // commit the options page, nothing marked
+      { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 30000 },
+      { type: 'sleep', ms: 400 },
+      { type: 'capture', label: 'ready' },
+      { type: 'key', name: 'enter' },
       { type: 'sleep', ms: 4000 },
       { type: 'capture', label: 'after' },
     ]);
+    // nothing is open for after login: the step does not say so
+    expect(lastFrame(run.captures.ready.plain)).not.toContain('after login');
     expect(run.captures.after.plain).not.toContain('Select journey to act on');
   });
 
@@ -169,6 +185,7 @@ suite('choose after connecting, on a real terminal', () => {
       { type: 'key', name: 'enter' },
       { type: 'sleep', ms: 500 },
       { type: 'key', name: 'enter' }, // commit the options page
+      ...answerReady(),
       { type: 'sleep', ms: 4000 },
       { type: 'capture', label: 'after' },
     ]);
@@ -185,6 +202,7 @@ suite('choose after connecting, on a real terminal', () => {
       { type: 'key', name: 'space' }, // unmarked
       { type: 'sleep', ms: 500 },
       { type: 'key', name: 'enter' }, // commit the options page
+      ...answerReady(),
       { type: 'sleep', ms: 4000 },
       { type: 'capture', label: 'after' },
     ]);

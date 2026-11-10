@@ -99,6 +99,22 @@ export type EscapableSelectConfig<Value> = {
    * fall back to the committed state.
    */
   preview?: string | ((highlighted: unknown) => string);
+  /**
+   * What the Navigate menu says Enter does ('select' when omitted): a prompt
+   * says what its Enter does to the command, never more (record 0043). The
+   * prompts of the resolution pass say 'next', the Ready step 'run'. The
+   * function form is re-invoked on every render with the highlighted choice's
+   * value (undefined when the filter matched nothing); an empty string hides
+   * the key, because Enter does nothing then.
+   */
+  enterLabel?: string | ((highlighted: unknown) => string);
+  /**
+   * What the Navigate menu says Escape does, and what the grace hint offers
+   * after a first press ('back · [ESC]×2 exit all' and 'go back one level'
+   * when omitted). A prompt that ends the session on Escape says so
+   * ('cancel').
+   */
+  escapeLabel?: string;
 };
 
 /**
@@ -340,12 +356,16 @@ const escapableSelectImpl = createPrompt(
     // the pick selectors and the multi-select consistent: same
     // silhouette, same measure discipline (ANSI excluded), description
     // trailing INSIDE the panel right under its list.
+    const enterLabel =
+      typeof config.enterLabel === 'function'
+        ? config.enterLabel(selected?.value)
+        : (config.enterLabel ?? 'select');
     const menu = renderNavigationMenu(
       navigationMenuItems({
         filter: true,
-        enter: 'select',
+        enter: enterLabel,
         right: config.hint ? config.hint.replace(/^→\s*/, '') : undefined,
-        escape: 'back · [ESC]×2 exit all',
+        escape: config.escapeLabel ?? 'back · [ESC]×2 exit all',
       }),
       width
     );
@@ -353,10 +373,8 @@ const escapableSelectImpl = createPrompt(
     if (escapeGraceOpen) {
       // The grace window is open (first ESC seen): make the gesture's
       // second half obvious -- this line lives until the grace resolves.
-      panelLines.push({
-        text: c.muted('esc again to exit all -- or wait to go back one level'),
-        plain: 'esc again to exit all -- or wait to go back one level',
-      });
+      const graceHint = `esc again to exit all -- or wait to ${config.escapeLabel ?? 'go back one level'}`;
+      panelLines.push({ text: c.muted(graceHint), plain: graceHint });
     }
     if (filtered.length > 0) {
       for (const row of page.split('\n')) {

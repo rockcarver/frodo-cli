@@ -2,6 +2,7 @@ import cp from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -98,6 +99,8 @@ suite('connection page flow, on a real terminal', () => {
       { type: 'capture', label: 'filled' },
       { type: 'key', name: 'down' },
       { type: 'key', name: 'enter' },
+      // Done concludes the page; the Ready step is what runs the command
+      ...answerReady(),
       {
         type: 'wait_plain',
         regex: 'Saved connection profile',

@@ -3,6 +3,7 @@ import { generateKeyPairSync } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -158,6 +159,7 @@ suite('RFC7523 commands, on a real terminal', () => {
         },
         { type: 'send', text: 'https://issuer.example.invalid' },
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         {
           type: 'wait_plain',
           regex: 'Generating RFC7523 authorization grant artefacts',
@@ -188,6 +190,7 @@ suite('RFC7523 commands, on a real terminal', () => {
         { type: 'sleep', ms: 200 },
         { type: 'capture', label: 'typed' },
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         {
           type: 'wait_plain',
           regex: 'Generating RFC7523 authorization grant artefacts',
@@ -238,6 +241,51 @@ suite('RFC7523 commands, on a real terminal', () => {
     expect(requestedUrls().some((url) => url.includes('/OAuth2Client'))).toBe(
       true
     );
+  });
+
+  // The client is still open when the host has been typed: the Ready step
+  // comes first and says so, and the picker follows once the login worked.
+  test('execute asks for the host, says on the Ready step that the client is chosen after login, then picks it', async () => {
+    await fake({ oauth2Clients: ['c1', 'c2'] });
+    const run = runShellScenario({
+      homeDir: home,
+      allowPrompting: true,
+      env: {
+        ...noCredentials,
+        FRODO_CONNECTION_PROFILES_PATH: path.join(home, 'Connections.json'),
+        FRODO_SA_ID: 'test-account',
+        FRODO_SA_JWK: jwk,
+      },
+      args: [
+        'admin',
+        'execute-rfc7523-authz-grant-flow',
+        '--type',
+        'cloud',
+        '--iss',
+        issuerUrl,
+        '--sub',
+        'user-1',
+      ],
+      actions: [
+        { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 30000 },
+        { type: 'send', text: `http://127.0.0.1:${fakeAm.port}/am` },
+        { type: 'key', name: 'enter' },
+        { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 30000 },
+        { type: 'sleep', ms: 400 },
+        { type: 'capture', label: 'ready' },
+        { type: 'key', name: 'enter' },
+        {
+          type: 'wait_plain',
+          regex: 'Select OAuth2 client to act on',
+          timeoutMs: 30000,
+        },
+      ],
+    });
+    const ready = lastFrame(run.captures.ready.plain);
+    expect(ready).toContain('chosen from the target system after login');
+    // the command as it stands: the footer wraps on this terminal, so look for the option, not for its value
+    expect(ready.split('└').pop()).toContain('--iss');
+    expect(ready.split('└').pop()).not.toContain('--client-id');
   });
 
   test('execute goes on without asking when the realm has one client', async () => {

@@ -71,6 +71,22 @@ FRODO_USERNAME`). The page is the only prompt for them: it opens on the
    `frodo settings guided`), a multi-select over the command's optional
    options, with per-option value steps. `--save-defaults` persists
    what this editor commits.
+7. **The Ready step** (`ReadyStep.ts`, `confirmReady` in
+   `ResolveInteractiveInputs.ts`;
+   [record 0043](decisions/0043-an-interactive-session-ends-in-a-ready-step-and-enter-says-what-it-does.md))
+   — when the steps above put at least one prompt on the screen, the pass ends
+   with one more: the command as it will run (the usual footer) and the rows
+   **Run** (the default), **Edit options** (the invocation editor, then back to
+   this step; left out when there is nothing to edit) and **Cancel**. `<esc>`
+   cancels as well: nothing runs, nothing is printed, and the session ends
+   quietly with exit code 0 (the exit-all signal). A pass that rendered nothing
+   never asks it: a complete command line, a script, `--no-prompt`,
+   `FRODO_NO_PROMPT` and a run without a terminal behave as before (record
+   0030). A sub-command picked in a container's picker before the pass does not
+   count; the prompts of the pass do, and so does the editor opened by
+   `--prompt`. The pickers that need a login (realm, entities, see "Post-auth
+   pickers") come after Run, and the Ready step's footer is red while input is
+   still open for them.
 
 A command that needs no connection for some invocations says so with
 `skipConnectionPromptsWhen(predicate)`, and the pass then skips step 2
@@ -139,7 +155,9 @@ write would be invisible to one of the two consumers.
 ## Post-auth pickers
 
 The realm and entity pickers fire after `getTokens()` succeeds (their loaders
-need tokens), from the getTokens wrapper (`AuthenticateOps.ts`):
+need tokens), from the getTokens wrapper (`AuthenticateOps.ts`). They come after
+the Ready step, which is the last prompt of the resolution pass and cannot know
+what a login will offer; their Enter says `select`:
 
 - **The realm picker** (`RealmPickers.ts`) — offered only when the command
   declares a `[realm]` argument, the user did not specify it (positionally or
@@ -485,7 +503,16 @@ unsatisfied groups, failed auth) print nothing.
 - `↑`/`↓` — move within a list; the cursor CLAMPS at the first/last row
   (a list with a beginning and an end, not an endless loop);
   type-to-filter narrows it.
-- `<enter>` — conclude/advance.
+- `<enter>` — conclude/advance. The Navigate menu says what Enter does to the
+  command, never more: `next` on every prompt of the resolution pass (at least
+  the Ready step follows), `run` on the Ready step's Run row (`edit options`
+  and `cancel` on its other rows), and `select` where nothing can be promised:
+  the container pickers (the sub-command chosen may run at once) and the
+  pickers that open after login. A prompt sets its label with the `enterLabel`
+  option of `escapableSelect` (a string, or a function of the highlighted
+  value; an empty string hides the key); `selectWithEditorRouting` gives `next`
+  to every picker of the pass, so a new picker there needs nothing. The
+  Connection page's `Done` row says `continue`, not `run`.
 - `<space>` — multi-value select only (the invocation editor). Marking
   an option that needs a value side-steps straight into its inline
   value box (a picker for `.choices()` options, free text otherwise);

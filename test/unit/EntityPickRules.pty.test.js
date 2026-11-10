@@ -1,6 +1,7 @@
 import cp from 'child_process';
 import path from 'path';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -55,7 +56,11 @@ suite('the script picker, on a real terminal', () => {
     removeShellTestHome(home);
   });
 
-  /** `script describe` on the fake AM; `choose` are the keys after the one-of menu opened. */
+  /**
+   * `script describe` on the fake AM; `choose` are the keys after the one-of
+   * menu opened. The Ready step is answered with Run: the picker needs the
+   * login, so it follows.
+   */
   function describeScript(choose) {
     return runShellScenario({
       homeDir: home,
@@ -77,6 +82,7 @@ suite('the script picker, on a real terminal', () => {
         { type: 'sleep', ms: 400 },
         ...choose,
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         {
           type: 'wait_plain',
           regex: 'Select script to act on',
@@ -146,6 +152,7 @@ suite('the script picker, on a real terminal', () => {
         { type: 'capture', label: 'menu' },
         // the first row is -a
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         // the question about all scripts follows the login; a picker would come before it
         {
           type: 'wait_plain',

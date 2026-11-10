@@ -53,6 +53,11 @@ class PtyScenarioRunner:
         self.captures = {}
         self.child_pid = None
         self.fd = None
+        # How the child ended: its exit code, or the signal that killed it.
+        # Set by the `wait_exit` action, or by the shutdown when the child
+        # ended before it had to stop it.
+        self.exit_code = None
+        self.exit_signal = None
 
     def start(self):
         pid, fd = pty.fork()
@@ -141,6 +146,8 @@ class PtyScenarioRunner:
                             f"Captured output:\n{strip_ansi(self.output)}"
                         )
                     time.sleep(0.02)
+            elif kind == "wait_exit":
+                self._wait_for_exit(action.get("timeoutMs", 10000))
             elif kind == "clear_output":
                 self.output = ""
             elif kind == "send":
@@ -164,7 +171,33 @@ class PtyScenarioRunner:
             "rawOutput": self.output,
             "plainOutput": strip_ansi(self.output),
             "captures": self.captures,
+            "exitCode": self.exit_code,
+            "exitSignal": self.exit_signal,
         }
+
+    def _wait_for_exit(self, timeout_ms):
+        # The child must end by itself: no key is sent, so how it ended is what
+        # the command did, not what the shutdown's end-of-input made of it.
+        deadline = time.time() + timeout_ms / 1000.0
+        while time.time() < deadline:
+            self._read_once()
+            try:
+                waited_pid, status = os.waitpid(self.child_pid, os.WNOHANG)
+            except OSError:
+                return
+            if waited_pid == self.child_pid:
+                self._note_exit(status)
+                return
+            time.sleep(0.02)
+        raise TimeoutError(
+            f"Timed out waiting for the process to exit.\nCaptured output:\n{strip_ansi(self.output)}"
+        )
+
+    def _note_exit(self, status):
+        if os.WIFEXITED(status):
+            self.exit_code = os.WEXITSTATUS(status)
+        elif os.WIFSIGNALED(status):
+            self.exit_signal = os.WTERMSIG(status)
 
     def _shutdown(self):
         try:
@@ -176,8 +209,9 @@ class PtyScenarioRunner:
         while time.time() < deadline:
             self._drain_for(50)
             try:
-                waited_pid, _status = os.waitpid(self.child_pid, os.WNOHANG)
+                waited_pid, status = os.waitpid(self.child_pid, os.WNOHANG)
                 if waited_pid == self.child_pid:
+                    self._note_exit(status)
                     return
             except OSError:
                 return
@@ -193,8 +227,9 @@ class PtyScenarioRunner:
         while time.time() < deadline:
             self._drain_for(50)
             try:
-                waited_pid, _status = os.waitpid(self.child_pid, os.WNOHANG)
+                waited_pid, status = os.waitpid(self.child_pid, os.WNOHANG)
                 if waited_pid == self.child_pid:
+                    self._note_exit(status)
                     return
             except OSError:
                 return
@@ -205,7 +240,8 @@ class PtyScenarioRunner:
             pass
 
         try:
-            os.waitpid(self.child_pid, 0)
+            _pid, status = os.waitpid(self.child_pid, 0)
+            self._note_exit(status)
         except OSError:
             pass
 
