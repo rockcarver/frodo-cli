@@ -101,6 +101,7 @@ import {
   type EscapableSelectConfig,
 } from '../utils/interactive/EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
+import { pickFileSystemPath } from '../utils/interactive/FileSystemPicker';
 import {
   assertNoConflicts,
   commitOption,
@@ -129,6 +130,7 @@ import {
   recordPassLogin,
   resetPassLogin,
 } from '../utils/interactive/PassLogin';
+import { pathOptionOf } from '../utils/interactive/PathOptions';
 import {
   positionalIndex,
   positionalValue,
@@ -930,6 +932,41 @@ function commitInEditor(
 }
 
 /**
+ * The value step of an option the pass asks for (record 0045): the file system
+ * picker for an option that names a path (PathOptions.ts), the text prompt for
+ * every other option. The result is the one of `promptInput`: the value, ''
+ * when the user declined (Escape, or an empty answer) and undefined when
+ * prompting is not allowed, so a caller treats both kinds of option alike.
+ * `current` is the value a picked path starts from; `commitLabel` what Enter
+ * says on the row that picks it.
+ */
+async function promptOptionValue(
+  command: Command,
+  option: Option,
+  step: { default?: string; commitLabel: string }
+): Promise<string | undefined> {
+  const spec = pathOptionOf(command, option);
+  if (spec && canPrompt()) {
+    const attributeName = option.attributeName();
+    const current = command.getOptionValue(attributeName);
+    const live = liveOptionPreviewFor(command, attributeName);
+    const picked = await pickFileSystemPath({
+      flags: option.flags,
+      ...spec,
+      ...(typeof current === 'string' ? { current } : {}),
+      ...(live ? { preview: live } : {}),
+      commitLabel: step.commitLabel,
+    });
+    return picked === ESCAPE ? '' : picked;
+  }
+  return promptInput({
+    message: `Enter a value for ${option.flags}:`,
+    default: step.default,
+    preview: typedOptionPreviewFor(command, option.attributeName()),
+  });
+}
+
+/**
  * Prompts for each deferred mandatory option violation. Options with a
  * closed value set (commander `choices()`) get a dropdown; everything
  * else free text. Returns false as soon as the user declines one (Escape
@@ -973,9 +1010,8 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
       if (choice === ESCAPE) return false;
       value = choice;
     } else {
-      const answer = await promptInput({
-        message: `Enter a value for ${option.flags}:`,
-        preview: typedOptionPreviewFor(command, option.attributeName()),
+      const answer = await promptOptionValue(command, option, {
+        commitLabel: NEXT_LABEL,
       });
       if (!answer) return false;
       value = answer;
@@ -1122,9 +1158,8 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
       // [value]), so the pick itself is the value -- no second prompt.
       commitOrFail(command, chosen.option, true);
     } else {
-      const answer = await promptInput({
-        message: `Enter a value for ${chosen.option.flags}:`,
-        preview: typedOptionPreviewFor(command, chosen.name),
+      const answer = await promptOptionValue(command, chosen.option, {
+        commitLabel: NEXT_LABEL,
       });
       if (!answer) return false;
       commitOrFail(command, chosen.option, answer);
@@ -1561,6 +1596,8 @@ async function runInvocationEditor(command: Command): Promise<void> {
   // options marked in this session without a value: the entity pick that
   // fills them runs after login
   const markedForLater = new Set<string>();
+  // path options marked in this session: their picker opens when the page is committed
+  const markedForPicker = new Set<string>();
 
   // The per-option value step, shared by both paths that can collect a
   // value: the <space> side step (below) and the post-commit loop.
@@ -1602,10 +1639,9 @@ async function runInvocationEditor(command: Command): Promise<void> {
       if (!commitInEditor(command, option, true)) return undefined;
       return true;
     }
-    const answer = await promptInput({
-      message: `Enter a value for ${option.flags}:`,
+    const answer = await promptOptionValue(command, option, {
       default: currentText,
-      preview: typedOptionPreviewFor(command, attributeName),
+      commitLabel: 'commit',
     });
     if (!answer) return undefined;
     if (!commitInEditor(command, option, answer)) return undefined;
@@ -1641,12 +1677,23 @@ async function runInvocationEditor(command: Command): Promise<void> {
         (candidate) => candidate.attributeName() === attributeName
       );
       // A secret is asked for with its input hidden after the choice (see
-      // the loop below), never typed into the inline editor.
+      // the loop below), never typed into the inline editor. A path option is
+      // picked in the file system picker after it.
       return (
         !!option &&
         !isSecretOption(option) &&
-        /<[^>]+>|\[[^\]]+\]/.test(option.flags)
+        /<[^>]+>|\[[^\]]+\]/.test(option.flags) &&
+        !pathOptionOf(command, option)
       );
+    },
+    // a path option the user marked now is picked again, whatever it held
+    onMark: (attributeName) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      if (option && pathOptionOf(command, option)) {
+        markedForPicker.add(attributeName);
+      }
     },
     // Enum options (commander `.choices()`, e.g. --retry <strategy>)
     // get an in-frame PICKER instead of free text (user feedback
@@ -1805,7 +1852,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
     const alreadyValued =
       command.getOptionValueSource(attributeName) === 'cli' &&
       command.getOptionValue(attributeName) !== undefined;
-    if (alreadyValued) {
+    if (alreadyValued && !markedForPicker.has(attributeName)) {
       const option = command.options.find(
         (candidate) => candidate.attributeName() === attributeName
       )!;
