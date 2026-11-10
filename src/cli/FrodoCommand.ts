@@ -1501,7 +1501,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
       {
         description: "Overridden by 'username' argument.",
         appliesTo: '`frodo log` commands',
-        include: (command) => command.name().startsWith('frodo log'),
+        include: (command) => getCommandPath(command).startsWith('frodo log '),
       },
     ],
   },
@@ -1519,7 +1519,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
       {
         description: "Overridden by 'password' argument.",
         appliesTo: '`frodo log` commands',
-        include: (command) => command.name().startsWith('frodo log'),
+        include: (command) => getCommandPath(command).startsWith('frodo log '),
       },
     ],
   },
@@ -1543,7 +1543,12 @@ function matchesEnvironmentVariableVariant(
   variant: VariantDescriptor,
   command: FrodoCommand
 ) {
-  if (variant.commandNames && !variant.commandNames.includes(command.name())) {
+  // by path (`frodo conn save`), as the descriptors are written: the name of a
+  // command (`save`) is only its last word
+  if (
+    variant.commandNames &&
+    !variant.commandNames.includes(getCommandPath(command))
+  ) {
     return false;
   }
 
@@ -1565,7 +1570,10 @@ function matchesEnvironmentVariableEntry(
   entry: EnvironmentVariableDescriptor,
   command: FrodoCommand
 ) {
-  if (entry.commandNames && !entry.commandNames.includes(command.name())) {
+  if (
+    entry.commandNames &&
+    !entry.commandNames.includes(getCommandPath(command))
+  ) {
     return false;
   }
 

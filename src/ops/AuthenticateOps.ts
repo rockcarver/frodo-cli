@@ -10,6 +10,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import open from 'open';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
+import { printErrorHint } from '../utils/ErrorCodeHints';
 // The active-command registry, not ResolveInteractiveInputs itself: that
 // file's graph reaches the frodo-lib-importing interactive prompts, which
 // breaks tests that mock frodo-lib wholesale (see ActiveActionCommandState).
@@ -291,6 +292,8 @@ export async function getTokens(
     // signal from inside this try).
     if (error === EXIT_ALL_SIGNAL) throw error;
     printError(error);
+    // the library states what is wrong; the advice is ours (ErrorCodeHints)
+    printErrorHint(error);
     // Auth failed: the command never ran -- revoke the deferred print so
     // the postAction fallback (whose only remaining purpose is non-auth
     // commands) leaves nothing behind for a failed auth attempt.
@@ -350,6 +353,7 @@ export async function getTokensInteractive(
     return tokens;
   } catch (error) {
     printError(error);
+    printErrorHint(error);
   }
   return null;
 }

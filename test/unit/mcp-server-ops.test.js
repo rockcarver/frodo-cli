@@ -10,10 +10,10 @@
  * mocked — the SDK is exactly what the transport wraps, so exercising the
  * real one keeps the era gate honest against real SDK semantics.
  */
-import http from 'node:http';
-import net from 'node:net';
 import childProcess from 'node:child_process';
 import fsPromise from 'node:fs';
+import http from 'node:http';
+import net from 'node:net';
 import osPromise from 'node:os';
 import pathPromise from 'node:path';
 import { jest } from '@jest/globals';
@@ -31,6 +31,8 @@ let mockGetTokenInfo = async () => {
 // these. Every other existing test in this file relies on the undefined
 // default (no host configured).
 let mockStateHost;
+// Overridable per-test; buildErrorResult's note for a session that needs re-authentication.
+let mockNeedsReauthentication = false;
 let mockStateDeploymentType;
 // Overridable per-test; external-IDP verifier/resolver tests reassign these.
 let mockVerifyJwtAgainstJwks = async () => {
@@ -84,6 +86,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     getBrowserLoginClientId: () => undefined,
     getBrowserLoginScope: () => undefined,
     getBrowserLoginRedirectPort: () => undefined,
+    getNeedsReauthentication: () => mockNeedsReauthentication,
   },
 }));
 
@@ -107,6 +110,7 @@ const {
   buildAmTokenInfoVerifier,
   buildClaimMappedCredentialResolver,
   buildDcrRegistrationResponse,
+  buildErrorResult,
   buildExternalIdpVerifier,
   buildRequestContext,
   computeHttpAllowedHosts,
@@ -286,7 +290,11 @@ function legacyInitializeBody(version = '2025-06-18') {
     jsonrpc: '2.0',
     id: 1,
     method: 'initialize',
-    params: { protocolVersion: version, capabilities: {}, clientInfo: { name: 't', version: '1' } },
+    params: {
+      protocolVersion: version,
+      capabilities: {},
+      clientInfo: { name: 't', version: '1' },
+    },
   });
 }
 
@@ -384,16 +392,24 @@ describe('isLoopbackBindHost', () => {
 
 describe('verifyMcpBearerAuthorization', () => {
   test('accepts the exact token in a Bearer header', () => {
-    expect(verifyMcpBearerAuthorization('Bearer testsecret', 'testsecret')).toBe(true);
+    expect(
+      verifyMcpBearerAuthorization('Bearer testsecret', 'testsecret')
+    ).toBe(true);
   });
 
   test('is case-insensitive on the scheme and tolerates extra whitespace', () => {
-    expect(verifyMcpBearerAuthorization('bearer  testsecret', 'testsecret')).toBe(true);
-    expect(verifyMcpBearerAuthorization(' BEARER\ttestsecret ', 'testsecret')).toBe(true);
+    expect(
+      verifyMcpBearerAuthorization('bearer  testsecret', 'testsecret')
+    ).toBe(true);
+    expect(
+      verifyMcpBearerAuthorization(' BEARER\ttestsecret ', 'testsecret')
+    ).toBe(true);
   });
 
   test('rejects a wrong token', () => {
-    expect(verifyMcpBearerAuthorization('Bearer wrong', 'testsecret')).toBe(false);
+    expect(verifyMcpBearerAuthorization('Bearer wrong', 'testsecret')).toBe(
+      false
+    );
   });
 
   test('rejects missing/malformed headers without throwing', () => {
@@ -401,19 +417,27 @@ describe('verifyMcpBearerAuthorization', () => {
     expect(verifyMcpBearerAuthorization('', 'testsecret')).toBe(false);
     expect(verifyMcpBearerAuthorization('Bearer', 'testsecret')).toBe(false);
     expect(verifyMcpBearerAuthorization('Bearer ', 'testsecret')).toBe(false);
-    expect(verifyMcpBearerAuthorization('Basic dXNlcjpwYXNz', 'testsecret')).toBe(false);
+    expect(
+      verifyMcpBearerAuthorization('Basic dXNlcjpwYXNz', 'testsecret')
+    ).toBe(false);
   });
 
   test('rejects when no token is configured', () => {
     expect(verifyMcpBearerAuthorization('Bearer testsecret', '')).toBe(false);
-    expect(verifyMcpBearerAuthorization('Bearer testsecret', undefined)).toBe(false);
+    expect(verifyMcpBearerAuthorization('Bearer testsecret', undefined)).toBe(
+      false
+    );
   });
 
   test('does not leak the token via prefix matching', () => {
     // A prefix of the real token must not authenticate.
-    expect(verifyMcpBearerAuthorization('Bearer testsecre', 'testsecret')).toBe(false);
+    expect(verifyMcpBearerAuthorization('Bearer testsecre', 'testsecret')).toBe(
+      false
+    );
     // A longer string sharing the prefix must not authenticate either.
-    expect(verifyMcpBearerAuthorization('Bearer testsecret-extra', 'testsecret')).toBe(false);
+    expect(
+      verifyMcpBearerAuthorization('Bearer testsecret-extra', 'testsecret')
+    ).toBe(false);
   });
 
   test('rejects the duplicate-header folding shape (first value wins in node:http)', () => {
@@ -426,10 +450,16 @@ describe('verifyMcpBearerAuthorization', () => {
     // documents the failure mode: whatever reaches the timing-safe compare
     // must match the token exactly, and a folded string never does.
     expect(
-      verifyMcpBearerAuthorization('Bearer testsecret, Bearer other', 'testsecret')
+      verifyMcpBearerAuthorization(
+        'Bearer testsecret, Bearer other',
+        'testsecret'
+      )
     ).toBe(false);
     expect(
-      verifyMcpBearerAuthorization('Bearer testsecret, Bearer testsecret', 'testsecret')
+      verifyMcpBearerAuthorization(
+        'Bearer testsecret, Bearer testsecret',
+        'testsecret'
+      )
     ).toBe(false);
   });
 });
@@ -445,9 +475,8 @@ describe('resolveMcpAuthTokenValue', () => {
 
   beforeAll(async () => {
     // server-auth.ts is dependency-free, so this import needs no mocks.
-    ({ resolveMcpAuthTokenValue } = await import(
-      '../../src/cli/mcp/server/server-auth.ts'
-    ));
+    ({ resolveMcpAuthTokenValue } =
+      await import('../../src/cli/mcp/server/server-auth.ts'));
   });
 
   beforeEach(() => {
@@ -465,12 +494,16 @@ describe('resolveMcpAuthTokenValue', () => {
 
   test('prefers the flag over the environment variable', () => {
     process.env[ENV_NAME] = 'env-token';
-    expect(resolveMcpAuthTokenValue('flag-token', process.env[ENV_NAME])).toBe('flag-token');
+    expect(resolveMcpAuthTokenValue('flag-token', process.env[ENV_NAME])).toBe(
+      'flag-token'
+    );
   });
 
   test('falls back to the environment variable', () => {
     process.env[ENV_NAME] = 'env-token';
-    expect(resolveMcpAuthTokenValue(undefined, process.env[ENV_NAME])).toBe('env-token');
+    expect(resolveMcpAuthTokenValue(undefined, process.env[ENV_NAME])).toBe(
+      'env-token'
+    );
   });
 
   test('treats an empty string as unset (flag and env)', () => {
@@ -527,11 +560,15 @@ describe('validateHttpRequestMetadata', () => {
   }
 
   test('passes a 2025-era initialize with no modern headers (the gateway incident)', () => {
-    expect(validateHttpRequestMetadata(fakeReq(), legacyInitialize())).toBeNull();
+    expect(
+      validateHttpRequestMetadata(fakeReq(), legacyInitialize())
+    ).toBeNull();
   });
 
   test('passes a 2025-era tools/list with no modern headers', () => {
-    expect(validateHttpRequestMetadata(fakeReq(), legacyToolsList())).toBeNull();
+    expect(
+      validateHttpRequestMetadata(fakeReq(), legacyToolsList())
+    ).toBeNull();
   });
 
   test('passes a legacy request carrying a pre-2026 MCP-Protocol-Version header', () => {
@@ -569,7 +606,9 @@ describe('validateHttpRequestMetadata', () => {
       legacyToolsList()
     );
     expect(err.error.code).toBe(-32602);
-    expect(err.error.message).toContain('missing the required per-request envelope key');
+    expect(err.error.message).toContain(
+      'missing the required per-request envelope key'
+    );
     expect(err.error.data).toEqual({ envelope: { missing: ['_meta'] } });
   });
 
@@ -614,13 +653,18 @@ describe('validateHttpRequestMetadata', () => {
     const body = modernRequest();
     // Missing protocol-version header
     expect(
-      validateHttpRequestMetadata(fakeReq({ 'mcp-method': 'tools/call', 'mcp-name': 'frodo_discover' }), body)
-        .error.code
+      validateHttpRequestMetadata(
+        fakeReq({ 'mcp-method': 'tools/call', 'mcp-name': 'frodo_discover' }),
+        body
+      ).error.code
     ).toBe(-32020);
     // Missing method header
     expect(
       validateHttpRequestMetadata(
-        fakeReq({ 'mcp-protocol-version': '2026-07-28', 'mcp-name': 'frodo_discover' }),
+        fakeReq({
+          'mcp-protocol-version': '2026-07-28',
+          'mcp-name': 'frodo_discover',
+        }),
         body
       ).error.code
     ).toBe(-32020);
@@ -638,7 +682,10 @@ describe('validateHttpRequestMetadata', () => {
     // Missing name header
     expect(
       validateHttpRequestMetadata(
-        fakeReq({ 'mcp-protocol-version': '2026-07-28', 'mcp-method': 'tools/call' }),
+        fakeReq({
+          'mcp-protocol-version': '2026-07-28',
+          'mcp-method': 'tools/call',
+        }),
         body
       ).error.code
     ).toBe(-32020);
@@ -699,7 +746,10 @@ describe('validateHttpRequestMetadata', () => {
     };
     expect(
       validateHttpRequestMetadata(
-        fakeReq({ 'mcp-protocol-version': '2026-07-28', 'mcp-method': 'tools/list' }),
+        fakeReq({
+          'mcp-protocol-version': '2026-07-28',
+          'mcp-method': 'tools/list',
+        }),
         body
       )
     ).toBeNull();
@@ -954,7 +1004,9 @@ describe('validateHttpRequestMetadata', () => {
       body
     );
     expect(err.error.code).toBe(-32602);
-    expect(err.error.message).toContain('Invalid input: expected string, received number');
+    expect(err.error.message).toContain(
+      'Invalid input: expected string, received number'
+    );
   });
 
   test.each([
@@ -1314,16 +1366,30 @@ describe('startHttpTransport', () => {
 
     const missing = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, body);
     expect(missing.status).toBe(401);
-    expect(missing.headers['www-authenticate']).toBe('Bearer error="invalid_token"');
+    expect(missing.headers['www-authenticate']).toBe(
+      'Bearer error="invalid_token"'
+    );
     const missingPayload = JSON.parse(missing.text);
     expect(missingPayload.error.code).toBe(-32001);
 
-    const wrong = await rawRequest(port, 'POST', '/mcp', { ...JSON_HEADERS, authorization: 'Bearer nope' }, body);
+    const wrong = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      { ...JSON_HEADERS, authorization: 'Bearer nope' },
+      body
+    );
     expect(wrong.status).toBe(401);
 
     // With the token, both gates pass and the SDK transport answers the
     // initialize itself.
-    const ok = await rawRequest(port, 'POST', '/mcp', { ...JSON_HEADERS, authorization: 'Bearer tok123' }, body);
+    const ok = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      { ...JSON_HEADERS, authorization: 'Bearer tok123' },
+      body
+    );
     expect(ok.status).toBe(200);
   }, 30000);
 
@@ -1331,7 +1397,13 @@ describe('startHttpTransport', () => {
     const port = await getFreePort();
     currentDone = startServer('127.0.0.1', port);
     await waitForListening('127.0.0.1', port);
-    const res = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, legacyInitializeBody());
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      legacyInitializeBody()
+    );
     expect(res.status).toBe(200);
     // The SDK answers an initialize with an SSE stream (the Accept header
     // includes text/event-stream), carrying one `data:` line: the result.
@@ -1344,7 +1416,13 @@ describe('startHttpTransport', () => {
     const port = await getFreePort();
     currentDone = startServer('127.0.0.1', port);
     await waitForListening('127.0.0.1', port);
-    const res = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, legacyInitializeBody('1999-01-01'));
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      legacyInitializeBody('1999-01-01')
+    );
     expect(res.status).toBe(400);
     expect(res.text).toContain('-32022');
   }, 30000);
@@ -1370,7 +1448,13 @@ describe('startHttpTransport', () => {
     currentDone = startServer('127.0.0.1', port);
     await waitForListening('127.0.0.1', port);
     const initialize = JSON.parse(legacyInitializeBody());
-    const res = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, JSON.stringify([initialize]));
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      JSON.stringify([initialize])
+    );
     expect(res.status).toBe(200);
     const dataLine = res.text.split('\n').find((l) => l.startsWith('data: '));
     const payload = JSON.parse(dataLine.replace(/^data: /, ''));
@@ -1469,7 +1553,11 @@ describe('startHttpTransport', () => {
     for (const signal of ['SIGHUP', 'SIGQUIT']) {
       const port = await getFreePort();
       printed.length = 0;
-      const done = startHttpTransport({ listTools: () => [] }, '127.0.0.1', port);
+      const done = startHttpTransport(
+        { listTools: () => [] },
+        '127.0.0.1',
+        port
+      );
       await waitForListening('127.0.0.1', port);
       // Emit with the signal name: a real OS signal delivers the name to
       // signal handlers, but a bare process.emit('SIGHUP') passes no
@@ -1482,7 +1570,9 @@ describe('startHttpTransport', () => {
       // handlers from every transport this suite started, so one emit
       // dispatches to all of them (each logs its own line).
       const signalLines = printed.filter(
-        (p) => p.type === 'info' && p.msg === `received ${signal}, shutting down MCP HTTP server`
+        (p) =>
+          p.type === 'info' &&
+          p.msg === `received ${signal}, shutting down MCP HTTP server`
       );
       expect(signalLines.length).toBeGreaterThanOrEqual(1);
       // Port released: a fresh bind on the same port must succeed.
@@ -1504,17 +1594,25 @@ describe('startHttpTransport', () => {
     try {
       const exitCodeBefore = process.exitCode;
       printed.length = 0;
-      const done = startHttpTransport({ listTools: () => [] }, '127.0.0.1', port);
+      const done = startHttpTransport(
+        { listTools: () => [] },
+        '127.0.0.1',
+        port
+      );
       await expect(done).resolves.toBeUndefined();
       expect(process.exitCode).toBe(1);
       const errorLines = printed.filter((p) => p.type === 'error');
       expect(errorLines).toHaveLength(1);
-      expect(errorLines[0].msg).toContain(`port ${port} on 127.0.0.1 is already in use`);
+      expect(errorLines[0].msg).toContain(
+        `port ${port} on 127.0.0.1 is already in use`
+      );
       expect(errorLines[0].msg).toContain('lsof');
       expect(errorLines[0].msg).toContain('--port');
       // A plain TCP squatter (no /health endpoint) does NOT claim an MCP
       // server is answering — the health probe must gate that variant.
-      expect(errorLines[0].msg).not.toContain('another MCP server is answering');
+      expect(errorLines[0].msg).not.toContain(
+        'another MCP server is answering'
+      );
       process.exitCode = exitCodeBefore;
     } finally {
       incumbent.close();
@@ -1538,7 +1636,11 @@ describe('startHttpTransport', () => {
     try {
       const exitCodeBefore = process.exitCode;
       printed.length = 0;
-      const done = startHttpTransport({ listTools: () => [] }, '127.0.0.1', port);
+      const done = startHttpTransport(
+        { listTools: () => [] },
+        '127.0.0.1',
+        port
+      );
       await expect(done).resolves.toBeUndefined();
       expect(process.exitCode).toBe(1);
       const errorLines = printed.filter((p) => p.type === 'error');
@@ -1594,11 +1696,13 @@ describe('startHttpTransport', () => {
       // beats accumulate.
       currentDone = done;
       await shutdownTransport();
-      const beatsAtShutdown = printed.filter((p) => p.msg.includes('still listening')).length;
+      const beatsAtShutdown = printed.filter((p) =>
+        p.msg.includes('still listening')
+      ).length;
       await sleep(120);
-      expect(printed.filter((p) => p.msg.includes('still listening'))).toHaveLength(
-        beatsAtShutdown
-      );
+      expect(
+        printed.filter((p) => p.msg.includes('still listening'))
+      ).toHaveLength(beatsAtShutdown);
     } catch (err) {
       // Make sure a failure doesn't strand the listener.
       currentDone = done;
@@ -1606,7 +1710,6 @@ describe('startHttpTransport', () => {
       throw err;
     }
   }, 30000);
-
 
   test('a POST to /mcp with a query string reaches the endpoint (query-param routing)', async () => {
     const port = await getFreePort();
@@ -1681,7 +1784,16 @@ describe('startHttpTransport', () => {
         '/mcp',
         JSON_HEADERS,
         JSON.stringify([
-          { jsonrpc: '2.0', id: 90, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {} } },
+          {
+            jsonrpc: '2.0',
+            id: 90,
+            method: 'initialize',
+            params: {
+              protocolVersion: '2025-06-18',
+              capabilities: {},
+              clientInfo: {},
+            },
+          },
           element,
         ])
       );
@@ -1778,17 +1890,23 @@ describe('startHttpTransport', () => {
       'Missing required MCP-Protocol-Version header.'
     );
     const missingMethod = validateHttpRequestMetadata(
-      fakeReq({ 'mcp-protocol-version': '2026-07-28', 'mcp-name': 'frodo_discover' }),
+      fakeReq({
+        'mcp-protocol-version': '2026-07-28',
+        'mcp-name': 'frodo_discover',
+      }),
       pvHeader
     );
-    expect(missingMethod.error.message).toBe('Missing required Mcp-Method header.');
+    expect(missingMethod.error.message).toBe(
+      'Missing required Mcp-Method header.'
+    );
     const missingName = validateHttpRequestMetadata(
-      fakeReq({ 'mcp-protocol-version': '2026-07-28', 'mcp-method': 'tools/call' }),
+      fakeReq({
+        'mcp-protocol-version': '2026-07-28',
+        'mcp-method': 'tools/call',
+      }),
       pvHeader
     );
-    expect(missingName.error.message).toBe(
-      'Missing required Mcp-Name header.'
-    );
+    expect(missingName.error.message).toBe('Missing required Mcp-Name header.');
   });
 
   test('gate decisions are logged at debug level (unauthorized, host, acceptance)', async () => {
@@ -1837,17 +1955,23 @@ describe('startHttpTransport', () => {
       { ...JSON_HEADERS, authorization: 'Bearer tok123' },
       body
     );
-    expect(debugLines().some((p) => p.msg.includes('accepted from'))).toBe(true);
-    expect(
-      debugLines().some((p) => p.msg.includes('POST /mcp from'))
-    ).toBe(true);
+    expect(debugLines().some((p) => p.msg.includes('accepted from'))).toBe(
+      true
+    );
+    expect(debugLines().some((p) => p.msg.includes('POST /mcp from'))).toBe(
+      true
+    );
 
     // Host rejection: a bad Host header is named by the gate line.
     const badHost = await rawRequest(
       port,
       'POST',
       '/mcp',
-      { ...JSON_HEADERS, authorization: 'Bearer tok123', host: 'evil.example.com' },
+      {
+        ...JSON_HEADERS,
+        authorization: 'Bearer tok123',
+        host: 'evil.example.com',
+      },
       body
     );
     expect(badHost.status).toBe(403);
@@ -1886,7 +2010,13 @@ describe('startHttpTransport', () => {
     printed.length = 0;
     currentDone = startServer('127.0.0.1', port, { authToken: 'tok123' });
     await waitForListening('127.0.0.1', port);
-    await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, legacyInitializeBody());
+    await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      legacyInitializeBody()
+    );
     const nonDebugGateLines = printed.filter(
       (p) =>
         (p.msg.includes('rejected:') || p.msg.includes('accepted from')) &&
@@ -1942,7 +2072,8 @@ describe('startHttpTransport', () => {
     expect(body.redirect_uris).toEqual(['http://127.0.0.1:54321/callback']);
 
     const dcrLine = printed.find(
-      (p) => p.type === 'info' && p.msg.includes('served pre-registered client_id')
+      (p) =>
+        p.type === 'info' && p.msg.includes('served pre-registered client_id')
     );
     expect(dcrLine).toBeDefined();
     expect(dcrLine.msg).toContain('frodo-mcp-preregistered');
@@ -1997,7 +2128,9 @@ describe('startHttpTransport', () => {
     const port = await getFreePort();
     const options = minimalOauthResourceServer(port, undefined);
     delete options.registeredClientId;
-    currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+    currentDone = startServer('127.0.0.1', port, {
+      oauthResourceServer: options,
+    });
     await waitForListening('127.0.0.1', port);
 
     const res = await rawRequest(
@@ -2291,7 +2424,7 @@ describe('startHttpTransport', () => {
       });
     });
 
-    test('/oauth2/authorize redirects a client_id mismatch back to the client\'s own redirect_uri with error params (RFC 6749 §4.1.2.1), when one was given', async () => {
+    test("/oauth2/authorize redirects a client_id mismatch back to the client's own redirect_uri with error params (RFC 6749 §4.1.2.1), when one was given", async () => {
       const port = await getFreePort();
       currentDone = startServer('127.0.0.1', port, {
         oauthResourceServer: minimalOauthResourceServer(
@@ -2338,9 +2471,14 @@ describe('startHttpTransport', () => {
       });
 
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       try {
@@ -2376,14 +2514,21 @@ describe('startHttpTransport', () => {
         req.on('end', () => {
           receivedBody = Buffer.concat(chunks).toString('utf8');
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+          res.end(
+            JSON.stringify({ access_token: 'tok', token_type: 'Bearer' })
+          );
         });
       });
 
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       try {
@@ -2417,15 +2562,22 @@ describe('startHttpTransport', () => {
         req.on('end', () => {
           receivedBody = Buffer.concat(chunks).toString('utf8');
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+          res.end(
+            JSON.stringify({ access_token: 'tok', token_type: 'Bearer' })
+          );
         });
       });
 
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
       options.oauthForwardResource = true;
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       try {
@@ -2458,15 +2610,22 @@ describe('startHttpTransport', () => {
         req.on('end', () => {
           receivedBody = Buffer.concat(chunks).toString('utf8');
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+          res.end(
+            JSON.stringify({ access_token: 'tok', token_type: 'Bearer' })
+          );
         });
       });
 
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
       options.oauthForwardResource = 'urn:ping:atm:mcp-prod';
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       try {
@@ -2496,15 +2655,22 @@ describe('startHttpTransport', () => {
         req.on('end', () => {
           receivedBody = Buffer.concat(chunks).toString('utf8');
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+          res.end(
+            JSON.stringify({ access_token: 'tok', token_type: 'Bearer' })
+          );
         });
       });
 
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
       options.oauthForwardResource = true;
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       try {
@@ -2537,15 +2703,22 @@ describe('startHttpTransport', () => {
           receivedBody = Buffer.concat(chunks).toString('utf8');
           receivedContentType = req.headers['content-type'];
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ access_token: 'tok', token_type: 'Bearer' }));
+          res.end(
+            JSON.stringify({ access_token: 'tok', token_type: 'Bearer' })
+          );
         });
       });
 
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
       options.oauthForwardResource = 'urn:ping:atm:mcp-prod';
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       try {
@@ -2579,9 +2752,14 @@ describe('startHttpTransport', () => {
       });
 
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       try {
@@ -2623,9 +2801,14 @@ describe('startHttpTransport', () => {
       });
 
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       options.oauthMetadata.token_endpoint = `http://127.0.0.1:${upstream.port}/token`;
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       try {
@@ -2667,9 +2850,14 @@ describe('startHttpTransport', () => {
       });
 
       const okPort = await getFreePort();
-      const okOptions = minimalOauthResourceServer(okPort, 'frodo-mcp-preregistered');
+      const okOptions = minimalOauthResourceServer(
+        okPort,
+        'frodo-mcp-preregistered'
+      );
       okOptions.oauthMetadata.token_endpoint = `http://127.0.0.1:${okUpstream.port}/token`;
-      currentDone = startServer('127.0.0.1', okPort, { oauthResourceServer: okOptions });
+      currentDone = startServer('127.0.0.1', okPort, {
+        oauthResourceServer: okOptions,
+      });
       await waitForListening('127.0.0.1', okPort);
 
       try {
@@ -2693,10 +2881,15 @@ describe('startHttpTransport', () => {
 
     test('/oauth2/token returns 502 when the upstream is unreachable', async () => {
       const port = await getFreePort();
-      const options = minimalOauthResourceServer(port, 'frodo-mcp-preregistered');
+      const options = minimalOauthResourceServer(
+        port,
+        'frodo-mcp-preregistered'
+      );
       // Nothing listens here -- guaranteed unreachable.
       options.oauthMetadata.token_endpoint = 'http://127.0.0.1:1/token';
-      currentDone = startServer('127.0.0.1', port, { oauthResourceServer: options });
+      currentDone = startServer('127.0.0.1', port, {
+        oauthResourceServer: options,
+      });
       await waitForListening('127.0.0.1', port);
 
       const res = await rawRequest(
@@ -2732,46 +2925,66 @@ describe('launcher signal forwarding', () => {
   const launchPath = path.resolve('dist/launch.cjs');
   const hasDist = fs.existsSync(launchPath);
 
-  const cond = (name, fn) => (hasDist ? test(name, fn, 60000) : test.skip(name, fn));
+  const cond = (name, fn) =>
+    hasDist ? test(name, fn, 60000) : test.skip(name, fn);
 
-  cond('SIGHUP to the wrapper reaches the child, which exits and releases the port', async () => {
-    const port = await getFreePort();
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-launch-'));
-    const profilesPath = path.join(tmpDir, 'Connections.json');
-    fs.writeFileSync(profilesPath, JSON.stringify({}));
-    const child = spawn(
-      process.execPath,
-      [launchPath, 'mcp', 'server', 'start', '--transport', 'http', '--port', String(port)],
-      {
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: { ...process.env, FRODO_TEST: '1', NO_COLOR: '1', FRODO_CONNECTION_PROFILES_PATH: profilesPath },
-      }
-    );
-    try {
-      await waitForListening('127.0.0.1', port, 30000);
-      // Signal the WRAPPER, not the child: the forwarding under test. The
-      // child exits on the forwarded SIGHUP (its graceful-shutdown handler
-      // resolves the transport promise, then the process unwinds) — the
-      // wrapper's exit reflects the child's.
-      process.kill(child.pid, 'SIGHUP');
-      const [code, signal] = await new Promise((resolve) =>
-        child.once('exit', (c, s) => resolve([c, s]))
+  cond(
+    'SIGHUP to the wrapper reaches the child, which exits and releases the port',
+    async () => {
+      const port = await getFreePort();
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-launch-'));
+      const profilesPath = path.join(tmpDir, 'Connections.json');
+      fs.writeFileSync(profilesPath, JSON.stringify({}));
+      const child = spawn(
+        process.execPath,
+        [
+          launchPath,
+          'mcp',
+          'server',
+          'start',
+          '--transport',
+          'http',
+          '--port',
+          String(port),
+        ],
+        {
+          stdio: ['ignore', 'pipe', 'pipe'],
+          env: {
+            ...process.env,
+            FRODO_TEST: '1',
+            NO_COLOR: '1',
+            FRODO_CONNECTION_PROFILES_PATH: profilesPath,
+          },
+        }
       );
-      expect(code ?? signal).not.toBeNull();
-      // Port released: a fresh bind on the same port must succeed.
-      const rebind = await new Promise((resolve, reject) => {
-        const server = http.createServer();
-        server.on('error', reject);
-        server.listen(port, '127.0.0.1', () => server.close(() => resolve(true)));
-      });
-      expect(rebind).toBe(true);
-    } finally {
-      if (child.exitCode === null && child.signalCode === null) {
-        child.kill('SIGKILL');
+      try {
+        await waitForListening('127.0.0.1', port, 30000);
+        // Signal the WRAPPER, not the child: the forwarding under test. The
+        // child exits on the forwarded SIGHUP (its graceful-shutdown handler
+        // resolves the transport promise, then the process unwinds) — the
+        // wrapper's exit reflects the child's.
+        process.kill(child.pid, 'SIGHUP');
+        const [code, signal] = await new Promise((resolve) =>
+          child.once('exit', (c, s) => resolve([c, s]))
+        );
+        expect(code ?? signal).not.toBeNull();
+        // Port released: a fresh bind on the same port must succeed.
+        const rebind = await new Promise((resolve, reject) => {
+          const server = http.createServer();
+          server.on('error', reject);
+          server.listen(port, '127.0.0.1', () =>
+            server.close(() => resolve(true))
+          );
+        });
+        expect(rebind).toBe(true);
+      } finally {
+        if (child.exitCode === null && child.signalCode === null) {
+          child.kill('SIGKILL');
+        }
+        fs.rmSync(tmpDir, { recursive: true, force: true });
       }
-      fs.rmSync(tmpDir, { recursive: true, force: true });
     }
-  });
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -2793,66 +3006,83 @@ describe('uncaughtException crash path (spawned child)', () => {
   const launchPath = path.resolve('dist/launch.cjs');
   const hasDist = fs.existsSync(launchPath);
 
-  const cond = (name, fn) => (hasDist ? test(name, fn, 60000) : test.skip(name, fn));
+  const cond = (name, fn) =>
+    hasDist ? test(name, fn, 60000) : test.skip(name, fn);
 
-  cond('an uncaught exception logs one crash line, exits 1, and releases the port', async () => {
-    const port = await getFreePort();
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-crash-'));
-    const profilesPath = path.join(tmpDir, 'Connections.json');
-    fs.writeFileSync(profilesPath, JSON.stringify({}));
-    const child = spawn(
-      process.execPath,
-      [launchPath, 'mcp', 'server', 'start', '--transport', 'http', '--port', String(port)],
-      {
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: {
-          ...process.env,
-          FRODO_TEST: '1',
-          NO_COLOR: '1',
-          FRODO_CONNECTION_PROFILES_PATH: profilesPath,
-          FRODO_MCP_CRASH_TEST: '1',
-        },
-      }
-    );
-    let stderr = '';
-    child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString('utf8');
-    });
-    try {
-      const [code, signal] = await new Promise((resolve) => {
-        const timer = setTimeout(() => resolve([null, 'timeout']), 45000);
-        child.once('exit', (c, s) => {
-          clearTimeout(timer);
-          resolve([c, s]);
+  cond(
+    'an uncaught exception logs one crash line, exits 1, and releases the port',
+    async () => {
+      const port = await getFreePort();
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-crash-'));
+      const profilesPath = path.join(tmpDir, 'Connections.json');
+      fs.writeFileSync(profilesPath, JSON.stringify({}));
+      const child = spawn(
+        process.execPath,
+        [
+          launchPath,
+          'mcp',
+          'server',
+          'start',
+          '--transport',
+          'http',
+          '--port',
+          String(port),
+        ],
+        {
+          stdio: ['ignore', 'pipe', 'pipe'],
+          env: {
+            ...process.env,
+            FRODO_TEST: '1',
+            NO_COLOR: '1',
+            FRODO_CONNECTION_PROFILES_PATH: profilesPath,
+            FRODO_MCP_CRASH_TEST: '1',
+          },
+        }
+      );
+      let stderr = '';
+      child.stderr.on('data', (chunk) => {
+        stderr += chunk.toString('utf8');
+      });
+      try {
+        const [code, signal] = await new Promise((resolve) => {
+          const timer = setTimeout(() => resolve([null, 'timeout']), 45000);
+          child.once('exit', (c, s) => {
+            clearTimeout(timer);
+            resolve([c, s]);
+          });
         });
-      });
-      // The crash handler's deliberate exit(1): the process must not be
-      // killed by an unhandled signal or left running to the timeout.
-      expect([code, signal]).not.toEqual([null, 'timeout']);
-      expect(code).toBe(1);
-      // One timestamped crash line, naming the probe error.
-      const crashLines = stderr
-        .split('\n')
-        .filter((line) => line.includes('uncaughtException: Error:'));
-      expect(crashLines.length).toBe(1);
-      expect(crashLines[0]).toMatch(/\d{4}-\d{2}-\d{2}T/);
-      expect(crashLines[0]).toContain('FRODO_MCP_CRASH_TEST uncaught exception probe');
-      // Port released by the best-effort beforeExit close: a fresh bind on
-      // the same port must succeed (a supervisor restart must not hit
-      // EADDRINUSE against our own corpse).
-      const rebind = await new Promise((resolve, reject) => {
-        const server = http.createServer();
-        server.on('error', reject);
-        server.listen(port, '127.0.0.1', () => server.close(() => resolve(true)));
-      });
-      expect(rebind).toBe(true);
-    } finally {
-      if (child.exitCode === null && child.signalCode === null) {
-        child.kill('SIGKILL');
+        // The crash handler's deliberate exit(1): the process must not be
+        // killed by an unhandled signal or left running to the timeout.
+        expect([code, signal]).not.toEqual([null, 'timeout']);
+        expect(code).toBe(1);
+        // One timestamped crash line, naming the probe error.
+        const crashLines = stderr
+          .split('\n')
+          .filter((line) => line.includes('uncaughtException: Error:'));
+        expect(crashLines.length).toBe(1);
+        expect(crashLines[0]).toMatch(/\d{4}-\d{2}-\d{2}T/);
+        expect(crashLines[0]).toContain(
+          'FRODO_MCP_CRASH_TEST uncaught exception probe'
+        );
+        // Port released by the best-effort beforeExit close: a fresh bind on
+        // the same port must succeed (a supervisor restart must not hit
+        // EADDRINUSE against our own corpse).
+        const rebind = await new Promise((resolve, reject) => {
+          const server = http.createServer();
+          server.on('error', reject);
+          server.listen(port, '127.0.0.1', () =>
+            server.close(() => resolve(true))
+          );
+        });
+        expect(rebind).toBe(true);
+      } finally {
+        if (child.exitCode === null && child.signalCode === null) {
+          child.kill('SIGKILL');
+        }
+        fs.rmSync(tmpDir, { recursive: true, force: true });
       }
-      fs.rmSync(tmpDir, { recursive: true, force: true });
     }
-  });
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -2872,7 +3102,8 @@ describe('mcp server stop (spawned dist)', () => {
   const launchPath = path.resolve('dist/launch.cjs');
   const hasDist = fs.existsSync(launchPath);
 
-  const cond = (name, fn) => (hasDist ? test(name, fn, 60000) : test.skip(name, fn));
+  const cond = (name, fn) =>
+    hasDist ? test(name, fn, 60000) : test.skip(name, fn);
 
   /**
    * Spawns `dist/launch.cjs mcp server start --transport http` on `port`
@@ -2888,9 +3119,13 @@ describe('mcp server stop (spawned dist)', () => {
       process.execPath,
       [
         launchPath,
-        'mcp', 'server', 'start',
-        '--transport', 'http',
-        '--port', String(port),
+        'mcp',
+        'server',
+        'start',
+        '--transport',
+        'http',
+        '--port',
+        String(port),
         ...extraArgs,
       ],
       {
@@ -2915,7 +3150,13 @@ describe('mcp server stop (spawned dist)', () => {
     if (port > 0) {
       await waitForListening('127.0.0.1', port, 30000);
     }
-    return { child, stdout, stderr, getStdout: () => stdout, getStderr: () => stderr };
+    return {
+      child,
+      stdout,
+      stderr,
+      getStdout: () => stdout,
+      getStderr: () => stderr,
+    };
   }
 
   /** The child's combined output so far (printMessage writes to stderr). */
@@ -2931,7 +3172,12 @@ describe('mcp server stop (spawned dist)', () => {
         [launchPath, 'mcp', 'server', 'stop', '--port', String(port)],
         {
           stdio: ['ignore', 'pipe', 'pipe'],
-          env: { ...process.env, FRODO_TEST: '1', NO_COLOR: '1', FRODO_CONFIG_PATH: configDir },
+          env: {
+            ...process.env,
+            FRODO_TEST: '1',
+            NO_COLOR: '1',
+            FRODO_CONFIG_PATH: configDir,
+          },
         }
       );
       let out = '';
@@ -2984,55 +3230,58 @@ describe('mcp server stop (spawned dist)', () => {
     }
   }
 
-  cond('stop happy path: exit 0, lockfile gone, port rebindable, process gone', async () => {
-    const port = await getFreePort();
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-stop-'));
-    let server;
-    try {
-      const spawned = await spawnServer(port, tmpDir);
-      server = spawned.child;
-      const lockPath = path.join(tmpDir, `mcp-http-${port}.pid`);
-      // The server writes the lockfile inside the listen callback, AFTER the
-      // port accepts connections, so the first successful connect (what
-      // waitForListening resolves on) can beat the write by a hair. Wait
-      // for the lockfile instead of asserting it immediately.
-      await (async () => {
-        const deadline = Date.now() + 5000;
-        while (!fs.existsSync(lockPath)) {
-          if (Date.now() > deadline) {
-            throw new Error(`lockfile never appeared at ${lockPath}`);
+  cond(
+    'stop happy path: exit 0, lockfile gone, port rebindable, process gone',
+    async () => {
+      const port = await getFreePort();
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-stop-'));
+      let server;
+      try {
+        const spawned = await spawnServer(port, tmpDir);
+        server = spawned.child;
+        const lockPath = path.join(tmpDir, `mcp-http-${port}.pid`);
+        // The server writes the lockfile inside the listen callback, AFTER the
+        // port accepts connections, so the first successful connect (what
+        // waitForListening resolves on) can beat the write by a hair. Wait
+        // for the lockfile instead of asserting it immediately.
+        await (async () => {
+          const deadline = Date.now() + 5000;
+          while (!fs.existsSync(lockPath)) {
+            if (Date.now() > deadline) {
+              throw new Error(`lockfile never appeared at ${lockPath}`);
+            }
+            await new Promise((resolve) => setTimeout(resolve, 25));
           }
-          await new Promise((resolve) => setTimeout(resolve, 25));
-        }
-      })();
-      expect(fs.existsSync(lockPath)).toBe(true);
+        })();
+        expect(fs.existsSync(lockPath)).toBe(true);
 
-      const stop = await runStop(port, tmpDir);
-      expect(stop.code).toBe(0);
-      expect(stop.output).toContain(`port ${port} released`);
-      // Lockfile gone after the confirmed death.
-      expect(fs.existsSync(lockPath)).toBe(false);
-      // Port actually released: a fresh bind must succeed.
-      await waitForPortClosed(port);
-      const rebind = await new Promise((resolve, reject) => {
-        const s = http.createServer();
-        s.on('error', reject);
-        s.listen(port, '127.0.0.1', () => s.close(() => resolve(true)));
-      });
-      expect(rebind).toBe(true);
-      // The signaled process exits (its graceful shutdown runs).
-      await new Promise((resolve) => {
-        if (server.exitCode !== null || server.signalCode !== null) {
-          resolve();
-        } else {
-          server.once('exit', resolve);
-        }
-      });
-    } finally {
-      killChild(server);
-      fs.rmSync(tmpDir, { recursive: true, force: true });
+        const stop = await runStop(port, tmpDir);
+        expect(stop.code).toBe(0);
+        expect(stop.output).toContain(`port ${port} released`);
+        // Lockfile gone after the confirmed death.
+        expect(fs.existsSync(lockPath)).toBe(false);
+        // Port actually released: a fresh bind must succeed.
+        await waitForPortClosed(port);
+        const rebind = await new Promise((resolve, reject) => {
+          const s = http.createServer();
+          s.on('error', reject);
+          s.listen(port, '127.0.0.1', () => s.close(() => resolve(true)));
+        });
+        expect(rebind).toBe(true);
+        // The signaled process exits (its graceful shutdown runs).
+        await new Promise((resolve) => {
+          if (server.exitCode !== null || server.signalCode !== null) {
+            resolve();
+          } else {
+            server.once('exit', resolve);
+          }
+        });
+      } finally {
+        killChild(server);
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      }
     }
-  });
+  );
 
   cond('stop with no lockfile: exit 1 with the helpful message', async () => {
     const port = await getFreePort();
@@ -3040,101 +3289,121 @@ describe('mcp server stop (spawned dist)', () => {
     try {
       const stop = await runStop(port, tmpDir);
       expect(stop.code).toBe(1);
-      expect(stop.output).toContain(`No MCP HTTP server lockfile for port ${port}`);
+      expect(stop.output).toContain(
+        `No MCP HTTP server lockfile for port ${port}`
+      );
       expect(stop.output).toContain('was it started with --transport http?');
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  cond('stop on a stale lockfile (dead PID): exit 0, lockfile removed, stale message', async () => {
-    const port = await getFreePort();
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-stop-stale-'));
-    try {
-      const lockPath = path.join(tmpDir, `mcp-http-${port}.pid`);
-      // A dead writer: an implausible PID the liveness check cannot find.
-      fs.writeFileSync(
-        lockPath,
-        JSON.stringify({
-          pid: 2147483000,
-          port,
-          bindHost: '127.0.0.1',
-          startedAt: '2026-01-01T00:00:00.000Z',
-        })
-      );
-      const stop = await runStop(port, tmpDir);
-      expect(stop.code).toBe(0);
-      expect(stop.output).toContain('Stale lockfile');
-      expect(stop.output).toContain('2147483000');
-      expect(stop.output).toContain('Lockfile removed');
-      expect(fs.existsSync(lockPath)).toBe(false);
-    } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true });
-    }
-  });
-
-  cond('--port auto: resolved port printed, /health answers, stop on the resolved port exits 0', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-stop-auto-'));
-    let server;
-    let resolvedPort;
-    try {
-      const spawned = await spawnServer('auto', tmpDir);
-      server = spawned.child;
-      // The listening line (printMessage -> stderr) carries the OS-resolved
-      // port; the lockfile is keyed on it, which is how stop finds the
-      // server.
-      const listening = await new Promise((resolve, reject) => {
-        const started = Date.now();
-        const poll = () => {
-          const match = allOutput(spawned).match(/listening on http:\/\/127\.0\.0\.1:(\d+)\/mcp/);
-          if (match) {
-            resolve(Number(match[1]));
-            return;
-          }
-          if (Date.now() > started + 30000) {
-            reject(new Error(`listening line never appeared; output: ${allOutput(spawned)}`));
-            return;
-          }
-          setTimeout(poll, 50);
-        };
-        poll();
-      });
-      resolvedPort = listening;
-      expect(resolvedPort).toBeGreaterThan(0);
-      expect(resolvedPort).not.toBe(6277);
-      // Lockfile keyed on the RESOLVED port (not on 'auto' / 0), and
-      // connectable on the printed port.
-      expect(
-        fs.existsSync(path.join(tmpDir, `mcp-http-${resolvedPort}.pid`))
-      ).toBe(true);
-      const health = await new Promise((resolve, reject) => {
-        const req = httpRequest(
-          { host: '127.0.0.1', port: resolvedPort, method: 'GET', path: '/health', timeout: 5000 },
-          (res) => {
-            res.resume();
-            resolve(res.statusCode);
-          }
+  cond(
+    'stop on a stale lockfile (dead PID): exit 0, lockfile removed, stale message',
+    async () => {
+      const port = await getFreePort();
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-stop-stale-'));
+      try {
+        const lockPath = path.join(tmpDir, `mcp-http-${port}.pid`);
+        // A dead writer: an implausible PID the liveness check cannot find.
+        fs.writeFileSync(
+          lockPath,
+          JSON.stringify({
+            pid: 2147483000,
+            port,
+            bindHost: '127.0.0.1',
+            startedAt: '2026-01-01T00:00:00.000Z',
+          })
         );
-        req.on('timeout', () => {
-          req.destroy();
-          reject(new Error('health probe timed out'));
-        });
-        req.on('error', reject);
-        req.end();
-      });
-      expect(health).toBe(200);
-
-      const stop = await runStop(resolvedPort, tmpDir);
-      expect(stop.code).toBe(0);
-      expect(stop.output).toContain(`port ${resolvedPort} released`);
-      expect(
-        fs.existsSync(path.join(tmpDir, `mcp-http-${resolvedPort}.pid`))
-      ).toBe(false);
-    } finally {
-      killChild(server);
-      fs.rmSync(tmpDir, { recursive: true, force: true });
+        const stop = await runStop(port, tmpDir);
+        expect(stop.code).toBe(0);
+        expect(stop.output).toContain('Stale lockfile');
+        expect(stop.output).toContain('2147483000');
+        expect(stop.output).toContain('Lockfile removed');
+        expect(fs.existsSync(lockPath)).toBe(false);
+      } finally {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      }
     }
-  });
+  );
+
+  cond(
+    '--port auto: resolved port printed, /health answers, stop on the resolved port exits 0',
+    async () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-stop-auto-'));
+      let server;
+      let resolvedPort;
+      try {
+        const spawned = await spawnServer('auto', tmpDir);
+        server = spawned.child;
+        // The listening line (printMessage -> stderr) carries the OS-resolved
+        // port; the lockfile is keyed on it, which is how stop finds the
+        // server.
+        const listening = await new Promise((resolve, reject) => {
+          const started = Date.now();
+          const poll = () => {
+            const match = allOutput(spawned).match(
+              /listening on http:\/\/127\.0\.0\.1:(\d+)\/mcp/
+            );
+            if (match) {
+              resolve(Number(match[1]));
+              return;
+            }
+            if (Date.now() > started + 30000) {
+              reject(
+                new Error(
+                  `listening line never appeared; output: ${allOutput(spawned)}`
+                )
+              );
+              return;
+            }
+            setTimeout(poll, 50);
+          };
+          poll();
+        });
+        resolvedPort = listening;
+        expect(resolvedPort).toBeGreaterThan(0);
+        expect(resolvedPort).not.toBe(6277);
+        // Lockfile keyed on the RESOLVED port (not on 'auto' / 0), and
+        // connectable on the printed port.
+        expect(
+          fs.existsSync(path.join(tmpDir, `mcp-http-${resolvedPort}.pid`))
+        ).toBe(true);
+        const health = await new Promise((resolve, reject) => {
+          const req = httpRequest(
+            {
+              host: '127.0.0.1',
+              port: resolvedPort,
+              method: 'GET',
+              path: '/health',
+              timeout: 5000,
+            },
+            (res) => {
+              res.resume();
+              resolve(res.statusCode);
+            }
+          );
+          req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('health probe timed out'));
+          });
+          req.on('error', reject);
+          req.end();
+        });
+        expect(health).toBe(200);
+
+        const stop = await runStop(resolvedPort, tmpDir);
+        expect(stop.code).toBe(0);
+        expect(stop.output).toContain(`port ${resolvedPort} released`);
+        expect(
+          fs.existsSync(path.join(tmpDir, `mcp-http-${resolvedPort}.pid`))
+        ).toBe(false);
+      } finally {
+        killChild(server);
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      }
+    }
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -3201,10 +3470,16 @@ describe('transport limits (body size + concurrency)', () => {
     // actually sent (smaller than a giant allocation; the pre-check fires on
     // the header, so even a partial send is enough).
     const overLimit = 1024 * 1024 + 1;
-    const res = await rawRequest(port, 'POST', '/mcp', {
-      ...JSON_HEADERS,
-      'content-length': String(overLimit),
-    }, 'x'.repeat(64));
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      {
+        ...JSON_HEADERS,
+        'content-length': String(overLimit),
+      },
+      'x'.repeat(64)
+    );
     expect(res.status).toBe(413);
     const payload = JSON.parse(res.text);
     expect(payload.error.code).toBe(-32000);
@@ -3264,7 +3539,10 @@ describe('transport limits (body size + concurrency)', () => {
       let text = '';
       socket.on('data', (chunk) => {
         text += chunk.toString('utf8');
-        if (text.includes('\r\n\r\n') && (text.includes('413') || text.length > 200)) {
+        if (
+          text.includes('\r\n\r\n') &&
+          (text.includes('413') || text.length > 200)
+        ) {
           socket.end();
           resolve(text);
         }
@@ -3291,10 +3569,18 @@ describe('transport limits (body size + concurrency)', () => {
     const port = await getFreePort();
     startServerWith(port, {});
     await waitForListening('127.0.0.1', port);
-    const res = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, legacyInitializeBody());
+    const res = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      legacyInitializeBody()
+    );
     expect(res.status).toBe(200);
     const dataLine = res.text.split('\n').find((l) => l.startsWith('data: '));
-    expect(JSON.parse(dataLine.replace(/^data: /, '')).result.serverInfo.name).toBe('frodo-mcp');
+    expect(
+      JSON.parse(dataLine.replace(/^data: /, '')).result.serverInfo.name
+    ).toBe('frodo-mcp');
   }, 30000);
 
   test('a configured maxBodySizeBytes overrides the default both ways', async () => {
@@ -3302,7 +3588,13 @@ describe('transport limits (body size + concurrency)', () => {
     const smallPort = await getFreePort();
     startServerWith(smallPort, { maxBodySizeBytes: 16 });
     await waitForListening('127.0.0.1', smallPort);
-    const rejected = await rawRequest(smallPort, 'POST', '/mcp', JSON_HEADERS, legacyInitializeBody());
+    const rejected = await rawRequest(
+      smallPort,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      legacyInitializeBody()
+    );
     expect(rejected.status).toBe(413);
     expect(JSON.parse(rejected.text).error.data.limitBytes).toBe(16);
     await shutdownTransport();
@@ -3335,7 +3627,13 @@ describe('transport limits (body size + concurrency)', () => {
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     // While that slot is held, the next request must bounce 429.
-    const second = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, legacyInitializeBody());
+    const second = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      legacyInitializeBody()
+    );
     expect(second.status).toBe(429);
     expect(second.headers['retry-after']).toBe('1');
     const payload = JSON.parse(second.text);
@@ -3348,7 +3646,13 @@ describe('transport limits (body size + concurrency)', () => {
     // traffic.
     stalled.end('a'.repeat(100));
     await new Promise((resolve) => setTimeout(resolve, 300));
-    const third = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, legacyInitializeBody());
+    const third = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      legacyInitializeBody()
+    );
     expect(third.status).toBe(200);
     stalled.destroy();
   }, 30000);
@@ -3380,7 +3684,13 @@ describe('transport limits (body size + concurrency)', () => {
     // slot must be released by the time the next request runs.
     const batch = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, '[]');
     expect(batch.status).toBe(400);
-    const next = await rawRequest(port, 'POST', '/mcp', JSON_HEADERS, legacyInitializeBody());
+    const next = await rawRequest(
+      port,
+      'POST',
+      '/mcp',
+      JSON_HEADERS,
+      legacyInitializeBody()
+    );
     expect(next.status).toBe(200);
   }, 30000);
 });
@@ -3400,9 +3710,11 @@ describe('transport limit resolution (server-limits)', () => {
   let parsePositiveIntOptionValue;
 
   beforeAll(async () => {
-    ({ resolveMcpHttpMaxBodySize, resolveMcpHttpMaxConcurrentRequests, parsePositiveIntOptionValue } = await import(
-      '../../src/cli/mcp/server/server-limits.ts'
-    ));
+    ({
+      resolveMcpHttpMaxBodySize,
+      resolveMcpHttpMaxConcurrentRequests,
+      parsePositiveIntOptionValue,
+    } = await import('../../src/cli/mcp/server/server-limits.ts'));
   });
 
   beforeEach(() => {
@@ -3440,25 +3752,26 @@ describe('transport limit resolution (server-limits)', () => {
     expect(resolveMcpHttpMaxConcurrentRequests(undefined, '16')).toBe(16);
   });
 
-  test.each([
-    ['0'],
-    ['-1'],
-    ['abc'],
-    ['12.5'],
-    [''],
-    ['Infinity'],
-    ['NaN'],
-  ])('invalid value %p falls back to the default and reports the ignored channel', (bad) => {
-    // A zero/negative/garbage limit must never disable the cap entirely.
-    const invalids = [];
-    const bodySize = resolveMcpHttpMaxBodySize(bad, undefined, (invalid) => invalids.push(invalid));
-    expect(bodySize).toBe(1024 * 1024);
-    expect(invalids).toEqual([{ flag: bad, env: undefined }]);
-    // Same via the env channel.
-    const invalidsEnv = [];
-    expect(resolveMcpHttpMaxConcurrentRequests(undefined, bad, (invalid) => invalidsEnv.push(invalid))).toBe(64);
-    expect(invalidsEnv).toEqual([{ flag: undefined, env: bad }]);
-  });
+  test.each([['0'], ['-1'], ['abc'], ['12.5'], [''], ['Infinity'], ['NaN']])(
+    'invalid value %p falls back to the default and reports the ignored channel',
+    (bad) => {
+      // A zero/negative/garbage limit must never disable the cap entirely.
+      const invalids = [];
+      const bodySize = resolveMcpHttpMaxBodySize(bad, undefined, (invalid) =>
+        invalids.push(invalid)
+      );
+      expect(bodySize).toBe(1024 * 1024);
+      expect(invalids).toEqual([{ flag: bad, env: undefined }]);
+      // Same via the env channel.
+      const invalidsEnv = [];
+      expect(
+        resolveMcpHttpMaxConcurrentRequests(undefined, bad, (invalid) =>
+          invalidsEnv.push(invalid)
+        )
+      ).toBe(64);
+      expect(invalidsEnv).toEqual([{ flag: undefined, env: bad }]);
+    }
+  );
 
   test('an invalid flag does not shadow a valid env value', () => {
     expect(resolveMcpHttpMaxBodySize('abc', '4096')).toBe(4096);
@@ -3608,8 +3921,12 @@ describe('HTTP transport lockfile + resolved port', () => {
     // Connectable on the printed (resolved) port.
     await waitForListening('127.0.0.1', resolvedPort);
     // Lockfile keyed on the resolved port, not on 0.
-    expect(fs.existsSync(path.join(tmpConfigDir, 'mcp-http-0.pid'))).toBe(false);
-    expect(fs.existsSync(path.join(tmpConfigDir, `mcp-http-${resolvedPort}.pid`))).toBe(true);
+    expect(fs.existsSync(path.join(tmpConfigDir, 'mcp-http-0.pid'))).toBe(
+      false
+    );
+    expect(
+      fs.existsSync(path.join(tmpConfigDir, `mcp-http-${resolvedPort}.pid`))
+    ).toBe(true);
   }, 30000);
 
   test('FRODO_MCP_HEARTBEAT_INTERVAL_MS overrides the interval (clamped to >= 1000ms)', async () => {
@@ -3639,7 +3956,9 @@ describe('HTTP transport lockfile + resolved port', () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 250));
       // With the 15-minute default, no beat can have fired in 250ms.
-      expect(printed.filter((p) => p.msg.includes('still listening'))).toHaveLength(0);
+      expect(
+        printed.filter((p) => p.msg.includes('still listening'))
+      ).toHaveLength(0);
     } finally {
       await shutdownTransport();
     }
@@ -3700,7 +4019,10 @@ describe('McpServerLockfile helpers', () => {
     expect(lock.readMcpHttpLockfile(9999)).toBeNull();
     fs.writeFileSync(path.join(tmpConfigDir, 'mcp-http-9998.pid'), 'not json{');
     expect(lock.readMcpHttpLockfile(9998)).toBeNull();
-    fs.writeFileSync(path.join(tmpConfigDir, 'mcp-http-9997.pid'), '{"port":1}');
+    fs.writeFileSync(
+      path.join(tmpConfigDir, 'mcp-http-9997.pid'),
+      '{"port":1}'
+    );
     expect(lock.readMcpHttpLockfile(9997)).toBeNull();
   });
 
@@ -3718,9 +4040,13 @@ describe('McpServerLockfile helpers', () => {
     // a jest path — NOT a frodo entrypoint, so the guard must flag it as
     // "not frodo" on Linux (/proc) or via ps on macOS.
     const { spawn } = childProcess;
-    const sleeper = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
-      stdio: 'ignore',
-    });
+    const sleeper = spawn(
+      process.execPath,
+      ['-e', 'setInterval(() => {}, 1000)'],
+      {
+        stdio: 'ignore',
+      }
+    );
     try {
       await new Promise((resolve) => setTimeout(resolve, 200));
       const identity = lock.verifyMcpProcessIdentity(sleeper.pid);
@@ -3736,9 +4062,8 @@ describe('port option resolution (parseMcpHttpPortOption)', () => {
   let parseMcpHttpPortOption;
 
   beforeAll(async () => {
-    ({ parseMcpHttpPortOption } = await import(
-      '../../src/cli/mcp/server/server-limits.ts'
-    ));
+    ({ parseMcpHttpPortOption } =
+      await import('../../src/cli/mcp/server/server-limits.ts'));
   });
 
   test("resolves 'auto' (any case) to 0 for an OS-assigned port", () => {
@@ -3763,14 +4088,15 @@ describe('heartbeat interval resolution (resolveMcpHttpHeartbeatInterval)', () =
   let resolveMcpHttpHeartbeatInterval;
 
   beforeAll(async () => {
-    ({ resolveMcpHttpHeartbeatInterval } = await import(
-      '../../src/ops/McpServerOps.ts'
-    ));
+    ({ resolveMcpHttpHeartbeatInterval } =
+      await import('../../src/ops/McpServerOps.ts'));
   });
 
   test('option wins over env; invalid env falls back to the 15-minute default', () => {
     const FIFTEEN_MIN = 15 * 60 * 1000;
-    expect(resolveMcpHttpHeartbeatInterval(undefined, undefined)).toBe(FIFTEEN_MIN);
+    expect(resolveMcpHttpHeartbeatInterval(undefined, undefined)).toBe(
+      FIFTEEN_MIN
+    );
     // The injectable option is NOT clamped: tests drive the real-timer
     // lifecycle cells with sub-second periods (the 1s floor applies to the
     // env value only — an operator-visible knob, not a test hook).
@@ -3793,11 +4119,13 @@ describe('OAuth resource-server mode ("shared mode")', () => {
   });
 
   describe('buildAmOAuthMetadata', () => {
-    test('builds RFC 8414 metadata from the tenant\'s known endpoint scheme', () => {
+    test("builds RFC 8414 metadata from the tenant's known endpoint scheme", () => {
       const metadata = buildAmOAuthMetadata(amBaseUrl);
 
       expect(metadata.issuer).toBe(`${amBaseUrl}/oauth2`);
-      expect(metadata.authorization_endpoint).toBe(`${amBaseUrl}/oauth2/authorize`);
+      expect(metadata.authorization_endpoint).toBe(
+        `${amBaseUrl}/oauth2/authorize`
+      );
       expect(metadata.token_endpoint).toBe(`${amBaseUrl}/oauth2/access_token`);
       expect(metadata.jwks_uri).toBe(`${amBaseUrl}/oauth2/connect/jwk_uri`);
       expect(metadata.response_types_supported).toEqual(['code']);
@@ -3843,7 +4171,9 @@ describe('OAuth resource-server mode ("shared mode")', () => {
 
       const verifier = buildAmTokenInfoVerifier(amBaseUrl);
 
-      await expect(verifier.verifyAccessToken('bad-token')).rejects.toMatchObject({
+      await expect(
+        verifier.verifyAccessToken('bad-token')
+      ).rejects.toMatchObject({
         code: 'invalid_token',
       });
     });
@@ -3905,9 +4235,9 @@ describe('OAuth resource-server mode ("shared mode")', () => {
           'urn:ping:atm:mcp-prod'
         )
       ).toBe('urn:ping:atm:mcp-prod');
-      expect(
-        resolveForwardedResourceValue(null, 'urn:ping:atm:mcp-prod')
-      ).toBe('urn:ping:atm:mcp-prod');
+      expect(resolveForwardedResourceValue(null, 'urn:ping:atm:mcp-prod')).toBe(
+        'urn:ping:atm:mcp-prod'
+      );
     });
     test('an empty-string fixed value is treated as unset (strip), not as a blank resource', () => {
       expect(
@@ -3918,7 +4248,12 @@ describe('OAuth resource-server mode ("shared mode")', () => {
 
   describe('resolveResourceServerUrl', () => {
     const fallback = new URL('http://0.0.0.0:6277/mcp');
-    const allowedHostnames = ['localhost', '127.0.0.1', '[::1]', 'mcp.example.internal'];
+    const allowedHostnames = [
+      'localhost',
+      '127.0.0.1',
+      '[::1]',
+      'mcp.example.internal',
+    ];
 
     function req(headers) {
       return { headers };
@@ -3961,7 +4296,12 @@ describe('OAuth resource-server mode ("shared mode")', () => {
         resourceServerUrlIsExplicit: false,
       };
       expect(
-        resolveResourceServerUrl(req({}), '0.0.0.0', allowedHostnames, options).toString()
+        resolveResourceServerUrl(
+          req({}),
+          '0.0.0.0',
+          allowedHostnames,
+          options
+        ).toString()
       ).toBe(fallback.toString());
     });
 
@@ -4065,7 +4405,9 @@ describe('OAuth resource-server mode ("shared mode")', () => {
 
       expect(response.client_id).toBe(registeredClientId);
       expect(response.token_endpoint_auth_method).toBe('none');
-      expect(response.redirect_uris).toEqual(['http://127.0.0.1:54321/callback']);
+      expect(response.redirect_uris).toEqual([
+        'http://127.0.0.1:54321/callback',
+      ]);
       expect(response.client_name).toBe('Claude Code');
       expect(response.application_type).toBe('native');
       expect(typeof response.client_id_issued_at).toBe('number');
@@ -4080,15 +4422,15 @@ describe('OAuth resource-server mode ("shared mode")', () => {
     });
 
     test('is lenient with a malformed/non-object body -- still returns the client_id', () => {
-      expect(buildDcrRegistrationResponse(null, registeredClientId).client_id).toBe(
-        registeredClientId
-      );
-      expect(buildDcrRegistrationResponse('garbage', registeredClientId).client_id).toBe(
-        registeredClientId
-      );
-      expect(buildDcrRegistrationResponse([], registeredClientId).client_id).toBe(
-        registeredClientId
-      );
+      expect(
+        buildDcrRegistrationResponse(null, registeredClientId).client_id
+      ).toBe(registeredClientId);
+      expect(
+        buildDcrRegistrationResponse('garbage', registeredClientId).client_id
+      ).toBe(registeredClientId);
+      expect(
+        buildDcrRegistrationResponse([], registeredClientId).client_id
+      ).toBe(registeredClientId);
     });
 
     test('never honors a requested confidential auth method -- always public/PKCE', () => {
@@ -4192,7 +4534,11 @@ describe('OAuth resource-server mode ("shared mode")', () => {
       };
       mockVerifyJwtAgainstJwks = async () => claims;
 
-      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
+      const verifier = buildExternalIdpVerifier(
+        oauthMetadata,
+        jwks,
+        'test-audience'
+      );
       const authInfo = await verifier.verifyAccessToken('some-jwt');
 
       expect(authInfo.token).toBe('some-jwt');
@@ -4209,11 +4555,15 @@ describe('OAuth resource-server mode ("shared mode")', () => {
         exp: Math.floor(Date.now() / 1000 + 300),
       });
 
-      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
-
-      await expect(verifier.verifyAccessToken('some-jwt')).rejects.toMatchObject(
-        { code: 'invalid_token' }
+      const verifier = buildExternalIdpVerifier(
+        oauthMetadata,
+        jwks,
+        'test-audience'
       );
+
+      await expect(
+        verifier.verifyAccessToken('some-jwt')
+      ).rejects.toMatchObject({ code: 'invalid_token' });
     });
 
     test('rejects a token whose audience does not match', async () => {
@@ -4223,11 +4573,15 @@ describe('OAuth resource-server mode ("shared mode")', () => {
         exp: Math.floor(Date.now() / 1000 + 300),
       });
 
-      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
-
-      await expect(verifier.verifyAccessToken('some-jwt')).rejects.toMatchObject(
-        { code: 'invalid_token' }
+      const verifier = buildExternalIdpVerifier(
+        oauthMetadata,
+        jwks,
+        'test-audience'
       );
+
+      await expect(
+        verifier.verifyAccessToken('some-jwt')
+      ).rejects.toMatchObject({ code: 'invalid_token' });
     });
 
     test('rejects an expired token', async () => {
@@ -4237,11 +4591,15 @@ describe('OAuth resource-server mode ("shared mode")', () => {
         exp: Math.floor(Date.now() / 1000 - 60),
       });
 
-      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
-
-      await expect(verifier.verifyAccessToken('some-jwt')).rejects.toMatchObject(
-        { code: 'invalid_token' }
+      const verifier = buildExternalIdpVerifier(
+        oauthMetadata,
+        jwks,
+        'test-audience'
       );
+
+      await expect(
+        verifier.verifyAccessToken('some-jwt')
+      ).rejects.toMatchObject({ code: 'invalid_token' });
     });
 
     test('rejects a token that fails signature verification', async () => {
@@ -4249,11 +4607,15 @@ describe('OAuth resource-server mode ("shared mode")', () => {
         throw new Error('no key found');
       };
 
-      const verifier = buildExternalIdpVerifier(oauthMetadata, jwks, 'test-audience');
-
-      await expect(verifier.verifyAccessToken('some-jwt')).rejects.toMatchObject(
-        { code: 'invalid_token' }
+      const verifier = buildExternalIdpVerifier(
+        oauthMetadata,
+        jwks,
+        'test-audience'
       );
+
+      await expect(
+        verifier.verifyAccessToken('some-jwt')
+      ).rejects.toMatchObject({ code: 'invalid_token' });
     });
   });
 
@@ -4318,5 +4680,81 @@ describe('OAuth resource-server mode ("shared mode")', () => {
         })
       ).rejects.toMatchObject({ code: 'insufficient_scope' });
     });
+  });
+});
+
+describe('buildErrorResult: the error of a tool that failed, and the advice of this command line', () => {
+  /** What frodo-lib throws: a FrodoError with a code, and the wrapper around it. */
+  function libError(message, { code, inner } = {}) {
+    const error = Object.assign(new Error(message), {
+      name: 'FrodoError',
+      ...(code ? { code } : {}),
+      originalErrors: inner ? [inner] : [],
+    });
+    error.getCombinedMessage = () =>
+      inner ? `${message}\n  ${inner.message}` : message;
+    return error;
+  }
+  const LOG_API =
+    "MCP runtime error: descriptor 'cloud.log.fetch' requires a Log API key/secret, which is not configured for this connection.";
+
+  beforeEach(() => {
+    mockNeedsReauthentication = false;
+  });
+
+  test('a condition with a code gets one line of advice after the error of the library', () => {
+    const result = buildErrorResult(
+      libError(LOG_API, { code: 'LOG_API_CREDENTIAL_MISSING' })
+    );
+
+    expect(result.isError).toBe(true);
+    expect(result.content).toHaveLength(1);
+    const { text } = result.content[0];
+    expect(text.startsWith(`Error: ${LOG_API}`)).toBe(true);
+    expect(text).toContain(
+      'Set FRODO_LOG_KEY and FRODO_LOG_SECRET for the server'
+    );
+    expect(text).toContain(
+      "'frodo conn set --log-api-key <key> --log-api-secret <secret>'"
+    );
+    expect(text.split('FRODO_LOG_KEY')).toHaveLength(2);
+    expect(text.indexOf(LOG_API)).toBeLessThan(text.indexOf('FRODO_LOG_KEY'));
+  });
+
+  test('the code is found through the wrapper that the library puts around a failed call', () => {
+    const wrapper = libError('Error executing tool', {
+      inner: libError(LOG_API, { code: 'LOG_API_CREDENTIAL_MISSING' }),
+    });
+
+    expect(buildErrorResult(wrapper).content[0].text).toContain(
+      'FRODO_LOG_KEY'
+    );
+  });
+
+  test('an error without a code gets none', () => {
+    const result = buildErrorResult(libError('Error reading something'));
+
+    expect(result.content[0].text).toBe('Error: Error reading something');
+  });
+
+  test('a plain error and a value that is not an error get none', () => {
+    expect(buildErrorResult(new Error('boom')).content[0].text).toBe(
+      'Error: boom'
+    );
+    expect(buildErrorResult('boom').content[0].text).toBe('Error: boom');
+  });
+
+  test('the advice comes before the note for a session that needs re-authentication', () => {
+    mockNeedsReauthentication = true;
+
+    const { text } = buildErrorResult(
+      libError(LOG_API, { code: 'LOG_API_CREDENTIAL_MISSING' })
+    ).content[0];
+
+    expect(text).toContain('FRODO_LOG_KEY');
+    expect(text).toContain('needs re-authentication');
+    expect(text.indexOf('FRODO_LOG_KEY')).toBeLessThan(
+      text.indexOf('needs re-authentication')
+    );
   });
 });
