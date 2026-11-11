@@ -1,4 +1,5 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './agent-cimd-delete.js';
 import DescribeCmd from './agent-cimd-describe.js';
 import ExportCmd from './agent-cimd-export.js';
 import ImportCmd from './agent-cimd-import.js';
@@ -16,6 +17,8 @@ export default function setup() {
   program.addCommand(ExportCmd().name('export'));
 
   program.addCommand(ImportCmd().name('import'));
+
+  program.addCommand(DeleteCmd().name('delete'));
 
   return program;
 }

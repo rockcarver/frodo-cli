@@ -113,6 +113,9 @@ const calls = [];
 let baseDirectory = '';
 /** Decides which file the fake `saveJsonToFile` cannot write. */
 let cannotWrite = () => false;
+/** Ids the fake delete cannot delete. */
+let cannotDelete = new Set();
+
 /** What the fake import does with a profile: `{ error, created, repaired }` by id; the default is a profile that was created. */
 let importPlan = {};
 
@@ -176,6 +179,39 @@ const lib = {
       }
     }
     return results;
+  },
+  deleteCIMDProfile: async (id) => {
+    calls.push(['deleteCIMDProfile', id]);
+    if (!offered) throw NOT_AVAILABLE();
+    const found = stored.find((profile) => profile._id === id);
+    if (!found) throw new Error(`alpha realm CIMD profile ${id} not found`);
+    if (cannotDelete.has(id)) throw new Error(`could not delete ${id}`);
+    stored = stored.filter((profile) => profile._id !== id);
+    return found;
+  },
+  deleteCIMDProfiles: async (callback) => {
+    calls.push(['deleteCIMDProfiles']);
+    if (readFailure) throw readFailure;
+    const deleted = [];
+    for (const profile of offered ? structuredClone(stored) : []) {
+      try {
+        if (cannotDelete.has(profile._id)) {
+          throw new Error(`could not delete ${profile._id}`);
+        }
+        stored = stored.filter((item) => item._id !== profile._id);
+        deleted.push(profile);
+        callback?.(undefined, profile);
+      } catch (error) {
+        callback?.(
+          new FakeFrodoError(
+            `Error deleting alpha realm CIMD profile ${profile._id}`,
+            undefined,
+            [error]
+          )
+        );
+      }
+    }
+    return deleted;
   },
   createCIMDProfileExportTemplate: () => ({
     meta: { origin: HOST },
@@ -270,6 +306,8 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
 }));
 
 const {
+  deleteCIMDProfile,
+  deleteCIMDProfiles,
   describeCIMDProfile,
   exportCIMDProfilesToFile,
   exportCIMDProfilesToFiles,
@@ -279,6 +317,7 @@ const {
   importCIMDProfilesFromFiles,
   importFirstCIMDProfileFromFile,
   listCIMDProfiles,
+  printCIMDProfilePlan,
   reportCIMDProfilesUnavailable,
 } = await import('../../src/ops/CIMDProfileOps.ts');
 
@@ -310,6 +349,7 @@ beforeEach(() => {
   realm = '/alpha';
   cannotWrite = () => false;
   importPlan = {};
+  cannotDelete = new Set();
   baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-cimd-'));
 });
 
@@ -1418,6 +1458,224 @@ describe('a realm that does not offer the type', () => {
   });
 });
 
+describe('printCIMDProfilePlan', () => {
+  test('lists the id and the client id URL patterns of every profile, as data, and deletes nothing', async () => {
+    stored = [
+      plainProfile('alpha-clients'),
+      plainProfile('zion-mcp-clients', {
+        cimdConfig: {
+          cimdClientIdUrlPatterns: [
+            'https://agents.zion.example.com/*',
+            'https://tools.zion.example.com/*',
+          ],
+        },
+      }),
+    ];
+
+    expect(await printCIMDProfilePlan()).toBe(true);
+
+    expect(messages('info')).toEqual([
+      'The following CIMD profiles would be deleted:',
+    ]);
+    expect(messages('data')).toEqual([
+      '  alpha-clients  https://agents.zion.example.com/alpha-clients/*, https://agents.zion.example.com:8443/agents/*',
+      '  zion-mcp-clients  https://agents.zion.example.com/*, https://tools.zion.example.com/*',
+    ]);
+    expect(libCalls('deleteCIMDProfile')).toEqual([]);
+    expect(libCalls('deleteCIMDProfiles')).toEqual([]);
+  });
+
+  test('reads the wrapped shape, and a sparse profile without a pattern', async () => {
+    stored = [
+      wrapped(plainProfile('wrapped')),
+      { _id: 'bare', _type: { _id: 'CIMDProfile' } },
+    ];
+
+    expect(await printCIMDProfilePlan()).toBe(true);
+
+    expect(messages('data')).toEqual([
+      '  wrapped  https://agents.zion.example.com/wrapped/*, https://agents.zion.example.com:8443/agents/*',
+      '  bare  (not set)',
+    ]);
+  });
+
+  test('no profile: says so, and succeeds', async () => {
+    expect(await printCIMDProfilePlan()).toBe(true);
+
+    expect(messages('info')).toEqual(['No CIMD profiles found.']);
+  });
+
+  test('a realm that does not offer the type: the note, and success', async () => {
+    offered = false;
+
+    expect(await printCIMDProfilePlan()).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'.`,
+    ]);
+  });
+
+  test('a profile list that cannot be read fails, so the guard does not ask', async () => {
+    readFailure = new Error('connection reset');
+    // the plan reads through readCIMDProfiles
+    expect(await printCIMDProfilePlan()).toBe(false);
+
+    expect(messages('error')).toEqual([
+      'Error reading the CIMD profiles: connection reset',
+    ]);
+  });
+});
+
+describe('deleteCIMDProfile (-i)', () => {
+  test('deletes that profile and nothing else', async () => {
+    stored = [plainProfile('a'), plainProfile('b')];
+
+    expect(await deleteCIMDProfile('a')).toBe(true);
+
+    expect(libCalls('deleteCIMDProfile')).toEqual([['deleteCIMDProfile', 'a']]);
+    expect(stored.map((profile) => profile._id)).toEqual(['b']);
+    expect(messages('indicator-success')).toEqual(['Deleted a.']);
+  });
+
+  test('a profile that does not exist fails and says so', async () => {
+    expect(await deleteCIMDProfile('missing')).toBe(false);
+
+    expect(messages('indicator-fail')).toEqual(['Error deleting missing']);
+    expect(messages('error')).toEqual([
+      'alpha realm CIMD profile missing not found',
+    ]);
+  });
+
+  test('a delete that fails fails', async () => {
+    stored = [plainProfile('a')];
+    cannotDelete = new Set(['a']);
+
+    expect(await deleteCIMDProfile('a')).toBe(false);
+
+    expect(messages('error')).toEqual(['could not delete a']);
+  });
+
+  test('a realm that does not offer the type fails with the error of the library: the user named a profile that cannot exist', async () => {
+    offered = false;
+
+    expect(await deleteCIMDProfile('a')).toBe(false);
+
+    expect(messages('error')).toEqual([
+      "CIMD profiles are not available in the alpha realm of this deployment: the server does not offer the agent type 'CIMDProfile'.",
+    ]);
+  });
+
+  test('no id, because the picker found no profile: nothing to delete, which is not a failure, and nothing is deleted', async () => {
+    stored = [];
+
+    expect(await deleteCIMDProfile(undefined)).toBe(true);
+
+    expect(messages('info')).toEqual(['No CIMD profiles found to delete.']);
+    expect(calls).toEqual([]);
+  });
+
+  test('no id in a realm that does not offer the type: the note, and no failure either', async () => {
+    offered = false;
+
+    expect(await deleteCIMDProfile(undefined)).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'.`,
+    ]);
+    expect(messages('info')).toEqual([]);
+  });
+});
+
+describe('deleteCIMDProfiles (-a)', () => {
+  const four = () => ['a', 'b', 'c', 'd'].map((id) => plainProfile(id));
+
+  test('deletes every profile through the library and counts them', async () => {
+    stored = four();
+
+    expect(await deleteCIMDProfiles()).toBe(true);
+
+    expect(stored).toEqual([]);
+    expect(libCalls('deleteCIMDProfiles')).toHaveLength(1);
+    expect(messages('info')).toEqual(['Deleted 4 CIMD profiles.']);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('one profile that cannot be deleted does not stop the others: one summary names it, and the command fails', async () => {
+    stored = four();
+    cannotDelete = new Set(['c']);
+
+    expect(await deleteCIMDProfiles()).toBe(false);
+
+    expect(stored.map((profile) => profile._id)).toEqual(['c']);
+    expect(messages('info')).toEqual(['Deleted 3 CIMD profiles.']);
+    expect(messages('error').at(-1)).toBe(
+      '1 of 4 profiles failed:\n  - Error deleting alpha realm CIMD profile c: could not delete c'
+    );
+  });
+
+  test('with --allow-failures the failure is still printed and the command succeeds', async () => {
+    stored = four();
+    cannotDelete = new Set(['c']);
+
+    expect(await deleteCIMDProfiles(true)).toBe(true);
+
+    expect(messages('warn').at(-1)).toBe(
+      '1 of 4 profiles failed:\n  - Error deleting alpha realm CIMD profile c: could not delete c\nThe exit code stays 0 because --allow-failures was given.'
+    );
+  });
+
+  test('two failures are both named', async () => {
+    stored = four();
+    cannotDelete = new Set(['b', 'd']);
+
+    expect(await deleteCIMDProfiles()).toBe(false);
+
+    expect(messages('error').at(-1)).toBe(
+      '2 of 4 profiles failed:\n  - Error deleting alpha realm CIMD profile b: could not delete b\n  - Error deleting alpha realm CIMD profile d: could not delete d'
+    );
+  });
+
+  test('a failure to read the profiles fails the command whatever --allow-failures says', async () => {
+    stored = four();
+    readFailure = new Error('connection reset');
+
+    expect(await deleteCIMDProfiles(true)).toBe(false);
+    expect(await deleteCIMDProfiles(false)).toBe(false);
+
+    expect(stored).toHaveLength(4);
+    expect(messages('error')).toEqual(['connection reset', 'connection reset']);
+  });
+
+  test('no profile: nothing to delete is not a failure', async () => {
+    expect(await deleteCIMDProfiles()).toBe(true);
+
+    expect(messages('info')).toEqual(['No CIMD profiles found to delete.']);
+  });
+
+  test('a realm that does not offer the type: the note, and success', async () => {
+    offered = false;
+
+    expect(await deleteCIMDProfiles()).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'.`,
+    ]);
+    expect(messages('info')).toEqual([]);
+  });
+
+  test('--dry-run prints the plan and never calls the library delete', async () => {
+    stored = four();
+
+    expect(await deleteCIMDProfiles(false, true)).toBe(true);
+    expect(await deleteCIMDProfiles(true, true)).toBe(true);
+
+    expect(libCalls('deleteCIMDProfile')).toEqual([]);
+    expect(libCalls('deleteCIMDProfiles')).toEqual([]);
+    expect(stored).toHaveLength(4);
+    expect(messages('data')).toHaveLength(8);
+  });
+});
+
 describe('what an export file holds', () => {
   test('a CIMD profile holds no secret: none of the files has a userpassword, a client_secret or an -encrypted key', async () => {
     stored = [plainProfile('alpha-clients'), plainProfile('zion-mcp-clients')];
@@ -1500,6 +1758,21 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       expect(messages('error').at(-1)).toContain(
         '2 of 2 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type'
       );
+    });
+
+    test('the plan and the deletes give the same output', async () => {
+      stored = [plainProfile('a'), plainProfile('b'), plainProfile('c')];
+
+      expect(await printCIMDProfilePlan()).toBe(true);
+      expect(await deleteCIMDProfile('a')).toBe(true);
+      expect(await deleteCIMDProfiles()).toBe(true);
+
+      expect(messages('data')).toHaveLength(3);
+      expect(messages('indicator-success')).toEqual(['Deleted a.']);
+      expect(messages('info')).toEqual([
+        'The following CIMD profiles would be deleted:',
+        'Deleted 2 CIMD profiles.',
+      ]);
     });
 
     test('a type that is not offered gives the same note and the same error', async () => {

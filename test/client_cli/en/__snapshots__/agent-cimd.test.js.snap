@@ -16,6 +16,7 @@ Runtime Options:
                     FRODO_NO_PROMPT).
 
 Commands:
+  delete            Delete CIMD profiles.
   describe          Describe a CIMD profile.
   export            Export CIMD profiles.
   import            Import CIMD profiles.

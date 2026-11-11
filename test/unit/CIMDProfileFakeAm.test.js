@@ -3,6 +3,7 @@ import fs from 'fs';
 import { createRequire } from 'module';
 import os from 'os';
 import path from 'path';
+import { readRequests } from '../utils/FakeAmLog.js';
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 const require = createRequire(import.meta.url);
@@ -187,6 +188,29 @@ suite('agent cimd through the CLI', () => {
         expect(one.code).toBe(1);
         expect(fs.existsSync(path.join(work, 'out'))).toBe(false);
         expect(fs.readdirSync(work)).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'delete -a --yes prints the note and exits 0, delete --dry-run too, delete -i exits 1',
+      async () => {
+        const all = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-a', '--yes'])
+        );
+        const preview = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-a', '--dry-run'])
+        );
+        const one = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-i', 'x'])
+        );
+
+        expect(all.stderr).toMatch(NOT_AVAILABLE);
+        expect(all.code).toBe(0);
+        expect(preview.stderr).toMatch(NOT_AVAILABLE);
+        expect(preview.code).toBe(0);
+        expect(one.stderr).toMatch(NOT_AVAILABLE);
+        expect(one.code).toBe(1);
       },
       TIMEOUT
     );
@@ -768,6 +792,128 @@ suite('agent cimd through the CLI', () => {
 
         expect(stderr).toContain('ENOENT');
         expect(code).toBe(1);
+      },
+      TIMEOUT
+    );
+  });
+
+  describe('delete, on a deployment that offers the type', () => {
+    let server;
+    let recordPath;
+
+    beforeEach(async () => {
+      // a fresh fake for every test: delete changes what it holds
+      recordPath = path.join(home, 'requests.log');
+      server = await fake({
+        agentTypes: ['CIMDProfile'],
+        cimdProfiles: structuredClone(PROFILES),
+        recordPath,
+      });
+    });
+
+    const deletes = () =>
+      readRequests(recordPath).filter((request) => request.method === 'DELETE');
+    const listed = async () =>
+      (await run(onFake(server, ['agent', 'cimd', 'list']))).stdout
+        .split('\n')
+        .filter(Boolean);
+
+    it(
+      '-a without a terminal and without --yes is refused before the login: the error names --yes and --dry-run, and no DELETE and no request at all is sent',
+      async () => {
+        const { code, stderr } = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-a'])
+        );
+
+        expect(stderr).toContain('Refusing to delete all CIMD profiles');
+        expect(stderr).toContain('--yes');
+        expect(stderr).toContain('--dry-run');
+        expect(code).toBe(1);
+        expect(readRequests(recordPath)).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a --dry-run lists the profiles with their patterns and sends no DELETE',
+      async () => {
+        const { code, stdout } = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-a', '--dry-run'])
+        );
+
+        expect(code).toBe(0);
+        expect(stdout).toContain(
+          'zion-mcp-clients  https://agents.zion.example.com/*'
+        );
+        expect(stdout).toContain(
+          'alpha-clients  https://alpha.zion.example.com/*'
+        );
+        expect(deletes()).toEqual([]);
+        expect(await listed()).toHaveLength(2);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a --yes sends one DELETE per profile and the realm is empty afterwards',
+      async () => {
+        const { code, stderr } = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-a', '--yes'])
+        );
+
+        expect(code).toBe(0);
+        expect(stderr).toContain('Deleted 2 CIMD profiles.');
+        expect(deletes().map((request) => request.url.split('?')[0])).toEqual([
+          expect.stringMatching(/\/agents\/CIMDProfile\/alpha-clients$/),
+          expect.stringMatching(/\/agents\/CIMDProfile\/zion-mcp-clients$/),
+        ]);
+        expect(await listed()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-i deletes that profile, without a question and without --yes, matching the id ignoring case',
+      async () => {
+        const { code, stderr } = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-i', 'ZION-MCP-CLIENTS'])
+        );
+
+        expect(code).toBe(0);
+        expect(stderr).toContain('Deleted ZION-MCP-CLIENTS.');
+        expect(deletes()).toHaveLength(1);
+        expect(await listed()).toEqual(['alpha-clients']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-i of an unknown id exits 1 and deletes nothing',
+      async () => {
+        const { code, stderr } = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-i', 'missing'])
+        );
+
+        expect(code).toBe(1);
+        expect(stderr).toContain('missing');
+        expect(await listed()).toHaveLength(2);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-i with -a or --dry-run is rejected while parsing, before a request is sent',
+      async () => {
+        const both = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-i', 'x', '-a'])
+        );
+        const preview = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-i', 'x', '--dry-run'])
+        );
+
+        expect(both.code).not.toBe(0);
+        expect(preview.code).not.toBe(0);
+        expect(readRequests(recordPath)).toEqual([]);
       },
       TIMEOUT
     );

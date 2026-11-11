@@ -26,6 +26,8 @@ import { safeTypedFilename } from './utils/SafeFilename';
 // Every library symbol this file uses is named here, so a rename is one line.
 const {
   createCIMDProfileExportTemplate,
+  deleteCIMDProfile: deleteCIMDProfileInLibrary,
+  deleteCIMDProfiles: deleteCIMDProfilesInLibrary,
   exportCIMDProfile,
   exportCIMDProfiles,
   importCIMDProfile,
@@ -751,6 +753,118 @@ export async function importCIMDProfilesFromFiles(
     return run.finish();
   } catch (error) {
     // not an item failure: the directory could not be read
+    printError(error);
+    if (run.hasFailures) run.finish();
+  }
+  return false;
+}
+
+/**
+ * Print what `delete -a` would delete: the id and the client id URL patterns of
+ * every profile, which are what stops working for a client that matched only
+ * that profile. Deletes nothing; it is the preview of `--dry-run` and the plan
+ * the confirmation shows.
+ * @returns {Promise<boolean>} true if successful, false if the profiles could not be read
+ */
+export async function printCIMDProfilePlan(): Promise<boolean> {
+  try {
+    const profiles = await readCIMDProfiles();
+    if (profiles.length === 0) {
+      if (!(await reportCIMDProfilesUnavailable())) {
+        printMessage('No CIMD profiles found.', 'info');
+      }
+      return true;
+    }
+    printMessage('The following CIMD profiles would be deleted:', 'info');
+    for (const profile of profiles) {
+      printMessage(
+        `  ${profile._id}  ${patternsOf(profile).join(', ') || NOT_SET}`,
+        'data'
+      );
+    }
+    return true;
+  } catch (error) {
+    printError(error, 'Error reading the CIMD profiles');
+  }
+  return false;
+}
+
+/**
+ * Delete a CIMD profile. The user named it, so a profile that does not exist,
+ * or a realm that does not offer the type, is an error.
+ * @param {string | undefined} agentId id of the profile; undefined when the picker had nothing to offer, which is nothing to delete and not a failure
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteCIMDProfile(
+  agentId: string | undefined
+): Promise<boolean> {
+  if (!agentId) {
+    try {
+      if (!(await reportCIMDProfilesUnavailable())) {
+        printMessage('No CIMD profiles found to delete.', 'info');
+      }
+      return true;
+    } catch (error) {
+      printError(error);
+    }
+    return false;
+  }
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Deleting ${agentId}...`
+  );
+  try {
+    await deleteCIMDProfileInLibrary(agentId);
+    stopProgressIndicator(indicatorId, `Deleted ${agentId}.`, 'success');
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `Error deleting ${agentId}`, 'fail');
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete all CIMD profiles of the realm. The library tries every profile and
+ * reports each one to the callback, so the profiles that can be deleted are
+ * deleted whatever happens to the others, one summary names the ones that could
+ * not be, and a failure to read the profiles (which the library always throws)
+ * ends the command whatever `--allow-failures` says. Nothing to delete is not a
+ * failure (cli record 0041). With `dryRun` nothing is deleted: the plan is
+ * printed.
+ * @param {boolean} allowFailures true to report profiles that could not be deleted but still succeed. Default: false
+ * @param {boolean} dryRun true to only show which profiles would be deleted. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteCIMDProfiles(
+  allowFailures: boolean = false,
+  dryRun: boolean = false
+): Promise<boolean> {
+  if (dryRun) return printCIMDProfilePlan();
+  const run = new OperationRun({ unit: 'profile', allowFailures });
+  const report = run.resultCallback<CIMDProfileSkeleton>();
+  let seen = 0;
+  let deleted = 0;
+  try {
+    await deleteCIMDProfilesInLibrary(
+      (error?: FrodoError, result?: CIMDProfileSkeleton) => {
+        seen++;
+        if (!error) deleted++;
+        report(error, result);
+      }
+    );
+    if (seen === 0) {
+      // nothing to delete is not a failure
+      if (!(await reportCIMDProfilesUnavailable())) {
+        printMessage('No CIMD profiles found to delete.', 'info');
+      }
+      return true;
+    }
+    if (deleted > 0) printMessage(`Deleted ${countProfiles(deleted)}.`, 'info');
+    return run.finish();
+  } catch (error) {
+    // not an item failure: the library could not even read the profiles
     printError(error);
     if (run.hasFailures) run.finish();
   }

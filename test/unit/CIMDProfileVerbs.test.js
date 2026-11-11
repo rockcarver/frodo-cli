@@ -14,6 +14,8 @@ import { Command, Option } from 'commander';
  */
 
 const getTokens = jest.fn();
+const checkBulkDelete = jest.fn();
+const confirmBulkDelete = jest.fn();
 const ops = {
   listCIMDProfiles: jest.fn(),
   describeCIMDProfile: jest.fn(),
@@ -24,6 +26,9 @@ const ops = {
   importCIMDProfilesFromFile: jest.fn(),
   importCIMDProfilesFromFiles: jest.fn(),
   importFirstCIMDProfileFromFile: jest.fn(),
+  deleteCIMDProfile: jest.fn(),
+  deleteCIMDProfiles: jest.fn(),
+  printCIMDProfilePlan: jest.fn(),
 };
 
 // what the real FrodoCommand adds, as far as the commands use it
@@ -67,6 +72,10 @@ jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
 }));
 jest.unstable_mockModule('../../src/ops/CIMDProfileOps', () => ops);
+jest.unstable_mockModule('../../src/utils/BulkDeleteGuard', () => ({
+  checkBulkDelete,
+  confirmBulkDelete,
+}));
 
 const { default: setupGroup } = await import('../../src/cli/agent/agent-cimd');
 const { default: setupList } =
@@ -77,6 +86,8 @@ const { default: setupExport } =
   await import('../../src/cli/agent/agent-cimd-export');
 const { default: setupImport } =
   await import('../../src/cli/agent/agent-cimd-import');
+const { default: setupDelete } =
+  await import('../../src/cli/agent/agent-cimd-delete');
 
 /** Parses a real command line; commander errors are thrown, not printed. */
 async function parse(setup, ...argv) {
@@ -97,6 +108,8 @@ beforeEach(() => {
   process.exitCode = undefined;
   constructed.length = 0;
   getTokens.mockResolvedValue(true);
+  checkBulkDelete.mockReturnValue(true);
+  confirmBulkDelete.mockResolvedValue(true);
   for (const fn of Object.values(ops)) fn.mockResolvedValue(true);
 });
 
@@ -112,6 +125,7 @@ describe('agent cimd', () => {
       'describe',
       'export',
       'import',
+      'delete',
     ]);
     for (const command of group.commands) {
       expect(command.aliases()).toEqual([]);
@@ -123,10 +137,11 @@ describe('agent cimd', () => {
     await parse(setupDescribe, '-i', 'zion-mcp-clients');
     await parse(setupExport, '-a');
     await parse(setupImport, '-f', 'in.json');
+    await parse(setupDelete, '-i', 'zion-mcp-clients');
 
     // new FrodoCommand(name) and nothing else
-    expect(constructed.map((args) => args.length)).toEqual([1, 1, 1, 1]);
-    expect(getTokens.mock.calls).toEqual([[], [], [], []]);
+    expect(constructed.map((args) => args.length)).toEqual([1, 1, 1, 1, 1]);
+    expect(getTokens.mock.calls).toEqual([[], [], [], [], []]);
   });
 });
 
@@ -385,4 +400,147 @@ describe('agent cimd import', () => {
       expect(process.exitCode).toBeUndefined();
     }
   );
+});
+
+describe('agent cimd delete', () => {
+  test('the user has to choose what to delete, and the command is a multi-operation command', () => {
+    expect(rulesOf(setupDelete)).toEqual({
+      oneOf: { options: ['all', 'agentId'], purpose: 'what to delete' },
+      multiOp: true,
+    });
+  });
+
+  test('-i deletes that profile and asks nothing', async () => {
+    await parse(setupDelete, '-i', 'zion-mcp-clients');
+
+    expect(ops.deleteCIMDProfile.mock.calls).toEqual([['zion-mcp-clients']]);
+    expect(ops.deleteCIMDProfiles).not.toHaveBeenCalled();
+    expect(checkBulkDelete).not.toHaveBeenCalled();
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('-y is accepted and ignored with -i', async () => {
+    await parse(setupDelete, '-i', 'zion-mcp-clients', '-y');
+
+    expect(ops.deleteCIMDProfile.mock.calls).toEqual([['zion-mcp-clients']]);
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+  });
+
+  test('-a is checked before the login: a run nobody can be asked about is refused and logs in nowhere', async () => {
+    checkBulkDelete.mockReturnValue(false);
+
+    await parse(setupDelete, '-a');
+
+    expect(checkBulkDelete.mock.calls[0][0]).toMatchObject({
+      what: 'all CIMD profiles',
+      yes: undefined,
+      dryRun: undefined,
+      dryRunAvailable: true,
+    });
+    expect(getTokens).not.toHaveBeenCalled();
+    expect(ops.deleteCIMDProfiles).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('-a asks after the login, shows the plan, and a declined question deletes nothing and exits 1', async () => {
+    confirmBulkDelete.mockResolvedValue(false);
+
+    await parse(setupDelete, '-a');
+
+    expect(confirmBulkDelete).toHaveBeenCalledTimes(1);
+    const guard = confirmBulkDelete.mock.calls[0][0];
+    expect(guard).toMatchObject({
+      what: 'all CIMD profiles',
+      dryRunAvailable: true,
+    });
+    await guard.showPlan();
+    expect(ops.printCIMDProfilePlan).toHaveBeenCalledTimes(1);
+    expect(ops.deleteCIMDProfiles).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('-a deletes all profiles, with --yes handed to the guard and --allow-failures passed on', async () => {
+    await parse(setupDelete, '-a', '-y', '--allow-failures');
+
+    expect(confirmBulkDelete.mock.calls[0][0]).toMatchObject({
+      what: 'all CIMD profiles',
+      yes: true,
+    });
+    expect(ops.deleteCIMDProfiles.mock.calls).toEqual([[true, undefined]]);
+    expect(ops.deleteCIMDProfile).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('-a --dry-run hands the preview on, to both the guard (which asks nothing then) and the ops function (which deletes nothing)', async () => {
+    await parse(setupDelete, '-a', '--dry-run');
+    await parse(setupDelete, '-a', '-d');
+
+    for (const call of checkBulkDelete.mock.calls) {
+      expect(call[0]).toMatchObject({ dryRun: true, dryRunAvailable: true });
+    }
+    for (const call of confirmBulkDelete.mock.calls) {
+      expect(call[0]).toMatchObject({ dryRun: true, dryRunAvailable: true });
+    }
+    expect(ops.deleteCIMDProfiles.mock.calls).toEqual([
+      [undefined, true],
+      [undefined, true],
+    ]);
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('neither -a nor -i, because the picker found no profile: says so through the ops function, asks nothing, never falls through to the delete of everything, and does not fail', async () => {
+    await parse(setupDelete);
+
+    expect(ops.deleteCIMDProfile.mock.calls).toEqual([[undefined]]);
+    expect(ops.deleteCIMDProfiles).not.toHaveBeenCalled();
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test.each([
+    [['-i', 'x', '-a']],
+    [['-i', 'x', '--dry-run']],
+    [['-i', 'x', '-d']],
+  ])('%j is rejected while parsing, before anything is sent', async (argv) => {
+    await expect(parse(setupDelete, ...argv)).rejects.toMatchObject({
+      code: 'commander.conflictingOption',
+    });
+
+    expect(getTokens).not.toHaveBeenCalled();
+  });
+
+  test('a failed login, a declined pick or a failed delete exits 1', async () => {
+    getTokens.mockResolvedValue(false);
+    await parse(setupDelete, '-i', 'zion-mcp-clients');
+    expect(ops.deleteCIMDProfile).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    getTokens.mockResolvedValue(true);
+    ops.deleteCIMDProfile.mockResolvedValue(false);
+    await parse(setupDelete, '-i', 'zion-mcp-clients');
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    ops.deleteCIMDProfiles.mockResolvedValue(false);
+    await parse(setupDelete, '-a', '-y');
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('the usage examples carry --yes or --dry-run for every -a form', () => {
+    const examples = [];
+    const program = setupDelete();
+    program.configureOutput({ writeOut: (text) => examples.push(text) });
+    program.outputHelp();
+    // the examples are the lines that start with "$ frodo agent cimd delete"
+    const lines = examples
+      .join('')
+      .split('\n')
+      .filter((line) => line.includes('frodo agent cimd delete'));
+    expect(lines.length).toBeGreaterThan(0);
+    for (const line of lines.filter((l) => / -a( |$)/.test(l))) {
+      expect(line).toMatch(/--yes|--dry-run/);
+    }
+  });
 });
