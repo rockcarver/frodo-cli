@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CLI help interface for 'add' should be expected english 1`] = `
-"Usage: frodo conn save|add [options] [host] [username] [password]
+"Usage: frodo conn save [options] [host] [username] [password]
 
-Save connection profiles.
+Save connection profiles. (alias: add)
 
 Arguments:
   host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
@@ -29,9 +29,9 @@ Options:
 `;
 
 exports[`CLI help interface for 'save' should be expected english 1`] = `
-"Usage: frodo conn save|add [options] [host] [username] [password]
+"Usage: frodo conn save [options] [host] [username] [password]
 
-Save connection profiles.
+Save connection profiles. (alias: add)
 
 Arguments:
   host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.

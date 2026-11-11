@@ -752,6 +752,13 @@ When a release removes or deprecates a command, alias, or option:
 2. Keep the README's breaking-changes summary in
    [.github/README.md](.github/README.md) as a short list that links here
    for the full detail.
-3. Verify against the built binary before publishing: every listed alias
-   should actually be rejected (`frodo <alias> -h` falls through to root
-   help).
+3. Verify against the built binary before publishing: every alias listed
+   as removed should actually be rejected (`frodo <alias> -h` falls through
+   to root help).
+4. When a release renames a command, keep the old name as a transition alias
+   (`withAlias('old-name', 'transition')`, see
+   [record 0049](docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md))
+   and list the rename as a table row: old name, new name, and that the old
+   name is still accepted. The help shows `(formerly: old-name)` and typing
+   the old name prints a notice on stderr. When a later major release removes
+   the alias, move the row to the removed aliases and verify it as in step 3.

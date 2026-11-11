@@ -330,6 +330,73 @@ function setStabilityMetadata(
 }
 
 /**
+ * Why an alias exists. A convenience alias is a second spelling that stays
+ * (`frodo conn save` and `frodo conn add`); a transition alias is the OLD name
+ * of a renamed command, kept so existing command lines keep running until a
+ * major release removes it (record 0048).
+ */
+export type AliasKind = 'convenience' | 'transition';
+
+/** The kind of each alias, recorded by `withAlias` on the command that owns it. */
+const aliasKinds = new WeakMap<Command, Map<string, AliasKind>>();
+
+/**
+ * The kind `withAlias` recorded for an alias of a command. Undefined for an
+ * alias that was added with plain `.alias()` (lint rejects that in src/cli);
+ * the help renders such an alias as a convenience alias.
+ * @param command Command that owns the alias.
+ * @param alias The alias.
+ * @returns The recorded kind, if any.
+ */
+export function getAliasKind(
+  command: Command,
+  alias: string
+): AliasKind | undefined {
+  return aliasKinds.get(command)?.get(alias);
+}
+
+/**
+ * The fixed trailing note that names the aliases of a command in its
+ * description: `(alias: add)`, `(aliases: a, b)`, and `(formerly: old)` for
+ * the old name of a renamed command. Empty when the command has no alias.
+ * Parseable with /\((alias(es)?|formerly): [^)]+\)$/ (a command with both kinds
+ * has both notes, the transition note last).
+ * @param command Command to describe.
+ * @returns The note, or an empty string.
+ */
+function aliasNote(command: Command): string {
+  const aliases = command.aliases();
+  const former = aliases.filter(
+    (alias) => getAliasKind(command, alias) === 'transition'
+  );
+  const kept = aliases.filter(
+    (alias) => getAliasKind(command, alias) !== 'transition'
+  );
+  const notes: string[] = [];
+  if (kept.length > 0) {
+    notes.push(
+      `(${kept.length > 1 ? 'aliases' : 'alias'}: ${kept.join(', ')})`
+    );
+  }
+  if (former.length > 0) {
+    notes.push(`(formerly: ${former.join(', ')})`);
+  }
+  return notes.join(' ');
+}
+
+/**
+ * Appends the alias note of a command to its description.
+ * @param description Description, possibly decorated with badges.
+ * @param command Command that owns the description.
+ * @returns The description followed by the alias note, if the command has aliases.
+ */
+function withAliasNote(description: string, command: Command): string {
+  const note = aliasNote(command);
+  if (!note) return description;
+  return description ? `${description} ${note}` : note;
+}
+
+/**
  * Reads raw stability metadata as explicitly configured on the target.
  * @param target Annotated command, option, or argument.
  * @returns Explicit metadata if present, otherwise undefined.
@@ -2417,6 +2484,12 @@ interface CommandInternal extends Command {
   _actionHandler: ((...args: unknown[]) => unknown) | null;
   _getHelpCommand: () => Command | undefined;
   _parseCommand: (operands: string[], unknown: string[]) => unknown;
+  _findCommand: (name: string) => Command | undefined;
+  _dispatchSubcommand: (
+    commandName: string,
+    operands: string[],
+    unknown: string[]
+  ) => unknown;
   _hidden: boolean;
 }
 
@@ -2491,6 +2564,22 @@ const commanderParseCommand = (Command.prototype as unknown as CommandInternal)
   operands: string[],
   unknown: string[]
 ) => unknown;
+
+/**
+ * commander's own _dispatchSubcommand, captured from Command.prototype once at
+ * module load for the same reason as commanderParseCommand.
+ */
+const commanderDispatchSubcommand = (
+  Command.prototype as unknown as CommandInternal
+)._dispatchSubcommand as (
+  this: Command,
+  commandName: string,
+  operands: string[],
+  unknown: string[]
+) => unknown;
+
+/** Transition aliases already announced in this process, by the command path typed. */
+const warnedTransitionAliases = new Set<string>();
 
 /**
  * Thrown by a nested sub-command picker when its user pressed ESC (see
@@ -2761,6 +2850,69 @@ export class FrodoStubCommand extends Command {
     this.error(`error: required option '${option.flags}' not specified`, {
       code: 'commander.missingMandatoryOptionValue',
     });
+  }
+
+  /**
+   * Adds an alias and records why it exists. Use this instead of
+   * `.alias()`, which lint rejects in src/cli. The help names the preferred
+   * name only and ends the description with the alias: `(alias: add)` for a
+   * convenience alias, `(formerly: old)` for a transition alias.
+   * @param name The alias.
+   * @param kind `'convenience'` (the default) for a second spelling that
+   *   stays; `'transition'` for the old name of a renamed command.
+   * @returns This command for chaining.
+   */
+  withAlias(name: string, kind: AliasKind = 'convenience'): this {
+    // eslint-disable-next-line no-restricted-syntax -- the one place that adds an alias, so that its kind is recorded
+    this.alias(name);
+    const kinds = aliasKinds.get(this) ?? new Map<string, AliasKind>();
+    kinds.set(name, kind);
+    aliasKinds.set(this, kinds);
+    return this;
+  }
+
+  /**
+   * commander's _dispatchSubcommand, entered with the word the user typed: the
+   * only place that still knows whether it was the name or an alias (by the
+   * time an action runs, the command knows only its preferred name). When the
+   * word is a transition alias, prints one notice on stderr, once per process
+   * and alias: stdout and the exit code do not change. The interactive picker
+   * dispatches by the preferred name, so it never prints the notice.
+   * Not marked `override`: commander's typings omit the method (as for
+   * `_parseCommand`); verified against commander 15.0.0 lib/command.js.
+   * @param commandName The word typed after this command.
+   * @param operands Operands that follow it.
+   * @param unknown Unclassified arguments that follow it.
+   * @returns What commander returns: the action's result, possibly a promise.
+   */
+  _dispatchSubcommand(
+    commandName: string,
+    operands: string[],
+    unknown: string[]
+  ): unknown {
+    const sub = (this as unknown as CommandInternal)._findCommand(commandName);
+    if (
+      sub &&
+      sub.name() !== commandName &&
+      getAliasKind(sub, commandName) === 'transition'
+    ) {
+      const names: string[] = [this.name(), commandName];
+      for (let c = this.parent; c; c = c.parent) names.unshift(c.name());
+      const typed = names.join(' ');
+      if (!warnedTransitionAliases.has(typed)) {
+        warnedTransitionAliases.add(typed);
+        printMessage(
+          `'${commandName}' is now called '${sub.name()}'. The old name still works and will be removed in a future major release.`,
+          'warn'
+        );
+      }
+    }
+    return commanderDispatchSubcommand.call(
+      this,
+      commandName,
+      operands,
+      unknown
+    );
   }
 
   /**
@@ -3495,7 +3647,10 @@ class FrodoStubHelp extends Help {
    * @returns Possibly decorated description.
    */
   override commandDescription(cmd: Command): string {
-    return decorateDescriptionWithStability(super.commandDescription(cmd), cmd);
+    return withAliasNote(
+      decorateDescriptionWithStability(super.commandDescription(cmd), cmd),
+      cmd
+    );
   }
 
   /**
@@ -3504,8 +3659,8 @@ class FrodoStubHelp extends Help {
    * @returns Possibly decorated description.
    */
   override subcommandDescription(cmd: Command): string {
-    return decorateDescriptionWithStability(
-      super.subcommandDescription(cmd),
+    return withAliasNote(
+      decorateDescriptionWithStability(super.subcommandDescription(cmd), cmd),
       cmd
     );
   }
@@ -3671,13 +3826,26 @@ class FrodoStubHelp extends Help {
   }
 
   /**
-   * Renders subcommand term with first alias, if present.
+   * Renders the subcommand term: the preferred name only. The aliases are
+   * named at the end of the description (see aliasNote), so the list teaches
+   * the preferred name.
    * @param cmd Subcommand.
    * @returns Display label for command list row.
    */
   subcommandTerm(cmd: Command) {
-    const aliases = cmd.aliases();
-    return cmd.name() + (aliases[0] ? '|' + aliases[0] : '');
+    return cmd.name();
+  }
+
+  /**
+   * Renders the usage line with the preferred name only (commander appends
+   * the first alias as `name|alias`).
+   * @param cmd Command being rendered.
+   * @returns Usage line: ancestors, name and the command's own usage.
+   */
+  override commandUsage(cmd: Command): string {
+    const names: string[] = [];
+    for (let c: Command | null = cmd; c; c = c.parent) names.unshift(c.name());
+    return `${names.join(' ')} ${cmd.usage()}`;
   }
 }
 
