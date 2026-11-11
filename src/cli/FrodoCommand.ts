@@ -1472,13 +1472,13 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_AUTHENTICATION_HEADER_OVERRIDES',
     description:
-      'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.',
+      'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments. The values are secrets: a connection profile stores them encrypted.',
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
     name: 'FRODO_CONFIGURATION_HEADER_OVERRIDES',
     description:
-      'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.',
+      'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments. The values are secrets: a connection profile stores them encrypted.',
     group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
