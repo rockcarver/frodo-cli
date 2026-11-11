@@ -17,6 +17,7 @@ Runtime Options:
 
 Commands:
   describe          Describe a CIMD profile.
+  export            Export CIMD profiles.
   list              List CIMD profiles.
 
 Utilities:

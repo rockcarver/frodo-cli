@@ -154,6 +154,31 @@ suite('agent cimd through the CLI', () => {
     );
 
     it(
+      'export -a and -A write nothing and exit 0, export -i exits 1',
+      async () => {
+        const all = await run(
+          onFake(server, ['agent', 'cimd', 'export', '-a', '-D', 'out'])
+        );
+        const separate = await run(
+          onFake(server, ['agent', 'cimd', 'export', '-A', '-D', 'out'])
+        );
+        const one = await run(
+          onFake(server, ['agent', 'cimd', 'export', '-i', 'x', '-D', 'out'])
+        );
+
+        expect(all.stderr).toMatch(NOT_AVAILABLE);
+        expect(all.code).toBe(0);
+        expect(separate.stderr).toMatch(NOT_AVAILABLE);
+        expect(separate.code).toBe(0);
+        expect(one.stderr).toMatch(NOT_AVAILABLE);
+        expect(one.code).toBe(1);
+        expect(fs.existsSync(path.join(work, 'out'))).toBe(false);
+        expect(fs.readdirSync(work)).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
       'describe -i names a profile that cannot exist: the error of the library and exit 1',
       async () => {
         const { code, stdout, stderr } = await run(
@@ -256,6 +281,146 @@ suite('agent cimd through the CLI', () => {
       },
       TIMEOUT
     );
+
+    describe('export', () => {
+      const exported = (name) =>
+        JSON.parse(fs.readFileSync(path.join(work, 'out', name), 'utf8'));
+      const files = () => fs.readdirSync(path.join(work, 'out')).sort();
+
+      it(
+        '-i, -a and -A write the files with the profile in one shape (the file of -i has the profile of -a and -A)',
+        async () => {
+          const one = await run(
+            onFake(server, [
+              'agent',
+              'cimd',
+              'export',
+              '-i',
+              'ZION-MCP-CLIENTS',
+              '-D',
+              'out',
+            ])
+          );
+          const all = await run(
+            onFake(server, ['agent', 'cimd', 'export', '-a', '-D', 'out'])
+          );
+          const separate = await run(
+            onFake(server, ['agent', 'cimd', 'export', '-A', '-D', 'out'])
+          );
+
+          expect([one.code, all.code, separate.code]).toEqual([0, 0, 0]);
+          expect(files()).toEqual([
+            'allAlphaAgents.cimd.agent.json',
+            'alpha-clients.cimd.agent.json',
+            'zion-mcp-clients.cimd.agent.json',
+          ]);
+          // the server's own _rev is not in a file (the library drops it on save)
+          const { _rev, ...expected } = PROFILES[0];
+          expect(_rev).toBeDefined();
+          expect(
+            exported('zion-mcp-clients.cimd.agent.json').cimdProfile
+          ).toEqual({ 'zion-mcp-clients': expected });
+          expect(
+            exported('allAlphaAgents.cimd.agent.json').cimdProfile[
+              'zion-mcp-clients'
+            ]
+          ).toEqual(expected);
+          expect(
+            Object.keys(exported('allAlphaAgents.cimd.agent.json').cimdProfile)
+          ).toEqual(['alpha-clients', 'zion-mcp-clients']);
+        },
+        TIMEOUT
+      );
+
+      it(
+        '-i with -f and -N writes the named file without metadata',
+        async () => {
+          const { code } = await run(
+            onFake(server, [
+              'agent',
+              'cimd',
+              'export',
+              '-i',
+              'zion-mcp-clients',
+              '-f',
+              'mine.json',
+              '-N',
+              '-D',
+              'out',
+            ])
+          );
+
+          expect(code).toBe(0);
+          expect(files()).toEqual(['mine.json']);
+          expect(Object.keys(exported('mine.json'))).toEqual(['cimdProfile']);
+        },
+        TIMEOUT
+      );
+
+      it(
+        '-A with a file that cannot be written names that profile, writes the others and exits 1; with --allow-failures it exits 0',
+        async () => {
+          // a folder where the file of one profile should go
+          fs.mkdirSync(
+            path.join(work, 'out', 'alpha-clients.cimd.agent.json'),
+            {
+              recursive: true,
+            }
+          );
+          const failing = await run(
+            onFake(server, ['agent', 'cimd', 'export', '-A', '-D', 'out'])
+          );
+          const allowed = await run(
+            onFake(server, [
+              'agent',
+              'cimd',
+              'export',
+              '-A',
+              '-D',
+              'out',
+              '--allow-failures',
+            ])
+          );
+
+          expect(failing.stderr).toMatch(
+            /1 of 2 profiles failed:\n\s+- alpha-clients/
+          );
+          expect(failing.stderr).not.toContain('--allow-failures was given');
+          expect(failing.code).toBe(1);
+          expect(allowed.stderr).toMatch(/1 of 2 profiles failed:/);
+          expect(allowed.stderr).toContain(
+            'The exit code stays 0 because --allow-failures was given.'
+          );
+          expect(allowed.code).toBe(0);
+          expect(
+            exported('zion-mcp-clients.cimd.agent.json').cimdProfile
+          ).toHaveProperty('zion-mcp-clients');
+        },
+        TIMEOUT
+      );
+
+      it(
+        '-i of an unknown id exits 1 and writes nothing',
+        async () => {
+          const { code, stderr } = await run(
+            onFake(server, [
+              'agent',
+              'cimd',
+              'export',
+              '-i',
+              'missing',
+              '-D',
+              'out',
+            ])
+          );
+
+          expect(stderr).toContain('CIMD profile missing not found');
+          expect(code).toBe(1);
+          expect(fs.existsSync(path.join(work, 'out'))).toBe(false);
+        },
+        TIMEOUT
+      );
+    });
 
     it(
       'describe -i of an unknown id exits 1 and says so',

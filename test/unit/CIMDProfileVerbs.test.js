@@ -17,6 +17,9 @@ const getTokens = jest.fn();
 const ops = {
   listCIMDProfiles: jest.fn(),
   describeCIMDProfile: jest.fn(),
+  exportCIMDProfileToFile: jest.fn(),
+  exportCIMDProfilesToFile: jest.fn(),
+  exportCIMDProfilesToFiles: jest.fn(),
 };
 
 // what the real FrodoCommand adds, as far as the commands use it
@@ -66,6 +69,8 @@ const { default: setupList } =
   await import('../../src/cli/agent/agent-cimd-list');
 const { default: setupDescribe } =
   await import('../../src/cli/agent/agent-cimd-describe');
+const { default: setupExport } =
+  await import('../../src/cli/agent/agent-cimd-export');
 
 /** Parses a real command line; commander errors are thrown, not printed. */
 async function parse(setup, ...argv) {
@@ -94,11 +99,12 @@ afterEach(() => {
 });
 
 describe('agent cimd', () => {
-  test('the group offers list and describe, and no alias', () => {
+  test('the group offers its verbs, and no alias', () => {
     const group = setupGroup();
     expect(group.commands.map((command) => command.name())).toEqual([
       'list',
       'describe',
+      'export',
     ]);
     for (const command of group.commands) {
       expect(command.aliases()).toEqual([]);
@@ -108,10 +114,11 @@ describe('agent cimd', () => {
   test('the commands take the default deployment types: no list is passed to the command or to the login', async () => {
     await parse(setupList);
     await parse(setupDescribe, '-i', 'zion-mcp-clients');
+    await parse(setupExport, '-a');
 
     // new FrodoCommand(name) and nothing else
-    expect(constructed.map((args) => args.length)).toEqual([1, 1]);
-    expect(getTokens.mock.calls).toEqual([[], []]);
+    expect(constructed.map((args) => args.length)).toEqual([1, 1, 1]);
+    expect(getTokens.mock.calls).toEqual([[], [], []]);
   });
 });
 
@@ -184,6 +191,99 @@ describe('agent cimd describe', () => {
 
     await parse(setupDescribe, '-i', 'zion-mcp-clients');
 
+    expect(process.exitCode).toBe(1);
+  });
+});
+
+describe('agent cimd export', () => {
+  test('the user has to choose what to export, and the command is a multi-operation command', () => {
+    expect(rulesOf(setupExport)).toEqual({
+      oneOf: {
+        options: ['all', 'allSeparate', 'agentId'],
+        purpose: 'what to export',
+      },
+      multiOp: true,
+    });
+  });
+
+  test('-i exports that profile, with the metadata by default', async () => {
+    await parse(setupExport, '-i', 'zion-mcp-clients');
+
+    expect(ops.exportCIMDProfileToFile.mock.calls).toEqual([
+      ['zion-mcp-clients', undefined, true],
+    ]);
+    expect(ops.exportCIMDProfilesToFile).not.toHaveBeenCalled();
+    expect(ops.exportCIMDProfilesToFiles).not.toHaveBeenCalled();
+  });
+
+  test('-f and -N are passed on', async () => {
+    await parse(setupExport, '-i', 'zion-mcp-clients', '-f', 'mine.json', '-N');
+
+    expect(ops.exportCIMDProfileToFile.mock.calls).toEqual([
+      ['zion-mcp-clients', 'mine.json', false],
+    ]);
+  });
+
+  test('-a exports all profiles to one file', async () => {
+    await parse(setupExport, '-a', '-f', 'all.json');
+
+    expect(ops.exportCIMDProfilesToFile.mock.calls).toEqual([
+      ['all.json', true],
+    ]);
+    expect(ops.exportCIMDProfileToFile).not.toHaveBeenCalled();
+    expect(ops.exportCIMDProfilesToFiles).not.toHaveBeenCalled();
+  });
+
+  test('-A exports all profiles to separate files and passes --allow-failures on', async () => {
+    await parse(setupExport, '-A', '--allow-failures');
+    await parse(setupExport, '-A', '-N');
+
+    expect(ops.exportCIMDProfilesToFiles.mock.calls).toEqual([
+      [true, true],
+      [false, undefined],
+    ]);
+    expect(ops.exportCIMDProfileToFile).not.toHaveBeenCalled();
+    expect(ops.exportCIMDProfilesToFile).not.toHaveBeenCalled();
+  });
+
+  test('an unset -i (the picker had nothing to offer) goes to the single export, which says why and fails; it never exports everything', async () => {
+    // requireOneOf is satisfied by the picker in the real command, so the
+    // mocked rule lets the command line through here
+    ops.exportCIMDProfileToFile.mockResolvedValue(false);
+
+    await parse(setupExport);
+
+    expect(ops.exportCIMDProfileToFile.mock.calls).toEqual([
+      [undefined, undefined, true],
+    ]);
+    expect(ops.exportCIMDProfilesToFile).not.toHaveBeenCalled();
+    expect(ops.exportCIMDProfilesToFiles).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test.each([
+    [['-i', 'x', '-a']],
+    [['-i', 'x', '-A']],
+    [['-a', '-A']],
+    [['-A', '-f', 'x.json']],
+  ])('%j is rejected while parsing, before anything is sent', async (argv) => {
+    await expect(parse(setupExport, ...argv)).rejects.toMatchObject({
+      code: 'commander.conflictingOption',
+    });
+
+    expect(getTokens).not.toHaveBeenCalled();
+  });
+
+  test('a failed login, a declined pick or a failed export exits 1', async () => {
+    getTokens.mockResolvedValue(false);
+    await parse(setupExport, '-a');
+    expect(ops.exportCIMDProfilesToFile).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    getTokens.mockResolvedValue(true);
+    ops.exportCIMDProfilesToFile.mockResolvedValue(false);
+    await parse(setupExport, '-a');
     expect(process.exitCode).toBe(1);
   });
 });

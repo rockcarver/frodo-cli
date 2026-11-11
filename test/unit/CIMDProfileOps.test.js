@@ -15,7 +15,11 @@
  *   failure for a command that names a profile;
  * - the ops code does not branch on the deployment type.
  */
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { jest } from '@jest/globals';
+import { getTypedFilename } from '../utils/LibFilenames.js';
 
 const HOST = 'https://openam-zion.example.com/am';
 
@@ -105,6 +109,9 @@ let availabilityFailure;
 let deploymentType = 'cloud';
 let realm = '/alpha';
 const calls = [];
+let baseDirectory = '';
+/** Decides which file the fake `saveJsonToFile` cannot write. */
+let cannotWrite = () => false;
 
 const lib = {
   isCIMDProfileAvailable: async () => {
@@ -125,6 +132,29 @@ const lib = {
     if (!found) throw new Error(`alpha realm CIMD profile ${id} not found`);
     return structuredClone(found);
   },
+  createCIMDProfileExportTemplate: () => ({
+    meta: { origin: HOST },
+    cimdProfile: {},
+  }),
+  exportCIMDProfile: async (id) => {
+    calls.push(['exportCIMDProfile', id]);
+    if (readFailure) throw readFailure;
+    if (!offered) throw NOT_AVAILABLE();
+    const profile = await lib.readCIMDProfile(id);
+    return { meta: { origin: HOST }, cimdProfile: { [profile._id]: profile } };
+  },
+  exportCIMDProfiles: async () => {
+    calls.push(['exportCIMDProfiles']);
+    if (readFailure) throw readFailure;
+    return {
+      meta: { origin: HOST },
+      cimdProfile: offered
+        ? Object.fromEntries(
+            structuredClone(stored).map((profile) => [profile._id, profile])
+          )
+        : {},
+    };
+  },
 };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
@@ -137,6 +167,23 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     utils: {
       // as the library has it: the root realm is '/'
       getRealmName: (name) => (name === '/' ? '/' : name.split('/').pop()),
+      getTypedFilename,
+      titleCase: (input) =>
+        input
+          .toString()
+          .toLowerCase()
+          .split(' ')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' '),
+      getFilePath: (file) =>
+        baseDirectory ? path.join(baseDirectory, file) : file,
+      // as the library has it, as far as these tests look: the metadata can be left out
+      saveJsonToFile: (data, file, includeMeta) => {
+        if (cannotWrite(file)) throw new Error('could not write the file');
+        const copy = structuredClone(data);
+        if (!includeMeta) delete copy.meta;
+        fs.writeFileSync(file, JSON.stringify(copy, null, 2));
+      },
     },
     oauth2oidc: { cimd: lib },
   },
@@ -158,6 +205,10 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
       toString: () => rows.map((row) => row.join(' | ')).join('\n'),
     };
   },
+  createProgressIndicator: () => 'indicator',
+  updateProgressIndicator: () => {},
+  stopProgressIndicator: (id, msg, status = 'none') =>
+    printed.push({ msg: String(msg), type: `indicator-${status}` }),
 }));
 
 // the theme reads the terminal helpers of the library; the colours do not matter here
@@ -169,8 +220,18 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
   },
 }));
 
-const { describeCIMDProfile, listCIMDProfiles, reportCIMDProfilesUnavailable } =
-  await import('../../src/ops/CIMDProfileOps.ts');
+const {
+  describeCIMDProfile,
+  exportCIMDProfilesToFile,
+  exportCIMDProfilesToFiles,
+  exportCIMDProfileToFile,
+  listCIMDProfiles,
+  reportCIMDProfilesUnavailable,
+} = await import('../../src/ops/CIMDProfileOps.ts');
+
+const writtenFiles = () => fs.readdirSync(baseDirectory).sort();
+const readWritten = (name) =>
+  JSON.parse(fs.readFileSync(path.join(baseDirectory, name), 'utf8'));
 
 beforeEach(() => {
   printed.length = 0;
@@ -181,6 +242,12 @@ beforeEach(() => {
   availabilityFailure = undefined;
   deploymentType = 'cloud';
   realm = '/alpha';
+  cannotWrite = () => false;
+  baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-cimd-'));
+});
+
+afterEach(() => {
+  fs.rmSync(baseDirectory, { recursive: true, force: true });
 });
 
 describe('listCIMDProfiles', () => {
@@ -478,6 +545,382 @@ describe('reportCIMDProfilesUnavailable', () => {
   });
 });
 
+describe('exportCIMDProfileToFile', () => {
+  test('writes <id>.cimd.agent.json with the profile under the key cimdProfile, and the metadata', async () => {
+    const profile = plainProfile('zion-mcp-clients');
+    stored = [profile];
+
+    expect(await exportCIMDProfileToFile('zion-mcp-clients')).toBe(true);
+
+    expect(writtenFiles()).toEqual(['zion-mcp-clients.cimd.agent.json']);
+    expect(readWritten('zion-mcp-clients.cimd.agent.json')).toEqual({
+      meta: { origin: HOST },
+      cimdProfile: { 'zion-mcp-clients': profile },
+    });
+    expect(messages('indicator-success')).toEqual([
+      expect.stringMatching(
+        /^Exported zion-mcp-clients to .*zion-mcp-clients\.cimd\.agent\.json\.$/
+      ),
+    ]);
+  });
+
+  test('-f names the file, -N leaves the metadata out', async () => {
+    stored = [plainProfile('zion-mcp-clients')];
+
+    expect(
+      await exportCIMDProfileToFile('zion-mcp-clients', 'mine.json', false)
+    ).toBe(true);
+
+    expect(writtenFiles()).toEqual(['mine.json']);
+    expect(Object.keys(readWritten('mine.json'))).toEqual(['cimdProfile']);
+  });
+
+  test('a profile typed in another case is written as stored, under the stored id and its file name', async () => {
+    stored = [plainProfile('zion-mcp-clients')];
+
+    expect(await exportCIMDProfileToFile('ZION-MCP-CLIENTS')).toBe(true);
+
+    expect(writtenFiles()).toEqual(['zion-mcp-clients.cimd.agent.json']);
+    expect(
+      Object.keys(readWritten('zion-mcp-clients.cimd.agent.json').cimdProfile)
+    ).toEqual(['zion-mcp-clients']);
+  });
+
+  test('a sparse profile is written as it is: no group added, no null filled in', async () => {
+    const profile = sparseProfile('sparse');
+    stored = [profile];
+
+    expect(await exportCIMDProfileToFile('sparse')).toBe(true);
+
+    expect(readWritten('sparse.cimd.agent.json').cimdProfile.sparse).toEqual(
+      profile
+    );
+  });
+
+  test('a profile that does not exist fails, writes no file and says so', async () => {
+    stored = [plainProfile('zion-mcp-clients')];
+
+    expect(await exportCIMDProfileToFile('missing')).toBe(false);
+
+    expect(writtenFiles()).toEqual([]);
+    expect(messages('error')).toEqual([
+      'alpha realm CIMD profile missing not found',
+    ]);
+    expect(messages('indicator-fail')).toEqual(['Error exporting missing']);
+  });
+
+  test('a realm that does not offer the type fails with the error of the library and writes no file', async () => {
+    offered = false;
+
+    expect(await exportCIMDProfileToFile('zion-mcp-clients')).toBe(false);
+
+    expect(writtenFiles()).toEqual([]);
+    expect(messages('error')).toEqual([
+      "CIMD profiles are not available in the alpha realm of this deployment: the server does not offer the agent type 'CIMDProfile'.",
+    ]);
+  });
+
+  test('a file that cannot be written fails', async () => {
+    stored = [plainProfile('zion-mcp-clients')];
+    cannotWrite = () => true;
+
+    expect(await exportCIMDProfileToFile('zion-mcp-clients')).toBe(false);
+
+    expect(messages('error')).toEqual(['could not write the file']);
+  });
+
+  test('no id, because the picker had nothing to offer: fails, writes nothing, and says why', async () => {
+    expect(await exportCIMDProfileToFile(undefined, undefined)).toBe(false);
+    expect(messages('warn')).toEqual([
+      'There is no CIMD profile to choose from.',
+    ]);
+
+    printed.length = 0;
+    offered = false;
+    expect(await exportCIMDProfileToFile(undefined, undefined)).toBe(false);
+    expect(messages('warn')).toEqual([
+      `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'.`,
+    ]);
+    expect(writtenFiles()).toEqual([]);
+    expect(calls).toEqual([]);
+  });
+});
+
+describe('exportCIMDProfilesToFile', () => {
+  test('writes all profiles to all<Realm>Agents.cimd.agent.json, the realm in its name', async () => {
+    stored = [plainProfile('alpha-clients'), plainProfile('zion-mcp-clients')];
+
+    expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
+
+    expect(writtenFiles()).toEqual(['allAlphaAgents.cimd.agent.json']);
+    expect(
+      Object.keys(readWritten('allAlphaAgents.cimd.agent.json').cimdProfile)
+    ).toEqual(['alpha-clients', 'zion-mcp-clients']);
+    expect(messages('info')).toEqual([
+      expect.stringMatching(
+        /^Exported 2 CIMD profiles to .*allAlphaAgents\.cimd\.agent\.json\.$/
+      ),
+    ]);
+  });
+
+  test('the root realm is named root in the file name', async () => {
+    stored = [plainProfile('zion-mcp-clients')];
+    realm = '/';
+
+    expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
+
+    expect(writtenFiles()).toEqual(['allRootAgents.cimd.agent.json']);
+  });
+
+  test('-f names the file, -N leaves the metadata out', async () => {
+    stored = [plainProfile('zion-mcp-clients')];
+
+    expect(await exportCIMDProfilesToFile('all.json', false)).toBe(true);
+
+    expect(writtenFiles()).toEqual(['all.json']);
+    expect(Object.keys(readWritten('all.json'))).toEqual(['cimdProfile']);
+  });
+
+  test('a realm that offers the type and holds no profile gets a file with an empty section', async () => {
+    expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
+
+    expect(readWritten('allAlphaAgents.cimd.agent.json')).toEqual({
+      meta: { origin: HOST },
+      cimdProfile: {},
+    });
+    expect(messages('warn')).toEqual([]);
+  });
+
+  test('a realm that does not offer the type: the note, no file (it would claim an export that did not happen), and no failure', async () => {
+    offered = false;
+
+    expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
+
+    expect(writtenFiles()).toEqual([]);
+    expect(messages('warn')).toEqual([
+      `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'.`,
+    ]);
+  });
+
+  test('one operation: a read error fails and writes no file', async () => {
+    stored = [plainProfile('zion-mcp-clients')];
+    readFailure = new Error('connection reset');
+
+    expect(await exportCIMDProfilesToFile(undefined)).toBe(false);
+
+    expect(writtenFiles()).toEqual([]);
+    expect(messages('error')).toEqual([
+      'Error exporting all CIMD profiles: connection reset',
+    ]);
+  });
+});
+
+describe('exportCIMDProfilesToFiles', () => {
+  test('writes one file per profile, each with the metadata and only its own profile', async () => {
+    stored = [plainProfile('alpha-clients'), plainProfile('zion-mcp-clients')];
+
+    expect(await exportCIMDProfilesToFiles()).toBe(true);
+
+    expect(writtenFiles()).toEqual([
+      'alpha-clients.cimd.agent.json',
+      'zion-mcp-clients.cimd.agent.json',
+    ]);
+    expect(readWritten('zion-mcp-clients.cimd.agent.json')).toEqual({
+      meta: { origin: HOST },
+      cimdProfile: { 'zion-mcp-clients': plainProfile('zion-mcp-clients') },
+    });
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('-N leaves the metadata out of every file', async () => {
+    stored = [plainProfile('alpha-clients'), plainProfile('zion-mcp-clients')];
+
+    expect(await exportCIMDProfilesToFiles(false)).toBe(true);
+
+    for (const name of writtenFiles()) {
+      expect(Object.keys(readWritten(name))).toEqual(['cimdProfile']);
+    }
+  });
+
+  test('a sparse profile is written as it is', async () => {
+    stored = [sparseProfile('sparse')];
+
+    expect(await exportCIMDProfilesToFiles()).toBe(true);
+
+    expect(readWritten('sparse.cimd.agent.json').cimdProfile.sparse).toEqual(
+      sparseProfile('sparse')
+    );
+  });
+
+  describe('file names', () => {
+    const IDS = [
+      'x'.repeat(7500),
+      'a b',
+      'a-b',
+      'a.b',
+      'a@b',
+      '日本語',
+      '日本',
+      '😀',
+      'Ünï',
+      'zion-mcp-clients',
+    ];
+
+    const run = async () => {
+      stored = IDS.map((id) => sparseProfile(id));
+      expect(await exportCIMDProfilesToFiles()).toBe(true);
+      return writtenFiles();
+    };
+
+    test('every id gets a distinct, valid file name of at most 140 characters, and the file still holds the exact id', async () => {
+      const files = await run();
+
+      expect(files).toHaveLength(IDS.length);
+      expect(new Set(files.map((name) => name.toLowerCase())).size).toBe(
+        IDS.length
+      );
+      for (const name of files) {
+        expect(name.length).toBeLessThanOrEqual(140);
+        expect(name).toMatch(/^[^/\\\0]+\.cimd\.agent\.json$/);
+      }
+      const idsInFiles = files.flatMap((name) =>
+        Object.keys(readWritten(name).cimdProfile)
+      );
+      expect(idsInFiles.sort()).toEqual([...IDS].sort());
+      // an id that makes a usable file name keeps it
+      expect(files).toContain('zion-mcp-clients.cimd.agent.json');
+      expect(files).toContain('a.b.cimd.agent.json');
+      expect(files).toContain('a@b.cimd.agent.json');
+      expect(files).toContain('Uni.cimd.agent.json');
+    });
+
+    test('the names are deterministic: a second export writes the same names', async () => {
+      const first = await run();
+      fs.rmSync(baseDirectory, { recursive: true, force: true });
+      baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-cimd-'));
+
+      expect(await run()).toEqual(first);
+    });
+
+    test('a name that was changed is mentioned once, a name that was not is not', async () => {
+      await run();
+
+      const mentioned = messages('info').filter((msg) =>
+        msg.includes('does not make a usable file name')
+      );
+      // the 7,500 characters, the second of `a b` and `a-b`, the two CJK ids and the emoji
+      expect(mentioned).toHaveLength(5);
+      expect(mentioned.join('\n')).not.toContain('zion-mcp-clients');
+    });
+
+    test('-i with a long id uses the same function', async () => {
+      stored = [sparseProfile('y'.repeat(7500))];
+
+      expect(await exportCIMDProfileToFile('y'.repeat(7500))).toBe(true);
+
+      const [name] = writtenFiles();
+      expect(name.length).toBeLessThanOrEqual(140);
+      expect(name).toMatch(/^y{100}-[0-9a-f]{8}\.cimd\.agent\.json$/);
+    });
+  });
+
+  describe('decision record 0040', () => {
+    const four = () => ['a', 'b', 'c', 'd'].map((id) => plainProfile(id));
+
+    test('a profile whose file cannot be written is named in one summary, the others are still written, and the command fails', async () => {
+      stored = four();
+      cannotWrite = (file) => path.basename(file).startsWith('b.');
+
+      expect(await exportCIMDProfilesToFiles()).toBe(false);
+
+      expect(writtenFiles()).toEqual([
+        'a.cimd.agent.json',
+        'c.cimd.agent.json',
+        'd.cimd.agent.json',
+      ]);
+      expect(messages('error')).toEqual([
+        'could not write the file',
+        '1 of 4 profiles failed:\n  - b: could not write the file',
+      ]);
+    });
+
+    test('with --allow-failures the failure is still printed and the command succeeds', async () => {
+      stored = four();
+      cannotWrite = (file) => path.basename(file).startsWith('b.');
+
+      expect(await exportCIMDProfilesToFiles(true, true)).toBe(true);
+
+      expect(messages('error')).toEqual(['could not write the file']);
+      expect(messages('warn')).toEqual([
+        '1 of 4 profiles failed:\n  - b: could not write the file\nThe exit code stays 0 because --allow-failures was given.',
+      ]);
+    });
+
+    test('two failures are both named', async () => {
+      stored = four();
+      cannotWrite = (file) => /^[bc]\./.test(path.basename(file));
+
+      expect(await exportCIMDProfilesToFiles()).toBe(false);
+
+      expect(messages('error').at(-1)).toBe(
+        '2 of 4 profiles failed:\n  - b: could not write the file\n  - c: could not write the file'
+      );
+      expect(writtenFiles()).toEqual([
+        'a.cimd.agent.json',
+        'd.cimd.agent.json',
+      ]);
+    });
+
+    test('a failure to read the profiles fails the command whatever --allow-failures says', async () => {
+      stored = four();
+      readFailure = new Error('connection reset');
+
+      expect(await exportCIMDProfilesToFiles(true, false)).toBe(false);
+      expect(await exportCIMDProfilesToFiles(true, true)).toBe(false);
+
+      expect(writtenFiles()).toEqual([]);
+      expect(messages('indicator-fail')).toHaveLength(2);
+    });
+
+    test('a realm that offers the type and holds no profile: nothing to export is not a failure, and no file is written', async () => {
+      expect(await exportCIMDProfilesToFiles()).toBe(true);
+
+      expect(writtenFiles()).toEqual([]);
+      expect(messages('info')).toEqual(['Nothing to export.']);
+      expect(messages('error')).toEqual([]);
+    });
+
+    test('a realm that does not offer the type: the note, no file, and no failure', async () => {
+      offered = false;
+
+      expect(await exportCIMDProfilesToFiles()).toBe(true);
+
+      expect(writtenFiles()).toEqual([]);
+      expect(messages('warn')).toEqual([
+        `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'.`,
+      ]);
+      expect(messages('info')).toEqual([]);
+    });
+  });
+});
+
+describe('what an export file holds', () => {
+  test('a CIMD profile holds no secret: none of the files has a userpassword, a client_secret or an -encrypted key', async () => {
+    stored = [plainProfile('alpha-clients'), plainProfile('zion-mcp-clients')];
+
+    expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
+    expect(await exportCIMDProfilesToFiles()).toBe(true);
+    expect(await exportCIMDProfileToFile('alpha-clients', 'one.json')).toBe(
+      true
+    );
+
+    for (const name of writtenFiles()) {
+      const text = fs.readFileSync(path.join(baseDirectory, name), 'utf8');
+      expect(text).not.toMatch(/userpassword|client_secret|-encrypted"/i);
+    }
+  });
+});
+
 // The same expectations on every deployment: the ops code must not branch on it.
 describe.each(['cloud', 'forgeops', 'classic'])(
   'on a %s deployment',
@@ -495,6 +938,20 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       expect(messages('data')).toEqual([
         'zion-mcp-clients',
         expect.stringContaining('Agent Id | zion-mcp-clients'),
+      ]);
+    });
+
+    test('the exports give the same files', async () => {
+      stored = [plainProfile('zion-mcp-clients'), sparseProfile('sparse')];
+
+      expect(await exportCIMDProfileToFile('sparse', undefined)).toBe(true);
+      expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
+      expect(await exportCIMDProfilesToFiles()).toBe(true);
+
+      expect(writtenFiles()).toEqual([
+        'allAlphaAgents.cimd.agent.json',
+        'sparse.cimd.agent.json',
+        'zion-mcp-clients.cimd.agent.json',
       ]);
     });
 
