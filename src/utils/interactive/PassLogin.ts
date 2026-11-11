@@ -24,6 +24,8 @@ export type PassLoginSession = {
   forceLoginAsUser: boolean;
   /** Whether the login keeps its tokens fresh. */
   autoRefresh: boolean;
+  /** Who is logged in, when the login said so (the connection page shows it). */
+  subject?: string;
 };
 
 /** `connectionFingerprint` of the command when the pass wrote its connection into frodo-lib's state, if it did. */

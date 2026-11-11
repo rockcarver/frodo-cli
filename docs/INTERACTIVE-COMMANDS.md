@@ -47,14 +47,19 @@ FRODO_USERNAME`). The page is the only prompt for them: it opens on the
    first row without a value, its footer is the command as it would run
    (red until every row has a value, then green, the password masked),
    and `<esc>` cancels the command. No unframed `Username:`/`Password:`
-   prompt sits behind it.
-3. **The login, if a picker needs it, and the realm picker**
-   ([record 0044](decisions/0044-the-login-happens-in-the-resolution-pass-when-a-picker-needs-it-and-the-ready-step-is-the-last-prompt.md);
-   see "Pickers that need a login"). The pickers read the target system, so
-   the pass logs in as soon as the connection is settled, and only when the
-   realm picker can open or an entity pick that needs tokens will. A command
-   for which neither is true makes no login here; it logs in after the Ready
-   step, as before.
+   prompt sits behind it. Where a realm picker may follow, the page also
+   logs in and carries the realm
+   ([record 0046](decisions/0046-the-realm-is-a-row-of-the-connection-page.md);
+   see "The connection page" below).
+3. **The login, if a picker needs it, and the realm**
+   ([record 0044](decisions/0044-the-login-happens-in-the-resolution-pass-when-a-picker-needs-it-and-the-ready-step-is-the-last-prompt.md)
+   and [record 0046](decisions/0046-the-realm-is-a-row-of-the-connection-page.md);
+   see "The connection page" and "Pickers that need a login"). The pickers
+   read the target system, so the pass logs in as soon as the connection is
+   settled, and only when the realm picker can open or an entity pick that
+   needs tokens will. The realm is chosen on the connection page, not in a
+   prompt of its own. A command for which neither is true makes no login
+   here; it logs in after the Ready step, as before.
 4. **Deferred mandatory options** — `FrodoCommand` overrides commander's
    `missingMandatoryOptionValue()` to DEFER violations into a registry
    instead of throwing at parse time; the pass then prompts for each
@@ -172,12 +177,76 @@ from) and `command.args` (what `handleDefaultArgsAndOpts` iterates) —
 commander's `_processArguments` never writes back, so a single-surface
 write would be invisible to one of the two consumers.
 
+## The connection page
+
+The connection page (`ConnectionPagePrompt.ts`) is where the user settles who
+logs in to what: rows `host`, `username` and `password` (each with where its
+value came from), and, once a login has shown that the system has several
+realms, a `realm` row (record 0046). `<enter>` on a row edits it, `<enter>` on
+Done goes on, `<esc>` cancels the command.
+
+```
+┌ Navigate ─────────────────────────────────────────────────────────┐
+│ [⏶⏷] move · [ENTER] next · [ESC] cancel                           │
+└───────────────────────────────────────────────────────────────────┘
+┌ ? Connection: ────────────────────────────────────────────────────┐
+│   host: https://openam-matrix.example.com/am                      │
+│   username: someone                                               │
+│   password: ••••••••                                              │
+│   realm: alpha (default)                                          │
+│ › Done — continue with these values                               │
+│                                                                   │
+│ Connected as someone                                              │
+└───────────────────────────────────────────────────────────────────┘
+frodo journey list https://openam-matrix.example.com/am someone ********
+```
+
+- **Where it logs in.** Where a realm picker may open (the conditions of
+  record 0001 and `realmPickerApplies`: the command declares a realm, the realm
+  was left at its default, a connection prompt is on screen, and the page is
+  one), Done on a complete page logs in. Enter on Done says `connect` until
+  that login is made and `next` after it. A page for a command that no realm
+  picker can follow does not log in; Done concludes it as it always did.
+- **While it logs in.** The pass closes the page and draws its frame again
+  with `Logging in...` (`TransientFrame.ts`). It is not a prompt: the login may
+  ask for a second factor, which reads the terminal itself, and a browser login
+  prints an address. Whatever the login prints or asks (`printMessage`, the
+  synchronous `question`, the start of any prompt) takes the frame away first,
+  then the page opens again with the outcome.
+- **The Realm row.** With several realms the page opens again with
+  `Connected as <who>` and the row, which shows the default (the realm the
+  deployment type maps to, or `All realms` for a `config-manager` command that
+  uses its realm) with the note `default` until the user chooses. `<enter>` on
+  it opens the realms in a box under the page (type to filter, `<enter>` picks,
+  `<esc>` keeps what the row had); the footer follows the highlighted realm. The
+  cursor is on Done: `<enter>` keeps the default and goes on. With one realm
+  (or realms that cannot be read) the page concludes as soon as the login
+  succeeded, with no second `<enter>`.
+- **A failed login** is shown in the page (`Login failed: <first line>`);
+  `<enter>` or `<esc>` closes it, the error and its hint are printed and the
+  command ends with exit code 1. The page does not open again.
+- **Editing the connection after the login** (the host, the username or the
+  password) drops the session and the realm choice: the row goes, Done says
+  `connect` again and logs in again. Escape on the page cancels the command,
+  also after the login (exit code 0, nothing printed).
+- **No page, and a realm to choose.** A saved connection or the environment can
+  answer the connection, so no page is asked for. If a connection prompt was
+  shown anyway (the profile picker, a host typed) and a realm picker may follow,
+  the pass logs in, and only when the system has several realms shows the page,
+  already connected, with the host and the Realm row. With one realm no screen
+  appears.
+- The picked realm lands where the standalone picker put it: frodo-lib's state,
+  the `realm` positional, the command preview and the authoring print
+  (`applyRealmRowChoice`). The decisions (which label, whether to log in,
+  what follows) are in the zero-import `ConnectionPageState.ts`.
+
 ## Pickers that need a login
 
 The realm and entity pickers read the target system, so their loaders need
 tokens. They run in the resolution pass, right after the login the pass makes
-for them (decision record 0044), and the Ready step comes after them. Their
-Enter says `next`:
+for them (decision record 0044), and the Ready step comes after them. The
+realm is a row of the connection page (above); an entity pick is a prompt of
+its own, and its Enter says `next`:
 
 - **The login of the pass** (`PassLogin.ts` holds its state and the decision;
   `loginInPass` in `AuthenticateOps.ts` makes it). It is made when the realm
@@ -197,8 +266,9 @@ Enter says `next`:
   log in as usual. The realm picker and each entity pick run once: the
   `getTokens` wrapper offers them only to a command whose pass made no login.
 
-- **The realm picker** (`RealmPickers.ts`; `realmPickerApplies` is the
-  decision the pass reads) — offered only when the command
+- **The realm** (`RealmPickers.ts`; `realmPickerApplies` is the decision the
+  pass reads; the choice is made on the connection page, `realmRowSetup`
+  builds the row) — offered only when the command
   declares a `[realm]` argument, the user did not specify it (positionally or
   with `FRODO_REALM`), the resolution pass prompted for another required
   connection input (such as a missing host, credentials, or connection-profile
@@ -208,8 +278,10 @@ Enter says `next`:
   default indistinguishable afterward. Both a positional realm and
   `FRODO_REALM` count as user-specified. If realm is the only omitted value,
   no picker opens: frodo-lib uses the deployment default (`alpha` on Identity
-  Cloud; `/` on classic and ForgeOps). Escape keeps that default; Enter on the
-  highlighted default also keeps it and concludes the picker.
+  Cloud; `/` on classic and ForgeOps). Escape keeps that default; choosing the
+  default also keeps it. A realm picker that runs outside the pass (the
+  `getTokens` wrapper of a command whose pass made no login) is still the
+  standalone prompt.
 
   **`config-manager` commands** differ, because they read "no realm" as every
   realm. A command that uses its realm declares `.usesRealm()`
@@ -631,7 +703,8 @@ unsatisfied groups, failed auth) print nothing.
   value; an empty string hides the key); `selectWithEditorRouting` gives `next`
   to every picker of the pass, and the realm and entity pickers set it when
   they run there, so a new picker needs nothing. The
-  Connection page's `Done` row says `continue`, not `run`.
+  Connection page's `Done` row says `connect` while the page still has to log in
+  and `next` otherwise (record 0046), never `run`; its rows say `edit`.
 - `<space>` — multi-value select only (the invocation editor). Marking
   an option that needs a value side-steps straight into its inline
   value box (a picker for `.choices()` options, free text otherwise);
@@ -772,7 +845,8 @@ Everything the tests must reach therefore lives in zero-import modules
 under `src/utils/interactive/`: `PromptGateState`,
 `ActiveActionCommandState`, `AuthoringPrintState`, `PositionalArgs`,
 `EditableOptions`, `CommandPreview`, `EntityPickers` (registry only),
-`PassLogin`, `ReadyStep`, `DefaultsStore`, `PathOptions`, `FileSystemPaths`. Each is pure fs/commander/none; the resolver and
+`PassLogin`, `ReadyStep`, `ConnectionPageState`, `TransientFrame`,
+`DefaultsStore`, `PathOptions`, `FileSystemPaths`. Each is pure fs/commander/none; the resolver and
 command wiring lazy-import whatever carries a frodo-lib graph.
 
 ## Layering: where interactive code lives

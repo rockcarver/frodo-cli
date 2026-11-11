@@ -105,6 +105,8 @@ suite('the Ready step, on a real terminal', () => {
     { type: 'wait_plain', regex: 'password: ••••••••', timeoutMs: 8000 },
     { type: 'sleep', ms: 400 },
     { type: 'key', name: 'down' },
+    { type: 'sleep', ms: 300 },
+    { type: 'capture', label: 'done' },
     { type: 'key', name: 'enter' },
   ];
 
@@ -127,10 +129,15 @@ suite('the Ready step, on a real terminal', () => {
     expect(footer(ready)).toContain(`frodo conn save ${host} someone`);
     expect(footer(ready)).not.toContain('secretpw');
     // the Connection page before it did not claim to run anything
+    // (a field row says edit; the Done row says next: the Ready step follows,
+    // and this command has no realm to choose, so the page does not log in)
     const page = lastFrame(result.captures.page.plain);
-    expect(navigate(page)).toContain('[ENTER] edit / done');
-    expect(page).toContain('Done — continue with these values');
-    expect(page).not.toMatch(/Done — run/);
+    expect(navigate(page)).toContain('[ENTER] edit');
+    expect(navigate(page)).not.toContain('done');
+    const done = lastFrame(result.captures.done.plain);
+    expect(navigate(done)).toContain('[ENTER] next');
+    expect(done).toContain('Done — continue with these values');
+    expect(done).not.toMatch(/Done — run/);
     // the command is complete, so the footer is green, not red and italic
     expect(
       footerStyle(result.captures.ready.raw, 'frodo conn save')

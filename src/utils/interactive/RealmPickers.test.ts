@@ -211,4 +211,51 @@ describe('realmPickerApplies: the conditions that are known before the login', (
     noteRequiredInputPrompted(true);
     expect(realmPickerApplies(command)).toBe(false);
   });
+
+  describe('with the connection page on the screen (record 0046)', () => {
+    // The page is itself a connection prompt, before the pass has recorded
+    // that one was shown, so it says so; every other condition holds.
+    it('applies though the pass has not recorded a connection prompt yet', async () => {
+      const command = await parsed(['matrix']);
+      noteRealmProvenance(command);
+      noteRequiredInputPrompted(false);
+      expect(realmPickerApplies(command)).toBe(false);
+      expect(realmPickerApplies(command, { connectionPrompted: true })).toBe(
+        true
+      );
+    });
+
+    it('does not apply when the user named a realm', async () => {
+      const command = await parsed(['matrix', 'bravo']);
+      noteRealmProvenance(command);
+      expect(realmPickerApplies(command, { connectionPrompted: true })).toBe(
+        false
+      );
+    });
+
+    it('does not apply to a command without a realm argument', () => {
+      const command = makeCommand(false);
+      noteRealmProvenance(command);
+      expect(realmPickerApplies(command, { connectionPrompted: true })).toBe(
+        false
+      );
+    });
+
+    it('does not apply outside the prompt gate', async () => {
+      process.env.FRODO_NO_PROMPT = '1';
+      const command = await parsed(['matrix']);
+      noteRealmProvenance(command);
+      expect(realmPickerApplies(command, { connectionPrompted: true })).toBe(
+        false
+      );
+    });
+
+    it('does not apply when the page is not on the screen', async () => {
+      const command = await parsed(['matrix']);
+      noteRealmProvenance(command);
+      expect(realmPickerApplies(command, { connectionPrompted: false })).toBe(
+        false
+      );
+    });
+  });
 });

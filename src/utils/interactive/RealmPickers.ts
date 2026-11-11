@@ -46,10 +46,11 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 import { verboseMessage } from '../Console';
+import type { RealmRow, RealmRowChoice } from './ConnectionPageState';
 import { editableOptionsHint } from './EditableOptions';
 import { escapableSelect, ESCAPE, RIGHT } from './EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from './ExitAll';
-import { positionalValue } from './PositionalArgs';
+import { positionalValue, replacePositionalValue } from './PositionalArgs';
 import { canPrompt } from './PromptGateState';
 import { NEXT_LABEL } from './ReadyStep';
 import { ignoresRealm, realmPickerWanted, realmUseOf } from './RealmUse';
@@ -128,9 +129,13 @@ export function resetRealmPickerStateForTests(): void {
  * system has more than one realm, needs the login to be known. The resolution
  * pass asks it to decide whether it must log in for the picker.
  * @param command the command that is being resolved
+ * @param options.connectionPrompted a connection prompt is on the screen now (the connection page, record 0046)
  * @returns true when the picker may open once a login exists
  */
-export function realmPickerApplies(command: Command): boolean {
+export function realmPickerApplies(
+  command: Command,
+  options: { connectionPrompted?: boolean } = {}
+): boolean {
   if (!canPrompt()) return false;
   if (!command.registeredArguments.some((a) => a.name() === 'realm')) {
     return false;
@@ -142,7 +147,9 @@ export function realmPickerApplies(command: Command): boolean {
   // without it the realm changes nothing, so do not ask (see RealmUse).
   if (!realmPickerWanted(command)) return false;
   if (realmUserSpecified) return false;
-  return requiredInputPrompted;
+  // the connection page is itself a connection prompt on the screen, before the
+  // pass has recorded that one was shown (record 0046)
+  return requiredInputPrompted || options.connectionPrompted === true;
 }
 
 /**
@@ -297,4 +304,114 @@ export async function resolveRealmPick(
     setPositionalValueForCommand(command, 'realm', choice.replace(/^\//, ''));
   }
   verboseMessage(`Using realm ${choice}.`);
+}
+
+/**
+ * The Realm row of the connection page (record 0046), once the login has
+ * shown what the system has: the realms to choose from, with the default
+ * the row shows until the user chooses. Undefined when the system has one
+ * realm, or its realms cannot be read (the default is kept, as with the
+ * picker): the page then has no Realm row and concludes.
+ *
+ * The page asks it after the login of the pass, which makes the same
+ * decisions as `resolveRealmPick`: a command that uses its realm has an `All
+ * realms` row first and makes it the default, any other has the deployment's
+ * default realm (frodo-lib mapped it during the login) as the default, and a
+ * default the realm list does not hold (the root realm of a classic
+ * deployment) gets a row of its own so the user can return to it.
+ * @param command the command that is being resolved
+ * @returns the row, or undefined when there is no realm to choose
+ */
+export async function realmRowSetup(
+  command: Command
+): Promise<RealmRow | undefined> {
+  let realms: { name: string; active: boolean }[];
+  try {
+    if (!cachedRealms) {
+      const { readRealmsCached } = await import('../../ops/RealmOps');
+      const skeletons = await readRealmsCached();
+      cachedRealms = skeletons.map((realm) => ({
+        name: realm.name ?? realm._id ?? '',
+        active: realm.active ?? true,
+      }));
+    }
+    realms = cachedRealms;
+  } catch {
+    return undefined;
+  }
+  if (realms.length <= 1) return undefined;
+  const current = state.getRealm();
+  const realmUse = realmUseOf(command);
+  const choices: RealmRowChoice[] = realms.map((realm) => ({
+    value: realm.name,
+    name: realm.name,
+    description: realm.active ? undefined : 'inactive',
+  }));
+  if (realmUse) {
+    choices.unshift({
+      value: ALL_REALMS,
+      name: 'All realms',
+      description: 'every realm',
+    });
+  } else if (!choices.some((choice) => choice.value === current)) {
+    choices.unshift({ value: current, name: current });
+  }
+  return {
+    label: 'realm',
+    defaultValue: realmUse ? ALL_REALMS : current,
+    defaultText: realmUse ? 'All realms' : current,
+    choices,
+    message: realmUse
+      ? realmUse.tenantWide
+        ? 'Choose a realm (realm-specific config only; tenant-wide config is always included):'
+        : 'Choose a realm (All realms is the default):'
+      : `Choose a realm (default: ${current}):`,
+  };
+}
+
+/**
+ * The realm the footer of the page shows while `value` is highlighted or
+ * chosen: the `All realms` row stands for the sentinel, which the preview prints
+ * as no realm token.
+ * @param value the value of the choice
+ * @returns what to shadow into the realm positional
+ */
+export function realmForPreview(value: string): string {
+  return value === ALL_REALMS ? DEFAULT_REALM_KEY : value;
+}
+
+/**
+ * Puts the realm the user chose on the connection page where the standalone
+ * picker put it: frodo-lib's state, and the realm positional of the command, so
+ * the command preview and the authoring print show the command exactly as it
+ * runs. Choosing nothing (the default stayed) writes nothing. Only the default
+ * the row showed can be kept: a command that uses its realm reads the sentinel
+ * as every realm, and a realm that is chosen there really narrows the run,
+ * including the deployment's default realm.
+ * @param command the command that is being resolved
+ * @param row the Realm row the user saw
+ * @param chosen the realm chosen, undefined when the default was kept
+ */
+export function applyRealmRowChoice(
+  command: Command,
+  row: RealmRow,
+  chosen: string | undefined
+): void {
+  const realmUse = realmUseOf(command);
+  if (chosen === undefined) {
+    verboseMessage(
+      realmUse
+        ? 'Using all realms.'
+        : `Keeping the default realm ${row.defaultValue}.`
+    );
+    return;
+  }
+  if (realmUse && chosen === ALL_REALMS) {
+    verboseMessage('Using all realms.');
+    return;
+  }
+  state.setRealm(chosen);
+  // the positional convention is the plain name, as the picker writes it
+  replacePositionalValue(command, 'realm', chosen.replace(/^\//, ''));
+  verboseMessage(`Using realm ${chosen}.`);
 }
