@@ -80,10 +80,30 @@ const exitRestrictions = [
     message: exitHint,
   },
 ];
+// An alias is added with FrodoStubCommand.withAlias(name, kind) (src/cli/FrodoCommand.ts),
+// which records why it exists: the help names it at the end of the description
+// ("(alias: add)", "(formerly: old)") and the old name of a renamed command prints a
+// notice when typed. A plain .alias() or .aliases() records nothing. withAlias is the one
+// call that disables this rule on its line, with the reason.
+const aliasHint =
+  "Add an alias with withAlias(name, kind) instead of .alias() or .aliases(): withAlias(name) for a second spelling that stays, withAlias(name, 'transition') for the old name of a renamed command. It records the kind, so the help can say '(alias: add)' or '(formerly: old)' and the old name prints a notice when typed.";
+const aliasRestrictions = [
+  {
+    selector:
+      'CallExpression[callee.property.name=/^alias(es)?$/][arguments.length>0]',
+    message: aliasHint,
+  },
+];
 const syntaxRestrictions = [
   'LabeledStatement',
   'WithStatement',
   "ImportExpression[source.value='@rockcarver/frodo-lib']",
+];
+const commonRestrictions = [
+  ...syntaxRestrictions,
+  ...stdinRestrictions,
+  ...frameWidthRestrictions,
+  ...exitRestrictions,
 ];
 
 export default tseslint.config(
@@ -116,13 +136,7 @@ export default tseslint.config(
       'dot-notation': 'off',
       'no-console': 'warn',
       'no-underscore-dangle': 'off',
-      'no-restricted-syntax': [
-        'error',
-        ...syntaxRestrictions,
-        ...stdinRestrictions,
-        ...frameWidthRestrictions,
-        ...exitRestrictions,
-      ],
+      'no-restricted-syntax': ['error', ...commonRestrictions],
       'no-restricted-imports': [
         'error',
         {
@@ -147,6 +161,12 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
+      // the restrictions of every file, plus the alias rule
+      'no-restricted-syntax': [
+        'error',
+        ...commonRestrictions,
+        ...aliasRestrictions,
+      ],
     },
   },
   {
