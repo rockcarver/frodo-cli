@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { Command, Option } from 'commander';
 import {
-  deferEntityPicks,
   entityPick,
   pendingPassPicks,
   pickNeedsLogin,
-  resolveEntityPicks,
+  resolveFamilyEntityPicks,
   resolvePassEntityPicks,
+  type EntityPickSpec,
 } from './EntityPickers';
 import { registerEntityPickFamily } from './EntityPickRegistry';
 import { deferOneOfGroups, noteDeferredChoice } from './OptionRequirements';
@@ -15,9 +15,21 @@ import { passEntityPickAttempted, resetPassLogin } from './PassLogin';
 // The entity picks the resolution pass runs (decision record 0044). A single
 // candidate is selected without a prompt, so the pass can be exercised here
 // with a fake terminal: what matters is which picks it counts as pending (they
-// decide whether it logs in), that it runs each once, and that neither the
-// action's own call nor the getTokens wrapper runs them again.
+// decide whether it logs in), that it runs each once, and that the getTokens
+// wrapper (`resolveFamilyEntityPicks`) does not run them again.
 type Entity = { _id: string };
+
+let families = 0;
+/**
+ * Gives the command a command family of its own with these picks, the way the
+ * registry gives them to a family of commands (the registry is shared by the
+ * whole file, so every call makes a family no other test uses).
+ */
+function withPicks(command: Command, picks: EntityPickSpec[]): void {
+  const group = new Command(`pickfamily${families++}`);
+  group.addCommand(command);
+  registerEntityPickFamily({ family: group.name(), picks });
+}
 
 function makeCommand(): Command {
   const command = new Command('frodo esv secret delete');
@@ -92,7 +104,7 @@ describe('pickNeedsLogin', () => {
 describe('pendingPassPicks: the picks that will open', () => {
   it('counts a pick whose option is unset', () => {
     const command = makeCommand();
-    deferEntityPicks(command, [secretPick(async () => [])]);
+    withPicks(command, [secretPick(async () => [])]);
     expect(pendingPassPicks(command).map((pick) => pick.name)).toEqual([
       'secretId',
     ]);
@@ -100,14 +112,14 @@ describe('pendingPassPicks: the picks that will open', () => {
 
   it('does not count a pick whose option has a value', () => {
     const command = makeCommand();
-    deferEntityPicks(command, [secretPick(async () => [])]);
+    withPicks(command, [secretPick(async () => [])]);
     command.setOptionValueWithSource('secretId', 'chosen', 'cli');
     expect(pendingPassPicks(command)).toEqual([]);
   });
 
   it('does not count a pick that cannot be combined with an option that is set', () => {
     const command = makeCommand();
-    deferEntityPicks(command, [secretPick(async () => [])]);
+    withPicks(command, [secretPick(async () => [])]);
     command.setOptionValueWithSource('all', true, 'cli');
     expect(pendingPassPicks(command)).toEqual([]);
   });
@@ -115,14 +127,14 @@ describe('pendingPassPicks: the picks that will open', () => {
   it('does not count a pick when another member of its one-of group answers', () => {
     const command = makeCommand();
     deferOneOfGroups(command, [{ options: ['secretId', 'global'] }]);
-    deferEntityPicks(command, [secretPick(async () => [])]);
+    withPicks(command, [secretPick(async () => [])]);
     command.setOptionValueWithSource('global', true, 'cli');
     expect(pendingPassPicks(command)).toEqual([]);
   });
 
   it('does not count a pick the pass ran', async () => {
     const command = makeCommand();
-    deferEntityPicks(command, [secretPick(async () => [])]);
+    withPicks(command, [secretPick(async () => [])]);
     expect(await resolvePassEntityPicks(command)).toBe(true);
     expect(pendingPassPicks(command)).toEqual([]);
   });
@@ -149,7 +161,7 @@ describe('resolvePassEntityPicks', () => {
   it('runs the pick, writes the option and remembers that it ran', async () => {
     const command = makeCommand();
     let loads = 0;
-    deferEntityPicks(command, [
+    withPicks(command, [
       secretPick(async () => {
         loads += 1;
         return [{ _id: 'only-secret' }];
@@ -161,10 +173,10 @@ describe('resolvePassEntityPicks', () => {
     expect(passEntityPickAttempted('secretId')).toBe(true);
   });
 
-  it('runs a pick once: a second round of the pass, and the action, do not load again', async () => {
+  it('runs a pick once: a second round of the pass, and the getTokens wrapper, do not load again', async () => {
     const command = makeCommand();
     let loads = 0;
-    deferEntityPicks(command, [
+    withPicks(command, [
       secretPick(async () => {
         loads += 1;
         return []; // an empty list is a satisfied pick that leaves the option unset
@@ -172,13 +184,13 @@ describe('resolvePassEntityPicks', () => {
     ]);
     expect(await resolvePassEntityPicks(command)).toBe(true);
     expect(await resolvePassEntityPicks(command)).toBe(true);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(loads).toBe(1);
   });
 
   it('returns false for a failing load, so the command does not run, and still counts the pick as run', async () => {
     const command = makeCommand();
-    deferEntityPicks(command, [
+    withPicks(command, [
       secretPick(async () => {
         throw new Error('transient 400');
       }),
@@ -192,7 +204,7 @@ describe('resolvePassEntityPicks', () => {
     process.env.FRODO_NO_PROMPT = '1';
     const command = makeCommand();
     let loads = 0;
-    deferEntityPicks(command, [
+    withPicks(command, [
       secretPick(async () => {
         loads += 1;
         return [{ _id: 'only-secret' }];
@@ -204,18 +216,18 @@ describe('resolvePassEntityPicks', () => {
   });
 });
 
-describe('the action own call outside the pass is what it was', () => {
+describe('the getTokens wrapper outside the pass is what it was', () => {
   it('loads on every call when the pass did not run the pick', async () => {
     const command = makeCommand();
     let loads = 0;
-    deferEntityPicks(command, [
+    withPicks(command, [
       secretPick(async () => {
         loads += 1;
         return [];
       }),
     ]);
-    await resolveEntityPicks(command);
-    await resolveEntityPicks(command);
+    await resolveFamilyEntityPicks(command);
+    await resolveFamilyEntityPicks(command);
     expect(loads).toBe(2);
     expect(passEntityPickAttempted('secretId')).toBe(false);
   });

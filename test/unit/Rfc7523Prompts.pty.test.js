@@ -349,6 +349,15 @@ suite('RFC7523 commands, on a real terminal', () => {
       expect(list).toMatch(/bob\s+Bob Jones\s+u-bbb/);
       expect(list).toMatch(/carol\s+Carol Smith\s+u-ccc/);
       expect(sentSubject()).toBe('u-bbb');
+      // the users offered depend on the trusted issuer of the client of this command
+      expect(
+        requestedUrls().some((url) =>
+          url.includes('/TrustedJwtIssuer/c1-issuer')
+        )
+      ).toBe(true);
+      expect(
+        requestedUrls().some((url) => url.includes('undefined-issuer'))
+      ).toBe(false);
       // Identity Cloud keeps its users in IDM
       expect(
         requestedUrls().some((url) => url.includes('/openidm/managed/'))

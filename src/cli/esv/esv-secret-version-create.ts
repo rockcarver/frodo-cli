@@ -1,4 +1,4 @@
-import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -6,11 +6,6 @@ import {
   createVersionOfSecretFromFile,
 } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -49,12 +44,9 @@ export default function setup() {
           options,
           command
         );
-        // An unspecified secretId prompts for a secret from the live
-        // system (no-op outside the prompt gate) before getTokens.
-        if (
-          (options.secretId || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        // An unspecified secretId is asked for by the framework once the login
+        // worked (a secret picker, record 0038).
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage('Creating new version of secret...');
           let outcome;
           if (options.value) {
@@ -78,16 +70,6 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<SecretSkeleton>({
-      name: 'secretId',
-      kind: 'secret',
-      load: frodo.cloud.secret.readSecrets,
-      label: (secret) => secret._id ?? '',
-      description: (secret) => secret.description,
-    }),
-  ]);
 
   return program;
 }

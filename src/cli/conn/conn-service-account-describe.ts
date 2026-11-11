@@ -31,6 +31,17 @@ export default function setup() {
     )
     .action(async (host: string, options: any, command: FrodoCommand) => {
       command.handleDefaultArgsAndOpts(host, options, command);
+      // An unspecified --name is asked for by the framework, from the service
+      // accounts saved on the profile and without a login (record 0038). A
+      // profile with none leaves it unset.
+      if (!options.name) {
+        printMessage(
+          'There is no additional service account to choose from.',
+          'error'
+        );
+        process.exitCode = 1;
+        return;
+      }
       try {
         const account = await frodo.conn.getAdditionalServiceAccount(
           host,
