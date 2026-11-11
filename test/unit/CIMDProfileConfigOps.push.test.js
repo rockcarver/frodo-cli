@@ -12,8 +12,8 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager push cimd-profiles` (frodo-cli#1248): the files that
- * `pull cimd-profiles` wrote (`realms/<realm>/realm-config/agents/CIMDProfile/<name>.json`)
+ * `frodo config-manager push oauth-cimd-profiles` (frodo-cli#1248): the files that
+ * `pull oauth-cimd-profiles` wrote (`realms/<realm>/realm-config/agents/CIMDProfile/<name>.json`)
  * are imported into the matching realms, every file one operation of a run that
  * goes on after a failure (decision record 0040), `${NAME}` filled from the
  * environment. A tree for a deployment that offers the type pushed to one that does

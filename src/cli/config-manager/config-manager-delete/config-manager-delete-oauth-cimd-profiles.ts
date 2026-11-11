@@ -15,7 +15,9 @@ import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager delete cimd-profiles');
+  const program = new FrodoCommand(
+    'frodo config-manager delete oauth-cimd-profiles'
+  );
 
   program
     .summary('Delete CIMD profiles.')
@@ -45,19 +47,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Preview the deletion of all CIMD profiles of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete cimd-profiles -d ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-cimd-profiles -d ${s.connId} ${s.realm}\n`
         ) +
         `  Delete all CIMD profiles of a realm without asking, which is required without a terminal (without -y a terminal is asked first). Clients that only these profiles allowed are rejected afterwards:\n` +
         c.command(
-          `  $ frodo config-manager delete cimd-profiles -y ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-cimd-profiles -y ${s.connId} ${s.realm}\n`
         ) +
         `  Delete one CIMD profile of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete cimd-profiles -n ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-cimd-profiles -n ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
         ) +
         `  Preview the deletion of one CIMD profile:\n` +
         c.command(
-          `  $ frodo config-manager delete cimd-profiles -n ${s.cimdProfileId} -d ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-cimd-profiles -n ${s.cimdProfileId} -d ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()

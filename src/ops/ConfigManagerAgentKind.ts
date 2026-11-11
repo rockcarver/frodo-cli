@@ -1,7 +1,7 @@
 /**
  * The type-independent parts of a config-manager kind that works with one agent type under
- * `realms/<realm>/realm-config/agents/<AgentType>/<id>.json`: the kinds `cimd-profiles` and
- * `trusted-jwt-issuers`, and any later one of the same shape.
+ * `realms/<realm>/realm-config/agents/<AgentType>/<id>.json`: the kinds `oauth-cimd-profiles` and
+ * `oauth-issuers`, and any later one of the same shape.
  *
  * This module is in `src/ops` and not in the deprecated `src/configManagerOps/` layer, on purpose:
  * decision records 0023 and 0024 (deprecated) and the accepted record 0042 say that new

@@ -19,7 +19,7 @@ import {
  * type, so a CIMD profile listed in `oauth2-agents.json` is pulled and every
  * `realm-config/agents/CIMDProfile/*.json` file of a tree is pushed. These tests
  * pin that behaviour so that a change to it is deliberate and visible in a review:
- * they describe what IS, not what should be. The dedicated kind `cimd-profiles`
+ * they describe what IS, not what should be. The dedicated kind `oauth-cimd-profiles`
  * (pull, push and delete) is separate and has its own tests; the generic kind is
  * deliberately left as it is for now, because the library's agent type blacklist
  * only filters the type list and not the explicit calls by type and id that this

@@ -11,7 +11,7 @@ export default function setup() {
     .multiOp()
     .addHelpText(
       'after',
-      '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n\nCIMD profiles and trusted JWT issuers are not part of this export (they are dynamic configuration); use pull all, pull cimd-profiles or pull trusted-jwt-issuers.\n'
+      '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n\nCIMD profiles and trusted JWT issuers are not part of this export (they are dynamic configuration); use pull all, pull oauth-cimd-profiles or pull oauth-issuers.\n'
     )
     .usesRealm({ tenantWide: true })
     .action(async (host, realm, user, password, options, command) => {

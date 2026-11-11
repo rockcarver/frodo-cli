@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager delete trusted-jwt-issuers' should be expected english 1`] = `
-"Usage: frodo config-manager delete trusted-jwt-issuers [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager delete oauth-issuers' should be expected english 1`] = `
+"Usage: frodo config-manager delete oauth-issuers [options] [host] [realm] [username] [password]
 
 [Experimental] Delete OAuth2 trusted JWT issuers from the tenant, by name or all
 of the selected realms. A trusted JWT issuer is a trust anchor: a JWT signed by

@@ -62,7 +62,7 @@
  * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
  * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
  * the OAuth2 client picker of the admin commands reads it.
- * FAKE_AM_CIMD_PROFILES=<id,id,...> makes every realm offer the agent type
+ * FAKE_AM_OAUTH_CIMD_PROFILES=<id,id,...> makes every realm offer the agent type
  * CIMDProfile (the agent type list `.../realm-config/agents?_action=getAllTypes`
  * lists it; without the variable the list answers 404, a deployment that does not
  * have the type) and hold CIMD profiles of those ids (an empty value: none). The
@@ -72,7 +72,7 @@
  * with a default group the body lacks, `200` for an existing one, which stores
  * exactly the body; ids are matched ignoring case, as AM does) and refuses a `_rev` in it with `400
  * Invalid attribute specified`, and a `DELETE` removes one (`404` when missing).
- * FAKE_AM_TRUSTED_JWT_ISSUERS=<id,id,...> makes every realm hold OAuth2 trusted JWT
+ * FAKE_AM_OAUTH_ISSUERS=<id,id,...> makes every realm hold OAuth2 trusted JWT
  * issuers of those ids (an empty value: none; without the variable the routes
  * answer 404). The issuers are the same in every realm and live as long as the
  * fake: the list (`.../agents/TrustedJwtIssuer?_queryFilter=true`) answers with
@@ -157,7 +157,7 @@ const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
-const cimdProfileIds = process.env.FAKE_AM_CIMD_PROFILES;
+const cimdProfileIds = process.env.FAKE_AM_OAUTH_CIMD_PROFILES;
 const cimdProfiles = new Map();
 for (const _id of (cimdProfileIds ?? '').split(',').filter(Boolean)) {
   cimdProfiles.set(_id.toLowerCase(), {
@@ -170,7 +170,7 @@ for (const _id of (cimdProfileIds ?? '').split(',').filter(Boolean)) {
     },
   });
 }
-const trustedJwtIssuerIds = process.env.FAKE_AM_TRUSTED_JWT_ISSUERS;
+const trustedJwtIssuerIds = process.env.FAKE_AM_OAUTH_ISSUERS;
 const trustedJwtIssuers = new Map();
 for (const _id of (trustedJwtIssuerIds ?? '').split(',').filter(Boolean)) {
   trustedJwtIssuers.set(_id, {

@@ -19,11 +19,12 @@ Runtime Options:
 Commands:
   applications          [Experimental] Delete applications together with the
                         objects they own.
-  cimd-profiles         [Experimental] Delete CIMD profiles.
   custom-nodes          [Experimental] Delete custom nodes.
   email-templates       [Experimental] Delete email template objects.
   endpoints             [Experimental] Delete custom endpoint objects.
   locales               [Experimental] Delete locale objects.
+  oauth-cimd-profiles   [Experimental] Delete CIMD profiles.
+  oauth-issuers         [Experimental] Delete trusted JWT issuers.
   scripts               [Experimental] Delete AM scripts. Default scripts are
                         never deleted.
   secrets               [Experimental] [Cloud-only] Delete secrets.
@@ -31,7 +32,6 @@ Commands:
   test                  [Experimental] Test connection and authentication.
   themes                [Experimental] Delete themes by name or delete all
                         themes in the selected realms.
-  trusted-jwt-issuers   [Experimental] Delete trusted JWT issuers.
   variables             [Experimental] [Cloud-only] Delete variables.
 
 Utilities:

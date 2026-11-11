@@ -29,16 +29,16 @@ import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
  */
 const USES_REALM = [
   'frodo config-manager delete applications',
-  'frodo config-manager delete cimd-profiles',
+  'frodo config-manager delete oauth-cimd-profiles',
   'frodo config-manager delete scripts',
   'frodo config-manager delete themes',
-  'frodo config-manager delete trusted-jwt-issuers',
+  'frodo config-manager delete oauth-issuers',
   'frodo config-manager migrate applications',
   'frodo config-manager pull all',
   'frodo config-manager pull all-static',
   'frodo config-manager pull applications',
   'frodo config-manager pull authentication',
-  'frodo config-manager pull cimd-profiles',
+  'frodo config-manager pull oauth-cimd-profiles',
   'frodo config-manager pull journeys',
   'frodo config-manager pull org-privileges',
   'frodo config-manager pull password-policy',
@@ -46,10 +46,10 @@ const USES_REALM = [
   'frodo config-manager pull secret-mappings',
   'frodo config-manager pull services',
   'frodo config-manager pull themes',
-  'frodo config-manager pull trusted-jwt-issuers',
+  'frodo config-manager pull oauth-issuers',
   'frodo config-manager push applications',
   'frodo config-manager push authentication',
-  'frodo config-manager push cimd-profiles',
+  'frodo config-manager push oauth-cimd-profiles',
   'frodo config-manager push journeys',
   'frodo config-manager push password-policy',
   'frodo config-manager push saml',
@@ -57,7 +57,7 @@ const USES_REALM = [
   'frodo config-manager push secret-mappings',
   'frodo config-manager push services',
   'frodo config-manager push themes',
-  'frodo config-manager push trusted-jwt-issuers',
+  'frodo config-manager push oauth-issuers',
 ];
 
 /** The commands that also cover configuration of the tenant, which no realm limits. */

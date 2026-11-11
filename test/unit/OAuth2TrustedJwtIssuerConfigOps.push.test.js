@@ -12,8 +12,8 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager push trusted-jwt-issuers` (frodo-cli#1256): the files that
- * `pull trusted-jwt-issuers` and `pull oauth2-agents` write
+ * `frodo config-manager push oauth-issuers` (frodo-cli#1256): the files that
+ * `pull oauth-issuers` and `pull oauth2-agents` write
  * (`realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json`) are imported
  * into the matching realms, every file one operation of a run that goes on after a
  * failure (decision record 0040), `${NAME}` filled from the environment. A file of

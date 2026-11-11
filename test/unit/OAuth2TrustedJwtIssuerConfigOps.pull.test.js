@@ -12,7 +12,7 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager pull trusted-jwt-issuers` (frodo-cli#1255): one file per
+ * `frodo config-manager pull oauth-issuers` (frodo-cli#1255): one file per
  * OAuth2 trusted JWT issuer at
  * `realms/<realm>/realm-config/agents/TrustedJwtIssuer/<id>.json`, and the file is
  * the one `pull oauth2-agents` writes for the same issuer today, so that no tree
@@ -447,8 +447,7 @@ describe('the names of the files', () => {
 });
 
 describe('the overrides file', () => {
-  const overridesFile = (content) =>
-    writeFile('trusted-jwt-issuers.json', content);
+  const overridesFile = (content) => writeFile('oauth-issuers.json', content);
 
   test('is merged into the issuer of its entry, in the wrapped form of the file', async () => {
     world.issuers.alpha = [

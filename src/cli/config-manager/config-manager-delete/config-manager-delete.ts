@@ -1,16 +1,16 @@
 import Test from '../../conn/conn-test';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import Applications from '../config-manager-delete/config-manager-delete-applications';
-import CimdProfiles from '../config-manager-delete/config-manager-delete-cimd-profiles';
 import EmailTemplates from '../config-manager-delete/config-manager-delete-email-templates';
 import Endpoints from '../config-manager-delete/config-manager-delete-endpoints';
 import Locales from '../config-manager-delete/config-manager-delete-locales';
+import OauthCimdProfiles from '../config-manager-delete/config-manager-delete-oauth-cimd-profiles';
 import Themes from '../config-manager-delete/config-manager-delete-themes';
 import CustomNodes from './config-manager-delete-custom-nodes';
+import OauthIssuers from './config-manager-delete-oauth-issuers';
 import Scripts from './config-manager-delete-scripts';
 import Secrets from './config-manager-delete-secrets';
 import TermsConditions from './config-manager-delete-terms-and-conditions';
-import TrustedJwtIssuers from './config-manager-delete-trusted-jwt-issuers';
 import Variables from './config-manager-delete-variables';
 
 export default function setup() {
@@ -28,7 +28,7 @@ export default function setup() {
   program.addCommand(TermsConditions().name('terms-and-conditions'));
   program.addCommand(Variables().name('variables'));
   program.addCommand(Locales().name('locales'));
-  program.addCommand(CimdProfiles().name('cimd-profiles'));
-  program.addCommand(TrustedJwtIssuers().name('trusted-jwt-issuers'));
+  program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
+  program.addCommand(OauthIssuers().name('oauth-issuers'));
   return program;
 }

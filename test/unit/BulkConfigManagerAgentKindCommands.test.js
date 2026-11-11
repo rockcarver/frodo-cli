@@ -2,8 +2,8 @@ import { jest } from '@jest/globals';
 import { Command, Option } from 'commander';
 
 /**
- * The `pull` and `push` commands of the kinds `cimd-profiles` and
- * `trusted-jwt-issuers` as record 0040 asks of a command that runs several
+ * The `pull` and `push` commands of the kinds `oauth-cimd-profiles` and
+ * `oauth-issuers` as record 0040 asks of a command that runs several
  * operations: each one adds the shared `--allow-failures` option (`.multiOp()`),
  * hands its value on to its ops function, and exits 1 when the ops function
  * reports a failure or when the login fails. The commands name no deployment type:
@@ -84,41 +84,41 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
  */
 const COMMANDS = [
   {
-    name: 'config-manager pull cimd-profiles',
-    file: 'config-manager-pull/config-manager-pull-cimd-profiles',
+    name: 'config-manager pull oauth-cimd-profiles',
+    file: 'config-manager-pull/config-manager-pull-oauth-cimd-profiles',
     fn: 'configManagerExportCIMDProfiles',
-    options: { name: 'zion-agents', file: 'cimd-profiles.json' },
+    options: { name: 'zion-agents', file: 'oauth-cimd-profiles.json' },
     args: (allowFailures) => [
       'zion-agents',
       'alpha',
       false,
       allowFailures,
-      'cimd-profiles.json',
+      'oauth-cimd-profiles.json',
     ],
   },
   {
-    name: 'config-manager push cimd-profiles',
-    file: 'config-manager-push/config-manager-push-cimd-profiles',
+    name: 'config-manager push oauth-cimd-profiles',
+    file: 'config-manager-push/config-manager-push-oauth-cimd-profiles',
     fn: 'configManagerImportCIMDProfiles',
     options: { name: 'zion-agents' },
     args: (allowFailures) => ['zion-agents', 'alpha', allowFailures],
   },
   {
-    name: 'config-manager pull trusted-jwt-issuers',
-    file: 'config-manager-pull/config-manager-pull-trusted-jwt-issuers',
+    name: 'config-manager pull oauth-issuers',
+    file: 'config-manager-pull/config-manager-pull-oauth-issuers',
     fn: 'configManagerExportTrustedJwtIssuers',
-    options: { name: 'zion-issuer', file: 'trusted-jwt-issuers.json' },
+    options: { name: 'zion-issuer', file: 'oauth-issuers.json' },
     args: (allowFailures) => [
       'zion-issuer',
       'alpha',
       false,
       allowFailures,
-      'trusted-jwt-issuers.json',
+      'oauth-issuers.json',
     ],
   },
   {
-    name: 'config-manager push trusted-jwt-issuers',
-    file: 'config-manager-push/config-manager-push-trusted-jwt-issuers',
+    name: 'config-manager push oauth-issuers',
+    file: 'config-manager-push/config-manager-push-oauth-issuers',
     fn: 'configManagerImportTrustedJwtIssuers',
     options: { name: 'zion-issuer' },
     args: (allowFailures) => ['zion-issuer', 'alpha', allowFailures],

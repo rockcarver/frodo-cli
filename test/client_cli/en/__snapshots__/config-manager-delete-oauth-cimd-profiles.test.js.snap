@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager delete cimd-profiles' should be expected english 1`] = `
-"Usage: frodo config-manager delete cimd-profiles [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager delete oauth-cimd-profiles' should be expected english 1`] = `
+"Usage: frodo config-manager delete oauth-cimd-profiles [options] [host] [realm] [username] [password]
 
 [Experimental] Delete the CIMD profiles (the allow-list of client ID URL
 patterns) from the tenant, by name or all of the selected realms. A client that

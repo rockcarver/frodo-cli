@@ -91,7 +91,7 @@ export const PATH_OPTION_OVERRIDES: Readonly<
     access: 'read',
     extensions: JSON_FILES,
   },
-  'config-manager pull cimd-profiles --file': {
+  'config-manager pull oauth-cimd-profiles --file': {
     access: 'read',
     extensions: JSON_FILES,
   },
@@ -105,7 +105,7 @@ export const PATH_OPTION_OVERRIDES: Readonly<
     access: 'read',
     extensions: JSON_FILES,
   },
-  'config-manager pull trusted-jwt-issuers --file': {
+  'config-manager pull oauth-issuers --file': {
     access: 'read',
     extensions: JSON_FILES,
   },

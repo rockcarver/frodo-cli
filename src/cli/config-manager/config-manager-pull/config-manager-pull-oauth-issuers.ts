@@ -8,9 +8,7 @@ import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager pull trusted-jwt-issuers'
-  );
+  const program = new FrodoCommand('frodo config-manager pull oauth-issuers');
 
   program
     .summary('Export trusted JWT issuers, one file per issuer.')
@@ -33,20 +31,18 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Pull all trusted JWT issuers of all realms to realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json:\n` +
-        c.command(
-          `  $ frodo config-manager pull trusted-jwt-issuers ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config-manager pull oauth-issuers ${s.connId}\n`) +
         `  Pull the trusted JWT issuers of one realm:\n` +
         c.command(
-          `  $ frodo config-manager pull trusted-jwt-issuers ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager pull oauth-issuers ${s.connId} ${s.realm}\n`
         ) +
         `  Pull one trusted JWT issuer of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull trusted-jwt-issuers -n ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager pull oauth-issuers -n ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
         ) +
         `  Replace values that differ between environments with placeholders from a file:\n` +
         c.command(
-          `  $ frodo config-manager pull trusted-jwt-issuers -f ${s.trustedJwtIssuersOverridesFile} ${s.connId}\n`
+          `  $ frodo config-manager pull oauth-issuers -f ${s.trustedJwtIssuersOverridesFile} ${s.connId}\n`
         )
     )
     .addHelpText(

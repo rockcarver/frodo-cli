@@ -8,7 +8,7 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager delete cimd-profiles` (frodo-cli#1251): the profiles are
+ * `frodo config-manager delete oauth-cimd-profiles` (frodo-cli#1251): the profiles are
  * read first (the plan, the dry run and the answer "not found" for a name come
  * from that list, because the server answers 404 for a profile that is gone and
  * for one that never was), then deleted one by one by their stored id, every

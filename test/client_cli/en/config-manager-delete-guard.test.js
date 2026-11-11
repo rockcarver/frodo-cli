@@ -26,7 +26,7 @@ async function run(command) {
 describe('a delete of more than one object without a terminal and without --yes', () => {
   test.each([
     'frodo config-manager delete applications',
-    'frodo config-manager delete cimd-profiles',
+    'frodo config-manager delete oauth-cimd-profiles',
     'frodo config-manager delete custom-nodes',
     'frodo config-manager delete endpoints',
     'frodo config-manager delete scripts',
@@ -37,7 +37,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete locales',
     'frodo config-manager delete secrets',
     'frodo config-manager delete terms-and-conditions',
-    'frodo config-manager delete trusted-jwt-issuers',
+    'frodo config-manager delete oauth-issuers',
     'frodo config-manager delete variables',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
@@ -92,13 +92,13 @@ describe('a delete of more than one object without a terminal and without --yes'
   });
 
   test('the refusal of CIMD profiles says what would have been deleted', async () => {
-    const { stderr } = await run('frodo config-manager delete cimd-profiles');
+    const { stderr } = await run('frodo config-manager delete oauth-cimd-profiles');
 
     expect(stderr).toContain('all CIMD profiles in the selected realms');
   });
 
   test('the refusal of trusted JWT issuers says what would have been deleted', async () => {
-    const { stderr } = await run('frodo config-manager delete trusted-jwt-issuers');
+    const { stderr } = await run('frodo config-manager delete oauth-issuers');
 
     expect(stderr).toContain('all trusted JWT issuers in the selected realms');
   });
@@ -113,8 +113,8 @@ describe('a delete of more than one object without a terminal and without --yes'
 describe('what is not refused', () => {
   test.each([
     'frodo config-manager delete applications -n Example',
-    'frodo config-manager delete cimd-profiles -n Example',
-    'frodo config-manager delete trusted-jwt-issuers -n Example',
+    'frodo config-manager delete oauth-cimd-profiles -n Example',
+    'frodo config-manager delete oauth-issuers -n Example',
     'frodo config-manager delete custom-nodes -n Example',
     'frodo config-manager delete endpoints -n Example',
     'frodo config-manager delete scripts -n Example',
@@ -126,12 +126,12 @@ describe('what is not refused', () => {
     // a name that is given but empty is not "delete all": it is not asked about,
     // it fails after the login because no variable has that id
     "frodo config-manager delete variables -n ''",
-    'frodo config-manager delete cimd-profiles -d',
-    'frodo config-manager delete cimd-profiles -n Example -d',
-    'frodo config-manager delete cimd-profiles -y',
-    'frodo config-manager delete trusted-jwt-issuers -d',
-    'frodo config-manager delete trusted-jwt-issuers -n Example -d',
-    'frodo config-manager delete trusted-jwt-issuers -y',
+    'frodo config-manager delete oauth-cimd-profiles -d',
+    'frodo config-manager delete oauth-cimd-profiles -n Example -d',
+    'frodo config-manager delete oauth-cimd-profiles -y',
+    'frodo config-manager delete oauth-issuers -d',
+    'frodo config-manager delete oauth-issuers -n Example -d',
+    'frodo config-manager delete oauth-issuers -y',
     'frodo config-manager delete applications -d',
     'frodo config-manager delete applications -n Example -d',
     'frodo config-manager delete custom-nodes -d',
@@ -180,10 +180,10 @@ describe('an empty secret name', () => {
 
 describe('an empty CIMD profile name', () => {
   test.each([
-    "frodo config-manager delete cimd-profiles -n ''",
-    "frodo config-manager delete cimd-profiles -n '' -y",
-    "frodo config-manager delete cimd-profiles -n '' -d",
-    'frodo config-manager delete cimd-profiles --name=',
+    "frodo config-manager delete oauth-cimd-profiles -n ''",
+    "frodo config-manager delete oauth-cimd-profiles -n '' -y",
+    "frodo config-manager delete oauth-cimd-profiles -n '' -d",
+    'frodo config-manager delete oauth-cimd-profiles --name=',
   ])('"%s" is an error before the login, not a delete of all CIMD profiles', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -196,10 +196,10 @@ describe('an empty CIMD profile name', () => {
 
 describe('an empty trusted JWT issuer name', () => {
   test.each([
-    "frodo config-manager delete trusted-jwt-issuers -n ''",
-    "frodo config-manager delete trusted-jwt-issuers -n '' -y",
-    "frodo config-manager delete trusted-jwt-issuers -n '' -d",
-    'frodo config-manager delete trusted-jwt-issuers --name=',
+    "frodo config-manager delete oauth-issuers -n ''",
+    "frodo config-manager delete oauth-issuers -n '' -y",
+    "frodo config-manager delete oauth-issuers -n '' -d",
+    'frodo config-manager delete oauth-issuers --name=',
   ])('"%s" is an error before the login, not a delete of all trusted JWT issuers', async (command) => {
     const { code, stderr } = await run(command);
 

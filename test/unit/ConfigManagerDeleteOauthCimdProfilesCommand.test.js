@@ -9,23 +9,23 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager delete trusted-jwt-issuers` (records 0037, 0040 and
- * 0041, frodo-cli#1258): it adds the shared `--allow-failures` option
- * (`.multiOp()`), names no deployment type, refuses a delete of all trusted JWT issuers
+ * The command `config-manager delete oauth-cimd-profiles` (records 0037, 0040 and
+ * 0041, frodo-cli#1251): it adds the shared `--allow-failures` option
+ * (`.multiOp()`), names no deployment type, refuses a delete of all CIMD profiles
  * that nobody can be asked about before it logs in, asks after the login (with the
- * plan from the ops function) before all issuers are deleted, never asks for a
- * single named issuer, refuses an empty name before anything else (an empty name
- * must never mean all issuers), and hands the name, the realm, the dry run and
+ * plan from the ops function) before all profiles are deleted, never asks for a
+ * single named profile, refuses an empty name before anything else (an empty name
+ * must never mean all profiles), and hands the name, the realm, the dry run and
  * `--allow-failures` to the ops function. A failed login runs nothing and the exit
  * code is 1 when the login or the ops function fails. What the ops function does
- * is covered by OAuth2TrustedJwtIssuerConfigOps.delete.test.js.
+ * is covered by CIMDProfileConfigOps.delete.test.js.
  */
 
 const getTokens = jest.fn();
 const checkBulkDelete = jest.fn();
 const confirmBulkDelete = jest.fn();
-const configManagerDeleteTrustedJwtIssuers = jest.fn();
-const showTrustedJwtIssuerDeletePlan = jest.fn();
+const configManagerDeleteCIMDProfiles = jest.fn();
+const showCIMDProfileDeletePlan = jest.fn();
 const printMessage = jest.fn();
 let events;
 let constructed;
@@ -78,16 +78,13 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage,
   verboseMessage: jest.fn(),
 }));
-jest.unstable_mockModule(
-  '../../src/ops/OAuth2TrustedJwtIssuerConfigOps',
-  () => ({
-    configManagerDeleteTrustedJwtIssuers,
-    showTrustedJwtIssuerDeletePlan,
-  })
-);
+jest.unstable_mockModule('../../src/ops/CIMDProfileConfigOps', () => ({
+  configManagerDeleteCIMDProfiles,
+  showCIMDProfileDeletePlan,
+}));
 
 const { default: setup } =
-  await import('../../src/cli/config-manager/config-manager-delete/config-manager-delete-trusted-jwt-issuers');
+  await import('../../src/cli/config-manager/config-manager-delete/config-manager-delete-oauth-cimd-profiles');
 
 const run = (...args) => {
   const program = setup();
@@ -110,29 +107,29 @@ beforeEach(() => {
     events.push('confirm');
     return true;
   });
-  configManagerDeleteTrustedJwtIssuers.mockImplementation(async () => {
+  configManagerDeleteCIMDProfiles.mockImplementation(async () => {
     events.push('delete');
     return true;
   });
-  showTrustedJwtIssuerDeletePlan.mockResolvedValue(true);
+  showCIMDProfileDeletePlan.mockResolvedValue(true);
 });
 afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager delete trusted-jwt-issuers', () => {
+describe('frodo config-manager delete oauth-cimd-profiles', () => {
   test('is a multi-operation command that uses the realm and names no deployment type', async () => {
     const program = await run('-y');
 
     expect(program.multiOpCalled).toBe(true);
     expect(program.usesRealmCalled).toBe(true);
     expect(constructed).toEqual([
-      'frodo config-manager delete trusted-jwt-issuers',
+      'frodo config-manager delete oauth-cimd-profiles',
     ]);
   });
 
   test('logs in without a list of deployment types', async () => {
-    await run('-n', 'zion-issuer');
+    await run('-n', 'zion-agents');
 
     expect(getTokens).toHaveBeenCalledWith();
   });
@@ -153,13 +150,13 @@ describe('frodo config-manager delete trusted-jwt-issuers', () => {
   });
 });
 
-describe('deleting all trusted JWT issuers', () => {
+describe('deleting all CIMD profiles', () => {
   test('is checked before the login, asked after it, and deleted last', async () => {
     await run('matrix', 'alpha');
 
     expect(events).toEqual(['check', 'login', 'confirm', 'delete']);
     expect(checkBulkDelete).toHaveBeenCalledWith({
-      what: 'all trusted JWT issuers in the selected realms',
+      what: 'all CIMD profiles in the selected realms',
       yes: undefined,
       dryRun: undefined,
     });
@@ -178,7 +175,7 @@ describe('deleting all trusted JWT issuers', () => {
     expect(events).toEqual(['check']);
     expect(getTokens).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
-    expect(configManagerDeleteTrustedJwtIssuers).not.toHaveBeenCalled();
+    expect(configManagerDeleteCIMDProfiles).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 
@@ -191,7 +188,7 @@ describe('deleting all trusted JWT issuers', () => {
     await run('matrix', 'alpha');
 
     expect(events).toEqual(['check', 'login', 'confirm']);
-    expect(configManagerDeleteTrustedJwtIssuers).not.toHaveBeenCalled();
+    expect(configManagerDeleteCIMDProfiles).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 
@@ -199,20 +196,17 @@ describe('deleting all trusted JWT issuers', () => {
     await run('-y', 'matrix', 'alpha');
 
     const guard = confirmBulkDelete.mock.calls[0][0];
-    expect(guard.what).toBe('all trusted JWT issuers in the selected realms');
+    expect(guard.what).toBe('all CIMD profiles in the selected realms');
     expect(guard.yes).toBe(true);
     await guard.showPlan();
-    expect(showTrustedJwtIssuerDeletePlan).toHaveBeenCalledWith(
-      undefined,
-      'alpha'
-    );
+    expect(showCIMDProfileDeletePlan).toHaveBeenCalledWith(undefined, 'alpha');
   });
 
-  test('--yes goes on to the delete of all issuers of the realm', async () => {
+  test('--yes goes on to the delete of all profiles of the realm', async () => {
     await run('-y', 'matrix', 'alpha');
 
     expect(checkBulkDelete.mock.calls[0][0].yes).toBe(true);
-    expect(configManagerDeleteTrustedJwtIssuers).toHaveBeenCalledWith(
+    expect(configManagerDeleteCIMDProfiles).toHaveBeenCalledWith(
       undefined,
       'alpha',
       undefined,
@@ -224,7 +218,7 @@ describe('deleting all trusted JWT issuers', () => {
   test('a dry run is handed to the ops function and is told to the guard', async () => {
     await run('-d', 'matrix', 'alpha');
 
-    expect(configManagerDeleteTrustedJwtIssuers).toHaveBeenCalledWith(
+    expect(configManagerDeleteCIMDProfiles).toHaveBeenCalledWith(
       undefined,
       'alpha',
       true,
@@ -237,7 +231,7 @@ describe('deleting all trusted JWT issuers', () => {
   test('--allow-failures reaches the ops function', async () => {
     await run('-y', '--allow-failures', 'matrix', 'alpha');
 
-    expect(configManagerDeleteTrustedJwtIssuers).toHaveBeenCalledWith(
+    expect(configManagerDeleteCIMDProfiles).toHaveBeenCalledWith(
       undefined,
       'alpha',
       undefined,
@@ -251,12 +245,12 @@ describe('deleting all trusted JWT issuers', () => {
     await run('-y', 'matrix', 'alpha');
 
     expect(confirmBulkDelete).not.toHaveBeenCalled();
-    expect(configManagerDeleteTrustedJwtIssuers).not.toHaveBeenCalled();
+    expect(configManagerDeleteCIMDProfiles).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 
   test('a delete that fails exits 1', async () => {
-    configManagerDeleteTrustedJwtIssuers.mockResolvedValue(false);
+    configManagerDeleteCIMDProfiles.mockResolvedValue(false);
 
     await run('-y', 'matrix', 'alpha');
 
@@ -264,15 +258,15 @@ describe('deleting all trusted JWT issuers', () => {
   });
 });
 
-describe('deleting one trusted JWT issuer by name', () => {
+describe('deleting one CIMD profile by name', () => {
   test('is deleted without a check and without a question', async () => {
-    await run('-n', 'zion-issuer', 'matrix', 'alpha');
+    await run('-n', 'zion-agents', 'matrix', 'alpha');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
     expect(events).toEqual(['login', 'delete']);
-    expect(configManagerDeleteTrustedJwtIssuers).toHaveBeenCalledWith(
-      'zion-issuer',
+    expect(configManagerDeleteCIMDProfiles).toHaveBeenCalledWith(
+      'zion-agents',
       'alpha',
       undefined,
       undefined
@@ -281,10 +275,10 @@ describe('deleting one trusted JWT issuer by name', () => {
   });
 
   test('the dry run and --allow-failures reach the ops function', async () => {
-    await run('-n', 'zion-issuer', '-d', '--allow-failures', 'matrix', 'alpha');
+    await run('-n', 'zion-agents', '-d', '--allow-failures', 'matrix', 'alpha');
 
-    expect(configManagerDeleteTrustedJwtIssuers).toHaveBeenCalledWith(
-      'zion-issuer',
+    expect(configManagerDeleteCIMDProfiles).toHaveBeenCalledWith(
+      'zion-agents',
       'alpha',
       true,
       true
@@ -294,36 +288,36 @@ describe('deleting one trusted JWT issuer by name', () => {
   test('a failed login exits 1 and deletes nothing', async () => {
     getTokens.mockResolvedValue(false);
 
-    await run('-n', 'zion-issuer', 'matrix', 'alpha');
+    await run('-n', 'zion-agents', 'matrix', 'alpha');
 
-    expect(configManagerDeleteTrustedJwtIssuers).not.toHaveBeenCalled();
+    expect(configManagerDeleteCIMDProfiles).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 
-  test('a delete that fails, or an issuer that is not there, exits 1', async () => {
-    configManagerDeleteTrustedJwtIssuers.mockResolvedValue(false);
+  test('a delete that fails, or a profile that is not there, exits 1', async () => {
+    configManagerDeleteCIMDProfiles.mockResolvedValue(false);
 
-    await run('-n', 'zion-issuer', 'matrix', 'alpha');
+    await run('-n', 'zion-agents', 'matrix', 'alpha');
 
     expect(process.exitCode).toBe(1);
   });
 });
 
-describe('an empty name is not "all trusted JWT issuers"', () => {
+describe('an empty name is not "all CIMD profiles"', () => {
   test.each([[''], ['  ']])(
     'the name %j is an error before the check, the login and the delete',
     async (name) => {
       await run('-n', name, '-y', 'matrix', 'alpha');
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The trusted JWT issuer name must not be empty. To delete all trusted JWT issuers, leave out -n.',
+        'The CIMD profile name must not be empty. To delete all CIMD profiles, leave out -n.',
         'error'
       );
       expect(events).toEqual([]);
       expect(checkBulkDelete).not.toHaveBeenCalled();
       expect(getTokens).not.toHaveBeenCalled();
       expect(confirmBulkDelete).not.toHaveBeenCalled();
-      expect(configManagerDeleteTrustedJwtIssuers).not.toHaveBeenCalled();
+      expect(configManagerDeleteCIMDProfiles).not.toHaveBeenCalled();
       expect(process.exitCode).toBe(1);
     }
   );

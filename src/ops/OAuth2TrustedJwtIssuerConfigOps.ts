@@ -1,5 +1,5 @@
 /**
- * The config-manager kind `trusted-jwt-issuers`: OAuth2 trusted JWT issuers (the agent type
+ * The config-manager kind `oauth-issuers`: OAuth2 trusted JWT issuers (the agent type
  * `TrustedJwtIssuer`: the issuers whose signed JWTs an OAuth 2.0 provider accepts as grants, a trust
  * anchor) as files of the fr-config-manager tree,
  * `realms/<realm>/realm-config/agents/TrustedJwtIssuer/<id>.json`.
@@ -41,7 +41,7 @@ const { issuer } = frodo.oauth2oidc;
 export const TRUSTED_JWT_ISSUER_AGENT_TYPE = 'TrustedJwtIssuer';
 
 /** The name of the kind, which is the name of its commands. */
-export const TRUSTED_JWT_ISSUERS_KIND = 'trusted-jwt-issuers';
+export const OAUTH_ISSUERS_KIND = 'oauth-issuers';
 
 /** What the kind is called in its messages. */
 export const TRUSTED_JWT_ISSUER_KIND: AgentKindSpec = {
@@ -154,7 +154,7 @@ export async function configManagerExportTrustedJwtIssuers(
 
 /**
  * Import the trusted JWT issuers of the files `realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json`
- * (what `pull trusted-jwt-issuers` and `pull oauth2-agents` write) into the realms they are in: an
+ * (what `pull oauth-issuers` and `pull oauth2-agents` write) into the realms they are in: an
  * issuer that does not exist is created and one that does is replaced by the file. An issuer is a
  * trust anchor (a JWT signed by it is accepted as a grant), so a pull request that changes a file
  * changes who may obtain tokens after the next push: read the files before pushing them. Nothing

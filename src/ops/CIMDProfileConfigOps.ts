@@ -1,5 +1,5 @@
 /**
- * The config-manager kind `cimd-profiles`: CIMD profiles (the agent type `CIMDProfile`, the
+ * The config-manager kind `oauth-cimd-profiles`: CIMD profiles (the agent type `CIMDProfile`, the
  * allow-list of `https://` client ID URL patterns for OAuth 2.0 clients that identify themselves
  * with a Client ID Metadata Document) as files of the fr-config-manager tree,
  * `realms/<realm>/realm-config/agents/CIMDProfile/<id>.json`.
@@ -38,7 +38,7 @@ const { cimd } = frodo.oauth2oidc;
 export const CIMD_PROFILE_AGENT_TYPE = 'CIMDProfile';
 
 /** The name of the kind, which is the name of its commands. */
-export const CIMD_PROFILES_KIND = 'cimd-profiles';
+export const OAUTH_CIMD_PROFILES_KIND = 'oauth-cimd-profiles';
 
 /** What the kind is called in its messages. */
 export const CIMD_PROFILE_KIND: AgentKindSpec = {
@@ -122,7 +122,7 @@ const UNUSUAL_ID_CHARACTERS = /[ [\]|]/;
 
 /**
  * Import the CIMD profiles of the files `realms/<realm>/realm-config/agents/CIMDProfile/<name>.json`
- * (what `pull cimd-profiles` writes) into the realms they are in: a profile that does not exist is
+ * (what `pull oauth-cimd-profiles` writes) into the realms they are in: a profile that does not exist is
  * created and one that does is replaced by exactly what the file holds (what the file leaves out is
  * removed). A profile is never deleted. The id is the `_id` of the file, otherwise its name;
  * `${NAME}` is filled from the environment; plain and wrapped values are sent as they are. The

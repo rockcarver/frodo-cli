@@ -23,8 +23,6 @@ Commands:
   audit                  [Experimental] Import audit configuration.
   authentication         [Experimental] Import authentication objects.
   authz-policies         [Experimental] Import authorization policies.
-  cimd-profiles          [Experimental] Import CIMD profiles from the files
-                         written by pull.
   config-metadata        [Experimental] Import metadata.
   connector-definitions  [Experimental] Import connector definitions.
   connector-mappings     [Experimental] Import connector mappings.
@@ -51,6 +49,10 @@ Commands:
   kba                    [Experimental] Import kba configuration.
   locales                [Experimental] Import custom locales objects.
   managed-objects        [Experimental] Import managed objects.
+  oauth-cimd-profiles    [Experimental] Import CIMD profiles from the files
+                         written by pull.
+  oauth-issuers          [Experimental] Import trusted JWT issuers from the
+                         files written by pull.
   oauth2-agents          [Experimental] Import Oauth2 agents.
   org-privileges         [Experimental] Import organization privileges config.
   password-policy        [Experimental] Import password-policy objects.
@@ -70,8 +72,6 @@ Commands:
   terms-and-conditions   [Experimental] Import terms and conditions.
   test                   [Experimental] Test connection and authentication.
   themes                 [Experimental] Import themes.
-  trusted-jwt-issuers    [Experimental] Import trusted JWT issuers from the
-                         files written by pull.
   ui-config              [Experimental] Import UI configuration.
   variables              [Experimental] [Cloud-only] Import variables.
 

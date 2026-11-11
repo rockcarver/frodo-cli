@@ -1,5 +1,5 @@
 /**
- * Unit tests for the step `cimd-profiles` of `config-manager pull all` and the
+ * Unit tests for the step `oauth-cimd-profiles` of `config-manager pull all` and the
  * absence of it from `pull all-static` (src/configManagerOps/FrConfigAllOps.ts,
  * frodo-cli#1250), without a tenant. CIMD profiles are dynamic configuration for
  * now: they are in `pull all` on every deployment type (the step says nothing where
@@ -88,7 +88,7 @@ describe.each(DEPLOYMENTS)('pull all on a %s deployment', (deployment) => {
     deploymentType = deployment;
   });
 
-  test('runs the step cimd-profiles once, quietly, without a name and without the allow-failures flag of the exporter', async () => {
+  test('runs the step oauth-cimd-profiles once, quietly, without a name and without the allow-failures flag of the exporter', async () => {
     expect(await configManagerExportAllWithConfigFolder({})).toBe(true);
 
     expect(spies.configManagerExportCIMDProfiles).toHaveBeenCalledTimes(1);
@@ -111,7 +111,7 @@ describe.each(DEPLOYMENTS)('pull all on a %s deployment', (deployment) => {
       undefined,
       true,
       false,
-      '/cfg/cimd-profiles.json'
+      '/cfg/oauth-cimd-profiles.json'
     );
   });
 
@@ -144,7 +144,7 @@ describe.each(DEPLOYMENTS)('pull all on a %s deployment', (deployment) => {
   test('is a step of its own in the list, under the name of the pull command', () => {
     expect(
       deploymentMapAll[deployment].filter(
-        ({ name }) => name === 'cimd-profiles'
+        ({ name }) => name === 'oauth-cimd-profiles'
       )
     ).toHaveLength(1);
   });
@@ -158,7 +158,7 @@ describe.each(DEPLOYMENTS)('pull all on a %s deployment', (deployment) => {
       /steps? failed/.test(text)
     );
     expect(summaries).toHaveLength(1);
-    expect(summaries[0][0]).toMatch(/- cimd-profiles$/m);
+    expect(summaries[0][0]).toMatch(/- oauth-cimd-profiles$/m);
     // the steps after it ran (the last step of each list)
     expect(spies.configManagerExportScripts).toHaveBeenCalledTimes(1);
 
@@ -170,7 +170,7 @@ describe.each(DEPLOYMENTS)('pull all on a %s deployment', (deployment) => {
     const [kept] = spies.printMessage.mock.calls
       .map(([text]) => text)
       .filter((text) => /steps? failed/.test(text));
-    expect(kept).toContain('- cimd-profiles');
+    expect(kept).toContain('- oauth-cimd-profiles');
     expect(kept).toContain('The exit code stays 0');
   });
 
@@ -185,7 +185,7 @@ describe.each(DEPLOYMENTS)('pull all on a %s deployment', (deployment) => {
     expect(spies.configManagerExportScripts).toHaveBeenCalledTimes(1);
     expect(
       spies.printMessage.mock.calls.map(([text]) => text).join('\n')
-    ).toContain('- cimd-profiles: boom');
+    ).toContain('- oauth-cimd-profiles: boom');
   });
 });
 
@@ -196,13 +196,13 @@ describe.each(DEPLOYMENTS)(
       deploymentType = deployment;
     });
 
-    test('does not run the step cimd-profiles: CIMD profiles are dynamic configuration', async () => {
+    test('does not run the step oauth-cimd-profiles: CIMD profiles are dynamic configuration', async () => {
       expect(await configManagerExportAllStatic({ realm: 'alpha' })).toBe(true);
 
       expect(spies.configManagerExportCIMDProfiles).not.toHaveBeenCalled();
       expect(
         deploymentMapAllStatic[deployment].map(({ name }) => name)
-      ).not.toContain('cimd-profiles');
+      ).not.toContain('oauth-cimd-profiles');
     });
   }
 );

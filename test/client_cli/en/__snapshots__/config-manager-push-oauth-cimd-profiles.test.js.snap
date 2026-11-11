@@ -1,16 +1,17 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager push cimd-profiles' should be expected english 1`] = `
-"Usage: frodo config-manager push cimd-profiles [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager push oauth-cimd-profiles' should be expected english 1`] = `
+"Usage: frodo config-manager push oauth-cimd-profiles [options] [host] [realm] [username] [password]
 
 [Experimental] Import CIMD profiles from the files
 realms/<realm>/realm-config/agents/CIMDProfile/<name>.json that "pull
-cimd-profiles" writes, from the working directory (-D). A profile that does not
-exist is created and one that does is replaced by exactly what the file holds:
-what the file leaves out is removed. \${NAME} in a file is replaced by the value
-of the environment variable NAME. No profile is ever deleted. The scripts and
-journeys that a profile names must exist already, so push those first. A realm
-or a deployment that does not offer CIMD profiles is skipped with a warning.
+oauth-cimd-profiles" writes, from the working directory (-D). A profile that
+does not exist is created and one that does is replaced by exactly what the file
+holds: what the file leaves out is removed. \${NAME} in a file is replaced by the
+value of the environment variable NAME. No profile is ever deleted. The scripts
+and journeys that a profile names must exist already, so push those first. A
+realm or a deployment that does not offer CIMD profiles is skipped with a
+warning.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

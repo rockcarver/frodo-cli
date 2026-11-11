@@ -8,7 +8,7 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager delete trusted-jwt-issuers` (frodo-cli#1258): the issuers
+ * `frodo config-manager delete oauth-issuers` (frodo-cli#1258): the issuers
  * are read first (the plan, the dry run and the answer "not found" for a name come
  * from that list), then deleted one by one by their id, every deletion one
  * operation of a run that goes on after a failure (decision record 0040). An

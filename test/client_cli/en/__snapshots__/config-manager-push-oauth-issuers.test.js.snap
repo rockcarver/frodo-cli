@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager pull cimd-profiles' should be expected english 1`] = `
-"Usage: frodo config-manager pull cimd-profiles [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager push oauth-issuers' should be expected english 1`] = `
+"Usage: frodo config-manager push oauth-issuers [options] [host] [realm] [username] [password]
 
-[Experimental] Export the CIMD profiles (the allow-list of client ID URL
-patterns for OAuth 2.0 clients that identify themselves with a Client ID
-Metadata Document) of all realms or of one realm to
-realms/<realm>/realm-config/agents/CIMDProfile/<name>.json, one file for each.
-The object is written as the server lists it, without its revision; it contains
-no secrets. A realm or a deployment that does not offer CIMD profiles has
-nothing to export, which is not an error.
+[Experimental] Import OAuth2 trusted JWT issuers from the files
+realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json that "pull
+oauth-issuers" and "pull oauth2-agents" write, from the working directory (-D).
+An issuer that does not exist is created and one that does is replaced by the
+file. \${NAME} in a file is replaced by the value of the environment variable
+NAME. No issuer is ever deleted. A trusted JWT issuer is a trust anchor: a JWT
+signed by it is accepted as a grant, so read the files before you push them.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
@@ -30,10 +30,9 @@ Options:
   --allow-failures   Report operations that fail, but still exit with code 0.
                      Without this option the command runs every operation,
                      prints a summary of what failed and exits with code 1.
-  -f, --file <file>  A JSON file with overrides for values that differ between
-                     environments, e.g. "cimd-profiles.json".
-  -n, --name <name>  CIMD profile name. If specified, pulls only the profile
-                     with the given name. Needs a single realm.
+  -n, --name <name>  Trusted JWT issuer name (the name of the object, not its
+                     iss URL). If specified, pushes only the issuer of the file
+                     with that name. Needs a single realm.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

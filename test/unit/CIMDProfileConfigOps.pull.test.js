@@ -12,7 +12,7 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager pull cimd-profiles` (frodo-cli#1247): one file per CIMD
+ * `frodo config-manager pull oauth-cimd-profiles` (frodo-cli#1247): one file per CIMD
  * profile at `realms/<realm>/realm-config/agents/CIMDProfile/<id>.json`, in the
  * plain shape of the library's list read, without `_rev`, with `${` escaped.
  *
@@ -556,7 +556,8 @@ describe('the names of the files', () => {
 });
 
 describe('the overrides file', () => {
-  const overridesFile = (content) => writeFile('cimd-profiles.json', content);
+  const overridesFile = (content) =>
+    writeFile('oauth-cimd-profiles.json', content);
 
   test('is merged into the profile of its entry, the object keys by name', async () => {
     world.profiles.alpha = [profile('zion-agents'), profile('zion-tools')];
@@ -698,7 +699,7 @@ describe('the overrides file', () => {
     [
       'is not JSON',
       () => {
-        const target = path.join(tmp, 'cimd-profiles.json');
+        const target = path.join(tmp, 'oauth-cimd-profiles.json');
         fs.writeFileSync(target, '{ not json');
         return target;
       },

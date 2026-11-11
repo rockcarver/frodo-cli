@@ -12,11 +12,11 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * The commands `frodo config-manager pull|push|delete trusted-jwt-issuers` driven
+ * The commands `frodo config-manager pull|push|delete oauth-issuers` driven
  * as the real CLI of this checkout against a fake AM (test/utils/FakeAm.mjs,
  * journey `password`, in a separate process), through the real library: what the
  * unit tests of the ops stub, this checks end to end. The fake holds trusted JWT
- * issuers (FAKE_AM_TRUSTED_JWT_ISSUERS) in every realm. No tenant, no secrets, no
+ * issuers (FAKE_AM_OAUTH_ISSUERS) in every realm. No tenant, no secrets, no
  * master key, no terminal; a temporary HOME and working directory keep it away from
  * real profiles and files.
  *
@@ -26,7 +26,7 @@ const suite = process.platform === 'win32' ? describe.skip : describe;
 
 const TIMEOUT = 120000;
 
-suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
+suite('config-manager oauth-issuers against a fake tenant', () => {
   let home;
   let work;
   let record;
@@ -112,13 +112,13 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
       async () => {
         const run = await tenant({
           realms: ['alpha', 'bravo'],
-          trustedJwtIssuers: ['zion-issuer', 'zion-other'],
+          oauthIssuers: ['zion-issuer', 'zion-other'],
         });
 
         const { code, output } = await run([
           'config-manager',
           'pull',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
         ]);
 
         expect(output).not.toMatch(/Error|failed/);
@@ -153,13 +153,13 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
       'pulls one issuer by name from one realm, without listing',
       async () => {
         const run = await tenant({
-          trustedJwtIssuers: ['zion-issuer', 'zion-other'],
+          oauthIssuers: ['zion-issuer', 'zion-other'],
         });
 
         const { code } = await run([
           'config-manager',
           'pull',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-n',
           'zion-issuer',
           ...target(),
@@ -179,12 +179,12 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
     it(
       'fails for a named issuer that does not exist',
       async () => {
-        const run = await tenant({ trustedJwtIssuers: ['zion-issuer'] });
+        const run = await tenant({ oauthIssuers: ['zion-issuer'] });
 
         const { code, output } = await run([
           'config-manager',
           'pull',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-n',
           'zion-missing',
           ...target(),
@@ -200,7 +200,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
     it(
       'pulls the same file as pull oauth2-agents for the same issuer',
       async () => {
-        const run = await tenant({ trustedJwtIssuers: ['zion-issuer'] });
+        const run = await tenant({ oauthIssuers: ['zion-issuer'] });
         fs.writeFileSync(
           path.join(work, 'oauth2-agents.json'),
           JSON.stringify({
@@ -224,7 +224,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
         const dedicated = await run([
           'config-manager',
           'pull',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           ...target(),
         ]);
         expect(dedicated.code).toBe(0);
@@ -239,12 +239,12 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
     it(
       'succeeds with a line of its own where a realm has no issuer',
       async () => {
-        const run = await tenant({ trustedJwtIssuers: [] });
+        const run = await tenant({ oauthIssuers: [] });
 
         const { code, output } = await run([
           'config-manager',
           'pull',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           ...target(),
         ]);
 
@@ -276,14 +276,14 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
     it(
       'creates an issuer that does not exist and writes it a second time so that it equals the file, and replaces one that does exist with one write',
       async () => {
-        const run = await tenant({ trustedJwtIssuers: ['zion-old'] });
+        const run = await tenant({ oauthIssuers: ['zion-old'] });
         issuerFile('alpha', 'zion-new', sparse('zion-new'));
         issuerFile('alpha', 'zion-old', sparse('zion-old'));
 
         const { code, output } = await run([
           'config-manager',
           'push',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           ...target(),
         ]);
 
@@ -303,7 +303,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
         const pulled = await run([
           'config-manager',
           'pull',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-n',
           'zion-new',
           ...target(),
@@ -321,7 +321,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
     it(
       'refuses a file of another type before anything is sent, and pushes the others',
       async () => {
-        const run = await tenant({ trustedJwtIssuers: [] });
+        const run = await tenant({ oauthIssuers: [] });
         issuerFile('alpha', 'zion-agent', {
           ...sparse('zion-agent'),
           _type: { _id: 'WebAgent', name: 'Web Agent', collection: true },
@@ -331,7 +331,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
         const { code, output } = await run([
           'config-manager',
           'push',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           ...target(),
         ]);
 
@@ -346,7 +346,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
         const allowed = await run([
           'config-manager',
           'push',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '--allow-failures',
           ...target(),
         ]);
@@ -359,13 +359,13 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
     it(
       'removes a _rev from a file, which the server would refuse',
       async () => {
-        const run = await tenant({ trustedJwtIssuers: ['zion-old'] });
+        const run = await tenant({ oauthIssuers: ['zion-old'] });
         issuerFile('alpha', 'zion-old', { ...sparse('zion-old'), _rev: '-9' });
 
         const { code, output } = await run([
           'config-manager',
           'push',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           ...target(),
         ]);
 
@@ -379,12 +379,12 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
     it(
       'fails when a named file is missing, and when the tree has no realms folder',
       async () => {
-        const run = await tenant({ trustedJwtIssuers: [] });
+        const run = await tenant({ oauthIssuers: [] });
 
         const noTree = await run([
           'config-manager',
           'push',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           ...target(),
         ]);
         expect(noTree.code).toBe(1);
@@ -394,7 +394,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
         const missing = await run([
           'config-manager',
           'push',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-n',
           'zion-new',
           ...target(),
@@ -414,12 +414,12 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
     it(
       'is refused without a terminal and without --yes, before any request',
       async () => {
-        const run = await tenant({ trustedJwtIssuers: ['zion-issuer'] });
+        const run = await tenant({ oauthIssuers: ['zion-issuer'] });
 
         const { code, output } = await run([
           'config-manager',
           'delete',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           ...target(),
         ]);
 
@@ -435,13 +435,13 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
       'previews with --dry-run and deletes with --yes',
       async () => {
         const run = await tenant({
-          trustedJwtIssuers: ['zion-issuer', 'zion-other'],
+          oauthIssuers: ['zion-issuer', 'zion-other'],
         });
 
         const preview = await run([
           'config-manager',
           'delete',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-d',
           ...target(),
         ]);
@@ -454,7 +454,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
         const done = await run([
           'config-manager',
           'delete',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-y',
           ...target(),
         ]);
@@ -472,7 +472,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
         const again = await run([
           'config-manager',
           'delete',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-y',
           ...target(),
         ]);
@@ -488,13 +488,13 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
       'deletes one issuer by name without asking, and fails for a name that is not there',
       async () => {
         const run = await tenant({
-          trustedJwtIssuers: ['zion-issuer', 'zion-other'],
+          oauthIssuers: ['zion-issuer', 'zion-other'],
         });
 
         const one = await run([
           'config-manager',
           'delete',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-n',
           'zion-issuer',
           ...target(),
@@ -506,7 +506,7 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
         const missing = await run([
           'config-manager',
           'delete',
-          'trusted-jwt-issuers',
+          'oauth-issuers',
           '-n',
           'zion-issuer',
           ...target(),

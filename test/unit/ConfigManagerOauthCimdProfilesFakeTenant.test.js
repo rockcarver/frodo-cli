@@ -12,11 +12,11 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * The commands `frodo config-manager pull|push|delete cimd-profiles` driven as the
+ * The commands `frodo config-manager pull|push|delete oauth-cimd-profiles` driven as the
  * real CLI of this checkout against a fake AM (test/utils/FakeAm.mjs, journey
  * `password`, in a separate process), through the real library: what the unit
  * tests of the ops stub, this checks end to end. The fake holds CIMD profiles
- * (FAKE_AM_CIMD_PROFILES) in every realm, or does not offer the type at all, as a
+ * (FAKE_AM_OAUTH_CIMD_PROFILES) in every realm, or does not offer the type at all, as a
  * deployment before PingAM 9.0 does not. No tenant, no secrets, no master key, no
  * terminal; a temporary HOME and working directory keep it away from real
  * profiles and files.
@@ -27,7 +27,7 @@ const suite = process.platform === 'win32' ? describe.skip : describe;
 
 const TIMEOUT = 120000;
 
-suite('config-manager cimd-profiles against a fake tenant', () => {
+suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
   let home;
   let work;
   let record;
@@ -105,13 +105,13 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
       async () => {
         const run = await tenant({
           realms: ['alpha', 'bravo'],
-          cimdProfiles: ['zion-agents', 'zion-tools'],
+          oauthCimdProfiles: ['zion-agents', 'zion-tools'],
         });
 
         const { code, output } = await run([
           'config-manager',
           'pull',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
         ]);
 
         expect(output).not.toMatch(/Error/);
@@ -136,13 +136,13 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
       'pulls one profile by name from one realm, ignoring case, into a file named after the stored id',
       async () => {
         const run = await tenant({
-          cimdProfiles: ['Zion-Agents', 'zion-tools'],
+          oauthCimdProfiles: ['Zion-Agents', 'zion-tools'],
         });
 
         const { code } = await run([
           'config-manager',
           'pull',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-n',
           'zion-agents',
           `http://127.0.0.1:${fakeAm.port}/am`,
@@ -165,7 +165,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const { code, output } = await run([
           'config-manager',
           'pull',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
         ]);
 
         expect(code).toBe(0);
@@ -187,7 +187,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const { code, output } = await run([
           'config-manager',
           'pull',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-n',
           'zion-agents',
           `http://127.0.0.1:${fakeAm.port}/am`,
@@ -205,12 +205,12 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
     it(
       'fails for a named profile that does not exist',
       async () => {
-        const run = await tenant({ cimdProfiles: ['zion-agents'] });
+        const run = await tenant({ oauthCimdProfiles: ['zion-agents'] });
 
         const { code, output } = await run([
           'config-manager',
           'pull',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-n',
           'zion-missing',
           `http://127.0.0.1:${fakeAm.port}/am`,
@@ -241,14 +241,14 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
     it(
       'creates a profile that does not exist and writes it a second time so that it equals the file, and replaces one that does exist with one write',
       async () => {
-        const run = await tenant({ cimdProfiles: ['zion-old'] });
+        const run = await tenant({ oauthCimdProfiles: ['zion-old'] });
         profileFile('alpha', 'zion-new', sparse('zion-new'));
         profileFile('alpha', 'zion-old', sparse('zion-old'));
 
         const { code, output } = await run([
           'config-manager',
           'push',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           `http://127.0.0.1:${fakeAm.port}/am`,
           'alpha',
         ]);
@@ -272,7 +272,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         await run([
           'config-manager',
           'pull',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           `http://127.0.0.1:${fakeAm.port}/am`,
           'alpha',
         ]);
@@ -288,13 +288,13 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
     it(
       'refuses a _rev in a file by removing it: the server would answer 400',
       async () => {
-        const run = await tenant({ cimdProfiles: ['zion-old'] });
+        const run = await tenant({ oauthCimdProfiles: ['zion-old'] });
         profileFile('alpha', 'zion-old', { ...sparse('zion-old'), _rev: '-9' });
 
         const { code, output } = await run([
           'config-manager',
           'push',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           `http://127.0.0.1:${fakeAm.port}/am`,
           'alpha',
         ]);
@@ -315,7 +315,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const { code, output } = await run([
           'config-manager',
           'push',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           `http://127.0.0.1:${fakeAm.port}/am`,
           'alpha',
         ]);
@@ -332,7 +332,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
     it(
       'names the file and exits 1 for a file that cannot be read, and pushes the others',
       async () => {
-        const run = await tenant({ cimdProfiles: [] });
+        const run = await tenant({ oauthCimdProfiles: [] });
         fs.mkdirSync(profilesOf('alpha'), { recursive: true });
         fs.writeFileSync(
           path.join(profilesOf('alpha'), 'zion-broken.json'),
@@ -343,7 +343,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const { code, output } = await run([
           'config-manager',
           'push',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           `http://127.0.0.1:${fakeAm.port}/am`,
           'alpha',
         ]);
@@ -356,7 +356,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const allowed = await run([
           'config-manager',
           'push',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '--allow-failures',
           `http://127.0.0.1:${fakeAm.port}/am`,
           'alpha',
@@ -370,12 +370,12 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
     it(
       'fails when the tree has no realms folder',
       async () => {
-        const run = await tenant({ cimdProfiles: [] });
+        const run = await tenant({ oauthCimdProfiles: [] });
 
         const { code, output } = await run([
           'config-manager',
           'push',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           `http://127.0.0.1:${fakeAm.port}/am`,
           'alpha',
         ]);
@@ -393,12 +393,12 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
     it(
       'is refused without a terminal and without --yes, before any request for profiles',
       async () => {
-        const run = await tenant({ cimdProfiles: ['zion-agents'] });
+        const run = await tenant({ oauthCimdProfiles: ['zion-agents'] });
 
         const { code, output } = await run([
           'config-manager',
           'delete',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           ...target(),
         ]);
 
@@ -414,13 +414,13 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
       'previews with --dry-run and deletes with --yes, by the stored id',
       async () => {
         const run = await tenant({
-          cimdProfiles: ['Zion-Agents', 'zion-tools'],
+          oauthCimdProfiles: ['Zion-Agents', 'zion-tools'],
         });
 
         const preview = await run([
           'config-manager',
           'delete',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-d',
           ...target(),
         ]);
@@ -433,7 +433,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const done = await run([
           'config-manager',
           'delete',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-y',
           ...target(),
         ]);
@@ -450,7 +450,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const again = await run([
           'config-manager',
           'delete',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-y',
           ...target(),
         ]);
@@ -464,13 +464,13 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
       'deletes one profile by name without asking, ignoring case, and fails for a name that is not there',
       async () => {
         const run = await tenant({
-          cimdProfiles: ['zion-agents', 'zion-tools'],
+          oauthCimdProfiles: ['zion-agents', 'zion-tools'],
         });
 
         const one = await run([
           'config-manager',
           'delete',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-n',
           'ZION-AGENTS',
           ...target(),
@@ -482,7 +482,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const missing = await run([
           'config-manager',
           'delete',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-n',
           'zion-agents',
           ...target(),
@@ -503,7 +503,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const all = await run([
           'config-manager',
           'delete',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-y',
           ...target(),
         ]);
@@ -513,7 +513,7 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
         const named = await run([
           'config-manager',
           'delete',
-          'cimd-profiles',
+          'oauth-cimd-profiles',
           '-n',
           'zion-agents',
           ...target(),

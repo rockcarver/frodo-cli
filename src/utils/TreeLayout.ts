@@ -61,7 +61,7 @@ const AGENTS_PATH = path.join('realm-config', 'agents');
 const KIND_PATHS_IN_REALM = [AGENTS_PATH, path.join('realm-config', 'saml')];
 /**
  * Folders of `realm-config/agents` that do not make a tree a kind-path tree: the agent types of a
- * kind of their own that an application can never own (a CIMD profile: the kind `cimd-profiles`).
+ * kind of their own that an application can never own (a CIMD profile: the kind `oauth-cimd-profiles`).
  * Only an OAuth2 client of the agents can be owned, so a folder of one of these types says nothing
  * about the layout of the applications. Every other entry still counts, and so does an empty
  * `agents` directory, because a command that created it has written in the kind-path layout.

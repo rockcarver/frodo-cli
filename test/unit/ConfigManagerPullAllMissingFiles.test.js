@@ -219,7 +219,7 @@ describe.each(['cloud', 'forgeops', 'classic'])(
 );
 
 /**
- * The overrides files of the steps `cimd-profiles` and `trusted-jwt-issuers` are optional input to steps that
+ * The overrides files of the steps `oauth-cimd-profiles` and `oauth-issuers` are optional input to steps that
  * need none: they are not file steps, so a config folder without them is not warned about, and a config
  * folder that has one hands its path to the exporter (frodo-cli#1250 and #1257).
  */
@@ -228,12 +228,12 @@ describe.each(['cloud', 'forgeops', 'classic'])(
   (deployment) => {
     const STEPS = [
       {
-        file: 'cimd-profiles.json',
+        file: 'oauth-cimd-profiles.json',
         module: 'src/ops/CIMDProfileConfigOps',
         name: 'configManagerExportCIMDProfiles',
       },
       {
-        file: 'trusted-jwt-issuers.json',
+        file: 'oauth-issuers.json',
         module: 'src/ops/OAuth2TrustedJwtIssuerConfigOps',
         name: 'configManagerExportTrustedJwtIssuers',
       },
@@ -262,7 +262,7 @@ describe.each(['cloud', 'forgeops', 'classic'])(
           null
         );
         expect(warnings().join('\n')).not.toMatch(
-          /cimd|trusted-jwt-issuers|trusted JWT/i
+          /cimd|oauth-issuers|trusted JWT/i
         );
         expect(errors()).toEqual([]);
       }

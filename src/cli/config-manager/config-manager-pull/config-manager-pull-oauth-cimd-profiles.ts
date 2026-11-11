@@ -8,7 +8,9 @@ import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull cimd-profiles');
+  const program = new FrodoCommand(
+    'frodo config-manager pull oauth-cimd-profiles'
+  );
 
   program
     .summary('Export CIMD profiles, one file per profile.')
@@ -31,18 +33,20 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Pull all CIMD profiles of all realms to realms/<realm>/realm-config/agents/CIMDProfile/<name>.json:\n` +
-        c.command(`  $ frodo config-manager pull cimd-profiles ${s.connId}\n`) +
+        c.command(
+          `  $ frodo config-manager pull oauth-cimd-profiles ${s.connId}\n`
+        ) +
         `  Pull the CIMD profiles of one realm:\n` +
         c.command(
-          `  $ frodo config-manager pull cimd-profiles ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager pull oauth-cimd-profiles ${s.connId} ${s.realm}\n`
         ) +
         `  Pull one CIMD profile of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull cimd-profiles -n ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager pull oauth-cimd-profiles -n ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
         ) +
         `  Replace values that differ between environments with placeholders from a file:\n` +
         c.command(
-          `  $ frodo config-manager pull cimd-profiles -f ${s.cimdOverridesFile} ${s.connId}\n`
+          `  $ frodo config-manager pull oauth-cimd-profiles -f ${s.cimdOverridesFile} ${s.connId}\n`
         )
     )
     .addHelpText(

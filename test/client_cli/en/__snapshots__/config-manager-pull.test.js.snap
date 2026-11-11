@@ -25,8 +25,6 @@ Commands:
   audit                  [Experimental] Export audit objects.
   authentication         [Experimental] Export authentication settings.
   authz-policies         [Experimental] Export authorization policies.
-  cimd-profiles          [Experimental] Export CIMD profiles, one file per
-                         profile.
   config-metadata        [Experimental] Show metadata.
   connector-definitions  [Experimental] Export connector definitions.
   connector-mappings     [Experimental] Export connector mappings.
@@ -45,6 +43,10 @@ Commands:
   kba                    [Experimental] Export KBA.
   locales                [Experimental] Export locales.
   managed-objects        [Experimental] Export managed-objects.
+  oauth-cimd-profiles    [Experimental] Export CIMD profiles, one file per
+                         profile.
+  oauth-issuers          [Experimental] Export trusted JWT issuers, one file per
+                         issuer.
   oauth2-agents          [Experimental] Export OAuth2 Agents
   org-privileges         [Experimental] Export organization privileges config.
   password-policy        [Experimental] Export password policy.
@@ -64,8 +66,6 @@ Commands:
   terms-and-conditions   [Experimental] Export terms and conditions.
   test                   [Experimental] Test connection and authentication.
   themes                 [Experimental] Export themes.
-  trusted-jwt-issuers    [Experimental] Export trusted JWT issuers, one file per
-                         issuer.
   ui-config              [Experimental] Export IDM UI configuration objects.
   variables              [Experimental] [Cloud-only] Export variables.
 
