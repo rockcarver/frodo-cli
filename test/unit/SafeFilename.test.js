@@ -1,87 +1,81 @@
 import { jest } from '@jest/globals';
+import { getTypedFilename } from '../utils/LibFilenames.js';
 
-// The names of the files an export writes for objects whose ids are free text.
-// The library's own slug is replaced by a small stand-in here (the bundled
-// library cannot load under jest's ESM runtime); the helper only adds the rules
-// for an empty, an over-long and a repeated slug on top of it.
-
-const slugify = (name) =>
-  name
-    .replace(/^http(s?):\/\//, '')
-    .replace(/[^\w\s$*_+~.()'"!\-@]+/g, '')
-    .trim()
-    .replace(/\s+/g, '-');
-
+/**
+ * safeTypedFilename (src/ops/utils/SafeFilename.ts): a file name for an object
+ * id that file systems accept. `getTypedFilename` of the library slugifies and
+ * caps nothing, and some ids are free text of thousands of characters, or have
+ * an empty slug, or share one slug with another id.
+ */
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
-  frodo: {
-    utils: {
-      getTypedFilename: (name, type, suffix = 'json') =>
-        `${slugify(name)}.${type}.${suffix}`,
-    },
-  },
+  frodo: { utils: { getTypedFilename } },
 }));
 
 const { safeTypedFilename } =
   await import('../../src/ops/utils/SafeFilename.ts');
 
-const TYPE = 'oauth2.issuer';
-const SHA_OF = {
-  // the first 8 hex digits of the SHA-256 of the id
-  '///': '732c4e97',
-};
+const TYPE = 'cimd.agent';
 
 describe('safeTypedFilename', () => {
-  test('is the name of the library for an id that makes a normal slug', () => {
-    expect(safeTypedFilename('zion-trusted-issuer', TYPE)).toBe(
-      'zion-trusted-issuer.oauth2.issuer.json'
+  test('an id that makes a usable name keeps the name the library makes', () => {
+    expect(safeTypedFilename('zion-mcp-clients', TYPE)).toBe(
+      'zion-mcp-clients.cimd.agent.json'
+    );
+    expect(safeTypedFilename('a@b.c', TYPE)).toBe('a@b.c.cimd.agent.json');
+    expect(safeTypedFilename('Ünï', TYPE)).toBe('Uni.cimd.agent.json');
+  });
+
+  test('a name part of 120 characters is kept, one of 121 is cut to 100 and gets the hash of the id', () => {
+    expect(safeTypedFilename('x'.repeat(120), TYPE)).toBe(
+      `${'x'.repeat(120)}.cimd.agent.json`
+    );
+    expect(safeTypedFilename('x'.repeat(121), TYPE)).toMatch(
+      /^x{100}-[0-9a-f]{8}\.cimd\.agent\.json$/
     );
   });
 
-  test('gives an id that makes an empty slug a name of its own, deterministic and without a leading dash', () => {
-    const name = safeTypedFilename('///', TYPE);
-
-    expect(name).toMatch(/^[0-9a-f]{8}\.oauth2\.issuer\.json$/);
-    expect(safeTypedFilename('///', TYPE)).toBe(name);
-    expect(name).toBe(`${SHA_OF['///']}.oauth2.issuer.json`);
+  test('an id of thousands of characters makes a name well below what file systems accept', () => {
+    expect(
+      safeTypedFilename('x'.repeat(7500), TYPE).length
+    ).toBeLessThanOrEqual(140);
   });
 
-  test('cuts a slug of more than 120 characters to 100 and adds the digest of the id', () => {
-    const id = 'a'.repeat(5000);
+  test('an id with an empty slug (CJK letters, an emoji) is named by the hash alone, and two of them differ', () => {
+    const first = safeTypedFilename('日本語', TYPE);
+    const second = safeTypedFilename('😀', TYPE);
 
-    const name = safeTypedFilename(id, TYPE);
-
-    expect(name).toMatch(/^a{100}-[0-9a-f]{8}\.oauth2\.issuer\.json$/);
-    expect(name.length).toBeLessThan(140);
-    expect(safeTypedFilename(id, TYPE)).toBe(name);
+    expect(first).toMatch(/^[0-9a-f]{8}\.cimd\.agent\.json$/);
+    expect(second).toMatch(/^[0-9a-f]{8}\.cimd\.agent\.json$/);
+    expect(first).not.toBe(second);
   });
 
-  test('keeps a slug of exactly 120 characters', () => {
-    const id = 'b'.repeat(120);
-
-    expect(safeTypedFilename(id, TYPE)).toBe(`${id}.oauth2.issuer.json`);
+  test('the hash is the first 8 hex digits of the SHA-256 of the id, so a second export writes the same name', () => {
+    expect(safeTypedFilename('日本語', TYPE)).toBe(
+      safeTypedFilename('日本語', TYPE)
+    );
+    // the first 8 hex digits of sha256('日本語'), computed independently and pinned
+    expect(safeTypedFilename('日本語', TYPE)).toBe('77710aed.cimd.agent.json');
   });
 
-  test('two ids with one slug get different names in one run', () => {
+  test('two ids with one slug: the second gets the hash when they share a run, neither when they do not', () => {
+    expect(safeTypedFilename('a b', TYPE)).toBe('a-b.cimd.agent.json');
+    expect(safeTypedFilename('a-b', TYPE)).toBe('a-b.cimd.agent.json');
+
+    const taken = new Set();
+    expect(safeTypedFilename('a b', TYPE, taken)).toBe('a-b.cimd.agent.json');
+    expect(safeTypedFilename('a-b', TYPE, taken)).toMatch(
+      /^a-b-[0-9a-f]{8}\.cimd\.agent\.json$/
+    );
+    expect(taken.size).toBe(2);
+  });
+
+  test('names are compared ignoring case, because the file system may', () => {
     const taken = new Set();
 
-    const first = safeTypedFilename('ab', TYPE, taken);
-    const second = safeTypedFilename('a/b', TYPE, taken);
-    const third = safeTypedFilename('ab', TYPE, taken);
-
-    expect(first).toBe('ab.oauth2.issuer.json');
-    expect(second).toMatch(/^ab-[0-9a-f]{8}\.oauth2\.issuer\.json$/);
-    expect(third).toMatch(/^ab-[0-9a-f]{8}\.oauth2\.issuer\.json$/);
-    expect(new Set([first, second]).size).toBe(2);
-    // a name that is already in the set is never handed out again
-    expect([...taken]).toEqual([first, second, third]);
-  });
-
-  test('a name that is taken only matters within the set it is given', () => {
-    safeTypedFilename('zion', TYPE, new Set());
-
-    expect(safeTypedFilename('zion', TYPE, new Set())).toBe(
-      'zion.oauth2.issuer.json'
+    expect(safeTypedFilename('abc', TYPE, taken)).toBe('abc.cimd.agent.json');
+    // the library keeps case, so these two slugs differ only in case
+    expect(safeTypedFilename('ABC', TYPE, taken)).toMatch(
+      /^ABC-[0-9a-f]{8}\.cimd\.agent\.json$/
     );
-    expect(safeTypedFilename('zion', TYPE)).toBe('zion.oauth2.issuer.json');
   });
 });

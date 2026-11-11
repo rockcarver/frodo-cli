@@ -30,7 +30,6 @@ import {
   type WorkflowGroup,
 } from '@rockcarver/frodo-lib';
 import type { Command } from 'commander';
-import { valueOf } from '../InheritedValue';
 import {
   sameHost,
   savedConnectionProfiles,
@@ -609,7 +608,20 @@ export function registerEntityPickFamilies(): void {
 
   // `oauth issuer`: the OAuth2 trusted JWT issuers of the realm, by the name of
   // the object. The description is the issuer value its assertions carry, which
-  // is what tells two issuers apart when their names do not.
+  // is what tells two issuers apart when their names do not. The library returns
+  // the plain shape from a query; a read by id wraps a member as
+  // `{ inherited, value }`, so both are read.
+  const issuerValueOf = (
+    issuer: OAuth2TrustedJwtIssuerSkeleton
+  ): string | undefined => {
+    const member: unknown = issuer.issuer;
+    const value =
+      typeof member === 'string'
+        ? member
+        : (member as { value?: unknown } | undefined)?.value;
+    return typeof value === 'string' ? value : undefined;
+  };
+
   registerEntityPickFamily({
     family: 'oauth issuer',
     picks: [
@@ -621,7 +633,7 @@ export function registerEntityPickFamilies(): void {
             (a, b) => (a._id ?? '').localeCompare(b._id ?? '')
           ),
         label: (issuer) => issuer._id ?? '',
-        description: (issuer) => valueOf<string>(issuer.issuer),
+        description: issuerValueOf,
       }),
     ],
   });

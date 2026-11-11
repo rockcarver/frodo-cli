@@ -20,8 +20,9 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
-import { unwrapInheritedSettings, valueOf } from '../utils/InheritedValue';
 import { OperationRun } from '../utils/OperationRun';
+import { unwrapInheritedSettings } from './utils/InheritedSettings';
+import { valueOf } from './utils/InheritedValue';
 import { safeTypedFilename } from './utils/SafeFilename';
 
 const {

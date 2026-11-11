@@ -1,17 +1,21 @@
 import {
   isInheritedSetting,
   unwrapInheritedSettings,
-  valueOf,
-} from '../../src/utils/InheritedValue.ts';
+} from '../../src/ops/utils/InheritedSettings.ts';
+import { valueOf } from '../../src/ops/utils/InheritedValue.ts';
 
 // The two shapes of a read of an AM configuration object: a read by id wraps a
 // setting in `{ inherited, value }` (no `value` when it is not set), a query
-// answers the plain value (`null` when it is not set).
+// answers the plain value (`null` when it is not set). `valueOf` decides what to
+// show; `unwrapInheritedSettings` rewrites an object into the plain shape.
 
-describe('valueOf', () => {
+describe('valueOf (src/ops/utils/InheritedValue.ts)', () => {
   test('is the value of a wrapped setting', () => {
     expect(valueOf({ inherited: false, value: 'a' })).toBe('a');
-    expect(valueOf({ inherited: true, value: ['a', 'b'] })).toEqual(['a', 'b']);
+    expect(valueOf({ inherited: false, value: ['a', 'b'] })).toEqual([
+      'a',
+      'b',
+    ]);
     expect(valueOf({ inherited: false, value: 0 })).toBe(0);
     expect(valueOf({ inherited: false, value: [] })).toEqual([]);
   });
@@ -23,18 +27,12 @@ describe('valueOf', () => {
     expect(valueOf(false)).toBe(false);
   });
 
-  test('has no value for a wrapper without one, for null and for an absent setting', () => {
+  test('has no value for a wrapper without one, for a value that is inherited, for null and for an absent setting', () => {
     expect(valueOf({ inherited: false })).toBeUndefined();
     expect(valueOf({ inherited: false, value: null })).toBeUndefined();
+    expect(valueOf({ inherited: true, value: 'a' })).toBeUndefined();
     expect(valueOf(null)).toBeUndefined();
     expect(valueOf(undefined)).toBeUndefined();
-  });
-
-  test('does not take an object that only looks like a wrapper for one', () => {
-    const object = { inherited: false, value: 'a', other: 1 };
-    expect(valueOf(object)).toBe(object);
-    const noInherited = { value: 'a' };
-    expect(valueOf(noInherited)).toBe(noInherited);
   });
 });
 
@@ -74,6 +72,12 @@ describe('unwrapInheritedSettings', () => {
       jwksCacheTimeout: 3600000,
       _type: { _id: 'TrustedJwtIssuer', name: 'x', collection: true },
     });
+  });
+
+  test('a setting that only looks like a wrapper is kept', () => {
+    const object = { odd: { inherited: false, value: 'a', other: 1 } };
+
+    expect(unwrapInheritedSettings(object)).toEqual(object);
   });
 
   test('leaves a plain object as it is, and does not change what it is given', () => {
