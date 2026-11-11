@@ -135,19 +135,23 @@ describe('frodo config-manager delete oauth-issuers', () => {
     expect(getTokens).toHaveBeenCalledWith();
   });
 
-  test('has -n, -d and -y, and no mandatory option', async () => {
+  test('has -n, --dry-run and -y, and no mandatory option', async () => {
     const program = await run('-y');
     const flags = program.options.map((option) => option.flags);
 
     expect(flags).toEqual(
       expect.arrayContaining([
         '-n, --name <name>',
-        '-d, --dry-run',
+        '--dry-run',
         '-y, --yes',
         '--allow-failures',
       ])
     );
     expect(program.options.filter((option) => option.mandatory)).toEqual([]);
+    // an option that makes a command destructive has a long form only (frodo-cli#1264)
+    expect(
+      program.options.find((option) => option.short === '-d')
+    ).toBeUndefined();
   });
 });
 
@@ -220,7 +224,7 @@ describe('deleting all trusted JWT issuers', () => {
   });
 
   test('a dry run is handed to the ops function and is told to the guard', async () => {
-    await run('-d', 'matrix', 'alpha');
+    await run('--dry-run', 'matrix', 'alpha');
 
     expect(configManagerDeleteTrustedJwtIssuers).toHaveBeenCalledWith(
       undefined,
@@ -279,7 +283,14 @@ describe('deleting one trusted JWT issuer by name', () => {
   });
 
   test('the dry run and --allow-failures reach the ops function', async () => {
-    await run('-n', 'zion-issuer', '-d', '--allow-failures', 'matrix', 'alpha');
+    await run(
+      '-n',
+      'zion-issuer',
+      '--dry-run',
+      '--allow-failures',
+      'matrix',
+      'alpha'
+    );
 
     expect(configManagerDeleteTrustedJwtIssuers).toHaveBeenCalledWith(
       'zion-issuer',

@@ -452,7 +452,7 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
           'config-manager',
           'delete',
           'oauth-cimd-profiles',
-          '-d',
+          '--dry-run',
           ...target(),
         ]);
         expect(preview.code).toBe(0);

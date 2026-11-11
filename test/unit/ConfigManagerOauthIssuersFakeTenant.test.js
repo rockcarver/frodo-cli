@@ -472,7 +472,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
           'config-manager',
           'delete',
           'oauth-issuers',
-          '-d',
+          '--dry-run',
           ...target(),
         ]);
         expect(preview.code).toBe(0);

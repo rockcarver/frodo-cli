@@ -28,7 +28,7 @@ Options:
   --allow-failures   Report operations that fail, but still exit with code 0.
                      Without this option the command runs every operation,
                      prints a summary of what failed and exits with code 1.
-  -d, --dry-run      Show which trusted JWT issuers would be deleted without
+  --dry-run          Show which trusted JWT issuers would be deleted without
                      deleting them.
   -n, --name <name>  Trusted JWT issuer name (the name of the object, not its
                      iss URL). If specified, deletes only that issuer, without
