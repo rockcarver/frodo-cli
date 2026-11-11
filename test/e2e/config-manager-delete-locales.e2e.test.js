@@ -23,11 +23,11 @@ describe('frodo config-manager delete locales', () => {
         const CMD = `frodo config-manager delete locales -n fr -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });
-    test(`"frodo config-manager delete locales --dry-run -m forgeops": should delete all locales in forgeops"`, async () => {
+    test(`"frodo config-manager delete locales --dry-run -m forgeops": should print a dryrun message listing all locales in forgeops"`, async () => {
         const CMD = `frodo config-manager delete locales --dry-run -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });
-    test(`"frodo config-manager delete locales -d -n fr -m forgeops": should delete a specific locale by name in forgeops"`, async () => {
+    test(`"frodo config-manager delete locales -d -n fr -m forgeops": should print a dryrun message for a specific locale by name in forgeops"`, async () => {
         const CMD = `frodo config-manager delete locales -d -n fr -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
     });

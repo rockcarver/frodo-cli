@@ -25,8 +25,9 @@ Options:
                      Without this option the command runs every operation,
                      prints a summary of what failed and exits with code 1.
   -d, --dry-run      Show which locales would be deleted.
-  -n, --name <name>  Locale name; deletes only the locale with the specified
-                     name.
+  -n, --name <name>  Locale name (for example en), matched exactly; delete only
+                     the specified locale. If omitted, all locales are deleted,
+                     after a confirmation or with -y.
   -y, --yes          Do not ask for confirmation before deleting more than one
                      locale (no -n). Required without a terminal.
   -h, --help         Help

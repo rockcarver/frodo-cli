@@ -8,7 +8,7 @@ import {
   confirmBulkDelete,
 } from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
-import { verboseMessage } from '../../../utils/Console';
+import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -31,7 +31,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Locale name; deletes only the locale with the specified name.'
+        'Locale name (for example en), matched exactly; delete only the specified locale. If omitted, all locales are deleted, after a confirmation or with -y.'
       )
     )
     .addOption(
@@ -48,8 +48,8 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Delete all locales without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(`  $ frodo config-manager delete locales -y ${s.connId}\n`) +
-        `  Delete all eligible locales:\n` +
-        c.command(`  $ frodo config-manager delete locales ${s.connId}\n`) +
+        `  Preview the deletion of all locales:\n` +
+        c.command(`  $ frodo config-manager delete locales -d ${s.connId}\n`) +
         `  Delete a locale by name:\n` +
         c.command(
           `  $ frodo config-manager delete locales -n en ${s.connId}\n`
@@ -69,9 +69,22 @@ export default function setup() {
         options,
         command
       );
+      // an empty name must never mean "all": "not given" and "given but empty"
+      // are different (-n "$UNSET" gives an empty name)
+      const named = options.name !== undefined;
+      if (named && options.name.trim() === '') {
+        printMessage(
+          'The locale name (-n) must not be empty. To delete all locales, leave out -n.',
+          'error'
+        );
+        process.exitCode = 1;
+        return;
+      }
+      // a run that nobody can be asked about is refused before the login
+      // (cli record 0037)
       const what = 'all locales';
       if (
-        !options.name &&
+        !named &&
         !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
       ) {
         process.exitCode = 1;
@@ -83,7 +96,7 @@ export default function setup() {
       }
 
       if (
-        !options.name &&
+        !named &&
         !(await confirmBulkDelete({
           what,
           yes: options.yes,
