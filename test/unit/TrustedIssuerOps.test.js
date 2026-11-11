@@ -56,6 +56,22 @@ const wrappedIssuer = (id, more = {}) => {
   );
 };
 
+/** The issuers of an import file, the way the library finds them. */
+const issuersOf = (data) => ({
+  ...Object.fromEntries(
+    Object.entries(data.agent ?? {}).filter(
+      ([, agent]) => agent?._type?._id === 'TrustedJwtIssuer'
+    )
+  ),
+  ...(data.trustedJwtIssuer ?? {}),
+});
+
+/** The error the library reports for one issuer it could not import: it names the issuer and wraps the cause. */
+const libError = (id) =>
+  Object.assign(new Error(`Error importing alpha realm trusted issuer ${id}`), {
+    originalErrors: [new Error(`the server refused ${id}`)],
+  });
+
 let stored = [];
 let wrapped = true;
 let readFailure;
@@ -63,6 +79,8 @@ let deploymentType = 'cloud';
 let realm = 'alpha';
 let baseDirectory = '';
 let failingSave;
+let failingImport = new Set();
+let importThrows;
 const calls = [];
 const saved = [];
 
@@ -103,6 +121,31 @@ const lib = {
       ),
     };
   },
+  // what the library does with an import file: its own key, and the issuers among the entries of an agent export
+  importOAuth2TrustedJwtIssuer: async (id, data) => {
+    calls.push(['importOAuth2TrustedJwtIssuer', id, structuredClone(data)]);
+    const issuer = issuersOf(data)[id];
+    if (!issuer)
+      throw new Error(`Trusted issuer ${id} not found in import data!`);
+    if (failingImport.has(id)) throw libError(id);
+    return issuer;
+  },
+  importFirstOAuth2TrustedJwtIssuer: async (data) => {
+    calls.push(['importFirstOAuth2TrustedJwtIssuer', structuredClone(data)]);
+    const [first] = Object.values(issuersOf(data));
+    if (!first) throw new Error('No trusted issuers found in import data!');
+    if (failingImport.has(first._id)) throw libError(first._id);
+    return first;
+  },
+  importOAuth2TrustedJwtIssuers: async (data, _options, resultCallback) => {
+    calls.push(['importOAuth2TrustedJwtIssuers', structuredClone(data)]);
+    if (importThrows) throw importThrows;
+    for (const issuer of Object.values(issuersOf(data))) {
+      if (failingImport.has(issuer._id)) resultCallback(libError(issuer._id));
+      else resultCallback(undefined, issuer);
+    }
+    return [];
+  },
 };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
@@ -134,6 +177,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
         }
         saved.push({ data: structuredClone(data), file, includeMeta });
       },
+      getWorkingDirectory: () => baseDirectory || '.',
       getFilePath: (file) =>
         baseDirectory ? path.join(baseDirectory, file) : file,
     },
@@ -181,6 +225,10 @@ const {
   exportOAuth2TrustedJwtIssuerToFile,
   exportOAuth2TrustedJwtIssuersToFile,
   exportOAuth2TrustedJwtIssuersToFiles,
+  importFirstOAuth2TrustedJwtIssuerFromFile,
+  importOAuth2TrustedJwtIssuerFromFile,
+  importOAuth2TrustedJwtIssuersFromFile,
+  importOAuth2TrustedJwtIssuersFromFiles,
 } = await import('../../src/ops/OAuth2TrustedJwtIssuerOps.ts');
 
 const savedFile = (entry) => path.relative(baseDirectory, entry.file);
@@ -193,6 +241,8 @@ beforeEach(() => {
   wrapped = true;
   readFailure = undefined;
   failingSave = undefined;
+  failingImport = new Set();
+  importThrows = undefined;
   deploymentType = 'cloud';
   realm = 'alpha';
   baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-issuer-'));
@@ -629,6 +679,377 @@ describe('one shape for -i, -a and -A', () => {
   );
 });
 
+/** An export file of trusted issuers, as `oauth issuer export` writes it. */
+const issuerFile = (...ids) => ({
+  meta: { origin: HOST },
+  trustedJwtIssuer: Object.fromEntries(ids.map((id) => [id, plainIssuer(id)])),
+});
+
+/** A file of the generic agent export: issuers among the other agents, under `agent`. */
+const agentFile = () => ({
+  agent: {
+    'old-issuer': plainIssuer('old-issuer'),
+    'a-web-agent': {
+      _id: 'a-web-agent',
+      _type: { _id: 'WebAgent', name: 'Web Agent', collection: true },
+    },
+  },
+});
+
+const writeFile = (name, data) =>
+  fs.writeFileSync(
+    path.join(baseDirectory, name),
+    typeof data === 'string' ? data : JSON.stringify(data)
+  );
+const libCalls = (name) => calls.filter(([call]) => call === name);
+
+describe('importOAuth2TrustedJwtIssuerFromFile', () => {
+  test('imports the named issuer and no other, handing the library the file as it is', async () => {
+    const data = issuerFile('a', 'b', 'c');
+    writeFile('in.json', data);
+
+    await expect(
+      importOAuth2TrustedJwtIssuerFromFile('b', 'in.json')
+    ).resolves.toBe(true);
+
+    expect(libCalls('importOAuth2TrustedJwtIssuer')).toEqual([
+      ['importOAuth2TrustedJwtIssuer', 'b', data],
+    ]);
+    expect(libCalls('importOAuth2TrustedJwtIssuers')).toEqual([]);
+    expect(messages('spinner')).toEqual([
+      `Imported b from ${path.join(baseDirectory, 'in.json')}.`,
+    ]);
+  });
+
+  test('takes a file of the generic agent export, which the library reads', async () => {
+    const data = agentFile();
+    writeFile('old.agent.json', data);
+
+    await expect(
+      importOAuth2TrustedJwtIssuerFromFile('old-issuer', 'old.agent.json')
+    ).resolves.toBe(true);
+
+    expect(libCalls('importOAuth2TrustedJwtIssuer')[0][2]).toEqual(data);
+  });
+
+  test('an issuer that is not in the file fails and says so', async () => {
+    writeFile('in.json', issuerFile('a'));
+
+    await expect(
+      importOAuth2TrustedJwtIssuerFromFile('missing', 'in.json')
+    ).resolves.toBe(false);
+
+    expect(messages('error')[0]).toContain(
+      'Trusted issuer missing not found in import data!'
+    );
+  });
+
+  test('an agent of another type in an agent file is not an issuer', async () => {
+    writeFile('old.agent.json', agentFile());
+
+    await expect(
+      importOAuth2TrustedJwtIssuerFromFile('a-web-agent', 'old.agent.json')
+    ).resolves.toBe(false);
+  });
+
+  test('a file that does not exist, or is not JSON, or is not an object fails and names the file', async () => {
+    await expect(
+      importOAuth2TrustedJwtIssuerFromFile('a', 'nope.json')
+    ).resolves.toBe(false);
+    expect(messages('error')[0]).toContain('nope.json');
+
+    writeFile('bad.json', 'not json');
+    await expect(
+      importOAuth2TrustedJwtIssuerFromFile('a', 'bad.json')
+    ).resolves.toBe(false);
+    expect(messages('error')[1]).toContain('bad.json is not valid JSON');
+
+    writeFile('list.json', '[]');
+    await expect(
+      importOAuth2TrustedJwtIssuerFromFile('a', 'list.json')
+    ).resolves.toBe(false);
+    expect(messages('error')[2]).toContain('list.json is not an export file');
+    expect(calls).toEqual([]);
+  });
+
+  test('a library failure for the issuer fails', async () => {
+    writeFile('in.json', issuerFile('a'));
+    failingImport = new Set(['a']);
+
+    await expect(
+      importOAuth2TrustedJwtIssuerFromFile('a', 'in.json')
+    ).resolves.toBe(false);
+
+    expect(messages('error')[0]).toContain('trusted issuer a');
+  });
+});
+
+describe('importFirstOAuth2TrustedJwtIssuerFromFile', () => {
+  test('imports exactly the first issuer of a file with three (frodo-cli#1147 imported them all)', async () => {
+    writeFile('in.json', issuerFile('a', 'b', 'c'));
+
+    await expect(
+      importFirstOAuth2TrustedJwtIssuerFromFile('in.json')
+    ).resolves.toBe(true);
+
+    expect(libCalls('importFirstOAuth2TrustedJwtIssuer')).toHaveLength(1);
+    expect(libCalls('importOAuth2TrustedJwtIssuers')).toEqual([]);
+    expect(libCalls('importOAuth2TrustedJwtIssuer')).toEqual([]);
+    expect(messages('spinner')[0]).toMatch(/^Imported a from /);
+  });
+
+  test('takes a file of the generic agent export', async () => {
+    writeFile('old.agent.json', agentFile());
+
+    await expect(
+      importFirstOAuth2TrustedJwtIssuerFromFile('old.agent.json')
+    ).resolves.toBe(true);
+
+    expect(messages('spinner')[0]).toMatch(/^Imported old-issuer from /);
+  });
+
+  test('a file without issuers fails and says so', async () => {
+    writeFile('none.json', { trustedJwtIssuer: {} });
+
+    await expect(
+      importFirstOAuth2TrustedJwtIssuerFromFile('none.json')
+    ).resolves.toBe(false);
+
+    expect(messages('error')[0]).toContain('No trusted issuers found');
+  });
+
+  test('a file that does not exist fails', async () => {
+    await expect(
+      importFirstOAuth2TrustedJwtIssuerFromFile('nope.json')
+    ).resolves.toBe(false);
+  });
+});
+
+describe('importOAuth2TrustedJwtIssuersFromFile', () => {
+  test('imports every issuer of the file', async () => {
+    const data = issuerFile('a', 'b', 'c', 'd');
+    writeFile('in.json', data);
+
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('in.json')
+    ).resolves.toBe(true);
+
+    expect(libCalls('importOAuth2TrustedJwtIssuers')).toEqual([
+      ['importOAuth2TrustedJwtIssuers', data],
+    ]);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('one failing issuer does not stop the others; one summary names it and the command fails', async () => {
+    writeFile('in.json', issuerFile('a', 'b', 'c', 'd'));
+    failingImport = new Set(['b']);
+
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('in.json')
+    ).resolves.toBe(false);
+
+    expect(messages('error').join('\n')).toContain(
+      '1 of 4 issuers failed:\n  - b: the server refused b'
+    );
+  });
+
+  test('--allow-failures keeps the exit at success but names the failure', async () => {
+    writeFile('in.json', issuerFile('a', 'b', 'c', 'd'));
+    failingImport = new Set(['b']);
+
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('in.json', true)
+    ).resolves.toBe(true);
+
+    expect(messages('warn').join('\n')).toContain(
+      '1 of 4 issuers failed:\n  - b: the server refused b'
+    );
+  });
+
+  test('two failing issuers are both named', async () => {
+    writeFile('in.json', issuerFile('a', 'b', 'c', 'd'));
+    failingImport = new Set(['a', 'd']);
+
+    await importOAuth2TrustedJwtIssuersFromFile('in.json');
+
+    expect(messages('error').join('\n')).toContain(
+      '2 of 4 issuers failed:\n  - a: the server refused a\n  - d: the server refused d'
+    );
+  });
+
+  test('an error of the library that is not about one issuer is a failure named by the file', async () => {
+    writeFile('in.json', issuerFile('a', 'b'));
+    importThrows = new Error('the import data is unusable');
+
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('in.json')
+    ).resolves.toBe(false);
+
+    expect(messages('error').join('\n')).toContain(
+      '1 of 1 issuer failed:\n  - in.json: the import data is unusable'
+    );
+  });
+
+  test('a file that does not exist or cannot be parsed fails whatever --allow-failures says', async () => {
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('nope.json', true)
+    ).resolves.toBe(false);
+
+    writeFile('bad.json', '{"trustedJwtIssuer": ');
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('bad.json', true)
+    ).resolves.toBe(false);
+
+    expect(calls).toEqual([]);
+  });
+
+  test('a file without issuers in either place is an error, whatever --allow-failures says', async () => {
+    writeFile('journeys.json', { journey: {} });
+    writeFile('web.agent.json', {
+      agent: { w: { _id: 'w', _type: { _id: 'WebAgent' } } },
+    });
+
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('journeys.json', true)
+    ).resolves.toBe(false);
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('web.agent.json', true)
+    ).resolves.toBe(false);
+
+    expect(messages('error')[0]).toContain('No trusted issuers found in');
+  });
+
+  test('an empty trustedJwtIssuer section is an empty import: said and not a failure', async () => {
+    writeFile('empty.json', issuerFile());
+
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('empty.json')
+    ).resolves.toBe(true);
+
+    expect(messages('spinner')[0]).toContain('No trusted issuers to import');
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('a file of the generic agent export imports its issuers and leaves the other agents out', async () => {
+    const data = agentFile();
+    writeFile('old.agent.json', data);
+
+    await expect(
+      importOAuth2TrustedJwtIssuersFromFile('old.agent.json')
+    ).resolves.toBe(true);
+
+    // the library gets the file as it is and picks the issuers out itself
+    expect(libCalls('importOAuth2TrustedJwtIssuers')[0][1]).toEqual(data);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('the wrapped and the plain shape of an issuer reach the library unchanged', async () => {
+    const data = {
+      trustedJwtIssuer: {
+        plain: plainIssuer('plain'),
+        wrapped: wrappedIssuer('wrapped'),
+      },
+    };
+    writeFile('both.json', data);
+
+    await importOAuth2TrustedJwtIssuersFromFile('both.json');
+
+    expect(libCalls('importOAuth2TrustedJwtIssuers')[0][1]).toEqual(data);
+  });
+});
+
+describe('importOAuth2TrustedJwtIssuersFromFiles', () => {
+  test('imports the issuers of every *.oauth2.issuer.json file, in order, and nothing else', async () => {
+    writeFile('b.oauth2.issuer.json', issuerFile('b1', 'b2'));
+    writeFile('a.oauth2.issuer.json', issuerFile('a1'));
+    writeFile('x.agent.json', agentFile());
+    writeFile('x.web.agent.json', agentFile());
+    writeFile('notes.txt', 'text');
+
+    await expect(importOAuth2TrustedJwtIssuersFromFiles()).resolves.toBe(true);
+
+    expect(
+      libCalls('importOAuth2TrustedJwtIssuers').map(([, data]) =>
+        Object.keys(data.trustedJwtIssuer)
+      )
+    ).toEqual([['a1'], ['b1', 'b2']]);
+  });
+
+  test('takes the *.trustedJwtIssuer.json files of a full export too', async () => {
+    writeFile('t.trustedJwtIssuer.json', issuerFile('t1'));
+    writeFile('u.oauth2.issuer.json', issuerFile('u1'));
+
+    await expect(importOAuth2TrustedJwtIssuersFromFiles()).resolves.toBe(true);
+
+    expect(libCalls('importOAuth2TrustedJwtIssuers')).toHaveLength(2);
+  });
+
+  test('a file that cannot be parsed is a failed item named by its file; the others are still imported', async () => {
+    writeFile('a.oauth2.issuer.json', issuerFile('a1', 'a2'));
+    writeFile('b.oauth2.issuer.json', issuerFile('b1'));
+    writeFile('c.oauth2.issuer.json', 'not json');
+
+    await expect(importOAuth2TrustedJwtIssuersFromFiles()).resolves.toBe(false);
+
+    expect(libCalls('importOAuth2TrustedJwtIssuers')).toHaveLength(2);
+    expect(messages('error').join('\n')).toMatch(
+      /1 of 4 issuers failed:\n\s+- c\.oauth2\.issuer\.json: .*is not valid JSON/
+    );
+  });
+
+  test('a failing issuer inside a good file and a bad file are in one summary', async () => {
+    writeFile('a.oauth2.issuer.json', issuerFile('a1', 'a2'));
+    writeFile('b.oauth2.issuer.json', '{');
+    failingImport = new Set(['a2']);
+
+    await importOAuth2TrustedJwtIssuersFromFiles();
+
+    const summary = messages('error').join('\n');
+    expect(summary).toContain('2 of 3 issuers failed:');
+    expect(summary).toContain('- a2: the server refused a2');
+    expect(summary).toContain('- b.oauth2.issuer.json:');
+  });
+
+  test('--allow-failures keeps the exit at success', async () => {
+    writeFile('a.oauth2.issuer.json', issuerFile('a1'));
+    writeFile('b.oauth2.issuer.json', 'not json');
+
+    await expect(importOAuth2TrustedJwtIssuersFromFiles(true)).resolves.toBe(
+      true
+    );
+  });
+
+  test('a file without issuers is a failed item, an empty section is not', async () => {
+    writeFile('a.oauth2.issuer.json', issuerFile());
+    writeFile('b.oauth2.issuer.json', { journey: {} });
+
+    await expect(importOAuth2TrustedJwtIssuersFromFiles()).resolves.toBe(false);
+
+    expect(messages('error').join('\n')).toContain(
+      '1 of 1 issuer failed:\n  - b.oauth2.issuer.json: No trusted issuers found in b.oauth2.issuer.json'
+    );
+  });
+
+  test('no matching file is a warning, not a failure', async () => {
+    writeFile('x.agent.json', agentFile());
+
+    await expect(importOAuth2TrustedJwtIssuersFromFiles()).resolves.toBe(true);
+
+    expect(messages('warn')).toEqual([
+      `No trusted issuer files (*.oauth2.issuer.json) found in ${baseDirectory}!`,
+    ]);
+    expect(calls).toEqual([]);
+  });
+
+  test('a directory that cannot be read fails whatever --allow-failures says', async () => {
+    fs.rmSync(baseDirectory, { recursive: true, force: true });
+
+    await expect(importOAuth2TrustedJwtIssuersFromFiles(true)).resolves.toBe(
+      false
+    );
+  });
+});
+
 describe.each(['cloud', 'forgeops', 'classic'])(
   'on a %s deployment',
   (type) => {
@@ -650,6 +1071,11 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       await exportOAuth2TrustedJwtIssuerToFile('zion', undefined);
       await exportOAuth2TrustedJwtIssuersToFile(undefined);
       await exportOAuth2TrustedJwtIssuersToFiles();
+      writeFile('in.oauth2.issuer.json', issuerFile('i1', 'i2'));
+      await importOAuth2TrustedJwtIssuerFromFile('i1', 'in.oauth2.issuer.json');
+      await importFirstOAuth2TrustedJwtIssuerFromFile('in.oauth2.issuer.json');
+      await importOAuth2TrustedJwtIssuersFromFile('in.oauth2.issuer.json');
+      await importOAuth2TrustedJwtIssuersFromFiles();
       return [
         ...printed.map((entry) => `${entry.type}: ${entry.msg}`),
         ...saved.map((entry) =>

@@ -68,14 +68,19 @@ suite('frodo oauth issuer, through the CLI against a fake tenant', () => {
   });
 
   /** Starts a fake tenant that holds `issuers`; its state lives as long as the process. */
-  async function startTenant(issuers = TENANT) {
+  async function startTenant(issuers = TENANT, options = {}) {
     recordPath = path.join(home, 'requests.jsonl');
     fakeAm = await startFakeAm({
       recordPath,
       journey: 'password',
       trustedIssuers: issuers,
+      ...options,
     });
   }
+
+  /** The ids of the issuers the fake holds, asked through the CLI itself. */
+  const idsOnTenant = () =>
+    run(['list']).stdout.trim().split('\n').filter(Boolean);
 
   beforeEach(() => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-issuer-home-'));
@@ -448,6 +453,315 @@ suite('frodo oauth issuer, through the CLI against a fake tenant', () => {
 
         expect(output).toContain(
           'one of -i, --issuer-id <issuer-id> | -a, --all | -A, --all-separate is required'
+        );
+        expect(status).toBe(1);
+        expect(requests()).toEqual([]);
+      },
+      TIMEOUT
+    );
+  });
+  describe('import', () => {
+    const write = (name, data) =>
+      fs.writeFileSync(
+        path.join(work, name),
+        typeof data === 'string' ? data : JSON.stringify(data)
+      );
+    const file = (...ids) => ({
+      trustedJwtIssuer: Object.fromEntries(
+        ids.map((id) => [id, issuer(id, { _rev: undefined })])
+      ),
+    });
+    const puts = () =>
+      issuerRequests('PUT').map((request) =>
+        decodeURIComponent(request.url.split('/TrustedJwtIssuer/')[1])
+      );
+
+    it(
+      'an issuer exported from one tenant is restored on another (export, then import -i)',
+      async () => {
+        await startTenant();
+        expect(run(['export', '-i', 'zion-trusted-issuer']).status).toBe(0);
+        fakeAm.stop();
+
+        await startTenant([]);
+        expect(idsOnTenant()).toEqual([]);
+        const { status } = run([
+          'import',
+          '-i',
+          'zion-trusted-issuer',
+          '-f',
+          'zion-trusted-issuer.oauth2.issuer.json',
+        ]);
+
+        expect(status).toBe(0);
+        expect(idsOnTenant()).toEqual(['zion-trusted-issuer']);
+        const [body] = issuerRequests('PUT').map((request) =>
+          JSON.parse(request.body)
+        );
+        // no _rev in what was sent, and the settings as exported
+        expect(body._rev).toBeUndefined();
+        expect(body.issuer).toBe('https://zion-trusted-issuer.example.com');
+        expect(body.allowedSubjects).toEqual(['neo', 'trinity']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-f of a file with three issuers imports one (the first), not three',
+      async () => {
+        await startTenant([]);
+        write('three.oauth2.issuer.json', file('t1', 't2', 't3'));
+
+        const { status } = run(['import', '-f', 'three.oauth2.issuer.json']);
+
+        expect(status).toBe(0);
+        expect(puts()).toEqual(['t1']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'a file that still holds _rev imports: the body has none, which the server would refuse',
+      async () => {
+        await startTenant([]);
+        write('rev.oauth2.issuer.json', {
+          trustedJwtIssuer: { r1: issuer('r1', { _rev: '5' }) },
+        });
+
+        const { status } = run([
+          'import',
+          '-a',
+          '-f',
+          'rev.oauth2.issuer.json',
+        ]);
+
+        expect(status).toBe(0);
+        expect(JSON.parse(issuerRequests('PUT')[0].body)._rev).toBeUndefined();
+        expect(idsOnTenant()).toEqual(['r1']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-i imports the named issuer of a file with three, and no other',
+      async () => {
+        await startTenant([]);
+        write('three.oauth2.issuer.json', file('t1', 't2', 't3'));
+
+        const { status } = run([
+          'import',
+          '-i',
+          't2',
+          '-f',
+          'three.oauth2.issuer.json',
+        ]);
+
+        expect(status).toBe(0);
+        expect(puts()).toEqual(['t2']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-i with an issuer that is not in the file exits 1 and sends nothing',
+      async () => {
+        await startTenant([]);
+        write('three.oauth2.issuer.json', file('t1'));
+
+        const { status, output } = run([
+          'import',
+          '-i',
+          'nobody',
+          '-f',
+          'three.oauth2.issuer.json',
+        ]);
+
+        expect(output).toContain('Trusted issuer nobody not found');
+        expect(status).toBe(1);
+        expect(puts()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a imports every issuer of the file',
+      async () => {
+        await startTenant([]);
+        write('three.oauth2.issuer.json', file('t1', 't2', 't3'));
+
+        const { status } = run([
+          'import',
+          '-a',
+          '-f',
+          'three.oauth2.issuer.json',
+        ]);
+
+        expect(status).toBe(0);
+        expect(puts()).toEqual(['t1', 't2', 't3']);
+        expect(idsOnTenant()).toEqual(['t1', 't2', 't3']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a with one issuer that the server refuses imports the others, names it and exits 1; --allow-failures exits 0',
+      async () => {
+        await startTenant([], {
+          failRequests: [{ method: 'PUT', path: '/TrustedJwtIssuer/t2' }],
+        });
+        write('three.oauth2.issuer.json', file('t1', 't2', 't3'));
+
+        const failed = run(['import', '-a', '-f', 'three.oauth2.issuer.json']);
+        expect(failed.output).toMatch(/1 of 3 issuers failed:\n\s+- t2: /);
+        expect(failed.status).toBe(1);
+        expect(idsOnTenant()).toEqual(['t1', 't3']);
+
+        const allowed = run([
+          'import',
+          '-a',
+          '-f',
+          'three.oauth2.issuer.json',
+          '--allow-failures',
+        ]);
+        expect(allowed.output).toContain(
+          'The exit code stays 0 because --allow-failures was given.'
+        );
+        expect(allowed.status).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'a file of the generic agent export imports its issuer and leaves the other agents out',
+      async () => {
+        await startTenant([]);
+        write('old-issuer.agent.json', {
+          agent: {
+            'old-issuer': issuer('old-issuer'),
+            'a-web-agent': {
+              _id: 'a-web-agent',
+              _type: { _id: 'WebAgent', name: 'Web Agent', collection: true },
+            },
+          },
+        });
+
+        const { status } = run(['import', '-f', 'old-issuer.agent.json']);
+        expect(status).toBe(0);
+        expect(
+          run(['import', '-a', '-f', 'old-issuer.agent.json']).status
+        ).toBe(0);
+
+        expect(puts()).toEqual(['old-issuer', 'old-issuer']);
+        expect(idsOnTenant()).toEqual(['old-issuer']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'the same issuer in both sections of a full export is written once, from its own key',
+      async () => {
+        await startTenant([]);
+        write('both.json', {
+          agent: {
+            dup: issuer('dup', { issuer: 'https://from-agent.example.com' }),
+          },
+          trustedJwtIssuer: {
+            dup: issuer('dup', { issuer: 'https://from-own-key.example.com' }),
+          },
+        });
+
+        const { status } = run(['import', '-a', '-f', 'both.json']);
+
+        expect(status).toBe(0);
+        expect(puts()).toEqual(['dup']);
+        expect(JSON.parse(issuerRequests('PUT')[0].body).issuer).toBe(
+          'https://from-own-key.example.com'
+        );
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-A imports *.oauth2.issuer.json and *.trustedJwtIssuer.json files and ignores agent files',
+      async () => {
+        await startTenant([]);
+        write('a.oauth2.issuer.json', file('a1'));
+        write('b.trustedJwtIssuer.json', file('b1', 'b2'));
+        write('x.agent.json', { agent: { x1: issuer('x1') } });
+        write('x.web.agent.json', { agent: { x2: issuer('x2') } });
+
+        const { status } = run(['import', '-A']);
+
+        expect(status).toBe(0);
+        expect(puts()).toEqual(['a1', 'b1', 'b2']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-A with a file that is not JSON names that file in the summary and exits 1; --allow-failures exits 0',
+      async () => {
+        await startTenant([]);
+        write('a.oauth2.issuer.json', file('a1'));
+        write('b.oauth2.issuer.json', 'not json');
+
+        const failed = run(['import', '-A']);
+        expect(failed.output).toMatch(
+          /1 of 2 issuers failed:\n\s+- b\.oauth2\.issuer\.json: /
+        );
+        expect(failed.status).toBe(1);
+        expect(idsOnTenant()).toEqual(['a1']);
+
+        expect(run(['import', '-A', '--allow-failures']).status).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-A with no matching file warns and exits 0',
+      async () => {
+        await startTenant([]);
+        write('x.agent.json', { agent: {} });
+
+        const { status, output } = run(['import', '-A']);
+
+        expect(output).toContain('No trusted issuer files');
+        expect(status).toBe(0);
+        expect(puts()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'a file that is no export of issuers exits 1 whatever --allow-failures says',
+      async () => {
+        await startTenant([]);
+        write('journeys.json', { journey: {} });
+
+        const { status, output } = run([
+          'import',
+          '-a',
+          '-f',
+          'journeys.json',
+          '--allow-failures',
+        ]);
+
+        expect(output).toContain('No trusted issuers found in');
+        expect(status).toBe(1);
+        expect(puts()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'without -f or -A is rejected before anything is sent when nobody can be asked',
+      async () => {
+        await startTenant([]);
+
+        const { status, output } = run(['import', '-a']);
+
+        expect(output).toContain(
+          'one of -f, --file <file> | -A, --all-separate is required'
         );
         expect(status).toBe(1);
         expect(requests()).toEqual([]);

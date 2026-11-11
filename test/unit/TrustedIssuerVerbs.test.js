@@ -3,7 +3,7 @@ import { Command, Option } from 'commander';
 
 /**
  * The option sets and the dispatch of the `oauth issuer` commands (list,
- * describe and export so far), parsed from real command lines with the ops functions
+ * describe, export and import so far), parsed from real command lines with the ops functions
  * replaced. What the ops functions do with the arguments is covered by
  * TrustedIssuerOps.test.js.
  * - `-i` is the name of the issuer object and is taken from the family's picker
@@ -20,6 +20,10 @@ const ops = {
   exportOAuth2TrustedJwtIssuerToFile: jest.fn(),
   exportOAuth2TrustedJwtIssuersToFile: jest.fn(),
   exportOAuth2TrustedJwtIssuersToFiles: jest.fn(),
+  importOAuth2TrustedJwtIssuerFromFile: jest.fn(),
+  importFirstOAuth2TrustedJwtIssuerFromFile: jest.fn(),
+  importOAuth2TrustedJwtIssuersFromFile: jest.fn(),
+  importOAuth2TrustedJwtIssuersFromFiles: jest.fn(),
 };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
@@ -98,6 +102,8 @@ const { default: setupDescribe } =
   await import('../../src/cli/oauth/oauth-issuer-describe');
 const { default: setupExport } =
   await import('../../src/cli/oauth/oauth-issuer-export');
+const { default: setupImport } =
+  await import('../../src/cli/oauth/oauth-issuer-import');
 
 /** Parses a real command line; commander errors are thrown, not printed. */
 async function parse(setup, ...argv) {
@@ -132,6 +138,7 @@ describe('oauth issuer (the group)', () => {
     expect(group.commands.map((command) => command.name()).sort()).toEqual([
       'describe',
       'export',
+      'import',
       'list',
     ]);
     expect(group.aliases()).toEqual([]);
@@ -142,12 +149,14 @@ describe('oauth issuer (the group)', () => {
     setupList();
     setupDescribe();
     setupExport();
+    setupImport();
 
     // FrodoCommand(name) only: no explicit deployment types, which means all of them
     expect(constructed).toEqual([
       ['frodo oauth issuer list'],
       ['frodo oauth issuer describe'],
       ['frodo oauth issuer export'],
+      ['frodo oauth issuer import'],
     ]);
     expect(rulesOf(setupList)).toBeUndefined();
     expect(rulesOf(setupDescribe)).toBeUndefined();
@@ -326,6 +335,98 @@ describe('oauth issuer export', () => {
     expect(printMessage.mock.calls).toEqual([
       ['There is no trusted JWT issuer to choose from.', 'warn'],
     ]);
+    expect(process.exitCode).toBe(1);
+  });
+});
+
+describe('oauth issuer import', () => {
+  test('the user has to choose what to import, and the command is a multi-operation command', () => {
+    expect(rulesOf(setupImport)).toEqual({
+      oneOf: { options: ['file', 'allSeparate'], purpose: 'what to import' },
+      multiOp: true,
+    });
+  });
+
+  test('-i is not a member of the one-of group: it names an issuer in a file, so it gets no picker', () => {
+    const option = setupImport().options.find(
+      (candidate) => candidate.long === '--issuer-id'
+    );
+    expect(option.mandatory).toBe(false);
+    expect(rulesOf(setupImport).oneOf.options).not.toContain('issuerId');
+  });
+
+  test('-i with -f imports that issuer from the file', async () => {
+    await parse(setupImport, '-i', 'zion-trusted-issuer', '-f', 'in.json');
+
+    expect(ops.importOAuth2TrustedJwtIssuerFromFile.mock.calls).toEqual([
+      ['zion-trusted-issuer', 'in.json'],
+    ]);
+    expect(
+      ops.importFirstOAuth2TrustedJwtIssuerFromFile
+    ).not.toHaveBeenCalled();
+    expect(ops.importOAuth2TrustedJwtIssuersFromFile).not.toHaveBeenCalled();
+  });
+
+  test('-f alone imports the first issuer of the file, and only that', async () => {
+    await parse(setupImport, '-f', 'in.json');
+
+    expect(ops.importFirstOAuth2TrustedJwtIssuerFromFile.mock.calls).toEqual([
+      ['in.json'],
+    ]);
+    expect(ops.importOAuth2TrustedJwtIssuersFromFile).not.toHaveBeenCalled();
+    expect(ops.importOAuth2TrustedJwtIssuersFromFiles).not.toHaveBeenCalled();
+  });
+
+  test('-a with -f imports all issuers of the file and passes --allow-failures on', async () => {
+    await parse(setupImport, '-a', '-f', 'in.json', '--allow-failures');
+    await parse(setupImport, '-a', '-f', 'in.json');
+
+    expect(ops.importOAuth2TrustedJwtIssuersFromFile.mock.calls).toEqual([
+      ['in.json', true],
+      ['in.json', undefined],
+    ]);
+  });
+
+  test('-A imports the separate files and passes --allow-failures on', async () => {
+    await parse(setupImport, '-A', '--allow-failures');
+    await parse(setupImport, '-A');
+
+    expect(ops.importOAuth2TrustedJwtIssuersFromFiles.mock.calls).toEqual([
+      [true],
+      [undefined],
+    ]);
+  });
+
+  test.each([
+    [['-i', 'x', '-f', 'in.json', '-a']],
+    [['-i', 'x', '-A']],
+    [['-A', '-f', 'in.json']],
+    [['-A', '-a']],
+  ])('%j is rejected while parsing', async (argv) => {
+    await expect(parse(setupImport, ...argv)).rejects.toMatchObject({
+      code: 'commander.conflictingOption',
+    });
+
+    expect(getTokens).not.toHaveBeenCalled();
+  });
+
+  test('a failed login or a failed import exits 1', async () => {
+    getTokens.mockResolvedValue(false);
+    await parse(setupImport, '-f', 'in.json');
+    expect(
+      ops.importFirstOAuth2TrustedJwtIssuerFromFile
+    ).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    getTokens.mockResolvedValue(true);
+    ops.importFirstOAuth2TrustedJwtIssuerFromFile.mockResolvedValue(false);
+    await parse(setupImport, '-f', 'in.json');
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    ops.importOAuth2TrustedJwtIssuersFromFiles.mockResolvedValue(false);
+    await parse(setupImport, '-A');
     expect(process.exitCode).toBe(1);
   });
 });

@@ -1,7 +1,11 @@
+import fs from 'fs';
+import path from 'path';
 import {
   frodo,
   state,
+  type FrodoError,
   type OAuth2TrustedJwtIssuerExportInterface,
+  type OAuth2TrustedJwtIssuerImportData,
   type OAuth2TrustedJwtIssuerSkeleton,
 } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
@@ -26,10 +30,20 @@ const {
   saveJsonToFile,
   getFilePath,
   getRealmName,
+  getWorkingDirectory,
 } = frodo.utils;
 
 /** The file type of an export of trusted JWT issuers: `<id>.oauth2.issuer.json`. The key inside the file is the library's `trustedJwtIssuer`. */
 export const ISSUER_FILE_TYPE = 'oauth2.issuer';
+
+/**
+ * The file name endings `import -A` reads: the files of `oauth issuer export` and the files of the
+ * `trustedJwtIssuer/` folders of a full export (`config export -A`), so that such a tree imports without renaming.
+ */
+const ISSUER_IMPORT_SUFFIXES = [
+  `.${ISSUER_FILE_TYPE}.json`,
+  '.trustedjwtissuer.json',
+];
 
 /** What the table shows for the allowed subjects of an issuer that has none: AM then lets the issuer name any realm user. */
 const ANY_USER = 'any user';
@@ -320,4 +334,255 @@ export async function exportOAuth2TrustedJwtIssuersToFiles(
     if (run.hasFailures) run.finish();
   }
   return false;
+}
+
+/**
+ * The name of the issuer a failed library import or delete is about. The library's error names it in its message
+ * ("Error importing alpha realm trusted issuer b") and carries no field for it.
+ * @param {FrodoError} error the error the library reported for one issuer
+ * @returns {string | undefined} the issuer id, or undefined if the message has another shape
+ */
+function issuerNameOf(error: FrodoError): string | undefined {
+  return error.message.match(/ trusted issuer (.+)$/)?.[1];
+}
+
+/**
+ * Read an import file. The data is handed to the library as it is: the library takes its own format, the key
+ * `trustedJwtIssuer`, and the files the generic commands wrote for an issuer (the `agent` section of `agent export`
+ * and of `config export`, since frodo-lib 4.0.0), and picks the issuers out itself.
+ * @param {string} filePath the path of the file
+ * @returns {OAuth2TrustedJwtIssuerImportData} the import data
+ */
+function readImportFile(filePath: string): OAuth2TrustedJwtIssuerImportData {
+  const text = fs.readFileSync(filePath, 'utf8');
+  let importData: unknown;
+  try {
+    importData = JSON.parse(text);
+  } catch (error) {
+    throw new Error(
+      `${filePath} is not valid JSON: ${(error as Error).message}`,
+      { cause: error }
+    );
+  }
+  if (
+    typeof importData !== 'object' ||
+    importData === null ||
+    Array.isArray(importData)
+  ) {
+    throw new Error(`${filePath} is not an export file`);
+  }
+  return importData as OAuth2TrustedJwtIssuerImportData;
+}
+
+/**
+ * Whether a file has the section of an export of trusted JWT issuers, empty or not. A file without it, and without
+ * issuers among its `agent` entries, is not an export of issuers.
+ * @param {OAuth2TrustedJwtIssuerImportData} importData the parsed file
+ * @returns {boolean} true if the section exists
+ */
+function hasIssuerSection(
+  importData: OAuth2TrustedJwtIssuerImportData
+): boolean {
+  const section = (importData as { trustedJwtIssuer?: unknown })
+    .trustedJwtIssuer;
+  return typeof section === 'object' && section !== null;
+}
+
+/**
+ * Import the trusted JWT issuers of one parsed file and record every one in the run. The library tries every issuer
+ * and reports each to the result callback (a failed one as an error that names it), so one failing issuer does not
+ * stop the others and the summary of the run names it.
+ * @param {OperationRun} run the run of the command
+ * @param {OAuth2TrustedJwtIssuerImportData} importData the parsed file
+ * @param {string} source what to call the file in a failure that is not about one issuer
+ * @returns {Promise<number>} how many issuers the library reported, 0 for a file without issuers
+ */
+async function importIssuersInto(
+  run: OperationRun,
+  importData: OAuth2TrustedJwtIssuerImportData,
+  source: string
+): Promise<number> {
+  const report =
+    run.resultCallback<OAuth2TrustedJwtIssuerSkeleton>(issuerNameOf);
+  let reported = 0;
+  try {
+    await frodo.oauth2oidc.issuer.importOAuth2TrustedJwtIssuers(
+      importData,
+      undefined,
+      (error, result) => {
+        reported++;
+        report(error, result);
+      }
+    );
+  } catch (error) {
+    // not about one issuer: the data could not be read at all
+    printError(error);
+    run.recordFailure(source, error);
+    return reported + 1;
+  }
+  return reported;
+}
+
+/**
+ * Import one trusted JWT issuer from a file. The file can be an export of issuers or a file the generic agent export
+ * wrote.
+ * @param {string} issuerId id of the issuer: the name of the object in the file
+ * @param {string} file name of the import file
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importOAuth2TrustedJwtIssuerFromFile(
+  issuerId: string,
+  file: string
+): Promise<boolean> {
+  showSpinner(`Importing ${issuerId}...`);
+  try {
+    const filePath = getFilePath(file);
+    await frodo.oauth2oidc.issuer.importOAuth2TrustedJwtIssuer(
+      issuerId,
+      readImportFile(filePath)
+    );
+    succeedSpinner(`Imported ${issuerId} from ${filePath}.`);
+    return true;
+  } catch (error) {
+    failSpinner(`Error importing ${issuerId}`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import the first trusted JWT issuer of a file, and only that one (not all of them, which the AI agent importer did,
+ * frodo-cli#1147).
+ * @param {string} file name of the import file
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importFirstOAuth2TrustedJwtIssuerFromFile(
+  file: string
+): Promise<boolean> {
+  showSpinner(`Importing the first trusted JWT issuer of ${file}...`);
+  try {
+    const filePath = getFilePath(file);
+    const imported =
+      await frodo.oauth2oidc.issuer.importFirstOAuth2TrustedJwtIssuer(
+        readImportFile(filePath)
+      );
+    succeedSpinner(
+      `Imported ${imported?._id ?? 'the first issuer'} from ${filePath}.`
+    );
+    return true;
+  } catch (error) {
+    failSpinner(`Error importing the first trusted JWT issuer of ${file}`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import all trusted JWT issuers of one file
+ * Every issuer is one item of the run: the ones that can be imported are imported and one summary names the ones that
+ * could not be. A file that cannot be read or parsed, or that holds no issuers at all, ends the command whatever
+ * `--allow-failures` says. A file with an empty `trustedJwtIssuer` section is an empty import: it is said and succeeds
+ * (cli record 0041).
+ * @param {string} file name of the import file
+ * @param {boolean} allowFailures true to report issuers that could not be imported but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importOAuth2TrustedJwtIssuersFromFile(
+  file: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'issuer', allowFailures });
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
+  let importData: OAuth2TrustedJwtIssuerImportData;
+  try {
+    importData = readImportFile(filePath);
+  } catch (error) {
+    // not an item failure: the file that was named cannot be read
+    failSpinner(`Error importing ${filePath}`);
+    printError(error);
+    return false;
+  }
+  const count = await importIssuersInto(run, importData, file);
+  if (count === 0) {
+    if (!hasIssuerSection(importData)) {
+      failSpinner(`Error importing ${filePath}`);
+      printError(new Error(`No trusted issuers found in ${filePath}`));
+      return false;
+    }
+    succeedSpinner(`No trusted issuers to import in ${filePath}.`);
+    return true;
+  }
+  const outcome = run.finish();
+  if (outcome) succeedSpinner(`Imported ${filePath}.`);
+  else failSpinner(`Error importing ${filePath}`);
+  return outcome;
+}
+
+/**
+ * Import all trusted JWT issuers from the separate files of the working directory (`*.oauth2.issuer.json` and the
+ * `*.trustedJwtIssuer.json` files of a full export). A file that cannot be read, or that holds no issuers, is a failed
+ * item named by its file, and the issuers of the other files are still imported. A directory that cannot be read ends
+ * the command whatever `--allow-failures` says; no file at all is not a failure (cli record 0041).
+ * @param {boolean} allowFailures true to report files and issuers that could not be imported but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importOAuth2TrustedJwtIssuersFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'issuer', allowFailures });
+  let files: string[];
+  const directory = getWorkingDirectory();
+  try {
+    files = fs
+      .readdirSync(directory)
+      .filter((name) =>
+        ISSUER_IMPORT_SUFFIXES.some((suffix) =>
+          name.toLowerCase().endsWith(suffix)
+        )
+      )
+      .sort();
+  } catch (error) {
+    printError(error);
+    return false;
+  }
+  if (files.length === 0) {
+    printMessage(
+      `No trusted issuer files (*.${ISSUER_FILE_TYPE}.json) found in ${directory}!`,
+      'warn'
+    );
+    return true;
+  }
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    files.length,
+    'Importing trusted JWT issuers...'
+  );
+  for (const file of files) {
+    let importData: OAuth2TrustedJwtIssuerImportData;
+    try {
+      importData = readImportFile(path.join(directory, file));
+    } catch (error) {
+      printError(error);
+      run.recordFailure(file, error);
+      updateProgressIndicator(indicatorId, `Error importing ${file}`);
+      continue;
+    }
+    const count = await importIssuersInto(run, importData, file);
+    if (count === 0 && !hasIssuerSection(importData)) {
+      const error = new Error(`No trusted issuers found in ${file}`);
+      printError(error);
+      run.recordFailure(file, error);
+    }
+    updateProgressIndicator(indicatorId, `Imported ${file}`);
+  }
+  const outcome = run.finish();
+  stopProgressIndicator(
+    indicatorId,
+    outcome
+      ? `Finished importing trusted JWT issuers from ${files.length} file(s).`
+      : 'Error importing trusted JWT issuers.',
+    outcome ? 'success' : 'fail'
+  );
+  return outcome;
 }
