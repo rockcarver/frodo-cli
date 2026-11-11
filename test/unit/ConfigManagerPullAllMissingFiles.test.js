@@ -219,54 +219,73 @@ describe.each(['cloud', 'forgeops', 'classic'])(
 );
 
 /**
- * The overrides file of the step `cimd-profiles` is optional input to a step that needs none: it is not a
- * file step, so a config folder without it is not warned about, and a config folder that has it hands its
- * path to the exporter (frodo-cli#1250).
+ * The overrides files of the steps `cimd-profiles` and `trusted-jwt-issuers` are optional input to steps that
+ * need none: they are not file steps, so a config folder without them is not warned about, and a config
+ * folder that has one hands its path to the exporter (frodo-cli#1250 and #1257).
  */
 describe.each(['cloud', 'forgeops', 'classic'])(
-  'pull all on a %s deployment, with the optional cimd-profiles.json',
+  'pull all on a %s deployment, with the optional overrides files of the discovery steps',
   (deployment) => {
-    const cimdExporter = () =>
-      spies.get(path.resolve(root, 'src/ops/CIMDProfileConfigOps'))
-        .configManagerExportCIMDProfiles;
+    const STEPS = [
+      {
+        file: 'cimd-profiles.json',
+        module: 'src/ops/CIMDProfileConfigOps',
+        name: 'configManagerExportCIMDProfiles',
+      },
+      {
+        file: 'trusted-jwt-issuers.json',
+        module: 'src/ops/OAuth2TrustedJwtIssuerConfigOps',
+        name: 'configManagerExportTrustedJwtIssuers',
+      },
+    ];
+    const exporterOf = ({ module, name }) =>
+      spies.get(path.resolve(root, module))[name];
 
     beforeEach(() => {
       deploymentType = deployment;
     });
 
-    test('a config folder without it is not warned about, and the exporter gets no file', async () => {
-      const folder = configFolder();
+    test.each(STEPS)(
+      'a config folder without $file is not warned about, and the exporter gets no file',
+      async (step) => {
+        const folder = configFolder();
 
-      expect(
-        await configManagerExportAllWithConfigFolder({ configFolder: folder })
-      ).toBe(true);
+        expect(
+          await configManagerExportAllWithConfigFolder({ configFolder: folder })
+        ).toBe(true);
 
-      expect(cimdExporter()).toHaveBeenCalledWith(
-        undefined,
-        undefined,
-        true,
-        false,
-        null
-      );
-      expect(warnings().join('\n')).not.toMatch(/cimd/i);
-      expect(errors()).toEqual([]);
-    });
+        expect(exporterOf(step)).toHaveBeenCalledWith(
+          undefined,
+          undefined,
+          true,
+          false,
+          null
+        );
+        expect(warnings().join('\n')).not.toMatch(
+          /cimd|trusted-jwt-issuers|trusted JWT/i
+        );
+        expect(errors()).toEqual([]);
+      }
+    );
 
-    test('a config folder that has it hands its path to the exporter', async () => {
-      const folder = configFolder('cimd-profiles.json');
+    test.each(STEPS)(
+      'a config folder that has $file hands its path to the exporter',
+      async (step) => {
+        const folder = configFolder(step.file);
 
-      expect(
-        await configManagerExportAllWithConfigFolder({ configFolder: folder })
-      ).toBe(true);
+        expect(
+          await configManagerExportAllWithConfigFolder({ configFolder: folder })
+        ).toBe(true);
 
-      expect(cimdExporter()).toHaveBeenCalledWith(
-        undefined,
-        undefined,
-        true,
-        false,
-        `${folder}/cimd-profiles.json`
-      );
-    });
+        expect(exporterOf(step)).toHaveBeenCalledWith(
+          undefined,
+          undefined,
+          true,
+          false,
+          `${folder}/${step.file}`
+        );
+      }
+    );
   }
 );
 

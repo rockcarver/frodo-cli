@@ -2,6 +2,7 @@ import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { configManagerExportApplications } from '../ops/ApplicationConfigOps';
 import { configManagerExportCIMDProfiles } from '../ops/CIMDProfileConfigOps';
+import { configManagerExportTrustedJwtIssuers } from '../ops/OAuth2TrustedJwtIssuerConfigOps';
 import { configManagerExportRemoteProxies } from '../ops/RemoteProxyOps';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
@@ -164,6 +165,18 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
         existingConfigFile(options.configFolder, 'cimd-profiles.json')
       )
     ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `trusted-jwt-issuers.json` in the config folder is optional.
+    step('trusted-jwt-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'trusted-jwt-issuers.json')
+      )
+    ),
     // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
@@ -286,6 +299,18 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
         existingConfigFile(options.configFolder, 'cimd-profiles.json')
       )
     ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `trusted-jwt-issuers.json` in the config folder is optional.
+    step('trusted-jwt-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'trusted-jwt-issuers.json')
+      )
+    ),
     // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
@@ -371,11 +396,24 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
         existingConfigFile(options.configFolder, 'cimd-profiles.json')
       )
     ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `trusted-jwt-issuers.json` in the config folder is optional.
+    step('trusted-jwt-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'trusted-jwt-issuers.json')
+      )
+    ),
   ],
 };
 
-// `cimd-profiles` is absent from the lists below on purpose: CIMD profiles are dynamic configuration until Ping says a
-// promotion carries them (see the step in `deploymentMapAll`).
+// `cimd-profiles` and `trusted-jwt-issuers` are absent from the lists below on purpose: both are dynamic configuration (CIMD
+// profiles until Ping says a promotion carries them, trusted JWT issuers because Ping's promotion FAQ lists them as not
+// promoted); see the steps in `deploymentMapAll`.
 export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),
