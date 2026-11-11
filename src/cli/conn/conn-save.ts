@@ -6,10 +6,12 @@ import {
   addExistingServiceAccount,
   findAliasConflict,
   findSavedProvisioning,
+  parseHeaderOverrides,
 } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
 import c from '../../utils/ColorTheme';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
+import { markSecret } from '../../utils/interactive/SecretOptions';
 import {
   FrodoCommand,
   preferredCredentialOption,
@@ -57,15 +59,19 @@ export default function setup() {
       )
     )
     .addOption(
-      new Option(
-        '--authentication-header-overrides <headers>',
-        `Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.`
+      markSecret(
+        new Option(
+          '--authentication-header-overrides <headers>',
+          `Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments. The values are secrets: they are stored encrypted in the connection profile and masked wherever the command is shown.`
+        )
       )
     )
     .addOption(
-      new Option(
-        '--configuration-header-overrides <headers>',
-        `Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.`
+      markSecret(
+        new Option(
+          '--configuration-header-overrides <headers>',
+          `Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments. The values are secrets: they are stored encrypted in the connection profile and masked wherever the command is shown.`
+        )
       )
     )
     .addOption(
@@ -165,12 +171,18 @@ export default function setup() {
         }
         if (options.authenticationHeaderOverrides) {
           state.setAuthenticationHeaderOverrides(
-            JSON.parse(options.authenticationHeaderOverrides)
+            parseHeaderOverrides(
+              options.authenticationHeaderOverrides,
+              '--authentication-header-overrides'
+            )
           );
         }
         if (options.configurationHeaderOverrides) {
           state.setConfigurationHeaderOverrides(
-            JSON.parse(options.configurationHeaderOverrides)
+            parseHeaderOverrides(
+              options.configurationHeaderOverrides,
+              '--configuration-header-overrides'
+            )
           );
         }
         if (options.preferredCredential) {

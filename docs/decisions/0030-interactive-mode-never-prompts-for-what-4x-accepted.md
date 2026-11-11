@@ -1,6 +1,6 @@
 ---
-status: accepted
-date: 2026-10-24
+status: superseded by 0047
+date: 2026-11-10
 decision-makers: maintainers
 applies-to:
   - src/cli/ResolveInteractiveInputs.ts

@@ -247,3 +247,147 @@ describe('errorCodeOf', () => {
     expect(errorHintFor(error)).toBe("Run 'frodo login --browser' first.");
   });
 });
+
+// A request that failed because of its proxy (frodo-lib#986): the library says
+// which proxy and what it did, with a code on the error of the request; the
+// FrodoError that wraps that error has the code, and the advice is ours.
+describe('the hints for a request that failed because of its proxy', () => {
+  const PROXY_CODES = [
+    'PROXY_AUTHENTICATION_REQUIRED',
+    'PROXY_TUNNEL_REFUSED',
+    'PROXY_CONNECTION_REFUSED',
+    'PROXY_CONNECTION_CLOSED',
+    'PROXY_UNREACHABLE',
+  ];
+
+  /** What frodo-lib raises for a request that a proxy failed: the error of the request carries `proxyFailure`. */
+  const requestFailedAtProxy = (code, extra = {}) =>
+    Object.assign(new Error('Request failed with status code 403'), {
+      name: 'AxiosError',
+      code: 'ERR_BAD_REQUEST',
+      proxyFailure: {
+        code,
+        proxy: { protocol: 'http', host: 'proxy.example', port: 3128 },
+        target: 'https',
+        message:
+          'The proxy proxy.example:3128 refused the CONNECT request for an HTTPS target with status 403 (Forbidden).',
+        ...extra,
+      },
+    });
+
+  test('14: the library has a code for each kind of proxy failure, and each has a hint', () => {
+    expect(FrodoError.codes).toEqual(expect.arrayContaining(PROXY_CODES));
+    for (const code of PROXY_CODES) {
+      expect(ERROR_CODE_HINTS).toHaveProperty(code);
+    }
+  });
+
+  test('15: an error of an ops function that wraps the failed request gets the hint of its code', () => {
+    for (const code of PROXY_CODES) {
+      const wrapped = new FrodoError(
+        'Error getting tokens',
+        requestFailedAtProxy(code)
+      );
+      expect(errorCodeOf(wrapped)).toBe(code);
+      expect(errorHintFor(wrapped)).toBe(ERROR_CODE_HINTS[code]);
+    }
+  });
+
+  test('16: the hint is found through the wrappers of a login, too', () => {
+    const deep = new FrodoError(
+      'Error getting tokens',
+      new FrodoError(
+        'Error getting server info',
+        requestFailedAtProxy('PROXY_CONNECTION_REFUSED')
+      )
+    );
+    expect(errorHintFor(deep)).toBe(ERROR_CODE_HINTS.PROXY_CONNECTION_REFUSED);
+  });
+
+  test('17: each kind of failure has its own advice', () => {
+    const hints = PROXY_CODES.map((code) => ERROR_CODE_HINTS[code]);
+    expect(new Set(hints).size).toBe(PROXY_CODES.length);
+  });
+
+  test('18: a hint is advice of at most two short sentences that names the variables of the proxy support', () => {
+    for (const code of PROXY_CODES) {
+      const hint = ERROR_CODE_HINTS[code];
+      // sentences end in a full stop that is followed by a space or the end
+      const sentences = hint.split(/\.(?:\s|$)/).filter(Boolean);
+      expect({ code, sentences: sentences.length <= 2 }).toEqual({
+        code,
+        sentences: true,
+      });
+      expect(hint.length).toBeLessThan(260);
+      expect(hint).toMatch(/\b(HTTPS_PROXY|HTTP_PROXY|NO_PROXY)\b/);
+    }
+    // the proxy is the one the person configured: the three variables are the ones to look at
+    const all = PROXY_CODES.map((code) => ERROR_CODE_HINTS[code]).join(' ');
+    for (const name of ['HTTPS_PROXY', 'HTTP_PROXY', 'NO_PROXY']) {
+      expect(all).toContain(name);
+    }
+  });
+
+  test('19: a hint never prints a credential: no user and password but the placeholders of the form', () => {
+    for (const code of PROXY_CODES) {
+      const hint = ERROR_CODE_HINTS[code];
+      for (const [, userInfo] of hint.matchAll(/:\/\/([^@\s]+)@/g)) {
+        expect(userInfo).toBe('user:password');
+      }
+      expect(hint).not.toMatch(/[?&](token|key|password)=/i);
+    }
+  });
+
+  test('20: the advice is for a proxy failure only: the same transport errors without the fact get none', () => {
+    // a tenant that is down, or refuses the credentials itself, with no proxy involved
+    for (const [code, status] of [
+      ['ECONNREFUSED', undefined],
+      ['ERR_BAD_REQUEST', 407],
+      ['ERR_BAD_REQUEST', 403],
+      ['ECONNRESET', undefined],
+    ]) {
+      const transport = Object.assign(new Error('failed'), {
+        name: 'AxiosError',
+        code,
+        ...(status && { response: { status } }),
+      });
+      const wrapped = new FrodoError('Error getting tokens', transport);
+      expect(errorCodeOf(wrapped)).toBeUndefined();
+      expect(errorHintFor(wrapped)).toBeUndefined();
+    }
+  });
+
+  test('21: a code of another condition gets its own hint, not a proxy one', () => {
+    const error = new FrodoError(
+      'Error getting tokens',
+      requestFailedAtProxy('PROXY_TUNNEL_REFUSED'),
+      'BROWSER_LOGIN_NO_SESSION'
+    );
+    expect(errorHintFor(error)).toBe(ERROR_CODE_HINTS.BROWSER_LOGIN_NO_SESSION);
+  });
+
+  test('22: each code is given the advice for its kind of failure', () => {
+    expect(ERROR_CODE_HINTS.PROXY_AUTHENTICATION_REQUIRED).toContain(
+      'user name and password'
+    );
+    expect(ERROR_CODE_HINTS.PROXY_TUNNEL_REFUSED).toContain(
+      "allows connections to the tenant's host and port"
+    );
+    expect(ERROR_CODE_HINTS.PROXY_CONNECTION_REFUSED).toContain(
+      'address and port of the proxy'
+    );
+    expect(ERROR_CODE_HINTS.PROXY_CONNECTION_CLOSED).toContain(
+      'with the scheme it speaks'
+    );
+    expect(ERROR_CODE_HINTS.PROXY_UNREACHABLE).toContain(
+      'host name of the proxy'
+    );
+    // a tenant that can be reached without the proxy is the way out of a refusal
+    for (const code of [
+      'PROXY_AUTHENTICATION_REQUIRED',
+      'PROXY_TUNNEL_REFUSED',
+    ]) {
+      expect(ERROR_CODE_HINTS[code]).toContain('NO_PROXY');
+    }
+  });
+});

@@ -135,6 +135,7 @@ async function openTenant(target: string): Promise<Tenant> {
   tenant.state.setDebug(state.getDebug());
   tenant.state.setVerbose(state.getVerbose());
   tenant.state.setCurlirize(state.getCurlirize());
+  tenant.state.setCurlirizeSecrets(state.getCurlirizeSecrets());
   tenant.state.setAllowInsecureConnection(state.getAllowInsecureConnection());
   tenant.state.setUseTokenCache(false);
   try {

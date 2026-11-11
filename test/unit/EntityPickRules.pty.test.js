@@ -58,8 +58,8 @@ suite('the script picker, on a real terminal', () => {
 
   /**
    * `script describe` on the fake AM; `choose` are the keys after the one-of
-   * menu opened. The Ready step is answered with Run: the picker needs the
-   * login, so it follows.
+   * menu opened. The picker needs the login, which the pass makes; the Ready
+   * step follows it and is answered with Run.
    */
   function describeScript(choose) {
     return runShellScenario({
@@ -82,7 +82,6 @@ suite('the script picker, on a real terminal', () => {
         { type: 'sleep', ms: 400 },
         ...choose,
         { type: 'key', name: 'enter' },
-        ...answerReady(),
         {
           type: 'wait_plain',
           regex: 'Select script to act on',
@@ -92,6 +91,7 @@ suite('the script picker, on a real terminal', () => {
         { type: 'capture', label: 'picker' },
         { type: 'clear_output' },
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         { type: 'sleep', ms: 3000 },
         { type: 'capture', label: 'after' },
       ],

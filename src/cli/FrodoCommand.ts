@@ -29,6 +29,7 @@ import { flushAuthoringPrint } from '../utils/interactive/AuthoringPrintState.js
 // Type-only: the credential vocabulary lives in the interactive layer
 // (see docs/INTERACTIVE-COMMANDS.md, layering).
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
+import { markNeverSaved } from '../utils/interactive/DefaultsStore.js';
 import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import { registerEntityPickFamilies } from '../utils/interactive/EntityPickFamilies.js';
 import {
@@ -37,6 +38,7 @@ import {
   RIGHT,
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
+import { passStateApplied } from '../utils/interactive/PassLogin.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import {
   declareRealmPickerOnlyWith,
@@ -1003,9 +1005,26 @@ const debugOption = withHelpGroup(
 );
 
 const curlirizeOption = withHelpGroup(
-  new Option('--curlirize', 'Output all network calls in curl format.'),
+  new Option(
+    '--curlirize',
+    'Output all network calls in curl format. The values of credentials (Authorization and Cookie headers, API keys, header overrides, and passwords, tokens and secrets in request bodies) are replaced with <redacted> and the header names stay; add --curlirize-secrets to see the values.'
+  ),
   OUTPUT_OPTIONS_HEADING,
   OptionCategory.Output
+);
+
+// Opt-in to real credentials in the curl output. Never saved as a default
+// (markNeverSaved), not part of a connection profile, and not offered to the
+// MCP server: it is a decision for one run.
+const curlirizeSecretsOption = markNeverSaved(
+  withHelpGroup(
+    new Option(
+      '--curlirize-secrets',
+      'With --curlirize, print the real values of credentials in the curl commands, so that a command can be copied and run. The output then contains valid credentials: do not share it. Never saved as a default. Can also be switched on with the environment variable FRODO_CURLIRIZE_SECRETS.'
+    ),
+    OUTPUT_OPTIONS_HEADING,
+    OptionCategory.Output
+  )
 );
 
 // Categorized as Authentication (not Runtime, despite rendering under
@@ -1102,6 +1121,7 @@ const defaultOpts = [
   verboseOption,
   debugOption,
   curlirizeOption,
+  curlirizeSecretsOption,
   noCacheOption,
   flushCacheOption,
   retryOption,
@@ -1203,6 +1223,8 @@ const stateMap = {
   [debugOption.attributeName()]: (debug: boolean) => state.setDebug(debug),
   [curlirizeOption.attributeName()]: (curlirize: boolean) =>
     state.setCurlirize(curlirize),
+  [curlirizeSecretsOption.attributeName()]: (curlirizeSecrets: boolean) =>
+    state.setCurlirizeSecrets(curlirizeSecrets),
   [noCacheOption.attributeName()]: (cache: boolean) =>
     state.setUseTokenCache(cache),
   [useRealmPrefixOnManagedObjects.attributeName()]: () =>
@@ -1450,13 +1472,13 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_AUTHENTICATION_HEADER_OVERRIDES',
     description:
-      'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.',
+      'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments. The values are secrets: a connection profile stores them encrypted.',
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
     name: 'FRODO_CONFIGURATION_HEADER_OVERRIDES',
     description:
-      'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.',
+      'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments. The values are secrets: a connection profile stores them encrypted.',
     group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
@@ -1464,6 +1486,14 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
     description: "Set to any value to enable debug output. Same as '--debug'.",
     group: OUTPUT_ENVIRONMENT_VARIABLES_HEADING,
     include: (command) => command.hasDefaultOption(debugOption.attributeName()),
+  },
+  {
+    name: 'FRODO_CURLIRIZE_SECRETS',
+    description:
+      "Set to 1, true, yes, or on (case-insensitive) to print the real values of credentials in the '--curlirize' output. Same as '--curlirize-secrets'. The output then contains valid credentials.",
+    group: OUTPUT_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(curlirizeSecretsOption.attributeName()),
   },
   {
     name: 'FRODO_IGA',
@@ -3481,9 +3511,9 @@ class FrodoStubHelp extends Help {
       super.optionDescription(option),
       option
     );
-    // "(pick from <kind>)": the option has an entity picker registered
-    // (deferEntityPicks), so an interactive session offers a dropdown of
-    // the live system's entities for it.
+    // "(pick from <kind>)": the option has an entity picker registered by
+    // its command family (EntityPickFamilies.ts), so an interactive session
+    // offers a dropdown of the live system's entities for it.
     const pick = (
       this.renderedCommand ? getEntityPicks(this.renderedCommand) : []
     ).find((candidate) => candidate.name === option.attributeName());
@@ -3688,6 +3718,14 @@ export class FrodoCommand extends FrodoStubCommand {
       }
     }
 
+    // The option that shows the credentials in the curl output means nothing
+    // on a command that has no curl output, and a command that does not take
+    // part (the MCP server is run by a client that must not be able to see
+    // them) never gets it.
+    if (commandOmits.has(curlirizeOption.name())) {
+      commandOmits.add(curlirizeSecretsOption.name());
+    }
+
     // Cloud-only commands do not need Amster private key defaults.
     if (
       types.length === 1 &&
@@ -3875,7 +3913,7 @@ export class FrodoCommand extends FrodoStubCommand {
    * realm limits `frodo config export` with `-r`, `--realm-only`, and changes
    * nothing without it), so the post-auth realm picker may open only then. The
    * picker is the ordinary one and keeps every other condition (records 0001
-   * and 0030): it opens for a command line that was incomplete, never for a
+   * and 0047): it opens for a command line that was incomplete, never for a
    * complete one. Call it after the option is added.
    * See src/utils/interactive/RealmUse.ts.
    * @param option The attribute name of the option, for example `realmOnly` for `-r, --realm-only`.
@@ -3901,9 +3939,17 @@ export class FrodoCommand extends FrodoStubCommand {
   handleDefaultArgsAndOpts(...args: any) {
     const command = args.pop();
     const options = args.pop();
+    // When the resolution pass wrote the connection into the state already (it
+    // does so before it logs in for a picker, record 0044), the action must not
+    // write it again: the login has replaced the alias of the host by the
+    // tenant's URL and the sentinel realm by the deployment's realm, the
+    // credentials of the profile are in the state, and putting the typed values
+    // back would break the login the command is about to use. Only the options
+    // are applied again, for the ones a later step of the pass committed.
+    const writtenByPass = passStateApplied();
 
     // handle arguments first
-    for (const [i, v] of command.args.entries()) {
+    for (const [i, v] of writtenByPass ? [] : command.args.entries()) {
       if (!command._args[i]) {
         printMessage(
           `${command.args.length} arguments supplied but command only supports ${command._args.length}.`,
@@ -3935,6 +3981,8 @@ export class FrodoCommand extends FrodoStubCommand {
       if (k2 === envOption.attributeName()) return 1;
       return 0;
     })) {
+      // `--flush-cache` empties the cache once; the pass did it already
+      if (writtenByPass && k === flushCacheOption.attributeName()) continue;
       // handle only default options
       if (Object.keys(stateMap).includes(k)) {
         debugMessage(
@@ -3950,8 +3998,22 @@ export class FrodoCommand extends FrodoStubCommand {
       }
     }
 
-    // fail fast if an incompatible deployment type option (-m or --type) was provided
+    // FRODO_CURLIRIZE_SECRETS does what --curlirize-secrets does, for the
+    // commands that have the option. Only the library setting changes: nothing
+    // is saved, and a value other than 1, true, yes or on leaves it off.
     if (
+      command.hasDefaultOption?.(curlirizeSecretsOption.attributeName()) &&
+      isTruthyOptInValue(process.env.FRODO_CURLIRIZE_SECRETS)
+    ) {
+      state.setCurlirizeSecrets(true);
+    }
+
+    // fail fast if an incompatible deployment type option (-m or --type) was
+    // provided. After the pass wrote the connection (and logged in), the type is
+    // known from the login, and getTokens() refuses a type the command does not
+    // support with the library's own error.
+    if (
+      !writtenByPass &&
       state.getDeploymentType() &&
       !this.types.includes(state.getDeploymentType())
     ) {

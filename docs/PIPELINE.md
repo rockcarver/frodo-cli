@@ -198,7 +198,29 @@ suite against the SEA binary itself.
   an npm install.
 - **Live Tenant Smoke Test** (push/release only): runs against a real
   tenant using service credentials (`FRODO_SA_ID`/`FRODO_SA_JWK`), through a
-  squid proxy service container.
+  squid proxy service container. Its `Proxy Tests` step runs `frodo conn save`
+  and `frodo info` with `HTTPS_PROXY` set to squid, then a **negative
+  control**: `frodo info` with `HTTPS_PROXY=http://127.0.0.1:9` (a port nobody
+  listens on) must fail, and the step fails if it succeeds. Without it the two
+  commands would also pass when the proxy setting is ignored. The check is an
+  `if` condition, so the expected failure does not stop the step under
+  `bash -e`; `test/unit/PipelineClassification.test.js` runs the step's shell
+  against a stand-in for `frodo` for each outcome.
+- **Proxy support of the bundle** (`test/unit/ProxySupport.test.js`, in the
+  `Test` job, no secrets and no network beyond loopback): the built CLI
+  (`dist/launch.cjs`, and `dist-sea/frodo` when it exists, which it does in the
+  `Test` job) runs `frodo realm list` against a fake tenant with a forward
+  proxy in the test process in between. It shows that `HTTP_PROXY` and
+  `http_proxy` route the requests through the proxy, that `HTTPS_PROXY` opens a
+  `CONNECT` tunnel to a self-signed https tenant (`--insecure`), with and
+  without credentials in the proxy URL, that `NO_PROXY` keeps the proxy out of
+  it, and that a proxy nobody listens on fails the command quickly with
+  nothing reaching the tenant. proxy-agent and the agents it loads on demand are
+  inlined into the bundle, so this is what notices a bundling change that
+  drops one. The library tests its own agents from source (frodo-lib issue
+  [#982](https://github.com/rockcarver/frodo-lib/issues/982)). It needs the
+  `openssl` command for the https cases (skipped without it, a failure when
+  `CI` is set) and sends no update check (`FRODO_NO_UPDATE_CHECK`).
 - **Cross-Platform Tests (Credential File Permissions)**: verifies the CLI
   creates credential files with restrictive permissions on Windows, macOS
   and Linux.

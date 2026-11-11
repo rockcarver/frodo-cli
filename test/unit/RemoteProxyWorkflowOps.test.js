@@ -23,6 +23,9 @@ const everythingPrinted = () => printed.map((entry) => entry.msg).join('\n');
 
 /** The library calls that fail (by the label they put in `calls`) in the test at hand. */
 const failing = new Set();
+
+/** What the sender's library state answers to getCurlirizeSecrets(). */
+let senderCurlirizeSecrets = false;
 function maybeFail(label) {
   if (failing.has(label)) {
     throw new FakeFrodoError(
@@ -77,6 +80,9 @@ function receiverFacade() {
       setDebug: () => {},
       setVerbose: () => {},
       setCurlirize: () => {},
+      setCurlirizeSecrets: (value) => {
+        world.receiver.curlirizeSecrets = value;
+      },
       setAllowInsecureConnection: () => {},
       setUseTokenCache: () => {},
     },
@@ -335,6 +341,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     getDebug: () => false,
     getVerbose: () => false,
     getCurlirize: () => false,
+    getCurlirizeSecrets: () => senderCurlirizeSecrets,
     getAllowInsecureConnection: () => false,
   },
 }));
@@ -426,6 +433,7 @@ beforeEach(() => {
   printed.length = 0;
   guardCalls.length = 0;
   savedProfileByHostName = undefined;
+  senderCurlirizeSecrets = false;
 });
 
 /** What a finished setup leaves on both tenants. */
@@ -465,6 +473,16 @@ describe('names', () => {
 });
 
 describe('setup on two empty tenants', () => {
+  test('the receiving tenant shows the credentials in the curl output exactly when the sender does', async () => {
+    await runSetup();
+    expect(world.receiver.curlirizeSecrets).toBe(false);
+
+    senderCurlirizeSecrets = true;
+    world = freshWorld();
+    await runSetup();
+    expect(world.receiver.curlirizeSecrets).toBe(true);
+  });
+
   test('creates the client and mapping on the receiver, then the ESV secret, variable and proxy, applies once and tests', async () => {
     const { outcome } = await runSetup();
 

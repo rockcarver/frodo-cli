@@ -54,7 +54,7 @@ describe('labels', () => {
 
 describe('readyChoices', () => {
   it('offers Run first, then Edit options, then Cancel', () => {
-    const choices = readyChoices({ canEdit: true, openAfterLogin: false });
+    const choices = readyChoices({ canEdit: true });
     expect(choices.map((choice) => choice.value)).toEqual([
       'run',
       'edit',
@@ -68,22 +68,24 @@ describe('readyChoices', () => {
   });
 
   it('leaves out Edit options when there is nothing to edit', () => {
-    const choices = readyChoices({ canEdit: false, openAfterLogin: false });
+    const choices = readyChoices({ canEdit: false });
     expect(choices.map((choice) => choice.value)).toEqual(['run', 'cancel']);
   });
 
-  it('says on the Run row that input is still chosen after login', () => {
-    const open = readyChoices({ canEdit: true, openAfterLogin: true })[0];
-    const done = readyChoices({ canEdit: true, openAfterLogin: false })[0];
-    expect(open.description).toContain('after login');
-    expect(done.description).not.toContain('after login');
+  it('says nothing about input that is still open: the pickers that need a login ran before the step', () => {
+    for (const canEdit of [true, false]) {
+      for (const choice of readyChoices({ canEdit })) {
+        expect(choice.description).not.toContain('after login');
+        expect(choice.description).not.toContain('still open');
+      }
+    }
+    expect(readyChoices({ canEdit: true })[0].description).toBe(
+      'Run the command shown below.'
+    );
   });
 
   it('gives every row a description', () => {
-    for (const choice of readyChoices({
-      canEdit: true,
-      openAfterLogin: true,
-    })) {
+    for (const choice of readyChoices({ canEdit: true })) {
       expect(choice.description).toBeTruthy();
     }
   });

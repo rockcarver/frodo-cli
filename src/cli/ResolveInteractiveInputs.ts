@@ -4,6 +4,14 @@
  * docs/INTERACTIVE-COMMANDS.md). Wired from FrodoCommand's preAction
  * hook; never modifies frodo-lib.
  *
+ * The pass runs in this order (docs/INTERACTIVE-COMMANDS.md, "The resolution
+ * pass"): persisted defaults, the connection arguments, the realm picker, the
+ * deferred mandatory options, the option-requiredness groups, the entity
+ * pickers, the secrets, the invocation editor and, last, the Ready step. The two
+ * pickers need a login for their loaders. The pass makes it when one of them is
+ * going to open and not before (record 0044), so the Ready step is the last
+ * prompt and nothing prompts after Run.
+ *
  * Two resolver kinds run here, connection arguments first (the host gives
  * the later prompts their context), then deferred mandatory options:
  *
@@ -36,11 +44,13 @@
  */
 
 import fs from 'fs';
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
+import { reportLoginFailure, tryLoginInPass } from '../ops/AuthenticateOps';
 import { printMessage, successMessage, verboseMessage } from '../utils/Console';
 import {
   armAuthoringPrint,
+  revokeAuthoringPrint,
   setAuthoringPrintFlush,
 } from '../utils/interactive/AuthoringPrintState';
 import {
@@ -58,8 +68,20 @@ import {
 } from '../utils/interactive/ConnectionCredentials';
 import {
   connectionPage,
+  renderConnectionBusyFrame,
+  type ConnectionPageConfig,
+  type ConnectionPagePreviewExtra,
   type ConnectionPageRow,
 } from '../utils/interactive/ConnectionPagePrompt';
+import {
+  afterDone,
+  afterLogin,
+  connectionSnapshot,
+  failureSummary,
+  pageComplete,
+  type PageConnection,
+  type RealmRow,
+} from '../utils/interactive/ConnectionPageState';
 import {
   applicableCommandDefaults,
   optionMissingUserValue,
@@ -75,6 +97,9 @@ import {
 import {
   canChooseAfterConnecting,
   hasEntityPick,
+  pendingPassPicks,
+  pickNeedsLogin,
+  resolvePassEntityPicks,
 } from '../utils/interactive/EntityPickers';
 import {
   escapableMultiSelect,
@@ -88,6 +113,7 @@ import {
   type EscapableSelectConfig,
 } from '../utils/interactive/EscapableSelectPrompt';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll';
+import { pickFileSystemPath } from '../utils/interactive/FileSystemPicker';
 import {
   assertNoConflicts,
   commitOption,
@@ -104,8 +130,23 @@ import {
   type OptionRequirementSpec,
 } from '../utils/interactive/OptionRequirements';
 import {
+  connectionChangedSinceApply,
+  forgetPassLogin,
+  loginNeededForPickers,
+  loginTypesOf,
+  notePassRealmPickDone,
+  notePassStateApplied,
+  passLoginSession,
+  passRealmPickDone,
+  passStateApplied,
+  recordPassLogin,
+  resetPassLogin,
+} from '../utils/interactive/PassLogin';
+import { pathOptionOf } from '../utils/interactive/PathOptions';
+import {
   positionalIndex,
   positionalValue,
+  replacePositionalValue,
   setPositionalValue,
 } from '../utils/interactive/PositionalArgs';
 import {
@@ -123,8 +164,12 @@ import {
   type ReadyAnswer,
 } from '../utils/interactive/ReadyStep';
 import {
+  applyRealmRowChoice,
   noteRealmProvenance,
   noteRequiredInputPrompted,
+  realmForPreview,
+  realmPickerApplies,
+  realmRowSetup,
 } from '../utils/interactive/RealmPickers';
 import {
   assertNoPendingSecrets,
@@ -133,6 +178,8 @@ import {
   failFirstPendingSecret,
 } from '../utils/interactive/SecretCollector';
 import { isSecretOption } from '../utils/interactive/SecretOptions';
+import { terminalFrameWidth } from '../utils/interactive/TerminalWidth';
+import { whileShowing } from '../utils/interactive/TransientFrame';
 import { guidedModeEnabled } from '../utils/SettingsStore';
 import { readStdinToEndSync } from '../utils/StdinSync';
 
@@ -157,6 +204,15 @@ export {
  * commander clones or nests commands.
  */
 const pendingMandatoryViolations = new WeakMap<Command, string[]>();
+
+/**
+ * The username and password the environment supplied when the pass began
+ * (FRODO_USERNAME, FRODO_PASSWORD, read by frodo-lib into its state). The pass
+ * writes the connection the user settled on into that same state when it logs
+ * in (record 0044), so the state no longer says where a value came from: the
+ * connection page, which is shown again after the login, asks this instead.
+ */
+let environmentConnection = { username: '', password: '' };
 
 /**
  * Whether the connection level (host/username/password) resolved for this
@@ -246,6 +302,14 @@ function missingMandatoryOptionMessage(optionLabel: string): string {
 export async function resolveInteractiveInputs(
   command: Command
 ): Promise<void> {
+  // Nothing is remembered from an earlier command of the process (the frodo
+  // shell runs many): the login of the pass and the pickers it ran are this
+  // command's own.
+  resetPassLogin();
+  environmentConnection = {
+    username: state.getUsername() ?? '',
+    password: state.getPassword() ?? '',
+  };
   const violations = pendingMandatoryViolations.get(command) ?? [];
 
   if (!canPrompt()) {
@@ -266,7 +330,7 @@ export async function resolveInteractiveInputs(
   }
 
   // The Ready step at the end is asked only when this pass put a prompt on
-  // the screen (record 0043): a sub-command picked before the pass began
+  // the screen (records 0043 and 0044): a sub-command picked before the pass began
   // does not count.
   const promptsBeforePass = promptsRendered();
 
@@ -322,6 +386,12 @@ export async function resolveInteractiveInputs(
     (await resolveConnectionArgs(command));
   connectionReadiness.set(command, connectionResolved);
   noteRequiredInputPrompted(promptsRendered() > promptCountBeforeConnection);
+  // The realm picker comes right after the connection (record 0001), and the
+  // pass logs in for it when it will open (record 0044): its list is read from
+  // the target system.
+  if (connectionResolved) {
+    await resolveRealmStep(command);
+  }
   const mandatoryResolved = connectionResolved
     ? await resolveMandatoryOptions(command)
     : false;
@@ -340,6 +410,9 @@ export async function resolveInteractiveInputs(
       throwOneOfUnsatisfied(command, unsatisfied[0]);
     }
   }
+  // The entity pickers: the mandatory options and the groups above left the
+  // options they name unset. The pass logs in for them when one will open.
+  await resolveEntityPickStep(command);
   // Secrets come last of the required inputs: every other prompt has
   // succeeded by now, so a declined earlier prompt never makes anyone type a
   // secret for nothing. Asked for in declaration order, input hidden.
@@ -366,9 +439,13 @@ export async function resolveInteractiveInputs(
   if (explicitlyInteractive) {
     await runInvocationEditor(command);
   }
+  // What the editor asked for (an entity "chosen after connecting") or changed
+  // (the connection) is settled before the last prompt.
+  await resolvePassPickers(command);
 
   // The last prompt of a session that asked for anything: the command as it
-  // will run, and the choice to run it. Until here no prompt ran the command.
+  // will run, and the choice to run it. Until here no prompt ran the command,
+  // and nothing prompts after it (record 0044).
   if (readyStepWanted(promptsBeforePass, promptsRendered())) {
     await confirmReady(command);
   }
@@ -386,14 +463,16 @@ export async function resolveInteractiveInputs(
   // them). Flush sites, chosen so every flow's print lands at its last
   // command-mutating moment:
   //
-  // - getTokens wrapper (AuthenticateOps): after the post-auth realm pick
-  //   concludes -- every auth command's action output starts after its
-  //   getTokens returns, so the print sits directly above the results.
-  //   SKIPPED when the command has entity picks pending (the picks may
-  //   still change the command; resolveEntityPicks flushes instead).
-  // - resolveEntityPicks (EntityPickers): after the last entity pick
-  //   concludes -- the pick-after-auth commands (esv variable set, secret
-  //   store mapping delete) print here, with the picked values in.
+  // - getTokens wrapper (AuthenticateOps): every auth command's action output
+  //   starts after its getTokens returns, so the print sits directly above the
+  //   results. The realm pick and the entity picks that need a login ran in
+  //   this pass (record 0044); the wrapper still runs them for a command whose
+  //   pass made no login. SKIPPED when the command has entity picks the pass did
+  //   not run and that are still pending (resolveFamilyEntityPicks flushes
+  //   instead).
+  // - resolveFamilyEntityPicks (EntityPickers): after the last entity pick
+  //   concludes -- a command whose pass made no login prints here, with the
+  //   picked values in.
   // - postAction hook (FrodoCommand): the fallback for commands whose
   //   interactive flow ends elsewhere (settings/conn/stub commands -- no
   //   auth, no picks); a no-op for anything the first two sites already
@@ -404,10 +483,10 @@ export async function resolveInteractiveInputs(
   // leaves nothing behind.
   //
   // Armed UNCONDITIONALLY (registration is free); the PRINT GATE lives in
-  // the flush closure, evaluated at flush time -- NOT here. It must be
-  // evaluated late: post-auth realm/entity pickers render AFTER this pass
-  // ends, so a gate evaluated now would miss a session whose only prompt
-  // was a picker. The gate itself
+  // the flush closure, evaluated at flush time -- NOT here. Pickers of a
+  // command whose pass made no login can still render after this pass ends,
+  // so a gate evaluated now could miss a session whose only prompt was one.
+  // The gate itself
   // is unchanged: at least one prompt rendered this process, or the user
   // explicitly requested the flow (--prompt / guided mode). Fully
   // specified non-TTY runs (e2e snapshots) render no prompts and never
@@ -432,25 +511,21 @@ export async function resolveInteractiveInputs(
 }
 
 /**
- * The Ready step (record 0043): the last prompt of a session that asked for
- * anything. It shows the command as it will run (the usual footer) and offers
- * Run (the default), Edit options (the invocation editor, then back here) and
- * Cancel. Escape cancels as well: nothing runs, nothing is printed, and the
- * session ends quietly through the exit-all signal. Pickers that need a login
- * (the realm, the entities) follow after Run, because their loaders need tokens.
+ * The Ready step (records 0043 and 0044): the last prompt of a session that
+ * asked for anything. It shows the command as it will run (the usual footer)
+ * and offers Run (the default), Edit options (the invocation editor, then back
+ * here) and Cancel. Escape cancels as well: nothing runs, nothing is printed,
+ * and the session ends quietly through the exit-all signal. The pickers that
+ * need a login ran before it; Edit options can ask for more or change the
+ * connection, and they are settled before the step is shown again.
  */
 async function confirmReady(command: Command): Promise<void> {
   for (;;) {
-    const readiness = commandReadinessFor(command);
+    await resolvePassPickers(command);
     const answer = await selectWithEditorRouting<ReadyAnswer>(command, {
       message: 'Ready to run?',
       choices: readyChoices({
         canEdit: editableOptionalOptions(command).length > 0,
-        // what the pass left for the pickers that run after login: a choice
-        // made for later, or a mandatory option with a picker
-        openAfterLogin:
-          deferredChoicesOf(command).size > 0 ||
-          (readiness?.missingMandatoryOptionLabels.length ?? 0) > 0,
       }),
       enterLabel: readyEnterLabel,
       escapeLabel: READY_ESCAPE_LABEL,
@@ -462,6 +537,130 @@ async function confirmReady(command: Command): Promise<void> {
     }
     throw EXIT_ALL_SIGNAL;
   }
+}
+
+/**
+ * Ends the command from inside the pass without running it, and without a
+ * word of its own: what went wrong has been said. The exit code is the one the
+ * command would have set when the same thing happened after Run (a failed login,
+ * a declined or failed pick: 1). Nothing the pass armed is printed.
+ * @param code the exit code
+ */
+function endCommand(code: number): never {
+  process.exitCode = code;
+  revokeAuthoringPrint();
+  throw EXIT_ALL_SIGNAL;
+}
+
+/**
+ * Writes the connection of the command (host, credentials, the options that
+ * decide who logs in) into frodo-lib's state, as the action would, once. The
+ * action skips it afterwards (FrodoCommand.handleDefaultArgsAndOpts).
+ */
+async function applyConnectionForPass(command: Command): Promise<void> {
+  if (passStateApplied()) return;
+  const { FrodoCommand } = await import('./FrodoCommand');
+  if (!(command instanceof FrodoCommand)) return;
+  command.handleDefaultArgsAndOpts(command.opts(), command);
+  notePassStateApplied(command);
+}
+
+/**
+ * Forgets the login and the pickers when the invocation editor changed who logs
+ * in to what: the pickers then log in again and ask again (the values already
+ * chosen stay). Anything else the editor changes leaves them alone.
+ */
+function reconcileConnection(command: Command): void {
+  if (!connectionChangedSinceApply(command)) return;
+  verboseMessage(
+    'The connection changed: the login and the pickers are redone.'
+  );
+  forgetPassLogin();
+}
+
+/**
+ * Logs in for a picker (record 0044); the callers ask `loginNeededForPickers`
+ * first, so this runs once per connection. The login is made for the deployment
+ * types the command registers, so a tenant of another type is refused here, with
+ * the library's error, before any picker. A failed login ends the command with
+ * the error and the hint the login reported, exit code 1, and no Ready step.
+ */
+async function loginForPickers(command: Command): Promise<void> {
+  await applyConnectionForPass(command);
+  const attempt = await tryLoginInPass(loginTypesOf(command));
+  if ('error' in attempt) {
+    reportLoginFailure(attempt.error);
+    endCommand(1);
+  }
+  recordPassLogin(attempt.session);
+}
+
+/**
+ * The realm (record 0001): a row of the connection page (record 0046), run in
+ * the pass right after the login the pass makes for it. When the connection
+ * page was shown it has handled the realm already, with the login it made;
+ * when none was (a saved connection answered everything), the pass logs in
+ * here and, only if the system has several realms, shows the page with the
+ * resolved rows and the Realm row, so the host and the realm are on one screen.
+ * A command the realm does not apply to makes no login here.
+ */
+async function resolveRealmStep(command: Command): Promise<void> {
+  reconcileConnection(command);
+  if (passRealmPickDone()) return;
+  const applies = realmPickerApplies(command);
+  if (
+    loginNeededForPickers({
+      loggedIn: passLoginSession() !== undefined,
+      realmPickerApplies: applies,
+      entityPicksNeedingLogin: 0,
+    })
+  ) {
+    await loginForPickers(command);
+  }
+  if (!applies) return;
+  const realm = await realmRowSetup(command);
+  if (realm) {
+    const host = positionalValue(command, 'host') ?? state.getHost();
+    const rows = await connectionRowsFor(command, host, {
+      credentialRows: false,
+    });
+    await runConnectionPage(command, {
+      rows,
+      logsIn: true,
+      connected: { who: passLoginSession()?.subject, realm },
+    });
+  }
+  notePassRealmPickDone();
+}
+
+/**
+ * The entity pickers (records 0038 and 0044): every pick that will open, with
+ * the login the pass makes for them when their loaders need one. A pick that
+ * was declined or whose load failed ends the command like it does after Run
+ * (exit code 1); nothing runs.
+ */
+async function resolveEntityPickStep(command: Command): Promise<void> {
+  reconcileConnection(command);
+  const pending = pendingPassPicks(command);
+  if (pending.length === 0) return;
+  // the loaders read the host (the receiving tenant is not the one logged in to)
+  await applyConnectionForPass(command);
+  if (
+    loginNeededForPickers({
+      loggedIn: passLoginSession() !== undefined,
+      realmPickerApplies: false,
+      entityPicksNeedingLogin: pending.filter(pickNeedsLogin).length,
+    })
+  ) {
+    await loginForPickers(command);
+  }
+  if (!(await resolvePassEntityPicks(command))) endCommand(1);
+}
+
+/** The pickers that need a login, realm first: what is left for them after the editor ran. */
+async function resolvePassPickers(command: Command): Promise<void> {
+  await resolveRealmStep(command);
+  await resolveEntityPickStep(command);
 }
 
 /**
@@ -526,8 +725,15 @@ export const ONE_OF_UNSATISFIED_CODE = 'frodo.oneOfUnsatisfied';
  */
 async function selectWithEditorRouting<Value>(
   command: Command,
-  config: EscapableSelectConfig<Value>
+  {
+    autoSelectSingle,
+    ...config
+  }: EscapableSelectConfig<Value> & { autoSelectSingle?: boolean }
 ): Promise<Value | typeof ESCAPE> {
+  // a menu of one row asks for nothing the caller could not answer itself
+  if (autoSelectSingle && config.choices.length === 1) {
+    return config.choices[0].value;
+  }
   const hint = editableOptionsHint(command);
   // Preview discipline: callers pass their own (a LIVE callback when the
   // pick maps onto a command token); the default is a static-committed-
@@ -584,19 +790,24 @@ export function commandPreviewFor(command: Command): string | undefined {
  */
 function connectionPagePreview(
   command: Command,
-  rows: ConnectionPageRow[]
+  rows: ConnectionPageRow[],
+  extra: ConnectionPagePreviewExtra = {}
 ): string | undefined {
   const readiness = commandReadinessFor(command);
   if (!readiness) return undefined;
   const args = command.processedArgs;
   const committed = new Map<number, unknown>();
-  for (const row of rows) {
-    const index = positionalIndex(command, row.key);
-    if (args && index !== -1 && row.value) {
-      committed.set(index, args[index]);
-      args[index] = row.value;
+  const shadow = (name: string, value: string | undefined) => {
+    const index = positionalIndex(command, name);
+    if (args && index !== -1 && value) {
+      if (!committed.has(index)) committed.set(index, args[index]);
+      args[index] = value;
     }
-  }
+  };
+  for (const row of rows) shadow(row.key, row.value);
+  // the Realm row: the realm highlighted in its choice box, else the one chosen
+  const realm = extra.highlightedRealm ?? extra.realm;
+  shadow('realm', realm === undefined ? undefined : realmForPreview(realm));
   try {
     return renderCommandPreview(command, {
       ...readiness,
@@ -783,6 +994,41 @@ function commitInEditor(
 }
 
 /**
+ * The value step of an option the pass asks for (record 0045): the file system
+ * picker for an option that names a path (PathOptions.ts), the text prompt for
+ * every other option. The result is the one of `promptInput`: the value, ''
+ * when the user declined (Escape, or an empty answer) and undefined when
+ * prompting is not allowed, so a caller treats both kinds of option alike.
+ * `current` is the value a picked path starts from; `commitLabel` what Enter
+ * says on the row that picks it.
+ */
+async function promptOptionValue(
+  command: Command,
+  option: Option,
+  step: { default?: string; commitLabel: string }
+): Promise<string | undefined> {
+  const spec = pathOptionOf(command, option);
+  if (spec && canPrompt()) {
+    const attributeName = option.attributeName();
+    const current = command.getOptionValue(attributeName);
+    const live = liveOptionPreviewFor(command, attributeName);
+    const picked = await pickFileSystemPath({
+      flags: option.flags,
+      ...spec,
+      ...(typeof current === 'string' ? { current } : {}),
+      ...(live ? { preview: live } : {}),
+      commitLabel: step.commitLabel,
+    });
+    return picked === ESCAPE ? '' : picked;
+  }
+  return promptInput({
+    message: `Enter a value for ${option.flags}:`,
+    default: step.default,
+    preview: typedOptionPreviewFor(command, option.attributeName()),
+  });
+}
+
+/**
  * Prompts for each deferred mandatory option violation. Options with a
  * closed value set (commander `choices()`) get a dropdown; everything
  * else free text. Returns false as soon as the user declines one (Escape
@@ -805,14 +1051,13 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
     // here would echo it.
     if (isSecretOption(option)) continue;
 
-    // Entity-pickable options are deferred to the action body's post-auth
-    // dropdown (resolveEntityPicks) -- free-texting an id here would defeat
-    // the picker's purpose. Leave the violation unresolved; the action
-    // resolves it after getTokens (or errors non-interactively).
+    // Entity-pickable options are left to the entity picker of the pass
+    // (resolveEntityPickStep, once the groups are resolved) -- free-texting an
+    // id here would defeat the picker's purpose. Leave the violation
+    // unresolved; the pass resolves it after its login (or the command errors
+    // non-interactively).
     if (hasEntityPick(command, attributeName)) {
-      verboseMessage(
-        `${option.flags} will be offered from the target system after login.`
-      );
+      verboseMessage(`${option.flags} will be chosen from the target system.`);
       continue;
     }
 
@@ -827,9 +1072,8 @@ async function resolveMandatoryOptions(command: Command): Promise<boolean> {
       if (choice === ESCAPE) return false;
       value = choice;
     } else {
-      const answer = await promptInput({
-        message: `Enter a value for ${option.flags}:`,
-        preview: typedOptionPreviewFor(command, option.attributeName()),
+      const answer = await promptOptionValue(command, option, {
+        commitLabel: NEXT_LABEL,
       });
       if (!answer) return false;
       value = answer;
@@ -884,7 +1128,9 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
       .filter(
         (member): member is { name: string; option: Option } =>
           member !== undefined
-      );
+      )
+      // a group that needs every member asks for the ones still missing
+      .filter((member) => !group.all || !isAnswered(command, member.name));
     if (memberOptions.length === 0) continue;
 
     // A member that cannot be combined with an option the user already gave
@@ -914,6 +1160,8 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
     // reads SATISFIED in the same frame (green before any commit).
     const picked = await selectWithEditorRouting(command, {
       message: `Choose ${subject}:`,
+      // the one member that a group needing every member still lacks is no choice
+      autoSelectSingle: group.all,
       ...(commandReadinessFor(command)
         ? {
             preview: (highlighted: unknown) => {
@@ -951,11 +1199,11 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
 
     const chosen = offered.find((member) => member.name === picked)!;
 
-    // Entity-pickable members are deferred to the action body's post-auth
-    // dropdown (resolveEntityPicks) -- see resolveMandatoryOptions.
+    // Entity-pickable members are left to the entity picker of the pass --
+    // see resolveMandatoryOptions.
     if (hasEntityPick(command, chosen.name)) {
       verboseMessage(
-        `${chosen.option.flags} will be offered from the target system after login.`
+        `${chosen.option.flags} will be chosen from the target system.`
       );
       // the other members of the group that have a picker are not offered then
       noteDeferredChoice(command, chosen.name);
@@ -976,16 +1224,35 @@ async function resolveOneOfGroups(command: Command): Promise<boolean> {
       // [value]), so the pick itself is the value -- no second prompt.
       commitOrFail(command, chosen.option, true);
     } else {
-      const answer = await promptInput({
-        message: `Enter a value for ${chosen.option.flags}:`,
-        preview: typedOptionPreviewFor(command, chosen.name),
+      const answer = await promptOptionValue(command, chosen.option, {
+        commitLabel: NEXT_LABEL,
       });
       if (!answer) return false;
       commitOrFail(command, chosen.option, answer);
     }
     verboseMessage(`Using ${chosen.option.flags}.`);
   }
+  // each member of a group that needs every member is asked for in turn
+  if (hasMissingMembers(command)) return resolveOneOfGroups(command);
   return true;
+}
+
+/** Whether an option has a value, or is chosen in the pass and gets its value from a pick later. */
+function isAnswered(command: Command, name: string): boolean {
+  return isOptionGiven(command, name) || deferredChoicesOf(command).has(name);
+}
+
+/** Whether a group that needs every member still has a member nobody supplied. */
+function hasMissingMembers(command: Command): boolean {
+  return findUnsatisfiedOneOfGroups(command).some(
+    (group) =>
+      group.all &&
+      group.options.some(
+        (name) =>
+          command.options.some((option) => option.attributeName() === name) &&
+          !isAnswered(command, name)
+      )
+  );
 }
 
 /**
@@ -1165,24 +1432,54 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
   // be pure friction. No profile (new host, or host given as a URL with
   // nothing saved): prompt bare, so e.g. `frodo login <new-host>` and
   // `frodo conn save <new-host>` become fully interactive.
+  const ask = await credentialsToAsk(command);
+  if (!ask) return true;
+
+  // The connection PAGE is the only prompt for username and password.
+  // Rows carry the resolved current values + provenance (a username-only
+  // profile prefills the username row; env fallbacks show as "(from
+  // FRODO_USERNAME)" etc.); an empty commit on the masked password row
+  // keeps the stored value. The page opens on the first row without a
+  // value, its footer follows the rows, and Escape cancels the command:
+  // there is no second, unframed prompt behind it. When a realm picker may
+  // follow (record 0001), Done also logs in and the page carries the Realm
+  // row (record 0046).
+  await runConnectionPage(command, {
+    rows: await connectionRowsFor(command, ask.host, { credentialRows: true }),
+    logsIn: realmPickerApplies(command, { connectionPrompted: true }),
+  });
+  return true;
+}
+
+/**
+ * Whether the connection page has to ask for credentials: undefined when it
+ * does not, because a saved profile, a cached browser session, an explicit
+ * credential source or the environment answers (record 0031), else the host
+ * to ask them for.
+ * @param command the command that is being resolved
+ * @param hostOverride the host the page was edited to; the command's own host otherwise
+ */
+async function credentialsToAsk(
+  command: Command,
+  hostOverride?: string
+): Promise<{ host: string } | undefined> {
   const usernameNeeded =
     positionalIndex(command, 'username') !== -1 &&
     !positionalValue(command, 'username') &&
-    !state.getUsername() && // env fallback (FRODO_USERNAME)
+    !environmentConnection.username && // env fallback (FRODO_USERNAME)
     !hasExplicitCredentialSource(command);
   const passwordNeeded =
     positionalIndex(command, 'password') !== -1 &&
     !positionalValue(command, 'password') &&
-    !state.getPassword() && // env fallback (FRODO_PASSWORD)
+    !environmentConnection.password && // env fallback (FRODO_PASSWORD)
     !hasExplicitCredentialSource(command);
 
-  if (!usernameNeeded && !passwordNeeded) return true;
+  if (!usernameNeeded && !passwordNeeded) return undefined;
 
-  const host = positionalValue(command, 'host') ?? state.getHost();
-  if (!host) return true; // host unresolved; the action fails on it as before
+  const host =
+    hostOverride ?? positionalValue(command, 'host') ?? state.getHost();
+  if (!host) return undefined; // host unresolved; the action fails on it as before
 
-  let savedUsername: string | undefined;
-  let profileNote: string | undefined;
   try {
     const profile = await getConnectionProfileByHost(host);
     // frodo-lib will authenticate from the profile alone when it carries
@@ -1199,97 +1496,252 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
         forcesUserLogin(command)
       )
     ) {
-      return true;
+      return undefined;
     }
-    savedUsername = profile.username ?? undefined;
-    profileNote = profile.alias
-      ? `from profile ${profile.alias}`
-      : 'from profile';
   } catch {
     // No profile for this host (or unreadable): a fresh browser session
     // cached for it still completes the connection (record 0031); otherwise
     // fall through to prompts.
-    if (!forcesUserLogin(command) && hasCachedBrowserSession(host)) return true;
+    if (!forcesUserLogin(command) && hasCachedBrowserSession(host)) {
+      return undefined;
+    }
   }
+  return { host };
+}
 
-  // The connection PAGE is the only prompt for username and password.
-  // Rows carry the resolved current values + provenance (a username-only
-  // profile prefills the username row; env fallbacks show as "(from
-  // FRODO_USERNAME)" etc.); an empty commit on the masked password row
-  // keeps the stored value. The page opens on the first row without a
-  // value, its footer follows the rows, and Escape cancels the command:
-  // there is no second, unframed prompt behind it.
-  const result = await connectionPage({
-    message: 'Connection:',
-    preview: (rows) => connectionPagePreview(command, rows),
-    rows: [
-      {
-        key: 'host',
-        label: 'host',
-        value: host,
-        note: profileNote ?? undefined,
-      },
-      {
-        key: 'username',
-        label: 'username',
-        // state.getUsername() is '' (not undefined) when nothing set it, so
-        // `||` is what falls through to the saved profile's username.
-        value:
-          positionalValue(command, 'username') ??
-          (state.getUsername() || savedUsername),
-        note: state.getUsername()
-          ? 'from FRODO_USERNAME'
-          : (profileNote ?? undefined),
-      },
-      {
-        key: 'password',
-        label: 'password',
-        value: positionalValue(command, 'password') ?? state.getPassword(),
-        note: state.getPassword()
-          ? 'from FRODO_PASSWORD'
-          : (profileNote ?? undefined),
-      },
-    ],
-    onHostChange: async (newHost) => {
-      setPositionalValue(command, 'host', newHost);
-      // Re-resolve the credential rows' profile context for the new host
-      // (the lookup keys on the host).
-      let note: string | undefined;
-      let savedUser: string | undefined;
-      try {
-        const profile = await getConnectionProfileByHost(newHost);
-        note = profile.alias ? `from profile ${profile.alias}` : 'from profile';
-        savedUser = profile.username ?? undefined;
-      } catch {
-        note = undefined;
-      }
-      return [
-        { key: 'host', label: 'host', value: newHost, note },
-        {
-          key: 'username',
-          label: 'username',
-          value: positionalValue(command, 'username') ?? savedUser,
-          note,
-        },
-        {
-          key: 'password',
-          label: 'password',
-          value: undefined,
-          note,
-        },
-      ];
-    },
-  });
-  if (result === EXIT_ALL) {
-    // Exit-all unwinds the whole interactive resolution -- no fallback
-    // prompts, the command does not run. THROW: the session ends (the
-    // signal travels through the resolver, the preAction hook chain and
-    // the action body to app.ts's top-level catch).
-    throw EXIT_ALL_SIGNAL;
+/**
+ * The rows of the connection page for `host`: the host with the profile it
+ * names, and, when the connection has to be asked for, the username and the
+ * password with what the environment and the profile already know.
+ * @param command the command that is being resolved
+ * @param host the host the page shows
+ * @param options.credentialRows show the username and password rows. A page that
+ *   was opened for the credentials always does; one opened for the realm
+ *   shows them only when the host needs them (a host that was edited on it)
+ */
+async function connectionRowsFor(
+  command: Command,
+  host: string | undefined,
+  options: { credentialRows: boolean }
+): Promise<ConnectionPageRow[]> {
+  let savedUsername: string | undefined;
+  let profileNote: string | undefined;
+  if (host) {
+    try {
+      const profile = await getConnectionProfileByHost(host);
+      savedUsername = profile.username ?? undefined;
+      profileNote = profile.alias
+        ? `from profile ${profile.alias}`
+        : 'from profile';
+    } catch {
+      // no profile for this host
+    }
   }
-  if (result.username) setPositionalValue(command, 'username', result.username);
-  if (result.password) setPositionalValue(command, 'password', result.password);
-  return true;
+  const rows: ConnectionPageRow[] = [
+    { key: 'host', label: 'host', value: host, note: profileNote },
+  ];
+  if (!options.credentialRows) return rows;
+  rows.push(
+    {
+      key: 'username',
+      label: 'username',
+      // the username of the environment is '' (not undefined) when nothing set
+      // it, so `||` is what falls through to the saved profile's username.
+      value:
+        positionalValue(command, 'username') ??
+        (environmentConnection.username || savedUsername),
+      note: environmentConnection.username
+        ? 'from FRODO_USERNAME'
+        : (profileNote ?? undefined),
+    },
+    {
+      key: 'password',
+      label: 'password',
+      value:
+        positionalValue(command, 'password') ?? environmentConnection.password,
+      note: environmentConnection.password
+        ? 'from FRODO_PASSWORD'
+        : (profileNote ?? undefined),
+    }
+  );
+  return rows;
+}
+
+/** What the connection page of a pass starts from. */
+type ConnectionPageStart = {
+  rows: ConnectionPageRow[];
+  /** Done logs in when the page is complete: a realm picker may follow (record 0001). */
+  logsIn: boolean;
+  /** The pass logged in already and found a realm to choose: the page opens connected, with the Realm row. */
+  connected?: { who?: string; realm: RealmRow };
+};
+
+/** Writes the rows the user settled on into the positionals of the command. */
+function writeRowsToCommand(command: Command, rows: ConnectionPageRow[]): void {
+  for (const row of rows) {
+    if (row.value) replacePositionalValue(command, row.key, row.value);
+  }
+}
+
+/**
+ * The connection page (record 0046), until the pass can go on. The page is a
+ * prompt, and a prompt must not be open while the login runs (a second factor
+ * reads the terminal itself), so this is a loop of openings:
+ *
+ * - Done on a complete page that logs in closes the page, draws its frame again
+ *   with "Logging in..." (TransientFrame.ts: whatever the login prints, a second
+ *   factor, a browser URL, takes the frame away first), logs in, and opens the
+ *   page again with the outcome;
+ * - with several realms the page opens with "Connected as ..." and the Realm row
+ *   and stays until Done is pressed again; with one realm (or none that can be
+ *   read) it concludes at once, no second press;
+ * - a failed login opens the page once more to show the failure, and any of
+ *   Enter and Escape closes it: the error and its hint are printed and the
+ *   command ends with exit code 1, no retry loop;
+ * - an edit to the host or a credential after the login drops the session and
+ *   the realm choice (the page does that on its own), and the next Done logs in
+ *   again;
+ * - Escape cancels the command: nothing runs, nothing is printed, exit code 0.
+ *
+ * A page that does not log in (no realm picker can follow, or it is not
+ * complete) concludes on Done as it always did.
+ */
+async function runConnectionPage(
+  command: Command,
+  start: ConnectionPageStart
+): Promise<void> {
+  let rows = start.rows;
+  // the page shows the credential rows once any host it was edited to needs them
+  let credentialRows = rows.some((row) => row.key !== 'host');
+  let connected: PageConnection | undefined = start.connected
+    ? { who: start.connected.who, snapshot: connectionSnapshot(rows) }
+    : undefined;
+  let realm: RealmRow | undefined = start.connected?.realm;
+  let realmChoice: string | undefined;
+  const onHostChange = async (
+    newHost: string
+  ): Promise<ConnectionPageRow[]> => {
+    // Re-resolve the credential rows' profile context for the new host
+    // (the lookup keys on the host). The command gets the host when the page
+    // concludes (writeRowsToCommand).
+    credentialRows =
+      credentialRows || !!(await credentialsToAsk(command, newHost));
+    const updated = await connectionRowsFor(command, newHost, {
+      credentialRows,
+    });
+    // the password typed for the old host is not the new host's
+    return updated.map((row) =>
+      row.key === 'password' ? { ...row, value: undefined } : row
+    );
+  };
+  for (;;) {
+    const config: ConnectionPageConfig = {
+      message: 'Connection:',
+      preview: (
+        shown: ConnectionPageRow[],
+        extra: ConnectionPagePreviewExtra
+      ) => connectionPagePreview(command, shown, extra),
+      rows,
+      onHostChange,
+      logsIn: start.logsIn,
+      connected,
+      realm,
+      realmChoice,
+      // the key the realm picker had, now that the realm is asked here
+      hint: realm ? editableOptionsHint(command) : undefined,
+    };
+    const result = await connectionPage(config);
+    if (result === EXIT_ALL) {
+      // Exit-all unwinds the whole interactive resolution -- no fallback
+      // prompts, the command does not run. THROW: the session ends (the
+      // signal travels through the resolver, the preAction hook chain and
+      // the action body to app.ts's top-level catch).
+      throw EXIT_ALL_SIGNAL;
+    }
+    rows = result.rows;
+    writeRowsToCommand(command, rows);
+    if (result.openEditor) {
+      // → on the page: the invocation editor, then the page again with what was chosen
+      await runInvocationEditor(command);
+      if (connected && connectionChangedSinceApply(command)) {
+        // the editor changed who logs in to what: the session is not for these options
+        connected = undefined;
+        realm = undefined;
+        realmChoice = undefined;
+      } else {
+        realmChoice = result.realm;
+      }
+      continue;
+    }
+    const stillConnected =
+      connected !== undefined &&
+      connected.snapshot === connectionSnapshot(rows);
+    if (
+      afterDone({
+        logsIn: start.logsIn,
+        complete: pageComplete(rows),
+        connected: stillConnected,
+      }) === 'conclude'
+    ) {
+      if (stillConnected && realm) {
+        applyRealmRowChoice(command, realm, result.realm);
+        notePassRealmPickDone();
+      }
+      return;
+    }
+
+    // Done on a complete page: the login runs on the page. A login of this
+    // pass that was made for other rows (the page dropped it when they changed)
+    // is forgotten, and the pass logs in again.
+    reconcileConnection(command);
+    const attempt = await loginOnPage(command, config, rows);
+    if ('error' in attempt) {
+      const message =
+        attempt.error instanceof FrodoError
+          ? attempt.error.getCombinedMessage()
+          : attempt.error instanceof Error
+            ? attempt.error.message
+            : String(attempt.error);
+      await connectionPage({
+        ...config,
+        rows,
+        connected: undefined,
+        realm: undefined,
+        failure: failureSummary(message),
+      });
+      reportLoginFailure(attempt.error);
+      endCommand(1);
+    }
+    recordPassLogin(attempt.session);
+    realm = await realmRowSetup(command);
+    if (afterLogin(realm !== undefined) === 'conclude') {
+      notePassRealmPickDone();
+      return;
+    }
+    connected = {
+      who: attempt.session.subject,
+      snapshot: connectionSnapshot(rows),
+    };
+  }
+}
+
+/**
+ * Logs in for the connection page: the frame of the page stays on the screen
+ * with "Logging in..." while the login runs, and is gone when it is over or as
+ * soon as the login prints or asks for something.
+ */
+async function loginOnPage(
+  command: Command,
+  config: ConnectionPageConfig,
+  rows: ConnectionPageRow[]
+) {
+  return whileShowing(
+    renderConnectionBusyFrame(config, rows, terminalFrameWidth()),
+    async () => {
+      await applyConnectionForPass(command);
+      return tryLoginInPass(loginTypesOf(command));
+    }
+  );
 }
 
 /**
@@ -1415,6 +1867,8 @@ async function runInvocationEditor(command: Command): Promise<void> {
   // options marked in this session without a value: the entity pick that
   // fills them runs after login
   const markedForLater = new Set<string>();
+  // path options marked in this session: their picker opens when the page is committed
+  const markedForPicker = new Set<string>();
 
   // The per-option value step, shared by both paths that can collect a
   // value: the <space> side step (below) and the post-commit loop.
@@ -1456,10 +1910,9 @@ async function runInvocationEditor(command: Command): Promise<void> {
       if (!commitInEditor(command, option, true)) return undefined;
       return true;
     }
-    const answer = await promptInput({
-      message: `Enter a value for ${option.flags}:`,
+    const answer = await promptOptionValue(command, option, {
       default: currentText,
-      preview: typedOptionPreviewFor(command, attributeName),
+      commitLabel: 'commit',
     });
     if (!answer) return undefined;
     if (!commitInEditor(command, option, answer)) return undefined;
@@ -1495,12 +1948,23 @@ async function runInvocationEditor(command: Command): Promise<void> {
         (candidate) => candidate.attributeName() === attributeName
       );
       // A secret is asked for with its input hidden after the choice (see
-      // the loop below), never typed into the inline editor.
+      // the loop below), never typed into the inline editor. A path option is
+      // picked in the file system picker after it.
       return (
         !!option &&
         !isSecretOption(option) &&
-        /<[^>]+>|\[[^\]]+\]/.test(option.flags)
+        /<[^>]+>|\[[^\]]+\]/.test(option.flags) &&
+        !pathOptionOf(command, option)
       );
+    },
+    // a path option the user marked now is picked again, whatever it held
+    onMark: (attributeName) => {
+      const option = command.options.find(
+        (candidate) => candidate.attributeName() === attributeName
+      );
+      if (option && pathOptionOf(command, option)) {
+        markedForPicker.add(attributeName);
+      }
     },
     // Enum options (commander `.choices()`, e.g. --retry <strategy>)
     // get an in-frame PICKER instead of free text (user feedback
@@ -1659,7 +2123,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
     const alreadyValued =
       command.getOptionValueSource(attributeName) === 'cli' &&
       command.getOptionValue(attributeName) !== undefined;
-    if (alreadyValued) {
+    if (alreadyValued && !markedForPicker.has(attributeName)) {
       const option = command.options.find(
         (candidate) => candidate.attributeName() === attributeName
       )!;

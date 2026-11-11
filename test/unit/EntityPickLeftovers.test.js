@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
 /**
- * Decision record 0038 and the rules of the picker runner (record 0030): the
+ * Decision record 0038 and the rules of the picker runner (record 0047): the
  * last options of the legacy list got their pickers from the family registry.
  * This runs the picks on the REAL command definitions (their options, their
  * conflicts and their one-of groups), as an interactive session (the prompt

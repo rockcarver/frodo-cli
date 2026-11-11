@@ -64,8 +64,6 @@ Options:
                              the journey/tree nodes.
   --no-decode                Do not include decoded variable value in variable
                              export
-  -o, --separate-objects     Export managed.idm.json objects separately in their
-                             own directory. Cannot be used with -a.
   -r, --realm-only           Export only the config for the active realm (on
                              Identity Cloud alpha, unless you name another realm
                              after the host). If -g, --global-only is also
@@ -75,8 +73,6 @@ Options:
                              default scripts) in addition to the importable
                              config. On Identity Cloud this adds a root realm,
                              which holds read-only authorization config.
-  -s, --separate-mappings    Export sync.idm.json mappings separately in their
-                             own directory. Cannot be used with -a.
   --static                   Export only static configuration: what an
                              environment promotion carries (journeys, scripts,
                              themes and the like). With --dynamic it exports

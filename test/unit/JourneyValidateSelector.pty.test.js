@@ -63,8 +63,9 @@ suite('journey validate, on a real terminal', () => {
 
   /**
    * `journey validate` on the fake AM with no selector; `choose` are the keys
-   * after the menu opened. The Ready step follows the menu and is answered
-   * with Run: the journey picker needs the login, so it comes after.
+   * after the menu opened. The journey picker needs the login, which the pass
+   * makes, so it follows the menu and comes before the Ready step; `after`
+   * is what the scenario does from there.
    */
   function validate(choose, after) {
     return runShellScenario({
@@ -93,7 +94,6 @@ suite('journey validate, on a real terminal', () => {
         { type: 'clear_output' },
         ...choose,
         { type: 'key', name: 'enter' },
-        ...answerReady(),
         ...after,
       ],
     });
@@ -113,6 +113,8 @@ suite('journey validate, on a real terminal', () => {
         },
         { type: 'sleep', ms: 400 },
         { type: 'capture', label: 'picker' },
+        { type: 'key', name: 'enter' },
+        ...answerReady(),
       ]
     );
     const menu = lastFrame(run.captures.menu.plain);
@@ -137,6 +139,7 @@ suite('journey validate, on a real terminal', () => {
         { type: 'capture', label: 'picker' },
         { type: 'clear_output' },
         { type: 'key', name: 'enter' },
+        ...answerReady(),
         { type: 'sleep', ms: 3000 },
         { type: 'capture', label: 'after' },
       ]
@@ -155,6 +158,7 @@ suite('journey validate, on a real terminal', () => {
     const run = validate(
       [{ type: 'key', name: 'down' }],
       [
+        ...answerReady(),
         { type: 'sleep', ms: 3500 },
         { type: 'capture', label: 'after' },
       ]
@@ -208,7 +212,7 @@ suite('journey validate, with the selector on the command line', () => {
     });
   }
 
-  // record 0030: a complete command line never opens a prompt
+  // record 0047: a complete command line never opens a prompt
   test('-a opens neither the menu nor a picker', () => {
     const { plain } = validateWith(['-a']).captures.after;
     expect(plain).not.toContain('Choose which journeys to validate');
@@ -223,7 +227,7 @@ suite('journey validate, with the selector on the command line', () => {
     expect(plain).toContain("journey 'zion-login'");
   });
 
-  test('-i and -a together, which 4.x accepted, still open nothing', () => {
+  test('-i and -a together, which the command accepts, still open nothing', () => {
     const { plain } = validateWith(['-i', 'zion-login', '-a']).captures.after;
     expect(plain).not.toContain('Select journey to act on');
   });
