@@ -13,8 +13,9 @@
  * the primary flush site is the getTokens wrapper -- once the pickers
  * have concluded (they run in the pass, record 0044), directly above the
  * action's output --
- * with resolveEntityPicks covering the pick-after-auth commands and the
- * postAction hook as the fallback for flows with neither auth nor picks.
+ * with resolveFamilyEntityPicks covering the picks that run after the login
+ * and the postAction hook as the fallback for flows with neither auth nor
+ * picks.
  * The resolution pass arms (unconditionally -- registration is free; the
  * print gate is evaluated inside the flush closure at flush time); flows
  * that never reach a flush site (cancelled pickers, unsatisfied one-of
@@ -27,11 +28,10 @@
 let authoringPrintPending = false;
 
 /**
- * Whether auth has succeeded for this invocation. resolveEntityPicks
- * consults it before flushing: entity picks that run BEFORE auth
- * (the `(pick) && (await getTokens())` pattern) must not print -- if
- * auth then fails, the printed command never ran. Set by the getTokens
- * wrapper on its success path.
+ * Whether auth has succeeded for this invocation. resolveFamilyEntityPicks
+ * consults it before flushing: entity picks that run BEFORE auth must not
+ * print -- if auth then fails, the printed command never ran. Set by the
+ * getTokens wrapper on its success path.
  */
 let authSucceeded = false;
 
@@ -82,7 +82,7 @@ export function setAuthoringPrintFlush(impl: () => void): void {
 
 /**
  * Prints the eventual command once, if armed. Callers: the getTokens
- * wrapper (above the action's results), resolveEntityPicks (after its
+ * wrapper (above the action's results), resolveFamilyEntityPicks (after its
  * picks conclude, when auth already succeeded), and FrodoCommand's
  * postAction hook (fallback). No-op when never armed (help/version
  * paths, stubs without the resolution pass).

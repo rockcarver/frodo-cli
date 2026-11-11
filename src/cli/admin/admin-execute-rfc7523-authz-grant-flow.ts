@@ -4,19 +4,8 @@ import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { executeRfc7523AuthZGrantFlow } from '../../ops/AdminOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
-import {
-  createSubjectSource,
-  SUBJECT_LIST_LIMIT,
-  subjectMatches,
-  type SubjectCandidate,
-} from '../../ops/Rfc7523SubjectOps';
 import c from '../../utils/ColorTheme';
 import { printMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
 import { FrodoCommand } from '../FrodoCommand.js';
 
 export default function setup() {
@@ -83,9 +72,10 @@ export default function setup() {
           options,
           command
         );
-        // An unspecified --sub is picked from the users the trusted issuer
-        // allows, or the realm's (no-op outside the prompt gate).
-        if ((await getTokens()) && (await resolveEntityPicks(command))) {
+        // An unspecified --sub is asked for by the framework once the login
+        // worked: a user of those the trusted issuer allows, or of the realm
+        // (a user picker, record 0038).
+        if (await getTokens()) {
           printMessage(`Executing RFC7523 authorization grant flow...`);
           let jwk: JwkRsa = undefined;
           if (options.jwkFile) {
@@ -116,26 +106,6 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
-
-  const subjects = createSubjectSource(() => program.opts().clientId);
-  deferEntityPicks(program, [
-    entityPick<SubjectCandidate>({
-      name: 'sub',
-      kind: 'user',
-      message: 'Select the user to get tokens for:',
-      load: () => subjects.list(),
-      label: (user) => user.row,
-      value: (user) => user.id,
-      description: (user) => user.mail,
-      search: subjectMatches,
-      searchFirst: {
-        when: () => subjects.tooMany(),
-        message: 'Search users:',
-        hint: `The realm has ${SUBJECT_LIST_LIMIT} or more users. Type part of a username, first or last name or email, or a whole id.`,
-        load: (text) => subjects.search(text),
-      },
-    }),
-  ]);
 
   return program;
 }

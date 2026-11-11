@@ -33,6 +33,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete scripts -p Example -p Other',
     'frodo config-manager delete themes',
     'frodo config-manager delete email-templates',
+    'frodo config-manager delete locales',
     'frodo config-manager delete secrets',
     'frodo config-manager delete terms-and-conditions',
     'frodo config-manager delete variables',
@@ -62,6 +63,12 @@ describe('a delete of more than one object without a terminal and without --yes'
     const { stderr } = await run('frodo config-manager delete email-templates');
 
     expect(stderr).toContain('all email templates');
+  });
+
+  test('the refusal of locales says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete locales');
+
+    expect(stderr).toContain('all locales');
   });
 
   test('the refusal of secrets says what would have been deleted', async () => {
@@ -123,6 +130,9 @@ describe('what is not refused', () => {
     'frodo config-manager delete secrets -y',
     'frodo config-manager delete terms-and-conditions -y',
     'frodo config-manager delete variables -y',
+    'frodo config-manager delete locales -d',
+    'frodo config-manager delete locales -y',
+    'frodo config-manager delete locales -n en',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
@@ -141,6 +151,22 @@ describe('an empty secret name', () => {
 
     expect(code).toBe(1);
     expect(stderr).toContain('The secret name (-n) must not be empty');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('an empty locale name', () => {
+  test.each([
+    "frodo config-manager delete locales -n ''",
+    "frodo config-manager delete locales -n '' -y",
+    "frodo config-manager delete locales -n '' -d",
+    'frodo config-manager delete locales --name=',
+  ])('"%s" is an error before the login, not a delete of all locales', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The locale name (-n) must not be empty');
     expect(stderr).not.toContain('Refusing to delete');
     expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
   });

@@ -2,10 +2,12 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
+import { parseHeaderOverrides } from '../../ops/ConnectionProfileOps';
 import c from '../../utils/ColorTheme';
 import { printError, printMessage } from '../../utils/Console';
 import type { CredentialOverrideType } from '../../utils/interactive/ConnectionProfilePickers';
 import { positionalValue } from '../../utils/interactive/PositionalArgs';
+import { markSecret } from '../../utils/interactive/SecretOptions';
 import {
   FrodoCommand,
   preferredCredentialOption,
@@ -62,15 +64,19 @@ export default function setup() {
       )
     )
     .addOption(
-      new Option(
-        '--authentication-header-overrides <headers>',
-        'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests.'
+      markSecret(
+        new Option(
+          '--authentication-header-overrides <headers>',
+          'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests. The values are secrets: they are masked wherever the command is shown.'
+        )
       )
     )
     .addOption(
-      new Option(
-        '--configuration-header-overrides <headers>',
-        'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests.'
+      markSecret(
+        new Option(
+          '--configuration-header-overrides <headers>',
+          'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests. The values are secrets: they are masked wherever the command is shown.'
+        )
       )
     )
     .addOption(preferredCredentialOption)
@@ -305,13 +311,19 @@ const SETTABLE_FIELDS: SettableField[] = [
     flag: '--authentication-header-overrides',
     valuePlaceholder: 'headers',
     description: 'Map of headers sent with all requests (JSON).',
-    apply: (value) => state.setAuthenticationHeaderOverrides(JSON.parse(value)),
+    apply: (value) =>
+      state.setAuthenticationHeaderOverrides(
+        parseHeaderOverrides(value, '--authentication-header-overrides')
+      ),
   },
   {
     flag: '--configuration-header-overrides',
     valuePlaceholder: 'headers',
     description: 'Map of headers sent with all configuration requests (JSON).',
-    apply: (value) => state.setConfigurationHeaderOverrides(JSON.parse(value)),
+    apply: (value) =>
+      state.setConfigurationHeaderOverrides(
+        parseHeaderOverrides(value, '--configuration-header-overrides')
+      ),
   },
   {
     flag: '--preferred-credential',

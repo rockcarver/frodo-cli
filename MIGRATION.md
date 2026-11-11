@@ -137,8 +137,36 @@ issuer's allowed subject only when there is exactly one (4.x took the first of
 several); with several, or with an issuer that allows any user, you name the
 user with `--sub` or, on a terminal, pick one from a list. A `--jwk-file` that cannot be read stops
 either command with exit code 1 (`generate-rfc7523-authz-grant-artefacts` used
-to make a new key instead). These are fixes for defects in the sense of
-[a fix for a defect is not a departure from the 4.x rule](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0034-a-fix-for-a-defect-is-not-a-departure-from-the-4x-rule.md).
+to make a new key instead). These are fixes for defects, behaviour that no
+valid input could mean (see
+[record 0048](docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)).
+
+**Commands that cannot tell what to act on say so before they connect**: a
+command line that does not say what to delete, export or create is rejected
+before the command connects to anything, with the error of every command that
+has an option rule, and exits with code 1. From 5.0.0-26 this holds for these
+four:
+
+| Command line                                                                                                  | Rejected with                                                                                                                                                | Use instead                                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `service delete` without `-i, --id` or `-a, --all` (`-y` or `-g` alone)                                       | `error: one of '-i, --id <id> \| -a, --all' is required to choose what to delete`                                                                            | Name the service with `-i`, or delete all of them with `-a` (and `-y` without a terminal). The 5.0.0 prereleases up to 5.0.0-25 logged in first, and `service delete -y` deleted every service.                |
+| `authz policy export --set-id <set>` without `-a`, `-A` or `-i`                                               | `error: one of '-a, --all \| -A, --all-separate \| -i, --policy-id <policy-id>' is required to choose what to export`                                        | `--set-id` only narrows `-a` or `-A` to one policy set, as it does for `authz policy delete`: add `-a` or `-A`, or name one policy with `-i`. It logged in and printed the usage.                              |
+| `secretstore mapping create` without all of `-i, --secretstore-id`, `-s, --secret-id` and `-a, --aliases`     | `error: all of '-i, --secretstore-id <secretstore-id> + -s, --secret-id <secret-id> + -a, --aliases <aliases>' are required to choose the mapping to create` | Give the three options; `-t` and `-g` stay optional. It printed `Unrecognized combination of options or no options...` and the usage, or, with none of its five options, a `one of` error that named all five. |
+| `secretstore mapping alias create` without all of `-i, --secretstore-id`, `-s, --secret-id` and `-a, --alias` | `error: all of '-i, --secretstore-id <secretstore-id> + -s, --secret-id <secret-id> + -a, --alias <alias>' are required to choose the alias to create`       | Give the three options; `-t` and `-g` stay optional. The old messages were the same as for `mapping create`.                                                                                                   |
+
+**On a terminal, the last options get a picker (interactive mode only)**: from
+5.0.0-26, `conn service-account describe` and `remove` no longer ask for
+`--name` as free text; they list the additional service accounts saved on the
+connection profile, without a login. `service delete` first asks what to delete
+(`-i` or `-a`), as the other delete commands do. `esv secret delete` and
+`service delete` used to go on to the question "Delete all ...?" when the tenant
+had nothing to pick; they now print `There is no secret to choose from.` or
+`There is no service to choose from.` and exit with code 1, and nothing is
+deleted (to delete everything, pass `-a`). A command whose options are all
+required (`secretstore mapping create`, `secretstore mapping alias create`,
+`esv secret version activate`, `deactivate` and `delete`) asks for every option
+that is missing, not for one of them. A command line that is complete, and a
+run without a terminal, are not affected.
 
 **Deleting everything of a kind now asks first**: a delete that can remove
 more than the one object it names (`-a`/`--all`) used to run without a
@@ -159,8 +187,7 @@ named object never asks. This affects `frodo agent delete -a` and
 `log key delete -a`, `mapping delete -a`, `node delete -a`, `saml delete -a`,
 `script delete -a`, `secretstore delete --all`, `secretstore mapping delete
 --all`, `secretstore mapping alias delete --all`, `service delete -a` and
-`theme delete -a`. It is a safety guard, a deliberate exception to the rule that
-a command line that ran under 4.x keeps running: see
+`theme delete -a`. It is a safety guard added in a major release: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
 **Commands that run several operations now run them all and exit 1 if any
