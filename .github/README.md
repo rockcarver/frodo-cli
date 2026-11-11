@@ -105,6 +105,11 @@ alias of `frodo conn save` is retained. Full detail in the
 - `details` → use `frodo realm describe`
 - `ig` → use `frodo agent gateway`
 
+**5.0.0 deprecates `frodo agent ai`**: AI agents have a command group of their
+own, `frodo aiagent`, with the same commands and options. `frodo agent ai` keeps
+working through 5.x and prints a notice that names the new command; its removal
+is proposed for 6.0.0. See the [Migration Guide](../MIGRATION.md).
+
 ### New in 4.x (carried forward)
 
 #### `frodo config-manager`
@@ -140,10 +145,12 @@ which sub-commands each family offers.
 
 | Command                    | Since | Description                                                           |        Del         |        Des         |        Exp         |        Imp         |        Lst         | Other                                     |
 | :------------------------- | :---: | --------------------------------------------------------------------- | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | ----------------------------------------- |
-| `frodo agent`              | 1.0.0 | Manage agents.                                                        | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `ai`                                      |
+| `frodo agent`              | 1.0.0 | Manage agents.                                                        | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
+| &emsp;`ai`                 | 4.0.0 | [Deprecated] Use `frodo aiagent`.                                     | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`gateway`            | 1.0.0 | Manage gateway agents.                                                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`java`               | 1.0.0 | Manage java agents.                                                   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`web`                | 1.0.0 | Manage web agents.                                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
+| `frodo aiagent`            | 5.0.0 | Manage AI agents.                                                     | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo app`                | 2.0.0 | Manage applications.                                                  | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo authn`              | 2.0.0 | Manage authentication settings.                                       |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                    |                                           |
 | `frodo authz`              | 1.0.0 | Manage authorization policies, policy sets, and resource types.       |                    |                    |                    |                    |                    |                                           |
