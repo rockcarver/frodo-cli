@@ -43,15 +43,15 @@ Options:
   --no-deps                    Do not include dependencies (scripts).
   --prereqs                    Include prerequisites (policy sets, resource
                                types).
-  --set-id <set-id>            Export policies in policy set only. Cannot be
-                               used with -i.
+  --set-id <set-id>            Export policies in policy set only. Only with -a
+                               or -A. Cannot be used with -i.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and
                                usage examples.
 
 Rule:
-  one of -a, --all | -A, --all-separate | -i, --policy-id <policy-id> | --set-id <set-id> is required -- choose what to export
+  one of -a, --all | -A, --all-separate | -i, --policy-id <policy-id> is required -- choose what to export
 
 "
 `;

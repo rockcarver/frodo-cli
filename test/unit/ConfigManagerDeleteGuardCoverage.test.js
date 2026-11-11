@@ -63,6 +63,7 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
         'custom-nodes',
         'email-templates',
         'endpoints',
+        'locales',
         'scripts',
         'secrets',
         'terms-and-conditions',

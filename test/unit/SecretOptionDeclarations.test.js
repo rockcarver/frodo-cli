@@ -9,8 +9,8 @@ import { fullName, loadCommandTree } from '../utils/CommandExamples.js';
  * How the real commands declare options whose value is a secret, and a guard
  * against the declaration mistakes behind the `conn set --password` report: an
  * optional value (`--x [value]`) whose bare form stored `true`, and a mandatory
- * option that a bare flag satisfied. Cli record 0034 says why correcting those
- * is a bug fix and not a departure from record 0030.
+ * option that a bare flag satisfied. Correcting those is a fix for a defect
+ * (record 0048) and is listed in MIGRATION.md.
  */
 
 /** The options that ask for their value when used bare. */

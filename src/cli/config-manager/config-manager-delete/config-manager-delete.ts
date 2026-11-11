@@ -3,6 +3,7 @@ import { FrodoStubCommand } from '../../FrodoCommand';
 import Applications from '../config-manager-delete/config-manager-delete-applications';
 import EmailTemplates from '../config-manager-delete/config-manager-delete-email-templates';
 import Endpoints from '../config-manager-delete/config-manager-delete-endpoints';
+import Locales from '../config-manager-delete/config-manager-delete-locales';
 import Themes from '../config-manager-delete/config-manager-delete-themes';
 import CustomNodes from './config-manager-delete-custom-nodes';
 import Scripts from './config-manager-delete-scripts';
@@ -24,5 +25,6 @@ export default function setup() {
   program.addCommand(Secrets().name('secrets'));
   program.addCommand(TermsConditions().name('terms-and-conditions'));
   program.addCommand(Variables().name('variables'));
+  program.addCommand(Locales().name('locales'));
   return program;
 }

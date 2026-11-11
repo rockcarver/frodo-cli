@@ -17,6 +17,7 @@ The full guide is [docs/CONTRIBUTE.md, "Writing a command"](../../docs/CONTRIBUT
 - **An option that names a file or folder is classified in `src/utils/interactive/PathOptions.ts`** ([0045](../../docs/decisions/0045-a-path-option-gets-a-file-system-picker-where-the-pass-would-ask-for-text.md)): one line there (file or directory, read or write, extensions) gives it the file system picker where the pass would ask for it as text, and the command file declares nothing. An option that looks like a path and is not one (a pattern, a place inside a configuration) is listed there as not a file system path, with the reason. `test/unit/PathOptionsCoverage.test.js` fails for an option that is neither. Spell it as the neighbours do (`-f, --file <file>`, `-D, --directory`).
 - **Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`,** not `console.log`.
 - **Name functions with CRUDQ verbs** (`createX`, `readX`, `updateX`, `deleteX`, `queryX`; `getX`/`setX` for one property; `enableX`/`disableX` for status). See CONTRIBUTE.md.
+- **May this command change?** A major release may change, rename or remove commands, options, aliases and output, and a minor or patch release does not break them except to fix a defect ([0048](../../docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)). Every change a user can see goes into [MIGRATION.md](../../MIGRATION.md) in the same pull request.
 
 ## Options that cannot be combined
 

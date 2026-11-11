@@ -108,14 +108,7 @@ Error importing the bravo realm journey IntervieweeSelfieAuthentication
         Reason: Bad Request
         Message: Data validation failed for the attribute, PingOne Service
 Error importing the bravo realm journey IntervieweeRegistration
-  Error importing bravo realm journey 'IntervieweeRegistration'
-    Error importing bravo realm node 2295c6bc-6eb5-4822-978e-640312c34ea0 in journey IntervieweeRegistration
-      Network error:
-        URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/realm-config/authentication/authenticationtrees/nodes/InnerTreeEvaluatorNode/1.0/2295c6bc-6eb5-4822-978e-640312c34ea0
-        Status: 400
-        Code: ERR_BAD_REQUEST
-        Reason: Bad Request
-        Message: Data validation failed for the attribute, Tree Name
+  Journey IntervieweeRegistration requires IntervieweeSelfieAuthentication, IntervieweeFullVerification, which could not be imported
 • Finished importing bravo realm journeys
 ✔ Finished Importing Everything to root-bravo realm!
 ✔ Finished Importing all other AM config entities!
@@ -127,7 +120,7 @@ Error importing the bravo realm journey IntervieweeRegistration
   - Error updating bravo realm script: This operation is not available in PingOne Advanced Identity Cloud.
   - Error importing the bravo realm journey IntervieweeFullVerification: Data validation failed for the attribute, PingOne Service
   - Error importing the bravo realm journey IntervieweeSelfieAuthentication: Data validation failed for the attribute, PingOne Service
-  - Error importing the bravo realm journey IntervieweeRegistration: Data validation failed for the attribute, Tree Name
+  - Error importing the bravo realm journey IntervieweeRegistration: Journey IntervieweeRegistration requires IntervieweeSelfieAuthentication, IntervieweeFullVerification, which could not be imported
 "
 `;
 
@@ -135,15 +128,6 @@ exports[`frodo config import Cloud "frodo config import -AD test/e2e/exports/all
 
 exports[`frodo config import Cloud "frodo config import -adf test/e2e/exports/all/all.cloud-full-import.json --no-validate" Import everything from "all.cloud-full-import.json", including default scripts. 1`] = `
 "✔ Finished Importing Everything to global!
-Error Importing Circles of Trust
-  Error importing / realm circles of trust
-    Error reading / realm saml2 entity ids
-      Network error:
-        URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realm-config/saml2?_queryFilter=true
-        Status: 403
-        Code: ERR_BAD_REQUEST
-        Reason: Forbidden
-        Message: This operation is not available in PingOne Advanced Identity Cloud.
 ✔ Finished Importing Everything to root realm!
 Error updating alpha realm script
   Network error:
@@ -178,8 +162,7 @@ Error updating bravo realm script
 • Finished importing bravo realm journeys
 ✔ Finished Importing Everything to root-bravo realm!
 ✔ Finished Importing all other AM config entities!
-5 of 62 items failed:
-  - Error Importing Circles of Trust: This operation is not available in PingOne Advanced Identity Cloud.
+4 of 62 items failed:
   - Error updating alpha realm script: This operation is not available in PingOne Advanced Identity Cloud.
   - Error updating alpha realm script: This operation is not available in PingOne Advanced Identity Cloud.
   - Error updating bravo realm script: Request failed with status code 502

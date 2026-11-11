@@ -23,7 +23,7 @@ import { startFakeAm } from '../utils/StartFakeAm.js';
  * The realm limits the export only with `-r`, `--realm-only`, a boolean flag
  * (the realm itself is the positional after the host). So the picker opens
  * only when `-r` is set, no realm was named and the command line was
- * incomplete anyway (the host is missing, records 0001 and 0030); every
+ * incomplete anyway (the host is missing, records 0001 and 0047); every
  * complete command line, with or without `-r`, opens nothing and exports what
  * it always exported.
  *

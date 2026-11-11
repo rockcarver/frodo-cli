@@ -12,7 +12,7 @@ import { Command } from 'commander';
  *
  * The picker is the ordinary one (the realms only, the deployment default
  * highlighted, no `All realms` row) and the conditions of records 0001 and
- * 0030 hold: it never opens for a command line that was complete, and never
+ * 0047 hold: it never opens for a command line that was complete, and never
  * for a realm that was named.
  */
 const root = path.resolve(
@@ -173,7 +173,7 @@ describe('config export, the host asked for', () => {
 });
 
 describe('config export, a command line that is complete', () => {
-  test('-r with nothing missing opens no picker (records 0001 and 0030)', async () => {
+  test('-r with nothing missing opens no picker (records 0001 and 0047)', async () => {
     const command = await exportCommand(['matrix', '-a', '-r']);
     await run(command, ESCAPE, { prompted: false });
     expect(escapableSelect).not.toHaveBeenCalled();

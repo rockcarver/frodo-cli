@@ -99,18 +99,6 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-s, --separate-mappings',
-        'Export sync.idm.json mappings separately in their own directory. Cannot be used with -a.'
-      ).conflicts(['all'])
-    )
-    .addOption(
-      new Option(
-        '-o, --separate-objects',
-        'Export managed.idm.json objects separately in their own directory. Cannot be used with -a.'
-      ).conflicts(['all'])
-    )
-    .addOption(
-      new Option(
         '--include-active-values',
         'Include the currently active (and loaded) secret value in the export. By default, secret values are encrypted server-side in the environment they are exported from. Use --target <host url> to have another environment perform the encryption.'
       )
@@ -186,7 +174,7 @@ export default function setup() {
     .multiOp()
     // the realm limits the export only with -r, --realm-only: only then is it
     // worth asking for one, and only on a command line that was incomplete
-    // anyway (records 0001 and 0030)
+    // anyway (records 0001 and 0047)
     .realmPickerOnlyWith('realmOnly')
     .action(
       // implement command logic inside action handler
