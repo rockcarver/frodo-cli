@@ -5,10 +5,11 @@ exports[`frodo iga workflow export "frodo iga workflow export --all -R --no-coor
 exports[`frodo iga workflow export "frodo iga workflow export --all -R --no-coords --no-deps --use-string-arrays --file testWorkflowExportFile2.json": should export all workflows including non-mutable ones with no coordinates and no dependencies 2`] = `""`;
 
 exports[`frodo iga workflow export "frodo iga workflow export --all -R --no-coords --no-deps --use-string-arrays --file testWorkflowExportFile2.json": should export all workflows including non-mutable ones with no coordinates and no dependencies 3`] = `
-"Workflow 'testWorkflow1' not found.
+"Error exporting workflow testWorkflow1
+  Workflow 'testWorkflow1' not found.
 ✔ Exported 17 workflows
 1 of 18 workflows failed:
-  - Workflow 'testWorkflow1' not found.
+  - Error exporting workflow testWorkflow1: Workflow 'testWorkflow1' not found.
 "
 `;
 
@@ -7342,10 +7343,11 @@ exports[`frodo iga workflow export "frodo iga workflow export --all-separate --u
 exports[`frodo iga workflow export "frodo iga workflow export --all-separate --use-string-arrays --read-only --no-coords --no-deps --no-extract -D testWorkflowExportDir4": should export all workflows separately including non-mutable ones with no coordinates, no dependencies, and using string arrays 2`] = `""`;
 
 exports[`frodo iga workflow export "frodo iga workflow export --all-separate --use-string-arrays --read-only --no-coords --no-deps --no-extract -D testWorkflowExportDir4": should export all workflows separately including non-mutable ones with no coordinates, no dependencies, and using string arrays 3`] = `
-"Workflow 'testWorkflow1' not found.
+"Error exporting workflow testWorkflow1
+  Workflow 'testWorkflow1' not found.
 ✔ Exported 17 workflows
 1 of 18 workflows failed:
-  - Workflow 'testWorkflow1' not found.
+  - Error exporting workflow testWorkflow1: Workflow 'testWorkflow1' not found.
 "
 `;
 
@@ -14887,10 +14889,11 @@ exports[`frodo iga workflow export "frodo iga workflow export --no-metadata -a -
 exports[`frodo iga workflow export "frodo iga workflow export --no-metadata -a --directory testWorkflowExportDir2": should export all workflows with no metadata 2`] = `""`;
 
 exports[`frodo iga workflow export "frodo iga workflow export --no-metadata -a --directory testWorkflowExportDir2": should export all workflows with no metadata 3`] = `
-"Workflow 'testWorkflow1' not found.
+"Error exporting workflow testWorkflow1
+  Workflow 'testWorkflow1' not found.
 ✔ Exported 1 workflows
 1 of 2 workflows failed:
-  - Workflow 'testWorkflow1' not found.
+  - Error exporting workflow testWorkflow1: Workflow 'testWorkflow1' not found.
 "
 `;
 
@@ -15724,10 +15727,11 @@ exports[`frodo iga workflow export "frodo iga workflow export -NAD testWorkflowE
 exports[`frodo iga workflow export "frodo iga workflow export -NAD testWorkflowExportDir3": should export all workflows separately with no metadata 2`] = `""`;
 
 exports[`frodo iga workflow export "frodo iga workflow export -NAD testWorkflowExportDir3": should export all workflows separately with no metadata 3`] = `
-"Workflow 'testWorkflow1' not found.
+"Error exporting workflow testWorkflow1
+  Workflow 'testWorkflow1' not found.
 ✔ Exported 1 workflows
 1 of 2 workflows failed:
-  - Workflow 'testWorkflow1' not found.
+  - Error exporting workflow testWorkflow1: Workflow 'testWorkflow1' not found.
 "
 `;
 
