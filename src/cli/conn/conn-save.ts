@@ -25,7 +25,7 @@ export default function setup() {
   const program = new FrodoCommand('frodo conn save', ['realm']);
 
   program
-    .alias('add')
+    .withAlias('add')
     .description('Save connection profiles.')
     .addOption(
       new Option(

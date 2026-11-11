@@ -29,7 +29,7 @@ Commands:
   delete            Delete connection profiles.
   describe          Describe connection profile.
   list              List connection profiles.
-  save|add          Save connection profiles.
+  save              Save connection profiles. (alias: add)
   service-account   Manage named, independently-addressable additional service
                     accounts on a connection profile (alongside its own single
                     primary service account).
