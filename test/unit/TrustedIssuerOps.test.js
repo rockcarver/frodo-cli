@@ -81,6 +81,8 @@ let baseDirectory = '';
 let failingSave;
 let failingImport = new Set();
 let importThrows;
+let failingDelete = new Set();
+let rawDeleteFailures = new Set();
 const calls = [];
 const saved = [];
 
@@ -120,6 +122,46 @@ const lib = {
         structuredClone(stored).map((entry) => [entry._id, entry])
       ),
     };
+  },
+  deleteOAuth2TrustedJwtIssuer: async (id) => {
+    calls.push(['deleteOAuth2TrustedJwtIssuer', id]);
+    if (!stored.some((entry) => entry._id === id)) {
+      throw new Error(`Error deleting alpha realm trusted issuer ${id}`);
+    }
+    stored = stored.filter((entry) => entry._id !== id);
+    return { _id: id };
+  },
+  // the library reads the issuers itself and reports every one to the callback; it throws when it cannot read them
+  deleteOAuth2TrustedJwtIssuers: async (resultCallback) => {
+    calls.push(['deleteOAuth2TrustedJwtIssuers']);
+    if (readFailure) throw readFailure;
+    const deleted = [];
+    for (const issuer of structuredClone(stored)) {
+      if (rawDeleteFailures.has(issuer._id)) {
+        // an error that is not wrapped by the library: it names the issuer only by its URL
+        resultCallback(
+          Object.assign(new Error('Request failed with status code 500'), {
+            config: {
+              url: `${HOST}/json/realms/root/realms/alpha/realm-config/agents/TrustedJwtIssuer/${issuer._id}`,
+            },
+          })
+        );
+      } else if (failingDelete.has(issuer._id)) {
+        resultCallback(
+          Object.assign(
+            new Error(
+              `Error deleting alpha realm trusted issuer ${issuer._id}`
+            ),
+            { originalErrors: [new Error(`the server refused ${issuer._id}`)] }
+          )
+        );
+      } else {
+        stored = stored.filter((entry) => entry._id !== issuer._id);
+        deleted.push(issuer);
+        resultCallback(undefined, issuer);
+      }
+    }
+    return deleted;
   },
   // what the library does with an import file: its own key, and the issuers among the entries of an agent export
   importOAuth2TrustedJwtIssuer: async (id, data) => {
@@ -229,6 +271,9 @@ const {
   importOAuth2TrustedJwtIssuerFromFile,
   importOAuth2TrustedJwtIssuersFromFile,
   importOAuth2TrustedJwtIssuersFromFiles,
+  deleteOAuth2TrustedJwtIssuerById,
+  deleteOAuth2TrustedJwtIssuers,
+  printTrustedIssuerPlan,
 } = await import('../../src/ops/OAuth2TrustedJwtIssuerOps.ts');
 
 const savedFile = (entry) => path.relative(baseDirectory, entry.file);
@@ -243,6 +288,8 @@ beforeEach(() => {
   failingSave = undefined;
   failingImport = new Set();
   importThrows = undefined;
+  failingDelete = new Set();
+  rawDeleteFailures = new Set();
   deploymentType = 'cloud';
   realm = 'alpha';
   baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-issuer-'));
@@ -1050,6 +1097,146 @@ describe('importOAuth2TrustedJwtIssuersFromFiles', () => {
   });
 });
 
+describe('deleteOAuth2TrustedJwtIssuerById', () => {
+  beforeEach(() => {
+    stored = [plainIssuer('a'), plainIssuer('b')];
+  });
+
+  test('deletes that issuer and no other', async () => {
+    await expect(deleteOAuth2TrustedJwtIssuerById('a')).resolves.toBe(true);
+
+    expect(calls).toEqual([['deleteOAuth2TrustedJwtIssuer', 'a']]);
+    expect(stored.map((entry) => entry._id)).toEqual(['b']);
+    expect(messages('spinner')).toEqual(['Deleted a.']);
+  });
+
+  test('an issuer that does not exist fails and names it', async () => {
+    await expect(deleteOAuth2TrustedJwtIssuerById('missing')).resolves.toBe(
+      false
+    );
+
+    expect(messages('error')[0]).toContain('missing');
+    expect(stored).toHaveLength(2);
+  });
+});
+
+describe('printTrustedIssuerPlan', () => {
+  test('lists the issuers by id with the issuer value and the subjects, "any user" when there are none', async () => {
+    stored = [
+      plainIssuer('zion'),
+      plainIssuer('open', { allowedSubjects: [] }),
+      plainIssuer('alpha', { allowedSubjects: ['neo'] }),
+    ];
+
+    await expect(printTrustedIssuerPlan()).resolves.toBe(true);
+
+    expect(messages('info')).toEqual([
+      'The following trusted JWT issuers would be deleted:',
+    ]);
+    expect(messages('data')).toEqual([
+      '  alpha: issuer https://alpha.example.com, allowed subjects: neo',
+      '  open: issuer https://open.example.com, allowed subjects: any user',
+      '  zion: issuer https://zion.example.com, allowed subjects: neo, trinity',
+    ]);
+  });
+
+  test('a realm without issuers says so and succeeds', async () => {
+    await expect(printTrustedIssuerPlan()).resolves.toBe(true);
+
+    expect(messages('info')).toEqual(['No trusted JWT issuers found.']);
+  });
+
+  test('a failing read prints the error and fails, so that the guard does not ask', async () => {
+    readFailure = new Error('Error reading alpha realm trusted issuers');
+
+    await expect(printTrustedIssuerPlan()).resolves.toBe(false);
+
+    expect(messages('error')[0]).toContain(
+      'Error reading the trusted JWT issuers'
+    );
+  });
+});
+
+describe('deleteOAuth2TrustedJwtIssuers', () => {
+  beforeEach(() => {
+    stored = ['a', 'b', 'c', 'd'].map((id) => plainIssuer(id));
+  });
+
+  test('deletes every issuer', async () => {
+    await expect(deleteOAuth2TrustedJwtIssuers()).resolves.toBe(true);
+
+    expect(stored).toEqual([]);
+    expect(messages('spinner')).toEqual(['Deleted 4 trusted JWT issuers.']);
+  });
+
+  test('one issuer that cannot be deleted does not stop the others; one summary names it and the command fails', async () => {
+    failingDelete = new Set(['b']);
+
+    await expect(deleteOAuth2TrustedJwtIssuers()).resolves.toBe(false);
+
+    expect(stored.map((entry) => entry._id)).toEqual(['b']);
+    expect(messages('error').join('\n')).toContain(
+      '1 of 4 issuers failed:\n  - b: the server refused b'
+    );
+  });
+
+  test('--allow-failures keeps the exit at success but names the failure', async () => {
+    failingDelete = new Set(['b']);
+
+    await expect(deleteOAuth2TrustedJwtIssuers(true)).resolves.toBe(true);
+
+    expect(messages('warn').join('\n')).toContain(
+      '1 of 4 issuers failed:\n  - b: the server refused b'
+    );
+  });
+
+  test('an error that is not wrapped by the library names the issuer by the last segment of its URL', async () => {
+    rawDeleteFailures = new Set(['c']);
+
+    await expect(deleteOAuth2TrustedJwtIssuers()).resolves.toBe(false);
+
+    expect(stored.map((entry) => entry._id)).toEqual(['c']);
+    expect(messages('error').join('\n')).toContain(
+      '1 of 4 issuers failed:\n  - c: '
+    );
+  });
+
+  test('a failure to read the issuers fails whatever --allow-failures says', async () => {
+    readFailure = new Error('Error deleting alpha realm trusted issuers');
+
+    await expect(deleteOAuth2TrustedJwtIssuers(true)).resolves.toBe(false);
+
+    expect(stored).toHaveLength(4);
+  });
+
+  test('a realm without issuers (which the library answers for the Cloud root realm) is nothing to delete, not a failure', async () => {
+    stored = [];
+
+    await expect(deleteOAuth2TrustedJwtIssuers()).resolves.toBe(true);
+
+    expect(messages('spinner')).toEqual([
+      'No trusted JWT issuers found to delete.',
+    ]);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('a dry run deletes nothing: the library delete is never called and the plan is printed', async () => {
+    stored = [plainIssuer('open', { allowedSubjects: [] }), plainIssuer('b')];
+
+    await expect(deleteOAuth2TrustedJwtIssuers(false, true)).resolves.toBe(
+      true
+    );
+
+    expect(libCalls('deleteOAuth2TrustedJwtIssuers')).toEqual([]);
+    expect(libCalls('deleteOAuth2TrustedJwtIssuer')).toEqual([]);
+    expect(stored).toHaveLength(2);
+    expect(messages('data')).toEqual([
+      '  b: issuer https://b.example.com, allowed subjects: neo, trinity',
+      '  open: issuer https://open.example.com, allowed subjects: any user',
+    ]);
+  });
+});
+
 describe.each(['cloud', 'forgeops', 'classic'])(
   'on a %s deployment',
   (type) => {
@@ -1062,6 +1249,11 @@ describe.each(['cloud', 'forgeops', 'classic'])(
 
     /** Everything the three verbs print for the stored issuers. */
     async function output() {
+      // the deletes below remove issuers: every run starts from the same realm
+      stored = [
+        plainIssuer('zion'),
+        plainIssuer('open', { allowedSubjects: [] }),
+      ];
       printed.length = 0;
       await listOAuth2TrustedJwtIssuers();
       await listOAuth2TrustedJwtIssuers(true);
@@ -1076,6 +1268,10 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       await importFirstOAuth2TrustedJwtIssuerFromFile('in.oauth2.issuer.json');
       await importOAuth2TrustedJwtIssuersFromFile('in.oauth2.issuer.json');
       await importOAuth2TrustedJwtIssuersFromFiles();
+      await printTrustedIssuerPlan();
+      await deleteOAuth2TrustedJwtIssuers(false, true);
+      await deleteOAuth2TrustedJwtIssuerById('open');
+      await deleteOAuth2TrustedJwtIssuers();
       return [
         ...printed.map((entry) => `${entry.type}: ${entry.msg}`),
         ...saved.map((entry) =>

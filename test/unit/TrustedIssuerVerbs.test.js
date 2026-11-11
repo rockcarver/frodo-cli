@@ -3,7 +3,7 @@ import { Command, Option } from 'commander';
 
 /**
  * The option sets and the dispatch of the `oauth issuer` commands (list,
- * describe, export and import so far), parsed from real command lines with the ops functions
+ * describe, export, import and delete), parsed from real command lines with the ops functions
  * replaced. What the ops functions do with the arguments is covered by
  * TrustedIssuerOps.test.js.
  * - `-i` is the name of the issuer object and is taken from the family's picker
@@ -14,6 +14,8 @@ import { Command, Option } from 'commander';
 
 const getTokens = jest.fn();
 const printMessage = jest.fn();
+const checkBulkDelete = jest.fn();
+const confirmBulkDelete = jest.fn();
 const ops = {
   listOAuth2TrustedJwtIssuers: jest.fn(),
   describeOAuth2TrustedJwtIssuer: jest.fn(),
@@ -24,6 +26,9 @@ const ops = {
   importFirstOAuth2TrustedJwtIssuerFromFile: jest.fn(),
   importOAuth2TrustedJwtIssuersFromFile: jest.fn(),
   importOAuth2TrustedJwtIssuersFromFiles: jest.fn(),
+  deleteOAuth2TrustedJwtIssuerById: jest.fn(),
+  deleteOAuth2TrustedJwtIssuers: jest.fn(),
+  printTrustedIssuerPlan: jest.fn(),
 };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
@@ -89,6 +94,10 @@ jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
 }));
 jest.unstable_mockModule('../../src/ops/OAuth2TrustedJwtIssuerOps', () => ops);
+jest.unstable_mockModule('../../src/utils/BulkDeleteGuard', () => ({
+  checkBulkDelete,
+  confirmBulkDelete,
+}));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage,
   verboseMessage: jest.fn(),
@@ -98,6 +107,8 @@ const { default: setupGroup } =
   await import('../../src/cli/oauth/oauth-issuer');
 const { default: setupList } =
   await import('../../src/cli/oauth/oauth-issuer-list');
+const { default: setupDelete } =
+  await import('../../src/cli/oauth/oauth-issuer-delete');
 const { default: setupDescribe } =
   await import('../../src/cli/oauth/oauth-issuer-describe');
 const { default: setupExport } =
@@ -124,6 +135,8 @@ beforeEach(() => {
   exitCodeBefore = process.exitCode;
   process.exitCode = undefined;
   getTokens.mockResolvedValue(true);
+  checkBulkDelete.mockReturnValue(true);
+  confirmBulkDelete.mockResolvedValue(true);
   for (const fn of Object.values(ops)) fn.mockResolvedValue(true);
 });
 
@@ -136,6 +149,7 @@ describe('oauth issuer (the group)', () => {
     const group = setupGroup();
 
     expect(group.commands.map((command) => command.name()).sort()).toEqual([
+      'delete',
       'describe',
       'export',
       'import',
@@ -147,6 +161,7 @@ describe('oauth issuer (the group)', () => {
 
   test('no command of the group is experimental or limited to a deployment type', () => {
     setupList();
+    setupDelete();
     setupDescribe();
     setupExport();
     setupImport();
@@ -154,6 +169,7 @@ describe('oauth issuer (the group)', () => {
     // FrodoCommand(name) only: no explicit deployment types, which means all of them
     expect(constructed).toEqual([
       ['frodo oauth issuer list'],
+      ['frodo oauth issuer delete'],
       ['frodo oauth issuer describe'],
       ['frodo oauth issuer export'],
       ['frodo oauth issuer import'],
@@ -428,5 +444,158 @@ describe('oauth issuer import', () => {
     ops.importOAuth2TrustedJwtIssuersFromFiles.mockResolvedValue(false);
     await parse(setupImport, '-A');
     expect(process.exitCode).toBe(1);
+  });
+});
+
+describe('oauth issuer delete', () => {
+  /** The help of the command, with the text after the options (the usage examples). */
+  function helpOf(setup) {
+    let text = '';
+    const program = setup();
+    program.configureOutput({ writeOut: (chunk) => (text += chunk) });
+    program.outputHelp();
+    return text;
+  }
+
+  test('the user has to choose what to delete, and the command is a multi-operation command', () => {
+    expect(rulesOf(setupDelete)).toEqual({
+      oneOf: { options: ['all', 'issuerId'], purpose: 'what to delete' },
+      multiOp: true,
+    });
+  });
+
+  test('-i deletes that issuer and asks nothing', async () => {
+    await parse(setupDelete, '-i', 'zion-trusted-issuer');
+
+    expect(ops.deleteOAuth2TrustedJwtIssuerById.mock.calls).toEqual([
+      ['zion-trusted-issuer'],
+    ]);
+    expect(checkBulkDelete).not.toHaveBeenCalled();
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+    expect(ops.deleteOAuth2TrustedJwtIssuers).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('-y with -i is accepted and ignored', async () => {
+    await parse(setupDelete, '-i', 'zion-trusted-issuer', '-y');
+
+    expect(ops.deleteOAuth2TrustedJwtIssuerById).toHaveBeenCalledTimes(1);
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+  });
+
+  test('-a is checked before the login: a run nobody can be asked about is refused and logs in nowhere', async () => {
+    checkBulkDelete.mockReturnValue(false);
+
+    await parse(setupDelete, '-a');
+
+    expect(checkBulkDelete.mock.calls[0][0]).toMatchObject({
+      what: 'all trusted JWT issuers',
+      yes: undefined,
+      dryRun: undefined,
+      dryRunAvailable: true,
+    });
+    expect(getTokens).not.toHaveBeenCalled();
+    expect(ops.deleteOAuth2TrustedJwtIssuers).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('-a asks after the login, with the plan to show, and a declined question deletes nothing and exits 1', async () => {
+    confirmBulkDelete.mockResolvedValue(false);
+
+    await parse(setupDelete, '-a');
+
+    expect(confirmBulkDelete).toHaveBeenCalledTimes(1);
+    expect(confirmBulkDelete.mock.calls[0][0]).toMatchObject({
+      what: 'all trusted JWT issuers',
+      dryRunAvailable: true,
+      showPlan: ops.printTrustedIssuerPlan,
+    });
+    expect(ops.deleteOAuth2TrustedJwtIssuers).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('-a deletes all issuers, with --yes handed to the guard and --allow-failures passed on', async () => {
+    await parse(setupDelete, '-a', '-y', '--allow-failures');
+
+    expect(confirmBulkDelete.mock.calls[0][0]).toMatchObject({ yes: true });
+    expect(ops.deleteOAuth2TrustedJwtIssuers.mock.calls).toEqual([
+      [true, undefined],
+    ]);
+    expect(ops.deleteOAuth2TrustedJwtIssuerById).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('-a --dry-run reaches the guard and the ops function as a dry run, which deletes nothing', async () => {
+    await parse(setupDelete, '-a', '--dry-run');
+
+    expect(checkBulkDelete.mock.calls[0][0]).toMatchObject({ dryRun: true });
+    expect(confirmBulkDelete.mock.calls[0][0]).toMatchObject({ dryRun: true });
+    expect(ops.deleteOAuth2TrustedJwtIssuers.mock.calls).toEqual([
+      [undefined, true],
+    ]);
+  });
+
+  test('-d is the short form of --dry-run', async () => {
+    await parse(setupDelete, '-a', '-d');
+
+    expect(ops.deleteOAuth2TrustedJwtIssuers.mock.calls).toEqual([
+      [undefined, true],
+    ]);
+  });
+
+  test.each([
+    [['-i', 'x', '-a']],
+    [['-i', 'x', '--dry-run']],
+    [['-i', 'x', '-d']],
+  ])('%j is rejected while parsing', async (argv) => {
+    await expect(parse(setupDelete, ...argv)).rejects.toMatchObject({
+      code: 'commander.conflictingOption',
+    });
+
+    expect(getTokens).not.toHaveBeenCalled();
+  });
+
+  test('a failed login, a failed delete or a failed delete of all exits 1 and deletes nothing more', async () => {
+    getTokens.mockResolvedValue(false);
+    await parse(setupDelete, '-i', 'zion-trusted-issuer');
+    expect(ops.deleteOAuth2TrustedJwtIssuerById).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    getTokens.mockResolvedValue(true);
+    ops.deleteOAuth2TrustedJwtIssuerById.mockResolvedValue(false);
+    await parse(setupDelete, '-i', 'zion-trusted-issuer');
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    ops.deleteOAuth2TrustedJwtIssuers.mockResolvedValue(false);
+    await parse(setupDelete, '-a', '-y');
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('a picker that had nothing to offer neither deletes everything nor fails: it says so and exits 0', async () => {
+    // -i and -a both unset: the framework leaves -i unset when the realm has no issuer
+    await parse(setupDelete);
+
+    expect(printMessage.mock.calls).toEqual([
+      ['No trusted JWT issuers found to delete.'],
+    ]);
+    expect(ops.deleteOAuth2TrustedJwtIssuerById).not.toHaveBeenCalled();
+    expect(ops.deleteOAuth2TrustedJwtIssuers).not.toHaveBeenCalled();
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('every example of a guarded form carries --yes or --dry-run', () => {
+    const examples = helpOf(setupDelete)
+      .split('\n')
+      .filter((line) => line.trim().startsWith('$ frodo oauth issuer delete'));
+
+    expect(examples.length).toBeGreaterThanOrEqual(3);
+    for (const example of examples.filter((line) => / -a( |$)/.test(line))) {
+      expect(example).toMatch(/--yes|--dry-run/);
+    }
+    expect(examples.some((line) => line.includes('--dry-run'))).toBe(true);
+    expect(examples.some((line) => line.includes('--yes'))).toBe(true);
   });
 });

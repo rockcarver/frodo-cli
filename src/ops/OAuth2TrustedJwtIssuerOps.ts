@@ -586,3 +586,91 @@ export async function importOAuth2TrustedJwtIssuersFromFiles(
   );
   return outcome;
 }
+
+/**
+ * Delete one trusted JWT issuer
+ * @param {string} issuerId id of the issuer: the name of the object in the realm
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteOAuth2TrustedJwtIssuerById(
+  issuerId: string
+): Promise<boolean> {
+  showSpinner(`Deleting ${issuerId}...`);
+  try {
+    await frodo.oauth2oidc.issuer.deleteOAuth2TrustedJwtIssuer(issuerId);
+    succeedSpinner(`Deleted ${issuerId}.`);
+    return true;
+  } catch (error) {
+    failSpinner(`Error deleting trusted JWT issuer ${issuerId}`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Print the trusted JWT issuers a delete of all of them would remove, with what makes each of them matter: the issuer
+ * value its assertions carry and the subjects it may name (`any user` when it has none). It is the plan of the
+ * confirmation and the output of `--dry-run`.
+ * @returns {Promise<boolean>} true if the plan could be read, false after printing the error (the guard then does not ask)
+ */
+export async function printTrustedIssuerPlan(): Promise<boolean> {
+  try {
+    const issuers = sortedById(
+      await frodo.oauth2oidc.issuer.readOAuth2TrustedJwtIssuers()
+    );
+    if (issuers.length === 0) {
+      printMessage('No trusted JWT issuers found.', 'info');
+      return true;
+    }
+    printMessage('The following trusted JWT issuers would be deleted:', 'info');
+    for (const issuer of issuers) {
+      const subjects = allowedSubjectsOf(issuer).split('\n').join(', ');
+      printMessage(
+        `  ${issuer._id}: issuer ${cellOf(valueOf<string>(issuer.issuer))}, allowed subjects: ${subjects}`,
+        'data'
+      );
+    }
+    return true;
+  } catch (error) {
+    printError(error, 'Error reading the trusted JWT issuers');
+  }
+  return false;
+}
+
+/**
+ * Delete all trusted JWT issuers
+ * Every issuer is one operation of an {@link OperationRun}: the library tries every issuer and reports each to the
+ * result callback, so one that cannot be deleted is named in one summary and the others are still deleted. A failure
+ * to read the issuers ends the command whatever `--allow-failures` says. A realm without issuers is nothing to delete,
+ * not a failure (cli record 0041). With `dryRun` nothing is deleted: the plan is printed.
+ * @param {boolean} allowFailures true to report issuers that could not be deleted but still succeed. Default: false
+ * @param {boolean} dryRun true to show which issuers would be deleted and delete none. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteOAuth2TrustedJwtIssuers(
+  allowFailures: boolean = false,
+  dryRun: boolean = false
+): Promise<boolean> {
+  if (dryRun) return printTrustedIssuerPlan();
+  const run = new OperationRun({ unit: 'issuer', allowFailures });
+  showSpinner('Deleting all trusted JWT issuers...');
+  try {
+    const deleted = await frodo.oauth2oidc.issuer.deleteOAuth2TrustedJwtIssuers(
+      run.resultCallback<OAuth2TrustedJwtIssuerSkeleton>(issuerNameOf)
+    );
+    if (run.hasFailures) {
+      failSpinner('Some trusted JWT issuers could not be deleted');
+    } else if (deleted.length === 0) {
+      succeedSpinner('No trusted JWT issuers found to delete.');
+    } else {
+      succeedSpinner(`Deleted ${countIssuers(deleted.length)}.`);
+    }
+    return run.finish();
+  } catch (error) {
+    // not an item failure: the issuers could not be read
+    failSpinner('Error deleting all trusted JWT issuers');
+    printError(error);
+    if (run.hasFailures) run.finish();
+  }
+  return false;
+}

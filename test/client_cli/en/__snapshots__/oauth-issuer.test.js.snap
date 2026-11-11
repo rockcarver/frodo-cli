@@ -16,6 +16,7 @@ Runtime Options:
                     FRODO_NO_PROMPT).
 
 Commands:
+  delete            Delete OAuth2 trusted JWT issuers.
   describe          Describe an OAuth2 trusted JWT issuer.
   export            Export OAuth2 trusted JWT issuers.
   import            Import OAuth2 trusted JWT issuers.

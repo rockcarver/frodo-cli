@@ -1,4 +1,5 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './oauth-issuer-delete.js';
 import DescribeCmd from './oauth-issuer-describe.js';
 import ExportCmd from './oauth-issuer-export.js';
 import ImportCmd from './oauth-issuer-import.js';
@@ -8,6 +9,8 @@ export default function setup() {
   const program = new FrodoStubCommand('frodo oauth issuer');
 
   program.description('Manage OAuth2 trusted JWT issuers.');
+
+  program.addCommand(DeleteCmd().name('delete'));
 
   program.addCommand(DescribeCmd().name('describe'));
 

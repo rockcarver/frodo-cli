@@ -769,4 +769,166 @@ suite('frodo oauth issuer, through the CLI against a fake tenant', () => {
       TIMEOUT
     );
   });
+  describe('delete', () => {
+    const deletes = () =>
+      issuerRequests('DELETE').map((request) =>
+        decodeURIComponent(request.url.split('/TrustedJwtIssuer/')[1])
+      );
+
+    it(
+      '-i deletes that issuer, never asks, and leaves the other',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['delete', '-i', 'zion-trusted-issuer']);
+
+        expect(output).toContain('Deleted zion-trusted-issuer.');
+        expect(status).toBe(0);
+        expect(deletes()).toEqual(['zion-trusted-issuer']);
+        expect(idsOnTenant()).toEqual(['matrix-trusted-issuer']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'an unknown id exits 1 and names it',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['delete', '-i', 'nobody']);
+
+        expect(output).toContain('nobody');
+        expect(output).toContain('404');
+        expect(status).toBe(1);
+        expect(idsOnTenant()).toHaveLength(2);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a without a terminal and without --yes is refused before the login: the error names --yes and --dry-run, and nothing is sent',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['delete', '-a']);
+
+        expect(output).toContain('Refusing to delete all trusted JWT issuers');
+        expect(output).toContain('-y/--yes');
+        expect(output).toContain('--dry-run');
+        expect(status).toBe(1);
+        expect(requests()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a --dry-run lists the issuers with the issuer value and the subjects and deletes nothing',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['delete', '-a', '--dry-run']);
+
+        expect(output).toContain(
+          'The following trusted JWT issuers would be deleted:'
+        );
+        expect(output).toContain(
+          'matrix-trusted-issuer: issuer https://matrix-trusted-issuer.example.com, allowed subjects: any user'
+        );
+        expect(output).toContain(
+          'zion-trusted-issuer: issuer https://zion-trusted-issuer.example.com, allowed subjects: neo, trinity'
+        );
+        expect(status).toBe(0);
+        expect(deletes()).toEqual([]);
+        expect(idsOnTenant()).toHaveLength(2);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a --yes sends one DELETE per issuer',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['delete', '-a', '--yes']);
+
+        expect(output).toContain('Deleted 2 trusted JWT issuers.');
+        expect(status).toBe(0);
+        expect(deletes().sort()).toEqual([
+          'matrix-trusted-issuer',
+          'zion-trusted-issuer',
+        ]);
+        expect(idsOnTenant()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a --yes in a realm without issuers sends no DELETE and succeeds',
+      async () => {
+        await startTenant([]);
+
+        const { status, output } = run(['delete', '-a', '--yes']);
+
+        expect(output).toContain('No trusted JWT issuers found to delete.');
+        expect(status).toBe(0);
+        expect(deletes()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a --yes with one issuer the server refuses to delete deletes the others, names it and exits 1; --allow-failures exits 0',
+      async () => {
+        await startTenant([issuer('t1'), issuer('t2'), issuer('t3')], {
+          failRequests: [{ method: 'DELETE', path: '/TrustedJwtIssuer/t2' }],
+        });
+
+        const failed = run(['delete', '-a', '--yes']);
+        expect(failed.output).toMatch(/1 of 3 issuers failed:\n\s+- t2: /);
+        expect(failed.status).toBe(1);
+        expect(idsOnTenant()).toEqual(['t2']);
+
+        const allowed = run(['delete', '-a', '--yes', '--allow-failures']);
+        expect(allowed.output).toContain(
+          'The exit code stays 0 because --allow-failures was given.'
+        );
+        expect(allowed.status).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-i together with -a or --dry-run is rejected before anything is sent',
+      async () => {
+        await startTenant();
+
+        for (const args of [
+          ['delete', '-i', 'zion-trusted-issuer', '-a'],
+          ['delete', '-i', 'zion-trusted-issuer', '--dry-run'],
+        ]) {
+          const { status, output } = run(args);
+          expect(output).toContain('cannot be used with option');
+          expect(status).toBe(1);
+        }
+        expect(requests()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'without -i or -a is rejected before anything is sent when nobody can be asked',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['delete', '--yes']);
+
+        expect(output).toContain(
+          "one of '-a, --all | -i, --issuer-id <issuer-id>' is required"
+        );
+        expect(status).toBe(1);
+        expect(requests()).toEqual([]);
+      },
+      TIMEOUT
+    );
+  });
 });
