@@ -16,6 +16,7 @@ import {
   frodo,
   state,
   type CustomNodeSkeleton,
+  type OAuth2TrustedJwtIssuerSkeleton,
   type PolicySetSkeleton,
   type PolicySkeleton,
   type RemoteProxySkeleton,
@@ -601,6 +602,38 @@ export function registerEntityPickFamilies(): void {
             (a._id ?? '').localeCompare(b._id ?? '')
           ),
         label: (client) => client._id ?? '',
+      }),
+    ],
+  });
+
+  // `oauth issuer`: the OAuth2 trusted JWT issuers of the realm, by the name of
+  // the object. The description is the issuer value its assertions carry, which
+  // is what tells two issuers apart when their names do not. The library returns
+  // the plain shape from a query; a read by id wraps a member as
+  // `{ inherited, value }`, so both are read.
+  const issuerValueOf = (
+    issuer: OAuth2TrustedJwtIssuerSkeleton
+  ): string | undefined => {
+    const member: unknown = issuer.issuer;
+    const value =
+      typeof member === 'string'
+        ? member
+        : (member as { value?: unknown } | undefined)?.value;
+    return typeof value === 'string' ? value : undefined;
+  };
+
+  registerEntityPickFamily({
+    family: 'oauth issuer',
+    picks: [
+      entityPick<OAuth2TrustedJwtIssuerSkeleton>({
+        name: 'issuerId',
+        kind: 'trusted JWT issuer',
+        load: async () =>
+          (await frodo.oauth2oidc.issuer.readOAuth2TrustedJwtIssuers()).sort(
+            (a, b) => (a._id ?? '').localeCompare(b._id ?? '')
+          ),
+        label: (issuer) => issuer._id ?? '',
+        description: issuerValueOf,
       }),
     ],
   });

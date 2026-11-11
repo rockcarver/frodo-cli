@@ -16,6 +16,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string} [options.journey] `password` for plain login, `service-account` for bearer login (default: the MFA journey)
  * @param {string} [options.grantError] makes the service-account journey refuse other token requests with `invalid_grant` and this description
  * @param {{ issuer?: string, allowedSubjects: string[] }} [options.issuer] what every trusted JWT issuer read answers with
+ * @param {object[]} [options.trustedIssuers] OAuth2 trusted JWT issuers (plain shape, `null` for a setting that is not set) the realm-config/agents/TrustedJwtIssuer collection serves, stores and deletes; an empty array is a realm without issuers (default: only what `issuer` answers)
  * @param {number} [options.sessionTtlSeconds] lifetime of the session of a plain login, from the moment it is looked up (default: it expires in 2099)
  * @param {'refuse' | 'hang'} [options.logout] makes the logout call fail with `400` (`refuse`) or never answer (`hang`); default: it succeeds
  * @param {'refuse'} [options.login] makes every login fail with `401 Login failure` once the credentials are posted; default: it succeeds
@@ -39,6 +40,7 @@ export async function startFakeAm({
   realms,
   grantError,
   issuer,
+  trustedIssuers,
   users,
   oauth2Clients,
   scripts,
@@ -69,6 +71,14 @@ export async function startFakeAm({
       ...(grantError ? { FAKE_AM_GRANT_ERROR: grantError } : {}),
       ...(issuer
         ? { FAKE_AM_ISSUER_FILE: written('issuer.json', issuer) }
+        : {}),
+      ...(trustedIssuers
+        ? {
+            FAKE_AM_TRUSTED_ISSUERS_FILE: written(
+              'trusted-issuers.json',
+              trustedIssuers
+            ),
+          }
         : {}),
       ...(users ? { FAKE_AM_USERS_FILE: written('users.json', users) } : {}),
       ...(oauth2Clients
