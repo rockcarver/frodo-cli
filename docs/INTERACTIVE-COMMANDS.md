@@ -70,7 +70,10 @@ FRODO_USERNAME`). The page is the only prompt for them: it opens on the
    replace the old `Unrecognized combination` dead-ends: an unsatisfied
    group prompts (pick the member, then its value: a dropdown, the file
    system picker or free text), non-interactive runs fail with
-   commander-shaped errors before auth.
+   commander-shaped errors before auth. A group that needs every member asks
+   again for each one that is still missing (the members given, or chosen to be
+   picked after the login, are not offered again), and the last one is not
+   offered as a choice of one.
 6. **Entity pickers** (see "Pickers that need a login") — the options the
    two steps above left unset because an entity picker fills them are filled
    now, after the login of step 3 (the pass makes it here when step 3 did not
@@ -338,12 +341,19 @@ its own, and its Enter says `next`:
   no login). `create` and `import` commands never inherit a pick, because their
   `-i` names an entity that does not exist yet or one in a file; a family
   lists such a command in `include` when its option still names an
-  existing entity. A command can also register specs itself at setup via
-  `deferEntityPicks(command, [...])` (the older form, kept until the
-  command moves to its family). Either way the
+  existing entity (`esv secret version create`, `secretstore mapping alias
+  create`). The registry is the only place a pick is declared: a command file
+  does not declare a pick or call a resolver, and a test fails if it does. The
   resolver skips the free-text value step for pickable options. The
   loader is per-deployment-type by construction (whatever read
-  function the command family's ops layer provides). A loader that has to
+  function the command family's library module provides). A pick whose loader
+  reads only this machine (the additional service accounts of a connection
+  profile, for the local commands `conn service-account describe` and `remove`,
+  which never log in) says `needsLogin: false`, and the pass opens it without a
+  login. A command whose requirement is an option group of which every member is
+  needed (`requireAllOf`, as the `create` commands of `secretstore mapping` and
+  `secretstore mapping alias` declare for the store, the mapping and the alias)
+  gets its picks for the missing members only. A loader that has to
   narrow its list by other options of the command (`-c` and `-t` of
   `mapping delete`) is given as `loadFor(command)` instead: a family loader is
   shared by all the commands of the family and has no command of its own to
@@ -354,12 +364,12 @@ its own, and its Enter says `next`:
   username, name and id, the option gets the id) sets `value`, and one
   whose search must span more than the row sets `search` (case-insensitive
   substring over the label by default). A list too long to show whole sets
-  `searchFirst`: when its `when()` says so the picker asks for a search
-  text (the spec's `hint` says what to type), offers what `load(text)`
+  `searchFirst`: when its `when(command)` says so the picker asks for a search
+  text (the spec's `hint` says what to type), offers what `load(text, command)`
   returns, and asks again while that is empty or a message ("1001 users
   match 'user'", shown in the prompt's frame); Esc declines. The first
   user is `--sub` of `frodo admin execute-rfc7523-authz-grant-flow`
-  (`Rfc7523SubjectOps.ts`, cli#1004): the users the trusted issuer allows,
+  (`Rfc7523Subjects.ts`, cli#1004): the users the trusted issuer allows,
   else the realm's, found by username, first or last name, email or id. The
   users come from IDM's managed user object, and on a classic deployment,
   which has no IDM, from the AM users endpoint.

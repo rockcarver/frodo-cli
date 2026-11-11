@@ -5,25 +5,24 @@
  * etc.) was left unspecified can offer a dropdown populated from the live
  * system -- a PingAM server, a PingIDM instance, or an Identity Cloud
  * tenant, whichever the command targets -- instead of failing or forcing
- * `-a`. The data source is per-command: the spec's `load` is whatever read
- * function the command family's ops layer provides (`frodo.authn.journey
- * .readJourneys` for PingAM, `frodo.cloud.secret.readSecrets` for cloud,
- * and so on), so each picker is deployment-type-correct by construction;
- * nothing here assumes a particular deployment type.
+ * `-a`. The data source is per command family: the spec's `load` is whatever
+ * read function the family's library module provides (`frodo.authn.journey
+ * .readJourneys` for PingAM, `frodo.cloud.secret.readSecrets` for cloud, and
+ * so on), so each picker is deployment-type-correct by construction; nothing
+ * here assumes a particular deployment type.
  *
- * A family of commands can register its picks once instead (decision record
- * 0038, EntityPickRegistry.ts): every command of the family that has the
- * option inherits the pick, so the command declares nothing and calls
- * nothing.
+ * A family of commands registers its picks once (decision record 0038,
+ * EntityPickRegistry.ts, the entries in EntityPickFamilies.ts): every command
+ * of the family that has the option inherits the pick, so a command file
+ * declares nothing and calls nothing.
  *
  * The flow spans two stages:
  *
- * 1. SETUP: the command declares its specs with `deferEntityPicks(command,
- *    [...])` (or inherits them from its family). The resolver (ResolveInteractiveInputs) reads the registry to
- *    learn which options are entity-pickable, and when such an option is
- *    the missing half of a mandatory/one-of rule, it SKIPS the free-text
- *    value step for it (asking the user to type an id by hand would defeat
- *    the picker's purpose) and leaves the option unset.
+ * 1. SETUP: the resolver (ResolveInteractiveInputs) reads the picks a command
+ *    inherits to learn which options are entity-pickable, and when such an
+ *    option is the missing half of a mandatory/one-of rule, it SKIPS the
+ *    free-text value step for it (asking the user to type an id by hand would
+ *    defeat the picker's purpose) and leaves the option unset.
  *
  * 2. THE PASS: once the mandatory options and the one-of groups are resolved
  *    (and again after the invocation editor), the pass runs
@@ -31,8 +30,8 @@
  *    still-unspecified pickable option. The loaders need tokens, so the pass
  *    logs in first when one of the picks that will open needs them (record
  *    0044); the Ready step follows. A pick the pass has run is not run
- *    again: `resolveEntityPicks(command)` in an action body and the
- *    `getTokens` wrapper skip it. A prompt only
+ *    again: the `getTokens` wrapper skips it (`resolveFamilyEntityPicks`, for
+ *    a command whose pass made no login). A prompt only
  *    happens when the gate allows prompting (canPrompt()), the option is
  *    still unspecified, and the loader returned at least one entity. Every
  *    other path is a no-op, so non-interactive behavior stays
@@ -47,13 +46,13 @@
  * and a name are asked for once), or when another member of its one-of group
  * is given or was chosen in the resolution pass (record 0047).
  *
- * Escape backs out of a picker without setting anything -- callers treat
- * that as "declined to run" and return (same shape as a failed
- * getTokens()). A returned `false` from `resolveEntityPicks` is the
- * caller's signal to stop -- that includes a failing loader, which must
- * never read as "picks satisfied" (the delete-family actions'
- * `(options.all || (await resolveEntityPicks(command)))` would otherwise
- * fall through to delete-all on a transient read error).
+ * Escape backs out of a picker without setting anything -- that DECLINES the
+ * pick, and a declined pick never runs the command (record 0017 and 0038): the
+ * pass ends the command with exit code 1, and the `getTokens` wrapper returns
+ * false, the same signal as a failed login. That includes a failing loader,
+ * which must never read as "picks satisfied" (the delete commands branch on
+ * the options after `getTokens`, and a pick that did not happen must not fall
+ * through to delete-all on a transient read error).
  */
 
 import { Command } from 'commander';
@@ -79,9 +78,9 @@ import { NEXT_LABEL } from './ReadyStep';
 /**
  * Loads the candidate entities for a picker. Returns the raw skeletons;
  * `label`/`description` turn an entity into the picker row. A failing load
- * (host unreachable, permission denied) DECLINES the pick: resolveEntityPicks
- * returns false so the command stops instead of falling through to its
- * destructive --all branch.
+ * (host unreachable, permission denied) DECLINES the pick: the pick returns
+ * false so the command stops instead of falling through to its destructive
+ * --all branch.
  */
 export type EntityPickLoader<T> = () => Promise<T[]>;
 
@@ -139,14 +138,15 @@ export type EntityPickSpec<T = any> = {
    * string returned by `load` is shown as a message and the text is asked
    * for again (for example "1200 users match 'a': type more"). Esc or an
    * empty text declines the pick. `when` and `load` read the system; they do
-   * not prompt.
+   * not prompt. Both are given the command that runs the pick, for a family
+   * whose list depends on another option of it (as `loadFor` is).
    */
   searchFirst?: {
-    when: () => Promise<boolean>;
+    when: (command: Command) => Promise<boolean>;
     message?: string;
     /** Shown in the prompt under the question: what to type. */
     hint?: string;
-    load: (text: string) => Promise<T[] | string>;
+    load: (text: string, command: Command) => Promise<T[] | string>;
   };
   /** Optional second line shown as the row's dimmed description. */
   description?: (entity: T) => string | undefined;
@@ -170,56 +170,22 @@ export type EntityPickSpec<T = any> = {
   needsLogin?: boolean;
 };
 
-const pendingEntityPicks = new WeakMap<Command, EntityPickSpec<unknown>[]>();
-
 /**
- * Registers entity pickers on a command. Called from the command's setup
- * (module scope of the command file) so the resolver can consult the
- * registry and the action body can run the picks with one bare call.
- * `T` defaults to unknown, so heterogenous spec lists type-check.
- */
-export function deferEntityPicks(
-  command: Command,
-  picks: EntityPickSpec[]
-): void {
-  pendingEntityPicks.set(command, [
-    ...(pendingEntityPicks.get(command) ?? []),
-    ...picks,
-  ]);
-}
-
-/**
- * The entity pickers registered on a command (empty when none). Read by
- * ResolveInteractiveInputs to know which options it should NOT free-text
- * prompt for -- those belong to the entity picker of the pass.
+ * The entity pickers a command inherits from the registry of its command
+ * family (EntityPickRegistry, record 0038), plus the ones the user asked for on
+ * the options page ("choose after connecting") for the options whose pick is
+ * available on request only. Read by ResolveInteractiveInputs to know which
+ * options it should NOT free-text prompt for -- those belong to the entity
+ * picker of the pass.
  */
 export function getEntityPicks(command: Command): EntityPickSpec<unknown>[] {
-  return [...ownEntityPicks(command), ...inheritedEntityPicks(command)];
-}
-
-/** The picks a command registered itself with `deferEntityPicks`. */
-function ownEntityPicks(command: Command): EntityPickSpec<unknown>[] {
-  return pendingEntityPicks.get(command) ?? [];
-}
-
-/**
- * The picks a command inherits from the registry of its command family
- * (EntityPickRegistry, record 0038), leaving out an option the command
- * registered a pick for itself.
- */
-function inheritedEntityPicks(command: Command): EntityPickSpec<unknown>[] {
-  const own = ownEntityPicks(command);
   const inherited = familyEntityPicks(command);
-  // plus the picks the user asked for on the options page ("choose after
-  // connecting"), for the options whose pick is available on request only
   const asked = requestablePicks(command).filter(
     (pick) =>
       deferredChoicesOf(command).has(pick.name) &&
       !inherited.some((familyPick) => familyPick.name === pick.name)
   );
-  return [...inherited, ...asked].filter(
-    (pick) => !own.some((ownPick) => ownPick.name === pick.name)
-  );
+  return [...inherited, ...asked];
 }
 
 /**
@@ -247,34 +213,25 @@ export function hasEntityPick(command: Command, name: string): boolean {
 }
 
 /**
- * Defines an entity picker for one option. The returned spec is registered
- * via `deferEntityPicks`.
+ * Defines an entity picker for one option. The returned spec is listed in the
+ * entry of its command family (EntityPickFamilies.ts).
  */
 export function entityPick<T>(spec: EntityPickSpec<T>): EntityPickSpec<T> {
   return spec;
 }
 
 /**
- * Runs every entity pick registered for this command whose option is still
- * unspecified. No-op when prompting is disallowed. Returns false when the
- * user escaped the picker -- the caller should return without running the
- * action's body (same shape as a failed getTokens()).
- */
-export async function resolveEntityPicks(command: Command): Promise<boolean> {
-  return runEntityPicks(command, getEntityPicks(command));
-}
-
-/**
- * Runs the picks a command inherits from its command family (record 0038).
- * The framework calls it after login, from `getTokens`, so a command whose
- * family has a registry entry does not call a resolver of its own. Same
- * contract as `resolveEntityPicks`: false means the user declined or a load
- * failed, and the command must not run its body.
+ * Runs the picks of a command whose option is still unspecified (record 0038).
+ * The framework calls it after login, from `getTokens`, for a command whose
+ * pass made no login; a command file calls no resolver of its own. False means
+ * the user declined or a load failed, and the command must not run its body.
+ * @param command the command that runs
+ * @returns false when the command must not run
  */
 export async function resolveFamilyEntityPicks(
   command: Command
 ): Promise<boolean> {
-  return runEntityPicks(command, inheritedEntityPicks(command));
+  return runEntityPicks(command, getEntityPicks(command));
 }
 
 /**
@@ -339,9 +296,9 @@ export function pickNeedsLogin(pick: EntityPickSpec<unknown>): boolean {
 
 /**
  * Runs the picks of the command for the resolution pass (record 0044). Same
- * contract as `resolveEntityPicks`: false means the user declined or a load
- * failed, and the command must not run. A pick that was run is remembered, so
- * neither the action nor the `getTokens` wrapper runs it again.
+ * contract as `resolveFamilyEntityPicks`: false means the user declined or a
+ * load failed, and the command must not run. A pick that was run is
+ * remembered, so the `getTokens` wrapper does not run it again.
  * @param command the command that is being resolved
  * @returns false when the command must not run
  */
@@ -381,11 +338,11 @@ async function runEntityPicks(
         (await (pick.loadFor ? pick.loadFor(command) : pick.load()));
     } catch (error) {
       // Loader failure is a DECLINED pick, not a satisfied one: returning
-      // true here lets `(options.all || (await resolveEntityPicks(...)))`
-      // fall through to the destructive --all branch (real incident
-      // 2026-10-14: a transient 400 on the secrets-list read made
-      // `esv secret delete` run delete-all on a live tenant). False =
-      // "stop without running the action body", same contract as escape.
+      // true here would let a delete command fall through to its destructive
+      // --all branch (real incident 2026-10-14: a transient 400 on the
+      // secrets-list read made `esv secret delete` run delete-all on a live
+      // tenant). False = "stop without running the action body", same
+      // contract as escape.
       printError(error as Error, `Error reading ${pick.kind}s`);
       return false;
     }
@@ -460,19 +417,16 @@ async function runEntityPicks(
     }
     apply(command, pick, chosen);
   }
-  // The deferred authoring print: this
-  // function is the flush site for commands whose entity picks are the
-  // last command-mutating interactive step. Two shapes exist: pick-first
-  // (`(pick) && (await getTokens())` -- picks run BEFORE auth) and
-  // pick-after-auth (esv variable set, secret store mapping delete --
-  // picks run AFTER auth). In both, flushing HERE puts the eventual
-  // command directly above the action's results. Gated on auth already
-  // having succeeded: a pick-first flow whose auth then fails must not
-  // print (the command never ran). When auth has NOT succeeded yet, the
-  // getTokens wrapper flushes instead (no picks pending -> it doesn't
-  // skip). Non-interactive sessions (canPrompt false, early return)
-  // never reach this. The pass prints nothing: the print is armed when the
-  // pass ends, and the wrapper flushes it above the results.
+  // The deferred authoring print: this function is the flush site for a
+  // command whose entity picks are the last command-mutating interactive step
+  // and run after the login (the pass made none for them). Flushing HERE puts
+  // the eventual command directly above the action's results. Gated on auth
+  // already having succeeded: a flow whose auth then fails must not print (the
+  // command never ran). When auth has NOT succeeded yet, the getTokens wrapper
+  // flushes instead (no picks pending -> it doesn't skip). Non-interactive
+  // sessions (canPrompt false, early return) never reach this. The pass prints
+  // nothing: the print is armed when the pass ends, and the wrapper flushes it
+  // above the results.
   if (!options.inPass) {
     const { authSucceededForFlush, flushAuthoringPrint } =
       await import('./AuthoringPrintState');
@@ -499,7 +453,7 @@ async function searchFirst(
   pick: EntityPickSpec<unknown>,
   spec: NonNullable<EntityPickSpec<unknown>['searchFirst']>
 ): Promise<unknown[] | undefined | typeof ESCAPE> {
-  if (!(await spec.when())) return undefined;
+  if (!(await spec.when(command))) return undefined;
   const { commandPreviewFor } =
     await import('../../cli/ResolveInteractiveInputs');
   // what the prompt says under the question: the hint, then why the last text was not enough
@@ -513,7 +467,7 @@ async function searchFirst(
     });
     // '' is Esc, Ctrl-C or an empty line: all of them decline
     if (!text) return ESCAPE;
-    const found = await spec.load(text.trim());
+    const found = await spec.load(text.trim(), command);
     if (typeof found !== 'string') {
       if (found.length > 0) return found;
       note = `No ${pick.kind} matches '${text.trim()}'.`;

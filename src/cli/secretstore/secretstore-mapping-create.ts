@@ -58,15 +58,11 @@ export default function setup() {
         'Create mappings in global secret stores. For classic deployments only.'
       )
     )
-    .requireOneOf({
-      options: [
-        'aliases',
-        'global',
-        'secretId',
-        'secretstoreId',
-        'secretstoreType',
-      ],
-      purpose: 'the target',
+    // the three options the command cannot create a mapping without; the type
+    // and the scope are optional
+    .requireAllOf({
+      options: ['secretstoreId', 'secretId', 'aliases'],
+      purpose: 'the mapping to create',
     })
     .action(
       // implement command logic inside action handler
