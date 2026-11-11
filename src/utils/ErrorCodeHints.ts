@@ -53,6 +53,7 @@ export const ERROR_CODE_HINTS: Record<FrodoErrorCode, string> = {
   PROXY_CONNECTION_CLOSED: `Check that ${PROXY_VARIABLES} point at a proxy, with the scheme it speaks (http or https). Then check that the proxy allows the tenant's host.`,
   PROXY_UNREACHABLE: `Check the host name of the proxy in ${PROXY_VARIABLES} for typos, and that this machine can reach it (network, VPN, DNS).`,
   INSUFFICIENT_SCOPE: `The credential of this connection lacks a scope that the operation needs (named above). Log in with a service account that is granted it ('frodo conn save' saves a service account with the connection profile); browser login cannot obtain every scope.`,
+  CIMD_PROFILES_NOT_AVAILABLE: `This deployment does not offer CIMD profiles: its AM does not list the CIMDProfile agent type. PingOne Advanced Identity Cloud tenants on a current version do; a self-hosted deployment needs a PingAM version that includes them.`,
 };
 
 /** How deep to look through the errors that wrap errors. */
