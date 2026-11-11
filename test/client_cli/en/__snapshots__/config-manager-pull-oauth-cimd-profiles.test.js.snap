@@ -12,31 +12,32 @@ no secrets. A realm or a deployment that does not offer CIMD profiles has
 nothing to export, which is not an error.
 
 Arguments:
-  host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
-                     connection profile, just specify a unique substring or
-                     alias.
-  realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                     or '/parent/child' otherwise. (default: "alpha" for
-                     Identity Cloud tenants, "/" otherwise.)
-  username           Username to login with. Must be an admin user with
-                     appropriate rights to manage authentication journeys/trees.
-                     If given without a password, and it matches the username
-                     already stored in the connection profile for the target
-                     host, frodo uses that profile's stored password instead of
-                     requiring it on the command line.
-  password           Password.
+  host                  AM base URL, e.g.: https://cdk.iam.example.com/am. To
+                        use a connection profile, just specify a unique
+                        substring or alias.
+  realm                 Realm. Specify realm as '/' for the root realm or
+                        'realm' or '/parent/child' otherwise. (default: "alpha"
+                        for Identity Cloud tenants, "/" otherwise.)
+  username              Username to login with. Must be an admin user with
+                        appropriate rights to manage authentication
+                        journeys/trees. If given without a password, and it
+                        matches the username already stored in the connection
+                        profile for the target host, frodo uses that profile's
+                        stored password instead of requiring it on the command
+                        line.
+  password              Password.
 
 Options:
-  --allow-failures   Report operations that fail, but still exit with code 0.
-                     Without this option the command runs every operation,
-                     prints a summary of what failed and exits with code 1.
-  -f, --file <file>  A JSON file with overrides for values that differ between
-                     environments, e.g. "oauth-cimd-profiles.json".
-  -n, --name <name>  CIMD profile name. If specified, pulls only the profile
-                     with the given name. Needs a single realm.
-  -h, --help         Help
-  -hh, --help-more   Help with all options.
-  -hhh, --help-all   Help with all options, environment variables, and usage
-                     examples.
+  --allow-failures      Report operations that fail, but still exit with code 0.
+                        Without this option the command runs every operation,
+                        prints a summary of what failed and exits with code 1.
+  --config-file <file>  A JSON file with overrides for values that differ
+                        between environments, e.g. "oauth-cimd-profiles.json".
+  -n, --name <name>     CIMD profile name. If specified, pulls only the profile
+                        with the given name. Needs a single realm.
+  -h, --help            Help
+  -hh, --help-more      Help with all options.
+  -hhh, --help-all      Help with all options, environment variables, and usage
+                        examples.
 "
 `;

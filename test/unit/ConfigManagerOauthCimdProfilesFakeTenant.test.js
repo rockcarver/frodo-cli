@@ -101,6 +101,37 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
 
   describe('pull', () => {
     it(
+      'takes the overrides file as --config-file only: -f is an unknown option',
+      async () => {
+        const run = await tenant({});
+        fs.writeFileSync(path.join(work, 'overrides.json'), '{"alpha":[]}');
+
+        const short = await run([
+          'config-manager',
+          'pull',
+          'oauth-cimd-profiles',
+          '-f',
+          'overrides.json',
+        ]);
+        expect(short.code).toBe(1);
+        expect(short.output).toContain("unknown option '-f'");
+        expect(requests()).toEqual([]);
+
+        const long = await run([
+          'config-manager',
+          'pull',
+          'oauth-cimd-profiles',
+          '--config-file',
+          'overrides.json',
+          `http://127.0.0.1:${fakeAm.port}/am`,
+          'alpha',
+        ]);
+        expect(long.code).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
       'writes one file per profile of every realm',
       async () => {
         const run = await tenant({

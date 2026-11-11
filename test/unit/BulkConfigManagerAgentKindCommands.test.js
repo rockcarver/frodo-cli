@@ -87,7 +87,8 @@ const COMMANDS = [
     name: 'config-manager pull oauth-cimd-profiles',
     file: 'config-manager-pull/config-manager-pull-oauth-cimd-profiles',
     fn: 'configManagerExportCIMDProfiles',
-    options: { name: 'zion-agents', file: 'oauth-cimd-profiles.json' },
+    options: { name: 'zion-agents', configFile: 'oauth-cimd-profiles.json' },
+    overridesFile: true,
     args: (allowFailures) => [
       'zion-agents',
       'alpha',
@@ -107,7 +108,8 @@ const COMMANDS = [
     name: 'config-manager pull oauth-issuers',
     file: 'config-manager-pull/config-manager-pull-oauth-issuers',
     fn: 'configManagerExportTrustedJwtIssuers',
-    options: { name: 'zion-issuer', file: 'oauth-issuers.json' },
+    options: { name: 'zion-issuer', configFile: 'oauth-issuers.json' },
+    overridesFile: true,
     args: (allowFailures) => [
       'zion-issuer',
       'alpha',
@@ -203,6 +205,20 @@ describe.each(COMMANDS)('$name', (c) => {
     for (const op of Object.values(ops)) expect(op.mock.calls).toHaveLength(0);
     expect(process.exitCode).toBe(1);
   });
+
+  if (c.overridesFile) {
+    test('takes the optional overrides file as --config-file, with no short form: -f is reserved for data files', () => {
+      const options = setups[c.file]().options;
+      const overrides = options.find((o) => o.long === '--config-file');
+
+      expect(overrides).toBeDefined();
+      expect(overrides.short).toBeUndefined();
+      expect(overrides.attributeName()).toBe('configFile');
+      expect(overrides.mandatory).toBeFalsy();
+      expect(options.find((o) => o.short === '-f')).toBeUndefined();
+      expect(options.find((o) => o.long === '--file')).toBeUndefined();
+    });
+  }
 
   test('has no mandatory option: the plain form is the command and the connection', () => {
     const program = setups[c.file]();
