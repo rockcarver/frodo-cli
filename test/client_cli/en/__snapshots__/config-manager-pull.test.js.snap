@@ -25,6 +25,8 @@ Commands:
   audit                  [Experimental] Export audit objects.
   authentication         [Experimental] Export authentication settings.
   authz-policies         [Experimental] Export authorization policies.
+  cimd-profiles          [Experimental] Export CIMD profiles, one file per
+                         profile.
   config-metadata        [Experimental] Show metadata.
   connector-definitions  [Experimental] Export connector definitions.
   connector-mappings     [Experimental] Export connector mappings.

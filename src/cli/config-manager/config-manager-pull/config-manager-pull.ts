@@ -7,6 +7,7 @@ import Applications from './config-manager-pull-applications';
 import Audit from './config-manager-pull-audit';
 import Authentication from './config-manager-pull-authentication';
 import AuthzPolicies from './config-manager-pull-authz-policies';
+import CimdProfiles from './config-manager-pull-cimd-profiles';
 import Metadata from './config-manager-pull-config-metadata';
 import ConnectorDefinitions from './config-manager-pull-connector-definitions';
 import ConnectorMappings from './config-manager-pull-connector-mappings';
@@ -55,6 +56,7 @@ export default function setup() {
   program.addCommand(Audit().name('audit'));
   program.addCommand(Authentication().name('authentication'));
   program.addCommand(AuthzPolicies().name('authz-policies'));
+  program.addCommand(CimdProfiles().name('cimd-profiles'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(CookieDomains().name('cookie-domains'));

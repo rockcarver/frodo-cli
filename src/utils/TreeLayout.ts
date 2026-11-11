@@ -57,10 +57,16 @@ export interface ApplicationLayoutDecision {
   createMarker: boolean;
 }
 
-const KIND_PATHS_IN_REALM = [
-  path.join('realm-config', 'agents'),
-  path.join('realm-config', 'saml'),
-];
+const AGENTS_PATH = path.join('realm-config', 'agents');
+const KIND_PATHS_IN_REALM = [AGENTS_PATH, path.join('realm-config', 'saml')];
+/**
+ * Folders of `realm-config/agents` that do not make a tree a kind-path tree: the agent types of a
+ * kind of their own that an application can never own (a CIMD profile: the kind `cimd-profiles`).
+ * Only an OAuth2 client of the agents can be owned, so a folder of one of these types says nothing
+ * about the layout of the applications. Every other entry still counts, and so does an empty
+ * `agents` directory, because a command that created it has written in the kind-path layout.
+ */
+const AGENT_FOLDERS_NEVER_OWNED = ['CIMDProfile'];
 const KIND_PATHS_AT_ROOT = [
   path.join('sync', 'connectors'),
   path.join('sync', 'mappings'),
@@ -147,7 +153,9 @@ export function writeTreeMarker(
  * Whether a tree has content that only the kind-path layout writes: the agents
  * or SAML providers of a realm, or the connectors or mappings of the sync
  * configuration. A directory counts when it exists, empty or not, because a
- * command that created it has written in that layout.
+ * command that created it has written in that layout. The one exception: an
+ * `agents` directory that holds nothing but folders of an agent type that an
+ * application can never own (see AGENT_FOLDERS_NEVER_OWNED).
  * @param {string} treeDir the root of the tree
  * @returns {boolean} true if any such directory exists
  */
@@ -161,9 +169,36 @@ export function hasKindPathContent(treeDir: string): boolean {
     .readdirSync(realmsDir)
     .some((realm) =>
       KIND_PATHS_IN_REALM.some((p) =>
-        isDirectory(path.join(realmsDir, realm, p))
+        holdsKindPathContent(
+          path.join(realmsDir, realm, p),
+          p === AGENTS_PATH ? AGENT_FOLDERS_NEVER_OWNED : []
+        )
       )
     );
+}
+
+/**
+ * Whether a kind-path directory exists and counts: it is there and empty, or it holds an entry
+ * that is not one of the folders that are known not to depend on the layout.
+ * @param {string} dir the directory
+ * @param {string[]} ignorableFolders folder names inside it that do not count
+ * @returns {boolean} true if the directory counts as kind-path content
+ */
+function holdsKindPathContent(
+  dir: string,
+  ignorableFolders: string[]
+): boolean {
+  if (!isDirectory(dir)) return false;
+  const entries = fs.readdirSync(dir);
+  return (
+    entries.length === 0 ||
+    entries.some(
+      (entry) =>
+        !(
+          ignorableFolders.includes(entry) && isDirectory(path.join(dir, entry))
+        )
+    )
+  );
 }
 
 /**

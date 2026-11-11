@@ -22,6 +22,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {number} [options.loginDelayMs] holds every authenticate answer for this many milliseconds (default: no delay)
  * @param {number} [options.usersCap] stops the AM users endpoint (not IDM) at this many results, in the list and in the count
  * @param {string[]} [options.oauth2Clients] client ids the OAuth2 client list of the realm answers with (default: it answers 404)
+ * @param {string[]} [options.cimdProfiles] ids of the CIMD profiles every realm holds; the realms then offer the agent type CIMDProfile, an empty array is none (default: the type is not offered, its type list answers 404)
  * @param {string[]} [options.scripts] script names the script list of the realm answers with (default: it answers 404)
  * @param {string[]} [options.secrets] ids the list of environment secrets answers with (a cloud tenant; default: it answers 404)
  * @param {string[]} [options.services] ids the list of AM services (realm and global) answers with (default: it answers 404)
@@ -41,6 +42,7 @@ export async function startFakeAm({
   issuer,
   users,
   oauth2Clients,
+  cimdProfiles,
   scripts,
   secrets,
   services,
@@ -74,6 +76,9 @@ export async function startFakeAm({
       ...(oauth2Clients
         ? { FAKE_AM_OAUTH2_CLIENTS: oauth2Clients.join(',') }
         : {}),
+      ...(cimdProfiles
+        ? { FAKE_AM_CIMD_PROFILES: cimdProfiles.join(',') }
+        : {}),
       ...(scripts ? { FAKE_AM_SCRIPTS: scripts.join(',') } : {}),
       ...(secrets ? { FAKE_AM_SECRETS: secrets.join(',') } : {}),
       ...(services ? { FAKE_AM_SERVICES: services.join(',') } : {}),
@@ -92,9 +97,7 @@ export async function startFakeAm({
         : {}),
       ...(logout ? { FAKE_AM_LOGOUT: logout } : {}),
       ...(login ? { FAKE_AM_LOGIN: login } : {}),
-      ...(loginDelayMs
-        ? { FAKE_AM_LOGIN_DELAY_MS: String(loginDelayMs) }
-        : {}),
+      ...(loginDelayMs ? { FAKE_AM_LOGIN_DELAY_MS: String(loginDelayMs) } : {}),
       ...(failRequests
         ? { FAKE_AM_FAIL_REQUESTS: JSON.stringify(failRequests) }
         : {}),

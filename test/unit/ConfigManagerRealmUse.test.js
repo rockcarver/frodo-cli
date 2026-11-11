@@ -36,6 +36,7 @@ const USES_REALM = [
   'frodo config-manager pull all-static',
   'frodo config-manager pull applications',
   'frodo config-manager pull authentication',
+  'frodo config-manager pull cimd-profiles',
   'frodo config-manager pull journeys',
   'frodo config-manager pull org-privileges',
   'frodo config-manager pull password-policy',

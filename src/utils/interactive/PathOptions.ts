@@ -91,6 +91,10 @@ export const PATH_OPTION_OVERRIDES: Readonly<
     access: 'read',
     extensions: JSON_FILES,
   },
+  'config-manager pull cimd-profiles --file': {
+    access: 'read',
+    extensions: JSON_FILES,
+  },
   'config-manager pull csp --file': { access: 'read', extensions: JSON_FILES },
   'config-manager pull oauth2-agents --file': {
     access: 'read',

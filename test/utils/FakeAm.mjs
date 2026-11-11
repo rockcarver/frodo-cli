@@ -51,6 +51,15 @@
  * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
  * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
  * the OAuth2 client picker of the admin commands reads it.
+ * FAKE_AM_CIMD_PROFILES=<id,id,...> makes every realm offer the agent type
+ * CIMDProfile (the agent type list `.../realm-config/agents?_action=getAllTypes`
+ * lists it; without the variable the list answers 404, a deployment that does not
+ * have the type) and hold CIMD profiles of those ids (an empty value: none). The
+ * profiles are the same in every realm and live as long as the fake: the list
+ * (`.../agents/CIMDProfile?_queryFilter=true`) answers with them in the plain
+ * shape, a `PUT` stores the body (`201` for a new id, `200` for an existing one;
+ * ids are matched ignoring case, as AM does) and refuses a `_rev` in it with `400
+ * Invalid attribute specified`, and a `DELETE` removes one (`404` when missing).
  * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
  * (`.../scripts`) answer with scripts of those names, the way the script
  * picker of the script commands reads it.
@@ -123,6 +132,19 @@ const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
+const cimdProfileIds = process.env.FAKE_AM_CIMD_PROFILES;
+const cimdProfiles = new Map();
+for (const _id of (cimdProfileIds ?? '').split(',').filter(Boolean)) {
+  cimdProfiles.set(_id.toLowerCase(), {
+    _id,
+    _rev: '-1',
+    _type: { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+    cimdConfig: {
+      cimdClientIdUrlPatterns: [`https://${_id}.example.com/*`],
+      cimdSsrfProtectionEnabled: true,
+    },
+  });
+}
 const scripts = (process.env.FAKE_AM_SCRIPTS ?? '').split(',').filter(Boolean);
 const idList = (value) =>
   value === undefined ? undefined : value.split(',').filter(Boolean);
@@ -254,6 +276,69 @@ const server = http.createServer((req, res) => {
         totalPagedResults: oauth2Clients.length,
         remainingPagedResults: -1,
       });
+    }
+    if (cimdProfileIds !== undefined) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      if (
+        req.method === 'POST' &&
+        pathname.endsWith('/realm-config/agents') &&
+        query.get('_action') === 'getAllTypes'
+      ) {
+        return send(200, {
+          result: [
+            { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+          ],
+        });
+      }
+      if (req.method === 'GET' && pathname.endsWith('/agents/CIMDProfile')) {
+        return send(200, {
+          result: [...cimdProfiles.values()],
+          resultCount: cimdProfiles.size,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: cimdProfiles.size,
+          remainingPagedResults: -1,
+        });
+      }
+      const profilePath = pathname.split('/agents/CIMDProfile/');
+      if (profilePath.length === 2) {
+        const id = decodeURIComponent(profilePath[1]);
+        const key = id.toLowerCase();
+        if (req.method === 'PUT') {
+          const posted = body ? JSON.parse(body) : {};
+          if ('_rev' in posted) {
+            return send(400, {
+              code: 400,
+              reason: 'Bad Request',
+              message: 'Invalid attribute specified.',
+            });
+          }
+          const created = !cimdProfiles.has(key);
+          const stored = {
+            ...posted,
+            _id: cimdProfiles.get(key)?._id ?? id,
+            _rev: '-2',
+            _type: {
+              _id: 'CIMDProfile',
+              name: 'CIMD Profile',
+              collection: true,
+            },
+          };
+          cimdProfiles.set(key, stored);
+          return send(created ? 201 : 200, stored);
+        }
+        if (req.method === 'DELETE') {
+          const stored = cimdProfiles.get(key);
+          cimdProfiles.delete(key);
+          return stored
+            ? send(200, stored)
+            : send(404, {
+                code: 404,
+                reason: 'Not Found',
+                message: 'Not Found',
+              });
+        }
+      }
     }
     if (secrets && pathname.endsWith('/environment/secrets')) {
       return send(200, {

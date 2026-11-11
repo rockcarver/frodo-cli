@@ -44,3 +44,5 @@ export const remoteProxySecretPlaceholder = '&{esv.zion.proxy.secret}';
 export const applicationName = 'ZionDirectory';
 export const connectorId = 'ZionDirectory';
 export const pullApplicationName = 'Zion Portal';
+export const cimdProfileId = 'zion-agents';
+export const cimdOverridesFile = 'cimd-profiles.json';
