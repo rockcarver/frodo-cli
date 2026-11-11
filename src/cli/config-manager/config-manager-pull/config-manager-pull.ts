@@ -41,6 +41,7 @@ import Services from './config-manager-pull-services';
 import Telemetry from './config-manager-pull-telemetry';
 import Terms from './config-manager-pull-terms-and-conditions';
 import Themes from './config-manager-pull-themes';
+import TrustedJwtIssuers from './config-manager-pull-trusted-jwt-issuers';
 import UiConfig from './config-manager-pull-ui-config';
 import Variables from './config-manager-pull-variables';
 
@@ -90,6 +91,7 @@ export default function setup() {
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(Terms().name('terms-and-conditions'));
   program.addCommand(Test().name('test'));
+  program.addCommand(TrustedJwtIssuers().name('trusted-jwt-issuers'));
   program.addCommand(UiConfig().name('ui-config'));
   program.addCommand(Variables().name('variables'));
   program.addCommand(IgaWorkflows().name('iga-workflows'));

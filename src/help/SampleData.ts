@@ -46,3 +46,5 @@ export const connectorId = 'ZionDirectory';
 export const pullApplicationName = 'Zion Portal';
 export const cimdProfileId = 'zion-agents';
 export const cimdOverridesFile = 'cimd-profiles.json';
+export const trustedJwtIssuerId = 'zion-issuer';
+export const trustedJwtIssuersOverridesFile = 'trusted-jwt-issuers.json';

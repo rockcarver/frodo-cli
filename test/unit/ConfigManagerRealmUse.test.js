@@ -45,6 +45,7 @@ const USES_REALM = [
   'frodo config-manager pull secret-mappings',
   'frodo config-manager pull services',
   'frodo config-manager pull themes',
+  'frodo config-manager pull trusted-jwt-issuers',
   'frodo config-manager push applications',
   'frodo config-manager push authentication',
   'frodo config-manager push cimd-profiles',

@@ -61,6 +61,16 @@
  * with a default group the body lacks, `200` for an existing one, which stores
  * exactly the body; ids are matched ignoring case, as AM does) and refuses a `_rev` in it with `400
  * Invalid attribute specified`, and a `DELETE` removes one (`404` when missing).
+ * FAKE_AM_TRUSTED_JWT_ISSUERS=<id,id,...> makes every realm hold OAuth2 trusted JWT
+ * issuers of those ids (an empty value: none; without the variable the routes
+ * answer 404). The issuers are the same in every realm and live as long as the
+ * fake: the list (`.../agents/TrustedJwtIssuer?_queryFilter=true`) answers with
+ * them in the plain shape (ids only matter), the single read answers with every
+ * property wrapped as `{ inherited, value }`, a `PUT` stores the body (`201` for a
+ * new id, which the server completes with a default property the body lacks,
+ * `200` for an existing one, which stores exactly the body; a `_rev` in it is
+ * refused with `400 Invalid attribute specified.`) and a `DELETE` removes one
+ * (`404` when missing). Ids are matched exactly.
  * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
  * (`.../scripts`) answer with scripts of those names, the way the script
  * picker of the script commands reads it.
@@ -146,6 +156,32 @@ for (const _id of (cimdProfileIds ?? '').split(',').filter(Boolean)) {
     },
   });
 }
+const trustedJwtIssuerIds = process.env.FAKE_AM_TRUSTED_JWT_ISSUERS;
+const trustedJwtIssuers = new Map();
+for (const _id of (trustedJwtIssuerIds ?? '').split(',').filter(Boolean)) {
+  trustedJwtIssuers.set(_id, {
+    _id,
+    _rev: '-1',
+    _type: {
+      _id: 'TrustedJwtIssuer',
+      name: 'OAuth2 Trusted JWT Issuer',
+      collection: true,
+    },
+    issuer: `https://${_id}.example.com`,
+    allowedSubjects: [],
+    consentedScopesClaim: 'scope',
+  });
+}
+// the read of one object wraps every property, as AM does
+const wrapIssuer = (object) =>
+  Object.fromEntries(
+    Object.entries(object).map(([key, value]) =>
+      key.startsWith('_') ||
+      (value && typeof value === 'object' && 'inherited' in value)
+        ? [key, value]
+        : [key, { inherited: false, value }]
+    )
+  );
 const scripts = (process.env.FAKE_AM_SCRIPTS ?? '').split(',').filter(Boolean);
 const idList = (value) =>
   value === undefined ? undefined : value.split(',').filter(Boolean);
@@ -342,6 +378,61 @@ const server = http.createServer((req, res) => {
                 reason: 'Not Found',
                 message: 'Not Found',
               });
+        }
+      }
+    }
+    if (trustedJwtIssuerIds !== undefined) {
+      if (
+        req.method === 'GET' &&
+        pathname.endsWith('/agents/TrustedJwtIssuer')
+      ) {
+        return send(200, {
+          result: [...trustedJwtIssuers.values()],
+          resultCount: trustedJwtIssuers.size,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: trustedJwtIssuers.size,
+          remainingPagedResults: -1,
+        });
+      }
+      const issuerPath = pathname.split('/agents/TrustedJwtIssuer/');
+      if (issuerPath.length === 2) {
+        const id = decodeURIComponent(issuerPath[1]);
+        const notFound = () =>
+          send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+        if (req.method === 'GET') {
+          const stored = trustedJwtIssuers.get(id);
+          return stored ? send(200, wrapIssuer(stored)) : notFound();
+        }
+        if (req.method === 'PUT') {
+          const posted = body ? JSON.parse(body) : {};
+          if ('_rev' in posted) {
+            return send(400, {
+              code: 400,
+              reason: 'Bad Request',
+              message: 'Invalid attribute specified.',
+            });
+          }
+          const created = !trustedJwtIssuers.has(id);
+          const stored = {
+            // a created issuer is completed with the server's defaults, an updated one is stored as sent
+            ...(created ? { jwksCacheTimeout: 3600000 } : {}),
+            ...posted,
+            _id: id,
+            _rev: '-2',
+            _type: {
+              _id: 'TrustedJwtIssuer',
+              name: 'OAuth2 Trusted JWT Issuer',
+              collection: true,
+            },
+          };
+          trustedJwtIssuers.set(id, stored);
+          return send(created ? 201 : 200, wrapIssuer(stored));
+        }
+        if (req.method === 'DELETE') {
+          const stored = trustedJwtIssuers.get(id);
+          trustedJwtIssuers.delete(id);
+          return stored ? send(200, wrapIssuer(stored)) : notFound();
         }
       }
     }

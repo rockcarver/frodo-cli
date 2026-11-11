@@ -64,6 +64,8 @@ Commands:
   terms-and-conditions   [Experimental] Export terms and conditions.
   test                   [Experimental] Test connection and authentication.
   themes                 [Experimental] Export themes.
+  trusted-jwt-issuers    [Experimental] Export trusted JWT issuers, one file per
+                         issuer.
   ui-config              [Experimental] Export IDM UI configuration objects.
   variables              [Experimental] [Cloud-only] Export variables.
 

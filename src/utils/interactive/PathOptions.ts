@@ -105,6 +105,10 @@ export const PATH_OPTION_OVERRIDES: Readonly<
     access: 'read',
     extensions: JSON_FILES,
   },
+  'config-manager pull trusted-jwt-issuers --file': {
+    access: 'read',
+    extensions: JSON_FILES,
+  },
 };
 
 /**
