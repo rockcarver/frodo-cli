@@ -164,9 +164,10 @@ which sub-commands each family offers.
 | `frodo mapping`            | 2.0.0 | Manage IDM mappings.                                                  | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | `rename`                                  |
 | `frodo node`               | 4.0.0 | Manage custom nodes.                                                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`type`               | 4.0.0 | Manage node types.                                                    |                    | :white_check_mark: |                    |                    | :white_check_mark: |                                           |
-| `frodo oauth`              | 2.0.0 | Manage OAuth2 clients, CIMD profiles and providers.                   |                    |                    |                    |                    |                    |                                           |
+| `frodo oauth`              | 2.0.0 | Manage OAuth2 clients, CIMD profiles, trusted JWT issuers and providers. |                    |                    |                    |                    |                    |                                           |
 | &emsp;`cimd`               | 5.0.0 | Manage CIMD profiles.                                                 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`client`             | 2.0.0 | Manage OAuth2 clients.                                                | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
+| &emsp;`issuer`             | 5.0.0 | Manage OAuth2 trusted JWT issuers.                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo realm`              | 1.0.0 | Manage realms.                                                        |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `add-custom-domain, remove-custom-domain` |
 | `frodo role`               | 3.0.1 | Manage internal (authorization) roles.                                |                    |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo saml`               | 1.0.0 | Manage SAML entity providers and circles of trust.                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
@@ -585,7 +586,7 @@ Commands:
   journey                                               Manage journeys/trees.
   log|logs                                              List/View Identity Cloud logs
   mapping                                               Manage IDM mappings.
-  oauth                                                 Manage OAuth2 clients, CIMD profiles and providers.
+  oauth                                                 Manage OAuth2 clients, CIMD profiles, trusted JWT issuers and providers.
   realm                                                 Manage realms.
   saml                                                  Manage SAML entity providers and circles of trust.
   script                                                Manage scripts.

@@ -33,7 +33,8 @@ Commands:
   journey           Manage journeys/trees.
   mapping           Manage IDM mappings.
   node              Manage custom nodes.
-  oauth             Manage OAuth2 clients, CIMD profiles and providers.
+  oauth             Manage OAuth2 clients, CIMD profiles, trusted JWT issuers
+                    and providers.
   realm             Manage realms.
   role              Manage internal (authorization) roles.
   saml              Manage SAML entity providers and circles of trust.

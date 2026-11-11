@@ -48,3 +48,7 @@ export const cimdUrlPattern = 'https://agents.zion.example.com/*';
 export const cimdProfileFile = 'zion-mcp-clients.cimd.agent.json';
 export const allCimdProfilesFile = 'allAlphaAgents.cimd.agent.json';
 export const pullApplicationName = 'Zion Portal';
+export const trustedIssuerId = 'zion-trusted-issuer';
+export const trustedIssuer = 'https://zion.example.com';
+export const trustedIssuerFile = 'zion-trusted-issuer.oauth2.issuer.json';
+export const allTrustedIssuersFile = 'allAlphaIssuers.oauth2.issuer.json';
