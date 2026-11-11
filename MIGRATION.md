@@ -190,6 +190,13 @@ named object never asks. This affects `frodo agent delete -a` and
 `theme delete -a`. It is a safety guard added in a major release: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
+**`authn export` and `authn import` exit 1 after a failure**: in 4.x both
+commands printed the error and exited with code 0 when the export or the import
+failed, because they checked the result before the operation had finished. In
+5.x they wait for the operation and exit with code 1, so a script or a pipeline
+that runs them sees the failure. Each runs a single operation, so
+`--allow-failures` does not apply.
+
 **Commands that run several operations now run them all and exit 1 if any
 failed**: `frodo config-manager pull all` and `pull all-static` carried on after
 a step failed, printed that step's error and exited with code 0, with no

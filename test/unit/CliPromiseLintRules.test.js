@@ -12,7 +12,8 @@ const preamble = `
 
 beforeEach(() => {
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-promise-lint-'));
-  fs.mkdirSync(path.join(root, 'src/cli'), { recursive: true });
+  // a nested folder, like every command (src/cli/<group>/<verb>.ts)
+  fs.mkdirSync(path.join(root, 'src/cli/group'), { recursive: true });
   fs.writeFileSync(
     path.join(root, 'tsconfig.json'),
     JSON.stringify({
@@ -36,7 +37,7 @@ beforeEach(() => {
 afterEach(() => fs.rmSync(root, { recursive: true, force: true }));
 
 async function lint(body) {
-  const filePath = path.join(root, 'src/cli/probe.ts');
+  const filePath = path.join(root, 'src/cli/group/probe.ts');
   fs.writeFileSync(filePath, `${preamble}${body}\n}`);
   const [result] = await eslint.lintFiles([filePath]);
   return result.messages;

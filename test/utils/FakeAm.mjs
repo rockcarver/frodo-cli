@@ -84,6 +84,17 @@
  * request log by counting those.
  * FAKE_AM_LOGIN_DELAY_MS=<n> holds every authenticate answer for n ms, so a
  * terminal test can see what the CLI shows while a login is running.
+ * FAKE_AM_FAIL_REQUESTS='[{"method":"GET","path":"/realm-config/authentication"}]'
+ * makes every request with that method whose URL contains that path answer
+ * `500` with the message `fake tenant operation failed`. It is checked before
+ * every other route, after the request was recorded, so a test sees the failing
+ * request in the request log and the CLI sees a failed operation behind a login
+ * that worked.
+ * FAKE_AM_LOG_API_KEYS_FILE=<path> names a JSON array of log API keys
+ * (`api_key_id`, `name`) the fake serves as the log API key list (`GET /keys`)
+ * and one key (`GET /keys/<id>`), and it makes the fake answer the OAuth2
+ * authorize and access token calls a cloud login with a user name and password
+ * makes.
  */
 import fs from 'node:fs';
 import http from 'node:http';

@@ -1,16 +1,31 @@
 import cp from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
+const require = createRequire(import.meta.url);
+const {
+  binaryPath,
+  ensureFrodoArtifact,
+} = require('../e2e/utils/FrodoBinary.cjs');
+
 const exec = promisify(cp.execFile);
 
-describe('async command failures set the exit code', () => {
+// Runs this checkout's build, never a `frodo` found on PATH (cli record 0011).
+// Skipped on Windows: the CLI binary shim is a shell script.
+const suite = process.platform === 'win32' ? describe.skip : describe;
+
+suite('async command failures set the exit code', () => {
   let home;
   let recordPath;
   let fakeAm;
+
+  beforeAll(() => {
+    ensureFrodoArtifact();
+  });
 
   beforeEach(async () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'async-command-failure-'));
@@ -76,7 +91,7 @@ describe('async command failures set the exit code', () => {
       ];
       let result;
       try {
-        result = await exec('frodo', args, {
+        result = await exec(binaryPath, args, {
           env: {
             ...process.env,
             HOME: home,
