@@ -195,36 +195,127 @@ export async function deleteLogApiKeys(allowFailures = false) {
   return outcome;
 }
 
+function logPollError(error: unknown) {
+  type Link = {
+    httpStatus?: number;
+    response?: { status?: number; headers?: Record<string, unknown> };
+    originalErrors?: unknown[];
+  };
+  let status: number | undefined;
+  let reset: unknown;
+  const seen = new Set<unknown>();
+  const visit = (error: unknown) => {
+    if (!error || typeof error !== 'object' || seen.has(error)) return;
+    seen.add(error);
+    const link = error as Link;
+    const code = link.response?.status ?? link.httpStatus;
+    if (status == null || code === 401 || code === 403) status = code;
+    for (const [name, value] of Object.entries(link.response?.headers ?? {})) {
+      if (name.toLowerCase() === 'x-ratelimit-reset') reset = value;
+    }
+    if (Array.isArray(link.originalErrors)) link.originalErrors.forEach(visit);
+  };
+  visit(error);
+  return { status, reset };
+}
+
 export async function tailLogs(
   source: string,
   levels: string[],
   txid: string,
   nf: string[],
-  stream?: LogTailStream
-) {
-  try {
-    const tailStream = stream ?? createLogTailStream(source);
-    const events = await tailStream.poll();
-    const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
-    const filteredLogs = events.filter(
-      (el) =>
-        !noiseFilter.includes((el.payload as LogEventPayloadSkeleton).logger) &&
-        !noiseFilter.includes(el.type) &&
-        (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
-        (typeof txid === 'undefined' ||
-          txid === null ||
-          (el.payload as LogEventPayloadSkeleton).transactionId?.includes(txid))
-    );
+  stream?: LogTailStream,
+  {
+    keepTrying = false,
+    sleep = (milliseconds: number) =>
+      new Promise<void>((resolve) => setTimeout(resolve, milliseconds)),
+    now = Date.now,
+  } = {}
+): Promise<boolean> {
+  const tailStream = stream ?? createLogTailStream(source);
+  let failures = 0;
+  let pauses = 0;
+  let outageSince = 0;
+  for (;;) {
+    let delay = 5000;
+    try {
+      const events = await tailStream.poll();
+      const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
+      const filteredLogs = events.filter(
+        (el) =>
+          !noiseFilter.includes(
+            (el.payload as LogEventPayloadSkeleton).logger
+          ) &&
+          !noiseFilter.includes(el.type) &&
+          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
+          (typeof txid === 'undefined' ||
+            txid === null ||
+            (el.payload as LogEventPayloadSkeleton).transactionId?.includes(
+              txid
+            ))
+      );
 
-    filteredLogs.forEach((e) => {
-      printMessage(JSON.stringify(e), 'data');
-    });
-
-    setTimeout(() => {
-      tailLogs(source, levels, txid, nf, tailStream);
-    }, 5000);
-  } catch (error) {
-    printError(error);
+      filteredLogs.forEach((e) => {
+        printMessage(JSON.stringify(e), 'data');
+      });
+      if (failures > 0) {
+        printMessage(
+          `Log API is responding again after ${failures} failed polls.`
+        );
+        if (now() - outageSince > 15000) {
+          printMessage(
+            'Events from the outage may be missing: the Log API returns only recent events to a tail.',
+            'warn'
+          );
+        }
+      }
+      failures = 0;
+      pauses = 0;
+    } catch (error) {
+      const { status, reset } = logPollError(error);
+      // a step of the pause schedule is used up only by a pause taken from it
+      const nextPause = () =>
+        [5000, 10000, 20000, 30000][Math.min(pauses++, 3)];
+      if (status === 429) {
+        delay =
+          reset != null && reset !== '' && Number.isFinite(Number(reset))
+            ? Math.min(
+                60000,
+                Math.max(5000, Math.ceil(Number(reset) * 1000 - now() + 1000))
+              )
+            : nextPause();
+        printMessage(
+          `Log API rate limit reached (60 requests per minute for the environment, shared with everything that reads its logs). Waiting ${Math.ceil(delay / 1000)} seconds.`,
+          'warn'
+        );
+      } else {
+        delay = nextPause();
+        if (failures === 0) {
+          outageSince = now();
+          printError(error);
+        }
+        if (status === 401 || status === 403) {
+          printMessage(
+            `Log API credentials refused (HTTP ${status}). Stopping log tail.`,
+            'error'
+          );
+          return false;
+        }
+        failures++;
+        if (!keepTrying && failures >= 5) {
+          printMessage(
+            'Stopping log tail after 5 failed polls in a row. Use --keep-trying to keep following through outages.',
+            'error'
+          );
+          return false;
+        }
+        printMessage(
+          `Log API unreachable${status ? ` (HTTP ${status})` : ''}, retrying in ${delay / 1000} seconds (failure ${failures} in a row). Ctrl-C stops.`,
+          'warn'
+        );
+      }
+    }
+    await sleep(delay);
   }
 }
 
