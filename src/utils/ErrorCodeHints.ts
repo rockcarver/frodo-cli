@@ -12,6 +12,11 @@
  * these codes: after a failed login (`getTokens`), and in the result of an MCP
  * tool that failed (`buildErrorResult`). An error of a library that still words
  * the advice itself carries no code, so nothing is printed twice.
+ *
+ * The PROXY_* codes are those of a request that failed because of its proxy
+ * (frodo-lib states which proxy and what it did). Their hints name the
+ * variables the proxy support reads, and never print the proxy URL: it can
+ * carry credentials.
  */
 
 import type { FrodoError } from '@rockcarver/frodo-lib';
@@ -19,6 +24,8 @@ import { printMessage } from './Console';
 
 /** The identity of an error condition, as frodo-lib names it (`FrodoError.code`). */
 export type FrodoErrorCode = NonNullable<FrodoError['code']>;
+
+const PROXY_VARIABLES = 'HTTPS_PROXY or HTTP_PROXY';
 
 const BROWSER_LOGIN_DOC =
   'https://github.com/rockcarver/frodo-cli/blob/main/docs/BROWSER_LOGIN.md';
@@ -40,6 +47,11 @@ export const ERROR_CODE_HINTS: Record<FrodoErrorCode, string> = {
   BROWSER_LOGIN_CLASSIC_CLIENT_ID_REQUIRED: `Pass --login-client-id (or set FRODO_LOGIN_CLIENT_ID) with a public client registered in the realm's own OAuth2 provider; it needs a session-capture script. 'frodo login setup' creates both. See ${BROWSER_LOGIN_DOC}`,
   BROWSER_LOGIN_CLASSIC_SESSION_CAPTURE_REQUIRED: `Configure a session-capture script on the OAuth2 client; 'frodo login setup' does it. See ${BROWSER_LOGIN_DOC}`,
   LOG_API_CREDENTIAL_MISSING: `Set FRODO_LOG_KEY and FRODO_LOG_SECRET for the server, or add the key and secret to the connection profile with 'frodo conn set --log-api-key <key> --log-api-secret <secret>'.`,
+  PROXY_AUTHENTICATION_REQUIRED: `Check the user name and password in the proxy URL of ${PROXY_VARIABLES} (http://user:password@host:port, special characters percent-encoded). If the tenant is reachable without the proxy, list its host in NO_PROXY.`,
+  PROXY_TUNNEL_REFUSED: `Check that the proxy allows connections to the tenant's host and port. If the tenant is reachable without the proxy, list its host in NO_PROXY.`,
+  PROXY_CONNECTION_REFUSED: `Check the address and port of the proxy in ${PROXY_VARIABLES}, and that the proxy is running and reachable from this machine.`,
+  PROXY_CONNECTION_CLOSED: `Check that ${PROXY_VARIABLES} point at a proxy, with the scheme it speaks (http or https). Then check that the proxy allows the tenant's host.`,
+  PROXY_UNREACHABLE: `Check the host name of the proxy in ${PROXY_VARIABLES} for typos, and that this machine can reach it (network, VPN, DNS).`,
 };
 
 /** How deep to look through the errors that wrap errors. */
