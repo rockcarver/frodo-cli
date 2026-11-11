@@ -43,7 +43,6 @@ export const remoteProxyClientId = 'frodo-proxy';
 export const remoteProxySecretPlaceholder = '&{esv.zion.proxy.secret}';
 export const applicationName = 'ZionDirectory';
 export const connectorId = 'ZionDirectory';
-export const cimdProfileId = 'zion-mcp-clients';
 export const cimdUrlPattern = 'https://agents.zion.example.com/*';
 export const cimdProfileFile = 'zion-mcp-clients.oauth2.cimd.json';
 export const allCimdProfilesFile = 'allAlphaCimdProfiles.oauth2.cimd.json';

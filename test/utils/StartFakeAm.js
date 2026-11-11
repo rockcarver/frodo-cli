@@ -138,9 +138,7 @@ export async function startFakeAm({
             ),
           }
         : {}),
-      ...(cimdCompleteOnCreate
-        ? { FAKE_AM_CIMD_COMPLETE_ON_CREATE: '1' }
-        : {}),
+      ...(cimdCompleteOnCreate ? { FAKE_AM_CIMD_COMPLETE_ON_CREATE: '1' } : {}),
       ...(cimdRootDenied ? { FAKE_AM_CIMD_ROOT_DENIED: '1' } : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],

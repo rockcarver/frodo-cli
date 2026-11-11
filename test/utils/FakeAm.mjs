@@ -203,7 +203,9 @@ const secrets = idList(process.env.FAKE_AM_SECRETS);
 const services = idList(process.env.FAKE_AM_SERVICES);
 const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
 const agentTypes = idList(process.env.FAKE_AM_AGENT_TYPES);
-const cimdProfiles = readJson(process.env.FAKE_AM_CIMD_PROFILES_FILE);
+// the profiles of FAKE_AM_CIMD_PROFILES_FILE (a list that the `oauth cimd` tests
+// read, store and delete); FAKE_AM_OAUTH_CIMD_PROFILES keeps its own map above
+const cimdProfileList = readJson(process.env.FAKE_AM_CIMD_PROFILES_FILE);
 const cimdRootDenied = process.env.FAKE_AM_CIMD_ROOT_DENIED === '1';
 const cimdCompleteOnCreate =
   process.env.FAKE_AM_CIMD_COMPLETE_ON_CREATE === '1';
@@ -450,7 +452,10 @@ const server = http.createServer((req, res) => {
         remainingPagedResults: -1,
       });
     }
-    if (cimdProfiles && pathname.includes('/realm-config/agents/CIMDProfile')) {
+    if (
+      cimdProfileList &&
+      pathname.includes('/realm-config/agents/CIMDProfile')
+    ) {
       if (cimdRootDenied && rootRealmOnly) {
         return send(403, CLOUD_NOT_AVAILABLE);
       }
@@ -461,27 +466,27 @@ const server = http.createServer((req, res) => {
         : decodeURIComponent(pathname.split('/agents/CIMDProfile/')[1] ?? '');
       const position = collection
         ? -1
-        : cimdProfiles.findIndex(
+        : cimdProfileList.findIndex(
             (profile) => profile._id.toLowerCase() === wanted.toLowerCase()
           );
       if (collection && req.method === 'GET') {
         return send(200, {
-          result: cimdProfiles,
-          resultCount: cimdProfiles.length,
+          result: cimdProfileList,
+          resultCount: cimdProfileList.length,
           pagedResultsCookie: null,
           totalPagedResultsPolicy: 'EXACT',
-          totalPagedResults: cimdProfiles.length,
+          totalPagedResults: cimdProfileList.length,
           remainingPagedResults: -1,
         });
       }
       if (!collection && req.method === 'GET') {
         return position < 0
           ? send(404, notFound)
-          : send(200, wrapCimdProfile(cimdProfiles[position]));
+          : send(200, wrapCimdProfile(cimdProfileList[position]));
       }
       if (!collection && req.method === 'DELETE') {
         if (position < 0) return send(404, notFound);
-        const [deleted] = cimdProfiles.splice(position, 1);
+        const [deleted] = cimdProfileList.splice(position, 1);
         return send(200, wrapCimdProfile(deleted));
       }
       if (!collection && req.method === 'PUT') {
@@ -501,7 +506,7 @@ const server = http.createServer((req, res) => {
           });
         }
         const stored = {
-          _id: position >= 0 ? cimdProfiles[position]._id : wanted,
+          _id: position >= 0 ? cimdProfileList[position]._id : wanted,
           _rev: String(++cimdRevision),
           ...Object.fromEntries(
             Object.entries(posted).filter(
@@ -522,8 +527,8 @@ const server = http.createServer((req, res) => {
             ...stored.overrideOAuth2ClientConfig,
           };
         }
-        if (position >= 0) cimdProfiles[position] = stored;
-        else cimdProfiles.push(stored);
+        if (position >= 0) cimdProfileList[position] = stored;
+        else cimdProfileList.push(stored);
         return send(position >= 0 ? 200 : 201, wrapCimdProfile(stored));
       }
     }
