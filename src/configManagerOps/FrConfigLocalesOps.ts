@@ -8,7 +8,8 @@ import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 
-const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
+const { readConfigEntitiesByType, importConfigEntities, deleteConfigEntity } =
+  frodo.idm.config;
 const { saveJsonToFile, getFilePath, readJsonFile, getWorkingDirectory } =
   frodo.utils;
 
@@ -112,6 +113,76 @@ export async function configManagerImportLocales(
     return run.finish();
   } catch (error) {
     printError(error, `Error importing locales`);
+    return false;
+  }
+}
+
+/** The start of the id of a locale in the IDM configuration: `uilocale/en`. */
+const LOCALE_ID_PREFIX = 'uilocale/';
+
+/**
+ * Delete locales from the tenant: the one with the given name, or all of them.
+ * A locale is the IDM config entity `uilocale/<name>`; the entities whose id
+ * does not start with `uilocale/` are not locales and are never selected. The
+ * locales are read once and deleted one by one, so that a locale that cannot be
+ * deleted is reported and does not hide the others. Locales that cannot be read
+ * fail the command and nothing is deleted, whatever `allowFailures` says.
+ * @param {string} localeName Optional exact locale name (for example `en`). If omitted (undefined), targets all locales. An empty name is an error, never "all".
+ * @param {boolean} dryRun Show which locales would be deleted without deleting them.
+ * @param {boolean} allowFailures True to succeed although some locales could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} False if the name is empty, the locales cannot be read, a named locale does not exist, or a locale cannot be deleted (unless failures are allowed for a deletion); true otherwise, also when there is nothing to delete and no locale was named.
+ */
+export async function configManagerDeleteLocales(
+  localeName?: string,
+  dryRun: boolean = false,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  // "not given" and "given but empty" are different: an empty name must never
+  // select every locale
+  const named = localeName !== undefined;
+  if (named && localeName.trim() === '') {
+    printMessage(
+      'The locale name must not be empty. To delete all locales, leave out the name.',
+      'error'
+    );
+    return false;
+  }
+  const run = new OperationRun({ unit: 'locale', allowFailures });
+  try {
+    const locales = await readConfigEntitiesByType('uilocale');
+    // the library selects the ids that start with `uilocale` (no slash)
+    const selectedLocales = locales.filter((locale) =>
+      named
+        ? locale._id === `${LOCALE_ID_PREFIX}${localeName}`
+        : locale._id.startsWith(LOCALE_ID_PREFIX)
+    );
+    if (selectedLocales.length === 0) {
+      if (named) {
+        printMessage(`Locale '${localeName}' not found.`, 'error');
+        return false;
+      }
+      printMessage('No locales found to delete.', 'warn');
+      return true;
+    }
+    for (const locale of selectedLocales) {
+      const name = locale._id.slice(LOCALE_ID_PREFIX.length);
+      if (dryRun) {
+        printMessage(`Dry run: Deleting uilocale: ${name}`);
+        continue;
+      }
+      try {
+        await deleteConfigEntity(locale._id);
+        printMessage(`Deleting uilocale: ${name}`);
+        run.recordSuccess();
+      } catch (error) {
+        // the error of the library does not name the locale: the line does
+        printError(error, `Error deleting uilocale ${name}`);
+        run.recordFailure(name, causeOf(error));
+      }
+    }
+    return run.finish();
+  } catch (error) {
+    printError(error, 'Error deleting config entity locales');
     return false;
   }
 }
