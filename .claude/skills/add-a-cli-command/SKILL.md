@@ -54,6 +54,8 @@ Put it in `src/ops/<Thing>Ops.ts`. It adapts the library for the terminal: map a
 
 Add `program.addCommand(ListCmd().name('list'))` (with `import ListCmd from './widget-list.js';`) to the group file. A new group is imported and added in `src/app.ts` (`program.addCommand(widget())`, next to the others; `.helpGroup(...)` only for the "Utilities" or "Continuous integration" headings).
 
+An alias goes through `withAlias`, never `.alias()` (lint rejects it in `src/cli/`): `.withAlias('add')` for a second spelling that stays, `.withAlias('old-name', 'transition')` for the old name of a command you renamed ([cli record 0049](../../../docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md)). The help then shows the preferred name only and ends the description with `(alias: add)` or `(formerly: old-name)`, and typing the old name prints one notice on stderr. The old name stays until a major release removes it; list the rename in [MIGRATION.md](../../../MIGRATION.md).
+
 ```console
 npx tsdown
 node dist/launch.cjs widget list -h
