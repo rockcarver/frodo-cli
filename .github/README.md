@@ -106,9 +106,10 @@ alias of `frodo conn save` is retained. Full detail in the
 - `ig` → use `frodo agent gateway`
 
 **5.0.0 deprecates `frodo agent ai`**: AI agents have a command group of their
-own, `frodo aiagent`, with the same commands and options. `frodo agent ai` keeps
-working through 5.x and prints a notice that names the new command; its removal
-is proposed for 6.0.0. See the [Migration Guide](../MIGRATION.md).
+own, `frodo aiagent`, with the same commands and options (`import` needs `-f` or
+`-A`). `frodo agent ai` is frozen: it keeps working through 5.x as it did and
+prints a notice that names the new command; its removal is proposed for 6.0.0.
+See the [Migration Guide](../MIGRATION.md).
 
 ### New in 4.x (carried forward)
 
