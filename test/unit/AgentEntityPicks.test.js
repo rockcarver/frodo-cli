@@ -39,6 +39,7 @@ describe('the pickers of the agent commands', () => {
     expect(withPicker).toEqual([
       'frodo agent ai delete',
       'frodo agent ai export',
+      'frodo agent cimd describe',
       'frodo agent delete',
       'frodo agent export',
       'frodo agent gateway delete',

@@ -15,6 +15,7 @@
 import {
   frodo,
   state,
+  type CIMDProfileSkeleton,
   type CustomNodeSkeleton,
   type PolicySetSkeleton,
   type PolicySkeleton,
@@ -123,6 +124,19 @@ function connectorId(connector: { _id?: string }): string {
   return (connector._id ?? '').slice(CONNECTOR_ID_PREFIX.length);
 }
 
+/**
+ * The first client id URL pattern of a CIMD profile, for the picker row. The
+ * library returns the plain shape; the by-id read of the server wraps a member
+ * as `{ inherited, value }`, so both are read.
+ */
+function firstCIMDPattern(profile: CIMDProfileSkeleton): string | undefined {
+  const member: unknown = profile.cimdConfig?.cimdClientIdUrlPatterns;
+  const patterns = Array.isArray(member)
+    ? member
+    : (member as { value?: unknown } | undefined)?.value;
+  return Array.isArray(patterns) ? patterns[0] : undefined;
+}
+
 export function registerEntityPickFamilies(): void {
   // The agents (`frodo agent`). Each type has a group of its own and an entry of
   // its own, so the generic entry leaves the typed groups out: a command would
@@ -170,6 +184,8 @@ export function registerEntityPickFamilies(): void {
       ...typedAgents.flatMap(({ group }) =>
         ['delete', 'describe', 'export'].map((verb) => `${group} ${verb}`)
       ),
+      // CIMD profiles have an entry of their own below
+      ...['delete', 'describe', 'export'].map((verb) => `cimd ${verb}`),
     ],
     picks: [
       entityPick<AgentSkeleton>({
@@ -196,6 +212,23 @@ export function registerEntityPickFamilies(): void {
       ],
     });
   }
+
+  // CIMD profiles are not `frodo.agent`: they have their own library module,
+  // so they have an entry of their own, and the generic entry above leaves them
+  // out. `import` names a profile in a file and never inherits a pick.
+  registerEntityPickFamily({
+    family: 'agent cimd',
+    picks: [
+      entityPick<CIMDProfileSkeleton>({
+        name: 'agentId',
+        kind: 'CIMD profile',
+        // the library returns the profiles sorted by id
+        load: async () => frodo.oauth2oidc.cimd.readCIMDProfiles(),
+        label: (profile) => profile._id ?? '',
+        description: (profile) => firstCIMDPattern(profile),
+      }),
+    ],
+  });
 
   // The receiving tenant of `setup` and `teardown`: one of the saved connection
   // profiles, other than the tenant the command is logged in to. It is its own

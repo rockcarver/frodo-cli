@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'agent cimd' should be expected english 1`] = `
+"Usage: frodo agent cimd [options] [command]
+
+Manage CIMD (Client ID Metadata Document) profiles.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Runtime Options:
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
+Commands:
+  describe          Describe a CIMD profile.
+  list              List CIMD profiles.
+
+Utilities:
+  help              display help for command
+
+
+Run without a sub-command to enter interactive mode."
+`;

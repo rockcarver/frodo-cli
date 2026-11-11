@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../FrodoCommand';
 import AICmd from './agent-ai.js';
+import CIMDCmd from './agent-cimd.js';
 import DeleteCmd from './agent-delete.js';
 import DescribeCmd from './agent-describe.js';
 import ExportCmd from './agent-export.js';
@@ -13,6 +14,8 @@ export default function setup() {
   const program = new FrodoStubCommand('agent').description('Manage agents.');
 
   program.addCommand(AICmd().name('ai'));
+
+  program.addCommand(CIMDCmd().name('cimd'));
 
   program.addCommand(GatewayCmd().name('gateway'));
 
