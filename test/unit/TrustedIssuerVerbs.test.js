@@ -535,25 +535,29 @@ describe('oauth issuer delete', () => {
     ]);
   });
 
-  test('-d is the short form of --dry-run', async () => {
-    await parse(setupDelete, '-a', '-d');
+  test('--dry-run has no short form: -d means --default in the commands that have it, and this group cannot change the spelling before a major release', async () => {
+    const option = setupDelete().options.find(
+      (candidate) => candidate.long === '--dry-run'
+    );
+    expect(option.short).toBeUndefined();
+    expect(option.flags).toBe('--dry-run');
 
-    expect(ops.deleteOAuth2TrustedJwtIssuers.mock.calls).toEqual([
-      [undefined, true],
-    ]);
-  });
-
-  test.each([
-    [['-i', 'x', '-a']],
-    [['-i', 'x', '--dry-run']],
-    [['-i', 'x', '-d']],
-  ])('%j is rejected while parsing', async (argv) => {
-    await expect(parse(setupDelete, ...argv)).rejects.toMatchObject({
-      code: 'commander.conflictingOption',
+    await expect(parse(setupDelete, '-a', '-d')).rejects.toMatchObject({
+      code: 'commander.unknownOption',
     });
-
     expect(getTokens).not.toHaveBeenCalled();
   });
+
+  test.each([[['-i', 'x', '-a']], [['-i', 'x', '--dry-run']]])(
+    '%j is rejected while parsing',
+    async (argv) => {
+      await expect(parse(setupDelete, ...argv)).rejects.toMatchObject({
+        code: 'commander.conflictingOption',
+      });
+
+      expect(getTokens).not.toHaveBeenCalled();
+    }
+  );
 
   test('a failed login, a failed delete or a failed delete of all exits 1 and deletes nothing more', async () => {
     getTokens.mockResolvedValue(false);
