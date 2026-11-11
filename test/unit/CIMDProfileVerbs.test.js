@@ -20,6 +20,10 @@ const ops = {
   exportCIMDProfileToFile: jest.fn(),
   exportCIMDProfilesToFile: jest.fn(),
   exportCIMDProfilesToFiles: jest.fn(),
+  importCIMDProfileFromFile: jest.fn(),
+  importCIMDProfilesFromFile: jest.fn(),
+  importCIMDProfilesFromFiles: jest.fn(),
+  importFirstCIMDProfileFromFile: jest.fn(),
 };
 
 // what the real FrodoCommand adds, as far as the commands use it
@@ -71,6 +75,8 @@ const { default: setupDescribe } =
   await import('../../src/cli/agent/agent-cimd-describe');
 const { default: setupExport } =
   await import('../../src/cli/agent/agent-cimd-export');
+const { default: setupImport } =
+  await import('../../src/cli/agent/agent-cimd-import');
 
 /** Parses a real command line; commander errors are thrown, not printed. */
 async function parse(setup, ...argv) {
@@ -105,6 +111,7 @@ describe('agent cimd', () => {
       'list',
       'describe',
       'export',
+      'import',
     ]);
     for (const command of group.commands) {
       expect(command.aliases()).toEqual([]);
@@ -115,10 +122,11 @@ describe('agent cimd', () => {
     await parse(setupList);
     await parse(setupDescribe, '-i', 'zion-mcp-clients');
     await parse(setupExport, '-a');
+    await parse(setupImport, '-f', 'in.json');
 
     // new FrodoCommand(name) and nothing else
-    expect(constructed.map((args) => args.length)).toEqual([1, 1, 1]);
-    expect(getTokens.mock.calls).toEqual([[], [], []]);
+    expect(constructed.map((args) => args.length)).toEqual([1, 1, 1, 1]);
+    expect(getTokens.mock.calls).toEqual([[], [], [], []]);
   });
 });
 
@@ -286,4 +294,95 @@ describe('agent cimd export', () => {
     await parse(setupExport, '-a');
     expect(process.exitCode).toBe(1);
   });
+});
+
+describe('agent cimd import', () => {
+  test('the user has to choose what to import, and the command is a multi-operation command', () => {
+    expect(rulesOf(setupImport)).toEqual({
+      oneOf: { options: ['file', 'allSeparate'], purpose: 'what to import' },
+      multiOp: true,
+    });
+  });
+
+  test('-i with -f imports that profile of the file', async () => {
+    await parse(setupImport, '-i', 'zion-mcp-clients', '-f', 'in.json');
+
+    expect(ops.importCIMDProfileFromFile.mock.calls).toEqual([
+      ['zion-mcp-clients', 'in.json'],
+    ]);
+    expect(ops.importCIMDProfilesFromFile).not.toHaveBeenCalled();
+    expect(ops.importFirstCIMDProfileFromFile).not.toHaveBeenCalled();
+  });
+
+  test('-f alone imports the first profile of the file, never all of them', async () => {
+    await parse(setupImport, '-f', 'in.json');
+
+    expect(ops.importFirstCIMDProfileFromFile.mock.calls).toEqual([
+      ['in.json'],
+    ]);
+    expect(ops.importCIMDProfilesFromFile).not.toHaveBeenCalled();
+    expect(ops.importCIMDProfilesFromFiles).not.toHaveBeenCalled();
+  });
+
+  test('-a with -f imports all profiles of the file and passes --allow-failures on', async () => {
+    await parse(setupImport, '-a', '-f', 'in.json', '--allow-failures');
+    await parse(setupImport, '-a', '-f', 'in.json');
+
+    expect(ops.importCIMDProfilesFromFile.mock.calls).toEqual([
+      ['in.json', true],
+      ['in.json', undefined],
+    ]);
+  });
+
+  test('-A imports the separate files and passes --allow-failures on', async () => {
+    await parse(setupImport, '-A', '--allow-failures');
+
+    expect(ops.importCIMDProfilesFromFiles.mock.calls).toEqual([[true]]);
+    expect(ops.importCIMDProfileFromFile).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    [['-i', 'x', '-f', 'in.json', '-a']],
+    [['-i', 'x', '-A']],
+    [['-A', '-f', 'in.json']],
+    [['-A', '-a']],
+  ])('%j is rejected while parsing, before anything is sent', async (argv) => {
+    await expect(parse(setupImport, ...argv)).rejects.toMatchObject({
+      code: 'commander.conflictingOption',
+    });
+
+    expect(getTokens).not.toHaveBeenCalled();
+  });
+
+  test('has no option that only exists for the other siblings: no --no-deps, no --no-validate', () => {
+    const longs = setupImport().options.map((option) => option.long);
+    expect(longs).not.toContain('--no-deps');
+    expect(longs).not.toContain('--no-validate');
+  });
+
+  test.each([
+    ['-i', ['-i', 'x', '-f', 'in.json'], 'importCIMDProfileFromFile'],
+    ['-f', ['-f', 'in.json'], 'importFirstCIMDProfileFromFile'],
+    ['-a', ['-a', '-f', 'in.json'], 'importCIMDProfilesFromFile'],
+    ['-A', ['-A'], 'importCIMDProfilesFromFiles'],
+  ])(
+    'a failed login exits 1 and a failed import (%s) exits 1',
+    async (_, argv, op) => {
+      getTokens.mockResolvedValue(false);
+      await parse(setupImport, ...argv);
+      expect(ops[op]).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(1);
+
+      process.exitCode = undefined;
+      getTokens.mockResolvedValue(true);
+      ops[op].mockResolvedValue(false);
+      await parse(setupImport, ...argv);
+      expect(process.exitCode).toBe(1);
+
+      process.exitCode = undefined;
+      ops[op].mockResolvedValue(true);
+      await parse(setupImport, ...argv);
+      expect(process.exitCode).toBeUndefined();
+    }
+  );
 });

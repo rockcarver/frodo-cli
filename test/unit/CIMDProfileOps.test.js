@@ -85,10 +85,11 @@ const sparseProfile = (id) => ({
 });
 
 class FakeFrodoError extends Error {
-  constructor(message, code) {
+  constructor(message, code, originalErrors) {
     super(message);
     this.name = 'FrodoError';
     this.code = code;
+    this.originalErrors = originalErrors;
   }
 
   getCombinedMessage() {
@@ -112,6 +113,26 @@ const calls = [];
 let baseDirectory = '';
 /** Decides which file the fake `saveJsonToFile` cannot write. */
 let cannotWrite = () => false;
+/** What the fake import does with a profile: `{ error, created, repaired }` by id; the default is a profile that was created. */
+let importPlan = {};
+
+/** The outcome of the import of one profile, as the library reports it. */
+const importOutcome = (id) => {
+  const plan = importPlan[id] ?? {};
+  if (plan.error) throw plan.error;
+  return {
+    profile: { _id: id },
+    created: plan.created ?? true,
+    repaired: plan.repaired ?? false,
+  };
+};
+/** The error the library reports for a profile it could not import: it names the profile, the cause is nested. */
+const itemError = (id, cause) =>
+  new FakeFrodoError(
+    `Error importing alpha realm CIMD profile ${id}`,
+    undefined,
+    [cause]
+  );
 
 const lib = {
   isCIMDProfileAvailable: async () => {
@@ -131,6 +152,30 @@ const lib = {
     );
     if (!found) throw new Error(`alpha realm CIMD profile ${id} not found`);
     return structuredClone(found);
+  },
+  importCIMDProfile: async (id, data) => {
+    calls.push(['importCIMDProfile', id, data]);
+    if (!offered) throw NOT_AVAILABLE();
+    if (!data.cimdProfile[id]) throw new Error('not found in import data');
+    try {
+      return importOutcome(id);
+    } catch (error) {
+      throw itemError(id, error);
+    }
+  },
+  importCIMDProfiles: async (data, callback) => {
+    calls.push(['importCIMDProfiles', data]);
+    const results = [];
+    for (const id of Object.keys(data.cimdProfile)) {
+      try {
+        const result = importOutcome(id);
+        results.push(result);
+        callback?.(undefined, result);
+      } catch (error) {
+        callback?.(itemError(id, error));
+      }
+    }
+    return results;
   },
   createCIMDProfileExportTemplate: () => ({
     meta: { origin: HOST },
@@ -177,6 +222,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
           .join(' '),
       getFilePath: (file) =>
         baseDirectory ? path.join(baseDirectory, file) : file,
+      getWorkingDirectory: () => baseDirectory || '.',
       // as the library has it, as far as these tests look: the metadata can be left out
       saveJsonToFile: (data, file, includeMeta) => {
         if (cannotWrite(file)) throw new Error('could not write the file');
@@ -207,8 +253,11 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   },
   createProgressIndicator: () => 'indicator',
   updateProgressIndicator: () => {},
-  stopProgressIndicator: (id, msg, status = 'none') =>
-    printed.push({ msg: String(msg), type: `indicator-${status}` }),
+  // as the real one: an indicator that was never created has nothing to stop
+  stopProgressIndicator: (id, msg, status = 'none') => {
+    if (id === undefined || id === null) return;
+    printed.push({ msg: String(msg), type: `indicator-${status}` });
+  },
 }));
 
 // the theme reads the terminal helpers of the library; the colours do not matter here
@@ -225,9 +274,26 @@ const {
   exportCIMDProfilesToFile,
   exportCIMDProfilesToFiles,
   exportCIMDProfileToFile,
+  importCIMDProfileFromFile,
+  importCIMDProfilesFromFile,
+  importCIMDProfilesFromFiles,
+  importFirstCIMDProfileFromFile,
   listCIMDProfiles,
   reportCIMDProfilesUnavailable,
 } = await import('../../src/ops/CIMDProfileOps.ts');
+
+/** An import file of the library's export format, in the directory of the test. */
+const writeImportFile = (name, profiles) =>
+  fs.writeFileSync(
+    path.join(baseDirectory, name),
+    JSON.stringify({
+      meta: { origin: HOST },
+      cimdProfile: Object.fromEntries(
+        profiles.map((profile) => [profile._id, profile])
+      ),
+    })
+  );
+const libCalls = (name) => calls.filter(([called]) => called === name);
 
 const writtenFiles = () => fs.readdirSync(baseDirectory).sort();
 const readWritten = (name) =>
@@ -243,6 +309,7 @@ beforeEach(() => {
   deploymentType = 'cloud';
   realm = '/alpha';
   cannotWrite = () => false;
+  importPlan = {};
   baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-cimd-'));
 });
 
@@ -879,7 +946,10 @@ describe('exportCIMDProfilesToFiles', () => {
       expect(await exportCIMDProfilesToFiles(true, true)).toBe(false);
 
       expect(writtenFiles()).toEqual([]);
-      expect(messages('indicator-fail')).toHaveLength(2);
+      expect(messages('error')).toEqual([
+        'connection reset',
+        'connection reset',
+      ]);
     });
 
     test('a realm that offers the type and holds no profile: nothing to export is not a failure, and no file is written', async () => {
@@ -901,6 +971,450 @@ describe('exportCIMDProfilesToFiles', () => {
       ]);
       expect(messages('info')).toEqual([]);
     });
+  });
+});
+
+describe('importCIMDProfileFromFile (-i)', () => {
+  test('imports exactly the profile named, of a file of three: one library call, with that id and the file as it is', async () => {
+    const profiles = ['a', 'b', 'c'].map((id) => plainProfile(id));
+    writeImportFile('three.cimd.agent.json', profiles);
+
+    expect(await importCIMDProfileFromFile('b', 'three.cimd.agent.json')).toBe(
+      true
+    );
+
+    expect(libCalls('importCIMDProfile')).toHaveLength(1);
+    expect(libCalls('importCIMDProfile')[0][1]).toBe('b');
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+    expect(messages('indicator-success')).toEqual(['Created b.']);
+  });
+
+  test('says Updated for an existing profile and the extra sentence for a created profile that was written again', async () => {
+    writeImportFile('in.json', [plainProfile('a'), plainProfile('b')]);
+    importPlan = {
+      a: { created: false },
+      b: { created: true, repaired: true },
+    };
+
+    expect(await importCIMDProfileFromFile('a', 'in.json')).toBe(true);
+    expect(await importCIMDProfileFromFile('b', 'in.json')).toBe(true);
+
+    expect(messages('indicator-success')).toEqual([
+      'Updated a.',
+      'Created b (the server added defaults; written again as in the file).',
+    ]);
+  });
+
+  test('hands a sparse profile to the library unchanged: no group added, no null filled in', async () => {
+    const sparse = sparseProfile('sparse');
+    writeImportFile('in.json', [sparse]);
+
+    expect(await importCIMDProfileFromFile('sparse', 'in.json')).toBe(true);
+
+    expect(libCalls('importCIMDProfile')[0][2].cimdProfile.sparse).toEqual(
+      sparse
+    );
+  });
+
+  test('hands the wrapped and the plain shape to the library as they are', async () => {
+    const plain = plainProfile('plain');
+    const wrap = wrapped(plainProfile('wrapped'));
+    writeImportFile('in.json', [plain, wrap]);
+
+    expect(await importCIMDProfileFromFile('plain', 'in.json')).toBe(true);
+    expect(await importCIMDProfileFromFile('wrapped', 'in.json')).toBe(true);
+
+    const [first, second] = libCalls('importCIMDProfile');
+    expect(first[2].cimdProfile.plain).toEqual(plain);
+    expect(second[2].cimdProfile.wrapped).toEqual(wrap);
+  });
+
+  test('a profile that is not in the file is an error and nothing is sent', async () => {
+    writeImportFile('in.json', [plainProfile('a')]);
+
+    expect(await importCIMDProfileFromFile('missing', 'in.json')).toBe(false);
+
+    expect(messages('error')).toEqual([
+      expect.stringMatching(/^CIMD profile missing not found in .*in\.json!$/),
+    ]);
+    expect(libCalls('importCIMDProfile')).toEqual([]);
+  });
+
+  test('the id is the key of the file, exactly: an id in another case is not that profile', async () => {
+    writeImportFile('in.json', [plainProfile('a')]);
+
+    expect(await importCIMDProfileFromFile('A', 'in.json')).toBe(false);
+
+    expect(libCalls('importCIMDProfile')).toEqual([]);
+  });
+
+  test('a file that does not exist, is not JSON, or has no cimdProfile section fails', async () => {
+    fs.writeFileSync(path.join(baseDirectory, 'broken.json'), '{ not json');
+    fs.writeFileSync(
+      path.join(baseDirectory, 'other.json'),
+      JSON.stringify({ script: {} })
+    );
+
+    expect(await importCIMDProfileFromFile('a', 'missing.json')).toBe(false);
+    expect(await importCIMDProfileFromFile('a', 'broken.json')).toBe(false);
+    expect(await importCIMDProfileFromFile('a', 'other.json')).toBe(false);
+
+    expect(messages('indicator-fail')).toHaveLength(0);
+    expect(messages('error')).toHaveLength(3);
+    expect(messages('error')[2]).toMatch(
+      /^No CIMD profiles found in .*other\.json$/
+    );
+    expect(libCalls('importCIMDProfile')).toEqual([]);
+  });
+
+  test('a file of 4.x that holds the profiles under the key agent says how to import it', async () => {
+    fs.writeFileSync(
+      path.join(baseDirectory, 'old.agent.json'),
+      JSON.stringify({ agent: { a: plainProfile('a') } })
+    );
+
+    expect(await importCIMDProfileFromFile('a', 'old.agent.json')).toBe(false);
+
+    expect(messages('error')[0]).toMatch(
+      /^No CIMD profiles found in .*old\.agent\.json\. The file holds them under the key 'agent' \(frodo 4\.x\): import it with frodo agent import -f .*old\.agent\.json$/
+    );
+  });
+
+  test('a profile the library cannot import fails with the error of the library', async () => {
+    writeImportFile('in.json', [plainProfile('a')]);
+    importPlan = { a: { error: new Error('Invalid attribute specified.') } };
+
+    expect(await importCIMDProfileFromFile('a', 'in.json')).toBe(false);
+
+    expect(messages('indicator-fail')).toEqual([
+      'Error importing CIMD profile a',
+    ]);
+    expect(messages('error')).toEqual([
+      'Error importing alpha realm CIMD profile a',
+    ]);
+  });
+
+  test('a realm that does not offer the type fails with the error of the library, because the user named the profile', async () => {
+    writeImportFile('in.json', [plainProfile('a')]);
+    offered = false;
+
+    expect(await importCIMDProfileFromFile('a', 'in.json')).toBe(false);
+
+    expect(messages('error')).toEqual([
+      "CIMD profiles are not available in the alpha realm of this deployment: the server does not offer the agent type 'CIMDProfile'.",
+    ]);
+  });
+});
+
+describe('importFirstCIMDProfileFromFile', () => {
+  test('imports the first profile of the file and only that one (it never imports all, frodo-cli#1147)', async () => {
+    writeImportFile('three.json', [
+      plainProfile('first'),
+      plainProfile('second'),
+      plainProfile('third'),
+    ]);
+
+    expect(await importFirstCIMDProfileFromFile('three.json')).toBe(true);
+
+    expect(libCalls('importCIMDProfile').map((call) => call[1])).toEqual([
+      'first',
+    ]);
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+  });
+
+  test('a file without a profile is an error', async () => {
+    writeImportFile('empty.json', []);
+
+    expect(await importFirstCIMDProfileFromFile('empty.json')).toBe(false);
+
+    expect(messages('error')).toEqual([
+      expect.stringMatching(/^No CIMD profile found in .*empty\.json!$/),
+    ]);
+    expect(calls).toEqual([]);
+  });
+
+  test('a file that cannot be used fails', async () => {
+    expect(await importFirstCIMDProfileFromFile('missing.json')).toBe(false);
+  });
+});
+
+describe('importCIMDProfilesFromFile (-a)', () => {
+  const four = () => ['a', 'b', 'c', 'd'].map((id) => plainProfile(id));
+
+  test('imports every profile of the file and counts what was created and updated', async () => {
+    writeImportFile('four.json', four());
+    importPlan = { b: { created: false }, d: { created: false } };
+
+    expect(await importCIMDProfilesFromFile('four.json')).toBe(true);
+
+    expect(libCalls('importCIMDProfiles')).toHaveLength(1);
+    expect(messages('info')).toEqual([
+      'Created a.',
+      'Updated b.',
+      'Created c.',
+      'Updated d.',
+      'Imported 4 CIMD profiles: 2 created, 2 updated.',
+    ]);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('says when a created profile was written again, and counts it as created', async () => {
+    writeImportFile('one.json', [plainProfile('a')]);
+    importPlan = { a: { repaired: true } };
+
+    expect(await importCIMDProfilesFromFile('one.json')).toBe(true);
+
+    expect(messages('info')).toEqual([
+      'Created a (the server added defaults; written again as in the file).',
+      'Imported 1 CIMD profile: 1 created, 0 updated.',
+    ]);
+  });
+
+  test('hands the file to the library as it is (a sparse profile stays sparse)', async () => {
+    const sparse = sparseProfile('sparse');
+    writeImportFile('in.json', [sparse, plainProfile('full')]);
+
+    expect(await importCIMDProfilesFromFile('in.json')).toBe(true);
+
+    expect(libCalls('importCIMDProfiles')[0][1].cimdProfile.sparse).toEqual(
+      sparse
+    );
+  });
+
+  test('one profile that fails does not stop the others: one summary names it, and the command fails', async () => {
+    writeImportFile('four.json', four());
+    importPlan = { b: { error: new Error('Invalid attribute specified.') } };
+
+    expect(await importCIMDProfilesFromFile('four.json')).toBe(false);
+
+    expect(messages('info').slice(-1)).toEqual([
+      'Imported 3 CIMD profiles: 3 created, 0 updated.',
+    ]);
+    expect(messages('error').at(-1)).toBe(
+      '1 of 4 profiles failed:\n  - Error importing alpha realm CIMD profile b: Invalid attribute specified.'
+    );
+  });
+
+  test('with --allow-failures the failure is still printed and the command succeeds', async () => {
+    writeImportFile('four.json', four());
+    importPlan = { b: { error: new Error('Invalid attribute specified.') } };
+
+    expect(await importCIMDProfilesFromFile('four.json', true)).toBe(true);
+
+    expect(messages('warn').at(-1)).toBe(
+      '1 of 4 profiles failed:\n  - Error importing alpha realm CIMD profile b: Invalid attribute specified.\nThe exit code stays 0 because --allow-failures was given.'
+    );
+  });
+
+  test('two failures are both named', async () => {
+    writeImportFile('four.json', four());
+    importPlan = {
+      b: { error: new Error('first reason') },
+      d: {
+        error: new Error(
+          "Wrong agent type! Expected 'CIMDProfile' but got 'WebAgent'."
+        ),
+      },
+    };
+
+    expect(await importCIMDProfilesFromFile('four.json')).toBe(false);
+
+    expect(messages('error').at(-1)).toBe(
+      "2 of 4 profiles failed:\n  - Error importing alpha realm CIMD profile b: first reason\n  - Error importing alpha realm CIMD profile d: Wrong agent type! Expected 'CIMDProfile' but got 'WebAgent'."
+    );
+  });
+
+  test('a file that was named and does not exist, or cannot be parsed, fails whatever --allow-failures says', async () => {
+    fs.writeFileSync(path.join(baseDirectory, 'broken.json'), '{ not json');
+
+    expect(await importCIMDProfilesFromFile('missing.json', true)).toBe(false);
+    expect(await importCIMDProfilesFromFile('broken.json', true)).toBe(false);
+
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+    expect(messages('warn')).toEqual([]);
+  });
+
+  test('a file without a profile has nothing to import, which is not a failure', async () => {
+    writeImportFile('empty.json', []);
+
+    expect(await importCIMDProfilesFromFile('empty.json')).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      expect.stringMatching(/^No CIMD profiles found in .*empty\.json\.$/),
+    ]);
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+  });
+
+  test('two ids that differ only in case are one profile: a warning names both', async () => {
+    writeImportFile('in.json', [plainProfile('Zion'), plainProfile('zion')]);
+
+    expect(await importCIMDProfilesFromFile('in.json')).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      "The ids 'Zion' and 'zion' in in.json are one CIMD profile (ids are not case-sensitive): the later one overwrites the earlier.",
+    ]);
+  });
+});
+
+describe('importCIMDProfilesFromFiles (-A)', () => {
+  test('imports the profiles of every *.cimd.agent.json file of the working directory, in the order of the file names', async () => {
+    writeImportFile('b.cimd.agent.json', [plainProfile('b')]);
+    writeImportFile('a.cimd.agent.json', [plainProfile('a')]);
+
+    expect(await importCIMDProfilesFromFiles()).toBe(true);
+
+    expect(
+      libCalls('importCIMDProfiles').map((call) =>
+        Object.keys(call[1].cimdProfile)
+      )
+    ).toEqual([['a'], ['b']]);
+    expect(messages('info').slice(-1)).toEqual([
+      'Imported 2 CIMD profiles: 2 created, 0 updated.',
+    ]);
+  });
+
+  test('ignores files of other types: x.agent.json, x.web.agent.json and x.cimd.json', async () => {
+    writeImportFile('x.agent.json', [plainProfile('other1')]);
+    writeImportFile('x.web.agent.json', [plainProfile('other2')]);
+    writeImportFile('x.cimd.json', [plainProfile('other3')]);
+    writeImportFile('mine.cimd.agent.json', [plainProfile('mine')]);
+
+    expect(await importCIMDProfilesFromFiles()).toBe(true);
+
+    expect(
+      libCalls('importCIMDProfiles').flatMap((call) =>
+        Object.keys(call[1].cimdProfile)
+      )
+    ).toEqual(['mine']);
+  });
+
+  test('a file that cannot be parsed is a failed item named by its file name; the profiles of the good files are imported', async () => {
+    writeImportFile('a.cimd.agent.json', [plainProfile('a')]);
+    fs.writeFileSync(
+      path.join(baseDirectory, 'b.cimd.agent.json'),
+      '{ not json'
+    );
+    writeImportFile('c.cimd.agent.json', [plainProfile('c')]);
+
+    expect(await importCIMDProfilesFromFiles()).toBe(false);
+
+    expect(
+      libCalls('importCIMDProfiles').flatMap((call) =>
+        Object.keys(call[1].cimdProfile)
+      )
+    ).toEqual(['a', 'c']);
+    expect(messages('error').at(-1)).toMatch(
+      /^1 of 3 profiles failed:\n  - b\.cimd\.agent\.json: /
+    );
+  });
+
+  test('with --allow-failures the unusable file and the failed profile are named and the command succeeds', async () => {
+    writeImportFile('a.cimd.agent.json', [
+      plainProfile('a'),
+      plainProfile('b'),
+    ]);
+    fs.writeFileSync(
+      path.join(baseDirectory, 'c.cimd.agent.json'),
+      '{ not json'
+    );
+    importPlan = { b: { error: new Error('Invalid attribute specified.') } };
+
+    expect(await importCIMDProfilesFromFiles(true)).toBe(true);
+
+    expect(messages('warn').at(-1)).toMatch(
+      /^2 of 3 profiles failed:\n  - Error importing alpha realm CIMD profile b: Invalid attribute specified\.\n  - c\.cimd\.agent\.json: .*\nThe exit code stays 0 because --allow-failures was given\.$/
+    );
+  });
+
+  test('no file is not a failure', async () => {
+    writeImportFile('x.agent.json', [plainProfile('other')]);
+
+    expect(await importCIMDProfilesFromFiles()).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      expect.stringMatching(
+        /^No CIMD profile files \(\*\.cimd\.agent\.json\) found in .*!$/
+      ),
+    ]);
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+  });
+
+  test('a directory that cannot be read ends the command whatever --allow-failures says', async () => {
+    fs.rmSync(baseDirectory, { recursive: true, force: true });
+
+    expect(await importCIMDProfilesFromFiles(true)).toBe(false);
+    expect(await importCIMDProfilesFromFiles(false)).toBe(false);
+  });
+});
+
+describe('a realm that does not offer the type', () => {
+  beforeEach(() => {
+    offered = false;
+  });
+
+  test('-a: every profile of the file is a failed item with the reason, the note is printed once, and nothing is sent', async () => {
+    writeImportFile(
+      'three.json',
+      ['a', 'b', 'c'].map((id) => plainProfile(id))
+    );
+
+    expect(await importCIMDProfilesFromFile('three.json')).toBe(false);
+
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+    expect(messages('warn')).toEqual([
+      `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'.`,
+    ]);
+    expect(messages('error')).toEqual([
+      '3 of 3 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type\n  - b: the server does not offer the CIMDProfile agent type\n  - c: the server does not offer the CIMDProfile agent type',
+    ]);
+  });
+
+  test('-a with --allow-failures keeps the exit code at 0 and still names them', async () => {
+    writeImportFile(
+      'two.json',
+      ['a', 'b'].map((id) => plainProfile(id))
+    );
+
+    expect(await importCIMDProfilesFromFile('two.json', true)).toBe(true);
+
+    expect(messages('warn').at(-1)).toContain(
+      '2 of 2 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type'
+    );
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+  });
+
+  test('-A: the note is printed once for all the files, and every profile of every file is a failed item', async () => {
+    writeImportFile('a.cimd.agent.json', [plainProfile('a')]);
+    writeImportFile('b.cimd.agent.json', [plainProfile('b')]);
+
+    expect(await importCIMDProfilesFromFiles()).toBe(false);
+
+    expect(messages('warn')).toHaveLength(1);
+    expect(messages('error')).toEqual([
+      '2 of 2 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type\n  - b: the server does not offer the CIMDProfile agent type',
+    ]);
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+  });
+
+  test('-A with no file is still not a failure, and says nothing about the type', async () => {
+    expect(await importCIMDProfilesFromFiles()).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      expect.stringMatching(/^No CIMD profile files/),
+    ]);
+  });
+
+  test('a failed check of the type is not an item failure: it fails the command whatever --allow-failures says', async () => {
+    offered = true;
+    availabilityFailure = new Error('agent types unreadable');
+    writeImportFile(
+      'two.json',
+      ['a', 'b'].map((id) => plainProfile(id))
+    );
+
+    expect(await importCIMDProfilesFromFile('two.json', true)).toBe(false);
+
+    expect(messages('error')).toEqual(['agent types unreadable']);
   });
 });
 
@@ -953,6 +1467,39 @@ describe.each(['cloud', 'forgeops', 'classic'])(
         'sparse.cimd.agent.json',
         'zion-mcp-clients.cimd.agent.json',
       ]);
+    });
+
+    test('the imports give the same messages, offered or not', async () => {
+      writeImportFile('in.cimd.agent.json', [
+        plainProfile('a'),
+        plainProfile('b'),
+      ]);
+      importPlan = { b: { created: false } };
+
+      expect(await importCIMDProfileFromFile('a', 'in.cimd.agent.json')).toBe(
+        true
+      );
+      expect(await importCIMDProfilesFromFile('in.cimd.agent.json')).toBe(true);
+      expect(await importCIMDProfilesFromFiles()).toBe(true);
+      expect(messages('indicator-success')).toEqual(['Created a.']);
+      expect(messages('info')).toEqual([
+        'Created a.',
+        'Updated b.',
+        'Imported 2 CIMD profiles: 1 created, 1 updated.',
+        'Created a.',
+        'Updated b.',
+        'Imported 2 CIMD profiles: 1 created, 1 updated.',
+      ]);
+
+      printed.length = 0;
+      offered = false;
+      expect(await importCIMDProfilesFromFile('in.cimd.agent.json', true)).toBe(
+        true
+      );
+      expect(await importCIMDProfilesFromFiles()).toBe(false);
+      expect(messages('error').at(-1)).toContain(
+        '2 of 2 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type'
+      );
     });
 
     test('a type that is not offered gives the same note and the same error', async () => {

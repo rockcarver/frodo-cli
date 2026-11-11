@@ -132,6 +132,8 @@ const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
 const agentTypes = idList(process.env.FAKE_AM_AGENT_TYPES);
 const cimdProfiles = readJson(process.env.FAKE_AM_CIMD_PROFILES_FILE);
 const cimdRootDenied = process.env.FAKE_AM_CIMD_ROOT_DENIED === '1';
+const cimdCompleteOnCreate =
+  process.env.FAKE_AM_CIMD_COMPLETE_ON_CREATE === '1';
 const CLOUD_NOT_AVAILABLE = {
   code: 403,
   reason: 'Forbidden',
@@ -363,6 +365,18 @@ const server = http.createServer((req, res) => {
           ),
           _type: { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
         };
+        if (position < 0 && cimdCompleteOnCreate) {
+          // the server fills in what a create left out
+          stored.coreOAuth2ClientConfig = {
+            status: 'Active',
+            scopes: ['openid'],
+            ...stored.coreOAuth2ClientConfig,
+          };
+          stored.overrideOAuth2ClientConfig = {
+            issueRefreshToken: true,
+            ...stored.overrideOAuth2ClientConfig,
+          };
+        }
         if (position >= 0) cimdProfiles[position] = stored;
         else cimdProfiles.push(stored);
         return send(position >= 0 ? 200 : 201, wrapCimdProfile(stored));

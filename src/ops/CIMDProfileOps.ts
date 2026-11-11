@@ -1,4 +1,13 @@
-import { frodo, state, type CIMDProfileSkeleton } from '@rockcarver/frodo-lib';
+import fs from 'fs';
+import path from 'path';
+import {
+  frodo,
+  state,
+  type CIMDProfileExportInterface,
+  type CIMDProfileImportResult,
+  type CIMDProfileSkeleton,
+  type FrodoError,
+} from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
   createProgressIndicator,
@@ -8,6 +17,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 import { valueOf } from './utils/InheritedValue';
 import { safeTypedFilename } from './utils/SafeFilename';
@@ -18,6 +28,8 @@ const {
   createCIMDProfileExportTemplate,
   exportCIMDProfile,
   exportCIMDProfiles,
+  importCIMDProfile,
+  importCIMDProfiles,
   isCIMDProfileAvailable,
   readCIMDProfile,
   readCIMDProfiles,
@@ -27,12 +39,16 @@ const {
   getFilePath,
   getRealmName,
   getTypedFilename,
+  getWorkingDirectory,
   saveJsonToFile,
   titleCase,
 } = frodo.utils;
 
 /** The file type of an export file of CIMD profiles: `<id>.cimd.agent.json`, in the family of the typed agent files. */
 export const CIMD_FILE_TYPE = 'cimd.agent';
+
+/** The end of the name of an import file of CIMD profiles. */
+const CIMD_FILE_SUFFIX = `.${CIMD_FILE_TYPE}.json`;
 
 /**
  * The name of the realm of the command, for messages and file names. The root
@@ -421,4 +437,322 @@ export async function exportCIMDProfilesToFiles(
 
 function countProfiles(count: number): string {
   return `${count} CIMD profile${count === 1 ? '' : 's'}`;
+}
+
+/** Why the profiles of an import cannot be written, for the summary of the failed items. */
+const NOT_OFFERED_REASON =
+  'the server does not offer the CIMDProfile agent type';
+
+/** What an import did to the profiles of a run, for the closing line. */
+type ImportTally = { created: number; updated: number };
+
+/**
+ * What the library reports for one imported profile, in a sentence.
+ * @param {string} id the id of the profile
+ * @param {CIMDProfileImportResult} result the outcome of the import of the profile
+ * @returns {string} `Created x.`, `Updated x.`, or the sentence for a created profile that was written again
+ */
+function describeImportResult(
+  id: string,
+  result: CIMDProfileImportResult
+): string {
+  if (!result.created) return `Updated ${id}.`;
+  return result.repaired
+    ? `Created ${id} (the server added defaults; written again as in the file).`
+    : `Created ${id}.`;
+}
+
+/**
+ * Read an import file of CIMD profiles. A file that cannot be read or parsed,
+ * or that has no `cimdProfile` section, is an error; a file of 4.x that holds
+ * profiles under the key `agent` says how to import it.
+ * @param {string} filePath the path of the file
+ * @returns {CIMDProfileExportInterface} the import data
+ */
+function readImportFile(filePath: string): CIMDProfileExportInterface {
+  const importData = JSON.parse(
+    fs.readFileSync(filePath, 'utf8')
+  ) as CIMDProfileExportInterface & { agent?: Record<string, unknown> };
+  if (
+    typeof importData?.cimdProfile !== 'object' ||
+    importData.cimdProfile === null
+  ) {
+    const holdsProfilesAsAgents = Object.values(importData?.agent ?? {}).some(
+      (agent) =>
+        (agent as { _type?: { _id?: string } } | undefined)?._type?._id ===
+        'CIMDProfile'
+    );
+    throw new Error(
+      `No CIMD profiles found in ${filePath}` +
+        (holdsProfilesAsAgents
+          ? `. The file holds them under the key 'agent' (frodo 4.x): import it with frodo agent import -f ${filePath}`
+          : '')
+    );
+  }
+  return importData;
+}
+
+/**
+ * Warn about ids that are one profile: ids are not case-sensitive, so the later
+ * one of two ids that differ only in case overwrites the earlier.
+ * @param {CIMDProfileExportInterface} importData the import data
+ * @param {string} source where the data came from, for the message
+ */
+function warnAboutIdsThatDifferOnlyInCase(
+  importData: CIMDProfileExportInterface,
+  source: string
+): void {
+  const byLowerCase = new Map<string, string[]>();
+  for (const id of Object.keys(importData.cimdProfile)) {
+    byLowerCase.set(id.toLowerCase(), [
+      ...(byLowerCase.get(id.toLowerCase()) ?? []),
+      id,
+    ]);
+  }
+  for (const ids of byLowerCase.values()) {
+    if (ids.length > 1) {
+      printMessage(
+        `The ids ${ids.map((id) => `'${id}'`).join(' and ')} in ${source} are one CIMD profile (ids are not case-sensitive): the later one overwrites the earlier.`,
+        'warn'
+      );
+    }
+  }
+}
+
+/**
+ * The closing line of an import of several profiles.
+ * @param {ImportTally} tally what was created and updated
+ */
+function printImportTally(tally: ImportTally): void {
+  const total = tally.created + tally.updated;
+  if (total === 0) return;
+  printMessage(
+    `Imported ${countProfiles(total)}: ${tally.created} created, ${tally.updated} updated.`,
+    'info'
+  );
+}
+
+/**
+ * Import the profiles of parsed import data and record every profile in the
+ * run. A realm that does not offer the type cannot receive any: every profile
+ * is a failed item with the reason, because the profiles were named in a file
+ * the user passed and a quiet skip would leave a pipeline green with an entry
+ * missing from the allow-list (cli record 0040). Otherwise the library tries
+ * every profile and reports each one to the callback; a failed profile does not
+ * stop the others.
+ * @param {object} params structured and named parameters
+ * @param {OperationRun} params.run the run of the command
+ * @param {CIMDProfileExportInterface} params.importData the data to import
+ * @param {string} params.source where the data came from, for the messages
+ * @param {boolean} params.available whether the realm offers the type
+ * @param {ImportTally} params.tally counts what is created and updated
+ */
+async function importProfilesInto({
+  run,
+  importData,
+  source,
+  available,
+  tally,
+}: {
+  run: OperationRun;
+  importData: CIMDProfileExportInterface;
+  source: string;
+  available: boolean;
+  tally: ImportTally;
+}): Promise<void> {
+  const ids = Object.keys(importData.cimdProfile);
+  if (ids.length === 0) return;
+  warnAboutIdsThatDifferOnlyInCase(importData, source);
+  if (!available) {
+    for (const id of ids) {
+      run.recordFailure(id, new Error(NOT_OFFERED_REASON));
+    }
+    return;
+  }
+  const report = run.resultCallback<CIMDProfileImportResult>();
+  try {
+    await importCIMDProfiles(
+      importData,
+      (error?: FrodoError, result?: CIMDProfileImportResult) => {
+        report(error, result);
+        if (result) {
+          if (result.created) tally.created++;
+          else tally.updated++;
+          printMessage(
+            describeImportResult(result.profile?._id ?? source, result),
+            'info'
+          );
+        }
+      }
+    );
+  } catch (error) {
+    // the library reports every profile to the callback, so this is a failure
+    // of the import as a whole
+    printError(error, `Error importing CIMD profiles from ${source}`);
+    run.recordCombinedError(error, { total: ids.length, fallbackName: source });
+  }
+}
+
+/**
+ * Import one CIMD profile from a file. Both the id and the file are the ones
+ * the user named, so a profile that is not in the file is an error, and a
+ * realm that does not offer the type fails with the error of the library.
+ * @param {string} agentId id of the profile, as the file keys it
+ * @param {string} file name of the import file
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importCIMDProfileFromFile(
+  agentId: string,
+  file: string
+): Promise<boolean> {
+  let indicatorId: string | undefined;
+  try {
+    const filePath = getFilePath(file);
+    const importData = readImportFile(filePath);
+    if (!importData.cimdProfile[agentId]) {
+      printMessage(
+        `CIMD profile ${agentId} not found in ${filePath}!`,
+        'error'
+      );
+      return false;
+    }
+    indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing CIMD profile ${agentId}...`
+    );
+    const result = await importCIMDProfile(agentId, importData);
+    stopProgressIndicator(
+      indicatorId,
+      `${describeImportResult(agentId, result)}`,
+      'success'
+    );
+    return true;
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing CIMD profile ${agentId}`,
+      'fail'
+    );
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import the first CIMD profile of a file, and only that one.
+ * @param {string} file name of the import file
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importFirstCIMDProfileFromFile(
+  file: string
+): Promise<boolean> {
+  try {
+    const filePath = getFilePath(file);
+    const [first] = Object.keys(readImportFile(filePath).cimdProfile);
+    if (!first) {
+      printMessage(`No CIMD profile found in ${filePath}!`, 'error');
+      return false;
+    }
+    return await importCIMDProfileFromFile(first, file);
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import all CIMD profiles from one file. Every profile is one operation of an
+ * {@link OperationRun}: the ones that can be imported are imported and one
+ * summary names the ones that could not be. A file that cannot be read or
+ * parsed ends the command whatever `--allow-failures` says. A file without a
+ * profile has nothing to import, which is not a failure (cli record 0041).
+ * @param {string} file name of the import file
+ * @param {boolean} allowFailures true to report profiles that could not be imported but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importCIMDProfilesFromFile(
+  file: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'profile', allowFailures });
+  const tally: ImportTally = { created: 0, updated: 0 };
+  try {
+    // the file the command line names must exist and parse
+    const filePath = getFilePath(file);
+    const importData = readImportFile(filePath);
+    if (Object.keys(importData.cimdProfile).length === 0) {
+      printMessage(`No CIMD profiles found in ${filePath}.`, 'warn');
+      return true;
+    }
+    const available = !(await reportCIMDProfilesUnavailable());
+    await importProfilesInto({
+      run,
+      importData,
+      source: file,
+      available,
+      tally,
+    });
+    printImportTally(tally);
+    return run.finish();
+  } catch (error) {
+    printError(error);
+    if (run.hasFailures) run.finish();
+  }
+  return false;
+}
+
+/**
+ * Import all CIMD profiles from the separate files of the working directory
+ * (`*.cimd.agent.json`). A file that cannot be read or parsed is a failed
+ * item, named by its file name in the summary; the profiles of the other files
+ * are still imported. No file is not a failure (cli record 0041).
+ * @param {boolean} allowFailures true to report files and profiles that could not be imported but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importCIMDProfilesFromFiles(
+  allowFailures: boolean = false
+): Promise<boolean> {
+  const run = new OperationRun({ unit: 'profile', allowFailures });
+  const tally: ImportTally = { created: 0, updated: 0 };
+  try {
+    const directory = getWorkingDirectory();
+    const files = fs
+      .readdirSync(directory)
+      .filter((name) => name.endsWith(CIMD_FILE_SUFFIX))
+      .sort();
+    if (files.length === 0) {
+      printMessage(
+        `No CIMD profile files (*${CIMD_FILE_SUFFIX}) found in ${directory}!`,
+        'warn'
+      );
+      return true;
+    }
+    // asked once for the run, and the note is printed once
+    const available = !(await reportCIMDProfilesUnavailable());
+    for (const file of files) {
+      let importData: CIMDProfileExportInterface;
+      try {
+        importData = readImportFile(path.join(directory, file));
+      } catch (error) {
+        printError(error);
+        run.recordFailure(file, causeOf(error));
+        continue;
+      }
+      await importProfilesInto({
+        run,
+        importData,
+        source: file,
+        available,
+        tally,
+      });
+    }
+    printImportTally(tally);
+    return run.finish();
+  } catch (error) {
+    // not an item failure: the directory could not be read
+    printError(error);
+    if (run.hasFailures) run.finish();
+  }
+  return false;
 }

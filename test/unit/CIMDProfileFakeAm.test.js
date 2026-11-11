@@ -79,6 +79,19 @@ suite('agent cimd through the CLI', () => {
     return started;
   }
 
+  /** An import file in the working directory, in the export format of the library. */
+  const writeImportFile = (name, profiles, folder = '.') => {
+    fs.mkdirSync(path.join(work, folder), { recursive: true });
+    fs.writeFileSync(
+      path.join(work, folder, name),
+      JSON.stringify({
+        cimdProfile: Object.fromEntries(
+          profiles.map((profile) => [profile._id, profile])
+        ),
+      })
+    );
+  };
+
   /** Runs `frodo <args>` in the working directory and answers its exit code and both outputs. */
   function run(args) {
     return new Promise((resolve, reject) => {
@@ -174,6 +187,50 @@ suite('agent cimd through the CLI', () => {
         expect(one.code).toBe(1);
         expect(fs.existsSync(path.join(work, 'out'))).toBe(false);
         expect(fs.readdirSync(work)).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'import -a names every profile of the file as failed (the type is not offered) and exits 1, with --allow-failures it exits 0; import -i exits 1',
+      async () => {
+        writeImportFile('in.cimd.agent.json', [PROFILES[0], PROFILES[1]]);
+        const failing = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-a',
+            '-f',
+            'in.cimd.agent.json',
+          ])
+        );
+        const allowed = await run(
+          onFake(server, ['agent', 'cimd', 'import', '-A', '--allow-failures'])
+        );
+        const one = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-i',
+            'zion-mcp-clients',
+            '-f',
+            'in.cimd.agent.json',
+          ])
+        );
+
+        expect(failing.stderr).toMatch(NOT_AVAILABLE);
+        expect(failing.stderr).toMatch(
+          /2 of 2 profiles failed:\n\s+- zion-mcp-clients: the server does not offer the CIMDProfile agent type\n\s+- alpha-clients: /
+        );
+        expect(failing.code).toBe(1);
+        expect(allowed.stderr).toContain(
+          'The exit code stays 0 because --allow-failures was given.'
+        );
+        expect(allowed.code).toBe(0);
+        expect(one.stderr).toMatch(NOT_AVAILABLE);
+        expect(one.code).toBe(1);
       },
       TIMEOUT
     );
@@ -431,6 +488,285 @@ suite('agent cimd through the CLI', () => {
 
         expect(stderr).toContain('CIMD profile missing not found');
         expect(stdout).toBe('');
+        expect(code).toBe(1);
+      },
+      TIMEOUT
+    );
+  });
+
+  describe('import, on a deployment that offers the type and completes a profile it creates with defaults', () => {
+    let server;
+
+    beforeAll(async () => {
+      server = await fake({
+        agentTypes: ['CIMDProfile'],
+        cimdProfiles: structuredClone(PROFILES),
+        cimdCompleteOnCreate: true,
+      });
+    });
+
+    const listed = async () =>
+      (await run(onFake(server, ['agent', 'cimd', 'list']))).stdout
+        .split('\n')
+        .filter(Boolean);
+
+    const sparse = (id) => ({
+      _id: id,
+      cimdConfig: {
+        cimdClientIdUrlPatterns: ['https://sparse.zion.example.com/*'],
+      },
+      coreOAuth2ClientConfig: { clientName: ['Sparse profile'] },
+    });
+
+    it(
+      'round trip: export -i, import -i creates the profile, a second import updates it',
+      async () => {
+        const exported = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'export',
+            '-i',
+            'zion-mcp-clients',
+            '-D',
+            'out',
+          ])
+        );
+        expect(exported.code).toBe(0);
+        // the same profile under another id
+        const file = path.join(work, 'out', 'zion-mcp-clients.cimd.agent.json');
+        const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+        data.cimdProfile['round-trip'] = {
+          ...data.cimdProfile['zion-mcp-clients'],
+          _id: 'round-trip',
+        };
+        delete data.cimdProfile['zion-mcp-clients'];
+        fs.writeFileSync(file, JSON.stringify(data));
+
+        const created = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-i',
+            'round-trip',
+            '-f',
+            file,
+          ])
+        );
+        const updated = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-i',
+            'round-trip',
+            '-f',
+            file,
+          ])
+        );
+        const described = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'describe',
+            '-i',
+            'round-trip',
+            '--json',
+          ])
+        );
+
+        // the fixture has fewer attributes than the server's defaults, so the library wrote it twice
+        expect(created.stderr).toContain(
+          'Created round-trip (the server added defaults; written again as in the file).'
+        );
+        expect(created.code).toBe(0);
+        expect(updated.stderr).toContain('Updated round-trip.');
+        expect(updated.code).toBe(0);
+        const { _rev, ...expected } = data.cimdProfile['round-trip'];
+        const { _rev: storedRev, ...stored } = JSON.parse(described.stdout);
+        expect(stored).toEqual(expected);
+        expect(_rev).toBeUndefined();
+        expect(storedRev).toBeDefined();
+      },
+      TIMEOUT
+    );
+
+    it(
+      'a sparse profile is created and written again, so that it is stored as the file has it, and the command says so',
+      async () => {
+        writeImportFile('sparse.cimd.agent.json', [sparse('sparse-one')]);
+
+        const imported = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-a',
+            '-f',
+            'sparse.cimd.agent.json',
+          ])
+        );
+        const described = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'describe',
+            '-i',
+            'sparse-one',
+            '--json',
+          ])
+        );
+
+        expect(imported.stderr).toContain(
+          'Created sparse-one (the server added defaults; written again as in the file).'
+        );
+        expect(imported.stderr).toContain(
+          'Imported 1 CIMD profile: 1 created, 0 updated.'
+        );
+        expect(imported.code).toBe(0);
+        const { _rev, ...stored } = JSON.parse(described.stdout);
+        expect(stored).toEqual({
+          ...sparse('sparse-one'),
+          _type: { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+        });
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-f alone imports one profile of a file of three, -a imports them all',
+      async () => {
+        writeImportFile('three.cimd.agent.json', [
+          sparse('three-a'),
+          sparse('three-b'),
+          sparse('three-c'),
+        ]);
+
+        const first = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-f',
+            'three.cimd.agent.json',
+          ])
+        );
+        const afterFirst = await listed();
+        const all = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-a',
+            '-f',
+            'three.cimd.agent.json',
+          ])
+        );
+        const afterAll = await listed();
+
+        expect(first.code).toBe(0);
+        expect(afterFirst.filter((id) => id.startsWith('three-'))).toEqual([
+          'three-a',
+        ]);
+        expect(all.stderr).toContain(
+          'Imported 3 CIMD profiles: 2 created, 1 updated.'
+        );
+        expect(afterAll.filter((id) => id.startsWith('three-'))).toEqual([
+          'three-a',
+          'three-b',
+          'three-c',
+        ]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-A imports the *.cimd.agent.json files of the directory and no other file',
+      async () => {
+        writeImportFile('x.cimd.agent.json', [sparse('dir-x')], 'dir');
+        writeImportFile('y.cimd.agent.json', [sparse('dir-y')], 'dir');
+        writeImportFile('z.agent.json', [sparse('dir-z')], 'dir');
+
+        const { code } = await run(
+          onFake(server, ['agent', 'cimd', 'import', '-A', '-D', 'dir'])
+        );
+
+        expect(code).toBe(0);
+        expect((await listed()).filter((id) => id.startsWith('dir-'))).toEqual([
+          'dir-x',
+          'dir-y',
+        ]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'a profile of another type is a failed item that is named, the others are imported, and the command exits 1 (0 with --allow-failures)',
+      async () => {
+        writeImportFile('mixed.cimd.agent.json', [
+          sparse('mixed-a'),
+          {
+            ...sparse('mixed-b'),
+            _type: { _id: 'WebAgent', name: 'Web Agent', collection: true },
+          },
+          sparse('mixed-c'),
+        ]);
+
+        const failing = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-a',
+            '-f',
+            'mixed.cimd.agent.json',
+          ])
+        );
+        const allowed = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-a',
+            '-f',
+            'mixed.cimd.agent.json',
+            '--allow-failures',
+          ])
+        );
+
+        expect(failing.stderr).toMatch(
+          /1 of 3 profiles failed:\n\s+- Error importing .* CIMD profile mixed-b: Wrong agent type! Expected 'CIMDProfile' but got 'WebAgent'\./
+        );
+        expect(failing.stderr).not.toContain('--allow-failures was given');
+        expect(failing.code).toBe(1);
+        expect(allowed.stderr).toContain(
+          'The exit code stays 0 because --allow-failures was given.'
+        );
+        expect(allowed.code).toBe(0);
+        expect(
+          (await listed()).filter((id) => id.startsWith('mixed-'))
+        ).toEqual(['mixed-a', 'mixed-c']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'a file that was named and does not exist fails whatever --allow-failures says',
+      async () => {
+        const { code, stderr } = await run(
+          onFake(server, [
+            'agent',
+            'cimd',
+            'import',
+            '-a',
+            '-f',
+            'missing.cimd.agent.json',
+            '--allow-failures',
+          ])
+        );
+
+        expect(stderr).toContain('ENOENT');
         expect(code).toBe(1);
       },
       TIMEOUT

@@ -70,6 +70,7 @@ describe('the pickers of the agent commands', () => {
         'frodo agent web describe',
         // -i names an agent in a file
         'frodo agent ai import',
+        'frodo agent cimd import',
         'frodo agent gateway import',
         'frodo agent import',
         'frodo agent java import',

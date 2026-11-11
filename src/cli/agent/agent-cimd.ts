@@ -1,6 +1,7 @@
 import { FrodoStubCommand } from '../FrodoCommand';
 import DescribeCmd from './agent-cimd-describe.js';
 import ExportCmd from './agent-cimd-export.js';
+import ImportCmd from './agent-cimd-import.js';
 import ListCmd from './agent-cimd-list.js';
 
 export default function setup() {
@@ -13,6 +14,8 @@ export default function setup() {
   program.addCommand(DescribeCmd().name('describe'));
 
   program.addCommand(ExportCmd().name('export'));
+
+  program.addCommand(ImportCmd().name('import'));
 
   return program;
 }
