@@ -139,13 +139,17 @@ function ssrfProtectionOf(profile: CIMDProfileSkeleton): string {
  * (so the output of a list stays clean). The question is answered by the
  * library from the agent type list of the deployment; the CLI never reads that
  * list itself.
+ * @param {string} [consequence] what follows from it for the command, added to the note: "Nothing was imported."
  * @returns {Promise<boolean>} true if the type is not offered and the note was printed, false if it is offered
  * @throws if the library cannot find out
  */
-export async function reportCIMDProfilesUnavailable(): Promise<boolean> {
+export async function reportCIMDProfilesUnavailable(
+  consequence?: string
+): Promise<boolean> {
   if (await isCIMDProfileAvailable()) return false;
   printMessage(
-    `CIMD profiles are not available in the ${realmName()} realm of ${state.getHost()}: the server does not offer the agent type 'CIMDProfile'.`,
+    `CIMD profiles are not available in the ${realmName()} realm of ${state.getHost()}: the server does not offer the agent type 'CIMDProfile'.` +
+      (consequence ? ` ${consequence}` : ''),
     'warn'
   );
   return true;
@@ -444,9 +448,8 @@ function countProfiles(count: number): string {
   return `${count} CIMD profile${count === 1 ? '' : 's'}`;
 }
 
-/** Why the profiles of an import cannot be written, for the summary of the failed items. */
-const NOT_OFFERED_REASON =
-  'the server does not offer the CIMDProfile agent type';
+/** What an import of several profiles says when the realm does not offer the type, after the note. */
+const NOTHING_IMPORTED = 'Nothing was imported.';
 
 /** What an import did to the profiles of a run, for the closing line. */
 type ImportTally = { created: number; updated: number };
@@ -539,41 +542,29 @@ function printImportTally(tally: ImportTally): void {
 
 /**
  * Import the profiles of parsed import data and record every profile in the
- * run. A realm that does not offer the type cannot receive any: every profile
- * is a failed item with the reason, because the profiles were named in a file
- * the user passed and a quiet skip would leave a pipeline green with an entry
- * missing from the allow-list (cli record 0040). Otherwise the library tries
- * every profile and reports each one to the callback; a failed profile does not
- * stop the others.
+ * run: the library tries every profile and reports each one to the callback,
+ * and a failed profile does not stop the others. The caller has found out that
+ * the realm offers the type.
  * @param {object} params structured and named parameters
  * @param {OperationRun} params.run the run of the command
  * @param {CIMDProfileExportInterface} params.importData the data to import
  * @param {string} params.source where the data came from, for the messages
- * @param {boolean} params.available whether the realm offers the type
  * @param {ImportTally} params.tally counts what is created and updated
  */
 async function importProfilesInto({
   run,
   importData,
   source,
-  available,
   tally,
 }: {
   run: OperationRun;
   importData: CIMDProfileExportInterface;
   source: string;
-  available: boolean;
   tally: ImportTally;
 }): Promise<void> {
   const ids = Object.keys(importData.cimdProfile);
   if (ids.length === 0) return;
   warnAboutIdsThatDifferOnlyInCase(importData, source);
-  if (!available) {
-    for (const id of ids) {
-      run.recordFailure(id, new Error(NOT_OFFERED_REASON));
-    }
-    return;
-  }
   const report = run.resultCallback<CIMDProfileImportResult>();
   try {
     await importCIMDProfiles(
@@ -671,7 +662,9 @@ export async function importFirstCIMDProfileFromFile(
  * {@link OperationRun}: the ones that can be imported are imported and one
  * summary names the ones that could not be. A file that cannot be read or
  * parsed ends the command whatever `--allow-failures` says. A file without a
- * profile has nothing to import, which is not a failure (cli record 0041).
+ * profile has nothing to import, and a realm that does not offer the type
+ * cannot receive any: neither is a failure (cli records 0040, 0041), the note
+ * says so and nothing is imported.
  * @param {string} file name of the import file
  * @param {boolean} allowFailures true to report profiles that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -690,14 +683,11 @@ export async function importCIMDProfilesFromFile(
       printMessage(`No CIMD profiles found in ${filePath}.`, 'warn');
       return true;
     }
-    const available = !(await reportCIMDProfilesUnavailable());
-    await importProfilesInto({
-      run,
-      importData,
-      source: file,
-      available,
-      tally,
-    });
+    // A realm that does not offer the type is not applicable, which is not a
+    // failure (cli record 0040): one note, nothing is imported, and the
+    // library skips the same way
+    if (await reportCIMDProfilesUnavailable(NOTHING_IMPORTED)) return true;
+    await importProfilesInto({ run, importData, source: file, tally });
     printImportTally(tally);
     return run.finish();
   } catch (error) {
@@ -711,7 +701,8 @@ export async function importCIMDProfilesFromFile(
  * Import all CIMD profiles from the separate files of the working directory
  * (`*.cimd.agent.json`). A file that cannot be read or parsed is a failed
  * item, named by its file name in the summary; the profiles of the other files
- * are still imported. No file is not a failure (cli record 0041).
+ * are still imported. No file, and a realm that does not offer the type, are
+ * not failures (cli records 0040, 0041).
  * @param {boolean} allowFailures true to report files and profiles that could not be imported but still succeed. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
@@ -733,8 +724,9 @@ export async function importCIMDProfilesFromFiles(
       );
       return true;
     }
-    // asked once for the run, and the note is printed once
-    const available = !(await reportCIMDProfilesUnavailable());
+    // asked once for the run, and the note is printed once; the files are not
+    // read, because nothing can be imported (cli record 0040)
+    if (await reportCIMDProfilesUnavailable(NOTHING_IMPORTED)) return true;
     for (const file of files) {
       let importData: CIMDProfileExportInterface;
       try {
@@ -744,13 +736,7 @@ export async function importCIMDProfilesFromFiles(
         run.recordFailure(file, causeOf(error));
         continue;
       }
-      await importProfilesInto({
-        run,
-        importData,
-        source: file,
-        available,
-        tally,
-      });
+      await importProfilesInto({ run, importData, source: file, tally });
     }
     printImportTally(tally);
     return run.finish();

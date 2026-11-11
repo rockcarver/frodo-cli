@@ -1398,52 +1398,102 @@ describe('importCIMDProfilesFromFiles (-A)', () => {
 });
 
 describe('a realm that does not offer the type', () => {
+  const NOTE = `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'. Nothing was imported.`;
+
   beforeEach(() => {
     offered = false;
   });
 
-  test('-a: every profile of the file is a failed item with the reason, the note is printed once, and nothing is sent', async () => {
+  test('-a: one note on stderr, nothing is imported, no profile is a failed item, and the command succeeds (cli record 0040)', async () => {
     writeImportFile(
       'three.json',
       ['a', 'b', 'c'].map((id) => plainProfile(id))
     );
 
-    expect(await importCIMDProfilesFromFile('three.json')).toBe(false);
+    expect(await importCIMDProfilesFromFile('three.json')).toBe(true);
 
     expect(libCalls('importCIMDProfiles')).toEqual([]);
-    expect(messages('warn')).toEqual([
-      `CIMD profiles are not available in the alpha realm of ${HOST}: the server does not offer the agent type 'CIMDProfile'.`,
-    ]);
-    expect(messages('error')).toEqual([
-      '3 of 3 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type\n  - b: the server does not offer the CIMDProfile agent type\n  - c: the server does not offer the CIMDProfile agent type',
-    ]);
+    expect(libCalls('importCIMDProfile')).toEqual([]);
+    expect(messages('warn')).toEqual([NOTE]);
+    expect(messages('error')).toEqual([]);
+    expect(messages('info')).toEqual([]);
   });
 
-  test('-a with --allow-failures keeps the exit code at 0 and still names them', async () => {
+  test('-a with or without --allow-failures gives the same answer: there is nothing to allow', async () => {
     writeImportFile(
       'two.json',
       ['a', 'b'].map((id) => plainProfile(id))
     );
 
     expect(await importCIMDProfilesFromFile('two.json', true)).toBe(true);
+    expect(await importCIMDProfilesFromFile('two.json', false)).toBe(true);
 
-    expect(messages('warn').at(-1)).toContain(
-      '2 of 2 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type'
-    );
+    expect(messages('warn')).toEqual([NOTE, NOTE]);
     expect(libCalls('importCIMDProfiles')).toEqual([]);
   });
 
-  test('-A: the note is printed once for all the files, and every profile of every file is a failed item', async () => {
-    writeImportFile('a.cimd.agent.json', [plainProfile('a')]);
-    writeImportFile('b.cimd.agent.json', [plainProfile('b')]);
+  test('-a still needs a file that exists and parses: the file the command line names is checked first', async () => {
+    fs.writeFileSync(path.join(baseDirectory, 'broken.json'), '{ not json');
 
-    expect(await importCIMDProfilesFromFiles()).toBe(false);
+    expect(await importCIMDProfilesFromFile('missing.json')).toBe(false);
+    expect(await importCIMDProfilesFromFile('broken.json')).toBe(false);
 
-    expect(messages('warn')).toHaveLength(1);
-    expect(messages('error')).toEqual([
-      '2 of 2 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type\n  - b: the server does not offer the CIMDProfile agent type',
+    expect(messages('warn')).toEqual([]);
+  });
+
+  test('-a with a file without a profile says that, not the note about the type', async () => {
+    writeImportFile('empty.json', []);
+
+    expect(await importCIMDProfilesFromFile('empty.json')).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      expect.stringMatching(/^No CIMD profiles found in .*empty\.json\.$/),
     ]);
+  });
+
+  test('-A: one note for all the files, the files are not read, nothing is imported, and the command succeeds', async () => {
+    writeImportFile('a.cimd.agent.json', [plainProfile('a')]);
+    fs.writeFileSync(
+      path.join(baseDirectory, 'b.cimd.agent.json'),
+      '{ not json'
+    );
+
+    expect(await importCIMDProfilesFromFiles()).toBe(true);
+    expect(await importCIMDProfilesFromFiles(true)).toBe(true);
+
+    expect(messages('warn')).toEqual([NOTE, NOTE]);
+    expect(messages('error')).toEqual([]);
     expect(libCalls('importCIMDProfiles')).toEqual([]);
+  });
+
+  test('the first-profile form names one profile: it fails with the error of the library, and nothing is imported', async () => {
+    writeImportFile(
+      'three.json',
+      ['a', 'b', 'c'].map((id) => plainProfile(id))
+    );
+
+    expect(await importFirstCIMDProfileFromFile('three.json')).toBe(false);
+
+    expect(messages('error')).toEqual([
+      "CIMD profiles are not available in the alpha realm of this deployment: the server does not offer the agent type 'CIMDProfile'.",
+    ]);
+    expect(libCalls('importCIMDProfile').map((call) => call[1])).toEqual(['a']);
+    expect(libCalls('importCIMDProfiles')).toEqual([]);
+    expect(messages('warn')).toEqual([]);
+  });
+
+  test('-i names one profile: it fails with the error of the library', async () => {
+    writeImportFile(
+      'three.json',
+      ['a', 'b', 'c'].map((id) => plainProfile(id))
+    );
+
+    expect(await importCIMDProfileFromFile('b', 'three.json')).toBe(false);
+
+    expect(messages('error')).toEqual([
+      "CIMD profiles are not available in the alpha realm of this deployment: the server does not offer the agent type 'CIMDProfile'.",
+    ]);
+    expect(messages('warn')).toEqual([]);
   });
 
   test('-A with no file is still not a failure, and says nothing about the type', async () => {
@@ -1760,14 +1810,19 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       ]);
 
       printed.length = 0;
+      calls.length = 0;
       offered = false;
       expect(await importCIMDProfilesFromFile('in.cimd.agent.json', true)).toBe(
         true
       );
-      expect(await importCIMDProfilesFromFiles()).toBe(false);
-      expect(messages('error').at(-1)).toContain(
-        '2 of 2 profiles failed:\n  - a: the server does not offer the CIMDProfile agent type'
+      expect(await importCIMDProfilesFromFiles()).toBe(true);
+      expect(await importCIMDProfileFromFile('a', 'in.cimd.agent.json')).toBe(
+        false
       );
+      expect(messages('warn')).toHaveLength(2);
+      expect(messages('warn')[0]).toContain('Nothing was imported.');
+      expect(messages('error')).toHaveLength(1);
+      expect(libCalls('importCIMDProfiles')).toEqual([]);
     });
 
     test('the plan and the deletes give the same output', async () => {

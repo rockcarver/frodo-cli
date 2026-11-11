@@ -47,7 +47,7 @@ export default function setup() {
     .multiOp()
     .addHelpText(
       'after',
-      `Importing a profile changes which client_id URLs the authorization server accepts as OAuth 2.0 clients of the realm. Check the URL patterns and the SSRF protection setting of the file first. The scripts and journeys a profile refers to must exist in the realm.\n\n` +
+      `Importing a profile changes which client_id URLs the authorization server accepts as OAuth 2.0 clients of the realm. Check the URL patterns and the SSRF protection setting of the file first. The scripts and journeys a profile refers to must exist in the realm. On a deployment that does not offer CIMD profiles, -a and -A say so and import nothing without failing; -i and the first profile of -f fail.\n\n` +
         `Usage Examples:\n` +
         `  Import the CIMD profile '${s.cimdProfileId}' from a file and log in with AM base URL, realm, username and password:\n` +
         c.command(

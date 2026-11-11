@@ -216,45 +216,48 @@ suite('agent cimd through the CLI', () => {
     );
 
     it(
-      'import -a names every profile of the file as failed (the type is not offered) and exits 1, with --allow-failures it exits 0; import -i exits 1',
+      'import -a and -A skip with one note and exit 0 and send no write; the first-profile form and import -i fail with the error of the library and exit 1',
       async () => {
+        const recordPath = path.join(home, 'requests.log');
+        const logged = await fake({ recordPath });
         writeImportFile('in.cimd.agent.json', [PROFILES[0], PROFILES[1]]);
-        const failing = await run(
-          onFake(server, [
-            'agent',
-            'cimd',
-            'import',
-            '-a',
-            '-f',
-            'in.cimd.agent.json',
-          ])
-        );
-        const allowed = await run(
-          onFake(server, ['agent', 'cimd', 'import', '-A', '--allow-failures'])
-        );
-        const one = await run(
-          onFake(server, [
-            'agent',
-            'cimd',
-            'import',
-            '-i',
-            'zion-mcp-clients',
-            '-f',
-            'in.cimd.agent.json',
-          ])
-        );
+        const importOn = (args) =>
+          run(onFake(logged, ['agent', 'cimd', 'import', ...args]));
 
-        expect(failing.stderr).toMatch(NOT_AVAILABLE);
-        expect(failing.stderr).toMatch(
-          /2 of 2 profiles failed:\n\s+- zion-mcp-clients: the server does not offer the CIMDProfile agent type\n\s+- alpha-clients: /
+        const all = await importOn(['-a', '-f', 'in.cimd.agent.json']);
+        const separate = await importOn(['-A']);
+        const separateAllowed = await importOn(['-A', '--allow-failures']);
+        const writes = readRequests(recordPath).filter(
+          (request) => request.method === 'PUT'
         );
-        expect(failing.code).toBe(1);
-        expect(allowed.stderr).toContain(
-          'The exit code stays 0 because --allow-failures was given.'
-        );
-        expect(allowed.code).toBe(0);
-        expect(one.stderr).toMatch(NOT_AVAILABLE);
-        expect(one.code).toBe(1);
+        const first = await importOn(['-f', 'in.cimd.agent.json']);
+        const one = await importOn([
+          '-i',
+          'zion-mcp-clients',
+          '-f',
+          'in.cimd.agent.json',
+        ]);
+
+        for (const skipped of [all, separate, separateAllowed]) {
+          expect(skipped.stderr).toMatch(NOT_AVAILABLE);
+          expect(skipped.stderr).toContain('Nothing was imported.');
+          expect(skipped.stderr).not.toContain('failed');
+          expect(
+            skipped.stderr.match(/CIMD profiles are not available/g)
+          ).toHaveLength(1);
+          expect(skipped.stdout).toBe('');
+          expect(skipped.code).toBe(0);
+        }
+        expect(writes).toEqual([]);
+        for (const named of [first, one]) {
+          expect(named.stderr).toMatch(NOT_AVAILABLE);
+          expect(named.stderr).not.toContain('Nothing was imported.');
+          expect(named.stderr).not.toMatch(/\n\s+at /);
+          expect(named.code).toBe(1);
+        }
+        expect(
+          readRequests(recordPath).filter((request) => request.method === 'PUT')
+        ).toEqual([]);
       },
       TIMEOUT
     );
@@ -897,6 +900,20 @@ suite('agent cimd through the CLI', () => {
         expect(code).toBe(1);
         expect(stderr).toContain('missing');
         expect(await listed()).toHaveLength(2);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '--dry-run has no short option: -d is an unknown option, and no request is sent',
+      async () => {
+        const { code, stderr } = await run(
+          onFake(server, ['agent', 'cimd', 'delete', '-a', '-d'])
+        );
+
+        expect(stderr).toContain("unknown option '-d'");
+        expect(code).not.toBe(0);
+        expect(readRequests(recordPath)).toEqual([]);
       },
       TIMEOUT
     );

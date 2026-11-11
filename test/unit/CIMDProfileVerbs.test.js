@@ -474,7 +474,7 @@ describe('agent cimd delete', () => {
 
   test('-a --dry-run hands the preview on, to both the guard (which asks nothing then) and the ops function (which deletes nothing)', async () => {
     await parse(setupDelete, '-a', '--dry-run');
-    await parse(setupDelete, '-a', '-d');
+    await parse(setupDelete, '-a', '--dry-run', '--yes');
 
     for (const call of checkBulkDelete.mock.calls) {
       expect(call[0]).toMatchObject({ dryRun: true, dryRunAvailable: true });
@@ -498,17 +498,16 @@ describe('agent cimd delete', () => {
     expect(process.exitCode).toBeUndefined();
   });
 
-  test.each([
-    [['-i', 'x', '-a']],
-    [['-i', 'x', '--dry-run']],
-    [['-i', 'x', '-d']],
-  ])('%j is rejected while parsing, before anything is sent', async (argv) => {
-    await expect(parse(setupDelete, ...argv)).rejects.toMatchObject({
-      code: 'commander.conflictingOption',
-    });
+  test.each([[['-i', 'x', '-a']], [['-i', 'x', '--dry-run']]])(
+    '%j is rejected while parsing, before anything is sent',
+    async (argv) => {
+      await expect(parse(setupDelete, ...argv)).rejects.toMatchObject({
+        code: 'commander.conflictingOption',
+      });
 
-    expect(getTokens).not.toHaveBeenCalled();
-  });
+      expect(getTokens).not.toHaveBeenCalled();
+    }
+  );
 
   test('a failed login, a declined pick or a failed delete exits 1', async () => {
     getTokens.mockResolvedValue(false);
@@ -526,6 +525,17 @@ describe('agent cimd delete', () => {
     ops.deleteCIMDProfiles.mockResolvedValue(false);
     await parse(setupDelete, '-a', '-y');
     expect(process.exitCode).toBe(1);
+  });
+
+  test('--dry-run has no short option: -d means --default elsewhere in frodo', async () => {
+    const option = setupDelete().options.find(
+      (candidate) => candidate.long === '--dry-run'
+    );
+    expect(option.short).toBeUndefined();
+    await expect(parse(setupDelete, '-a', '-d')).rejects.toMatchObject({
+      code: 'commander.unknownOption',
+    });
+    expect(getTokens).not.toHaveBeenCalled();
   });
 
   test('the usage examples carry --yes or --dry-run for every -a form', () => {

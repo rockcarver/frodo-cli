@@ -33,7 +33,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-d, --dry-run',
+        '--dry-run',
         'Show which CIMD profiles would be deleted and delete nothing. Only with -a. Cannot be used with -i.'
       ).conflicts(['agentId'])
     )
