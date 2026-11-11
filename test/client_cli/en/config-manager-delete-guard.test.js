@@ -37,6 +37,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete locales',
     'frodo config-manager delete secrets',
     'frodo config-manager delete terms-and-conditions',
+    'frodo config-manager delete trusted-jwt-issuers',
     'frodo config-manager delete variables',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
@@ -96,6 +97,12 @@ describe('a delete of more than one object without a terminal and without --yes'
     expect(stderr).toContain('all CIMD profiles in the selected realms');
   });
 
+  test('the refusal of trusted JWT issuers says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete trusted-jwt-issuers');
+
+    expect(stderr).toContain('all trusted JWT issuers in the selected realms');
+  });
+
   test('the refusal of applications says that the objects they own go too', async () => {
     const { stderr } = await run('frodo config-manager delete applications');
 
@@ -107,6 +114,7 @@ describe('what is not refused', () => {
   test.each([
     'frodo config-manager delete applications -n Example',
     'frodo config-manager delete cimd-profiles -n Example',
+    'frodo config-manager delete trusted-jwt-issuers -n Example',
     'frodo config-manager delete custom-nodes -n Example',
     'frodo config-manager delete endpoints -n Example',
     'frodo config-manager delete scripts -n Example',
@@ -121,6 +129,9 @@ describe('what is not refused', () => {
     'frodo config-manager delete cimd-profiles -d',
     'frodo config-manager delete cimd-profiles -n Example -d',
     'frodo config-manager delete cimd-profiles -y',
+    'frodo config-manager delete trusted-jwt-issuers -d',
+    'frodo config-manager delete trusted-jwt-issuers -n Example -d',
+    'frodo config-manager delete trusted-jwt-issuers -y',
     'frodo config-manager delete applications -d',
     'frodo config-manager delete applications -n Example -d',
     'frodo config-manager delete custom-nodes -d',
@@ -178,6 +189,22 @@ describe('an empty CIMD profile name', () => {
 
     expect(code).toBe(1);
     expect(stderr).toContain('The CIMD profile name must not be empty');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('an empty trusted JWT issuer name', () => {
+  test.each([
+    "frodo config-manager delete trusted-jwt-issuers -n ''",
+    "frodo config-manager delete trusted-jwt-issuers -n '' -y",
+    "frodo config-manager delete trusted-jwt-issuers -n '' -d",
+    'frodo config-manager delete trusted-jwt-issuers --name=',
+  ])('"%s" is an error before the login, not a delete of all trusted JWT issuers', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The trusted JWT issuer name must not be empty');
     expect(stderr).not.toContain('Refusing to delete');
     expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
   });

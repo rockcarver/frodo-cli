@@ -69,6 +69,7 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
         'secrets',
         'terms-and-conditions',
         'themes',
+        'trusted-jwt-issuers',
         'variables',
       ])
     );

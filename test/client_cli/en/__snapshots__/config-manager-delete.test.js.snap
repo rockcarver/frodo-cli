@@ -31,6 +31,7 @@ Commands:
   test                  [Experimental] Test connection and authentication.
   themes                [Experimental] Delete themes by name or delete all
                         themes in the selected realms.
+  trusted-jwt-issuers   [Experimental] Delete trusted JWT issuers.
   variables             [Experimental] [Cloud-only] Delete variables.
 
 Utilities:

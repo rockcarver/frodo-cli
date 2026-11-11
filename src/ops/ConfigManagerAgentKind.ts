@@ -871,14 +871,25 @@ async function selectAgentKindToDelete(
       const all = (await hooks.list()).filter(
         (item): item is { _id: string } => typeof item._id === 'string'
       );
-      const wanted = name?.toLowerCase();
+      // an exact match wins; otherwise the match ignoring case, which must be one object
+      // (the servers of some types hold one object for ids that differ only in case, others may not)
+      const exact =
+        name === undefined ? all : all.filter((item) => item._id === name);
       const chosen =
-        name === undefined
-          ? all
-          : all.filter((item) => item._id.toLowerCase() === wanted);
+        name === undefined || exact.length > 0
+          ? exact
+          : all.filter((item) => item._id.toLowerCase() === name.toLowerCase());
       if (name !== undefined && chosen.length === 0) {
         printMessage(
           `${capital} '${name}' not found in realm '${currentRealm}'.`,
+          'error'
+        );
+        namedFailed = true;
+        continue;
+      }
+      if (name !== undefined && chosen.length > 1) {
+        printMessage(
+          `${capital} '${name}' matches several ${kind.plural} in realm '${currentRealm}' (${chosen.map((item) => item._id).join(', ')}); use the exact name.`,
           'error'
         );
         namedFailed = true;

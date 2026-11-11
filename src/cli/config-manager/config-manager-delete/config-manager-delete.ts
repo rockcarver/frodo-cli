@@ -10,6 +10,7 @@ import CustomNodes from './config-manager-delete-custom-nodes';
 import Scripts from './config-manager-delete-scripts';
 import Secrets from './config-manager-delete-secrets';
 import TermsConditions from './config-manager-delete-terms-and-conditions';
+import TrustedJwtIssuers from './config-manager-delete-trusted-jwt-issuers';
 import Variables from './config-manager-delete-variables';
 
 export default function setup() {
@@ -28,5 +29,6 @@ export default function setup() {
   program.addCommand(Variables().name('variables'));
   program.addCommand(Locales().name('locales'));
   program.addCommand(CimdProfiles().name('cimd-profiles'));
+  program.addCommand(TrustedJwtIssuers().name('trusted-jwt-issuers'));
   return program;
 }

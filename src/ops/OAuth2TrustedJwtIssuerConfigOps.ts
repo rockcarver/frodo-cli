@@ -26,9 +26,12 @@ import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import {
   agentKindFilePath,
+  deleteAgentKind,
   pullAgentKind,
   pushAgentKind,
+  showAgentKindDeletePlan,
   type AgentKindSpec,
+  type DeleteHooks,
   type PulledItem,
 } from './ConfigManagerAgentKind';
 
@@ -245,5 +248,61 @@ export async function configManagerImportTrustedJwtIssuers(
       },
     },
     { name, realm, allowFailures }
+  );
+}
+
+/** What the delete of trusted JWT issuers reads and deletes. */
+const deleteHooks: DeleteHooks = {
+  list: () => issuer.readOAuth2TrustedJwtIssuers(),
+  remove: (id) => issuer.deleteOAuth2TrustedJwtIssuer(id),
+  effect:
+    'Tokens and JWT grants signed by these issuers are rejected until a trusted JWT issuer for them exists again.',
+};
+
+/**
+ * Delete the trusted JWT issuers of every realm (or one realm, or one issuer) from the tenant. An
+ * issuer is a trust anchor: deleting it disables every JWT-bearer flow that relied on it, with no
+ * undo (a tree in version control holds the files to push back). The issuers are read first, so
+ * that the dry run and the answer for a name that does not exist are the same as what a deletion
+ * does; a name matches exactly, or ignoring case when that is one issuer. Every deletion is one
+ * operation of an {@link OperationRun}: see {@link deleteAgentKind}; whatever a deletion rejects
+ * with (the library gives a raw HTTP error for some failures) is a named failure. The guard that
+ * asks before a bulk delete is the command's (cli record 0037).
+ * @param {string} name optional name: delete only that issuer (needs a single realm)
+ * @param {string} realm optional realm: delete only in that realm. Default: every realm (the root realm of a Cloud tenant has no trusted JWT issuers)
+ * @param {boolean} dryRun true to say what would be deleted without deleting it. Default: false
+ * @param {boolean} allowFailures true to report issuers that could not be deleted but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function configManagerDeleteTrustedJwtIssuers(
+  name?: string,
+  realm?: string,
+  dryRun: boolean = false,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return deleteAgentKind(TRUSTED_JWT_ISSUER_KIND, deleteHooks, {
+    name,
+    realm,
+    dryRun,
+    allowFailures,
+  });
+}
+
+/**
+ * Show which trusted JWT issuers a delete would delete and what that does to the grants they
+ * allow, without deleting anything.
+ * @param {string} name optional name: only that issuer
+ * @param {string} realm optional realm: only that realm
+ * @returns {Promise<boolean>} false, after printing why, if the issuers cannot be read
+ */
+export async function showTrustedJwtIssuerDeletePlan(
+  name?: string,
+  realm?: string
+): Promise<boolean> {
+  return showAgentKindDeletePlan(
+    TRUSTED_JWT_ISSUER_KIND,
+    deleteHooks,
+    name,
+    realm
   );
 }

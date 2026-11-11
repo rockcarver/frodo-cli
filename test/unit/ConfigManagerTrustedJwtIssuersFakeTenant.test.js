@@ -408,4 +408,115 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
       TIMEOUT
     );
   });
+  describe('delete', () => {
+    const deletes = () => requests().filter((r) => r.method === 'DELETE');
+
+    it(
+      'is refused without a terminal and without --yes, before any request',
+      async () => {
+        const run = await tenant({ trustedJwtIssuers: ['zion-issuer'] });
+
+        const { code, output } = await run([
+          'config-manager',
+          'delete',
+          'trusted-jwt-issuers',
+          ...target(),
+        ]);
+
+        expect(code).toBe(1);
+        expect(output).toContain('Refusing to delete all trusted JWT issuers');
+        expect(output).toContain('-y/--yes');
+        expect(requests()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'previews with --dry-run and deletes with --yes',
+      async () => {
+        const run = await tenant({
+          trustedJwtIssuers: ['zion-issuer', 'zion-other'],
+        });
+
+        const preview = await run([
+          'config-manager',
+          'delete',
+          'trusted-jwt-issuers',
+          '-d',
+          ...target(),
+        ]);
+        expect(preview.code).toBe(0);
+        expect(preview.output).toContain(
+          'Dry run: Deleting trusted JWT issuer: alpha/zion-issuer'
+        );
+        expect(deletes()).toEqual([]);
+
+        const done = await run([
+          'config-manager',
+          'delete',
+          'trusted-jwt-issuers',
+          '-y',
+          ...target(),
+        ]);
+        expect(done.code).toBe(0);
+        expect(done.output).toContain(
+          'Deleted trusted JWT issuer: alpha/zion-issuer'
+        );
+        expect(done.output).toContain(
+          'Deleted trusted JWT issuer: alpha/zion-other'
+        );
+        expect(
+          deletes().map((r) => decodeURIComponent(r.url.split('/').pop()))
+        ).toEqual(['zion-issuer', 'zion-other']);
+
+        const again = await run([
+          'config-manager',
+          'delete',
+          'trusted-jwt-issuers',
+          '-y',
+          ...target(),
+        ]);
+        expect(again.code).toBe(0);
+        expect(again.output).toContain(
+          'No trusted JWT issuers found to delete.'
+        );
+      },
+      TIMEOUT
+    );
+
+    it(
+      'deletes one issuer by name without asking, and fails for a name that is not there',
+      async () => {
+        const run = await tenant({
+          trustedJwtIssuers: ['zion-issuer', 'zion-other'],
+        });
+
+        const one = await run([
+          'config-manager',
+          'delete',
+          'trusted-jwt-issuers',
+          '-n',
+          'zion-issuer',
+          ...target(),
+        ]);
+        expect(one.code).toBe(0);
+        expect(deletes()).toHaveLength(1);
+        expect(deletes()[0].url).toContain('/TrustedJwtIssuer/zion-issuer');
+
+        const missing = await run([
+          'config-manager',
+          'delete',
+          'trusted-jwt-issuers',
+          '-n',
+          'zion-issuer',
+          ...target(),
+        ]);
+        expect(missing.code).toBe(1);
+        expect(missing.output).toContain(
+          "Trusted JWT issuer 'zion-issuer' not found in realm 'alpha'."
+        );
+      },
+      TIMEOUT
+    );
+  });
 });
