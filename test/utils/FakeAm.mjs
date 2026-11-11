@@ -59,6 +59,14 @@
  * kept in memory for the life of the process, whatever the realm of the URL.
  * It wins over FAKE_AM_ISSUER_FILE when both are set. An empty array is a realm
  * without issuers.
+ * FAKE_AM_AI_AGENTS_FILE=<path> names a JSON array of AI agents (objects with `_id`,
+ * `_type` and the settings sections AM holds, e.g. `coreOAuth2ClientConfig`) the fake
+ * serves as a collection (`.../realm-config/agents/AIAgent`): the query (`_queryFilter=true`
+ * or `_id eq '<id>'`) and a read by id answer the agents as they are (`404` for a missing id), `PUT` stores one (`201` for a
+ * new id, `200` otherwise) and `DELETE` removes one (`404` for a missing id). The agents
+ * are kept in memory for the life of the process, whatever the realm of the URL. An empty
+ * array is a realm without AI agents. Only the AM calls are served, so use a classic
+ * login (`-m classic`): a cloud login reads the agent identities from IDM as well.
  * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
  * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
  * the OAuth2 client picker of the admin commands reads it.
@@ -132,6 +140,9 @@ const users = readJson(process.env.FAKE_AM_USERS_FILE);
 const trustedIssuers = readJson(process.env.FAKE_AM_TRUSTED_ISSUERS_FILE)?.map(
   (issuer) => ({ ...issuer })
 );
+const aiAgents = readJson(process.env.FAKE_AM_AI_AGENTS_FILE)?.map((agent) => ({
+  ...agent,
+}));
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
 const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
@@ -195,6 +206,51 @@ function selectUsers(filter) {
       return operator === 'eq' ? have === wanted : have.startsWith(wanted);
     })
   );
+}
+/**
+ * Answers a request for the AI agent collection (`.../realm-config/agents/AIAgent`
+ * and `.../AIAgent/<id>`) from `aiAgents`, or returns false when the request is not
+ * one. `send(status, payload)` writes the answer.
+ */
+function serveAiAgents(req, body, send) {
+  const route = req.url
+    .split('?')[0]
+    .match(/\/realm-config\/agents\/AIAgent(?:\/([^/]+))?$/);
+  if (!aiAgents || !route) return false;
+  const notFound = { code: 404, reason: 'Not Found', message: 'Not Found' };
+  const id = route[1] && decodeURIComponent(route[1]);
+  const index = aiAgents.findIndex(({ _id }) => _id === id);
+  if (!id && req.method === 'GET') {
+    // `_queryFilter=true` selects every agent, `_id eq '<id>'` the one with that id
+    const filter = new URL(req.url, 'http://fake').searchParams.get(
+      '_queryFilter'
+    );
+    const byId = filter?.match(/^_id eq '(.*)'$/);
+    const result = byId
+      ? aiAgents.filter(({ _id }) => _id === byId[1])
+      : aiAgents;
+    send(200, {
+      result,
+      resultCount: result.length,
+      pagedResultsCookie: null,
+      totalPagedResultsPolicy: 'EXACT',
+      totalPagedResults: result.length,
+      remainingPagedResults: -1,
+    });
+  } else if (id && req.method === 'GET') {
+    send(index < 0 ? 404 : 200, index < 0 ? notFound : aiAgents[index]);
+  } else if (id && req.method === 'PUT') {
+    const stored = { ...(body ? JSON.parse(body) : {}), _id: id, _rev: '1' };
+    if (index < 0) aiAgents.push(stored);
+    else aiAgents[index] = stored;
+    send(index < 0 ? 201 : 200, stored);
+  } else if (id && req.method === 'DELETE') {
+    if (index < 0) send(404, notFound);
+    else send(200, aiAgents.splice(index, 1)[0]);
+  } else {
+    return false;
+  }
+  return true;
 }
 let step = 0;
 
@@ -273,6 +329,7 @@ const server = http.createServer((req, res) => {
         expires_in: 3600,
       });
     }
+    if (serveAiAgents(req, body, send)) return;
     const issuerRoute = req.url
       .split('?')[0]
       .match(/\/realm-config\/agents\/TrustedJwtIssuer(?:\/([^/]+))?$/);

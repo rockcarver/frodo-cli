@@ -25,8 +25,10 @@ const hasAgentId = (leaf) =>
 let leaves = [];
 
 beforeAll(async () => {
-  leaves = (await loadLeafCommands()).filter((leaf) =>
-    fullName(leaf).startsWith('frodo agent ')
+  leaves = (await loadLeafCommands()).filter(
+    (leaf) =>
+      fullName(leaf).startsWith('frodo agent ') ||
+      fullName(leaf).startsWith('frodo aiagent ')
   );
 });
 
@@ -47,6 +49,8 @@ describe('the pickers of the agent commands', () => {
       'frodo agent java export',
       'frodo agent web delete',
       'frodo agent web export',
+      'frodo aiagent delete',
+      'frodo aiagent export',
     ]);
     for (const leaf of leaves) {
       expect(agentIdPicks(leaf).length).toBeLessThanOrEqual(1);
@@ -66,12 +70,14 @@ describe('the pickers of the agent commands', () => {
         'frodo agent gateway describe',
         'frodo agent java describe',
         'frodo agent web describe',
+        'frodo aiagent describe',
         // -i names an agent in a file
         'frodo agent ai import',
         'frodo agent gateway import',
         'frodo agent import',
         'frodo agent java import',
         'frodo agent web import',
+        'frodo aiagent import',
       ].sort()
     );
   });
@@ -88,15 +94,20 @@ describe('the pickers of the agent commands', () => {
   });
 
   it('declares no picker in a command file: the framework resolves it', () => {
-    const dir = fileURLToPath(new URL('../../src/cli/agent/', import.meta.url));
-    const offending = fs
-      .readdirSync(dir)
-      .filter((file) => file.endsWith('.ts'))
-      .filter((file) =>
-        /deferEntityPicks|resolveEntityPicks/.test(
-          fs.readFileSync(`${dir}${file}`, 'utf8')
-        )
+    const offending = ['agent', 'aiagent'].flatMap((group) => {
+      const dir = fileURLToPath(
+        new URL(`../../src/cli/${group}/`, import.meta.url)
       );
+      return fs
+        .readdirSync(dir)
+        .filter((file) => file.endsWith('.ts'))
+        .filter((file) =>
+          /deferEntityPicks|resolveEntityPicks/.test(
+            fs.readFileSync(`${dir}${file}`, 'utf8')
+          )
+        )
+        .map((file) => `${group}/${file}`);
+    });
     expect(offending).toEqual([]);
   });
 });
