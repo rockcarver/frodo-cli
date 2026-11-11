@@ -22,7 +22,7 @@ import { Command } from 'commander';
  *   delete of everything;
  * - the mapping and alias commands, which print a usage error for an
  *   incomplete command line, still do so without a terminal and without a
- *   login (record 0030: the command lines that worked do not change).
+ *   login (record 0047: with prompting off the framework adds nothing).
  */
 
 const getTokens = jest.fn();

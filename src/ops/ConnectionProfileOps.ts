@@ -131,6 +131,56 @@ export function listConnectionProfiles(long: boolean = false): void {
 }
 
 /**
+ * Replace the value of every header with a placeholder. The names of the
+ * headers say what the deployment needs; the values are secrets.
+ * @param {Record<string, string>} headers header names and values
+ * @param {string} placeholder what replaces each value
+ * @returns {Record<string, string>} a new map with the same names
+ */
+function maskHeaderValues(
+  headers: Record<string, string>,
+  placeholder: string
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.keys(headers).map((header) => [header, placeholder])
+  );
+}
+
+/**
+ * Read the value of `--authentication-header-overrides` or
+ * `--configuration-header-overrides`: a JSON object of header names and values.
+ * The values are secrets, so a value that is not valid says what is wrong
+ * without quoting it (the message of `JSON.parse` quotes the start of the text).
+ * @param {string} json the option value
+ * @param {string} option the option, for the message
+ * @returns {Record<string, string>} header names and values
+ * @throws {Error} if the value is not a JSON object whose values are all strings
+ */
+export function parseHeaderOverrides(
+  json: string,
+  option: string
+): Record<string, string> {
+  const invalid = new Error(
+    `The value of ${option} is not valid. Give a JSON object of header names and string values, for example '{"X-Example":"value"}'. The value itself is not shown because it may be a secret.`
+  );
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    throw invalid;
+  }
+  if (
+    !parsed ||
+    typeof parsed !== 'object' ||
+    Array.isArray(parsed) ||
+    Object.values(parsed).some((value) => typeof value !== 'string')
+  ) {
+    throw invalid;
+  }
+  return parsed as Record<string, string>;
+}
+
+/**
  * Describe connection profile
  * @param {string} host Host URL, unique substring, or alias
  * @param {boolean} showSecrets Whether secrets should be shown in clear text or not
@@ -159,12 +209,17 @@ export async function describeConnectionProfile(
       if (profile.logApiSecret) profile.logApiSecret = present;
       if (profile.svcacctJwk) (profile as unknown)['svcacctJwk'] = present;
       if (profile.amsterPrivateKey) profile.amsterPrivateKey = present;
+      // The values of both header override maps are secrets: the names stay.
       if (profile.authenticationHeaderOverrides) {
-        profile.authenticationHeaderOverrides = Object.fromEntries(
-          Object.keys(profile.authenticationHeaderOverrides).map((header) => [
-            header,
-            present,
-          ])
+        profile.authenticationHeaderOverrides = maskHeaderValues(
+          profile.authenticationHeaderOverrides,
+          present
+        );
+      }
+      if (profile.configurationHeaderOverrides) {
+        profile.configurationHeaderOverrides = maskHeaderValues(
+          profile.configurationHeaderOverrides,
+          present
         );
       }
     }
@@ -262,6 +317,7 @@ export async function describeConnectionProfile(
       logApiSecret: 'Log API Secret',
       authenticationService: 'Authentication Service',
       authenticationHeaderOverrides: 'Authentication Header Overrides',
+      configurationHeaderOverrides: 'Configuration Header Overrides',
       svcacctName: 'Service Account Name',
       svcacctId: 'Service Account Id',
       svcacctJwk: 'Service Account JWK',

@@ -3876,7 +3876,7 @@ export class FrodoCommand extends FrodoStubCommand {
    * realm limits `frodo config export` with `-r`, `--realm-only`, and changes
    * nothing without it), so the post-auth realm picker may open only then. The
    * picker is the ordinary one and keeps every other condition (records 0001
-   * and 0030): it opens for a command line that was incomplete, never for a
+   * and 0047): it opens for a command line that was incomplete, never for a
    * complete one. Call it after the option is added.
    * See src/utils/interactive/RealmUse.ts.
    * @param option The attribute name of the option, for example `realmOnly` for `-r, --realm-only`.
