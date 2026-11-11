@@ -13,7 +13,10 @@ import { Command, Option } from 'commander';
  */
 
 const OPS = {
-  CIMDProfileConfigOps: ['configManagerExportCIMDProfiles'],
+  CIMDProfileConfigOps: [
+    'configManagerExportCIMDProfiles',
+    'configManagerImportCIMDProfiles',
+  ],
 };
 const ops = {};
 for (const [module, names] of Object.entries(OPS)) {
@@ -88,6 +91,13 @@ const COMMANDS = [
       allowFailures,
       'cimd-profiles.json',
     ],
+  },
+  {
+    name: 'config-manager push cimd-profiles',
+    file: 'config-manager-push/config-manager-push-cimd-profiles',
+    fn: 'configManagerImportCIMDProfiles',
+    options: { name: 'zion-agents' },
+    args: (allowFailures) => ['zion-agents', 'alpha', allowFailures],
   },
 ];
 

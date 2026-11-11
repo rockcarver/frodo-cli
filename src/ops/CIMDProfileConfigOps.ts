@@ -13,10 +13,18 @@
  * - a profile holds no secret: the file is the object as the library lists it (the plain shape, the
  *   one `agent export` and `config export` write too), without `_rev`.
  */
-import { frodo } from '@rockcarver/frodo-lib';
+import {
+  frodo,
+  type CIMDProfileExportInterface,
+  type CIMDProfileSkeleton,
+  type FrodoError,
+} from '@rockcarver/frodo-lib';
+import { printError, printMessage } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import {
   agentKindFilePath,
   pullAgentKind,
+  pushAgentKind,
   type AgentKindSpec,
   type PulledItem,
 } from './ConfigManagerAgentKind';
@@ -88,5 +96,84 @@ export async function configManagerExportCIMDProfiles(
       },
     },
     { name, realm, quiet, allowFailures, overridesFile }
+  );
+}
+
+/**
+ * Why a profile could not be imported, for the summary: the cause at the bottom of the error chain.
+ * A profile that the server created but that could not be written a second time (the server
+ * completes a created profile with its defaults, and the library writes the file's version over
+ * it) exists with the server's defaults, which the summary says.
+ * @param {unknown} error the error the library reported for the profile
+ * @returns {string} the reason
+ */
+function importFailureReason(error: unknown): string {
+  const reason = causeOf(error);
+  return (error as Error)?.message?.includes('created, but not restored')
+    ? `created, but not restored to the file's state: ${reason}`
+    : reason;
+}
+
+/** Characters in an id that the server accepts although the documentation calls them invalid. */
+const UNUSUAL_ID_CHARACTERS = /[ [\]|]/;
+
+/**
+ * Import the CIMD profiles of the files `realms/<realm>/realm-config/agents/CIMDProfile/<name>.json`
+ * (what `pull cimd-profiles` writes) into the realms they are in: a profile that does not exist is
+ * created and one that does is replaced by exactly what the file holds (what the file leaves out is
+ * removed). A profile is never deleted. The id is the `_id` of the file, otherwise its name;
+ * `${NAME}` is filled from the environment; plain and wrapped values are sent as they are. The
+ * library refuses an id the server cannot hold and a file of another `_type`, and writes a created
+ * profile a second time when the server completed it with its defaults, so that it equals the file.
+ *
+ * A realm or a deployment that does not offer CIMD profiles is skipped with one warning that counts
+ * the files, which is not a failure. The scripts and journeys that a profile names must exist
+ * already: push them first. See {@link pushAgentKind} for how files, failures and the name work.
+ * @param {string} name optional name: push only the file of that profile (needs a single realm)
+ * @param {string} realm optional realm: push only that realm. Default: every realm folder of the tree (the root realm of a Cloud tenant has no CIMD profiles)
+ * @param {boolean} allowFailures true to report profiles that could not be pushed but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function configManagerImportCIMDProfiles(
+  name?: string,
+  realm?: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return pushAgentKind(
+    CIMD_PROFILE_KIND,
+    {
+      isAvailable: () => cimd.isCIMDProfileAvailable(),
+      inspect: (currentRealm, { id, file }) => {
+        // the server accepts these, the documentation calls them invalid: the console may not manage the profile
+        if (UNUSUAL_ID_CHARACTERS.test(id)) {
+          printMessage(
+            `CIMD profile '${id}' (${file}) of realm '${currentRealm}' has a space, a bracket or a pipe character in its id. The server accepts it, but the console may not manage the profile.`,
+            'warn'
+          );
+        }
+      },
+      importRealm: async (items, { realmDir, run }) => {
+        const importData: CIMDProfileExportInterface = { cimdProfile: {} };
+        for (const { id, body } of items) {
+          importData.cimdProfile[id] = body as CIMDProfileSkeleton;
+        }
+        // the library reports the profiles in the order of the keys, which is not always the order of the files
+        const ids = Object.keys(importData.cimdProfile);
+        let position = 0;
+        await cimd.importCIMDProfiles(
+          importData,
+          (error?: FrodoError): void => {
+            const label = `${realmDir}/${ids[position++]}`;
+            if (error) {
+              printError(error);
+              run.recordFailure(label, importFailureReason(error));
+            } else {
+              run.recordSuccess();
+            }
+          }
+        );
+      },
+    },
+    { name, realm, allowFailures }
   );
 }

@@ -12,15 +12,25 @@
  * - every object is one operation of an {@link OperationRun} (decision record 0040), and what the
  *   command line names must exist whatever `--allow-failures` says (decision record 0041).
  */
+import fs from 'fs';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { printError, printMessage } from '../utils/Console';
+import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
-import { realmList, safeFileName } from '../utils/FrConfig';
+import {
+  clearOperationalAttributes,
+  realmList,
+  safeFileName,
+} from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 
 const { DEFAULT_REALM_KEY, CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
-const { readJsonFile, escapePlaceholders, getFilePath, saveJsonToFile } =
-  frodo.utils;
+const {
+  readJsonFile,
+  escapePlaceholders,
+  getFilePath,
+  getWorkingDirectory,
+  saveJsonToFile,
+} = frodo.utils;
 const { mergeDeep } = frodo.utils.json;
 
 /** What a kind is called, in the words of its messages. */
@@ -464,6 +474,275 @@ export async function pullAgentKind(
     return run.finish() && !namedFailed;
   } catch (error) {
     printError(error, `Error pulling ${kind.plural}`);
+    return false;
+  }
+}
+
+/** An object of a push: the file it came from and what is sent. */
+export interface PushItem {
+  /** The id the object is pushed under: the `_id` of the file, otherwise the file name. */
+  id: string;
+  /** The file name with its extension, for the messages. */
+  file: string;
+  /** The object of the file, with placeholders resolved and without `_id`, `_rev` and the other operational attributes. */
+  body: Record<string, unknown>;
+}
+
+/** What a kind provides to {@link pushAgentKind}. */
+export interface PushHooks {
+  /**
+   * Whether the current realm offers the type. A realm that does not cannot receive any file:
+   * the files are skipped with one warning, which is not a failure (with a name it fails).
+   */
+  isAvailable?: () => Promise<boolean>;
+  /** Called with each file that was read, to warn about its id or content. A warning changes no exit code. */
+  inspect?: (realm: string, item: PushItem) => void;
+  /** The reason to refuse a file before anything is sent for it, if there is one: it is a named failure of that file. */
+  refuse?: (item: PushItem) => string | undefined;
+  /**
+   * Sends the objects of one realm (the state is set to it) and records the outcome of each in the
+   * run, by `run.recordSuccess()` or `run.recordFailure('<realm folder>/<id>', reason)`. A thrown
+   * error is one failed operation, named after the realm.
+   */
+  importRealm: (
+    items: PushItem[],
+    context: { realm: string; realmDir: string; run: OperationRun }
+  ) => Promise<void>;
+}
+
+/** The settings of a push. */
+export interface PushSettings {
+  name?: string;
+  realm?: string;
+  allowFailures?: boolean;
+}
+
+/** Whether a path is an existing directory. */
+function isDirectory(dir: string): boolean {
+  try {
+    return fs.statSync(dir).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The id of an object whose file has no `_id`: the file name without the extension, decoded, because
+ * the file names of a pull percent-encode what a file system rejects.
+ * @param {string} file the file name
+ * @returns {string} the id
+ */
+function idOfFile(file: string): string {
+  const name = file.replace(/\.json$/, '');
+  try {
+    return decodeURIComponent(name);
+  } catch {
+    return name;
+  }
+}
+
+/**
+ * The files of a folder that a push reads: every `*.json`, sorted; with a name only its file
+ * (the name made safe for a file system, otherwise the plain name).
+ * @param {string} dir the folder of the type in one realm
+ * @param {string} name optional name
+ * @returns {string[]} the file names, none if the named file does not exist
+ */
+function filesToPush(dir: string, name?: string): string[] {
+  if (name === undefined) {
+    return fs
+      .readdirSync(dir)
+      .filter((file) => file.endsWith('.json'))
+      .sort();
+  }
+  return [`${safeFileName(name)}.json`, `${name}.json`]
+    .filter((file) => fs.existsSync(`${dir}/${file}`))
+    .slice(0, 1);
+}
+
+/**
+ * Import the objects of one agent type from the files of the tree, in every realm folder (or one
+ * realm, or one file).
+ *
+ * Every file is one operation of an {@link OperationRun}: a file that cannot be read or parsed
+ * (an unresolved placeholder included), a second file for an id that an earlier one has (ids are
+ * compared ignoring case, because the server holds one object for ids that differ only in case),
+ * and an object the kind refuses or the library cannot import are named in one summary, and the
+ * other files are still pushed. A realm or a deployment that does not offer the type is skipped
+ * with a warning. A missing `realms` folder, a named file that is missing or cannot be read, a
+ * name without a single realm and a named realm that does not offer the type fail the command
+ * whatever `--allow-failures` says. Nothing is ever deleted.
+ * @param {AgentKindSpec} kind what the kind is called
+ * @param {PushHooks} hooks what the kind sends
+ * @param {PushSettings} settings the command line
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function pushAgentKind(
+  kind: AgentKindSpec,
+  hooks: PushHooks,
+  { name, realm, allowFailures = false }: PushSettings
+): Promise<boolean> {
+  const run = new OperationRun({ unit: kind.label, allowFailures });
+  try {
+    if (isCloudRootRealm(realm)) {
+      if (name) {
+        printMessage(rootRealmMessage(kind), 'error');
+        return false;
+      }
+      printMessage(rootRealmMessage(kind), 'info');
+      return true;
+    }
+    const realmsDir = getFilePath('realms');
+    if (!isDirectory(realmsDir)) {
+      printMessage(
+        `There is no 'realms' folder in '${getWorkingDirectory()}', so there are no ${kind.plural} to push.`,
+        'error'
+      );
+      return false;
+    }
+    const realmsInTree =
+      realm && realm !== DEFAULT_REALM_KEY
+        ? [realm]
+        : fs
+            .readdirSync(realmsDir, { withFileTypes: true })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => realmOfDir(entry.name))
+            .sort();
+    const realms =
+      state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+        ? realmsInTree.filter((r) => r !== '/')
+        : realmsInTree;
+    if (name && realms.length !== 1) {
+      printMessage(singleRealmMessage(kind), 'error');
+      return false;
+    }
+
+    let namedFailed = false;
+    let found = 0;
+    const capital = `${kind.label.charAt(0).toUpperCase()}${kind.label.slice(1)}`;
+
+    for (const currentRealm of realms) {
+      const realmDir = realmDirOf(currentRealm);
+      const dir = getFilePath(
+        `realms/${realmDir}/realm-config/agents/${kind.agentType}`
+      );
+      const files = isDirectory(dir) ? filesToPush(dir, name) : [];
+      if (files.length === 0) {
+        if (name) {
+          printMessage(
+            `No ${kind.label} file '${name}.json' in ${dir}.`,
+            'error'
+          );
+          namedFailed = true;
+        } else {
+          verboseMessage(`No ${kind.plural} in ${dir}.`);
+        }
+        continue;
+      }
+      found += files.length;
+
+      const items: PushItem[] = [];
+      const seen = new Map<string, string>();
+      for (const file of files) {
+        const label = `${realmDir}/${file}`;
+        let object: unknown;
+        try {
+          object = readJsonFile(`${dir}/${file}`);
+          if (
+            typeof object !== 'object' ||
+            object === null ||
+            Array.isArray(object)
+          ) {
+            throw new FrodoError(`${file} is not a JSON object`);
+          }
+        } catch (error) {
+          printError(error);
+          run.recordFailure(label, causeOf(error));
+          // the file the command line names: nothing for the flag to allow
+          if (name) namedFailed = true;
+          continue;
+        }
+        const body = { ...(object as Record<string, unknown>) };
+        const id =
+          typeof body._id === 'string' && body._id !== ''
+            ? body._id
+            : idOfFile(file);
+        clearOperationalAttributes(body);
+        const first = seen.get(id.toLowerCase());
+        if (first !== undefined) {
+          const reason = `two files for ${kind.label} '${id}' in realm '${currentRealm}': ${file} is ignored (${first} was read first)`;
+          printMessage(reason, 'error');
+          run.recordFailure(label, reason);
+          continue;
+        }
+        seen.set(id.toLowerCase(), file);
+        const item: PushItem = { id, file, body };
+        const refusal = hooks.refuse?.(item);
+        if (refusal) {
+          printMessage(`${capital} file ${file}: ${refusal}`, 'error');
+          run.recordFailure(label, refusal);
+          if (name) namedFailed = true;
+          continue;
+        }
+        hooks.inspect?.(currentRealm, item);
+        items.push(item);
+      }
+      if (items.length === 0) continue;
+
+      state.setRealm(currentRealm);
+      if (hooks.isAvailable) {
+        let available: boolean;
+        try {
+          available = await hooks.isAvailable();
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the ${kind.plural} of realm '${currentRealm}'`
+          );
+          if (name) namedFailed = true;
+          else run.recordFailure(`realm ${realmDir}`, causeOf(error));
+          continue;
+        }
+        if (!available) {
+          // skipped, not failed: a tree for a newer deployment pushed to an older one
+          if (name) {
+            printMessage(
+              `${kind.plural.charAt(0).toUpperCase()}${kind.plural.slice(1)} are not available in realm '${currentRealm}' of this deployment, so '${name}' cannot be pushed.`,
+              'error'
+            );
+            namedFailed = true;
+          } else {
+            printMessage(
+              `Realm '${currentRealm}' does not offer ${kind.plural} on this deployment: ${items.length} ${items.length === 1 ? 'file' : 'files'} in ${dir} ${items.length === 1 ? 'was' : 'were'} not pushed.`,
+              'warn'
+            );
+          }
+          continue;
+        }
+      }
+      try {
+        await hooks.importRealm(items, {
+          realm: currentRealm,
+          realmDir,
+          run,
+        });
+      } catch (error) {
+        printError(
+          error,
+          `Error pushing the ${kind.plural} of realm '${currentRealm}'`
+        );
+        if (name) namedFailed = true;
+        run.recordFailure(`realm ${realmDir}`, causeOf(error));
+      }
+    }
+
+    if (found === 0 && !namedFailed) {
+      printMessage(`No ${kind.label} files found in '${realmsDir}'.`, 'info');
+    }
+    return run.finish() && !namedFailed;
+  } catch (error) {
+    printError(error, `Error pushing ${kind.plural}`);
+    if (run.hasFailures) run.finish();
     return false;
   }
 }

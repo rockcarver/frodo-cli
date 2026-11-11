@@ -57,8 +57,9 @@
  * have the type) and hold CIMD profiles of those ids (an empty value: none). The
  * profiles are the same in every realm and live as long as the fake: the list
  * (`.../agents/CIMDProfile?_queryFilter=true`) answers with them in the plain
- * shape, a `PUT` stores the body (`201` for a new id, `200` for an existing one;
- * ids are matched ignoring case, as AM does) and refuses a `_rev` in it with `400
+ * shape, a `PUT` stores the body (`201` for a new id, which the server completes
+ * with a default group the body lacks, `200` for an existing one, which stores
+ * exactly the body; ids are matched ignoring case, as AM does) and refuses a `_rev` in it with `400
  * Invalid attribute specified`, and a `DELETE` removes one (`404` when missing).
  * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
  * (`.../scripts`) answer with scripts of those names, the way the script
@@ -315,6 +316,10 @@ const server = http.createServer((req, res) => {
           }
           const created = !cimdProfiles.has(key);
           const stored = {
+            // a created profile is completed with the server's defaults, an updated one is stored as sent
+            ...(created
+              ? { coreOAuth2ClientConfig: { redirectionUris: [] } }
+              : {}),
             ...posted,
             _id: cimdProfiles.get(key)?._id ?? id,
             _rev: '-2',

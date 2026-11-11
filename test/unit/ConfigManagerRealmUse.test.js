@@ -46,6 +46,7 @@ const USES_REALM = [
   'frodo config-manager pull themes',
   'frodo config-manager push applications',
   'frodo config-manager push authentication',
+  'frodo config-manager push cimd-profiles',
   'frodo config-manager push journeys',
   'frodo config-manager push password-policy',
   'frodo config-manager push saml',

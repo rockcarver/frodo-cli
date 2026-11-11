@@ -5,6 +5,7 @@ import Applications from './config-manager-push-applications';
 import Audit from './config-manager-push-audit';
 import Authentication from './config-manager-push-authentication';
 import AuthzPolicies from './config-manager-push-authz-policies';
+import CimdProfiles from './config-manager-push-cimd-profiles';
 import Metadata from './config-manager-push-config-metadata';
 import ConnectorDefinitions from './config-manager-push-connector-definitions';
 import ConnectorMappings from './config-manager-push-connector-mappings';
@@ -81,6 +82,7 @@ export default function setup() {
   program.addCommand(DirectControlApply().name('direct-control-apply'));
   program.addCommand(DirectControlInit().name('direct-control-init'));
   program.addCommand(DirectControlState().name('direct-control-state'));
+  program.addCommand(CimdProfiles().name('cimd-profiles'));
   program.addCommand(RemoteProxies().name('remote-proxies'));
   program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(SecretMappings().name('secret-mappings'));
