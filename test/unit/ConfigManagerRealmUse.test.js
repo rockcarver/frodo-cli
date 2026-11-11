@@ -29,6 +29,7 @@ import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
  */
 const USES_REALM = [
   'frodo config-manager delete applications',
+  'frodo config-manager delete cimd-profiles',
   'frodo config-manager delete scripts',
   'frodo config-manager delete themes',
   'frodo config-manager migrate applications',

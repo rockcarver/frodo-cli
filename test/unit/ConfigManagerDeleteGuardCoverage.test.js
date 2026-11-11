@@ -60,6 +60,7 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
     expect(names).toEqual(
       expect.arrayContaining([
         'applications',
+        'cimd-profiles',
         'custom-nodes',
         'email-templates',
         'endpoints',

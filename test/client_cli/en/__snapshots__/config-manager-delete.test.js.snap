@@ -19,6 +19,7 @@ Runtime Options:
 Commands:
   applications          [Experimental] Delete applications together with the
                         objects they own.
+  cimd-profiles         [Experimental] Delete CIMD profiles.
   custom-nodes          [Experimental] Delete custom nodes.
   email-templates       [Experimental] Delete email template objects.
   endpoints             [Experimental] Delete custom endpoint objects.

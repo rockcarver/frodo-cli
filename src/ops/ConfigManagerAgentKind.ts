@@ -304,6 +304,31 @@ export interface PullSettings {
 }
 
 /**
+ * Run one object as an operation of a run, with the reason at the bottom of the error chain in the
+ * summary (a library error says what it was doing, "Error deleting alpha realm CIMD profile x", and
+ * the reason worth showing is what went wrong underneath).
+ * @param {OperationRun} run the run
+ * @param {string} label what the operation is called in the summary
+ * @param {() => Promise<void> | void} work the work
+ * @returns {Promise<boolean>} true if the work succeeded
+ */
+async function runWithCause(
+  run: OperationRun,
+  label: string,
+  work: () => Promise<void> | void
+): Promise<boolean> {
+  try {
+    await work();
+    run.recordSuccess();
+    return true;
+  } catch (error) {
+    printError(error);
+    run.recordFailure(label, causeOf(error));
+    return false;
+  }
+}
+
+/**
  * Export the objects of one agent type of every realm (or one realm, or one object) into the
  * tree, one file per object at {@link agentKindFilePath}.
  *
@@ -434,25 +459,29 @@ export async function pullAgentKind(
       for (const item of sorted) {
         const fileName = names.get(item.id);
         if (fileName === undefined) continue;
-        const succeeded = await run.run(`${realmDir}/${item.id}`, async () => {
-          let config = escapePlaceholders(await item.read()) as Record<
-            string,
-            unknown
-          >;
-          const own = overridesOf(overrides, currentRealm, item.id, matched);
-          if (own) config = mergeDeep(config, own) as Record<string, unknown>;
-          hooks.inspect?.(currentRealm, item.id, config);
-          saveJsonToFile(
-            config,
-            getFilePath(
-              agentKindFilePath(kind.agentType, currentRealm, fileName),
+        const succeeded = await runWithCause(
+          run,
+          `${realmDir}/${item.id}`,
+          async () => {
+            let config = escapePlaceholders(await item.read()) as Record<
+              string,
+              unknown
+            >;
+            const own = overridesOf(overrides, currentRealm, item.id, matched);
+            if (own) config = mergeDeep(config, own) as Record<string, unknown>;
+            hooks.inspect?.(currentRealm, item.id, config);
+            saveJsonToFile(
+              config,
+              getFilePath(
+                agentKindFilePath(kind.agentType, currentRealm, fileName),
+                true
+              ),
+              false,
+              false,
               true
-            ),
-            false,
-            false,
-            true
-          );
-        });
+            );
+          }
+        );
         if (name && !succeeded) namedFailed = true;
       }
     }
@@ -743,6 +772,237 @@ export async function pushAgentKind(
   } catch (error) {
     printError(error, `Error pushing ${kind.plural}`);
     if (run.hasFailures) run.finish();
+    return false;
+  }
+}
+
+/** What a kind provides to {@link deleteAgentKind} and {@link showAgentKindDeletePlan}. */
+export interface DeleteHooks {
+  /** Whether the current realm offers the type. A realm that does not has nothing to delete (with a name it fails). */
+  isAvailable?: () => Promise<boolean>;
+  /** The objects of the current realm (the state is set to it). A failure is the failure of the realm. */
+  list: () => Promise<{ _id?: string }[]>;
+  /** Deletes one object by its stored id. */
+  remove: (id: string) => Promise<unknown>;
+  /** The sentence of the plan that says what a deletion does to whatever depends on the objects. */
+  effect: string;
+}
+
+/** The settings of a delete. */
+export interface DeleteSettings {
+  name?: string;
+  realm?: string;
+  dryRun?: boolean;
+  allowFailures?: boolean;
+}
+
+/** The objects to delete in one realm. */
+interface DeleteSelection {
+  realm: string;
+  realmDir: string;
+  ids: string[];
+}
+
+/**
+ * The message for a name that is given but empty: `-n "$UNSET"` must never mean "all".
+ * @param {AgentKindSpec} kind the kind
+ * @returns {string} the message
+ */
+export const emptyNameMessage = (kind: AgentKindSpec): string =>
+  `The ${kind.label} name must not be empty. To delete all ${kind.plural}, leave out -n.`;
+
+/**
+ * Select what a delete (or its plan) works on, the same way for both so that the plan and the
+ * deletion cannot disagree: the objects of every realm that offers the type, or the one that was
+ * named (matched ignoring case, deleted by its stored id).
+ * @param {AgentKindSpec} kind what the kind is called
+ * @param {DeleteHooks} hooks what the kind reads
+ * @param {DeleteSettings} settings the command line
+ * @param {(realmDir: string, error: unknown) => void} onRealmFailure called for a realm whose objects cannot be read, after the error was printed
+ * @returns {Promise<{ selections: DeleteSelection[]; namedFailed: boolean } | undefined>} the selection, or undefined if the command cannot go on (the reason has been printed): an empty name, a name without a single realm, or the root realm of a Cloud tenant with a name
+ */
+async function selectAgentKindToDelete(
+  kind: AgentKindSpec,
+  hooks: DeleteHooks,
+  { name, realm }: DeleteSettings,
+  onRealmFailure: (realmDir: string, error: unknown) => void
+): Promise<
+  | { selections: DeleteSelection[]; namedFailed: boolean; done?: true }
+  | undefined
+> {
+  if (name !== undefined && name.trim() === '') {
+    printMessage(emptyNameMessage(kind), 'error');
+    return undefined;
+  }
+  if (isCloudRootRealm(realm)) {
+    if (name) {
+      printMessage(rootRealmMessage(kind), 'error');
+      return undefined;
+    }
+    printMessage(rootRealmMessage(kind), 'info');
+    return { selections: [], namedFailed: false, done: true };
+  }
+  const realms = await realmsToVisit(realm);
+  if (name && realms.length !== 1) {
+    printMessage(singleRealmMessage(kind), 'error');
+    return undefined;
+  }
+  const capital = `${kind.label.charAt(0).toUpperCase()}${kind.label.slice(1)}`;
+  const selections: DeleteSelection[] = [];
+  let namedFailed = false;
+  for (const currentRealm of realms) {
+    state.setRealm(currentRealm);
+    const realmDir = realmDirOf(currentRealm);
+    try {
+      if (hooks.isAvailable && !(await hooks.isAvailable())) {
+        if (name) {
+          printMessage(
+            `${kind.plural.charAt(0).toUpperCase()}${kind.plural.slice(1)} are not available in realm '${currentRealm}' of this deployment, so '${name}' cannot be deleted.`,
+            'error'
+          );
+          namedFailed = true;
+        } else {
+          verboseMessage(
+            `${kind.plural} are not available in realm '${currentRealm}' of this deployment.`
+          );
+        }
+        continue;
+      }
+      const all = (await hooks.list()).filter(
+        (item): item is { _id: string } => typeof item._id === 'string'
+      );
+      const wanted = name?.toLowerCase();
+      const chosen =
+        name === undefined
+          ? all
+          : all.filter((item) => item._id.toLowerCase() === wanted);
+      if (name !== undefined && chosen.length === 0) {
+        printMessage(
+          `${capital} '${name}' not found in realm '${currentRealm}'.`,
+          'error'
+        );
+        namedFailed = true;
+        continue;
+      }
+      selections.push({
+        realm: currentRealm,
+        realmDir,
+        ids: chosen.map((item) => item._id).sort((a, b) => a.localeCompare(b)),
+      });
+    } catch (error) {
+      printError(
+        error,
+        `Error reading the ${kind.plural} of realm '${currentRealm}'`
+      );
+      // the one object that was asked for: nothing for the flag to allow
+      if (name) namedFailed = true;
+      else onRealmFailure(realmDir, error);
+    }
+  }
+  return { selections, namedFailed };
+}
+
+/**
+ * Delete the objects of one agent type of every realm (or one realm, or one object) from the
+ * tenant. The objects are read first, so that the plan, the dry run and the answer "not found" for
+ * a name are the same as what a deletion does (the server answers 404 for an object that is
+ * gone and for one that never was). Nothing is deleted in a dry run.
+ *
+ * Every deletion is one operation of an {@link OperationRun}: one that fails, and a realm whose
+ * objects cannot be read, are named in one summary and the others are still deleted. A name that
+ * is empty, a name without a single realm and a named object that does not exist fail the command
+ * whatever `--allow-failures` says. Nothing to delete, when no name was given, is success.
+ * @param {AgentKindSpec} kind what the kind is called
+ * @param {DeleteHooks} hooks what the kind reads and deletes
+ * @param {DeleteSettings} settings the command line
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteAgentKind(
+  kind: AgentKindSpec,
+  hooks: DeleteHooks,
+  { name, realm, dryRun = false, allowFailures = false }: DeleteSettings
+): Promise<boolean> {
+  const run = new OperationRun({ unit: kind.label, allowFailures });
+  try {
+    const selected = await selectAgentKindToDelete(
+      kind,
+      hooks,
+      { name, realm },
+      (realmDir, error) =>
+        run.recordFailure(`realm ${realmDir}`, causeOf(error))
+    );
+    if (!selected) return false;
+    if (selected.done) return true;
+    let found = 0;
+    for (const { realm: currentRealm, realmDir, ids } of selected.selections) {
+      state.setRealm(currentRealm);
+      for (const id of ids) {
+        found++;
+        if (dryRun) {
+          printMessage(`Dry run: Deleting ${kind.label}: ${realmDir}/${id}`);
+          continue;
+        }
+        await runWithCause(run, `${realmDir}/${id}`, async () => {
+          await hooks.remove(id);
+          printMessage(`Deleted ${kind.label}: ${realmDir}/${id}`);
+        });
+      }
+    }
+    if (name === undefined && found === 0 && !run.hasFailures) {
+      printMessage(`No ${kind.plural} found to delete.`, 'info');
+    }
+    return run.finish() && !selected.namedFailed;
+  } catch (error) {
+    printError(error, `Error deleting ${kind.plural}`);
+    if (run.hasFailures) run.finish();
+    return false;
+  }
+}
+
+/**
+ * Show what a delete would delete and what that does, without deleting: the question of the
+ * bulk-delete guard shows it. It selects exactly as the deletion does.
+ * @param {AgentKindSpec} kind what the kind is called
+ * @param {DeleteHooks} hooks what the kind reads
+ * @param {string} name optional name: only that object
+ * @param {string} realm optional realm: only that realm
+ * @returns {Promise<boolean>} false, after printing why, if the objects cannot be read
+ */
+export async function showAgentKindDeletePlan(
+  kind: AgentKindSpec,
+  hooks: DeleteHooks,
+  name?: string,
+  realm?: string
+): Promise<boolean> {
+  try {
+    let unreadable = false;
+    const selected = await selectAgentKindToDelete(
+      kind,
+      hooks,
+      { name, realm },
+      () => {
+        unreadable = true;
+      }
+    );
+    if (!selected || selected.namedFailed || unreadable) return false;
+    let count = 0;
+    for (const { realmDir, ids } of selected.selections) {
+      for (const id of ids) {
+        count++;
+        printMessage(`Dry run: Deleting ${kind.label}: ${realmDir}/${id}`);
+      }
+    }
+    if (count === 0) {
+      printMessage(`No ${kind.plural} found to delete.`, 'info');
+    } else {
+      printMessage(
+        `${count} ${count === 1 ? kind.label : kind.plural} would be deleted. ${hooks.effect}`,
+        'warn'
+      );
+    }
+    return true;
+  } catch (error) {
+    printError(error, `Error reading the ${kind.plural} to delete`);
     return false;
   }
 }

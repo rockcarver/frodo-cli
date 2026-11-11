@@ -1,6 +1,7 @@
 import Test from '../../conn/conn-test';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import Applications from '../config-manager-delete/config-manager-delete-applications';
+import CimdProfiles from '../config-manager-delete/config-manager-delete-cimd-profiles';
 import EmailTemplates from '../config-manager-delete/config-manager-delete-email-templates';
 import Endpoints from '../config-manager-delete/config-manager-delete-endpoints';
 import Locales from '../config-manager-delete/config-manager-delete-locales';
@@ -26,5 +27,6 @@ export default function setup() {
   program.addCommand(TermsConditions().name('terms-and-conditions'));
   program.addCommand(Variables().name('variables'));
   program.addCommand(Locales().name('locales'));
+  program.addCommand(CimdProfiles().name('cimd-profiles'));
   return program;
 }

@@ -23,9 +23,12 @@ import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import {
   agentKindFilePath,
+  deleteAgentKind,
   pullAgentKind,
   pushAgentKind,
+  showAgentKindDeletePlan,
   type AgentKindSpec,
+  type DeleteHooks,
   type PulledItem,
 } from './ConfigManagerAgentKind';
 
@@ -176,4 +179,58 @@ export async function configManagerImportCIMDProfiles(
     },
     { name, realm, allowFailures }
   );
+}
+
+/** What the delete of CIMD profiles reads and deletes. */
+const deleteHooks: DeleteHooks = {
+  isAvailable: () => cimd.isCIMDProfileAvailable(),
+  list: () => cimd.readCIMDProfiles(),
+  remove: (id) => cimd.deleteCIMDProfile(id),
+  effect:
+    'A client that identifies itself with a Client ID Metadata Document that only these profiles allow is rejected (invalid_client) until a profile for it exists again.',
+};
+
+/**
+ * Delete the CIMD profiles of every realm (or one realm, or one profile) from the tenant. The
+ * profiles are listed first, so that the dry run and the answer for a name that does not exist
+ * (the server answers 404 for a profile that is gone and for one that never was) are the same as
+ * what a deletion does; the profile is deleted by its stored id, and a name matches ignoring case.
+ *
+ * A client that identifies itself with a Client ID Metadata Document that only a deleted profile
+ * allowed is rejected until a profile for it exists again. A realm or deployment that does not
+ * offer CIMD profiles has nothing to delete (with a name it fails). Every deletion is one
+ * operation of an {@link OperationRun}: see {@link deleteAgentKind}. The guard that asks before
+ * a bulk delete is the command's (cli record 0037).
+ * @param {string} name optional name: delete only that profile (needs a single realm)
+ * @param {string} realm optional realm: delete only in that realm. Default: every realm (the root realm of a Cloud tenant has no CIMD profiles)
+ * @param {boolean} dryRun true to say what would be deleted without deleting it. Default: false
+ * @param {boolean} allowFailures true to report profiles that could not be deleted but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function configManagerDeleteCIMDProfiles(
+  name?: string,
+  realm?: string,
+  dryRun: boolean = false,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return deleteAgentKind(CIMD_PROFILE_KIND, deleteHooks, {
+    name,
+    realm,
+    dryRun,
+    allowFailures,
+  });
+}
+
+/**
+ * Show which CIMD profiles a delete would delete and what that does to the clients that only
+ * they allow, without deleting anything.
+ * @param {string} name optional name: only that profile
+ * @param {string} realm optional realm: only that realm
+ * @returns {Promise<boolean>} false, after printing why, if the profiles cannot be read
+ */
+export async function showCIMDProfileDeletePlan(
+  name?: string,
+  realm?: string
+): Promise<boolean> {
+  return showAgentKindDeletePlan(CIMD_PROFILE_KIND, deleteHooks, name, realm);
 }

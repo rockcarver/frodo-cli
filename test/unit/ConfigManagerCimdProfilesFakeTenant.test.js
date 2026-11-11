@@ -386,4 +386,145 @@ suite('config-manager cimd-profiles against a fake tenant', () => {
       TIMEOUT
     );
   });
+  describe('delete', () => {
+    const deletes = () => requests().filter((r) => r.method === 'DELETE');
+    const target = () => [`http://127.0.0.1:${fakeAm.port}/am`, 'alpha'];
+
+    it(
+      'is refused without a terminal and without --yes, before any request for profiles',
+      async () => {
+        const run = await tenant({ cimdProfiles: ['zion-agents'] });
+
+        const { code, output } = await run([
+          'config-manager',
+          'delete',
+          'cimd-profiles',
+          ...target(),
+        ]);
+
+        expect(code).toBe(1);
+        expect(output).toContain('Refusing to delete all CIMD profiles');
+        expect(output).toContain('-y/--yes');
+        expect(requests()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'previews with --dry-run and deletes with --yes, by the stored id',
+      async () => {
+        const run = await tenant({
+          cimdProfiles: ['Zion-Agents', 'zion-tools'],
+        });
+
+        const preview = await run([
+          'config-manager',
+          'delete',
+          'cimd-profiles',
+          '-d',
+          ...target(),
+        ]);
+        expect(preview.code).toBe(0);
+        expect(preview.output).toContain(
+          'Dry run: Deleting CIMD profile: alpha/Zion-Agents'
+        );
+        expect(deletes()).toEqual([]);
+
+        const done = await run([
+          'config-manager',
+          'delete',
+          'cimd-profiles',
+          '-y',
+          ...target(),
+        ]);
+        expect(done.code).toBe(0);
+        expect(done.output).toContain(
+          'Deleted CIMD profile: alpha/Zion-Agents'
+        );
+        expect(done.output).toContain('Deleted CIMD profile: alpha/zion-tools');
+        expect(
+          deletes().map((r) => decodeURIComponent(r.url.split('/').pop()))
+        ).toEqual(['Zion-Agents', 'zion-tools']);
+
+        // a second delete finds nothing to delete and succeeds
+        const again = await run([
+          'config-manager',
+          'delete',
+          'cimd-profiles',
+          '-y',
+          ...target(),
+        ]);
+        expect(again.code).toBe(0);
+        expect(again.output).toContain('No CIMD profiles found to delete.');
+      },
+      TIMEOUT
+    );
+
+    it(
+      'deletes one profile by name without asking, ignoring case, and fails for a name that is not there',
+      async () => {
+        const run = await tenant({
+          cimdProfiles: ['zion-agents', 'zion-tools'],
+        });
+
+        const one = await run([
+          'config-manager',
+          'delete',
+          'cimd-profiles',
+          '-n',
+          'ZION-AGENTS',
+          ...target(),
+        ]);
+        expect(one.code).toBe(0);
+        expect(deletes()).toHaveLength(1);
+        expect(deletes()[0].url).toContain('/CIMDProfile/zion-agents');
+
+        const missing = await run([
+          'config-manager',
+          'delete',
+          'cimd-profiles',
+          '-n',
+          'zion-agents',
+          ...target(),
+        ]);
+        expect(missing.code).toBe(1);
+        expect(missing.output).toContain(
+          "CIMD profile 'zion-agents' not found in realm 'alpha'."
+        );
+      },
+      TIMEOUT
+    );
+
+    it(
+      'has nothing to delete where the deployment does not offer the type, and fails for a named profile',
+      async () => {
+        const run = await tenant({});
+
+        const all = await run([
+          'config-manager',
+          'delete',
+          'cimd-profiles',
+          '-y',
+          ...target(),
+        ]);
+        expect(all.code).toBe(0);
+        expect(all.output).not.toMatch(/Error|failed/);
+
+        const named = await run([
+          'config-manager',
+          'delete',
+          'cimd-profiles',
+          '-n',
+          'zion-agents',
+          ...target(),
+        ]);
+        expect(named.code).toBe(1);
+        expect(named.output).toContain(
+          "CIMD profiles are not available in realm 'alpha' of this deployment, so 'zion-agents' cannot be deleted."
+        );
+        expect(deletes()).toEqual([]);
+      },
+      TIMEOUT
+    );
+  });
 });
