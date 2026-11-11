@@ -1,15 +1,16 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import { Command, Option } from 'commander';
 import {
-  deferEntityPicks,
   entityPick,
   getEntityPicks,
   hasEntityPick,
-  resolveEntityPicks,
+  resolveFamilyEntityPicks,
+  type EntityPickSpec,
 } from './EntityPickers';
+import { registerEntityPickFamily } from './EntityPickRegistry';
 import { deferOneOfGroups } from './OptionRequirements';
 
-// resolveEntityPicks is gated by canPrompt(), and the jest harness is
+// resolveFamilyEntityPicks is gated by canPrompt(), and the jest harness is
 // never a TTY, so every prompt path here collapses to the "no-op" result
 // -- which is exactly the non-interactive preservation contract worth
 // pinning: outside the gate the runner must not load, must not write
@@ -18,6 +19,18 @@ import { deferOneOfGroups } from './OptionRequirements';
 // probes against the built binary (see the shell-pty-driver manual probes)
 // and by e2e recordings for the commands that wire pickers in.
 type Entity = { _id: string; description?: string };
+
+let families = 0;
+/**
+ * Gives the command a command family of its own with these picks, the way the
+ * registry gives them to a family of commands (the registry is shared by the
+ * whole file, so every call makes a family no other test uses).
+ */
+function withPicks(command: Command, picks: EntityPickSpec[]): void {
+  const group = new Command(`pickfamily${families++}`);
+  group.addCommand(command);
+  registerEntityPickFamily({ family: group.name(), picks });
+}
 
 function makeCommand(): { command: Command; values: Record<string, unknown> } {
   const command = new Command('frodo esv secret delete');
@@ -46,7 +59,7 @@ afterEach(() => {
   delete process.env.FRODO_NO_PROMPT;
 });
 
-describe('resolveEntityPicks (non-interactive preservation)', () => {
+describe('resolveFamilyEntityPicks (non-interactive preservation)', () => {
   it('opens no pick without a terminal, whatever the options and the one-of group say', async () => {
     process.env.FRODO_TEST = '1';
     const { command } = makeCommand();
@@ -55,7 +68,7 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
     deferOneOfGroups(command, [
       { options: ['all', 'secretId', 'secretName'], all: false },
     ]);
-    deferEntityPicks(command, [
+    withPicks(command, [
       secretPick(),
       entityPick<Entity>({
         name: 'secretName',
@@ -64,7 +77,7 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
         label: (entity) => entity._id,
       }),
     ]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
     expect(command.getOptionValue('secretName')).toBe('chosen');
   });
@@ -72,8 +85,8 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
   it('is a no-op under FRODO_TEST=1: loader never called, option untouched, true returned', async () => {
     process.env.FRODO_TEST = '1';
     const { command } = makeCommand();
-    deferEntityPicks(command, [secretPick()]);
-    const result = await resolveEntityPicks(command);
+    withPicks(command, [secretPick()]);
+    const result = await resolveFamilyEntityPicks(command);
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
   });
@@ -82,8 +95,8 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
     process.env.FRODO_NO_PROMPT = '1';
     const { command } = makeCommand();
     command.setOptionValue('all', true);
-    deferEntityPicks(command, [secretPick()]);
-    const result = await resolveEntityPicks(command);
+    withPicks(command, [secretPick()]);
+    const result = await resolveFamilyEntityPicks(command);
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
   });
@@ -91,24 +104,23 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
   it('does not load or bail when the option is already specified', async () => {
     const { command } = makeCommand();
     command.setOptionValue('secretId', 'explicit');
-    deferEntityPicks(command, [secretPick()]);
-    const result = await resolveEntityPicks(command);
+    withPicks(command, [secretPick()]);
+    const result = await resolveFamilyEntityPicks(command);
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBe('explicit');
   });
 
   it('with no picks registered it returns true without touching the command', async () => {
     const { command } = makeCommand();
-    const result = await resolveEntityPicks(command);
+    const result = await resolveFamilyEntityPicks(command);
     expect(result).toBe(true);
     expect(command.getOptionValue('secretId')).toBeUndefined();
   });
 
   it('a failing loader declines the pick (false), never a satisfied group', async () => {
-    // Regression pin for the 2026-10-14 incident: resolveEntityPicks used to
-    // return true on loader failure, and the delete-family actions'
-    // `(options.all || (await resolveEntityPicks(command)))` then fell
-    // through to the DESTRUCTIVE --all branch. A failing loader must
+    // Regression pin for the 2026-10-14 incident: the picker used to return
+    // true on loader failure, and a delete command that branched on it then
+    // fell through to the DESTRUCTIVE --all branch. A failing loader must
     // behave like escape: false, option untouched.
     // The gate needs a TTY; fake it for this one test (jest stdio is not).
     const stdin = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY');
@@ -121,7 +133,7 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
     Object.defineProperty(process.stdin, 'isTTY', fakeTTY);
     Object.defineProperty(process.stdout, 'isTTY', fakeTTY);
     const { command } = makeCommand();
-    deferEntityPicks(command, [
+    withPicks(command, [
       entityPick<Entity>({
         name: 'secretId',
         kind: 'secret',
@@ -132,7 +144,7 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
       }),
     ]);
     try {
-      const result = await resolveEntityPicks(command);
+      const result = await resolveFamilyEntityPicks(command);
       expect(result).toBe(false);
       expect(command.getOptionValue('secretId')).toBeUndefined();
     } finally {
@@ -159,21 +171,19 @@ describe('resolveEntityPicks (non-interactive preservation)', () => {
 });
 
 describe('entity pick registry', () => {
-  it('deferEntityPicks registers and accumulates; getEntityPicks/hasEntityPick read it back', () => {
+  it('a family registers its picks; getEntityPicks and hasEntityPick read them back', () => {
     const { command } = makeCommand();
     expect(getEntityPicks(command)).toEqual([]);
     expect(hasEntityPick(command, 'secretId')).toBe(false);
-    deferEntityPicks(command, [secretPick()]);
+    withPicks(command, [secretPick()]);
     expect(hasEntityPick(command, 'secretId')).toBe(true);
     expect(getEntityPicks(command)).toHaveLength(1);
-    deferEntityPicks(command, [secretPick()]);
-    expect(getEntityPicks(command)).toHaveLength(2);
   });
 
-  it('registries are per-command (WeakMap isolation)', () => {
+  it('registries are per family: a command of another family has none', () => {
     const a = makeCommand().command;
     const b = makeCommand().command;
-    deferEntityPicks(a, [secretPick()]);
+    withPicks(a, [secretPick()]);
     expect(hasEntityPick(a, 'secretId')).toBe(true);
     expect(hasEntityPick(b, 'secretId')).toBe(false);
   });

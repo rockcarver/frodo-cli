@@ -104,12 +104,15 @@ describe('the AM service picker', () => {
     expect(pick.kind).toBe('service');
   });
 
-  it('does not belong to import (a service in a file), to list, nor to delete, whose -i is another option with a picker of its own', () => {
+  it('does not belong to import (a service in a file) nor to list, which have no such option', () => {
     expect(namesOf(commandAt(['service', 'import'], ...flags))).toEqual([]);
     expect(namesOf(commandAt(['service', 'list'], '-g, --global'))).toEqual([]);
+  });
+
+  it('belongs to delete too, whose -i is called --id', () => {
     expect(
       namesOf(commandAt(['service', 'delete'], '-i, --id <id>', '-g, --global'))
-    ).toEqual([]);
+    ).toEqual(['id']);
   });
 
   it('offers the services of the realm by id in order, and describes a service by its name when it has one', async () => {
@@ -147,37 +150,5 @@ describe('the AM service picker', () => {
       .spyOn(frodo.service, 'getListOfServices')
       .mockRejectedValue(new Error('cannot read the services'));
     await expect(pick.load()).rejects.toThrow('cannot read the services');
-  });
-});
-
-describe('the options that stay on the legacy list', () => {
-  it('get no pick from a family', () => {
-    // local commands: the framework runs a pick after the login
-    expect(
-      namesOf(
-        commandAt(['conn', 'service-account', 'describe'], '--name <name>')
-      )
-    ).toEqual([]);
-    expect(
-      namesOf(commandAt(['conn', 'service-account', 'remove'], '--name <name>'))
-    ).toEqual([]);
-    // create commands whose one-of group does not say what they need
-    expect(
-      namesOf(
-        commandAt(
-          ['secretstore', 'mapping', 'create'],
-          '-i, --secretstore-id <id>'
-        )
-      )
-    ).toEqual([]);
-    expect(
-      namesOf(
-        commandAt(
-          ['secretstore', 'mapping', 'alias', 'create'],
-          '-i, --secretstore-id <id>',
-          '-s, --secret-id <id>'
-        )
-      )
-    ).toEqual([]);
   });
 });

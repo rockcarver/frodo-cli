@@ -1,7 +1,8 @@
 /**
  * Options whose value is a secret (a password, a client secret) and that may
  * be given without a value, so that frodo asks for it instead of the command
- * line carrying it (issue about `frodo conn set --password`, cli record 0034).
+ * line carrying it (issue about `frodo conn set --password`: a bare flag used to
+ * store `true` as the secret, which no valid input could mean).
  *
  * Commander gives an optional-value option (`--password [password]`) the value
  * `true` when it is used bare, and the command then used `true` as the secret.

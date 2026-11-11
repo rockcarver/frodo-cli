@@ -4,6 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { atConnectedPage } from '../utils/ConnectionPage.js';
 import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
@@ -13,12 +14,16 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * The realm picker of `frodo config export`, on a real terminal.
+ * The realm picker of `frodo config export`, on a real terminal. The realm is
+ * a row of the connection page (record 0046): the host is typed, the pass logs
+ * in (a service account answers the credentials), and the page opens with the
+ * host and the realm row, connected; the realms are in the box that Enter opens
+ * on that row.
  *
  * The realm limits the export only with `-r`, `--realm-only`, a boolean flag
  * (the realm itself is the positional after the host). So the picker opens
  * only when `-r` is set, no realm was named and the command line was
- * incomplete anyway (the host is missing, records 0001 and 0030); every
+ * incomplete anyway (the host is missing, records 0001 and 0047); every
  * complete command line, with or without `-r`, opens nothing and exports what
  * it always exported.
  *
@@ -114,10 +119,11 @@ suite('the realm picker of frodo config export, on a real terminal', () => {
 
   /**
    * `frodo config export` with the host left out: the host is asked for, the
-   * Ready step is answered with Run, the login succeeds and the picker opens
-   * (or does not). `choose` are the keys
-   * after the host was entered; `picker` is whether the picker is expected,
-   * `waitFor` the request that proves the export got as far as it should.
+   * pass logs in and the connection page opens with the realm row (or does
+   * not), then the Ready step is answered with Run. `choose` are the keys in the
+   * box of the realms (Escape closes it, keeping the default); `picker` is
+   * whether the row is expected, `waitFor` the request that proves the export
+   * got as far as it should.
    */
   function withoutHost({ flags, choose = [], picker, waitFor, env = {} }) {
     return runShellScenario({
@@ -133,21 +139,27 @@ suite('the realm picker of frodo config export, on a real terminal', () => {
         { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
         { type: 'send_line', text: host() },
         // the host prompt put a prompt on the screen, so the pass ends in the Ready step;
-        // the realm picker opens after Run, because it needs the login (records 0001, 0043)
-        ...answerReady(),
+        // the realm needs the login, which the pass makes, so the page with the
+        // realm row comes first (records 0001, 0044, 0046)
         ...(picker
           ? [
-              {
-                type: 'wait_plain',
-                regex: 'Choose a realm',
-                timeoutMs: 60000,
-              },
+              ...atConnectedPage('page'),
+              // the cursor is on Done: up to the realm row, Enter opens the realms
+              { type: 'key', name: 'up' },
+              ENTER,
+              { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
               { type: 'sleep', ms: 500 },
               { type: 'capture', label: 'picker' },
               { type: 'clear_output' },
               ...choose,
+              // (the first Escape waits for a second one before it closes the box)
+              { type: 'sleep', ms: 900 },
+              { type: 'key', name: 'down' },
+              { type: 'sleep', ms: 300 },
+              ENTER,
             ]
           : []),
+        ...answerReady(),
         {
           type: 'wait_request',
           path: recordPath,
@@ -205,11 +217,12 @@ suite('the realm picker of frodo config export, on a real terminal', () => {
       expect(run.captures.picker.plain).toContain(
         'Choose a realm (default: alpha):'
       );
-      const rows = [...frame.matchAll(/^│ ([› ]) (.+?)\s*│$/gm)].filter((row) =>
-        ['alpha', 'bravo', 'All realms'].includes(row[2])
-      );
-      expect(rows.map((row) => row[2])).toEqual(['alpha', 'bravo']);
-      expect(rows[0][1]).toBe('›');
+      // (the default row says so; the rows of the page above are not realms)
+      const rows = [...frame.matchAll(/^│ ([› ]) (.+?)\s*│$/gm)]
+        .map((row) => [row[1], row[2].replace(/ \(default\)$/, '')])
+        .filter((row) => ['alpha', 'bravo', 'All realms'].includes(row[1]));
+      expect(rows.map((row) => row[1])).toEqual(['alpha', 'bravo']);
+      expect(rows[0][0]).toBe('›');
       expect(run.captures.picker.plain).not.toContain('All realms');
       // the footer is the command as the default would run it
       expect(footer(frame)).toMatch(/frodo config export .* alpha /);

@@ -56,15 +56,11 @@ export default function setup() {
         'Create aliases for global secret stores. For classic deployments only.'
       )
     )
-    .requireOneOf({
-      options: [
-        'alias',
-        'global',
-        'secretId',
-        'secretstoreId',
-        'secretstoreType',
-      ],
-      purpose: 'the target',
+    // the three options the command cannot create an alias without; the type
+    // and the scope are optional
+    .requireAllOf({
+      options: ['secretstoreId', 'secretId', 'alias'],
+      purpose: 'the alias to create',
     })
     .action(
       // implement command logic inside action handler

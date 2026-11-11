@@ -26,7 +26,7 @@
  * export`: the realm limits the export with `-r`, `--realm-only`, and changes
  * nothing without it) declares `FrodoCommand.realmPickerOnlyWith(option)`.
  * Its picker is the ordinary one (the realms only, the deployment's default
- * highlighted) and it still opens only where records 0001 and 0030 allow it,
+ * highlighted) and it still opens only where records 0001 and 0047 allow it,
  * for a command line that was incomplete; the declaration only closes it when
  * the option is not set.
  */

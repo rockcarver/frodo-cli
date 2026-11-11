@@ -1,3 +1,4 @@
+import { clearTransientFrame } from './interactive/TransientFrame';
 import { readStdinChunkSync } from './StdinSync';
 
 /**
@@ -16,6 +17,7 @@ import { readStdinChunkSync } from './StdinSync';
  * @returns {string} the user's answer with the trailing newline removed
  */
 export function question(question: string): string {
+  clearTransientFrame();
   process.stdout.write(question);
   const buffer = Buffer.alloc(1024);
   const bytesRead = readStdinChunkSync(buffer);

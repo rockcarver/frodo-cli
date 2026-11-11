@@ -1,12 +1,14 @@
 /**
- * Terminal-test steps for the Ready step (decision record 0043).
+ * Terminal-test steps for the Ready step (decision records 0043 and 0044).
  *
  * An interactive run that asked for anything ends in "Ready to run?" and only
  * the Run row starts the command, so a scenario that drives a flow to the end
  * answers it. Put `answerReady()` where the last prompt of the resolution pass
- * is concluded and the next thing is the command itself: its login, a picker
- * that opens after login, or its output. Pickers that need a login come AFTER
- * the Ready step.
+ * is concluded and the next thing is the command itself: its login (when the
+ * pass made none) or its output. The Ready step is the LAST prompt: the
+ * pickers that need a login (the realm picker, the entity pickers) run in the
+ * pass before it, after the login the pass makes for them, and nothing prompts
+ * after Run except the command's own prompts.
  *
  * `wait_plain` scans all the output so far, so a scenario that reaches the step
  * twice (Edit options) must `clear_output` before it waits for the second one.

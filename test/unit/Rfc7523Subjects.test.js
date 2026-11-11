@@ -2,7 +2,7 @@ import {
   subjectMatches,
   subjectRows,
   subjectSearchFilter,
-} from '../../src/ops/Rfc7523SubjectOps.ts';
+} from '../../src/utils/interactive/Rfc7523Subjects.ts';
 
 // The users the --sub picker of execute-rfc7523-authz-grant-flow offers
 // (cli#1004): how a row reads, what typing matches, and the query filter of

@@ -1,9 +1,10 @@
-import { afterEach, describe, expect, it } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { state } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 import {
   noteRealmProvenance,
   noteRequiredInputPrompted,
+  realmPickerApplies,
   realmUserSpecifiedForTests,
   requiredInputPromptedForTests,
   resetRealmPickerStateForTests,
@@ -128,5 +129,133 @@ describe('noteRealmProvenance reads the realm positional', () => {
     state.setRealm(SENTINEL);
     noteRealmProvenance(makeCommand(false));
     expect(realmUserSpecifiedForTests()).toBe(false);
+  });
+});
+
+describe('realmPickerApplies: the conditions that are known before the login', () => {
+  // The pass logs in for the realm picker only when it can open (record 0044),
+  // so these are the conditions of record 0001 without the one that needs the
+  // login: that the system has more than one realm. The gate needs a terminal;
+  // the fake is configurable so it can be taken away again.
+  const SENTINEL = '__default__realm__';
+  const streams = [process.stdin, process.stdout];
+  const saved = streams.map((stream) =>
+    Object.getOwnPropertyDescriptor(stream, 'isTTY')
+  );
+
+  beforeEach(() => {
+    delete process.env.FRODO_TEST;
+    delete process.env.FRODO_NO_PROMPT;
+    for (const stream of streams) {
+      Object.defineProperty(stream, 'isTTY', {
+        value: true,
+        configurable: true,
+        writable: true,
+      });
+    }
+    state.setRealm(SENTINEL);
+  });
+
+  afterEach(() => {
+    streams.forEach((stream, index) => {
+      try {
+        if (saved[index]) Object.defineProperty(stream, 'isTTY', saved[index]);
+        else delete (stream as { isTTY?: boolean }).isTTY;
+      } catch {
+        /* non-configurable stream mock: leave as-is */
+      }
+    });
+  });
+
+  async function parsed(args: string[]): Promise<Command> {
+    const command = new Command('frodo journey list')
+      .argument('[host]')
+      .argument('[realm]', 'Realm.', SENTINEL)
+      .action(async () => {});
+    await command.parseAsync(args, { from: 'user' });
+    return command;
+  }
+
+  it('applies when a connection prompt was shown and the realm was left at its default', async () => {
+    const command = await parsed(['matrix']);
+    noteRealmProvenance(command);
+    noteRequiredInputPrompted(true);
+    expect(realmPickerApplies(command)).toBe(true);
+  });
+
+  it('does not apply to a complete command line: no connection prompt was shown (record 0001)', async () => {
+    const command = await parsed(['matrix']);
+    noteRealmProvenance(command);
+    noteRequiredInputPrompted(false);
+    expect(realmPickerApplies(command)).toBe(false);
+  });
+
+  it('does not apply when the user named a realm', async () => {
+    const command = await parsed(['matrix', 'bravo']);
+    noteRealmProvenance(command);
+    noteRequiredInputPrompted(true);
+    expect(realmPickerApplies(command)).toBe(false);
+  });
+
+  it('does not apply to a command without a realm argument', () => {
+    const command = makeCommand(false);
+    noteRealmProvenance(command);
+    noteRequiredInputPrompted(true);
+    expect(realmPickerApplies(command)).toBe(false);
+  });
+
+  it('does not apply outside the prompt gate', async () => {
+    process.env.FRODO_NO_PROMPT = '1';
+    const command = await parsed(['matrix']);
+    noteRealmProvenance(command);
+    noteRequiredInputPrompted(true);
+    expect(realmPickerApplies(command)).toBe(false);
+  });
+
+  describe('with the connection page on the screen (record 0046)', () => {
+    // The page is itself a connection prompt, before the pass has recorded
+    // that one was shown, so it says so; every other condition holds.
+    it('applies though the pass has not recorded a connection prompt yet', async () => {
+      const command = await parsed(['matrix']);
+      noteRealmProvenance(command);
+      noteRequiredInputPrompted(false);
+      expect(realmPickerApplies(command)).toBe(false);
+      expect(realmPickerApplies(command, { connectionPrompted: true })).toBe(
+        true
+      );
+    });
+
+    it('does not apply when the user named a realm', async () => {
+      const command = await parsed(['matrix', 'bravo']);
+      noteRealmProvenance(command);
+      expect(realmPickerApplies(command, { connectionPrompted: true })).toBe(
+        false
+      );
+    });
+
+    it('does not apply to a command without a realm argument', () => {
+      const command = makeCommand(false);
+      noteRealmProvenance(command);
+      expect(realmPickerApplies(command, { connectionPrompted: true })).toBe(
+        false
+      );
+    });
+
+    it('does not apply outside the prompt gate', async () => {
+      process.env.FRODO_NO_PROMPT = '1';
+      const command = await parsed(['matrix']);
+      noteRealmProvenance(command);
+      expect(realmPickerApplies(command, { connectionPrompted: true })).toBe(
+        false
+      );
+    });
+
+    it('does not apply when the page is not on the screen', async () => {
+      const command = await parsed(['matrix']);
+      noteRealmProvenance(command);
+      expect(realmPickerApplies(command, { connectionPrompted: false })).toBe(
+        false
+      );
+    });
   });
 });

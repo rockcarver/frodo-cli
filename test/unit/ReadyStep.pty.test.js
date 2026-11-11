@@ -11,16 +11,17 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * The Ready step and the Enter label on a real terminal (decision record
- * 0043). An interactive session that asked for anything ends in "Ready to
- * run?" (Run, Edit options, Cancel); until then Enter says `next`, and only
- * Run says `run`. A command line that is complete never sees the step.
+ * The Ready step and the Enter label on a real terminal (decision records
+ * 0043 and 0044). An interactive session that asked for anything ends in
+ * "Ready to run?" (Run, Edit options, Cancel), the last prompt; until then
+ * Enter says `next`, and only Run says `run`. A command line that is complete
+ * never sees the step.
  *
  * Most scenarios run `conn save --no-validate --no-sa --no-log-api`, which is
  * offline: the Connection page opens for the missing password, and the proof
- * that the command ran is the profile file it writes. The labels on a picker
- * of the resolution pass and on a picker that opens after login come from
- * `journey validate` on a fake AM.
+ * that the command ran is the profile file it writes. The labels on the
+ * pickers of the resolution pass, the one that needs the login included, come
+ * from `journey validate` on a fake AM.
  */
 const hasPty =
   process.platform !== 'win32' &&
@@ -104,6 +105,8 @@ suite('the Ready step, on a real terminal', () => {
     { type: 'wait_plain', regex: 'password: ••••••••', timeoutMs: 8000 },
     { type: 'sleep', ms: 400 },
     { type: 'key', name: 'down' },
+    { type: 'sleep', ms: 300 },
+    { type: 'capture', label: 'done' },
     { type: 'key', name: 'enter' },
   ];
 
@@ -126,10 +129,15 @@ suite('the Ready step, on a real terminal', () => {
     expect(footer(ready)).toContain(`frodo conn save ${host} someone`);
     expect(footer(ready)).not.toContain('secretpw');
     // the Connection page before it did not claim to run anything
+    // (a field row says edit; the Done row says next: the Ready step follows,
+    // and this command has no realm to choose, so the page does not log in)
     const page = lastFrame(result.captures.page.plain);
-    expect(navigate(page)).toContain('[ENTER] edit / done');
-    expect(page).toContain('Done — continue with these values');
-    expect(page).not.toMatch(/Done — run/);
+    expect(navigate(page)).toContain('[ENTER] edit');
+    expect(navigate(page)).not.toContain('done');
+    const done = lastFrame(result.captures.done.plain);
+    expect(navigate(done)).toContain('[ENTER] next');
+    expect(done).toContain('Done — continue with these values');
+    expect(done).not.toMatch(/Done — run/);
     // the command is complete, so the footer is green, not red and italic
     expect(
       footerStyle(result.captures.ready.raw, 'frodo conn save')
@@ -389,7 +397,7 @@ suite('the Enter label and the Ready step with a fake tenant', () => {
     });
   }
 
-  test('a picker of the resolution pass says next, the step says run, the picker after login says select', () => {
+  test('every picker of the resolution pass says next, the one that needs the login included, and the step after them says run', () => {
     const run = onTenant(
       ['journey', 'validate', tenant(), '/', '--type', 'classic'],
       [
@@ -402,18 +410,19 @@ suite('the Enter label and the Ready step with a fake tenant', () => {
         { type: 'capture', label: 'oneOf' },
         { type: 'clear_output' },
         { type: 'key', name: 'enter' },
-        { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 15000 },
-        { type: 'sleep', ms: 500 },
-        { type: 'capture', label: 'ready' },
-        { type: 'clear_output' },
-        { type: 'key', name: 'enter' },
+        // the pick needs the login, which the pass makes: the picker comes before the step
         {
           type: 'wait_plain',
           regex: 'Select journey to act on',
           timeoutMs: 30000,
         },
         { type: 'sleep', ms: 500 },
-        { type: 'capture', label: 'afterLogin' },
+        { type: 'capture', label: 'picker' },
+        { type: 'clear_output' },
+        { type: 'key', name: 'enter' },
+        { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 15000 },
+        { type: 'sleep', ms: 500 },
+        { type: 'capture', label: 'ready' },
         { type: 'clear_output' },
         { type: 'key', name: 'enter' },
         { type: 'sleep', ms: 3000 },
@@ -424,20 +433,26 @@ suite('the Enter label and the Ready step with a fake tenant', () => {
     expect(oneOf).toContain('[ENTER] next');
     expect(oneOf).not.toContain('[ENTER] select');
 
+    const picker = navigate(lastFrame(run.captures.picker.plain));
+    expect(picker).toContain('[ENTER] next');
+    expect(picker).not.toContain('[ENTER] select');
+
+    // the step is the last prompt: nothing is left to choose after login, and the footer is green
     const ready = lastFrame(run.captures.ready.plain);
     expect(navigate(ready)).toContain('[ENTER] run');
-    // the journey is chosen after login: the step says so, and the footer is not green yet
-    expect(ready).toContain('after login');
-    expect(footer(ready)).toContain(`frodo journey validate ${tenant()}`);
-    expect(footer(ready)).not.toContain('--journey-id');
+    expect(ready).not.toContain('after login');
+    expect(footer(ready)).toContain(
+      `frodo journey validate ${tenant()}`
+    );
+    expect(footer(ready)).toContain('--journey-id matrix-login');
     expect(
       footerStyle(run.captures.ready.raw, 'frodo journey validate')
-    ).toContain(ITALIC);
+    ).not.toContain(ITALIC);
 
-    const afterLogin = navigate(lastFrame(run.captures.afterLogin.plain));
-    expect(afterLogin).toContain('[ENTER] select');
-
+    // after Run the command runs, and no prompt follows
     expect(run.captures.ran.plain).toContain("journey 'matrix-login'");
+    expect(run.captures.ran.plain).not.toContain('Select journey to act on');
+    expect(run.captures.ran.plain).not.toContain('Navigate');
   });
 
   test('a sub-command picked in a container does not count: the command runs without the step', () => {
