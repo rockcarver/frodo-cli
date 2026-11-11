@@ -223,6 +223,7 @@ gets its own row.
 | &emsp;`list`        | 4.12.0 | List authenticated sessions across all hosts.                                                                                                                      |
 | `frodo settings`    | 4.9.0  | Manage CLI settings (color theme).                                                                                                                                 |
 | &emsp;`theme`       | 4.9.0  | Manage the CLI color theme (background, contrast, detection, preview).                                                                                             |
+| &emsp;`update-check`| 5.0.0  | Persist the switch for the automatic update check (show, enable, disable).                                                                                         |
 | `frodo shell`       | 2.0.0  | [Experimental] Launch the frodo interactive shell.                                                                                                                 |
 | `frodo mcp`         | 4.0.0  | [Experimental] Manage Model Context Protocol (MCP) integrations — see [MCP Server](#mcp-server).                                                                   |
 | &emsp;`server`      | 4.0.0  | Manage Frodo MCP server lifecycle and metadata.                                                                                                                    |
