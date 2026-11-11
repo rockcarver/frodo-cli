@@ -4,8 +4,9 @@
  * A family of commands (`frodo idm remote-proxy`) says once how to list its
  * entities. Every command of the family that has the option inherits the
  * picker: the command file declares nothing and calls nothing, and the
- * framework runs the pick after login (`getTokens`, through
- * `resolveFamilyEntityPicks`).
+ * framework runs the pick in the resolution pass, after the login the pass
+ * makes for it (record 0044), or after the login of `getTokens` for a command
+ * whose pass made none (through `resolveFamilyEntityPicks`).
  *
  * This module only holds the table and matches it; the entries are in
  * EntityPickFamilies.ts, so that this module does not need the library and
