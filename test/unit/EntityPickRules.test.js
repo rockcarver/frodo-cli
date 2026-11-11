@@ -14,10 +14,12 @@ import { Command, Option } from 'commander';
  *    whoever set it: the user, the choice made in the resolution pass, or an
  *    earlier pick of the run, so an id and a name are asked for once;
  * 3. a pick is skipped when another member of its one-of group is given (or
- *    was chosen in the resolution pass and is still to be picked).
+ *    was chosen in the resolution pass and is still to be picked);
+ * 4. the search-first steps of a long list are given the command too.
  */
 
 const escapableSelect = jest.fn();
+const promptInput = jest.fn();
 const printError = jest.fn();
 const verboseMessage = jest.fn();
 const revokeAuthoringPrint = jest.fn();
@@ -29,6 +31,8 @@ const actualSelect =
 const actualPrint =
   await import('../../src/utils/interactive/AuthoringPrintState.ts');
 const actualConsole = await import('../../src/utils/Console.ts');
+const actualPromptGate =
+  await import('../../src/utils/interactive/PromptGate.ts');
 
 jest.unstable_mockModule('../../src/utils/interactive/PromptGateState', () => ({
   ...actualGate,
@@ -38,6 +42,10 @@ jest.unstable_mockModule(
   '../../src/utils/interactive/EscapableSelectPrompt',
   () => ({ ...actualSelect, escapableSelect })
 );
+jest.unstable_mockModule('../../src/utils/interactive/PromptGate', () => ({
+  ...actualPromptGate,
+  promptInput,
+}));
 jest.unstable_mockModule(
   '../../src/utils/interactive/AuthoringPrintState',
   () => ({
@@ -437,6 +445,49 @@ describe('rule 3: a pick whose one-of group is answered', () => {
     command.setOptionValueWithSource('global', true, 'cli');
     expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(escapableSelect).not.toHaveBeenCalled();
+    expect(command.getOptionValue('nodeId')).toBeUndefined();
+  });
+});
+
+describe('rule 4: a list too long to show whole asks for a search text first', () => {
+  /** A pick whose steps are mocks; the text typed is `typed`. */
+  function searchedPick(typed, found) {
+    const when = jest.fn(async () => true);
+    const load = jest.fn(async () => found);
+    const { pick } = pickOf('nodeId', []);
+    promptInput.mockResolvedValue(typed);
+    return {
+      when,
+      load,
+      pick: {
+        ...pick,
+        searchFirst: { when, load, message: 'Search nodes:' },
+      },
+    };
+  }
+
+  it('gives the command to the test that decides whether to ask, and to the search', async () => {
+    const command = nodeCommand();
+    const search = searchedPick(' zi ', entities('zion'));
+    withPicks(command, [search.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
+    expect(search.when).toHaveBeenCalledTimes(1);
+    expect(search.when.mock.calls[0][0]).toBe(command);
+    // the text is trimmed, and the search is given the command after it
+    expect(search.load).toHaveBeenCalledTimes(1);
+    expect(search.load.mock.calls[0][0]).toBe('zi');
+    expect(search.load.mock.calls[0][1]).toBe(command);
+    // one match is no choice
+    expect(escapableSelect).not.toHaveBeenCalled();
+    expect(command.getOptionValue('nodeId')).toBe('zion');
+  });
+
+  it('declines the pick when the search text is left empty', async () => {
+    const command = nodeCommand();
+    const search = searchedPick('', entities('zion'));
+    withPicks(command, [search.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(false);
+    expect(search.load).not.toHaveBeenCalled();
     expect(command.getOptionValue('nodeId')).toBeUndefined();
   });
 });
