@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'oauth' should be expected english 1`] = `
 "Usage: frodo oauth [options] [command]
 
-Manage OAuth2 clients and providers.
+Manage OAuth2 clients, trusted JWT issuers and providers.
 
 Options:
   -h, --help        Help
@@ -17,6 +17,7 @@ Runtime Options:
 
 Commands:
   client            Manage OAuth2 clients.
+  issuer            Manage OAuth2 trusted JWT issuers.
 
 Utilities:
   help              display help for command

@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'oauth issuer' should be expected english 1`] = `
+"Usage: frodo oauth issuer [options] [command]
+
+Manage OAuth2 trusted JWT issuers.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Runtime Options:
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
+Commands:
+  delete            Delete OAuth2 trusted JWT issuers.
+  describe          Describe an OAuth2 trusted JWT issuer.
+  export            Export OAuth2 trusted JWT issuers.
+  import            Import OAuth2 trusted JWT issuers.
+  list              List OAuth2 trusted JWT issuers.
+
+Utilities:
+  help              display help for command
+
+
+Run without a sub-command to enter interactive mode."
+`;

@@ -48,6 +48,17 @@
  * the username filtered as `uid`. FAKE_AM_USERS_CAP=<n> makes that endpoint
  * stop at n results, in the list and in the count, as AM does at the data
  * store's maximum results (1000 by default).
+ * FAKE_AM_TRUSTED_ISSUERS_FILE=<path> names a JSON array of OAuth2 trusted JWT
+ * issuers in the plain shape (a setting that is not set is `null`) the fake
+ * serves as a collection (`.../realm-config/agents/TrustedJwtIssuer`), the way
+ * AM does: the query answers the issuers as they are, a read by id answers one
+ * with every setting wrapped in `{ inherited, value }` (no `value` for a setting
+ * that is not set) or `404`, `PUT` stores one (`201` for a new id, `200`
+ * otherwise; `400 Invalid attribute specified.` for a body with `_rev`, which AM
+ * refuses) and `DELETE` removes one (`404` for a missing id). The issuers are
+ * kept in memory for the life of the process, whatever the realm of the URL.
+ * It wins over FAKE_AM_ISSUER_FILE when both are set. An empty array is a realm
+ * without issuers.
  * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
  * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
  * the OAuth2 client picker of the admin commands reads it.
@@ -138,6 +149,9 @@ const readJson = (file) =>
   file ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined;
 const issuer = readJson(process.env.FAKE_AM_ISSUER_FILE);
 const users = readJson(process.env.FAKE_AM_USERS_FILE);
+const trustedIssuers = readJson(process.env.FAKE_AM_TRUSTED_ISSUERS_FILE)?.map(
+  (issuer) => ({ ...issuer })
+);
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
 const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
@@ -173,7 +187,7 @@ for (const _id of (trustedJwtIssuerIds ?? '').split(',').filter(Boolean)) {
   });
 }
 // the read of one object wraps every property, as AM does
-const wrapIssuer = (object) =>
+const wrapJwtIssuer = (object) =>
   Object.fromEntries(
     Object.entries(object).map(([key, value]) =>
       key.startsWith('_') ||
@@ -192,6 +206,35 @@ const trees =
   process.env.FAKE_AM_TREES === undefined
     ? undefined
     : process.env.FAKE_AM_TREES.split(',').filter(Boolean);
+
+/** An issuer as a read by id answers it: every setting wrapped, `value` missing when it is not set. */
+function wrapIssuer(issuer) {
+  return Object.fromEntries(
+    Object.entries(issuer).map(([key, value]) => [
+      key,
+      key.startsWith('_') || key === 'agentgroup'
+        ? value
+        : value === null || value === undefined
+          ? { inherited: false }
+          : { inherited: false, value },
+    ])
+  );
+}
+
+/** The issuer a request body holds, with its wrapped settings made plain again. */
+function plainIssuer(id, body) {
+  return {
+    ...Object.fromEntries(
+      Object.entries(body).map(([key, value]) => [
+        key,
+        value && typeof value === 'object' && 'inherited' in value
+          ? (value.value ?? null)
+          : value,
+      ])
+    ),
+    _id: id,
+  };
+}
 
 /** The users an IDM or AM `_queryFilter` of the shapes above selects. */
 function selectUsers(filter) {
@@ -288,6 +331,49 @@ const server = http.createServer((req, res) => {
         token_type: 'Bearer',
         expires_in: 3600,
       });
+    }
+    const issuerRoute = req.url
+      .split('?')[0]
+      .match(/\/realm-config\/agents\/TrustedJwtIssuer(?:\/([^/]+))?$/);
+    if (trustedIssuers && issuerRoute) {
+      const notFound = { code: 404, reason: 'Not Found', message: 'Not Found' };
+      const id = issuerRoute[1] && decodeURIComponent(issuerRoute[1]);
+      const index = trustedIssuers.findIndex(({ _id }) => _id === id);
+      if (!id && req.method === 'GET') {
+        return send(200, {
+          result: trustedIssuers,
+          resultCount: trustedIssuers.length,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: trustedIssuers.length,
+          remainingPagedResults: -1,
+        });
+      }
+      if (id && req.method === 'GET') {
+        return index < 0
+          ? send(404, notFound)
+          : send(200, wrapIssuer(trustedIssuers[index]));
+      }
+      if (id && req.method === 'PUT') {
+        const posted = body ? JSON.parse(body) : {};
+        if ('_rev' in posted) {
+          return send(400, {
+            code: 400,
+            reason: 'Bad Request',
+            message: 'Invalid attribute specified.',
+            detail: { validAttributes: Object.keys(posted) },
+          });
+        }
+        const stored = { ...plainIssuer(id, posted), _rev: '1' };
+        if (index < 0) trustedIssuers.push(stored);
+        else trustedIssuers[index] = stored;
+        return send(index < 0 ? 201 : 200, wrapIssuer(stored));
+      }
+      if (id && req.method === 'DELETE') {
+        if (index < 0) return send(404, notFound);
+        const [removed] = trustedIssuers.splice(index, 1);
+        return send(200, wrapIssuer(removed));
+      }
     }
     if (issuer && req.url.includes('/realm-config/agents/TrustedJwtIssuer/')) {
       return send(200, {
@@ -402,7 +488,7 @@ const server = http.createServer((req, res) => {
           send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
         if (req.method === 'GET') {
           const stored = trustedJwtIssuers.get(id);
-          return stored ? send(200, wrapIssuer(stored)) : notFound();
+          return stored ? send(200, wrapJwtIssuer(stored)) : notFound();
         }
         if (req.method === 'PUT') {
           const posted = body ? JSON.parse(body) : {};
@@ -427,12 +513,12 @@ const server = http.createServer((req, res) => {
             },
           };
           trustedJwtIssuers.set(id, stored);
-          return send(created ? 201 : 200, wrapIssuer(stored));
+          return send(created ? 201 : 200, wrapJwtIssuer(stored));
         }
         if (req.method === 'DELETE') {
           const stored = trustedJwtIssuers.get(id);
           trustedJwtIssuers.delete(id);
-          return stored ? send(200, wrapIssuer(stored)) : notFound();
+          return stored ? send(200, wrapJwtIssuer(stored)) : notFound();
         }
       }
     }
