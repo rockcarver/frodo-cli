@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'agent ai import' should be expected english 1`] = `
 "Usage: frodo agent ai import [options] [host] [realm] [username] [password]
 
-Import AI agents.
+[Deprecated] Import AI agents.
 
 Arguments:
   host                       AM base URL, e.g.: https://cdk.iam.example.com/am.

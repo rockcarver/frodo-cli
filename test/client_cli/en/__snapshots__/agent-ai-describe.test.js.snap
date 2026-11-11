@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'agent ai describe --json' should be expected english 1`] = `
 "Usage: frodo agent ai describe [options] [host] [realm] [username] [password]
 
-Describe AI agents.
+[Deprecated] Describe AI agents.
 
 Arguments:
   host                       AM base URL, e.g.: https://cdk.iam.example.com/am.
@@ -34,7 +34,7 @@ Options:
 exports[`CLI help interface for 'agent ai describe' should be expected english 1`] = `
 "Usage: frodo agent ai describe [options] [host] [realm] [username] [password]
 
-Describe AI agents.
+[Deprecated] Describe AI agents.
 
 Arguments:
   host                       AM base URL, e.g.: https://cdk.iam.example.com/am.

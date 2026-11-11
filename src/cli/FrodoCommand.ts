@@ -158,6 +158,12 @@ export type StabilityGateConfig = {
 type StabilityMetadata = {
   level: StabilityIndicator;
   gate?: StabilityGateConfig;
+  /**
+   * Replaces the generic sentence of the notice a run prints ("This command is
+   * deprecated and may be removed in a future release."). A deprecated command
+   * uses it to name its replacement.
+   */
+  message?: string;
 };
 
 const stabilityLevelPriority: Record<StabilityIndicator, number> = {
@@ -352,6 +358,7 @@ function getStabilityMetadata(
  * Behavior:
  * - level: strongest level found in the command ancestry
  * - gate: nearest required opt-in gate found in the ancestry
+ * - message: the nearest message declared at that level
  *
  * This allows declaring stability once at a stub command (command tree root)
  * and having it apply to all descendants.
@@ -363,6 +370,7 @@ function getEffectiveCommandStabilityMetadata(
 ): StabilityMetadata {
   let level: StabilityIndicator = 'stable';
   let gate: StabilityGateConfig | undefined;
+  let message: string | undefined;
 
   let current: Command | null = command;
   while (current) {
@@ -372,6 +380,9 @@ function getEffectiveCommandStabilityMetadata(
         stabilityLevelPriority[metadata.level] > stabilityLevelPriority[level]
       ) {
         level = metadata.level;
+        message = metadata.message;
+      } else if (metadata.level === level && !message) {
+        message = metadata.message;
       }
 
       if (!gate && metadata.gate?.requiredOptIn) {
@@ -381,7 +392,11 @@ function getEffectiveCommandStabilityMetadata(
     current = current.parent || null;
   }
 
-  return gate ? { level, gate } : { level };
+  return {
+    level,
+    ...(gate ? { gate } : {}),
+    ...(message ? { message } : {}),
+  };
 }
 
 /**
@@ -2364,13 +2379,15 @@ function enforceStabilityAndWarn(actionCommand: Command): void {
   }
 
   if (!warnedStabilityCommands.has(commandPath)) {
-    const gateSuffix = metadata.gate?.requiredOptIn
-      ? metadata.level === 'deprecated'
-        ? ' This command is opt-in, deprecated, and may be removed in a future release.'
-        : ' This feature is opt-in and may change without notice.'
-      : metadata.level === 'deprecated'
-        ? ' This command is deprecated and may be removed in a future release.'
-        : ' This feature may change without notice.';
+    const gateSuffix = metadata.message
+      ? ` ${metadata.message}`
+      : metadata.gate?.requiredOptIn
+        ? metadata.level === 'deprecated'
+          ? ' This command is opt-in, deprecated, and may be removed in a future release.'
+          : ' This feature is opt-in and may change without notice.'
+        : metadata.level === 'deprecated'
+          ? ' This command is deprecated and may be removed in a future release.'
+          : ' This feature may change without notice.';
     if (
       !(actionCommand as Command & StabilityAnnotated)[
         SUPPRESS_STABILITY_WARNING_KEY
@@ -2751,9 +2768,15 @@ export class FrodoStubCommand extends Command {
    * Stable is the default and requires no call sites.
    * @param level Stability indicator.
    * @param gate Optional gate configuration for high-risk features.
+   * @param message Optional sentence that replaces the generic one in the
+   *   notice a run prints. A deprecated command names its replacement with it.
    * @returns This command for chaining.
    */
-  withStability(level: StabilityIndicator, gate?: StabilityGateConfig): this {
+  withStability(
+    level: StabilityIndicator,
+    gate?: StabilityGateConfig,
+    message?: string
+  ): this {
     const normalizedGate = gate?.requiredOptIn
       ? {
           requiredOptIn: true,
@@ -2764,7 +2787,11 @@ export class FrodoStubCommand extends Command {
         }
       : gate;
 
-    setStabilityMetadata(this, { level, gate: normalizedGate });
+    setStabilityMetadata(this, {
+      level,
+      gate: normalizedGate,
+      ...(message ? { message } : {}),
+    });
 
     if (normalizedGate?.requiredOptIn) {
       const optionName = normalizedGate.optionName || 'enable-preview';
