@@ -30,6 +30,10 @@ export default function setup() {
         'An entity whose config file is not in the config folder is skipped with a\n' +
         'warning, and the others are still exported. A config file that exists but\n' +
         'cannot be read is a failed step.\n\n' +
+        'oauth-cimd-profiles and oauth-issuers need no config file. If the config\n' +
+        'folder has an oauth-cimd-profiles.json or an oauth-issuers.json, its overrides\n' +
+        'are applied to the pulled profiles or issuers (placeholders for values that\n' +
+        'differ between environments); without it they are pulled unchanged.\n\n' +
         'Each config file must be named after the command it applies to. For example,\n' +
         'the config file for "authz-policies" should be named "authz-policies.json".\n' +
         'Please refer to the help message of each command to see an example config file by running:\n' +

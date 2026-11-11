@@ -198,6 +198,79 @@ describe('a new tree', () => {
     expect(classifyTree(tree)).toBe('legacy');
   });
 
+  describe('the agents of a realm that an application can never own', () => {
+    it('does not make a tree a legacy tree when the agents directory holds nothing but CIMD profiles', () => {
+      mkdir('realms', 'alpha', 'realm-config', 'agents', 'CIMDProfile');
+      fs.writeFileSync(
+        path.join(
+          tree,
+          'realms',
+          'alpha',
+          'realm-config',
+          'agents',
+          'CIMDProfile',
+          'zion-agents.json'
+        ),
+        '{}'
+      );
+      expect(hasKindPathContent(tree)).toBe(false);
+      expect(classifyTree(tree)).toBe('new');
+    });
+
+    it('lets the layout decision of such a tree follow the per-user setting, and write the marker for folders', () => {
+      mkdir('realms', 'alpha', 'realm-config', 'agents', 'CIMDProfile');
+      expect(decideApplicationLayout(tree, 'folders')).toEqual({
+        tree: 'new',
+        layout: 'folders',
+        createMarker: true,
+      });
+      expect(decideApplicationLayout(tree, 'kind-paths')).toEqual({
+        tree: 'new',
+        layout: 'kind-paths',
+        createMarker: false,
+      });
+    });
+
+    it('is still a legacy tree when another agent type is next to the CIMD profiles', () => {
+      mkdir('realms', 'alpha', 'realm-config', 'agents', 'CIMDProfile');
+      mkdir('realms', 'alpha', 'realm-config', 'agents', 'OAuth2Client');
+      expect(classifyTree(tree)).toBe('legacy');
+    });
+
+    it('is still a legacy tree when the agents directory is empty, because a command created it', () => {
+      mkdir('realms', 'alpha', 'realm-config', 'agents');
+      expect(classifyTree(tree)).toBe('legacy');
+    });
+
+    it('is still a legacy tree when a FILE named CIMDProfile is in the agents directory', () => {
+      mkdir('realms', 'alpha', 'realm-config', 'agents');
+      fs.writeFileSync(
+        path.join(
+          tree,
+          'realms',
+          'alpha',
+          'realm-config',
+          'agents',
+          'CIMDProfile'
+        ),
+        'not a folder'
+      );
+      expect(classifyTree(tree)).toBe('legacy');
+    });
+
+    it('does not change the other kind-path directories: SAML providers still count with CIMD profiles beside them', () => {
+      mkdir('realms', 'alpha', 'realm-config', 'agents', 'CIMDProfile');
+      mkdir('realms', 'alpha', 'realm-config', 'saml');
+      expect(classifyTree(tree)).toBe('legacy');
+    });
+
+    it('counts a realm of the tree even when another realm holds only CIMD profiles', () => {
+      mkdir('realms', 'alpha', 'realm-config', 'agents', 'CIMDProfile');
+      mkdir('realms', 'bravo', 'realm-config', 'agents', 'WebAgent');
+      expect(classifyTree(tree)).toBe('legacy');
+    });
+  });
+
   it('ignores a file where a kind-path directory would be', () => {
     mkdir('sync');
     fs.writeFileSync(path.join(tree, 'sync', 'connectors'), 'not a directory');

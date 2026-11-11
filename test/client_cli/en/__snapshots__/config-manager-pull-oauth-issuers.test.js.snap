@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'config-manager pull oauth-issuers' should be expected english 1`] = `
+"Usage: frodo config-manager pull oauth-issuers [options] [host] [realm] [username] [password]
+
+[Experimental] Export the OAuth2 trusted JWT issuers (the issuers whose signed
+JWTs an OAuth 2.0 provider accepts as grants) of all realms or of one realm to
+realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json, one file for
+each. The file is the one that "pull oauth2-agents" writes for the same issuer,
+at the same path. A warning says when the key set of an issuer holds a private
+or secret key. Trusted JWT issuers are dynamic configuration: they are part of
+"pull all" and not of "pull all-static".
+
+Arguments:
+  host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
+                     connection profile, just specify a unique substring or
+                     alias.
+  realm              Realm. Specify realm as '/' for the root realm or 'realm'
+                     or '/parent/child' otherwise. (default: "alpha" for
+                     Identity Cloud tenants, "/" otherwise.)
+  username           Username to login with. Must be an admin user with
+                     appropriate rights to manage authentication journeys/trees.
+                     If given without a password, and it matches the username
+                     already stored in the connection profile for the target
+                     host, frodo uses that profile's stored password instead of
+                     requiring it on the command line.
+  password           Password.
+
+Options:
+  --allow-failures   Report operations that fail, but still exit with code 0.
+                     Without this option the command runs every operation,
+                     prints a summary of what failed and exits with code 1.
+  -f, --file <file>  A JSON file with overrides for values that differ between
+                     environments, e.g. "oauth-issuers.json".
+  -n, --name <name>  Trusted JWT issuer name, the name of the object and not its
+                     iss URL. If specified, pulls only that issuer. Needs a
+                     single realm.
+  -h, --help         Help
+  -hh, --help-more   Help with all options.
+  -hhh, --help-all   Help with all options, environment variables, and usage
+                     examples.
+"
+`;

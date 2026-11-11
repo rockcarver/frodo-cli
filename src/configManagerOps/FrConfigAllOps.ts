@@ -1,6 +1,8 @@
 import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { configManagerExportApplications } from '../ops/ApplicationConfigOps';
+import { configManagerExportCIMDProfiles } from '../ops/CIMDProfileConfigOps';
+import { configManagerExportTrustedJwtIssuers } from '../ops/OAuth2TrustedJwtIssuerConfigOps';
 import { configManagerExportRemoteProxies } from '../ops/RemoteProxyOps';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
@@ -151,6 +153,30 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('terms-and-conditions', () => configManagerExportTermsAndConditions()),
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `oauth-cimd-profiles.json` in the config folder is optional.
+    step('oauth-cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-cimd-profiles.json')
+      )
+    ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `oauth-issuers.json` in the config folder is optional.
+    step('oauth-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-issuers.json')
+      )
+    ),
     // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
@@ -261,6 +287,30 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
     step('variables', () => configManagerExportVariables()),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `oauth-cimd-profiles.json` in the config folder is optional.
+    step('oauth-cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-cimd-profiles.json')
+      )
+    ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `oauth-issuers.json` in the config folder is optional.
+    step('oauth-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-issuers.json')
+      )
+    ),
     // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
@@ -334,9 +384,36 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
       configManagerExportScripts(undefined, options.realm)
     ),
     step('services', (options) => configManagerExportServices(options.realm)),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `oauth-cimd-profiles.json` in the config folder is optional.
+    step('oauth-cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-cimd-profiles.json')
+      )
+    ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `oauth-issuers.json` in the config folder is optional.
+    step('oauth-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-issuers.json')
+      )
+    ),
   ],
 };
 
+// `oauth-cimd-profiles` and `oauth-issuers` are absent from the lists below on purpose: both are dynamic configuration (CIMD
+// profiles until Ping says a promotion carries them, trusted JWT issuers because Ping's promotion FAQ lists them as not
+// promoted); see the steps in `deploymentMapAll`.
 export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),
