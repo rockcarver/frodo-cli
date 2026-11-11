@@ -306,3 +306,43 @@ test('log filtering still applies after recovery and events alone use stdout', a
   expect(resolvePayloadLevel).toHaveBeenCalled();
   expect(printError).toHaveBeenCalledTimes(1);
 });
+
+test('a 429 with a usable reset does not use up a step of the pause schedule', async () => {
+  const run = follow([
+    httpError(429, { 'X-RateLimit-Reset': '1700000022' }),
+    httpError(503),
+    httpError(503),
+    [],
+  ]);
+  await expect(run.result).rejects.toBe(STOP);
+  expect(delays(run)).toEqual([23000, 5000, 10000, 5000]);
+});
+
+test('the missing-events line is judged for each outage on its own', async () => {
+  const run = follow([
+    ...Array(4).fill(httpError(503)),
+    [],
+    httpError(503),
+    [],
+  ]);
+  await expect(run.result).rejects.toBe(STOP);
+  expect(
+    messages().filter((text) => text.startsWith('Events from the outage'))
+  ).toHaveLength(1);
+  expect(
+    messages().filter((text) => text.startsWith('Log API is responding again'))
+  ).toEqual([
+    'Log API is responding again after 4 failed polls.',
+    'Log API is responding again after 1 failed polls.',
+  ]);
+});
+
+test('a refused credential inside a wrapper with another status still stops the tail', async () => {
+  const run = follow([wrapped(httpError(401), 500), []]);
+  await expect(run.result).resolves.toBe(false);
+  expect(run.poll).toHaveBeenCalledTimes(1);
+  expect(printMessage).toHaveBeenCalledWith(
+    'Log API credentials refused (HTTP 401). Stopping log tail.',
+    'error'
+  );
+});

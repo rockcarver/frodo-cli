@@ -37,7 +37,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--keep-trying',
-        'Keep following through outages and rate limiting until Ctrl-C; refused credentials still stop the tail. The Log API allows 60 requests per minute per environment, shared with other readers; a tail uses about 12.'
+        'Keep following through outages until Ctrl-C instead of stopping after 5 failed polls in a row; refused credentials still stop the tail. The Log API allows 60 requests per minute per environment, shared with other readers (a tail uses about 12); rate limiting is always waited out.'
       )
     )
     .addOption(

@@ -16,8 +16,9 @@ listed here, is decided by
 **`frodo log tail` retries failed polls**: the tail used to end silently after
 one failed poll with exit code 0. It now keeps following, with increasing pauses,
 and gives up after 5 failures in a row with exit code 1. The new `--keep-trying`
-option keeps following through longer outages and rate limiting until Ctrl-C.
-Refused credentials (HTTP 401/403) always stop the tail with exit code 1.
+option keeps following through longer outages until Ctrl-C. Rate limiting (HTTP
+429) is waited out with or without it and does not count as a failure. Refused
+credentials (HTTP 401/403) always stop the tail with exit code 1.
 
 **Removed command aliases** (backwards-compatibility spellings of the
 canonical commands; use the canonical name):

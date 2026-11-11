@@ -273,19 +273,23 @@ export async function tailLogs(
       pauses = 0;
     } catch (error) {
       const { status, reset } = logPollError(error);
-      delay = [5000, 10000, 20000, 30000][Math.min(pauses++, 3)];
+      // a step of the pause schedule is used up only by a pause taken from it
+      const nextPause = () =>
+        [5000, 10000, 20000, 30000][Math.min(pauses++, 3)];
       if (status === 429) {
-        if (reset != null && reset !== '' && Number.isFinite(Number(reset))) {
-          delay = Math.min(
-            60000,
-            Math.max(5000, Math.ceil(Number(reset) * 1000 - now() + 1000))
-          );
-        }
+        delay =
+          reset != null && reset !== '' && Number.isFinite(Number(reset))
+            ? Math.min(
+                60000,
+                Math.max(5000, Math.ceil(Number(reset) * 1000 - now() + 1000))
+              )
+            : nextPause();
         printMessage(
           `Log API rate limit reached (60 requests per minute for the environment, shared with everything that reads its logs). Waiting ${Math.ceil(delay / 1000)} seconds.`,
           'warn'
         );
       } else {
+        delay = nextPause();
         if (failures === 0) {
           outageSince = now();
           printError(error);
