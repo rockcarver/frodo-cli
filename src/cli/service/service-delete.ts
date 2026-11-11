@@ -1,4 +1,3 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteService, deleteServices } from '../../ops/ServiceOps.js';
@@ -6,16 +5,8 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-type AmServiceSkeleton = Awaited<
-  ReturnType<typeof frodo.service.getListOfServices>
->[number];
 
 export default function setup() {
   const program = new FrodoCommand('frodo service delete');
@@ -55,6 +46,8 @@ export default function setup() {
       )
     )
     .addOption(new Option('-g, --global', 'Delete global services.'))
+    // without it `-y` alone reached the delete of every service
+    .requireOneOf({ options: ['id', 'all'], purpose: 'what to delete' })
     .action(
       async (
         host: string,
@@ -88,22 +81,17 @@ export default function setup() {
 
         const globalConfig = options.global ?? false;
 
-        if (options.id && (await getTokens())) {
-          const outcome = await deleteService(options.id, globalConfig);
-          if (!outcome) process.exitCode = 1;
-        }
-        // -a/--all, or an interactive pick (resolveEntityPicks is a no-op
-        // outside the prompt gate, so a non-interactive run with neither
-        // option never reaches deleteServices here -- same as before
-        // in the pre-picker layout, where the error branch below handled that case).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens())
-        ) {
+        // The login comes first: a service that was not given is asked for by
+        // the framework once it worked (a service picker, record 0038), and a
+        // declined pick makes getTokens fail.
+        if (await getTokens()) {
+          // delete by id
           if (options.id) {
             const outcome = await deleteService(options.id, globalConfig);
             if (!outcome) process.exitCode = 1;
-          } else {
+          }
+          // --all -a
+          else if (options.all) {
             if (
               !(await confirmBulkDelete({
                 what: 'all services',
@@ -120,29 +108,20 @@ export default function setup() {
             );
             if (!outcome) process.exitCode = 1;
           }
+          // neither -i nor -a: the picker had no service to offer. Never fall
+          // through to deleting all services.
+          else {
+            printMessage('There is no service to choose from.', 'error');
+            process.exitCode = 1;
+          }
         }
-        // No branch ran: with requireOneOf satisfied, the only ways here
-        // are getTokens() failing (keep the old exit-1 semantics) or the
-        // user escaping the entity picker (declined to run).
+        // getTokens() failed, or the user escaped the entity picker (declined
+        // to run): keep the old exit-1 semantics.
         else {
           process.exitCode = 1;
         }
       }
     );
-
-  deferEntityPicks(program, [
-    // The loader reads the option value at pick time, so -g/--global still
-    // scopes the dropdown.
-    entityPick<AmServiceSkeleton>({
-      name: 'id',
-      kind: 'service',
-      load: () =>
-        frodo.service.getListOfServices(
-          program.getOptionValue('global') ?? false
-        ),
-      label: (service) => service._id ?? '',
-    }),
-  ]);
 
   return program;
 }

@@ -1,5 +1,5 @@
 import { frodo, state, type Writable } from '@rockcarver/frodo-lib';
-import { padCell, singleLine, truncate } from '../utils/TextLayout';
+import { padCell, singleLine, truncate } from '../TextLayout';
 
 const { readOAuth2TrustedJwtIssuer } = frodo.oauth2oidc.issuer;
 const { queryManagedObjects, countManagedObjects } = frodo.idm.managed;

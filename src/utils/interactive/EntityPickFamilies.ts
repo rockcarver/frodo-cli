@@ -28,6 +28,7 @@ import {
   type VariableSkeleton,
   type WorkflowGroup,
 } from '@rockcarver/frodo-lib';
+import type { Command } from 'commander';
 import {
   sameHost,
   savedConnectionProfiles,
@@ -36,6 +37,13 @@ import {
 import { getActiveActionCommand } from './ActiveActionCommandState';
 import { entityPick } from './EntityPickers';
 import { registerEntityPickFamily } from './EntityPickRegistry';
+import { positionalValue } from './PositionalArgs';
+import {
+  createSubjectSource,
+  SUBJECT_LIST_LIMIT,
+  subjectMatches,
+  type SubjectCandidate,
+} from './Rfc7523Subjects';
 
 const REMOTE_PROXY_ID_PREFIX = 'external.idm/';
 
@@ -243,6 +251,36 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
+  // The additional service accounts saved on a connection profile (`describe`
+  // and `remove`). The commands are local: they read and write the profile file
+  // and never log in, so the pick says it needs no login and the pass opens it
+  // without one. The profile is the host the command was given (a URL, an alias
+  // or part of one, as the commands themselves take it) or the host of the
+  // environment. `add` names a service account that does not exist yet.
+  type ServiceAccountRow = ReturnType<
+    typeof frodo.conn.listAdditionalServiceAccounts
+  >[number];
+
+  registerEntityPickFamily({
+    family: 'conn service-account',
+    except: ['add'],
+    picks: [
+      entityPick<ServiceAccountRow>({
+        name: 'name',
+        kind: 'service account',
+        needsLogin: false,
+        load: async () =>
+          frodo.conn.listAdditionalServiceAccounts(state.getHost()),
+        loadFor: async (command) =>
+          frodo.conn.listAdditionalServiceAccounts(
+            positionalValue(command, 'host') ?? state.getHost()
+          ),
+        label: (account) => account.name,
+        description: (account) => account.svcacctId,
+      }),
+    ],
+  });
+
   // Authorization policies: the policy that `-i` names. `--set-id` of `delete`
   // and `export` is not offered a pick: it narrows `-a` to one policy set, so a
   // pick would open on a complete command line such as `delete -a` (record
@@ -330,9 +368,28 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
+  // The users of an RFC7523 assertion are offered from the trusted issuer of
+  // the client, so the source of the candidates is made for the command that
+  // runs the pick, and the search steps read it from the command they are given.
+  type SubjectSource = ReturnType<typeof createSubjectSource>;
+  const subjectSources = new WeakMap<Command, SubjectSource>();
+  const subjectsOf = (command: Command | undefined): SubjectSource => {
+    const clientId = () => command?.getOptionValue('clientId') as string;
+    if (!command) return createSubjectSource(clientId);
+    let source = subjectSources.get(command);
+    if (!source) {
+      source = createSubjectSource(clientId);
+      subjectSources.set(command, source);
+    }
+    return source;
+  };
+
   // The OAuth2 client a command acts as (`--client-id` of `get-access-token`
-  // and `execute-rfc7523-authz-grant-flow`). Left out are the commands whose
-  // `--client-id` is optional, or names a client that does not exist yet.
+  // and `execute-rfc7523-authz-grant-flow`), and the user that
+  // `execute-rfc7523-authz-grant-flow` gets tokens for (`--sub`, from the users
+  // the trusted issuer of the client allows, else the realm's; it is asked for
+  // after the client). Left out are the commands whose `--client-id` is
+  // optional, or names a client that does not exist yet.
   registerEntityPickFamily({
     family: 'admin',
     except: [
@@ -350,6 +407,23 @@ export function registerEntityPickFamilies(): void {
             (a._id ?? '').localeCompare(b._id ?? '')
           ),
         label: (client) => client._id ?? '',
+      }),
+      entityPick<SubjectCandidate>({
+        name: 'sub',
+        kind: 'user',
+        message: 'Select the user to get tokens for:',
+        load: () => subjectsOf(getActiveActionCommand()).list(),
+        loadFor: (command) => subjectsOf(command).list(),
+        label: (user) => user.row,
+        value: (user) => user.id,
+        description: (user) => user.mail,
+        search: subjectMatches,
+        searchFirst: {
+          when: (command) => subjectsOf(command).tooMany(),
+          message: 'Search users:',
+          hint: `The realm has ${SUBJECT_LIST_LIMIT} or more users. Type part of a username, first or last name or email, or a whole id.`,
+          load: (text, command) => subjectsOf(command).search(text),
+        },
       }),
     ],
   });
@@ -752,9 +826,11 @@ export function registerEntityPickFamilies(): void {
   });
 
   // Secrets of the environment (cloud only). `create` and `import` name a new
-  // secret or one in a file and get no pick.
+  // secret or one in a file and get no pick; `version create` adds a version to
+  // a secret that exists, so it is included.
   registerEntityPickFamily({
     family: 'esv secret',
+    include: ['version create'],
     picks: [
       entityPick<SecretSkeleton>({
         name: 'secretId',
@@ -784,10 +860,12 @@ export function registerEntityPickFamilies(): void {
   // with `-g`. A store is addressed by its id; when two stores of different
   // types share an id the command still asks for `-t`, so the row shows the
   // type. Every command below `secretstore` that has the option inherits the
-  // pick, including the mapping and alias commands (their `create` verbs
-  // name something new and are left out).
+  // pick, including the mapping and alias commands. `import` names a store in
+  // a file and is left out; the `create` commands of the mappings and the
+  // aliases add to a store that exists, so they are included.
   registerEntityPickFamily({
     family: 'secretstore',
+    include: ['mapping create', 'mapping alias create'],
     picks: [
       entityPick<SecretStore>({
         name: 'secretstoreId',
@@ -806,9 +884,12 @@ export function registerEntityPickFamilies(): void {
 
   // The mappings of a secret store. Registered after the store, so that the
   // store is picked first: the loader reads the store (and its type and
-  // scope) from the command, and offers nothing while there is none.
+  // scope) from the command, and offers nothing while there is none. `create`
+  // names a mapping that does not exist yet and gets no pick; `alias create`
+  // adds an alias to a mapping that does, so it is included.
   registerEntityPickFamily({
     family: 'secretstore mapping',
+    include: ['alias create'],
     picks: [
       entityPick<SecretStoreMappingSkeleton>({
         name: 'secretId',
@@ -855,9 +936,9 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  // The AM services (`service export -i`). `-g` switches between the services
-  // of the realm and the global ones, so the loader reads it from the command.
-  // `service delete` keeps its own picker for its `-i` (`--id`).
+  // The AM services: `service export -i` (`--service-id`) and `service delete -i`
+  // (`--id`). `-g` switches between the services of the realm and the global
+  // ones, so the loader reads it from the command.
   type AmService = Awaited<
     ReturnType<typeof frodo.service.getListOfServices>
   >[number];
@@ -869,9 +950,9 @@ export function registerEntityPickFamilies(): void {
 
   registerEntityPickFamily({
     family: 'service',
-    picks: [
+    picks: ['serviceId', 'id'].map((name) =>
       entityPick<AmService>({
-        name: 'serviceId',
+        name,
         kind: 'service',
         load: () => services(false),
         loadFor: (command) =>
@@ -879,8 +960,8 @@ export function registerEntityPickFamilies(): void {
         label: (service) => service._id ?? '',
         description: (service) =>
           typeof service.name === 'string' ? service.name : undefined,
-      }),
-    ],
+      })
+    ),
   });
 
   // `connector`: the IDM connectors, by id. The configuration of the connector
