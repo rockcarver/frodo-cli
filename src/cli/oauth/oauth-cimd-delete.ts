@@ -21,21 +21,21 @@ export default function setup() {
     .description('Delete CIMD profiles.')
     .addOption(
       new Option(
-        '-i, --agent-id <agent-id>',
-        'Agent id: the id of the CIMD profile. Cannot be used with -a or --dry-run.'
+        '-i, --profile-id <profile-id>',
+        'Profile id: the id of the CIMD profile. Cannot be used with -a or --dry-run.'
       ).conflicts(['all', 'dryRun'])
     )
     .addOption(
       new Option(
         '-a, --all',
         'Delete all CIMD profiles. Cannot be used with -i.'
-      ).conflicts(['agentId'])
+      ).conflicts(['profileId'])
     )
     .addOption(
       new Option(
         '--dry-run',
         'Show which CIMD profiles would be deleted and delete nothing. Only with -a. Cannot be used with -i.'
-      ).conflicts(['agentId'])
+      ).conflicts(['profileId'])
     )
     .addOption(
       new Option(
@@ -44,7 +44,7 @@ export default function setup() {
       )
     )
     .requireOneOf({
-      options: ['all', 'agentId'],
+      options: ['all', 'profileId'],
       purpose: 'what to delete',
     })
     .addHelpText(
@@ -117,8 +117,8 @@ export default function setup() {
             // -i; it is unset when the picker found no profile (an empty list
             // counts as satisfied): there is nothing to delete and nothing to
             // confirm, and never a fall through to the delete of everything
-            verboseMessage(`Deleting CIMD profile ${options.agentId}...`);
-            outcome = await deleteCIMDProfile(options.agentId);
+            verboseMessage(`Deleting CIMD profile ${options.profileId}...`);
+            outcome = await deleteCIMDProfile(options.profileId);
           }
           if (!outcome) process.exitCode = 1;
         } else {

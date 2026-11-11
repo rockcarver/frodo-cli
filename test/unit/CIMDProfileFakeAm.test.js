@@ -220,22 +220,22 @@ suite('oauth cimd through the CLI', () => {
       async () => {
         const recordPath = path.join(home, 'requests.log');
         const logged = await fake({ recordPath });
-        writeImportFile('in.cimd.agent.json', [PROFILES[0], PROFILES[1]]);
+        writeImportFile('in.oauth2.cimd.json', [PROFILES[0], PROFILES[1]]);
         const importOn = (args) =>
           run(onFake(logged, ['oauth', 'cimd', 'import', ...args]));
 
-        const all = await importOn(['-a', '-f', 'in.cimd.agent.json']);
+        const all = await importOn(['-a', '-f', 'in.oauth2.cimd.json']);
         const separate = await importOn(['-A']);
         const separateAllowed = await importOn(['-A', '--allow-failures']);
         const writes = readRequests(recordPath).filter(
           (request) => request.method === 'PUT'
         );
-        const first = await importOn(['-f', 'in.cimd.agent.json']);
+        const first = await importOn(['-f', 'in.oauth2.cimd.json']);
         const one = await importOn([
           '-i',
           'zion-mcp-clients',
           '-f',
-          'in.cimd.agent.json',
+          'in.oauth2.cimd.json',
         ]);
 
         for (const skipped of [all, separate, separateAllowed]) {
@@ -356,7 +356,7 @@ suite('oauth cimd through the CLI', () => {
           ])
         );
 
-        expect(stdout).toMatch(/Agent Id\s*│zion-mcp-clients/);
+        expect(stdout).toMatch(/Profile Id\s*│zion-mcp-clients/);
         expect(stdout).toMatch(/Status\s*│Active/);
         expect(stdout).toMatch(
           /Client ID URL patterns\s*│https:\/\/agents\.zion\.example\.com\/\*/
@@ -394,23 +394,25 @@ suite('oauth cimd through the CLI', () => {
 
           expect([one.code, all.code, separate.code]).toEqual([0, 0, 0]);
           expect(files()).toEqual([
-            'allAlphaAgents.cimd.agent.json',
-            'alpha-clients.cimd.agent.json',
-            'zion-mcp-clients.cimd.agent.json',
+            'allAlphaCimdProfiles.oauth2.cimd.json',
+            'alpha-clients.oauth2.cimd.json',
+            'zion-mcp-clients.oauth2.cimd.json',
           ]);
           // the server's own _rev is not in a file (the library drops it on save)
           const { _rev, ...expected } = PROFILES[0];
           expect(_rev).toBeDefined();
           expect(
-            exported('zion-mcp-clients.cimd.agent.json').cimdProfile
+            exported('zion-mcp-clients.oauth2.cimd.json').cimdProfile
           ).toEqual({ 'zion-mcp-clients': expected });
           expect(
-            exported('allAlphaAgents.cimd.agent.json').cimdProfile[
+            exported('allAlphaCimdProfiles.oauth2.cimd.json').cimdProfile[
               'zion-mcp-clients'
             ]
           ).toEqual(expected);
           expect(
-            Object.keys(exported('allAlphaAgents.cimd.agent.json').cimdProfile)
+            Object.keys(
+              exported('allAlphaCimdProfiles.oauth2.cimd.json').cimdProfile
+            )
           ).toEqual(['alpha-clients', 'zion-mcp-clients']);
         },
         TIMEOUT
@@ -446,7 +448,7 @@ suite('oauth cimd through the CLI', () => {
         async () => {
           // a folder where the file of one profile should go
           fs.mkdirSync(
-            path.join(work, 'out', 'alpha-clients.cimd.agent.json'),
+            path.join(work, 'out', 'alpha-clients.oauth2.cimd.json'),
             {
               recursive: true,
             }
@@ -477,7 +479,7 @@ suite('oauth cimd through the CLI', () => {
           );
           expect(allowed.code).toBe(0);
           expect(
-            exported('zion-mcp-clients.cimd.agent.json').cimdProfile
+            exported('zion-mcp-clients.oauth2.cimd.json').cimdProfile
           ).toHaveProperty('zion-mcp-clients');
         },
         TIMEOUT
@@ -561,7 +563,11 @@ suite('oauth cimd through the CLI', () => {
         );
         expect(exported.code).toBe(0);
         // the same profile under another id
-        const file = path.join(work, 'out', 'zion-mcp-clients.cimd.agent.json');
+        const file = path.join(
+          work,
+          'out',
+          'zion-mcp-clients.oauth2.cimd.json'
+        );
         const data = JSON.parse(fs.readFileSync(file, 'utf8'));
         data.cimdProfile['round-trip'] = {
           ...data.cimdProfile['zion-mcp-clients'],
@@ -622,7 +628,7 @@ suite('oauth cimd through the CLI', () => {
     it(
       'a sparse profile is created and written again, so that it is stored as the file has it, and the command says so',
       async () => {
-        writeImportFile('sparse.cimd.agent.json', [sparse('sparse-one')]);
+        writeImportFile('sparse.oauth2.cimd.json', [sparse('sparse-one')]);
 
         const imported = await run(
           onFake(server, [
@@ -631,7 +637,7 @@ suite('oauth cimd through the CLI', () => {
             'import',
             '-a',
             '-f',
-            'sparse.cimd.agent.json',
+            'sparse.oauth2.cimd.json',
           ])
         );
         const described = await run(
@@ -664,7 +670,7 @@ suite('oauth cimd through the CLI', () => {
     it(
       '-f alone imports one profile of a file of three, -a imports them all',
       async () => {
-        writeImportFile('three.cimd.agent.json', [
+        writeImportFile('three.oauth2.cimd.json', [
           sparse('three-a'),
           sparse('three-b'),
           sparse('three-c'),
@@ -676,7 +682,7 @@ suite('oauth cimd through the CLI', () => {
             'cimd',
             'import',
             '-f',
-            'three.cimd.agent.json',
+            'three.oauth2.cimd.json',
           ])
         );
         const afterFirst = await listed();
@@ -687,7 +693,7 @@ suite('oauth cimd through the CLI', () => {
             'import',
             '-a',
             '-f',
-            'three.cimd.agent.json',
+            'three.oauth2.cimd.json',
           ])
         );
         const afterAll = await listed();
@@ -709,11 +715,13 @@ suite('oauth cimd through the CLI', () => {
     );
 
     it(
-      '-A imports the *.cimd.agent.json files of the directory and no other file',
+      '-A imports the *.oauth2.cimd.json files of the directory and no other file',
       async () => {
-        writeImportFile('x.cimd.agent.json', [sparse('dir-x')], 'dir');
-        writeImportFile('y.cimd.agent.json', [sparse('dir-y')], 'dir');
+        writeImportFile('x.oauth2.cimd.json', [sparse('dir-x')], 'dir');
+        writeImportFile('y.oauth2.cimd.json', [sparse('dir-y')], 'dir');
         writeImportFile('z.agent.json', [sparse('dir-z')], 'dir');
+        // the name of the first drafts is not read
+        writeImportFile('w.cimd.agent.json', [sparse('dir-w')], 'dir');
 
         const { code } = await run(
           onFake(server, ['oauth', 'cimd', 'import', '-A', '-D', 'dir'])
@@ -731,7 +739,7 @@ suite('oauth cimd through the CLI', () => {
     it(
       'a profile of another type is a failed item that is named, the others are imported, and the command exits 1 (0 with --allow-failures)',
       async () => {
-        writeImportFile('mixed.cimd.agent.json', [
+        writeImportFile('mixed.oauth2.cimd.json', [
           sparse('mixed-a'),
           {
             ...sparse('mixed-b'),
@@ -747,7 +755,7 @@ suite('oauth cimd through the CLI', () => {
             'import',
             '-a',
             '-f',
-            'mixed.cimd.agent.json',
+            'mixed.oauth2.cimd.json',
           ])
         );
         const allowed = await run(
@@ -757,7 +765,7 @@ suite('oauth cimd through the CLI', () => {
             'import',
             '-a',
             '-f',
-            'mixed.cimd.agent.json',
+            'mixed.oauth2.cimd.json',
             '--allow-failures',
           ])
         );
@@ -788,7 +796,7 @@ suite('oauth cimd through the CLI', () => {
             'import',
             '-a',
             '-f',
-            'missing.cimd.agent.json',
+            'missing.oauth2.cimd.json',
             '--allow-failures',
           ])
         );

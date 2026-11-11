@@ -26,7 +26,8 @@ function commandAt(path: string[], ...flags: string[]): Command {
   return leaf;
 }
 
-const ID = '-i, --agent-id <agent-id>';
+const ID = '-i, --profile-id <profile-id>';
+const AGENT_ID = '-i, --agent-id <agent-id>';
 const profile = (id: string, patterns?: unknown) => ({
   _id: id,
   ...(patterns === undefined
@@ -50,7 +51,7 @@ describe('the CIMD profile picker', () => {
         familyEntityPicks(commandAt(['oauth', 'cimd', verb], ID)).map(
           (p) => p.name
         )
-      ).toEqual(['agentId']);
+      ).toEqual(['profileId']);
     }
   });
 
@@ -68,17 +69,19 @@ describe('the CIMD profile picker', () => {
       ).map((p) => p.kind)
     ).toEqual(['OAuth2 client']);
     expect(
-      familyEntityPicks(commandAt(['agent', 'web', 'delete'], ID)).map(
+      familyEntityPicks(commandAt(['agent', 'web', 'delete'], AGENT_ID)).map(
         (p) => p.kind
       )
     ).toEqual(['web agent']);
     expect(
-      familyEntityPicks(commandAt(['agent', 'delete'], ID)).map((p) => p.kind)
+      familyEntityPicks(commandAt(['agent', 'delete'], AGENT_ID)).map(
+        (p) => p.kind
+      )
     ).toEqual(['agent']);
   });
 
-  it('fills the agentId option with the CIMD profiles', () => {
-    expect(pick.name).toBe('agentId');
+  it('fills the profileId option with the CIMD profiles', () => {
+    expect(pick.name).toBe('profileId');
     expect(pick.kind).toBe('CIMD profile');
   });
 

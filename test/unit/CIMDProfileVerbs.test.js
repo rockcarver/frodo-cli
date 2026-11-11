@@ -175,7 +175,7 @@ describe('oauth cimd list', () => {
 describe('oauth cimd describe', () => {
   test('-i is mandatory, so the framework picks a missing one after the login', () => {
     const option = setupDescribe().options.find(
-      (candidate) => candidate.long === '--agent-id'
+      (candidate) => candidate.long === '--profile-id'
     );
     expect(option.mandatory).toBe(true);
   });
@@ -183,7 +183,7 @@ describe('oauth cimd describe', () => {
   test('has no --all-style option: list --long and export -a show everything', () => {
     const longs = setupDescribe().options.map((option) => option.long);
     expect(longs).toEqual(
-      expect.arrayContaining(['--agent-id', '--json', '--allow-failures'])
+      expect.arrayContaining(['--profile-id', '--json', '--allow-failures'])
     );
     expect(longs).not.toContain('--all');
     expect(rulesOf(setupDescribe)).toBeUndefined();
@@ -222,7 +222,7 @@ describe('oauth cimd export', () => {
   test('the user has to choose what to export, and the command is a multi-operation command', () => {
     expect(rulesOf(setupExport)).toEqual({
       oneOf: {
-        options: ['all', 'allSeparate', 'agentId'],
+        options: ['all', 'allSeparate', 'profileId'],
         purpose: 'what to export',
       },
       multiOp: true,
@@ -405,7 +405,7 @@ describe('oauth cimd import', () => {
 describe('oauth cimd delete', () => {
   test('the user has to choose what to delete, and the command is a multi-operation command', () => {
     expect(rulesOf(setupDelete)).toEqual({
-      oneOf: { options: ['all', 'agentId'], purpose: 'what to delete' },
+      oneOf: { options: ['all', 'profileId'], purpose: 'what to delete' },
       multiOp: true,
     });
   });

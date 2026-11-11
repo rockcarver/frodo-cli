@@ -17,27 +17,27 @@ export default function setup() {
     .description('Export CIMD profiles.')
     .addOption(
       new Option(
-        '-i, --agent-id <agent-id>',
-        'Agent id: the id of the CIMD profile. Cannot be used with -a or -A.'
+        '-i, --profile-id <profile-id>',
+        'Profile id: the id of the CIMD profile. Cannot be used with -a or -A.'
       ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file <file>',
-        'Name of the export file. Defaults to <id>.cimd.agent.json for a profile and allAlphaAgents.cimd.agent.json (the realm in its name) for -a. Cannot be used with -A.'
+        'Name of the export file. Defaults to <id>.oauth2.cimd.json for a profile and allAlphaCimdProfiles.oauth2.cimd.json (the realm in its name) for -a. Cannot be used with -A.'
       ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-a, --all',
         'Export all CIMD profiles to a single file. Cannot be used with -i or -A.'
-      ).conflicts(['agentId', 'allSeparate'])
+      ).conflicts(['profileId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all CIMD profiles to separate files (*.cimd.agent.json) in the current directory. Cannot be used with -i, -f or -a.'
-      ).conflicts(['agentId', 'file', 'all'])
+        'Export all CIMD profiles to separate files (*.oauth2.cimd.json) in the current directory. Cannot be used with -i, -f or -a.'
+      ).conflicts(['profileId', 'file', 'all'])
     )
     .addOption(
       new Option(
@@ -46,7 +46,7 @@ export default function setup() {
       )
     )
     .requireOneOf({
-      options: ['all', 'allSeparate', 'agentId'],
+      options: ['all', 'allSeparate', 'profileId'],
       purpose: 'what to export',
     })
     .addHelpText(
@@ -99,9 +99,9 @@ export default function setup() {
           } else {
             // -i; it is unset when the picker had nothing to offer, which the
             // ops function reports (and then fails)
-            verboseMessage(`Exporting CIMD profile ${options.agentId}...`);
+            verboseMessage(`Exporting CIMD profile ${options.profileId}...`);
             outcome = await exportCIMDProfileToFile(
-              options.agentId,
+              options.profileId,
               options.file,
               options.metadata
             );

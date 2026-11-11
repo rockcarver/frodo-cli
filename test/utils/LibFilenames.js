@@ -7,7 +7,7 @@ import slugify from 'slugify';
  * an id (it keeps `\w $*_+~.()'"!-@`, turns spaces into `-`, drops what is left
  * and caps nothing).
  * @param {string} name the object name or id
- * @param {string} type the file type, for example `cimd.agent`
+ * @param {string} type the file type, for example `oauth2.cimd`
  * @param {string} [suffix] the file suffix, `json` by default
  * @returns {string} `<slug>.<type>.<suffix>`
  */

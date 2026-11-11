@@ -12,10 +12,10 @@ const { getEntityPicks } =
  * the other agent or oauth entries may add a second.
  */
 
-const agentIdPicks = (leaf) =>
-  getEntityPicks(leaf).filter((pick) => pick.name === 'agentId');
-const hasAgentId = (leaf) =>
-  leaf.options.some((option) => option.attributeName() === 'agentId');
+const profileIdPicks = (leaf) =>
+  getEntityPicks(leaf).filter((pick) => pick.name === 'profileId');
+const hasProfileId = (leaf) =>
+  leaf.options.some((option) => option.attributeName() === 'profileId');
 
 let leaves = [];
 
@@ -28,7 +28,7 @@ beforeAll(async () => {
 describe('the pickers of the oauth cimd commands', () => {
   it('gives these commands exactly one picker for -i, and no command any other pick', () => {
     const withPicker = leaves
-      .filter((leaf) => agentIdPicks(leaf).length > 0)
+      .filter((leaf) => profileIdPicks(leaf).length > 0)
       .map(fullName)
       .sort();
     expect(withPicker).toEqual([
@@ -37,14 +37,14 @@ describe('the pickers of the oauth cimd commands', () => {
       'frodo oauth cimd export',
     ]);
     for (const leaf of leaves) {
-      expect(agentIdPicks(leaf).length).toBeLessThanOrEqual(1);
-      expect(getEntityPicks(leaf).length).toBe(agentIdPicks(leaf).length);
+      expect(profileIdPicks(leaf).length).toBeLessThanOrEqual(1);
+      expect(getEntityPicks(leaf).length).toBe(profileIdPicks(leaf).length);
     }
   });
 
   it('leaves import without a picker: -i names a profile in a file', () => {
     const without = leaves
-      .filter((leaf) => hasAgentId(leaf) && agentIdPicks(leaf).length === 0)
+      .filter((leaf) => hasProfileId(leaf) && profileIdPicks(leaf).length === 0)
       .map(fullName)
       .sort();
     expect(without).toEqual(['frodo oauth cimd import']);

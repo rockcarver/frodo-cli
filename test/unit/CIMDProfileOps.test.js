@@ -476,7 +476,7 @@ describe('listCIMDProfiles', () => {
 describe('describeCIMDProfile', () => {
   const expectedRows = [
     'Property | Value',
-    'Agent Id | zion-mcp-clients',
+    'Profile Id | zion-mcp-clients',
     'Status | Active',
     'Client ID URL patterns | https://agents.zion.example.com/zion-mcp-clients/*\nhttps://agents.zion.example.com:8443/agents/*',
     'Metadata override deny list | scope\nredirect_uris',
@@ -550,7 +550,7 @@ describe('describeCIMDProfile', () => {
     expect(messages('data')).toEqual([
       [
         'Property | Value',
-        'Agent Id | sparse',
+        'Profile Id | sparse',
         'Status | (not set)',
         'Client ID URL patterns | https://agents.zion.example.com/*',
         'Metadata override deny list | (not set)',
@@ -581,7 +581,7 @@ describe('describeCIMDProfile', () => {
 
     expect(await describeCIMDProfile('ZION-MCP-CLIENTS')).toBe(true);
 
-    expect(messages('data')[0]).toContain('Agent Id | zion-mcp-clients');
+    expect(messages('data')[0]).toContain('Profile Id | zion-mcp-clients');
   });
 
   test('a profile that does not exist fails and says so', async () => {
@@ -663,20 +663,20 @@ describe('reportCIMDProfilesUnavailable', () => {
 });
 
 describe('exportCIMDProfileToFile', () => {
-  test('writes <id>.cimd.agent.json with the profile under the key cimdProfile, and the metadata', async () => {
+  test('writes <id>.oauth2.cimd.json with the profile under the key cimdProfile, and the metadata', async () => {
     const profile = plainProfile('zion-mcp-clients');
     stored = [profile];
 
     expect(await exportCIMDProfileToFile('zion-mcp-clients')).toBe(true);
 
-    expect(writtenFiles()).toEqual(['zion-mcp-clients.cimd.agent.json']);
-    expect(readWritten('zion-mcp-clients.cimd.agent.json')).toEqual({
+    expect(writtenFiles()).toEqual(['zion-mcp-clients.oauth2.cimd.json']);
+    expect(readWritten('zion-mcp-clients.oauth2.cimd.json')).toEqual({
       meta: { origin: HOST },
       cimdProfile: { 'zion-mcp-clients': profile },
     });
     expect(messages('indicator-success')).toEqual([
       expect.stringMatching(
-        /^Exported zion-mcp-clients to .*zion-mcp-clients\.cimd\.agent\.json\.$/
+        /^Exported zion-mcp-clients to .*zion-mcp-clients\.oauth2\.cimd\.json\.$/
       ),
     ]);
   });
@@ -697,9 +697,9 @@ describe('exportCIMDProfileToFile', () => {
 
     expect(await exportCIMDProfileToFile('ZION-MCP-CLIENTS')).toBe(true);
 
-    expect(writtenFiles()).toEqual(['zion-mcp-clients.cimd.agent.json']);
+    expect(writtenFiles()).toEqual(['zion-mcp-clients.oauth2.cimd.json']);
     expect(
-      Object.keys(readWritten('zion-mcp-clients.cimd.agent.json').cimdProfile)
+      Object.keys(readWritten('zion-mcp-clients.oauth2.cimd.json').cimdProfile)
     ).toEqual(['zion-mcp-clients']);
   });
 
@@ -709,7 +709,7 @@ describe('exportCIMDProfileToFile', () => {
 
     expect(await exportCIMDProfileToFile('sparse')).toBe(true);
 
-    expect(readWritten('sparse.cimd.agent.json').cimdProfile.sparse).toEqual(
+    expect(readWritten('sparse.oauth2.cimd.json').cimdProfile.sparse).toEqual(
       profile
     );
   });
@@ -764,18 +764,20 @@ describe('exportCIMDProfileToFile', () => {
 });
 
 describe('exportCIMDProfilesToFile', () => {
-  test('writes all profiles to all<Realm>Agents.cimd.agent.json, the realm in its name', async () => {
+  test('writes all profiles to all<Realm>CimdProfiles.oauth2.cimd.json, the realm in its name', async () => {
     stored = [plainProfile('alpha-clients'), plainProfile('zion-mcp-clients')];
 
     expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
 
-    expect(writtenFiles()).toEqual(['allAlphaAgents.cimd.agent.json']);
+    expect(writtenFiles()).toEqual(['allAlphaCimdProfiles.oauth2.cimd.json']);
     expect(
-      Object.keys(readWritten('allAlphaAgents.cimd.agent.json').cimdProfile)
+      Object.keys(
+        readWritten('allAlphaCimdProfiles.oauth2.cimd.json').cimdProfile
+      )
     ).toEqual(['alpha-clients', 'zion-mcp-clients']);
     expect(messages('info')).toEqual([
       expect.stringMatching(
-        /^Exported 2 CIMD profiles to .*allAlphaAgents\.cimd\.agent\.json\.$/
+        /^Exported 2 CIMD profiles to .*allAlphaCimdProfiles\.oauth2\.cimd\.json\.$/
       ),
     ]);
   });
@@ -786,7 +788,7 @@ describe('exportCIMDProfilesToFile', () => {
 
     expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
 
-    expect(writtenFiles()).toEqual(['allRootAgents.cimd.agent.json']);
+    expect(writtenFiles()).toEqual(['allRootCimdProfiles.oauth2.cimd.json']);
   });
 
   test('-f names the file, -N leaves the metadata out', async () => {
@@ -801,7 +803,7 @@ describe('exportCIMDProfilesToFile', () => {
   test('a realm that offers the type and holds no profile gets a file with an empty section', async () => {
     expect(await exportCIMDProfilesToFile(undefined)).toBe(true);
 
-    expect(readWritten('allAlphaAgents.cimd.agent.json')).toEqual({
+    expect(readWritten('allAlphaCimdProfiles.oauth2.cimd.json')).toEqual({
       meta: { origin: HOST },
       cimdProfile: {},
     });
@@ -839,10 +841,10 @@ describe('exportCIMDProfilesToFiles', () => {
     expect(await exportCIMDProfilesToFiles()).toBe(true);
 
     expect(writtenFiles()).toEqual([
-      'alpha-clients.cimd.agent.json',
-      'zion-mcp-clients.cimd.agent.json',
+      'alpha-clients.oauth2.cimd.json',
+      'zion-mcp-clients.oauth2.cimd.json',
     ]);
-    expect(readWritten('zion-mcp-clients.cimd.agent.json')).toEqual({
+    expect(readWritten('zion-mcp-clients.oauth2.cimd.json')).toEqual({
       meta: { origin: HOST },
       cimdProfile: { 'zion-mcp-clients': plainProfile('zion-mcp-clients') },
     });
@@ -864,7 +866,7 @@ describe('exportCIMDProfilesToFiles', () => {
 
     expect(await exportCIMDProfilesToFiles()).toBe(true);
 
-    expect(readWritten('sparse.cimd.agent.json').cimdProfile.sparse).toEqual(
+    expect(readWritten('sparse.oauth2.cimd.json').cimdProfile.sparse).toEqual(
       sparseProfile('sparse')
     );
   });
@@ -898,17 +900,17 @@ describe('exportCIMDProfilesToFiles', () => {
       );
       for (const name of files) {
         expect(name.length).toBeLessThanOrEqual(140);
-        expect(name).toMatch(/^[^/\\\0]+\.cimd\.agent\.json$/);
+        expect(name).toMatch(/^[^/\\\0]+\.oauth2\.cimd\.json$/);
       }
       const idsInFiles = files.flatMap((name) =>
         Object.keys(readWritten(name).cimdProfile)
       );
       expect(idsInFiles.sort()).toEqual([...IDS].sort());
       // an id that makes a usable file name keeps it
-      expect(files).toContain('zion-mcp-clients.cimd.agent.json');
-      expect(files).toContain('a.b.cimd.agent.json');
-      expect(files).toContain('a@b.cimd.agent.json');
-      expect(files).toContain('Uni.cimd.agent.json');
+      expect(files).toContain('zion-mcp-clients.oauth2.cimd.json');
+      expect(files).toContain('a.b.oauth2.cimd.json');
+      expect(files).toContain('a@b.oauth2.cimd.json');
+      expect(files).toContain('Uni.oauth2.cimd.json');
     });
 
     test('the names are deterministic: a second export writes the same names', async () => {
@@ -937,7 +939,7 @@ describe('exportCIMDProfilesToFiles', () => {
 
       const [name] = writtenFiles();
       expect(name.length).toBeLessThanOrEqual(140);
-      expect(name).toMatch(/^y{100}-[0-9a-f]{8}\.cimd\.agent\.json$/);
+      expect(name).toMatch(/^y{100}-[0-9a-f]{8}\.oauth2\.cimd\.json$/);
     });
   });
 
@@ -951,9 +953,9 @@ describe('exportCIMDProfilesToFiles', () => {
       expect(await exportCIMDProfilesToFiles()).toBe(false);
 
       expect(writtenFiles()).toEqual([
-        'a.cimd.agent.json',
-        'c.cimd.agent.json',
-        'd.cimd.agent.json',
+        'a.oauth2.cimd.json',
+        'c.oauth2.cimd.json',
+        'd.oauth2.cimd.json',
       ]);
       expect(messages('error')).toEqual([
         'could not write the file',
@@ -983,8 +985,8 @@ describe('exportCIMDProfilesToFiles', () => {
         '2 of 4 profiles failed:\n  - b: could not write the file\n  - c: could not write the file'
       );
       expect(writtenFiles()).toEqual([
-        'a.cimd.agent.json',
-        'd.cimd.agent.json',
+        'a.oauth2.cimd.json',
+        'd.oauth2.cimd.json',
       ]);
     });
 
@@ -1027,9 +1029,9 @@ describe('exportCIMDProfilesToFiles', () => {
 describe('importCIMDProfileFromFile (-i)', () => {
   test('imports exactly the profile named, of a file of three: one library call, with that id and the file as it is', async () => {
     const profiles = ['a', 'b', 'c'].map((id) => plainProfile(id));
-    writeImportFile('three.cimd.agent.json', profiles);
+    writeImportFile('three.oauth2.cimd.json', profiles);
 
-    expect(await importCIMDProfileFromFile('b', 'three.cimd.agent.json')).toBe(
+    expect(await importCIMDProfileFromFile('b', 'three.oauth2.cimd.json')).toBe(
       true
     );
 
@@ -1307,9 +1309,9 @@ describe('importCIMDProfilesFromFile (-a)', () => {
 });
 
 describe('importCIMDProfilesFromFiles (-A)', () => {
-  test('imports the profiles of every *.cimd.agent.json file of the working directory, in the order of the file names', async () => {
-    writeImportFile('b.cimd.agent.json', [plainProfile('b')]);
-    writeImportFile('a.cimd.agent.json', [plainProfile('a')]);
+  test('imports the profiles of every *.oauth2.cimd.json file of the working directory, in the order of the file names', async () => {
+    writeImportFile('b.oauth2.cimd.json', [plainProfile('b')]);
+    writeImportFile('a.oauth2.cimd.json', [plainProfile('a')]);
 
     expect(await importCIMDProfilesFromFiles()).toBe(true);
 
@@ -1323,11 +1325,13 @@ describe('importCIMDProfilesFromFiles (-A)', () => {
     ]);
   });
 
-  test('ignores files of other types: x.agent.json, x.web.agent.json and x.cimd.json', async () => {
+  test('ignores files of other types: x.agent.json, x.web.agent.json, x.cimd.json and the name of the first drafts, x.cimd.agent.json', async () => {
     writeImportFile('x.agent.json', [plainProfile('other1')]);
     writeImportFile('x.web.agent.json', [plainProfile('other2')]);
     writeImportFile('x.cimd.json', [plainProfile('other3')]);
-    writeImportFile('mine.cimd.agent.json', [plainProfile('mine')]);
+    // never released, so never read
+    writeImportFile('x.cimd.agent.json', [plainProfile('other4')]);
+    writeImportFile('mine.oauth2.cimd.json', [plainProfile('mine')]);
 
     expect(await importCIMDProfilesFromFiles()).toBe(true);
 
@@ -1339,12 +1343,12 @@ describe('importCIMDProfilesFromFiles (-A)', () => {
   });
 
   test('a file that cannot be parsed is a failed item named by its file name; the profiles of the good files are imported', async () => {
-    writeImportFile('a.cimd.agent.json', [plainProfile('a')]);
+    writeImportFile('a.oauth2.cimd.json', [plainProfile('a')]);
     fs.writeFileSync(
-      path.join(baseDirectory, 'b.cimd.agent.json'),
+      path.join(baseDirectory, 'b.oauth2.cimd.json'),
       '{ not json'
     );
-    writeImportFile('c.cimd.agent.json', [plainProfile('c')]);
+    writeImportFile('c.oauth2.cimd.json', [plainProfile('c')]);
 
     expect(await importCIMDProfilesFromFiles()).toBe(false);
 
@@ -1354,17 +1358,17 @@ describe('importCIMDProfilesFromFiles (-A)', () => {
       )
     ).toEqual(['a', 'c']);
     expect(messages('error').at(-1)).toMatch(
-      /^1 of 3 profiles failed:\n  - b\.cimd\.agent\.json: /
+      /^1 of 3 profiles failed:\n  - b\.oauth2\.cimd\.json: /
     );
   });
 
   test('with --allow-failures the unusable file and the failed profile are named and the command succeeds', async () => {
-    writeImportFile('a.cimd.agent.json', [
+    writeImportFile('a.oauth2.cimd.json', [
       plainProfile('a'),
       plainProfile('b'),
     ]);
     fs.writeFileSync(
-      path.join(baseDirectory, 'c.cimd.agent.json'),
+      path.join(baseDirectory, 'c.oauth2.cimd.json'),
       '{ not json'
     );
     importPlan = { b: { error: new Error('Invalid attribute specified.') } };
@@ -1372,7 +1376,7 @@ describe('importCIMDProfilesFromFiles (-A)', () => {
     expect(await importCIMDProfilesFromFiles(true)).toBe(true);
 
     expect(messages('warn').at(-1)).toMatch(
-      /^2 of 3 profiles failed:\n  - Error importing alpha realm CIMD profile b: Invalid attribute specified\.\n  - c\.cimd\.agent\.json: .*\nThe exit code stays 0 because --allow-failures was given\.$/
+      /^2 of 3 profiles failed:\n  - Error importing alpha realm CIMD profile b: Invalid attribute specified\.\n  - c\.oauth2\.cimd\.json: .*\nThe exit code stays 0 because --allow-failures was given\.$/
     );
   });
 
@@ -1383,7 +1387,7 @@ describe('importCIMDProfilesFromFiles (-A)', () => {
 
     expect(messages('warn')).toEqual([
       expect.stringMatching(
-        /^No CIMD profile files \(\*\.cimd\.agent\.json\) found in .*!$/
+        /^No CIMD profile files \(\*\.oauth2\.cimd\.json\) found in .*!$/
       ),
     ]);
     expect(libCalls('importCIMDProfiles')).toEqual([]);
@@ -1452,9 +1456,9 @@ describe('a realm that does not offer the type', () => {
   });
 
   test('-A: one note for all the files, the files are not read, nothing is imported, and the command succeeds', async () => {
-    writeImportFile('a.cimd.agent.json', [plainProfile('a')]);
+    writeImportFile('a.oauth2.cimd.json', [plainProfile('a')]);
     fs.writeFileSync(
-      path.join(baseDirectory, 'b.cimd.agent.json'),
+      path.join(baseDirectory, 'b.oauth2.cimd.json'),
       '{ not json'
     );
 
@@ -1769,7 +1773,7 @@ describe.each(['cloud', 'forgeops', 'classic'])(
 
       expect(messages('data')).toEqual([
         'zion-mcp-clients',
-        expect.stringContaining('Agent Id | zion-mcp-clients'),
+        expect.stringContaining('Profile Id | zion-mcp-clients'),
       ]);
     });
 
@@ -1781,23 +1785,25 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       expect(await exportCIMDProfilesToFiles()).toBe(true);
 
       expect(writtenFiles()).toEqual([
-        'allAlphaAgents.cimd.agent.json',
-        'sparse.cimd.agent.json',
-        'zion-mcp-clients.cimd.agent.json',
+        'allAlphaCimdProfiles.oauth2.cimd.json',
+        'sparse.oauth2.cimd.json',
+        'zion-mcp-clients.oauth2.cimd.json',
       ]);
     });
 
     test('the imports give the same messages, offered or not', async () => {
-      writeImportFile('in.cimd.agent.json', [
+      writeImportFile('in.oauth2.cimd.json', [
         plainProfile('a'),
         plainProfile('b'),
       ]);
       importPlan = { b: { created: false } };
 
-      expect(await importCIMDProfileFromFile('a', 'in.cimd.agent.json')).toBe(
+      expect(await importCIMDProfileFromFile('a', 'in.oauth2.cimd.json')).toBe(
         true
       );
-      expect(await importCIMDProfilesFromFile('in.cimd.agent.json')).toBe(true);
+      expect(await importCIMDProfilesFromFile('in.oauth2.cimd.json')).toBe(
+        true
+      );
       expect(await importCIMDProfilesFromFiles()).toBe(true);
       expect(messages('indicator-success')).toEqual(['Created a.']);
       expect(messages('info')).toEqual([
@@ -1812,11 +1818,11 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       printed.length = 0;
       calls.length = 0;
       offered = false;
-      expect(await importCIMDProfilesFromFile('in.cimd.agent.json', true)).toBe(
-        true
-      );
+      expect(
+        await importCIMDProfilesFromFile('in.oauth2.cimd.json', true)
+      ).toBe(true);
       expect(await importCIMDProfilesFromFiles()).toBe(true);
-      expect(await importCIMDProfileFromFile('a', 'in.cimd.agent.json')).toBe(
+      expect(await importCIMDProfileFromFile('a', 'in.oauth2.cimd.json')).toBe(
         false
       );
       expect(messages('warn')).toHaveLength(2);

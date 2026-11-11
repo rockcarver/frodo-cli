@@ -12,8 +12,8 @@ export default function setup() {
     .description('Describe a CIMD profile.')
     .addOption(
       new Option(
-        '-i, --agent-id <agent-id>',
-        'Agent id: the id of the CIMD profile. Ids are not case-sensitive.'
+        '-i, --profile-id <profile-id>',
+        'Profile id: the id of the CIMD profile. Ids are not case-sensitive.'
       ).makeOptionMandatory()
     )
     .addOption(new Option('--json', 'Output the whole profile in JSON format.'))
@@ -44,7 +44,7 @@ export default function setup() {
         // (decision record 0038), so the login comes first
         if (await getTokens()) {
           const outcome = await describeCIMDProfile(
-            options.agentId,
+            options.profileId,
             options.json
           );
           if (!outcome) process.exitCode = 1;

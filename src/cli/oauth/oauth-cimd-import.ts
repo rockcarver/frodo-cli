@@ -18,8 +18,8 @@ export default function setup() {
     .description('Import CIMD profiles.')
     .addOption(
       new Option(
-        '-i, --agent-id <agent-id>',
-        'Agent id: import this CIMD profile from the file given with -f. Cannot be used with -a or -A.'
+        '-i, --profile-id <profile-id>',
+        'Profile id: import this CIMD profile from the file given with -f. Cannot be used with -a or -A.'
       ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
@@ -32,13 +32,13 @@ export default function setup() {
       new Option(
         '-a, --all',
         'Import all CIMD profiles from the file given with -f. Cannot be used with -i or -A.'
-      ).conflicts(['agentId', 'allSeparate'])
+      ).conflicts(['profileId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all CIMD profiles from separate files (*.cimd.agent.json) in the current directory. Cannot be used with -i, -f or -a.'
-      ).conflicts(['agentId', 'file', 'all'])
+        'Import all CIMD profiles from separate files (*.oauth2.cimd.json) in the current directory. Cannot be used with -i, -f or -a.'
+      ).conflicts(['profileId', 'file', 'all'])
     )
     .requireOneOf({
       options: ['file', 'allSeparate'],
@@ -79,13 +79,13 @@ export default function setup() {
           let outcome: boolean;
           if (options.allSeparate) {
             verboseMessage(
-              'Importing all CIMD profiles from separate files (*.cimd.agent.json) in the current directory...'
+              'Importing all CIMD profiles from separate files (*.oauth2.cimd.json) in the current directory...'
             );
             outcome = await importCIMDProfilesFromFiles(options.allowFailures);
-          } else if (options.agentId) {
-            verboseMessage(`Importing CIMD profile ${options.agentId}...`);
+          } else if (options.profileId) {
+            verboseMessage(`Importing CIMD profile ${options.profileId}...`);
             outcome = await importCIMDProfileFromFile(
-              options.agentId,
+              options.profileId,
               options.file
             );
           } else if (options.all) {

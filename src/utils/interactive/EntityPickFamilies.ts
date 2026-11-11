@@ -611,7 +611,7 @@ export function registerEntityPickFamilies(): void {
     family: 'oauth cimd',
     picks: [
       entityPick<CIMDProfileSkeleton>({
-        name: 'agentId',
+        name: 'profileId',
         kind: 'CIMD profile',
         load: async () => frodo.oauth2oidc.cimd.readCIMDProfiles(),
         label: (profile) => profile._id ?? '',

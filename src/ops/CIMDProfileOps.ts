@@ -46,8 +46,8 @@ const {
   titleCase,
 } = frodo.utils;
 
-/** The file type of an export file of CIMD profiles: `<id>.cimd.agent.json`, in the family of the typed agent files. */
-export const CIMD_FILE_TYPE = 'cimd.agent';
+/** The file type of an export file of CIMD profiles: `<id>.oauth2.cimd.json`, beside `.oauth2.app.json` of the OAuth2 clients and `.oauth2.issuer.json` of the trusted issuers. */
+export const CIMD_FILE_TYPE = 'oauth2.cimd';
 
 /** The end of the name of an import file of CIMD profiles. */
 const CIMD_FILE_SUFFIX = `.${CIMD_FILE_TYPE}.json`;
@@ -203,29 +203,29 @@ export async function listCIMDProfiles(
  * Describe a CIMD profile. With `json` the whole profile, as the library reads
  * it; otherwise a table of the settings that decide who may act as a client.
  * A profile holds no secret.
- * @param {string | undefined} agentId id of the profile; undefined when the picker had nothing to offer
+ * @param {string | undefined} profileId id of the profile; undefined when the picker had nothing to offer
  * @param {boolean} json true to print the whole profile as JSON
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function describeCIMDProfile(
-  agentId: string | undefined,
+  profileId: string | undefined,
   json: boolean = false
 ): Promise<boolean> {
   try {
-    if (!agentId) {
+    if (!profileId) {
       // the picker had nothing to offer: say why
       if (!(await reportCIMDProfilesUnavailable())) {
         printMessage('There is no CIMD profile to choose from.', 'warn');
       }
       return false;
     }
-    const profile = await readCIMDProfile(agentId);
+    const profile = await readCIMDProfile(profileId);
     if (json) {
       printMessage(JSON.stringify(profile, null, 2), 'data');
       return true;
     }
     const table = createTable([c.heading('Property'), c.heading('Value')]);
-    table.push(['Agent Id', profile._id ?? agentId]);
+    table.push(['Profile Id', profile._id ?? profileId]);
     table.push(['Status', statusCell(profile)]);
     table.push([
       'Client ID URL patterns',
@@ -270,7 +270,7 @@ export async function describeCIMDProfile(
   } catch (error) {
     printError(
       error,
-      agentId ? `Error describing CIMD profile ${agentId}` : undefined
+      profileId ? `Error describing CIMD profile ${profileId}` : undefined
     );
   }
   return false;
@@ -291,17 +291,17 @@ async function reportNoProfileToChoose(): Promise<void> {
  * Export a CIMD profile to a file. The file holds the profile as the library
  * reads it from the list (plain, as stored, a sparse profile stays sparse, no
  * `_rev` is added by the CLI), under the key `cimdProfile`.
- * @param {string | undefined} agentId id of the profile; undefined when the picker had nothing to offer
- * @param {string} file optional file name; default `<id>.cimd.agent.json`
+ * @param {string | undefined} profileId id of the profile; undefined when the picker had nothing to offer
+ * @param {string} file optional file name; default `<id>.oauth2.cimd.json`
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportCIMDProfileToFile(
-  agentId: string | undefined,
+  profileId: string | undefined,
   file: string,
   includeMeta: boolean = true
 ): Promise<boolean> {
-  if (!agentId) {
+  if (!profileId) {
     try {
       await reportNoProfileToChoose();
     } catch (error) {
@@ -312,12 +312,12 @@ export async function exportCIMDProfileToFile(
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
-    `Exporting ${agentId}...`
+    `Exporting ${profileId}...`
   );
   try {
-    const exportData = await exportCIMDProfile(agentId);
+    const exportData = await exportCIMDProfile(profileId);
     // the stored id names the file, whatever the case the user typed
-    const [storedId = agentId] = Object.keys(exportData.cimdProfile);
+    const [storedId = profileId] = Object.keys(exportData.cimdProfile);
     const filePath = getFilePath(
       file || safeTypedFilename(storedId, CIMD_FILE_TYPE),
       true
@@ -330,7 +330,7 @@ export async function exportCIMDProfileToFile(
     );
     return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error exporting ${agentId}`, 'fail');
+    stopProgressIndicator(indicatorId, `Error exporting ${profileId}`, 'fail');
     printError(error);
   }
   return false;
@@ -343,7 +343,7 @@ export async function exportCIMDProfileToFile(
  * would claim an export that did not happen) and the command succeeds; a realm
  * that offers the type and holds no profile gets a file with an empty section,
  * like the sibling commands write.
- * @param {string} file optional file name; default `all<Realm>Agents.cimd.agent.json`
+ * @param {string} file optional file name; default `all<Realm>CimdProfiles.oauth2.cimd.json`
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
@@ -361,7 +361,10 @@ export async function exportCIMDProfilesToFile(
     }
     const filePath = getFilePath(
       file ||
-        getTypedFilename(`all${titleCase(realmName())}Agents`, CIMD_FILE_TYPE),
+        getTypedFilename(
+          `all${titleCase(realmName())}CimdProfiles`,
+          CIMD_FILE_TYPE
+        ),
       true
     );
     saveJsonToFile(exportData, filePath, includeMeta);
@@ -593,21 +596,21 @@ async function importProfilesInto({
  * Import one CIMD profile from a file. Both the id and the file are the ones
  * the user named, so a profile that is not in the file is an error, and a
  * realm that does not offer the type fails with the error of the library.
- * @param {string} agentId id of the profile, as the file keys it
+ * @param {string} profileId id of the profile, as the file keys it
  * @param {string} file name of the import file
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importCIMDProfileFromFile(
-  agentId: string,
+  profileId: string,
   file: string
 ): Promise<boolean> {
   let indicatorId: string | undefined;
   try {
     const filePath = getFilePath(file);
     const importData = readImportFile(filePath);
-    if (!importData.cimdProfile[agentId]) {
+    if (!importData.cimdProfile[profileId]) {
       printMessage(
-        `CIMD profile ${agentId} not found in ${filePath}!`,
+        `CIMD profile ${profileId} not found in ${filePath}!`,
         'error'
       );
       return false;
@@ -615,19 +618,19 @@ export async function importCIMDProfileFromFile(
     indicatorId = createProgressIndicator(
       'indeterminate',
       0,
-      `Importing CIMD profile ${agentId}...`
+      `Importing CIMD profile ${profileId}...`
     );
-    const result = await importCIMDProfile(agentId, importData);
+    const result = await importCIMDProfile(profileId, importData);
     stopProgressIndicator(
       indicatorId,
-      `${describeImportResult(agentId, result)}`,
+      `${describeImportResult(profileId, result)}`,
       'success'
     );
     return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error importing CIMD profile ${agentId}`,
+      `Error importing CIMD profile ${profileId}`,
       'fail'
     );
     printError(error);
@@ -699,7 +702,7 @@ export async function importCIMDProfilesFromFile(
 
 /**
  * Import all CIMD profiles from the separate files of the working directory
- * (`*.cimd.agent.json`). A file that cannot be read or parsed is a failed
+ * (`*.oauth2.cimd.json`). A file that cannot be read or parsed is a failed
  * item, named by its file name in the summary; the profiles of the other files
  * are still imported. No file, and a realm that does not offer the type, are
  * not failures (cli records 0040, 0041).
@@ -781,13 +784,13 @@ export async function printCIMDProfilePlan(): Promise<boolean> {
 /**
  * Delete a CIMD profile. The user named it, so a profile that does not exist,
  * or a realm that does not offer the type, is an error.
- * @param {string | undefined} agentId id of the profile; undefined when the picker had nothing to offer, which is nothing to delete and not a failure
+ * @param {string | undefined} profileId id of the profile; undefined when the picker had nothing to offer, which is nothing to delete and not a failure
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteCIMDProfile(
-  agentId: string | undefined
+  profileId: string | undefined
 ): Promise<boolean> {
-  if (!agentId) {
+  if (!profileId) {
     try {
       if (!(await reportCIMDProfilesUnavailable())) {
         printMessage('No CIMD profiles found to delete.', 'info');
@@ -801,14 +804,14 @@ export async function deleteCIMDProfile(
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
-    `Deleting ${agentId}...`
+    `Deleting ${profileId}...`
   );
   try {
-    await deleteCIMDProfileInLibrary(agentId);
-    stopProgressIndicator(indicatorId, `Deleted ${agentId}.`, 'success');
+    await deleteCIMDProfileInLibrary(profileId);
+    stopProgressIndicator(indicatorId, `Deleted ${profileId}.`, 'success');
     return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error deleting ${agentId}`, 'fail');
+    stopProgressIndicator(indicatorId, `Error deleting ${profileId}`, 'fail');
     printError(error);
   }
   return false;
