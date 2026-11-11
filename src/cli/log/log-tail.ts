@@ -35,6 +35,12 @@ export default function setup() {
       new Option('-t, --transaction-id <txid>', 'Filter by transactionId')
     )
     .addOption(
+      new Option(
+        '--keep-trying',
+        'Keep following through outages and rate limiting until Ctrl-C; refused credentials still stop the tail. The Log API allows 60 requests per minute per environment, shared with other readers; a tail uses about 12.'
+      )
+    )
+    .addOption(
       new Option('-d, --defaults', 'Use default logging noise filters').default(
         false,
         `Use custom logging noise filters defined in $HOME/${config.FRODO_LOG_NOISEFILTER_FILENAME}`
@@ -53,12 +59,19 @@ export default function setup() {
             options.level
           )}] of ${state.getHost()}...`
         );
-        await tailLogs(
-          command.opts().sources,
-          resolveLevel(command.opts().level),
-          command.opts().transactionId,
-          config.getNoiseFilters(options.defaults)
-        );
+        if (
+          !(await tailLogs(
+            command.opts().sources,
+            resolveLevel(command.opts().level),
+            command.opts().transactionId,
+            config.getNoiseFilters(options.defaults),
+            undefined,
+            { keepTrying: options.keepTrying }
+          ))
+        ) {
+          process.exitCode = 1;
+          return;
+        }
       }
       // no log api credentials
       else {

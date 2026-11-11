@@ -27,6 +27,11 @@ Options:
   -d, --defaults               Use default logging noise filters (default: Use
                                custom logging noise filters defined in
                                $HOME/LoggingNoiseFilter.json)
+  --keep-trying                Keep following through outages and rate limiting
+                               until Ctrl-C; refused credentials still stop the
+                               tail. The Log API allows 60 requests per minute
+                               per environment, shared with other readers; a
+                               tail uses about 12.
   -l, --level <level>          Set log level filter. You can specify the level
                                as a number or a string.   Following values are
                                possible (values on the same line are
