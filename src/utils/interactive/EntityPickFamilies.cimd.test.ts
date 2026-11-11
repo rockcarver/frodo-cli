@@ -4,9 +4,10 @@ import { Command, Option } from 'commander';
 import { registerEntityPickFamilies } from './EntityPickFamilies';
 import { familyEntityPicks } from './EntityPickRegistry';
 
-// The entity pick of the `agent cimd` command family (decision record 0038):
-// what the picker offers and which commands inherit it, and that the generic
-// `agent` entry gives the CIMD commands no second pick for the same option.
+// The entity pick of the `oauth cimd` command family (decision record 0038):
+// what the picker offers and which commands inherit it, and that no other
+// entry (the `oauth client` and the generic `agent` ones) gives the CIMD
+// commands a second pick for the same option.
 
 registerEntityPickFamilies();
 
@@ -36,17 +37,17 @@ const onTenant = (...profiles: unknown[]) =>
   jest
     .spyOn(frodo.oauth2oidc.cimd, 'readCIMDProfiles')
     .mockResolvedValue(profiles as never);
-const [pick] = familyEntityPicks(commandAt(['agent', 'cimd', 'describe'], ID));
+const [pick] = familyEntityPicks(commandAt(['oauth', 'cimd', 'describe'], ID));
 
 afterEach(() => {
   jest.restoreAllMocks();
 });
 
 describe('the CIMD profile picker', () => {
-  it('belongs to the cimd commands that take a profile, exactly once: the generic agent entry leaves them out', () => {
+  it('belongs to the cimd commands that take a profile, exactly once: no other entry gives them a pick', () => {
     for (const verb of ['describe', 'export', 'delete']) {
       expect(
-        familyEntityPicks(commandAt(['agent', 'cimd', verb], ID)).map(
+        familyEntityPicks(commandAt(['oauth', 'cimd', verb], ID)).map(
           (p) => p.name
         )
       ).toEqual(['agentId']);
@@ -55,12 +56,17 @@ describe('the CIMD profile picker', () => {
 
   it('does not belong to import, whose option names a profile in a file, nor to a command without the option', () => {
     expect(
-      familyEntityPicks(commandAt(['agent', 'cimd', 'import'], ID))
+      familyEntityPicks(commandAt(['oauth', 'cimd', 'import'], ID))
     ).toEqual([]);
-    expect(familyEntityPicks(commandAt(['agent', 'cimd', 'list']))).toEqual([]);
+    expect(familyEntityPicks(commandAt(['oauth', 'cimd', 'list']))).toEqual([]);
   });
 
-  it('does not change the pickers of the other agent commands', () => {
+  it('does not change the pickers of the neighbours: the oauth client commands and the agent commands', () => {
+    expect(
+      familyEntityPicks(
+        commandAt(['oauth', 'client', 'delete'], '-i, --app-id <app-id>')
+      ).map((p) => p.kind)
+    ).toEqual(['OAuth2 client']);
     expect(
       familyEntityPicks(commandAt(['agent', 'web', 'delete'], ID)).map(
         (p) => p.kind

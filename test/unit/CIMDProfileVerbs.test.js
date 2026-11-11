@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import { Command, Option } from 'commander';
 
 /**
- * The option sets and the dispatch of `agent cimd list` and `describe` (the
+ * The option sets and the dispatch of `oauth cimd list` and `describe` (the
  * group is modelled on `connector`, see ConnectorVerbs.test.js), parsed from
  * real command lines with the ops functions replaced. What the ops functions do
  * with the arguments is covered by CIMDProfileOps.test.js.
@@ -77,17 +77,17 @@ jest.unstable_mockModule('../../src/utils/BulkDeleteGuard', () => ({
   confirmBulkDelete,
 }));
 
-const { default: setupGroup } = await import('../../src/cli/agent/agent-cimd');
+const { default: setupGroup } = await import('../../src/cli/oauth/oauth-cimd');
 const { default: setupList } =
-  await import('../../src/cli/agent/agent-cimd-list');
+  await import('../../src/cli/oauth/oauth-cimd-list');
 const { default: setupDescribe } =
-  await import('../../src/cli/agent/agent-cimd-describe');
+  await import('../../src/cli/oauth/oauth-cimd-describe');
 const { default: setupExport } =
-  await import('../../src/cli/agent/agent-cimd-export');
+  await import('../../src/cli/oauth/oauth-cimd-export');
 const { default: setupImport } =
-  await import('../../src/cli/agent/agent-cimd-import');
+  await import('../../src/cli/oauth/oauth-cimd-import');
 const { default: setupDelete } =
-  await import('../../src/cli/agent/agent-cimd-delete');
+  await import('../../src/cli/oauth/oauth-cimd-delete');
 
 /** Parses a real command line; commander errors are thrown, not printed. */
 async function parse(setup, ...argv) {
@@ -117,7 +117,7 @@ afterEach(() => {
   process.exitCode = exitCodeBefore;
 });
 
-describe('agent cimd', () => {
+describe('oauth cimd', () => {
   test('the group offers its verbs, and no alias', () => {
     const group = setupGroup();
     expect(group.commands.map((command) => command.name())).toEqual([
@@ -145,7 +145,7 @@ describe('agent cimd', () => {
   });
 });
 
-describe('agent cimd list', () => {
+describe('oauth cimd list', () => {
   test('lists, short by default and long with -l', async () => {
     await parse(setupList);
     await parse(setupList, '-l');
@@ -172,7 +172,7 @@ describe('agent cimd list', () => {
   });
 });
 
-describe('agent cimd describe', () => {
+describe('oauth cimd describe', () => {
   test('-i is mandatory, so the framework picks a missing one after the login', () => {
     const option = setupDescribe().options.find(
       (candidate) => candidate.long === '--agent-id'
@@ -218,7 +218,7 @@ describe('agent cimd describe', () => {
   });
 });
 
-describe('agent cimd export', () => {
+describe('oauth cimd export', () => {
   test('the user has to choose what to export, and the command is a multi-operation command', () => {
     expect(rulesOf(setupExport)).toEqual({
       oneOf: {
@@ -311,7 +311,7 @@ describe('agent cimd export', () => {
   });
 });
 
-describe('agent cimd import', () => {
+describe('oauth cimd import', () => {
   test('the user has to choose what to import, and the command is a multi-operation command', () => {
     expect(rulesOf(setupImport)).toEqual({
       oneOf: { options: ['file', 'allSeparate'], purpose: 'what to import' },
@@ -402,7 +402,7 @@ describe('agent cimd import', () => {
   );
 });
 
-describe('agent cimd delete', () => {
+describe('oauth cimd delete', () => {
   test('the user has to choose what to delete, and the command is a multi-operation command', () => {
     expect(rulesOf(setupDelete)).toEqual({
       oneOf: { options: ['all', 'agentId'], purpose: 'what to delete' },
@@ -543,11 +543,11 @@ describe('agent cimd delete', () => {
     const program = setupDelete();
     program.configureOutput({ writeOut: (text) => examples.push(text) });
     program.outputHelp();
-    // the examples are the lines that start with "$ frodo agent cimd delete"
+    // the examples are the lines that start with "$ frodo oauth cimd delete"
     const lines = examples
       .join('')
       .split('\n')
-      .filter((line) => line.includes('frodo agent cimd delete'));
+      .filter((line) => line.includes('frodo oauth cimd delete'));
     expect(lines.length).toBeGreaterThan(0);
     for (const line of lines.filter((l) => / -a( |$)/.test(l))) {
       expect(line).toMatch(/--yes|--dry-run/);

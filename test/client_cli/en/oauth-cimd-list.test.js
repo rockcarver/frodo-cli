@@ -2,9 +2,9 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo agent cimd --help';
+const CMD = 'frodo oauth cimd list --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'agent cimd' should be expected english", async () => {
+test("CLI help interface for 'oauth cimd list' should be expected english", async () => {
   expect(stdout).toMatchSnapshot();
 });

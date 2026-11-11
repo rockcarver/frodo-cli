@@ -13,7 +13,7 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * `frodo agent cimd` driven through the REAL CLI of this checkout against the
+ * `frodo oauth cimd` driven through the REAL CLI of this checkout against the
  * fake AM of test/utils/FakeAm.mjs in a separate process, with no tenant and no
  * recording: a deployment that does not offer the CIMDProfile agent type (the
  * type list answers 404, as the `password` journey of the fake does for every
@@ -50,7 +50,7 @@ const PROFILES = [
 
 const NOT_AVAILABLE = /CIMD profiles are not available in the .* realm of /;
 
-suite('agent cimd through the CLI', () => {
+suite('oauth cimd through the CLI', () => {
   let home;
   let work;
   const fakes = [];
@@ -140,7 +140,7 @@ suite('agent cimd through the CLI', () => {
       'list prints the note on stderr, nothing on stdout, and exits 0',
       async () => {
         const { code, stdout, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'list'])
+          onFake(server, ['oauth', 'cimd', 'list'])
         );
 
         expect(stderr).toMatch(NOT_AVAILABLE);
@@ -157,7 +157,7 @@ suite('agent cimd through the CLI', () => {
       'list --long behaves the same',
       async () => {
         const { code, stdout, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'list', '--long'])
+          onFake(server, ['oauth', 'cimd', 'list', '--long'])
         );
 
         expect(stderr).toMatch(NOT_AVAILABLE);
@@ -171,13 +171,13 @@ suite('agent cimd through the CLI', () => {
       'export -a and -A write nothing and exit 0, export -i exits 1',
       async () => {
         const all = await run(
-          onFake(server, ['agent', 'cimd', 'export', '-a', '-D', 'out'])
+          onFake(server, ['oauth', 'cimd', 'export', '-a', '-D', 'out'])
         );
         const separate = await run(
-          onFake(server, ['agent', 'cimd', 'export', '-A', '-D', 'out'])
+          onFake(server, ['oauth', 'cimd', 'export', '-A', '-D', 'out'])
         );
         const one = await run(
-          onFake(server, ['agent', 'cimd', 'export', '-i', 'x', '-D', 'out'])
+          onFake(server, ['oauth', 'cimd', 'export', '-i', 'x', '-D', 'out'])
         );
 
         expect(all.stderr).toMatch(NOT_AVAILABLE);
@@ -196,13 +196,13 @@ suite('agent cimd through the CLI', () => {
       'delete -a --yes prints the note and exits 0, delete --dry-run too, delete -i exits 1',
       async () => {
         const all = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-a', '--yes'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-a', '--yes'])
         );
         const preview = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-a', '--dry-run'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-a', '--dry-run'])
         );
         const one = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-i', 'x'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-i', 'x'])
         );
 
         expect(all.stderr).toMatch(NOT_AVAILABLE);
@@ -222,7 +222,7 @@ suite('agent cimd through the CLI', () => {
         const logged = await fake({ recordPath });
         writeImportFile('in.cimd.agent.json', [PROFILES[0], PROFILES[1]]);
         const importOn = (args) =>
-          run(onFake(logged, ['agent', 'cimd', 'import', ...args]));
+          run(onFake(logged, ['oauth', 'cimd', 'import', ...args]));
 
         const all = await importOn(['-a', '-f', 'in.cimd.agent.json']);
         const separate = await importOn(['-A']);
@@ -266,7 +266,7 @@ suite('agent cimd through the CLI', () => {
       'describe -i names a profile that cannot exist: the error of the library and exit 1',
       async () => {
         const { code, stdout, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'describe', '-i', 'x'])
+          onFake(server, ['oauth', 'cimd', 'describe', '-i', 'x'])
         );
 
         expect(stderr).toMatch(NOT_AVAILABLE);
@@ -292,7 +292,7 @@ suite('agent cimd through the CLI', () => {
       'list prints the ids and nothing else on stdout',
       async () => {
         const { code, stdout, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'list'])
+          onFake(server, ['oauth', 'cimd', 'list'])
         );
 
         expect(stdout.split('\n').filter(Boolean)).toEqual([
@@ -309,7 +309,7 @@ suite('agent cimd through the CLI', () => {
       'list --long prints the status, the patterns and the SSRF protection',
       async () => {
         const { code, stdout } = await run(
-          onFake(server, ['agent', 'cimd', 'list', '--long'])
+          onFake(server, ['oauth', 'cimd', 'list', '--long'])
         );
 
         expect(stdout).toMatch(
@@ -328,7 +328,7 @@ suite('agent cimd through the CLI', () => {
       async () => {
         const { code, stdout } = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'describe',
             '-i',
@@ -348,7 +348,7 @@ suite('agent cimd through the CLI', () => {
       async () => {
         const { code, stdout } = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'describe',
             '-i',
@@ -376,7 +376,7 @@ suite('agent cimd through the CLI', () => {
         async () => {
           const one = await run(
             onFake(server, [
-              'agent',
+              'oauth',
               'cimd',
               'export',
               '-i',
@@ -386,10 +386,10 @@ suite('agent cimd through the CLI', () => {
             ])
           );
           const all = await run(
-            onFake(server, ['agent', 'cimd', 'export', '-a', '-D', 'out'])
+            onFake(server, ['oauth', 'cimd', 'export', '-a', '-D', 'out'])
           );
           const separate = await run(
-            onFake(server, ['agent', 'cimd', 'export', '-A', '-D', 'out'])
+            onFake(server, ['oauth', 'cimd', 'export', '-A', '-D', 'out'])
           );
 
           expect([one.code, all.code, separate.code]).toEqual([0, 0, 0]);
@@ -421,7 +421,7 @@ suite('agent cimd through the CLI', () => {
         async () => {
           const { code } = await run(
             onFake(server, [
-              'agent',
+              'oauth',
               'cimd',
               'export',
               '-i',
@@ -452,11 +452,11 @@ suite('agent cimd through the CLI', () => {
             }
           );
           const failing = await run(
-            onFake(server, ['agent', 'cimd', 'export', '-A', '-D', 'out'])
+            onFake(server, ['oauth', 'cimd', 'export', '-A', '-D', 'out'])
           );
           const allowed = await run(
             onFake(server, [
-              'agent',
+              'oauth',
               'cimd',
               'export',
               '-A',
@@ -488,7 +488,7 @@ suite('agent cimd through the CLI', () => {
         async () => {
           const { code, stderr } = await run(
             onFake(server, [
-              'agent',
+              'oauth',
               'cimd',
               'export',
               '-i',
@@ -510,7 +510,7 @@ suite('agent cimd through the CLI', () => {
       'describe -i of an unknown id exits 1 and says so',
       async () => {
         const { code, stdout, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'describe', '-i', 'missing'])
+          onFake(server, ['oauth', 'cimd', 'describe', '-i', 'missing'])
         );
 
         expect(stderr).toContain('CIMD profile missing not found');
@@ -533,7 +533,7 @@ suite('agent cimd through the CLI', () => {
     });
 
     const listed = async () =>
-      (await run(onFake(server, ['agent', 'cimd', 'list']))).stdout
+      (await run(onFake(server, ['oauth', 'cimd', 'list']))).stdout
         .split('\n')
         .filter(Boolean);
 
@@ -550,7 +550,7 @@ suite('agent cimd through the CLI', () => {
       async () => {
         const exported = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'export',
             '-i',
@@ -572,7 +572,7 @@ suite('agent cimd through the CLI', () => {
 
         const created = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'import',
             '-i',
@@ -583,7 +583,7 @@ suite('agent cimd through the CLI', () => {
         );
         const updated = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'import',
             '-i',
@@ -594,7 +594,7 @@ suite('agent cimd through the CLI', () => {
         );
         const described = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'describe',
             '-i',
@@ -626,7 +626,7 @@ suite('agent cimd through the CLI', () => {
 
         const imported = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'import',
             '-a',
@@ -636,7 +636,7 @@ suite('agent cimd through the CLI', () => {
         );
         const described = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'describe',
             '-i',
@@ -672,7 +672,7 @@ suite('agent cimd through the CLI', () => {
 
         const first = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'import',
             '-f',
@@ -682,7 +682,7 @@ suite('agent cimd through the CLI', () => {
         const afterFirst = await listed();
         const all = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'import',
             '-a',
@@ -716,7 +716,7 @@ suite('agent cimd through the CLI', () => {
         writeImportFile('z.agent.json', [sparse('dir-z')], 'dir');
 
         const { code } = await run(
-          onFake(server, ['agent', 'cimd', 'import', '-A', '-D', 'dir'])
+          onFake(server, ['oauth', 'cimd', 'import', '-A', '-D', 'dir'])
         );
 
         expect(code).toBe(0);
@@ -742,7 +742,7 @@ suite('agent cimd through the CLI', () => {
 
         const failing = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'import',
             '-a',
@@ -752,7 +752,7 @@ suite('agent cimd through the CLI', () => {
         );
         const allowed = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'import',
             '-a',
@@ -783,7 +783,7 @@ suite('agent cimd through the CLI', () => {
       async () => {
         const { code, stderr } = await run(
           onFake(server, [
-            'agent',
+            'oauth',
             'cimd',
             'import',
             '-a',
@@ -817,7 +817,7 @@ suite('agent cimd through the CLI', () => {
     const deletes = () =>
       readRequests(recordPath).filter((request) => request.method === 'DELETE');
     const listed = async () =>
-      (await run(onFake(server, ['agent', 'cimd', 'list']))).stdout
+      (await run(onFake(server, ['oauth', 'cimd', 'list']))).stdout
         .split('\n')
         .filter(Boolean);
 
@@ -825,7 +825,7 @@ suite('agent cimd through the CLI', () => {
       '-a without a terminal and without --yes is refused before the login: the error names --yes and --dry-run, and no DELETE and no request at all is sent',
       async () => {
         const { code, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-a'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-a'])
         );
 
         expect(stderr).toContain('Refusing to delete all CIMD profiles');
@@ -841,7 +841,7 @@ suite('agent cimd through the CLI', () => {
       '-a --dry-run lists the profiles with their patterns and sends no DELETE',
       async () => {
         const { code, stdout } = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-a', '--dry-run'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-a', '--dry-run'])
         );
 
         expect(code).toBe(0);
@@ -861,7 +861,7 @@ suite('agent cimd through the CLI', () => {
       '-a --yes sends one DELETE per profile and the realm is empty afterwards',
       async () => {
         const { code, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-a', '--yes'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-a', '--yes'])
         );
 
         expect(code).toBe(0);
@@ -879,7 +879,7 @@ suite('agent cimd through the CLI', () => {
       '-i deletes that profile, without a question and without --yes, matching the id ignoring case',
       async () => {
         const { code, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-i', 'ZION-MCP-CLIENTS'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-i', 'ZION-MCP-CLIENTS'])
         );
 
         expect(code).toBe(0);
@@ -894,7 +894,7 @@ suite('agent cimd through the CLI', () => {
       '-i of an unknown id exits 1 and deletes nothing',
       async () => {
         const { code, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-i', 'missing'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-i', 'missing'])
         );
 
         expect(code).toBe(1);
@@ -908,7 +908,7 @@ suite('agent cimd through the CLI', () => {
       '--dry-run has no short option: -d is an unknown option, and no request is sent',
       async () => {
         const { code, stderr } = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-a', '-d'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-a', '-d'])
         );
 
         expect(stderr).toContain("unknown option '-d'");
@@ -922,10 +922,10 @@ suite('agent cimd through the CLI', () => {
       '-i with -a or --dry-run is rejected while parsing, before a request is sent',
       async () => {
         const both = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-i', 'x', '-a'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-i', 'x', '-a'])
         );
         const preview = await run(
-          onFake(server, ['agent', 'cimd', 'delete', '-i', 'x', '--dry-run'])
+          onFake(server, ['oauth', 'cimd', 'delete', '-i', 'x', '--dry-run'])
         );
 
         expect(both.code).not.toBe(0);
@@ -950,9 +950,9 @@ suite('agent cimd through the CLI', () => {
     it(
       'list on the root realm prints the note and exits 0, in the realm that offers the type it lists',
       async () => {
-        const root = await run(onFake(server, ['agent', 'cimd', 'list'], '/'));
+        const root = await run(onFake(server, ['oauth', 'cimd', 'list'], '/'));
         const alpha = await run(
-          onFake(server, ['agent', 'cimd', 'list'], 'alpha')
+          onFake(server, ['oauth', 'cimd', 'list'], 'alpha')
         );
 
         expect(root.stderr).toMatch(NOT_AVAILABLE);
@@ -974,7 +974,7 @@ suite('agent cimd through the CLI', () => {
         const { code, stderr } = await run(
           onFake(
             server,
-            ['agent', 'cimd', 'describe', '-i', 'zion-mcp-clients'],
+            ['oauth', 'cimd', 'describe', '-i', 'zion-mcp-clients'],
             '/'
           )
         );

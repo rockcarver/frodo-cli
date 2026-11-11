@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'agent cimd' should be expected english 1`] = `
-"Usage: frodo agent cimd [options] [command]
+exports[`CLI help interface for 'oauth cimd' should be expected english 1`] = `
+"Usage: frodo oauth cimd [options] [command]
 
 Manage CIMD (Client ID Metadata Document) profiles.
 

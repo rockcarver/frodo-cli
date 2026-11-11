@@ -11,7 +11,7 @@ import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo agent cimd export');
+  const program = new FrodoCommand('frodo oauth cimd export');
 
   program
     .description('Export CIMD profiles.')
@@ -55,18 +55,18 @@ export default function setup() {
         `Usage Examples:\n` +
         `  Export the CIMD profile '${s.cimdProfileId}' to ${s.cimdProfileFile} and log in with AM base URL, realm, username and password:\n` +
         c.command(
-          `  $ frodo agent cimd export -i ${s.cimdProfileId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+          `  $ frodo oauth cimd export -i ${s.cimdProfileId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Export it to a file of your choice using a connection profile:\n` +
         c.command(
-          `  $ frodo agent cimd export -i ${s.cimdProfileId} -f my-cimd-profile.json ${s.connId}\n`
+          `  $ frodo oauth cimd export -i ${s.cimdProfileId} -f my-cimd-profile.json ${s.connId}\n`
         ) +
         `  Export all CIMD profiles to a single file:\n` +
-        c.command(`  $ frodo agent cimd export -a ${s.connId}\n`) +
+        c.command(`  $ frodo oauth cimd export -a ${s.connId}\n`) +
         `  Export all CIMD profiles to separate files:\n` +
-        c.command(`  $ frodo agent cimd export -A ${s.connId}\n`) +
+        c.command(`  $ frodo oauth cimd export -A ${s.connId}\n`) +
         `  Export all CIMD profiles without metadata:\n` +
-        c.command(`  $ frodo agent cimd export -a -N ${s.connId}\n`)
+        c.command(`  $ frodo oauth cimd export -a -N ${s.connId}\n`)
     )
     .multiOp()
     .action(

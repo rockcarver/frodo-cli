@@ -15,7 +15,7 @@ import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo agent cimd delete');
+  const program = new FrodoCommand('frodo oauth cimd delete');
 
   program
     .description('Delete CIMD profiles.')
@@ -53,12 +53,12 @@ export default function setup() {
         `Usage Examples:\n` +
         `  Delete the CIMD profile '${s.cimdProfileId}' and log in with AM base URL, realm, username and password:\n` +
         c.command(
-          `  $ frodo agent cimd delete -i ${s.cimdProfileId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+          `  $ frodo oauth cimd delete -i ${s.cimdProfileId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Show which CIMD profiles would be deleted by -a, and delete nothing:\n` +
-        c.command(`  $ frodo agent cimd delete -a --dry-run ${s.connId}\n`) +
+        c.command(`  $ frodo oauth cimd delete -a --dry-run ${s.connId}\n`) +
         `  Delete all CIMD profiles without asking, which is required without a terminal (without --yes a terminal is asked first):\n` +
-        c.command(`  $ frodo agent cimd delete -a --yes ${s.connId}\n`)
+        c.command(`  $ frodo oauth cimd delete -a --yes ${s.connId}\n`)
     )
     .multiOp()
     .action(

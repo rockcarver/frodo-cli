@@ -184,8 +184,6 @@ export function registerEntityPickFamilies(): void {
       ...typedAgents.flatMap(({ group }) =>
         ['delete', 'describe', 'export'].map((verb) => `${group} ${verb}`)
       ),
-      // CIMD profiles have an entry of their own below
-      ...['delete', 'describe', 'export'].map((verb) => `cimd ${verb}`),
     ],
     picks: [
       entityPick<AgentSkeleton>({
@@ -212,23 +210,6 @@ export function registerEntityPickFamilies(): void {
       ],
     });
   }
-
-  // CIMD profiles are not `frodo.agent`: they have their own library module,
-  // so they have an entry of their own, and the generic entry above leaves them
-  // out. `import` names a profile in a file and never inherits a pick.
-  registerEntityPickFamily({
-    family: 'agent cimd',
-    picks: [
-      entityPick<CIMDProfileSkeleton>({
-        name: 'agentId',
-        kind: 'CIMD profile',
-        // the library returns the profiles sorted by id
-        load: async () => frodo.oauth2oidc.cimd.readCIMDProfiles(),
-        label: (profile) => profile._id ?? '',
-        description: (profile) => firstCIMDPattern(profile),
-      }),
-    ],
-  });
 
   // The receiving tenant of `setup` and `teardown`: one of the saved connection
   // profiles, other than the tenant the command is logged in to. It is its own
@@ -617,6 +598,23 @@ export function registerEntityPickFamilies(): void {
             (a, b) => (a._id ?? '').localeCompare(b._id ?? '')
           ),
         label: (idp) => idp._id ?? '',
+      }),
+    ],
+  });
+
+  // `oauth cimd`: the CIMD profiles of the realm, by id. The library returns
+  // them sorted by id (and none for a realm that does not offer the type, which
+  // the framework counts as satisfied). `import` names a profile in a file and
+  // never inherits a pick.
+  registerEntityPickFamily({
+    family: 'oauth cimd',
+    picks: [
+      entityPick<CIMDProfileSkeleton>({
+        name: 'agentId',
+        kind: 'CIMD profile',
+        load: async () => frodo.oauth2oidc.cimd.readCIMDProfiles(),
+        label: (profile) => profile._id ?? '',
+        description: (profile) => firstCIMDPattern(profile),
       }),
     ],
   });

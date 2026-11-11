@@ -12,7 +12,7 @@ import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo agent cimd import');
+  const program = new FrodoCommand('frodo oauth cimd import');
 
   program
     .description('Import CIMD profiles.')
@@ -51,18 +51,18 @@ export default function setup() {
         `Usage Examples:\n` +
         `  Import the CIMD profile '${s.cimdProfileId}' from a file and log in with AM base URL, realm, username and password:\n` +
         c.command(
-          `  $ frodo agent cimd import -i ${s.cimdProfileId} -f ${s.cimdProfileFile} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+          `  $ frodo oauth cimd import -i ${s.cimdProfileId} -f ${s.cimdProfileFile} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  Import the first profile of a file using a connection profile:\n` +
         c.command(
-          `  $ frodo agent cimd import -f ${s.cimdProfileFile} ${s.connId}\n`
+          `  $ frodo oauth cimd import -f ${s.cimdProfileFile} ${s.connId}\n`
         ) +
         `  Import all profiles from a single file:\n` +
         c.command(
-          `  $ frodo agent cimd import -a -f ${s.allCimdProfilesFile} ${s.connId}\n`
+          `  $ frodo oauth cimd import -a -f ${s.allCimdProfilesFile} ${s.connId}\n`
         ) +
         `  Import all profiles from separate files in the current directory:\n` +
-        c.command(`  $ frodo agent cimd import -A ${s.connId}\n`)
+        c.command(`  $ frodo oauth cimd import -A ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler

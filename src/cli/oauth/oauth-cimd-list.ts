@@ -6,7 +6,7 @@ import c from '../../utils/ColorTheme';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo agent cimd list');
+  const program = new FrodoCommand('frodo oauth cimd list');
 
   program
     .description('List CIMD profiles.')
@@ -18,10 +18,10 @@ export default function setup() {
       `Usage Examples:\n` +
         `  List the id of every CIMD profile of the realm and log in with AM base URL, realm, username and password:\n` +
         c.command(
-          `  $ frodo agent cimd list ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+          `  $ frodo oauth cimd list ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
         ) +
         `  List them with their status and URL patterns using a connection profile:\n` +
-        c.command(`  $ frodo agent cimd list --long ${s.connId}\n`)
+        c.command(`  $ frodo oauth cimd list --long ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler

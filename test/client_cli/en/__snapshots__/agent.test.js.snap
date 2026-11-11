@@ -17,7 +17,6 @@ Runtime Options:
 
 Commands:
   ai                Manage AI agents.
-  cimd              Manage CIMD (Client ID Metadata Document) profiles.
   delete            Delete agents.
   describe          Describe agents.
   export            Export agents.
