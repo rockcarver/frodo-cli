@@ -1,6 +1,7 @@
 import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { configManagerExportApplications } from '../ops/ApplicationConfigOps';
+import { configManagerExportCIMDProfiles } from '../ops/CIMDProfileConfigOps';
 import { configManagerExportRemoteProxies } from '../ops/RemoteProxyOps';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
@@ -151,6 +152,18 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('terms-and-conditions', () => configManagerExportTermsAndConditions()),
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `cimd-profiles.json` in the config folder is optional.
+    step('cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'cimd-profiles.json')
+      )
+    ),
     // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
@@ -261,6 +274,18 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
     step('variables', () => configManagerExportVariables()),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `cimd-profiles.json` in the config folder is optional.
+    step('cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'cimd-profiles.json')
+      )
+    ),
     // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
@@ -334,9 +359,23 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
       configManagerExportScripts(undefined, options.realm)
     ),
     step('services', (options) => configManagerExportServices(options.realm)),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `cimd-profiles.json` in the config folder is optional.
+    step('cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'cimd-profiles.json')
+      )
+    ),
   ],
 };
 
+// `cimd-profiles` is absent from the lists below on purpose: CIMD profiles are dynamic configuration until Ping says a
+// promotion carries them (see the step in `deploymentMapAll`).
 export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),

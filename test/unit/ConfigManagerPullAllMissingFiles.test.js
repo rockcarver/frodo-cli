@@ -218,6 +218,58 @@ describe.each(['cloud', 'forgeops', 'classic'])(
   }
 );
 
+/**
+ * The overrides file of the step `cimd-profiles` is optional input to a step that needs none: it is not a
+ * file step, so a config folder without it is not warned about, and a config folder that has it hands its
+ * path to the exporter (frodo-cli#1250).
+ */
+describe.each(['cloud', 'forgeops', 'classic'])(
+  'pull all on a %s deployment, with the optional cimd-profiles.json',
+  (deployment) => {
+    const cimdExporter = () =>
+      spies.get(path.resolve(root, 'src/ops/CIMDProfileConfigOps'))
+        .configManagerExportCIMDProfiles;
+
+    beforeEach(() => {
+      deploymentType = deployment;
+    });
+
+    test('a config folder without it is not warned about, and the exporter gets no file', async () => {
+      const folder = configFolder();
+
+      expect(
+        await configManagerExportAllWithConfigFolder({ configFolder: folder })
+      ).toBe(true);
+
+      expect(cimdExporter()).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+        true,
+        false,
+        null
+      );
+      expect(warnings().join('\n')).not.toMatch(/cimd/i);
+      expect(errors()).toEqual([]);
+    });
+
+    test('a config folder that has it hands its path to the exporter', async () => {
+      const folder = configFolder('cimd-profiles.json');
+
+      expect(
+        await configManagerExportAllWithConfigFolder({ configFolder: folder })
+      ).toBe(true);
+
+      expect(cimdExporter()).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+        true,
+        false,
+        `${folder}/cimd-profiles.json`
+      );
+    });
+  }
+);
+
 describe('pull all, mixed outcomes (cloud)', () => {
   const stepCount = deploymentMapAll.cloud.length;
 

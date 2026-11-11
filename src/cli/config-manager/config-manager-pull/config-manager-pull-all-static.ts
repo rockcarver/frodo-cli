@@ -11,7 +11,7 @@ export default function setup() {
     .multiOp()
     .addHelpText(
       'after',
-      '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n'
+      '\nNote: with a realm, the realm-specific config is exported for that realm only. The result is a partial snapshot, which cannot be promoted by itself, because promotion always covers all realms. Tenant-wide config is always exported in full.\n\nCIMD profiles are not part of this export (they are dynamic configuration); use pull all or pull cimd-profiles.\n'
     )
     .usesRealm({ tenantWide: true })
     .action(async (host, realm, user, password, options, command) => {
