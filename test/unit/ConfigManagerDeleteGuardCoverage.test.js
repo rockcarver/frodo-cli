@@ -160,7 +160,11 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
         name,
         yes: true,
       });
-      expect({ name, dryRun: line(' -d').test(guardTestSource) }).toEqual({
+      // the case of the preview: -d where the command has the short form, otherwise --dry-run
+      expect({
+        name,
+        dryRun: line(' (-d|--dry-run)').test(guardTestSource),
+      }).toEqual({
         name,
         dryRun: true,
       });

@@ -108,6 +108,36 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
 
   describe('pull', () => {
     it(
+      'takes the overrides file as --config-file only: -f is an unknown option',
+      async () => {
+        const run = await tenant({ oauthIssuers: [] });
+        fs.writeFileSync(path.join(work, 'overrides.json'), '{"alpha":[]}');
+
+        const short = await run([
+          'config-manager',
+          'pull',
+          'oauth-issuers',
+          '-f',
+          'overrides.json',
+        ]);
+        expect(short.code).toBe(1);
+        expect(short.output).toContain("unknown option '-f'");
+        expect(requests()).toEqual([]);
+
+        const long = await run([
+          'config-manager',
+          'pull',
+          'oauth-issuers',
+          '--config-file',
+          'overrides.json',
+          ...target(),
+        ]);
+        expect(long.code).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
       'writes one file per issuer of every realm, in the wrapped form of the single read',
       async () => {
         const run = await tenant({
@@ -442,7 +472,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
           'config-manager',
           'delete',
           'oauth-issuers',
-          '-d',
+          '--dry-run',
           ...target(),
         ]);
         expect(preview.code).toBe(0);

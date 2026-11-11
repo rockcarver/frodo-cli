@@ -25,7 +25,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-f, --file <file>',
+        '--config-file <file>',
         `A JSON file with overrides for values that differ between environments, e.g. "${s.cimdOverridesFile}".`
       )
     )
@@ -46,7 +46,7 @@ export default function setup() {
         ) +
         `  Replace values that differ between environments with placeholders from a file:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-cimd-profiles -f ${s.cimdOverridesFile} ${s.connId}\n`
+          `  $ frodo config-manager pull oauth-cimd-profiles --config-file ${s.cimdOverridesFile} ${s.connId}\n`
         )
     )
     .addHelpText(
@@ -89,7 +89,7 @@ export default function setup() {
           realmOfRun(command, realm),
           false,
           options.allowFailures,
-          options.file
+          options.configFile
         );
         if (!outcome) process.exitCode = 1;
       } else {

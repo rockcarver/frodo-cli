@@ -28,7 +28,7 @@ Options:
   --allow-failures   Report operations that fail, but still exit with code 0.
                      Without this option the command runs every operation,
                      prints a summary of what failed and exits with code 1.
-  -d, --dry-run      Show which CIMD profiles would be deleted without deleting
+  --dry-run          Show which CIMD profiles would be deleted without deleting
                      them.
   -n, --name <name>  CIMD profile name. If specified, deletes only the profile
                      with the given name, without asking. Needs a single realm.
