@@ -34,6 +34,38 @@ canonical commands; use the canonical name):
 
 **Kept**: `frodo conn save` retains its `add` alias.
 
+**`frodo agent ai` is deprecated, use `frodo aiagent`**: AI agents are a kind of
+identity of their own in Advanced Identity Cloud, not another integration agent
+like the web, Java and Gateway agents, so they have a root command group:
+
+| Deprecated (works through 5.x) | Use                      |
+| ------------------------------ | ------------------------ |
+| `frodo agent ai list`          | `frodo aiagent list`     |
+| `frodo agent ai describe`      | `frodo aiagent describe` |
+| `frodo agent ai export`        | `frodo aiagent export`   |
+| `frodo agent ai import`        | `frodo aiagent import`   |
+| `frodo agent ai delete`        | `frodo aiagent delete`   |
+
+`frodo agent ai` is frozen: it behaves as it did in 4.x and the 5.0 prereleases,
+and differs only by the deprecated mark in its help, the notice and the missing
+usage examples. The commands and options of `frodo aiagent` are the same (and so
+are the files they write and read, `<id>.ai.agent.json`), with one difference:
+`frodo aiagent import` requires `-f, --file` or `-A, --all-separate`, so `-i` or
+`-a` alone is rejected before it connects, with the list of what is missing.
+`frodo agent ai import` still accepts `-i` or `-a` without `-f`, as before.
+Everything else this guide says about `agent ai` holds for `aiagent` too.
+
+`frodo agent ai` keeps working through 5.x and prints a notice that names `frodo
+aiagent` on standard error (standard output and the exit code are unchanged).
+Its removal is proposed for 6.0.0 (see [a major release may change
+commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)).
+To migrate, replace `frodo agent ai` with `frodo aiagent` in scripts and
+automation, and give `import` its `-f` or `-A`. The generic commands (`frodo
+agent list`, `agent export` and the others) still handle AI agents as before.
+Defaults saved with `--prompt --save-defaults` are kept per command, so those
+saved for `agent ai ...` do not apply to `aiagent ...`; save them again (`frodo
+settings defaults --clear 'agent ai list'` removes the old ones).
+
 **Journey import validation**: journey imports, full configuration imports,
 config-manager journey pushes, and `frodo promote` now validate journey
 references by default. Pass `--no-validate` to restore the previous behavior.

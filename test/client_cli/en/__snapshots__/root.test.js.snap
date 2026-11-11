@@ -16,6 +16,7 @@ Runtime Options:
 
 Commands:
   agent             Manage agents.
+  aiagent           Manage AI agents.
   app               Manage applications.
   authn             Manage authentication settings.
   authz             Manage authorization policies, policy sets, and resource

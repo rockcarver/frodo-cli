@@ -52,3 +52,6 @@ export const trustedIssuerId = 'zion-trusted-issuer';
 export const trustedIssuer = 'https://zion.example.com';
 export const trustedIssuerFile = 'zion-trusted-issuer.oauth2.issuer.json';
 export const allTrustedIssuersFile = 'allAlphaIssuers.oauth2.issuer.json';
+export const aiAgentId = 'oracle-assistant';
+export const aiAgentFile = 'oracle-assistant.ai.agent.json';
+export const allAiAgentsFile = 'allAlphaAIAgents.ai.agent.json';

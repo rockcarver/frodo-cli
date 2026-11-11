@@ -19,6 +19,7 @@ const COMMANDS = [
   ['agent gateway delete', '-a', '-i x'],
   ['agent java delete', '-a', '-i x'],
   ['agent web delete', '-a', '-i x'],
+  ['aiagent delete', '-a', '-i x'],
   ['app delete', '-a', '-i x'],
   ['authz policy delete', '-a', '-i x'],
   ['authz set delete', '-a', '-i x'],

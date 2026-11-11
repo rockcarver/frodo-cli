@@ -11,7 +11,7 @@ import {
 } from '@jest/globals';
 
 /**
- * Decision record 0040 for the agent imports: `agent import`, `agent ai import`,
+ * Decision record 0040 for the agent imports: `agent import`, `aiagent import`,
  * `agent gateway import`, `agent java import` and `agent web import`. With -a
  * (every agent of one file) and -A (every agent of every file of the working
  * directory) the library tries every agent and throws one error that carries
@@ -88,7 +88,7 @@ const CASES = [
     libArgs: (importData) => [importData, true],
   },
   {
-    name: 'agent ai import',
+    name: 'aiagent import',
     lib: 'importAIAgents',
     libOne: 'importAIAgent',
     toFile: 'importAIAgentsFromFile',

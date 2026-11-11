@@ -1,24 +1,21 @@
-import { FrodoStubCommand } from '../FrodoCommand';
-import DeleteCmd from './agent-ai-delete.js';
-import DescribeCmd from './agent-ai-describe.js';
-import ExportCmd from './agent-ai-export.js';
-import ImportCmd from './agent-ai-import.js';
-import ListCmd from './agent-ai-list.js';
+import AIAgentCmd from '../aiagent/aiagent.js';
 
+/**
+ * `frodo agent ai`, deprecated in favour of the root group `frodo aiagent`
+ * (cli#1271). It is that group's factory registered under a second parent,
+ * with its name, description and stability changed, so both paths run the same
+ * commands. The path is frozen: the commands are built with `legacy = true`, which
+ * keeps their options and help as they were in 4.x (no usage examples, and the
+ * original rule of `import`). Removing the old path means deleting this file and
+ * the line in agent.ts; a major release may do it (decision record 0048).
+ */
 export default function setup() {
-  const program = new FrodoStubCommand('frodo agent ai');
-
-  program.description('Manage AI agents.');
-
-  program.addCommand(ListCmd().name('list'));
-
-  program.addCommand(DescribeCmd().name('describe'));
-
-  program.addCommand(ExportCmd().name('export'));
-
-  program.addCommand(ImportCmd().name('import'));
-
-  program.addCommand(DeleteCmd().name('delete'));
-
-  return program;
+  return AIAgentCmd(true)
+    .name('ai')
+    .description('Deprecated: use frodo aiagent. Manage AI agents.')
+    .withStability(
+      'deprecated',
+      undefined,
+      "Use 'frodo aiagent' instead: the commands and options are the same. 'frodo agent ai' keeps working in 5.x and may be removed in a later major release."
+    );
 }
