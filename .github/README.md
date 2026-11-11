@@ -223,6 +223,7 @@ gets its own row.
 | &emsp;`list`        | 4.12.0 | List authenticated sessions across all hosts.                                                                                                                      |
 | `frodo settings`    | 4.9.0  | Manage CLI settings (color theme).                                                                                                                                 |
 | &emsp;`theme`       | 4.9.0  | Manage the CLI color theme (background, contrast, detection, preview).                                                                                             |
+| &emsp;`update-check`| 5.0.0  | Persist the switch for the automatic update check (show, enable, disable).                                                                                         |
 | `frodo shell`       | 2.0.0  | [Experimental] Launch the frodo interactive shell.                                                                                                                 |
 | `frodo mcp`         | 4.0.0  | [Experimental] Manage Model Context Protocol (MCP) integrations — see [MCP Server](#mcp-server).                                                                   |
 | &emsp;`server`      | 4.0.0  | Manage Frodo MCP server lifecycle and metadata.                                                                                                                    |
@@ -545,6 +546,16 @@ $ frodo settings theme detect
 
 Run `frodo settings` or `frodo settings theme` with no further arguments for an interactive picker (Escape backs out a level instead of requiring Ctrl+C). `frodo settings theme show` renders a realistic sample of frodo-cli output in the active theme -- the quickest way to check whether it actually works on your terminal. Themes are plain JSON files under `~/.frodo/themes/` -- copy one there under a new name to define your own.
 
+For air-gapped installs, persistently disable the automatic update check:
+
+```console
+$ frodo settings update-check disable
+$ frodo settings update-check show
+$ frodo settings update-check enable
+```
+
+The preference is stored in `~/.frodo/UpdateCheck.json` (`{"enabled": false}` disables it), or in the directory selected by `FRODO_CONFIG_PATH`. Missing, unreadable or invalid files leave the check enabled. Either this setting or a truthy `FRODO_NO_UPDATE_CHECK` disables the check: no start-up requests to GitHub or npm, no version-cache access and no update notices. `show` reports the effective state and whether it comes from the setting, the environment variable or both. `enable` changes only the persisted preference; it cannot override the environment opt-out. `frodo -v` and `frodo --version` still print installed versions when checks are disabled.
+
 ### cli options
 
 You interact with `frodo` using commands and options. You can see the list of options by using the `help` command
@@ -656,7 +667,7 @@ Environment Variables:
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
-  FRODO_NO_UPDATE_CHECK: Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices.
+  FRODO_NO_UPDATE_CHECK: Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices. Persist this preference with frodo settings update-check disable; either control disables the check.
   FRODO_TOKEN_CACHE_PATH: Use this token cache location instead of '~/.frodo/TokenCache.json'. The entries are kept in the directory with the same name without its extension.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.

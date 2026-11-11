@@ -1448,7 +1448,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_NO_UPDATE_CHECK',
     description:
-      'Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices.',
+      'Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices. Persist this preference with frodo settings update-check disable; either control disables the check.',
     group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
   },
   {

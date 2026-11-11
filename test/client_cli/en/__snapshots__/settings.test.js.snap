@@ -6,6 +6,8 @@ exports[`CLI help interface for 'settings' should be expected english 1`] = `
 Manage CLI settings.
 
 Run without a sub-command to open the interactive settings menu.
+Use update-check show|enable|disable to persist the automatic update-check
+preference; FRODO_NO_UPDATE_CHECK also disables it.
 
 Options:
   -h, --help             Help
@@ -29,5 +31,7 @@ Commands:
                          (connection page, options editor) by default on every
                          interactive command.
   theme                  Manage the CLI color theme.
+  update-check           Manage the automatic update check. Either the persisted
+                         setting or FRODO_NO_UPDATE_CHECK can disable it.
 "
 `;

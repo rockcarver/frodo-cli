@@ -6,6 +6,7 @@ import Color from 'colors';
 import { compareVersions } from 'compare-versions';
 import pkg from '../../package.json' with { type: 'json' };
 import { isTruthyOptInValue } from './EnvFlags.js';
+import { readUpdateCheckEnabled } from './UpdateCheckConfig.js';
 
 const { getVersion, getBuildTimestamp, getAllVersions } = frodo.utils.version;
 
@@ -142,7 +143,9 @@ function isHomebrew() {
 }
 
 export async function getVersions(checkOnly: boolean) {
-  const noUpdateCheck = isTruthyOptInValue(process.env.FRODO_NO_UPDATE_CHECK);
+  const noUpdateCheck =
+    isTruthyOptInValue(process.env.FRODO_NO_UPDATE_CHECK) ||
+    !readUpdateCheckEnabled();
   let updateAvailable = false;
   let usingBinary = false;
   if (isBinary()) {

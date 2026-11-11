@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'settings update-check disable' should be expected english 1`] = `
+"Usage: frodo settings update-check disable [options]
+
+Persistently disable automatic update checks, without setting
+FRODO_NO_UPDATE_CHECK in every shell.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
+`;
+
+exports[`CLI help interface for 'settings update-check enable' should be expected english 1`] = `
+"Usage: frodo settings update-check enable [options]
+
+Persistently enable automatic update checks. FRODO_NO_UPDATE_CHECK can still
+disable them.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
+`;
+
+exports[`CLI help interface for 'settings update-check show' should be expected english 1`] = `
+"Usage: frodo settings update-check show [options]
+
+Show whether automatic update checks are enabled and why.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
+`;
+
+exports[`CLI help interface for 'settings update-check' should be expected english 1`] = `
+"Usage: frodo settings update-check [options] [command]
+
+Manage the automatic update check. Either the persisted setting or
+FRODO_NO_UPDATE_CHECK can disable it.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Runtime Options:
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
+Commands:
+  disable           Persistently disable automatic update checks, without
+                    setting FRODO_NO_UPDATE_CHECK in every shell.
+  enable            Persistently enable automatic update checks.
+                    FRODO_NO_UPDATE_CHECK can still disable them.
+  show              Show whether automatic update checks are enabled and why.
+
+Utilities:
+  help              display help for command
+
+
+Run without a sub-command to enter interactive mode."
+`;

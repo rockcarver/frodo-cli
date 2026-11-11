@@ -3,6 +3,10 @@ import os from 'os';
 import { jest } from '@jest/globals';
 import pkg from '../../package.json' with { type: 'json' };
 
+jest.unstable_mockModule('../../src/utils/Config', () => ({
+  getConfigPath: () => `${os.homedir()}/.frodo`,
+}));
+
 const getAllVersions = jest.fn();
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: {
@@ -17,6 +21,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
 }));
 
 const cacheFile = `${os.homedir()}/.frodo/Versions.json`;
+const settingsFile = `${os.homedir()}/.frodo/UpdateCheck.json`;
 const now = 2000000000;
 const newerVersion = '999.0.0';
 const originalEnv = process.env.FRODO_NO_UPDATE_CHECK;
@@ -178,5 +183,53 @@ test('network failures silently preserve installed versions', async () => {
   expectInstalledVersions(await getVersions(false));
   expect(await getVersions(true)).toBe('');
   expect(getAllVersions).toHaveBeenCalled();
+  expect(fs.writeFileSync).not.toHaveBeenCalled();
+});
+
+test.each([undefined, 'false', 'true'])(
+  'persisted opt-out skips network and version-cache IO with env=%s',
+  async (value) => {
+    if (value !== undefined) process.env.FRODO_NO_UPDATE_CHECK = value;
+    fs.readFileSync.mockReturnValue('{"enabled":false}');
+    expectInstalledVersions(await getVersions(false));
+    expect(await getVersions(true)).toBe('');
+    expect(getAllVersions).not.toHaveBeenCalled();
+    expect(fs.existsSync).not.toHaveBeenCalled();
+    expect(fs.writeFileSync).not.toHaveBeenCalled();
+    if (value === 'true') {
+      expect(fs.readFileSync).not.toHaveBeenCalled();
+    } else {
+      expect(fs.readFileSync).toHaveBeenCalledTimes(2);
+      expect(fs.readFileSync).toHaveBeenCalledWith(settingsFile, 'utf8');
+    }
+  }
+);
+
+test.each(['{', 'null', '{"enabled":"false"}', '{"enabled":true}', undefined])(
+  'invalid, enabled or missing setting %s leaves update checks enabled',
+  async (contents) => {
+    fs.readFileSync.mockImplementation(() => {
+      if (contents === undefined) throw new Error('ENOENT');
+      return contents;
+    });
+    expect(await getVersions(false)).toContain('Newer version(s) available');
+    expect(fs.readFileSync).toHaveBeenCalledTimes(1);
+    expect(fs.readFileSync).toHaveBeenCalledWith(settingsFile, 'utf8');
+    expect(getAllVersions).toHaveBeenCalledTimes(1);
+    expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
+    expect(fs.writeFileSync.mock.calls[0][0]).toBe(cacheFile);
+  }
+);
+
+test('persisted opt-out ignores remote data retained by an earlier call', async () => {
+  expect(await getVersions(true)).toContain(
+    'A new version of frodo is available'
+  );
+  jest.clearAllMocks();
+  fs.readFileSync.mockReturnValue('{"enabled":false}');
+  expectInstalledVersions(await getVersions(false));
+  expect(await getVersions(true)).toBe('');
+  expect(getAllVersions).not.toHaveBeenCalled();
+  expect(fs.existsSync).not.toHaveBeenCalled();
   expect(fs.writeFileSync).not.toHaveBeenCalled();
 });
