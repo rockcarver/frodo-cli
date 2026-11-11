@@ -2,8 +2,8 @@ import { jest } from '@jest/globals';
 import { Command, Option } from 'commander';
 
 /**
- * The option sets and the dispatch of the `oauth issuer` commands (list and
- * describe so far), parsed from real command lines with the ops functions
+ * The option sets and the dispatch of the `oauth issuer` commands (list,
+ * describe and export so far), parsed from real command lines with the ops functions
  * replaced. What the ops functions do with the arguments is covered by
  * TrustedIssuerOps.test.js.
  * - `-i` is the name of the issuer object and is taken from the family's picker
@@ -13,9 +13,13 @@ import { Command, Option } from 'commander';
  */
 
 const getTokens = jest.fn();
+const printMessage = jest.fn();
 const ops = {
   listOAuth2TrustedJwtIssuers: jest.fn(),
   describeOAuth2TrustedJwtIssuer: jest.fn(),
+  exportOAuth2TrustedJwtIssuerToFile: jest.fn(),
+  exportOAuth2TrustedJwtIssuersToFile: jest.fn(),
+  exportOAuth2TrustedJwtIssuersToFiles: jest.fn(),
 };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
@@ -82,7 +86,7 @@ jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
 }));
 jest.unstable_mockModule('../../src/ops/OAuth2TrustedJwtIssuerOps', () => ops);
 jest.unstable_mockModule('../../src/utils/Console', () => ({
-  printMessage: jest.fn(),
+  printMessage,
   verboseMessage: jest.fn(),
 }));
 
@@ -92,6 +96,8 @@ const { default: setupList } =
   await import('../../src/cli/oauth/oauth-issuer-list');
 const { default: setupDescribe } =
   await import('../../src/cli/oauth/oauth-issuer-describe');
+const { default: setupExport } =
+  await import('../../src/cli/oauth/oauth-issuer-export');
 
 /** Parses a real command line; commander errors are thrown, not printed. */
 async function parse(setup, ...argv) {
@@ -125,6 +131,7 @@ describe('oauth issuer (the group)', () => {
 
     expect(group.commands.map((command) => command.name()).sort()).toEqual([
       'describe',
+      'export',
       'list',
     ]);
     expect(group.aliases()).toEqual([]);
@@ -134,11 +141,13 @@ describe('oauth issuer (the group)', () => {
   test('no command of the group is experimental or limited to a deployment type', () => {
     setupList();
     setupDescribe();
+    setupExport();
 
     // FrodoCommand(name) only: no explicit deployment types, which means all of them
     expect(constructed).toEqual([
       ['frodo oauth issuer list'],
       ['frodo oauth issuer describe'],
+      ['frodo oauth issuer export'],
     ]);
     expect(rulesOf(setupList)).toBeUndefined();
     expect(rulesOf(setupDescribe)).toBeUndefined();
@@ -216,6 +225,107 @@ describe('oauth issuer describe', () => {
 
     await parse(setupDescribe, '-i', 'zion-trusted-issuer');
 
+    expect(process.exitCode).toBe(1);
+  });
+});
+
+describe('oauth issuer export', () => {
+  test('the user has to choose what to export, and the command is a multi-operation command', () => {
+    expect(rulesOf(setupExport)).toEqual({
+      oneOf: {
+        options: ['issuerId', 'all', 'allSeparate'],
+        purpose: 'what to export',
+      },
+      multiOp: true,
+    });
+  });
+
+  test('-i exports that issuer with the default file name and the metadata', async () => {
+    await parse(setupExport, '-i', 'zion-trusted-issuer');
+
+    expect(ops.exportOAuth2TrustedJwtIssuerToFile.mock.calls).toEqual([
+      ['zion-trusted-issuer', undefined, true],
+    ]);
+    expect(ops.exportOAuth2TrustedJwtIssuersToFile).not.toHaveBeenCalled();
+    expect(ops.exportOAuth2TrustedJwtIssuersToFiles).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('-f and -N are passed on', async () => {
+    await parse(
+      setupExport,
+      '-i',
+      'zion-trusted-issuer',
+      '-f',
+      'mine.json',
+      '-N'
+    );
+
+    expect(ops.exportOAuth2TrustedJwtIssuerToFile.mock.calls).toEqual([
+      ['zion-trusted-issuer', 'mine.json', false],
+    ]);
+  });
+
+  test('-a exports all issuers to one file', async () => {
+    await parse(setupExport, '-a', '-f', 'all.json');
+
+    expect(ops.exportOAuth2TrustedJwtIssuersToFile.mock.calls).toEqual([
+      ['all.json', true],
+    ]);
+    expect(ops.exportOAuth2TrustedJwtIssuerToFile).not.toHaveBeenCalled();
+  });
+
+  test('-A exports all issuers to separate files and passes --allow-failures on', async () => {
+    await parse(setupExport, '-A', '--allow-failures');
+    await parse(setupExport, '-A', '-N');
+
+    expect(ops.exportOAuth2TrustedJwtIssuersToFiles.mock.calls).toEqual([
+      [true, true],
+      [false, undefined],
+    ]);
+  });
+
+  test.each([
+    [['-i', 'x', '-a']],
+    [['-i', 'x', '-A']],
+    [['-a', '-A']],
+    [['-A', '-f', 'x.json']],
+  ])('%j is rejected while parsing, before anything is sent', async (argv) => {
+    await expect(parse(setupExport, ...argv)).rejects.toMatchObject({
+      code: 'commander.conflictingOption',
+    });
+
+    expect(getTokens).not.toHaveBeenCalled();
+  });
+
+  test('a failed login, a declined pick or a failed export exits 1', async () => {
+    getTokens.mockResolvedValue(false);
+    await parse(setupExport, '-a');
+    expect(ops.exportOAuth2TrustedJwtIssuersToFile).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    getTokens.mockResolvedValue(true);
+    ops.exportOAuth2TrustedJwtIssuersToFile.mockResolvedValue(false);
+    await parse(setupExport, '-a');
+    expect(process.exitCode).toBe(1);
+
+    process.exitCode = undefined;
+    ops.exportOAuth2TrustedJwtIssuerToFile.mockResolvedValue(false);
+    await parse(setupExport, '-i', 'zion-trusted-issuer');
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('a picker that had nothing to offer exports nothing, says so and exits 1; it never falls through to an export of everything', async () => {
+    // -i, -a and -A all unset: the framework leaves -i unset when the realm has no issuer
+    await parse(setupExport);
+
+    expect(ops.exportOAuth2TrustedJwtIssuerToFile).not.toHaveBeenCalled();
+    expect(ops.exportOAuth2TrustedJwtIssuersToFile).not.toHaveBeenCalled();
+    expect(ops.exportOAuth2TrustedJwtIssuersToFiles).not.toHaveBeenCalled();
+    expect(printMessage.mock.calls).toEqual([
+      ['There is no trusted JWT issuer to choose from.', 'warn'],
+    ]);
     expect(process.exitCode).toBe(1);
   });
 });

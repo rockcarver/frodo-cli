@@ -279,4 +279,180 @@ suite('frodo oauth issuer, through the CLI against a fake tenant', () => {
       TIMEOUT
     );
   });
+  describe('export', () => {
+    const read = (name) =>
+      JSON.parse(fs.readFileSync(path.join(work, name), 'utf8'));
+
+    it(
+      '-i writes <id>.oauth2.issuer.json with the settings of the issuer and nothing else',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['export', '-i', 'zion-trusted-issuer']);
+
+        const file = read('zion-trusted-issuer.oauth2.issuer.json');
+        expect(Object.keys(file)).toEqual(['meta', 'trustedJwtIssuer']);
+        expect(Object.keys(file.trustedJwtIssuer)).toEqual([
+          'zion-trusted-issuer',
+        ]);
+        const written = file.trustedJwtIssuer['zion-trusted-issuer'];
+        // exactly the settings of a trusted issuer and its type, no _rev, no secret
+        expect(Object.keys(written).sort()).toEqual(
+          [
+            '_id',
+            '_type',
+            'agentgroup',
+            'allowedSubjects',
+            'consentedScopesClaim',
+            'issuer',
+            'jwkSet',
+            'jwkStoreCacheMissCacheTime',
+            'jwksCacheTimeout',
+            'jwksUri',
+            'resourceOwnerIdentityClaim',
+          ].sort()
+        );
+        expect(written.issuer).toBe('https://zion-trusted-issuer.example.com');
+        expect(written.allowedSubjects).toEqual(['neo', 'trinity']);
+        expect(output).toContain(
+          'Exported zion-trusted-issuer to zion-trusted-issuer.oauth2.issuer.json.'
+        );
+        expect(status).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-i with -f and -N names the file and leaves the metadata out',
+      async () => {
+        await startTenant();
+
+        const { status } = run([
+          'export',
+          '-i',
+          'zion-trusted-issuer',
+          '-f',
+          'mine.json',
+          '-N',
+        ]);
+
+        expect(Object.keys(read('mine.json'))).toEqual(['trustedJwtIssuer']);
+        expect(status).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-a writes allAlphaIssuers.oauth2.issuer.json with every issuer',
+      async () => {
+        await startTenant();
+
+        const { status } = run(['export', '-a']);
+
+        const file = read('allAlphaIssuers.oauth2.issuer.json');
+        expect(Object.keys(file.trustedJwtIssuer).sort()).toEqual([
+          'matrix-trusted-issuer',
+          'zion-trusted-issuer',
+        ]);
+        expect(status).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-A writes a file per issuer, and the file of -i holds an equal issuer (one shape)',
+      async () => {
+        await startTenant();
+
+        expect(run(['export', '-A']).status).toBe(0);
+        const separate = read('zion-trusted-issuer.oauth2.issuer.json');
+        expect(
+          fs.readdirSync(work).filter((name) => name.endsWith('.issuer.json'))
+        ).toEqual([
+          'matrix-trusted-issuer.oauth2.issuer.json',
+          'zion-trusted-issuer.oauth2.issuer.json',
+        ]);
+
+        // a read by id is wrapped on the server; the file must not be
+        expect(
+          run(['export', '-i', 'zion-trusted-issuer', '-f', 'one.json']).status
+        ).toBe(0);
+        expect(read('one.json').trustedJwtIssuer).toEqual(
+          separate.trustedJwtIssuer
+        );
+      },
+      TIMEOUT
+    );
+
+    it(
+      'an unknown id exits 1 and writes no file',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['export', '-i', 'nobody']);
+
+        expect(output).toContain('nobody');
+        expect(status).toBe(1);
+        expect(fs.readdirSync(work)).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-A with one file that cannot be written writes the others, names it in one summary and exits 1; --allow-failures exits 0',
+      async () => {
+        await startTenant();
+        // a directory where the file of the first issuer should go
+        fs.mkdirSync(
+          path.join(work, 'matrix-trusted-issuer.oauth2.issuer.json')
+        );
+
+        const failed = run(['export', '-A']);
+        expect(failed.output).toMatch(
+          /1 of 2 issuers failed:\n\s+- matrix-trusted-issuer: /
+        );
+        expect(failed.status).toBe(1);
+        expect(
+          read('zion-trusted-issuer.oauth2.issuer.json').trustedJwtIssuer
+        ).toBeDefined();
+
+        const allowed = run(['export', '-A', '--allow-failures']);
+        expect(allowed.output).toContain(
+          'The exit code stays 0 because --allow-failures was given.'
+        );
+        expect(allowed.status).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      '-A in a realm without issuers writes nothing and succeeds',
+      async () => {
+        await startTenant([]);
+
+        const { status, output } = run(['export', '-A']);
+
+        expect(output).toContain('Nothing to export.');
+        expect(fs.readdirSync(work)).toEqual([]);
+        expect(status).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'without -i, -a or -A is rejected before anything is sent when nobody can be asked',
+      async () => {
+        await startTenant();
+
+        const { status, output } = run(['export']);
+
+        expect(output).toContain(
+          'one of -i, --issuer-id <issuer-id> | -a, --all | -A, --all-separate is required'
+        );
+        expect(status).toBe(1);
+        expect(requests()).toEqual([]);
+      },
+      TIMEOUT
+    );
+  });
 });

@@ -17,6 +17,7 @@ Runtime Options:
 
 Commands:
   describe          Describe an OAuth2 trusted JWT issuer.
+  export            Export OAuth2 trusted JWT issuers.
   list              List OAuth2 trusted JWT issuers.
 
 Utilities:

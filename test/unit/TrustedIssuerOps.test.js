@@ -9,7 +9,12 @@
  * never an empty string or a quiet success, and an output that does not depend
  * on the deployment type.
  */
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { jest } from '@jest/globals';
+
+const HOST = 'https://openam-matrix.example.com/am';
 
 const printed = [];
 const messages = (type) =>
@@ -55,7 +60,11 @@ let stored = [];
 let wrapped = true;
 let readFailure;
 let deploymentType = 'cloud';
+let realm = 'alpha';
+let baseDirectory = '';
+let failingSave;
 const calls = [];
+const saved = [];
 
 const lib = {
   readOAuth2TrustedJwtIssuers: async () => {
@@ -68,12 +77,66 @@ const lib = {
     if (!found) throw new Error(`no such trusted issuer ${id}`);
     return structuredClone(wrapped ? wrappedIssuer(id, found) : found);
   },
+  createOAuth2TrustedJwtIssuerExportTemplate: () => ({
+    meta: { origin: HOST },
+    trustedJwtIssuer: {},
+  }),
+  // a read by id is wrapped and a query is plain, as AM answers them; the library does not make them agree
+  exportOAuth2TrustedJwtIssuer: async (id) => {
+    calls.push(['exportOAuth2TrustedJwtIssuer', id]);
+    const found = stored.find((entry) => entry._id === id);
+    if (!found) throw new Error(`no such trusted issuer ${id}`);
+    return {
+      meta: { origin: HOST },
+      trustedJwtIssuer: {
+        [id]: structuredClone(wrapped ? wrappedIssuer(id, found) : found),
+      },
+    };
+  },
+  exportOAuth2TrustedJwtIssuers: async () => {
+    calls.push(['exportOAuth2TrustedJwtIssuers']);
+    if (readFailure) throw readFailure;
+    return {
+      meta: { origin: HOST },
+      trustedJwtIssuer: Object.fromEntries(
+        structuredClone(stored).map((entry) => [entry._id, entry])
+      ),
+    };
+  },
 };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
-  state: { getDeploymentType: () => deploymentType },
+  state: {
+    getDeploymentType: () => deploymentType,
+    getRealm: () => realm,
+  },
   frodo: {
-    utils: {},
+    utils: {
+      // a stand-in for the library's slug: the helper under test adds its rules on top of it
+      getTypedFilename: (name, type) =>
+        `${name.replace(/[^\w\s$*_+~.()'"!\-@]+/g, '').replace(/\s+/g, '-')}.${type}.json`,
+      titleCase: (input) =>
+        input
+          .toString()
+          .toLowerCase()
+          .split(' ')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' '),
+      getRealmName: (value) => {
+        const components = value.split('/');
+        return components.length > 0 && value !== '/'
+          ? components[components.length - 1]
+          : '/';
+      },
+      saveJsonToFile: (data, file, includeMeta) => {
+        if (failingSave && file.includes(failingSave)) {
+          throw new Error('could not write the file');
+        }
+        saved.push({ data: structuredClone(data), file, includeMeta });
+      },
+      getFilePath: (file) =>
+        baseDirectory ? path.join(baseDirectory, file) : file,
+    },
     oauth2oidc: { issuer: lib },
   },
 }));
@@ -94,6 +157,13 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
       toString: () => rows.map((row) => row.join(' | ')).join('\n'),
     };
   },
+  createProgressIndicator: () => 'indicator',
+  updateProgressIndicator: () => {},
+  stopProgressIndicator: () => {},
+  showSpinner: () => {},
+  succeedSpinner: (msg) => printed.push({ msg: String(msg), type: 'spinner' }),
+  failSpinner: (msg) =>
+    printed.push({ msg: String(msg), type: 'spinner-failed' }),
 }));
 
 // the theme reads the terminal helpers of the library; the colours do not matter here
@@ -105,16 +175,31 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
   },
 }));
 
-const { listOAuth2TrustedJwtIssuers, describeOAuth2TrustedJwtIssuer } =
-  await import('../../src/ops/OAuth2TrustedJwtIssuerOps.ts');
+const {
+  listOAuth2TrustedJwtIssuers,
+  describeOAuth2TrustedJwtIssuer,
+  exportOAuth2TrustedJwtIssuerToFile,
+  exportOAuth2TrustedJwtIssuersToFile,
+  exportOAuth2TrustedJwtIssuersToFiles,
+} = await import('../../src/ops/OAuth2TrustedJwtIssuerOps.ts');
+
+const savedFile = (entry) => path.relative(baseDirectory, entry.file);
 
 beforeEach(() => {
   printed.length = 0;
   calls.length = 0;
+  saved.length = 0;
   stored = [];
   wrapped = true;
   readFailure = undefined;
+  failingSave = undefined;
   deploymentType = 'cloud';
+  realm = 'alpha';
+  baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-issuer-'));
+});
+
+afterEach(() => {
+  fs.rmSync(baseDirectory, { recursive: true, force: true });
 });
 
 describe('listOAuth2TrustedJwtIssuers', () => {
@@ -275,6 +360,275 @@ describe('describeOAuth2TrustedJwtIssuer', () => {
   });
 });
 
+describe('exportOAuth2TrustedJwtIssuerToFile', () => {
+  beforeEach(() => {
+    stored = [
+      plainIssuer('zion'),
+      plainIssuer('open', { allowedSubjects: [] }),
+    ];
+  });
+
+  test('writes <id>.oauth2.issuer.json with the key trustedJwtIssuer and the metadata', async () => {
+    await expect(
+      exportOAuth2TrustedJwtIssuerToFile('zion', undefined, true)
+    ).resolves.toBe(true);
+
+    expect(calls).toEqual([['exportOAuth2TrustedJwtIssuer', 'zion']]);
+    expect(saved).toHaveLength(1);
+    expect(savedFile(saved[0])).toBe('zion.oauth2.issuer.json');
+    expect(saved[0].includeMeta).toBe(true);
+    expect(Object.keys(saved[0].data)).toEqual(['meta', 'trustedJwtIssuer']);
+    expect(Object.keys(saved[0].data.trustedJwtIssuer)).toEqual(['zion']);
+  });
+
+  test('-f names the file and -N leaves the metadata out', async () => {
+    await expect(
+      exportOAuth2TrustedJwtIssuerToFile('zion', 'mine.json', false)
+    ).resolves.toBe(true);
+
+    expect(savedFile(saved[0])).toBe('mine.json');
+    expect(saved[0].includeMeta).toBe(false);
+  });
+
+  test('the file holds the plain shape, although a read by id is wrapped', async () => {
+    await exportOAuth2TrustedJwtIssuerToFile('zion', undefined);
+
+    const issuer = saved[0].data.trustedJwtIssuer.zion;
+    expect(issuer.issuer).toBe('https://zion.example.com');
+    expect(issuer.allowedSubjects).toEqual(['neo', 'trinity']);
+    expect(issuer.jwkSet).toBeNull();
+    expect(issuer._type).toEqual(plainIssuer('zion')._type);
+  });
+
+  test('an id that is not a file name gets a safe one, and the content keeps the exact id', async () => {
+    const id = 'a'.repeat(300);
+    stored = [plainIssuer(id)];
+
+    await exportOAuth2TrustedJwtIssuerToFile(id, undefined);
+
+    expect(savedFile(saved[0])).toMatch(
+      /^a{100}-[0-9a-f]{8}\.oauth2\.issuer\.json$/
+    );
+    expect(Object.keys(saved[0].data.trustedJwtIssuer)).toEqual([id]);
+  });
+
+  test('an issuer that does not exist fails, names it and writes nothing', async () => {
+    await expect(
+      exportOAuth2TrustedJwtIssuerToFile('missing', undefined)
+    ).resolves.toBe(false);
+
+    expect(messages('error')[0]).toContain('missing');
+    expect(saved).toEqual([]);
+  });
+
+  test('a file that cannot be written fails', async () => {
+    failingSave = 'zion';
+
+    await expect(
+      exportOAuth2TrustedJwtIssuerToFile('zion', undefined)
+    ).resolves.toBe(false);
+
+    expect(messages('error')[0]).toContain('could not write the file');
+  });
+
+  test('no id (the picker had nothing to offer) says so, reads nothing and fails', async () => {
+    await expect(
+      exportOAuth2TrustedJwtIssuerToFile(undefined, undefined)
+    ).resolves.toBe(false);
+
+    expect(messages('warn')).toEqual([
+      'There is no trusted JWT issuer to choose from.',
+    ]);
+    expect(calls).toEqual([]);
+    expect(saved).toEqual([]);
+  });
+});
+
+describe('exportOAuth2TrustedJwtIssuersToFile', () => {
+  beforeEach(() => {
+    stored = [plainIssuer('zion'), plainIssuer('open')];
+  });
+
+  test.each([
+    ['alpha', 'allAlphaIssuers.oauth2.issuer.json'],
+    ['/alpha', 'allAlphaIssuers.oauth2.issuer.json'],
+    ['/', 'allRootIssuers.oauth2.issuer.json'],
+    ['/parent/child', 'allChildIssuers.oauth2.issuer.json'],
+  ])('in the realm %s writes %s', async (realmName, fileName) => {
+    realm = realmName;
+
+    await expect(
+      exportOAuth2TrustedJwtIssuersToFile(undefined, true)
+    ).resolves.toBe(true);
+
+    expect(saved).toHaveLength(1);
+    expect(savedFile(saved[0])).toBe(fileName);
+    expect(Object.keys(saved[0].data.trustedJwtIssuer).sort()).toEqual([
+      'open',
+      'zion',
+    ]);
+  });
+
+  test('-f names the file and -N leaves the metadata out', async () => {
+    await exportOAuth2TrustedJwtIssuersToFile('all.json', false);
+
+    expect(savedFile(saved[0])).toBe('all.json');
+    expect(saved[0].includeMeta).toBe(false);
+  });
+
+  test('a realm without issuers (the library answers with an empty list for the Cloud root realm) writes the empty section', async () => {
+    stored = [];
+
+    await expect(
+      exportOAuth2TrustedJwtIssuersToFile(undefined, true)
+    ).resolves.toBe(true);
+
+    expect(saved[0].data.trustedJwtIssuer).toEqual({});
+  });
+
+  test('one operation: a failing read writes no file and fails', async () => {
+    readFailure = new Error('Error exporting alpha realm trusted issuers');
+
+    await expect(
+      exportOAuth2TrustedJwtIssuersToFile(undefined, true)
+    ).resolves.toBe(false);
+
+    expect(saved).toEqual([]);
+    expect(messages('error')[0]).toContain('Error exporting alpha realm');
+  });
+});
+
+describe('exportOAuth2TrustedJwtIssuersToFiles', () => {
+  beforeEach(() => {
+    stored = ['a', 'b', 'c', 'd'].map((id) => plainIssuer(id));
+  });
+
+  test('writes one file per issuer, each with its own export template', async () => {
+    await expect(exportOAuth2TrustedJwtIssuersToFiles(true)).resolves.toBe(
+      true
+    );
+
+    expect(saved.map(savedFile)).toEqual([
+      'a.oauth2.issuer.json',
+      'b.oauth2.issuer.json',
+      'c.oauth2.issuer.json',
+      'd.oauth2.issuer.json',
+    ]);
+    for (const entry of saved) {
+      expect(Object.keys(entry.data.trustedJwtIssuer)).toHaveLength(1);
+      expect(entry.includeMeta).toBe(true);
+    }
+  });
+
+  test('a very long id and two ids with one slug get distinct, valid names', async () => {
+    const long = 'x'.repeat(5000);
+    stored = [plainIssuer('ab'), plainIssuer('a/b'), plainIssuer(long)];
+
+    await expect(exportOAuth2TrustedJwtIssuersToFiles(true)).resolves.toBe(
+      true
+    );
+
+    const names = saved.map(savedFile);
+    expect(new Set(names).size).toBe(3);
+    expect(names[0]).toBe('ab.oauth2.issuer.json');
+    expect(names[1]).toMatch(/^ab-[0-9a-f]{8}\.oauth2\.issuer\.json$/);
+    expect(names[2]).toMatch(/^x{100}-[0-9a-f]{8}\.oauth2\.issuer\.json$/);
+    // the content keeps the exact id
+    expect(Object.keys(saved[1].data.trustedJwtIssuer)).toEqual(['a/b']);
+  });
+
+  test('a file that cannot be written does not stop the others; one summary names it and the command fails', async () => {
+    failingSave = 'b.oauth2';
+
+    await expect(exportOAuth2TrustedJwtIssuersToFiles(true)).resolves.toBe(
+      false
+    );
+
+    expect(saved.map(savedFile)).toEqual([
+      'a.oauth2.issuer.json',
+      'c.oauth2.issuer.json',
+      'd.oauth2.issuer.json',
+    ]);
+    expect(messages('error').join('\n')).toContain(
+      '1 of 4 issuers failed:\n  - b: could not write the file'
+    );
+  });
+
+  test('--allow-failures keeps the exit at success but still names the failure', async () => {
+    failingSave = 'b.oauth2';
+
+    await expect(
+      exportOAuth2TrustedJwtIssuersToFiles(true, true)
+    ).resolves.toBe(true);
+
+    expect(messages('warn').join('\n')).toContain(
+      '1 of 4 issuers failed:\n  - b: could not write the file'
+    );
+    expect(messages('warn').join('\n')).toContain(
+      'The exit code stays 0 because --allow-failures was given.'
+    );
+  });
+
+  test('a failure to read the issuers fails whatever --allow-failures says', async () => {
+    readFailure = new Error('Error exporting alpha realm trusted issuers');
+
+    await expect(
+      exportOAuth2TrustedJwtIssuersToFiles(true, true)
+    ).resolves.toBe(false);
+
+    expect(saved).toEqual([]);
+  });
+
+  test('no issuers is nothing to export, not a failure', async () => {
+    stored = [];
+
+    await expect(exportOAuth2TrustedJwtIssuersToFiles(true)).resolves.toBe(
+      true
+    );
+
+    expect(messages('info')).toEqual(['Nothing to export.']);
+    expect(saved).toEqual([]);
+  });
+
+  test('-N leaves the metadata out of every file', async () => {
+    await exportOAuth2TrustedJwtIssuersToFiles(false);
+
+    expect(saved.every((entry) => entry.includeMeta === false)).toBe(true);
+  });
+});
+
+describe('one shape for -i, -a and -A', () => {
+  // The library reads a single issuer wrapped in { inherited, value } and a list plain. Until it makes the two
+  // agree, the CLI writes the plain shape for all three, so the same issuer is the same in every file.
+  beforeEach(() => {
+    stored = [
+      plainIssuer('zion'),
+      plainIssuer('open', { allowedSubjects: [], jwksUri: null }),
+    ];
+  });
+
+  test.each(['zion', 'open'])(
+    'the file of -i and the files of -a and -A hold equal issuers (%s)',
+    async (id) => {
+      await exportOAuth2TrustedJwtIssuerToFile(id, 'one.json');
+      await exportOAuth2TrustedJwtIssuersToFile('all.json');
+      await exportOAuth2TrustedJwtIssuersToFiles();
+
+      const byId = saved.find((entry) => savedFile(entry) === 'one.json').data
+        .trustedJwtIssuer[id];
+      const all = saved.find((entry) => savedFile(entry) === 'all.json').data
+        .trustedJwtIssuer[id];
+      const separate = saved.find(
+        (entry) => savedFile(entry) === `${id}.oauth2.issuer.json`
+      ).data.trustedJwtIssuer[id];
+      expect(byId).toEqual(all);
+      expect(separate).toEqual(all);
+      // not a wrapper left over from the read by id
+      expect(byId.issuer).toBe(`https://${id}.example.com`);
+    }
+  );
+});
+
 describe.each(['cloud', 'forgeops', 'classic'])(
   'on a %s deployment',
   (type) => {
@@ -292,7 +646,16 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       await listOAuth2TrustedJwtIssuers(true);
       await describeOAuth2TrustedJwtIssuer('zion');
       await describeOAuth2TrustedJwtIssuer('open', true);
-      return printed.map((entry) => `${entry.type}: ${entry.msg}`);
+      saved.length = 0;
+      await exportOAuth2TrustedJwtIssuerToFile('zion', undefined);
+      await exportOAuth2TrustedJwtIssuersToFile(undefined);
+      await exportOAuth2TrustedJwtIssuersToFiles();
+      return [
+        ...printed.map((entry) => `${entry.type}: ${entry.msg}`),
+        ...saved.map((entry) =>
+          JSON.stringify([savedFile(entry), entry.data.trustedJwtIssuer])
+        ),
+      ];
     }
 
     test('list and describe print what they print on every other deployment type, because trusted issuers exist on all of them', async () => {
