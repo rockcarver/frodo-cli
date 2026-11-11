@@ -44,6 +44,7 @@ import Services from './config-manager-push-services';
 import Telemetry from './config-manager-push-telemetry';
 import TermsAndConditions from './config-manager-push-terms-and-conditions';
 import Themes from './config-manager-push-themes';
+import TrustedJwtIssuers from './config-manager-push-trusted-jwt-issuers';
 import UiConfig from './config-manager-push-ui-config';
 import Variables from './config-manager-push-variables';
 
@@ -83,6 +84,7 @@ export default function setup() {
   program.addCommand(DirectControlInit().name('direct-control-init'));
   program.addCommand(DirectControlState().name('direct-control-state'));
   program.addCommand(CimdProfiles().name('cimd-profiles'));
+  program.addCommand(TrustedJwtIssuers().name('trusted-jwt-issuers'));
   program.addCommand(RemoteProxies().name('remote-proxies'));
   program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(SecretMappings().name('secret-mappings'));

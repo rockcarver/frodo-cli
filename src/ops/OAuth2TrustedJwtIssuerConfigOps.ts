@@ -16,11 +16,18 @@
  *   (the user asked for the issuer) with a warning that never prints the key, and a push says what
  *   it replaces and never deletes.
  */
-import { frodo } from '@rockcarver/frodo-lib';
-import { printMessage } from '../utils/Console';
+import {
+  frodo,
+  type FrodoError,
+  type OAuth2TrustedJwtIssuerExportInterface,
+  type OAuth2TrustedJwtIssuerSkeleton,
+} from '@rockcarver/frodo-lib';
+import { printError, printMessage } from '../utils/Console';
+import { causeOf } from '../utils/ErrorCause';
 import {
   agentKindFilePath,
   pullAgentKind,
+  pushAgentKind,
   type AgentKindSpec,
   type PulledItem,
 } from './ConfigManagerAgentKind';
@@ -139,5 +146,104 @@ export async function configManagerExportTrustedJwtIssuers(
       },
     },
     { name, realm, quiet, allowFailures, overridesFile }
+  );
+}
+
+/**
+ * Import the trusted JWT issuers of the files `realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json`
+ * (what `pull trusted-jwt-issuers` and `pull oauth2-agents` write) into the realms they are in: an
+ * issuer that does not exist is created and one that does is replaced by the file. An issuer is a
+ * trust anchor (a JWT signed by it is accepted as a grant), so a pull request that changes a file
+ * changes who may obtain tokens after the next push: read the files before pushing them. Nothing
+ * is ever deleted. The id is the `_id` of the file, otherwise its name; `${NAME}` is filled from
+ * the environment; a file of another `_type` is refused before anything is sent for it, and a file
+ * without `_type` is accepted.
+ *
+ * The server completes an object it creates with its defaults, so an issuer that did not exist is
+ * written a second time to make the tenant equal to the file (the library does this for CIMD
+ * profiles itself, not yet for issuers); if that second write fails the issuer is a failure that
+ * says it was created. The library retries a write that the server refuses for an unknown
+ * attribute without that attribute, prints a warning of its own when it does, and no longer
+ * changes the object it was given. The type exists on every deployment, so there is no check of
+ * availability. See {@link pushAgentKind} for how files, failures and the name work.
+ * @param {string} name optional name: push only the file of that issuer (needs a single realm)
+ * @param {string} realm optional realm: push only that realm. Default: every realm folder of the tree (the root realm of a Cloud tenant has no trusted JWT issuers)
+ * @param {boolean} allowFailures true to report issuers that could not be pushed but still succeed. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function configManagerImportTrustedJwtIssuers(
+  name?: string,
+  realm?: string,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  return pushAgentKind(
+    TRUSTED_JWT_ISSUER_KIND,
+    {
+      refuse: ({ body }) => {
+        const type = (body._type as { _id?: unknown } | undefined)?._id;
+        return type !== undefined && type !== TRUSTED_JWT_ISSUER_AGENT_TYPE
+          ? `its _type is '${String(type)}', not '${TRUSTED_JWT_ISSUER_AGENT_TYPE}'`
+          : undefined;
+      },
+      importRealm: async (items, { realmDir, run }) => {
+        // the server completes what it creates, so the ones that do not exist yet are written twice
+        const existing = new Set(
+          (await issuer.readOAuth2TrustedJwtIssuers()).map((item) =>
+            item._id.toLowerCase()
+          )
+        );
+        const importData: OAuth2TrustedJwtIssuerExportInterface = {
+          trustedJwtIssuer: {},
+        };
+        const bodies = new Map<string, Record<string, unknown>>();
+        for (const { id, body } of items) {
+          importData.trustedJwtIssuer[id] =
+            body as unknown as OAuth2TrustedJwtIssuerSkeleton;
+          bodies.set(id, body);
+        }
+        // the library reports the issuers in the order of the keys, which is not always the order of the files
+        const ids = Object.keys(importData.trustedJwtIssuer);
+        let position = 0;
+        const created: string[] = [];
+        await issuer.importOAuth2TrustedJwtIssuers(
+          importData,
+          undefined,
+          (error?: FrodoError): void => {
+            const id = ids[position++];
+            if (error) {
+              printError(error);
+              run.recordFailure(`${realmDir}/${id}`, causeOf(error));
+            } else if (existing.has(id.toLowerCase())) {
+              run.recordSuccess();
+            } else {
+              created.push(id);
+            }
+          }
+        );
+        for (const id of created) {
+          const label = `${realmDir}/${id}`;
+          try {
+            const body = structuredClone(bodies.get(id)) as Record<
+              string,
+              unknown
+            >;
+            delete body._provider;
+            delete body._rev;
+            await issuer.updateOAuth2TrustedJwtIssuer(
+              id,
+              body as unknown as OAuth2TrustedJwtIssuerSkeleton
+            );
+            run.recordSuccess();
+          } catch (error) {
+            printError(error);
+            run.recordFailure(
+              label,
+              `created, but the second write that makes it equal to the file failed: ${causeOf(error)}`
+            );
+          }
+        }
+      },
+    },
+    { name, realm, allowFailures }
   );
 }

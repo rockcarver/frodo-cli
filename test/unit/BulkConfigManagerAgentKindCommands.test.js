@@ -17,7 +17,10 @@ const OPS = {
     'configManagerExportCIMDProfiles',
     'configManagerImportCIMDProfiles',
   ],
-  OAuth2TrustedJwtIssuerConfigOps: ['configManagerExportTrustedJwtIssuers'],
+  OAuth2TrustedJwtIssuerConfigOps: [
+    'configManagerExportTrustedJwtIssuers',
+    'configManagerImportTrustedJwtIssuers',
+  ],
 };
 const ops = {};
 for (const [module, names] of Object.entries(OPS)) {
@@ -112,6 +115,13 @@ const COMMANDS = [
       allowFailures,
       'trusted-jwt-issuers.json',
     ],
+  },
+  {
+    name: 'config-manager push trusted-jwt-issuers',
+    file: 'config-manager-push/config-manager-push-trusted-jwt-issuers',
+    fn: 'configManagerImportTrustedJwtIssuers',
+    options: { name: 'zion-issuer' },
+    args: (allowFailures) => ['zion-issuer', 'alpha', allowFailures],
   },
 ];
 

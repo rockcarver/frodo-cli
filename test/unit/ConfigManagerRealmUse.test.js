@@ -56,6 +56,7 @@ const USES_REALM = [
   'frodo config-manager push secret-mappings',
   'frodo config-manager push services',
   'frodo config-manager push themes',
+  'frodo config-manager push trusted-jwt-issuers',
 ];
 
 /** The commands that also cover configuration of the tenant, which no realm limits. */

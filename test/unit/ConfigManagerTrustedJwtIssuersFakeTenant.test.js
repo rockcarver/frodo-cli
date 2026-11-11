@@ -255,4 +255,157 @@ suite('config-manager trusted-jwt-issuers against a fake tenant', () => {
       TIMEOUT
     );
   });
+  describe('push', () => {
+    const issuerFile = (realm, id, content) => {
+      const target = path.join(issuersOf(realm), `${id}.json`);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.writeFileSync(target, JSON.stringify(content));
+    };
+    const puts = () => requests().filter((r) => r.method === 'PUT');
+    const idOf = (request) => decodeURIComponent(request.url.split('/').pop());
+    const sparse = (id) => ({
+      _id: id,
+      _type: {
+        _id: 'TrustedJwtIssuer',
+        name: 'OAuth2 Trusted JWT Issuer',
+        collection: true,
+      },
+      issuer: { inherited: false, value: `https://${id}.example.com` },
+    });
+
+    it(
+      'creates an issuer that does not exist and writes it a second time so that it equals the file, and replaces one that does exist with one write',
+      async () => {
+        const run = await tenant({ trustedJwtIssuers: ['zion-old'] });
+        issuerFile('alpha', 'zion-new', sparse('zion-new'));
+        issuerFile('alpha', 'zion-old', sparse('zion-old'));
+
+        const { code, output } = await run([
+          'config-manager',
+          'push',
+          'trusted-jwt-issuers',
+          ...target(),
+        ]);
+
+        expect(output).not.toMatch(/Error|failed/);
+        expect(code).toBe(0);
+        const urls = puts().map(idOf);
+        // the new issuer is written twice (the server completed it with its defaults), the existing one once
+        expect(urls.filter((url) => url === 'zion-new')).toHaveLength(2);
+        expect(urls.filter((url) => url === 'zion-old')).toHaveLength(1);
+        for (const request of puts()) {
+          const body = JSON.parse(request.body);
+          expect(body).not.toHaveProperty('_rev');
+          expect(body.jwksCacheTimeout).toBeUndefined();
+        }
+
+        // what the tenant holds now is what the file said: pull it back
+        const pulled = await run([
+          'config-manager',
+          'pull',
+          'trusted-jwt-issuers',
+          '-n',
+          'zion-new',
+          ...target(),
+        ]);
+        expect(pulled.code).toBe(0);
+        const back = JSON.parse(
+          fs.readFileSync(path.join(issuersOf('alpha'), 'zion-new.json'))
+        );
+        expect(back.jwksCacheTimeout).toBeUndefined();
+        expect(back.issuer).toEqual(sparse('zion-new').issuer);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'refuses a file of another type before anything is sent, and pushes the others',
+      async () => {
+        const run = await tenant({ trustedJwtIssuers: [] });
+        issuerFile('alpha', 'zion-agent', {
+          ...sparse('zion-agent'),
+          _type: { _id: 'WebAgent', name: 'Web Agent', collection: true },
+        });
+        issuerFile('alpha', 'zion-new', sparse('zion-new'));
+
+        const { code, output } = await run([
+          'config-manager',
+          'push',
+          'trusted-jwt-issuers',
+          ...target(),
+        ]);
+
+        expect(code).toBe(1);
+        expect(output).toContain('1 of 2 trusted JWT issuers failed');
+        expect(output).toContain(
+          "alpha/zion-agent.json: its _type is 'WebAgent', not 'TrustedJwtIssuer'"
+        );
+        expect(puts().map(idOf)).not.toContain('zion-agent');
+        expect(puts().map(idOf)).toContain('zion-new');
+
+        const allowed = await run([
+          'config-manager',
+          'push',
+          'trusted-jwt-issuers',
+          '--allow-failures',
+          ...target(),
+        ]);
+        expect(allowed.code).toBe(0);
+        expect(allowed.output).toContain('The exit code stays 0');
+      },
+      TIMEOUT
+    );
+
+    it(
+      'removes a _rev from a file, which the server would refuse',
+      async () => {
+        const run = await tenant({ trustedJwtIssuers: ['zion-old'] });
+        issuerFile('alpha', 'zion-old', { ...sparse('zion-old'), _rev: '-9' });
+
+        const { code, output } = await run([
+          'config-manager',
+          'push',
+          'trusted-jwt-issuers',
+          ...target(),
+        ]);
+
+        expect(output).not.toMatch(/Error|failed/);
+        expect(code).toBe(0);
+        expect(puts()).toHaveLength(1);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'fails when a named file is missing, and when the tree has no realms folder',
+      async () => {
+        const run = await tenant({ trustedJwtIssuers: [] });
+
+        const noTree = await run([
+          'config-manager',
+          'push',
+          'trusted-jwt-issuers',
+          ...target(),
+        ]);
+        expect(noTree.code).toBe(1);
+        expect(noTree.output).toContain("There is no 'realms' folder in ");
+
+        issuerFile('alpha', 'zion-other', sparse('zion-other'));
+        const missing = await run([
+          'config-manager',
+          'push',
+          'trusted-jwt-issuers',
+          '-n',
+          'zion-new',
+          ...target(),
+        ]);
+        expect(missing.code).toBe(1);
+        expect(missing.output).toContain(
+          "No trusted JWT issuer file 'zion-new.json' in "
+        );
+        expect(puts()).toEqual([]);
+      },
+      TIMEOUT
+    );
+  });
 });
