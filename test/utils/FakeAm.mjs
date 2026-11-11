@@ -62,6 +62,26 @@
  * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
  * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
  * the OAuth2 client picker of the admin commands reads it.
+ * FAKE_AM_OAUTH_CIMD_PROFILES=<id,id,...> makes every realm offer the agent type
+ * CIMDProfile (the agent type list `.../realm-config/agents?_action=getAllTypes`
+ * lists it; without the variable the list answers 404, a deployment that does not
+ * have the type) and hold CIMD profiles of those ids (an empty value: none). The
+ * profiles are the same in every realm and live as long as the fake: the list
+ * (`.../agents/CIMDProfile?_queryFilter=true`) answers with them in the plain
+ * shape, a `PUT` stores the body (`201` for a new id, which the server completes
+ * with a default group the body lacks, `200` for an existing one, which stores
+ * exactly the body; ids are matched ignoring case, as AM does) and refuses a `_rev` in it with `400
+ * Invalid attribute specified`, and a `DELETE` removes one (`404` when missing).
+ * FAKE_AM_OAUTH_ISSUERS=<id,id,...> makes every realm hold OAuth2 trusted JWT
+ * issuers of those ids (an empty value: none; without the variable the routes
+ * answer 404). The issuers are the same in every realm and live as long as the
+ * fake: the list (`.../agents/TrustedJwtIssuer?_queryFilter=true`) answers with
+ * them in the plain shape (ids only matter), the single read answers with every
+ * property wrapped as `{ inherited, value }`, a `PUT` stores the body (`201` for a
+ * new id, which the server completes with a default property the body lacks,
+ * `200` for an existing one, which stores exactly the body; a `_rev` in it is
+ * refused with `400 Invalid attribute specified.`) and a `DELETE` removes one
+ * (`404` when missing). Ids are matched exactly.
  * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
  * (`.../scripts`) answer with scripts of those names, the way the script
  * picker of the script commands reads it.
@@ -137,6 +157,45 @@ const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
+const cimdProfileIds = process.env.FAKE_AM_OAUTH_CIMD_PROFILES;
+const cimdProfiles = new Map();
+for (const _id of (cimdProfileIds ?? '').split(',').filter(Boolean)) {
+  cimdProfiles.set(_id.toLowerCase(), {
+    _id,
+    _rev: '-1',
+    _type: { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+    cimdConfig: {
+      cimdClientIdUrlPatterns: [`https://${_id}.example.com/*`],
+      cimdSsrfProtectionEnabled: true,
+    },
+  });
+}
+const trustedJwtIssuerIds = process.env.FAKE_AM_OAUTH_ISSUERS;
+const trustedJwtIssuers = new Map();
+for (const _id of (trustedJwtIssuerIds ?? '').split(',').filter(Boolean)) {
+  trustedJwtIssuers.set(_id, {
+    _id,
+    _rev: '-1',
+    _type: {
+      _id: 'TrustedJwtIssuer',
+      name: 'OAuth2 Trusted JWT Issuer',
+      collection: true,
+    },
+    issuer: `https://${_id}.example.com`,
+    allowedSubjects: [],
+    consentedScopesClaim: 'scope',
+  });
+}
+// the read of one object wraps every property, as AM does
+const wrapJwtIssuer = (object) =>
+  Object.fromEntries(
+    Object.entries(object).map(([key, value]) =>
+      key.startsWith('_') ||
+      (value && typeof value === 'object' && 'inherited' in value)
+        ? [key, value]
+        : [key, { inherited: false, value }]
+    )
+  );
 const scripts = (process.env.FAKE_AM_SCRIPTS ?? '').split(',').filter(Boolean);
 const idList = (value) =>
   value === undefined ? undefined : value.split(',').filter(Boolean);
@@ -480,6 +539,128 @@ const server = http.createServer((req, res) => {
         totalPagedResults: oauth2Clients.length,
         remainingPagedResults: -1,
       });
+    }
+    if (cimdProfileIds !== undefined) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      if (
+        req.method === 'POST' &&
+        pathname.endsWith('/realm-config/agents') &&
+        query.get('_action') === 'getAllTypes'
+      ) {
+        return send(200, {
+          result: [
+            { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+          ],
+        });
+      }
+      if (req.method === 'GET' && pathname.endsWith('/agents/CIMDProfile')) {
+        return send(200, {
+          result: [...cimdProfiles.values()],
+          resultCount: cimdProfiles.size,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: cimdProfiles.size,
+          remainingPagedResults: -1,
+        });
+      }
+      const profilePath = pathname.split('/agents/CIMDProfile/');
+      if (profilePath.length === 2) {
+        const id = decodeURIComponent(profilePath[1]);
+        const key = id.toLowerCase();
+        if (req.method === 'PUT') {
+          const posted = body ? JSON.parse(body) : {};
+          if ('_rev' in posted) {
+            return send(400, {
+              code: 400,
+              reason: 'Bad Request',
+              message: 'Invalid attribute specified.',
+            });
+          }
+          const created = !cimdProfiles.has(key);
+          const stored = {
+            // a created profile is completed with the server's defaults, an updated one is stored as sent
+            ...(created
+              ? { coreOAuth2ClientConfig: { redirectionUris: [] } }
+              : {}),
+            ...posted,
+            _id: cimdProfiles.get(key)?._id ?? id,
+            _rev: '-2',
+            _type: {
+              _id: 'CIMDProfile',
+              name: 'CIMD Profile',
+              collection: true,
+            },
+          };
+          cimdProfiles.set(key, stored);
+          return send(created ? 201 : 200, stored);
+        }
+        if (req.method === 'DELETE') {
+          const stored = cimdProfiles.get(key);
+          cimdProfiles.delete(key);
+          return stored
+            ? send(200, stored)
+            : send(404, {
+                code: 404,
+                reason: 'Not Found',
+                message: 'Not Found',
+              });
+        }
+      }
+    }
+    if (trustedJwtIssuerIds !== undefined) {
+      if (
+        req.method === 'GET' &&
+        pathname.endsWith('/agents/TrustedJwtIssuer')
+      ) {
+        return send(200, {
+          result: [...trustedJwtIssuers.values()],
+          resultCount: trustedJwtIssuers.size,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: trustedJwtIssuers.size,
+          remainingPagedResults: -1,
+        });
+      }
+      const issuerPath = pathname.split('/agents/TrustedJwtIssuer/');
+      if (issuerPath.length === 2) {
+        const id = decodeURIComponent(issuerPath[1]);
+        const notFound = () =>
+          send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+        if (req.method === 'GET') {
+          const stored = trustedJwtIssuers.get(id);
+          return stored ? send(200, wrapJwtIssuer(stored)) : notFound();
+        }
+        if (req.method === 'PUT') {
+          const posted = body ? JSON.parse(body) : {};
+          if ('_rev' in posted) {
+            return send(400, {
+              code: 400,
+              reason: 'Bad Request',
+              message: 'Invalid attribute specified.',
+            });
+          }
+          const created = !trustedJwtIssuers.has(id);
+          const stored = {
+            // a created issuer is completed with the server's defaults, an updated one is stored as sent
+            ...(created ? { jwksCacheTimeout: 3600000 } : {}),
+            ...posted,
+            _id: id,
+            _rev: '-2',
+            _type: {
+              _id: 'TrustedJwtIssuer',
+              name: 'OAuth2 Trusted JWT Issuer',
+              collection: true,
+            },
+          };
+          trustedJwtIssuers.set(id, stored);
+          return send(created ? 201 : 200, wrapJwtIssuer(stored));
+        }
+        if (req.method === 'DELETE') {
+          const stored = trustedJwtIssuers.get(id);
+          trustedJwtIssuers.delete(id);
+          return stored ? send(200, wrapJwtIssuer(stored)) : notFound();
+        }
+      }
     }
     if (secrets && pathname.endsWith('/environment/secrets')) {
       return send(200, {

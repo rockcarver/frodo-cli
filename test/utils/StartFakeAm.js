@@ -23,6 +23,8 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {number} [options.loginDelayMs] holds every authenticate answer for this many milliseconds (default: no delay)
  * @param {number} [options.usersCap] stops the AM users endpoint (not IDM) at this many results, in the list and in the count
  * @param {string[]} [options.oauth2Clients] client ids the OAuth2 client list of the realm answers with (default: it answers 404)
+ * @param {string[]} [options.oauthCimdProfiles] ids of the CIMD profiles every realm holds; the realms then offer the agent type CIMDProfile, an empty array is none (default: the type is not offered, its type list answers 404)
+ * @param {string[]} [options.oauthIssuers] ids of the OAuth2 trusted JWT issuers every realm holds; an empty array is none (default: the routes answer 404)
  * @param {string[]} [options.scripts] script names the script list of the realm answers with (default: it answers 404)
  * @param {string[]} [options.secrets] ids the list of environment secrets answers with (a cloud tenant; default: it answers 404)
  * @param {string[]} [options.services] ids the list of AM services (realm and global) answers with (default: it answers 404)
@@ -47,6 +49,8 @@ export async function startFakeAm({
   trustedIssuers,
   users,
   oauth2Clients,
+  oauthCimdProfiles,
+  oauthIssuers,
   scripts,
   secrets,
   services,
@@ -91,6 +95,12 @@ export async function startFakeAm({
       ...(users ? { FAKE_AM_USERS_FILE: written('users.json', users) } : {}),
       ...(oauth2Clients
         ? { FAKE_AM_OAUTH2_CLIENTS: oauth2Clients.join(',') }
+        : {}),
+      ...(oauthCimdProfiles
+        ? { FAKE_AM_OAUTH_CIMD_PROFILES: oauthCimdProfiles.join(',') }
+        : {}),
+      ...(oauthIssuers
+        ? { FAKE_AM_OAUTH_ISSUERS: oauthIssuers.join(',') }
         : {}),
       ...(scripts ? { FAKE_AM_SCRIPTS: scripts.join(',') } : {}),
       ...(secrets ? { FAKE_AM_SECRETS: secrets.join(',') } : {}),

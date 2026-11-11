@@ -43,6 +43,10 @@ Commands:
   kba                    [Experimental] Export KBA.
   locales                [Experimental] Export locales.
   managed-objects        [Experimental] Export managed-objects.
+  oauth-cimd-profiles    [Experimental] Export CIMD profiles, one file per
+                         profile.
+  oauth-issuers          [Experimental] Export trusted JWT issuers, one file per
+                         issuer.
   oauth2-agents          [Experimental] Export OAuth2 Agents
   org-privileges         [Experimental] Export organization privileges config.
   password-policy        [Experimental] Export password policy.

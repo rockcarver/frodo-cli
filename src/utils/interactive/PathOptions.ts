@@ -91,6 +91,10 @@ export const PATH_OPTION_OVERRIDES: Readonly<
     access: 'read',
     extensions: JSON_FILES,
   },
+  'config-manager pull oauth-cimd-profiles --file': {
+    access: 'read',
+    extensions: JSON_FILES,
+  },
   'config-manager pull csp --file': { access: 'read', extensions: JSON_FILES },
   'config-manager pull oauth2-agents --file': {
     access: 'read',
@@ -98,6 +102,10 @@ export const PATH_OPTION_OVERRIDES: Readonly<
   },
   'config-manager pull saml --file': { access: 'read', extensions: JSON_FILES },
   'config-manager pull service-objects --file': {
+    access: 'read',
+    extensions: JSON_FILES,
+  },
+  'config-manager pull oauth-issuers --file': {
     access: 'read',
     extensions: JSON_FILES,
   },
