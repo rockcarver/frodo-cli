@@ -21,7 +21,7 @@ const SHORTENED_NAME_LENGTH = 100;
  * of the SHA-256 of the id: deterministic, so a second export writes the same
  * names, and the content of the file never depends on its name.
  * @param {string} id the id of the object
- * @param {string} type the file type, for example `cimd.agent`
+ * @param {string} type the file type, for example `oauth2.cimd`
  * @param {Set<string>} taken the file names already handed out in this run (compared ignoring case), updated with the name returned
  * @returns {string} the file name, `<name>.<type>.json`
  */

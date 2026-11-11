@@ -213,6 +213,46 @@ const idList = (value) =>
 const secrets = idList(process.env.FAKE_AM_SECRETS);
 const services = idList(process.env.FAKE_AM_SERVICES);
 const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
+const agentTypes = idList(process.env.FAKE_AM_AGENT_TYPES);
+// the profiles of FAKE_AM_CIMD_PROFILES_FILE (a list that the `oauth cimd` tests
+// read, store and delete); FAKE_AM_OAUTH_CIMD_PROFILES keeps its own map above
+const cimdProfileList = readJson(process.env.FAKE_AM_CIMD_PROFILES_FILE);
+const cimdRootDenied = process.env.FAKE_AM_CIMD_ROOT_DENIED === '1';
+const cimdCompleteOnCreate =
+  process.env.FAKE_AM_CIMD_COMPLETE_ON_CREATE === '1';
+const CLOUD_NOT_AVAILABLE = {
+  code: 403,
+  reason: 'Forbidden',
+  message:
+    'This operation is not available in PingOne Advanced Identity Cloud.',
+};
+
+/** The CIMD profile the way a read by id answers it: the members of the groups wrapped. */
+function wrapCimdProfile(profile) {
+  const wrapped = {};
+  for (const [key, value] of Object.entries(profile)) {
+    if (
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      key.endsWith('Config') &&
+      key !== 'overrideOAuth2ClientConfig'
+    ) {
+      wrapped[key] = Object.fromEntries(
+        Object.entries(value).map(([member, memberValue]) => [
+          member,
+          memberValue === null
+            ? { inherited: false }
+            : { inherited: false, value: memberValue },
+        ])
+      );
+    } else {
+      wrapped[key] = value;
+    }
+  }
+  return wrapped;
+}
+let cimdRevision = 0;
 const trees =
   process.env.FAKE_AM_TREES === undefined
     ? undefined
@@ -444,6 +484,111 @@ const server = http.createServer((req, res) => {
       });
     }
     const pathname = new URL(req.url, 'http://fake').pathname;
+    // the root realm of a Cloud tenant offers neither the type list nor the profiles
+    const rootRealmOnly = /\/json\/realms\/root\/realm-config\//.test(pathname);
+    if (
+      agentTypes &&
+      req.method === 'POST' &&
+      pathname.endsWith('/realm-config/agents') &&
+      new URL(req.url, 'http://fake').searchParams.get('_action') ===
+        'getAllTypes'
+    ) {
+      if (cimdRootDenied && rootRealmOnly) {
+        return send(403, CLOUD_NOT_AVAILABLE);
+      }
+      return send(200, {
+        result: agentTypes.map((_id) => ({
+          _id,
+          name: `${_id} Agents`,
+          collection: true,
+        })),
+        resultCount: agentTypes.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'NONE',
+        totalPagedResults: -1,
+        remainingPagedResults: -1,
+      });
+    }
+    if (
+      cimdProfileList &&
+      pathname.includes('/realm-config/agents/CIMDProfile')
+    ) {
+      if (cimdRootDenied && rootRealmOnly) {
+        return send(403, CLOUD_NOT_AVAILABLE);
+      }
+      const notFound = { code: 404, reason: 'Not Found', message: 'Not Found' };
+      const collection = pathname.endsWith('/agents/CIMDProfile');
+      const wanted = collection
+        ? undefined
+        : decodeURIComponent(pathname.split('/agents/CIMDProfile/')[1] ?? '');
+      const position = collection
+        ? -1
+        : cimdProfileList.findIndex(
+            (profile) => profile._id.toLowerCase() === wanted.toLowerCase()
+          );
+      if (collection && req.method === 'GET') {
+        return send(200, {
+          result: cimdProfileList,
+          resultCount: cimdProfileList.length,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: cimdProfileList.length,
+          remainingPagedResults: -1,
+        });
+      }
+      if (!collection && req.method === 'GET') {
+        return position < 0
+          ? send(404, notFound)
+          : send(200, wrapCimdProfile(cimdProfileList[position]));
+      }
+      if (!collection && req.method === 'DELETE') {
+        if (position < 0) return send(404, notFound);
+        const [deleted] = cimdProfileList.splice(position, 1);
+        return send(200, wrapCimdProfile(deleted));
+      }
+      if (!collection && req.method === 'PUT') {
+        const posted = body ? JSON.parse(body) : {};
+        if ('_rev' in posted) {
+          return send(400, {
+            code: 400,
+            reason: 'Bad Request',
+            message: 'Invalid attribute specified.',
+          });
+        }
+        if (position >= 0 && req.headers['if-none-match'] === '*') {
+          return send(412, {
+            code: 412,
+            reason: 'Precondition Failed',
+            message: 'Precondition Failed',
+          });
+        }
+        const stored = {
+          _id: position >= 0 ? cimdProfileList[position]._id : wanted,
+          _rev: String(++cimdRevision),
+          ...Object.fromEntries(
+            Object.entries(posted).filter(
+              ([key]) => !['_id', '_rev', '_type'].includes(key)
+            )
+          ),
+          _type: { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+        };
+        if (position < 0 && cimdCompleteOnCreate) {
+          // the server fills in what a create left out
+          stored.coreOAuth2ClientConfig = {
+            status: 'Active',
+            scopes: ['openid'],
+            ...stored.coreOAuth2ClientConfig,
+          };
+          stored.overrideOAuth2ClientConfig = {
+            issueRefreshToken: true,
+            ...stored.overrideOAuth2ClientConfig,
+          };
+        }
+        if (position >= 0) cimdProfileList[position] = stored;
+        else cimdProfileList.push(stored);
+        return send(position >= 0 ? 200 : 201, wrapCimdProfile(stored));
+      }
+    }
     if (
       oauth2Clients.length > 0 &&
       pathname.endsWith('/realm-config/agents/OAuth2Client')

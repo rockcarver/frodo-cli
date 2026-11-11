@@ -35,6 +35,10 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @param {{method: string, path: string}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment)
  * @param {object[]} [options.logApiKeys] keys returned by the log API key list
+ * @param {string[]} [options.agentTypes] ids the agent type list of the realm answers with; an empty array is a realm that offers no type (default: it answers 404)
+ * @param {object[]} [options.cimdProfiles] CIMD profiles in the plain shape the fake serves, stores and deletes (default: the type's endpoints answer 404)
+ * @param {boolean} [options.cimdCompleteOnCreate] makes a create of a CIMD profile answer with it completed by defaults, as the server does, while an update stores exactly what it is sent
+ * @param {boolean} [options.cimdRootDenied] makes the root realm answer the type list and the profiles with the Cloud `403` "This operation is not available in PingOne Advanced Identity Cloud."
  * @returns {Promise<{ port: number, stop: () => void }>}
  */
 export async function startFakeAm({
@@ -61,6 +65,10 @@ export async function startFakeAm({
   loginDelayMs,
   failRequests,
   logApiKeys,
+  agentTypes,
+  cimdProfiles,
+  cimdCompleteOnCreate,
+  cimdRootDenied,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
   const written = (name, data) => {
@@ -126,6 +134,17 @@ export async function startFakeAm({
       ...(logApiKeys
         ? { FAKE_AM_LOG_API_KEYS_FILE: written('log-keys.json', logApiKeys) }
         : {}),
+      ...(agentTypes ? { FAKE_AM_AGENT_TYPES: agentTypes.join(',') } : {}),
+      ...(cimdProfiles
+        ? {
+            FAKE_AM_CIMD_PROFILES_FILE: written(
+              'cimd-profiles.json',
+              cimdProfiles
+            ),
+          }
+        : {}),
+      ...(cimdCompleteOnCreate ? { FAKE_AM_CIMD_COMPLETE_ON_CREATE: '1' } : {}),
+      ...(cimdRootDenied ? { FAKE_AM_CIMD_ROOT_DENIED: '1' } : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });

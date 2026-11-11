@@ -15,6 +15,7 @@
 import {
   frodo,
   state,
+  type CIMDProfileSkeleton,
   type CustomNodeSkeleton,
   type OAuth2TrustedJwtIssuerSkeleton,
   type PolicySetSkeleton,
@@ -122,6 +123,19 @@ const CONNECTOR_ID_PREFIX = 'provisioner.openicf/';
 /** The id of a connector: its configuration id without the type prefix. */
 function connectorId(connector: { _id?: string }): string {
   return (connector._id ?? '').slice(CONNECTOR_ID_PREFIX.length);
+}
+
+/**
+ * The first client id URL pattern of a CIMD profile, for the picker row. The
+ * library returns the plain shape; the by-id read of the server wraps a member
+ * as `{ inherited, value }`, so both are read.
+ */
+function firstCIMDPattern(profile: CIMDProfileSkeleton): string | undefined {
+  const member: unknown = profile.cimdConfig?.cimdClientIdUrlPatterns;
+  const patterns = Array.isArray(member)
+    ? member
+    : (member as { value?: unknown } | undefined)?.value;
+  return Array.isArray(patterns) ? patterns[0] : undefined;
 }
 
 export function registerEntityPickFamilies(): void {
@@ -598,6 +612,23 @@ export function registerEntityPickFamilies(): void {
             (a, b) => (a._id ?? '').localeCompare(b._id ?? '')
           ),
         label: (idp) => idp._id ?? '',
+      }),
+    ],
+  });
+
+  // `oauth cimd`: the CIMD profiles of the realm, by id. The library returns
+  // them sorted by id (and none for a realm that does not offer the type, which
+  // the framework counts as satisfied). `import` names a profile in a file and
+  // never inherits a pick.
+  registerEntityPickFamily({
+    family: 'oauth cimd',
+    picks: [
+      entityPick<CIMDProfileSkeleton>({
+        name: 'profileId',
+        kind: 'CIMD profile',
+        load: async () => frodo.oauth2oidc.cimd.readCIMDProfiles(),
+        label: (profile) => profile._id ?? '',
+        description: (profile) => firstCIMDPattern(profile),
       }),
     ],
   });
