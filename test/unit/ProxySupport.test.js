@@ -5,6 +5,7 @@ import os from 'os';
 import path from 'path';
 import tls from 'tls';
 import { fileURLToPath } from 'url';
+import { ERROR_CODE_HINTS } from '../../src/utils/ErrorCodeHints.ts';
 import { closedPort, startForwardProxy } from '../utils/ForwardProxy.js';
 import { createShellTestHome, removeShellTestHome } from '../utils/ShellPty.js';
 import { startFakeAm } from '../utils/StartFakeAm.js';
@@ -29,6 +30,11 @@ import { startFakeAm } from '../utils/StartFakeAm.js';
  * rebuild it) and the native binary `dist-sea/frodo` too when that exists; the
  * binary is a different bundle (one file, no code splitting). Without it the
  * binary cases are reported as skipped.
+ *
+ * A proxy that fails is reported with the facts of frodo-lib (which proxy, what
+ * it did) and the advice of the CLI (ErrorCodeHints), and a failure that is not
+ * the proxy's (a tenant that is down, a target on NO_PROXY) gets neither
+ * (frodo-lib#986).
  *
  * What it cannot show: a proxy in front of a real tenant (the live smoke test
  * of the pipeline does that, with squid), authentication schemes other than
@@ -212,9 +218,13 @@ for (const artifact of ARTIFACTS) {
        * Runs `frodo realm list` against the fake tenant from an empty home,
        * with no terminal and the given environment, and waits for it to end.
        */
-      async function realmList({ scheme = 'http', env = {}, args = [] }) {
+      async function realmList({
+        scheme = 'http',
+        env = {},
+        args = [],
+        port = scheme === 'https' ? front.port : fakeAm.port,
+      }) {
         const home = createShellTestHome();
-        const port = scheme === 'https' ? front.port : fakeAm.port;
         const started = Date.now();
         try {
           const child = cp.spawn(
@@ -355,6 +365,55 @@ for (const artifact of ARTIFACTS) {
           expect(result.stdout).not.toContain(REALM_LIST[0]);
           expect(result.ms).toBeLessThan(QUICKLY_MS);
           expect(tenantReceived()).toEqual([]);
+          // and it says that the proxy refused the connection, not the tenant
+          expect(result.output).toContain(
+            `The proxy 127.0.0.1:${dead} refused the connection (ECONNREFUSED); the request was for an HTTP target.`
+          );
+          expect(result.output).toContain(
+            ERROR_CODE_HINTS.PROXY_CONNECTION_REFUSED
+          );
+        });
+
+        test('a proxy that wants credentials and gets none: the proxy is named, with advice, and the credentials are not shown', async () => {
+          proxy = await startForwardProxy({ credentials: 'agent:secret' });
+          const result = await realmList({
+            env: {
+              HTTP_PROXY: `http://agent:wrong-made-up@127.0.0.1:${proxy.port}`,
+            },
+          });
+          expect(result.status).not.toBe(0);
+          expect(result.output).toContain(
+            `The proxy 127.0.0.1:${proxy.port} refused the request for an HTTP target with status 407 (Proxy Authentication Required). Proxy-Authenticate: Basic realm="test"`
+          );
+          expect(result.output).toContain(
+            ERROR_CODE_HINTS.PROXY_AUTHENTICATION_REQUIRED
+          );
+          expect(result.output).not.toContain('wrong-made-up');
+          expect(result.output).not.toContain('agent:');
+          expect(tenantReceived()).toEqual([]);
+        });
+
+        test('a tenant that is down, with the proxy kept out by NO_PROXY, is not blamed on the proxy', async () => {
+          const dead = await closedPort();
+          const down = await closedPort();
+          const result = await realmList({
+            port: down,
+            env: {
+              HTTP_PROXY: `http://127.0.0.1:${dead}`,
+              NO_PROXY: '127.0.0.1',
+            },
+          });
+          expect(result.status).not.toBe(0);
+          expect(result.output).toContain(`ECONNREFUSED 127.0.0.1:${down}`);
+          expect(result.output).not.toMatch(/proxy/i);
+        });
+
+        test('a tenant that is down, with no proxy at all, is not blamed on a proxy', async () => {
+          const down = await closedPort();
+          const result = await realmList({ port: down });
+          expect(result.status).not.toBe(0);
+          expect(result.output).toContain(`ECONNREFUSED 127.0.0.1:${down}`);
+          expect(result.output).not.toMatch(/proxy/i);
         });
       });
 
@@ -428,6 +487,73 @@ for (const artifact of ARTIFACTS) {
             expect(result.output).toContain('Status: 407');
             expect(proxy.tunnels().length).toBeGreaterThan(0);
             expect(received()).toEqual([]);
+            // the proxy is named and what it did, then the advice
+            expect(result.output).toContain(
+              `The proxy 127.0.0.1:${proxy.port} refused the CONNECT request for an HTTPS target with status 407 (Proxy Authentication Required). Proxy-Authenticate: Basic realm="test"`
+            );
+            expect(result.output).toContain(
+              ERROR_CODE_HINTS.PROXY_AUTHENTICATION_REQUIRED
+            );
+          });
+
+          test('credentials that the proxy does not accept are not shown in the error or in the advice', async () => {
+            proxy = await startForwardProxy({ credentials: 'agent:secret' });
+            const result = await realmList({
+              scheme: 'https',
+              args: ['--insecure'],
+              env: {
+                HTTPS_PROXY: `http://agent:wrong-made-up@127.0.0.1:${proxy.port}/path?token=made-up-token`,
+              },
+            });
+            expect(result.status).not.toBe(0);
+            expect(result.output).toContain(
+              ERROR_CODE_HINTS.PROXY_AUTHENTICATION_REQUIRED
+            );
+            for (const secret of [
+              'wrong-made-up',
+              'made-up-token',
+              'agent:',
+              Buffer.from('agent:wrong-made-up').toString('base64'),
+            ]) {
+              expect(result.output).not.toContain(secret);
+            }
+            expect(received()).toEqual([]);
+          });
+
+          test('a proxy that cannot connect to the tenant refuses the tunnel, and the advice is about the proxy and the tenant host', async () => {
+            proxy = await startForwardProxy();
+            const down = await closedPort();
+            const result = await realmList({
+              scheme: 'https',
+              port: down,
+              args: ['--insecure'],
+              env: { HTTPS_PROXY: `http://127.0.0.1:${proxy.port}` },
+            });
+            expect(result.status).not.toBe(0);
+            expect(result.output).toContain(
+              `The proxy 127.0.0.1:${proxy.port} refused the CONNECT request for an HTTPS target with status 502 (Bad Gateway).`
+            );
+            expect(result.output).toContain(
+              ERROR_CODE_HINTS.PROXY_TUNNEL_REFUSED
+            );
+            expect(proxy.tunnels()).toContain(`127.0.0.1:${down}`);
+          });
+
+          test('a tenant that is down, with the proxy kept out by NO_PROXY, is not blamed on the proxy', async () => {
+            const dead = await closedPort();
+            const down = await closedPort();
+            const result = await realmList({
+              scheme: 'https',
+              port: down,
+              args: ['--insecure'],
+              env: {
+                HTTPS_PROXY: `http://127.0.0.1:${dead}`,
+                NO_PROXY: '127.0.0.1',
+              },
+            });
+            expect(result.status).not.toBe(0);
+            expect(result.output).toContain(`ECONNREFUSED 127.0.0.1:${down}`);
+            expect(result.output).not.toMatch(/proxy/i);
           });
 
           test('NO_PROXY with the tenant host keeps the proxy out of it', async () => {
@@ -458,6 +584,13 @@ for (const artifact of ARTIFACTS) {
             expect(result.output).toContain(`ECONNREFUSED 127.0.0.1:${dead}`);
             expect(result.ms).toBeLessThan(QUICKLY_MS);
             expect(received()).toEqual([]);
+            // and it says that the proxy refused the connection, not the tenant
+            expect(result.output).toContain(
+              `The proxy 127.0.0.1:${dead} refused the connection (ECONNREFUSED); the request was for an HTTPS target.`
+            );
+            expect(result.output).toContain(
+              ERROR_CODE_HINTS.PROXY_CONNECTION_REFUSED
+            );
           });
         }
       );
