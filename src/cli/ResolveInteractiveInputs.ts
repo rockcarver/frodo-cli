@@ -44,9 +44,9 @@
  */
 
 import fs from 'fs';
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import type { Command, Option } from 'commander';
-import { loginInPass } from '../ops/AuthenticateOps';
+import { reportLoginFailure, tryLoginInPass } from '../ops/AuthenticateOps';
 import { printMessage, successMessage, verboseMessage } from '../utils/Console';
 import {
   armAuthoringPrint,
@@ -68,8 +68,20 @@ import {
 } from '../utils/interactive/ConnectionCredentials';
 import {
   connectionPage,
+  renderConnectionBusyFrame,
+  type ConnectionPageConfig,
+  type ConnectionPagePreviewExtra,
   type ConnectionPageRow,
 } from '../utils/interactive/ConnectionPagePrompt';
+import {
+  afterDone,
+  afterLogin,
+  connectionSnapshot,
+  failureSummary,
+  pageComplete,
+  type PageConnection,
+  type RealmRow,
+} from '../utils/interactive/ConnectionPageState';
 import {
   applicableCommandDefaults,
   optionMissingUserValue,
@@ -134,6 +146,7 @@ import { pathOptionOf } from '../utils/interactive/PathOptions';
 import {
   positionalIndex,
   positionalValue,
+  replacePositionalValue,
   setPositionalValue,
 } from '../utils/interactive/PositionalArgs';
 import {
@@ -151,10 +164,12 @@ import {
   type ReadyAnswer,
 } from '../utils/interactive/ReadyStep';
 import {
+  applyRealmRowChoice,
   noteRealmProvenance,
   noteRequiredInputPrompted,
+  realmForPreview,
   realmPickerApplies,
-  resolveRealmPick,
+  realmRowSetup,
 } from '../utils/interactive/RealmPickers';
 import {
   assertNoPendingSecrets,
@@ -163,6 +178,8 @@ import {
   failFirstPendingSecret,
 } from '../utils/interactive/SecretCollector';
 import { isSecretOption } from '../utils/interactive/SecretOptions';
+import { terminalFrameWidth } from '../utils/interactive/TerminalWidth';
+import { whileShowing } from '../utils/interactive/TransientFrame';
 import { guidedModeEnabled } from '../utils/SettingsStore';
 import { readStdinToEndSync } from '../utils/StdinSync';
 
@@ -187,6 +204,15 @@ export {
  * commander clones or nests commands.
  */
 const pendingMandatoryViolations = new WeakMap<Command, string[]>();
+
+/**
+ * The username and password the environment supplied when the pass began
+ * (FRODO_USERNAME, FRODO_PASSWORD, read by frodo-lib into its state). The pass
+ * writes the connection the user settled on into that same state when it logs
+ * in (record 0044), so the state no longer says where a value came from: the
+ * connection page, which is shown again after the login, asks this instead.
+ */
+let environmentConnection = { username: '', password: '' };
 
 /**
  * Whether the connection level (host/username/password) resolved for this
@@ -280,6 +306,10 @@ export async function resolveInteractiveInputs(
   // shell runs many): the login of the pass and the pickers it ran are this
   // command's own.
   resetPassLogin();
+  environmentConnection = {
+    username: state.getUsername() ?? '',
+    password: state.getPassword() ?? '',
+  };
   const violations = pendingMandatoryViolations.get(command) ?? [];
 
   if (!canPrompt()) {
@@ -557,14 +587,22 @@ function reconcileConnection(command: Command): void {
  */
 async function loginForPickers(command: Command): Promise<void> {
   await applyConnectionForPass(command);
-  const login = await loginInPass(loginTypesOf(command));
-  if (!login) endCommand(1);
-  recordPassLogin(login);
+  const attempt = await tryLoginInPass(loginTypesOf(command));
+  if ('error' in attempt) {
+    reportLoginFailure(attempt.error);
+    endCommand(1);
+  }
+  recordPassLogin(attempt.session);
 }
 
 /**
- * The realm picker (record 0001), run in the pass right after the login the
- * pass makes for it. A command the picker does not apply to makes no login here.
+ * The realm (record 0001): a row of the connection page (record 0046), run in
+ * the pass right after the login the pass makes for it. When the connection
+ * page was shown it has handled the realm already, with the login it made;
+ * when none was (a saved connection answered everything), the pass logs in
+ * here and, only if the system has several realms, shows the page with the
+ * resolved rows and the Realm row, so the host and the realm are on one screen.
+ * A command the realm does not apply to makes no login here.
  */
 async function resolveRealmStep(command: Command): Promise<void> {
   reconcileConnection(command);
@@ -580,7 +618,18 @@ async function resolveRealmStep(command: Command): Promise<void> {
     await loginForPickers(command);
   }
   if (!applies) return;
-  await resolveRealmPick(command, { inPass: true });
+  const realm = await realmRowSetup(command);
+  if (realm) {
+    const host = positionalValue(command, 'host') ?? state.getHost();
+    const rows = await connectionRowsFor(command, host, {
+      credentialRows: false,
+    });
+    await runConnectionPage(command, {
+      rows,
+      logsIn: true,
+      connected: { who: passLoginSession()?.subject, realm },
+    });
+  }
   notePassRealmPickDone();
 }
 
@@ -741,19 +790,24 @@ export function commandPreviewFor(command: Command): string | undefined {
  */
 function connectionPagePreview(
   command: Command,
-  rows: ConnectionPageRow[]
+  rows: ConnectionPageRow[],
+  extra: ConnectionPagePreviewExtra = {}
 ): string | undefined {
   const readiness = commandReadinessFor(command);
   if (!readiness) return undefined;
   const args = command.processedArgs;
   const committed = new Map<number, unknown>();
-  for (const row of rows) {
-    const index = positionalIndex(command, row.key);
-    if (args && index !== -1 && row.value) {
-      committed.set(index, args[index]);
-      args[index] = row.value;
+  const shadow = (name: string, value: string | undefined) => {
+    const index = positionalIndex(command, name);
+    if (args && index !== -1 && value) {
+      if (!committed.has(index)) committed.set(index, args[index]);
+      args[index] = value;
     }
-  }
+  };
+  for (const row of rows) shadow(row.key, row.value);
+  // the Realm row: the realm highlighted in its choice box, else the one chosen
+  const realm = extra.highlightedRealm ?? extra.realm;
+  shadow('realm', realm === undefined ? undefined : realmForPreview(realm));
   try {
     return renderCommandPreview(command, {
       ...readiness,
@@ -1378,24 +1432,54 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
   // be pure friction. No profile (new host, or host given as a URL with
   // nothing saved): prompt bare, so e.g. `frodo login <new-host>` and
   // `frodo conn save <new-host>` become fully interactive.
+  const ask = await credentialsToAsk(command);
+  if (!ask) return true;
+
+  // The connection PAGE is the only prompt for username and password.
+  // Rows carry the resolved current values + provenance (a username-only
+  // profile prefills the username row; env fallbacks show as "(from
+  // FRODO_USERNAME)" etc.); an empty commit on the masked password row
+  // keeps the stored value. The page opens on the first row without a
+  // value, its footer follows the rows, and Escape cancels the command:
+  // there is no second, unframed prompt behind it. When a realm picker may
+  // follow (record 0001), Done also logs in and the page carries the Realm
+  // row (record 0046).
+  await runConnectionPage(command, {
+    rows: await connectionRowsFor(command, ask.host, { credentialRows: true }),
+    logsIn: realmPickerApplies(command, { connectionPrompted: true }),
+  });
+  return true;
+}
+
+/**
+ * Whether the connection page has to ask for credentials: undefined when it
+ * does not, because a saved profile, a cached browser session, an explicit
+ * credential source or the environment answers (record 0031), else the host
+ * to ask them for.
+ * @param command the command that is being resolved
+ * @param hostOverride the host the page was edited to; the command's own host otherwise
+ */
+async function credentialsToAsk(
+  command: Command,
+  hostOverride?: string
+): Promise<{ host: string } | undefined> {
   const usernameNeeded =
     positionalIndex(command, 'username') !== -1 &&
     !positionalValue(command, 'username') &&
-    !state.getUsername() && // env fallback (FRODO_USERNAME)
+    !environmentConnection.username && // env fallback (FRODO_USERNAME)
     !hasExplicitCredentialSource(command);
   const passwordNeeded =
     positionalIndex(command, 'password') !== -1 &&
     !positionalValue(command, 'password') &&
-    !state.getPassword() && // env fallback (FRODO_PASSWORD)
+    !environmentConnection.password && // env fallback (FRODO_PASSWORD)
     !hasExplicitCredentialSource(command);
 
-  if (!usernameNeeded && !passwordNeeded) return true;
+  if (!usernameNeeded && !passwordNeeded) return undefined;
 
-  const host = positionalValue(command, 'host') ?? state.getHost();
-  if (!host) return true; // host unresolved; the action fails on it as before
+  const host =
+    hostOverride ?? positionalValue(command, 'host') ?? state.getHost();
+  if (!host) return undefined; // host unresolved; the action fails on it as before
 
-  let savedUsername: string | undefined;
-  let profileNote: string | undefined;
   try {
     const profile = await getConnectionProfileByHost(host);
     // frodo-lib will authenticate from the profile alone when it carries
@@ -1412,97 +1496,252 @@ async function resolveConnectionArgs(command: Command): Promise<boolean> {
         forcesUserLogin(command)
       )
     ) {
-      return true;
+      return undefined;
     }
-    savedUsername = profile.username ?? undefined;
-    profileNote = profile.alias
-      ? `from profile ${profile.alias}`
-      : 'from profile';
   } catch {
     // No profile for this host (or unreadable): a fresh browser session
     // cached for it still completes the connection (record 0031); otherwise
     // fall through to prompts.
-    if (!forcesUserLogin(command) && hasCachedBrowserSession(host)) return true;
+    if (!forcesUserLogin(command) && hasCachedBrowserSession(host)) {
+      return undefined;
+    }
   }
+  return { host };
+}
 
-  // The connection PAGE is the only prompt for username and password.
-  // Rows carry the resolved current values + provenance (a username-only
-  // profile prefills the username row; env fallbacks show as "(from
-  // FRODO_USERNAME)" etc.); an empty commit on the masked password row
-  // keeps the stored value. The page opens on the first row without a
-  // value, its footer follows the rows, and Escape cancels the command:
-  // there is no second, unframed prompt behind it.
-  const result = await connectionPage({
-    message: 'Connection:',
-    preview: (rows) => connectionPagePreview(command, rows),
-    rows: [
-      {
-        key: 'host',
-        label: 'host',
-        value: host,
-        note: profileNote ?? undefined,
-      },
-      {
-        key: 'username',
-        label: 'username',
-        // state.getUsername() is '' (not undefined) when nothing set it, so
-        // `||` is what falls through to the saved profile's username.
-        value:
-          positionalValue(command, 'username') ??
-          (state.getUsername() || savedUsername),
-        note: state.getUsername()
-          ? 'from FRODO_USERNAME'
-          : (profileNote ?? undefined),
-      },
-      {
-        key: 'password',
-        label: 'password',
-        value: positionalValue(command, 'password') ?? state.getPassword(),
-        note: state.getPassword()
-          ? 'from FRODO_PASSWORD'
-          : (profileNote ?? undefined),
-      },
-    ],
-    onHostChange: async (newHost) => {
-      setPositionalValue(command, 'host', newHost);
-      // Re-resolve the credential rows' profile context for the new host
-      // (the lookup keys on the host).
-      let note: string | undefined;
-      let savedUser: string | undefined;
-      try {
-        const profile = await getConnectionProfileByHost(newHost);
-        note = profile.alias ? `from profile ${profile.alias}` : 'from profile';
-        savedUser = profile.username ?? undefined;
-      } catch {
-        note = undefined;
-      }
-      return [
-        { key: 'host', label: 'host', value: newHost, note },
-        {
-          key: 'username',
-          label: 'username',
-          value: positionalValue(command, 'username') ?? savedUser,
-          note,
-        },
-        {
-          key: 'password',
-          label: 'password',
-          value: undefined,
-          note,
-        },
-      ];
-    },
-  });
-  if (result === EXIT_ALL) {
-    // Exit-all unwinds the whole interactive resolution -- no fallback
-    // prompts, the command does not run. THROW: the session ends (the
-    // signal travels through the resolver, the preAction hook chain and
-    // the action body to app.ts's top-level catch).
-    throw EXIT_ALL_SIGNAL;
+/**
+ * The rows of the connection page for `host`: the host with the profile it
+ * names, and, when the connection has to be asked for, the username and the
+ * password with what the environment and the profile already know.
+ * @param command the command that is being resolved
+ * @param host the host the page shows
+ * @param options.credentialRows show the username and password rows. A page that
+ *   was opened for the credentials always does; one opened for the realm
+ *   shows them only when the host needs them (a host that was edited on it)
+ */
+async function connectionRowsFor(
+  command: Command,
+  host: string | undefined,
+  options: { credentialRows: boolean }
+): Promise<ConnectionPageRow[]> {
+  let savedUsername: string | undefined;
+  let profileNote: string | undefined;
+  if (host) {
+    try {
+      const profile = await getConnectionProfileByHost(host);
+      savedUsername = profile.username ?? undefined;
+      profileNote = profile.alias
+        ? `from profile ${profile.alias}`
+        : 'from profile';
+    } catch {
+      // no profile for this host
+    }
   }
-  if (result.username) setPositionalValue(command, 'username', result.username);
-  if (result.password) setPositionalValue(command, 'password', result.password);
-  return true;
+  const rows: ConnectionPageRow[] = [
+    { key: 'host', label: 'host', value: host, note: profileNote },
+  ];
+  if (!options.credentialRows) return rows;
+  rows.push(
+    {
+      key: 'username',
+      label: 'username',
+      // the username of the environment is '' (not undefined) when nothing set
+      // it, so `||` is what falls through to the saved profile's username.
+      value:
+        positionalValue(command, 'username') ??
+        (environmentConnection.username || savedUsername),
+      note: environmentConnection.username
+        ? 'from FRODO_USERNAME'
+        : (profileNote ?? undefined),
+    },
+    {
+      key: 'password',
+      label: 'password',
+      value:
+        positionalValue(command, 'password') ?? environmentConnection.password,
+      note: environmentConnection.password
+        ? 'from FRODO_PASSWORD'
+        : (profileNote ?? undefined),
+    }
+  );
+  return rows;
+}
+
+/** What the connection page of a pass starts from. */
+type ConnectionPageStart = {
+  rows: ConnectionPageRow[];
+  /** Done logs in when the page is complete: a realm picker may follow (record 0001). */
+  logsIn: boolean;
+  /** The pass logged in already and found a realm to choose: the page opens connected, with the Realm row. */
+  connected?: { who?: string; realm: RealmRow };
+};
+
+/** Writes the rows the user settled on into the positionals of the command. */
+function writeRowsToCommand(command: Command, rows: ConnectionPageRow[]): void {
+  for (const row of rows) {
+    if (row.value) replacePositionalValue(command, row.key, row.value);
+  }
+}
+
+/**
+ * The connection page (record 0046), until the pass can go on. The page is a
+ * prompt, and a prompt must not be open while the login runs (a second factor
+ * reads the terminal itself), so this is a loop of openings:
+ *
+ * - Done on a complete page that logs in closes the page, draws its frame again
+ *   with "Logging in..." (TransientFrame.ts: whatever the login prints, a second
+ *   factor, a browser URL, takes the frame away first), logs in, and opens the
+ *   page again with the outcome;
+ * - with several realms the page opens with "Connected as ..." and the Realm row
+ *   and stays until Done is pressed again; with one realm (or none that can be
+ *   read) it concludes at once, no second press;
+ * - a failed login opens the page once more to show the failure, and any of
+ *   Enter and Escape closes it: the error and its hint are printed and the
+ *   command ends with exit code 1, no retry loop;
+ * - an edit to the host or a credential after the login drops the session and
+ *   the realm choice (the page does that on its own), and the next Done logs in
+ *   again;
+ * - Escape cancels the command: nothing runs, nothing is printed, exit code 0.
+ *
+ * A page that does not log in (no realm picker can follow, or it is not
+ * complete) concludes on Done as it always did.
+ */
+async function runConnectionPage(
+  command: Command,
+  start: ConnectionPageStart
+): Promise<void> {
+  let rows = start.rows;
+  // the page shows the credential rows once any host it was edited to needs them
+  let credentialRows = rows.some((row) => row.key !== 'host');
+  let connected: PageConnection | undefined = start.connected
+    ? { who: start.connected.who, snapshot: connectionSnapshot(rows) }
+    : undefined;
+  let realm: RealmRow | undefined = start.connected?.realm;
+  let realmChoice: string | undefined;
+  const onHostChange = async (
+    newHost: string
+  ): Promise<ConnectionPageRow[]> => {
+    // Re-resolve the credential rows' profile context for the new host
+    // (the lookup keys on the host). The command gets the host when the page
+    // concludes (writeRowsToCommand).
+    credentialRows =
+      credentialRows || !!(await credentialsToAsk(command, newHost));
+    const updated = await connectionRowsFor(command, newHost, {
+      credentialRows,
+    });
+    // the password typed for the old host is not the new host's
+    return updated.map((row) =>
+      row.key === 'password' ? { ...row, value: undefined } : row
+    );
+  };
+  for (;;) {
+    const config: ConnectionPageConfig = {
+      message: 'Connection:',
+      preview: (
+        shown: ConnectionPageRow[],
+        extra: ConnectionPagePreviewExtra
+      ) => connectionPagePreview(command, shown, extra),
+      rows,
+      onHostChange,
+      logsIn: start.logsIn,
+      connected,
+      realm,
+      realmChoice,
+      // the key the realm picker had, now that the realm is asked here
+      hint: realm ? editableOptionsHint(command) : undefined,
+    };
+    const result = await connectionPage(config);
+    if (result === EXIT_ALL) {
+      // Exit-all unwinds the whole interactive resolution -- no fallback
+      // prompts, the command does not run. THROW: the session ends (the
+      // signal travels through the resolver, the preAction hook chain and
+      // the action body to app.ts's top-level catch).
+      throw EXIT_ALL_SIGNAL;
+    }
+    rows = result.rows;
+    writeRowsToCommand(command, rows);
+    if (result.openEditor) {
+      // → on the page: the invocation editor, then the page again with what was chosen
+      await runInvocationEditor(command);
+      if (connected && connectionChangedSinceApply(command)) {
+        // the editor changed who logs in to what: the session is not for these options
+        connected = undefined;
+        realm = undefined;
+        realmChoice = undefined;
+      } else {
+        realmChoice = result.realm;
+      }
+      continue;
+    }
+    const stillConnected =
+      connected !== undefined &&
+      connected.snapshot === connectionSnapshot(rows);
+    if (
+      afterDone({
+        logsIn: start.logsIn,
+        complete: pageComplete(rows),
+        connected: stillConnected,
+      }) === 'conclude'
+    ) {
+      if (stillConnected && realm) {
+        applyRealmRowChoice(command, realm, result.realm);
+        notePassRealmPickDone();
+      }
+      return;
+    }
+
+    // Done on a complete page: the login runs on the page. A login of this
+    // pass that was made for other rows (the page dropped it when they changed)
+    // is forgotten, and the pass logs in again.
+    reconcileConnection(command);
+    const attempt = await loginOnPage(command, config, rows);
+    if ('error' in attempt) {
+      const message =
+        attempt.error instanceof FrodoError
+          ? attempt.error.getCombinedMessage()
+          : attempt.error instanceof Error
+            ? attempt.error.message
+            : String(attempt.error);
+      await connectionPage({
+        ...config,
+        rows,
+        connected: undefined,
+        realm: undefined,
+        failure: failureSummary(message),
+      });
+      reportLoginFailure(attempt.error);
+      endCommand(1);
+    }
+    recordPassLogin(attempt.session);
+    realm = await realmRowSetup(command);
+    if (afterLogin(realm !== undefined) === 'conclude') {
+      notePassRealmPickDone();
+      return;
+    }
+    connected = {
+      who: attempt.session.subject,
+      snapshot: connectionSnapshot(rows),
+    };
+  }
+}
+
+/**
+ * Logs in for the connection page: the frame of the page stays on the screen
+ * with "Logging in..." while the login runs, and is gone when it is over or as
+ * soon as the login prints or asks for something.
+ */
+async function loginOnPage(
+  command: Command,
+  config: ConnectionPageConfig,
+  rows: ConnectionPageRow[]
+) {
+  return whileShowing(
+    renderConnectionBusyFrame(config, rows, terminalFrameWidth()),
+    async () => {
+      await applyConnectionForPass(command);
+      return tryLoginInPass(loginTypesOf(command));
+    }
+  );
 }
 
 /**
