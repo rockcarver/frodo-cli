@@ -24,7 +24,7 @@ export type ReadyAnswer = 'run' | 'edit' | 'cancel';
 /**
  * Whether the Ready step is asked: only when the resolution pass itself put at
  * least one prompt on the screen. A complete command line renders none, so it
- * never sees the step (record 0030); neither does a run that may not prompt.
+ * never sees the step (record 0047); neither does a run that may not prompt.
  * @param promptsBefore prompts rendered in the process when the pass began
  * @param promptsAfter prompts rendered in the process when the pass ended
  * @returns true when the pass rendered a prompt

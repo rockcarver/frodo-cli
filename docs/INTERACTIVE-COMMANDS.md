@@ -102,11 +102,12 @@ FRODO_USERNAME`). The page is the only prompt for them: it opens on the
    code 0 (the exit-all signal), also when the pass has logged in already. A
    pass that rendered nothing never asks it: a complete command line, a
    script, `--no-prompt`, `FRODO_NO_PROMPT` and a run without a terminal behave
-   as before (record 0030) and never log in in the pass. A sub-command picked
-   in a container's picker before the pass does not count; the prompts of the
-   pass do, the pickers of steps 3 and 6 among them, and so does the editor
-   opened by `--prompt`. Nothing prompts after Run except the command's own
-   prompts (the confirmation of a bulk delete, record 0037). **Edit options**
+   as without interactive mode (records 0014 and 0047) and never log in in the
+   pass. A sub-command picked in a container's picker before the pass does not
+   count; the prompts of the pass do, the pickers of steps 3 and 6 among them,
+   and so does the editor opened by `--prompt`. Nothing prompts after Run
+   except the command's own prompts (the confirmation of a bulk delete, record
+   0037). **Edit options**
    keeps the login and the picks unless it changed who logs in to what (the
    host, the credentials, an option of the Authentication or Connection
    groups): then they are dropped and the pickers log in and ask again, with
@@ -164,7 +165,7 @@ steps above run, so everything this pass writes goes through `commitOption`
   one the user chose in the one-of picker, and never replaces the first answer
   with a second. It is also not offered when another member of its `requireOneOf`
   group is given, even one that does not conflict with it (`frodo agent export -g`
-  does not ask for `-i`), because the command line is complete (record 0030).
+  does not ask for `-i`), because the command line is complete (record 0047).
   A group that needs every member (`requireAllOf`) does not answer for its
   members.
 - After the pass, `assertNoConflicts` fails with commander's text if anything
@@ -310,7 +311,7 @@ its own, and its Enter says `next`:
   holds: the command line has to be incomplete anyway (a host or other
   connection input was asked for), and a realm that was named opens nothing.
   `frodo config export -ar <connection>` and the other complete lines never
-  prompt, as before ([record 0030](decisions/0030-interactive-mode-never-prompts-for-what-4x-accepted.md)).
+  prompt ([record 0047](decisions/0047-the-interactive-prompting-framework-never-changes-a-complete-command-line-and-is-invisible-when-it-is-off.md)).
   `test/unit/RealmPickerOptionDeclarations.test.js` lists the commands that
   declare it.
 
@@ -561,7 +562,7 @@ themselves. This is
 how a picker is asked for on a command whose entity option is an optional
 filter (the family lists such commands in `onRequest`, see
 `EntityPickRegistry.ts`): the command line is complete without it, so
-record 0030 keeps the picker from opening on its own, and it opens on request,
+record 0047 keeps the picker from opening on its own, and it opens on request,
 after the host is chosen and the login the pass makes for it. Unmarking
 the option forgets the request, and a value typed instead replaces it. Opening or closing the editor
 scrubs the readline buffer (replaying its own ctrl+u binding) — the
@@ -589,7 +590,7 @@ committed, for each path option marked there (marking one again, after it was
 unmarked, asks for it again), starting from the option's value; the value box
 of the editor, which takes text, is not used for a path option. A complete
 command line, an optional `-f` or `-D` that was left out, `--no-prompt`,
-`FRODO_NO_PROMPT` and a run without a terminal open nothing (record 0030).
+`FRODO_NO_PROMPT` and a run without a terminal open nothing (record 0047).
 
 **Which options.** `PathOptions.ts` (zero-import) classifies them by long name,
 with overrides per command (`config-manager pull saml --file`): a **file** or a

@@ -45,7 +45,7 @@
  * option that conflicts with its own is set (whoever set it: typed, chosen in
  * the one-of picker, a saved default, or an earlier pick of the run, so an id
  * and a name are asked for once), or when another member of its one-of group
- * is given or was chosen in the resolution pass (record 0030).
+ * is given or was chosen in the resolution pass (record 0047).
  *
  * Escape backs out of a picker without setting anything -- callers treat
  * that as "declined to run" and return (same shape as a failed
@@ -286,7 +286,7 @@ export async function resolveFamilyEntityPicks(
  * answer is enough; only the options that narrow the list are not in the way,
  * the pick replaces them), or when a member of its one-of group answers the
  * group already (`-g` of `agent export`, or a member chosen in the pass whose
- * own pick comes later: the command line is complete, record 0030).
+ * own pick comes later: the command line is complete, record 0047).
  */
 function whyNotOffered(
   command: Command,

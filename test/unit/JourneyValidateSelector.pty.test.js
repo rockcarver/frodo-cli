@@ -212,7 +212,7 @@ suite('journey validate, with the selector on the command line', () => {
     });
   }
 
-  // record 0030: a complete command line never opens a prompt
+  // record 0047: a complete command line never opens a prompt
   test('-a opens neither the menu nor a picker', () => {
     const { plain } = validateWith(['-a']).captures.after;
     expect(plain).not.toContain('Choose which journeys to validate');
@@ -227,7 +227,7 @@ suite('journey validate, with the selector on the command line', () => {
     expect(plain).toContain("journey 'zion-login'");
   });
 
-  test('-i and -a together, which 4.x accepted, still open nothing', () => {
+  test('-i and -a together, which the command accepts, still open nothing', () => {
     const { plain } = validateWith(['-i', 'zion-login', '-a']).captures.after;
     expect(plain).not.toContain('Select journey to act on');
   });
