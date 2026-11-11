@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
+import { getOneOfGroups } from '../../src/cli/ResolveInteractiveInputs.ts';
 import {
   extractExamples,
   fullName,
@@ -38,6 +39,31 @@ const names = (group) =>
     .filter((name) => name !== 'help')
     .sort();
 const flagsOf = (command) => command.options.map((option) => option.flags);
+/** Everything about a command that a script can depend on: arguments, options and their rules. */
+const contractOf = (command) => ({
+  description: command.description(),
+  args: command.registeredArguments.map((a) => ({
+    name: a.name(),
+    required: a.required,
+    description: a.description,
+  })),
+  options: command.options.map((option) => ({
+    flags: option.flags,
+    description: option.description,
+    defaultValue: option.defaultValue,
+    defaultValueDescription: option.defaultValueDescription,
+    mandatory: option.mandatory,
+    negate: option.negate,
+    conflictsWith: option.conflictsWith,
+  })),
+  oneOf: getOneOfGroups(command).map((group) => ({
+    options: group.options,
+    all: group.all,
+    purpose: group.purpose,
+  })),
+});
+const verbOf = (group, verb) =>
+  group.commands.find((command) => command.name() === verb);
 /** What the help says a command is: its description, with the stability badge in front (an option may carry a badge of its own). */
 const descriptionOf = (command) => renderFullHelp(command).split('\n\n')[1];
 
@@ -46,6 +72,12 @@ describe('the root group frodo aiagent', () => {
     expect(aiagent).toBeDefined();
     expect(aiagent.description()).toBe('Manage AI agents.');
     expect(names(aiagent)).toEqual(VERBS);
+  });
+
+  it('requires -f or -A for import: -i and -a only narrow what -f reads', () => {
+    expect(
+      getOneOfGroups(verbOf(aiagent, 'import')).map((group) => group.options)
+    ).toEqual([['file', 'allSeparate']]);
   });
 
   it('is not deprecated, and neither are its commands', () => {
@@ -74,19 +106,59 @@ describe('the root group frodo aiagent', () => {
 });
 
 describe('the deprecated group frodo agent ai', () => {
-  it('stays registered under agent, with the same commands and options as frodo aiagent', () => {
+  it('stays registered under agent, with the same commands as frodo aiagent', () => {
     expect(agentAi).toBeDefined();
     expect(names(agentAi)).toEqual(VERBS);
     for (const verb of VERBS) {
-      const old = agentAi.commands.find((command) => command.name() === verb);
-      const current = aiagent.commands.find(
-        (command) => command.name() === verb
+      expect(flagsOf(verbOf(agentAi, verb))).toEqual(
+        flagsOf(verbOf(aiagent, verb))
       );
-      expect(flagsOf(old)).toEqual(flagsOf(current));
-      expect(old.description()).toBe(current.description());
-      expect(old.registeredArguments.map((a) => a.name())).toEqual(
-        current.registeredArguments.map((a) => a.name())
+    }
+  });
+
+  it('is frozen: every argument, option, default, conflict and rule is the same as in frodo aiagent, except the rule of import', () => {
+    for (const verb of VERBS.filter((verb) => verb !== 'import')) {
+      expect(contractOf(verbOf(agentAi, verb))).toEqual(
+        contractOf(verbOf(aiagent, verb))
       );
+    }
+    const { oneOf: oldRule, ...oldRest } = contractOf(
+      verbOf(agentAi, 'import')
+    );
+    const { oneOf: newRule, ...newRest } = contractOf(
+      verbOf(aiagent, 'import')
+    );
+    expect(oldRest).toEqual(newRest);
+    expect(oldRule).not.toEqual(newRule);
+  });
+
+  it('keeps the original rule of import: any of -i, -a, -A and -f satisfies it', () => {
+    expect(
+      getOneOfGroups(verbOf(agentAi, 'import')).map((group) => group.options)
+    ).toEqual([['agentId', 'all', 'allSeparate', 'file']]);
+  });
+
+  it('keeps the original options of the other commands', () => {
+    expect(flagsOf(verbOf(agentAi, 'export'))).toEqual(
+      expect.arrayContaining([
+        '-i, --agent-id <agent-id>',
+        '-f, --file <file>',
+        '-a, --all',
+        '-A, --all-separate',
+        '-N, --no-metadata',
+      ])
+    );
+    expect(
+      getOneOfGroups(verbOf(agentAi, 'export')).map((group) => group.options)
+    ).toEqual([['agentId', 'all', 'allSeparate']]);
+    expect(
+      getOneOfGroups(verbOf(agentAi, 'delete')).map((group) => group.options)
+    ).toEqual([['agentId', 'all']]);
+  });
+
+  it('has no usage examples, as it never had', () => {
+    for (const leaf of leafCommands(agentAi)) {
+      expect(extractExamples(renderFullHelp(leaf))).toEqual([]);
     }
   });
 

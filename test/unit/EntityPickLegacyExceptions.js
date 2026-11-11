@@ -22,6 +22,7 @@
  */
 export const ENTITY_OPTIONS_THAT_NAME_NO_EXISTING_ENTITY = [
   'frodo admin federation import::idpId',
+  'frodo agent ai import::agentId',
   'frodo agent gateway import::agentId',
   'frodo agent import::agentId',
   'frodo agent java import::agentId',

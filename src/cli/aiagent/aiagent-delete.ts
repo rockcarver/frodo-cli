@@ -11,7 +11,11 @@ import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-export default function setup() {
+/**
+ * @param legacy true for `frodo agent ai`, the deprecated path, which stays exactly as it was in 4.x
+ * (cli#1271): no usage examples, and the original options of the commands
+ */
+export default function setup(legacy = false) {
   const program = new FrodoCommand('frodo aiagent delete');
 
   program
@@ -36,16 +40,6 @@ export default function setup() {
     )
     .requireOneOf({ options: ['agentId', 'all'], purpose: 'what to delete' })
     .multiOp()
-    .addHelpText(
-      'after',
-      `Usage Examples:\n` +
-        `  Delete the AI agent '${s.aiAgentId}' and log in with AM base URL, realm, username and password:\n` +
-        c.command(
-          `  $ frodo aiagent delete -i ${s.aiAgentId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
-        ) +
-        `  Delete all AI agents of the realm without asking, using a connection profile:\n` +
-        c.command(`  $ frodo aiagent delete -a -y ${s.connId}\n`)
-    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -103,6 +97,20 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  // the deprecated path has none, as it never had
+  if (!legacy) {
+    program.addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Delete the AI agent '${s.aiAgentId}' and log in with AM base URL, realm, username and password:\n` +
+        c.command(
+          `  $ frodo aiagent delete -i ${s.aiAgentId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        ) +
+        `  Delete all AI agents of the realm without asking, using a connection profile:\n` +
+        c.command(`  $ frodo aiagent delete -a -y ${s.connId}\n`)
+    );
+  }
 
   return program;
 }

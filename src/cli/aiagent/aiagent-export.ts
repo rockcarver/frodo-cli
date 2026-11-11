@@ -10,7 +10,11 @@ import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-export default function setup() {
+/**
+ * @param legacy true for `frodo agent ai`, the deprecated path, which stays exactly as it was in 4.x
+ * (cli#1271): no usage examples, and the original options of the commands
+ */
+export default function setup(legacy = false) {
   const program = new FrodoCommand('frodo aiagent export');
 
   program
@@ -36,7 +40,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all AI agents to separate files (*.ai.agent.json) in the current directory. Cannot be used with -i, -f or -a.'
+        'Export all AI agents to separate files (*.aiagent.json) in the current directory. Cannot be used with -i, -f or -a.'
       ).conflicts(['agentId', 'file', 'all'])
     )
     .addOption(
@@ -50,22 +54,6 @@ export default function setup() {
       purpose: 'what to export',
     })
     .multiOp()
-    .addHelpText(
-      'after',
-      `Usage Examples:\n` +
-        `  Export the AI agent '${s.aiAgentId}' to a file and log in with AM base URL, realm, username and password:\n` +
-        c.command(
-          `  $ frodo aiagent export -i ${s.aiAgentId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
-        ) +
-        `  Export the AI agent '${s.aiAgentId}' to a named file using a connection profile:\n` +
-        c.command(
-          `  $ frodo aiagent export -i ${s.aiAgentId} -f ${s.aiAgentFile} ${s.connId}\n`
-        ) +
-        `  Export all AI agents to a single file:\n` +
-        c.command(`  $ frodo aiagent export -a ${s.connId}\n`) +
-        `  Export all AI agents to separate files in the current directory:\n` +
-        c.command(`  $ frodo aiagent export -A ${s.connId}\n`)
-    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -116,6 +104,26 @@ export default function setup() {
       }
       // end command logic inside action handler
     );
+
+  // the deprecated path has none, as it never had
+  if (!legacy) {
+    program.addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Export the AI agent '${s.aiAgentId}' to a file and log in with AM base URL, realm, username and password:\n` +
+        c.command(
+          `  $ frodo aiagent export -i ${s.aiAgentId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        ) +
+        `  Export the AI agent '${s.aiAgentId}' to a named file using a connection profile:\n` +
+        c.command(
+          `  $ frodo aiagent export -i ${s.aiAgentId} -f ${s.aiAgentFile} ${s.connId}\n`
+        ) +
+        `  Export all AI agents to a single file:\n` +
+        c.command(`  $ frodo aiagent export -a ${s.connId}\n`) +
+        `  Export all AI agents to separate files in the current directory:\n` +
+        c.command(`  $ frodo aiagent export -A ${s.connId}\n`)
+    );
+  }
 
   return program;
 }

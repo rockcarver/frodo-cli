@@ -8,22 +8,24 @@ import ListCmd from './aiagent-list.js';
 /**
  * The AI agent commands. `frodo agent ai` is registered from the same factory
  * (src/cli/agent/agent-ai.ts) while it is deprecated, so a change here reaches
- * both paths.
+ * both paths, except where `legacy` says otherwise.
+ * @param legacy true when `frodo agent ai` registers the group: that path is
+ * frozen and its commands stay exactly as they were in 4.x (cli#1271)
  */
-export default function setup() {
+export default function setup(legacy = false) {
   const program = new FrodoStubCommand('aiagent');
 
   program.description('Manage AI agents.');
 
-  program.addCommand(ListCmd().name('list'));
+  program.addCommand(ListCmd(legacy).name('list'));
 
-  program.addCommand(DescribeCmd().name('describe'));
+  program.addCommand(DescribeCmd(legacy).name('describe'));
 
-  program.addCommand(ExportCmd().name('export'));
+  program.addCommand(ExportCmd(legacy).name('export'));
 
-  program.addCommand(ImportCmd().name('import'));
+  program.addCommand(ImportCmd(legacy).name('import'));
 
-  program.addCommand(DeleteCmd().name('delete'));
+  program.addCommand(DeleteCmd(legacy).name('delete'));
 
   return program;
 }

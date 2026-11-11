@@ -322,7 +322,7 @@ suite(
         );
 
         detail(
-          '-A writes a <id>.ai.agent.json file per AI agent, as its help says',
+          '-A writes a <id>.ai.agent.json file per AI agent',
           async () => {
             await startTenant();
 
@@ -443,23 +443,59 @@ suite(
           TIMEOUT
         );
 
-        it(
-          '-i or -a without -f is rejected before anything is sent: the import needs a file or -A',
-          async () => {
-            await startTenant();
+        // The one difference between the two groups (cli#1271): frodo aiagent needs
+        // -f or -A, frodo agent ai is frozen and takes any of the four options.
+        if (commandPath[0] === 'aiagent') {
+          it(
+            '-i or -a without -f is rejected before anything is sent: the import needs a file or -A',
+            async () => {
+              await startTenant();
 
-            for (const args of [['-i', 'oracle-assistant'], ['-a'], []]) {
-              const { status, output } = frodo(['import', ...args]);
+              for (const args of [['-i', 'oracle-assistant'], ['-a'], []]) {
+                const { status, output } = frodo(['import', ...args]);
+
+                expect(output).toContain(
+                  'one of -f, --file <file> | -A, --all-separate is required'
+                );
+                expect(status).toBe(1);
+              }
+              expect(requests()).toEqual([]);
+            },
+            TIMEOUT
+          );
+        } else {
+          it(
+            '-i or -a without -f is not refused by the rule of the command: it goes on to the login, as in 4.x',
+            async () => {
+              await startTenant();
+
+              for (const args of [['-i', 'oracle-assistant'], ['-a']]) {
+                const before = requests().length;
+                frodo(['import', ...args]);
+
+                // the rule would have refused it before the first request
+                expect(requests().length).toBeGreaterThan(before);
+              }
+            },
+            TIMEOUT
+          );
+
+          it(
+            'no option at all is refused before the login by the original rule',
+            async () => {
+              await startTenant();
+
+              const { status, output } = frodo(['import']);
 
               expect(output).toContain(
-                'one of -f, --file <file> | -A, --all-separate is required'
+                'one of -i, --agent-id <agent-id> | -a, --all | -A, --all-separate | -f, --file <file> is required'
               );
               expect(status).toBe(1);
-            }
-            expect(requests()).toEqual([]);
-          },
-          TIMEOUT
-        );
+              expect(requests()).toEqual([]);
+            },
+            TIMEOUT
+          );
+        }
       });
 
       describe('delete', () => {
