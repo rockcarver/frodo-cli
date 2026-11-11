@@ -63,6 +63,19 @@ Every test file builds the environment for its subprocess with `getEnv(connectio
 | `classic_connection` | `classic` | Classic, AM-only |
 | `amster_connection` | `classic` | Classic with Amster authentication |
 
+**`TestConfig.js` holds no key** ([core 0013](../../docs/decisions/core/0013-secrets-are-never-exported-in-the-clear.md): none are committed). Replay never logs in for real and no recording matches on the key, so the service account JWK and the Amster private key are throwaway RSA pairs made when a test process starts. They have to be well formed, because the CLI signs a token with the JWK before the recording answers, and they are never written into the repository. The user, the password, the service account id and the hosts stay as the recordings and snapshots have them: `info` prints the user and the service account id, `conn-save` builds its test titles (and so its snapshot keys) from them, some tests look profiles up by host, and the recordings were made against those hosts. `test/unit/NoCredentialsInTests.test.js` fails on a PEM private key or the private members of a JWK in a test or tool source.
+
+Most recording passes need nothing from it, because `getEnv()` records with your saved profile (below). The few tests that log in with credentials they pass themselves, `info` (user and password on the command line, service account id and key) and `log-list` (key and secret), read them from your shell. Export them for the pass and leave them out of every file:
+
+| Variable | Replaces |
+| --- | --- |
+| `FRODO_TEST_USER` | the admin user of `connection` and `iga_connection` |
+| `FRODO_TEST_PASSWORD` | that user's password |
+| `FRODO_TEST_SA_ID` | the service account id |
+| `FRODO_TEST_SA_JWK` | the service account's private key, the JWK itself (`export FRODO_TEST_SA_JWK="$(cat key.jwk)"`) |
+
+A recorded `info` snapshot echoes the user and the service account id, and `conn-save` puts them in its titles, so read the snapshot diff before you commit it if your values differ from the committed ones. Never write a real key into a test, a header comment or `TestConfig.js`.
+
 `getEnv()` does the following, so a test file never has to:
 
 - **Connection and credentials.** In replay mode it sets `FRODO_HOST` and, as applicable, `FRODO_USERNAME`/`FRODO_PASSWORD`/`FRODO_SA_ID`/`FRODO_SA_JWK`/`FRODO_AMSTER_PRIVATE_KEY`, plus `FRODO_IGA`/`FRODO_PINGFED`/`FRODO_AUTHENTICATION_SERVICE` where the connection carries them. When recording, it leaves the credential variables unset and sets `FRODO_CONNECTION` (the name of your own saved connection profile) instead, so the run uses your real credentials.
