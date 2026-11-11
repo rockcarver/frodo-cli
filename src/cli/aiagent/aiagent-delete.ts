@@ -1,16 +1,18 @@
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import * as s from '../../help/SampleData';
 import { deleteAIAgent, deleteAIAgents } from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
+import c from '../../utils/ColorTheme';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo agent ai delete');
+  const program = new FrodoCommand('frodo aiagent delete');
 
   program
     .description('Delete AI agents.')
@@ -34,6 +36,16 @@ export default function setup() {
     )
     .requireOneOf({ options: ['agentId', 'all'], purpose: 'what to delete' })
     .multiOp()
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Delete the AI agent '${s.aiAgentId}' and log in with AM base URL, realm, username and password:\n` +
+        c.command(
+          `  $ frodo aiagent delete -i ${s.aiAgentId} ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+        ) +
+        `  Delete all AI agents of the realm without asking, using a connection profile:\n` +
+        c.command(`  $ frodo aiagent delete -a -y ${s.connId}\n`)
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

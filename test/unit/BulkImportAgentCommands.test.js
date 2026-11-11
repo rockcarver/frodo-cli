@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
 /**
- * The five agent import commands (`agent import`, `agent ai import`,
+ * The five agent import commands (`agent import`, `aiagent import`,
  * `agent gateway import`, `agent java import`, `agent web import`) as record
  * 0040 asks of a command that imports several items: each one adds the shared
  * `--allow-failures` option (`.multiOp()`), hands its value to the ops function
@@ -67,6 +67,10 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     }
   },
 }));
+// the colour theme reads the terminal theme of the library
+jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
+  default: new Proxy({}, { get: () => (text) => text }),
+}));
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
 }));
@@ -78,35 +82,35 @@ jest.unstable_mockModule('../../src/ops/AgentOps', () => ops);
 const COMMANDS = [
   {
     name: 'agent import',
-    file: 'agent-import',
+    file: 'agent/agent-import',
     toFile: 'importAgentsFromFile',
     toFiles: 'importAgentsFromFiles',
     first: 'importFirstAgentFromFile',
   },
   {
-    name: 'agent ai import',
-    file: 'agent-ai-import',
+    name: 'aiagent import',
+    file: 'aiagent/aiagent-import',
     toFile: 'importAIAgentsFromFile',
     toFiles: 'importAIAgentsFromFiles',
     first: 'importFirstAIAgentFromFile',
   },
   {
     name: 'agent gateway import',
-    file: 'agent-gateway-import',
+    file: 'agent/agent-gateway-import',
     toFile: 'importIdentityGatewayAgentsFromFile',
     toFiles: 'importIdentityGatewayAgentsFromFiles',
     first: 'importFirstIdentityGatewayAgentFromFile',
   },
   {
     name: 'agent java import',
-    file: 'agent-java-import',
+    file: 'agent/agent-java-import',
     toFile: 'importJavaAgentsFromFile',
     toFiles: 'importJavaAgentsFromFiles',
     first: 'importFirstJavaAgentFromFile',
   },
   {
     name: 'agent web import',
-    file: 'agent-web-import',
+    file: 'agent/agent-web-import',
     toFile: 'importWebAgentsFromFile',
     toFiles: 'importWebAgentsFromFiles',
     first: 'importFirstWebAgentFromFile',
@@ -115,7 +119,7 @@ const COMMANDS = [
 
 const setups = {};
 for (const c of COMMANDS) {
-  setups[c.file] = (await import(`../../src/cli/agent/${c.file}`)).default;
+  setups[c.file] = (await import(`../../src/cli/${c.file}`)).default;
 }
 
 /** Runs the action of the command as commander does, with the given options. */

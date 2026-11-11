@@ -39,7 +39,7 @@ Options:
                              usage examples.
 
 Rule:
-  one of -i, --agent-id <agent-id> | -a, --all | -A, --all-separate | -f, --file <file> is required -- choose what to import
+  one of -f, --file <file> | -A, --all-separate is required -- choose what to import
 
 "
 `;

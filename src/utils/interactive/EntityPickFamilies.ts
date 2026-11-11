@@ -140,12 +140,14 @@ export function registerEntityPickFamilies(): void {
   const byAgentId = (a: AgentSkeleton, b: AgentSkeleton) =>
     (a._id ?? '').localeCompare(b._id ?? '');
 
+  const aiAgents = {
+    group: 'ai',
+    kind: 'AI agent',
+    read: () => frodo.agent.readAIAgents(),
+  };
+
   const typedAgents = [
-    {
-      group: 'ai',
-      kind: 'AI agent',
-      read: () => frodo.agent.readAIAgents(),
-    },
+    aiAgents,
     {
       group: 'gateway',
       kind: 'identity gateway agent',
@@ -183,9 +185,20 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  for (const { group, kind, read } of typedAgents) {
+  // The AI agents are also a root group of their own (`frodo aiagent`), and
+  // `frodo agent ai` stays registered from the same commands while it is
+  // deprecated: both paths get the same picks.
+  const typedFamilies = [
+    ...typedAgents.map((typed) => ({
+      ...typed,
+      family: `agent ${typed.group}`,
+    })),
+    { ...aiAgents, family: 'aiagent' },
+  ];
+
+  for (const { family, kind, read } of typedFamilies) {
     registerEntityPickFamily({
-      family: `agent ${group}`,
+      family,
       except: ['describe'],
       picks: [
         entityPick<AgentSkeleton>({

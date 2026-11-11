@@ -12,7 +12,7 @@ import {
 
 /**
  * Decision record 0040 for the bulk deletes of agents: `agent delete -a`,
- * `agent ai delete -a`, `agent gateway delete -a`, `agent java delete -a` and
+ * `aiagent delete -a`, `agent gateway delete -a`, `agent java delete -a` and
  * `agent web delete -a`. The library reports every agent to a result callback
  * (a deleted one as a result, a failed one as an error that names it) and
  * throws only when it cannot read the agents. When one delete fails, the others
@@ -71,7 +71,7 @@ const CASES = [
     what: 'agents',
   },
   {
-    name: 'agent ai delete -a',
+    name: 'aiagent delete -a',
     fn: 'deleteAIAgents',
     del: 'deleteAIAgents',
     what: 'AI agents',
