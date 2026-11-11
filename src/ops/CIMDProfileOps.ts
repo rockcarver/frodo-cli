@@ -264,7 +264,10 @@ export async function describeCIMDProfile(
     printMessage(table.toString(), 'data');
     return true;
   } catch (error) {
-    printError(error, `Error describing CIMD profile ${agentId}`);
+    printError(
+      error,
+      agentId ? `Error describing CIMD profile ${agentId}` : undefined
+    );
   }
   return false;
 }

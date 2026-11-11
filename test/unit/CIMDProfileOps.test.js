@@ -632,6 +632,16 @@ describe('describeCIMDProfile', () => {
   });
 });
 
+describe('describeCIMDProfile with no id and a type check that fails', () => {
+  test('prints the error as it is, without naming a profile called undefined', async () => {
+    availabilityFailure = new Error('agent types unreadable');
+
+    expect(await describeCIMDProfile(undefined)).toBe(false);
+
+    expect(messages('error')).toEqual(['agent types unreadable']);
+  });
+});
+
 describe('reportCIMDProfilesUnavailable', () => {
   test('says nothing and answers false when the type is offered', async () => {
     expect(await reportCIMDProfilesUnavailable()).toBe(false);
