@@ -1,17 +1,21 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo script delete "frodo script delete --script-id e15a13ee-9168-40cf-934f-656a5f568a6a": should display error when the script with id 'e15a13ee-9168-40cf-934f-656a5f568a6a' cannot be deleted since it does not exist 1`] = `
-"✖ Error: Request failed with status code 404
-HTTP client error
-  Code: ERR_BAD_REQUEST
-  Status: 404
-  Message: Script with UUID e15a13ee-9168-40cf-934f-656a5f568a6a could not be found in realm /alpha
+"✖ Error: Error deleting alpha realm script e15a13ee-9168-40cf-934f-656a5f568a6a
+Error deleting alpha realm script e15a13ee-9168-40cf-934f-656a5f568a6a
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/e15a13ee-9168-40cf-934f-656a5f568a6a
+    Status: 404
+    Code: ERR_BAD_REQUEST
+    Reason: Not Found
+    Message: Script with UUID e15a13ee-9168-40cf-934f-656a5f568a6a could not be found in realm /alpha
 "
 `;
 
 exports[`frodo script delete "frodo script delete --script-name 'hashdeviceProfile'": should display error when the script named 'hashdeviceProfile' cannot be deleted since it does not exist 1`] = `
-"✖ Error: Script with name hashdeviceProfile does not exist.
-Script with name hashdeviceProfile does not exist.
+"✖ Error: Error deleting alpha realm script hashdeviceProfile
+Error deleting alpha realm script hashdeviceProfile
+  Script with name hashdeviceProfile does not exist.
 "
 `;
 
