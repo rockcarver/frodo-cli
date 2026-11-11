@@ -84,6 +84,17 @@
  * request log by counting those.
  * FAKE_AM_LOGIN_DELAY_MS=<n> holds every authenticate answer for n ms, so a
  * terminal test can see what the CLI shows while a login is running.
+ * FAKE_AM_FAIL_REQUESTS='[{"method":"GET","path":"/realm-config/authentication"}]'
+ * makes every request with that method whose URL contains that path answer
+ * `500` with the message `fake tenant operation failed`. It is checked before
+ * every other route, after the request was recorded, so a test sees the failing
+ * request in the request log and the CLI sees a failed operation behind a login
+ * that worked.
+ * FAKE_AM_LOG_API_KEYS_FILE=<path> names a JSON array of log API keys
+ * (`api_key_id`, `name`) the fake serves as the log API key list (`GET /keys`)
+ * and one key (`GET /keys/<id>`), and it makes the fake answer the OAuth2
+ * authorize and access token calls a cloud login with a user name and password
+ * makes.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -107,6 +118,8 @@ const readJson = (file) =>
   file ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined;
 const issuer = readJson(process.env.FAKE_AM_ISSUER_FILE);
 const users = readJson(process.env.FAKE_AM_USERS_FILE);
+const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
+const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
@@ -174,7 +187,34 @@ const server = http.createServer((req, res) => {
         answer();
       }
     };
-    if (serviceAccountLogin && req.url.includes('/access_token')) {
+    if (
+      failRequests.some(
+        ({ method, path }) => req.method === method && req.url.includes(path)
+      )
+    ) {
+      return send(500, {
+        code: 500,
+        reason: 'Internal Server Error',
+        message: 'fake tenant operation failed',
+      });
+    }
+    if (logApiKeys && req.method === 'GET' && req.url === '/keys') {
+      return send(200, { result: logApiKeys });
+    }
+    if (logApiKeys && req.method === 'GET' && req.url.startsWith('/keys/')) {
+      const key = logApiKeys.find(
+        ({ api_key_id }) => req.url === `/keys/${api_key_id}`
+      );
+      return send(key ? 200 : 404, key ?? {});
+    }
+    if (logApiKeys && req.url.includes('/oauth2/authorize')) {
+      res.writeHead(302, { location: '/?code=fake-auth-code' });
+      return res.end();
+    }
+    if (
+      (serviceAccountLogin || logApiKeys) &&
+      req.url.includes('/access_token')
+    ) {
       if (
         process.env.FAKE_AM_GRANT_ERROR &&
         !body.includes('client_id=service-account')

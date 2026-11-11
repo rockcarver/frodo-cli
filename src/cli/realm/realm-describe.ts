@@ -20,7 +20,7 @@ export default function setup() {
       );
       if (await getTokens()) {
         verboseMessage(`Retrieving details of realm ${state.getRealm()}...`);
-        describeRealm(frodo.utils.getRealmName(state.getRealm()));
+        await describeRealm(frodo.utils.getRealmName(state.getRealm()));
       } else {
         process.exitCode = 1;
       }

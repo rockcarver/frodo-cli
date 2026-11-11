@@ -315,7 +315,7 @@ export default function setup() {
       printMessage(
         'Welcome to the interactive frodo shell!\nFor help type ".help", to quit shell type ".exit".\n\nType "frodo" to see a hierarchy of all available Frodo Library commands.\n\nType "help()" to explore the Frodo API with full signatures and documentation:\n - "help(frodo.info)" - list all methods in the info module\n - "help(frodo.info.getInfo)" - show signature and docs for getInfo\n - "help(\\"methodName\\")" - search for a method across all modules\n\nSample commands:\n - "frodo.info.getInfo()" - prints information about the currently connected environment\n - "frodo.login.getTokens()" - gets fresh or cached tokens\n'
       );
-      startRepl(options.allowAwait, host);
+      await startRepl(options.allowAwait, host);
     });
   return program;
 }

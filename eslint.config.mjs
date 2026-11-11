@@ -143,6 +143,13 @@ export default tseslint.config(
     },
   },
   {
+    files: ['src/cli/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
+    },
+  },
+  {
     // The one module that reads fd 0 directly.
     files: ['src/utils/StdinSync.ts'],
     rules: {
