@@ -324,6 +324,73 @@ function setStabilityMetadata(
 }
 
 /**
+ * Why an alias exists. A convenience alias is a second spelling that stays
+ * (`frodo conn save` and `frodo conn add`); a transition alias is the OLD name
+ * of a renamed command, kept so existing command lines keep running until a
+ * major release removes it (record 0048).
+ */
+export type AliasKind = 'convenience' | 'transition';
+
+/** The kind of each alias, recorded by `withAlias` on the command that owns it. */
+const aliasKinds = new WeakMap<Command, Map<string, AliasKind>>();
+
+/**
+ * The kind `withAlias` recorded for an alias of a command. Undefined for an
+ * alias that was added with plain `.alias()` (lint rejects that in src/cli);
+ * the help renders such an alias as a convenience alias.
+ * @param command Command that owns the alias.
+ * @param alias The alias.
+ * @returns The recorded kind, if any.
+ */
+export function getAliasKind(
+  command: Command,
+  alias: string
+): AliasKind | undefined {
+  return aliasKinds.get(command)?.get(alias);
+}
+
+/**
+ * The fixed trailing note that names the aliases of a command in its
+ * description: `(alias: add)`, `(aliases: a, b)`, and `(formerly: old)` for
+ * the old name of a renamed command. Empty when the command has no alias.
+ * Parseable with /\((alias(es)?|formerly): [^)]+\)$/ (a command with both kinds
+ * has both notes, the transition note last).
+ * @param command Command to describe.
+ * @returns The note, or an empty string.
+ */
+function aliasNote(command: Command): string {
+  const aliases = command.aliases();
+  const former = aliases.filter(
+    (alias) => getAliasKind(command, alias) === 'transition'
+  );
+  const kept = aliases.filter(
+    (alias) => getAliasKind(command, alias) !== 'transition'
+  );
+  const notes: string[] = [];
+  if (kept.length > 0) {
+    notes.push(
+      `(${kept.length > 1 ? 'aliases' : 'alias'}: ${kept.join(', ')})`
+    );
+  }
+  if (former.length > 0) {
+    notes.push(`(formerly: ${former.join(', ')})`);
+  }
+  return notes.join(' ');
+}
+
+/**
+ * Appends the alias note of a command to its description.
+ * @param description Description, possibly decorated with badges.
+ * @param command Command that owns the description.
+ * @returns The description followed by the alias note, if the command has aliases.
+ */
+function withAliasNote(description: string, command: Command): string {
+  const note = aliasNote(command);
+  if (!note) return description;
+  return description ? `${description} ${note}` : note;
+}
+
+/**
  * Reads raw stability metadata as explicitly configured on the target.
  * @param target Annotated command, option, or argument.
  * @returns Explicit metadata if present, otherwise undefined.
@@ -2747,6 +2814,24 @@ export class FrodoStubCommand extends Command {
   }
 
   /**
+   * Adds an alias and records why it exists. Use this instead of
+   * `.alias()`, which lint rejects in src/cli. The help names the preferred
+   * name only and ends the description with the alias: `(alias: add)` for a
+   * convenience alias, `(formerly: old)` for a transition alias.
+   * @param name The alias.
+   * @param kind `'convenience'` (the default) for a second spelling that
+   *   stays; `'transition'` for the old name of a renamed command.
+   * @returns This command for chaining.
+   */
+  withAlias(name: string, kind: AliasKind = 'convenience'): this {
+    this.alias(name);
+    const kinds = aliasKinds.get(this) ?? new Map<string, AliasKind>();
+    kinds.set(name, kind);
+    aliasKinds.set(this, kinds);
+    return this;
+  }
+
+  /**
    * Marks a command stability level and optionally requires explicit opt-in.
    * Stable is the default and requires no call sites.
    * @param level Stability indicator.
@@ -3468,7 +3553,10 @@ class FrodoStubHelp extends Help {
    * @returns Possibly decorated description.
    */
   override commandDescription(cmd: Command): string {
-    return decorateDescriptionWithStability(super.commandDescription(cmd), cmd);
+    return withAliasNote(
+      decorateDescriptionWithStability(super.commandDescription(cmd), cmd),
+      cmd
+    );
   }
 
   /**
@@ -3477,8 +3565,8 @@ class FrodoStubHelp extends Help {
    * @returns Possibly decorated description.
    */
   override subcommandDescription(cmd: Command): string {
-    return decorateDescriptionWithStability(
-      super.subcommandDescription(cmd),
+    return withAliasNote(
+      decorateDescriptionWithStability(super.subcommandDescription(cmd), cmd),
       cmd
     );
   }
@@ -3644,13 +3732,26 @@ class FrodoStubHelp extends Help {
   }
 
   /**
-   * Renders subcommand term with first alias, if present.
+   * Renders the subcommand term: the preferred name only. The aliases are
+   * named at the end of the description (see aliasNote), so the list teaches
+   * the preferred name.
    * @param cmd Subcommand.
    * @returns Display label for command list row.
    */
   subcommandTerm(cmd: Command) {
-    const aliases = cmd.aliases();
-    return cmd.name() + (aliases[0] ? '|' + aliases[0] : '');
+    return cmd.name();
+  }
+
+  /**
+   * Renders the usage line with the preferred name only (commander appends
+   * the first alias as `name|alias`).
+   * @param cmd Command being rendered.
+   * @returns Usage line: ancestors, name and the command's own usage.
+   */
+  override commandUsage(cmd: Command): string {
+    const names: string[] = [];
+    for (let c: Command | null = cmd; c; c = c.parent) names.unshift(c.name());
+    return `${names.join(' ')} ${cmd.usage()}`;
   }
 }
 
