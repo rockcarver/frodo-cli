@@ -1321,7 +1321,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
           // ...each shared group a COLLAPSED header in the -hh order...
           expect(editor).toMatch(/▸ Authentication options \(9\)/);
           expect(editor).toMatch(/▸ Connection options \(4\)/);
-          expect(editor).toMatch(/▸ Output options \(3\)/);
+          expect(editor).toMatch(/▸ Output options \(4\)/);
           expect(editor).toMatch(/▸ Runtime options \(7\)/);
           // ...with none of the shared flags visible while collapsed.
           expect(editor).not.toMatch(/--debug/);
@@ -1442,7 +1442,7 @@ describe('phase 5 slice 5: prompt trigger flags', () => {
             [{ type: 'capture', label: 'editor' }]
           );
           const editor = result.captures.editor.plain;
-          expect(editor).toMatch(/▾ Output options \(3\)/);
+          expect(editor).toMatch(/▾ Output options \(4\)/);
           expect(editor).toMatch(/◉ (?:› )?\s*--debug/);
           // The other groups stay collapsed.
           expect(editor).toMatch(/▸ Runtime options \(7\)/);

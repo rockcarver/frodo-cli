@@ -29,6 +29,7 @@ import { flushAuthoringPrint } from '../utils/interactive/AuthoringPrintState.js
 // Type-only: the credential vocabulary lives in the interactive layer
 // (see docs/INTERACTIVE-COMMANDS.md, layering).
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
+import { markNeverSaved } from '../utils/interactive/DefaultsStore.js';
 import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import { registerEntityPickFamilies } from '../utils/interactive/EntityPickFamilies.js';
 import {
@@ -1004,9 +1005,26 @@ const debugOption = withHelpGroup(
 );
 
 const curlirizeOption = withHelpGroup(
-  new Option('--curlirize', 'Output all network calls in curl format.'),
+  new Option(
+    '--curlirize',
+    'Output all network calls in curl format. The values of credentials (Authorization and Cookie headers, API keys, header overrides, and passwords, tokens and secrets in request bodies) are replaced with <redacted> and the header names stay; add --curlirize-secrets to see the values.'
+  ),
   OUTPUT_OPTIONS_HEADING,
   OptionCategory.Output
+);
+
+// Opt-in to real credentials in the curl output. Never saved as a default
+// (markNeverSaved), not part of a connection profile, and not offered to the
+// MCP server: it is a decision for one run.
+const curlirizeSecretsOption = markNeverSaved(
+  withHelpGroup(
+    new Option(
+      '--curlirize-secrets',
+      'With --curlirize, print the real values of credentials in the curl commands, so that a command can be copied and run. The output then contains valid credentials: do not share it. Never saved as a default. Can also be switched on with the environment variable FRODO_CURLIRIZE_SECRETS.'
+    ),
+    OUTPUT_OPTIONS_HEADING,
+    OptionCategory.Output
+  )
 );
 
 // Categorized as Authentication (not Runtime, despite rendering under
@@ -1103,6 +1121,7 @@ const defaultOpts = [
   verboseOption,
   debugOption,
   curlirizeOption,
+  curlirizeSecretsOption,
   noCacheOption,
   flushCacheOption,
   retryOption,
@@ -1204,6 +1223,8 @@ const stateMap = {
   [debugOption.attributeName()]: (debug: boolean) => state.setDebug(debug),
   [curlirizeOption.attributeName()]: (curlirize: boolean) =>
     state.setCurlirize(curlirize),
+  [curlirizeSecretsOption.attributeName()]: (curlirizeSecrets: boolean) =>
+    state.setCurlirizeSecrets(curlirizeSecrets),
   [noCacheOption.attributeName()]: (cache: boolean) =>
     state.setUseTokenCache(cache),
   [useRealmPrefixOnManagedObjects.attributeName()]: () =>
@@ -1465,6 +1486,14 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
     description: "Set to any value to enable debug output. Same as '--debug'.",
     group: OUTPUT_ENVIRONMENT_VARIABLES_HEADING,
     include: (command) => command.hasDefaultOption(debugOption.attributeName()),
+  },
+  {
+    name: 'FRODO_CURLIRIZE_SECRETS',
+    description:
+      "Set to 1, true, yes, or on (case-insensitive) to print the real values of credentials in the '--curlirize' output. Same as '--curlirize-secrets'. The output then contains valid credentials.",
+    group: OUTPUT_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(curlirizeSecretsOption.attributeName()),
   },
   {
     name: 'FRODO_IGA',
@@ -3689,6 +3718,14 @@ export class FrodoCommand extends FrodoStubCommand {
       }
     }
 
+    // The option that shows the credentials in the curl output means nothing
+    // on a command that has no curl output, and a command that does not take
+    // part (the MCP server is run by a client that must not be able to see
+    // them) never gets it.
+    if (commandOmits.has(curlirizeOption.name())) {
+      commandOmits.add(curlirizeSecretsOption.name());
+    }
+
     // Cloud-only commands do not need Amster private key defaults.
     if (
       types.length === 1 &&
@@ -3959,6 +3996,16 @@ export class FrodoCommand extends FrodoStubCommand {
           `FrodoCommand.handleDefaultArgsAndOpts: Ignoring non-default option '${k}'.`
         );
       }
+    }
+
+    // FRODO_CURLIRIZE_SECRETS does what --curlirize-secrets does, for the
+    // commands that have the option. Only the library setting changes: nothing
+    // is saved, and a value other than 1, true, yes or on leaves it off.
+    if (
+      command.hasDefaultOption?.(curlirizeSecretsOption.attributeName()) &&
+      isTruthyOptInValue(process.env.FRODO_CURLIRIZE_SECRETS)
+    ) {
+      state.setCurlirizeSecrets(true);
     }
 
     // fail fast if an incompatible deployment type option (-m or --type) was

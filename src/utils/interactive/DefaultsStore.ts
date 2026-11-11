@@ -27,6 +27,29 @@ import { isSecretOption } from './SecretOptions';
 
 const DEFAULTS_FILENAME = 'Defaults.json';
 
+/**
+ * Options that are a decision for one run and are never persisted as a
+ * default, such as the one that prints credentials in the curl output. The
+ * mark lives under a symbol on the option itself, as an own enumerable
+ * property, so that the clones FrodoCommand makes of shared options keep it
+ * (the same way SecretOptions marks a secret). Unlike a secret option it does
+ * not change how the value is asked for or shown.
+ */
+const NEVER_SAVED_KEY = Symbol.for('frodo.neverSavedOption');
+
+/** Marks an option as never saved as a default. Returns the same option. */
+export function markNeverSaved<T extends Option>(option: T): T {
+  (option as unknown as Record<symbol, boolean>)[NEVER_SAVED_KEY] = true;
+  return option;
+}
+
+/** Whether the option was marked as never saved as a default. */
+export function isNeverSavedOption(option: Option): boolean {
+  return (
+    (option as unknown as Record<symbol, boolean>)[NEVER_SAVED_KEY] === true
+  );
+}
+
 /** A single command's persisted defaults: attributeName -> value. */
 export type CommandDefaults = Record<string, unknown>;
 
@@ -104,9 +127,12 @@ export function saveCommandDefaults(
 ): void {
   const store = readDefaultsStore();
   const key = commandStoreKey(command);
-  // A secret is never written to disk, whatever the editor committed.
+  // A secret, and an option that is never saved, is never written to disk,
+  // whatever the editor committed.
   const secrets = new Set(
-    command.options.filter(isSecretOption).map((o) => o.attributeName())
+    command.options
+      .filter((o) => isSecretOption(o) || isNeverSavedOption(o))
+      .map((o) => o.attributeName())
   );
   const safe = Object.fromEntries(
     Object.entries(values).filter(([name]) => !secrets.has(name))
@@ -144,7 +170,9 @@ export function applicableCommandDefaults(command: Command): CommandDefaults {
   const persisted = readCommandDefaults(command);
   const known = new Set(
     command.options
-      .filter((option) => !isSecretOption(option))
+      .filter(
+        (option) => !isSecretOption(option) && !isNeverSavedOption(option)
+      )
       .map((option) => option.attributeName())
   );
   return Object.fromEntries(
