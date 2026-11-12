@@ -14,7 +14,7 @@ import {
   printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
-import { causeOf } from '../utils/ErrorCause';
+import { causeOf, isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -1768,187 +1768,184 @@ export async function deleteAIAgents(allowFailures = false): Promise<boolean> {
 }
 
 /**
+ * Whether a describe command was told which agent to describe. A describe of
+ * one agent without an id would ask the tenant for an agent called "undefined",
+ * so it says what is missing instead and the command fails.
+ * @param {string | undefined} agentId agent id as given on the command line
+ * @returns {boolean} true if there is an id to describe, false (after saying so) otherwise
+ */
+function hasAgentIdToDescribe(agentId: string | undefined): boolean {
+  if (typeof agentId === 'string' && agentId.trim() !== '') return true;
+  printMessage('Specify the agent to describe with -i, --agent-id.', 'error');
+  return false;
+}
+
+/**
+ * Print the table of one agent, or the agent as JSON.
+ * @param {{ _id?: string; _type?: { name?: string } }} agent the agent as the library reads it
+ * @param {boolean} asJson output as JSON
+ */
+function printAgentDescription(
+  agent: { _id?: string; _type?: { name?: string } },
+  asJson: boolean
+) {
+  if (asJson) {
+    printMessage(JSON.stringify(agent, null, 2), 'data');
+    return;
+  }
+  const status = resolveAgentStatus(agent);
+  const table = createTable(['Property', 'Value']);
+  table.push(['Agent Id', agent._id]);
+  table.push([
+    'Status',
+    status === 'Active' ? c.positive('Active') : c.negative(status),
+  ]);
+  table.push(['Type', agent._type.name]);
+  printMessage(table.toString(), 'data');
+}
+
+/**
  * Describe AIAgent
  * @param {string} agentId agent id
  * @param {boolean} asJson output as JSON
- * @returns {Promise<string>} description of the agent
+ * @returns {Promise<boolean>} true if the agent was printed, false if it could not be (it does not exist, or the read failed); the reason has been printed
  */
 export async function describeAIAgent(
   agentId: string,
   asJson: boolean = false
-): Promise<string> {
+): Promise<boolean> {
+  if (!hasAgentIdToDescribe(agentId)) return false;
   try {
     const agent = await readAIAgent(agentId);
-    if (asJson) {
-      return JSON.stringify(agent, null, 2);
-    }
-    const status = resolveAgentStatus(agent);
-    const table = createTable(['Property', 'Value']);
-    table.push(['Agent Id', agent._id]);
-    table.push([
-      'Status',
-      status === 'Active' ? c.positive('Active') : c.negative(status),
-    ]);
-    table.push(['Type', agent._type.name]);
-    return table.toString();
+    printAgentDescription(agent, asJson);
+    return true;
   } catch (error) {
-    printError(error, `Error describing AIAgent ${agentId}`);
-    return '';
+    if (isNotFoundError(error)) {
+      printMessage(`AI agent '${agentId}' not found.`, 'error');
+    } else {
+      printError(error, `Error describing AIAgent ${agentId}`);
+    }
   }
+  return false;
 }
 
 /**
  * Describe Identity Gateway Agent
  * @param {string} agentId agent id
  * @param {boolean} asJson output as JSON
- * @returns {Promise<string>} description of the agent
+ * @returns {Promise<boolean>} true if the agent was printed, false if it could not be (it does not exist, or the read failed); the reason has been printed
  */
 export async function describeIdentityGatewayAgent(
   agentId: string,
   asJson: boolean = false
-): Promise<string> {
+): Promise<boolean> {
+  if (!hasAgentIdToDescribe(agentId)) return false;
   try {
     const agent = await readIdentityGatewayAgents();
     const targetAgent = agent.find((a) => a._id === agentId);
     if (!targetAgent) {
       throw new Error(`Agent not found: ${agentId}`);
     }
-    if (asJson) {
-      return JSON.stringify(targetAgent, null, 2);
-    }
-    const status = resolveAgentStatus(targetAgent);
-    const table = createTable(['Property', 'Value']);
-    table.push(['Agent Id', targetAgent._id]);
-    table.push([
-      'Status',
-      status === 'Active' ? c.positive('Active') : c.negative(status),
-    ]);
-    table.push(['Type', targetAgent._type.name]);
-    return table.toString();
+    printAgentDescription(targetAgent, asJson);
+    return true;
   } catch (error) {
     printError(error, `Error describing Identity Gateway Agent ${agentId}`);
-    return '';
   }
+  return false;
 }
 
 /**
  * Describe Java Agent
  * @param {string} agentId agent id
  * @param {boolean} asJson output as JSON
- * @returns {Promise<string>} description of the agent
+ * @returns {Promise<boolean>} true if the agent was printed, false if it could not be (it does not exist, or the read failed); the reason has been printed
  */
 export async function describeJavaAgent(
   agentId: string,
   asJson: boolean = false
-): Promise<string> {
+): Promise<boolean> {
+  if (!hasAgentIdToDescribe(agentId)) return false;
   try {
-    const agents = await readJavaAgents();
-    const targetAgent = agents.find((a) => a._id === agentId);
+    const agent = await readJavaAgents();
+    const targetAgent = agent.find((a) => a._id === agentId);
     if (!targetAgent) {
       throw new Error(`Agent not found: ${agentId}`);
     }
-    if (asJson) {
-      return JSON.stringify(targetAgent, null, 2);
-    }
-    const status = resolveAgentStatus(targetAgent);
-    const table = createTable(['Property', 'Value']);
-    table.push(['Agent Id', targetAgent._id]);
-    table.push([
-      'Status',
-      status === 'Active' ? c.positive('Active') : c.negative(status),
-    ]);
-    table.push(['Type', targetAgent._type.name]);
-    return table.toString();
+    printAgentDescription(targetAgent, asJson);
+    return true;
   } catch (error) {
     printError(error, `Error describing Java Agent ${agentId}`);
-    return '';
   }
+  return false;
 }
 
 /**
  * Describe Web Agent
  * @param {string} agentId agent id
  * @param {boolean} asJson output as JSON
- * @returns {Promise<string>} description of the agent
+ * @returns {Promise<boolean>} true if the agent was printed, false if it could not be (it does not exist, or the read failed); the reason has been printed
  */
 export async function describeWebAgent(
   agentId: string,
   asJson: boolean = false
-): Promise<string> {
+): Promise<boolean> {
+  if (!hasAgentIdToDescribe(agentId)) return false;
   try {
-    const agents = await readWebAgents();
-    const targetAgent = agents.find((a) => a._id === agentId);
+    const agent = await readWebAgents();
+    const targetAgent = agent.find((a) => a._id === agentId);
     if (!targetAgent) {
       throw new Error(`Agent not found: ${agentId}`);
     }
-    if (asJson) {
-      return JSON.stringify(targetAgent, null, 2);
-    }
-    const status = resolveAgentStatus(targetAgent);
-    const table = createTable(['Property', 'Value']);
-    table.push(['Agent Id', targetAgent._id]);
-    table.push([
-      'Status',
-      status === 'Active' ? c.positive('Active') : c.negative(status),
-    ]);
-    table.push(['Type', targetAgent._type.name]);
-    return table.toString();
+    printAgentDescription(targetAgent, asJson);
+    return true;
   } catch (error) {
     printError(error, `Error describing Web Agent ${agentId}`);
-    return '';
   }
+  return false;
 }
 
 /**
- * Describe single agent by ID
+ * Describe agent
  * @param {string} agentId agent id
  * @param {boolean} global true for global agents, false for realm-specific
  * @param {boolean} asJson output as JSON
- * @returns {Promise<string>} description of the agent
+ * @returns {Promise<boolean>} true if the agent was printed, false if it could not be (it does not exist, or the read failed); the reason has been printed
  */
 export async function describeAgent(
   agentId: string,
   global: boolean = false,
   asJson: boolean = false
-): Promise<string> {
+): Promise<boolean> {
+  if (!hasAgentIdToDescribe(agentId)) return false;
   try {
     const agent = await readAgents(global);
     const targetAgent = agent.find((a) => a._id === agentId);
     if (!targetAgent) {
       throw new Error(`Agent not found: ${agentId}`);
     }
-    if (asJson) {
-      return JSON.stringify(targetAgent, null, 2);
-    }
-    const status = resolveAgentStatus(targetAgent);
-    const table = createTable(['Property', 'Value']);
-    table.push(['Agent Id', targetAgent._id]);
-    table.push([
-      'Status',
-      status === 'Active' ? c.positive('Active') : c.negative(status),
-    ]);
-    table.push(['Type', targetAgent._type.name]);
-    return table.toString();
+    printAgentDescription(targetAgent, asJson);
+    return true;
   } catch (error) {
     printError(error, `Error describing agent ${agentId}`);
-    return '';
   }
+  return false;
 }
 
 /**
  * Describe all agents (multi-agent summary)
  * @param {boolean} global true for global agents, false for realm-specific
  * @param {boolean} asJson output as JSON
- * @returns {Promise<string>} summary of all agents
+ * @returns {Promise<boolean>} true if the summary was printed, false if the agents could not be read; the reason has been printed
  */
 export async function describeAgents(
   global: boolean = false,
   asJson: boolean = false
-): Promise<string> {
+): Promise<boolean> {
   try {
     const agents = await readAgents(global);
     if (asJson) {
-      return JSON.stringify(agents, null, 2);
+      printMessage(JSON.stringify(agents, null, 2), 'data');
+      return true;
     }
     const table = createTable(['Agent Id', 'Status', 'Agent Type']);
     for (const agent of agents) {
@@ -1959,11 +1956,12 @@ export async function describeAgents(
         agent._type.name,
       ]);
     }
-    return table.toString();
+    printMessage(table.toString(), 'data');
+    return true;
   } catch (error) {
     printError(error, `Error describing agents`);
-    return '';
   }
+  return false;
 }
 
 /**

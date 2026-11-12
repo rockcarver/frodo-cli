@@ -3,7 +3,6 @@ import * as s from '../../help/SampleData';
 import { describeAIAgent } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';
-import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 /**
@@ -29,11 +28,8 @@ export default function setup(legacy = false) {
           command
         );
         if (await getTokens()) {
-          const description = await describeAIAgent(
-            options.agentId,
-            options.json
-          );
-          printMessage(description, 'data');
+          const outcome = await describeAIAgent(options.agentId, options.json);
+          if (!outcome) process.exitCode = 1;
         } else {
           process.exitCode = 1;
         }

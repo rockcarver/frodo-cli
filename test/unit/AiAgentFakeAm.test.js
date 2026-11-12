@@ -249,16 +249,41 @@ suite(
           TIMEOUT
         );
 
-        detail(
-          'an unknown id is reported by name',
+        it(
+          'an unknown id is reported by name, prints no description and fails (cli#1274)',
           async () => {
             await startTenant();
 
-            const { output } = frodo(['describe', '-i', 'nobody']);
+            const { status, stdout, stderr } = frodo([
+              'describe',
+              '-i',
+              'nobody',
+            ]);
 
-            // The exit code is not pinned: describe ends 0 after the error it
-            // prints (found while testing cli#1271, not changed here).
-            expect(output).toContain('nobody');
+            expect(stderr).toContain("AI agent 'nobody' not found.");
+            expect(stdout).toBe('');
+            expect(status).toBe(1);
+          },
+          TIMEOUT
+        );
+
+        detail(
+          'no id fails, says what is missing and asks the tenant for no agent',
+          async () => {
+            await startTenant();
+
+            const { status, stdout, stderr } = frodo(['describe']);
+
+            expect(stderr).toContain(
+              'Specify the agent to describe with -i, --agent-id.'
+            );
+            expect(stdout).toBe('');
+            expect(status).toBe(1);
+            expect(
+              agentRequests('GET').some((request) =>
+                request.url.includes('/AIAgent/undefined')
+              )
+            ).toBe(false);
           },
           TIMEOUT
         );
@@ -622,6 +647,79 @@ suite(
           const { stderr } = run(['agent'], ['list']);
 
           expect(stderr).not.toMatch(/Deprecated|deprecated/);
+        },
+        TIMEOUT
+      );
+    });
+
+    // cli#1274: the describe commands of the other agent types end with exit
+    // code 1 when the agent is not there or cannot be read. The fake serves AI
+    // agents only, so for the typed groups it answers 404 to the read of the
+    // agents themselves: a failed read, which must fail the command as well.
+    describe('the describe commands of the other agent types', () => {
+      it(
+        'agent describe -i of an agent that is not there says so and fails',
+        async () => {
+          await startTenant();
+
+          const { status, stdout, stderr } = run(
+            ['agent'],
+            ['describe', '-i', 'nobody']
+          );
+
+          expect(stderr).toContain('Agent not found: nobody');
+          expect(stdout).toBe('');
+          expect(status).toBe(1);
+        },
+        TIMEOUT
+      );
+
+      it(
+        'agent describe without an id describes all the agents and succeeds',
+        async () => {
+          await startTenant();
+
+          const { status, stdout } = run(['agent'], ['describe']);
+
+          expect(stdout).toMatch(/Agent Id\s*│Status\s*│Agent Type/);
+          expect(status).toBe(0);
+        },
+        TIMEOUT
+      );
+
+      it.each([
+        ['gateway', 'Identity Gateway Agent'],
+        ['java', 'Java Agent'],
+        ['web', 'Web Agent'],
+      ])(
+        'agent %s describe -i fails when the agents cannot be read',
+        async (type, name) => {
+          await startTenant();
+
+          const { status, stdout, stderr } = run(
+            ['agent', type],
+            ['describe', '-i', 'nobody']
+          );
+
+          expect(stderr).toContain(`Error describing ${name} nobody`);
+          expect(stdout).toBe('');
+          expect(status).toBe(1);
+        },
+        TIMEOUT
+      );
+
+      it.each([['gateway'], ['java'], ['web']])(
+        'agent %s describe without an id says what is missing and fails',
+        async (type) => {
+          await startTenant();
+
+          const { status, stdout, stderr } = run(['agent', type], ['describe']);
+
+          expect(stderr).toContain(
+            'Specify the agent to describe with -i, --agent-id.'
+          );
+          expect(stdout).toBe('');
+          expect(status).toBe(1);
         },
         TIMEOUT
       );
