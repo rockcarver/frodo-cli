@@ -38,7 +38,10 @@ export default function setup() {
         'frodo promote --yes -M ./master -e ./export [testTenant]\n' +
         '\n' +
         'This will run the promote and, after a journey was deleted, prune every orphaned node of the realm without asking. ' +
-        'Without --yes the prune asks on a terminal and is refused when there is no terminal; --no-prune skips the prune.'
+        'Without --yes the prune asks on a terminal and is refused when there is no terminal; --no-prune skips the prune.\n' +
+        '\n' +
+        'Trusted JWT issuers (trustedJwtIssuer/) and CIMD profiles (cimdProfile/) are not carried by promote: ' +
+        'use frodo oauth issuer and frodo oauth cimd, or the config-manager commands, for them.'
     )
     .addOption(
       new Option(
