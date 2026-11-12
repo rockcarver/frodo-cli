@@ -1119,12 +1119,15 @@ export async function importFirstIdentityGatewayAgentFromFile(
           );
           return true;
         } catch (error) {
-          stopProgressIndicator(spinnerId, `${error}`, 'fail');
-          printError(
-            error,
-            `Error importing first identity gateway agent from file`
+          stopProgressIndicator(
+            spinnerId,
+            `Error importing ${agent['_id']}`,
+            'fail'
           );
+          printError(error, `Error importing ${agent['_id']}`);
         }
+        // first means first: a failed agent is not followed by the next one
+        break;
       }
     } else {
       spinnerId = createProgressIndicator('indeterminate', 0, `Importing...`);
