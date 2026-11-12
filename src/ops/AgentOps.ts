@@ -1176,7 +1176,12 @@ export async function importFirstJavaAgentFromFile(
           );
           return true;
         } catch (importError) {
-          stopProgressIndicator(spinnerId, `${importError}`, 'fail');
+          stopProgressIndicator(
+            spinnerId,
+            `Error importing ${agent['_id']}`,
+            'fail'
+          );
+          printError(importError, `Error importing ${agent['_id']}`);
         }
         return;
       }
@@ -1232,9 +1237,10 @@ export async function importFirstWebAgentFromFile(
         } catch (importError) {
           stopProgressIndicator(
             spinnerId,
-            `caught it here ${importError}`,
+            `Error importing ${agent['_id']}`,
             'fail'
           );
+          printError(importError, `Error importing ${agent['_id']}`);
         }
         break;
       }
@@ -1244,7 +1250,7 @@ export async function importFirstWebAgentFromFile(
     }
     debugMessage(`cli.AgentOps.importFirstWebAgentFromFile: end`);
   } catch (error) {
-    printError(error, `Error importing first java agent from file`);
+    printError(error, `Error importing first web agent from file`);
   }
   return false;
 }
