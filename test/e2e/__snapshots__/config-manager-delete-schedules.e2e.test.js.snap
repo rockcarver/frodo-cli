@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules --dry-run -m forgeops": should dry-run delete schedules from forgeops" 1`] = `""`;
+
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules --dry-run -m forgeops": should dry-run delete schedules from forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete schedules'. This feature may change without notice.
+Dry run: Deleting schedule: Groovy
+Dry run: Deleting schedule: Javascript
+Dry run: Deleting schedule: taskscan_activate
+Dry run: Deleting schedule: taskscan_expire
+"
+`;
+
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules --dry-run -n taskscan_activate -m forgeops": should dry-run delete a specific schedule by name from forgeops" 1`] = `""`;
+
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules --dry-run -n taskscan_activate -m forgeops": should dry-run delete a specific schedule by name from forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete schedules'. This feature may change without notice.
+Dry run: Deleting schedule: taskscan_activate
+"
+`;
+
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules -n taskscan_activate -m forgeops": should delete a specific schedule by name from forgeops" 1`] = `""`;
+
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules -n taskscan_activate -m forgeops": should delete a specific schedule by name from forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete schedules'. This feature may change without notice.
+Deleting schedule: taskscan_activate
+"
+`;
+
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules -y -m forgeops": should delete schedules from forgeops" 1`] = `""`;
+
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules -y -m forgeops": should delete schedules from forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete schedules'. This feature may change without notice.
+Deleting schedule: Groovy
+Deleting schedule: Javascript
+Deleting schedule: taskscan_activate
+Deleting schedule: taskscan_expire
+"
+`;

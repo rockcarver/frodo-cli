@@ -1,12 +1,17 @@
 import fs from 'fs';
-import { frodo, type FrodoError } from '@rockcarver/frodo-lib';
+import {
+  frodo,
+  type FrodoError,
+  type IdObjectSkeletonInterface,
+} from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 
-const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
+const { readConfigEntitiesByType, importConfigEntities, deleteConfigEntity } =
+  frodo.idm.config;
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 /**
@@ -193,4 +198,78 @@ export async function configManagerImportSchedules(
     printError(error, `Error importing schedules`);
   }
   return false;
+}
+
+/** The start of the id of a schedule in the IDM configuration: `schedule/taskscan_activate`. */
+const SCHEDULE_ID_PREFIX = 'schedule/';
+
+/**
+ * Delete schedules from the tenant: the one with the given name, or all of them.
+ * A schedule is the IDM config entity `schedule/<name>`, and the name is the
+ * part of the id after the slash, matched exactly (upper and lower case count).
+ * The entities whose id does not start with `schedule/` are not schedules and
+ * are never selected, `scheduler` (the settings of the scheduler) among them.
+ * The schedules are read once and deleted one by one, so that a schedule that
+ * cannot be deleted is reported and does not hide the others. Schedules that
+ * cannot be read fail the command and nothing is deleted, whatever
+ * `allowFailures` says.
+ * @param {string} name Optional exact schedule name (for example `taskscan_activate`). If omitted (undefined), targets all schedules. An empty name is an error, never "all".
+ * @param {boolean} dryRun Show which schedules would be deleted without deleting them.
+ * @param {boolean} allowFailures True to succeed although some schedules could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} False if the name is empty, the schedules cannot be read, a named schedule does not exist, or a schedule cannot be deleted (unless failures are allowed for a deletion); true otherwise, also when there is nothing to delete and no schedule was named.
+ */
+export async function configManagerDeleteSchedules(
+  name?: string,
+  dryRun: boolean = false,
+  allowFailures: boolean = false
+): Promise<boolean> {
+  // "not given" and "given but empty" are different: an empty name must never
+  // select every schedule
+  const named = name !== undefined;
+  if (named && name.trim() === '') {
+    printMessage(
+      'The schedule name must not be empty. To delete all schedules, leave out the name.',
+      'error'
+    );
+    return false;
+  }
+  const run = new OperationRun({ unit: 'schedule', allowFailures });
+  let selectedSchedules: IdObjectSkeletonInterface[];
+  try {
+    const schedules = await readConfigEntitiesByType(SCHEDULE_ID_PREFIX);
+    selectedSchedules = schedules.filter((schedule) =>
+      named
+        ? schedule._id === `${SCHEDULE_ID_PREFIX}${name}`
+        : schedule._id.startsWith(SCHEDULE_ID_PREFIX)
+    );
+  } catch (error) {
+    printError(error, 'Error reading schedules');
+    return false;
+  }
+  if (selectedSchedules.length === 0) {
+    if (named) {
+      printMessage(`Schedule '${name}' not found.`, 'error');
+      return false;
+    }
+    printMessage('No schedules found to delete.', 'warn');
+    return true;
+  }
+  for (const schedule of selectedSchedules) {
+    const scheduleName = schedule._id.slice(SCHEDULE_ID_PREFIX.length);
+    if (dryRun) {
+      printMessage(`Dry run: Deleting schedule: ${scheduleName}`);
+      continue;
+    }
+    try {
+      await deleteConfigEntity(schedule._id);
+      printMessage(`Deleting schedule: ${scheduleName}`);
+      run.recordSuccess();
+    } catch (error) {
+      // the error of the library names the schedule (`schedule/<name>`), so no
+      // message of our own: the failure is printed once
+      printError(error);
+      run.recordFailure(scheduleName, causeOf(error));
+    }
+  }
+  return run.finish();
 }

@@ -25,6 +25,7 @@ Commands:
   locales               [Experimental] Delete locale objects.
   oauth-cimd-profiles   [Experimental] Delete CIMD profiles.
   oauth-issuers         [Experimental] Delete trusted JWT issuers.
+  schedules             [Experimental] Delete schedules.
   scripts               [Experimental] Delete AM scripts. Default scripts are
                         never deleted.
   secrets               [Experimental] [Cloud-only] Delete secrets.

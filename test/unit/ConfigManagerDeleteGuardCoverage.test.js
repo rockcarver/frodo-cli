@@ -70,6 +70,7 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
         'terms-and-conditions',
         'themes',
         'oauth-issuers',
+        'schedules',
         'variables',
       ])
     );
