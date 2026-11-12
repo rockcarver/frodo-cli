@@ -207,7 +207,6 @@ export const LEGACY_COMMANDS_WITHOUT_EXAMPLES = [
   'frodo log fetch',
   'frodo log key create',
   'frodo log key delete',
-  'frodo log key describe',
   'frodo log key list',
   'frodo log list',
   'frodo log tail',

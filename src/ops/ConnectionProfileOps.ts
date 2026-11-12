@@ -184,11 +184,12 @@ export function parseHeaderOverrides(
  * Describe connection profile
  * @param {string} host Host URL, unique substring, or alias
  * @param {boolean} showSecrets Whether secrets should be shown in clear text or not
+ * @returns {Promise<boolean>} true if the profile was printed, false if there is no profile for the host; the reason has been printed
  */
 export async function describeConnectionProfile(
   host: string,
   showSecrets: boolean
-) {
+): Promise<boolean> {
   debugMessage(`ConnectionProfileOps.describeConnectionProfile: start`);
   const profile = await getConnectionProfileByHost(host);
   if (profile) {
@@ -338,9 +339,12 @@ export async function describeConnectionProfile(
       printMessage(privateKey, 'data');
     }
   } else {
-    printMessage(`No connection profile ${host} found`);
+    printMessage(`No connection profile ${host} found`, 'error');
+    debugMessage(`ConnectionProfileOps.describeConnectionProfile: end [false]`);
+    return false;
   }
   debugMessage(`ConnectionProfileOps.describeConnectionProfile: end`);
+  return true;
 }
 
 export async function addExistingServiceAccount(

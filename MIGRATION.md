@@ -251,6 +251,21 @@ that says so and exit code 1, instead of asking the tenant for an agent called
 A script that relied on exit code 0 for a missing agent has to treat exit code 1
 as "not found", or add `|| true`.
 
+**`realm describe` exits 1 when there is nothing to describe, and `log key
+describe` describes**: in 4.x `frodo realm describe` printed `Realm <name> not
+found!` and exited with code 0 for a realm that did not exist, and printed the
+same for a realm list it could not read. In 5.x it exits with code 1 for a realm
+that is not there, and for a read that failed it prints that error instead of
+"not found" and exits with code 1. `frodo log key describe` was registered in
+4.x but did nothing: it logged in, printed nothing and exited with code 0 for
+any key. In 5.x `log key describe -i <key-id>` prints the key (its id, its name
+and when it was created; the secret of a key is shown only when the key is
+created) and `log key describe` without `-i` prints every key, both with
+`--json` as an option. Both exit with code 1 for a key that is not there or a
+read that failed. A script that relied on exit code 0 for a missing realm has to
+treat exit code 1 as "not found", or add `|| true`. `frodo conn describe` for a
+host without a saved profile already ended with exit code 1 and is unchanged.
+
 **Commands that run several operations now run them all and exit 1 if any
 failed**: `frodo config-manager pull all` and `pull all-static` carried on after
 a step failed, printed that step's error and exited with code 0, with no
