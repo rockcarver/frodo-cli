@@ -47,8 +47,9 @@ like the web, Java and Gateway agents, so they have a root command group:
 | `frodo agent ai delete`        | `frodo aiagent delete`   |
 
 `frodo agent ai` is frozen: it behaves as it did in 4.x and the 5.0 prereleases,
-and differs only by the deprecated mark in its help, the notice and the missing
-usage examples. The commands and options of `frodo aiagent` are the same (and so
+and differs only by the deprecated mark in its help, the notice, the missing
+usage examples and the exit code of `describe` for an agent that is not there
+(below). The commands and options of `frodo aiagent` are the same (and so
 are the files they write and read, `<id>.ai.agent.json`), with one difference:
 `frodo aiagent import` requires `-f, --file` or `-A, --all-separate`, so `-i` or
 `-a` alone is rejected before it connects, with the list of what is missing.
@@ -235,6 +236,20 @@ failed, because they checked the result before the operation had finished. In
 5.x they wait for the operation and exit with code 1, so a script or a pipeline
 that runs them sees the failure. Each runs a single operation, so
 `--allow-failures` does not apply.
+
+**`describe` commands of agents exit 1 when the agent is not there**: in 4.x
+`frodo agent describe -i`, `agent gateway describe -i`, `agent java describe -i`,
+`agent web describe -i` and `agent ai describe -i` printed the error and exited
+with code 0 when the agent did not exist or could not be read, and wrote an
+empty line to standard output. In 5.x they print the error on standard error and
+exit with code 1, so a script that checks for an agent by describing it can tell
+a missing agent from a found one. `frodo aiagent describe -i` is the same
+command as `agent ai describe`. The typed commands (`agent gateway|java|web
+describe`, `aiagent describe`) also refuse to run without `-i`, with a message
+that says so and exit code 1, instead of asking the tenant for an agent called
+`undefined`. `frodo agent describe` without `-i` still describes all the agents.
+A script that relied on exit code 0 for a missing agent has to treat exit code 1
+as "not found", or add `|| true`.
 
 **Commands that run several operations now run them all and exit 1 if any
 failed**: `frodo config-manager pull all` and `pull all-static` carried on after
