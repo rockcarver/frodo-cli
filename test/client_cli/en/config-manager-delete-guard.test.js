@@ -74,6 +74,12 @@ describe('a delete of more than one object without a terminal and without --yes'
     expect(stderr).toContain('all locales');
   });
 
+  test('the refusal of schedules says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete schedules');
+
+    expect(stderr).toContain('all schedules');
+  });
+
   test('the refusal of secrets says what would have been deleted', async () => {
     const { stderr } = await run('frodo config-manager delete secrets');
 
@@ -158,6 +164,8 @@ describe('what is not refused', () => {
     'frodo config-manager delete locales -n en',
     'frodo config-manager delete schedules --dry-run',
     'frodo config-manager delete schedules -y',
+    'frodo config-manager delete schedules -n Example',
+    'frodo config-manager delete schedules -n Example --dry-run',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
@@ -181,13 +189,15 @@ describe('an empty secret name', () => {
   });
 });
 
-describe('the preview option of the oauth kinds has no short form', () => {
+describe('the preview option of the oauth kinds and of schedules has no short form', () => {
   // an option that makes a command destructive has a long form only (frodo-cli#1264, P5 and P6)
   test.each([
     'frodo config-manager delete oauth-cimd-profiles -d',
     'frodo config-manager delete oauth-cimd-profiles -n Example -d',
     'frodo config-manager delete oauth-issuers -d',
     'frodo config-manager delete oauth-issuers -n Example -d',
+    'frodo config-manager delete schedules -d',
+    'frodo config-manager delete schedules -n Example -d',
   ])('"%s" is rejected as an unknown option before anything else', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -242,6 +252,22 @@ describe('an empty locale name', () => {
 
     expect(code).toBe(1);
     expect(stderr).toContain('The locale name (-n) must not be empty');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('an empty schedule name', () => {
+  test.each([
+    "frodo config-manager delete schedules -n ''",
+    "frodo config-manager delete schedules -n '' -y",
+    "frodo config-manager delete schedules -n '' --dry-run",
+    'frodo config-manager delete schedules --name=',
+  ])('"%s" is an error before the login, not a delete of all schedules', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The schedule name (-n) must not be empty');
     expect(stderr).not.toContain('Refusing to delete');
     expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
   });
