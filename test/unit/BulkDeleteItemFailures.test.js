@@ -164,7 +164,8 @@ const CASES = [
 ];
 
 // every relative import of the modules under test becomes spies, except the
-// run tracker and the modules under test themselves
+// run tracker, the helper it reads the cause of a failure with, and the modules
+// under test themselves
 const modulesUnderTest = new Set(
   CASES.map((c) => path.resolve(root, c.file).replace(/\.ts$/, ''))
 );
@@ -178,7 +179,8 @@ for (const { file } of CASES) {
     const target = path.resolve(importer, from).replace(/\.(js|ts)$/, '');
     if (
       modulesUnderTest.has(target) ||
-      target.endsWith('/utils/OperationRun')
+      target.endsWith('/utils/OperationRun') ||
+      target.endsWith('/utils/ErrorCause')
     ) {
       continue;
     }

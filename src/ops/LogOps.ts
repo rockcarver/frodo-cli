@@ -5,7 +5,9 @@ import {
   type LogEventPayloadSkeleton,
   type LogTailStream,
 } from '@rockcarver/frodo-lib';
+import c from '../utils/ColorTheme';
 import {
+  createKeyValueTable,
   createTable,
   debugMessage,
   failSpinner,
@@ -15,10 +17,12 @@ import {
   succeedSpinner,
   verboseMessage,
 } from '../utils/Console';
+import { isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 import { getTokens } from './AuthenticateOps';
 
 const {
+  getLogApiKey,
   getLogApiKeys,
   createLogApiKey,
   fetch,
@@ -115,6 +119,87 @@ export async function listLogApiKeys(long = false): Promise<boolean> {
     printError(error);
   }
   return outcome;
+}
+
+/**
+ * What `describe` shows of a log API key: its id, its name and when it was
+ * created. The secret of a key is returned once, when the key is created, and is
+ * never printed here, whatever the tenant answers.
+ * @param {LogApiKey} key the key as the library reads it
+ * @returns {Pick<LogApiKey, 'api_key_id' | 'name' | 'created_at'>} the fields that are shown
+ */
+function visibleFieldsOf(
+  key: LogApiKey
+): Pick<LogApiKey, 'api_key_id' | 'name' | 'created_at'> {
+  return {
+    api_key_id: key.api_key_id,
+    name: key.name,
+    created_at: key.created_at,
+  };
+}
+
+/**
+ * Describe a log API key
+ * @param {string} keyId key id
+ * @param {boolean} asJson output as JSON
+ * @returns {Promise<boolean>} true if the key was printed, false if it could not be (it does not exist, or the read failed); the reason has been printed
+ */
+export async function describeLogApiKey(
+  keyId: string,
+  asJson: boolean = false
+): Promise<boolean> {
+  debugMessage(`cli.LogOps.describeLogApiKey: start`);
+  try {
+    const key = visibleFieldsOf(await getLogApiKey(keyId));
+    if (asJson) {
+      printMessage(JSON.stringify(key, null, 2), 'data');
+    } else {
+      const table = createKeyValueTable();
+      table.push([c.heading('Key Id'), key.api_key_id]);
+      table.push([c.heading('Name'), key.name]);
+      table.push([c.heading('Created at'), key.created_at]);
+      printMessage(table.toString(), 'data');
+    }
+    debugMessage(`cli.LogOps.describeLogApiKey: end [true]`);
+    return true;
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      printMessage(`Log API key '${keyId}' not found.`, 'error');
+    } else {
+      printError(error, `Error describing log API key ${keyId}`);
+    }
+  }
+  debugMessage(`cli.LogOps.describeLogApiKey: end [false]`);
+  return false;
+}
+
+/**
+ * Describe all log API keys
+ * @param {boolean} asJson output as JSON
+ * @returns {Promise<boolean>} true if the keys were printed, false if they could not be read; the reason has been printed
+ */
+export async function describeLogApiKeys(
+  asJson: boolean = false
+): Promise<boolean> {
+  debugMessage(`cli.LogOps.describeLogApiKeys: start`);
+  try {
+    const keys = (await getLogApiKeys()).map(visibleFieldsOf);
+    if (asJson) {
+      printMessage(JSON.stringify(keys, null, 2), 'data');
+    } else {
+      const table = createTable(['Key Id', 'Name', 'Created at']);
+      for (const key of keys) {
+        table.push([key.api_key_id, key.name, key.created_at]);
+      }
+      printMessage(table.toString(), 'data');
+    }
+    debugMessage(`cli.LogOps.describeLogApiKeys: end [true]`);
+    return true;
+  } catch (error) {
+    printError(error, 'Error describing log API keys');
+  }
+  debugMessage(`cli.LogOps.describeLogApiKeys: end [false]`);
+  return false;
 }
 
 export async function provisionCreds() {
