@@ -8,7 +8,7 @@ import {
   confirmBulkDelete,
 } from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
-import { verboseMessage } from '../../../utils/Console';
+import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -31,28 +31,31 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Schedule name; deletes only the specified schedule.'
+        'Schedule name, the part of its id after schedule/ (for example taskscan_activate), matched exactly; delete only the specified schedule. If omitted, all schedules are deleted, after a confirmation or with -y.'
       )
     )
     .addOption(
-      new Option('-d, --dry-run', 'Show which schedules would be deleted.')
+      new Option(
+        '--dry-run',
+        'Show which schedules would be deleted without deleting them.'
+      )
     )
     .addOption(
       new Option(
         '-y, --yes',
-        'Skip confirmation when deleting all schedules. Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one schedule (no -n). Required without a terminal.'
       )
     )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Delete all eligible schedules without prompting:\n` +
+        `  Delete all schedules without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(
           `  $ frodo config-manager delete schedules -y ${s.connId}\n`
         ) +
-        `  Preview deletion of all eligible schedules:\n` +
+        `  Preview the deletion of all schedules:\n` +
         c.command(
-          `  $ frodo config-manager delete schedules -d ${s.connId}\n`
+          `  $ frodo config-manager delete schedules --dry-run ${s.connId}\n`
         ) +
         `  Delete a schedule by name:\n` +
         c.command(
@@ -60,7 +63,7 @@ export default function setup() {
         ) +
         `  Preview deletion of a schedule by name:\n` +
         c.command(
-          `  $ frodo config-manager delete schedules -n taskscan_activate -d ${s.connId}\n`
+          `  $ frodo config-manager delete schedules -n taskscan_activate --dry-run ${s.connId}\n`
         )
     )
     .multiOp()
@@ -73,10 +76,22 @@ export default function setup() {
         options,
         command
       );
-      const what = 'all eligible schedules';
-      const deletesAll = options.name === undefined;
+      // an empty name must never mean "all": "not given" and "given but empty"
+      // are different (-n "$UNSET" gives an empty name)
+      const named = options.name !== undefined;
+      if (named && options.name.trim() === '') {
+        printMessage(
+          'The schedule name (-n) must not be empty. To delete all schedules, leave out -n.',
+          'error'
+        );
+        process.exitCode = 1;
+        return;
+      }
+      // a run that nobody can be asked about is refused before the login
+      // (cli record 0037)
+      const what = 'all schedules';
       if (
-        deletesAll &&
+        !named &&
         !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
       ) {
         process.exitCode = 1;
@@ -87,7 +102,7 @@ export default function setup() {
         return;
       }
       if (
-        deletesAll &&
+        !named &&
         !(await confirmBulkDelete({
           what,
           yes: options.yes,

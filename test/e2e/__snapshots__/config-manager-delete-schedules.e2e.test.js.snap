@@ -11,9 +11,9 @@ Dry run: Deleting schedule: taskscan_expire
 "
 `;
 
-exports[`frodo config-manager delete schedules "frodo config-manager delete schedules -d -n taskscan_activate -m forgeops": should dry-run delete a specific schedule by name from forgeops" 1`] = `""`;
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules --dry-run -n taskscan_activate -m forgeops": should dry-run delete a specific schedule by name from forgeops" 1`] = `""`;
 
-exports[`frodo config-manager delete schedules "frodo config-manager delete schedules -d -n taskscan_activate -m forgeops": should dry-run delete a specific schedule by name from forgeops" 2`] = `
+exports[`frodo config-manager delete schedules "frodo config-manager delete schedules --dry-run -n taskscan_activate -m forgeops": should dry-run delete a specific schedule by name from forgeops" 2`] = `
 "Experimental feature in use: 'frodo config-manager delete schedules'. This feature may change without notice.
 Dry run: Deleting schedule: taskscan_activate
 "

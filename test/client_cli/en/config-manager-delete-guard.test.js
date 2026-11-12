@@ -156,7 +156,7 @@ describe('what is not refused', () => {
     'frodo config-manager delete locales -d',
     'frodo config-manager delete locales -y',
     'frodo config-manager delete locales -n en',
-    'frodo config-manager delete schedules -d',
+    'frodo config-manager delete schedules --dry-run',
     'frodo config-manager delete schedules -y',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
