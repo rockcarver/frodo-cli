@@ -19,6 +19,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   state: {},
 }));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
+  createKeyValueTable: jest.fn(),
   createTable: jest.fn(),
   debugMessage: jest.fn(),
   failSpinner: jest.fn(),
@@ -27,6 +28,9 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   showSpinner: jest.fn(),
   succeedSpinner: jest.fn(),
   verboseMessage: jest.fn(),
+}));
+jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
+  default: new Proxy({}, { get: () => (text) => text }),
 }));
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens: jest.fn(),
