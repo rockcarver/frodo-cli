@@ -778,6 +778,15 @@ profile once. A profile that the target deployment cannot hold is skipped with
 a message (`Skipped 1 CIMD profile: the alpha realm of this deployment does not
 offer CIMD profiles.`) and does not fail the import.
 
+**`frodo promote` does not carry trusted JWT issuers or CIMD profiles**: a full
+export keeps them in `trustedJwtIssuer/` and `cimdProfile/`, which `frodo
+promote` does not read, so a change to either is not applied. A tree exported
+before 5.0.0-38 also holds issuers under `agent/`; where a comparison counts such
+a file as deleted, `promote` deletes it as an agent, which ends with an "agent
+not found" error and exit code 1 (export the tree again). Use `frodo oauth
+issuer` and `frodo oauth cimd`, or the config-manager commands, for these
+objects.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm
