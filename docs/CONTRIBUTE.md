@@ -244,6 +244,8 @@ Pick meaningful function names. It's OK for them to be long, as long as they con
 6. **Add tests.** `test/client_cli/en/<group>-<verb>.test.js` snapshots the `-h` output. A command that talks to a tenant also gets `test/e2e/<group>-<verb>.e2e.test.js` with recordings; see [test/e2e/README.md](../test/e2e/README.md). Logic in `src/ops/` that can be tested without a tenant gets a unit test in `test/unit`.
 7. **Document breaking changes** in [MIGRATION.md](../MIGRATION.md).
 
+A configuration type that frodo-lib handles in its own module has one owner in the CLI too: a command for it belongs to that type's one command family, and the generic commands of its family (`frodo agent ...`) do not list, export or delete it. config-manager gives the type one kind; the generic kinds skip the type, name the owning kind and report the skip, not a failure ([core 0022 A configuration type has one owner in every layer](decisions/core/0022-a-configuration-type-has-one-owner-in-every-layer.md)). The CLI has not fully caught up with this: while the record has a Known deviations section, it names the generic commands and kinds that still handle such a type, so read it before you add or change one of them.
+
 If your command prompts the user, read "Layering: where interactive code lives" in [INTERACTIVE-COMMANDS.md](INTERACTIVE-COMMANDS.md) first.
 
 ### Recording decisions
