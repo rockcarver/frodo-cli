@@ -28,39 +28,39 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Secret mapping ID; delete only the specified mapping. If omitted, all mappings in the selected realms are deleted.'
+        'Secret mapping ID (the secret id of the mapping, for example am.example.secret.id), matched exactly; delete only the specified mapping. Needs a single realm. If omitted, all secret mappings of the selected realms are deleted, after a confirmation or with -y.'
       )
     )
     .addOption(
       new Option(
-        '-d, --dry-run',
+        '--dry-run',
         'Show which secret mappings would be deleted without deleting them.'
       )
     )
     .addOption(
       new Option(
         '-y, --yes',
-        'Skip confirmation when deleting all secret mappings in the selected realms. Required without a terminal for bulk deletion.'
+        'Do not ask for confirmation before deleting more than one secret mapping (no -n). Required without a terminal.'
       )
     )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Delete all secret mappings in non-root realms without prompting:\n` +
+        `  Delete all secret mappings of all realms except the root realm without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(
           `  $ frodo config-manager delete secret-mappings -y ${s.connId}\n`
         ) +
-        `  Preview deletion of all secret mappings in non-root realms:\n` +
+        `  Preview the deletion of all secret mappings of all realms except the root realm:\n` +
         c.command(
-          `  $ frodo config-manager delete secret-mappings -d ${s.connId}\n`
+          `  $ frodo config-manager delete secret-mappings --dry-run ${s.connId}\n`
         ) +
         `  Delete a secret mapping by ID in the alpha realm:\n` +
         c.command(
           `  $ frodo config-manager delete secret-mappings -n example.secret.id ${s.connId} alpha\n`
         ) +
-        `  Preview deletion of a secret mapping by ID in the alpha realm:\n` +
+        `  Preview the deletion of a secret mapping by ID in the alpha realm:\n` +
         c.command(
-          `  $ frodo config-manager delete secret-mappings -n example.secret.id -d ${s.connId} alpha\n`
+          `  $ frodo config-manager delete secret-mappings -n example.secret.id --dry-run ${s.connId} alpha\n`
         )
     )
     .multiOp()
@@ -75,14 +75,28 @@ export default function setup() {
         command
       );
 
-      if (options.name === '') {
-        printMessage('The secret mapping ID (-n) must not be empty.', 'error');
+      // an empty ID must never mean "all": "not given" and "given but empty"
+      // are different (-n "$UNSET" gives an empty ID)
+      const named = options.name !== undefined;
+      if (named && options.name.trim() === '') {
+        printMessage(
+          'The secret mapping ID (-n) must not be empty. To delete all secret mappings, leave out -n.',
+          'error'
+        );
         process.exitCode = 1;
         return;
       }
-
-      const deletesAll = options.name === undefined;
-      if (!deletesAll && (!realm || realm === DEFAULT_REALM_KEY)) {
+      // the mappings of the secret store are per realm; the root realm has
+      // none to delete, so naming it is an error and not a silent success
+      if (realm === '/') {
+        printMessage(
+          'The root realm has no secret mappings to delete. Name a realm such as alpha, or leave the realm out to use every realm except the root realm.',
+          'error'
+        );
+        process.exitCode = 1;
+        return;
+      }
+      if (named && (!realm || realm === DEFAULT_REALM_KEY)) {
         printMessage(
           'The -n/--name option requires a realm argument to be specified.',
           'error'
@@ -91,14 +105,13 @@ export default function setup() {
         return;
       }
 
+      // only a single ID is deleted without a question (cli record 0037); a
+      // run that nobody can be asked about is refused before the login
       const what = 'all secret mappings in the selected realms';
-      const guardOptions = {
-        what,
-        yes: options.yes,
-        dryRun: options.dryRun,
-      };
-
-      if (deletesAll && !checkBulkDelete(guardOptions)) {
+      if (
+        !named &&
+        !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
+      ) {
         process.exitCode = 1;
         return;
       }
@@ -109,9 +122,11 @@ export default function setup() {
       }
       const selectedRealm = realmOfRun(command, realm);
       if (
-        deletesAll &&
+        !named &&
         !(await confirmBulkDelete({
-          ...guardOptions,
+          what,
+          yes: options.yes,
+          dryRun: options.dryRun,
           showPlan: () =>
             configManagerDeleteSecretMappings(undefined, selectedRealm, true),
         }))
