@@ -409,8 +409,6 @@ suite(
         );
 
         detail(
-          // a file with several AI agents is not used here: -f alone imports all
-          // of them today, not the first only (frodo-cli#1147, not changed here)
           '-f alone imports the AI agent of a file that holds one',
           async () => {
             await startTenant();
@@ -424,6 +422,30 @@ suite(
 
             expect(status).toBe(0);
             expect(idsOnTenant()).toEqual(['oracle-assistant']);
+          },
+          TIMEOUT
+        );
+
+        // cli#1292: the command says "first AI agent in file" and used to import
+        // every agent of the file
+        it(
+          '-f alone imports only the first AI agent of a file that holds several',
+          async () => {
+            await startTenant();
+            exportAndEmpty();
+            const file = 'allAlphaAIAgents.ai.agent.json';
+            const inFile = Object.keys(read(file).agent);
+            expect(inFile).toHaveLength(2);
+
+            const { status, output } = frodo(['import', '-f', file]);
+
+            expect(status).toBe(0);
+            expect(output).toContain(`Imported first AIAgent`);
+            // the first agent of the file is on the tenant, the second is not
+            expect(idsOnTenant()).toEqual([inFile[0]]);
+            // and only one agent was written to the tenant
+            expect(agentRequests('PUT')).toHaveLength(1);
+            expect(agentRequests('PUT')[0].url).toContain(`/${inFile[0]}`);
           },
           TIMEOUT
         );

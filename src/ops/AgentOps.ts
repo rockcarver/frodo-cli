@@ -2018,7 +2018,12 @@ export async function importFirstAIAgentFromFile(
             0,
             `Importing first AIAgent (${agentId})...`
           );
-        await importAIAgents(importData);
+        // only the first agent of the file (cli#1292): importAIAgents imports every
+        // agent it is given, and the parsed data is left as it was
+        await importAIAgents({
+          ...importData,
+          agent: { [agentId]: importData.agent[agentId] },
+        });
         stopProgressIndicator(spinnerId, `Imported first AIAgent.`, 'success');
         debugMessage(`cli.AgentOps.importFirstAIAgentFromFile: end`);
         return true;

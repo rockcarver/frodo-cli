@@ -266,6 +266,13 @@ read that failed. A script that relied on exit code 0 for a missing realm has to
 treat exit code 1 as "not found", or add `|| true`. `frodo conn describe` for a
 host without a saved profile already ended with exit code 1 and is unchanged.
 
+**`aiagent import -f` imports only the first agent of the file**: in 4.x
+`frodo agent ai import -f <file>` (and `frodo aiagent import -f <file>` in 5.x
+before this change) printed that it imported the first AI agent of the file but
+imported every agent in it. It now imports only the first one, as its message
+says. A script that relied on the old behaviour to load a whole file uses `-a`
+(`import -a -f <file>`), which imports every agent of the file and is unchanged.
+
 **Commands that run several operations now run them all and exit 1 if any
 failed**: `frodo config-manager pull all` and `pull all-static` carried on after
 a step failed, printed that step's error and exited with code 0, with no
