@@ -24,7 +24,10 @@ Options:
   --allow-failures   Report operations that fail, but still exit with code 0.
                      Without this option the command runs every operation,
                      prints a summary of what failed and exits with code 1.
-  -n, --name <name>  Export an organization privilege by name.
+  -n, --name <name>  Organization privileges name: privilegeAssignments, or the
+                     configuration of a realm (for example alphaOrgPrivileges).
+                     If specified, only exports that configuration; it has to
+                     belong to the realm if one is given.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

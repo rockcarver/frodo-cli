@@ -40,6 +40,7 @@ const USES_REALM = [
   'frodo config-manager pull authentication',
   'frodo config-manager pull oauth-cimd-profiles',
   'frodo config-manager pull journeys',
+  'frodo config-manager pull org-privileges',
   'frodo config-manager pull password-policy',
   'frodo config-manager pull scripts',
   'frodo config-manager pull secret-mappings',
