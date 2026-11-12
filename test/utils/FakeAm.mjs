@@ -129,6 +129,12 @@
  * every other route, after the request was recorded, so a test sees the failing
  * request in the request log and the CLI sees a failed operation behind a login
  * that worked.
+ * FAKE_AM_EMPTY_COLLECTIONS=1 makes the fake answer every collection query it has no
+ * route for as an empty collection, the way a realm that holds nothing answers it: a
+ * `GET` with a `_queryFilter` and a `POST` with `_action=nextdescendents` get `200`
+ * with an empty `result`. It is checked last, so every route above still wins. A
+ * command that reads many kinds of configuration (`config export`) then runs through
+ * on an empty tenant without a route for each kind; the request log shows what it asked for.
  * FAKE_AM_LOG_API_KEYS_FILE=<path> names a JSON array of log API keys
  * (`api_key_id`, `name`) the fake serves as the log API key list (`GET /keys`)
  * and one key (`GET /keys/<id>`), and it makes the fake answer the OAuth2
@@ -164,6 +170,7 @@ const aiAgents = readJson(process.env.FAKE_AM_AI_AGENTS_FILE)?.map((agent) => ({
   ...agent,
 }));
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
+const emptyCollections = process.env.FAKE_AM_EMPTY_COLLECTIONS === '1';
 const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
@@ -973,6 +980,22 @@ const server = http.createServer((req, res) => {
         reason: 'Unauthorized',
         message: 'fake AM: no session lookup',
       });
+    }
+    if (emptyCollections) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      if (
+        (req.method === 'GET' && query.has('_queryFilter')) ||
+        (req.method === 'POST' && query.get('_action') === 'nextdescendents')
+      ) {
+        return send(200, {
+          result: [],
+          resultCount: 0,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: 0,
+          remainingPagedResults: -1,
+        });
+      }
     }
     return send(404, {});
   });
