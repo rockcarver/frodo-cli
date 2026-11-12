@@ -701,6 +701,46 @@ encrypted maps: it sends no override headers, and a gateway that needs them
 refuses the request. For such a run set `FRODO_AUTHENTICATION_HEADER_OVERRIDES`
 and `FRODO_CONFIGURATION_HEADER_OVERRIDES`, or use the newer version.
 
+**Trusted JWT issuers and CIMD profiles are not agents of the generic agent
+commands any more**: `frodo agent list`, `agent describe`, `agent export` and
+`agent delete` leave out the agent types `TrustedJwtIssuer` and `CIMDProfile`,
+as they always left out `OAuth2Client`; each of these types is handled only by
+its own commands. Until now the generic commands listed, exported and deleted
+them together with the other agents. Now `agent list` does not show them, `agent
+describe -i <id>`, `agent export -i` and `agent delete -i` answer that the agent
+is not found (the last two exit with code 1), `agent export -a` and `-A` do not
+write them, and `agent delete -a` does not delete them. That last change matters
+most for trusted JWT issuers: a JWT signed by an issuer is accepted as a grant,
+so "delete all agents" no longer removes them. Use `frodo
+oauth issuer list|describe|export|import|delete` for trusted JWT issuers and
+`frodo oauth cimd list|describe|export|import|delete` for CIMD profiles. A
+script that relied on `agent export -A` or `agent delete -a` to include them
+adds `frodo oauth issuer export -A` (files `<id>.oauth2.issuer.json`) or `frodo
+oauth issuer delete -a --yes`, and `frodo oauth cimd export -A` (files
+`<id>.oauth2.cimd.json`) or `frodo oauth cimd delete -a --yes`. Files that an
+earlier `agent export` wrote with such objects in them (`<id>.agent.json`) still
+import with `frodo agent import`. `frodo oauth issuer import -f` reads them
+too; `frodo oauth cimd import` does not: it says so and names `frodo agent
+import`.
+
+**`frodo config export` writes each trusted JWT issuer once, and CIMD profiles
+under a key of their own**: a full export used to write every trusted JWT issuer
+twice, under `agent` and under `trustedJwtIssuer` (with `-A`:
+`realm/root-<realm>/agent/<id>.agent.json` and
+`realm/root-<realm>/trustedJwtIssuer/<id>.trustedJwtIssuer.json`), and on a
+deployment that offers the agent type every CIMD profile under `agent`. Now an
+issuer is only in `trustedJwtIssuer`, and a CIMD profile is in its own section
+`cimdProfile` (with `-A`: `realm/root-<realm>/cimdProfile/<id>.cimdProfile.json`).
+The `cimdProfile` key is left out for a realm that has no profile or whose
+deployment does not offer the type, so the export of such a realm is unchanged.
+A script, or a tree under version control, that reads issuers or profiles from
+`agent` reads them from `trustedJwtIssuer` and `cimdProfile` instead; the
+`agent/<id>.agent.json` files of issuers that an old tree still holds can be
+deleted. `config import` reads both layouts and writes each issuer and each
+profile once. A profile that the target deployment cannot hold is skipped with
+a message (`Skipped 1 CIMD profile: the alpha realm of this deployment does not
+offer CIMD profiles.`) and does not fail the import.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm
