@@ -1,3 +1,38 @@
+/**
+ * The fixed test identities of the e2e suites (see test/e2e/README.md).
+ *
+ * Replay (FRODO_MOCK=1) never logs in for real, and no recording matches on the
+ * key, so the service account JWK and the Amster private key are throwaway RSA
+ * pairs made when a test process starts. They must be well formed, because the
+ * CLI signs a token with them before the recording answers. They are never
+ * written into the repository, and no real key belongs in this file: the check
+ * is test/unit/NoCredentialsInTests.test.js.
+ *
+ * A recording pass that has to log in with credentials of its own (the `info`
+ * and `log-list` tests; every other test records with your saved connection
+ * profile) takes them from the environment of your shell instead:
+ *
+ *   FRODO_TEST_USER        admin user of the cloud tenant
+ *   FRODO_TEST_PASSWORD    password of that user
+ *   FRODO_TEST_SA_ID       service account id
+ *   FRODO_TEST_SA_JWK      service account private key, the JWK itself
+ *                          (export FRODO_TEST_SA_JWK="$(cat key.jwk)")
+ *
+ * They apply to `connection` and `iga_connection`. The user, the password, the
+ * service account id and the hosts are identifiers that the recordings and
+ * snapshots (and `conn-save`, in its test titles) were made with: leave them as
+ * they are for replay.
+ */
+import { generateKeyPairSync } from 'crypto';
+
+const saJwk =
+  process.env.FRODO_TEST_SA_JWK ||
+  JSON.stringify(
+    generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({
+      format: 'jwk',
+    })
+  );
+
 export const connection = {
   type: 'cloud',
   host: 'https://openam-frodo-dev.forgeblocks.com/am',
@@ -7,8 +42,7 @@ export const connection = {
   isPingFed: 'false',
   realm: 'alpha',
   saId: 'b672336b-41ef-428d-ae4a-e0c082875377',
-  saJwk:
-    '{"d":"UQJv2m1KXSl5phfjMVqxRR0JjiOyXwe4iVXpCZjwdTo7oVo-cw0icBZkFh-QZHzDwa_mqt_sEAn6oniEu5IrlsFIPomKUmkSgUHBiqUDSC6iOGF4BIdajifKKk2MjR8e3vXJY7gsXzp7eNDkGO4T9ie5c-TkUIi39aIsKeXBKFVZg4kDLw2Cctm5F0SpBUUci--eYvt3QjzFUKfsdwTe7PcnTO95m-t0JcbhqqI6hAzSIUq0E3v7aynYqp7f_4ZDhzy-FuBjAT_tnlYlTxKCQABdBJtYdjHEgmU-9wETLhBrrIaBg3M6nTtgr-p1OR27tg3W7hyDlgSHfQBv5-dnWNSvr4U7ciX_ZU4LyEQsaLnQprbllB526N7WB_iroF7k9mjr6RhIJLmoI2pK6GVXRsiRL818PDonaL3xgaxsRTAEa63Cb5kSRWsqkv1Das4pqUcrf7VuIOCA8XD5xuAWCwsiAMiQZMx3LWEPS3jRxPUpDMG12yqAHeR7RZ9-8SML2YzEy0nYgcvSCSiFT7Pd57yqPGthSgafMK7GRRBJ6WN9JOsj2LJXjpyz26gCUlnPNYUyUjAZyQFG8q9OhET5YceAJ1g0Upzn1xYQTclyXQxLCXy7Ux3DSIAdhl8zZrm9MTH6s0dI-VHmX4gZs-9aTA4S-e4joZIEoCM8zst41jk","dp":"zSrQqCykCpw1XU-V2rpkMu_FqvG7pM1WJF5TrrAVCc5cUB01TpERv5_twgRY3pk6tk7nyedXZpxKVcTECoA78d5_TSRZnpsFwS3JA-LaoDjkDl4HLOY3onunS43jXwuH85i7ePTaeQri_Gis9lTcSlJL6QVM3DR3BMDOfNY5ZyZhBoYwV3eX_37QqhaBhQPgDMIC9cj8VL_cQduCxCtWFGMlR0pGlmH-0XRBT2o5fDwcWnXLyulpa1wDMrWO5RX_qRpEWIcwXykxLp9r4x4rMwRy93yvCfNVRTcUfwMdy3HAIoL7W72SoiWDtMt4pUUkZm3H45nNifC3S8wj_KWpkQ","dq":"Ul24ytcArdOp6i4q4pyXrnkCX4xD753APZLIKUOPXEgImB1-gvrY5zFtWTRAxpe_slhf1LWfyBGMSXeKUihDtfrUTUf23Y_SNjuh-OSMNxZkYCc9hlVJfgqgwj2aRs48V7e1Fmlq_2r8VeLxrWF-TppiccXRbSaEtPhdgXRG659dt-SA1tNcsNSINFnnkUkacwAbEVt_C_EOCoQxYwl92T2OAWN0_iaxwS41TpWu1OLzQ6xIdbFiiUVMIxX1g_Z9VYwBtEUaWUBeuBs1U5k4y7pxjyiTKHkiBuod3RSJInCBJJAS7mkSu1DTaTbb0k1blrOkApH44TB7oKX0NZWOvQ","e":"AQAB","kty":"RSA","n":"8lN2UVDDHchL_gIYS5lAiEVAVocyqWHmqBPwPkd22NRMLetczaVSH2UQHoQu7SSKeAtojVJUYuxRtGPfGNExZurTy3CRlzpaNa67B6jyunycPHnyNked0ceFGfjD9c6e0b97L5wqwk2YNVVMGa9c1m8R9HWk2kg9lRwlZE_piwTM9bw8tuWfL1A2-fTDQB2PZSgGGz86jG1RGMY7dnafVKIX3HbW98xOxOwqIRz607IQr-NFia5zjTltpJjR1qOlEFmdHqGTGCnFcHxeJWmKOWcDM4WmfWcgK3zR9Br-aZoDTl8RMAths30Pc1pe_dl5OepxCYQ7b0BXg0zQaYcx5G5ZcNR3ldjDNfpiXg1viWjEBiwiCg7gkYksBu0aFHX2pc4KKHKcyIeD0sbhaLSK3JXhI1TJvm7rwyX1wsRKmMTGTZMxYJlADZufKKd-Jg7k2_iwP3WUJxdgkJsgvLj7ZbTf5Paz7_FLeSajjtGPu6hGSWV8uOGgRgcnJgz3DP2S9qfHI7nKswtgwFdjbOMK39iNjU8PI-cOaaVKQcH88xBCu1bpCX1MIVvZ5arQF783qasj9bBB4t27gKXOauIr-sXMUI6_L7CQ7IqWld8VvNWKReMMqiRQV9huEEV1chCFzZI_aEW82fDC9dRbFXG-w92PhPPVbNznWsrhO1aPxA8","p":"_dos3Z0ngwlRb36kh7b-3aVpQkTHJ9Rckmgf7DjHK_p2OtEMZBhwDdmhvpbYdciFs2mpbuzeAPIftxLgj9qag9H-lkTu9oyvDlyc6Pl1XNnvkFiRvfKk1OeSiTU8fuSLCNuI19Qrrl2giHdJptj_9Rb1WDNMSwQnGJcKY7Nle4h831zx4EF-5MYyYnmyG3pmFAnRy2VtmpozRyRn7fkXARaqaGSYf1OAp5ac63KHlxczpjsIZMknzydke9jhAOm2nBlt3ECJNq3-ViXxPgdCx6niNVsWV3irU51MAYGM7SsDOtMFwUBeftwvm4tzpnEGg1D-p0W33pXLKr3EHKib2w","q":"9GBSbk5oqaCpdaVQJniUkPgeC-ABznxyN9On0-kPYJ1NdEc8d8IcXxtqVz2wyLxg9Wtsx6JQ-9TkKYjhgSvpN8lS-Gl3SPa21hQ80-KHeg5LkdlhT9ltnfpCyeSV1WE8yUlh3-E8E_T2xfaPpM3rEg2GhVoBll9zBQfaAfHLrxXodvrrsvSaGI-JPcL4B1UTRkYAUXsG6ZNWO3rb480n124OeX90NAKMcJpatV0Xbc7K9lFKRtVFsfRbd_a8QjL8TapAmluoIfcrIUXGD9xa9xogQq_6cv6CwMfzYZ9wXw1_NPdoBWyGiQF1BPmaX6xYi1fMbeQn26vS0GubTiUo3Q","qi":"w232765m5KXWNabhdcPvDMUi_zy-dvSoozHvheQM3mEK7HTgkG_oeyBfWIneh4k_bdIRfy_SjzmLaV8s7jzU8PFfTo8Rn5NqivQ0pFZCF00HjgeTVDBd4pe4hVIKhNCdMp3QpEZMTC2By9anPj-GWftK3g6OSRdm3yQjnqyLGsl5CIYDaaNCxmNoDFdAQ94ZonMxEbHR0vywB7z-hOqRsIe3mBrXaQxpnxuLlz4I_iGvCBofCXN5GKL0-y8fz-sSj6tZ0T-ao7VCZ4Aqt70JRrR7f3mV5M1DhOtRMwfALt-AHJJzZAgkRdyAwgalZeTV-u0lLZDC33vlKwv3v_HN6w"}',
+  saJwk,
 };
 
 export const iga_connection = {
@@ -19,9 +53,20 @@ export const iga_connection = {
   isIGA: 'true',
   realm: 'alpha',
   saId: 'b672336b-41ef-428d-ae4a-e0c082875377',
-  saJwk:
-    '{"d":"UQJv2m1KXSl5phfjMVqxRR0JjiOyXwe4iVXpCZjwdTo7oVo-cw0icBZkFh-QZHzDwa_mqt_sEAn6oniEu5IrlsFIPomKUmkSgUHBiqUDSC6iOGF4BIdajifKKk2MjR8e3vXJY7gsXzp7eNDkGO4T9ie5c-TkUIi39aIsKeXBKFVZg4kDLw2Cctm5F0SpBUUci--eYvt3QjzFUKfsdwTe7PcnTO95m-t0JcbhqqI6hAzSIUq0E3v7aynYqp7f_4ZDhzy-FuBjAT_tnlYlTxKCQABdBJtYdjHEgmU-9wETLhBrrIaBg3M6nTtgr-p1OR27tg3W7hyDlgSHfQBv5-dnWNSvr4U7ciX_ZU4LyEQsaLnQprbllB526N7WB_iroF7k9mjr6RhIJLmoI2pK6GVXRsiRL818PDonaL3xgaxsRTAEa63Cb5kSRWsqkv1Das4pqUcrf7VuIOCA8XD5xuAWCwsiAMiQZMx3LWEPS3jRxPUpDMG12yqAHeR7RZ9-8SML2YzEy0nYgcvSCSiFT7Pd57yqPGthSgafMK7GRRBJ6WN9JOsj2LJXjpyz26gCUlnPNYUyUjAZyQFG8q9OhET5YceAJ1g0Upzn1xYQTclyXQxLCXy7Ux3DSIAdhl8zZrm9MTH6s0dI-VHmX4gZs-9aTA4S-e4joZIEoCM8zst41jk","dp":"zSrQqCykCpw1XU-V2rpkMu_FqvG7pM1WJF5TrrAVCc5cUB01TpERv5_twgRY3pk6tk7nyedXZpxKVcTECoA78d5_TSRZnpsFwS3JA-LaoDjkDl4HLOY3onunS43jXwuH85i7ePTaeQri_Gis9lTcSlJL6QVM3DR3BMDOfNY5ZyZhBoYwV3eX_37QqhaBhQPgDMIC9cj8VL_cQduCxCtWFGMlR0pGlmH-0XRBT2o5fDwcWnXLyulpa1wDMrWO5RX_qRpEWIcwXykxLp9r4x4rMwRy93yvCfNVRTcUfwMdy3HAIoL7W72SoiWDtMt4pUUkZm3H45nNifC3S8wj_KWpkQ","dq":"Ul24ytcArdOp6i4q4pyXrnkCX4xD753APZLIKUOPXEgImB1-gvrY5zFtWTRAxpe_slhf1LWfyBGMSXeKUihDtfrUTUf23Y_SNjuh-OSMNxZkYCc9hlVJfgqgwj2aRs48V7e1Fmlq_2r8VeLxrWF-TppiccXRbSaEtPhdgXRG659dt-SA1tNcsNSINFnnkUkacwAbEVt_C_EOCoQxYwl92T2OAWN0_iaxwS41TpWu1OLzQ6xIdbFiiUVMIxX1g_Z9VYwBtEUaWUBeuBs1U5k4y7pxjyiTKHkiBuod3RSJInCBJJAS7mkSu1DTaTbb0k1blrOkApH44TB7oKX0NZWOvQ","e":"AQAB","kty":"RSA","n":"8lN2UVDDHchL_gIYS5lAiEVAVocyqWHmqBPwPkd22NRMLetczaVSH2UQHoQu7SSKeAtojVJUYuxRtGPfGNExZurTy3CRlzpaNa67B6jyunycPHnyNked0ceFGfjD9c6e0b97L5wqwk2YNVVMGa9c1m8R9HWk2kg9lRwlZE_piwTM9bw8tuWfL1A2-fTDQB2PZSgGGz86jG1RGMY7dnafVKIX3HbW98xOxOwqIRz607IQr-NFia5zjTltpJjR1qOlEFmdHqGTGCnFcHxeJWmKOWcDM4WmfWcgK3zR9Br-aZoDTl8RMAths30Pc1pe_dl5OepxCYQ7b0BXg0zQaYcx5G5ZcNR3ldjDNfpiXg1viWjEBiwiCg7gkYksBu0aFHX2pc4KKHKcyIeD0sbhaLSK3JXhI1TJvm7rwyX1wsRKmMTGTZMxYJlADZufKKd-Jg7k2_iwP3WUJxdgkJsgvLj7ZbTf5Paz7_FLeSajjtGPu6hGSWV8uOGgRgcnJgz3DP2S9qfHI7nKswtgwFdjbOMK39iNjU8PI-cOaaVKQcH88xBCu1bpCX1MIVvZ5arQF783qasj9bBB4t27gKXOauIr-sXMUI6_L7CQ7IqWld8VvNWKReMMqiRQV9huEEV1chCFzZI_aEW82fDC9dRbFXG-w92PhPPVbNznWsrhO1aPxA8","p":"_dos3Z0ngwlRb36kh7b-3aVpQkTHJ9Rckmgf7DjHK_p2OtEMZBhwDdmhvpbYdciFs2mpbuzeAPIftxLgj9qag9H-lkTu9oyvDlyc6Pl1XNnvkFiRvfKk1OeSiTU8fuSLCNuI19Qrrl2giHdJptj_9Rb1WDNMSwQnGJcKY7Nle4h831zx4EF-5MYyYnmyG3pmFAnRy2VtmpozRyRn7fkXARaqaGSYf1OAp5ac63KHlxczpjsIZMknzydke9jhAOm2nBlt3ECJNq3-ViXxPgdCx6niNVsWV3irU51MAYGM7SsDOtMFwUBeftwvm4tzpnEGg1D-p0W33pXLKr3EHKib2w","q":"9GBSbk5oqaCpdaVQJniUkPgeC-ABznxyN9On0-kPYJ1NdEc8d8IcXxtqVz2wyLxg9Wtsx6JQ-9TkKYjhgSvpN8lS-Gl3SPa21hQ80-KHeg5LkdlhT9ltnfpCyeSV1WE8yUlh3-E8E_T2xfaPpM3rEg2GhVoBll9zBQfaAfHLrxXodvrrsvSaGI-JPcL4B1UTRkYAUXsG6ZNWO3rb480n124OeX90NAKMcJpatV0Xbc7K9lFKRtVFsfRbd_a8QjL8TapAmluoIfcrIUXGD9xa9xogQq_6cv6CwMfzYZ9wXw1_NPdoBWyGiQF1BPmaX6xYi1fMbeQn26vS0GubTiUo3Q","qi":"w232765m5KXWNabhdcPvDMUi_zy-dvSoozHvheQM3mEK7HTgkG_oeyBfWIneh4k_bdIRfy_SjzmLaV8s7jzU8PFfTo8Rn5NqivQ0pFZCF00HjgeTVDBd4pe4hVIKhNCdMp3QpEZMTC2By9anPj-GWftK3g6OSRdm3yQjnqyLGsl5CIYDaaNCxmNoDFdAQ94ZonMxEbHR0vywB7z-hOqRsIe3mBrXaQxpnxuLlz4I_iGvCBofCXN5GKL0-y8fz-sSj6tZ0T-ao7VCZ4Aqt70JRrR7f3mV5M1DhOtRMwfALt-AHJJzZAgkRdyAwgalZeTV-u0lLZDC33vlKwv3v_HN6w"}',
+  saJwk,
 };
+
+// Real values for a recording pass, from the environment of your shell.
+const overrides = {
+  user: process.env.FRODO_TEST_USER,
+  pass: process.env.FRODO_TEST_PASSWORD,
+  saId: process.env.FRODO_TEST_SA_ID,
+};
+for (const cloud of [connection, iga_connection]) {
+  for (const [field, value] of Object.entries(overrides)) {
+    if (value) cloud[field] = value;
+  }
+}
 
 export const classic_connection = {
   type: 'classic',
@@ -44,6 +89,9 @@ export const amster_connection = {
   host: 'http://openam-frodo-dev.amster.com:8080/am',
   user: 'amAdmin',
   realm: '/',
-  pk: '-----BEGIN PRIVATE KEY-----\n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\nnBZ7tjPhmJQ9O1dzsZhHvAkiD+U7Lw==\n-----END PRIVATE KEY-----',
+  pk: generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({
+    type: 'pkcs8',
+    format: 'pem',
+  }),
   authService: 'MockAmsterService'
 }
