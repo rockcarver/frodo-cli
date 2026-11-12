@@ -126,12 +126,14 @@ async function readIfExists<T>(read: () => Promise<T>): Promise<T | undefined> {
 /**
  * Open the receiving tenant: a second instance of the library for a saved
  * connection profile, logged in without the token cache (as the `--target` of
- * the ESV commands does).
+ * the ESV commands does). The values of `--env` and `--env-file` go to the
+ * instance explicitly: the library resolves the `${NAME}` placeholders of the
+ * configuration it reads and writes (the static user mapping) from them.
  * @param {string} target host URL, alias or unique part of the receiving tenant
  * @returns {Promise<Tenant>} the logged-in instance
  */
 async function openTenant(target: string): Promise<Tenant> {
-  const tenant = frodo.createInstance({ host: target });
+  const tenant = frodo.createInstance({ host: target, env: state.getEnvs() });
   tenant.state.setDebug(state.getDebug());
   tenant.state.setVerbose(state.getVerbose());
   tenant.state.setCurlirize(state.getCurlirize());
