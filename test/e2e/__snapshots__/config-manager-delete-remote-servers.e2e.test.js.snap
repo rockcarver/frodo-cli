@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete remote-servers "frodo config-manager delete remote-servers --dry-run -m forgeops": should preview deletion of all remote servers on ForgeOps 1`] = `""`;
+
+exports[`frodo config-manager delete remote-servers "frodo config-manager delete remote-servers --dry-run -m forgeops": should preview deletion of all remote servers on ForgeOps 2`] = `
+"Experimental feature in use: 'frodo config-manager delete remote-servers'. This feature may change without notice.
+Dry run: Deleting remote server: rcs
+Dry run: Deleting remote server: asdf
+"
+`;
+
+exports[`frodo config-manager delete remote-servers "frodo config-manager delete remote-servers --name asdf -m forgeops": should delete the remote server named asdf from ForgeOps 1`] = `""`;
+
+exports[`frodo config-manager delete remote-servers "frodo config-manager delete remote-servers --name asdf -m forgeops": should delete the remote server named asdf from ForgeOps 2`] = `
+"Experimental feature in use: 'frodo config-manager delete remote-servers'. This feature may change without notice.
+Deleted remote server: asdf
+"
+`;
+
+exports[`frodo config-manager delete remote-servers "frodo config-manager delete remote-servers -d -n asdf -m forgeops": should preview deletion of the remote server named asdf on ForgeOps 1`] = `""`;
+
+exports[`frodo config-manager delete remote-servers "frodo config-manager delete remote-servers -d -n asdf -m forgeops": should preview deletion of the remote server named asdf on ForgeOps 2`] = `
+"Experimental feature in use: 'frodo config-manager delete remote-servers'. This feature may change without notice.
+Dry run: Deleting remote server: asdf
+"
+`;
+
+exports[`frodo config-manager delete remote-servers "frodo config-manager delete remote-servers -y -m forgeops": should delete all remote servers from ForgeOps 1`] = `""`;
+
+exports[`frodo config-manager delete remote-servers "frodo config-manager delete remote-servers -y -m forgeops": should delete all remote servers from ForgeOps 2`] = `
+"Experimental feature in use: 'frodo config-manager delete remote-servers'. This feature may change without notice.
+Deleted remote server: rcs
+Deleted remote server: asdf
+"
+`;

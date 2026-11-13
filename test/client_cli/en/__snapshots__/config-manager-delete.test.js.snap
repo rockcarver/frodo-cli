@@ -30,6 +30,8 @@ Commands:
   oauth-cimd-profiles        [Experimental] Delete CIMD profiles.
   oauth-issuers              [Experimental] Delete trusted JWT issuers.
   oauth-software-publishers  [Experimental] Delete software publishers.
+  remote-servers             [Experimental] Delete remote connector servers by
+                             name or delete all of them.
   schedules                  [Experimental] Delete schedules.
   scripts                    [Experimental] Delete AM scripts. Default scripts
                              are never deleted.

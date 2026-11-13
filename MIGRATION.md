@@ -865,6 +865,7 @@ entity and drop the others.
 | `delete schedules`                 | `-i, --schedule-id`                    | `-n`, `--name` |
 | `delete secret-mappings`           | `-i, --secret-mapping-id`              | `-n`, `--name` |
 | `delete telemetry`                 | `-i, --exporter-id`                    | `-n`, `--name` |
+| `delete remote-servers`            | `-i, --remote-server-id`               | `-n`, `--name` |
 
 `delete applications`, `delete custom-nodes`, `delete scripts` and
 `delete themes` take `-i` for the first time: it selects by the id of the object
