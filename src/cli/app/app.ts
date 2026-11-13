@@ -7,6 +7,7 @@ import EnableCmd from './app-enable.js';
 import ExportCmd from './app-export.js';
 import ImportCmd from './app-import.js';
 import ListCmd from './app-list.js';
+import TemplateCmd from './app-template.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('app')
@@ -31,6 +32,8 @@ export default function setup() {
   program.addCommand(EnableCmd().name('enable'));
 
   program.addCommand(DisableCmd().name('disable'));
+
+  program.addCommand(TemplateCmd().name('template'));
 
   return program;
 }

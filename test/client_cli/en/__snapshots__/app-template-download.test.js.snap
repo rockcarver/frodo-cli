@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'app template download --help' should be expected english 1`] = `
+"Usage: frodo app template download [options]
+
+Download the application template catalog from the CDN and save it to a file, to
+copy it to a machine that cannot reach the internet.
+
+Options:
+  --channel <channel>  Which catalog of the CDN to download: production or
+                       development (the development catalog holds a few more
+                       template versions). Default: production. (choices:
+                       "production", "development")
+  -f, --file <file>    Name of the file to save the catalog to. Default:
+                       appTemplates.json in the working directory.
+  -h, --help           Help
+  -hh, --help-more     Help with all options.
+  -hhh, --help-all     Help with all options, environment variables, and usage
+                       examples.
+"
+`;

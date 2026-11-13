@@ -31,6 +31,7 @@ import {
   type WorkflowGroup,
 } from '@rockcarver/frodo-lib';
 import type { Command } from 'commander';
+import { catalogOptionsOf } from '../ApplicationTemplateSource';
 import {
   sameHost,
   savedConnectionProfiles,
@@ -592,6 +593,44 @@ export function registerEntityPickFamilies(): void {
         load: applications,
         label: (application) => application.name || application._id || '',
         description: (application) => application.description,
+      }),
+    ],
+  });
+
+  // `app template`: the versions of the application templates, by id (for
+  // example `1_2-saml`). The picker lists the catalog the command reads
+  // (`--templates` or `--channel`) with the templates of the tenant merged in;
+  // it runs after a login, so a command that needs no tenant never opens it.
+  type ApplicationTemplate = Awaited<
+    ReturnType<typeof frodo.app.template.listTemplates>
+  >[number];
+
+  registerEntityPickFamily({
+    family: 'app template',
+    picks: [
+      entityPick<ApplicationTemplate>({
+        name: 'templateId',
+        kind: 'application template',
+        load: async () =>
+          frodo.app.template.listTemplates({ includeOverrides: true }),
+        loadFor: async (command) =>
+          frodo.app.template.listTemplates({
+            ...catalogOptionsOf(command.opts()),
+            includeOverrides: true,
+          }),
+        label: (template) => template.templateId,
+        description: (template) =>
+          [
+            template.displayName,
+            template.templateType,
+            template.isOverride ? 'defined by the tenant' : undefined,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+        search: (template, query) =>
+          `${template.templateId} ${template.displayName ?? ''} ${template.name}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
       }),
     ],
   });

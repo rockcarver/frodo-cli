@@ -59,3 +59,5 @@ export const aiAgentId = 'oracle-assistant';
 export const aiAgentFile = 'oracle-assistant.ai.agent.json';
 export const allAiAgentsFile = 'allAlphaAIAgents.ai.agent.json';
 export const logApiKeyId = 'e4b1d9f2-6a3c-4d57-9b0e-2f8a6c1d7e35';
+export const appTemplateId = '1_2-saml';
+export const appTemplatesFile = 'appTemplates.json';
