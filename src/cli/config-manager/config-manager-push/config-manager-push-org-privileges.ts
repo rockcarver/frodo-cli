@@ -1,11 +1,8 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import {
-  configManagerImportOrgPrivilegesAllRealms,
-  configManagerImportOrgPrivilegesByName,
-} from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
+import { configManagerImportOrgPrivileges } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage } from '../../../utils/Console';
+import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -42,28 +39,23 @@ export default function setup() {
         command
       );
 
-      if (await getTokens(false, true, deploymentTypes)) {
-        let outcome: boolean;
-        if (options.name) {
-          printMessage(
-            `Importing organization privileges config for "${options.name}"`
-          );
-          outcome = await configManagerImportOrgPrivilegesByName(options.name);
-        } else {
-          printMessage(
-            'Importing organization privileges config to all realms'
-          );
-          outcome = await configManagerImportOrgPrivilegesAllRealms(
-            options.allowFailures
-          );
-        }
-        if (!outcome) process.exitCode = 1;
-      }
-      // Any option combination is valid (no -n imports all realms); the
-      // only way this branch runs is getTokens() failing.
-      else {
+      const getTokensIsSuccessful = await getTokens(
+        false,
+        true,
+        deploymentTypes
+      );
+      if (!getTokensIsSuccessful) {
         process.exitCode = 1;
+        return;
       }
+      verboseMessage(
+        `Importing organization privileges config for ${options.name || 'all realms'}`
+      );
+      const outcome = await configManagerImportOrgPrivileges(
+        options.name,
+        options.allowFailures
+      );
+      if (!outcome) process.exitCode = 1;
     });
 
   return program;

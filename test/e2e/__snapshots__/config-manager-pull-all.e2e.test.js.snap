@@ -44777,6 +44777,13 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
+exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/org-privileges/privileges.json 1`] = `
+{
+  "_id": "privileges",
+  "privileges": [],
+}
+`;
+
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/raw/am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook.json 1`] = `
 {
   "_id": "test-webhook",

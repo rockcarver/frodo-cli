@@ -45749,6 +45749,13 @@ exports[`frodo config-manager pull all-static "frodo config-manager pull all-sta
 }
 `;
 
+exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style": allStaticDir2/org-privileges/privileges.json 1`] = `
+{
+  "_id": "privileges",
+  "privileges": [],
+}
+`;
+
 exports[`frodo config-manager pull all-static "frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style": allStaticDir2/realms/alpha/journeys/Agent/Agent.json 1`] = `
 {
   "_id": "Agent",

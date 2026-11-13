@@ -52,16 +52,14 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   verboseMessage,
 }));
 
-const {
-  configManagerExportOrgPrivilegesAllRealms,
-  configManagerExportOrgPrivilegesRealm,
-} = await import('../../src/configManagerOps/FrConfigOrgPrivilegesOps');
+const { configManagerExportOrgPrivileges } =
+  await import('../../src/configManagerOps/FrConfigOrgPrivilegesOps');
 const { configFileStep, existingConfigFile } =
   await import('../../src/configManagerOps/ConfigFileStep');
 
 const saved = () => saveJsonToFile.mock.calls.map(([, file]) => file);
 
-describe('configManagerExportOrgPrivilegesAllRealms', () => {
+describe('configManagerExportOrgPrivileges', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     deploymentType = 'cloud';
@@ -74,24 +72,34 @@ describe('configManagerExportOrgPrivilegesAllRealms', () => {
   });
 
   it('exports the global assignments and every realm, except the root realm on cloud', async () => {
-    expect(await configManagerExportOrgPrivilegesAllRealms()).toBe(true);
+    expect(await configManagerExportOrgPrivileges()).toBe(true);
     expect(saved()).toEqual([
       'out/org-privileges/privilegeAssignments.json',
       'out/org-privileges/alphaOrgPrivileges.json',
       'out/org-privileges/bravoOrgPrivileges.json',
     ]);
-    expect(setRealm.mock.calls.map(([r]) => r)).toEqual(['alpha', 'bravo']);
+    // the files of the realms keep the revision of the entity, the assignments do not
+    expect(saveJsonToFile.mock.calls.map(([, , , keepRev]) => keepRev)).toEqual(
+      [false, true, true]
+    );
   });
 
-  it('exports the root realm too when the deployment is not cloud', async () => {
+  it('exports the root realm too when the deployment is not cloud, from the configuration called privileges', async () => {
     deploymentType = 'forgeops';
-    await configManagerExportOrgPrivilegesAllRealms();
-    expect(saved()).toContain('out/org-privileges/privilegeAssignments.json');
-    expect(readConfigEntity).toHaveBeenCalledWith('/OrgPrivileges');
+    await configManagerExportOrgPrivileges();
+    expect(saved()).toEqual([
+      'out/org-privileges/privilegeAssignments.json',
+      'out/org-privileges/privileges.json',
+      'out/org-privileges/alphaOrgPrivileges.json',
+      'out/org-privileges/bravoOrgPrivileges.json',
+    ]);
+    expect(readConfigEntity).toHaveBeenCalledWith('privileges');
   });
 
   it('exports only the given realm, plus the global assignments, without listing the realms', async () => {
-    expect(await configManagerExportOrgPrivilegesAllRealms('bravo')).toBe(true);
+    expect(
+      await configManagerExportOrgPrivileges(undefined, false, 'bravo')
+    ).toBe(true);
     expect(saved()).toEqual([
       'out/org-privileges/privilegeAssignments.json',
       'out/org-privileges/bravoOrgPrivileges.json',
@@ -100,7 +108,11 @@ describe('configManagerExportOrgPrivilegesAllRealms', () => {
   });
 
   it('treats the default realm key as no realm', async () => {
-    await configManagerExportOrgPrivilegesAllRealms('__default__realm__');
+    await configManagerExportOrgPrivileges(
+      undefined,
+      false,
+      '__default__realm__'
+    );
     expect(saved()).toHaveLength(3);
   });
 
@@ -109,7 +121,7 @@ describe('configManagerExportOrgPrivilegesAllRealms', () => {
       if (id === 'privilegeAssignments') throw new Error('boom');
       return { _id: id };
     });
-    expect(await configManagerExportOrgPrivilegesAllRealms()).toBe(false);
+    expect(await configManagerExportOrgPrivileges()).toBe(false);
     expect(saved()).toEqual([
       'out/org-privileges/alphaOrgPrivileges.json',
       'out/org-privileges/bravoOrgPrivileges.json',
@@ -123,7 +135,7 @@ describe('configManagerExportOrgPrivilegesAllRealms', () => {
       }
       return { _id: id };
     });
-    await configManagerExportOrgPrivilegesAllRealms();
+    await configManagerExportOrgPrivileges();
     expect(saved()[0]).toBe('out/org-privileges/privilegeAssignments.json');
     expect(saved()).toHaveLength(3);
   });
@@ -132,14 +144,14 @@ describe('configManagerExportOrgPrivilegesAllRealms', () => {
     deploymentType = 'forgeops';
     readRealms.mockResolvedValue([{ name: '/' }]);
     readConfigEntity.mockImplementation(async (id) => {
-      if (id === '/OrgPrivileges') {
+      if (id === 'privileges') {
         const error = new Error('Not Found');
         error.httpStatus = 404;
         throw error;
       }
       return { _id: id };
     });
-    expect(await configManagerExportOrgPrivilegesAllRealms()).toBe(true);
+    expect(await configManagerExportOrgPrivileges()).toBe(true);
     expect(saved()).toEqual(['out/org-privileges/privilegeAssignments.json']);
     expect(printError).not.toHaveBeenCalled();
   });
@@ -150,8 +162,59 @@ describe('configManagerExportOrgPrivilegesAllRealms', () => {
       error.httpStatus = 404;
       throw error;
     });
-    expect(await configManagerExportOrgPrivilegesRealm('alpha')).toBe(false);
-    expect(printError).toHaveBeenCalledTimes(1);
+    expect(
+      await configManagerExportOrgPrivileges(undefined, false, 'alpha')
+    ).toBe(false);
+    expect(printError).toHaveBeenCalled();
+  });
+
+  it('exports only the configuration that is named', async () => {
+    expect(await configManagerExportOrgPrivileges('bravoOrgPrivileges')).toBe(
+      true
+    );
+    expect(saved()).toEqual(['out/org-privileges/bravoOrgPrivileges.json']);
+    expect(readConfigEntity.mock.calls).toEqual([['bravoOrgPrivileges']]);
+  });
+
+  it('fails a named configuration that is missing, where a realm that the tenant lists may have none', async () => {
+    readConfigEntity.mockImplementation(async () => {
+      const error = new Error('Not Found');
+      error.httpStatus = 404;
+      throw error;
+    });
+    expect(await configManagerExportOrgPrivileges('alphaOrgPrivileges')).toBe(
+      false
+    );
+  });
+
+  it('fails an export when an unknown org privilege config is requested from a cloud deployment', async () => {
+    expect(await configManagerExportOrgPrivileges('unknown')).toBe(false);
+    expect(printMessage).toHaveBeenCalledTimes(1);
+    expect(printMessage).toHaveBeenCalledWith(
+      "Error: Unrecognized org config 'unknown'. Recognized org config includes: privilegeAssignments, alphaOrgPrivileges, bravoOrgPrivileges",
+      'error'
+    );
+    expect(readConfigEntity).not.toHaveBeenCalled();
+  });
+
+  it('fails an export when an unknown org privilege config is requested from a forgeops deployment', async () => {
+    deploymentType = 'forgeops';
+    expect(await configManagerExportOrgPrivileges('unknown')).toBe(false);
+    expect(printMessage).toHaveBeenCalledWith(
+      "Error: Unrecognized org config 'unknown'. Recognized org config includes: privilegeAssignments, privileges, alphaOrgPrivileges, bravoOrgPrivileges",
+      'error'
+    );
+  });
+
+  it('only knows the configurations of the realm that is given', async () => {
+    expect(
+      await configManagerExportOrgPrivileges(
+        'alphaOrgPrivileges',
+        false,
+        'bravo'
+      )
+    ).toBe(false);
+    expect(readConfigEntity).not.toHaveBeenCalled();
   });
 
   it('reports a failure of a realm', async () => {
@@ -159,7 +222,7 @@ describe('configManagerExportOrgPrivilegesAllRealms', () => {
       if (id === 'alphaOrgPrivileges') throw new Error('boom');
       return { _id: id };
     });
-    expect(await configManagerExportOrgPrivilegesAllRealms()).toBe(false);
+    expect(await configManagerExportOrgPrivileges()).toBe(false);
   });
 });
 

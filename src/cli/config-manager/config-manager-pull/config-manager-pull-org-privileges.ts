@@ -1,7 +1,8 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { configManagerExportOrgPrivilegesAllRealms } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
+import { Option } from 'commander';
+import { configManagerExportOrgPrivileges } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage } from '../../../utils/Console';
+import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
@@ -25,6 +26,12 @@ export default function setup() {
     .description('Export organization privileges config.')
     .multiOp()
     .usesRealm()
+    .addOption(
+      new Option(
+        '-n, --name <name>',
+        'Organization privileges name: privilegeAssignments, or the configuration of a realm (for example alphaOrgPrivileges). If specified, only exports that configuration; it has to belong to the realm if one is given.'
+      )
+    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -36,27 +43,27 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        let outcome: boolean;
         const pickedRealm = realmOfRun(command, realm);
-        if (pickedRealm !== constants.DEFAULT_REALM_KEY) {
-          printMessage(
-            `Exporting organization privileges config from the realm: "${pickedRealm}"`
+        const oneRealm =
+          pickedRealm !== constants.DEFAULT_REALM_KEY ? pickedRealm : undefined;
+        if (options.name) {
+          verboseMessage(
+            `Exporting organization privileges config "${options.name}"`
           );
-          outcome = await configManagerExportOrgPrivilegesAllRealms(
-            pickedRealm,
-            options.allowFailures,
-            false
+        } else if (oneRealm) {
+          verboseMessage(
+            `Exporting organization privileges config from the realm: "${oneRealm}"`
           );
         } else {
-          printMessage(
-            'Exporting oranization privileges config from all realms'
-          );
-          outcome = await configManagerExportOrgPrivilegesAllRealms(
-            undefined,
-            options.allowFailures
+          verboseMessage(
+            'Exporting organization privileges config from all realms'
           );
         }
-
+        const outcome = await configManagerExportOrgPrivileges(
+          options.name,
+          options.allowFailures,
+          oneRealm
+        );
         if (!outcome) process.exitCode = 1;
       }
       // Any option combination is valid; the only way this branch runs
@@ -65,6 +72,5 @@ export default function setup() {
         process.exitCode = 1;
       }
     });
-
   return program;
 }

@@ -31,9 +31,8 @@ const OPS = {
     'configManagerImportAgents',
   ],
   FrConfigOrgPrivilegesOps: [
-    'configManagerExportOrgPrivilegesAllRealms',
-    'configManagerImportOrgPrivilegesAllRealms',
-    'configManagerImportOrgPrivilegesByName',
+    'configManagerExportOrgPrivileges',
+    'configManagerImportOrgPrivileges',
   ],
 };
 const ops = {};
@@ -155,25 +154,25 @@ const COMMANDS = [
   {
     name: 'config-manager pull org-privileges (one realm)',
     file: 'config-manager-pull/config-manager-pull-org-privileges',
-    fn: 'configManagerExportOrgPrivilegesAllRealms',
+    fn: 'configManagerExportOrgPrivileges',
     options: {},
-    // a realm that was named has to have its configuration
-    args: (allowFailures) => ['alpha', allowFailures, false],
+    // the realm that was named is handed on, it has to have its configuration
+    args: (allowFailures) => [undefined, allowFailures, 'alpha'],
   },
   {
     name: 'config-manager pull org-privileges (all realms)',
     file: 'config-manager-pull/config-manager-pull-org-privileges',
-    fn: 'configManagerExportOrgPrivilegesAllRealms',
+    fn: 'configManagerExportOrgPrivileges',
     options: {},
     realm: DEFAULT_REALM_KEY,
-    args: (allowFailures) => [undefined, allowFailures],
+    args: (allowFailures) => [undefined, allowFailures, undefined],
   },
   {
     name: 'config-manager push org-privileges (all realms)',
     file: 'config-manager-push/config-manager-push-org-privileges',
-    fn: 'configManagerImportOrgPrivilegesAllRealms',
+    fn: 'configManagerImportOrgPrivileges',
     options: {},
-    args: (allowFailures) => [allowFailures],
+    args: (allowFailures) => [undefined, allowFailures],
   },
 ];
 
@@ -268,15 +267,42 @@ describe('config-manager push org-privileges -n', () => {
       setups['config-manager-push/config-manager-push-org-privileges'];
     await invoke(setup(), { name: 'alphaOrgPrivileges', allowFailures: true });
     expect(
-      ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivilegesByName.mock
-        .calls
-    ).toEqual([['alphaOrgPrivileges']]);
-    expect(
-      ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivilegesAllRealms
-    ).not.toHaveBeenCalled();
+      ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivileges.mock.calls
+    ).toEqual([['alphaOrgPrivileges', true]]);
     expect(process.exitCode).toBe(0);
 
-    ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivilegesByName.mockResolvedValue(
+    ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivileges.mockResolvedValue(
+      false
+    );
+    await invoke(setup(), { name: 'alphaOrgPrivileges', allowFailures: true });
+    expect(process.exitCode).toBe(1);
+    process.exitCode = 0;
+  });
+});
+
+describe('config-manager pull org-privileges -n', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    getTokens.mockResolvedValue(true);
+    for (const module of Object.values(ops)) {
+      for (const op of Object.values(module))
+        op.mockReset().mockResolvedValue(true);
+    }
+  });
+
+  test('exports the named configuration only, within the realm, and exits 1 when it cannot be exported', async () => {
+    const setup =
+      setups['config-manager-pull/config-manager-pull-org-privileges'];
+    await invoke(setup(), {
+      name: 'alphaOrgPrivileges',
+      allowFailures: true,
+    });
+    expect(
+      ops.FrConfigOrgPrivilegesOps.configManagerExportOrgPrivileges.mock.calls
+    ).toEqual([['alphaOrgPrivileges', true, 'alpha']]);
+    expect(process.exitCode).toBe(0);
+
+    ops.FrConfigOrgPrivilegesOps.configManagerExportOrgPrivileges.mockResolvedValue(
       false
     );
     await invoke(setup(), { name: 'alphaOrgPrivileges', allowFailures: true });
