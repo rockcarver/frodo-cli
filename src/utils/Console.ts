@@ -10,6 +10,7 @@ import {
 import Table, { Table as TableType } from 'cli-table3';
 import { stderr as logUpdateStderr } from 'log-update';
 import { v4 as uuidv4 } from 'uuid';
+import { airGappedHintFor } from './AirGapHint';
 import c from './ColorTheme';
 import { clearTransientFrame } from './interactive/TransientFrame';
 
@@ -304,6 +305,12 @@ export function printError(error: Error, message?: string) {
   switch (error.name) {
     case 'FrodoError':
       printMessage('' + (error as FrodoError).getCombinedMessage(), 'error');
+      // An air-gapped refusal of the library states the fact and names no
+      // option of this command line: the advice is ours (cli#1307).
+      {
+        const hint = airGappedHintFor(error);
+        if (hint) printMessage(hint, 'info');
+      }
       break;
 
     case 'AxiosError': {

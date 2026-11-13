@@ -10,8 +10,10 @@ jest.unstable_mockModule('../../src/utils/Config', () => ({
 
 const { readUpdateCheckEnabled, setUpdateCheckEnabled, getUpdateCheckStatus } =
   await import('../../src/utils/UpdateCheckConfig');
+const { setAirGapSetting } = await import('../../src/utils/AirGapConfig');
 
 const originalEnv = process.env.FRODO_NO_UPDATE_CHECK;
+const originalAirGapEnv = process.env.FRODO_AIRGAPPED;
 let directory;
 let file;
 
@@ -20,6 +22,7 @@ beforeEach(() => {
   configPath = path.join(directory, '.frodo');
   file = path.join(configPath, 'UpdateCheck.json');
   delete process.env.FRODO_NO_UPDATE_CHECK;
+  delete process.env.FRODO_AIRGAPPED;
 });
 
 afterEach(() => {
@@ -27,6 +30,8 @@ afterEach(() => {
   fs.rmSync(directory, { recursive: true, force: true });
   if (originalEnv === undefined) delete process.env.FRODO_NO_UPDATE_CHECK;
   else process.env.FRODO_NO_UPDATE_CHECK = originalEnv;
+  if (originalAirGapEnv === undefined) delete process.env.FRODO_AIRGAPPED;
+  else process.env.FRODO_AIRGAPPED = originalAirGapEnv;
 });
 
 test('a missing file defaults to enabled without creating anything', () => {
@@ -102,3 +107,45 @@ test.each(['', '0', 'false', 'off', 'enabled'])(
     });
   }
 );
+
+// Air-gapped mode implies that no update check is made (cli#1307): the status
+// that the version check reads is off whichever of the two air-gap inputs is
+// set, and the source names the air-gap switch, not the update-check switch.
+test('the air-gap environment variable alone turns the update check off', () => {
+  process.env.FRODO_AIRGAPPED = '1';
+  expect(readUpdateCheckEnabled()).toBe(true);
+  expect(getUpdateCheckStatus()).toEqual({
+    enabled: false,
+    source: 'air-gapped mode (environment variable (FRODO_AIRGAPPED))',
+  });
+});
+
+test('the air-gap setting alone turns the update check off', () => {
+  setAirGapSetting(true);
+  expect(readUpdateCheckEnabled()).toBe(true);
+  expect(getUpdateCheckStatus()).toEqual({
+    enabled: false,
+    source: 'air-gapped mode (setting)',
+  });
+});
+
+test('a falsey air-gap value or a disabled air-gap setting leaves the update check on', () => {
+  process.env.FRODO_AIRGAPPED = '0';
+  setAirGapSetting(false);
+  expect(getUpdateCheckStatus()).toEqual({
+    enabled: true,
+    source: 'setting (default: enabled)',
+  });
+});
+
+test('every switch that is on is named in the source', () => {
+  setUpdateCheckEnabled(false);
+  process.env.FRODO_NO_UPDATE_CHECK = 'yes';
+  process.env.FRODO_AIRGAPPED = 'yes';
+  setAirGapSetting(true);
+  expect(getUpdateCheckStatus()).toEqual({
+    enabled: false,
+    source:
+      'setting and environment variable (FRODO_NO_UPDATE_CHECK) and air-gapped mode (setting and environment variable (FRODO_AIRGAPPED))',
+  });
+});

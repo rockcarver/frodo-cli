@@ -6,6 +6,7 @@ import {
 import { EXIT_ALL_SIGNAL } from '../../utils/interactive/ExitAll';
 import { canPrompt } from '../../utils/interactive/PromptGateState';
 import { FrodoStubCommand, STEP_BACK_FROM_ACTION } from '../FrodoCommand';
+import AirGapCmd from './settings-airgap';
 import ConfigManagerLayoutCmd from './settings-config-manager-layout';
 import DefaultsCmd from './settings-defaults';
 import GuidedCmd from './settings-guided';
@@ -33,7 +34,8 @@ export default function setup() {
     .description(
       'Manage CLI settings.\n\n' +
         'Run without a sub-command to open the interactive settings menu.\n' +
-        'Use update-check show|enable|disable to persist the automatic update-check preference; FRODO_NO_UPDATE_CHECK also disables it.'
+        'Use update-check show|enable|disable to persist the automatic update-check preference; FRODO_NO_UPDATE_CHECK also disables it.\n' +
+        'Use airgap show|enable|disable to persist air-gapped mode, in which frodo makes no request to a host you did not name; FRODO_AIRGAPPED also enables it.'
     );
 
   program.addCommand(ThemeCmd().name('theme'));
@@ -41,6 +43,7 @@ export default function setup() {
   program.addCommand(DefaultsCmd().name('defaults'));
   program.addCommand(ConfigManagerLayoutCmd().name('config-manager-layout'));
   program.addCommand(UpdateCheckCmd().name('update-check'));
+  program.addCommand(AirGapCmd().name('airgap'));
 
   program.action(async () => {
     try {

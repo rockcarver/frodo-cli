@@ -5,6 +5,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import Color from 'colors';
 import { compareVersions } from 'compare-versions';
 import pkg from '../../package.json' with { type: 'json' };
+import { isAirGapped } from './AirGapConfig.js';
 import { isTruthyOptInValue } from './EnvFlags.js';
 import { readUpdateCheckEnabled } from './UpdateCheckConfig.js';
 
@@ -143,9 +144,12 @@ function isHomebrew() {
 }
 
 export async function getVersions(checkOnly: boolean) {
+  // Air-gapped mode implies no update check: no request to GitHub or npm and
+  // no read or write of the version cache (cli#1307).
   const noUpdateCheck =
     isTruthyOptInValue(process.env.FRODO_NO_UPDATE_CHECK) ||
-    !readUpdateCheckEnabled();
+    !readUpdateCheckEnabled() ||
+    isAirGapped();
   let updateAvailable = false;
   let usingBinary = false;
   if (isBinary()) {

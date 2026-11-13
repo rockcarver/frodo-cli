@@ -20,6 +20,7 @@
  */
 
 import type { FrodoError } from '@rockcarver/frodo-lib';
+import { AIR_GAPPED_HINT } from './AirGapHint';
 import { printMessage } from './Console';
 
 /** The identity of an error condition, as frodo-lib names it (`FrodoError.code`). */
@@ -55,6 +56,7 @@ export const ERROR_CODE_HINTS: Record<FrodoErrorCode, string> = {
   INSUFFICIENT_SCOPE: `The credential of this connection lacks a scope that the operation needs (named above). Log in with a service account that is granted it ('frodo conn save' saves a service account with the connection profile); browser login cannot obtain every scope.`,
   CIMD_PROFILES_NOT_AVAILABLE: `This deployment does not offer CIMD profiles: its AM does not list the CIMDProfile agent type. PingOne Advanced Identity Cloud tenants on a current version do; a self-hosted deployment needs a PingAM version that includes them.`,
   LOG_API_RATE_LIMITED: `The Log API allows 60 requests per minute for each environment, shared with everything else that reads its logs. Wait a minute and run the command again. 'frodo log tail' waits out the limit by itself, and its --keep-trying option keeps a tail following through longer outages.`,
+  AIR_GAPPED: AIR_GAPPED_HINT,
 };
 
 /** How deep to look through the errors that wrap errors. */
