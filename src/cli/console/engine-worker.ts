@@ -22,7 +22,7 @@
  */
 
 import { createInterface } from 'node:readline';
-import { state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { createWebEngine } from '../../ops/ShellWebEngineOps';
 import type { WebEngine } from '../../ops/ShellWebEngineOps';
@@ -86,6 +86,28 @@ function sessionInfo(): {
   };
 }
 
+/**
+ * Sign in to a host from its saved connection profile. The profile load is
+ * the point: it replaces ALL of state's credential fields (username,
+ * password, service account id/JWK/scope, deployment type, realm) with the
+ * target profile's, so switching environments cannot leak the previous
+ * environment's service account into the request. A JWT signed with one
+ * tenant's service account against another tenant's token endpoint is
+ * exactly how "Unknown JWT issuer" happens, and only setting the host
+ * leaves every other field as whatever was there before.
+ */
+async function connectToHost(host: string): Promise<boolean> {
+  const { loadConnectionProfileByHost } = frodo.conn;
+  try {
+    await loadConnectionProfileByHost({ host, state });
+  } catch {
+    // No profile (or unreadable): keep the host change so the tab's info
+    // line reflects the attempt, then let getTokens report the failure.
+    state.setHost(host);
+  }
+  return getTokens();
+}
+
 // Started for a host named on the command line: connect right away, the
 // way the CLI would, and report the outcome as a log line the tab shows.
 // The browser-login notice frodo prints ("Opening browser to complete
@@ -93,8 +115,7 @@ function sessionInfo(): {
 // the tab's stream, so a sign-in that opens a browser explains itself.
 if (process.env.FRODO_CONSOLE_HOST) {
   void (async () => {
-    state.setHost(process.env.FRODO_CONSOLE_HOST!);
-    const ok = await getTokens();
+    const ok = await connectToHost(process.env.FRODO_CONSOLE_HOST!);
     emit({
       log: ok
         ? `Connected to ${state.getHost()} as ${state.getUsername() || 'the saved profile'}.`
@@ -179,9 +200,7 @@ async function handle(request: Request): Promise<void> {
         break;
       }
       case 'connect': {
-        const host = request.host ?? '';
-        state.setHost(host);
-        const ok = await getTokens();
+        const ok = await connectToHost(request.host ?? '');
         emit({
           id: request.id,
           op: 'connect',
