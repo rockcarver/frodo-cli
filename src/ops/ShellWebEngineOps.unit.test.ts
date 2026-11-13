@@ -240,8 +240,9 @@ describe('ShellWebEngineOps', () => {
   it('completes let/const names and their paths (not just var)', async () => {
     await value('const c = { result: [{ _id: "x" }], resultCount: 1 }');
     expect(engine.complete('c.')[0]).toContain('c.result');
-    expect(engine.complete('c.result.')[0]).toContain('c.result.0');
-    expect(engine.complete('c.result.0.')[0]).toContain('c.result.0._id');
+    // Array hops render in bracket notation: the valid JavaScript.
+    expect(engine.complete('c.result.')[0]).toContain('c.result[0]');
+    expect(engine.complete('c.result[0].')[0]).toContain('c.result[0]._id');
     await value('let l = { y: { z: 1 } }');
     expect(engine.complete('l.y.')[0]).toContain('l.y.z');
     await value('var v = { w: 1 }');

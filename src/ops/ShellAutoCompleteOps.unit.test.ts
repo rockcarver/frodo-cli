@@ -88,4 +88,37 @@ describe('createFrodoCompleter', () => {
     expect(complete('frodo.a')).toEqual([['frodo.am'], 'frodo.a']);
     expect(complete('my')).toEqual([[], 'my']);
   });
+
+  it('completes array hops in bracket notation, the valid JavaScript', () => {
+    // Bracket syntax is what a user types for arrays (and the only form
+    // that runs: obj.0 is a SyntaxError), so paths through arrays are
+    // offered and rendered as c.result[0].name, not c.result.0.name.
+    const payload = {
+      result: [
+        { _id: 'a', name: 'first', nested: { deep: 1 } },
+        { _id: 'b', name: 'second' },
+      ],
+      resultCount: 2,
+    };
+    const complete = createFrodoCompleter(
+      { frodo: {} },
+      docsByMethod,
+      undefined,
+      () => ({ c: payload }) as unknown as Record<string, unknown>
+    );
+    // An open bracket offers indices with their closing bracket.
+    expect(complete('c.result[')[0]).toContain('c.result[0]');
+    expect(complete('c.result[')[0]).toContain('c.result[1]');
+    // Past the bracket, properties continue in dot notation.
+    expect(complete('c.result[0].')[0]).toContain('c.result[0]._id');
+    expect(complete('c.result[0].na')[0]).toEqual(['c.result[0].name']);
+    // A closed bracket hop is resolved: its children are offered.
+    expect(complete('c.result[0]')[0]).toContain('c.result[0]._id');
+    expect(complete('c.result[0].nested.')[0]).toContain(
+      'c.result[0].nested.deep'
+    );
+    expect(complete('c.result[1].na')[0]).toEqual(['c.result[1].name']);
+    // A dotted path onto an array offers the bracketed hops.
+    expect(complete('c.result.')[0]).toContain('c.result[0]');
+  });
 });

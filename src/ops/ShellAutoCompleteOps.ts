@@ -46,6 +46,76 @@ export function getValueAtPath(root: unknown, pathSegments: string[]): unknown {
 }
 
 /**
+ * One hop in a completion path, with the syntax the user chose for it:
+ * dotted (c.result) or bracketed (c.result[0]). Bracket syntax is the
+ * valid JavaScript for array indices; the dotted form only exists because
+ * completion offered it.
+ */
+type PathSegment = { name: string; bracketed: boolean };
+
+/**
+ * Parse a completion token into hops. Accepts dotted paths (c.result.0),
+ * bracketed ones (c.result[0]) and a mix (c.result[0].name). The token is
+ * known to match the completer's grammar, so anything unparseable just
+ * yields an empty path.
+ */
+function parsePath(token: string): PathSegment[] {
+  const segments: PathSegment[] = [];
+  // Dotted hops up to a bracket or the end.
+  const dottedRe = /[A-Za-z_$][\w$]*|\d+/g;
+  let rest = token;
+  // Leading root name.
+  const rootMatch = rest.match(/^[A-Za-z_$][\w$]*/);
+  if (!rootMatch) return [];
+  segments.push({ name: rootMatch[0], bracketed: false });
+  rest = rest.slice(rootMatch[0].length);
+  while (rest.length > 0) {
+    if (rest.startsWith('.')) {
+      rest = rest.slice(1);
+      const m = rest.match(/^[A-Za-z_$][\w$]*|\d+/);
+      if (!m) break;
+      segments.push({ name: m[0], bracketed: false });
+      rest = rest.slice(m[0].length);
+    } else if (rest.startsWith('[')) {
+      rest = rest.slice(1);
+      const m = rest.match(/^\d+/);
+      if (!m) break;
+      segments.push({ name: m[0], bracketed: true });
+      rest = rest.slice(m[0].length);
+      if (rest.startsWith(']')) rest = rest.slice(1);
+    } else {
+      break;
+    }
+  }
+  return segments;
+}
+
+/** Render hops back to source text, preserving each hop's syntax. */
+function renderPath(segments: PathSegment[]): string {
+  let out = segments[0].name;
+  for (let i = 1; i < segments.length; i++) {
+    const s = segments[i];
+    out += s.bracketed ? `[${s.name}]` : `.${s.name}`;
+  }
+  return out;
+}
+
+/** The object a path's hops resolve to, or undefined. */
+function resolvePath(root: unknown, segments: PathSegment[]): unknown {
+  let current: unknown = root;
+  for (let i = 1; i < segments.length; i++) {
+    const seg = segments[i];
+    if (seg.bracketed && Array.isArray(current)) {
+      current = current[Number(seg.name)];
+      continue;
+    }
+    if (!current || typeof current !== 'object') return undefined;
+    current = (current as Record<string, unknown>)[seg.name];
+  }
+  return current;
+}
+
+/**
  * Names a fresh REPL context carries that are machinery, not the user's:
  * offering them as completions would drown the useful candidates. The
  * globals a context shares with any script (fetch, crypto, ...) are still
@@ -182,9 +252,9 @@ export function createFrodoCompleter(
     }
 
     const tokenMatch = line.match(
-      // Numeric segments index arrays (c.result.0), so they participate
-      // in dotted paths like any property name.
-      /([A-Za-z_$][\w$]*(?:\.(?:[A-Za-z_$][\w$]*|\d+))*\.?)$/
+      // A dotted path with optional bracketed array hops: c.result[0].na.
+      // A trailing [ or . keeps completion open for what follows.
+      /([A-Za-z_$][\w$]*(?:\.(?:[A-Za-z_$][\w$]*|\d+)|\[\d*\]|\[)*\.?)$/
     );
     const token = tokenMatch?.[1] ?? '';
     if (!token) return [[], line];
@@ -215,29 +285,57 @@ export function createFrodoCompleter(
       return [rootCompletions, token];
     }
 
-    const segments = token.split('.');
-    const rootName = segments[0];
+    // Dotted or bracketed path: walk the hops the user chose, then offer
+    // what the target holds in the same notation.
+    const segments = parsePath(token);
+    if (segments.length === 0) return [[], token];
+    const rootName = segments[0].name;
     const root = resolveRoot(rootName);
     if (!root) return [[], token];
 
-    const hasTrailingDot = token.endsWith('.');
-    const parentSegments = hasTrailingDot
-      ? segments.slice(1, -1)
-      : segments.slice(1, -1);
-    const partial = hasTrailingDot ? '' : segments[segments.length - 1];
-
-    const targetObj = getValueAtPath(root, parentSegments);
+    const endsWithDot = token.endsWith('.');
+    const endsWithOpenBracket = token.endsWith('[');
+    // The hops that are fully typed: the object the next hop lands in.
+    // A trailing . or [ leaves every hop complete; a partial last segment
+    // (c.result[0].na) is a filter, not a hop to resolve. A complete
+    // bracketed hop (c.result[0], closed) IS resolved: it stays in base.
+    const lastHop = segments[segments.length - 1];
+    const lastHopComplete =
+      endsWithDot || endsWithOpenBracket || lastHop.bracketed;
+    const base = lastHopComplete ? segments : segments.slice(0, -1);
+    const targetObj = resolvePath(root, base);
     if (!targetObj || typeof targetObj !== 'object') return [[], token];
 
-    const completions = Object.keys(targetObj)
-      .filter((k) => k.startsWith(partial))
-      .sort((a, b) => a.localeCompare(b))
-      .map((k) => {
+    const partial = lastHopComplete ? '' : lastHop.name;
+    const completions: string[] = [];
+    if (Array.isArray(targetObj) && (endsWithOpenBracket || endsWithDot)) {
+      // The next hop is an index: offer 0], 1], ... in bracket notation
+      // (indices sort numerically, nearest first, newest of long arrays).
+      const count = targetObj.length;
+      const shown = Math.min(count, 50);
+      for (let i = 0; i < shown; i++)
+        completions.push(`${base ? renderPath(base) : rootName}[${i}]`);
+    } else {
+      const keys = Object.keys(targetObj)
+        .filter((k) => k.startsWith(partial))
+        .sort((a, b) => a.localeCompare(b));
+      for (const k of keys) {
         const value = (targetObj as Record<string, unknown>)[k];
-        const prefix = `${rootName}.${[...parentSegments, k].join('.')}`;
-        if (typeof value !== 'function') return prefix;
-        return `${prefix}${buildMethodScaffold(parentSegments, k, docsByMethod)}`;
-      });
+        const segments2 = [...base, { name: k, bracketed: false }];
+        const prefix = renderPath(segments2);
+        if (typeof value !== 'function') {
+          completions.push(prefix);
+        } else {
+          completions.push(
+            `${prefix}${buildMethodScaffold(
+              segments2.slice(1).map((s) => s.name),
+              k,
+              docsByMethod
+            )}`
+          );
+        }
+      }
+    }
 
     // Schedule a typed-signature hint when a single method completion is produced.
     if (onMethodHint && completions.length === 1) {
@@ -248,7 +346,7 @@ export function createFrodoCompleter(
         const resolvedMethodName = completion.slice(dotIdx + 1, parenIdx);
         const doc = findBestDoc(
           resolvedMethodName,
-          parentSegments,
+          segments.slice(1, -1).map((s) => s.name),
           docsByMethod
         );
         if (doc) {
