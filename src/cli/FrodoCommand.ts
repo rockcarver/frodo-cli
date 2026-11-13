@@ -1528,6 +1528,12 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
       command.hasDefaultOption(noCacheOption.attributeName()),
   },
   {
+    name: 'FRODO_AIRGAPPED',
+    description:
+      'Set to 1, true, yes, or on (case-insensitive) to switch on air-gapped mode: frodo makes no request to a host you did not name. The tenant and the hosts and URLs you give stay allowed; the update check and the application template catalog are not made. This also disables the update check. Persist this preference with frodo settings airgap enable.',
+    group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
+  },
+  {
     name: 'FRODO_NO_UPDATE_CHECK',
     description:
       'Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices. Persist this preference with frodo settings update-check disable; either control disables the check.',
