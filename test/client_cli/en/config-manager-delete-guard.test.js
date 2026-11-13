@@ -40,6 +40,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete oauth-issuers',
     'frodo config-manager delete variables',
     'frodo config-manager delete schedules',
+    'frodo config-manager delete secret-mappings',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -78,6 +79,12 @@ describe('a delete of more than one object without a terminal and without --yes'
     const { stderr } = await run('frodo config-manager delete schedules');
 
     expect(stderr).toContain('all schedules');
+  });
+
+  test('the refusal of secret mappings says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete secret-mappings');
+
+    expect(stderr).toContain('all secret mappings in the selected realms');
   });
 
   test('the refusal of secrets says what would have been deleted', async () => {
@@ -166,6 +173,8 @@ describe('what is not refused', () => {
     'frodo config-manager delete schedules -y',
     'frodo config-manager delete schedules -n Example',
     'frodo config-manager delete schedules -n Example --dry-run',
+    'frodo config-manager delete secret-mappings --dry-run',
+    'frodo config-manager delete secret-mappings -y',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
@@ -281,5 +290,59 @@ describe('an empty name', () => {
 
     expect(stderr).not.toContain('Refusing to delete');
     expect(stderr).not.toContain('all terms and conditions versions');
+  });
+});
+
+describe('an empty secret mapping ID', () => {
+  test.each([
+    "frodo config-manager delete secret-mappings -n ''",
+    "frodo config-manager delete secret-mappings -n '' -y",
+    "frodo config-manager delete secret-mappings -n '' --dry-run",
+    "frodo config-manager delete secret-mappings -n ' '",
+    'frodo config-manager delete secret-mappings --name=',
+  ])('"%s" is an error before the login, not a delete of all secret mappings', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The secret mapping ID (-n) must not be empty');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('a named secret mapping', () => {
+  test.each([
+    'frodo config-manager delete secret-mappings -n am.example.secret.id',
+    'frodo config-manager delete secret-mappings -n am.example.secret.id --dry-run',
+  ])('"%s" needs a realm: it is an error before the login', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('requires a realm argument');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('the root realm and secret mappings', () => {
+  test.each([
+    'frodo config-manager delete secret-mappings -y',
+    'frodo config-manager delete secret-mappings --dry-run',
+    'frodo config-manager delete secret-mappings -n am.example.secret.id',
+  ])('"%s" with the root realm is an error before the login, not a silent success', async (command) => {
+    let result;
+    try {
+      const { stdout, stderr } = await exec(`${command} ${HOST}`, {
+        env: { ...process.env, FRODO_TEST: '0', FRODO_REALM: '/' },
+      });
+      result = { code: 0, stdout, stderr };
+    } catch (error) {
+      result = { code: error.code, stdout: error.stdout, stderr: error.stderr };
+    }
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('The root realm has no secret mappings to delete');
+    expect(result.stderr).not.toContain('Refusing to delete');
+    expect(result.stderr).not.toMatch(/ECONNREFUSED|connect/i);
   });
 });
