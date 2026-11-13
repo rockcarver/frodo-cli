@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getAirGapStatus } from './AirGapConfig';
 import { getConfigPath } from './Config';
 import { isTruthyOptInValue } from './EnvFlags';
 
@@ -25,14 +26,18 @@ export function getUpdateCheckStatus(): { enabled: boolean; source: string } {
   const environmentDisabled = isTruthyOptInValue(
     process.env.FRODO_NO_UPDATE_CHECK
   );
+  // Air-gapped mode implies that no update check is made (cli#1307). The
+  // switch has its own source, so a user can tell which switch to turn off.
+  const airGap = getAirGapStatus();
   const sources = [
     ...(settingDisabled ? ['setting'] : []),
     ...(environmentDisabled
       ? ['environment variable (FRODO_NO_UPDATE_CHECK)']
       : []),
+    ...(airGap.enabled ? [`air-gapped mode (${airGap.source})`] : []),
   ];
   return {
-    enabled: !settingDisabled && !environmentDisabled,
+    enabled: !settingDisabled && !environmentDisabled && !airGap.enabled,
     source: sources.length
       ? sources.join(' and ')
       : 'setting (default: enabled)',
