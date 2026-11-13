@@ -13,8 +13,9 @@
  *   template by name and version, and says so when there is none;
  * - `download` asks the source now (`refresh`), saves the text of the cached
  *   catalog unchanged (never a re-encoded copy), and reports what the cache did;
- * - an air-gapped refusal of the library is followed by the advice of this
- *   command line (ErrorCodeHints), and the command fails;
+ * - an air-gapped refusal of the library fails the command and is followed by
+ *   the advice for a template command (pass a file); the advice about the
+ *   switch comes from `printError` (src/utils/AirGapHint.ts, cli#1307);
  * - the CLI switches the catalog cache on at start, and there is no way to
  *   switch it off.
  */

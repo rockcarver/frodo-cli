@@ -56,7 +56,7 @@ const catalog = {
 let home;
 
 /** Runs the built CLI in the fresh home and answers its output and exit code. */
-const frodo = (...args) =>
+const runFrodo = (extraEnv, args) =>
   new Promise((resolve) => {
     cp.execFile(
       process.execPath,
@@ -68,6 +68,7 @@ const frodo = (...args) =>
           HOME: home,
           FRODO_NO_UPDATE_CHECK: '1',
           NO_COLOR: '1',
+          ...extraEnv,
         },
       },
       (error, stdout, stderr) =>
@@ -78,6 +79,10 @@ const frodo = (...args) =>
         })
     );
   });
+
+const frodo = (...args) => runFrodo({}, args);
+/** The same run with air-gapped mode on (cli#1307): no request to a host that was not named. */
+const airGapped = (...args) => runFrodo({ FRODO_AIRGAPPED: '1' }, args);
 
 beforeAll(() => {
   home = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-template-cmds-'));
@@ -197,5 +202,62 @@ describe('frodo app template, without a tenant', () => {
     expect(out).toContain('Usage: frodo app template download [options]');
     expect(out).not.toMatch(/\[host\]|--username|--password/);
     expect(out).toContain('-f, --file <file>');
+  });
+});
+
+describe('frodo app template, with air-gapped mode on', () => {
+  test('7: download is refused with the advice to pass a file, and nothing is saved or kept', async () => {
+    const { code, out, err } = await airGapped('app', 'template', 'download');
+    expect(code).toBe(1);
+    const text = `${out}${err}`;
+    expect(text).toContain('Air-gapped mode is on');
+    // the advice of the switch and the advice of the command
+    expect(text).toContain('FRODO_AIRGAPPED');
+    expect(text).toContain('--templates <file>');
+    expect(fs.existsSync(path.join(home, 'appTemplates.json'))).toBe(false);
+    expect(fs.existsSync(path.join(home, '.frodo', 'AppTemplates'))).toBe(
+      false
+    );
+  });
+
+  test('8: list without a file is refused the same way, and with a file it still works', async () => {
+    const refused = await airGapped('app', 'template', 'list');
+    expect(refused.code).toBe(1);
+    expect(`${refused.out}${refused.err}`).toContain('--templates <file>');
+    const served = await airGapped(
+      'app',
+      'template',
+      'list',
+      '--templates',
+      'catalog.json'
+    );
+    expect(served.code).toBe(0);
+    expect(served.out.trim().split('\n')).toEqual([
+      '3_3-azure-ad',
+      '1_2-saml',
+      '1_3-saml',
+    ]);
+  });
+
+  test('9: describe from a file works air-gapped, from the CDN it does not', async () => {
+    const served = await airGapped(
+      'app',
+      'template',
+      'describe',
+      '-i',
+      '1_3-saml',
+      '--templates',
+      'catalog.json'
+    );
+    expect(served.code).toBe(0);
+    expect(served.out).toContain('Newest version: yes');
+    const refused = await airGapped(
+      'app',
+      'template',
+      'describe',
+      '-i',
+      '1_3-saml'
+    );
+    expect(refused.code).toBe(1);
   });
 });

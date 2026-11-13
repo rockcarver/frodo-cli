@@ -1,12 +1,12 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
+import { isAirGappedError } from '../utils/AirGapHint';
 import {
   catalogOptionsOf,
   type CatalogChannel,
   type CatalogSource,
 } from '../utils/ApplicationTemplateSource';
 import { createTable, printError, printMessage } from '../utils/Console';
-import { printErrorHint } from '../utils/ErrorCodeHints';
 
 // The application template catalog has a library module of its own. Every
 // library symbol this file uses is named here, so a rename is one line.
@@ -23,6 +23,21 @@ type CatalogResult = Awaited<ReturnType<typeof readCatalog>>;
 
 /** One template version of the merged list. */
 type TemplateListItem = Awaited<ReturnType<typeof listTemplates>>[number];
+
+/** What to do when the catalog cannot be read because air-gapped mode is on. `printError` already says that air-gapped mode is on and how to turn it off. */
+export const AIR_GAPPED_CATALOG_ADVICE =
+  "Pass the application template catalog as a file with --templates <file>. Save the file with 'frodo app template download' on a machine that can reach the internet.";
+
+/**
+ * Print a failure of a template command. An air-gapped refusal of the library
+ * gets the advice of this command line after the one `printError` prints for
+ * every air-gapped refusal: the catalog can be given as a file.
+ * @param {unknown} error the error that was caught
+ */
+function printCatalogFailure(error: unknown): void {
+  printError(error as Error);
+  if (isAirGappedError(error)) printMessage(AIR_GAPPED_CATALOG_ADVICE, 'info');
+}
 
 /** The name of the file `download` saves to when it is not given one. */
 export const DEFAULT_CATALOG_FILE = 'appTemplates.json';
@@ -95,8 +110,7 @@ export async function listApplicationTemplates(
     }
     return true;
   } catch (error) {
-    printError(error);
-    printErrorHint(error);
+    printCatalogFailure(error);
   }
   return false;
 }
@@ -178,8 +192,7 @@ export async function describeApplicationTemplate(
       });
     return true;
   } catch (error) {
-    printError(error);
-    printErrorHint(error);
+    printCatalogFailure(error);
   }
   return false;
 }
@@ -238,8 +251,7 @@ export async function downloadApplicationTemplateCatalog(
     );
     return true;
   } catch (error) {
-    printError(error);
-    printErrorHint(error);
+    printCatalogFailure(error);
   }
   return false;
 }
