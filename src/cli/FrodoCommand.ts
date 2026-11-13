@@ -3634,6 +3634,24 @@ export class FrodoCommand extends FrodoStubCommand {
   types: string[];
 
   /**
+   * The command runs without a connection (its host argument is a
+   * convenience, not a requirement), so the resolution pass must not
+   * prompt for one: set by `runsUnconnected()`, read by
+   * ResolveInteractiveInputs.
+   */
+  connectionArgsOptional = false;
+
+  /**
+   * Declare that this command can run with no connection at all, so the
+   * resolution pass never prompts for a host (or credentials): the
+   * command handles an unconnected state itself.
+   */
+  runsUnconnected(): this {
+    this.connectionArgsOptional = true;
+    return this;
+  }
+
+  /**
    * Deferred mandatory handling (see FrodoStubCommand's implementation
    * for the verbatim-commander default): record the violation instead of
    * throwing, so the preAction resolution pass can prompt for the value

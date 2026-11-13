@@ -32,11 +32,34 @@ export function getHelpMetadataFromInstance(
 export function getValueAtPath(root: unknown, pathSegments: string[]): unknown {
   let current: unknown = root;
   for (const segment of pathSegments) {
+    // A numeric segment indexes an array (c.result.0 names the first
+    // element), so REST payloads complete the same way the console's own
+    // completion offers them.
+    if (Array.isArray(current) && /^\d+$/.test(segment)) {
+      current = current[Number(segment)];
+      continue;
+    }
     if (!current || typeof current !== 'object') return undefined;
     current = (current as Record<string, unknown>)[segment];
   }
   return current;
 }
+
+/**
+ * Names a fresh REPL context carries that are machinery, not the user's:
+ * offering them as completions would drown the useful candidates. The
+ * globals a context shares with any script (fetch, crypto, ...) are still
+ * offered: they are callable, so completing them is useful.
+ */
+const RESERVED_CONTEXT = new Set([
+  'global',
+  'module',
+  'exports',
+  '__filename',
+  '__dirname',
+  'require',
+  'sessionStorage',
+]);
 
 export function normalizeName(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -109,8 +132,27 @@ export function buildHintLine(fullPath: string, doc: MethodHelpDoc): string {
 export function createFrodoCompleter(
   rootBindings: Record<string, object>,
   docsByMethod: Map<string, MethodHelpDoc[]>,
-  onMethodHint?: (hint: string) => void
+  onMethodHint?: (hint: string) => void,
+  /**
+   * The live REPL context, read at completion time: everything the user has
+   * defined (vars, functions, imports) completes too. Static rootBindings
+   * stay first so their doc scaffolding wins; the context fills the rest.
+   */
+  liveContext?: () => Record<string, unknown> | undefined
 ): (line: string) => [string[], string] {
+  // One lookup for both root-name and dotted-path completion: static roots
+  // win, the live context fills in what they lack (user variables).
+  const resolveRoot = (name: string): object | undefined => {
+    const staticRoot = rootBindings[name];
+    if (staticRoot !== undefined) return staticRoot;
+    try {
+      const live = liveContext?.();
+      return live ? (live[name] as object | undefined) : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+
   return (line: string): [string[], string] => {
     const invocationMatch = line.match(
       /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+)\(\s*$/
@@ -119,7 +161,7 @@ export function createFrodoCompleter(
       const fullPath = invocationMatch[1];
       const parts = fullPath.split('.');
       const rootName = parts[0];
-      const root = rootBindings[rootName];
+      const root = resolveRoot(rootName);
       if (!root) return [[], line];
 
       const methodName = parts[parts.length - 1];
@@ -140,7 +182,9 @@ export function createFrodoCompleter(
     }
 
     const tokenMatch = line.match(
-      /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*\.?)$/
+      // Numeric segments index arrays (c.result.0), so they participate
+      // in dotted paths like any property name.
+      /([A-Za-z_$][\w$]*(?:\.(?:[A-Za-z_$][\w$]*|\d+))*\.?)$/
     );
     const token = tokenMatch?.[1] ?? '';
     if (!token) return [[], line];
@@ -148,14 +192,32 @@ export function createFrodoCompleter(
     const rootCandidates = Object.keys(rootBindings).filter((rootName) =>
       rootName.startsWith(token)
     );
+    // User-defined names join the static roots at top level.
+    let liveNames: string[] = [];
+    try {
+      const live = liveContext?.();
+      if (live) {
+        liveNames = Object.keys(live).filter(
+          (n) =>
+            !rootBindings[n] &&
+            n.startsWith(token) &&
+            !RESERVED_CONTEXT.has(n) &&
+            Object.getOwnPropertyDescriptor(live, n)
+        );
+      }
+    } catch {
+      // A poisoned context must not break completion.
+    }
     if (!token.includes('.')) {
-      const rootCompletions = rootCandidates.sort((a, b) => a.localeCompare(b));
+      const rootCompletions = Array.from(
+        new Set([...rootCandidates, ...liveNames])
+      ).sort((a, b) => a.localeCompare(b));
       return [rootCompletions, token];
     }
 
     const segments = token.split('.');
     const rootName = segments[0];
-    const root = rootBindings[rootName];
+    const root = resolveRoot(rootName);
     if (!root) return [[], token];
 
     const hasTrailingDot = token.endsWith('.');

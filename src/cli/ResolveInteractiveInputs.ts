@@ -1022,6 +1022,13 @@ const ENTER_MANUALLY = Symbol('resolveConnectionArgs:enterManually');
  * username/password prompts redundant.
  */
 async function resolveConnectionArgs(command: Command): Promise<boolean> {
+  // A command that declared itself runnable without a connection (the
+  // console commands: the terminal one runs bare, and the web one picks
+  // its environment in the page) never gets connection prompts.
+  const frodoCommand = command as Command & {
+    connectionArgsOptional?: boolean;
+  };
+  if (frodoCommand.connectionArgsOptional) return true;
   // -- host -------------------------------------------------------------
   if (
     positionalIndex(command, 'host') !== -1 &&

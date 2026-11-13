@@ -126,7 +126,9 @@ async function startRepl(allowAwait = false, host?: string) {
 
   // Set up persistent shell history per connection profile/host
   const shellHistory = new ShellHistory(host);
-  (replServer as any).history = shellHistory.getLines();
+  (replServer as any).history = shellHistory.getLines({
+    singleLineOnly: true,
+  });
 
   // Register .history dot-command to print, clear, or trim command history.
   // Subcommands are passed as the text argument after the dot-command name:
