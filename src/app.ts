@@ -5,7 +5,7 @@
 // during parse -- import TIME is irrelevant, first CALL is what counts.
 // (The eslint rule that wants imports first is disabled for the call's
 // placement, not the imports.)
-/* eslint-disable import-x/first */
+
 import { frodo, state } from '@rockcarver/frodo-lib';
 // commands
 import admin from './cli/admin/admin';
@@ -54,6 +54,7 @@ import session from './cli/session/session';
 import settings from './cli/settings/settings';
 import shell from './cli/shell/shell';
 import theme from './cli/theme/theme';
+import { applyAirGapSwitchToState } from './ops/AirGapOps';
 import {
   debugMessage,
   printError,
@@ -86,6 +87,9 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     state.setErrorHandler(printError);
     state.setDebugHandler(debugMessage);
     state.setVerboseHandler(verboseMessage);
+    // Air-gapped mode (FRODO_AIRGAPPED or `frodo settings airgap`): tell the
+    // library before any command runs, `frodo mcp server start` included.
+    applyAirGapSwitchToState();
     await ensureThemeDetectedIfNeeded();
     activatePersistedTheme();
 
