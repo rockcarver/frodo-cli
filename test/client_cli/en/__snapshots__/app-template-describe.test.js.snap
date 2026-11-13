@@ -3,49 +3,70 @@
 exports[`CLI help interface for 'app template describe --help' should be expected english 1`] = `
 "Usage: frodo app template describe [options] [host] [realm] [username] [password]
 
-Describe an application template.
+Describe an application template: what it provides, its versions, connector,
+capabilities, object types and application form. The newest version unless -v
+names another.
 
 Arguments:
-  host                             AM base URL, e.g.:
-                                   https://cdk.iam.example.com/am. To use a
-                                   connection profile, just specify a unique
-                                   substring or alias.
-  realm                            Realm. Specify realm as '/' for the root
-                                   realm or 'realm' or '/parent/child'
-                                   otherwise. (default: "alpha" for Identity
-                                   Cloud tenants, "/" otherwise.)
-  username                         Username to login with. Must be an admin user
-                                   with appropriate rights to manage
-                                   authentication journeys/trees. If given
-                                   without a password, and it matches the
-                                   username already stored in the connection
-                                   profile for the target host, frodo uses that
-                                   profile's stored password instead of
-                                   requiring it on the command line.
-  password                         Password.
+  host                                 AM base URL, e.g.:
+                                       https://cdk.iam.example.com/am. To use a
+                                       connection profile, just specify a unique
+                                       substring or alias.
+  realm                                Realm. Specify realm as '/' for the root
+                                       realm or 'realm' or '/parent/child'
+                                       otherwise. (default: "alpha" for Identity
+                                       Cloud tenants, "/" otherwise.)
+  username                             Username to login with. Must be an admin
+                                       user with appropriate rights to manage
+                                       authentication journeys/trees. If given
+                                       without a password, and it matches the
+                                       username already stored in the connection
+                                       profile for the target host, frodo uses
+                                       that profile's stored password instead of
+                                       requiring it on the command line.
+  password                             Password.
 
 Options:
-  --channel <channel>              Which catalog of the CDN to read: production
-                                   or development (the development catalog holds
-                                   a few more template versions). Default:
-                                   production. Cannot be used with --templates.
-                                   (choices: "production", "development")
-  -i, --template-id <template-id>  Template id: the id of one version of a
-                                   template, as "frodo app template list" prints
-                                   it (for example 1_2-saml). Ids are not
-                                   case-sensitive. (pick from application
-                                   template) (prompts if missing)
-  --json                           Output the whole template (the form
-                                   definition and the connector defaults) in
-                                   JSON format.
-  --templates <file>               Read the application template catalog from
-                                   this file instead of the CDN: the JSON that
-                                   "frodo app template download" saves, or the
-                                   gzip file as the CDN serves it. Cannot be
-                                   used with --channel.
-  -h, --help                       Help
-  -hh, --help-more                 Help with all options.
-  -hhh, --help-all                 Help with all options, environment variables,
-                                   and usage examples.
+  --channel <channel>                  Which catalog of the CDN to read:
+                                       production or development (the
+                                       development catalog holds a few more
+                                       template versions). Default: production.
+                                       Cannot be used with --templates.
+                                       (choices: "production", "development")
+  -i, --template-id <template-id>      Template id: the id of the template, as
+                                       "frodo app template list" prints it (for
+                                       example azure.ad). Dots and hyphens are
+                                       the same, and the case does not matter.
+                                       Cannot be used with -n. (pick from
+                                       application template)
+  --json                               Output the whole template (the form
+                                       definition and the connector defaults) in
+                                       JSON format.
+  -l, --long                           Long: also the properties of each object
+                                       type and the fields of the connector
+                                       configuration and of the application
+                                       form. (default: false)
+  -n, --template-name <template-name>  Display name of the template (for example
+                                       "Microsoft Entra"), as "frodo app
+                                       template list --long" prints it. The case
+                                       does not matter. Cannot be used with -i.
+                                       (pick from application template)
+  --templates <file>                   Read the application template catalog
+                                       from this file instead of the CDN: the
+                                       JSON that "frodo app template download"
+                                       saves, or the gzip file as the CDN serves
+                                       it. Cannot be used with --channel.
+  -v, --template-version <version>     The version to describe (for example
+                                       3.1). Default: the newest version. The
+                                       versions of a template are listed in its
+                                       description.
+  -h, --help                           Help
+  -hh, --help-more                     Help with all options.
+  -hhh, --help-all                     Help with all options, environment
+                                       variables, and usage examples.
+
+Rule:
+  one of -i, --template-id <template-id> | -n, --template-name <template-name> is required -- choose which template to describe
+
 "
 `;

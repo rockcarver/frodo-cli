@@ -5,9 +5,13 @@
  * tests guard what only the real command tree shows:
  * - `list` and `describe` need no connection when no tenant is given, and
  *   `download` never takes one;
- * - `--templates` reads the JSON file and the gzip file as the CDN serves it,
- *   `-i` finds the version and the exit code tells a failure;
- * - `--templates` and `--channel` cannot be combined.
+ * - `--templates` reads the JSON file and the gzip file as the CDN serves it;
+ * - `list` shows the newest version of each template, `--all-versions` every
+ *   version; `describe` finds a template by `-i` (id) or `-n` (display name),
+ *   describes the newest version unless `-v` names another, and does not know
+ *   the key the catalog keeps a version under;
+ * - the exit code tells a failure, and `-i` and `-n` cannot be combined, nor
+ *   `--templates` and `--channel`.
  * Run `npx tsdown` first: the test runs dist/launch.cjs.
  */
 import cp from 'child_process';
@@ -15,43 +19,14 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { gzipSync } from 'zlib';
+import {
+  fixtureCatalog,
+  fixtureIds,
+} from '../utils/ApplicationTemplateFixtures.js';
 
 const LAUNCH = path.join(process.cwd(), 'dist', 'launch.cjs');
 
-const catalog = {
-  AppTemplates: {
-    consumer: {
-      Saml: {
-        '1_2-saml': {
-          id: 'saml',
-          templateVersion: '1.2',
-          displayName: 'SAML',
-          templateType: 'SAML',
-          description: 'SAML applications enable single sign-on.',
-          dateUpdated: '09-09-2024',
-        },
-        '1_3-saml': {
-          id: 'saml',
-          templateVersion: '1.3',
-          displayName: 'SAML',
-          templateType: 'SAML',
-          dateUpdated: '10-10-2025',
-        },
-      },
-    },
-    enterprise: {
-      AzureAD: {
-        '3_3-azure-ad': {
-          id: 'azure.ad',
-          templateVersion: '3.3',
-          displayName: 'Azure AD',
-          templateType: 'Enterprise',
-          dateUpdated: '01-01-2025',
-        },
-      },
-    },
-  },
-};
+const catalog = fixtureCatalog;
 
 let home;
 
@@ -98,7 +73,7 @@ afterAll(() => {
 });
 
 describe('frodo app template, without a tenant', () => {
-  test('1: list prints the ids of the catalog file, needs no login and exits 0', async () => {
+  test('1: list prints the id of each template of the catalog file once, needs no login and exits 0', async () => {
     const { code, out } = await frodo(
       'app',
       'template',
@@ -107,15 +82,11 @@ describe('frodo app template, without a tenant', () => {
       'catalog.json'
     );
     expect(code).toBe(0);
-    // the library sorts by template name, then by version
-    expect(out.trim().split('\n')).toEqual([
-      '3_3-azure-ad',
-      '1_2-saml',
-      '1_3-saml',
-    ]);
+    // the library sorts by template name; the newest version is listed, no key
+    expect(out.trim().split('\n')).toEqual(fixtureIds);
   });
 
-  test('2: list --long reads the gzip file as the CDN serves it and marks the newest version of a template', async () => {
+  test('2: list --long reads the gzip file as the CDN serves it and has a row for each template with its newest version and the number of versions', async () => {
     const { code, out } = await frodo(
       'app',
       'template',
@@ -125,45 +96,141 @@ describe('frodo app template, without a tenant', () => {
       'catalog.json.gz'
     );
     expect(code).toBe(0);
-    const row = (id) => out.split('\n').find((line) => line.startsWith(id));
-    expect(row('1_2-saml')).not.toMatch(/yes/);
-    expect(row('1_3-saml')).toMatch(/yes/);
-    expect(row('3_3-azure-ad')).toContain('Azure AD');
+    const lines = out.trim().split('\n');
+    expect(lines[0]).toMatch(
+      /^Id +│Display name +│Category +│Provides +│Connector +│Latest│Versions│Updated *$/
+    );
+    expect(lines).toHaveLength(1 + fixtureIds.length);
+    const row = (id) => lines.find((line) => line.startsWith(id));
+    const cells = (line) => line.split('│').map((cell) => cell.trim());
+    expect(cells(row('azure.ad'))).toEqual([
+      'azure.ad',
+      'Microsoft Entra',
+      'Uncategorized',
+      'provisioning',
+      'MSGraphAPI',
+      '3.4',
+      '2',
+      '2026-08-19',
+    ]);
+    expect(cells(row('saml'))[3]).toBe('SSO: SAML');
+    expect(cells(row('ai.target'))[3]).toBe('target+provisioning');
+    // 2.10 is newer than 2.3, and a date that is no date is printed as it is
+    expect(cells(row('ldap')).slice(5)).toEqual([
+      '2.10',
+      '2',
+      'sometime in 2023',
+    ]);
   });
 
-  test('3: describe finds a version by its id, whatever the case, and --json prints the whole template', async () => {
-    const summary = await frodo(
+  test('3: list --all-versions has an id and a version for each version, with the newest marked', async () => {
+    const { code, out } = await frodo(
       'app',
       'template',
-      'describe',
-      '-i',
-      '1_2-SAML',
+      'list',
+      '--all-versions',
       '--templates',
       'catalog.json'
     );
-    expect(summary.code).toBe(0);
-    expect(summary.out).toContain('Id: 1_2-saml');
-    expect(summary.out).toContain('Newest version: no');
-    const whole = await frodo(
+    expect(code).toBe(0);
+    const lines = out.trim().split('\n');
+    expect(lines[0].split('│').map((cell) => cell.trim())).toEqual([
+      'Id',
+      'Version',
+      'Newest',
+    ]);
+    const rows = lines
+      .slice(1)
+      .map((line) => line.split('│').map((cell) => cell.trim()));
+    expect(rows.filter(([id]) => id === 'azure.ad')).toEqual([
+      ['azure.ad', '3.3', ''],
+      ['azure.ad', '3.4', 'yes'],
+    ]);
+    expect(rows.filter(([id]) => id === 'ldap').map((row) => row[1])).toEqual([
+      '2.3',
+      '2.10',
+    ]);
+    expect(out).not.toMatch(/\d_\d+-/);
+  });
+
+  test('4: describe takes the newest version of the template -i names, whatever the case, and --json prints the whole entry of the version', async () => {
+    const newest = await frodo(
       'app',
       'template',
       'describe',
       '-i',
-      '1_2-saml',
+      'AZURE-AD',
+      '--templates',
+      'catalog.json'
+    );
+    expect(newest.code).toBe(0);
+    expect(newest.out).toContain('Id: azure.ad');
+    expect(newest.out).toContain('Version: 3.4 (newest)');
+    expect(newest.out).toContain('Basic configuration (2, * required)');
+    const older = await frodo(
+      'app',
+      'template',
+      'describe',
+      '-i',
+      'azure.ad',
+      '-v',
+      '3.3',
       '--json',
       '--templates',
       'catalog.json'
     );
-    expect(JSON.parse(whole.out)).toMatchObject({
-      id: 'saml',
-      templateVersion: '1.2',
+    expect(JSON.parse(older.out)).toMatchObject({
+      id: 'azure.ad',
+      templateVersion: '3.3',
     });
   });
 
-  test('4: a failure exits 1: an unknown id, a missing file, a file that is not a catalog', async () => {
+  test('5: -v describes another version, -n names the template by its display name, and --long adds the details', async () => {
+    const version = await frodo(
+      'app',
+      'template',
+      'describe',
+      '-i',
+      'azure.ad',
+      '-v',
+      '3.3',
+      '--templates',
+      'catalog.json'
+    );
+    expect(version.code).toBe(0);
+    expect(version.out).toContain('Version: 3.3 (the newest is 3.4)');
+    const named = await frodo(
+      'app',
+      'template',
+      'describe',
+      '-n',
+      'microsoft entra',
+      '--long',
+      '--templates',
+      'catalog.json'
+    );
+    expect(named.code).toBe(0);
+    expect(named.out).toContain('Id: azure.ad');
+    expect(named.out).toContain('Properties of User');
+    expect(named.out).toContain('memberOf');
+    expect(named.out).not.toMatch(/\d_\d+-/);
+  });
+
+  test('6: a failure exits 1: an unknown id, version or display name, the key of a version, a missing file, a file that is not a catalog', async () => {
     fs.writeFileSync(path.join(home, 'bad.json'), '{"not":"a catalog"}');
     for (const args of [
       ['describe', '-i', 'nope', '--templates', 'catalog.json'],
+      [
+        'describe',
+        '-i',
+        'azure.ad',
+        '-v',
+        '9.9',
+        '--templates',
+        'catalog.json',
+      ],
+      ['describe', '-n', 'Nope', '--templates', 'catalog.json'],
+      ['describe', '-i', '3_4-azure-ad', '--templates', 'catalog.json'],
       ['list', '--templates', 'missing.json'],
       ['list', '--templates', 'bad.json'],
     ]) {
@@ -171,9 +238,35 @@ describe('frodo app template, without a tenant', () => {
       expect(code).toBe(1);
       expect(`${out}${err}`.length).toBeGreaterThan(0);
     }
+    const key = await frodo(
+      'app',
+      'template',
+      'describe',
+      '-i',
+      '3_4-azure-ad',
+      '--templates',
+      'catalog.json'
+    );
+    expect(`${key.out}${key.err}`).toContain(
+      'Application template "3_4-azure-ad" not found'
+    );
+    const version = await frodo(
+      'app',
+      'template',
+      'describe',
+      '-i',
+      'ldap',
+      '-v',
+      '2.1',
+      '--templates',
+      'catalog.json'
+    );
+    expect(`${version.out}${version.err}`).toContain(
+      'Application template ldap has no version 2.1. Versions: 2.3, 2.10.'
+    );
   });
 
-  test('5: --templates and --channel cannot be combined, and -i is required', async () => {
+  test('7: --templates and --channel cannot be combined, -i and -n cannot be combined, and one of -i and -n is required', async () => {
     const both = await frodo(
       'app',
       'template',
@@ -185,18 +278,30 @@ describe('frodo app template, without a tenant', () => {
     );
     expect(both.code).toBe(1);
     expect(both.err).toContain('cannot be used with option');
-    const noId = await frodo(
+    const twoNames = await frodo(
       'app',
       'template',
       'describe',
+      '-i',
+      'saml',
+      '-n',
+      'SAML',
       '--templates',
       'catalog.json'
     );
-    expect(noId.code).toBe(1);
-    expect(noId.err).toContain("required option '-i, --template-id");
+    expect(twoNames.code).toBe(1);
+    expect(twoNames.err).toContain('cannot be used with option');
+    for (const args of [
+      ['--templates', 'catalog.json'],
+      ['-v', '3.3', '--templates', 'catalog.json'],
+    ]) {
+      const none = await frodo('app', 'template', 'describe', ...args);
+      expect(none.code).toBe(1);
+      expect(none.err).toContain("one of '-i, --template-id");
+    }
   });
 
-  test('6: download takes no connection: its help has no host, user or password', async () => {
+  test('8: download takes no connection: its help has no host, user or password', async () => {
     const { code, out } = await frodo('app', 'template', 'download', '--help');
     expect(code).toBe(0);
     expect(out).toContain('Usage: frodo app template download [options]');
@@ -206,7 +311,7 @@ describe('frodo app template, without a tenant', () => {
 });
 
 describe('frodo app template, with air-gapped mode on', () => {
-  test('7: download is refused with the advice to pass a file, and nothing is saved or kept', async () => {
+  test('9: download is refused with the advice to pass a file, and nothing is saved or kept', async () => {
     const { code, out, err } = await airGapped('app', 'template', 'download');
     expect(code).toBe(1);
     const text = `${out}${err}`;
@@ -220,7 +325,7 @@ describe('frodo app template, with air-gapped mode on', () => {
     );
   });
 
-  test('8: list without a file is refused the same way, and with a file it still works', async () => {
+  test('10: list without a file is refused the same way, and with a file it still works', async () => {
     const refused = await airGapped('app', 'template', 'list');
     expect(refused.code).toBe(1);
     expect(`${refused.out}${refused.err}`).toContain('--templates <file>');
@@ -232,31 +337,27 @@ describe('frodo app template, with air-gapped mode on', () => {
       'catalog.json'
     );
     expect(served.code).toBe(0);
-    expect(served.out.trim().split('\n')).toEqual([
-      '3_3-azure-ad',
-      '1_2-saml',
-      '1_3-saml',
-    ]);
+    expect(served.out.trim().split('\n')).toEqual(fixtureIds);
   });
 
-  test('9: describe from a file works air-gapped, from the CDN it does not', async () => {
+  test('11: describe from a file works air-gapped, from the CDN it does not', async () => {
     const served = await airGapped(
       'app',
       'template',
       'describe',
       '-i',
-      '1_3-saml',
+      'saml',
       '--templates',
       'catalog.json'
     );
     expect(served.code).toBe(0);
-    expect(served.out).toContain('Newest version: yes');
+    expect(served.out).toContain('Version: 1.3 (newest)');
     const refused = await airGapped(
       'app',
       'template',
       'describe',
       '-i',
-      '1_3-saml'
+      'saml'
     );
     expect(refused.code).toBe(1);
   });

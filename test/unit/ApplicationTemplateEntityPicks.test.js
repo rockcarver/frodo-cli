@@ -5,15 +5,18 @@ const { getEntityPicks } =
   await import('../../src/utils/interactive/EntityPickers.ts');
 
 /**
- * The entity picker of the real `app template` commands (decision record 0038).
+ * The entity pickers of the real `app template` commands (decision record 0038).
  * The group has an entry of its own in the registry beside `app`, whose entries
  * name other options (`appId`, `appName`), so the tree has to be checked as
- * built: `describe` gets exactly one picker for -i, and no other command of
- * `app` gets a template picker or loses its application picker.
+ * built: `describe` gets exactly one picker for -i and one for -n (a row per
+ * template, not per version), and no other command of `app` gets a template
+ * picker or loses its application picker.
  */
 
-const templateIdPicks = (leaf) =>
-  getEntityPicks(leaf).filter((pick) => pick.name === 'templateId');
+const templatePicks = (leaf) =>
+  getEntityPicks(leaf).filter(
+    (pick) => pick.name === 'templateId' || pick.name === 'templateName'
+  );
 
 let leaves = [];
 
@@ -24,15 +27,18 @@ beforeAll(async () => {
 });
 
 describe('the pickers of the app template commands', () => {
-  it('gives only `app template describe` a picker, and exactly one', () => {
+  it('gives only `app template describe` the pickers, one for -i and one for -n', () => {
     const withPicker = leaves
-      .filter((leaf) => templateIdPicks(leaf).length > 0)
+      .filter((leaf) => templatePicks(leaf).length > 0)
       .map(fullName);
     expect(withPicker).toEqual(['frodo app template describe']);
     const describe = leaves.find(
       (leaf) => fullName(leaf) === 'frodo app template describe'
     );
-    expect(getEntityPicks(describe).length).toBe(1);
+    expect(getEntityPicks(describe).map((pick) => pick.name)).toEqual([
+      'templateId',
+      'templateName',
+    ]);
   });
 
   it('keeps the application pickers of the other app commands', () => {
@@ -47,33 +53,37 @@ describe('the pickers of the app template commands', () => {
     expect(picks('frodo app template download')).toEqual([]);
   });
 
-  it('lists the catalog the command reads, with the templates of the tenant, and shows ids', async () => {
+  it('lists the catalog the command reads, with the templates of the tenant, and shows ids and display names, never the key of a version', async () => {
     const describe = leaves.find(
       (leaf) => fullName(leaf) === 'frodo app template describe'
     );
-    const [pick] = templateIdPicks(describe);
-    expect(pick.kind).toBe('application template');
-    expect(pick.label({ templateId: '1_2-saml', name: 'saml' })).toBe(
-      '1_2-saml'
+    const [byId, byName] = templatePicks(describe);
+    expect(byId.kind).toBe('application template');
+    expect(byId.label({ templateId: '3_4-azure-ad', name: 'azure.ad' })).toBe(
+      'azure.ad'
     );
     expect(
-      pick.description({
+      byId.description({
         displayName: 'SAML',
         templateType: 'SAML',
         isOverride: true,
       })
     ).toBe('SAML · SAML · defined by the tenant');
     expect(
-      pick.search(
+      byId.search(
         {
-          templateId: '3_3-azure-ad',
-          displayName: 'Azure AD',
+          templateId: '3_4-azure-ad',
+          displayName: 'Microsoft Entra',
           name: 'azure.ad',
         },
-        'azure'
+        'entra'
       )
     ).toBe(true);
+    expect(
+      byName.label({ name: 'azure.ad', displayName: 'Microsoft Entra' })
+    ).toBe('Microsoft Entra');
     // the loader for a command reads --templates and --channel from it
-    expect(typeof pick.loadFor).toBe('function');
+    expect(typeof byId.loadFor).toBe('function');
+    expect(typeof byName.loadFor).toBe('function');
   });
 });
