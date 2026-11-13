@@ -39,3 +39,35 @@ exports[`Should delete variables from cloud "frodo config-manager delete variabl
 Deleted variable: esv-josh-delete-test
 "
 `;
+
+exports[`Should delete variables from cloud "frodo config-manager delete variables -y": should delete all variables from cloud." 1`] = `
+"Experimental feature in use: 'frodo config-manager delete variables'. This feature may change without notice.
+Deleted variable: esv-asdf
+Deleted variable: esv-blue-piller
+Deleted variable: esv-fr-var-test
+Deleted variable: esv-fr-var-test-2
+Deleted variable: esv-ipv4-cidr-access-rules
+Deleted variable: esv-nebuchadnezzar-crew
+Deleted variable: esv-nebuchadnezzar-crew-structure
+Deleted variable: esv-neo-age
+Deleted variable: esv-number
+Error deleting variable esv-remote-proxy-volker-dev-host
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-remote-proxy-volker-dev-host
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Message: Cannot delete a variable that has an existing config placeholder
+Deleted variable: esv-saml-var-test
+Deleted variable: esv-test
+Deleted variable: esv-test-var
+Deleted variable: esv-test-var-bool
+Deleted variable: esv-test-var-pi
+Deleted variable: esv-test-var-pi-string
+Deleted variable: esv-test-variable-light
+Deleted variable: esv-trinity-phone
+1 of 18 variables failed:
+  - esv-remote-proxy-volker-dev-host: Cannot delete a variable that has an existing config placeholder
+"
+`;
+
+exports[`Should delete variables from cloud "frodo config-manager delete variables -y": should delete all variables from cloud." 2`] = `1`;
