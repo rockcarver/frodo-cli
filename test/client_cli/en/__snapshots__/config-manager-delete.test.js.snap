@@ -33,6 +33,9 @@ Commands:
   secrets                    [Experimental] [Cloud-only] Delete secrets.
   telemetry                  [Experimental] [Cloud-only] Delete telemetry
                              exporters.
+  tenant-config              [Experimental] [Cloud-only] Delete all secrets and
+                             variables from the tenant. Deleted secret values
+                             cannot be recovered.
   terms-and-conditions       [Experimental] Delete terms and conditions
                              versions.
   themes                     [Experimental] Delete themes by id or by name, or

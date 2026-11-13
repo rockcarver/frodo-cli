@@ -7,7 +7,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_d frodo config-manager delete variables -d
 */
 
-import { getEnv, testSuccess } from './utils/TestUtils';
+import { getEnv, testSuccess, testFail } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
@@ -30,5 +30,9 @@ describe('Should delete variables from cloud', () => {
     test(`"frodo config-manager delete variables -d": should print a dryrun message listing all variables from cloud."`, async () => {
         const CMD = `frodo config-manager delete variables -d`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_d' } });
+    });
+    test(`"frodo config-manager delete variables -y": should delete all variables from cloud."`, async () => {
+        const CMD = `frodo config-manager delete variables -y`;
+        await testFail(CMD, cloudEnv);
     });
 });

@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete tenant-config "frodo config-manager delete tenant-config --dry-run": previews deletion of all secrets and variables 1`] = `""`;
+
+exports[`frodo config-manager delete tenant-config "frodo config-manager delete tenant-config --dry-run": previews deletion of all secrets and variables 2`] = `
+"Experimental feature in use: 'frodo config-manager delete tenant-config'. This feature may change without notice.
+Dry run: Deleting secret: esv-fr-test-secret
+Dry run: Deleting secret: esv-p1recognize-apikey
+Dry run: Deleting secret: esv-prune-secrets
+Dry run: Deleting secret: esv-remote-proxy-volker-dev
+Dry run: Deleting secret: esv-saml-test
+Dry run: Deleting secret: esv-test-secret
+Dry run: Deleting secret: esv-test-secret-2
+Dry run: Deleting secret: esv-test-secret-3
+Dry run: Deleting secret: esv-test-secret-4
+Dry run: Deleting secret: esv-test-secret-5
+Dry run: Deleting secret: esv-test-secret-pi-generic
+Dry run: Deleting variable: esv-asdf
+Dry run: Deleting variable: esv-blue-piller
+Dry run: Deleting variable: esv-fr-var-test
+Dry run: Deleting variable: esv-fr-var-test-2
+Dry run: Deleting variable: esv-ipv4-cidr-access-rules
+Dry run: Deleting variable: esv-nebuchadnezzar-crew
+Dry run: Deleting variable: esv-nebuchadnezzar-crew-structure
+Dry run: Deleting variable: esv-neo-age
+Dry run: Deleting variable: esv-number
+Dry run: Deleting variable: esv-remote-proxy-volker-dev-host
+Dry run: Deleting variable: esv-saml-var-test
+Dry run: Deleting variable: esv-test
+Dry run: Deleting variable: esv-test-var
+Dry run: Deleting variable: esv-test-var-bool
+Dry run: Deleting variable: esv-test-var-pi
+Dry run: Deleting variable: esv-test-var-pi-string
+Dry run: Deleting variable: esv-test-variable-light
+Dry run: Deleting variable: esv-trinity-phone
+"
+`;
+
+exports[`frodo config-manager delete tenant-config "frodo config-manager delete tenant-config -y": deletes all secrets and variables 1`] = `
+"Experimental feature in use: 'frodo config-manager delete tenant-config'. This feature may change without notice.
+Deleted secret: esv-fr-test-secret
+Failed to delete secret esv-p1recognize-apikey
+HTTP client error
+  Code: ERR_BAD_REQUEST
+  Status: 403
+  Message: Cannot delete a secret that has an existing config placeholder
+Deleted secret: esv-prune-secrets
+Failed to delete secret esv-remote-proxy-volker-dev
+HTTP client error
+  Code: ERR_BAD_REQUEST
+  Status: 403
+  Message: Cannot delete a secret that has an existing config placeholder
+Deleted secret: esv-saml-test
+Deleted secret: esv-test-secret
+Deleted secret: esv-test-secret-2
+Deleted secret: esv-test-secret-3
+Deleted secret: esv-test-secret-4
+Deleted secret: esv-test-secret-5
+Deleted secret: esv-test-secret-pi-generic
+2 of 11 secrets failed:
+  - esv-p1recognize-apikey: Request failed with status code 403
+  - esv-remote-proxy-volker-dev: Request failed with status code 403
+Deleted variable: esv-asdf
+Deleted variable: esv-blue-piller
+Deleted variable: esv-fr-var-test
+Deleted variable: esv-fr-var-test-2
+Deleted variable: esv-ipv4-cidr-access-rules
+Deleted variable: esv-nebuchadnezzar-crew
+Deleted variable: esv-nebuchadnezzar-crew-structure
+Deleted variable: esv-neo-age
+Deleted variable: esv-number
+Error deleting variable esv-remote-proxy-volker-dev-host
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-remote-proxy-volker-dev-host
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Message: Cannot delete a variable that has an existing config placeholder
+Deleted variable: esv-saml-var-test
+Deleted variable: esv-test
+Deleted variable: esv-test-var
+Deleted variable: esv-test-var-bool
+Deleted variable: esv-test-var-pi
+Deleted variable: esv-test-var-pi-string
+Deleted variable: esv-test-variable-light
+Deleted variable: esv-trinity-phone
+1 of 18 variables failed:
+  - esv-remote-proxy-volker-dev-host: Cannot delete a variable that has an existing config placeholder
+"
+`;
+
+exports[`frodo config-manager delete tenant-config "frodo config-manager delete tenant-config -y": deletes all secrets and variables 2`] = `1`;
