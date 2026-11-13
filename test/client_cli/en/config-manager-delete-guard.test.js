@@ -45,6 +45,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete secret-mappings',
     'frodo config-manager delete telemetry',
     'frodo config-manager delete tenant-config',
+    'frodo config-manager delete remote-servers',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -193,6 +194,9 @@ describe('what is not refused', () => {
     'frodo config-manager delete telemetry -c otlp -i Example',
     'frodo config-manager delete tenant-config -y',
     'frodo config-manager delete tenant-config --dry-run',
+    'frodo config-manager delete remote-servers -y',
+    'frodo config-manager delete remote-servers --dry-run',
+    'frodo config-manager delete remote-servers -n rcs',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
@@ -331,8 +335,8 @@ describe('a delete that names one object, for every command and every spelling o
     ...(row.aliases.includes('--name') ? [['--name', "''"], ['--name=']] : []),
   ];
 
-  test('has the 16 delete rows', () => {
-    expect(rows).toHaveLength(16);
+  test('has the 17 delete rows', () => {
+    expect(rows).toHaveLength(17);
   });
 
   test.each(rows.map((row) => [typeOf(row), row]))(

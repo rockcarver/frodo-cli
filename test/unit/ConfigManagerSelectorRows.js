@@ -437,6 +437,12 @@ export const EXPECTED_SELECTORS = [
     name: null,
     aliases: ['-n', '--name'],
   },
+  {
+    command: 'frodo config-manager delete remote-servers',
+    id: '--remote-server-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
 ];
 
 export const STRAY_SELECTOR_OPTIONS = [
