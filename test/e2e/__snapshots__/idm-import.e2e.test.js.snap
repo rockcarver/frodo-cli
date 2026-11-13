@@ -1,16 +1,17 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo idm import "frodo idm import --all --file all.idm.json -D test/e2e/exports/all": Should import all configs from the file 'all.idm.json' in directory 'test/e2e/exports/all'" 1`] = `
-"Error updating config entity bravoOrgPrivileges
-  Network error:
-    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/bravoOrgPrivileges
-    Status: 403
-    Code: ERR_BAD_REQUEST
-    Reason: Forbidden
-    Message: Access denied
+"Error importing idm config entity bravoOrgPrivileges
+  Error updating config entity bravoOrgPrivileges
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/bravoOrgPrivileges
+      Status: 403
+      Code: ERR_BAD_REQUEST
+      Reason: Forbidden
+      Message: Access denied
 ✖ Some config entities could not be imported from test/e2e/exports/all/all.idm.json.
 1 of 59 config entities failed:
-  - Error updating config entity bravoOrgPrivileges: Access denied
+  - Error importing idm config entity bravoOrgPrivileges: Access denied
 "
 `;
 
@@ -39,24 +40,26 @@ exports[`frodo idm import "frodo idm import --file test/e2e/exports/all-separate
 `;
 
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/cloud/global/idm": Should import all configs from the directory 'test/e2e/exports/all-separate/cloud/global/idm'" 1`] = `
-"Error updating config entity endpoint/Test
-  Network error:
-    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/endpoint/Test
-    Status: 401
-    Code: ERR_BAD_REQUEST
-    Reason: Unauthorized
-    Message: Access Denied
-Error updating config entity endpoint/testEndpoint2
-  Network error:
-    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/endpoint/testEndpoint2
-    Status: 401
-    Code: ERR_BAD_REQUEST
-    Reason: Unauthorized
-    Message: Access Denied
+"Error importing idm config entity endpoint/Test
+  Error updating config entity endpoint/Test
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/endpoint/Test
+      Status: 401
+      Code: ERR_BAD_REQUEST
+      Reason: Unauthorized
+      Message: Access Denied
+Error importing idm config entity endpoint/testEndpoint2
+  Error updating config entity endpoint/testEndpoint2
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/endpoint/testEndpoint2
+      Status: 401
+      Code: ERR_BAD_REQUEST
+      Reason: Unauthorized
+      Message: Access Denied
 ✖ Some config entities could not be imported from test/e2e/exports/all-separate/cloud/global/idm.
 2 of 40 config entities failed:
-  - Error updating config entity endpoint/Test: Access Denied
-  - Error updating config entity endpoint/testEndpoint2: Access Denied
+  - Error importing idm config entity endpoint/Test: Access Denied
+  - Error importing idm config entity endpoint/testEndpoint2: Access Denied
 "
 `;
 

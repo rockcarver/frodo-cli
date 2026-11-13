@@ -184,7 +184,7 @@ exports[`frodo script describe "frodo script describe -un shared": should descri
 • Exported 6 internal roles
 • Exported 3 custom nodes.
 • Exported 3 realms.
-• Exported 40 scriptTypes.
+✔ Exported 40 scriptTypes.
 • Exported 2 secrets.
 • Exported 2 global services.
 • Exported 1 telemetry exporters.

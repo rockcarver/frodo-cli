@@ -273,6 +273,24 @@ imported every agent in it. It now imports only the first one, as its message
 says. A script that relied on the old behaviour to load a whole file uses `-a`
 (`import -a -f <file>`), which imports every agent of the file and is unchanged.
 
+**`app import -f` and `role import -f` import only the first item of the file**:
+`frodo app import -f <file>` and `frodo role import -f <file>` print that they
+import the first application or the first internal role of the file, but the
+library methods behind them imported every item in it. They now import only the
+first one, as their messages say. A script that relied on the old behaviour to
+load a whole file uses `-a` (`import -a -f <file>`), which imports every item of
+the file and is unchanged.
+
+**`config export` names a script type that cannot be read**: for each script
+type, `frodo config export` (`-a` and `-A`) reads its engine configuration and
+its context. When one of the two could not be read, the command printed a line
+(`Unable to get engine configuration for script type '<id>': ...`), exported the
+script type without that part and exited with code 0. The script type is now a
+failed item: it is named in the summary of the failed items, it is not part of
+the export, the other script types are exported, and the command exits with code
+1. A script that accepts an incomplete export adds `--allow-failures`: the
+failures are still printed and summarised, but do not set the exit code.
+
 **Commands that run several operations now run them all and exit 1 if any
 failed**: `frodo config-manager pull all` and `pull all-static` carried on after
 a step failed, printed that step's error and exited with code 0, with no
