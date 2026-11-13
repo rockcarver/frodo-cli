@@ -1025,11 +1025,11 @@ const SCRIPT = String.raw`
     });
   });
   // Spacing density: a per-viewer choice, so localStorage (with a safe
-  // fallback: the page renders relaxed without it). The button names the
+  // fallback: the page renders compact without it). The button names the
   // mode a click switches to, like a checkbox would.
   var densityBtn = document.getElementById('density');
-  var density = 'relaxed';
-  try { density = localStorage.getItem('frodo-density') || 'relaxed'; } catch (e) {}
+  var density = 'compact';
+  try { density = localStorage.getItem('frodo-density') || 'compact'; } catch (e) {}
   function applyDensity() {
     document.body.classList.toggle('compact', density === 'compact');
     densityBtn.textContent = density === 'compact' ? 'Relaxed' : 'Compact';
