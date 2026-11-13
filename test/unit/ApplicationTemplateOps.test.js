@@ -45,6 +45,7 @@ let libraryFailure;
 const calls = [];
 let baseDirectory = '';
 let cacheEnabled = false;
+let cachePath;
 const saved = [];
 
 /** A catalog like the CDN's, small: two groups. */
@@ -80,6 +81,9 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   state: {
     setUseTemplateCatalogCache: (value) => {
       cacheEnabled = value;
+    },
+    setTemplateCatalogCachePath: (value) => {
+      cachePath = value;
     },
   },
   frodo: {
@@ -159,6 +163,7 @@ beforeEach(() => {
   saved.length = 0;
   libraryFailure = undefined;
   cacheEnabled = false;
+  cachePath = undefined;
   baseDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-templates-'));
   items = [
     listItem('1_2-saml', 'saml', '1.2'),
@@ -393,13 +398,26 @@ describe('the catalog counts', () => {
 });
 
 describe('the cache of the catalog', () => {
-  test('19: the CLI switches it on at start', () => {
+  test('19: the CLI switches it on at start, in the default folder of the library', () => {
+    delete process.env.FRODO_CONFIG_PATH;
     expect(cacheEnabled).toBe(false);
     enableTemplateCatalogCache();
     expect(cacheEnabled).toBe(true);
+    expect(cachePath).toBeUndefined();
   });
 
-  test('20: src/app.ts calls the switch at start, before it builds the commands, and offers no way to turn it off', () => {
+  test('20: the folder moves with FRODO_CONFIG_PATH like the other files of frodo', () => {
+    process.env.FRODO_CONFIG_PATH = '/srv/frodo-config';
+    try {
+      enableTemplateCatalogCache();
+    } finally {
+      delete process.env.FRODO_CONFIG_PATH;
+    }
+    expect(cacheEnabled).toBe(true);
+    expect(cachePath).toBe(path.join('/srv/frodo-config', 'AppTemplates'));
+  });
+
+  test('21: src/app.ts calls the switch at start, before it builds the commands, and nothing offers a way to turn it off', () => {
     const app = fs.readFileSync(
       path.join(process.cwd(), 'src', 'app.ts'),
       'utf8'
@@ -407,12 +425,15 @@ describe('the cache of the catalog', () => {
     const at = app.indexOf('enableTemplateCatalogCache();');
     expect(at).toBeGreaterThan(-1);
     expect(at).toBeLessThan(app.indexOf('new FrodoStubCommand'));
-    // no environment variable or setting that switches the catalog cache off
     const source = fs.readFileSync(
       path.join(process.cwd(), 'src', 'utils', 'ApplicationTemplateSource.ts'),
       'utf8'
     );
-    expect(source).not.toMatch(/process\.env/);
+    // the only variable it reads is the folder of frodo; none switches the cache
+    expect(source.match(/process\.env[^;)]*/g)).toEqual([
+      "process.env['FRODO_CONFIG_PATH']",
+    ]);
     expect(source).not.toMatch(/setUseTemplateCatalogCache\(false\)/);
+    expect(source).not.toMatch(/FRODO_NO_CACHE/);
   });
 });

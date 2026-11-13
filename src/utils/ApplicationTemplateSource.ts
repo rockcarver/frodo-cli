@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 
 const { getFilePath } = frodo.utils;
@@ -53,8 +54,15 @@ export function catalogOptionsOf(source: CatalogSource): CatalogOptions {
  * copy, so a catalog that did not change is not downloaded again and a copy
  * younger than an hour is not even asked about. It is on for every run, and
  * there is no switch to turn it off: air-gapped mode is how a user stops the
- * requests.
+ * requests. It lives in the folder `AppTemplates` of the folder of frodo
+ * (`FRODO_CONFIG_PATH`, else `~/.frodo`).
  */
 export function enableTemplateCatalogCache(): void {
   state.setUseTemplateCatalogCache(true);
+  // the folder of the other files of frodo moves with FRODO_CONFIG_PATH; the
+  // library's own default is ~/.frodo/AppTemplates
+  const configPath = process.env['FRODO_CONFIG_PATH'];
+  if (configPath) {
+    state.setTemplateCatalogCachePath(path.join(configPath, 'AppTemplates'));
+  }
 }
