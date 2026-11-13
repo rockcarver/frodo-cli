@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'app template --help' should be expected english 1`] = `
+"Usage: frodo app template [options] [command]
+
+List, describe and download the application templates that the Admin UI offers
+for new applications.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Runtime Options:
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
+Commands:
+  describe          Describe an application template.
+  download          Download the application template catalog from the CDN and
+                    save it to a file, to copy it to a machine that cannot reach
+                    the internet.
+  list              List application templates: the catalog of the Admin UI,
+                    with the templates of the tenant merged over it when a
+                    tenant is given.
+
+Utilities:
+  help              display help for command
+
+
+Run without a sub-command to enter interactive mode."
+`;

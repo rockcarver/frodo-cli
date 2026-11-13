@@ -55,6 +55,7 @@ import settings from './cli/settings/settings';
 import shell from './cli/shell/shell';
 import theme from './cli/theme/theme';
 import { applyAirGapSwitchToState } from './ops/AirGapOps';
+import { enableTemplateCatalogCache } from './utils/ApplicationTemplateSource';
 import {
   debugMessage,
   printError,
@@ -90,6 +91,9 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     // Air-gapped mode (FRODO_AIRGAPPED or `frodo settings airgap`): tell the
     // library before any command runs, `frodo mcp server start` included.
     applyAirGapSwitchToState();
+    // keep the application template catalog between runs, so that a catalog
+    // that did not change is not downloaded again
+    enableTemplateCatalogCache();
     await ensureThemeDetectedIfNeeded();
     activatePersistedTheme();
 

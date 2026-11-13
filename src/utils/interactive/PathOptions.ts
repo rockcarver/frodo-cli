@@ -75,6 +75,8 @@ export const PATH_OPTIONS: Readonly<Record<string, PathOptionSpec>> = {
   '--claims-config': { kind: 'file', access: 'read', extensions: JSON_FILES },
   '--on-retrieve-script': { kind: 'file', access: 'read', extensions: ['.js'] },
   '--on-store-script': { kind: 'file', access: 'read', extensions: ['.js'] },
+  // the application template catalog: the JSON that `app template download` saves, or the gzip file as the CDN serves it
+  '--templates': { kind: 'file', access: 'read', extensions: ['.json', '.gz'] },
 };
 
 /**
@@ -97,6 +99,9 @@ export const PATH_OPTION_OVERRIDES: Readonly<
     extensions: JSON_FILES,
   },
   'config-manager pull saml --file': { access: 'read', extensions: JSON_FILES },
+  // `app template download` writes the catalog to the file; a verb that is not
+  // `export` or `pull` would make it a file to read
+  'app template download --file': { access: 'write', extensions: JSON_FILES },
   'config-manager pull service-objects --file': {
     access: 'read',
     extensions: JSON_FILES,

@@ -22,6 +22,8 @@ Commands:
   export            Export applications.
   import            Import applications.
   list              List applications.
+  template          List, describe and download the application templates that
+                    the Admin UI offers for new applications.
 
 Utilities:
   help              display help for command
