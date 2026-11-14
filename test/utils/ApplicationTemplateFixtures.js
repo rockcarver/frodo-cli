@@ -315,9 +315,10 @@ export const fixtureIds = [
  * order of the name of the template, then of its version): for the tests that
  * replace the library.
  * @param {object} catalog a catalog like `fixtureCatalog`
+ * @param {object[]} [tenant] templates the tenant defines itself (see `fixtureTenantTemplates`), merged as the library merges them: one with the id and version of a catalog version replaces it, any other is added
  * @returns {object[]} the versions
  */
-export function listItemsOf(catalog) {
+export function listItemsOf(catalog, tenant = []) {
   const nameKey = (name) => name.replace(/\./g, '-');
   const compare = (a, b) => {
     const left = a.split('.').map(Number);
@@ -348,6 +349,27 @@ export function listItemsOf(catalog) {
         });
       }
     }
+  }
+  for (const override of tenant) {
+    const templateId = tenantKeyOf(override);
+    const sameName = items.find(
+      (item) => nameKey(item.name) === nameKey(override.id)
+    );
+    const custom = {
+      templateId,
+      name: override.id,
+      group: sameName?.group,
+      tier: override.templateType === 'Enterprise' ? 'enterprise' : 'consumer',
+      templateVersion: override.templateVersion,
+      displayName: override.displayName,
+      templateType: override.templateType,
+      dateUpdated: override.dateUpdated,
+      isOverride: true,
+      newestInGroup: false,
+    };
+    const at = items.findIndex((item) => item.templateId === templateId);
+    if (at >= 0) items[at] = custom;
+    else items.push(custom);
   }
   const newest = new Map();
   for (const item of items) {
@@ -409,4 +431,75 @@ export function poisonFixture(fields) {
     delete consumer.Saml;
   }
   return catalog;
+}
+
+/** The key under which the library lists a template of the tenant: the rule of its getTemplateId. */
+const tenantKeyOf = (entry) =>
+  `${String(entry.templateVersion).replace(/\./g, '_')}-${String(
+    entry.id
+  ).replace(/\./g, '-')}`;
+
+/**
+ * Templates that a tenant defines itself, as the library reads them from the
+ * configuration entities `appTemplate/<id>`:
+ * - `ronSoperSpecial`: a template of the tenant's own, with an id that the
+ *   catalog does not have (one version, 1.0);
+ * - `saml` 1.2: replaces the catalog's version 1.2 of the template (the same
+ *   id and version), so the template has a newer version that is the
+ *   catalog's;
+ * - `azure.ad` 3.5: a version newer than the catalog's newest (3.4), so the
+ *   newest version of the template is a custom one and has older versions.
+ */
+export const fixtureTenantTemplates = [
+  {
+    _id: 'appTemplate/ronSoperSpecial',
+    id: 'ronSoperSpecial',
+    templateVersion: '1.0',
+    displayName: 'Ron Soper Special',
+    templateType: 'Enterprise',
+    dateUpdated: '10-5-2023',
+    categories: ['Mainframes'],
+    description: 'A template of the tenant.',
+    connectorDisplayName: 'Ron Connector',
+    connectorName: 'org.example.ron.RonConnector',
+    bundleVersion: '[1.5.20.11, 1.6.0.0)',
+    capabilities: { provisioning: { Create: true, Read: true } },
+    connectorTemplate: { version: '1.5.20.11', basic: [], advanced: [] },
+  },
+  {
+    _id: 'appTemplate/saml',
+    id: 'saml',
+    templateVersion: '1.2',
+    displayName: 'SAML',
+    templateType: 'SAML',
+    dateUpdated: '1-2-2025',
+    categories: ['saml'],
+    description: 'The tenant replaces the version 1.2 of the catalog.',
+    capabilities: { sso: { SAML: true } },
+  },
+  {
+    _id: 'appTemplate/azure.ad',
+    id: 'azure.ad',
+    templateVersion: '3.5',
+    displayName: 'Microsoft Entra',
+    templateType: 'Enterprise',
+    dateUpdated: '9-1-2026',
+    categories: ['Uncategorized'],
+    description: 'A newer version than the catalog has.',
+    connectorDisplayName: 'MSGraphAPI Connector',
+    connectorName: 'org.example.msgraphapi.MSGraphAPIConnector',
+    bundleVersion: '[1.5.20.40, 1.6.0.0)',
+    capabilities: { provisioning: { Create: true, Read: true } },
+    connectorTemplate: { version: '1.5.20.40', basic: [], advanced: [] },
+  },
+];
+
+/**
+ * The entries of the templates of the tenant by the key the library lists them
+ * under, for the tests that replace the library.
+ * @param {object[]} [tenant] templates of the tenant
+ * @returns {Map<string, object>} the entries
+ */
+export function tenantEntriesOf(tenant = fixtureTenantTemplates) {
+  return new Map(tenant.map((entry) => [tenantKeyOf(entry), entry]));
 }

@@ -31,13 +31,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-l, --long',
-        'Long: a table with the name, category, what the template provides (letters that are explained below the table), its newest version (a star means that older versions exist) and the date of the newest version.'
+        'Long: a table instead of the ids, with a row for each template: the id, its newest version, the date of that version, the name, the category and what the template provides (letters that are explained below the table). A star behind a version means that it is the newest of a template that has older versions, a plus that it is a custom version, defined in the tenant.'
       ).default(false, 'false')
     )
     .addOption(
       new Option(
         '--all-versions',
-        'List every version of every template, not only the newest: the id and the version (with --long also the name, category, what it provides and the date of each version).'
+        'The table with a row for every version of every template, newest first, not only for the newest version of each (it implies --long, so --all-versions and --long --all-versions are the same).'
       ).default(false, 'false')
     )
     .addOption(templatesOption())
@@ -48,16 +48,14 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `Without a tenant the command lists the catalog alone and needs no login. With a tenant (AM base URL, connection profile or alias) it logs in and merges the templates the tenant defines itself, marked as overrides. "frodo app template describe" takes an id as printed here and describes the newest version of the template, or the one that -v names.\n\n` +
+      `Without a tenant the command lists the catalog alone and needs no login. With a tenant (AM base URL, connection profile or alias) it logs in and merges the templates the tenant defines itself, marked with a plus (custom versions). "frodo app template describe -i" takes an id as printed here and describes the newest version of the template, or the one that -v names.\n\n` +
         `Usage Examples:\n` +
         `  List the ids of the templates of the catalog, without a tenant:\n` +
         c.command(`  $ frodo app template list\n`) +
-        `  List them with the name, category, what they provide and the newest version:\n` +
+        `  List them in a table, with the newest version, its date, the name, the category and what they provide:\n` +
         c.command(`  $ frodo app template list --long\n`) +
-        `  List every version of every template:\n` +
+        `  List every version of every template, newest first:\n` +
         c.command(`  $ frodo app template list --all-versions\n`) +
-        `  List every version with its name, category, what it provides and its date:\n` +
-        c.command(`  $ frodo app template list --long --all-versions\n`) +
         `  List the catalog and the templates of a tenant, using AM base URL, realm, username and password:\n` +
         c.command(
           `  $ frodo app template list --long ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`

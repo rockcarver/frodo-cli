@@ -24,19 +24,21 @@ Arguments:
   password             Password.
 
 Options:
-  --all-versions       List every version of every template, not only the
-                       newest: the id and the version (with --long also the
-                       name, category, what it provides and the date of each
-                       version). (default: false)
+  --all-versions       The table with a row for every version of every template,
+                       newest first, not only for the newest version of each (it
+                       implies --long, so --all-versions and --long
+                       --all-versions are the same). (default: false)
   --channel <channel>  Which catalog of the CDN to read: production or
                        development (the development catalog holds a few more
                        template versions). Default: production. Cannot be used
                        with --templates. (choices: "production", "development")
-  -l, --long           Long: a table with the name, category, what the template
-                       provides (letters that are explained below the table),
-                       its newest version (a star means that older versions
-                       exist) and the date of the newest version. (default:
-                       false)
+  -l, --long           Long: a table instead of the ids, with a row for each
+                       template: the id, its newest version, the date of that
+                       version, the name, the category and what the template
+                       provides (letters that are explained below the table). A
+                       star behind a version means that it is the newest of a
+                       template that has older versions, a plus that it is a
+                       custom version, defined in the tenant. (default: false)
   --templates <file>   Read the application template catalog from this file
                        instead of the CDN: the JSON that "frodo app template
                        download" saves, or the gzip file as the CDN serves it.

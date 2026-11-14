@@ -176,10 +176,36 @@ function safeRow(item: TemplateRow): TemplateVersion {
 }
 
 /**
- * Group the versions of a list by template, in the order of the list. The text
+ * Compare two template versions (`3.3`, `2.10`) number by number, so that
+ * `2.10` is newer than `2.9`. This is the rule of the library; a date never
+ * decides which version is newer.
+ * @param {string} a a version
+ * @param {string} b another version
+ * @returns {number} less than 0 if a is older, more than 0 if a is newer, else 0
+ */
+export function compareVersions(a: string, b: string): number {
+  const left = String(a).split('.');
+  const right = String(b).split('.');
+  for (let i = 0; i < Math.max(left.length, right.length); i++) {
+    const l = left[i] ?? '0';
+    const r = right[i] ?? '0';
+    const ln = Number(l);
+    const rn = Number(r);
+    if (Number.isFinite(ln) && Number.isFinite(rn)) {
+      if (ln !== rn) return ln < rn ? -1 : 1;
+    } else if (l !== r) {
+      return l < r ? -1 : 1;
+    }
+  }
+  return 0;
+}
+
+/**
+ * Group the versions of a list by template, in the order of the list; the
+ * versions of a template come newest first. The text
  * of the rows is made safe to print (see `safeRow`).
  * @param {TemplateRow[]} items the versions as the library lists them
- * @returns {TemplateGroup[]} one group per template
+ * @returns {TemplateGroup[]} one group per template, its versions newest first
  */
 export function groupTemplates(items: TemplateRow[]): TemplateGroup[] {
   const groups = new Map<string, TemplateGroup>();
@@ -194,13 +220,49 @@ export function groupTemplates(items: TemplateRow[]): TemplateGroup[] {
     group.versions.push(item);
   }
   for (const group of groups.values()) {
-    // the library marks the newest by the version number (never by the date);
-    // without a mark the last version of the list is the newest
+    // newest first, by the number of the version (never by the date); the sort
+    // is stable, so versions that compare equal keep the order of the list
+    group.versions.sort((a, b) =>
+      compareVersions(b.templateVersion, a.templateVersion)
+    );
+    // the library marks the newest by the same rule; without a mark the first
+    // is the newest
     group.newest =
-      group.versions.find((item) => item.newestInGroup) ??
-      group.versions[group.versions.length - 1];
+      group.versions.find((item) => item.newestInGroup) ?? group.versions[0];
   }
   return [...groups.values()];
+}
+
+/**
+ * The marks that `list` and `describe` print directly behind a version, without
+ * a space: `*` for the newest version of a template that has older versions
+ * (the versions the merged list holds), `+` for a custom version, that is, one
+ * that the tenant defines itself (a template of its own or a replacement of a
+ * version of the catalog); both read `*+`.
+ * @param {TemplateGroup} group the template
+ * @param {TemplateVersion} item one of its versions
+ * @returns {string} the marks, or '' for neither
+ */
+export function marksOf(group: TemplateGroup, item: TemplateVersion): string {
+  const newestWithOlder = item === group.newest && group.versions.length > 1;
+  return `${newestWithOlder ? '*' : ''}${item.isOverride ? '+' : ''}`;
+}
+
+/**
+ * What to say when an id that was not found looks like the id of a version (the
+ * key the catalog keeps a version under, `3_4-azure-ad`): the id of a template
+ * carries no version, `-v` names it. The key is not an id and is not accepted;
+ * only this hint reads it.
+ * @param {TemplateGroup[]} groups the templates of the list
+ * @param {string} id what the user gave as `-i`
+ * @returns {string} the sentence to add to the error, or '' if the id does not look like that
+ */
+function versionIdHint(groups: TemplateGroup[], id: string): string {
+  const match = /^(\d+)_(\d+)-(.+)$/.exec(id);
+  if (!match) return '';
+  const rest = match[3];
+  const template = groups.find((group) => group.key === nameKey(rest));
+  return ` "${id}" looks like the id of a version, which is not an id: -i names the template and -v the version (for example -i ${template?.name ?? rest} -v ${match[1]}.${match[2]}).`;
 }
 
 /**
@@ -224,11 +286,8 @@ export function selectTemplate(
   if (id) {
     byId = groups.find((group) => group.key === nameKey(id));
     if (!byId) {
-      const prefixed = /^\d+_\d+-/.test(id)
-        ? ' An id carries no version: name the version with -v.'
-        : '';
       return {
-        error: `Application template "${id}" not found. "frodo app template list" prints the ids.${prefixed}`,
+        error: `Application template "${id}" not found. "frodo app template list" prints the ids.${versionIdHint(groups, id)}`,
       };
     }
   }
@@ -407,33 +466,51 @@ export function provOf(template: Json, templateType?: string): string {
   );
 }
 
-/** What the letters of the `Prov` column mean, as `list --long` prints it below its table. */
+/** What the letters of the `Prov` column and the star mean, as `list` prints it below its table. */
 export const PROV_KEY =
-  'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark';
+  'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark  * newest version, older ones exist';
+
+/** What `+` means, as `list` and `describe` print it below a table that has it. */
+export const CUSTOM_KEY = '+ custom: defined in the tenant';
+
+/** What `?` means, as `list` prints it below a table that has it. */
+export const UNKNOWN_KEY = '? not known';
 
 /**
- * The line below the table of `list --long`: what the abbreviations of the
- * columns that were printed mean. A mark is explained only if its column is
- * printed.
- * @param {{ allVersions: boolean; newestColumn: boolean; overrideColumn: boolean; unknown: boolean }} columns which view and which columns the table has
- * @param {boolean} columns.allVersions the table has a row for every version, so a version carries no star
- * @param {boolean} columns.newestColumn the table has the column `N` that marks the newest version
- * @param {boolean} columns.overrideColumn the table has the column `D` that marks a template the tenant defines
- * @param {boolean} columns.unknown a `Prov` cell says `?`
+ * The line below the table of `list`: what the abbreviations of the table
+ * mean. The letters and the star are always explained; `+` only if a row has
+ * it, and `?` only if a cell has it.
+ * @param {{ custom: boolean; unknown: boolean }} printed what the table has
+ * @param {boolean} printed.custom a version carries `+`
+ * @param {boolean} printed.unknown a `Prov` cell says `?`
  * @returns {string} the line
  */
-export function listKeyOf(columns: {
-  allVersions: boolean;
-  newestColumn: boolean;
-  overrideColumn: boolean;
+export function listKeyOf(printed: {
+  custom: boolean;
   unknown: boolean;
 }): string {
   return [
     PROV_KEY,
-    ...(columns.allVersions ? [] : ['* older versions exist']),
-    ...(columns.newestColumn ? ['N newest version'] : []),
-    ...(columns.overrideColumn ? ['D defined by the tenant'] : []),
-    ...(columns.unknown ? ['? not known'] : []),
+    ...(printed.custom ? [CUSTOM_KEY] : []),
+    ...(printed.unknown ? [UNKNOWN_KEY] : []),
+  ].join('  ');
+}
+
+/**
+ * The line below the table of the versions in `describe`: what the marks that
+ * the table has mean (the star and the plus, as in `list`).
+ * @param {{ newest: boolean; custom: boolean }} printed what the table has
+ * @param {boolean} printed.newest a version carries `*`
+ * @param {boolean} printed.custom a version carries `+`
+ * @returns {string} the line, or '' if the table has no mark
+ */
+export function versionsKeyOf(printed: {
+  newest: boolean;
+  custom: boolean;
+}): string {
+  return [
+    ...(printed.newest ? ['* newest version, older ones exist'] : []),
+    ...(printed.custom ? [CUSTOM_KEY] : []),
   ].join('  ');
 }
 

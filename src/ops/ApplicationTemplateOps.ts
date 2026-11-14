@@ -16,12 +16,14 @@ import {
   groupTemplates,
   isoDate,
   listKeyOf,
+  marksOf,
   objectTypesOf,
   providesOf,
   provOf,
   recordOf,
   selectTemplate,
   textOf,
+  versionsKeyOf,
   type FieldRow,
   type Json,
   type TemplateGroup,
@@ -139,10 +141,11 @@ function right(text: string): { hAlign: 'right'; content: string } {
 }
 
 /**
- * List the application templates: the ids of the newest version of each
- * template, or with `long` a table of them, or with `allVersions` every
- * version. The templates of the tenant are merged over the catalog when a
- * connection to the tenant was made.
+ * List the application templates: the id of the newest version of each
+ * template, or with `long` or `allVersions` (which are the same) a table with a
+ * row for each: the newest version of each template, or with `allVersions` every
+ * version, newest first. The templates of the tenant are merged over the
+ * catalog when a connection to the tenant was made.
  * @param {CatalogSource & { long?: boolean; allVersions?: boolean; includeOverrides?: boolean }} options which catalog to read, how much to print, and whether the tenant's templates are merged in
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
@@ -159,95 +162,47 @@ export async function listApplicationTemplates(
       includeOverrides: options.includeOverrides === true,
     };
     const groups = groupTemplates(await listTemplates(libraryOptions));
-    const shown = groups.flatMap((group) =>
-      options.allVersions ? group.versions : [group.newest]
-    );
-    const withOverride = shown.some((item) => item.isOverride);
-    if (!options.long) {
-      if (!options.allVersions) {
-        groups.forEach((group) => printMessage(group.name, 'data'));
-        return true;
-      }
-      const table = createTable([
-        'Id',
-        right('Version'),
-        'Newest',
-        ...(withOverride ? ['Override'] : []),
-      ]);
-      shown.forEach((item) => {
-        table.push([
-          item.name,
-          right(item.templateVersion),
-          item.newestInGroup ? 'yes' : '',
-          ...(withOverride ? [item.isOverride ? 'yes' : ''] : []),
-        ]);
-      });
-      printMessage(table.toString(), 'data');
+    if (!options.long && !options.allVersions) {
+      groups.forEach((group) => printMessage(group.name, 'data'));
       return true;
     }
-    const entries = await readEntries(shown, options, libraryOptions);
-    const groupOf = new Map(
-      groups.flatMap((group) =>
-        group.versions.map((item) => [item, group] as const)
-      )
+    // --all-versions is the table, and has a row for every version
+    const shown = groups.flatMap((group) =>
+      (options.allVersions ? group.versions : [group.newest]).map((item) => ({
+        group,
+        item,
+      }))
     );
-    const rows = shown.map((item) => {
+    const entries = await readEntries(
+      shown.map(({ item }) => item),
+      options,
+      libraryOptions
+    );
+    const table = createTable([
+      'Id',
+      'Ver',
+      'Updated',
+      'Name',
+      'Category',
+      'Prov',
+    ]);
+    const cells = shown.map(({ item }) => {
       const entry = entries.get(item.templateId) ?? {};
-      return { item, prov: provOf(entry, item.templateType), entry };
+      return { entry, prov: provOf(entry, item.templateType) };
     });
-    // the newest version of a template with older versions carries a star, and
-    // there is no star where every version has a row of its own, so that the
-    // star has one meaning; the column that marks the newest version is only
-    // there if some version is not the newest
-    const withNewest =
-      options.allVersions === true && shown.some((item) => !item.newestInGroup);
-    const table = createTable(
-      options.allVersions
-        ? [
-            'Id',
-            'Ver',
-            'Name',
-            'Category',
-            'Prov',
-            'Updated',
-            ...(withNewest ? ['N'] : []),
-            ...(withOverride ? ['D'] : []),
-          ]
-        : [
-            'Id',
-            'Name',
-            'Category',
-            'Prov',
-            'Ver',
-            'Updated',
-            ...(withOverride ? ['D'] : []),
-          ]
-    );
-    rows.forEach(({ item, prov, entry }) => {
-      const version = options.allVersions
-        ? item.templateVersion
-        : `${item.templateVersion}${
-            (groupOf.get(item)?.versions.length ?? 1) > 1 ? '*' : ''
-          }`;
-      const name = displayNameOf(item);
-      const category = categoryOf(entry);
-      const updated = isoDate(item.dateUpdated);
+    shown.forEach(({ group, item }, index) => {
       table.push([
         item.name,
-        ...(options.allVersions ? [version, name] : [name]),
-        category,
-        prov,
-        ...(options.allVersions ? [] : [version]),
-        updated,
-        ...(withNewest ? [item.newestInGroup ? 'N' : ''] : []),
-        ...(withOverride ? [item.isOverride ? 'D' : ''] : []),
+        `${item.templateVersion}${marksOf(group, item)}`,
+        isoDate(item.dateUpdated),
+        displayNameOf(item),
+        categoryOf(cells[index].entry),
+        cells[index].prov,
       ]);
     });
     const key = listKeyOf({
-      allVersions: options.allVersions === true,
-      newestColumn: withNewest,
-      overrideColumn: withOverride,
-      unknown: rows.some(({ prov }) => prov === '?'),
+      custom: shown.some(({ item }) => item.isOverride),
+      unknown: cells.some(({ prov }) => prov === '?'),
     });
     printMessage(`${table.toString()}\n\n${key}`, 'data');
     return true;
@@ -360,7 +315,7 @@ function printTemplateSections(
     const withBundle = rows.some((row) => row.bundle);
     const withObjectTypes = rows.some((row) => row.counts.objectTypes > 0);
     const table = createTable([
-      right('Version'),
+      'Version',
       'Updated',
       ...(withBundle ? ['Connector bundle'] : []),
       ...(withObjectTypes ? [right('Object types'), right('Properties')] : []),
@@ -368,7 +323,7 @@ function printTemplateSections(
     ]);
     rows.forEach(({ version, bundle, counts }) => {
       table.push([
-        right(version.templateVersion),
+        `${version.templateVersion}${marksOf(group, version)}`,
         isoDate(version.dateUpdated),
         ...(withBundle ? [bundle] : []),
         ...(withObjectTypes
@@ -377,16 +332,18 @@ function printTemplateSections(
               right(counts.properties ? String(counts.properties) : ''),
             ]
           : []),
-        [
-          version === item ? 'shown' : '',
-          version.newestInGroup ? 'newest' : '',
-          version.isOverride ? 'defined by the tenant' : '',
-        ]
-          .filter(Boolean)
-          .join(', '),
+        version === item ? 'shown' : '',
       ]);
     });
-    printMessage(table.toString(), 'data');
+    // the marks behind the versions are explained when the table has them
+    const key = versionsKeyOf({
+      newest: rows.some(({ version }) => marksOf(group, version).includes('*')),
+      custom: rows.some(({ version }) => version.isOverride),
+    });
+    printMessage(
+      key ? `${table.toString()}\n\n${key}` : table.toString(),
+      'data'
+    );
   }
   const connector = connectorSummaryOf(entry);
   if (connector) {
@@ -495,6 +452,28 @@ function printTemplateSections(
 }
 
 /**
+ * Whether the catalog (not the templates of the tenant) has a version under the
+ * key of this one: a version that the tenant defines itself replaces the
+ * catalog's version of the same id and version, or has no counterpart.
+ * @param {TemplateVersion} item the version, a custom one
+ * @param {CatalogSource} source which catalog to read
+ * @returns {Promise<boolean>} true if the catalog has the version
+ */
+async function catalogHasVersion(
+  item: TemplateVersion,
+  source: CatalogSource
+): Promise<boolean> {
+  const { catalog } = await readCatalog(catalogOptionsOf(source));
+  return Object.values(catalog.AppTemplates ?? {}).some((tier) =>
+    Object.values(tier ?? {}).some(
+      (group) =>
+        recordOf(group) !== undefined &&
+        Object.prototype.hasOwnProperty.call(group, item.source.templateId)
+    )
+  );
+}
+
+/**
  * Describe an application template: a summary of the version (the newest
  * unless a version is named), its other versions, its connector, capabilities,
  * object types and application form, or with `json` the whole entry.
@@ -562,12 +541,27 @@ export async function describeApplicationTemplate(
           : `${item.templateVersion} (the newest is ${group.newest.templateVersion})`,
       ],
       ['Updated', isoDate(item.dateUpdated)],
-      ['Defined by the tenant', item.isOverride ? 'yes' : ''],
+      [
+        'Custom',
+        item.isOverride
+          ? `yes, ${
+              (await catalogHasVersion(item, options))
+                ? `replaces the catalog version ${item.templateVersion}`
+                : 'no catalog counterpart'
+            }`
+          : '',
+      ],
       ['Description', description],
       ['Support URL', supportUrl],
     ];
     printLines(header, '');
-    const entries = await readEntries(group.versions, options, libraryOptions);
+    // the other versions are read for the table of the versions; the version that
+    // is described has been read
+    const entries = await readEntries(
+      group.versions.filter((version) => version !== item),
+      options,
+      libraryOptions
+    );
     printTemplateSections(group, item, entry, entries, options.long === true);
     return true;
   } catch (error) {

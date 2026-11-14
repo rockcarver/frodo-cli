@@ -17,6 +17,7 @@
 import { describe, expect, test } from '@jest/globals';
 import {
   fixtureCatalog,
+  fixtureTenantTemplates,
   listItemsOf,
   POISON,
   POISONABLE_FIELDS,
@@ -94,9 +95,10 @@ describe('the templates of a list', () => {
       'saml',
     ]);
     const ldap = groups.find((group) => group.name === 'ldap');
+    // the versions of a template are newest first, by the number and not by the date
     expect(ldap.versions.map((item) => item.templateVersion)).toEqual([
-      '2.3',
       '2.10',
+      '2.3',
     ]);
     // 2.10 is newer than 2.3 by number although its date is not a date
     expect(ldap.newest.templateVersion).toBe('2.10');
@@ -194,7 +196,7 @@ describe('finding the template a user named', () => {
       '2.10'
     );
     expect(select({ id: 'ldap', version: '2.1' }).error).toContain(
-      'has no version 2.1. Versions: 2.3, 2.10.'
+      'has no version 2.1. Versions: 2.10, 2.3.'
     );
   });
 
@@ -207,17 +209,35 @@ describe('finding the template a user named', () => {
     );
   });
 
-  test('12: the key the catalog keeps a version under is not an id, and the error says where the ids are and that a version is named with -v', () => {
-    for (const key of ['3_4-azure-ad', '1_2-saml', '2_10-ldap']) {
+  test('12: the id of a version, the key the catalog keeps it under, is not an id: the error says where the ids are, and what to give instead', () => {
+    for (const [key, instead] of [
+      ['3_4-azure-ad', '-i azure.ad -v 3.4'],
+      ['1_2-saml', '-i saml -v 1.2'],
+      ['2_10-ldap', '-i ldap -v 2.10'],
+      ['3_3-AZURE-AD', '-i azure.ad -v 3.3'],
+    ]) {
       const { error } = select({ id: key });
-      expect(error).toContain(`"${key}" not found`);
-      expect(error).toContain('"frodo app template list" prints the ids');
-      expect(error).toContain('name the version with -v');
+      expect(error).toBe(
+        `Application template "${key}" not found. "frodo app template list" prints the ids. "${key}" looks like the id of a version, which is not an id: -i names the template and -v the version (for example ${instead}).`
+      );
     }
+    // a template that is not there: the hint takes the id as it was typed
+    expect(select({ id: '1_0-nothing' }).error).toContain(
+      '(for example -i nothing -v 1.0)'
+    );
     // an id that is simply wrong gets no remark about versions
-    expect(select({ id: 'nope' }).error).not.toContain('-v');
+    expect(select({ id: 'nope' }).error).toBe(
+      'Application template "nope" not found. "frodo app template list" prints the ids.'
+    );
+    // a version of two numbers is the form; other forms are not
+    expect(select({ id: '3_4_1-azure-ad' }).error).not.toContain('looks like');
+    expect(select({ id: '3-4-azure-ad' }).error).not.toContain('looks like');
     // a name is not an id either
     expect(select({ id: 'Microsoft Entra' }).error).toContain('not found');
+    // -v does not rescue the id of a version
+    expect(select({ id: '3_4-azure-ad', version: '3.4' }).error).toContain(
+      'not found'
+    );
   });
 
   test('13: an unknown display name says where the names are', () => {
@@ -257,7 +277,7 @@ describe('finding the template a user named', () => {
     for (const version of ['', '   ']) {
       const { error } = select({ id: 'azure.ad', version });
       expect(error).toBe(
-        'Application template azure.ad has no version "". Versions: 3.3, 3.4.'
+        'Application template azure.ad has no version "". Versions: 3.4, 3.3.'
       );
     }
     // no version at all is the newest
@@ -410,40 +430,113 @@ describe('the Prov letters and the key line of list --long', () => {
     }
   });
 
-  test('26: the key line is the letters, and says what a star, N, D and ? mean only where the table has them', () => {
-    const none = {
-      allVersions: false,
-      newestColumn: false,
-      overrideColumn: false,
-      unknown: false,
-    };
-    expect(view.listKeyOf(none)).toBe(
-      'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark  * older versions exist'
+  test('26: the key line is the letters and the star, and says what + and ? mean only where the table has them', () => {
+    const none = { custom: false, unknown: false };
+    const key =
+      'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark  * newest version, older ones exist';
+    expect(view.listKeyOf(none)).toBe(key);
+    expect(view.PROV_KEY).toBe(key);
+    expect(view.listKeyOf({ ...none, custom: true })).toBe(
+      `${key}  + custom: defined in the tenant`
     );
-    expect(view.listKeyOf(none)).toHaveLength(101);
-    // every version has a row, so a version carries no star
-    expect(view.listKeyOf({ ...none, allVersions: true })).toBe(view.PROV_KEY);
-    expect(
-      view.listKeyOf({ ...none, allVersions: true, newestColumn: true })
-    ).toBe(`${view.PROV_KEY}  N newest version`);
-    expect(
-      view.listKeyOf({
-        allVersions: true,
-        newestColumn: true,
-        overrideColumn: true,
-        unknown: true,
-      })
-    ).toBe(
-      `${view.PROV_KEY}  N newest version  D defined by the tenant  ? not known`
+    expect(view.listKeyOf({ ...none, unknown: true })).toBe(
+      `${key}  ? not known`
     );
-    expect(view.listKeyOf({ ...none, overrideColumn: true })).toBe(
-      `${view.PROV_KEY}  * older versions exist  D defined by the tenant`
+    // both: the plus first
+    expect(view.listKeyOf({ custom: true, unknown: true })).toBe(
+      `${key}  + custom: defined in the tenant  ? not known`
+    );
+    // the pieces that are not printed are not in the line
+    expect(view.listKeyOf(none)).not.toContain('+');
+    expect(view.listKeyOf(none)).not.toContain('?');
+  });
+
+  test('27: the line under the table of the versions of describe explains the marks that are printed', () => {
+    expect(view.versionsKeyOf({ newest: false, custom: false })).toBe('');
+    expect(view.versionsKeyOf({ newest: true, custom: false })).toBe(
+      '* newest version, older ones exist'
+    );
+    expect(view.versionsKeyOf({ newest: false, custom: true })).toBe(
+      '+ custom: defined in the tenant'
+    );
+    expect(view.versionsKeyOf({ newest: true, custom: true })).toBe(
+      '* newest version, older ones exist  + custom: defined in the tenant'
     );
   });
 });
 
+describe('the marks behind a version', () => {
+  const tenant = listItemsOf(fixtureCatalog, fixtureTenantTemplates);
+  const grouped = view.groupTemplates(tenant);
+  const marks = (id, version) => {
+    const group = grouped.find((candidate) => candidate.name === id);
+    const item = group.versions.find((v) => v.templateVersion === version);
+    return view.marksOf(group, item);
+  };
+
+  test('28: the star is on the newest version of a template that has older versions, and on no other', () => {
+    expect(marks('ldap', '2.10')).toBe('*');
+    expect(marks('ldap', '2.3')).toBe('');
+    expect(marks('saml', '1.3')).toBe('*');
+    expect(marks('saml', '1.2')).toBe('+');
+    expect(marks('bookmark', '1.0')).toBe('');
+    expect(marks('ai.target', '1.0')).toBe('');
+  });
+
+  test('29: the plus is on a custom version, a template of its own, a replacement or a newer version, and on no other', () => {
+    expect(marks('ronSoperSpecial', '1.0')).toBe('+');
+    expect(marks('saml', '1.2')).toBe('+');
+    expect(marks('azure.ad', '3.4')).toBe('');
+    expect(marks('azure.ad', '3.3')).toBe('');
+  });
+
+  test('30: a custom version that is the newest and has older versions has both, the star first', () => {
+    expect(marks('azure.ad', '3.5')).toBe('*+');
+    // the same version without the older ones has the plus only
+    const alone = view.groupTemplates(
+      listItemsOf(fixtureCatalog, fixtureTenantTemplates).filter(
+        (item) => item.name !== 'azure.ad' || item.templateVersion === '3.5'
+      )
+    );
+    const group = alone.find((candidate) => candidate.name === 'azure.ad');
+    expect(view.marksOf(group, group.newest)).toBe('+');
+  });
+
+  test('31: the newest of a template is the one the library marked, not the first and not the latest date, and the versions come newest first', () => {
+    const azure = grouped.find((candidate) => candidate.name === 'azure.ad');
+    expect(azure.newest.templateVersion).toBe('3.5');
+    expect(azure.versions.map((v) => v.templateVersion)).toEqual([
+      '3.5',
+      '3.4',
+      '3.3',
+    ]);
+  });
+
+  test('32: versions compare number by number, so 2.10 is newer than 2.9 and 1.0 is 1', () => {
+    expect(view.compareVersions('2.10', '2.9')).toBeGreaterThan(0);
+    expect(view.compareVersions('2.9', '2.10')).toBeLessThan(0);
+    expect(view.compareVersions('1.0', '1')).toBe(0);
+    expect(view.compareVersions('3.4', '3.3')).toBeGreaterThan(0);
+    // a part that is no number compares as text
+    expect(view.compareVersions('1.a', '1.b')).toBeLessThan(0);
+    // the date plays no part: versions are listed by their number only
+    const items = listItemsOf(fixtureCatalog).map((item) =>
+      item.name === 'ldap' && item.templateVersion === '2.3'
+        ? { ...item, dateUpdated: '12-31-2030' }
+        : item
+    );
+    const ldap = view
+      .groupTemplates(items)
+      .find((candidate) => candidate.name === 'ldap');
+    expect(ldap.versions.map((v) => v.templateVersion)).toEqual([
+      '2.10',
+      '2.3',
+    ]);
+  });
+});
+
 describe('the parts of an entry', () => {
-  test('27: the connector has its bundle, paging and configuration fields, with the required ones marked', () => {
+  test('33: the connector has its bundle, paging and configuration fields, with the required ones marked', () => {
     const connector = view.connectorSummaryOf(entryOf('3_4-azure-ad'));
     expect(connector).toMatchObject({
       name: 'MSGraphAPI Connector',
@@ -469,7 +562,7 @@ describe('the parts of an entry', () => {
     expect(view.connectorSummaryOf(entryOf('1_3-saml'))).toBeUndefined();
   });
 
-  test('28: object types count their properties and the required ones, and a property that can be neither created nor updated is read-only', () => {
+  test('34: object types count their properties and the required ones, and a property that can be neither created nor updated is read-only', () => {
     const [user, group] = view.objectTypesOf(entryOf('3_4-azure-ad'));
     expect(user).toMatchObject({
       name: 'User',
@@ -491,7 +584,7 @@ describe('the parts of an entry', () => {
     });
   });
 
-  test('29: a property that is only not creatable stays as it is said', () => {
+  test('35: a property that is only not creatable stays as it is said', () => {
     const [objectType] = view.objectTypesOf({
       objectTypes: [
         { name: 'T', properties: [{ nativeName: 'p', notCreatable: true }] },
@@ -500,7 +593,7 @@ describe('the parts of an entry', () => {
     expect(objectType.properties[0].flags).toEqual(['not creatable']);
   });
 
-  test('30: the form has its sections with their fields, the defaults of provisioning, and no empty section', () => {
+  test('36: the form has its sections with their fields, the defaults of provisioning, and no empty section', () => {
     expect(view.formSectionsOf(entryOf('3_4-azure-ad'))).toEqual([
       {
         section: 'applicationDetails',
@@ -521,7 +614,7 @@ describe('the parts of an entry', () => {
     ).toEqual(['x.y']);
   });
 
-  test('31: capabilities say what is allowed, in the order create, read, update, delete', () => {
+  test('37: capabilities say what is allowed, in the order create, read, update, delete', () => {
     expect(view.capabilitiesOf(entryOf('3_4-azure-ad')).provisioning).toEqual([
       'create',
       'read',
@@ -558,7 +651,7 @@ describe('the parts of an entry', () => {
     ).toBeUndefined();
   });
 
-  test('32: an entry whose fields have the wrong types gives nothing and throws nothing', () => {
+  test('38: an entry whose fields have the wrong types gives nothing and throws nothing', () => {
     const odd = entryOf('1_0-odd');
     expect(view.providesOf(odd)).toBe('Enterprise');
     expect(view.connectorSummaryOf(odd)).toBeUndefined();

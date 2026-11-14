@@ -96,8 +96,10 @@ describe('frodo app template, without a tenant', () => {
   });
 
   const KEY =
-    'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark';
+    'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark  * newest version, older ones exist';
   const cellsOf = (line) => line.split('│').map((cell) => cell.trim());
+  const listOf = async (...args) =>
+    frodo('app', 'template', 'list', ...args, '--templates', 'catalog.json');
 
   test('2: list --long reads the gzip file as the CDN serves it and has a row for each template with its newest version, a star when older versions exist, and a key line', async () => {
     const { code, out } = await frodo(
@@ -112,183 +114,168 @@ describe('frodo app template, without a tenant', () => {
     const lines = out.trimEnd().split('\n');
     expect(cellsOf(lines[0])).toEqual([
       'Id',
+      'Ver',
+      'Updated',
       'Name',
       'Category',
       'Prov',
-      'Ver',
-      'Updated',
     ]);
-    // the rows, a blank line, and the key
+    // the rows, a blank line, and the key; the fixture has templates no letter fits
     const rows = lines.slice(1, 1 + fixtureIds.length);
     expect(lines).toHaveLength(1 + fixtureIds.length + 2);
     expect(lines[lines.length - 2]).toBe('');
-    expect(lines[lines.length - 1]).toBe(
-      `${KEY}  * older versions exist  ? not known`
-    );
+    expect(lines[lines.length - 1]).toBe(`${KEY}  ? not known`);
     const row = (id) => cellsOf(rows.find((line) => line.startsWith(id)));
     expect(row('azure.ad')).toEqual([
       'azure.ad',
+      '3.4*',
+      '2026-08-19',
       'Microsoft Entra',
       'Uncategorized',
       'P',
-      '3.4*',
-      '2026-08-19',
     ]);
-    expect(row('saml').slice(3)).toEqual(['S', '1.3*', '2026-02-05']);
-    expect(row('ai.target').slice(3, 5)).toEqual(['AP', '1.0']);
-    expect(row('bookmark').slice(3, 5)).toEqual(['B', '1.0']);
+    expect(row('saml')).toEqual([
+      'saml',
+      '1.3*',
+      '2026-02-05',
+      'SAML',
+      'saml',
+      'S',
+    ]);
+    expect(row('ai.target')).toEqual([
+      'ai.target',
+      '1.0',
+      '2026-05-15',
+      'AI Target (Demo)',
+      'AI Services',
+      'AP',
+    ]);
+    expect(
+      row('bookmark').slice(1, 2).concat(row('bookmark').slice(5))
+    ).toEqual(['1.0', 'B']);
     // 2.10 is newer than 2.3, and a date that is no date is printed as it is
-    expect(row('ldap').slice(3)).toEqual(['P', '2.10*', 'sometime in 2023']);
+    expect(row('ldap').slice(1, 3)).toEqual(['2.10*', 'sometime in 2023']);
     // nothing that fits says ?
-    expect(row('odd')[3]).toBe('?');
+    expect(row('odd')[5]).toBe('?');
+    // no marker column, no plus without a tenant
+    expect(out).not.toContain('+');
   });
 
-  test('3: the table of list --long is as wide as its widest cells, and no row is wider or narrower', async () => {
-    const { out } = await frodo(
-      'app',
-      'template',
-      'list',
-      '--long',
-      '--templates',
-      'catalog.json'
-    );
-    const table = out
-      .trimEnd()
-      .split('\n')
-      .slice(0, 1 + fixtureIds.length);
-    const widths = new Set(table.map((line) => line.length));
-    expect(widths.size).toBe(1);
-    const columns = table.map((line) => line.split('│'));
-    const widest = [0, 1, 2, 3, 4, 5].map((index) =>
-      Math.max(...columns.map((cells) => cells[index].length))
-    );
-    expect([...widths][0]).toBe(widest.reduce((a, b) => a + b, 0) + 5);
-    // no connector column: the table fits 100 columns with the widest names of the fixture
-    expect([...widths][0]).toBeLessThan(100);
+  test('3: the table is as wide as its widest cells, and no row is wider or narrower, in the newest view and with every version', async () => {
+    for (const args of [['--long'], ['--all-versions']]) {
+      const { out } = await listOf(...args);
+      const table = out.trimEnd().split('\n').slice(0, -2);
+      const widths = new Set(table.map((line) => line.length));
+      expect(widths.size).toBe(1);
+      const columns = table.map((line) => line.split('│'));
+      const widest = [0, 1, 2, 3, 4, 5].map((index) =>
+        Math.max(...columns.map((cells) => cells[index].length))
+      );
+      expect([...widths][0]).toBe(widest.reduce((a, b) => a + b, 0) + 5);
+      expect([...widths][0]).toBeLessThan(100);
+    }
   });
 
-  // set FRODO_TEST_LIVE_CATALOG to the decoded live catalog to check the width of the real thing
+  // set FRODO_TEST_LIVE_CATALOG to the decoded live catalog to check the real thing
   const liveCatalog = process.env.FRODO_TEST_LIVE_CATALOG;
   (liveCatalog ? test : test.skip)(
-    '4: on the live catalog list --long is at most 98 characters wide, with 51 rows and no ?',
+    '4: on the live catalog the table is 96 characters wide without a tenant, with 51 rows (125 with --all-versions) and no ?, and no id of a template looks like the id of a version',
     async () => {
       fs.copyFileSync(liveCatalog, path.join(home, 'live.json'));
-      const { out } = await frodo(
-        'app',
-        'template',
-        'list',
-        '--long',
-        '--templates',
-        'live.json'
-      );
+      const run = (...args) =>
+        frodo('app', 'template', 'list', ...args, '--templates', 'live.json');
+      const { out } = await run('--long');
       const lines = out.trimEnd().split('\n');
       const table = lines.slice(0, 52);
       expect(table).toHaveLength(52);
-      expect(Math.max(...table.map((line) => line.length))).toBeLessThanOrEqual(
-        98
-      );
-      expect(lines.at(-1)).toBe(`${KEY}  * older versions exist`);
-      const prov = table.slice(1).map((line) => cellsOf(line)[3]);
+      expect(Math.max(...table.map((line) => line.length))).toBe(96);
+      expect(new Set(table.map((line) => line.length)).size).toBe(1);
+      expect(lines.at(-1)).toBe(KEY);
+      const prov = table.slice(1).map((line) => cellsOf(line)[5]);
       expect(new Set(prov)).toEqual(
         new Set(['P', 'AP', 'O', 'S', 'F', 'FT', 'B'])
       );
+      // 21 of the 51 templates have older versions
+      expect(
+        table.slice(1).filter((line) => cellsOf(line)[1].endsWith('*'))
+      ).toHaveLength(21);
+      const ids = table.slice(1).map((line) => cellsOf(line)[0]);
+      expect(ids.filter((id) => /^\d+_\d+-/.test(id))).toEqual([]);
+      // every version has a row, newest first, and the three spellings are one table
+      const all = await run('--all-versions');
+      const allLines = all.out.trimEnd().split('\n');
+      expect(allLines).toHaveLength(1 + 125 + 2);
+      expect((await run('--long', '--all-versions')).out).toBe(all.out);
+      const stars = allLines.filter((line) => cellsOf(line)[1]?.endsWith('*'));
+      expect(stars).toHaveLength(21);
+      // the star is on the first row of each of those templates
+      for (const line of stars) {
+        const id = cellsOf(line)[0];
+        expect(allLines.find((other) => other.startsWith(id))).toBe(line);
+      }
     }
   );
 
-  test('5: list --long --all-versions has a row for every version without a star, a column that marks the newest, and a key line that matches', async () => {
-    const { code, out } = await frodo(
-      'app',
-      'template',
-      'list',
-      '--long',
-      '--all-versions',
-      '--templates',
-      'catalog.json'
-    );
-    expect(code).toBe(0);
-    const lines = out.trimEnd().split('\n');
+  test('5: --all-versions, --long --all-versions and --all-versions --long print the very same table, with a row for every version', async () => {
+    const outputs = [];
+    for (const args of [
+      ['--all-versions'],
+      ['--long', '--all-versions'],
+      ['--all-versions', '--long'],
+      ['-l', '--all-versions'],
+    ]) {
+      const { code, out } = await listOf(...args);
+      expect(code).toBe(0);
+      outputs.push(out);
+    }
+    expect(new Set(outputs).size).toBe(1);
+    const lines = outputs[0].trimEnd().split('\n');
     expect(cellsOf(lines[0])).toEqual([
       'Id',
       'Ver',
+      'Updated',
       'Name',
       'Category',
       'Prov',
-      'Updated',
-      'N',
     ]);
-    const versions = lines.slice(1, -2);
-    expect(versions).toHaveLength(11);
-    expect(lines.slice(0, -2).join('\n')).not.toContain('*');
-    const rows = versions.map(cellsOf);
-    expect(rows.filter(([id]) => id === 'azure.ad')).toEqual([
-      [
-        'azure.ad',
-        '3.3',
-        'Microsoft Entra',
-        'Uncategorized',
-        'P',
-        '2024-10-03',
-        '',
-      ],
-      [
-        'azure.ad',
-        '3.4',
-        'Microsoft Entra',
-        'Uncategorized',
-        'P',
-        '2026-08-19',
-        'N',
-      ],
-    ]);
+    // a row for each of the 11 versions, a blank line, the key
+    expect(lines).toHaveLength(1 + 11 + 2);
     expect(lines.at(-2)).toBe('');
-    expect(lines.at(-1)).toBe(`${KEY}  N newest version  ? not known`);
-    expect(lines.at(-1)).not.toContain('older versions');
+    expect(lines.at(-1)).toBe(`${KEY}  ? not known`);
+    // not the table of the newest versions
+    expect(outputs[0]).not.toBe((await listOf('--long')).out);
   });
 
-  test('6: the plain list and the plain table of the versions have no key line and no star, and nothing prints a key line as JSON', async () => {
-    for (const args of [['list'], ['list', '--all-versions']]) {
-      const { code, out } = await frodo(
-        'app',
-        'template',
-        ...args,
-        '--templates',
-        'catalog.json'
-      );
-      expect(code).toBe(0);
-      expect(out).not.toContain('provisioning');
-      expect(out).not.toContain('*');
-      expect(out).not.toContain('Prov');
-    }
+  test('6: the ids come alphabetical and the versions of an id newest first, by the number and not by the date; the star is on the newest row of a template with older versions only', async () => {
+    const { out } = await listOf('--all-versions');
+    const rows = out.trimEnd().split('\n').slice(1, -2).map(cellsOf);
+    expect(rows.map(([id, version]) => `${id} ${version}`)).toEqual([
+      'ai.target 1.0',
+      'azure.ad 3.4*',
+      'azure.ad 3.3',
+      'bookmark 1.0',
+      'class.name 1.0',
+      'escape 1.0',
+      'ldap 2.10*',
+      'ldap 2.3',
+      'odd 1.0',
+      'saml 1.3*',
+      'saml 1.2',
+    ]);
+    // the dates of ldap point the other way: 2.10 is the oldest by its date
+    expect(rows.filter(([id]) => id === 'ldap').map((row) => row[2])).toEqual([
+      'sometime in 2023',
+      '2024-06-03',
+    ]);
   });
 
-  test('7: list --all-versions has an id and a version for each version, with the newest marked', async () => {
-    const { code, out } = await frodo(
-      'app',
-      'template',
-      'list',
-      '--all-versions',
-      '--templates',
-      'catalog.json'
-    );
+  test('7: the plain list has the id of each template and nothing else: no table, no mark, no key line', async () => {
+    const { code, out } = await listOf();
     expect(code).toBe(0);
-    const lines = out.trim().split('\n');
-    expect(lines[0].split('│').map((cell) => cell.trim())).toEqual([
-      'Id',
-      'Version',
-      'Newest',
-    ]);
-    const rows = lines
-      .slice(1)
-      .map((line) => line.split('│').map((cell) => cell.trim()));
-    expect(rows.filter(([id]) => id === 'azure.ad')).toEqual([
-      ['azure.ad', '3.3', ''],
-      ['azure.ad', '3.4', 'yes'],
-    ]);
-    expect(rows.filter(([id]) => id === 'ldap').map((row) => row[1])).toEqual([
-      '2.3',
-      '2.10',
-    ]);
-    expect(out).not.toMatch(/\d_\d+-/);
+    expect(out.trim().split('\n')).toEqual(fixtureIds);
+    for (const text of ['│', '*', '+', 'Prov', 'provisioning']) {
+      expect(out).not.toContain(text);
+    }
   });
 
   test('8: describe takes the newest version of the template -i names, whatever the case, and --json prints the whole entry of the version', async () => {
@@ -386,7 +373,7 @@ describe('frodo app template, without a tenant', () => {
       'catalog.json'
     );
     expect(`${key.out}${key.err}`).toContain(
-      'Application template "3_4-azure-ad" not found'
+      'Application template "3_4-azure-ad" not found. "frodo app template list" prints the ids. "3_4-azure-ad" looks like the id of a version, which is not an id: -i names the template and -v the version (for example -i azure.ad -v 3.4).'
     );
     const version = await frodo(
       'app',
@@ -400,7 +387,7 @@ describe('frodo app template, without a tenant', () => {
       'catalog.json'
     );
     expect(`${version.out}${version.err}`).toContain(
-      'Application template ldap has no version 2.1. Versions: 2.3, 2.10.'
+      'Application template ldap has no version 2.1. Versions: 2.10, 2.3.'
     );
   });
 
