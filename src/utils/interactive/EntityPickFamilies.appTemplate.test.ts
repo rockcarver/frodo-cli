@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { frodo } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
+import { groupTemplates, selectTemplate } from '../ApplicationTemplateView';
 import { registerEntityPickFamilies } from './EntityPickFamilies';
 import { familyEntityPicks } from './EntityPickRegistry';
 
@@ -137,5 +138,57 @@ describe('the application template pickers', () => {
       expect(pick.search?.(azure, 'ENTRA')).toBe(true);
       expect(pick.search?.(azure, 'saml')).toBe(false);
     }
+  });
+
+  it('print no escape sequence, whichever field of the row carries one, and write a name the command finds', async () => {
+    // an escape that starts a color, the 8-bit CSI and a bidi override
+    const poison = '\u001b[31m\u009b\u202e';
+    const unsafe = /[\u0000-\u001f\u007f-\u009f\u202a-\u202e]/;
+    const rows = [
+      listItem(`azure${poison}.ad`, '3.4', `Entra${poison}`, {
+        newestInGroup: true,
+        group: `Group${poison}`,
+        templateType: `Type${poison}`,
+        dateUpdated: `01-01-2025${poison}`,
+      }),
+    ];
+    jest.spyOn(frodo.app.template, 'listTemplates').mockResolvedValue(rows);
+    for (const pick of familyEntityPicks(
+      describeCommand('describe', ...flags)
+    )) {
+      const [row] = await pick.load();
+      for (const text of [
+        pick.label(row),
+        pick.description?.(row) ?? '',
+        pick.value?.(row) ?? '',
+      ]) {
+        expect(text).not.toMatch(unsafe);
+      }
+      expect(pick.search?.(row, 'entra')).toBe(true);
+      // what the pick writes into -i or -n is what the command finds
+      const selector =
+        pick.name === 'templateId'
+          ? { id: pick.label(row) }
+          : { name: pick.label(row) };
+      const selection = selectTemplate(groupTemplates(rows), selector);
+      expect('item' in selection).toBe(true);
+    }
+  });
+
+  it('offer a template without a display name by its id for -n, and -n takes the id then', async () => {
+    const rows = [
+      listItem('odd', '1.0', 'x', {
+        newestInGroup: true,
+        displayName: undefined,
+      }),
+    ];
+    jest.spyOn(frodo.app.template, 'listTemplates').mockResolvedValue(rows);
+    const byName = familyEntityPicks(describeCommand('describe', ...flags))[1];
+    const [row] = await byName.load();
+    expect(byName.label(row)).toBe('odd');
+    expect(
+      'item' in
+        selectTemplate(groupTemplates(rows), { name: byName.label(row) })
+    ).toBe(true);
   });
 });

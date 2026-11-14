@@ -32,7 +32,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import type { Command } from 'commander';
 import { catalogOptionsOf } from '../ApplicationTemplateSource';
-import { groupTemplates } from '../ApplicationTemplateView';
+import { displayNameOf, groupTemplates } from '../ApplicationTemplateView';
 import {
   sameHost,
   savedConnectionProfiles,
@@ -653,7 +653,7 @@ export function registerEntityPickFamilies(): void {
         kind: 'application template',
         load: async () => loadTemplates(),
         loadFor: async (command) => loadTemplates(command),
-        label: (template) => template.displayName || template.name,
+        label: (template) => displayNameOf(template),
         description: (template) => template.name,
         search: (template, query) =>
           `${template.name} ${template.displayName ?? ''}`

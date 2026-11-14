@@ -22,6 +22,9 @@ import { gzipSync } from 'zlib';
 import {
   fixtureCatalog,
   fixtureIds,
+  POISONABLE_FIELDS,
+  poisonFixture,
+  UNSAFE_OUTPUT,
 } from '../utils/ApplicationTemplateFixtures.js';
 
 const LAUNCH = path.join(process.cwd(), 'dist', 'launch.cjs');
@@ -65,6 +68,12 @@ beforeAll(() => {
   fs.writeFileSync(
     path.join(home, 'catalog.json.gz'),
     gzipSync(gzipSync(JSON.stringify(catalog)))
+  );
+  // the saml template with an escape that starts a color, the 8-bit CSI and a
+  // bidi override in every field the library hands over without a check
+  fs.writeFileSync(
+    path.join(home, 'poisoned.json'),
+    JSON.stringify(poisonFixture(POISONABLE_FIELDS))
   );
 });
 
@@ -310,8 +319,49 @@ describe('frodo app template, without a tenant', () => {
   });
 });
 
+describe('frodo app template, with escapes in a catalog', () => {
+  test('9: no command prints an escape sequence, the 8-bit CSI or a bidi override from any field of a template, and the template is still found by what is printed', async () => {
+    // what the user sees (and types) is the text without the characters
+    const id = 'saml [31m';
+    const name = 'SAML [31m';
+    const commands = [
+      ['list'],
+      ['list', '--long'],
+      ['list', '--all-versions'],
+      ['list', '--long', '--all-versions'],
+      ['describe', '-i', id],
+      ['describe', '-i', id, '--long'],
+      ['describe', '-n', name, '--long'],
+      ['describe', '-i', id, '-v', 'no such version'],
+    ];
+    for (const args of commands) {
+      const { code, out, err } = await frodo(
+        'app',
+        'template',
+        ...args,
+        '--templates',
+        'poisoned.json'
+      );
+      expect(`${out}${err}`).not.toMatch(UNSAFE_OUTPUT);
+      // the failure on purpose is the last command
+      expect(code).toBe(args.includes('no such version') ? 1 : 0);
+    }
+    const described = await frodo(
+      'app',
+      'template',
+      'describe',
+      '-i',
+      id,
+      '--templates',
+      'poisoned.json'
+    );
+    expect(described.out).toContain('Id: saml [31m');
+    expect(described.out).toContain('Group: Sa [31m ml (consumer)');
+  });
+});
+
 describe('frodo app template, with air-gapped mode on', () => {
-  test('9: download is refused with the advice to pass a file, and nothing is saved or kept', async () => {
+  test('10: download is refused with the advice to pass a file, and nothing is saved or kept', async () => {
     const { code, out, err } = await airGapped('app', 'template', 'download');
     expect(code).toBe(1);
     const text = `${out}${err}`;
@@ -325,7 +375,7 @@ describe('frodo app template, with air-gapped mode on', () => {
     );
   });
 
-  test('10: list without a file is refused the same way, and with a file it still works', async () => {
+  test('11: list without a file is refused the same way, and with a file it still works', async () => {
     const refused = await airGapped('app', 'template', 'list');
     expect(refused.code).toBe(1);
     expect(`${refused.out}${refused.err}`).toContain('--templates <file>');
@@ -340,7 +390,7 @@ describe('frodo app template, with air-gapped mode on', () => {
     expect(served.out.trim().split('\n')).toEqual(fixtureIds);
   });
 
-  test('11: describe from a file works air-gapped, from the CDN it does not', async () => {
+  test('12: describe from a file works air-gapped, from the CDN it does not', async () => {
     const served = await airGapped(
       'app',
       'template',

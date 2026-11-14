@@ -11,7 +11,9 @@
  * - an AI target (`ai.target`), whose connector can only read,
  * - a template whose fields have the wrong types (`odd`),
  * - a class name where a connector display name should be (`class.name`),
- * - control characters in a text (`escape`).
+ * - control characters in a text (`escape`),
+ * and, from `poisonFixture`, a copy in which one field of the `saml` template
+ * carries an escape sequence, the 8-bit CSI and a bidi override.
  * The entries are made up; they are not copied from the live catalog.
  */
 
@@ -366,4 +368,45 @@ export function listItemsOf(catalog) {
       nameKey(a.name).localeCompare(nameKey(b.name)) ||
       compare(a.templateVersion, b.templateVersion)
   );
+}
+
+/** The characters no command may print: an escape that starts a color (with its `[31m`), U+009B (the CSI in 8 bits) and U+202E (a bidi override). */
+export const POISON = '\u001b[31m\u009b\u202e';
+
+/** What a test looks for in the output: none of the three may be there, nor any other control character except the line break. */
+export const UNSAFE_OUTPUT =
+  /[\u0000-\u0009\u000b-\u001f\u007f-\u009f\u061c\u200b-\u200f\u2028-\u202e\u2060-\u2069\ufeff]/;
+
+/** The fields of the rows of a list (and of the header of `describe`) that the library hands to the commands without a check. */
+export const POISONABLE_FIELDS = [
+  'id',
+  'displayName',
+  'templateVersion',
+  'group',
+  'templateType',
+  'dateUpdated',
+];
+
+/**
+ * A copy of the fixture catalog in which fields of both versions of the `saml`
+ * template carry `POISON`: `id` (the id of the template), `displayName`,
+ * `templateVersion`, `templateType`, `dateUpdated`, or the name of the group
+ * (the key under which the catalog keeps the template).
+ * @param {string | string[]} fields one or more of POISONABLE_FIELDS
+ * @returns {object} the catalog
+ */
+export function poisonFixture(fields) {
+  const catalog = structuredClone(fixtureCatalog);
+  const consumer = catalog.AppTemplates.consumer;
+  const wanted = [].concat(fields);
+  for (const field of wanted.filter((candidate) => candidate !== 'group')) {
+    for (const entry of Object.values(consumer.Saml)) {
+      entry[field] = `${entry[field]}${POISON}`;
+    }
+  }
+  if (wanted.includes('group')) {
+    consumer[`Sa${POISON}ml`] = consumer.Saml;
+    delete consumer.Saml;
+  }
+  return catalog;
 }

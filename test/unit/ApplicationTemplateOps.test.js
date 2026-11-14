@@ -18,6 +18,10 @@
  *   never fails on an entry whose fields have the wrong types;
  * - `download` asks the source now (`refresh`), saves the text of the cached
  *   catalog unchanged (never a re-encoded copy), and reports what the cache did;
+ * - no text of an entry reaches the output with an escape sequence, the 8-bit
+ *   CSI or a bidi override in it, whichever field carries it (the id, display
+ *   name, version, group, type or date of a row) and whichever command or flag
+ *   prints it, and the library is still asked with the text as it listed it;
  * - an air-gapped refusal of the library fails the command and is followed by
  *   the advice for a template command (pass a file); the advice about the
  *   switch comes from `printError` (src/utils/AirGapHint.ts, cli#1307);
@@ -32,6 +36,10 @@ import {
   fixtureCatalog,
   fixtureIds,
   listItemsOf,
+  POISON,
+  POISONABLE_FIELDS,
+  poisonFixture,
+  UNSAFE_OUTPUT,
 } from '../utils/ApplicationTemplateFixtures.js';
 
 const printed = [];
@@ -178,6 +186,7 @@ const {
 } = await import('../../src/ops/ApplicationTemplateOps.ts');
 const { catalogOptionsOf, enableTemplateCatalogCache } =
   await import('../../src/utils/ApplicationTemplateSource.ts');
+const { textOf } = await import('../../src/utils/ApplicationTemplateView.ts');
 
 const lastCall = (name) => calls.filter(([n]) => n === name).at(-1);
 
@@ -325,7 +334,7 @@ describe('list', () => {
     expect(row('ai.target')).toContain(' | target+provisioning | AI Target | ');
     // a date that is no date and a connector named by a class are printed as they are
     expect(row('ldap')).toContain(' | sometime in 2023');
-    expect(row('class.name')).toContain(' | SerConnector | ');
+    expect(row('class.name')).toContain(' | Ser | ');
     // the catalog is read once for all the rows, and no template one by one
     expect(calls.map(([name]) => name)).toEqual([
       'listTemplates',
@@ -667,8 +676,121 @@ describe('describe', () => {
   });
 });
 
+describe('describe: a version that is empty, and a template without a display name', () => {
+  beforeEach(() => {
+    items = listItemsOf(fixtureCatalog);
+    catalogResult.catalog = structuredClone(fixtureCatalog);
+  });
+
+  test('26: -v with an empty text (an unset shell variable) fails like an unknown version, and nothing is read', async () => {
+    expect(
+      await describeApplicationTemplate({ id: 'azure.ad', version: '' }, {})
+    ).toBe(false);
+    expect(messages('error')[0]).toBe(
+      'Application template azure.ad has no version "". Versions: 3.3, 3.4.'
+    );
+    expect(lastCall('readTemplate')).toBeUndefined();
+  });
+
+  test('27: a template without a display name is shown with its id as its display name, and -n finds it by that', async () => {
+    items.find((item) => item.name === 'odd').displayName = undefined;
+    await listApplicationTemplates({ long: true });
+    const lines = messages('data').join('\n').split('\n');
+    expect(lines.find((line) => line.startsWith('odd |'))).toContain(
+      'odd | odd | '
+    );
+    printed.length = 0;
+    expect(await describeApplicationTemplate({ name: 'ODD' }, {})).toBe(true);
+    expect(everythingPrinted().split('\n')).toContain('Display name: odd');
+  });
+});
+
+describe('an escape sequence in a field of an entry', () => {
+  // one field of the saml template carries an escape that starts a color, the
+  // 8-bit CSI and a bidi override; no command may print any of them, and the
+  // library must still be asked with the text as it listed it
+  const everyCommand = (id, name, version) => [
+    () => listApplicationTemplates({}),
+    () => listApplicationTemplates({ long: true }),
+    () => listApplicationTemplates({ allVersions: true }),
+    () => listApplicationTemplates({ long: true, allVersions: true }),
+    () => describeApplicationTemplate({ id }, {}),
+    () => describeApplicationTemplate({ id }, { long: true }),
+    () => describeApplicationTemplate({ name }, { long: true }),
+    () => describeApplicationTemplate({ id, version }, {}),
+    // the error lists the versions of the template
+    () => describeApplicationTemplate({ id, version: 'no such version' }, {}),
+  ];
+
+  test.each(POISONABLE_FIELDS)(
+    '28: %s: nothing printed by list or describe carries it',
+    async (field) => {
+      const poisoned = poisonFixture(field);
+      items = listItemsOf(poisoned);
+      catalogResult.catalog = structuredClone(poisoned);
+      const raw = items.filter(
+        (item) => item.group?.startsWith('Sa') && item.name.startsWith('sa')
+      );
+      expect(raw.length).toBe(2);
+      // what the user types is what the command printed: the safe text
+      // the library's mark says which one is the newest (a version with an
+      // escape in it is not a number, so the fixture's own order is no guide)
+      const newest = raw.find((item) => item.newestInGroup) ?? raw[1];
+      const older = raw.find((item) => item !== newest);
+      const id = textOf(newest.name);
+      const name = textOf(newest.displayName);
+      const version = textOf(older.templateVersion);
+      for (const run of everyCommand(id, name, version)) {
+        printed.length = 0;
+        calls.length = 0;
+        await run();
+        expect(printed.length).toBeGreaterThan(0);
+        expect(everythingPrinted()).not.toMatch(UNSAFE_OUTPUT);
+      }
+      // the template was found and described, and the library was asked
+      // with the row as it listed it
+      printed.length = 0;
+      calls.length = 0;
+      expect(await describeApplicationTemplate({ id }, {})).toBe(true);
+      expect(everythingPrinted()).toContain(`Id: ${id}`);
+      const asked = calls.find(([call]) => call === 'readTemplate')[1];
+      expect(asked).toEqual({
+        templateName: newest.name,
+        templateVersion: newest.templateVersion,
+      });
+      if (field === 'id' || field === 'templateVersion') {
+        expect(JSON.stringify(asked)).toContain(
+          JSON.stringify(POISON).slice(1, -1)
+        );
+      }
+    }
+  );
+
+  test('29: the fields of the entry itself (description, connector, form) are made safe as well', async () => {
+    const poisoned = structuredClone(fixtureCatalog);
+    const entry = poisoned.AppTemplates.enterprise.AzureAD['3_4-azure-ad'];
+    entry.description = `d${POISON}`;
+    entry.supportUrl = `https://x${POISON}`;
+    entry.connectorDisplayName = `c${POISON}`;
+    entry.objectTypes[0].properties[0].name = `p${POISON}`;
+    entry.schema.applicationDetails[0][0].label = `l${POISON}`;
+    entry.connectorTemplate.basic[0][0].label = `b${POISON}`;
+    items = listItemsOf(poisoned);
+    catalogResult.catalog = structuredClone(poisoned);
+    for (const options of [{}, { long: true }]) {
+      printed.length = 0;
+      await describeApplicationTemplate({ id: 'azure.ad' }, options);
+      expect(everythingPrinted()).toContain('Description: d [31m');
+      expect(everythingPrinted()).not.toMatch(UNSAFE_OUTPUT);
+    }
+    printed.length = 0;
+    await listApplicationTemplates({ long: true });
+    expect(everythingPrinted()).not.toMatch(UNSAFE_OUTPUT);
+  });
+});
+
 describe('download', () => {
-  test('26: asks the source now, saves the text of the cached catalog unchanged, and says what the cache did', async () => {
+  test('30: asks the source now, saves the text of the cached catalog unchanged, and says what the cache did', async () => {
     const file = path.join(baseDirectory, 'out.json');
     expect(
       await downloadApplicationTemplateCatalog('out.json', 'development')
@@ -690,20 +812,20 @@ describe('download', () => {
     expect(text).toContain('--templates <file>');
   });
 
-  test('27: without a file it saves appTemplates.json in the working directory and says so', async () => {
+  test('31: without a file it saves appTemplates.json in the working directory and says so', async () => {
     expect(await downloadApplicationTemplateCatalog()).toBe(true);
     expect(saved[0].file).toBe(path.join(baseDirectory, DEFAULT_CATALOG_FILE));
     expect(messages('info')[0]).toContain(DEFAULT_CATALOG_FILE);
   });
 
-  test('28: without a kept file it writes the catalog the library returned', async () => {
+  test('32: without a kept file it writes the catalog the library returned', async () => {
     delete catalogResult.metadata.cachePath;
     const file = path.join(baseDirectory, 'plain.json');
     await downloadApplicationTemplateCatalog('plain.json');
     expect(JSON.parse(fs.readFileSync(file, 'utf8'))).toEqual(sampleCatalog);
   });
 
-  test('29: a stale copy after an error is a warning, and air-gapped mode is said in words', async () => {
+  test('33: a stale copy after an error is a warning, and air-gapped mode is said in words', async () => {
     catalogResult.metadata.cache = 'stale-after-error';
     catalogResult.metadata.cacheError = 'getaddrinfo ENOTFOUND';
     await downloadApplicationTemplateCatalog('a.json');
@@ -713,7 +835,7 @@ describe('download', () => {
     );
   });
 
-  test('30: an air-gapped refusal fails the command and is followed by the advice of this command line', async () => {
+  test('34: an air-gapped refusal fails the command and is followed by the advice of this command line', async () => {
     libraryFailure = new FakeFrodoError(
       'Air-gapped mode is on: the application template catalog cannot be read from the CDN.',
       'AIR_GAPPED'
@@ -726,7 +848,7 @@ describe('download', () => {
     expect(saved).toEqual([]);
   });
 
-  test('31: the same advice follows a refusal while listing', async () => {
+  test('35: the same advice follows a refusal while listing', async () => {
     libraryFailure = new FakeFrodoError('Air-gapped mode is on.', 'AIR_GAPPED');
     expect(await listApplicationTemplates({})).toBe(false);
     expect(messages('info').join('\n')).toContain('--templates <file>');
@@ -734,7 +856,7 @@ describe('download', () => {
 });
 
 describe('the catalog counts', () => {
-  test('32: versions and groups of both tiers are counted', () => {
+  test('36: versions and groups of both tiers are counted', () => {
     expect(countCatalog(sampleCatalog)).toEqual({ templates: 3, groups: 2 });
     expect(
       countCatalog({ AppTemplates: { consumer: {}, enterprise: {} } })
@@ -746,7 +868,7 @@ describe('the catalog counts', () => {
 });
 
 describe('the cache of the catalog', () => {
-  test('33: the CLI switches it on at start, in the default folder of the library', () => {
+  test('37: the CLI switches it on at start, in the default folder of the library', () => {
     delete process.env.FRODO_CONFIG_PATH;
     expect(cacheEnabled).toBe(false);
     enableTemplateCatalogCache();
@@ -754,7 +876,7 @@ describe('the cache of the catalog', () => {
     expect(cachePath).toBeUndefined();
   });
 
-  test('34: the folder moves with FRODO_CONFIG_PATH like the other files of frodo', () => {
+  test('38: the folder moves with FRODO_CONFIG_PATH like the other files of frodo', () => {
     process.env.FRODO_CONFIG_PATH = '/srv/frodo-config';
     try {
       enableTemplateCatalogCache();
@@ -765,7 +887,7 @@ describe('the cache of the catalog', () => {
     expect(cachePath).toBe(path.join('/srv/frodo-config', 'AppTemplates'));
   });
 
-  test('35: src/app.ts calls the switch at start, before it builds the commands, and nothing offers a way to turn it off', () => {
+  test('39: src/app.ts calls the switch at start, before it builds the commands, and nothing offers a way to turn it off', () => {
     const app = fs.readFileSync(
       path.join(process.cwd(), 'src', 'app.ts'),
       'utf8'

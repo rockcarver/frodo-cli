@@ -8,8 +8,11 @@
  * itself, from the tenant, and the library checks only a few of their fields
  * (`displayName`, `templateType`, `dateUpdated`). Every read below is therefore
  * defensive: a field of an unexpected shape is left out, never an error. Text
- * from an entry is printed with its control characters replaced, so an entry
- * cannot move the cursor or recolor the terminal.
+ * from an entry is printed with its control characters (the C0 and C1 ones,
+ * line and paragraph separators, and the characters that change the direction
+ * of the text) replaced, so an entry cannot move the cursor, recolor the
+ * terminal or reorder what is printed. The text of the rows of a list (id,
+ * display name, version, group) is made safe once, in `groupTemplates`.
  */
 
 /** A JSON object whose fields are not known. */
@@ -31,15 +34,22 @@ export type TemplateRow = {
   newestInGroup: boolean;
 };
 
+/**
+ * A version of a list as the commands use it: the text fields are safe to print
+ * (see `textOf`), and `source` is the row as the library listed it, for the
+ * calls that name the template to the library.
+ */
+export type TemplateVersion = TemplateRow & { source: TemplateRow };
+
 /** All versions of one template, oldest to newest as the library lists them. */
 export type TemplateGroup = {
   /** The comparison key of the id: dots and hyphens are one, the case is not significant. */
   key: string;
   /** The id of the template, for example `azure.ad`. */
   name: string;
-  versions: TemplateRow[];
+  versions: TemplateVersion[];
   /** The version the commands use when no version is given. */
-  newest: TemplateRow;
+  newest: TemplateVersion;
 };
 
 /** What the user typed to name a template. */
@@ -54,7 +64,7 @@ export type TemplateSelector = {
 
 /** The template and the version a selector names, or why it names none. */
 export type TemplateSelection =
-  { group: TemplateGroup; item: TemplateRow } | { error: string };
+  { group: TemplateGroup; item: TemplateVersion } | { error: string };
 
 /**
  * The object if the value is one (not null, not an array).
@@ -68,8 +78,20 @@ export function recordOf(value: unknown): Json | undefined {
 }
 
 /**
- * The text of a value that is printed on one line: a string (control
- * characters, including line breaks, become a space) or a finite number.
+ * The characters that are never printed: the C0 and C1 control characters (the
+ * escape that starts a color or a cursor move, U+009B that starts the same in
+ * 8 bits), the line and paragraph separators, the marks and the embeddings,
+ * overrides and isolates that change the direction of the text (U+202E), the
+ * zero-width characters and the byte order mark.
+ */
+const UNSAFE_CHARACTERS =
+  // eslint-disable-next-line no-control-regex
+  /[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u2028-\u202e\u2060-\u2069\ufeff]+/g;
+
+/**
+ * The text of a value that is printed on one line: a string (the characters
+ * that are not safe to print, line breaks included, become a space) or a finite
+ * number.
  * @param {unknown} value any value
  * @returns {string | undefined} the text, if there is any
  */
@@ -80,8 +102,7 @@ export function textOf(value: unknown): string | undefined {
     text = String(value);
   }
   if (text === undefined) return undefined;
-  // eslint-disable-next-line no-control-regex
-  const clean = text.replace(/[\u0000-\u001f\u007f-\u009f]+/g, ' ').trim();
+  const clean = text.replace(UNSAFE_CHARACTERS, ' ').trim();
   return clean || undefined;
 }
 
@@ -124,13 +145,46 @@ export function isoDate(value: unknown): string {
 }
 
 /**
- * Group the versions of a list by template, in the order of the list.
+ * The name of a template as the commands show and accept it with `-n`: the
+ * display name, or the id of a template that has none.
+ * @param {TemplateRow} item a version of the template
+ * @returns {string} the name
+ */
+export function displayNameOf(item: TemplateRow): string {
+  return item.displayName || item.name;
+}
+
+/**
+ * A row of the list with every text made safe to print, once, so that no
+ * command prints an escape sequence that an entry carries in its id, display
+ * name, version, group, type or date. The library keeps asking for the row as
+ * it listed it (`source`).
+ * @param {TemplateRow} item the row as the library lists it
+ * @returns {TemplateVersion} the row for the commands
+ */
+function safeRow(item: TemplateRow): TemplateVersion {
+  return {
+    ...item,
+    name: textOf(item.name) ?? '',
+    group: textOf(item.group),
+    templateVersion: textOf(item.templateVersion) ?? '',
+    displayName: textOf(item.displayName),
+    templateType: textOf(item.templateType),
+    dateUpdated: textOf(item.dateUpdated),
+    source: item,
+  };
+}
+
+/**
+ * Group the versions of a list by template, in the order of the list. The text
+ * of the rows is made safe to print (see `safeRow`).
  * @param {TemplateRow[]} items the versions as the library lists them
  * @returns {TemplateGroup[]} one group per template
  */
 export function groupTemplates(items: TemplateRow[]): TemplateGroup[] {
   const groups = new Map<string, TemplateGroup>();
-  for (const item of items) {
+  for (const original of items) {
+    const item = safeRow(original);
     const key = nameKey(item.name);
     let group = groups.get(key);
     if (!group) {
@@ -161,7 +215,10 @@ export function selectTemplate(
 ): TemplateSelection {
   const id = textOf(selector.id);
   const name = textOf(selector.name);
-  const version = textOf(selector.version);
+  // a version that is given and empty (-v "$UNSET") is a version that does not exist
+  const versionGiven =
+    selector.version !== undefined && selector.version !== null;
+  const version = textOf(selector.version) ?? '';
   let byId: TemplateGroup | undefined;
   let byName: TemplateGroup | undefined;
   if (id) {
@@ -178,8 +235,7 @@ export function selectTemplate(
   if (name) {
     const wanted = name.toLowerCase();
     const named = groups.filter(
-      (group) =>
-        (textOf(group.newest.displayName) ?? '').toLowerCase() === wanted
+      (group) => displayNameOf(group.newest).toLowerCase() === wanted
     );
     if (named.length > 1) {
       return {
@@ -204,14 +260,14 @@ export function selectTemplate(
   if (!group) {
     return { error: 'Name the template with -i (id) or -n (display name).' };
   }
-  if (!version) return { group, item: group.newest };
+  if (!versionGiven) return { group, item: group.newest };
   const wanted = version.toLowerCase();
   const item = group.versions.find(
     (candidate) => candidate.templateVersion.toLowerCase() === wanted
   );
   if (!item) {
     return {
-      error: `Application template ${group.name} has no version ${version}. Versions: ${group.versions
+      error: `Application template ${group.name} has no version ${version || '""'}. Versions: ${group.versions
         .map((candidate) => candidate.templateVersion)
         .join(', ')}.`,
     };
@@ -254,8 +310,10 @@ const CLASS_NAME = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)+$/;
 /**
  * The name of the connector for a list: its display name without the word
  * "Connector" (`MSGraphAPI Connector` is `MSGraphAPI`), else the class name
- * of the connector without its package. A display name that is itself a class
- * name (one entry of the catalog has such a name) is shortened the same way.
+ * of the connector without its package and without the word "Connector"
+ * (`org.example.epic.SerConnector` is `Ser`). A display name that is itself a
+ * class name (one entry of the catalog has such a name) is shortened the same
+ * way.
  * @param {Json} template the entry
  * @returns {string} the name, or '' if the entry has no connector
  */
@@ -265,7 +323,9 @@ export function connectorOf(template: Json): string {
     return display.replace(/\s+connector$/i, '') || display;
   }
   const className = display ?? textOf(template['connectorName']);
-  return className ? (className.split('.').pop() ?? className) : '';
+  const last = className ? (className.split('.').pop() ?? className) : '';
+  // the word Connector is left out of a class name as it is of a display name
+  return last.replace(/(?<=.)Connector$/, '') || last;
 }
 
 /**

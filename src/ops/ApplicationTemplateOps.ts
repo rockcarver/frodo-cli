@@ -12,6 +12,7 @@ import {
   connectorOf,
   connectorSummaryOf,
   countsOf,
+  displayNameOf,
   formSectionsOf,
   groupTemplates,
   isoDate,
@@ -23,8 +24,8 @@ import {
   type FieldRow,
   type Json,
   type TemplateGroup,
-  type TemplateRow,
   type TemplateSelector,
+  type TemplateVersion,
 } from '../utils/ApplicationTemplateView';
 import c from '../utils/ColorTheme';
 import { createTable, printError, printMessage } from '../utils/Console';
@@ -90,13 +91,13 @@ type LibraryOptions = ReturnType<typeof catalogOptionsOf> & {
  * The catalog is read once and the entries are taken from it; an entry the
  * tenant defines itself (it replaces the catalog's) is read through the library,
  * which also finds it if the catalog has no such entry.
- * @param {TemplateRow[]} items the versions to read
+ * @param {TemplateVersion[]} items the versions to read
  * @param {CatalogSource} source which catalog to read
  * @param {LibraryOptions} libraryOptions the options for the library
  * @returns {Promise<Map<string, Json>>} the entries by `templateId`; a version that could not be read is missing
  */
 async function readEntries(
-  items: TemplateRow[],
+  items: TemplateVersion[],
   source: CatalogSource,
   libraryOptions: LibraryOptions
 ): Promise<Map<string, Json>> {
@@ -104,7 +105,10 @@ async function readEntries(
   const catalog = items.some((item) => !item.isOverride)
     ? (await readCatalog(catalogOptionsOf(source))).catalog
     : undefined;
-  for (const item of items) {
+  for (const version of items) {
+    // the library is asked with the row as it listed it, not with the text
+    // that is made safe to print
+    const item = version.source;
     let entry = item.isOverride
       ? undefined
       : recordOf(
@@ -135,7 +139,7 @@ function right(text: string): { hAlign: 'right'; content: string } {
 
 /** What the list commands print about one version. */
 type ListCells = {
-  item: TemplateRow;
+  item: TemplateVersion;
   entry: Json;
   versions: number;
 };
@@ -212,7 +216,7 @@ export async function listApplicationTemplates(
       };
       table.push([
         item.name,
-        item.displayName ?? '',
+        displayNameOf(item),
         categoryOf(cells.entry),
         providesOf(cells.entry),
         connectorOf(cells.entry),
@@ -309,14 +313,14 @@ function printConfiguration(
  * connector, the capabilities, the object types and the application form.
  * Sections the entry has no data for are left out.
  * @param {TemplateGroup} group all versions of the template
- * @param {TemplateRow} item the version that is described
+ * @param {TemplateVersion} item the version that is described
  * @param {Json} entry the entry of that version
  * @param {Map<string, Json>} entries the entries of all versions
  * @param {boolean} long whether to print the properties of the object types and the fields of the forms
  */
 function printTemplateSections(
   group: TemplateGroup,
-  item: TemplateRow,
+  item: TemplateVersion,
   entry: Json,
   entries: Map<string, Json>,
   long: boolean
@@ -502,7 +506,10 @@ export async function describeApplicationTemplate(
     }
     const { group, item } = selection;
     const resolution = await readTemplateInLibrary(
-      { templateName: item.name, templateVersion: item.templateVersion },
+      {
+        templateName: item.source.name,
+        templateVersion: item.source.templateVersion,
+      },
       libraryOptions
     );
     const template = resolution.template;
@@ -522,7 +529,7 @@ export async function describeApplicationTemplate(
     const supportUrl = textOf(entry['supportUrl']);
     const header: Line[] = [
       ['Id', group.name],
-      ['Display name', item.displayName],
+      ['Display name', displayNameOf(item)],
       [
         'Group',
         item.group ? `${item.group} (${item.tier})` : `(none, ${item.tier})`,
