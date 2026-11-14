@@ -32,6 +32,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import type { Command } from 'commander';
 import { catalogOptionsOf } from '../ApplicationTemplateSource';
+import { displayNameOf, groupTemplates } from '../ApplicationTemplateView';
 import {
   sameHost,
   savedConnectionProfiles,
@@ -597,13 +598,40 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  // `app template`: the versions of the application templates, by id (for
-  // example `1_2-saml`). The picker lists the catalog the command reads
-  // (`--templates` or `--channel`) with the templates of the tenant merged in;
-  // it runs after a login, so a command that needs no tenant never opens it.
+  // `app template`: the application templates, one row per template (not per
+  // version), by id (for example `azure.ad`) for -i and by display name for -n.
+  // The picker lists the catalog the command reads (`--templates` or
+  // `--channel`) with the templates of the tenant merged in; it runs after a
+  // login, so a command that needs no tenant never opens it. The version is
+  // not picked: -v names it, and the newest is the default.
   type ApplicationTemplate = Awaited<
     ReturnType<typeof frodo.app.template.listTemplates>
   >[number];
+
+  /** The newest version of every template of a list, in the order of the list. */
+  const newestTemplates = (
+    templates: ApplicationTemplate[]
+  ): ApplicationTemplate[] =>
+    groupTemplates(templates).map((group) => group.newest);
+
+  const templateDescription = (template: ApplicationTemplate): string =>
+    [
+      template.displayName,
+      template.templateType,
+      template.isOverride ? 'defined by the tenant' : undefined,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+
+  const loadTemplates = async (
+    command?: Command
+  ): Promise<ApplicationTemplate[]> =>
+    newestTemplates(
+      await frodo.app.template.listTemplates({
+        ...(command ? catalogOptionsOf(command.opts()) : {}),
+        includeOverrides: true,
+      })
+    );
 
   registerEntityPickFamily({
     family: 'app template',
@@ -611,24 +639,24 @@ export function registerEntityPickFamilies(): void {
       entityPick<ApplicationTemplate>({
         name: 'templateId',
         kind: 'application template',
-        load: async () =>
-          frodo.app.template.listTemplates({ includeOverrides: true }),
-        loadFor: async (command) =>
-          frodo.app.template.listTemplates({
-            ...catalogOptionsOf(command.opts()),
-            includeOverrides: true,
-          }),
-        label: (template) => template.templateId,
-        description: (template) =>
-          [
-            template.displayName,
-            template.templateType,
-            template.isOverride ? 'defined by the tenant' : undefined,
-          ]
-            .filter(Boolean)
-            .join(' · '),
+        load: async () => loadTemplates(),
+        loadFor: async (command) => loadTemplates(command),
+        label: (template) => template.name,
+        description: templateDescription,
         search: (template, query) =>
-          `${template.templateId} ${template.displayName ?? ''} ${template.name}`
+          `${template.name} ${template.displayName ?? ''}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      }),
+      entityPick<ApplicationTemplate>({
+        name: 'templateName',
+        kind: 'application template',
+        load: async () => loadTemplates(),
+        loadFor: async (command) => loadTemplates(command),
+        label: (template) => displayNameOf(template),
+        description: (template) => template.name,
+        search: (template, query) =>
+          `${template.name} ${template.displayName ?? ''}`
             .toLowerCase()
             .includes(query.toLowerCase()),
       }),

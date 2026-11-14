@@ -6,6 +6,31 @@ import {
   type CatalogChannel,
   type CatalogSource,
 } from '../utils/ApplicationTemplateSource';
+import {
+  capabilitiesOf,
+  categoryOf,
+  connectorSummaryOf,
+  countsOf,
+  displayNameOf,
+  formSectionsOf,
+  groupTemplates,
+  isoDate,
+  listKeyOf,
+  marksOf,
+  objectTypesOf,
+  providesOf,
+  provOf,
+  recordOf,
+  selectTemplate,
+  textOf,
+  versionsKeyOf,
+  type FieldRow,
+  type Json,
+  type TemplateGroup,
+  type TemplateSelector,
+  type TemplateVersion,
+} from '../utils/ApplicationTemplateView';
+import c from '../utils/ColorTheme';
 import { createTable, printError, printMessage } from '../utils/Console';
 
 // The application template catalog has a library module of its own. Every
@@ -20,9 +45,6 @@ const { getFilePath, saveTextToFile } = frodo.utils;
 
 /** The catalog of the library together with what is known about it. */
 type CatalogResult = Awaited<ReturnType<typeof readCatalog>>;
-
-/** One template version of the merged list. */
-type TemplateListItem = Awaited<ReturnType<typeof listTemplates>>[number];
 
 /** What to do when the catalog cannot be read because air-gapped mode is on. `printError` already says that air-gapped mode is on and how to turn it off. */
 export const AIR_GAPPED_CATALOG_ADVICE =
@@ -62,52 +84,127 @@ export function countCatalog(catalog: CatalogResult['catalog']): {
   return { templates, groups };
 }
 
+/** The options of the library for one read: the catalog, and the templates of the tenant if there is one. */
+type LibraryOptions = ReturnType<typeof catalogOptionsOf> & {
+  includeOverrides: boolean;
+};
+
 /**
- * List the application templates: the ids, or with `long` a table of the
- * versions. The templates of the tenant are merged over the catalog when a
- * connection to the tenant was made.
- * @param {CatalogSource & { long?: boolean; includeOverrides?: boolean }} options which catalog to read, whether to list all fields, and whether the tenant's templates are merged in
+ * The entries of the versions listed, by the key the catalog keeps them under.
+ * The catalog is read once and the entries are taken from it; an entry the
+ * tenant defines itself (it replaces the catalog's) is read through the library,
+ * which also finds it if the catalog has no such entry.
+ * @param {TemplateVersion[]} items the versions to read
+ * @param {CatalogSource} source which catalog to read
+ * @param {LibraryOptions} libraryOptions the options for the library
+ * @returns {Promise<Map<string, Json>>} the entries by `templateId`; a version that could not be read is missing
+ */
+async function readEntries(
+  items: TemplateVersion[],
+  source: CatalogSource,
+  libraryOptions: LibraryOptions
+): Promise<Map<string, Json>> {
+  const entries = new Map<string, Json>();
+  const catalog = items.some((item) => !item.isOverride)
+    ? (await readCatalog(catalogOptionsOf(source))).catalog
+    : undefined;
+  for (const version of items) {
+    // the library is asked with the row as it listed it, not with the text
+    // that is made safe to print
+    const item = version.source;
+    let entry = item.isOverride
+      ? undefined
+      : recordOf(
+          catalog?.AppTemplates?.[item.tier]?.[item.group ?? '']?.[
+            item.templateId
+          ]
+        );
+    if (!entry) {
+      const resolution = await readTemplateInLibrary(
+        { templateName: item.name, templateVersion: item.templateVersion },
+        libraryOptions
+      );
+      entry = recordOf(resolution.template);
+    }
+    if (entry) entries.set(item.templateId, entry);
+  }
+  return entries;
+}
+
+/**
+ * A right-aligned cell of a table.
+ * @param {string} text the text of the cell
+ * @returns {{ hAlign: 'right'; content: string }} the cell
+ */
+function right(text: string): { hAlign: 'right'; content: string } {
+  return { hAlign: 'right', content: text };
+}
+
+/**
+ * List the application templates: the id of the newest version of each
+ * template, or with `long` or `allVersions` (which are the same) a table with a
+ * row for each: the newest version of each template, or with `allVersions` every
+ * version, newest first. The templates of the tenant are merged over the
+ * catalog when a connection to the tenant was made.
+ * @param {CatalogSource & { long?: boolean; allVersions?: boolean; includeOverrides?: boolean }} options which catalog to read, how much to print, and whether the tenant's templates are merged in
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function listApplicationTemplates(
-  options: CatalogSource & { long?: boolean; includeOverrides?: boolean }
+  options: CatalogSource & {
+    long?: boolean;
+    allVersions?: boolean;
+    includeOverrides?: boolean;
+  }
 ): Promise<boolean> {
   try {
-    const items = await listTemplates({
+    const libraryOptions = {
       ...catalogOptionsOf(options),
       includeOverrides: options.includeOverrides === true,
-    });
-    if (options.long) {
-      const table = createTable([
-        'Id',
-        'Name',
-        'Group',
-        { hAlign: 'right', content: 'Version' },
-        'Type',
-        'Override',
-        'Newest',
-        'Updated',
-        'Display name',
-      ]);
-      items.forEach((item) => {
-        table.push([
-          item.templateId,
-          item.name,
-          item.group ?? '',
-          { hAlign: 'right', content: item.templateVersion },
-          item.templateType ?? '',
-          item.isOverride ? 'yes' : '',
-          item.newestInGroup ? 'yes' : '',
-          (item.dateUpdated ?? '').slice(0, 10),
-          item.displayName ?? '',
-        ]);
-      });
-      printMessage(table.toString(), 'data');
-    } else {
-      items.forEach((item) => {
-        printMessage(item.templateId, 'data');
-      });
+    };
+    const groups = groupTemplates(await listTemplates(libraryOptions));
+    if (!options.long && !options.allVersions) {
+      groups.forEach((group) => printMessage(group.name, 'data'));
+      return true;
     }
+    // --all-versions is the table, and has a row for every version
+    const shown = groups.flatMap((group) =>
+      (options.allVersions ? group.versions : [group.newest]).map((item) => ({
+        group,
+        item,
+      }))
+    );
+    const entries = await readEntries(
+      shown.map(({ item }) => item),
+      options,
+      libraryOptions
+    );
+    const table = createTable([
+      'Id',
+      'Ver',
+      'Updated',
+      'Name',
+      'Category',
+      'Prov',
+    ]);
+    const cells = shown.map(({ item }) => {
+      const entry = entries.get(item.templateId) ?? {};
+      return { entry, prov: provOf(entry, item.templateType) };
+    });
+    shown.forEach(({ group, item }, index) => {
+      table.push([
+        item.name,
+        `${item.templateVersion}${marksOf(group, item)}`,
+        isoDate(item.dateUpdated),
+        displayNameOf(item),
+        categoryOf(cells[index].entry),
+        cells[index].prov,
+      ]);
+    });
+    const key = listKeyOf({
+      custom: shown.some(({ item }) => item.isOverride),
+      unknown: cells.some(({ prov }) => prov === '?'),
+    });
+    printMessage(`${table.toString()}\n\n${key}`, 'data');
     return true;
   } catch (error) {
     printCatalogFailure(error);
@@ -115,50 +212,308 @@ export async function listApplicationTemplates(
   return false;
 }
 
+/** A label and a value of the header of `describe`; a line without a value is not printed. */
+type Line = [string, string | undefined];
+
 /**
- * Find the version of the list whose id is the one given. Ids are not
- * case-sensitive.
- * @param {TemplateListItem[]} items the merged list
- * @param {string} templateId the id the user gave
- * @returns {TemplateListItem | undefined} the version, if there is one
+ * Print a section heading after an empty line.
+ * @param {string} title the heading
  */
-function findTemplate(
-  items: TemplateListItem[],
-  templateId: string
-): TemplateListItem | undefined {
-  const wanted = templateId.toLowerCase();
-  return items.find((item) => item.templateId.toLowerCase() === wanted);
+function printSection(title: string): void {
+  // an empty message prints nothing, so the empty line is part of the heading
+  printMessage(`\n${c.heading(title)}`, 'data');
 }
 
 /**
- * Describe an application template: a summary of the version, or with `json`
- * the whole template (the form definition and the connector defaults).
- * @param {string} templateId the id of the version, for example `3_3-azure-ad`
- * @param {CatalogSource & { json?: boolean; includeOverrides?: boolean }} options which catalog to read, whether to print the whole template, and whether the tenant's templates are merged in
+ * Print label and value lines, leaving out the lines that have no value.
+ * @param {Line[]} lines the lines
+ * @param {string} indent what each line starts with
+ */
+function printLines(lines: Line[], indent = '  '): void {
+  lines
+    .filter(([, value]) => value)
+    .forEach(([label, value]) => {
+      printMessage(`${indent}${label}: ${value}`, 'data');
+    });
+}
+
+/**
+ * The fields of a configuration or a form as one line: the labels, with a star
+ * after the ones that are required.
+ * @param {FieldRow[]} fields the fields
+ * @returns {string} the labels
+ */
+function fieldLabels(fields: FieldRow[]): string {
+  return fields
+    .map((field) => `${field.label}${field.required ? '*' : ''}`)
+    .join(', ');
+}
+
+/**
+ * Print the fields of a connector configuration: one line of labels, or with
+ * `long` a table with the property, the type and whether it is required.
+ * @param {string} title what the fields are
+ * @param {FieldRow[]} fields the fields
+ * @param {boolean} long whether to print a table
+ */
+function printConfiguration(
+  title: string,
+  fields: FieldRow[],
+  long: boolean
+): void {
+  if (fields.length === 0) return;
+  if (!long) {
+    printMessage(
+      `  ${title} (${fields.length}, * required): ${fieldLabels(fields)}`,
+      'data'
+    );
+    return;
+  }
+  printMessage(`  ${title} (${fields.length}):`, 'data');
+  const table = createTable(['Label', 'Property', 'Type', 'Required']);
+  fields.forEach((field) => {
+    table.push([
+      field.label,
+      field.property,
+      field.type,
+      field.required ? 'yes' : '',
+    ]);
+  });
+  printMessage(table.toString(), 'data');
+}
+
+/**
+ * Print the sections of a template that follow its header: the versions, the
+ * connector, the capabilities, the object types and the application form.
+ * Sections the entry has no data for are left out.
+ * @param {TemplateGroup} group all versions of the template
+ * @param {TemplateVersion} item the version that is described
+ * @param {Json} entry the entry of that version
+ * @param {Map<string, Json>} entries the entries of all versions
+ * @param {boolean} long whether to print the properties of the object types and the fields of the forms
+ */
+function printTemplateSections(
+  group: TemplateGroup,
+  item: TemplateVersion,
+  entry: Json,
+  entries: Map<string, Json>,
+  long: boolean
+): void {
+  if (group.versions.length > 1) {
+    printSection('Versions');
+    const rows = group.versions.map((version) => {
+      const versionEntry =
+        version === item ? entry : (entries.get(version.templateId) ?? {});
+      return {
+        version,
+        bundle: textOf(versionEntry['bundleVersion']) ?? '',
+        counts: countsOf(versionEntry),
+      };
+    });
+    // a column that is empty for every version (templates without a connector
+    // or object types) is left out
+    const withBundle = rows.some((row) => row.bundle);
+    const withObjectTypes = rows.some((row) => row.counts.objectTypes > 0);
+    const table = createTable([
+      'Version',
+      'Updated',
+      ...(withBundle ? ['Connector bundle'] : []),
+      ...(withObjectTypes ? [right('Object types'), right('Properties')] : []),
+      'Note',
+    ]);
+    rows.forEach(({ version, bundle, counts }) => {
+      table.push([
+        `${version.templateVersion}${marksOf(group, version)}`,
+        isoDate(version.dateUpdated),
+        ...(withBundle ? [bundle] : []),
+        ...(withObjectTypes
+          ? [
+              right(counts.objectTypes ? String(counts.objectTypes) : ''),
+              right(counts.properties ? String(counts.properties) : ''),
+            ]
+          : []),
+        version === item ? 'shown' : '',
+      ]);
+    });
+    // the marks behind the versions are explained when the table has them
+    const key = versionsKeyOf({
+      newest: rows.some(({ version }) => marksOf(group, version).includes('*')),
+      custom: rows.some(({ version }) => version.isOverride),
+    });
+    printMessage(
+      key ? `${table.toString()}\n\n${key}` : table.toString(),
+      'data'
+    );
+  }
+  const connector = connectorSummaryOf(entry);
+  if (connector) {
+    printSection('Connector');
+    printLines([
+      ['Name', connector.name],
+      ['Class', connector.className],
+      [
+        'Bundle',
+        [connector.bundleName, connector.bundleRange].filter(Boolean).join(' '),
+      ],
+      ['Template version', connector.templateVersion],
+      ['Paging', connector.pagingType],
+      ['Type', connector.connectorType],
+      ['Needs a remote connector server (RCS)', connector.rcsOnly ? 'yes' : ''],
+      ['Prerequisites', connector.prerequisites],
+    ]);
+    printConfiguration('Basic configuration', connector.basic, long);
+    printConfiguration('Advanced configuration', connector.advanced, long);
+  }
+  const capabilities = capabilitiesOf(entry);
+  const capabilityLines: Line[] = [
+    [
+      'Provisioning',
+      capabilities.provisioning
+        ? capabilities.provisioning.join(', ') || 'none'
+        : '',
+    ],
+    ['SSO', capabilities.sso.join(', ')],
+    ['SSO setup', capabilities.ssoSetup.join(', ')],
+    ['Incremental reconciliation', capabilities.incrementalRecon],
+    ['Target', capabilities.target ? 'yes' : ''],
+    ['Needs an OAuth flow', capabilities.requiresOauthFlow ? 'yes' : ''],
+    ['Client types', capabilities.clients.join(', ')],
+  ];
+  if (capabilityLines.some(([, value]) => value)) {
+    printSection('Capabilities');
+    printLines(capabilityLines);
+  }
+  const objectTypes = objectTypesOf(entry);
+  if (objectTypes.length > 0) {
+    printSection('Object types');
+    const table = createTable([
+      'Name',
+      'Native type',
+      'Managed resource',
+      right('Properties'),
+      right('Required'),
+    ]);
+    objectTypes.forEach((objectType) => {
+      table.push([
+        objectType.name,
+        objectType.nativeType,
+        objectType.managedResource,
+        right(String(objectType.properties.length)),
+        right(String(objectType.required)),
+      ]);
+    });
+    printMessage(table.toString(), 'data');
+    if (long) {
+      objectTypes.forEach((objectType) => {
+        if (objectType.properties.length === 0) return;
+        printSection(
+          `Properties of ${objectType.name || objectType.nativeType}`
+        );
+        // the native name is only a column when it differs from the name
+        const withNative = objectType.properties.some(
+          (property) => property.nativeName !== property.name
+        );
+        const properties = createTable([
+          'Name',
+          ...(withNative ? ['Native name'] : []),
+          'Type',
+          'Flags',
+        ]);
+        objectType.properties.forEach((property) => {
+          properties.push([
+            property.name,
+            ...(withNative ? [property.nativeName] : []),
+            property.type,
+            property.flags.join(', '),
+          ]);
+        });
+        printMessage(properties.toString(), 'data');
+      });
+    }
+  }
+  const sections = formSectionsOf(entry);
+  if (sections.length > 0) {
+    printSection('Application form');
+    sections.forEach((section) => {
+      const noun = section.kind === 'fields' ? 'field' : 'default value';
+      const count = `${section.names.length} ${noun}${
+        section.names.length === 1 ? '' : 's'
+      }`;
+      printMessage(
+        `  ${section.section}: ${count}${
+          long && section.names.length > 0
+            ? `: ${section.names.join(', ')}`
+            : ''
+        }`,
+        'data'
+      );
+    });
+  }
+}
+
+/**
+ * Whether the catalog (not the templates of the tenant) has a version under the
+ * key of this one: a version that the tenant defines itself replaces the
+ * catalog's version of the same id and version, or has no counterpart.
+ * @param {TemplateVersion} item the version, a custom one
+ * @param {CatalogSource} source which catalog to read
+ * @returns {Promise<boolean>} true if the catalog has the version
+ */
+async function catalogHasVersion(
+  item: TemplateVersion,
+  source: CatalogSource
+): Promise<boolean> {
+  const { catalog } = await readCatalog(catalogOptionsOf(source));
+  return Object.values(catalog.AppTemplates ?? {}).some((tier) =>
+    Object.values(tier ?? {}).some(
+      (group) =>
+        recordOf(group) !== undefined &&
+        Object.prototype.hasOwnProperty.call(group, item.source.templateId)
+    )
+  );
+}
+
+/**
+ * Describe an application template: a summary of the version (the newest
+ * unless a version is named), its other versions, its connector, capabilities,
+ * object types and application form, or with `json` the whole entry.
+ * @param {TemplateSelector} selector the template (`-i` id or `-n` display name) and the version (`-v`)
+ * @param {CatalogSource & { json?: boolean; long?: boolean; includeOverrides?: boolean }} options which catalog to read, how much to print, and whether the tenant's templates are merged in
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function describeApplicationTemplate(
-  templateId: string,
-  options: CatalogSource & { json?: boolean; includeOverrides?: boolean }
+  selector: TemplateSelector,
+  options: CatalogSource & {
+    json?: boolean;
+    long?: boolean;
+    includeOverrides?: boolean;
+  }
 ): Promise<boolean> {
   try {
     const libraryOptions = {
       ...catalogOptionsOf(options),
       includeOverrides: options.includeOverrides === true,
     };
-    const item = findTemplate(await listTemplates(libraryOptions), templateId);
-    if (!item) {
-      printMessage(`Application template ${templateId} not found.`, 'error');
+    const selection = selectTemplate(
+      groupTemplates(await listTemplates(libraryOptions)),
+      selector
+    );
+    if ('error' in selection) {
+      printMessage(selection.error, 'error');
       return false;
     }
+    const { group, item } = selection;
     const resolution = await readTemplateInLibrary(
-      { templateName: item.name, templateVersion: item.templateVersion },
+      {
+        templateName: item.source.name,
+        templateVersion: item.source.templateVersion,
+      },
       libraryOptions
     );
     const template = resolution.template;
     if (!template) {
       printMessage(
-        `Application template ${item.templateId} could not be read.`,
+        `Application template ${item.name} ${item.templateVersion} could not be read.`,
         'error'
       );
       return false;
@@ -167,29 +522,47 @@ export async function describeApplicationTemplate(
       printMessage(JSON.stringify(template, null, 2), 'data');
       return true;
     }
-    const description = template['description'];
-    const supportUrl = template['supportUrl'];
-    const lines: [string, string | undefined][] = [
-      ['Id', item.templateId],
-      ['Name', item.name],
-      ['Display name', item.displayName],
+    const entry = recordOf(template) ?? {};
+    const description = textOf(entry['description']);
+    const supportUrl = textOf(entry['supportUrl']);
+    const header: Line[] = [
+      ['Id', group.name],
+      ['Display name', displayNameOf(item)],
       [
         'Group',
         item.group ? `${item.group} (${item.tier})` : `(none, ${item.tier})`,
       ],
-      ['Version', item.templateVersion],
-      ['Newest version', item.newestInGroup ? 'yes' : 'no'],
-      ['Type', item.templateType],
-      ['Updated', item.dateUpdated],
-      ['Defined by the tenant', item.isOverride ? 'yes' : 'no'],
-      ['Description', typeof description === 'string' ? description : ''],
-      ['Support URL', typeof supportUrl === 'string' ? supportUrl : ''],
+      ['Category', categoryOf(entry)],
+      ['Provides', providesOf(entry)],
+      [
+        'Version',
+        item.newestInGroup
+          ? `${item.templateVersion} (newest)`
+          : `${item.templateVersion} (the newest is ${group.newest.templateVersion})`,
+      ],
+      ['Updated', isoDate(item.dateUpdated)],
+      [
+        'Custom',
+        item.isOverride
+          ? `yes, ${
+              (await catalogHasVersion(item, options))
+                ? `replaces the catalog version ${item.templateVersion}`
+                : 'no catalog counterpart'
+            }`
+          : '',
+      ],
+      ['Description', description],
+      ['Support URL', supportUrl],
     ];
-    lines
-      .filter(([, value]) => value)
-      .forEach(([label, value]) => {
-        printMessage(`${label}: ${value}`, 'data');
-      });
+    printLines(header, '');
+    // the other versions are read for the table of the versions; the version that
+    // is described has been read
+    const entries = await readEntries(
+      group.versions.filter((version) => version !== item),
+      options,
+      libraryOptions
+    );
+    printTemplateSections(group, item, entry, entries, options.long === true);
     return true;
   } catch (error) {
     printCatalogFailure(error);

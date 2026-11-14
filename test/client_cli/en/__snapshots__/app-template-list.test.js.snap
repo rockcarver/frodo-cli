@@ -3,8 +3,9 @@
 exports[`CLI help interface for 'app template list --help' should be expected english 1`] = `
 "Usage: frodo app template list [options] [host] [realm] [username] [password]
 
-List application templates: the catalog of the Admin UI, with the templates of
-the tenant merged over it when a tenant is given.
+List application templates, one per template with its newest version: the
+catalog of the Admin UI, with the templates of the tenant merged over it when a
+tenant is given.
 
 Arguments:
   host                 AM base URL, e.g.: https://cdk.iam.example.com/am. To use
@@ -23,11 +24,21 @@ Arguments:
   password             Password.
 
 Options:
+  --all-versions       The table with a row for every version of every template,
+                       newest first, not only for the newest version of each (it
+                       implies --long, so --all-versions and --long
+                       --all-versions are the same). (default: false)
   --channel <channel>  Which catalog of the CDN to read: production or
                        development (the development catalog holds a few more
                        template versions). Default: production. Cannot be used
                        with --templates. (choices: "production", "development")
-  -l, --long           Long with all fields. (default: false)
+  -l, --long           Long: a table instead of the ids, with a row for each
+                       template: the id, its newest version, the date of that
+                       version, the name, the category and what the template
+                       provides (letters that are explained below the table). A
+                       star behind a version means that it is the newest of a
+                       template that has older versions, a plus that it is a
+                       custom version, defined in the tenant. (default: false)
   --templates <file>   Read the application template catalog from this file
                        instead of the CDN: the JSON that "frodo app template
                        download" saves, or the gzip file as the CDN serves it.

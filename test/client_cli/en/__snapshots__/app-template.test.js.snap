@@ -17,13 +17,16 @@ Runtime Options:
                     FRODO_NO_PROMPT).
 
 Commands:
-  describe          Describe an application template.
+  describe          Describe an application template: what it provides, its
+                    versions, connector, capabilities, object types and
+                    application form. The newest version unless -v names
+                    another.
   download          Download the application template catalog from the CDN and
                     save it to a file, to copy it to a machine that cannot reach
                     the internet.
-  list              List application templates: the catalog of the Admin UI,
-                    with the templates of the tenant merged over it when a
-                    tenant is given.
+  list              List application templates, one per template with its newest
+                    version: the catalog of the Admin UI, with the templates of
+                    the tenant merged over it when a tenant is given.
 
 Utilities:
   help              display help for command
