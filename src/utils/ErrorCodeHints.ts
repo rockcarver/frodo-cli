@@ -54,6 +54,8 @@ export const ERROR_CODE_HINTS: Record<FrodoErrorCode, string> = {
   PROXY_CONNECTION_CLOSED: `Check that ${PROXY_VARIABLES} point at a proxy, with the scheme it speaks (http or https). Then check that the proxy allows the tenant's host.`,
   PROXY_UNREACHABLE: `Check the host name of the proxy in ${PROXY_VARIABLES} for typos, and that this machine can reach it (network, VPN, DNS).`,
   INSUFFICIENT_SCOPE: `The credential of this connection lacks a scope that the operation needs (named above). Log in with a service account that is granted it ('frodo conn save' saves a service account with the connection profile); browser login cannot obtain every scope.`,
+  NO_AM_SESSION: `A device login (--device) carries no Access Management session, so Access Management cannot be used with it. Log in with 'frodo login --browser', or use a service account ('frodo conn save' saves one with the connection profile).`,
+  DEVICE_LOGIN_TOKEN_NOT_ISSUED: `A device login that asks for the scope fr:am:* can be approved and still fail when the token is issued. Pass --login-scope without fr:am:*, or use 'frodo login --browser' or a service account when you need Access Management.`,
   CIMD_PROFILES_NOT_AVAILABLE: `This deployment does not offer CIMD profiles: its AM does not list the CIMDProfile agent type. PingOne Advanced Identity Cloud tenants on a current version do; a self-hosted deployment needs a PingAM version that includes them.`,
   LOG_API_RATE_LIMITED: `The Log API allows 60 requests per minute for each environment, shared with everything else that reads its logs. Wait a minute and run the command again. 'frodo log tail' waits out the limit by itself, and its --keep-trying option keeps a tail following through longer outages.`,
   AIR_GAPPED: AIR_GAPPED_HINT,
