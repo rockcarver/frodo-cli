@@ -334,8 +334,116 @@ describe('what an entry provides', () => {
   });
 });
 
+describe('the Prov letters and the key line of list --long', () => {
+  const sso = (...protocols) => ({
+    capabilities: {
+      sso: Object.fromEntries(protocols.map((protocol) => [protocol, true])),
+    },
+  });
+  const provisioning = {
+    connectorName: 'org.example.X',
+    capabilities: { provisioning: { Read: true } },
+  };
+
+  test('21: each letter: P provisioning, A AI target, S SAML, O OIDC, F WS-Fed, T WS-Trust, B bookmark', () => {
+    expect(view.provOf(provisioning)).toBe('P');
+    expect(view.provOf({ target: true })).toBe('A');
+    expect(view.provOf(sso('SAML'))).toBe('S');
+    expect(view.provOf(sso('OIDC'))).toBe('O');
+    expect(view.provOf(sso('WS-Fed'))).toBe('F');
+    expect(view.provOf(sso('WS-Trust'))).toBe('T');
+    expect(view.provOf({ templateType: 'Bookmark' })).toBe('B');
+    // the type of the row of the list serves when the entry does not say it
+    expect(view.provOf({}, 'bookmark')).toBe('B');
+    // the entries of the fixture
+    expect(view.provOf(entryOf('3_4-azure-ad'))).toBe('P');
+    expect(view.provOf(entryOf('1_3-saml'))).toBe('S');
+    expect(view.provOf(entryOf('1_0-bookmark'))).toBe('B');
+  });
+
+  test('22: an AI target with a connector is AP and WS-Fed with WS-Trust is FT', () => {
+    expect(view.provOf(entryOf('1_0-ai-target'))).toBe('AP');
+    expect(view.provOf(sso('WS-Fed', 'WS-Trust'))).toBe('FT');
+  });
+
+  test('23: the letters come in the order A P S O F T B whatever the order the entry says them in', () => {
+    const everything = {
+      ...provisioning,
+      target: true,
+      templateType: 'Bookmark',
+      capabilities: {
+        sso: { 'WS-Trust': true, 'WS-Fed': true, OIDC: true, SAML: true },
+        provisioning: { Read: true },
+      },
+    };
+    expect(view.provOf(everything)).toBe('APSOFTB');
+    expect(view.provOf({ ...sso('WS-Trust', 'SAML'), target: true })).toBe(
+      'AST'
+    );
+  });
+
+  test('24: a connector alone is not provisioning, a protocol that is false or has no letter is nothing, and the protocol is read whatever its case', () => {
+    expect(view.provOf({ connectorName: 'org.example.X' })).toBe('?');
+    expect(
+      view.provOf({ capabilities: { provisioning: { Read: true } } })
+    ).toBe('?');
+    expect(
+      view.provOf({ capabilities: { sso: { SAML: false, OIDC: false } } })
+    ).toBe('?');
+    expect(view.provOf(sso('Agent'))).toBe('?');
+    expect(view.provOf(sso('saml', 'Oidc', 'ws-FED'))).toBe('SOF');
+    expect(view.provOf({ target: 'yes' })).toBe('?');
+  });
+
+  test('25: an entry that matches nothing, or has the wrong shapes, says ? and never throws', () => {
+    expect(view.provOf({})).toBe('?');
+    expect(view.provOf(entryOf('1_0-odd'))).toBe('?');
+    expect(view.provOf(entryOf('1_0-escape'))).toBe('?');
+    for (const nothing of [
+      { capabilities: [] },
+      { capabilities: 'x', connectorTemplate: 5, target: null },
+      { capabilities: { sso: [] }, templateType: 12 },
+      { capabilities: { provisioning: 'yes' }, connectorName: ['x'] },
+      { capabilities: { sso: { SAML: 'true' } } },
+    ]) {
+      expect(view.provOf(nothing)).toBe('?');
+    }
+  });
+
+  test('26: the key line is the letters, and says what a star, N, D and ? mean only where the table has them', () => {
+    const none = {
+      allVersions: false,
+      newestColumn: false,
+      overrideColumn: false,
+      unknown: false,
+    };
+    expect(view.listKeyOf(none)).toBe(
+      'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark  * older versions exist'
+    );
+    expect(view.listKeyOf(none)).toHaveLength(101);
+    // every version has a row, so a version carries no star
+    expect(view.listKeyOf({ ...none, allVersions: true })).toBe(view.PROV_KEY);
+    expect(
+      view.listKeyOf({ ...none, allVersions: true, newestColumn: true })
+    ).toBe(`${view.PROV_KEY}  N newest version`);
+    expect(
+      view.listKeyOf({
+        allVersions: true,
+        newestColumn: true,
+        overrideColumn: true,
+        unknown: true,
+      })
+    ).toBe(
+      `${view.PROV_KEY}  N newest version  D defined by the tenant  ? not known`
+    );
+    expect(view.listKeyOf({ ...none, overrideColumn: true })).toBe(
+      `${view.PROV_KEY}  * older versions exist  D defined by the tenant`
+    );
+  });
+});
+
 describe('the parts of an entry', () => {
-  test('21: the connector has its bundle, paging and configuration fields, with the required ones marked', () => {
+  test('27: the connector has its bundle, paging and configuration fields, with the required ones marked', () => {
     const connector = view.connectorSummaryOf(entryOf('3_4-azure-ad'));
     expect(connector).toMatchObject({
       name: 'MSGraphAPI Connector',
@@ -361,7 +469,7 @@ describe('the parts of an entry', () => {
     expect(view.connectorSummaryOf(entryOf('1_3-saml'))).toBeUndefined();
   });
 
-  test('22: object types count their properties and the required ones, and a property that can be neither created nor updated is read-only', () => {
+  test('28: object types count their properties and the required ones, and a property that can be neither created nor updated is read-only', () => {
     const [user, group] = view.objectTypesOf(entryOf('3_4-azure-ad'));
     expect(user).toMatchObject({
       name: 'User',
@@ -383,7 +491,7 @@ describe('the parts of an entry', () => {
     });
   });
 
-  test('23: a property that is only not creatable stays as it is said', () => {
+  test('29: a property that is only not creatable stays as it is said', () => {
     const [objectType] = view.objectTypesOf({
       objectTypes: [
         { name: 'T', properties: [{ nativeName: 'p', notCreatable: true }] },
@@ -392,7 +500,7 @@ describe('the parts of an entry', () => {
     expect(objectType.properties[0].flags).toEqual(['not creatable']);
   });
 
-  test('24: the form has its sections with their fields, the defaults of provisioning, and no empty section', () => {
+  test('30: the form has its sections with their fields, the defaults of provisioning, and no empty section', () => {
     expect(view.formSectionsOf(entryOf('3_4-azure-ad'))).toEqual([
       {
         section: 'applicationDetails',
@@ -413,7 +521,7 @@ describe('the parts of an entry', () => {
     ).toEqual(['x.y']);
   });
 
-  test('25: capabilities say what is allowed, in the order create, read, update, delete', () => {
+  test('31: capabilities say what is allowed, in the order create, read, update, delete', () => {
     expect(view.capabilitiesOf(entryOf('3_4-azure-ad')).provisioning).toEqual([
       'create',
       'read',
@@ -450,7 +558,7 @@ describe('the parts of an entry', () => {
     ).toBeUndefined();
   });
 
-  test('26: an entry whose fields have the wrong types gives nothing and throws nothing', () => {
+  test('32: an entry whose fields have the wrong types gives nothing and throws nothing', () => {
     const odd = entryOf('1_0-odd');
     expect(view.providesOf(odd)).toBe('Enterprise');
     expect(view.connectorSummaryOf(odd)).toBeUndefined();

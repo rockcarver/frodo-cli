@@ -11,6 +11,11 @@
  *   a tenant (`includeOverrides`), never otherwise;
  * - `list` shows the newest version of each template (by the mark of the
  *   library, never by a date), or every version, and reads the catalog once;
+ *   `--long` prints the columns Id, Name, Category, Prov, Ver and Updated, one
+ *   letter for each thing a template provides, a star behind the version of a
+ *   template that has older versions (and in no view that has a row for each
+ *   version), and a key line below the table that explains exactly what is in
+ *   it;
  * - `describe` finds the template by its id (`-i`) or display name (`-n`),
  *   takes the newest version unless a version is named, reads the whole
  *   template by name and version, never accepts the key the catalog keeps a
@@ -283,10 +288,11 @@ describe('list', () => {
     messages('data')
       .join('\n')
       .split('\n')
-      .find(
-        (line) =>
-          line.startsWith(`${id} |`) &&
-          (version === undefined || line.includes(` | ${version} | `))
+      .find((line) =>
+        version === undefined
+          ? line.startsWith(`${id} |`)
+          : // the table of every version has the version second
+            line.startsWith(`${id} | ${version} |`)
       );
 
   test('4: prints the id of each template once, and merges the tenant only when told there is one', async () => {
@@ -302,39 +308,52 @@ describe('list', () => {
   test('5: the newest version is the one the library marked, not the first and not the one with the latest date', async () => {
     // ldap 2.10 is newer than 2.3 by number although its date is no date
     await listApplicationTemplates({ long: true });
-    expect(row('ldap')).toContain(' | 2.10 | 2 | ');
+    expect(row('ldap')).toContain(' | 2.10* | ');
     // the dates of the versions of a template are made to point the other way
     items.find((item) => item.templateVersion === '2.3').dateUpdated =
       '12-31-2030';
     printed.length = 0;
     await listApplicationTemplates({ long: true });
-    expect(row('ldap')).toContain(' | 2.10 | 2 | ');
+    expect(row('ldap')).toContain(' | 2.10* | ');
     // the library's mark decides: move it and the list follows it
     items.find((item) => item.templateVersion === '2.3').newestInGroup = true;
     items.find((item) => item.templateVersion === '2.10').newestInGroup = false;
     printed.length = 0;
     await listApplicationTemplates({ long: true });
-    expect(row('ldap')).toContain(' | 2.3 | 2 | ');
+    expect(row('ldap')).toContain(' | 2.3* | ');
   });
 
-  test('6: --long is a table with the display name, category, what the template provides, the connector, the newest version, the number of versions and the date', async () => {
+  const dataLines = () => messages('data').join('\n').split('\n');
+
+  /** The fixture without the templates that have no letter, so that no cell says `?`. */
+  const withoutUnknown = () => {
+    const keep = ['saml', 'bookmark', 'azure.ad', 'ai.target'];
+    items = items.filter((item) => keep.includes(item.name));
+  };
+
+  test('6: --long is a table with the id, name, category, what the template provides, its newest version and the date of that version, and a key line below it', async () => {
     await listApplicationTemplates({ long: true });
-    const lines = messages('data').join('\n').split('\n');
-    expect(lines[0]).toBe(
-      'Id | Display name | Category | Provides | Connector | Latest | Versions | Updated'
-    );
-    expect(lines).toHaveLength(1 + fixtureIds.length);
+    const lines = dataLines();
+    expect(lines[0]).toBe('Id | Name | Category | Prov | Ver | Updated');
+    // the rows, a blank line, the key
+    expect(lines).toHaveLength(1 + fixtureIds.length + 2);
+    expect(lines[lines.length - 2]).toBe('');
     expect(row('azure.ad')).toBe(
-      'azure.ad | Microsoft Entra | Uncategorized | provisioning | MSGraphAPI | 3.4 | 2 | 2026-08-19'
+      'azure.ad | Microsoft Entra | Uncategorized | P | 3.4* | 2026-08-19'
     );
-    expect(row('saml')).toBe(
-      'saml | SAML | saml | SSO: SAML |  | 1.3 | 2 | 2026-02-05'
+    expect(row('saml')).toBe('saml | SAML | saml | S | 1.3* | 2026-02-05');
+    expect(row('bookmark')).toBe(
+      'bookmark | Bookmark | bookmark | B | 1.0 | 2025-12-09'
     );
-    expect(row('bookmark')).toContain(' | Bookmark |  | 1.0 | 1 | 2025-12-09');
-    expect(row('ai.target')).toContain(' | target+provisioning | AI Target | ');
-    // a date that is no date and a connector named by a class are printed as they are
-    expect(row('ldap')).toContain(' | sometime in 2023');
-    expect(row('class.name')).toContain(' | Ser | ');
+    expect(row('ai.target')).toBe(
+      'ai.target | AI Target (Demo) | AI Services | AP | 1.0 | 2026-05-15'
+    );
+    // a date that is no date is printed as it is
+    expect(row('ldap')).toBe(
+      'ldap | LDAP | IT infrastructure | P | 2.10* | sometime in 2023'
+    );
+    // no connector column any more
+    expect(lines[0]).not.toContain('Connector');
     // the catalog is read once for all the rows, and no template one by one
     expect(calls.map(([name]) => name)).toEqual([
       'listTemplates',
@@ -342,7 +361,57 @@ describe('list', () => {
     ]);
   });
 
-  test('7: the templates of the tenant are marked, and are read through the library (the catalog has no entry for them)', async () => {
+  test('7: the key line has the letters of Prov and what the star means, and nothing else when nothing needs it', async () => {
+    withoutUnknown();
+    await listApplicationTemplates({ long: true });
+    const lines = dataLines();
+    expect(lines[lines.length - 1]).toBe(
+      'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark  * older versions exist'
+    );
+    expect(lines[lines.length - 1]).toHaveLength(101);
+    expect(lines[lines.length - 2]).toBe('');
+  });
+
+  test('8: a template that no letter fits says ? and the key says what ? means, and only then', async () => {
+    await listApplicationTemplates({ long: true });
+    // class.name has a connector but says nothing about provisioning; escape and odd say nothing at all
+    for (const id of ['class.name', 'escape', 'odd']) {
+      expect(row(id).split(' | ')[3]).toBe('?');
+    }
+    expect(dataLines().at(-1)).toMatch(/ {2}\? not known$/);
+    printed.length = 0;
+    items = items.filter((item) => item.name === 'saml');
+    await listApplicationTemplates({ long: true });
+    expect(dataLines().at(-1)).not.toContain('?');
+  });
+
+  test('9: the star is behind the version of a template with older versions, no space, and not behind a template with one version', async () => {
+    await listApplicationTemplates({ long: true });
+    const version = (id) => row(id).split(' | ')[4];
+    expect(version('azure.ad')).toBe('3.4*');
+    expect(version('saml')).toBe('1.3*');
+    expect(version('ldap')).toBe('2.10*');
+    expect(version('bookmark')).toBe('1.0');
+    expect(version('ai.target')).toBe('1.0');
+    // dropping the older versions of a template takes its star away
+    printed.length = 0;
+    items = items.filter(
+      (item) => !(item.name === 'azure.ad' && item.templateVersion === '3.3')
+    );
+    await listApplicationTemplates({ long: true });
+    expect(version('azure.ad')).toBe('3.4');
+  });
+
+  test('10: the plain list and the table of the versions without --long have no key line', async () => {
+    await listApplicationTemplates({});
+    expect(messages('data')).toEqual(fixtureIds);
+    printed.length = 0;
+    await listApplicationTemplates({ allVersions: true });
+    expect(dataLines()).not.toContain('');
+    expect(dataLines().at(-1)).not.toContain('provisioning');
+  });
+
+  test('11: the templates of the tenant are marked with D, are read through the library, and may lack a category and capabilities', async () => {
     const saml = items.find(
       (item) => item.name === 'saml' && item.templateVersion === '1.3'
     );
@@ -351,21 +420,27 @@ describe('list', () => {
       id: 'saml',
       templateVersion: '1.3',
       displayName: 'SAML',
-      categories: ['mine'],
-      capabilities: { sso: { OIDC: true } },
     });
     await listApplicationTemplates({ long: true, includeOverrides: true });
-    const lines = messages('data').join('\n').split('\n');
-    expect(lines[0]).toMatch(/ \| Updated \| Override$/);
-    expect(row('saml')).toContain(' | mine | SSO: OIDC | ');
-    expect(row('saml')).toMatch(/ \| yes$/);
+    const lines = dataLines();
+    expect(lines[0]).toBe('Id | Name | Category | Prov | Ver | Updated | D');
+    // no category, nothing known: the cell is empty and the letter is ?
+    expect(row('saml')).toBe('saml | SAML |  | ? | 1.3* | 2026-02-05 | D');
     expect(row('azure.ad')).toMatch(/ \| $/);
+    expect(lines.at(-1)).toContain('  D defined by the tenant');
+    expect(lines.at(-1)).toContain('  ? not known');
     expect(
       calls.filter(([name]) => name === 'readTemplate').map(([, ref]) => ref)
     ).toEqual([{ templateName: 'saml', templateVersion: '1.3' }]);
+    // without a template of the tenant there is no such column or line
+    printed.length = 0;
+    saml.isOverride = false;
+    await listApplicationTemplates({ long: true });
+    expect(dataLines()[0]).toBe('Id | Name | Category | Prov | Ver | Updated');
+    expect(dataLines().at(-1)).not.toContain('defined by the tenant');
   });
 
-  test('8: --all-versions prints the id and the version of every version, with the newest marked', async () => {
+  test('12: --all-versions prints the id and the version of every version, with the newest marked', async () => {
     await listApplicationTemplates({ allVersions: true });
     const lines = messages('data').join('\n').split('\n');
     expect(lines[0]).toBe('Id | Version | Newest');
@@ -374,25 +449,59 @@ describe('list', () => {
     expect(row('azure.ad', '3.4')).toBe('azure.ad | 3.4 | yes');
     expect(row('ldap', '2.3')).toBe('ldap | 2.3 | ');
     expect(row('ldap', '2.10')).toBe('ldap | 2.10 | yes');
-    // no key of the catalog anywhere
+    // no key of the catalog anywhere, and no star
     expect(messages('data').join('\n')).not.toMatch(/\d_\d+-/);
+    expect(messages('data').join('\n')).not.toContain('*');
   });
 
-  test('9: --long --all-versions has a row for every version, each with its own date, connector bundle and mark', async () => {
+  test('13: --long --all-versions has a row for every version in the columns Id, Ver, Name, Category, Prov, Updated and N, no star, and a key line that explains N', async () => {
+    withoutUnknown();
     await listApplicationTemplates({ long: true, allVersions: true });
-    const lines = messages('data').join('\n').split('\n');
-    expect(lines[0]).toBe(
-      'Id | Display name | Category | Provides | Connector | Version | Newest | Updated'
-    );
-    expect(lines).toHaveLength(1 + items.length);
+    const lines = dataLines();
+    expect(lines[0]).toBe('Id | Ver | Name | Category | Prov | Updated | N');
+    expect(lines).toHaveLength(1 + items.length + 2);
     expect(row('azure.ad', '3.3')).toBe(
-      'azure.ad | Microsoft Entra | Uncategorized | provisioning | MSGraphAPI | 3.3 |  | 2024-10-03'
+      'azure.ad | 3.3 | Microsoft Entra | Uncategorized | P | 2024-10-03 | '
     );
-    expect(row('azure.ad', '3.4')).toContain(' | 3.4 | yes | 2026-08-19');
-    expect(row('saml', '1.2')).toContain(' | 1.2 |  | 2024-09-09');
+    expect(row('azure.ad', '3.4')).toBe(
+      'azure.ad | 3.4 | Microsoft Entra | Uncategorized | P | 2026-08-19 | N'
+    );
+    expect(row('saml', '1.2')).toContain(' | S | 2024-09-09 | ');
+    // the star has one meaning: older versions exist, and every version has a row here
+    expect(lines.slice(0, -2).join('\n')).not.toContain('*');
+    expect(lines.at(-1)).toBe(
+      'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark  N newest version'
+    );
+    expect(lines.at(-1)).not.toContain('older versions');
   });
 
-  test('10: --all-versions shows the Override column only when the tenant defines a template', async () => {
+  test('14: --long --all-versions has the column N only when some version is not the newest, and D only when the tenant defines one', async () => {
+    items = items.filter((item) => item.name === 'bookmark');
+    await listApplicationTemplates({ long: true, allVersions: true });
+    expect(dataLines()[0]).toBe('Id | Ver | Name | Category | Prov | Updated');
+    expect(dataLines().at(-1)).not.toContain('N newest version');
+    expect(dataLines().at(-1)).not.toContain('defined by the tenant');
+    printed.length = 0;
+    items = listItemsOf(fixtureCatalog).filter((item) => item.name === 'saml');
+    items[0].isOverride = true;
+    overrideEntries.set(items[0].templateId, { id: 'saml' });
+    await listApplicationTemplates({
+      long: true,
+      allVersions: true,
+      includeOverrides: true,
+    });
+    expect(dataLines()[0]).toBe(
+      'Id | Ver | Name | Category | Prov | Updated | N | D'
+    );
+    expect(row('saml', '1.2')).toBe(
+      'saml | 1.2 | SAML |  | ? | 2024-09-09 |  | D'
+    );
+    expect(dataLines().at(-1)).toContain(
+      '  N newest version  D defined by the tenant'
+    );
+  });
+
+  test('15: --all-versions shows the Override column only when the tenant defines a template', async () => {
     await listApplicationTemplates({ allVersions: true });
     expect(messages('data').join('\n').split('\n')[0]).not.toContain(
       'Override'
@@ -410,7 +519,7 @@ describe('list', () => {
     expect(row(items[0].name)).toBe(`${items[0].name} | 1.0 | yes | yes`);
   });
 
-  test('11: the channel and the file reach the library', async () => {
+  test('16: the channel and the file reach the library', async () => {
     await listApplicationTemplates({ channel: 'development' });
     expect(lastCall('listTemplates')[1].channel).toBe('development');
     fs.writeFileSync(path.join(baseDirectory, 'c.json'), '{}');
@@ -419,7 +528,7 @@ describe('list', () => {
     expect(lastCall('readCatalog')[1].catalog).toBeInstanceOf(Uint8Array);
   });
 
-  test('12: an unreadable file or a failure of the library is an error and a failed command', async () => {
+  test('17: an unreadable file or a failure of the library is an error and a failed command', async () => {
     expect(await listApplicationTemplates({ templates: 'nope.json' })).toBe(
       false
     );
@@ -441,7 +550,7 @@ describe('describe', () => {
       .filter(([name]) => name === 'readTemplate')
       .map(([, reference]) => reference);
 
-  test('13: -i takes the newest version, whatever the case and whether the id is written with dots or hyphens, and reads the whole entry by name and version', async () => {
+  test('18: -i takes the newest version, whatever the case and whether the id is written with dots or hyphens, and reads the whole entry by name and version', async () => {
     for (const id of ['azure.ad', 'AZURE.AD', 'azure-ad']) {
       printed.length = 0;
       calls.length = 0;
@@ -455,7 +564,7 @@ describe('describe', () => {
     }
   });
 
-  test('14: -v takes another version and says which one is the newest', async () => {
+  test('19: -v takes another version and says which one is the newest', async () => {
     expect(
       await describeApplicationTemplate({ id: 'azure.ad', version: '3.3' }, {})
     ).toBe(true);
@@ -470,7 +579,7 @@ describe('describe', () => {
     expect(everythingPrinted()).not.toContain('Register an app in Entra first');
   });
 
-  test('15: -n takes the display name, whatever the case', async () => {
+  test('20: -n takes the display name, whatever the case', async () => {
     expect(
       await describeApplicationTemplate({ name: 'MICROSOFT entra' }, {})
     ).toBe(true);
@@ -479,7 +588,7 @@ describe('describe', () => {
     expect(readCalls()[0].templateName).toBe('azure.ad');
   });
 
-  test('16: the key the catalog keeps a version under is not an id: the command fails, says where the ids are and reads nothing', async () => {
+  test('21: the key the catalog keeps a version under is not an id: the command fails, says where the ids are and reads nothing', async () => {
     for (const id of ['3_4-azure-ad', '1_2-SAML']) {
       printed.length = 0;
       expect(await describeApplicationTemplate({ id }, {})).toBe(false);
@@ -490,7 +599,7 @@ describe('describe', () => {
     expect(readCalls()).toEqual([]);
   });
 
-  test('17: an id, a display name or a version that is not there, two names for different templates, and no name at all are errors, and nothing is read', async () => {
+  test('22: an id, a display name or a version that is not there, two names for different templates, and no name at all are errors, and nothing is read', async () => {
     const errorOf = async (selector) => {
       printed.length = 0;
       expect(await describeApplicationTemplate(selector, {})).toBe(false);
@@ -510,7 +619,7 @@ describe('describe', () => {
     expect(readCalls()).toEqual([]);
   });
 
-  test('18: the summary has the header, the versions, the connector, the capabilities, the object types and the form', async () => {
+  test('23: the summary has the header, the versions, the connector, the capabilities, the object types and the form', async () => {
     await describeApplicationTemplate({ id: 'azure.ad' }, {});
     const out = everythingPrinted();
     expect(lines().slice(0, 9)).toEqual([
@@ -562,7 +671,7 @@ describe('describe', () => {
     expect(out).not.toMatch(/\d_\d+-azure/);
   });
 
-  test('19: --long adds the table of the connector configuration, the properties of each object type and the labels of the form fields', async () => {
+  test('24: --long adds the table of the connector configuration, the properties of each object type and the labels of the form fields', async () => {
     await describeApplicationTemplate({ id: 'azure.ad' }, { long: true });
     const out = everythingPrinted();
     expect(out).toContain('Label | Property | Type | Required');
@@ -577,7 +686,7 @@ describe('describe', () => {
     expect(out).toContain('  provisioning: 1 default value: performHardDelete');
   });
 
-  test('20: a template without a connector or object types leaves those sections and columns out, and an SSO template says its protocols and setup', async () => {
+  test('25: a template without a connector or object types leaves those sections and columns out, and an SSO template says its protocols and setup', async () => {
     await describeApplicationTemplate({ id: 'saml' }, {});
     const out = everythingPrinted();
     expect(lines()).toContain('Provides: SSO: SAML');
@@ -598,7 +707,7 @@ describe('describe', () => {
     expect(lines()).toContain('  applicationDetails: 1 field');
   });
 
-  test('21: an AI target says so, and that it needs an OAuth flow', async () => {
+  test('26: an AI target says so, and that it needs an OAuth flow', async () => {
     await describeApplicationTemplate({ id: 'ai.target' }, {});
     expect(lines()).toContain('Provides: target+provisioning');
     expect(lines()).toContain('  Provisioning: read');
@@ -606,7 +715,7 @@ describe('describe', () => {
     expect(lines()).toContain('  Needs an OAuth flow: yes');
   });
 
-  test('22: --json prints the whole entry of the version and nothing else', async () => {
+  test('27: --json prints the whole entry of the version and nothing else', async () => {
     await describeApplicationTemplate(
       { id: 'azure.ad', version: '3.3' },
       { json: true }
@@ -617,7 +726,7 @@ describe('describe', () => {
     expect(printed).toHaveLength(1);
   });
 
-  test('23: a template of the tenant is marked, and its version is read through the library', async () => {
+  test('28: a template of the tenant is marked, and its version is read through the library', async () => {
     const saml = items.find(
       (item) => item.name === 'saml' && item.templateVersion === '1.3'
     );
@@ -641,7 +750,7 @@ describe('describe', () => {
     );
   });
 
-  test('24: an entry whose fields have the wrong types prints what it can, and a control character does not reach the terminal', async () => {
+  test('29: an entry whose fields have the wrong types prints what it can, and a control character does not reach the terminal', async () => {
     expect(
       await describeApplicationTemplate({ id: 'odd' }, { long: true })
     ).toBe(true);
@@ -655,7 +764,7 @@ describe('describe', () => {
     expect(lines()).toContain('Description: before [31mred [0m after');
   });
 
-  test('25: the tenant is merged only when told there is one, and the same options reach the list and the reads', async () => {
+  test('30: the tenant is merged only when told there is one, and the same options reach the list and the reads', async () => {
     await describeApplicationTemplate(
       { id: 'saml' },
       { includeOverrides: true, channel: 'development' }
@@ -682,7 +791,7 @@ describe('describe: a version that is empty, and a template without a display na
     catalogResult.catalog = structuredClone(fixtureCatalog);
   });
 
-  test('26: -v with an empty text (an unset shell variable) fails like an unknown version, and nothing is read', async () => {
+  test('31: -v with an empty text (an unset shell variable) fails like an unknown version, and nothing is read', async () => {
     expect(
       await describeApplicationTemplate({ id: 'azure.ad', version: '' }, {})
     ).toBe(false);
@@ -692,7 +801,7 @@ describe('describe: a version that is empty, and a template without a display na
     expect(lastCall('readTemplate')).toBeUndefined();
   });
 
-  test('27: a template without a display name is shown with its id as its display name, and -n finds it by that', async () => {
+  test('32: a template without a display name is shown with its id as its display name, and -n finds it by that', async () => {
     items.find((item) => item.name === 'odd').displayName = undefined;
     await listApplicationTemplates({ long: true });
     const lines = messages('data').join('\n').split('\n');
@@ -723,7 +832,7 @@ describe('an escape sequence in a field of an entry', () => {
   ];
 
   test.each(POISONABLE_FIELDS)(
-    '28: %s: nothing printed by list or describe carries it',
+    '33: %s: nothing printed by list or describe carries it',
     async (field) => {
       const poisoned = poisonFixture(field);
       items = listItemsOf(poisoned);
@@ -766,12 +875,14 @@ describe('an escape sequence in a field of an entry', () => {
     }
   );
 
-  test('29: the fields of the entry itself (description, connector, form) are made safe as well', async () => {
+  test('34: the fields of the entry itself (description, connector, form) are made safe as well', async () => {
     const poisoned = structuredClone(fixtureCatalog);
     const entry = poisoned.AppTemplates.enterprise.AzureAD['3_4-azure-ad'];
     entry.description = `d${POISON}`;
     entry.supportUrl = `https://x${POISON}`;
     entry.connectorDisplayName = `c${POISON}`;
+    entry.categories = [`cat${POISON}`];
+    entry.capabilities.provisioning[`Read${POISON}`] = true;
     entry.objectTypes[0].properties[0].name = `p${POISON}`;
     entry.schema.applicationDetails[0][0].label = `l${POISON}`;
     entry.connectorTemplate.basic[0][0].label = `b${POISON}`;
@@ -790,7 +901,7 @@ describe('an escape sequence in a field of an entry', () => {
 });
 
 describe('download', () => {
-  test('30: asks the source now, saves the text of the cached catalog unchanged, and says what the cache did', async () => {
+  test('35: asks the source now, saves the text of the cached catalog unchanged, and says what the cache did', async () => {
     const file = path.join(baseDirectory, 'out.json');
     expect(
       await downloadApplicationTemplateCatalog('out.json', 'development')
@@ -812,20 +923,20 @@ describe('download', () => {
     expect(text).toContain('--templates <file>');
   });
 
-  test('31: without a file it saves appTemplates.json in the working directory and says so', async () => {
+  test('36: without a file it saves appTemplates.json in the working directory and says so', async () => {
     expect(await downloadApplicationTemplateCatalog()).toBe(true);
     expect(saved[0].file).toBe(path.join(baseDirectory, DEFAULT_CATALOG_FILE));
     expect(messages('info')[0]).toContain(DEFAULT_CATALOG_FILE);
   });
 
-  test('32: without a kept file it writes the catalog the library returned', async () => {
+  test('37: without a kept file it writes the catalog the library returned', async () => {
     delete catalogResult.metadata.cachePath;
     const file = path.join(baseDirectory, 'plain.json');
     await downloadApplicationTemplateCatalog('plain.json');
     expect(JSON.parse(fs.readFileSync(file, 'utf8'))).toEqual(sampleCatalog);
   });
 
-  test('33: a stale copy after an error is a warning, and air-gapped mode is said in words', async () => {
+  test('38: a stale copy after an error is a warning, and air-gapped mode is said in words', async () => {
     catalogResult.metadata.cache = 'stale-after-error';
     catalogResult.metadata.cacheError = 'getaddrinfo ENOTFOUND';
     await downloadApplicationTemplateCatalog('a.json');
@@ -835,7 +946,7 @@ describe('download', () => {
     );
   });
 
-  test('34: an air-gapped refusal fails the command and is followed by the advice of this command line', async () => {
+  test('39: an air-gapped refusal fails the command and is followed by the advice of this command line', async () => {
     libraryFailure = new FakeFrodoError(
       'Air-gapped mode is on: the application template catalog cannot be read from the CDN.',
       'AIR_GAPPED'
@@ -848,7 +959,7 @@ describe('download', () => {
     expect(saved).toEqual([]);
   });
 
-  test('35: the same advice follows a refusal while listing', async () => {
+  test('40: the same advice follows a refusal while listing', async () => {
     libraryFailure = new FakeFrodoError('Air-gapped mode is on.', 'AIR_GAPPED');
     expect(await listApplicationTemplates({})).toBe(false);
     expect(messages('info').join('\n')).toContain('--templates <file>');
@@ -856,7 +967,7 @@ describe('download', () => {
 });
 
 describe('the catalog counts', () => {
-  test('36: versions and groups of both tiers are counted', () => {
+  test('41: versions and groups of both tiers are counted', () => {
     expect(countCatalog(sampleCatalog)).toEqual({ templates: 3, groups: 2 });
     expect(
       countCatalog({ AppTemplates: { consumer: {}, enterprise: {} } })
@@ -868,7 +979,7 @@ describe('the catalog counts', () => {
 });
 
 describe('the cache of the catalog', () => {
-  test('37: the CLI switches it on at start, in the default folder of the library', () => {
+  test('42: the CLI switches it on at start, in the default folder of the library', () => {
     delete process.env.FRODO_CONFIG_PATH;
     expect(cacheEnabled).toBe(false);
     enableTemplateCatalogCache();
@@ -876,7 +987,7 @@ describe('the cache of the catalog', () => {
     expect(cachePath).toBeUndefined();
   });
 
-  test('38: the folder moves with FRODO_CONFIG_PATH like the other files of frodo', () => {
+  test('43: the folder moves with FRODO_CONFIG_PATH like the other files of frodo', () => {
     process.env.FRODO_CONFIG_PATH = '/srv/frodo-config';
     try {
       enableTemplateCatalogCache();
@@ -887,7 +998,7 @@ describe('the cache of the catalog', () => {
     expect(cachePath).toBe(path.join('/srv/frodo-config', 'AppTemplates'));
   });
 
-  test('39: src/app.ts calls the switch at start, before it builds the commands, and nothing offers a way to turn it off', () => {
+  test('44: src/app.ts calls the switch at start, before it builds the commands, and nothing offers a way to turn it off', () => {
     const app = fs.readFileSync(
       path.join(process.cwd(), 'src', 'app.ts'),
       'utf8'

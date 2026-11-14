@@ -31,13 +31,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-l, --long',
-        'Long: a table with the display name, category, what the template provides, its connector, its newest version, the number of versions and the date of the newest.'
+        'Long: a table with the name, category, what the template provides (letters that are explained below the table), its newest version (a star means that older versions exist) and the date of the newest version.'
       ).default(false, 'false')
     )
     .addOption(
       new Option(
         '--all-versions',
-        'List every version of every template, not only the newest: the id and the version.'
+        'List every version of every template, not only the newest: the id and the version (with --long also the name, category, what it provides and the date of each version).'
       ).default(false, 'false')
     )
     .addOption(templatesOption())
@@ -52,10 +52,12 @@ export default function setup() {
         `Usage Examples:\n` +
         `  List the ids of the templates of the catalog, without a tenant:\n` +
         c.command(`  $ frodo app template list\n`) +
-        `  List them with the display name, category, connector and newest version:\n` +
+        `  List them with the name, category, what they provide and the newest version:\n` +
         c.command(`  $ frodo app template list --long\n`) +
         `  List every version of every template:\n` +
         c.command(`  $ frodo app template list --all-versions\n`) +
+        `  List every version with its name, category, what it provides and its date:\n` +
+        c.command(`  $ frodo app template list --long --all-versions\n`) +
         `  List the catalog and the templates of a tenant, using AM base URL, realm, username and password:\n` +
         c.command(
           `  $ frodo app template list --long ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`

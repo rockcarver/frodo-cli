@@ -25,14 +25,17 @@ Arguments:
 
 Options:
   --all-versions       List every version of every template, not only the
-                       newest: the id and the version. (default: false)
+                       newest: the id and the version (with --long also the
+                       name, category, what it provides and the date of each
+                       version). (default: false)
   --channel <channel>  Which catalog of the CDN to read: production or
                        development (the development catalog holds a few more
                        template versions). Default: production. Cannot be used
                        with --templates. (choices: "production", "development")
-  -l, --long           Long: a table with the display name, category, what the
-                       template provides, its connector, its newest version, the
-                       number of versions and the date of the newest. (default:
+  -l, --long           Long: a table with the name, category, what the template
+                       provides (letters that are explained below the table),
+                       its newest version (a star means that older versions
+                       exist) and the date of the newest version. (default:
                        false)
   --templates <file>   Read the application template catalog from this file
                        instead of the CDN: the JSON that "frodo app template

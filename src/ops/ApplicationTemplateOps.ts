@@ -9,15 +9,16 @@ import {
 import {
   capabilitiesOf,
   categoryOf,
-  connectorOf,
   connectorSummaryOf,
   countsOf,
   displayNameOf,
   formSectionsOf,
   groupTemplates,
   isoDate,
+  listKeyOf,
   objectTypesOf,
   providesOf,
+  provOf,
   recordOf,
   selectTemplate,
   textOf,
@@ -137,13 +138,6 @@ function right(text: string): { hAlign: 'right'; content: string } {
   return { hAlign: 'right', content: text };
 }
 
-/** What the list commands print about one version. */
-type ListCells = {
-  item: TemplateVersion;
-  entry: Json;
-  versions: number;
-};
-
 /**
  * List the application templates: the ids of the newest version of each
  * template, or with `long` a table of them, or with `allVersions` every
@@ -192,45 +186,70 @@ export async function listApplicationTemplates(
       return true;
     }
     const entries = await readEntries(shown, options, libraryOptions);
-    const table = createTable([
-      'Id',
-      'Display name',
-      'Category',
-      'Provides',
-      'Connector',
-      options.allVersions ? right('Version') : right('Latest'),
-      options.allVersions ? 'Newest' : right('Versions'),
-      'Updated',
-      ...(withOverride ? ['Override'] : []),
-    ]);
     const groupOf = new Map(
       groups.flatMap((group) =>
         group.versions.map((item) => [item, group] as const)
       )
     );
-    shown.forEach((item) => {
-      const cells: ListCells = {
-        item,
-        entry: entries.get(item.templateId) ?? {},
-        versions: groupOf.get(item)?.versions.length ?? 1,
-      };
+    const rows = shown.map((item) => {
+      const entry = entries.get(item.templateId) ?? {};
+      return { item, prov: provOf(entry, item.templateType), entry };
+    });
+    // the newest version of a template with older versions carries a star, and
+    // there is no star where every version has a row of its own, so that the
+    // star has one meaning; the column that marks the newest version is only
+    // there if some version is not the newest
+    const withNewest =
+      options.allVersions === true && shown.some((item) => !item.newestInGroup);
+    const table = createTable(
+      options.allVersions
+        ? [
+            'Id',
+            'Ver',
+            'Name',
+            'Category',
+            'Prov',
+            'Updated',
+            ...(withNewest ? ['N'] : []),
+            ...(withOverride ? ['D'] : []),
+          ]
+        : [
+            'Id',
+            'Name',
+            'Category',
+            'Prov',
+            'Ver',
+            'Updated',
+            ...(withOverride ? ['D'] : []),
+          ]
+    );
+    rows.forEach(({ item, prov, entry }) => {
+      const version = options.allVersions
+        ? item.templateVersion
+        : `${item.templateVersion}${
+            (groupOf.get(item)?.versions.length ?? 1) > 1 ? '*' : ''
+          }`;
+      const name = displayNameOf(item);
+      const category = categoryOf(entry);
+      const updated = isoDate(item.dateUpdated);
       table.push([
         item.name,
-        displayNameOf(item),
-        categoryOf(cells.entry),
-        providesOf(cells.entry),
-        connectorOf(cells.entry),
-        right(item.templateVersion),
-        options.allVersions
-          ? item.newestInGroup
-            ? 'yes'
-            : ''
-          : right(String(cells.versions)),
-        isoDate(item.dateUpdated),
-        ...(withOverride ? [item.isOverride ? 'yes' : ''] : []),
+        ...(options.allVersions ? [version, name] : [name]),
+        category,
+        prov,
+        ...(options.allVersions ? [] : [version]),
+        updated,
+        ...(withNewest ? [item.newestInGroup ? 'N' : ''] : []),
+        ...(withOverride ? [item.isOverride ? 'D' : ''] : []),
       ]);
     });
-    printMessage(table.toString(), 'data');
+    const key = listKeyOf({
+      allVersions: options.allVersions === true,
+      newestColumn: withNewest,
+      overrideColumn: withOverride,
+      unknown: rows.some(({ prov }) => prov === '?'),
+    });
+    printMessage(`${table.toString()}\n\n${key}`, 'data');
     return true;
   } catch (error) {
     printCatalogFailure(error);

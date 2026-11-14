@@ -367,6 +367,76 @@ export function providesOf(template: Json): string {
     : (textOf(template['templateType']) ?? '');
 }
 
+/** The letters of the `Prov` column of `list --long`, in the order they are printed. */
+const PROV_ORDER = 'APSOFTB';
+
+/** The letter of each SSO protocol the entry can name (the protocols of `capabilities.sso`, in lower case). */
+const SSO_LETTERS: Record<string, string> = {
+  saml: 'S',
+  oidc: 'O',
+  'ws-fed': 'F',
+  'ws-trust': 'T',
+};
+
+/**
+ * The `Prov` cell of `list --long`: one letter for each thing the template
+ * provides, in the order A P S O F T B. `P` provisioning (a connector and the
+ * provisioning capability), `A` an AI target (`target`), `S` SAML, `O` OIDC,
+ * `F` WS-Fed and `T` WS-Trust (the protocols of `capabilities.sso`), `B` the
+ * bookmark template. An entry that matches none of them gets `?`, never an
+ * empty cell.
+ * @param {Json} template the entry
+ * @param {string} [templateType] the `templateType` of the list row, for an entry that does not say it
+ * @returns {string} the letters, or `?`
+ */
+export function provOf(template: Json, templateType?: string): string {
+  const letters = new Set<string>();
+  if (template['target'] === true) letters.add('A');
+  const provisioning = recordOf(
+    recordOf(template['capabilities'])?.['provisioning']
+  );
+  if (hasConnector(template) && provisioning) letters.add('P');
+  for (const protocol of ssoProtocolsOf(template)) {
+    const letter = SSO_LETTERS[protocol.toLowerCase()];
+    if (letter) letters.add(letter);
+  }
+  const type = textOf(template['templateType']) ?? textOf(templateType) ?? '';
+  if (type.toLowerCase() === 'bookmark') letters.add('B');
+  return (
+    [...PROV_ORDER].filter((letter) => letters.has(letter)).join('') || '?'
+  );
+}
+
+/** What the letters of the `Prov` column mean, as `list --long` prints it below its table. */
+export const PROV_KEY =
+  'P provisioning  A AI target  S SAML  O OIDC  F WS-Fed  T WS-Trust  B bookmark';
+
+/**
+ * The line below the table of `list --long`: what the abbreviations of the
+ * columns that were printed mean. A mark is explained only if its column is
+ * printed.
+ * @param {{ allVersions: boolean; newestColumn: boolean; overrideColumn: boolean; unknown: boolean }} columns which view and which columns the table has
+ * @param {boolean} columns.allVersions the table has a row for every version, so a version carries no star
+ * @param {boolean} columns.newestColumn the table has the column `N` that marks the newest version
+ * @param {boolean} columns.overrideColumn the table has the column `D` that marks a template the tenant defines
+ * @param {boolean} columns.unknown a `Prov` cell says `?`
+ * @returns {string} the line
+ */
+export function listKeyOf(columns: {
+  allVersions: boolean;
+  newestColumn: boolean;
+  overrideColumn: boolean;
+  unknown: boolean;
+}): string {
+  return [
+    PROV_KEY,
+    ...(columns.allVersions ? [] : ['* older versions exist']),
+    ...(columns.newestColumn ? ['N newest version'] : []),
+    ...(columns.overrideColumn ? ['D defined by the tenant'] : []),
+    ...(columns.unknown ? ['? not known'] : []),
+  ].join('  ');
+}
+
 const OPERATIONS = ['create', 'read', 'update', 'delete'];
 
 /**
