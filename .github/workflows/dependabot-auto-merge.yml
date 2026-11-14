@@ -1,44 +1,73 @@
 name: 'Dependabot Auto-Merge'
 
-# Enables auto-merge on Dependabot version-update PRs for patch and minor
-# bumps (including security updates, which arrive as patch/minor PRs).
-# GitHub merges once the required status checks pass and the branch-protection
-# ruleset is satisfied - this workflow only arms the merge.
+# Arms auto-merge on a Dependabot pull request when core 0023
+# (docs/decisions/core/0023-dependency-updates-arrive-late-and-only-tooling-merges-without-a-person.md)
+# allows it. GitHub merges once the required status checks pass and the
+# branch-protection ruleset is satisfied - this workflow only arms the merge.
+# The decision is made by scripts/dependabot-auto-merge.mjs (unit tests:
+# test/unit/DependabotAutoMerge.test.js); in short, a pull request is armed when
+# - it is an npm pull request (a GitHub Actions update is never armed: an
+#   action runs with the credentials of our workflows, so a person merges it);
+# - it is a patch or minor update of every dependency it touches (security
+#   updates too: their type is derived from the lockfile);
+# - no dependency it touches has a name that stays manual: the whole word
+#   eslint, prettier or typescript in the scope or in the name (Prettier
+#   minors reformat code, the TypeScript and ESLint majors need coordinated
+#   config work; the plugins and configs of ESLint and Prettier are meant by
+#   it, which is what a plain substring test used to do by accident);
+# - every package version that the lockfile adds or changes, direct or
+#   transitive, was published at least 7 days ago. The
+#   cooldown of dependabot.yml only covers what Dependabot proposes; a bump
+#   also moves transitive packages to whatever is newest. A registry that
+#   cannot be read means "not armed".
+# A pull request that fails only the age test is looked at again every day.
 #
-# Not auto-merged, on purpose:
-# - Major updates: can break the API, need a human.
-# - Prettier, TypeScript and ESLint (mirrors the exclude-patterns in
-#   dependabot.yml): Prettier minors reformat code and the TS/ESLint majors
-#   need coordinated config work.
+# Not auto-merged, on purpose: GitHub Actions updates, major updates (they can
+# break the API and need a human), the manual names above, and everything that
+# fails a test above. A person may merge any pull request at any time.
 # Note: Dependabot "rules" in repo settings only triage alerts - they cannot
 # auto-merge PRs. That is why this workflow exists.
+#
+# The script is read from the default branch, never from the pull request, so
+# a pull request cannot change the rule that decides about itself.
 
-on: pull_request
+on:
+  pull_request:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number || 'all' }}
+  cancel-in-progress: false
+
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    # Guard on the actor: skips immediately for every non-Dependabot PR,
-    # including all human PRs.
-    if: github.actor == 'dependabot[bot]'
+    # Guard on the actor for a pull request: skips immediately for every
+    # non-Dependabot PR, including all human PRs. The scheduled and manual runs
+    # only look at pull requests that Dependabot opened (the script checks the
+    # author of each one).
+    if: github.event_name != 'pull_request' || github.actor == 'dependabot[bot]'
     steps:
-      - name: Fetch Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v3
+      - name: Check out the default branch
+        uses: actions/checkout@v7
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          ref: ${{ github.event.repository.default_branch || 'main' }}
+          persist-credentials: false
 
-      - name: Enable auto-merge for minor and patch updates
-        if: >-
-          contains(fromJSON('["version-update:semver-patch", "version-update:semver-minor"]'), steps.metadata.outputs.update-type) &&
-          !contains(steps.metadata.outputs.dependency-names, 'prettier') &&
-          !contains(steps.metadata.outputs.dependency-names, 'typescript') &&
-          !contains(steps.metadata.outputs.dependency-names, 'eslint')
-        run: gh pr merge --auto --squash "$PR_URL"
+      - name: Arm auto-merge where the policy allows it
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            node scripts/dependabot-auto-merge.mjs --pr "$PR_NUMBER"
+          else
+            node scripts/dependabot-auto-merge.mjs --all
+          fi
         env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
