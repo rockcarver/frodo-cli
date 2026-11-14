@@ -30,6 +30,7 @@ Commands:
                         never deleted.
   secret-mappings       [Experimental] [Cloud-only] Delete secret mappings.
   secrets               [Experimental] [Cloud-only] Delete secrets.
+  telemetry             [Experimental] [Cloud-only] Delete telemetry exporters.
   terms-and-conditions  [Experimental] Delete terms and conditions versions.
   test                  [Experimental] Test connection and authentication.
   themes                [Experimental] Delete themes by name or delete all

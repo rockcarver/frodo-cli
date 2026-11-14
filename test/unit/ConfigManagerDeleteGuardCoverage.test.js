@@ -72,6 +72,7 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
         'oauth-issuers',
         'schedules',
         'secret-mappings',
+        'telemetry',
         'variables',
       ])
     );

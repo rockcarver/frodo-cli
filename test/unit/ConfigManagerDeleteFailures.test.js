@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 /**
  * Decision records 0040 and 0041 for the bulk deletes of part 2a:
- * `config-manager delete custom-nodes|email-templates|endpoints|scripts|themes`
+ * `config-manager delete custom-nodes|email-templates|endpoints|scripts|telemetry|themes`
  * and `script delete -a` (with and without filters). When one delete fails, the
  * others still run, one summary names the failed one, and the command fails,
  * unless --allow-failures was given. A failure to read what there is to delete
@@ -227,6 +227,38 @@ const CASES = [
     run: (m, allowFailures) =>
       m.configManagerDeleteThemes(undefined, undefined, false, allowFailures),
     fn: 'configManagerDeleteThemes',
+  },
+  {
+    name: 'config-manager delete telemetry',
+    file: 'src/configManagerOps/FrConfigTelemetryOps.ts',
+    summaryName: (id) => `otlp/${id}`,
+    unit: 'telemetry exporter',
+    arrange({ failing, attempted }) {
+      frodo.cloud.telemetry.readTelemetry
+        .mockReset()
+        .mockResolvedValue({ otlp: IDS.map((id) => ({ id })), splunk: [] });
+      frodo.cloud.telemetry.deleteTelemetry
+        .mockReset()
+        .mockImplementation(async (id) => {
+          attempted.push(id);
+          if (failing.has(id)) throw new Error(`could not delete ${id}`);
+          return [{ id }];
+        });
+    },
+    empty: () =>
+      frodo.cloud.telemetry.readTelemetry
+        .mockReset()
+        .mockResolvedValue({ otlp: [], splunk: [] }),
+    emptyMessage: /No telemetry exporters found to delete\./,
+    notFound: (m) =>
+      m.configManagerDeleteTelemetry('otlp', 'zzz', false, false),
+    failToRead: () =>
+      frodo.cloud.telemetry.readTelemetry
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteTelemetry(undefined, undefined, false, allowFailures),
+    fn: 'configManagerDeleteTelemetry',
   },
   {
     name: 'script delete -a',
