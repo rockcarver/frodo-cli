@@ -29,7 +29,7 @@ TypeScript sources (src/)
 
 Release automation:
   ├─ dependabot.yml ....... weekly grouped dependency PRs
-  ├─ dependabot-auto-merge.yml  arms auto-merge on green patch/minor PRs
+  ├─ dependabot-auto-merge.yml  arms auto-merge on green patch/minor PRs whose versions are 7 days old
   ├─ ruleset "main-branch-protection"  Build + Test gate + linux-x64-binary-release required
   └─ pipeline.yml ......... version bump -> build -> test -> 5 binaries -> npm publish -> GitHub release -> Homebrew
 ```
@@ -368,12 +368,29 @@ tenant smoke test included, after an update pull request that skipped it.
   majors ignored outright. The exact `@rockcarver/frodo-lib` pin updates
   flow through the same group. `github/gh-aw-actions/setup` is ignored: it is
   pinned inside the Issue Concierge's generated `*.lock.yml` files, which a
-  Concierge release moves by recompiling them.
-- `dependabot-auto-merge.yml`: arms `gh pr merge --auto --squash` on
-  Dependabot patch/minor PRs (security updates included) once checks pass.
-  Majors and the tooling set stay manual. NOTE: Dependabot "rules" in repo
-  settings only triage alerts — they cannot merge PRs; the workflow is the
-  mechanism.
+  Concierge release moves by recompiling them. A `cooldown` of 7 days holds a
+  version update back until its release is a week old; security updates are not
+  delayed, and our own pin `@rockcarver/frodo-lib` and our own actions
+  (`gearsnlevers/*`) are excluded from it ([core 0023](decisions/core/0023-dependency-updates-arrive-late-and-only-tooling-merges-without-a-person.md)).
+- `dependabot-auto-merge.yml`: runs `scripts/dependabot-auto-merge.mjs` (tests:
+  `test/unit/DependabotAutoMerge.test.js`), which arms
+  `gh pr merge --auto --squash` on a Dependabot pull request once the checks
+  pass and the policy of core 0023 allows it: a patch or minor update of every
+  dependency it touches (a security update has no type in its metadata, the
+  script derives it from the lockfile), no name that stays manual (the whole
+  word eslint, prettier or typescript in the scope or the name), and, for an npm
+  pull request, every package version that the lockfile adds or changes, direct
+  or transitive, published at least 7 days ago. The cooldown only covers what
+  Dependabot proposes, a bump also moves transitive packages to the newest
+  version. A pull request that fails the age test is looked at again by the
+  daily run (`schedule`, or `workflow_dispatch` by hand); a registry that cannot
+  be read means not armed. To see the verdict without arming:
+  `node scripts/dependabot-auto-merge.mjs --pr <number> --dry-run` (needs
+  `gh`; `--ignore-state` also reads a merged one, `--now <iso>` sets the day).
+  The script is read from the default branch, so a pull request cannot change
+  the rule that decides about itself. Majors and the manual names stay manual.
+  NOTE: Dependabot "rules" in repo settings only triage alerts — they cannot
+  merge PRs; the workflow is the mechanism.
 - Known GitHub quirk (hit 3× on 2026-10-03): the mergeability service lags
   behind green check-runs — combined commit status shows `pending` with 0
   statuses and `mergeStateStatus` is BLOCKED/UNKNOWN although every check
