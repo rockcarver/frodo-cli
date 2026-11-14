@@ -18,7 +18,9 @@
 //   - every package version that the lockfile adds or changes, direct or transitive, was
 //     published at least MIN_AGE_DAYS days ago (the cooldown of dependabot.yml only covers what Dependabot proposes);
 //     a registry that cannot be read, or a missing publish time, is a refusal;
-//   - when REQUIRED_GROUP is set: the pull request belongs to that Dependabot group.
+//   - the pull request belongs to the Dependabot group REQUIRED_GROUP (`tooling`): bundled packages and the bundler
+//     arrive ungrouped, one pull request each, and are merged by a person. A security update has no group, so its
+//     package must be named in TOOLING_PATTERNS instead (and then it still has to pass the age test above).
 // A pull request that fails only the age test is looked at again by the daily run.
 //
 // This file is NOT in .github/scripts/: that folder is managed by the Issue Concierge updater.
@@ -27,8 +29,48 @@ import { fileURLToPath } from 'node:url';
 
 export const MIN_AGE_DAYS = 7;
 
-/** The Dependabot group that auto-merge is limited to; null while every group may arm. */
-export const REQUIRED_GROUP = null;
+/**
+ * The Dependabot group that auto-merge is limited to (`groups.tooling` in dependabot.yml). A pull request outside it,
+ * a single update of a bundled package and a GitHub Actions update included, is merged by a person (core 0023).
+ */
+export const REQUIRED_GROUP = 'tooling';
+
+/**
+ * The package patterns of that group (`groups.tooling.patterns` in dependabot.yml, `*` is any run of characters).
+ * Dependabot gives a security update no group, so the group cannot tell whether its package is tooling; this list
+ * does. test/unit/DependabotPolicy.test.js keeps it equal to dependabot.yml. `tsdown` is not on it: the bundler that
+ * writes the shipped file is treated like a bundled package (core 0023).
+ */
+export const TOOLING_PATTERNS = [
+  '@modelcontextprotocol/client',
+  '@types/*',
+  'cli-progress',
+  'fs-extra',
+  'jest',
+  'loglevel',
+  'map-stream',
+  'replaceall',
+  'rimraf',
+  'slugify',
+  'tmp',
+  'ts-jest',
+];
+
+/**
+ * Whether a package name matches a pattern of the tooling group.
+ * @param {string} name package name, with its scope if it has one
+ * @param {string[]} [patterns] the patterns, `*` matching any run of characters
+ * @returns {boolean} true if the name is tooling
+ */
+export function isToolingName(name, patterns = TOOLING_PATTERNS) {
+  return patterns.some((pattern) => {
+    const source = pattern
+      .split('*')
+      .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&'))
+      .join('.*');
+    return new RegExp(`^${source}$`).test(String(name));
+  });
+}
 
 /** Names that stay manual: the whole word eslint, prettier or typescript in the scope or in the name. */
 export const MANUAL_WORDS = ['eslint', 'prettier', 'typescript'];
@@ -174,6 +216,20 @@ export function publishTimeOf(packument, version) {
 }
 
 /**
+ * Whether an update belongs to the group that may arm. A version update names its group; a security update has none,
+ * so it belongs when its package is on the list of the group.
+ * @param {{name: string, group?: string}} update the `updated-dependencies` entry
+ * @param {string} group the required group
+ * @param {string[]} patterns the package patterns of that group
+ * @returns {boolean} true if it belongs to the group
+ */
+function belongsToGroup(update, group, patterns) {
+  return update.group === undefined
+    ? isToolingName(update.name, patterns)
+    : update.group === group;
+}
+
+/**
  * The decision for one pull request. Pure: everything it needs is passed in.
  * @param {object} input what is known about the pull request
  * @param {{name: string, updateType?: string, group?: string}[]} input.updates the `updated-dependencies` entries
@@ -184,6 +240,7 @@ export function publishTimeOf(packument, version) {
  * @param {number} input.now the clock, milliseconds
  * @param {number} [input.minAgeDays] the age every added version must have
  * @param {string | null} [input.requiredGroup] the group that may arm, null for any
+ * @param {string[]} [input.toolingPatterns] the package patterns of that group, for an update that has no group
  * @returns {{armed: boolean, reasons: string[]}} the verdict; `armed` only with no reason
  */
 export function decide({
@@ -195,6 +252,7 @@ export function decide({
   now,
   minAgeDays = MIN_AGE_DAYS,
   requiredGroup = REQUIRED_GROUP,
+  toolingPatterns = TOOLING_PATTERNS,
 }) {
   const reasons = [];
   if (!updates || updates.length === 0) {
@@ -212,7 +270,7 @@ export function decide({
     if (isManualName(u.name)) {
       reasons.push(`${u.name} stays manual (eslint, prettier or typescript)`);
     }
-    if (requiredGroup && u.group !== requiredGroup) {
+    if (requiredGroup && !belongsToGroup(u, requiredGroup, toolingPatterns)) {
       reasons.push(
         `${u.name} is not in the group ${requiredGroup} (${u.group ?? 'no group'})`
       );
@@ -295,6 +353,7 @@ async function fetchJsonDefault(url) {
  * @param {number} [io.minAgeDays] minimum age
  * @param {Map<string, any>} [io.cache] registry documents already read
  * @param {boolean} [io.ignoreState] evaluate a closed or merged pull request too (a dry run for analysis)
+ * @param {string | null} [io.requiredGroup] the group that may arm, null for any
  * @returns {Promise<{number: number, armed: boolean, reasons: string[], alreadyArmed: boolean, checked: number}>} verdict
  */
 export async function evaluate({
@@ -306,6 +365,7 @@ export async function evaluate({
   minAgeDays = MIN_AGE_DAYS,
   cache = new Map(),
   ignoreState = false,
+  requiredGroup = REQUIRED_GROUP,
 }) {
   const pr = JSON.parse(gh(['api', `repos/${repo}/pulls/${number}`]));
   const result = (armed, reasons, checked = 0) => ({
@@ -380,6 +440,7 @@ export async function evaluate({
     errors,
     now,
     minAgeDays,
+    requiredGroup,
   });
   return result(verdict.armed, verdict.reasons, changed?.length ?? 0);
 }

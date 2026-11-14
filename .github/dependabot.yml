@@ -1,11 +1,21 @@
 # Dependabot version updates.
 # Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 #
-# - One grouped weekly PR for development-dependency minor/patch updates.
-#   Prettier, TypeScript and ESLint are excluded from the group (and TS majors
-#   ignored entirely): Prettier minors reformat code, and the TypeScript/ESLint
-#   majors need coordinated config work - those arrive as individual PRs for
-#   human review.
+# - Packages that end up in what we ship (every package that shipped source
+#   imports, and the pin of @rockcarver/frodo-lib) and the bundler that writes
+#   the shipped file (tsdown) are NOT grouped: each update arrives as its own
+#   pull request, which a person merges after looking at what changed in the
+#   package (core 0023). Tooling (the named list in the `tooling` group below:
+#   test and type packages) is one grouped weekly PR for minor/patch updates,
+#   and the only thing that auto-merges (a security update of a tooling package
+#   too, once it passes the age test: scripts/dependabot-auto-merge.mjs keeps
+#   the same list, because a security update carries no group). A package
+#   that is in neither list arrives on its own as well, so a person merges it
+#   until it is added: test/unit/DependabotPolicy.test.js keeps the list honest.
+#   Prettier, TypeScript and ESLint with their plugins and configs stay
+#   individual too (and TS majors are ignored entirely): Prettier minors
+#   reformat code, and the TypeScript/ESLint majors need coordinated config
+#   work.
 # - The exact @rockcarver/frodo-lib pin is updated by this too, so new library
 #   releases automatically arrive here as a PR.
 # - Weekly updates for the GitHub Actions used by the workflows, except
@@ -32,18 +42,23 @@ updates:
         - "@rockcarver/frodo-lib"
     open-pull-requests-limit: 10
     groups:
-      dev-minor-patch:
-        dependency-type: "development"
+      tooling:
+        patterns:
+          - "@modelcontextprotocol/client"
+          - "@types/*"
+          - "cli-progress"
+          - "fs-extra"
+          - "jest"
+          - "loglevel"
+          - "map-stream"
+          - "replaceall"
+          - "rimraf"
+          - "slugify"
+          - "tmp"
+          - "ts-jest"
         update-types:
           - "minor"
           - "patch"
-        exclude-patterns:
-          - "prettier"
-          - "typescript"
-          - "eslint"
-          - "@eslint/*"
-          - "typescript-eslint"
-          - "@typescript-eslint/*"
     ignore:
       - dependency-name: "typescript"
         update-types:

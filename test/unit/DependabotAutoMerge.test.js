@@ -6,11 +6,14 @@ import {
   ecosystemOfBranch,
   evaluate,
   isManualName,
+  isToolingName,
   packageNameOfLockPath,
   parseUpdatedDependencies,
   publishTimeOf,
   registryUrl,
+  REQUIRED_GROUP,
   semverBump,
+  TOOLING_PATTERNS,
 } from '../../scripts/dependabot-auto-merge.mjs';
 
 /**
@@ -78,6 +81,7 @@ updated-dependencies:
   dependency-version: 1.21.1
   dependency-type: direct:development
   update-type: version-update:semver-patch
+  dependency-group: tooling
 ...
 
 Signed-off-by: dependabot[bot] <support@github.com>`;
@@ -123,6 +127,52 @@ describe('isManualName: the names that stay manual', () => {
     '@rockcarver/frodo-lib',
   ])('%s does not', (name) => {
     expect(isManualName(name)).toBe(false);
+  });
+});
+
+describe('isToolingName: the packages of the tooling group, for an update that has no group', () => {
+  it.each([
+    '@types/node',
+    '@types/fs-extra',
+    '@modelcontextprotocol/client',
+    'jest',
+    'ts-jest',
+    'rimraf',
+    'tmp',
+  ])('%s is tooling', (name) => {
+    expect(isToolingName(name)).toBe(true);
+  });
+
+  it.each([
+    'tsdown',
+    'axios',
+    'commander',
+    '@modelcontextprotocol/server',
+    '@rockcarver/frodo-lib',
+    'jest-extended',
+    'rimraf-x',
+    'not-tmp',
+    'typescript',
+    '@types',
+  ])(
+    '%s is not tooling (the bundler, bundled packages and look-alikes)',
+    (name) => {
+      expect(isToolingName(name)).toBe(false);
+    }
+  );
+
+  it('takes a list of patterns, `*` being any run of characters, and escapes the rest', () => {
+    expect(isToolingName('a.b', ['a.b'])).toBe(true);
+    expect(isToolingName('axb', ['a.b'])).toBe(false);
+    expect(isToolingName('@x/y', ['@x/*'])).toBe(true);
+    expect(isToolingName('x', [])).toBe(false);
+  });
+
+  it('does not name the bundler', () => {
+    expect(TOOLING_PATTERNS).not.toContain('tsdown');
+    expect(TOOLING_PATTERNS.some((p) => isToolingName('tsdown', [p]))).toBe(
+      false
+    );
   });
 });
 
@@ -284,10 +334,7 @@ describe('the update type that a security update lacks', () => {
 
 describe('decide', () => {
   const ok = {
-    updates: [
-      patch('axios', 'dev-minor-patch'),
-      patch('rimraf', 'dev-minor-patch'),
-    ],
+    updates: [patch('axios', 'tooling'), patch('rimraf', 'tooling')],
     ecosystem: 'npm_and_yarn',
     changed: [
       { path: 'node_modules/axios', name: 'axios', version: '1.21.1' },
@@ -360,7 +407,10 @@ describe('decide', () => {
     expect(unknown.reasons[0]).toContain('unknown');
     const manual = decide({
       ...ok,
-      updates: [patch('axios'), patch('eslint-plugin-import-x')],
+      updates: [
+        patch('axios', 'tooling'),
+        patch('eslint-plugin-import-x', 'tooling'),
+      ],
     });
     expect(manual.reasons).toEqual([
       'eslint-plugin-import-x stays manual (eslint, prettier or typescript)',
@@ -377,17 +427,21 @@ describe('decide', () => {
     ]);
   });
 
-  it('never arms a GitHub Actions update, however small and old', () => {
-    const v = decide({
-      updates: [patch('actions/checkout')],
+  it('never arms a GitHub Actions update, however small and old, group or no group', () => {
+    const input = {
+      updates: [patch('actions/checkout', undefined)],
       ecosystem: 'github_actions',
       now: NOW,
       times: {},
-    });
-    expect(v).toEqual({
+    };
+    expect(decide({ ...input, requiredGroup: null })).toEqual({
       armed: false,
       reasons: ['GitHub Actions updates are never armed: a person merges them'],
     });
+    expect(decide(input).reasons).toEqual([
+      'actions/checkout is not in the group tooling (no group)',
+      'GitHub Actions updates are never armed: a person merges them',
+    ]);
   });
 
   it('never arms an ecosystem it does not know, a branch that is not a Dependabot branch included', () => {
@@ -405,14 +459,78 @@ describe('decide', () => {
     expect(decide({ ...ok, ecosystem: 'npm_and_yarn' }).armed).toBe(true);
   });
 
-  it('can be limited to one group', () => {
-    expect(decide({ ...ok, requiredGroup: 'tooling' }).armed).toBe(false);
-    const grouped = {
-      ...ok,
-      updates: [patch('axios', 'tooling'), patch('rimraf', 'tooling')],
-      requiredGroup: 'tooling',
-    };
-    expect(decide(grouped).armed).toBe(true);
+  it('is limited to the tooling group by default, and a pull request of another group is refused', () => {
+    expect(REQUIRED_GROUP).toBe('tooling');
+    const other = { ...ok, updates: [patch('axios', 'dev-minor-patch')] };
+    expect(decide(other).reasons).toEqual([
+      'axios is not in the group tooling (dev-minor-patch)',
+    ]);
+    expect(decide({ ...other, requiredGroup: null }).armed).toBe(true);
+    expect(decide({ ...other, requiredGroup: 'dev-minor-patch' }).armed).toBe(
+      true
+    );
+    expect(decide({ ...ok, updates: [patch('axios', undefined)] }).armed).toBe(
+      false
+    );
+  });
+});
+
+describe('decide: a security update has no group, so the package decides', () => {
+  const security = (name) => ({
+    name,
+    updateType: 'version-update:semver-patch',
+  });
+  const base = (name, version, times = {}) => ({
+    updates: [security(name)],
+    ecosystem: 'npm_and_yarn',
+    changed: [{ path: `node_modules/${name}`, name, version }],
+    times: { [`${name}@${version}`]: ago(9), ...times },
+    now: NOW,
+  });
+
+  it('arms the security update of a tooling package that passes the age test', () => {
+    expect(decide(base('rimraf', '6.1.3'))).toEqual({
+      armed: true,
+      reasons: [],
+    });
+    expect(decide(base('@types/node', '26.0.1')).armed).toBe(true);
+  });
+
+  it('holds it for a person while its version is young, as any other update', () => {
+    const young = decide(base('rimraf', '6.1.3', { 'rimraf@6.1.3': ago(1.5) }));
+    expect(young.armed).toBe(false);
+    expect(young.reasons).toEqual([
+      'rimraf@6.1.3 was published 1.5 days ago, less than 7',
+    ]);
+  });
+
+  it('leaves the security update of a bundled package, the bundler and a name that stays manual to a person', () => {
+    expect(decide(base('axios', '1.21.1')).reasons).toEqual([
+      'axios is not in the group tooling (no group)',
+    ]);
+    expect(decide(base('tsdown', '0.24.0')).reasons).toEqual([
+      'tsdown is not in the group tooling (no group)',
+    ]);
+    expect(decide(base('eslint', '10.1.1')).reasons).toEqual([
+      'eslint stays manual (eslint, prettier or typescript)',
+      'eslint is not in the group tooling (no group)',
+    ]);
+  });
+
+  it('does not let a group name decide for a package that names another group', () => {
+    const other = decide({
+      ...base('rimraf', '6.1.3'),
+      updates: [{ ...security('rimraf'), group: 'dev-minor-patch' }],
+    });
+    expect(other.reasons).toEqual([
+      'rimraf is not in the group tooling (dev-minor-patch)',
+    ]);
+  });
+
+  it('is not limited to a group when none is required', () => {
+    expect(
+      decide({ ...base('axios', '1.21.1'), requiredGroup: null }).armed
+    ).toBe(true);
   });
 });
 
@@ -436,6 +554,7 @@ describe('evaluate: a pull request, with the repository and the registry replace
     pr = {},
     message = GROUP_MESSAGE,
     head = LOCK_HEAD,
+    base = LOCK_BASE,
   } = {}) => {
     const calls = [];
     const gh = (args) => {
@@ -460,7 +579,7 @@ describe('evaluate: a pull request, with the repository and the registry replace
         ]);
       if (path.startsWith('repos/o/r/compare/')) return 'mergebase\n';
       if (path === 'repos/o/r/contents/package-lock.json?ref=mergebase')
-        return LOCK_BASE;
+        return base;
       if (path === 'repos/o/r/contents/package-lock.json?ref=headsha')
         return head;
       throw new Error(`unexpected gh call ${args.join(' ')}`);
@@ -470,7 +589,7 @@ describe('evaluate: a pull request, with the repository and the registry replace
 
   const registry = (days) => async (url) => {
     const name = decodeURIComponent(url.split('registry.npmjs.org/')[1]);
-    const versions = { axios: '1.21.1', glob: '14.0.5' };
+    const versions = { axios: '1.21.1', glob: '14.0.5', rimraf: '6.1.3' };
     return {
       time: {
         [versions[name]]: new Date(NOW - days[name] * DAY).toISOString(),
@@ -574,9 +693,12 @@ describe('evaluate: a pull request, with the repository and the registry replace
       now: NOW,
     });
     expect(v.armed).toBe(false);
-    expect(v.reasons).toEqual([
-      'eslint-plugin-import-x stays manual (eslint, prettier or typescript)',
-    ]);
+    expect(v.reasons).toContain(
+      'eslint-plugin-import-x stays manual (eslint, prettier or typescript)'
+    );
+    expect(v.reasons).toContain(
+      'axios is not in the group tooling (dev-minor-patch)'
+    );
     const armed = makeGh({
       message: AXIOS_MESSAGE,
       pr: { auto_merge: { merge_method: 'squash' } },
@@ -591,7 +713,7 @@ describe('evaluate: a pull request, with the repository and the registry replace
     expect(w).toMatchObject({ armed: true, alreadyArmed: true });
   });
 
-  it('derives the update type of a security update from the lockfile, and refuses a young version', async () => {
+  it('derives the update type of a security update from the lockfile; with no group it is for a person, and a young version is named too', async () => {
     const security = `Bumps [axios](https://github.com/axios/axios) from 1.21.0 to 1.21.1.
 
 ---
@@ -603,24 +725,64 @@ updated-dependencies:
 
 Signed-off-by: dependabot[bot] <support@github.com>`;
     const { gh } = makeGh({ message: security });
+    const opts = { repo: 'o/r', number: 5, gh, now: NOW };
     const old = await evaluate({
-      repo: 'o/r',
-      number: 5,
-      gh,
+      ...opts,
       fetchJson: registry({ axios: 10, glob: 9 }),
-      now: NOW,
+      requiredGroup: null,
     });
     expect(old).toMatchObject({ armed: true, reasons: [] });
+    const grouped = await evaluate({
+      ...opts,
+      fetchJson: registry({ axios: 10, glob: 9 }),
+    });
+    expect(grouped.reasons).toEqual([
+      'axios is not in the group tooling (no group)',
+    ]);
     const young = await evaluate({
-      repo: 'o/r',
-      number: 5,
-      gh,
+      ...opts,
       fetchJson: registry({ axios: 2, glob: 9 }),
-      now: NOW,
+      requiredGroup: null,
     });
     expect(young.armed).toBe(false);
     expect(young.reasons).toEqual([
       'axios@1.21.1 was published 2.0 days ago, less than 7',
+    ]);
+  });
+
+  it('arms the security update of a tooling package once its version is old, and holds a young one', async () => {
+    const security = `Bumps [rimraf](https://github.com/isaacs/rimraf) from 6.1.2 to 6.1.3.
+
+---
+updated-dependencies:
+- dependency-name: rimraf
+  dependency-version: 6.1.3
+  dependency-type: indirect
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>`;
+    const lock = (version) =>
+      JSON.stringify({
+        packages: { '': {}, 'node_modules/rimraf': { version } },
+      });
+    const { gh } = makeGh({
+      message: security,
+      base: lock('6.1.2'),
+      head: lock('6.1.3'),
+    });
+    const opts = { repo: 'o/r', number: 5, gh, now: NOW };
+    const old = await evaluate({
+      ...opts,
+      fetchJson: registry({ rimraf: 10 }),
+    });
+    expect(old).toMatchObject({ armed: true, reasons: [], checked: 1 });
+    const young = await evaluate({
+      ...opts,
+      fetchJson: registry({ rimraf: 2 }),
+    });
+    expect(young.armed).toBe(false);
+    expect(young.reasons).toEqual([
+      'rimraf@6.1.3 was published 2.0 days ago, less than 7',
     ]);
   });
 

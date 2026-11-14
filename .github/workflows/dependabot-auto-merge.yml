@@ -10,21 +10,28 @@ name: 'Dependabot Auto-Merge'
 #   action runs with the credentials of our workflows, so a person merges it);
 # - it is a patch or minor update of every dependency it touches (security
 #   updates too: their type is derived from the lockfile);
+# - it belongs to the Dependabot group `tooling` of dependabot.yml: packages
+#   that end up in what we ship and the bundler (tsdown) arrive ungrouped, one
+#   pull request each, and a person merges them after looking at what changed
+#   in the package. A security update has no group, so the script tests its
+#   package against the same list of names (TOOLING_PATTERNS): a tooling
+#   package is armed like any other, anything else is for a person;
 # - no dependency it touches has a name that stays manual: the whole word
 #   eslint, prettier or typescript in the scope or in the name (Prettier
 #   minors reformat code, the TypeScript and ESLint majors need coordinated
 #   config work; the plugins and configs of ESLint and Prettier are meant by
 #   it, which is what a plain substring test used to do by accident);
 # - every package version that the lockfile adds or changes, direct or
-#   transitive, was published at least 7 days ago. The
-#   cooldown of dependabot.yml only covers what Dependabot proposes; a bump
-#   also moves transitive packages to whatever is newest. A registry that
-#   cannot be read means "not armed".
+#   transitive, was published at least 7 days ago. The cooldown of
+#   dependabot.yml only covers what Dependabot proposes; a bump also moves
+#   transitive packages to whatever is newest. A registry that cannot be read
+#   means "not armed".
 # A pull request that fails only the age test is looked at again every day.
 #
 # Not auto-merged, on purpose: GitHub Actions updates, major updates (they can
-# break the API and need a human), the manual names above, and everything that
-# fails a test above. A person may merge any pull request at any time.
+# break the API and need a human), the manual names above, bundled packages
+# (and the bundler), and everything that fails a test above. A person may merge
+# any pull request at any time.
 # Note: Dependabot "rules" in repo settings only triage alerts - they cannot
 # auto-merge PRs. That is why this workflow exists.
 #
