@@ -6,6 +6,8 @@ name: 'Dependabot Auto-Merge'
 # branch-protection ruleset is satisfied - this workflow only arms the merge.
 # The decision is made by scripts/dependabot-auto-merge.mjs (unit tests:
 # test/unit/DependabotAutoMerge.test.js); in short, a pull request is armed when
+# - it is an npm pull request (a GitHub Actions update is never armed: an
+#   action runs with the credentials of our workflows, so a person merges it);
 # - it is a patch or minor update of every dependency it touches (security
 #   updates too: their type is derived from the lockfile);
 # - no dependency it touches has a name that stays manual: the whole word
@@ -13,15 +15,16 @@ name: 'Dependabot Auto-Merge'
 #   minors reformat code, the TypeScript and ESLint majors need coordinated
 #   config work; the plugins and configs of ESLint and Prettier are meant by
 #   it, which is what a plain substring test used to do by accident);
-# - for an npm pull request, every package version that the lockfile adds or
-#   changes, direct or transitive, was published at least 7 days ago. The
+# - every package version that the lockfile adds or changes, direct or
+#   transitive, was published at least 7 days ago. The
 #   cooldown of dependabot.yml only covers what Dependabot proposes; a bump
 #   also moves transitive packages to whatever is newest. A registry that
 #   cannot be read means "not armed".
 # A pull request that fails only the age test is looked at again every day.
 #
-# Not auto-merged, on purpose: major updates (they can break the API and need
-# a human), the manual names above, and everything that fails a test above.
+# Not auto-merged, on purpose: GitHub Actions updates, major updates (they can
+# break the API and need a human), the manual names above, and everything that
+# fails a test above. A person may merge any pull request at any time.
 # Note: Dependabot "rules" in repo settings only triage alerts - they cannot
 # auto-merge PRs. That is why this workflow exists.
 #

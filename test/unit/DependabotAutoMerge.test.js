@@ -377,14 +377,32 @@ describe('decide', () => {
     ]);
   });
 
-  it('does not look at a lockfile for a GitHub Actions update', () => {
+  it('never arms a GitHub Actions update, however small and old', () => {
     const v = decide({
       updates: [patch('actions/checkout')],
       ecosystem: 'github_actions',
       now: NOW,
       times: {},
     });
-    expect(v).toEqual({ armed: true, reasons: [] });
+    expect(v).toEqual({
+      armed: false,
+      reasons: ['GitHub Actions updates are never armed: a person merges them'],
+    });
+  });
+
+  it('never arms an ecosystem it does not know, a branch that is not a Dependabot branch included', () => {
+    for (const ecosystem of ['unknown', 'docker', 'pip', undefined]) {
+      const v = decide({ ...ok, ecosystem });
+      expect(v.armed).toBe(false);
+      expect(v.reasons).toEqual([
+        `the ecosystem ${ecosystem} is never armed: a person merges it`,
+      ]);
+    }
+  });
+
+  it('accepts both spellings of the npm ecosystem', () => {
+    expect(decide({ ...ok, ecosystem: 'npm' }).armed).toBe(true);
+    expect(decide({ ...ok, ecosystem: 'npm_and_yarn' }).armed).toBe(true);
   });
 
   it('can be limited to one group', () => {
@@ -604,6 +622,32 @@ Signed-off-by: dependabot[bot] <support@github.com>`;
     expect(young.reasons).toEqual([
       'axios@1.21.1 was published 2.0 days ago, less than 7',
     ]);
+  });
+
+  it('never arms a GitHub Actions pull request and does not read a lockfile for it', async () => {
+    const { gh, calls } = makeGh({
+      pr: {
+        head: {
+          ref: 'dependabot/github_actions/actions/checkout-8',
+          sha: 'headsha',
+        },
+      },
+      message: AXIOS_MESSAGE,
+    });
+    const v = await evaluate({
+      repo: 'o/r',
+      number: 5,
+      gh,
+      fetchJson: registry({ axios: 10, glob: 9 }),
+      now: NOW,
+    });
+    expect(v).toMatchObject({ armed: false, checked: 0 });
+    expect(v.reasons).toEqual([
+      'GitHub Actions updates are never armed: a person merges them',
+    ]);
+    expect(
+      calls.some((c) => c.some((a) => String(a).includes('package-lock')))
+    ).toBe(false);
   });
 
   it('refuses a security update that is a major bump of the lockfile', async () => {

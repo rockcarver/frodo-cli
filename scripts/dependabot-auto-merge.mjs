@@ -11,9 +11,11 @@
 //
 // A pull request is armed only if ALL of this holds, and anything doubtful means it is NOT armed:
 //   - Dependabot opened it and it is open;
+//   - it is an npm pull request: GitHub Actions updates (and any other ecosystem) are never armed, a person merges
+//     them, because an action runs with the credentials of our workflows;
 //   - every updated dependency is a patch or minor update (`updated-dependencies` block of the head commit message);
 //   - no updated dependency has a name that stays manual (eslint, prettier, typescript and what belongs to them);
-//   - for an npm pull request: every package version that the lockfile adds or changes, direct or transitive, was
+//   - every package version that the lockfile adds or changes, direct or transitive, was
 //     published at least MIN_AGE_DAYS days ago (the cooldown of dependabot.yml only covers what Dependabot proposes);
 //     a registry that cannot be read, or a missing publish time, is a refusal;
 //   - when REQUIRED_GROUP is set: the pull request belongs to that Dependabot group.
@@ -216,7 +218,15 @@ export function decide({
       );
     }
   }
-  if (ecosystem === 'npm_and_yarn' || ecosystem === 'npm') {
+  if (ecosystem === 'github_actions') {
+    reasons.push(
+      'GitHub Actions updates are never armed: a person merges them'
+    );
+  } else if (ecosystem !== 'npm_and_yarn' && ecosystem !== 'npm') {
+    reasons.push(
+      `the ecosystem ${ecosystem} is never armed: a person merges it`
+    );
+  } else {
     if (!changed) {
       reasons.push('the lockfile difference could not be read');
     } else if (changed.length === 0) {

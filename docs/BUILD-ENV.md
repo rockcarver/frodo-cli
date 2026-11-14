@@ -375,12 +375,13 @@ tenant smoke test included, after an update pull request that skipped it.
 - `dependabot-auto-merge.yml`: runs `scripts/dependabot-auto-merge.mjs` (tests:
   `test/unit/DependabotAutoMerge.test.js`), which arms
   `gh pr merge --auto --squash` on a Dependabot pull request once the checks
-  pass and the policy of core 0023 allows it: a patch or minor update of every
-  dependency it touches (a security update has no type in its metadata, the
-  script derives it from the lockfile), no name that stays manual (the whole
-  word eslint, prettier or typescript in the scope or the name), and, for an npm
-  pull request, every package version that the lockfile adds or changes, direct
-  or transitive, published at least 7 days ago. The cooldown only covers what
+  pass and the policy of core 0023 allows it: an npm pull request (a GitHub
+  Actions update is never armed, a person merges it), a patch or minor update of
+  every dependency it touches (a security update has no type in its metadata,
+  the script derives it from the lockfile), no name that stays manual (the whole
+  word eslint, prettier or typescript in the scope or the name), and every
+  package version that the lockfile adds or changes, direct or transitive,
+  published at least 7 days ago. The cooldown only covers what
   Dependabot proposes, a bump also moves transitive packages to the newest
   version. A pull request that fails the age test is looked at again by the
   daily run (`schedule`, or `workflow_dispatch` by hand); a registry that cannot
@@ -388,7 +389,8 @@ tenant smoke test included, after an update pull request that skipped it.
   `node scripts/dependabot-auto-merge.mjs --pr <number> --dry-run` (needs
   `gh`; `--ignore-state` also reads a merged one, `--now <iso>` sets the day).
   The script is read from the default branch, so a pull request cannot change
-  the rule that decides about itself. Majors and the manual names stay manual.
+  the rule that decides about itself. GitHub Actions updates, majors and the
+  manual names stay manual; a person may merge any pull request at any time.
   NOTE: Dependabot "rules" in repo settings only triage alerts — they cannot
   merge PRs; the workflow is the mechanism.
 - Known GitHub quirk (hit 3× on 2026-10-03): the mergeability service lags
