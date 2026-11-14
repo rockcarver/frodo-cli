@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-27] - 2026-11-14
+
+### Added
+- Introduced `frodo config-manager delete telemetry` command, allowing deletion of telemetry configurations with options for category (`-c`), specific exporter (`-n`), dry run (`-d`), and confirmation bypass (`-y`). (#1314)
+- Enhanced `frodo app template list` to display the newest version of each template by default and provide detailed information with `--long` and `--all-versions` options. The `describe` command now offers more comprehensive details about templates. (#1313)
+
+### Fixed
+- Resolved issues in `frodo app template` commands where list row text was unsafe to print, an empty `-v` option caused errors, and `-n` failed to find templates without a display name. (#1313)
+
 ## [v5.0.0-26] - 2026-11-13
 
 ### Added
@@ -3273,6 +3282,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-27]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-26...v5.0.0-27
 [v5.0.0-26]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-25...v5.0.0-26
 [v5.0.0-25]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-24...v5.0.0-25
 [v5.0.0-24]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-23...v5.0.0-24
