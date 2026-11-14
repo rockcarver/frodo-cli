@@ -30,7 +30,3 @@ repos:
 - Version bumps of bundled packages need a person, about weekly; the review is the package's changed files and manifest, not the whole upstream history.
 - Tooling updates still merge unattended, once they are a week old and green.
 - The tooling list in `dependabot.yml` is maintained by hand and checked by a test; a new tooling package is merged by a person until it is added.
-
-## Known deviations
-
-Until the pull request that splits the sets is merged, bundled packages still arrive grouped with tooling and auto-merge once they pass the age test.

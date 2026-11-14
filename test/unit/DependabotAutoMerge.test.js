@@ -10,6 +10,7 @@ import {
   parseUpdatedDependencies,
   publishTimeOf,
   registryUrl,
+  REQUIRED_GROUP,
   semverBump,
 } from '../../scripts/dependabot-auto-merge.mjs';
 
@@ -78,6 +79,7 @@ updated-dependencies:
   dependency-version: 1.21.1
   dependency-type: direct:development
   update-type: version-update:semver-patch
+  dependency-group: tooling
 ...
 
 Signed-off-by: dependabot[bot] <support@github.com>`;
@@ -284,10 +286,7 @@ describe('the update type that a security update lacks', () => {
 
 describe('decide', () => {
   const ok = {
-    updates: [
-      patch('axios', 'dev-minor-patch'),
-      patch('rimraf', 'dev-minor-patch'),
-    ],
+    updates: [patch('axios', 'tooling'), patch('rimraf', 'tooling')],
     ecosystem: 'npm_and_yarn',
     changed: [
       { path: 'node_modules/axios', name: 'axios', version: '1.21.1' },
@@ -360,7 +359,10 @@ describe('decide', () => {
     expect(unknown.reasons[0]).toContain('unknown');
     const manual = decide({
       ...ok,
-      updates: [patch('axios'), patch('eslint-plugin-import-x')],
+      updates: [
+        patch('axios', 'tooling'),
+        patch('eslint-plugin-import-x', 'tooling'),
+      ],
     });
     expect(manual.reasons).toEqual([
       'eslint-plugin-import-x stays manual (eslint, prettier or typescript)',
@@ -377,24 +379,35 @@ describe('decide', () => {
     ]);
   });
 
-  it('does not look at a lockfile for a GitHub Actions update', () => {
-    const v = decide({
-      updates: [patch('actions/checkout')],
+  it('does not look at a lockfile for a GitHub Actions update, which is not in the group either', () => {
+    const input = {
+      updates: [patch('actions/checkout', undefined)],
       ecosystem: 'github_actions',
       now: NOW,
       times: {},
+    };
+    expect(decide({ ...input, requiredGroup: null })).toEqual({
+      armed: true,
+      reasons: [],
     });
-    expect(v).toEqual({ armed: true, reasons: [] });
+    expect(decide(input).reasons).toEqual([
+      'actions/checkout is not in the group tooling (no group)',
+    ]);
   });
 
-  it('can be limited to one group', () => {
-    expect(decide({ ...ok, requiredGroup: 'tooling' }).armed).toBe(false);
-    const grouped = {
-      ...ok,
-      updates: [patch('axios', 'tooling'), patch('rimraf', 'tooling')],
-      requiredGroup: 'tooling',
-    };
-    expect(decide(grouped).armed).toBe(true);
+  it('is limited to the tooling group by default, and a pull request of another group is refused', () => {
+    expect(REQUIRED_GROUP).toBe('tooling');
+    const other = { ...ok, updates: [patch('axios', 'dev-minor-patch')] };
+    expect(decide(other).reasons).toEqual([
+      'axios is not in the group tooling (dev-minor-patch)',
+    ]);
+    expect(decide({ ...other, requiredGroup: null }).armed).toBe(true);
+    expect(decide({ ...other, requiredGroup: 'dev-minor-patch' }).armed).toBe(
+      true
+    );
+    expect(decide({ ...ok, updates: [patch('axios', undefined)] }).armed).toBe(
+      false
+    );
   });
 });
 
@@ -556,9 +569,12 @@ describe('evaluate: a pull request, with the repository and the registry replace
       now: NOW,
     });
     expect(v.armed).toBe(false);
-    expect(v.reasons).toEqual([
-      'eslint-plugin-import-x stays manual (eslint, prettier or typescript)',
-    ]);
+    expect(v.reasons).toContain(
+      'eslint-plugin-import-x stays manual (eslint, prettier or typescript)'
+    );
+    expect(v.reasons).toContain(
+      'axios is not in the group tooling (dev-minor-patch)'
+    );
     const armed = makeGh({
       message: AXIOS_MESSAGE,
       pr: { auto_merge: { merge_method: 'squash' } },
@@ -573,7 +589,7 @@ describe('evaluate: a pull request, with the repository and the registry replace
     expect(w).toMatchObject({ armed: true, alreadyArmed: true });
   });
 
-  it('derives the update type of a security update from the lockfile, and refuses a young version', async () => {
+  it('derives the update type of a security update from the lockfile; with no group it is for a person, and a young version is named too', async () => {
     const security = `Bumps [axios](https://github.com/axios/axios) from 1.21.0 to 1.21.1.
 
 ---
@@ -585,20 +601,24 @@ updated-dependencies:
 
 Signed-off-by: dependabot[bot] <support@github.com>`;
     const { gh } = makeGh({ message: security });
+    const opts = { repo: 'o/r', number: 5, gh, now: NOW };
     const old = await evaluate({
-      repo: 'o/r',
-      number: 5,
-      gh,
+      ...opts,
       fetchJson: registry({ axios: 10, glob: 9 }),
-      now: NOW,
+      requiredGroup: null,
     });
     expect(old).toMatchObject({ armed: true, reasons: [] });
+    const grouped = await evaluate({
+      ...opts,
+      fetchJson: registry({ axios: 10, glob: 9 }),
+    });
+    expect(grouped.reasons).toEqual([
+      'axios is not in the group tooling (no group)',
+    ]);
     const young = await evaluate({
-      repo: 'o/r',
-      number: 5,
-      gh,
+      ...opts,
       fetchJson: registry({ axios: 2, glob: 9 }),
-      now: NOW,
+      requiredGroup: null,
     });
     expect(young.armed).toBe(false);
     expect(young.reasons).toEqual([

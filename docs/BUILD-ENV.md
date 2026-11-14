@@ -28,8 +28,8 @@ TypeScript sources (src/)
   └─ eslint + prettier .... lint & format (currently ESLint 8/9 configs; a planned migration will move to ESLint 10 with Prettier owning import order)
 
 Release automation:
-  ├─ dependabot.yml ....... weekly grouped dependency PRs
-  ├─ dependabot-auto-merge.yml  arms auto-merge on green patch/minor PRs whose versions are 7 days old
+  ├─ dependabot.yml ....... weekly dependency PRs: tooling grouped, bundled packages one PR each
+  ├─ dependabot-auto-merge.yml  arms auto-merge on green tooling PRs (patch/minor) whose versions are 7 days old
   ├─ ruleset "main-branch-protection"  Build + Test gate + linux-x64-binary-release required
   └─ pipeline.yml ......... version bump -> build -> test -> 5 binaries -> npm publish -> GitHub release -> Homebrew
 ```
@@ -362,12 +362,18 @@ tenant smoke test included, after an update pull request that skipped it.
 
 ## 9. Dependency automation
 
-- `dependabot.yml` (both repos): weekly npm + github-actions updates; one
-  grouped PR for dev minor/patch; prettier/typescript/eslint excluded
-  (Prettier minors reformat; TS/ESLint majors need coordinated work); TS
-  majors ignored outright. The exact `@rockcarver/frodo-lib` pin updates
-  flow through the same group. `github/gh-aw-actions/setup` is ignored: it is
-  pinned inside the Issue Concierge's generated `*.lock.yml` files, which a
+- `dependabot.yml` (both repos): weekly npm + github-actions updates. Bundled
+  packages (every package that shipped source imports, and the exact
+  `@rockcarver/frodo-lib` pin) are not grouped: each update is its own pull
+  request, which a person merges after looking at what changed in the package.
+  Tooling is the named list in the `tooling` group: one grouped PR for minor and
+  patch updates, and the only thing that auto-merges. A package in neither list
+  arrives on its own too, so a person merges it until it is added;
+  `test/unit/DependabotPolicy.test.js` fails when the list would match a bundled
+  package, or a pattern matches nothing. prettier/typescript/eslint and their
+  plugins stay individual (Prettier minors reformat; TS/ESLint majors need
+  coordinated work); TS majors are ignored outright.
+  `github/gh-aw-actions/setup` is ignored: it is pinned inside the Issue Concierge's generated `*.lock.yml` files, which a
   Concierge release moves by recompiling them. A `cooldown` of 7 days holds a
   version update back until its release is a week old; security updates are not
   delayed, and our own pin `@rockcarver/frodo-lib` and our own actions
@@ -375,11 +381,13 @@ tenant smoke test included, after an update pull request that skipped it.
 - `dependabot-auto-merge.yml`: runs `scripts/dependabot-auto-merge.mjs` (tests:
   `test/unit/DependabotAutoMerge.test.js`), which arms
   `gh pr merge --auto --squash` on a Dependabot pull request once the checks
-  pass and the policy of core 0023 allows it: a patch or minor update of every
-  dependency it touches (a security update has no type in its metadata, the
-  script derives it from the lockfile), no name that stays manual (the whole
-  word eslint, prettier or typescript in the scope or the name), and, for an npm
-  pull request, every package version that the lockfile adds or changes, direct
+  pass and the policy of core 0023 allows it: a pull request of the `tooling`
+  group (a bundled package, a GitHub Actions update and a security update are
+  merged by a person), a patch or minor update of every dependency it touches (a
+  security update has no type in its metadata, the script derives it from the
+  lockfile), no name that stays manual (the whole word eslint, prettier or
+  typescript in the scope or the name), and, for an npm pull request, every
+  package version that the lockfile adds or changes, direct
   or transitive, published at least 7 days ago. The cooldown only covers what
   Dependabot proposes, a bump also moves transitive packages to the newest
   version. A pull request that fails the age test is looked at again by the

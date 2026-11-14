@@ -8,6 +8,10 @@ name: 'Dependabot Auto-Merge'
 # test/unit/DependabotAutoMerge.test.js); in short, a pull request is armed when
 # - it is a patch or minor update of every dependency it touches (security
 #   updates too: their type is derived from the lockfile);
+# - it belongs to the Dependabot group `tooling` of dependabot.yml: packages
+#   that end up in what we ship arrive ungrouped, one pull request each, and a
+#   person merges them after looking at what changed in the package; so does a
+#   GitHub Actions update and a security update (they are not in the group);
 # - no dependency it touches has a name that stays manual: the whole word
 #   eslint, prettier or typescript in the scope or in the name (Prettier
 #   minors reformat code, the TypeScript and ESLint majors need coordinated
@@ -21,7 +25,8 @@ name: 'Dependabot Auto-Merge'
 # A pull request that fails only the age test is looked at again every day.
 #
 # Not auto-merged, on purpose: major updates (they can break the API and need
-# a human), the manual names above, and everything that fails a test above.
+# a human), the manual names above, bundled packages, and everything that
+# fails a test above.
 # Note: Dependabot "rules" in repo settings only triage alerts - they cannot
 # auto-merge PRs. That is why this workflow exists.
 #

@@ -16,7 +16,8 @@
 //   - for an npm pull request: every package version that the lockfile adds or changes, direct or transitive, was
 //     published at least MIN_AGE_DAYS days ago (the cooldown of dependabot.yml only covers what Dependabot proposes);
 //     a registry that cannot be read, or a missing publish time, is a refusal;
-//   - when REQUIRED_GROUP is set: the pull request belongs to that Dependabot group.
+//   - the pull request belongs to the Dependabot group REQUIRED_GROUP (`tooling`): bundled packages arrive ungrouped,
+//     one pull request each, and are merged by a person.
 // A pull request that fails only the age test is looked at again by the daily run.
 //
 // This file is NOT in .github/scripts/: that folder is managed by the Issue Concierge updater.
@@ -25,8 +26,11 @@ import { fileURLToPath } from 'node:url';
 
 export const MIN_AGE_DAYS = 7;
 
-/** The Dependabot group that auto-merge is limited to; null while every group may arm. */
-export const REQUIRED_GROUP = null;
+/**
+ * The Dependabot group that auto-merge is limited to (`groups.tooling` in dependabot.yml). A pull request outside it,
+ * a single update of a bundled package and a GitHub Actions update included, is merged by a person (core 0023).
+ */
+export const REQUIRED_GROUP = 'tooling';
 
 /** Names that stay manual: the whole word eslint, prettier or typescript in the scope or in the name. */
 export const MANUAL_WORDS = ['eslint', 'prettier', 'typescript'];
@@ -285,6 +289,7 @@ async function fetchJsonDefault(url) {
  * @param {number} [io.minAgeDays] minimum age
  * @param {Map<string, any>} [io.cache] registry documents already read
  * @param {boolean} [io.ignoreState] evaluate a closed or merged pull request too (a dry run for analysis)
+ * @param {string | null} [io.requiredGroup] the group that may arm, null for any
  * @returns {Promise<{number: number, armed: boolean, reasons: string[], alreadyArmed: boolean, checked: number}>} verdict
  */
 export async function evaluate({
@@ -296,6 +301,7 @@ export async function evaluate({
   minAgeDays = MIN_AGE_DAYS,
   cache = new Map(),
   ignoreState = false,
+  requiredGroup = REQUIRED_GROUP,
 }) {
   const pr = JSON.parse(gh(['api', `repos/${repo}/pulls/${number}`]));
   const result = (armed, reasons, checked = 0) => ({
@@ -370,6 +376,7 @@ export async function evaluate({
     errors,
     now,
     minAgeDays,
+    requiredGroup,
   });
   return result(verdict.armed, verdict.reasons, changed?.length ?? 0);
 }
