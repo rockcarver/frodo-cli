@@ -2,11 +2,14 @@
 # Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 #
 # - Packages that end up in what we ship (every package that shipped source
-#   imports, and the pin of @rockcarver/frodo-lib) are NOT grouped: each update
-#   arrives as its own pull request, which a person merges after looking at
-#   what changed in the package (core 0023). Tooling (the named list in the
-#   `tooling` group below: test, build and type packages) is one grouped weekly
-#   PR for minor/patch updates, and the only thing that auto-merges. A package
+#   imports, and the pin of @rockcarver/frodo-lib) and the bundler that writes
+#   the shipped file (tsdown) are NOT grouped: each update arrives as its own
+#   pull request, which a person merges after looking at what changed in the
+#   package (core 0023). Tooling (the named list in the `tooling` group below:
+#   test and type packages) is one grouped weekly PR for minor/patch updates,
+#   and the only thing that auto-merges (a security update of a tooling package
+#   too, once it passes the age test: scripts/dependabot-auto-merge.mjs keeps
+#   the same list, because a security update carries no group). A package
 #   that is in neither list arrives on its own as well, so a person merges it
 #   until it is added: test/unit/DependabotPolicy.test.js keeps the list honest.
 #   Prettier, TypeScript and ESLint with their plugins and configs stay
@@ -53,7 +56,6 @@ updates:
           - "slugify"
           - "tmp"
           - "ts-jest"
-          - "tsdown"
         update-types:
           - "minor"
           - "patch"

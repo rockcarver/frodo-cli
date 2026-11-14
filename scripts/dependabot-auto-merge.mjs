@@ -11,13 +11,16 @@
 //
 // A pull request is armed only if ALL of this holds, and anything doubtful means it is NOT armed:
 //   - Dependabot opened it and it is open;
+//   - it is an npm pull request: GitHub Actions updates (and any other ecosystem) are never armed, a person merges
+//     them, because an action runs with the credentials of our workflows;
 //   - every updated dependency is a patch or minor update (`updated-dependencies` block of the head commit message);
 //   - no updated dependency has a name that stays manual (eslint, prettier, typescript and what belongs to them);
-//   - for an npm pull request: every package version that the lockfile adds or changes, direct or transitive, was
+//   - every package version that the lockfile adds or changes, direct or transitive, was
 //     published at least MIN_AGE_DAYS days ago (the cooldown of dependabot.yml only covers what Dependabot proposes);
 //     a registry that cannot be read, or a missing publish time, is a refusal;
-//   - the pull request belongs to the Dependabot group REQUIRED_GROUP (`tooling`): bundled packages arrive ungrouped,
-//     one pull request each, and are merged by a person.
+//   - the pull request belongs to the Dependabot group REQUIRED_GROUP (`tooling`): bundled packages and the bundler
+//     arrive ungrouped, one pull request each, and are merged by a person. A security update has no group, so its
+//     package must be named in TOOLING_PATTERNS instead (and then it still has to pass the age test above).
 // A pull request that fails only the age test is looked at again by the daily run.
 //
 // This file is NOT in .github/scripts/: that folder is managed by the Issue Concierge updater.
@@ -31,6 +34,43 @@ export const MIN_AGE_DAYS = 7;
  * a single update of a bundled package and a GitHub Actions update included, is merged by a person (core 0023).
  */
 export const REQUIRED_GROUP = 'tooling';
+
+/**
+ * The package patterns of that group (`groups.tooling.patterns` in dependabot.yml, `*` is any run of characters).
+ * Dependabot gives a security update no group, so the group cannot tell whether its package is tooling; this list
+ * does. test/unit/DependabotPolicy.test.js keeps it equal to dependabot.yml. `tsdown` is not on it: the bundler that
+ * writes the shipped file is treated like a bundled package (core 0023).
+ */
+export const TOOLING_PATTERNS = [
+  '@modelcontextprotocol/client',
+  '@types/*',
+  'cli-progress',
+  'fs-extra',
+  'jest',
+  'loglevel',
+  'map-stream',
+  'replaceall',
+  'rimraf',
+  'slugify',
+  'tmp',
+  'ts-jest',
+];
+
+/**
+ * Whether a package name matches a pattern of the tooling group.
+ * @param {string} name package name, with its scope if it has one
+ * @param {string[]} [patterns] the patterns, `*` matching any run of characters
+ * @returns {boolean} true if the name is tooling
+ */
+export function isToolingName(name, patterns = TOOLING_PATTERNS) {
+  return patterns.some((pattern) => {
+    const source = pattern
+      .split('*')
+      .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&'))
+      .join('.*');
+    return new RegExp(`^${source}$`).test(String(name));
+  });
+}
 
 /** Names that stay manual: the whole word eslint, prettier or typescript in the scope or in the name. */
 export const MANUAL_WORDS = ['eslint', 'prettier', 'typescript'];
@@ -176,6 +216,20 @@ export function publishTimeOf(packument, version) {
 }
 
 /**
+ * Whether an update belongs to the group that may arm. A version update names its group; a security update has none,
+ * so it belongs when its package is on the list of the group.
+ * @param {{name: string, group?: string}} update the `updated-dependencies` entry
+ * @param {string} group the required group
+ * @param {string[]} patterns the package patterns of that group
+ * @returns {boolean} true if it belongs to the group
+ */
+function belongsToGroup(update, group, patterns) {
+  return update.group === undefined
+    ? isToolingName(update.name, patterns)
+    : update.group === group;
+}
+
+/**
  * The decision for one pull request. Pure: everything it needs is passed in.
  * @param {object} input what is known about the pull request
  * @param {{name: string, updateType?: string, group?: string}[]} input.updates the `updated-dependencies` entries
@@ -186,6 +240,7 @@ export function publishTimeOf(packument, version) {
  * @param {number} input.now the clock, milliseconds
  * @param {number} [input.minAgeDays] the age every added version must have
  * @param {string | null} [input.requiredGroup] the group that may arm, null for any
+ * @param {string[]} [input.toolingPatterns] the package patterns of that group, for an update that has no group
  * @returns {{armed: boolean, reasons: string[]}} the verdict; `armed` only with no reason
  */
 export function decide({
@@ -197,6 +252,7 @@ export function decide({
   now,
   minAgeDays = MIN_AGE_DAYS,
   requiredGroup = REQUIRED_GROUP,
+  toolingPatterns = TOOLING_PATTERNS,
 }) {
   const reasons = [];
   if (!updates || updates.length === 0) {
@@ -214,13 +270,21 @@ export function decide({
     if (isManualName(u.name)) {
       reasons.push(`${u.name} stays manual (eslint, prettier or typescript)`);
     }
-    if (requiredGroup && u.group !== requiredGroup) {
+    if (requiredGroup && !belongsToGroup(u, requiredGroup, toolingPatterns)) {
       reasons.push(
         `${u.name} is not in the group ${requiredGroup} (${u.group ?? 'no group'})`
       );
     }
   }
-  if (ecosystem === 'npm_and_yarn' || ecosystem === 'npm') {
+  if (ecosystem === 'github_actions') {
+    reasons.push(
+      'GitHub Actions updates are never armed: a person merges them'
+    );
+  } else if (ecosystem !== 'npm_and_yarn' && ecosystem !== 'npm') {
+    reasons.push(
+      `the ecosystem ${ecosystem} is never armed: a person merges it`
+    );
+  } else {
     if (!changed) {
       reasons.push('the lockfile difference could not be read');
     } else if (changed.length === 0) {

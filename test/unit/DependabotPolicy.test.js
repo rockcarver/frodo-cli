@@ -4,8 +4,10 @@ import { fileURLToPath } from 'url';
 import { describe, expect, it } from '@jest/globals';
 import {
   isManualName,
+  isToolingName,
   MIN_AGE_DAYS,
   REQUIRED_GROUP,
+  TOOLING_PATTERNS,
 } from '../../scripts/dependabot-auto-merge.mjs';
 
 /**
@@ -25,6 +27,8 @@ const ROOT = path.resolve(
 );
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const PIN = '@rockcarver/frodo-lib';
+/** The bundler that writes the shipped file: it is treated like a bundled package (core 0023). */
+const BUNDLER = 'tsdown';
 
 /** A Dependabot pattern: `*` matches any run of characters. */
 export function matchesPattern(name, pattern) {
@@ -188,6 +192,24 @@ describe('core 0023: only tooling merges without a person', () => {
     );
     expect(matched.filter((name) => isManualName(name))).toEqual([]);
     expect(matched).not.toContain(PIN);
+  });
+
+  it('the bundler is not tooling: no pattern matches it, so each update of it is a pull request for a person', () => {
+    expect(devDependencies).toContain(BUNDLER);
+    expect(
+      tooling.filter((pattern) => matchesPattern(BUNDLER, pattern))
+    ).toEqual([]);
+    expect(isToolingName(BUNDLER)).toBe(false);
+  });
+
+  it('the script knows the same tooling list as dependabot.yml, because a security update has no group', () => {
+    expect([...TOOLING_PATTERNS].sort()).toEqual([...tooling].sort());
+    for (const name of [...devDependencies, ...bundled]) {
+      expect([name, isToolingName(name)]).toEqual([
+        name,
+        tooling.some((pattern) => matchesPattern(name, pattern)),
+      ]);
+    }
   });
 
   it('the cooldown is the age that the auto-merge asks for, and excludes only what is ours', () => {

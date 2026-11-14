@@ -6,12 +6,14 @@ import {
   ecosystemOfBranch,
   evaluate,
   isManualName,
+  isToolingName,
   packageNameOfLockPath,
   parseUpdatedDependencies,
   publishTimeOf,
   registryUrl,
   REQUIRED_GROUP,
   semverBump,
+  TOOLING_PATTERNS,
 } from '../../scripts/dependabot-auto-merge.mjs';
 
 /**
@@ -125,6 +127,52 @@ describe('isManualName: the names that stay manual', () => {
     '@rockcarver/frodo-lib',
   ])('%s does not', (name) => {
     expect(isManualName(name)).toBe(false);
+  });
+});
+
+describe('isToolingName: the packages of the tooling group, for an update that has no group', () => {
+  it.each([
+    '@types/node',
+    '@types/fs-extra',
+    '@modelcontextprotocol/client',
+    'jest',
+    'ts-jest',
+    'rimraf',
+    'tmp',
+  ])('%s is tooling', (name) => {
+    expect(isToolingName(name)).toBe(true);
+  });
+
+  it.each([
+    'tsdown',
+    'axios',
+    'commander',
+    '@modelcontextprotocol/server',
+    '@rockcarver/frodo-lib',
+    'jest-extended',
+    'rimraf-x',
+    'not-tmp',
+    'typescript',
+    '@types',
+  ])(
+    '%s is not tooling (the bundler, bundled packages and look-alikes)',
+    (name) => {
+      expect(isToolingName(name)).toBe(false);
+    }
+  );
+
+  it('takes a list of patterns, `*` being any run of characters, and escapes the rest', () => {
+    expect(isToolingName('a.b', ['a.b'])).toBe(true);
+    expect(isToolingName('axb', ['a.b'])).toBe(false);
+    expect(isToolingName('@x/y', ['@x/*'])).toBe(true);
+    expect(isToolingName('x', [])).toBe(false);
+  });
+
+  it('does not name the bundler', () => {
+    expect(TOOLING_PATTERNS).not.toContain('tsdown');
+    expect(TOOLING_PATTERNS.some((p) => isToolingName('tsdown', [p]))).toBe(
+      false
+    );
   });
 });
 
@@ -379,7 +427,7 @@ describe('decide', () => {
     ]);
   });
 
-  it('does not look at a lockfile for a GitHub Actions update, which is not in the group either', () => {
+  it('never arms a GitHub Actions update, however small and old, group or no group', () => {
     const input = {
       updates: [patch('actions/checkout', undefined)],
       ecosystem: 'github_actions',
@@ -387,12 +435,28 @@ describe('decide', () => {
       times: {},
     };
     expect(decide({ ...input, requiredGroup: null })).toEqual({
-      armed: true,
-      reasons: [],
+      armed: false,
+      reasons: ['GitHub Actions updates are never armed: a person merges them'],
     });
     expect(decide(input).reasons).toEqual([
       'actions/checkout is not in the group tooling (no group)',
+      'GitHub Actions updates are never armed: a person merges them',
     ]);
+  });
+
+  it('never arms an ecosystem it does not know, a branch that is not a Dependabot branch included', () => {
+    for (const ecosystem of ['unknown', 'docker', 'pip', undefined]) {
+      const v = decide({ ...ok, ecosystem });
+      expect(v.armed).toBe(false);
+      expect(v.reasons).toEqual([
+        `the ecosystem ${ecosystem} is never armed: a person merges it`,
+      ]);
+    }
+  });
+
+  it('accepts both spellings of the npm ecosystem', () => {
+    expect(decide({ ...ok, ecosystem: 'npm' }).armed).toBe(true);
+    expect(decide({ ...ok, ecosystem: 'npm_and_yarn' }).armed).toBe(true);
   });
 
   it('is limited to the tooling group by default, and a pull request of another group is refused', () => {
@@ -408,6 +472,65 @@ describe('decide', () => {
     expect(decide({ ...ok, updates: [patch('axios', undefined)] }).armed).toBe(
       false
     );
+  });
+});
+
+describe('decide: a security update has no group, so the package decides', () => {
+  const security = (name) => ({
+    name,
+    updateType: 'version-update:semver-patch',
+  });
+  const base = (name, version, times = {}) => ({
+    updates: [security(name)],
+    ecosystem: 'npm_and_yarn',
+    changed: [{ path: `node_modules/${name}`, name, version }],
+    times: { [`${name}@${version}`]: ago(9), ...times },
+    now: NOW,
+  });
+
+  it('arms the security update of a tooling package that passes the age test', () => {
+    expect(decide(base('rimraf', '6.1.3'))).toEqual({
+      armed: true,
+      reasons: [],
+    });
+    expect(decide(base('@types/node', '26.0.1')).armed).toBe(true);
+  });
+
+  it('holds it for a person while its version is young, as any other update', () => {
+    const young = decide(base('rimraf', '6.1.3', { 'rimraf@6.1.3': ago(1.5) }));
+    expect(young.armed).toBe(false);
+    expect(young.reasons).toEqual([
+      'rimraf@6.1.3 was published 1.5 days ago, less than 7',
+    ]);
+  });
+
+  it('leaves the security update of a bundled package, the bundler and a name that stays manual to a person', () => {
+    expect(decide(base('axios', '1.21.1')).reasons).toEqual([
+      'axios is not in the group tooling (no group)',
+    ]);
+    expect(decide(base('tsdown', '0.24.0')).reasons).toEqual([
+      'tsdown is not in the group tooling (no group)',
+    ]);
+    expect(decide(base('eslint', '10.1.1')).reasons).toEqual([
+      'eslint stays manual (eslint, prettier or typescript)',
+      'eslint is not in the group tooling (no group)',
+    ]);
+  });
+
+  it('does not let a group name decide for a package that names another group', () => {
+    const other = decide({
+      ...base('rimraf', '6.1.3'),
+      updates: [{ ...security('rimraf'), group: 'dev-minor-patch' }],
+    });
+    expect(other.reasons).toEqual([
+      'rimraf is not in the group tooling (dev-minor-patch)',
+    ]);
+  });
+
+  it('is not limited to a group when none is required', () => {
+    expect(
+      decide({ ...base('axios', '1.21.1'), requiredGroup: null }).armed
+    ).toBe(true);
   });
 });
 
@@ -431,6 +554,7 @@ describe('evaluate: a pull request, with the repository and the registry replace
     pr = {},
     message = GROUP_MESSAGE,
     head = LOCK_HEAD,
+    base = LOCK_BASE,
   } = {}) => {
     const calls = [];
     const gh = (args) => {
@@ -455,7 +579,7 @@ describe('evaluate: a pull request, with the repository and the registry replace
         ]);
       if (path.startsWith('repos/o/r/compare/')) return 'mergebase\n';
       if (path === 'repos/o/r/contents/package-lock.json?ref=mergebase')
-        return LOCK_BASE;
+        return base;
       if (path === 'repos/o/r/contents/package-lock.json?ref=headsha')
         return head;
       throw new Error(`unexpected gh call ${args.join(' ')}`);
@@ -465,7 +589,7 @@ describe('evaluate: a pull request, with the repository and the registry replace
 
   const registry = (days) => async (url) => {
     const name = decodeURIComponent(url.split('registry.npmjs.org/')[1]);
-    const versions = { axios: '1.21.1', glob: '14.0.5' };
+    const versions = { axios: '1.21.1', glob: '14.0.5', rimraf: '6.1.3' };
     return {
       time: {
         [versions[name]]: new Date(NOW - days[name] * DAY).toISOString(),
@@ -624,6 +748,68 @@ Signed-off-by: dependabot[bot] <support@github.com>`;
     expect(young.reasons).toEqual([
       'axios@1.21.1 was published 2.0 days ago, less than 7',
     ]);
+  });
+
+  it('arms the security update of a tooling package once its version is old, and holds a young one', async () => {
+    const security = `Bumps [rimraf](https://github.com/isaacs/rimraf) from 6.1.2 to 6.1.3.
+
+---
+updated-dependencies:
+- dependency-name: rimraf
+  dependency-version: 6.1.3
+  dependency-type: indirect
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>`;
+    const lock = (version) =>
+      JSON.stringify({
+        packages: { '': {}, 'node_modules/rimraf': { version } },
+      });
+    const { gh } = makeGh({
+      message: security,
+      base: lock('6.1.2'),
+      head: lock('6.1.3'),
+    });
+    const opts = { repo: 'o/r', number: 5, gh, now: NOW };
+    const old = await evaluate({
+      ...opts,
+      fetchJson: registry({ rimraf: 10 }),
+    });
+    expect(old).toMatchObject({ armed: true, reasons: [], checked: 1 });
+    const young = await evaluate({
+      ...opts,
+      fetchJson: registry({ rimraf: 2 }),
+    });
+    expect(young.armed).toBe(false);
+    expect(young.reasons).toEqual([
+      'rimraf@6.1.3 was published 2.0 days ago, less than 7',
+    ]);
+  });
+
+  it('never arms a GitHub Actions pull request and does not read a lockfile for it', async () => {
+    const { gh, calls } = makeGh({
+      pr: {
+        head: {
+          ref: 'dependabot/github_actions/actions/checkout-8',
+          sha: 'headsha',
+        },
+      },
+      message: AXIOS_MESSAGE,
+    });
+    const v = await evaluate({
+      repo: 'o/r',
+      number: 5,
+      gh,
+      fetchJson: registry({ axios: 10, glob: 9 }),
+      now: NOW,
+    });
+    expect(v).toMatchObject({ armed: false, checked: 0 });
+    expect(v.reasons).toEqual([
+      'GitHub Actions updates are never armed: a person merges them',
+    ]);
+    expect(
+      calls.some((c) => c.some((a) => String(a).includes('package-lock')))
+    ).toBe(false);
   });
 
   it('refuses a security update that is a major bump of the lockfile', async () => {
