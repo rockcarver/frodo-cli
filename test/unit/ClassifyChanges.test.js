@@ -66,7 +66,6 @@ describeIfBash('classify-changes.sh', () => {
       '.github/workflows/plan-worker.lock.yml',
       '.github/workflows/plan-worker.md',
       '.github/CODEOWNERS',
-      '.github/dependabot.yml',
       '.github/copilot-instructions.md',
     ])('%s is not code', (file) => {
       expect(classify([file])).toEqual(NON_CODE_ONLY);
@@ -84,6 +83,9 @@ describeIfBash('classify-changes.sh', () => {
       '.claude/skills/add-a-cli-command/SKILL.md',
       '.claude/skills/review-a-copilot-pr/mutation-check.py',
       '.github/instructions/tests.instructions.md',
+      // the Dependabot policy (core 0023): its tests read dependabot.yml
+      '.github/dependabot.yml',
+      '.github/workflows/dependabot-auto-merge.yml',
     ])('%s needs the guidance job and not the test matrix', (file) => {
       expect(classify([file])).toEqual(GUIDANCE_ONLY);
     });
@@ -97,6 +99,10 @@ describeIfBash('classify-changes.sh', () => {
       'test/e2e/mocks/journey_1/recording.har',
       'tools/run-guidance-tests.mjs',
       'scripts/build-sea.mjs',
+      // the script of the Dependabot policy is not on the non-code list: Test runs its tests
+      'scripts/dependabot-auto-merge.mjs',
+      'test/unit/DependabotAutoMerge.test.js',
+      'test/unit/DependabotPolicy.test.js',
       'package.json',
       'package-lock.json',
       'tsconfig.json',
@@ -113,6 +119,13 @@ describeIfBash('classify-changes.sh', () => {
       '.github/workflows/steps/build.sh',
       '.github/workflows/nested/deeper.yml',
       '.github/ISSUE_TEMPLATE.md/extra.ts',
+      // look-alikes of the two Dependabot files: only the exact names are guidance
+      '.github/dependabot.yml.bak',
+      '.github/dependabot.yaml',
+      '.github/dependabot/dependabot.yml',
+      '.github/workflows/dependabot-auto-merge.yml.bak',
+      '.github/workflows/nested/dependabot-auto-merge.yml',
+      'sub/.github/dependabot.yml',
       'LICENSE.js',
       'LICENSEX/payload.js',
       'docs',
@@ -148,6 +161,18 @@ describeIfBash('classify-changes.sh', () => {
       expect(
         classify(['docs/PIPELINE.md', '.claude/skills/x/SKILL.md', '.github/workflows/janitor.yml'])
       ).toEqual(GUIDANCE_ONLY);
+    });
+
+    it('needs the guidance job for the Dependabot files, alone or next to docs and guidance', () => {
+      expect(classify(['.github/dependabot.yml', '.github/workflows/dependabot-auto-merge.yml'])).toEqual(GUIDANCE_ONLY);
+      expect(classify(['docs/PIPELINE.md', '.github/dependabot.yml'])).toEqual(GUIDANCE_ONLY);
+      expect(classify(['.github/workflows/dependabot-auto-merge.yml', 'README.md'])).toEqual(GUIDANCE_ONLY);
+    });
+
+    it('is code when the script or a test of the Dependabot policy changes with its files', () => {
+      expect(classify(['.github/dependabot.yml', 'scripts/dependabot-auto-merge.mjs'])).toEqual(CODE);
+      expect(classify(['.github/dependabot.yml', 'test/unit/DependabotPolicy.test.js'])).toEqual(CODE);
+      expect(classify(['.github/workflows/dependabot-auto-merge.yml', 'package.json'])).toEqual(CODE);
     });
 
     it('needs nothing extra for docs, workflows and scripts that no test reads', () => {

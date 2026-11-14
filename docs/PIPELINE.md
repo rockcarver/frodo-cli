@@ -14,7 +14,7 @@ described in the job sections that follow.)
 ```mermaid
 flowchart TD
     PR["PR to main<br/>or push to main"] --> CH["Detect code changes<br/>(skips tests for docs-only PRs)"]
-    CH -->|"guidance files, no code"| G["Validate guidance<br/>(decision records, skills)"]
+    CH -->|"guidance files, no code"| G["Validate guidance<br/>(decision records, skills, Dependabot policy)"]
     PR --> B["Build<br/>(version bump, dist bundle)<br/>required check"]
     B --> T["Test (26)"]
     B --> X["Cross-Platform Tests<br/>(credential file permissions)"]
@@ -103,7 +103,11 @@ which answers two questions:
 - `guidance`: does a file change that a guidance test reads? Only meaningful
   with `code=false` (with code, `Test` runs the same tests). The list is
   `GUIDANCE` in the script: `docs/decisions/`, `AGENTS.md`, `CLAUDE.md`,
-  `docs/CONTRIBUTE.md`, `.claude/skills/` and `.github/instructions/`.
+  `docs/CONTRIBUTE.md`, `.claude/skills/`, `.github/instructions/` and the
+  Dependabot policy of [core 0023](decisions/core/0023-dependency-updates-arrive-late-and-only-tooling-merges-without-a-person.md):
+  `.github/dependabot.yml` and `.github/workflows/dependabot-auto-merge.yml`
+  (the script `scripts/dependabot-auto-merge.mjs` is not on the non-code list,
+  so a change to it is code and `Test` runs its tests).
 
 The script is read from the pull request's **base** commit (the contents API
 at `base.sha`), never from its head: a pull request does not choose the rules
@@ -136,7 +140,8 @@ the files the classifier calls non-code:
   and `*.md`) it installs.
 
 Some of these are guidance files that a test reads (`docs/decisions/`,
-`AGENTS.md`, `CLAUDE.md`, `.claude/skills/`, `.github/instructions/`). A pull
+`AGENTS.md`, `CLAUDE.md`, `.claude/skills/`, `.github/instructions/`,
+`.github/dependabot.yml` and the Dependabot auto-merge workflow). A pull
 request that changes them runs the fast `Validate guidance` job; the push after
 the merge does not repeat it, as it has never repeated it for `docs/decisions/`.
 `pipeline.yml` is on the list too, although the classifier counts it as code: a
@@ -159,12 +164,14 @@ it checked.
 ### Validate guidance
 
 `Validate guidance` runs when `code=false` and `guidance=true`: a pull request
-that changes decision records, skills, the agent entry points or instruction
-files and nothing else. It checks out the pull request head, runs `npm ci` and
+that changes decision records, skills, the agent entry points, instruction
+files, `.github/dependabot.yml` or the Dependabot auto-merge workflow and
+nothing else. It checks out the pull request head, runs `npm ci` and
 `npm run test:guidance`
 ([../tools/run-guidance-tests.mjs](../tools/run-guidance-tests.mjs)), which runs
-only `test/unit/DecisionRecords.test.js` and `test/unit/Skills.test.js` and
-fails if either file is missing. No build, no tenant, no binary: about a
+only `test/unit/DecisionRecords.test.js`, `test/unit/Skills.test.js`,
+`test/unit/DependabotAutoMerge.test.js` and `test/unit/DependabotPolicy.test.js`
+and fails if any of them is missing. No build, no tenant, no binary: about a
 minute, most of it `npm ci`. The same command runs locally.
 
 ### Build

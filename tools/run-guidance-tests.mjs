@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Runs only the tests that validate the guidance files: the decision records,
-// the agent entry points and the skills. `npm run test:guidance` and the
-// `Validate guidance` job in .github/workflows/pipeline.yml both use it, so
-// the list lives here once.
+// the agent entry points, the skills and the Dependabot policy (core 0023: one
+// test reads .github/dependabot.yml, the other tests the decision of the
+// auto-merge script). `npm run test:guidance` and the `Validate guidance` job
+// in .github/workflows/pipeline.yml both use it, so the list lives here once.
 //
 // A listed test that does not exist fails the run. Jest alone would run the
 // others and pass, which is how a renamed test file would silently stop
@@ -18,6 +19,8 @@ import { fileURLToPath } from 'node:url';
 const GUIDANCE_TESTS = [
   'test/unit/DecisionRecords.test.js',
   'test/unit/Skills.test.js',
+  'test/unit/DependabotAutoMerge.test.js',
+  'test/unit/DependabotPolicy.test.js',
 ];
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
