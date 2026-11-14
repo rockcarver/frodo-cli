@@ -10,6 +10,14 @@
 #   releases automatically arrive here as a PR.
 # - Weekly updates for the GitHub Actions used by the workflows, except
 #   github/gh-aw-actions/setup (see the ignore below).
+# - A version update is proposed only once its release is 7 days old
+#   (cooldown). Packages that are bundled into what we ship, and the
+#   auto-merge of Dependabot pull requests (dependabot-auto-merge.yml, which
+#   merges within minutes once the checks pass), would otherwise take a
+#   release on the day it is published; a poisoned release is usually found
+#   and withdrawn within days. Dependabot security updates are not delayed by
+#   it. Our own actions (gearsnlevers/*) are excluded so that they arrive at
+#   once, and so does the pin of our own library (@rockcarver/frodo-lib).
 # - Dependabot security updates are enabled separately in repo settings.
 
 version: 2
@@ -18,6 +26,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "@rockcarver/frodo-lib"
     open-pull-requests-limit: 10
     groups:
       dev-minor-patch:
@@ -47,6 +59,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "gearsnlevers/*"
     ignore:
       # The Issue Concierge's .github/workflows/*.lock.yml files are compiled by
       # gh-aw and record the compiler they were built with (compiler_version,
