@@ -27,13 +27,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-c, --category <category>',
-        'Telemetry category to delete (otlp or splunk).'
-      )
+        'Telemetry category to delete. If omitted, the exporters of every category are deleted, after a confirmation or with -y.'
+      ).choices(['otlp', 'splunk'])
     )
     .addOption(
       new Option(
         '-n, --name <name>',
-        'Name of a single exporter to delete. Requires --category.'
+        'Name (id) of a single exporter to delete, matched exactly. Requires --category.'
       )
     )
     .addOption(
@@ -78,7 +78,9 @@ export default function setup() {
         options,
         command
       );
-      if (options.name === '') {
+      // an empty name must never mean "all": "not given" and "given but empty"
+      // are different (-n "$UNSET" gives an empty name)
+      if (options.name !== undefined && options.name.trim() === '') {
         printMessage(
           'The telemetry exporter name (-n) must not be empty.',
           'error'

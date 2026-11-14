@@ -203,11 +203,16 @@ export async function configManagerImportTelemetry(
 }
 
 /**
- * Deletes telemetry exporters in config manager format
- * @param {TelemetryExporterCategory} category optional exporter category
- * @param {string} name optional exporter name
- * @param {boolean} dryRun whether to simulate deletion
- * @returns {Promise<boolean>} true if deletion succeeded
+ * Deletes telemetry exporters: the ones of a category, one exporter by its id,
+ * or all of them. The exporters are read once and deleted one by one, so that
+ * an exporter that cannot be deleted is reported and does not hide the others.
+ * An exporter without an id is never handed to the library, which takes a
+ * missing id for "every exporter of the category".
+ * @param {TelemetryExporterCategory} category optional exporter category (`otlp` or `splunk`). If omitted (undefined), the exporters of every category are targeted.
+ * @param {string} name optional exact exporter id. If omitted (undefined), every exporter of the category is targeted; an empty name names no exporter: it is not found, and it never means "all".
+ * @param {boolean} dryRun show which exporters would be deleted without deleting them
+ * @param {boolean} allowFailures true to succeed although some exporters could not be deleted (the failures are still summarised)
+ * @returns {Promise<boolean>} false if a named exporter does not exist, the exporters cannot be read, or an exporter cannot be deleted (unless failures are allowed for a deletion). Nothing to delete is a success when no exporter was named.
  */
 export async function configManagerDeleteTelemetry(
   category?: TelemetryExporterCategory,
@@ -215,43 +220,79 @@ export async function configManagerDeleteTelemetry(
   dryRun = false,
   allowFailures = false
 ): Promise<boolean> {
-  const run = new OperationRun({ unit: 'telemetry', allowFailures });
+  const run = new OperationRun({ unit: 'telemetry exporter', allowFailures });
+  let telemetry: Awaited<ReturnType<typeof readTelemetry>>;
   try {
-    const matches = Object.entries(await readTelemetry())
-      .filter(([cat]) => category === undefined || category === cat)
-      .flatMap(([cat, exporters]) =>
-        Object.values(exporters)
-          .filter((exporter) => name === undefined || name === exporter.id)
-          .map((exporter: LogExporterSkeleton) => ({
-            category: cat as TelemetryExporterCategory,
-            id: exporter.id,
-          }))
-      );
-    if (matches.length === 0) {
-      printMessage('Warning: telemetry config not found', 'warn');
-      return true;
-    }
-    for (const { id, category: exporterCategory } of matches) {
-      const label = `${exporterCategory}/${id}`;
-      if (!dryRun) {
-        try {
-          await deleteTelemetry(id, exporterCategory);
-        } catch (error) {
-          printError(error, `Failed to delete telemetry config: ${label}`);
-          run.recordFailure(label, causeOf(error));
-          continue;
-        }
-      }
-
-      printMessage(
-        `${dryRun ? 'Dry run: ' : ''}Deleted telemetry config: ${label}`
-      );
-      run.recordSuccess();
-    }
-    return run.finish();
+    telemetry = await readTelemetry();
   } catch (error) {
-    printError(error, 'Failed to delete telemetry config');
-    run.finish();
+    printError(error);
     return false;
   }
+  const selected: { category: string; exporter: LogExporterSkeleton }[] = [];
+  const seen = new Set<string>();
+  for (const [exporterCategory, exporters] of Object.entries(telemetry ?? {})) {
+    if (category !== undefined && exporterCategory !== category) continue;
+    if (!Array.isArray(exporters)) continue;
+    for (const exporter of exporters as LogExporterSkeleton[]) {
+      if (name !== undefined && exporter?.id !== name) continue;
+      // the library deletes every exporter of that id and category at once, so an id is deleted once
+      const key = `${exporterCategory}/${exporter?.id}`;
+      if (typeof exporter?.id === 'string' && seen.has(key)) continue;
+      seen.add(key);
+      selected.push({ category: exporterCategory, exporter });
+    }
+  }
+  if (selected.length === 0) {
+    if (name !== undefined) {
+      printMessage(
+        `Telemetry exporter '${name}' not found${category ? ` in category '${category}'` : ''}.`,
+        'error'
+      );
+      return false;
+    }
+    printMessage(
+      `No telemetry exporters found to delete${category ? ` in category '${category}'` : ''}.`,
+      'warn'
+    );
+    return true;
+  }
+  for (const { category: exporterCategory, exporter } of selected) {
+    const id = exporter?.id;
+    if (typeof id !== 'string' || id.trim() === '') {
+      // never call the library without an id: it would delete the whole category
+      const label = `${exporterCategory}/(no id)`;
+      printMessage(
+        `Cannot delete a telemetry exporter without an id: ${label}`,
+        'error'
+      );
+      run.recordFailure(label, 'the exporter has no id');
+      continue;
+    }
+    const label = `${exporterCategory}/${id}`;
+    if (dryRun) {
+      printMessage(`Dry run: Deleting telemetry exporter: ${label}`);
+      continue;
+    }
+    try {
+      const deleted = await deleteTelemetry(
+        id,
+        exporterCategory as TelemetryExporterCategory
+      );
+      if (Array.isArray(deleted) && deleted.length === 0) {
+        // it was there when the exporters were read and is gone now: nothing was deleted by this run
+        printMessage(
+          `Telemetry exporter ${label} was already gone, nothing to delete.`,
+          'warn'
+        );
+      } else {
+        printMessage(`Deleted telemetry exporter: ${label}`);
+      }
+      run.recordSuccess();
+    } catch (error) {
+      // the library's error does not name the exporter
+      printError(error, `Error deleting telemetry exporter ${label}`);
+      run.recordFailure(label, causeOf(error));
+    }
+  }
+  return run.finish();
 }

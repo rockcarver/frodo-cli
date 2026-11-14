@@ -178,6 +178,9 @@ describe('what is not refused', () => {
     'frodo config-manager delete secret-mappings -y',
     'frodo config-manager delete telemetry -y',
     'frodo config-manager delete telemetry -d',
+    'frodo config-manager delete telemetry -c otlp -y',
+    'frodo config-manager delete telemetry -c otlp -d',
+    'frodo config-manager delete telemetry -c otlp -n Example',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
@@ -347,5 +350,45 @@ describe('the root realm and secret mappings', () => {
     expect(result.stderr).toContain('The root realm has no secret mappings to delete');
     expect(result.stderr).not.toContain('Refusing to delete');
     expect(result.stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('a telemetry category that does not exist', () => {
+  test.each([
+    'frodo config-manager delete telemetry -c OTLP -y',
+    'frodo config-manager delete telemetry -c foo -y',
+    'frodo config-manager delete telemetry -c foo -d',
+    "frodo config-manager delete telemetry -c ''",
+  ])('"%s" is an error before the login, with the valid categories named', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('Allowed choices are otlp, splunk');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|ENOTFOUND/);
+  });
+});
+
+describe('a telemetry exporter name that is empty or has no category', () => {
+  test.each([
+    "frodo config-manager delete telemetry -c otlp -n ''",
+    "frodo config-manager delete telemetry -c otlp -n '  '",
+    "frodo config-manager delete telemetry -n ''",
+  ])('"%s" is an error before the login, not a delete of all exporters', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The telemetry exporter name (-n) must not be empty');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|ENOTFOUND/);
+  });
+
+  test('"frodo config-manager delete telemetry -n Example" needs a category, before the login', async () => {
+    const { code, stderr } = await run('frodo config-manager delete telemetry -n Example');
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('Named telemetry config requires category');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|ENOTFOUND/);
   });
 });

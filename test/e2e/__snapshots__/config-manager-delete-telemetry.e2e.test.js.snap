@@ -4,7 +4,7 @@ exports[`frodo config-manager delete telemetry "frodo config-manager delete tele
 
 exports[`frodo config-manager delete telemetry "frodo config-manager delete telemetry --dry-run -c splunk": should print a dry-run message for a Splunk exporter 2`] = `
 "Experimental feature in use: 'frodo config-manager delete telemetry'. This feature may change without notice.
-Dry run: Deleted telemetry config: splunk/frodo-test-splunk-1
+Dry run: Deleting telemetry exporter: splunk/frodo-test-splunk-1
 "
 `;
 
@@ -12,7 +12,7 @@ exports[`frodo config-manager delete telemetry "frodo config-manager delete tele
 
 exports[`frodo config-manager delete telemetry "frodo config-manager delete telemetry -c splunk -n frodo-test-splunk-1": should delete a Splunk exporter by name 2`] = `
 "Experimental feature in use: 'frodo config-manager delete telemetry'. This feature may change without notice.
-Deleted telemetry config: splunk/frodo-test-splunk-1
+Deleted telemetry exporter: splunk/frodo-test-splunk-1
 "
 `;
 
@@ -20,7 +20,7 @@ exports[`frodo config-manager delete telemetry "frodo config-manager delete tele
 
 exports[`frodo config-manager delete telemetry "frodo config-manager delete telemetry -c splunk -y": should delete an splunk exporter by category 2`] = `
 "Experimental feature in use: 'frodo config-manager delete telemetry'. This feature may change without notice.
-Deleted telemetry config: splunk/frodo-test-splunk-1
+Deleted telemetry exporter: splunk/frodo-test-splunk-1
 "
 `;
 

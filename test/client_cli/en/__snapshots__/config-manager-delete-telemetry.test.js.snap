@@ -28,11 +28,14 @@ Options:
                              code 0. Without this option the command runs every
                              operation, prints a summary of what failed and
                              exits with code 1.
-  -c, --category <category>  Telemetry category to delete (otlp or splunk).
+  -c, --category <category>  Telemetry category to delete. If omitted, the
+                             exporters of every category are deleted, after a
+                             confirmation or with -y. (choices: "otlp",
+                             "splunk")
   -d, --dry-run              Preview telemetry exporters that would be deleted
                              without deleting them.
-  -n, --name <name>          Name of a single exporter to delete. Requires
-                             --category.
+  -n, --name <name>          Name (id) of a single exporter to delete, matched
+                             exactly. Requires --category.
   -y, --yes                  Skip confirmation for bulk deletion. Required for
                              bulk deletion without a terminal.
   -h, --help                 Help
