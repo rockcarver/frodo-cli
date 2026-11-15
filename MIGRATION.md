@@ -266,6 +266,17 @@ read that failed. A script that relied on exit code 0 for a missing realm has to
 treat exit code 1 as "not found", or add `|| true`. `frodo conn describe` for a
 host without a saved profile already ended with exit code 1 and is unchanged.
 
+**`conn save` with `--sa-id` and `--sa-jwk-file` exits 1 and saves nothing when
+the key cannot be used**: in 4.x `frodo conn save <host> --sa-id <id>
+--sa-jwk-file <file>` printed an error when the key file could not be read or the
+tenant refused the key, and then saved the profile anyway, with the service
+account id (and the key, when it could be read) and exit code 0. In 5.x the
+command ends with exit code 1 and does not save the profile, so a script cannot
+mistake a profile without a working service account for a saved one. The same
+holds with `--no-validate` when the key file cannot be read. A script that
+relied on exit code 0 has to fix the key file, or save the profile without
+`--sa-id` and `--sa-jwk-file` and add the service account afterwards.
+
 **`feature validate -i aiagent` exits 1 when the AI agents feature does not work,
 and prints a diagnosis**: in 4.x and in earlier 5.x versions `frodo feature
 validate` printed `Valid` or `Invalid` and exited with code 0 whenever the check

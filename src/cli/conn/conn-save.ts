@@ -250,6 +250,13 @@ export default function setup() {
                 printMessage(
                   `Validated and added service account with id ${options.saId} to profile.`
                 );
+              } else {
+                // The user asked for this service account and the tenant
+                // refused it. addExistingServiceAccount() has printed why; the
+                // login options already put the id and the key in the state,
+                // so saving now would store the rejected key (cli#1262).
+                process.exitCode = 1;
+                return;
               }
             }
             // add new service account if none already exists in the profile
@@ -273,11 +280,18 @@ export default function setup() {
             options.saJwkFile &&
             options.sa
           ) {
-            await addExistingServiceAccount(
-              options.saId,
-              options.saJwkFile,
-              options.validate
-            );
+            if (
+              !(await addExistingServiceAccount(
+                options.saId,
+                options.saJwkFile,
+                options.validate
+              ))
+            ) {
+              // the key file cannot be read: no profile with half a service
+              // account (cli#1262); the function has printed why
+              process.exitCode = 1;
+              return;
+            }
           }
           // if cloud deployment add log api key and secret
           if (
@@ -285,23 +299,11 @@ export default function setup() {
             state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY &&
             needLogApiKey
           ) {
-            // validate and add existing log api key and secret
-            if (options.logApiKey && options.logApiSecret) {
-              verboseMessage(`Validating and adding log api key and secret...`);
-              if (
-                await addExistingServiceAccount(
-                  options.logApiKey,
-                  options.logApiSecret,
-                  options.validate
-                )
-              ) {
-                printMessage(
-                  `Added log API key ${options.logApiKey} to profile.`
-                );
-              }
-            }
-            // add new log api key and secret if none already exists in the profile
-            else if (!state.getLogApiKey()) {
+            // A log API key and secret from --log-api-key and --log-api-secret
+            // are in the state already (see above) and are saved with the
+            // profile as they are, so needLogApiKey is false for them. What
+            // is left is to create a pair when the profile has none.
+            if (!state.getLogApiKey()) {
               try {
                 const creds = await provisionCreds();
                 if (creds) {
