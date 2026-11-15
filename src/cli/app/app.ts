@@ -1,7 +1,6 @@
 import c from '../../utils/ColorTheme';
 import { FrodoStubCommand } from '../FrodoCommand';
 import DeleteCmd from './app-delete.js';
-// import DescribeCmd from './app-describe.js';
 import DisableCmd from './app-disable.js';
 import EnableCmd from './app-enable.js';
 import ExportCmd from './app-export.js';
@@ -20,8 +19,6 @@ export default function setup() {
     );
 
   program.addCommand(ListCmd().name('list'));
-
-  // program.addCommand(DescribeCmd().name('describe'));
 
   program.addCommand(ExportCmd().name('export'));
 

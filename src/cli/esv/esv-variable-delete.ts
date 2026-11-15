@@ -43,12 +43,6 @@ export default function setup() {
         'Do not ask for confirmation before deleting all variables. Required with -a when there is no terminal.'
       )
     )
-    .addOption(
-      new Option(
-        '--no-deep',
-        'No deep delete. This leaves orphaned configuration artifacts behind.'
-      )
-    )
     .requireOneOf({ options: ['all', 'variableId'], purpose: 'what to delete' })
     .multiOp()
     .action(
