@@ -281,6 +281,27 @@ describe('the workflow that calls the shared action', () => {
     expect(read('.github/dependabot.yml')).not.toMatch(/branch-name/);
   });
 
+  // the workflow without its comment lines: only what the runner reads
+  const code = workflow
+    .split('\n')
+    .filter((line) => !/^\s*#/.test(line))
+    .join('\n');
+
+  it('the token reaches only the step that calls the action, as its github-token input, and no env: of the job or the workflow carries it', () => {
+    expect(code.match(/GITHUB_TOKEN/g)).toHaveLength(1);
+    expect(code.match(/secrets\./g)).toHaveLength(1);
+    expect(code).toMatch(
+      /github-token:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/
+    );
+    expect(code).not.toMatch(/^\s*env:/m);
+  });
+
+  it('the pull request number is passed, and is empty for the daily sweep and a manual run', () => {
+    expect(code).toMatch(
+      /pull-request:\s*\$\{\{\s*github\.event\.pull_request\.number\s*\}\}/
+    );
+  });
+
   it('asks for the two permissions that arming needs and nothing more', () => {
     const block = /^permissions:\n((?:[ ]+\S.*\n)+)/m.exec(workflow)?.[1] ?? '';
     expect(
