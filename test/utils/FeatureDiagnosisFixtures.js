@@ -1,5 +1,5 @@
 /**
- * Diagnoses and repair plans in the shape the library 5.0.0-44 returns them
+ * Diagnoses and repair plans in the shape the library 5.0.0-45 returns them
  * (`frodo.cloud.idmFeature.diagnoseIdmFeature`, `planIdmFeatureRepair`,
  * `repairIdmFeature`), built from the finding ids, messages and details its
  * source produces. Sample names only (the realms alpha and bravo).
@@ -129,74 +129,127 @@ const step = (id, description, writes, details = {}) => ({
   ...(details.realm ? { realm: details.realm } : {}),
 });
 
-/** The repair plan for `brokenDiagnosis`, with a backup in it. */
+/** A title that a person changed on purpose: a customization, in the shape of the library's plan and result. */
+const titleCustomization = (outcome) => ({
+  config: 'managed',
+  object: 'alpha_aiagent',
+  location: 'schema.title',
+  kind: 'changed',
+  class: 'title',
+  tenantValue: 'Zion Agent',
+  originalValue: 'AI Agent',
+  outcome,
+});
+
+/** White space that the repair normalises, in the shape of the library's plan and result. */
+const whitespaceChanges = [
+  {
+    config: 'managed',
+    object: 'alpha_aiagent',
+    location: 'onDelete.source',
+    kind: 'changed',
+    class: 'whitespace',
+    tenantValue: 'return value;',
+    originalValue: 'return value;\n',
+  },
+  {
+    config: 'managed',
+    object: 'bravo_aiagent',
+    location: 'onDelete.source',
+    kind: 'changed',
+    class: 'whitespace',
+    originalValue: 'x'.repeat(300),
+  },
+];
+
+/** The steps of the repair of `brokenDiagnosis`; with `restore` the plan puts the customization back. */
+const repairSteps = (restore) => [
+  step(
+    'create-provider',
+    "Create the OAuth 2.0 provider of the realm bravo from the server's template, with the password grant authentication service Login.",
+    true,
+    { authService: 'Login' }
+  ),
+  step(
+    'set-auth-service',
+    'Set the password grant authentication service of the OAuth 2.0 provider of the realm alpha to Login.',
+    true,
+    { authService: 'Login' }
+  ),
+  step(
+    'align-definitions',
+    `Write the original over 3 definition(s) that differ from it (alpha_aiagent onDelete.source; bravo_aiagent onDelete.source; alpha_aiagent schema.title), so that the enable action does not add the feature a second time. 1 of them is a customization (alpha_aiagent schema.title): ${restore ? 'put back at the end' : 'replaced, and it stays replaced'}.`,
+    true,
+    {
+      differences: [
+        {
+          config: 'managed',
+          object: 'alpha_aiagent',
+          location: 'onDelete.source',
+          expected: 'return value;\n',
+          actual: 'return value;',
+        },
+        {
+          config: 'managed',
+          object: 'bravo_aiagent',
+          location: 'onDelete.source',
+          expected: 'x'.repeat(300),
+        },
+        {
+          config: 'managed',
+          object: 'alpha_aiagent',
+          location: 'schema.title',
+          expected: 'AI Agent',
+          actual: 'Zion Agent',
+        },
+      ],
+    }
+  ),
+  step('enable', 'Run the enable action of the environment.', true, {
+    realms: ['alpha', 'bravo'],
+  }),
+  step(
+    'wait-for-gate',
+    'Wait until AM accepts AI agents in alpha, bravo (only if asked to wait; it can need minutes).',
+    false
+  ),
+  ...(restore
+    ? [
+        step(
+          'restore-definitions',
+          'Put the 1 customization(s) back as they were (alpha_aiagent schema.title).',
+          true,
+          {
+            differences: [
+              {
+                config: 'managed',
+                object: 'alpha_aiagent',
+                location: 'schema.title',
+                expected: 'AI Agent',
+                actual: 'Zion Agent',
+              },
+            ],
+          }
+        ),
+      ]
+    : []),
+  step('diagnose', 'Diagnose the feature again.', false),
+];
+
+/**
+ * The repair plan for `brokenDiagnosis` as the library makes it by default (no
+ * `restoreCustomizations`): the definitions stay aligned, the title customization is
+ * replaced, white space is normalised. With a backup in it.
+ */
 export const repairPlan = {
   featureId: 'aiagent',
-  options: { keepAligned: false, authService: 'Login' },
+  options: { restoreCustomizations: false, authService: 'Login' },
   diagnosis: brokenDiagnosis,
   repairable: true,
   blockers: [],
-  steps: [
-    step(
-      'create-provider',
-      "Create the OAuth 2.0 provider of the realm bravo from the server's template, with the password grant authentication service Login.",
-      true,
-      { authService: 'Login' }
-    ),
-    step(
-      'set-auth-service',
-      'Set the password grant authentication service of the OAuth 2.0 provider of the realm alpha to Login.',
-      true,
-      { authService: 'Login' }
-    ),
-    step(
-      'align-definitions',
-      'Write the original over 2 cosmetically drifted definition(s) (alpha_aiagent, bravo_aiagent), so that the enable action does not add the feature a second time.',
-      true,
-      {
-        differences: [
-          {
-            config: 'managed',
-            object: 'alpha_aiagent',
-            location: 'onDelete.source',
-            expected: 'return value;\n',
-            actual: 'return value;',
-          },
-          {
-            config: 'managed',
-            object: 'bravo_aiagent',
-            location: 'onDelete.source',
-            expected: 'x'.repeat(300),
-          },
-        ],
-      }
-    ),
-    step('enable', 'Run the enable action of the environment.', true, {
-      realms: ['alpha', 'bravo'],
-    }),
-    step(
-      'wait-for-gate',
-      'Wait until AM accepts AI agents in alpha, bravo (only if asked to wait; it can need minutes).',
-      false
-    ),
-    step(
-      'restore-definitions',
-      'Put the 2 customised definition(s) back as they were.',
-      true,
-      {
-        differences: [
-          {
-            config: 'managed',
-            object: 'alpha_aiagent',
-            location: 'onDelete.source',
-            expected: 'return value;\n',
-            actual: 'return value;',
-          },
-        ],
-      }
-    ),
-    step('diagnose', 'Diagnose the feature again.', false),
-  ],
+  steps: repairSteps(false),
+  normalised: whitespaceChanges,
+  customizations: [titleCustomization('replaced')],
   backup: {
     feature: { _id: 'aiagent', installedVersion: null },
     managed: { _id: 'managed', objects: [{ name: 'alpha_aiagent' }] },
@@ -222,15 +275,28 @@ export const repairPlan = {
   },
 };
 
+/** The same repair with `restoreCustomizations`: the title customization is put back at the end. */
+export const repairPlanRestoring = {
+  ...repairPlan,
+  options: { restoreCustomizations: true, authService: 'Login' },
+  steps: repairSteps(true),
+  customizations: [titleCustomization('put-back')],
+};
+
+const stepResults = (plan) =>
+  plan.steps.map((planned) => ({
+    step: planned,
+    status: planned.id === 'wait-for-gate' ? 'skipped' : 'done',
+    message: `${planned.id} done.`,
+  }));
+
 /** What `repairIdmFeature` answers when every step reached its goal. */
 export const repairResult = {
   featureId: 'aiagent',
   completed: true,
-  results: repairPlan.steps.map((planned) => ({
-    step: planned,
-    status: planned.id === 'wait-for-gate' ? 'skipped' : 'done',
-    message: `${planned.id} done.`,
-  })),
+  results: stepResults(repairPlan),
+  normalised: whitespaceChanges,
+  customizations: [titleCustomization('replaced')],
   diagnosis: {
     ...brokenDiagnosis,
     findings: [
@@ -243,4 +309,11 @@ export const repairResult = {
       ),
     ],
   },
+};
+
+/** What `repairIdmFeature` answers for `repairPlanRestoring`. */
+export const repairResultRestoring = {
+  ...repairResult,
+  results: stepResults(repairPlanRestoring),
+  customizations: [titleCustomization('put-back')],
 };

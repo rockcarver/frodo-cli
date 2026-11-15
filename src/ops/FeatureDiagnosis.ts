@@ -54,8 +54,10 @@ export function hasFunctionalProblem(diagnosis: FeatureDiagnosis): boolean {
 
 /**
  * How many findings of each kind the diagnosis has. `repairable` counts the
- * functional problems (errors) that a repair can fix: a warning is never
- * repaired.
+ * findings that a repair can fix: the functional problems (errors) it can fix,
+ * and the one warning the library repairs as well, definitions that differ from
+ * the original only in white space (they make the registry read "not
+ * installed"). Any other warning is never repaired.
  * @param {FeatureDiagnosis} diagnosis the diagnosis
  * @returns {{ functional: number, warnings: number, repairable: number }} the counts
  */
@@ -72,7 +74,11 @@ export function countFindings(diagnosis: FeatureDiagnosis): {
     warnings: diagnosis.findings.filter(
       (finding) => finding.severity === 'warning'
     ).length,
-    repairable: errors.filter((finding) => finding.repairable).length,
+    repairable: diagnosis.findings.filter(
+      (finding) =>
+        finding.repairable &&
+        (finding.severity === 'error' || finding.severity === 'warning')
+    ).length,
   };
 }
 
@@ -168,7 +174,7 @@ export function diagnosisSummary(diagnosis: FeatureDiagnosis): string {
       : plural(functional, 'functional problem'),
     plural(warnings, 'warning'),
   ];
-  return `${parts.join(', ')}${functional > 0 ? `; ${repairable} repairable` : ''}.`;
+  return `${parts.join(', ')}${functional > 0 || repairable > 0 ? `; ${repairable} repairable` : ''}.`;
 }
 
 /**
@@ -202,11 +208,11 @@ export function diagnosisText(
     }
   }
   lines.push(diagnosisSummary(diagnosis));
-  const { functional, repairable } = countFindings(diagnosis);
+  const { functional, warnings, repairable } = countFindings(diagnosis);
   if (hint && repairable > 0) {
     lines.push(
       `Run "${c.command(`frodo feature validate -i ${diagnosis.featureId} --repair`)}" to fix ${
-        repairable === functional ? 'them' : 'the repairable ones'
+        repairable === functional + warnings ? 'them' : 'the repairable ones'
       }. A backup is written first.`
     );
   }

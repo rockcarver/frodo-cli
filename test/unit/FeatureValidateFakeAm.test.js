@@ -165,8 +165,8 @@ suite('feature validate through the CLI', () => {
       [['-i', 'aiagent', '--wait'], /--wait requires --repair\./],
       [['-i', 'aiagent', '--yes'], /--yes requires --repair\./],
       [
-        ['-i', 'aiagent', '--keep-aligned'],
-        /--keep-aligned requires --repair\./,
+        ['-i', 'aiagent', '--restore-customizations'],
+        /--restore-customizations requires --repair\./,
       ],
       [
         ['-i', 'aiagent', '--auth-service', 'Zion'],

@@ -7,52 +7,56 @@ exports[`CLI help interface for 'feature validate' should be expected english 1`
 what is wrong with --repair.
 
 Arguments:
-  host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To
-                         use a connection profile, just specify a unique
-                         substring or alias.
-  username               Username to login with. Must be an admin user with
-                         appropriate rights to manage authentication
-                         journeys/trees. If given without a password, and it
-                         matches the username already stored in the connection
-                         profile for the target host, frodo uses that profile's
-                         stored password instead of requiring it on the command
-                         line.
-  password               Password.
+  host                      AM base URL, e.g.: https://cdk.iam.example.com/am.
+                            To use a connection profile, just specify a unique
+                            substring or alias.
+  username                  Username to login with. Must be an admin user with
+                            appropriate rights to manage authentication
+                            journeys/trees. If given without a password, and it
+                            matches the username already stored in the
+                            connection profile for the target host, frodo uses
+                            that profile's stored password instead of requiring
+                            it on the command line.
+  password                  Password.
 
 Deployment: Cloud-only
 
 Options:
-  --auth-service <name>  Authentication service of an OAuth 2.0 provider that
-                         the repair creates or completes. Default: Login.
-                         Requires --repair.
-  --backup-dir <dir>     Directory for the raw backup of what the repair
-                         overwrites or deletes, written before the first change
-                         and created if it does not exist; relative to the
-                         current directory, readable by the owner only. Required
-                         with --repair: asked for on a terminal, an error
-                         without one.
-  -i, --feature-id <id>  Feature id. (pick from feature) (prompts if missing)
-  --json                 Print the diagnosis as JSON and nothing else. Cannot be
-                         used with --repair.
-  --keep-aligned         Leave the definitions of the feature aligned with the
-                         original after the repair, so that the registry reads
-                         installed. Without it, definitions that had to be
-                         aligned for the repair are put back as the user had
-                         them. Requires --repair.
-  --repair               Repair what the diagnosis found repairable. A backup of
-                         what the repair overwrites or deletes is written first.
-                         Cannot be used with --json.
-  --timeout <seconds>    How long --wait polls, in seconds. Default: 1200 (20
-                         minutes). Requires --wait.
-  --wait                 After the enable action, wait until AM opens the gate
-                         and return as soon as it is open. Without it the repair
-                         ends when the writes are done and says to validate
-                         again after a few minutes. Requires --repair.
-  -y, --yes              Do not ask for confirmation before the repair. Requires
-                         --repair.
-  -h, --help             Help
-  -hh, --help-more       Help with all options.
-  -hhh, --help-all       Help with all options, environment variables, and usage
-                         examples.
+  --auth-service <name>     Authentication service of an OAuth 2.0 provider that
+                            the repair creates or completes. Default: Login.
+                            Requires --repair.
+  --backup-dir <dir>        Directory for the raw backup of what the repair
+                            overwrites or deletes, written before the first
+                            change and created if it does not exist; relative to
+                            the current directory, readable by the owner only.
+                            Required with --repair: asked for on a terminal, an
+                            error without one.
+  -i, --feature-id <id>     Feature id. (pick from feature) (prompts if missing)
+  --json                    Print the diagnosis as JSON and nothing else. Cannot
+                            be used with --repair.
+  --repair                  Repair what the diagnosis found repairable. A backup
+                            of what the repair overwrites or deletes is written
+                            first. Cannot be used with --json.
+  --restore-customizations  Put the customizations of the feature (a changed
+                            title of a definition, an added mapping property)
+                            back after the repair. Without it the repair leaves
+                            every definition aligned with the original, so that
+                            the registry reads the feature installed: the plan
+                            lists the customizations it replaces, and their
+                            previous values are in the backup. White space is
+                            never put back. Requires --repair.
+  --timeout <seconds>       How long --wait polls, in seconds. Default: 1200 (20
+                            minutes). Requires --wait.
+  --wait                    After the enable action, wait until AM opens the
+                            gate and return as soon as it is open. Without it
+                            the repair ends when the writes are done and says to
+                            validate again after a few minutes. Requires
+                            --repair.
+  -y, --yes                 Do not ask for confirmation before the repair.
+                            Requires --repair.
+  -h, --help                Help
+  -hh, --help-more          Help with all options.
+  -hhh, --help-all          Help with all options, environment variables, and
+                            usage examples.
 "
 `;

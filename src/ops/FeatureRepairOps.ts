@@ -21,8 +21,13 @@ export type FeatureRepairOptions = {
   yes?: boolean;
   /** `--backup-dir`: where the backup goes. Asked for on a terminal when it is missing. */
   backupDir?: string;
-  /** `--keep-aligned`: leave the definitions aligned with the original. */
-  keepAligned?: boolean;
+  /**
+   * `--restore-customizations`: put the customizations (a changed title, an
+   * added mapping property) back after the repair. Without it the repair leaves
+   * every definition aligned with the original, so that the registry reads the
+   * feature installed. White space is never put back.
+   */
+  restoreCustomizations?: boolean;
   /** `--auth-service`: the authentication service of a provider that is created or completed. */
   authService?: string;
   /** `--wait`: poll until AM accepts AI agents. */
@@ -42,7 +47,7 @@ export type FeatureRepairOptions = {
 const REPAIR_ONLY_OPTIONS: [keyof FeatureRepairOptions, string][] = [
   ['yes', '--yes'],
   ['backupDir', '--backup-dir'],
-  ['keepAligned', '--keep-aligned'],
+  ['restoreCustomizations', '--restore-customizations'],
   ['authService', '--auth-service'],
   ['wait', '--wait'],
 ];
@@ -149,10 +154,111 @@ function definitionLines(step: FeatureRepairStep): string[] {
   return lines;
 }
 
+/** A difference from the original that the plan or the result of a repair reports. */
+type DefinitionChange = FeatureRepairPlan['normalised'][number];
+
+/** A customization that a repair replaces by the original, or puts back. */
+type Customization = FeatureRepairPlan['customizations'][number];
+
+/** Words for a count: `1 customization`, `2 customizations`. */
+function plural(count: number, word: string): string {
+  return `${count} ${word}${count === 1 ? '' : 's'}`;
+}
+
+/** Where a change is: the object and the place in it, on one line. */
+function changeWhere(change: DefinitionChange): string {
+  return [change.object, change.location]
+    .filter((part) => typeof part === 'string' && part !== '')
+    .join('  ');
+}
+
+/**
+ * The customizations as lines: where each is, the value the tenant has and
+ * the original that takes its place.
+ * @param {Customization[]} customizations the customizations
+ * @returns {string[]} the lines
+ */
+function customizationLines(
+  customizations: Customization[],
+  [before, after]: [string, string] = ['in the tenant:', 'original:     ']
+): string[] {
+  const lines: string[] = [];
+  for (const customization of customizations) {
+    lines.push(
+      `       ${changeWhere(customization)}`,
+      `         ${before} ${valueText(customization, 'tenantValue')}`,
+      `         ${after} ${valueText(customization, 'originalValue')}`
+    );
+  }
+  return lines;
+}
+
+/**
+ * What a plan says about the definitions it aligns, apart from the steps: the
+ * customizations it replaces by the original (the user may want to keep them
+ * and is told how), the customizations it puts back, and the white space it
+ * normalises.
+ * @param {FeatureRepairPlan} plan the plan
+ * @returns {string[]} the lines, empty when the plan aligns nothing
+ */
+function planDefinitionLines(plan: FeatureRepairPlan): string[] {
+  const customizations = plan.customizations ?? [];
+  const replaced = customizations.filter(
+    (customization) => customization.outcome === 'replaced'
+  );
+  const putBack = customizations.filter(
+    (customization) => customization.outcome === 'put-back'
+  );
+  const lines: string[] = [];
+  if (replaced.length > 0) {
+    lines.push(
+      '',
+      c.heading(
+        `${plural(replaced.length, 'customization')} that this repair replaces with the original, so that the registry reads the feature installed:`
+      ),
+      ...customizationLines(replaced),
+      `  Pass ${c.command('--restore-customizations')} to put ${replaced.length === 1 ? 'it' : 'them'} back after the repair; the registry then reads "not installed" while ${replaced.length === 1 ? 'it is' : 'they are'} in place. What the tenant has now is written to the backup.`
+    );
+  }
+  if (putBack.length > 0) {
+    lines.push(
+      '',
+      c.heading(
+        `${plural(putBack.length, 'customization')} that this repair puts back at the end (--restore-customizations):`
+      ),
+      ...customizationLines(putBack),
+      `  The registry reads "not installed" while ${putBack.length === 1 ? 'it is' : 'they are'} in place.`
+    );
+  }
+  const normalised = plan.normalised ?? [];
+  if (normalised.length > 0) {
+    lines.push(
+      '',
+      `White space that the repair normalises and never puts back (${normalised.length}): ${normalised.map(changeWhere).join('; ')}.`
+    );
+  }
+  return lines;
+}
+
+/**
+ * The sentence for the confirmation question when the repair replaces
+ * customizations: it names them, so that nobody agrees without knowing.
+ * @param {FeatureRepairPlan} plan the plan
+ * @returns {string} the sentence with a leading space, or an empty string
+ */
+function customizationWarning(plan: FeatureRepairPlan): string {
+  const replaced = (plan.customizations ?? []).filter(
+    (customization) => customization.outcome === 'replaced'
+  );
+  if (replaced.length === 0) return '';
+  return ` It replaces ${plural(replaced.length, 'customization')} with the original (${replaced.map(changeWhere).join('; ')}); pass --restore-customizations to keep ${replaced.length === 1 ? 'it' : 'them'}.`;
+}
+
 /**
  * The plan of a repair as text, itemised: every step in the order it runs,
  * what kind of step it is (write, read, wait), and for the steps that write
- * definitions the value before and after.
+ * definitions the value before and after. Under the steps: the customizations
+ * the repair replaces (or puts back) and the white space it normalises.
  * @param {FeatureRepairPlan} plan the plan
  * @param {boolean} wait true if the repair will wait for AM
  * @returns {string} the text
@@ -175,6 +281,7 @@ export function planText(plan: FeatureRepairPlan, wait: boolean): string {
       lines.push(...definitionLines(step));
     }
   });
+  lines.push(...planDefinitionLines(plan));
   return lines.join('\n');
 }
 
@@ -191,6 +298,96 @@ function stepResultLine(result: FeatureRepairStepResult): string {
         ? c.negative('✖')
         : c.muted('-');
   return `  ${mark} ${result.message}`;
+}
+
+/**
+ * How to put replaced customizations back later, as commands that can be run
+ * as they are printed. It is a fresh export, one value changed, and an import
+ * of the whole object again (`idm export|import --raw`), never a file written
+ * now: a file made now would be stale when it is used and would overwrite what
+ * was changed in the meantime.
+ * @param {Customization[]} customizations the customizations the repair replaced
+ * @param {string} host the AM base URL of the tenant
+ * @returns {string[]} the lines, empty when there is nothing to put back
+ */
+function restoreRecipeLines(
+  customizations: Customization[],
+  host: string
+): string[] {
+  const lines: string[] = [];
+  for (const config of ['managed', 'repo.ds'] as const) {
+    const ofConfig = customizations.filter(
+      (customization) => customization.config === config
+    );
+    if (ofConfig.length === 0) continue;
+    const file = `${config}.json`;
+    lines.push(
+      `  frodo idm export -i ${config} --raw -f ${file} ${host}`,
+      ...ofConfig.map(
+        (customization) =>
+          `    ${config === 'managed' ? 'in the object' : 'in the mapping'} "${customization.object}" set ${customization.location} to ${valueText(customization, 'tenantValue')}`
+      ),
+      `  frodo idm import -i ${config} --raw -f ${file} ${host}`
+    );
+  }
+  return lines.length > 0
+    ? [
+        '  To put one back later, export the object as it is then, change the value and import it again:',
+        ...lines.map((line) => c.command(line)),
+        '  A value that is cut above is whole in the backup.',
+      ]
+    : [];
+}
+
+/**
+ * What the repair did to the definitions it aligned, said after the final
+ * diagnosis: the customizations it replaced by the original (and where their
+ * previous values are, and how to put them back), the customizations it put
+ * back, and the white space it normalised.
+ * @param {Awaited<ReturnType<typeof repairIdmFeature>>} result what the repair did
+ * @param {string} backupDir where the backup is
+ * @param {string} host the AM base URL of the tenant, for the commands that put a customization back
+ * @returns {string | undefined} the text, undefined when no definition was aligned
+ */
+export function definitionSummary(
+  result: Awaited<ReturnType<typeof repairIdmFeature>>,
+  backupDir: string,
+  host: string
+): string | undefined {
+  const customizations = result.customizations ?? [];
+  const replaced = customizations.filter(
+    (customization) => customization.outcome === 'replaced'
+  );
+  const putBack = customizations.filter(
+    (customization) => customization.outcome === 'put-back'
+  );
+  const normalised = result.normalised ?? [];
+  const lines: string[] = [];
+  if (replaced.length > 0) {
+    lines.push(
+      c.heading(
+        `Replaced ${plural(replaced.length, 'customization')} with the original, so that the registry reads the feature installed:`
+      ),
+      ...customizationLines(replaced, ['was:', 'now:']),
+      `  The value${replaced.length === 1 ? '' : 's'} ${replaced.length === 1 ? 'it' : 'they'} had ${replaced.length === 1 ? 'is' : 'are'} in the backup (${backupDir}).`,
+      ...restoreRecipeLines(replaced, host)
+    );
+  }
+  if (putBack.length > 0) {
+    lines.push(
+      c.heading(
+        `Put back ${plural(putBack.length, 'customization')}, as asked:`
+      ),
+      ...customizationLines(putBack, ['in the tenant:', 'original:     ']),
+      `  The registry reads "not installed" while ${putBack.length === 1 ? 'it is' : 'they are'} in place.`
+    );
+  }
+  if (normalised.length > 0) {
+    lines.push(
+      `Normalised ${plural(normalised.length, 'white-space difference')} (never put back): ${normalised.map(changeWhere).join('; ')}.`
+    );
+  }
+  return lines.length > 0 ? lines.join('\n') : undefined;
 }
 
 /**
@@ -259,7 +456,7 @@ export async function repairFeature(
     }
     verboseMessage(`Planning the repair of feature "${featureId}"...`);
     const plan = await planIdmFeatureRepair(featureId, {
-      ...(options.keepAligned ? { keepAligned: true } : {}),
+      ...(options.restoreCustomizations ? { restoreCustomizations: true } : {}),
       ...(options.authService ? { authService: options.authService } : {}),
     });
     if (!plan.repairable) {
@@ -296,7 +493,7 @@ export async function repairFeature(
         what: `repair the feature "${featureId}"`,
         yes: options.yes,
         dryRunAvailable: false,
-        warning: `This writes configuration to ${state.getHost()}. What it overwrites or deletes is written to ${backupDir} first.`,
+        warning: `This writes configuration to ${state.getHost()}. What it overwrites or deletes is written to ${backupDir} first.${customizationWarning(plan)}`,
       }))
     ) {
       return false;
@@ -330,12 +527,8 @@ export async function repairFeature(
         ),
     });
     printMessage(diagnosisText(result.diagnosis, { hint: false }), 'data');
-    if (plan.options.keepAligned) {
-      printMessage(
-        'The definitions stay aligned with the original, as asked.',
-        'info'
-      );
-    }
+    const summary = definitionSummary(result, backupDir, state.getHost());
+    if (summary) printMessage(summary, 'data');
     return reportOutcome(featureId, options, result, backupDir);
   } catch (error) {
     printError(error, `Error repairing feature "${featureId}"`);

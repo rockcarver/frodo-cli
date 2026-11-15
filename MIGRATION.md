@@ -330,8 +330,13 @@ diagnosis as JSON. A script that ran `validate -i aiagent` only to ask whether
 the feature can be installed adds `|| true`, or reads the exit code as "the
 feature is not healthy". The new option `--repair` fixes what the diagnosis
 found repairable, after a backup (`--backup-dir`, required) and one
-confirmation (`-y, --yes` skips it); see
-[a repair writes a backup first, changes only what it needs and never restores data by itself](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0051-a-repair-writes-a-backup-first-changes-only-what-it-needs-and-never-restores-data-by-itself.md).
+confirmation (`-y, --yes` skips it). A repair leaves every definition it had to
+align aligned with the original, so that the registry reads the feature
+installed; a customization (a changed title of a definition, an added mapping
+property) is replaced, listed in the plan and kept in the backup, and
+`--restore-customizations` puts it back after the repair (white space is never
+put back); see
+[a repair leaves the feature installed and puts customizations back only on request](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0052-a-repair-leaves-the-feature-installed-and-puts-customizations-back-only-on-request.md).
 
 **`aiagent import -f` imports only the first agent of the file**: in 4.x
 `frodo agent ai import -f <file>` (and `frodo aiagent import -f <file>` in 5.x
