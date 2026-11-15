@@ -391,3 +391,56 @@ describe('the hints for a request that failed because of its proxy', () => {
     }
   });
 });
+
+// A device login has no Access Management session, and the platform may not
+// issue the token of a device login that asks for fr:am:* (frodo-lib 5.0.0-44,
+// the access profile). The library states the facts and sets the code; the
+// advice is ours.
+describe('the hints for the access profile of an interactive login', () => {
+  const DEVICE_CODES = ['NO_AM_SESSION', 'DEVICE_LOGIN_TOKEN_NOT_ISSUED'];
+
+  test('23: the library has a code for each condition, and each has its own hint', () => {
+    expect(FrodoError.codes).toEqual(expect.arrayContaining(DEVICE_CODES));
+    for (const code of DEVICE_CODES) {
+      expect(ERROR_CODE_HINTS).toHaveProperty(code);
+    }
+    expect(ERROR_CODE_HINTS.NO_AM_SESSION).not.toBe(
+      ERROR_CODE_HINTS.DEVICE_LOGIN_TOKEN_NOT_ISSUED
+    );
+  });
+
+  test('24: the hint of a login that failed is found through the wrapper of the login', () => {
+    for (const code of DEVICE_CODES) {
+      const wrapped = new FrodoError(
+        'Error getting tokens',
+        new FrodoError('the facts', null, code)
+      );
+      expect(errorCodeOf(wrapped)).toBe(code);
+      expect(errorHintFor(wrapped)).toBe(ERROR_CODE_HINTS[code]);
+    }
+  });
+
+  test('25: each hint points to the ways to get Access Management: a browser login and a service account', () => {
+    for (const code of DEVICE_CODES) {
+      const hint = ERROR_CODE_HINTS[code];
+      expect({
+        code,
+        browser: hint.includes("'frodo login --browser'"),
+      }).toEqual({ code, browser: true });
+      expect({ code, serviceAccount: /service account/.test(hint) }).toEqual({
+        code,
+        serviceAccount: true,
+      });
+    }
+  });
+
+  test('26: the hint of a device login that cannot be issued a token names the scope and the option that sets it', () => {
+    const hint = ERROR_CODE_HINTS.DEVICE_LOGIN_TOKEN_NOT_ISSUED;
+    expect(hint).toContain('fr:am:*');
+    expect(hint).toContain('--login-scope');
+  });
+
+  test('27: the hint of a session without Access Management names the device login by its option', () => {
+    expect(ERROR_CODE_HINTS.NO_AM_SESSION).toContain('--device');
+  });
+});
