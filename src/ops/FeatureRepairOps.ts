@@ -75,7 +75,9 @@ export function repairOptionsProblem(
  * The refusals of a repair that need no tenant, so that they come before the
  * login (record 0037): without a terminal and without `-y` there is nobody to
  * ask for the confirmation, and without a terminal and without `--backup-dir`
- * nobody to ask for the backup directory, which a repair requires.
+ * nobody to ask for the backup directory, which a repair requires. When both
+ * are missing, one message names both and the command line that works, so that
+ * the user does not have to be refused twice.
  * @param {string} featureId the feature
  * @param {FeatureRepairOptions} options the options of the command
  * @returns {boolean} false, after printing the error, if the repair is refused
@@ -84,6 +86,14 @@ export function checkRepairBeforeLogin(
   featureId: string,
   options: FeatureRepairOptions
 ): boolean {
+  const noTerminal = !canPrompt();
+  if (noTerminal && !options.yes && !options.backupDir) {
+    printMessage(
+      `Refusing to repair the feature "${featureId}": there is no interactive terminal to ask for the confirmation and for the backup directory. Pass -y/--yes to go ahead without asking and --backup-dir <directory> for the backup, for example: ${c.command(`frodo feature validate -i ${featureId} --repair --backup-dir <directory> -y`)}`,
+      'error'
+    );
+    return false;
+  }
   if (
     !checkProceed({
       what: `repair the feature "${featureId}"`,
@@ -93,7 +103,7 @@ export function checkRepairBeforeLogin(
   ) {
     return false;
   }
-  if (!options.backupDir && !canPrompt()) {
+  if (!options.backupDir && noTerminal) {
     printMessage(
       `Refusing to repair the feature "${featureId}" without a backup: --backup-dir is required and there is no interactive terminal to ask for it. Pass --backup-dir <directory>.`,
       'error'

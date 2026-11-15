@@ -152,6 +152,10 @@ suite('feature validate through the CLI', () => {
     const refused = [
       [
         ['-i', 'aiagent', '--repair'],
+        /Refusing to repair the feature "aiagent": there is no interactive terminal to ask for the confirmation and for the backup directory\. Pass -y\/--yes .*--backup-dir <directory>/,
+      ],
+      [
+        ['-i', 'aiagent', '--repair', '--backup-dir', 'b'],
         /Refusing to repair the feature "aiagent" without confirmation: there is no interactive terminal to ask\. Pass -y\/--yes/,
       ],
       [
@@ -203,6 +207,23 @@ suite('feature validate through the CLI', () => {
         expect(code).toBe(1);
         expect(readRequests(recordPath)).toEqual([]);
         expect(fs.existsSync(path.join(work, 'b'))).toBe(false);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'a repair that lacks both the confirmation and the backup directory is refused once, not twice',
+      async () => {
+        const { code, stderr } = await validate(server, [
+          '-i',
+          'aiagent',
+          '--repair',
+        ]);
+
+        expect(stderr.match(/Refusing to repair/g)).toHaveLength(1);
+        expect(stderr).toContain('-y/--yes');
+        expect(stderr).toContain('--backup-dir <directory>');
+        expect(code).toBe(1);
       },
       TIMEOUT
     );
