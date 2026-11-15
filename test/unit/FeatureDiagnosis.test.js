@@ -57,11 +57,20 @@ describe('countFindings', () => {
     });
   });
 
-  test('a repairable warning is not counted as repairable: a warning is never repaired', () => {
+  test('a warning that the library marks repairable counts as repairable: white space that only makes the registry read "not installed" is repaired', () => {
     expect(
       countFindings({
         ...healthyDiagnosis,
-        findings: [finding('check-failed', 'warning', 'x', true)],
+        findings: [finding('definitions-cosmetic-drift', 'warning', 'x', true)],
+      })
+    ).toEqual({ functional: 0, warnings: 1, repairable: 1 });
+  });
+
+  test('a warning that is not marked repairable is not counted: it is never repaired', () => {
+    expect(
+      countFindings({
+        ...healthyDiagnosis,
+        findings: [finding('check-failed', 'warning', 'x')],
       })
     ).toEqual({ functional: 0, warnings: 1, repairable: 0 });
   });
@@ -84,6 +93,13 @@ describe('diagnosisSummary', () => {
         findings: [finding('gate-closed', 'error', 'x')],
       },
       '1 functional problem, 0 warnings; 0 repairable.',
+    ],
+    [
+      {
+        ...healthyDiagnosis,
+        findings: [finding('definitions-cosmetic-drift', 'warning', 'x', true)],
+      },
+      'No functional problem, 1 warning; 1 repairable.',
     ],
   ])('%#: says it in one line', (diagnosis, expected) => {
     expect(diagnosisSummary(diagnosis)).toBe(expected);
@@ -147,6 +163,30 @@ describe('diagnosisText', () => {
     );
     expect(text).toContain('No problem found.');
     expect(text).not.toContain('--repair');
+  });
+
+  test('a repairable warning (white space that makes the registry read "not installed") gets the repair hint, and a warning that is not repairable does not', () => {
+    const drift = lines({
+      ...healthyDiagnosis,
+      findings: [
+        finding(
+          'definitions-cosmetic-drift',
+          'warning',
+          '1 definition(s) differ from the original only in white space.',
+          true
+        ),
+      ],
+    }).join('\n');
+    const other = lines({
+      ...healthyDiagnosis,
+      findings: [finding('check-failed', 'warning', 'x')],
+    }).join('\n');
+
+    expect(drift).toContain('No functional problem, 1 warning; 1 repairable.');
+    expect(drift).toContain(
+      'Run "frodo feature validate -i aiagent --repair" to fix them. A backup is written first.'
+    );
+    expect(other).not.toContain('--repair');
   });
 
   test('lists the differences of the definitions under their finding', () => {

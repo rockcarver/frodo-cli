@@ -13,7 +13,9 @@ import {
   brokenDiagnosis,
   finding,
   repairPlan,
+  repairPlanRestoring,
   repairResult,
+  repairResultRestoring,
 } from '../utils/FeatureDiagnosisFixtures.js';
 
 /**
@@ -113,7 +115,10 @@ describe('repairOptionsProblem', () => {
   test.each([
     [{ yes: true }, '--yes requires --repair.'],
     [{ backupDir: 'x' }, '--backup-dir requires --repair.'],
-    [{ keepAligned: true }, '--keep-aligned requires --repair.'],
+    [
+      { restoreCustomizations: true },
+      '--restore-customizations requires --repair.',
+    ],
     [{ authService: 'Login' }, '--auth-service requires --repair.'],
     [{ wait: true }, '--wait requires --repair.'],
     [
@@ -139,7 +144,7 @@ describe('repairOptionsProblem', () => {
   test.each([
     [{}],
     [{ repair: true }],
-    [{ repair: true, yes: true, backupDir: 'x', keepAligned: true }],
+    [{ repair: true, yes: true, backupDir: 'x', restoreCustomizations: true }],
     [{ repair: true, wait: true, timeoutSeconds: 600, authService: 'Login' }],
   ])('%j is fine', (options) => {
     expect(repairOptionsProblem(options)).toBeUndefined();
@@ -437,18 +442,38 @@ describe('repairFeature, what it hands to the library', () => {
     ).toBeUndefined();
   });
 
-  test('--keep-aligned and --auth-service go into the plan', async () => {
+  test('--restore-customizations and --auth-service go into the plan', async () => {
     await repairFeature('aiagent', {
       backupDir,
       yes: true,
-      keepAligned: true,
+      restoreCustomizations: true,
       authService: 'ZionLogin',
     });
 
     expect(idmFeature.planIdmFeatureRepair).toHaveBeenCalledWith('aiagent', {
-      keepAligned: true,
+      restoreCustomizations: true,
       authService: 'ZionLogin',
     });
+  });
+
+  test('without --restore-customizations the plan is asked for with no such option: the default of the library leaves everything aligned', async () => {
+    await repairFeature('aiagent', { backupDir, yes: true });
+    await repairFeature('aiagent', {
+      backupDir: `${backupDir}-2`,
+      yes: true,
+      restoreCustomizations: false,
+    });
+
+    expect(idmFeature.planIdmFeatureRepair).toHaveBeenNthCalledWith(
+      1,
+      'aiagent',
+      {}
+    );
+    expect(idmFeature.planIdmFeatureRepair).toHaveBeenNthCalledWith(
+      2,
+      'aiagent',
+      {}
+    );
   });
 
   test('--wait --timeout: the seconds of the command line are milliseconds for the library (core 0020)', async () => {
@@ -628,17 +653,103 @@ describe('repairFeature, the outcome', () => {
     expect(error).toContain('frodo feature validate -i aiagent');
   });
 
-  test('--keep-aligned says that the definitions stay aligned', async () => {
-    idmFeature.planIdmFeatureRepair.mockResolvedValue({
-      ...repairPlan,
-      options: { ...repairPlan.options, keepAligned: true },
+  describe('the customizations: replaced by default, put back on request', () => {
+    test('the default: the question names the customization and how to keep it, before anything is written', async () => {
+      await repairFeature('aiagent', { backupDir });
+
+      const warning = printed('warn').join('\n');
+      expect(warning).toContain('replaces 1 customization');
+      expect(warning).toContain('alpha_aiagent  schema.title');
+      expect(warning).toContain('pass --restore-customizations to keep it');
+      expect(confirm).toHaveBeenCalledTimes(1);
     });
 
-    await repairFeature('aiagent', { backupDir, yes: true, keepAligned: true });
+    test('the plan lists the customization with the value that goes and the original, and says how to keep it', async () => {
+      await repairFeature('aiagent', { backupDir, yes: true });
 
-    expect(printed('info').join('\n')).toContain(
-      'The definitions stay aligned with the original, as asked.'
-    );
+      const text = everything();
+      expect(text).toContain(
+        '1 customization that this repair replaces with the original, so that the registry reads the feature installed:'
+      );
+      expect(text).toContain('in the tenant: "Zion Agent"');
+      expect(text).toContain('original:      "AI Agent"');
+      expect(text).toContain('Pass --restore-customizations to put it back');
+      expect(text).toContain(
+        'What the tenant has now is written to the backup.'
+      );
+    });
+
+    test('the summary says what was replaced, and where the previous value is', async () => {
+      await repairFeature('aiagent', { backupDir, yes: true });
+
+      const text = everything();
+      expect(text).toContain(
+        'Replaced 1 customization with the original, so that the registry reads the feature installed:'
+      );
+      expect(text).toContain('was: "Zion Agent"');
+      expect(text).toContain('now: "AI Agent"');
+      expect(text).toContain(
+        `The values it had is in the backup (${backupDir}).`
+      );
+      expect(text).toContain(
+        'Normalised 2 white-space differences (never put back): alpha_aiagent  onDelete.source; bravo_aiagent  onDelete.source.'
+      );
+    });
+
+    test('with --restore-customizations the plan and the summary say the customization is put back, and that the registry reads "not installed" meanwhile', async () => {
+      idmFeature.planIdmFeatureRepair.mockResolvedValue(repairPlanRestoring);
+      idmFeature.repairIdmFeature.mockResolvedValue(repairResultRestoring);
+
+      await repairFeature('aiagent', {
+        backupDir,
+        yes: true,
+        restoreCustomizations: true,
+      });
+
+      const text = everything();
+      expect(text).toContain(
+        '1 customization that this repair puts back at the end (--restore-customizations):'
+      );
+      expect(text).toContain('Put back 1 customization, as asked:');
+      expect(text).toContain(
+        'The registry reads "not installed" while it is in place.'
+      );
+      expect(text).not.toContain('Replaced 1 customization');
+      expect(text).not.toContain('replaces 1 customization');
+    });
+
+    test('a repair of white space only has nothing to ask about a customization and says nothing of one', async () => {
+      idmFeature.planIdmFeatureRepair.mockResolvedValue({
+        ...repairPlan,
+        customizations: [],
+      });
+      idmFeature.repairIdmFeature.mockResolvedValue({
+        ...repairResult,
+        customizations: [],
+      });
+
+      await repairFeature('aiagent', { backupDir });
+
+      expect(printed('warn').join('\n')).not.toContain('customization');
+      const text = everything();
+      expect(text).not.toContain('that this repair replaces with the original');
+      expect(text).not.toContain('Replaced');
+      expect(text).toContain('White space that the repair normalises');
+      expect(text).toContain('Normalised 2 white-space differences');
+    });
+
+    test('a repair that aligned nothing prints no summary of definitions', async () => {
+      idmFeature.repairIdmFeature.mockResolvedValue({
+        ...repairResult,
+        normalised: [],
+        customizations: [],
+      });
+
+      await repairFeature('aiagent', { backupDir, yes: true });
+
+      expect(everything()).not.toContain('Normalised');
+      expect(everything()).not.toContain('Replaced');
+    });
   });
 
   test('a library error during the repair: printed, exit 1, and the backup is named', async () => {
@@ -666,13 +777,13 @@ describe('planText', () => {
 
   test('numbers the steps in the order they run and says what kind each is', () => {
     expect(text).toContain(
-      'Repair plan for feature "aiagent" (7 steps, 5 writes to the tenant):'
+      'Repair plan for feature "aiagent" (6 steps, 4 writes to the tenant):'
     );
     expect(text).toMatch(
       /1\. \[write\] Create the OAuth 2\.0 provider of the realm bravo/
     );
     expect(text).toMatch(/4\. \[write\] Run the enable action/);
-    expect(text).toMatch(/7\. \[read\] Diagnose the feature again\./);
+    expect(text).toMatch(/6\. \[read\] Diagnose the feature again\./);
     expect(text.indexOf('1. [write]')).toBeLessThan(text.indexOf('4. [write]'));
   });
 
@@ -693,14 +804,22 @@ describe('planText', () => {
     expect(align).toContain('after:  "return value;\\n"');
   });
 
-  test('restoring shows it the other way round', () => {
-    const restore = text.slice(
-      text.indexOf('6. [write]'),
-      text.indexOf('7. [read]')
+  test('the default plan has no step that puts anything back', () => {
+    expect(text).not.toContain('Put the');
+    expect(text).not.toContain('restore-definitions');
+  });
+
+  test('with --restore-customizations the restore step puts the customization back: before is the original, after is the tenant value', () => {
+    const restoring = plain(planText(repairPlanRestoring, false));
+    const restore = restoring.slice(
+      restoring.indexOf('6. [write]'),
+      restoring.indexOf('7. [read]')
     );
 
-    expect(restore).toContain('before: "return value;\\n"');
-    expect(restore).toContain('after:  "return value;"');
+    expect(restoring).toContain('(7 steps, 5 writes to the tenant)');
+    expect(restore).toContain('alpha_aiagent  schema.title');
+    expect(restore).toContain('before: "AI Agent"');
+    expect(restore).toContain('after:  "Zion Agent"');
   });
 
   test('a value that is long is cut and sized, and one that is absent says so', () => {

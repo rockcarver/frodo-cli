@@ -58,8 +58,8 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--keep-aligned',
-        'Leave the definitions of the feature aligned with the original after the repair, so that the registry reads installed. Without it, definitions that had to be aligned for the repair are put back as the user had them. Requires --repair.'
+        '--restore-customizations',
+        'Put the customizations of the feature (a changed title of a definition, an added mapping property) back after the repair. Without it the repair leaves every definition aligned with the original, so that the registry reads the feature installed: the plan lists the customizations it replaces, and their previous values are in the backup. White space is never put back. Requires --repair.'
       )
     )
     .addOption(
@@ -99,6 +99,10 @@ export default function setup() {
         `  Repair it and wait up to 10 minutes for AM to open the gate:\n` +
         c.command(
           `  $ frodo feature validate -i ${s.repairableFeatureId} --repair --backup-dir ${s.featureBackupDirectory} --wait --timeout 600 -y ${s.amBaseUrl}\n`
+        ) +
+        `  Repair it and put the customizations (a changed title, an added mapping property) back afterwards:\n` +
+        c.command(
+          `  $ frodo feature validate -i ${s.repairableFeatureId} --repair --backup-dir ${s.featureBackupDirectory} --restore-customizations -y ${s.amBaseUrl}\n`
         )
     )
     .action(
@@ -114,7 +118,7 @@ export default function setup() {
         const repairOptions = {
           yes: options.yes,
           backupDir: options.backupDir,
-          keepAligned: options.keepAligned,
+          restoreCustomizations: options.restoreCustomizations,
           authService: options.authService,
           wait: options.wait,
           timeoutSeconds: options.timeout,
