@@ -330,7 +330,7 @@ export async function repairFeature(
         ),
     });
     printMessage(diagnosisText(result.diagnosis, { hint: false }), 'data');
-    if (plan.options.keepAligned) {
+    if (options.keepAligned) {
       printMessage(
         'The definitions stay aligned with the original, as asked.',
         'info'
