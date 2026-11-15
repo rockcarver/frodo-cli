@@ -466,6 +466,46 @@ suite('idm export and import of raw configuration objects', () => {
     );
 
     it(
+      'imports an object whose idm property holds objects that are not configuration objects (no _id): it is not a wrapper',
+      async () => {
+        const server = await tenant();
+        const object = { _id: 'x', idm: { nested: { a: 1 } } };
+        write('nested.json', object);
+
+        const { code } = await idm('import', server, [
+          '-i',
+          'x',
+          '-f',
+          'nested.json',
+          '--raw',
+        ]);
+
+        expect(code).toBe(0);
+        const puts = written();
+        expect(puts).toHaveLength(1);
+        expect(JSON.parse(puts[0].body)).toEqual(object);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'with -f but no file name and no -i there is nothing to import: the message names both options, and nothing is written',
+      async () => {
+        const server = await tenant();
+
+        const { code, stderr } = await idm('import', server, ['-f', '--raw']);
+
+        expect(stderr).toMatch(
+          /Raw import needs the id of the config entity \(-i\) or a file \(-f\) that holds it/
+        );
+        expect(stderr).not.toMatch(/TypeError|undefined/);
+        expect(code).toBe(1);
+        expect(written()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
       'refuses a Frodo export (a file with the idm wrapper) and writes nothing: it would replace the object with the wrapper',
       async () => {
         const server = await tenant();
@@ -707,6 +747,40 @@ suite('idm export and import of raw configuration objects', () => {
   });
 
   describe('idm import of a Frodo export still works as it did', () => {
+    it.each([
+      [
+        'sync',
+        { sync: { mappings: SYNC.mappings } },
+        { _id: 'sync', mappings: SYNC.mappings },
+      ],
+      [
+        'managed',
+        { managed: { objects: MANAGED.objects } },
+        { _id: 'managed', objects: MANAGED.objects },
+      ],
+    ])(
+      '-i %s -f imports a file of the versions before 3.0, which holds the object at the top level and has no idm wrapper',
+      async (id, content, expected) => {
+        const server = await tenant();
+        write('legacy.json', content);
+
+        const { code, stderr } = await idm('import', server, [
+          '-i',
+          id,
+          '-f',
+          'legacy.json',
+        ]);
+
+        expect(stderr).not.toMatch(/not a Frodo IDM export/);
+        expect(code).toBe(0);
+        const puts = written();
+        expect(puts).toHaveLength(1);
+        expect(puts[0].url).toContain(`/openidm/config/${id}`);
+        expect(JSON.parse(puts[0].body)).toEqual(expected);
+      },
+      TIMEOUT
+    );
+
     it(
       '-i sync -f imports the mappings of the wrapped file',
       async () => {
