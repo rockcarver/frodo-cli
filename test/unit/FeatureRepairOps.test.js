@@ -677,6 +677,10 @@ describe('repairFeature, the outcome', () => {
       expect(text).toContain(
         'What the tenant has now is written to the backup.'
       );
+      // the white space is on its own line and does not include the customization
+      expect(text).toContain(
+        'White space that the repair normalises and never puts back (2): alpha_aiagent  onDelete.source; bravo_aiagent  onDelete.source.'
+      );
     });
 
     test('the summary says what was replaced, and where the previous value is', async () => {
