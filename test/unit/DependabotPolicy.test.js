@@ -2,13 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, expect, it } from '@jest/globals';
-import {
-  isManualName,
-  isToolingName,
-  MIN_AGE_DAYS,
-  REQUIRED_GROUP,
-  TOOLING_PATTERNS,
-} from '../../scripts/dependabot-auto-merge.mjs';
 
 /**
  * The Dependabot policy of core 0023 (docs/decisions/core/0023-...md) says which
@@ -19,7 +12,19 @@ import {
  * this test keeps it honest: a bundled package cannot slip into it by a
  * pattern, a dead pattern fails, the cooldown and the workflow agree with the
  * file. It does not judge whether a package should be tooling.
+ *
+ * The decision itself is made by the shared action
+ * gearsnlevers/dependabot-auto-merge-action, which reads the tooling list from
+ * this repository's dependabot.yml, so the list cannot drift from a copy of it.
+ * What stays here is what only this repository can check: what it ships.
  */
+
+/** The group of dependabot.yml that may be armed (core 0023). */
+const REQUIRED_GROUP = 'tooling';
+/** The age in days that the cooldown of dependabot.yml and the action both ask for (core 0023). */
+const MIN_AGE_DAYS = 7;
+/** The words that keep a package manual: Prettier, TypeScript and ESLint with their plugins and configs (core 0023). */
+const MANUAL_WORDS = ['eslint', 'prettier', 'typescript'];
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -29,6 +34,14 @@ const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const PIN = '@rockcarver/frodo-lib';
 /** The bundler that writes the shipped file: it is treated like a bundled package (core 0023). */
 const BUNDLER = 'tsdown';
+
+/** Whether a name stays manual: a whole word of it (split at `/`, `@` and `-`) is eslint, prettier or typescript. */
+export function isManualName(name) {
+  return String(name)
+    .toLowerCase()
+    .split(/[/@-]+/)
+    .some((word) => MANUAL_WORDS.includes(word));
+}
 
 /** A Dependabot pattern: `*` matches any run of characters. */
 export function matchesPattern(name, pattern) {
@@ -151,6 +164,32 @@ describe('the reader of dependabot.yml and the pattern matcher', () => {
     expect(matchesPattern('axb', 'a.b')).toBe(false);
   });
 
+  it('keeps a package manual when a whole word of its name is eslint, prettier or typescript', () => {
+    for (const name of [
+      'eslint',
+      'prettier',
+      'typescript',
+      'eslint-plugin-import-x',
+      'prettier-plugin-sh',
+      '@typescript-eslint/parser',
+      '@eslint/js',
+      'ESLint-config-x',
+    ]) {
+      expect([name, isManualName(name)]).toEqual([name, true]);
+    }
+    for (const name of [
+      'ts-jest',
+      'tsdown',
+      'prettierx',
+      'typescripts',
+      'jest',
+      '@types/node',
+      '',
+    ]) {
+      expect([name, isManualName(name)]).toEqual([name, false]);
+    }
+  });
+
   it('reads the ecosystems, the cooldown and the groups of the file', () => {
     expect(updates.map((u) => u.ecosystem)).toEqual(['npm', 'github-actions']);
     expect(Object.keys(npm.groups)).toEqual([REQUIRED_GROUP]);
@@ -199,17 +238,6 @@ describe('core 0023: only tooling merges without a person', () => {
     expect(
       tooling.filter((pattern) => matchesPattern(BUNDLER, pattern))
     ).toEqual([]);
-    expect(isToolingName(BUNDLER)).toBe(false);
-  });
-
-  it('the script knows the same tooling list as dependabot.yml, because a security update has no group', () => {
-    expect([...TOOLING_PATTERNS].sort()).toEqual([...tooling].sort());
-    for (const name of [...devDependencies, ...bundled]) {
-      expect([name, isToolingName(name)]).toEqual([
-        name,
-        tooling.some((pattern) => matchesPattern(name, pattern)),
-      ]);
-    }
   });
 
   it('the cooldown is the age that the auto-merge asks for, and excludes only what is ours', () => {
