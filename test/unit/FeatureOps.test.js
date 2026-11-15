@@ -331,6 +331,231 @@ describe('installFeatureCli', () => {
   });
 });
 
+describe('installFeatureCli, definitions that are in the tenant but differ (frodo-cli#1332)', () => {
+  // The registry reads "not installed" when definitions of the feature are in
+  // the tenant but differ from the original, and an install then adds them a
+  // second time: for a feature the library can diagnose, the install asks the
+  // diagnosis first and refuses, with -y too, and sends nothing to the install
+  // endpoint.
+  const differences = [
+    {
+      object: 'alpha_aiagent',
+      location: 'onDelete.source',
+      cosmeticClass: 'whitespace',
+    },
+    {
+      object: 'bravo_aiagent',
+      location: 'schema.title',
+      cosmeticClass: 'title',
+    },
+  ];
+  const driftOf = (id, severity) =>
+    finding(
+      id,
+      severity,
+      '2 definition(s) of the feature differ from the original; that is why the registry reads not installed.',
+      false,
+      { differences }
+    );
+  const notInstalled = finding(
+    'registry-not-installed',
+    'warning',
+    'The registry reports no installed version.'
+  );
+  const diagnosisOf = (...findings) => ({
+    featureId: ID,
+    supported: true,
+    installedVersion: null,
+    availableVersions: ['1'],
+    findings,
+  });
+
+  beforeEach(() => {
+    idmFeature.installIdmFeature.mockResolvedValue(rawInstallOk);
+  });
+
+  test.each([
+    [
+      'cosmetic drift that makes the registry read not installed (error)',
+      'definitions-cosmetic-drift',
+      'error',
+    ],
+    [
+      'cosmetic drift while the feature works (warning)',
+      'definitions-cosmetic-drift',
+      'warning',
+    ],
+    ['structural drift', 'definitions-structural-drift', 'error'],
+  ])(
+    '%s: refused with -y, nothing sent to the install endpoint, exit 1',
+    async (_name, id, severity) => {
+      idmFeature.diagnoseIdmFeature.mockResolvedValue(
+        diagnosisOf(notInstalled, driftOf(id, severity))
+      );
+
+      await expect(installFeatureCli(ID, true)).resolves.toBe(false);
+
+      expect(idmFeature.diagnoseIdmFeature).toHaveBeenCalledTimes(1);
+      expect(idmFeature.diagnoseIdmFeature).toHaveBeenCalledWith(ID);
+      expect(idmFeature.installIdmFeature).not.toHaveBeenCalled();
+      expect(confirm).not.toHaveBeenCalled();
+      expect(printError).not.toHaveBeenCalled();
+      const [text] = printedOfType('error');
+      expect(printedOfType('error')).toHaveLength(1);
+      expect(text).toContain(`Refusing to install the feature "${ID}"`);
+      expect(text).toContain('would add them a second time');
+      // the finding, with the differences under it, and what to do about it
+      expect(text).toContain(
+        '2 definition(s) of the feature differ from the original'
+      );
+      expect(text).toContain('alpha_aiagent  onDelete.source  whitespace');
+      expect(text).toContain('bravo_aiagent  schema.title  title');
+      expect(text).toContain(`frodo feature validate -i ${ID}`);
+      expect(text).toContain(`frodo feature validate -i ${ID} --repair`);
+      // the registry finding is not repeated: only the drift is the reason
+      expect(text).not.toContain('The registry reports no installed version.');
+      // no confirmation warning was printed either
+      expect(printedOfType('warn')).toEqual([]);
+    }
+  );
+
+  test('refused on a terminal without -y too: the user is not asked first', async () => {
+    setTerminal(true);
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(
+      diagnosisOf(
+        notInstalled,
+        driftOf('definitions-cosmetic-drift', 'warning')
+      )
+    );
+
+    await expect(installFeatureCli(ID, false)).resolves.toBe(false);
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(idmFeature.installIdmFeature).not.toHaveBeenCalled();
+    expect(printedOfType('warn')).toEqual([]);
+  });
+
+  test('refused without a terminal and without -y: the refusal names the drift, not the missing -y', async () => {
+    setTerminal(false);
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(
+      diagnosisOf(
+        notInstalled,
+        driftOf('definitions-structural-drift', 'error')
+      )
+    );
+
+    await expect(installFeatureCli(ID, false)).resolves.toBe(false);
+
+    const [text] = printedOfType('error');
+    expect(text).toContain(`Refusing to install the feature "${ID}"`);
+    expect(text).not.toContain('Refusing to prompt');
+    expect(idmFeature.installIdmFeature).not.toHaveBeenCalled();
+  });
+
+  test('the diagnosis is asked before the confirmation', async () => {
+    setTerminal(true);
+    confirm.mockResolvedValue(true);
+    const order = [];
+    idmFeature.diagnoseIdmFeature.mockImplementation(async () => {
+      order.push('diagnose');
+      return diagnosisOf(notInstalled);
+    });
+    confirm.mockImplementation(async () => {
+      order.push('confirm');
+      return true;
+    });
+
+    await expect(installFeatureCli(ID, false)).resolves.toBe(true);
+
+    expect(order).toEqual(['diagnose', 'confirm']);
+  });
+
+  test('no drift: a feature that is not installed is installed as before', async () => {
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(diagnosisOf(notInstalled));
+
+    await expect(installFeatureCli(ID, true)).resolves.toBe(true);
+
+    expect(idmFeature.diagnoseIdmFeature).toHaveBeenCalledTimes(1);
+    expect(idmFeature.installIdmFeature).toHaveBeenCalledTimes(1);
+    expect(idmFeature.installIdmFeature).toHaveBeenCalledWith(ID);
+    expect(printedOfType('success')).toEqual([`Installed feature "${ID}".`]);
+    expect(printedOfType('error')).toEqual([]);
+  });
+
+  test('a problem that is not a drift (a closed gate, a missing provider) does not keep the install from going ahead', async () => {
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(
+      diagnosisOf(
+        notInstalled,
+        finding(
+          'gate-closed',
+          'error',
+          'AM does not accept AI agents in the realm alpha.'
+        ),
+        finding(
+          'provider-missing',
+          'error',
+          'The realm bravo has no OAuth 2.0 provider.',
+          true
+        )
+      )
+    );
+
+    await expect(installFeatureCli(ID, true)).resolves.toBe(true);
+
+    expect(idmFeature.installIdmFeature).toHaveBeenCalledTimes(1);
+  });
+
+  test('a diagnosis that says the library does not judge the feature does not keep it back', async () => {
+    idmFeature.diagnoseIdmFeature.mockResolvedValue({
+      ...unsupportedDiagnosis,
+      featureId: ID,
+      // even if findings were present, an unsupported diagnosis is not judged
+      findings: [driftOf('definitions-cosmetic-drift', 'warning')],
+    });
+
+    await expect(installFeatureCli(ID, true)).resolves.toBe(true);
+
+    expect(idmFeature.installIdmFeature).toHaveBeenCalledTimes(1);
+  });
+
+  test('a feature outside the list: the diagnosis is not asked, the requests are the ones it always sent', async () => {
+    expect(FEATURES_WITH_DIAGNOSIS).not.toContain('groups');
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(
+      diagnosisOf(driftOf('definitions-cosmetic-drift', 'error'))
+    );
+
+    await expect(installFeatureCli('groups', true)).resolves.toBe(true);
+
+    expect(idmFeature.diagnoseIdmFeature).not.toHaveBeenCalled();
+    expect(idmFeature.hasIdmFeature).toHaveBeenCalledTimes(1);
+    expect(idmFeature.installIdmFeature).toHaveBeenCalledWith('groups');
+  });
+
+  test('an installed feature says so and the diagnosis is not asked', async () => {
+    idmFeature.hasIdmFeature.mockResolvedValue(true);
+
+    await expect(installFeatureCli(ID, true)).resolves.toBe(true);
+
+    expect(idmFeature.diagnoseIdmFeature).not.toHaveBeenCalled();
+    expect(idmFeature.installIdmFeature).not.toHaveBeenCalled();
+  });
+
+  test('a diagnosis that cannot be made is reported, fails the command and installs nothing', async () => {
+    const error = new Error('Error diagnosing IDM feature aiagent');
+    idmFeature.diagnoseIdmFeature.mockRejectedValue(error);
+
+    await expect(installFeatureCli(ID, true)).resolves.toBe(false);
+
+    expect(printError).toHaveBeenCalledTimes(1);
+    expect(printError).toHaveBeenCalledWith(
+      error,
+      `Error installing feature "${ID}"`
+    );
+    expect(idmFeature.installIdmFeature).not.toHaveBeenCalled();
+    expect(confirm).not.toHaveBeenCalled();
+  });
+});
+
 describe('validateFeature', () => {
   test.each([
     ['the response as the tenant sent it', rawValidateFailed],

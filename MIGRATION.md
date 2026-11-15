@@ -301,6 +301,20 @@ holds with `--no-validate` when the key file cannot be read. A script that
 relied on exit code 0 has to fix the key file, or save the profile without
 `--sa-id` and `--sa-jwk-file` and add the service account afterwards.
 
+**`feature install -i aiagent` refuses when the definitions of the feature are
+in the tenant but differ from the original**: `frodo feature install` asked only
+the registry whether the feature was installed. The registry reads "not
+installed" also when the definitions of the feature are in the tenant but are
+not the original (a trailing newline, a changed title), and installing then adds
+them a second time
+([frodo-cli#1332](https://github.com/rockcarver/frodo-cli/issues/1332)). For
+`aiagent` the command now asks the diagnosis first and, when it finds such
+definitions, refuses (with `-y` too): it prints what differs, names `frodo
+feature validate -i aiagent` and `frodo feature validate -i aiagent --repair`,
+sends nothing to the install endpoint and exits with code 1. A script that
+installed `aiagent` on such a tenant repairs it first. A tenant without the
+definitions, and every other feature, are installed as before.
+
 **`feature validate -i aiagent` exits 1 when the AI agents feature does not work,
 and prints a diagnosis**: in 4.x and in earlier 5.x versions `frodo feature
 validate` printed `Valid` or `Invalid` and exited with code 0 whenever the check

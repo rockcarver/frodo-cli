@@ -549,4 +549,146 @@ suite('feature validate through the CLI', () => {
       TIMEOUT
     );
   });
+
+  // frodo-cli#1332: the registry reads "not installed" when definitions of the
+  // feature are in the tenant but differ from the original, and an install then
+  // adds them a second time. The install asks the diagnosis first (for the
+  // features the library can diagnose) and refuses; nothing is sent to the
+  // install endpoint. The fake tenant does not serve the install action, so the
+  // request log is what shows whether an install was attempted.
+  describe('feature install', () => {
+    const install = (server, id) =>
+      run([
+        'feature',
+        'install',
+        '-i',
+        id,
+        '-y',
+        `http://127.0.0.1:${server.port}/am`,
+        '--type',
+        'cloud',
+      ]);
+    const installRequests = (requests) =>
+      requests.filter(
+        ({ method, url }) =>
+          method === 'POST' && url.includes('_action=install')
+      );
+
+    describe('aiagent whose definitions are in the tenant but are not the original', () => {
+      let server;
+      beforeAll(async () => {
+        server = await fake({
+          features: [
+            {
+              _id: 'aiagent',
+              installedVersion: null,
+              availableVersions: ['1'],
+            },
+          ],
+          // one object of the feature and nothing else of it
+          idmConfig: {
+            managed: {
+              _id: 'managed',
+              objects: [{ name: 'alpha_aiagent', schema: { type: 'object' } }],
+            },
+            'repo.ds': {
+              _id: 'repo.ds',
+              resourceMapping: { explicitMapping: {} },
+            },
+          },
+        });
+      });
+
+      it(
+        'refuses with -y, says what differs and what to do, exits 1, and sends nothing to the install endpoint',
+        async () => {
+          fs.rmSync(recordPath, { force: true });
+
+          const { code, stdout, stderr } = await install(server, 'aiagent');
+
+          const text = `${stdout}${stderr}`;
+          expect(text).toContain('Refusing to install the feature "aiagent"');
+          expect(text).toContain('would add them a second time');
+          expect(text).toContain('alpha_aiagent  schema.properties  missing');
+          expect(text).toContain('frodo feature validate -i aiagent --repair');
+          expect(text).not.toContain('This cannot be undone');
+          expect(code).toBe(1);
+          const requests = readRequests(recordPath);
+          // it did log in and read the tenant, so the empty list of writes means something
+          expect(
+            requests.some(({ url }) => url.includes('/openidm/config/managed'))
+          ).toBe(true);
+          expect(installRequests(requests)).toEqual([]);
+          expect(writesOf(requests)).toEqual([]);
+        },
+        TIMEOUT
+      );
+    });
+
+    describe('aiagent on a tenant that never had it', () => {
+      let server;
+      beforeAll(async () => {
+        server = await fake({
+          features: [
+            {
+              _id: 'aiagent',
+              installedVersion: null,
+              availableVersions: ['1'],
+            },
+          ],
+          idmConfig: {
+            managed: { _id: 'managed', objects: [] },
+            'repo.ds': {
+              _id: 'repo.ds',
+              resourceMapping: { explicitMapping: {} },
+            },
+          },
+        });
+      });
+
+      it(
+        'is not held back: the diagnosis is asked and the install request goes out as before',
+        async () => {
+          fs.rmSync(recordPath, { force: true });
+
+          const { stdout, stderr } = await install(server, 'aiagent');
+
+          expect(`${stdout}${stderr}`).not.toContain('Refusing to install');
+          const requests = readRequests(recordPath);
+          expect(
+            requests.some(({ url }) => url.includes('/openidm/config/managed'))
+          ).toBe(true);
+          expect(installRequests(requests)).toHaveLength(1);
+        },
+        TIMEOUT
+      );
+    });
+
+    describe('a feature the library cannot diagnose', () => {
+      let server;
+      beforeAll(async () => {
+        server = await fake({
+          features: [
+            { _id: 'groups', installedVersion: null, availableVersions: ['1'] },
+          ],
+        });
+      });
+
+      it(
+        'is installed as it always was: the diagnosis is not asked, so the configuration is not read',
+        async () => {
+          fs.rmSync(recordPath, { force: true });
+
+          await install(server, 'groups');
+
+          const requests = readRequests(recordPath);
+          expect(
+            requests.some(({ url }) => url.includes('/openidm/config'))
+          ).toBe(false);
+          expect(installRequests(requests)).toHaveLength(1);
+        },
+        TIMEOUT
+      );
+    });
+  });
 });

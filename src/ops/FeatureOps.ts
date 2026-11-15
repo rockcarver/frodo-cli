@@ -5,8 +5,10 @@ import { createTable, printError, printMessage } from '../utils/Console';
 import { isNotFoundError } from '../utils/ErrorCause';
 import { featureAdvice } from './FeatureAdvice';
 import {
+  definitionDriftFindings,
   diagnosisText,
   hasFunctionalProblem,
+  installRefusedText,
   type FeatureDiagnosis,
 } from './FeatureDiagnosis';
 import { featureOutcome } from './FeatureOutcome';
@@ -225,6 +227,13 @@ export async function validateFeature(
  * requires contacting Ping support and rolling back the tenant. Refuses
  * unless explicitly confirmed, or already installed. An install that the
  * tenant reports as failed prints its reasons, one per line, and fails.
+ * For a feature the library can diagnose (see `FEATURES_WITH_DIAGNOSIS`) the
+ * diagnosis comes first: when definitions of the feature are in the tenant but
+ * differ from the original, the registry reads "not installed" and an install
+ * would add them a second time, so it refuses (with `-y` too), says what is
+ * different and names the commands that look at it and repair it, and sends
+ * nothing to the install endpoint. A diagnosis that cannot be made fails the
+ * command; any other feature is installed as it always was.
  * @param {string} featureId feature id, e.g. 'aiagent'
  * @param {boolean} skipConfirmation true to skip the confirmation prompt
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -237,6 +246,22 @@ export async function installFeatureCli(
     if (await hasIdmFeature(featureId)) {
       printMessage(`Feature "${featureId}" is already installed.`, 'info');
       return true;
+    }
+    // The registry reads "not installed" also when the definitions of the
+    // feature are in the tenant but differ from the original, and installing
+    // then would add them a second time: for a feature the library can
+    // diagnose, ask it before anything is asked of the user or the tenant.
+    // A diagnosis that cannot be made is an error (caught below): the install
+    // does not go ahead on a guess.
+    if (FEATURES_WITH_DIAGNOSIS.includes(featureId)) {
+      const diagnosis = await diagnoseIdmFeature(featureId);
+      const drift = diagnosis.supported
+        ? definitionDriftFindings(diagnosis)
+        : [];
+      if (drift.length > 0) {
+        printMessage(installRefusedText(featureId, drift), 'error');
+        return false;
+      }
     }
     if (
       !(await confirmChange(
