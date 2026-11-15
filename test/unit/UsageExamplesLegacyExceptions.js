@@ -190,8 +190,6 @@ export const LEGACY_COMMANDS_WITHOUT_EXAMPLES = [
   'frodo esv variable set',
   'frodo idm count',
   'frodo idm delete',
-  'frodo idm export',
-  'frodo idm import',
   'frodo idm list',
   'frodo idp delete',
   'frodo idp export',

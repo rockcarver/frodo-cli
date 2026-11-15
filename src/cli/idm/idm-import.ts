@@ -1,12 +1,15 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
   importAllConfigEntitiesFromFile,
   importAllConfigEntitiesFromFiles,
   importConfigEntityByIdFromFile,
   importFirstConfigEntityFromFile,
+  importRawConfigEntityFromFile,
 } from '../../ops/IdmOps';
+import c from '../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -35,6 +38,7 @@ export default function setup() {
     allSeparate?: string;
     directory?: string;
     allowFailures?: boolean;
+    raw?: boolean;
   }
 
   program
@@ -68,6 +72,28 @@ export default function setup() {
         '-A, --all-separate',
         'Import all IDM configuration objects from separate files in directory -D. Cannot be used with -i, -f or -a.'
       ).conflicts(['entityId', 'file', 'all'])
+    )
+    .addOption(
+      new Option(
+        '-r, --raw',
+        'Import a file that holds the configuration object as IDM serves it, without the "idm" wrapper (what "idm export --raw" writes). The object is named by -i, or by its _id when only -f is given; with -i and no -f the file is <id>.json. Cannot be used with -a, -A or -e.'
+      ).conflicts(['all', 'allSeparate', 'entitiesFile'])
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Import the sync mappings from sync.idm.json, exported earlier with -i:\n` +
+        c.command(
+          `  $ frodo idm import -i sync -f sync.idm.json ${s.connId}\n`
+        ) +
+        `  Import every IDM configuration object from a single file, exported earlier with -a:\n` +
+        c.command(`  $ frodo idm import -a -f idm-config.json ${s.connId}\n`) +
+        `  Import every IDM configuration object from the separate files of a directory, exported earlier with -A:\n` +
+        c.command(`  $ frodo idm import -A -D ./idm ${s.connId}\n`) +
+        `  Import a file that holds the configuration object as IDM serves it, without the "idm" wrapper (exported with "idm export --raw", or copied from the conf directory of IDM):\n` +
+        c.command(
+          `  $ frodo idm import -i sync --raw -f sync.json ${s.connId}\n`
+        )
     )
     .requireOneOf({
       options: ['all', 'allSeparate', 'entityId', 'file'],
@@ -123,6 +149,17 @@ export default function setup() {
         // a failed login has printed its reason: that is the whole answer
         else if (!(await getTokens(false, true, deploymentTypes))) {
           process.exitCode = 1;
+        }
+        // raw: the configuration object as IDM serves it
+        else if (options.raw) {
+          verboseMessage(
+            `Importing raw object${options.entityId ? ` "${options.entityId}"` : ''}${envMessage}${fileMessage}...`
+          );
+          const outcome = await importRawConfigEntityFromFile(
+            options.entityId,
+            typeof options.file === 'string' ? options.file : undefined
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // import by id/name
         else if (options.entityId) {
