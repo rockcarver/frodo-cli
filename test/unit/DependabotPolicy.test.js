@@ -268,8 +268,17 @@ describe('the workflow that calls the shared action', () => {
 
   it('only a Dependabot pull request is looked at, by the guard on the actor', () => {
     expect(workflow).toContain(
-      "if: github.event_name != 'pull_request' || github.actor == 'dependabot[bot]'"
+      "github.event_name != 'pull_request' || (github.actor == 'dependabot[bot]' &&"
     );
+  });
+
+  it('does not run for the pull requests that move the pin of the action itself: the new, unread version must not run with the write token', () => {
+    expect(workflow).toContain(
+      "!startsWith(github.head_ref, 'dependabot/github_actions/')"
+    );
+    // the same prefix that dependabot.yml gives the branches of its github-actions updates
+    expect(actions).toBeDefined();
+    expect(read('.github/dependabot.yml')).not.toMatch(/branch-name/);
   });
 
   it('asks for the two permissions that arming needs and nothing more', () => {

@@ -407,7 +407,10 @@ tenant smoke test included, after an update pull request that skipped it.
   (every open Dependabot pull request gets a verdict in the run log). A new
   version of the action arrives as a GitHub Actions pull request that moves the
   SHA; a person reads what changed in the action and merges it (an Actions update
-  is never armed). `test/unit/DependabotPolicy.test.js` also pins the properties
+  is never armed). The job does not run for the pull requests from
+  `dependabot/github_actions/` branches: the new, unread version of the action
+  must not run with the write token; the daily sweep, which runs the workflow
+  from the default branch, still looks at them. `test/unit/DependabotPolicy.test.js` also pins the properties
   of the workflow itself: the action pinned by a full SHA, no checkout, the
   actor guard, the two permissions and nothing more, and a dry run only by hand.
   GitHub Actions updates, majors and the manual names stay manual; a person may

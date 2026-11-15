@@ -31,7 +31,12 @@ name: 'Dependabot Auto-Merge'
 # through the API, never from the pull request, so a pull request cannot change
 # the rule that decides about itself. A new version of the action arrives as a
 # Dependabot pull request that moves the SHA below; a person reads what changed
-# in the action and merges it (GitHub Actions updates are never armed).
+# in the action and merges it (GitHub Actions updates are never armed). For the
+# same reason the job does not run for the pull requests that move the pin
+# themselves (branches dependabot/github_actions/...): they are never armed, and
+# the new, unread version of the action must not run with this token before a
+# person has read it; the daily sweep, which runs this file from the default
+# branch, looks at them.
 #
 # First run of a changed policy: `gh workflow run dependabot-auto-merge.yml -f
 # dry-run=true` decides about every open Dependabot pull request and arms none.
@@ -59,10 +64,11 @@ jobs:
   dependabot:
     runs-on: ubuntu-latest
     # Guard on the actor for a pull request: skips immediately for every
-    # non-Dependabot PR, including all human PRs. The scheduled and manual runs
-    # only look at pull requests that Dependabot opened (the action checks the
-    # author of each one).
-    if: github.event_name != 'pull_request' || github.actor == 'dependabot[bot]'
+    # non-Dependabot PR, including all human PRs, and for the pull requests of
+    # Dependabot that update a GitHub Action (see above). The scheduled and
+    # manual runs only look at pull requests that Dependabot opened (the action
+    # checks the author of each one).
+    if: github.event_name != 'pull_request' || (github.actor == 'dependabot[bot]' && !startsWith(github.head_ref, 'dependabot/github_actions/'))
     steps:
       - name: Arm auto-merge where the policy allows it
         uses: gearsnlevers/dependabot-auto-merge-action@45357b7f4a66638b9dd485dab564c0005c30f4b5 # v1.0.0
