@@ -144,6 +144,12 @@
  * serves as `GET /openidm/config/managed` and `GET /openidm/config/repo.ds`. Only reads
  * are answered: a write to them is answered `500`, so a test that must not change the
  * tenant sees it in the request log.
+ * FAKE_AM_IDM_ENTITIES_FILE=<path> names a JSON object `{ "<config id>": { ...the object IDM serves } }`
+ * (for example `sync` or `provisioner.openicf/xyz`) the fake serves as `GET /openidm/config/<id>`
+ * and takes `PUT /openidm/config/<id>` for: the body replaces the entity (with `_id` taken
+ * from the URL, as IDM does) and is answered with `200`. The request log holds the body of
+ * every write. An id that is not in the object answers `404`; `managed` and `repo.ds` stay
+ * with FAKE_AM_IDM_CONFIG_FILE above when that one is given.
  * FAKE_AM_EMPTY_COLLECTIONS=1 makes the fake answer every collection query it has no
  * route for as an empty collection, the way a realm that holds nothing answers it: a
  * `GET` with a `_queryFilter` and a `POST` with `_action=nextdescendents` get `200`
@@ -186,6 +192,7 @@ const aiAgents = readJson(process.env.FAKE_AM_AI_AGENTS_FILE)?.map((agent) => ({
 }));
 const features = readJson(process.env.FAKE_AM_FEATURES_FILE);
 const idmConfig = readJson(process.env.FAKE_AM_IDM_CONFIG_FILE);
+const idmEntities = readJson(process.env.FAKE_AM_IDM_ENTITIES_FILE);
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
 const emptyCollections = process.env.FAKE_AM_EMPTY_COLLECTIONS === '1';
 const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
@@ -936,6 +943,22 @@ const server = http.createServer((req, res) => {
         code: 500,
         reason: 'Internal Server Error',
         message: 'the fake tenant does not take writes to this configuration',
+      });
+    }
+    if (idmEntities && pathname.includes('/openidm/config/')) {
+      const id = decodeURIComponent(pathname.split('/openidm/config/')[1]);
+      if (req.method === 'GET' && idmEntities[id] !== undefined) {
+        return send(200, idmEntities[id]);
+      }
+      if (req.method === 'PUT') {
+        const posted = body ? JSON.parse(body) : {};
+        idmEntities[id] = { _id: id, ...posted };
+        return send(200, idmEntities[id]);
+      }
+      return send(404, {
+        code: 404,
+        reason: 'Not Found',
+        message: 'Not Found',
       });
     }
     if (users && pathname.includes('/json/') && pathname.endsWith('/users')) {

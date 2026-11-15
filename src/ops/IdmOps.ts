@@ -187,6 +187,130 @@ export async function exportConfigEntityToFile(
 }
 
 /**
+ * Name of the file that holds the raw configuration object of an IDM config entity: the id with
+ * the characters a file name cannot hold replaced by a dash, and `.json`, which is how the conf
+ * directory of IDM names its files (`provisioner.openicf-<name>.json` holds
+ * `provisioner.openicf/<name>`). It never ends in `.idm.json`, so a raw file is not taken for a
+ * Frodo export when a directory is imported with -A.
+ * @param {string} entityId the config entity id/name
+ * @return {string} the file name
+ */
+export function getRawConfigEntityFilename(entityId: string): string {
+  return `${entityId.replace(/[\\/:*?"<>|]+/g, '-')}.json`;
+}
+
+/**
+ * Whether parsed JSON has the `idm` wrapper of a Frodo export of IDM configuration objects.
+ * @param {unknown} parsed the parsed file
+ * @return {boolean} true if the wrapper is there
+ */
+function hasIdmExportWrapper(parsed: unknown): boolean {
+  const idm = (parsed as { idm?: unknown } | null)?.idm;
+  return typeof idm === 'object' && idm !== null && !Array.isArray(idm);
+}
+
+/**
+ * Whether parsed JSON is a Frodo export of IDM configuration objects, as opposed to a raw
+ * configuration object: the wrapper is there and holds nothing but configuration objects (every
+ * member is an object with an `_id`).
+ * @param {unknown} parsed the parsed file
+ * @return {boolean} true if it is an export
+ */
+function isIdmExport(parsed: unknown): boolean {
+  if (!hasIdmExportWrapper(parsed)) return false;
+  const members = Object.values((parsed as { idm: object }).idm);
+  return (
+    members.length > 0 &&
+    members.every(
+      (member) =>
+        typeof member === 'object' &&
+        member !== null &&
+        typeof (member as IdObjectSkeletonInterface)._id === 'string'
+    )
+  );
+}
+
+/**
+ * Make sure that a file that is imported as a Frodo export has the `idm` wrapper, and say what to
+ * do when it has not. Without this the library fails with "Cannot convert undefined or null to
+ * object", and for `sync` and `managed` the unwrapped file was read as a configuration object
+ * without mappings or managed objects and imported as that, which replaced the configuration of
+ * the tenant with an empty one.
+ * For `sync` and `managed` the file must also hold that entity: the wrapped one, or the one at the
+ * top level that the files of the versions before 3.0 have.
+ * @param {unknown} parsed the parsed file
+ * @param {string} filePath the path of the file, for the message
+ * @param {string} entityId the entity that is imported, when it is named
+ * @param {'single' | 'all' | 'directory'} form how the file is imported (-i or -f, -a -f, -A), which decides what the message says to do instead: --raw cannot be combined with -a or -A
+ * @throws {FrodoError} if the file has no wrapper, or does not hold the `sync` or `managed` entity
+ */
+function assertIdmExport(
+  parsed: unknown,
+  filePath: string,
+  entityId?: string,
+  form: 'single' | 'all' | 'directory' = 'single'
+): void {
+  const legacy = entityId
+    ? (parsed as Record<string, unknown> | null)?.[entityId]
+    : undefined;
+  const wrapped = entityId
+    ? (parsed as { idm?: Record<string, unknown> } | null)?.idm?.[entityId]
+    : undefined;
+  if (entityId === 'sync' || entityId === 'managed') {
+    if (typeof wrapped === 'object' && wrapped !== null) return;
+    if (typeof legacy === 'object' && legacy !== null) return;
+    if (hasIdmExportWrapper(parsed)) {
+      throw new FrodoError(
+        `${filePath} holds no "${entityId}" configuration object: nothing was imported`
+      );
+    }
+  } else if (hasIdmExportWrapper(parsed)) {
+    return;
+  }
+  const instead = {
+    single:
+      'If it holds a configuration object as IDM serves it, import it with --raw.',
+    all: 'If it holds one configuration object as IDM serves it, import it with --raw and without -a.',
+    directory:
+      'A directory import reads Frodo exports only. If it holds a configuration object as IDM serves it, import that file on its own with -i <id> --raw -f <file>.',
+  }[form];
+  throw new FrodoError(
+    `${filePath} is not a Frodo IDM export: it has no "idm" wrapper. ${instead}`
+  );
+}
+
+/**
+ * Export an IDM configuration object as IDM serves it: only the configuration object, without the
+ * `idm` wrapper, without metadata and with the scripts inline (nothing is extracted). Import it
+ * with `importRawConfigEntityFromFile`.
+ * @param {string} id the desired configuration object
+ * @param {string} file optional export file name. Default: `<id>.json`, see {@link getRawConfigEntityFilename}
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
+export async function exportRawConfigEntityToFile(
+  id: string,
+  file?: string
+): Promise<boolean> {
+  try {
+    const exportData = await exportConfigEntity(id);
+    // the library keys the entity by its own _id
+    const entity = exportData.idm[id] ?? Object.values(exportData.idm)[0];
+    if (!entity) {
+      throw new FrodoError(`Config entity ${id} has no content`);
+    }
+    saveJsonToFile(
+      entity,
+      getFilePath(file || getRawConfigEntityFilename(id), true),
+      false
+    );
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting config entity ${id}`);
+  }
+  return false;
+}
+
+/**
  * Export an IDM configuration managed object.
  * @param {string} name the desired configuration object
  * @param {string} file optional export file name
@@ -423,6 +547,9 @@ export async function importConfigEntityByIdFromFile(
       'utf8'
     );
 
+    const parsed = JSON.parse(fileData);
+    assertIdmExport(parsed, filePath, entityId);
+
     let importData;
     if (entityId === 'sync') {
       const syncData = getLegacyMappingsFromFiles([
@@ -441,7 +568,7 @@ export async function importConfigEntityByIdFromFile(
       ]);
       importData = { idm: { managed: managedData } };
     } else {
-      importData = JSON.parse(fileData);
+      importData = parsed;
       const entity = importData.idm?.[entityId];
       if (entity) {
         const baseDir = path.dirname(filePath);
@@ -462,6 +589,101 @@ export async function importConfigEntityByIdFromFile(
     );
     return !imported.failed();
   } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import the raw configuration object of an IDM config entity, as `exportRawConfigEntityToFile`
+ * writes it and as IDM serves it: no `idm` wrapper, no metadata, the scripts inline. A file that
+ * has the wrapper of a Frodo export is refused, because importing it as the object would replace
+ * the configuration with the wrapper.
+ * @param {string} entityId the config entity id/name. When it is not given, the file has to say
+ * which entity it is with its `_id`. When both are given, they must agree.
+ * @param {string} file the file to import. Default: `<id>.json`, see {@link getRawConfigEntityFilename}
+ * @param {boolean} validate True to validate script hooks. Default: false
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
+export async function importRawConfigEntityFromFile(
+  entityId?: string,
+  file?: string,
+  validate: boolean = false
+): Promise<boolean> {
+  let filePath: string;
+  let indicatorId: string;
+  try {
+    if (!entityId && !file) {
+      throw new FrodoError(
+        'Raw import needs the id of the config entity (-i) or a file (-f) that holds it'
+      );
+    }
+    filePath = getFilePath(file || getRawConfigEntityFilename(entityId));
+    const parsed = JSON.parse(
+      fs.readFileSync(path.resolve(process.cwd(), filePath), 'utf8')
+    );
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      throw new FrodoError(
+        `${filePath} does not hold a configuration object: --raw needs one JSON object`
+      );
+    }
+    if (isIdmExport(parsed)) {
+      throw new FrodoError(
+        `${filePath} is a Frodo IDM export: it has an "idm" wrapper around the configuration objects. Import it without --raw.`
+      );
+    }
+    if (parsed._id !== undefined && typeof parsed._id !== 'string') {
+      throw new FrodoError(`${filePath} has an _id that is not a string`);
+    }
+    const fileId: string | undefined = parsed._id;
+    if (entityId && fileId && fileId !== entityId) {
+      throw new FrodoError(
+        `${filePath} holds the configuration object "${fileId}", not "${entityId}": nothing was imported`
+      );
+    }
+    const id: string = entityId || fileId;
+    if (!id) {
+      throw new FrodoError(
+        `${filePath} has no _id, so it does not say which configuration object it holds: name it with -i/--entity-id`
+      );
+    }
+    const entity = { ...parsed, _id: id } as IdObjectSkeletonInterface;
+
+    indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing ${filePath}...`
+    );
+    const imported = singleImportCallback();
+    await importConfigEntities(
+      { idm: { [id]: entity } } as ConfigEntityExportInterface,
+      id,
+      {
+        entitiesToImport: undefined,
+        validate,
+      },
+      imported.callback
+    );
+    stopProgressIndicator(
+      indicatorId,
+      imported.failed()
+        ? `Error importing ${id} from ${filePath}.`
+        : `Imported ${id} from ${filePath}.`,
+      imported.failed() ? 'fail' : 'success'
+    );
+    return !imported.failed();
+  } catch (error) {
+    if (indicatorId) {
+      stopProgressIndicator(
+        indicatorId,
+        `Error importing ${filePath}.`,
+        'fail'
+      );
+    }
     printError(error);
   }
   return false;
@@ -516,6 +738,7 @@ export async function importFirstConfigEntityFromFile(
     );
 
     const parsed = JSON.parse(fileData);
+    assertIdmExport(parsed, filePath);
     const allEntities = Object.entries(parsed.idm)
       .filter(([id]) => id !== 'meta')
       .map(([, val]) => val) as IdObjectSkeletonInterface[];
@@ -602,6 +825,7 @@ export async function importAllConfigEntitiesFromFile(
     filePath = getFilePath(file);
     const baseDir = path.dirname(filePath);
     const importData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    assertIdmExport(importData, filePath, undefined, 'all');
     resolveAllExtractedScriptsForImport(importData, baseDir);
     indicatorId = createProgressIndicator(
       'indeterminate',
@@ -2634,8 +2858,10 @@ export async function getIdmImportDataFromIdmDirectory(
   )) {
     attempt(f.path, () => {
       const baseDirOfThisJson = path.dirname(f.path);
+      const parsed = JSON.parse(f.content);
+      assertIdmExport(parsed, f.path, undefined, 'directory');
       const entities = Object.values(
-        JSON.parse(f.content).idm
+        parsed.idm
       ) as unknown as IdObjectSkeletonInterface[];
       for (const entity of entities) {
         resolveAllExtractedScriptsForImport(entity, baseDirOfThisJson);
