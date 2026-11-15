@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager push oauth-issuers "frodo config-manager push oauth-issuers -n zz-e2e-issuer -D test/e2e/exports/fr-config-manager/cloud": should create the trusted JWT issuer zz-e2e-issuer in the alpha realm 1`] = `""`;
+
+exports[`frodo config-manager push oauth-issuers "frodo config-manager push oauth-issuers -n zz-e2e-issuer -D test/e2e/exports/fr-config-manager/cloud": should create the trusted JWT issuer zz-e2e-issuer in the alpha realm 2`] = `
+"Experimental feature in use: 'frodo config-manager push oauth-issuers'. This feature may change without notice.
+"
+`;
