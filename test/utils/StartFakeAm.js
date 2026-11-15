@@ -40,6 +40,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {boolean} [options.cimdCompleteOnCreate] makes a create of a CIMD profile answer with it completed by defaults, as the server does, while an update stores exactly what it is sent
  * @param {object[]} [options.features] IDM features the registry serves (`_id`, `installedVersion`, `availableVersions`, `validate`: the body the validate action answers with), reads and validate only (default: the registry answers 404)
  * @param {{ managed?: object, 'repo.ds'?: object }} [options.idmConfig] the IDM configuration `config/managed` and `config/repo.ds` answer with on a read; a write to them answers 500 (default: they answer 404)
+ * @param {Record<string, object>} [options.idmEntities] IDM configuration objects by config id (`sync`, `provisioner.openicf/xyz`, ...) the fake serves on a read and replaces on a write, `_id` taken from the URL; the request log holds every body (default: they answer 404)
  * @param {boolean} [options.emptyCollections] answers every collection query the fake has no route for as an empty collection (`GET` with a `_queryFilter`, `POST` with `_action=nextdescendents`: `200` with no result), so a command that reads many kinds of configuration runs through on an empty tenant (default: they answer 404)
  * @param {boolean} [options.cimdRootDenied] makes the root realm answer the type list and the profiles with the Cloud `403` "This operation is not available in PingOne Advanced Identity Cloud."
  * @returns {Promise<{ port: number, stop: () => void }>}
@@ -74,6 +75,7 @@ export async function startFakeAm({
   cimdRootDenied,
   features,
   idmConfig,
+  idmEntities,
   emptyCollections,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
@@ -156,6 +158,14 @@ export async function startFakeAm({
         : {}),
       ...(idmConfig
         ? { FAKE_AM_IDM_CONFIG_FILE: written('idm-config.json', idmConfig) }
+        : {}),
+      ...(idmEntities
+        ? {
+            FAKE_AM_IDM_ENTITIES_FILE: written(
+              'idm-entities.json',
+              idmEntities
+            ),
+          }
         : {}),
       ...(emptyCollections ? { FAKE_AM_EMPTY_COLLECTIONS: '1' } : {}),
     },
