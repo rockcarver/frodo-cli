@@ -59,7 +59,7 @@ export default function setup() {
         '    }\n' +
         '  ]\n' +
         '}\n' +
-        'Push fills each ${NAME} from the environment variable NAME.\n'
+        'When the files are pushed, each ${NAME} is filled from -E/--env NAME=value or from --env-file (-E wins); the environment variables of the process are not read.\n'
     )
     .multiOp()
     .usesRealm()
