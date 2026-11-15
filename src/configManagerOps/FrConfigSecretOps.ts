@@ -21,9 +21,18 @@ const {
   createSecret,
   createVersionOfSecret,
   readVersionsOfSecret,
+  findVersionsToPrune,
   pruneVersionsOfSecret,
   deleteSecret,
 } = frodo.cloud.secret;
+
+/**
+ * What `push secrets --prune` keeps besides the active version: nothing that is
+ * loaded, but the deactivated versions. The preview and the prune take their
+ * choice from here, so that they cannot differ.
+ */
+const PUSH_PRUNE_KEEP_LOADED = false;
+const PUSH_PRUNE_KEEP_DEACTIVATED = true;
 
 type FrConfigSecret = SecretSkeleton & {
   valueBase64: string;
@@ -145,6 +154,113 @@ export async function configManagerExportSecrets(
 }
 
 /**
+ * The files of `esvs/secrets/` that a push reads: every `.json` file, or only
+ * the one of the named secret.
+ * @param {string} secretsDir the folder of the secret files
+ * @param {string} secretName optional name of the secret to push
+ * @returns {string[]} the file names
+ */
+function secretFileNames(secretsDir: string, secretName?: string): string[] {
+  return fs
+    .readdirSync(secretsDir)
+    .filter((name) => name.toLowerCase().endsWith('.json'))
+    .filter((name) => !secretName || name === `${secretName}.json`);
+}
+
+/**
+ * What `push secrets --prune` would delete, found without deleting anything:
+ * the versions to delete per secret, the secrets that could not be checked, and
+ * the run that counts the checks.
+ */
+export type SecretPushPruneCheck = {
+  plan: { secretId: string; versions: VersionOfSecretSkeleton[] }[];
+  notChecked: { secretId: string; reason?: string }[];
+  run: OperationRun;
+  /** what the prune keeps besides the active version, for the table that shows the plan */
+  keepLoaded: boolean;
+  keepDeactivated: boolean;
+};
+
+/**
+ * Finds the versions that `push secrets --prune` would delete, without deleting
+ * or importing anything: for every secret of `esvs/secrets/` (or only the named
+ * one) that already exists in the tenant, the versions the library would prune.
+ * A secret that is not in the tenant yet has nothing to prune. A file that
+ * cannot be read, or a secret whose versions cannot be read, is reported, is
+ * listed as not checked, is a failed operation of the run and does not stop the
+ * others. A missing folder, a named secret that has no file, and a list of
+ * secrets that cannot be read are reported and end the check.
+ * @param {string} secretName optional name of the secret to check
+ * @param {boolean} allowFailures true to let the run succeed although some secrets could not be checked
+ * @returns {Promise<SecretPushPruneCheck | undefined>} what would be pruned, or undefined if nothing could be checked (the reason has been printed)
+ */
+export async function findSecretVersionsToPrune(
+  secretName?: string,
+  allowFailures: boolean = false
+): Promise<SecretPushPruneCheck | undefined> {
+  const secretsDir = getFilePath(`esvs/secrets/`);
+  if (!fs.existsSync(secretsDir)) {
+    printMessage(
+      `No secrets to import: the folder '${secretsDir}' does not exist`,
+      'error'
+    );
+    return undefined;
+  }
+  const fileNames = secretFileNames(secretsDir, secretName);
+  if (fileNames.length === 0 && secretName) {
+    printMessage(`No matching secret found for ${secretName}`, 'error');
+    return undefined;
+  }
+  const remoteSecrets = await readSecretsOrReport();
+  if (!remoteSecrets) return undefined;
+  const remoteIds = new Set(remoteSecrets.map((secret) => secret._id));
+  const check: SecretPushPruneCheck = {
+    plan: [],
+    notChecked: [],
+    run: new OperationRun({ unit: 'operation', allowFailures }),
+    keepLoaded: PUSH_PRUNE_KEEP_LOADED,
+    keepDeactivated: PUSH_PRUNE_KEEP_DEACTIVATED,
+  };
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    fileNames.length,
+    'Finding the versions to prune...'
+  );
+  for (const fileName of fileNames) {
+    const name = fileName.replace(/\.json$/i, '');
+    try {
+      const secret = readJsonFile(
+        `${secretsDir}/${fileName}`
+      ) as SecretSkeleton;
+      if (remoteIds.has(secret._id)) {
+        check.plan.push({
+          secretId: secret._id,
+          versions: await findVersionsToPrune(
+            secret._id,
+            PUSH_PRUNE_KEEP_LOADED,
+            PUSH_PRUNE_KEEP_DEACTIVATED
+          ),
+        });
+      }
+      check.run.recordSuccess();
+    } catch (error) {
+      printError(error, `Error checking secret from "${fileName}"`);
+      check.notChecked.push({ secretId: name, reason: causeOf(error) });
+      check.run.recordFailure(`check of secret ${name}`, causeOf(error));
+    }
+    updateProgressIndicator(indicatorId, `Checked secret ${name}`);
+  }
+  stopProgressIndicator(
+    indicatorId,
+    check.notChecked.length === 0
+      ? `Checked ${fileNames.length} ${fileNames.length === 1 ? 'secret' : 'secrets'}.`
+      : `Could not check ${check.notChecked.length} of ${fileNames.length} secrets`,
+    check.notChecked.length === 0 ? 'success' : 'fail'
+  );
+  return check;
+}
+
+/**
  * Import secrets to cloud from fr-config-manager format. Every secret file is
  * its own operation: one that cannot be read or imported is reported and does
  * not stop the others, and one summary names the secrets that failed. A missing
@@ -176,10 +292,7 @@ export async function configManagerImportSecrets(
       return false;
     }
 
-    const fileNames = fs
-      .readdirSync(secretsDir)
-      .filter((name) => name.toLowerCase().endsWith('.json'))
-      .filter((name) => !secretName || name === `${secretName}.json`);
+    const fileNames = secretFileNames(secretsDir, secretName);
 
     if (fileNames.length === 0) {
       if (secretName) {
@@ -212,8 +325,8 @@ export async function configManagerImportSecrets(
         if (prune && remoteSecrets[secret._id]) {
           const prunedVersions = await pruneVersionsOfSecret(
             secret._id,
-            false,
-            true
+            PUSH_PRUNE_KEEP_LOADED,
+            PUSH_PRUNE_KEEP_DEACTIVATED
           );
           for (const v of prunedVersions) {
             printMessage(`Secret ${secret._id} pruned version ${v.version}`);
@@ -300,12 +413,12 @@ export async function configManagerImportSecrets(
 }
 
 /**
- * Reads the secrets of the tenant for a delete. A listing that fails, or that
- * is not a list, is reported and is not "no secrets": the caller deletes
- * nothing then.
+ * Reads the secrets of the tenant for something that deletes. A listing that
+ * fails, or that is not a list, is reported and is not "no secrets": the caller
+ * deletes nothing then.
  * @returns {Promise<SecretSkeleton[] | undefined>} the secrets, or undefined if they could not be read (the error has been printed)
  */
-async function readSecretsToDelete(): Promise<SecretSkeleton[] | undefined> {
+async function readSecretsOrReport(): Promise<SecretSkeleton[] | undefined> {
   try {
     const secrets = await readSecrets();
     if (!Array.isArray(secrets)) {
@@ -325,7 +438,7 @@ async function readSecretsToDelete(): Promise<SecretSkeleton[] | undefined> {
  * @returns {Promise<boolean>} False if the secrets cannot be read; otherwise true.
  */
 export async function showSecretDeletePlan(): Promise<boolean> {
-  const secrets = await readSecretsToDelete();
+  const secrets = await readSecretsOrReport();
   if (!secrets) return false;
   if (secrets.length === 0) {
     printMessage('No secrets found to delete.');
@@ -366,7 +479,7 @@ export async function configManagerDeleteSecrets(
     );
     return false;
   }
-  const secrets = await readSecretsToDelete();
+  const secrets = await readSecretsOrReport();
   if (!secrets) return false;
   const selectedSecrets = named
     ? secrets.filter((secret) => secret._id === name)

@@ -55,13 +55,6 @@ Options:
   -S --effect-secrets                 Will effect the secrets, otherwise we will
                                       not change the secrets but will compare
                                       them (default: false)
-  --target <host url>                 Host URL of the environment to perform
-                                      secret value encryption. The URL must
-                                      resolve to an existing connection profile.
-                                      Use this option to generate an export that
-                                      can be imported into the target
-                                      environment without requiring admin access
-                                      to the source environment.
   -W --wait-secrets                   When secrets are effected we need to run a
                                       refresh on the enviornment. This will
                                       cause the command to wait until the

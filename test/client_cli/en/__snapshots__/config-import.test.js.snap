@@ -37,10 +37,10 @@ Options:
   -d, --default            Import all scripts including the default scripts.
   --dynamic                Import only dynamic configuration: everything that is
                            not static, which is what an environment promotion
-                           does not carry (OAuth2 clients, agents, policies,
-                           SAML providers, ESVs and the like). With --static it
-                           imports both, which is also what happens without
-                           either.
+                           does not carry (OAuth2 clients, agents, CIMD
+                           profiles, policies, SAML providers, ESVs and the
+                           like). With --static it imports both, which is also
+                           what happens without either.
   -f, --file <file>        Name of the file to import. Cannot be used with -A.
                            If included without -a, it will import the single
                            entity within the file.

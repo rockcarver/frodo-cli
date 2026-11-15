@@ -44,9 +44,9 @@ Options:
   --dynamic                  Export only dynamic configuration: everything that
                              is not static, which is what an environment
                              promotion does not carry (OAuth2 clients, agents,
-                             policies, SAML providers, ESVs and the like). With
-                             --static it exports both, which is also what
-                             happens without either.
+                             CIMD profiles, policies, SAML providers, ESVs and
+                             the like). With --static it exports both, which is
+                             also what happens without either.
   -f, --file <file>          Name of the export file. Cannot be used with -A.
   -g, --global-only          Export only the global config. If -r, --realm-only
                              is also active, then the corresponding active realm

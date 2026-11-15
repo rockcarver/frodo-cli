@@ -230,6 +230,30 @@ named object never asks. This affects `frodo agent delete -a` and
 `theme delete -a`. It is a safety guard added in a major release: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
+**`config-manager push secrets --prune` asks before it deletes, and `-p` is
+gone**: `--prune` deletes the old versions of every secret it pushes, and in 4.x
+it did so without asking. In 5.x, on a terminal, it reads the tenant, shows the
+versions it would delete and asks (the answer defaults to no) when more than one
+version would go, and also when a secret could not be checked; a prune that
+would delete a single version does not ask. Without a terminal (a script, a CI
+job, `--no-prompt`, `FRODO_NO_PROMPT`) it refuses before it connects to anything
+and exits with code 1, unless you pass `-y`/`--yes`; it refuses even when the
+prune would delete nothing, so that a script does not start to fail on the day
+it has something to delete. Add `--yes` to every script and CI job that pushes
+secrets with `--prune`:
+
+```text
+frodo config-manager push secrets --prune --yes <host>
+```
+
+The new option `--dry-run` (only with `--prune`) shows which versions would be
+deleted and neither deletes nor imports anything; it wins over `--yes`. The
+short form `-p` of `--prune` is removed, because a destructive option has a long
+form only: write `--prune`. A secret that is new in the tenant has no old
+versions, and the versions that are deleted are the same as before (the
+versions that are still enabled besides the active one). See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
+
 **`authn export` and `authn import` exit 1 after a failure**: in 4.x both
 commands printed the error and exited with code 0 when the export or the import
 failed, because they checked the result before the operation had finished. In
@@ -266,14 +290,27 @@ read that failed. A script that relied on exit code 0 for a missing realm has to
 treat exit code 1 as "not found", or add `|| true`. `frodo conn describe` for a
 host without a saved profile already ended with exit code 1 and is unchanged.
 
+**`conn save` with `--sa-id` and `--sa-jwk-file` exits 1 and saves nothing when
+the key cannot be used**: in 4.x `frodo conn save <host> --sa-id <id>
+--sa-jwk-file <file>` printed an error when the key file could not be read or the
+tenant refused the key, and then saved the profile anyway, with the service
+account id (and the key, when it could be read) and exit code 0. In 5.x the
+command ends with exit code 1 and does not save the profile, so a script cannot
+mistake a profile without a working service account for a saved one. The same
+holds with `--no-validate` when the key file cannot be read. A script that
+relied on exit code 0 has to fix the key file, or save the profile without
+`--sa-id` and `--sa-jwk-file` and add the service account afterwards.
+
 **`feature validate -i aiagent` exits 1 when the AI agents feature does not work,
 and prints a diagnosis**: in 4.x and in earlier 5.x versions `frodo feature
 validate` printed `Valid` or `Invalid` and exited with code 0 whenever the check
-ran. For the feature `aiagent` it now follows the validation with a diagnosis of
-the tenant (the registry, the definitions, the OAuth 2.0 provider of each realm,
-the AM gate, the secret store mappings and the AI agents), and exits with code 1
-when the diagnosis finds a functional problem, so that a pipeline can use it as a
-health check. Cosmetic findings are warnings and exit with code 0. Other features
+ran. For the feature `aiagent` it now prints a diagnosis of the tenant first (the
+registry, the definitions, the OAuth 2.0 provider of each realm, the AM gate, the
+secret store mappings and the AI agents) and the validation after it, and exits
+with code 1 when the diagnosis finds a functional problem, so that a pipeline can
+use it as a health check. The sentence that says that failures of the form
+"already present" mean that the configuration is in the tenant is printed on
+stdout, after the failures, instead of on stderr. Cosmetic findings are warnings and exit with code 0. Other features
 print what they printed before and exit with code 0, and `--json` prints the
 diagnosis as JSON. A script that ran `validate -i aiagent` only to ask whether
 the feature can be installed adds `|| true`, or reads the exit code as "the
@@ -842,6 +879,20 @@ the file is `<id>.json`), or `-f` alone names it by the `_id` in the file. A fil
 whose `_id` is another object than the one `-i` names, and a file that has the
 wrapper, are refused. `--raw` works for one object at a time and cannot be used
 with `-a`, `-A` or `-e`.
+
+**Four options that did nothing are removed**: each of them was declared and
+never read, so a command line that passed one was accepted and did what it would
+have done without it
+([frodo-cli#1217](https://github.com/rockcarver/frodo-cli/issues/1217)). A
+command line that passes one is now rejected as an unknown option, with exit
+code 1, before the command connects. Drop the option from the script:
+
+| Removed option                                  | Why dropping it changes nothing                                                                                                                                                                      |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-l, --long` of `frodo esv secret version list` | The table already shows every field the server returns for a version (version, status, loaded, created).                                                                                             |
+| `--no-deep` of `frodo esv variable delete`      | The command has no deep delete: it deleted the same with or without the option.                                                                                                                      |
+| `--no-deep` of `frodo oauth client delete`      | The command has no deep delete: it deleted the same with or without the option.                                                                                                                      |
+| `--target <host url>` of `frodo promote`        | The option was copied from the export commands, where it encrypts secret values for another environment. `promote` never read it, so a script that passed it got no encryption for that environment. |
 
 ### Node.js version matrix changes in 5.x
 

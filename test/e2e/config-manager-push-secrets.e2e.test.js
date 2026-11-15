@@ -5,7 +5,7 @@
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets --env-file test/e2e/env/configManager1.env  -D test/e2e/exports/fr-config-manager/cloud 
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets -n esv-fr-test-secret -E ESV_FR_TEST_SECRET="test1" -D test/e2e/exports/fr-config-manager/cloud 
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets -n esv-test-secret --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets -p -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3 -D test/e2e/exports/fr-config-manager/cloud 
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets --prune --yes -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3 -D test/e2e/exports/fr-config-manager/cloud 
 */
 
 import { getEnv, testFail, testSuccess } from './utils/TestUtils';
@@ -35,8 +35,9 @@ describe('frodo config-manager push secrets', () => {
         const CMD = `frodo config-manager push secrets -n esv-test-secret --env-file ${envDir} -D ${allDirectory}`;
         await testSuccess(CMD, cloudEnv);
     });
-    test(`"frodo config-manager push secrets -p -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3  -D ${allDirectory}": should import multiple specified secrets into cloud`, async () => {
-        const CMD = `frodo config-manager push secrets -p -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3  -D ${allDirectory}`;
+    // --yes: a prune asks first, and refuses without a terminal (decision record 0037); the requests are the same as before
+    test(`"frodo config-manager push secrets --prune --yes -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3  -D ${allDirectory}": should import multiple specified secrets into cloud`, async () => {
+        const CMD = `frodo config-manager push secrets --prune --yes -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3  -D ${allDirectory}`;
         await testSuccess(CMD, cloudEnv)
     });
 });

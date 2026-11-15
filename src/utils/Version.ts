@@ -27,6 +27,11 @@ export const getCliBuildTimestamp = (): string =>
 
 const VERSION_CACHE_FILE = `${os.homedir()}/.frodo/Versions.json`;
 const VERSION_CHECK_INTERVAL = 86400;
+// How long a start waits for the two hosts (cli#1104). The library's request
+// has a timeout of 30 seconds that the CLI cannot change, so the CLI stops
+// waiting for the answer after this many milliseconds: a host that does not
+// answer never delays a command by more than this, once a day.
+const VERSION_CHECK_TIMEOUT = 5000;
 
 const GITHUB_REPOS_URL = `https://api.github.com`;
 const GITHUB_RELEASES_PATH_CLI = `/repos/rockcarver/frodo-cli/releases`;
@@ -45,11 +50,25 @@ const ENDPOINTS = [
   },
 ];
 
-let versionObject = {
-  last_checked: 0,
-  github: '',
-  npm: '',
+/**
+ * What the last check found. `github` and `npm` are `null` while a version is
+ * not known (never found, or the host did not answer), and `last_checked` is
+ * the time of the last ATTEMPT, whether it found something or not.
+ */
+type VersionObject = {
+  last_checked: number;
+  github: string | null;
+  npm: string | null;
 };
+
+let versionObject: VersionObject = {
+  last_checked: 0,
+  github: null,
+  npm: null,
+};
+
+/** The one check of this process, shared by every call of `getVersions`. */
+let remoteVersionCheck: Promise<void> | undefined;
 
 Color.enable();
 
@@ -86,45 +105,110 @@ function extractNpmReleaseInfo(data) {
   return release;
 }
 
-async function getRemoteVersionData() {
-  let useCache = true;
-  if (fs.existsSync(VERSION_CACHE_FILE)) {
-    const data = fs.readFileSync(VERSION_CACHE_FILE, 'utf8');
-    versionObject = JSON.parse(data);
-    if (
-      versionObject.last_checked + VERSION_CHECK_INTERVAL <
-      Math.floor(Date.now() / 1000)
-    ) {
-      useCache = false;
-    }
-  } else {
-    useCache = false;
+/** Reads the cache of the last check; a missing or unreadable file is no cache. */
+function readVersionCache(): VersionObject | undefined {
+  try {
+    if (!fs.existsSync(VERSION_CACHE_FILE)) return undefined;
+    const cached = JSON.parse(fs.readFileSync(VERSION_CACHE_FILE, 'utf8'));
+    return {
+      last_checked: Number(cached.last_checked) || 0,
+      github: cached.github || null,
+      npm: cached.npm || null,
+    };
+  } catch {
+    return undefined;
   }
+}
 
-  if (!useCache) {
-    const allVersions = [];
-    const result = await getAllVersions(ENDPOINTS);
-    result.forEach((item) => {
-      if (Array.isArray(item['value'].data)) {
-        allVersions.push(extractGithubReleaseInfo(item['value'].data));
-      } else {
-        allVersions.push(extractNpmReleaseInfo(item['value'].data));
-      }
-    });
-    allVersions.forEach((element) => {
-      // cli
-      if (element.type == 'github') {
-        versionObject.github = element.version;
-      } else {
-        versionObject.npm = element.version;
-      }
-    });
-    versionObject.last_checked = Math.floor(Date.now() / 1000);
+/**
+ * Waits for `promise` for at most `ms` milliseconds and then gives up on it
+ * (it keeps running, and its outcome is ignored).
+ */
+async function withDeadline<T>(
+  promise: Promise<T>,
+  ms: number
+): Promise<T | undefined> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<undefined>((resolve) => {
+        timer = setTimeout(resolve, ms, undefined);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * The releases that the answers of the two hosts hold. A host that did not
+ * answer, or answered with something that is not a release list, adds nothing
+ * and does not discard what the other host said.
+ */
+function releasesOf(
+  results: PromiseSettledResult<{ data: unknown }>[] | undefined
+) {
+  const found = [];
+  for (const item of results ?? []) {
+    if (item.status !== 'fulfilled') continue;
+    try {
+      const { data } = item.value;
+      found.push(
+        Array.isArray(data)
+          ? extractGithubReleaseInfo(data)
+          : extractNpmReleaseInfo(data)
+      );
+    } catch {
+      // an answer that is not a release list is no answer
+    }
+  }
+  return found;
+}
+
+async function checkRemoteVersions() {
+  const cached = readVersionCache();
+  if (cached) versionObject = cached;
+  const now = Math.floor(Date.now() / 1000);
+  if (cached && cached.last_checked + VERSION_CHECK_INTERVAL >= now) return;
+
+  let results: Awaited<ReturnType<typeof getAllVersions>> | undefined;
+  try {
+    results = await withDeadline(
+      getAllVersions(ENDPOINTS),
+      VERSION_CHECK_TIMEOUT
+    );
+  } catch {
+    // the hosts cannot be reached: the versions found last time stay
+  }
+  for (const release of releasesOf(results)) {
+    if (release.type == 'github') {
+      versionObject.github = release.version;
+    } else {
+      versionObject.npm = release.version;
+    }
+  }
+  // An attempt that found nothing is recorded too: the next one is a day away
+  // (a start must not make four connections to hosts that refuse them).
+  versionObject.last_checked = now;
+  try {
     fs.writeFileSync(
       VERSION_CACHE_FILE,
       JSON.stringify(versionObject, null, 2)
     );
+  } catch {
+    // no cache file, no remembered attempt: the check runs again at the next start
   }
+}
+
+/**
+ * One check per process (cli#1104): `frodo` asks for the versions twice at
+ * every start, and the second ask shares the outcome of the first, whether it
+ * found something or not.
+ */
+function getRemoteVersionData() {
+  remoteVersionCheck ??= checkRemoteVersions();
+  return remoteVersionCheck;
 }
 
 function getBinaryName() {

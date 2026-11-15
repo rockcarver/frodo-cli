@@ -104,12 +104,6 @@ export default function setup() {
     .addOption(
       new Option('--no-validate', 'Do not validate journeys during promotion.')
     )
-    .addOption(
-      new Option(
-        '--target <host url>',
-        'Host URL of the environment to perform secret value encryption. The URL must resolve to an existing connection profile. Use this option to generate an export that can be imported into the target environment without requiring admin access to the source environment.'
-      )
-    )
     .multiOp()
     .action(
       async (host, realm, user, password, options, command) => {

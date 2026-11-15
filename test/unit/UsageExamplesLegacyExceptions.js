@@ -146,7 +146,6 @@ export const LEGACY_COMMANDS_WITHOUT_EXAMPLES = [
   'frodo config-manager push schedules',
   'frodo config-manager push scripts',
   'frodo config-manager push secret-mappings',
-  'frodo config-manager push secrets',
   'frodo config-manager push service-objects',
   'frodo config-manager push services',
   'frodo config-manager push telemetry',
