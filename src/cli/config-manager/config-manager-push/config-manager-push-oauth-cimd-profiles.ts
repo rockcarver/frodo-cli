@@ -15,7 +15,7 @@ export default function setup() {
   program
     .summary('Import CIMD profiles from the files written by pull.')
     .description(
-      'Import CIMD profiles from the files realms/<realm>/realm-config/agents/CIMDProfile/<name>.json that "pull oauth-cimd-profiles" writes, from the working directory (-D). A profile that does not exist is created and one that does is replaced by exactly what the file holds: what the file leaves out is removed. ${NAME} in a file is replaced by the value of the environment variable NAME. No profile is ever deleted. The scripts and journeys that a profile names must exist already, so push those first. A realm or a deployment that does not offer CIMD profiles is skipped with a warning.'
+      'Import CIMD profiles from the files realms/<realm>/realm-config/agents/CIMDProfile/<name>.json that "pull oauth-cimd-profiles" writes, from the working directory (-D). A profile that does not exist is created and one that does is replaced by exactly what the file holds: what the file leaves out is removed. Each ${NAME} in a file is filled from -E/--env NAME=value or from --env-file (-E wins); the environment variables of the process are not read. No profile is ever deleted. The scripts and journeys that a profile names must exist already, so push those first. A realm or a deployment that does not offer CIMD profiles is skipped with a warning.'
     )
     .addOption(
       new Option(

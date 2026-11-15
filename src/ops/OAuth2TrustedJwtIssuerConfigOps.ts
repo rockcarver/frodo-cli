@@ -159,7 +159,9 @@ export async function configManagerExportTrustedJwtIssuers(
  * trust anchor (a JWT signed by it is accepted as a grant), so a pull request that changes a file
  * changes who may obtain tokens after the next push: read the files before pushing them. Nothing
  * is ever deleted. The id is the `_id` of the file, otherwise its name; `${NAME}` is filled from
- * the environment; a file of another `_type` is refused before anything is sent for it, and a file
+ * `-E/--env` or `--env-file`, and not from the environment of the process (see
+ * `src/utils/PlaceholderValues.ts`); a file of another `_type` is refused before anything is sent
+ * for it, and a file
  * without `_type` is accepted.
  *
  * The server completes an object it creates with its defaults, so an issuer that did not exist is
