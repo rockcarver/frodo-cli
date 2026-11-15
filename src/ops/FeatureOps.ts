@@ -2,8 +2,13 @@ import confirm from '@inquirer/confirm';
 import { frodo } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import { createTable, printError, printMessage } from '../utils/Console';
+import { isNotFoundError } from '../utils/ErrorCause';
 import { featureAdvice } from './FeatureAdvice';
-import { diagnosisText, hasFunctionalProblem } from './FeatureDiagnosis';
+import {
+  diagnosisText,
+  hasFunctionalProblem,
+  type FeatureDiagnosis,
+} from './FeatureDiagnosis';
 import { featureOutcome } from './FeatureOutcome';
 
 /**
@@ -114,19 +119,47 @@ export async function describeFeature(featureId: string): Promise<boolean> {
 }
 
 /**
+ * What to tell the user whose feature id the tenant does not know: the id, the
+ * ids the tenant does know when the list can be read (a refused read leaves
+ * the list out: it is a courtesy, not the reason), and the command that shows
+ * which of them are installed.
+ * @param {string} featureId the feature id the tenant answered 404 for
+ * @returns {Promise<string>} the message
+ */
+async function unknownFeatureMessage(featureId: string): Promise<string> {
+  let known: string[] = [];
+  try {
+    known = (await readIdmFeatures()).map((feature) => feature._id);
+  } catch {
+    // the list is left out
+  }
+  return [
+    `Feature "${featureId}" does not exist on this tenant.`,
+    known.length > 0 ? `Features of this tenant: ${known.join(', ')}.` : '',
+    `Run "${c.command('frodo feature list')}" to see which are installed.`,
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+/**
  * Validate whether an IDM tenant-configuration feature is installable,
- * without installing it, and diagnose it when the library can. Prints the
- * summary and, when the feature cannot be installed, the reasons, one per
- * line; when every reason says that the configuration is already in the
- * tenant, one more line says what that means. For a feature the library can
- * diagnose (today `aiagent`) the diagnosis follows: one line per finding,
- * with a summary and, when a repair can fix something, the command for it.
+ * without installing it, and diagnose it when the library can. For a feature
+ * the library can diagnose (today `aiagent`) the diagnosis comes first: one
+ * line per finding, with a summary and, when a repair can fix something, the
+ * command for it. Then comes the summary of the validation and, when it cannot
+ * be installed, the reasons, one per line; when every reason says that the
+ * configuration is already in the tenant, one more line says what that means.
+ * All of it goes to stdout, so that the explanation stays with the lines it
+ * explains: on a healthy tenant the validation lists every definition of the
+ * feature as a failure, and that is expected.
  * Finding that a feature cannot be installed is a result, not an error: the
  * check ran, so this returns true; a diagnosis that finds a functional problem
  * (a finding of severity `error`) makes it return false, so that the command
  * can serve as a health check in a pipeline. A feature the library cannot
  * diagnose prints what it always printed and sends the requests it always
- * sent (see `FEATURES_WITH_DIAGNOSIS`).
+ * sent (see `FEATURES_WITH_DIAGNOSIS`). A feature id that the tenant does
+ * not know is said so, with the ids it does know, and the check fails.
  * @param {string} featureId feature id, e.g. 'aiagent'
  * @param {object} [options] options
  * @param {boolean} [options.json=false] print the diagnosis as JSON and nothing else
@@ -142,8 +175,32 @@ export async function validateFeature(
       printMessage(JSON.stringify(diagnosis, null, 2), 'data');
       return !hasFunctionalProblem(diagnosis);
     }
-    const result = await validateIdmFeature(featureId);
+    let result: Awaited<ReturnType<typeof validateIdmFeature>>;
+    try {
+      result = await validateIdmFeature(featureId);
+    } catch (error) {
+      // only the validation answers 404 for an id the tenant does not know
+      if (!isNotFoundError(error)) throw error;
+      printMessage(await unknownFeatureMessage(featureId), 'error');
+      return false;
+    }
     const { succeeded, message, failures } = featureOutcome(result);
+    // The diagnosis is asked for after the validation (the requests and their
+    // order are what they always were) but printed first: it says whether the
+    // feature works, which is what the failures of the validation of an
+    // installed feature cannot say.
+    let diagnosis: FeatureDiagnosis | undefined;
+    let diagnosisError: unknown;
+    if (FEATURES_WITH_DIAGNOSIS.includes(featureId)) {
+      try {
+        diagnosis = await diagnoseIdmFeature(featureId);
+      } catch (error) {
+        diagnosisError = error;
+      }
+    }
+    if (diagnosis?.supported) {
+      printMessage(`${diagnosisText(diagnosis)}\n`, 'data');
+    }
     printMessage(
       [
         `${succeeded ? c.positive('Valid') : c.negative('Invalid')}${message ? `: ${message}` : ''}`,
@@ -152,13 +209,10 @@ export async function validateFeature(
       'data'
     );
     const advice = featureAdvice(result);
-    if (advice) printMessage(advice, 'info');
-    if (!FEATURES_WITH_DIAGNOSIS.includes(featureId)) return true;
-    const diagnosis = await diagnoseIdmFeature(featureId);
-    if (diagnosis.supported) {
-      printMessage(diagnosisText(diagnosis), 'data');
-      return !hasFunctionalProblem(diagnosis);
-    }
+    if (advice) printMessage(advice, 'data');
+    // a diagnosis that cannot be made is an error, after what was printed above
+    if (diagnosisError) throw diagnosisError;
+    if (diagnosis?.supported) return !hasFunctionalProblem(diagnosis);
     return true;
   } catch (error) {
     printError(error, `Error validating feature "${featureId}"`);

@@ -152,6 +152,10 @@ suite('feature validate through the CLI', () => {
     const refused = [
       [
         ['-i', 'aiagent', '--repair'],
+        /Refusing to repair the feature "aiagent": there is no interactive terminal to ask for the confirmation and for the backup directory\. Pass -y\/--yes .*--backup-dir <directory>/,
+      ],
+      [
+        ['-i', 'aiagent', '--repair', '--backup-dir', 'b'],
         /Refusing to repair the feature "aiagent" without confirmation: there is no interactive terminal to ask\. Pass -y\/--yes/,
       ],
       [
@@ -208,6 +212,23 @@ suite('feature validate through the CLI', () => {
     );
 
     it(
+      'a repair that lacks both the confirmation and the backup directory is refused once, not twice',
+      async () => {
+        const { code, stderr } = await validate(server, [
+          '-i',
+          'aiagent',
+          '--repair',
+        ]);
+
+        expect(stderr.match(/Refusing to repair/g)).toHaveLength(1);
+        expect(stderr).toContain('-y/--yes');
+        expect(stderr).toContain('--backup-dir <directory>');
+        expect(code).toBe(1);
+      },
+      TIMEOUT
+    );
+
+    it(
       '--timeout that is not a number of seconds is refused while the command line is read',
       async () => {
         const { code, stderr } = await validate(server, [
@@ -255,7 +276,14 @@ suite('feature validate through the CLI', () => {
         expect(stdout).toContain('Invalid: Validate complete. 1 failure(s).');
         expect(stdout).toContain('  - config/managed: /objects/-');
         expect(stdout).not.toContain('Diagnosis');
-        expect(stderr).toContain('the configuration is already in the tenant');
+        // the explanation is on the stream of the failures it explains, after them
+        expect(stdout).toContain('the configuration is already in the tenant');
+        expect(stdout.indexOf('  - config/managed: /objects/-')).toBeLessThan(
+          stdout.indexOf('the configuration is already in the tenant')
+        );
+        expect(stderr).not.toContain(
+          'the configuration is already in the tenant'
+        );
         expect(code).toBe(0);
         const featureRequests = readRequests(recordPath).filter(({ url }) =>
           url.includes('/openidm/feature')
@@ -263,6 +291,37 @@ suite('feature validate through the CLI', () => {
         expect(
           featureRequests.map(({ method, url }) => `${method} ${url}`)
         ).toEqual(['POST /openidm/feature/groups?_action=validate']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'an id the tenant does not know: says so with the ids it knows, exits 1, no raw error, a list read after the 404',
+      async () => {
+        fs.rmSync(recordPath, { force: true });
+
+        const { code, stdout, stderr } = await validate(server, [
+          '-i',
+          'nosuchfeature',
+        ]);
+
+        expect(stderr).toContain(
+          'Feature "nosuchfeature" does not exist on this tenant. Features of this tenant: groups.'
+        );
+        expect(stderr).toContain('frodo feature list');
+        expect(stderr).not.toContain('Error validating');
+        expect(stdout).toBe('');
+        expect(code).toBe(1);
+        const featureRequests = readRequests(recordPath).filter(({ url }) =>
+          url.includes('/openidm/feature')
+        );
+        expect(
+          featureRequests.map(({ method, url }) => `${method} ${url}`)
+        ).toEqual([
+          'POST /openidm/feature/nosuchfeature?_action=validate',
+          'GET /openidm/feature?_queryFilter=true',
+        ]);
+        expect(writesOf(readRequests(recordPath))).toEqual([]);
       },
       TIMEOUT
     );
@@ -330,12 +389,15 @@ suite('feature validate through the CLI', () => {
     });
 
     it(
-      'prints the diagnosis after the validation, and a warning is not a functional problem: exit 0',
+      'prints the diagnosis before the validation, and a warning is not a functional problem: exit 0',
       async () => {
         const { code, stdout } = await validate(server, ['-i', 'aiagent']);
 
         expect(stdout).toContain('Valid: Validate complete.');
         expect(stdout).toContain('Diagnosis of feature "aiagent":');
+        expect(stdout.indexOf('Diagnosis of feature "aiagent":')).toBeLessThan(
+          stdout.indexOf('Valid: Validate complete.')
+        );
         expect(stdout).toContain(
           '⚠ Registry     The registry reports no installed version.'
         );

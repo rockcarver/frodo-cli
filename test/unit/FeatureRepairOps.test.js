@@ -147,6 +147,25 @@ describe('repairOptionsProblem', () => {
 });
 
 describe('checkRepairBeforeLogin', () => {
+  test('without a terminal, --yes and --backup-dir it refuses ONCE and names both, with the command line that works', () => {
+    terminal = false;
+
+    expect(checkRepairBeforeLogin('aiagent', {})).toBe(false);
+
+    const errors = printed('error');
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('Refusing to repair the feature "aiagent"');
+    expect(errors[0]).toContain(
+      'the confirmation and for the backup directory'
+    );
+    expect(errors[0]).toContain('-y/--yes');
+    expect(errors[0]).toContain('--backup-dir <directory>');
+    expect(errors[0]).toContain(
+      'frodo feature validate -i aiagent --repair --backup-dir <directory> -y'
+    );
+    expect(errors[0]).not.toContain('--dry-run');
+  });
+
   test('without a terminal and without --yes it refuses, names --yes, and does not name a --dry-run the command does not have', () => {
     terminal = false;
 
@@ -155,6 +174,8 @@ describe('checkRepairBeforeLogin', () => {
     const error = printed('error').join('\n');
     expect(error).toContain('Refusing to repair the feature "aiagent"');
     expect(error).toContain('-y/--yes');
+    expect(error).toContain('without confirmation');
+    expect(error).not.toContain('backup directory');
     expect(error).not.toContain('--dry-run');
   });
 
@@ -163,7 +184,9 @@ describe('checkRepairBeforeLogin', () => {
 
     expect(checkRepairBeforeLogin('aiagent', { yes: true })).toBe(false);
 
-    expect(printed('error').join('\n')).toContain('--backup-dir is required');
+    const error = printed('error').join('\n');
+    expect(error).toContain('--backup-dir is required');
+    expect(error).not.toContain('confirmation');
   });
 
   test('without a terminal, --yes and --backup-dir pass', () => {
