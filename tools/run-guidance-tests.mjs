@@ -19,7 +19,6 @@ import { fileURLToPath } from 'node:url';
 const GUIDANCE_TESTS = [
   'test/unit/DecisionRecords.test.js',
   'test/unit/Skills.test.js',
-  'test/unit/DependabotAutoMerge.test.js',
   'test/unit/DependabotPolicy.test.js',
 ];
 

@@ -247,3 +247,47 @@ describe('core 0023: only tooling merges without a person', () => {
     expect(actions.cooldown.exclude).toEqual(['gearsnlevers/*']);
   });
 });
+
+describe('the workflow that calls the shared action', () => {
+  const workflow = read('.github/workflows/dependabot-auto-merge.yml');
+  const uses = [...workflow.matchAll(/^\s*(?:-\s*)?uses:\s*(\S+)(.*)$/gm)].map(
+    (m) => ({ ref: m[1], rest: m[2] })
+  );
+
+  it('calls the shared action, pinned by a full commit SHA with its version in a comment', () => {
+    expect(uses).toHaveLength(1);
+    expect(uses[0].ref).toMatch(
+      /^gearsnlevers\/dependabot-auto-merge-action@[0-9a-f]{40}$/
+    );
+    expect(uses[0].rest).toMatch(/#\s*v\d+\.\d+\.\d+/);
+  });
+
+  it('checks out nothing: the token has write access and no code of a pull request may run next to it', () => {
+    expect(workflow).not.toMatch(/actions\/checkout/);
+  });
+
+  it('only a Dependabot pull request is looked at, by the guard on the actor', () => {
+    expect(workflow).toContain(
+      "if: github.event_name != 'pull_request' || github.actor == 'dependabot[bot]'"
+    );
+  });
+
+  it('asks for the two permissions that arming needs and nothing more', () => {
+    const block = /^permissions:\n((?:[ ]+\S.*\n)+)/m.exec(workflow)?.[1] ?? '';
+    expect(
+      block
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .sort()
+    ).toEqual(['contents: write', 'pull-requests: write']);
+  });
+
+  it('runs on a pull request, the daily sweep and by hand, and only a manual run can be a dry run', () => {
+    expect(workflow).toMatch(/^on:\n {2}pull_request:\n {2}schedule:\n/m);
+    expect(workflow).toMatch(/^ {2}workflow_dispatch:\n {4}inputs:\n {6}dry-run:\n/m);
+    expect(workflow).toContain(
+      "dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || 'false' }}"
+    );
+  });
+});
