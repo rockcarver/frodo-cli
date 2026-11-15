@@ -6,6 +6,10 @@ import {
   exportAgentToFile,
 } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
+import {
+  NOT_AGENTS_OF_THIS_COMMAND,
+  notAgentsOfBulkOption,
+} from '../../utils/AgentHelpText';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -20,7 +24,8 @@ export default function setup() {
   const program = new FrodoCommand('frodo agent export');
 
   program
-    .description('Export agents.')
+    .summary('Export agents.')
+    .description(`Export agents. ${NOT_AGENTS_OF_THIS_COMMAND}`)
     .addOption(
       new Option(
         '-i, --agent-id <agent-id>',
@@ -36,13 +41,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Export all agents to a single file. Cannot be used with -i or -A.'
+        `Export all agents to a single file. Cannot be used with -i or -A. ${notAgentsOfBulkOption('export', '-a')}`
       ).conflicts(['agentId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all agents to separate files (*.<type>.agent.json) in the current directory. Cannot be used with -i, -f or -a.'
+        `Export all agents to separate files (*.<type>.agent.json) in the current directory. Cannot be used with -i, -f or -a. ${notAgentsOfBulkOption('export', '-A')}`
       ).conflicts(['agentId', 'file', 'all'])
     )
     .addOption(

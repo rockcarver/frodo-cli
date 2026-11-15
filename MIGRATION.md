@@ -845,6 +845,20 @@ not found" error and exit code 1 (export the tree again). Use `frodo oauth
 issuer` and `frodo oauth cimd`, or the config-manager commands, for these
 objects.
 
+**Four options that did nothing are removed**: each of them was declared and
+never read, so a command line that passed one was accepted and did what it would
+have done without it
+([frodo-cli#1217](https://github.com/rockcarver/frodo-cli/issues/1217)). A
+command line that passes one is now rejected as an unknown option, with exit
+code 1, before the command connects. Drop the option from the script:
+
+| Removed option                                  | Why dropping it changes nothing                                                                                                                                                                      |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-l, --long` of `frodo esv secret version list` | The table already shows every field the server returns for a version (version, status, loaded, created).                                                                                             |
+| `--no-deep` of `frodo esv variable delete`      | The command has no deep delete: it deleted the same with or without the option.                                                                                                                      |
+| `--no-deep` of `frodo oauth client delete`      | The command has no deep delete: it deleted the same with or without the option.                                                                                                                      |
+| `--target <host url>` of `frodo promote`        | The option was copied from the export commands, where it encrypts secret values for another environment. `promote` never read it, so a script that passed it got no encryption for that environment. |
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

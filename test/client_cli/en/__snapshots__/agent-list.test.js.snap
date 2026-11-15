@@ -3,7 +3,9 @@
 exports[`CLI help interface for 'agent list' should be expected english 1`] = `
 "Usage: frodo agent list [options] [host] [realm] [username] [password]
 
-List agents.
+List agents. OAuth2 clients, trusted JWT issuers and CIMD profiles are not
+agents of this command: see frodo oauth client, frodo oauth issuer and frodo
+oauth cimd.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
