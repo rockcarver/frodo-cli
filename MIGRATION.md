@@ -280,7 +280,7 @@ the feature can be installed adds `|| true`, or reads the exit code as "the
 feature is not healthy". The new option `--repair` fixes what the diagnosis
 found repairable, after a backup (`--backup-dir`, required) and one
 confirmation (`-y, --yes` skips it); see
-[a repair writes a backup first, changes only what it needs and never restores data by itself](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0050-a-repair-writes-a-backup-first-changes-only-what-it-needs-and-never-restores-data-by-itself.md).
+[a repair writes a backup first, changes only what it needs and never restores data by itself](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0051-a-repair-writes-a-backup-first-changes-only-what-it-needs-and-never-restores-data-by-itself.md).
 
 **`aiagent import -f` imports only the first agent of the file**: in 4.x
 `frodo agent ai import -f <file>` (and `frodo aiagent import -f <file>` in 5.x
