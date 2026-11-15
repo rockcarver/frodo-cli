@@ -579,6 +579,11 @@ suite('idm export and import of raw configuration objects', () => {
   describe('idm import of a file without the idm wrapper, without --raw', () => {
     const NOT_AN_EXPORT =
       /is not a Frodo IDM export: it has no "idm" wrapper\. If it holds a configuration object as IDM serves it, import it with --raw\./;
+    // --raw cannot be combined with -a or -A, so these two say what to do instead
+    const NOT_AN_EXPORT_ALL =
+      /is not a Frodo IDM export: it has no "idm" wrapper\. If it holds one configuration object as IDM serves it, import it with --raw and without -a\./;
+    const NOT_AN_EXPORT_DIRECTORY =
+      /is not a Frodo IDM export: it has no "idm" wrapper\. A directory import reads Frodo exports only\. If it holds a configuration object as IDM serves it, import that file on its own with -i <id> --raw -f <file>\./;
 
     it.each([
       ['sync', ['-i', 'sync', '-f', 'raw.json'], SYNC],
@@ -589,7 +594,6 @@ suite('idm export and import of raw configuration objects', () => {
         CONNECTOR,
       ],
       ['the first object of the file (-f)', ['-f', 'raw.json'], SYNC],
-      ['all objects of a file (-a -f)', ['-a', '-f', 'raw.json'], SYNC],
     ])(
       '%s: fails with exit 1, names --raw, and writes nothing to the tenant',
       async (_name, args, content) => {
@@ -599,6 +603,26 @@ suite('idm export and import of raw configuration objects', () => {
         const { code, stderr } = await idm('import', server, args);
 
         expect(stderr).toMatch(NOT_AN_EXPORT);
+        expect(stderr).not.toMatch(/Cannot convert undefined or null/);
+        expect(code).toBe(1);
+        expect(written()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'all objects of a file (-a -f): says to drop -a, because --raw cannot be used with it',
+      async () => {
+        const server = await tenant();
+        write('raw.json', SYNC);
+
+        const { code, stderr } = await idm('import', server, [
+          '-a',
+          '-f',
+          'raw.json',
+        ]);
+
+        expect(stderr).toMatch(NOT_AN_EXPORT_ALL);
         expect(stderr).not.toMatch(/Cannot convert undefined or null/);
         expect(code).toBe(1);
         expect(written()).toEqual([]);
@@ -621,7 +645,7 @@ suite('idm export and import of raw configuration objects', () => {
           'dir',
         ]);
 
-        expect(stderr).toMatch(NOT_AN_EXPORT);
+        expect(stderr).toMatch(NOT_AN_EXPORT_DIRECTORY);
         expect(code).toBe(1);
         const puts = written();
         expect(puts).toHaveLength(1);

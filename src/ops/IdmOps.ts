@@ -241,12 +241,14 @@ function isIdmExport(parsed: unknown): boolean {
  * @param {unknown} parsed the parsed file
  * @param {string} filePath the path of the file, for the message
  * @param {string} entityId the entity that is imported, when it is named
+ * @param {'single' | 'all' | 'directory'} form how the file is imported (-i or -f, -a -f, -A), which decides what the message says to do instead: --raw cannot be combined with -a or -A
  * @throws {FrodoError} if the file has no wrapper, or does not hold the `sync` or `managed` entity
  */
 function assertIdmExport(
   parsed: unknown,
   filePath: string,
-  entityId?: string
+  entityId?: string,
+  form: 'single' | 'all' | 'directory' = 'single'
 ): void {
   const legacy = entityId
     ? (parsed as Record<string, unknown> | null)?.[entityId]
@@ -265,8 +267,15 @@ function assertIdmExport(
   } else if (hasIdmExportWrapper(parsed)) {
     return;
   }
+  const instead = {
+    single:
+      'If it holds a configuration object as IDM serves it, import it with --raw.',
+    all: 'If it holds one configuration object as IDM serves it, import it with --raw and without -a.',
+    directory:
+      'A directory import reads Frodo exports only. If it holds a configuration object as IDM serves it, import that file on its own with -i <id> --raw -f <file>.',
+  }[form];
   throw new FrodoError(
-    `${filePath} is not a Frodo IDM export: it has no "idm" wrapper. If it holds a configuration object as IDM serves it, import it with --raw.`
+    `${filePath} is not a Frodo IDM export: it has no "idm" wrapper. ${instead}`
   );
 }
 
@@ -816,7 +825,7 @@ export async function importAllConfigEntitiesFromFile(
     filePath = getFilePath(file);
     const baseDir = path.dirname(filePath);
     const importData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    assertIdmExport(importData, filePath);
+    assertIdmExport(importData, filePath, undefined, 'all');
     resolveAllExtractedScriptsForImport(importData, baseDir);
     indicatorId = createProgressIndicator(
       'indeterminate',
@@ -2850,7 +2859,7 @@ export async function getIdmImportDataFromIdmDirectory(
     attempt(f.path, () => {
       const baseDirOfThisJson = path.dirname(f.path);
       const parsed = JSON.parse(f.content);
-      assertIdmExport(parsed, f.path);
+      assertIdmExport(parsed, f.path, undefined, 'directory');
       const entities = Object.values(
         parsed.idm
       ) as unknown as IdObjectSkeletonInterface[];
