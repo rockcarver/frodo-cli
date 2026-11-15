@@ -31,3 +31,7 @@ repos:
 - Version bumps of bundled packages need a person, about weekly; the review is the package's changed files and manifest, not the whole upstream history.
 - Tooling updates still merge unattended, once they are a week old and green.
 - The tooling list in `dependabot.yml` is maintained by hand and checked by a test; a new tooling package is merged by a person until it is added.
+
+## Known deviations
+
+- **The implementation moved (2026-11-15).** The policy is no longer implemented by a script in each repository: the path `scripts/dependabot-auto-merge.mjs` in `applies-to` above does not exist any more. One shared action implements it, [gearsnlevers/dependabot-auto-merge-action](https://github.com/gearsnlevers/dependabot-auto-merge-action), which each repository's workflow pins by full commit SHA and which reads the tooling list from the repository's own `dependabot.yml`, never from the pull request. The rules of this record did not change.
