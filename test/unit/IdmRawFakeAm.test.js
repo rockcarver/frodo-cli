@@ -436,6 +436,35 @@ suite('idm export and import of raw configuration objects', () => {
       TIMEOUT
     );
 
+    it.each([
+      ['an empty idm property', { idm: {} }],
+      [
+        'an idm property that holds settings, not configuration objects',
+        { idm: { enabled: true, name: 'x' } },
+      ],
+    ])(
+      'imports an object that has %s: only a wrapper of configuration objects makes a file an export',
+      async (_name, extra) => {
+        const server = await tenant();
+        const object = { _id: 'sync', ...extra };
+        write('odd.json', object);
+
+        const { code } = await idm('import', server, [
+          '-i',
+          'sync',
+          '-f',
+          'odd.json',
+          '--raw',
+        ]);
+
+        expect(code).toBe(0);
+        const puts = written();
+        expect(puts).toHaveLength(1);
+        expect(JSON.parse(puts[0].body)).toEqual(object);
+      },
+      TIMEOUT
+    );
+
     it(
       'refuses a Frodo export (a file with the idm wrapper) and writes nothing: it would replace the object with the wrapper',
       async () => {
