@@ -61,7 +61,10 @@ Options:
                                        requested for browser login. Ignored
                                        without --browser/--device. Defaults per
                                        deployment type:
-                                       cloud:    "fr:am:* fr:idm:*"
+                                       cloud:    "fr:am:* fr:idm:*
+                                       fr:idc:esv:read fr:idc:esv:update
+                                       fr:idc:monitoring:*" (a device login
+                                       without "fr:am:*")
                                        forgeops: "fr:idm:* openid"
                                        classic:  "openid"
   --no-open                            Print the browser-login URL instead of

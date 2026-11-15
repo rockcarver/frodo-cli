@@ -38,6 +38,9 @@ const PLACEHOLDER_HOSTS = [
   'my-issuer.com',
   // the public sign-in host of the identity provider in the SAML examples
   'login.microsoftonline.com',
+  // the documentation of this repository: the note in the help of a command that
+  // an interactive login cannot run links to docs/BROWSER_LOGIN.md
+  'github.com',
 ];
 
 const RESERVED_SUFFIXES = ['example.com', 'example.org', 'example.net'];

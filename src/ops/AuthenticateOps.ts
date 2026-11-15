@@ -1,6 +1,7 @@
 import {
   frodo,
   state,
+  type AccessProfile,
   type BrowserLoginOptions,
   type BrowserLoginPrompt,
   type BrowserLoginPromptHandler,
@@ -9,6 +10,7 @@ import {
   type Tokens,
 } from '@rockcarver/frodo-lib';
 import open from 'open';
+import { accessNoticeLines } from '../utils/AccessProfileText';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { printErrorHint } from '../utils/ErrorCodeHints';
 // The active-command registry, not ResolveInteractiveInputs itself: that
@@ -31,6 +33,7 @@ import {
   unsupportedDeploymentTypeMessage,
 } from '../utils/interactive/PassLogin';
 import { canPrompt } from '../utils/interactive/PromptGateState';
+import { isMachineOutput } from '../utils/MachineOutput';
 import { question } from '../utils/Prompt';
 
 export type { CredentialOverrideType };
@@ -236,8 +239,37 @@ async function login(
         : `Using the saved browser login of ${tokens.subject}`,
       'info'
     );
+    // What the session can do is said once, after a login that the person
+    // did just now: not for a session reused from the cache.
+    if (browserLoginPrompted) printAccessNotice(tokens.accessProfile);
   }
   return tokens.subject;
+}
+
+/** Whether the notice about what a new login can do was shown by this process. */
+let accessNoticeShown = false;
+
+/** Lets a test show the notice again: it is shown once per process. */
+export function resetAccessNoticeForTests(): void {
+  accessNoticeShown = false;
+}
+
+/**
+ * Says what a new interactive login can do (frodo-lib's access profile of the
+ * session): who, which kind of login, how long it lasts, what it reaches and
+ * what it does not. Shown once per process, and only to a person: not when
+ * stdout is not a terminal, not with `--json` (or `--scriptFriendly`), and not
+ * when the library reports no profile (the deployment is not a Cloud tenant,
+ * for example).
+ * @param profile the access profile that the login returned
+ */
+export function printAccessNotice(profile: AccessProfile | undefined): void {
+  if (!profile || accessNoticeShown) return;
+  if (!process.stdout.isTTY || isMachineOutput()) return;
+  accessNoticeShown = true;
+  const [heading, ...rest] = accessNoticeLines(profile);
+  printMessage(heading, 'info');
+  for (const line of rest) printMessage(line);
 }
 
 /**

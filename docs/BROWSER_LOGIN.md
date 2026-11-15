@@ -100,6 +100,36 @@ Two differences from the ForgeOps setup above:
 
 `--device` uses the OAuth2 Device Authorization Grant instead of a loopback redirect — useful for headless or SSH sessions with no local browser to open. It requires your OAuth2 provider to have the device grant enabled on the client; this is optional, not required, for browser login to work. To persist this as a profile's default (so a headless/SSH host doesn't need `--device` repeated on every command), save it explicitly with `frodo conn save --preferred-credential browser --preferred-device-flow <host>` — see `--preferred-credential` above.
 
+## What a browser or device login can do
+
+On a PingOne Advanced Identity Cloud tenant, `--browser` and `--device` use the built-in client of the platform. A login with that client reaches less than a service account, and the two flows differ from each other. frodo-lib reports what a session can do (its access profile) and the command line says so: after every new interactive login, in `frodo info` (also with `--json`), in `frodo conn describe` for a saved session, in the help of the commands that no interactive login can run, and in the advice that follows a scope error.
+
+| Area of the API | Browser login | Device login | Service account (granted the scope) |
+| --- | --- | --- | --- |
+| Access Management | yes | no: the token carries no Access Management session | yes |
+| Identity Management | yes | yes | yes |
+| Environment secrets and variables | yes | yes | yes |
+| Governance | no | no | yes |
+| Configuration promotion | no | no | yes |
+| Release information | no | no | yes |
+| Certificates | no | no | yes |
+| Custom domains | no | no | yes |
+| Content security policy | no | no | yes |
+| Cookie domains | no | no | yes |
+| SSO cookie | no | no | yes |
+| Direct configuration session | no | no | yes |
+| Admin federation | no | no | yes |
+| Telemetry | no | no | yes |
+| PingFederate administration | no | no | yes |
+
+Notes that apply to both flows:
+
+- **The session lasts about 30 minutes and cannot be refreshed.** There is no refresh token: when it ends, log in again.
+- **The library adapts the login to the tenant.** A device login does not ask for the Access Management scope (a device login that asks for it fails after the approval on the tenants where this was measured), so the choice of flow succeeds and the notice says what is missing. A browser login asks for every scope the client offers. The notice lists any adaptation.
+- **A saved connection profile does not change this.** If a command needs an area the login cannot reach, use a service account (`frodo conn save` saves one with the connection profile); for Access Management with a device login, use a browser login.
+
+The commands that always need an area no interactive login reaches say so in their help, at the end: `frodo iga`, `frodo promote`, `frodo dcc`, `frodo admin federation`, and the `frodo config-manager` commands for promotion, governance workflows, cookie domains, content security policy, telemetry and direct control. A command that touches many sections, such as `frodo config export`, reports a section that the login cannot reach by name and goes on with the others.
+
 ## Login journey configuration
 
 Because this is a real interactive login through an actual browser (or another device, for the device flow), your realm's login journey can include MFA, WebAuthn, or federation steps the way it would for any other user-facing login — none of the `checkAndHandle2FA` limitations that apply to CLI-only mode (which can't drive a WebAuthn ceremony or a federation redirect) apply here.

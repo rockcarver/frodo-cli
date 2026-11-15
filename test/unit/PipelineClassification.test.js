@@ -464,6 +464,14 @@ describeIfBash('tools/run-guidance-tests.mjs', () => {
   it('lists the tests that validate decision records and skills', () => {
     expect(listed).toEqual(expect.arrayContaining(['test/unit/DecisionRecords.test.js', 'test/unit/Skills.test.js']));
   });
+
+  // A pull request that changes only .github/dependabot.yml or the auto-merge workflow runs `Validate guidance`
+  // and nothing else (core 0023); without these two tests that job would not look at the policy at all.
+  it('lists the tests of the Dependabot policy, which the classifier sends guidance pull requests to', () => {
+    expect(listed).toEqual(
+      expect.arrayContaining(['test/unit/DependabotAutoMerge.test.js', 'test/unit/DependabotPolicy.test.js'])
+    );
+  });
 });
 
 /** The steps of one job, each as its own text (a step starts at `      - `). */

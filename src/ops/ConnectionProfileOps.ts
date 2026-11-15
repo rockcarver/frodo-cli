@@ -1,6 +1,10 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import {
+  accessNoticeLines,
+  isInteractiveFlow,
+} from '../utils/AccessProfileText';
+import {
   createObjectTable,
   createTable,
   debugMessage,
@@ -10,6 +14,7 @@ import {
   showSpinner,
   succeedSpinner,
 } from '../utils/Console';
+import { readCachedAccessProfile } from './CachedAccessProfileOps';
 
 const { validateServiceAccount } = frodo.cloud.serviceAccount;
 const {
@@ -337,6 +342,17 @@ export async function describeConnectionProfile(
     }
     if (showSecrets && privateKey) {
       printMessage(privateKey, 'data');
+    }
+    // What the browser or device session in the token cache can do (no login,
+    // no request): the profile the library gives a live session, in the same words.
+    const access = await readCachedAccessProfile(
+      profile.tenant ?? host,
+      profile.deploymentType
+    );
+    if (access && isInteractiveFlow(access.flow)) {
+      const [heading, ...rest] = accessNoticeLines(access);
+      printMessage(`\n${heading}`, 'data');
+      for (const line of rest) printMessage(line, 'data');
     }
   } else {
     printMessage(`No connection profile ${host} found`, 'error');
