@@ -617,6 +617,14 @@ of the editor, which takes text, is not used for a path option. A complete
 command line, an optional `-f` or `-D` that was left out, `--no-prompt`,
 `FRODO_NO_PROMPT` and a run without a terminal open nothing (record 0047).
 
+One command opens it itself: `frodo feature validate --repair` asks for
+`--backup-dir` when it is missing and a terminal can be asked. The directory is
+required only with `--repair`, and the pass knows only options that are
+required always, so the command hands the question
+(`src/cli/feature/BackupDirectoryQuestion.ts`) to the repair, which asks once it
+knows that a repair will happen. Without a terminal the command refuses before
+it logs in.
+
 **Which options.** `PathOptions.ts` (zero-import) classifies them by long name,
 with overrides per command (`config-manager pull saml --file`): a **file** or a
 **directory**, read or written, and optionally the extensions to show

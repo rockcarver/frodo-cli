@@ -28,6 +28,9 @@ export const reverseRelationshipPropertyName = 'hovercraftsPiloted';
 export const manyRelationshipPropertyName = 'crewMembers';
 export const relationshipQueryFields = 'userName,givenName,sn';
 export const featureId = 'groups';
+/** A feature that the library can diagnose and repair. */
+export const repairableFeatureId = 'aiagent';
+export const featureBackupDirectory = './feature-backup';
 export const loginClientId = 'zion-cli-client';
 export const journeyId = 'ZionLogin';
 export const journeyFile = 'ZionLogin.journey.json';

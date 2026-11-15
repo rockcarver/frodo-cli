@@ -23,7 +23,8 @@ Commands:
                     or disabling a feature once installed requires contacting
                     Ping support and rolling back the tenant.
   list              [Cloud-only] List features.
-  validate          [Cloud-only] Validate whether a feature is installable.
+  validate          [Cloud-only] Validate whether a feature is installable,
+                    diagnose it, and repair what is wrong with --repair.
 
 Utilities:
   help              display help for command

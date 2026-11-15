@@ -126,22 +126,25 @@ export async function confirmBulkDelete({
  * @param {string} guard.what what is done, as a verb phrase: "set up a remote proxy"
  * @param {boolean} guard.yes true if `--yes` was given
  * @param {boolean} guard.dryRun true if `--dry-run` was given
+ * @param {boolean} guard.dryRunAvailable true if the command has a preview option to name in the refusal. Default: true
  * @returns {boolean} false, after printing the error, if the action is refused
  */
 export function checkProceed({
   what,
   yes,
   dryRun,
+  dryRunAvailable = true,
 }: {
   what: string;
   yes?: boolean;
   dryRun?: boolean;
+  dryRunAvailable?: boolean;
 }): boolean {
   if (bulkDeleteGate({ yes, dryRun, interactive: canPrompt() }) !== 'refuse') {
     return true;
   }
   printMessage(
-    `Refusing to ${what} without confirmation: there is no interactive terminal to ask. Pass -y/--yes to go ahead without asking, or --dry-run to only show what would be done.`,
+    `Refusing to ${what} without confirmation: there is no interactive terminal to ask. Pass -y/--yes to go ahead without asking${dryRunAvailable ? ', or --dry-run to only show what would be done' : ''}.`,
     'error'
   );
   return false;
@@ -156,6 +159,7 @@ export function checkProceed({
  * @param {string} guard.what what is done, as a verb phrase: "set up a remote proxy"
  * @param {boolean} guard.yes true if `--yes` was given
  * @param {boolean} guard.dryRun true if `--dry-run` was given
+ * @param {boolean} guard.dryRunAvailable true if the command has a preview option to name in the refusal. Default: true
  * @param {string} guard.warning what the user should know before agreeing, shown above the question
  * @param {() => Promise<boolean>} guard.showPlan optional: prints what would be done and resolves to false if that failed
  * @returns {Promise<boolean>} a promise that resolves to true if the action may go ahead; the reason has been printed otherwise
@@ -164,16 +168,18 @@ export async function confirmProceed({
   what,
   yes,
   dryRun,
+  dryRunAvailable = true,
   warning,
   showPlan,
 }: {
   what: string;
   yes?: boolean;
   dryRun?: boolean;
+  dryRunAvailable?: boolean;
   warning?: string;
   showPlan?: () => Promise<boolean>;
 }): Promise<boolean> {
-  if (!checkProceed({ what, yes, dryRun })) return false;
+  if (!checkProceed({ what, yes, dryRun, dryRunAvailable })) return false;
   if (dryRun || yes) return true;
   if (showPlan && !(await showPlan())) return false;
   if (warning) printMessage(warning, 'warn');

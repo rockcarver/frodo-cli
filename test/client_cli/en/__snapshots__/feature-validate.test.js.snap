@@ -3,7 +3,8 @@
 exports[`CLI help interface for 'feature validate' should be expected english 1`] = `
 "Usage: frodo feature validate [options] [host] [username] [password]
 
-[Cloud-only] Validate whether a feature is installable.
+[Cloud-only] Validate whether a feature is installable, diagnose it, and repair
+what is wrong with --repair.
 
 Arguments:
   host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To
@@ -21,7 +22,34 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
+  --auth-service <name>  Authentication service of an OAuth 2.0 provider that
+                         the repair creates or completes. Default: Login.
+                         Requires --repair.
+  --backup-dir <dir>     Directory for the raw backup of what the repair
+                         overwrites or deletes, written before the first change
+                         and created if it does not exist; relative to the
+                         current directory, readable by the owner only. Required
+                         with --repair: asked for on a terminal, an error
+                         without one.
   -i, --feature-id <id>  Feature id. (pick from feature) (prompts if missing)
+  --json                 Print the diagnosis as JSON and nothing else. Cannot be
+                         used with --repair.
+  --keep-aligned         Leave the definitions of the feature aligned with the
+                         original after the repair, so that the registry reads
+                         installed. Without it, definitions that had to be
+                         aligned for the repair are put back as the user had
+                         them. Requires --repair.
+  --repair               Repair what the diagnosis found repairable. A backup of
+                         what the repair overwrites or deletes is written first.
+                         Cannot be used with --json.
+  --timeout <seconds>    How long --wait polls, in seconds. Default: 1200 (20
+                         minutes). Requires --wait.
+  --wait                 After the enable action, wait until AM opens the gate
+                         and return as soon as it is open. Without it the repair
+                         ends when the writes are done and says to validate
+                         again after a few minutes. Requires --repair.
+  -y, --yes              Do not ask for confirmation before the repair. Requires
+                         --repair.
   -h, --help             Help
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage
