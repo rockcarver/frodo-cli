@@ -98,6 +98,10 @@
  * empty value is a tenant without secrets. Without it the list answers 404. The
  * calls that delete a secret or add a version to one are answered `200`, and
  * reading one of them answers its skeleton.
+ * FAKE_AM_SERVICE_ACCOUNTS=<id,id,...> makes the read of one service account of
+ * a cloud tenant (`GET /openidm/managed/svcacct/<id>`, what saving a connection
+ * profile with a service account asks for) answer with an account of that id;
+ * any other id answers 404. Without it every such read answers 404.
  * FAKE_AM_SERVICES=<id,id,...> makes the list of the AM services of the realm
  * and of the global ones (`.../services?_action=nextdescendents`) answer with
  * services of those ids; an empty value is a realm without services. Without it
@@ -232,6 +236,7 @@ const idList = (value) =>
   value === undefined ? undefined : value.split(',').filter(Boolean);
 const secrets = idList(process.env.FAKE_AM_SECRETS);
 const services = idList(process.env.FAKE_AM_SERVICES);
+const serviceAccounts = idList(process.env.FAKE_AM_SERVICE_ACCOUNTS);
 const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
 const agentTypes = idList(process.env.FAKE_AM_AGENT_TYPES);
 // the profiles of FAKE_AM_CIMD_PROFILES_FILE (a list that the `oauth cimd` tests
@@ -743,6 +748,20 @@ const server = http.createServer((req, res) => {
           return stored ? send(200, wrapJwtIssuer(stored)) : notFound();
         }
       }
+    }
+    if (serviceAccounts && pathname.includes('/openidm/managed/svcacct/')) {
+      const _id = decodeURIComponent(
+        pathname.split('/openidm/managed/svcacct/')[1]
+      );
+      return serviceAccounts.includes(_id)
+        ? send(200, {
+            _id,
+            name: `service account ${_id}`,
+            description: 'a service account of the fake tenant',
+            accountStatus: 'Active',
+            scopes: [],
+          })
+        : send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
     }
     if (secrets && pathname.endsWith('/environment/secrets')) {
       return send(200, {

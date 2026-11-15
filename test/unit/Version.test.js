@@ -29,6 +29,39 @@ const originalEnv = process.env.FRODO_NO_UPDATE_CHECK;
 const originalAirGapEnv = process.env.FRODO_AIRGAPPED;
 let getVersions;
 
+// The results of Promise.allSettled, which is what the library hands back
+const githubAnswer = (version = newerVersion) => ({
+  status: 'fulfilled',
+  value: {
+    data: [
+      {
+        prerelease: false,
+        tag_name: `v${version}`,
+        published_at: 'release-date',
+      },
+    ],
+  },
+});
+const npmAnswer = (version = newerVersion) => ({
+  status: 'fulfilled',
+  value: {
+    data: {
+      'dist-tags': { latest: version },
+      time: { [version]: 'release-date' },
+    },
+  },
+});
+const refused = () => ({
+  status: 'rejected',
+  reason: new Error('connect ECONNREFUSED'),
+});
+const cacheOf = (fields) =>
+  JSON.stringify(
+    { last_checked: now, github: null, npm: null, ...fields },
+    null,
+    2
+  );
+
 beforeEach(async () => {
   jest.resetModules();
   getAllVersions.mockReset();
@@ -45,27 +78,7 @@ beforeEach(async () => {
     })
   );
   jest.spyOn(fs, 'writeFileSync').mockImplementation(() => undefined);
-  getAllVersions.mockResolvedValue([
-    {
-      value: {
-        data: [
-          {
-            prerelease: false,
-            tag_name: `v${newerVersion}`,
-            published_at: 'release-date',
-          },
-        ],
-      },
-    },
-    {
-      value: {
-        data: {
-          'dist-tags': { latest: newerVersion },
-          time: { [newerVersion]: 'release-date' },
-        },
-      },
-    },
-  ]);
+  getAllVersions.mockResolvedValue([githubAnswer(), npmAnswer()]);
 });
 
 afterEach(() => {
@@ -195,7 +208,165 @@ test('network failures silently preserve installed versions', async () => {
   expectInstalledVersions(await getVersions(false));
   expect(await getVersions(true)).toBe('');
   expect(getAllVersions).toHaveBeenCalled();
-  expect(fs.writeFileSync).not.toHaveBeenCalled();
+});
+
+describe('a check that fails (cli#1104)', () => {
+  test('both hosts refuse: the attempt is recorded and the start goes on', async () => {
+    getAllVersions.mockResolvedValue([refused(), refused()]);
+    expectInstalledVersions(await getVersions(false));
+    expect(await getVersions(true)).toBe('');
+    expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
+    expect(fs.writeFileSync).toHaveBeenCalledWith(cacheFile, cacheOf({}));
+  });
+
+  test('the next start, within a day, makes no request', async () => {
+    fs.existsSync.mockReturnValue(true);
+    fs.readFileSync.mockReturnValue(cacheOf({ last_checked: now - 3600 }));
+    expectInstalledVersions(await getVersions(false));
+    expect(await getVersions(true)).toBe('');
+    expect(getAllVersions).not.toHaveBeenCalled();
+    expect(fs.writeFileSync).not.toHaveBeenCalled();
+  });
+
+  test('a day later the check is made again', async () => {
+    fs.existsSync.mockReturnValue(true);
+    fs.readFileSync.mockReturnValue(cacheOf({ last_checked: now - 86401 }));
+    await getVersions(false);
+    expect(getAllVersions).toHaveBeenCalledTimes(1);
+  });
+
+  test('every call of one process shares the outcome of the first, failed or not', async () => {
+    getAllVersions.mockResolvedValue([refused(), refused()]);
+    await getVersions(false);
+    await getVersions(true);
+    await getVersions(false);
+    expect(getAllVersions).toHaveBeenCalledTimes(1);
+    expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
+  });
+
+  test('two calls of one process that succeed make one request per host', async () => {
+    await Promise.all([getVersions(false), getVersions(true)]);
+    expect(getAllVersions).toHaveBeenCalledTimes(1);
+    expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
+  });
+
+  test('a failed refresh keeps the versions found last time', async () => {
+    fs.existsSync.mockReturnValue(true);
+    fs.readFileSync.mockReturnValue(
+      cacheOf({
+        last_checked: now - 86401,
+        github: newerVersion,
+        npm: newerVersion,
+      })
+    );
+    getAllVersions.mockResolvedValue([refused(), refused()]);
+    expect(await getVersions(false)).toContain('Newer version(s) available');
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      cacheFile,
+      cacheOf({ github: newerVersion, npm: newerVersion })
+    );
+  });
+
+  test('a request that throws keeps the versions found last time too', async () => {
+    fs.existsSync.mockReturnValue(true);
+    fs.readFileSync.mockReturnValue(
+      cacheOf({
+        last_checked: now - 86401,
+        github: newerVersion,
+        npm: newerVersion,
+      })
+    );
+    getAllVersions.mockRejectedValue(new Error('offline'));
+    expect(await getVersions(false)).toContain('Newer version(s) available');
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      cacheFile,
+      cacheOf({ github: newerVersion, npm: newerVersion })
+    );
+  });
+
+  test('a host that refuses does not discard the answer of the other (npm)', async () => {
+    getAllVersions.mockResolvedValue([refused(), npmAnswer()]);
+    const text = await getVersions(false);
+    expect(text).toContain('Newer version(s) available');
+    expect(text).toContain(`cli (npm): v${newerVersion}`);
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      cacheFile,
+      cacheOf({ npm: newerVersion })
+    );
+  });
+
+  test('a host that refuses does not discard the answer of the other (github, binary)', async () => {
+    jest.replaceProperty(process, 'execPath', '/tmp/frodo');
+    getAllVersions.mockResolvedValue([githubAnswer(), refused()]);
+    const text = await getVersions(false);
+    expect(text).toContain(`cli (github): v${newerVersion}`);
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      cacheFile,
+      cacheOf({ github: newerVersion })
+    );
+  });
+
+  test('an answer that is not a release list is ignored and the other host still counts', async () => {
+    getAllVersions.mockResolvedValue([
+      githubAnswer(),
+      { status: 'fulfilled', value: { data: { unexpected: true } } },
+    ]);
+    expect(await getVersions(false)).toBeDefined();
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      cacheFile,
+      cacheOf({ github: newerVersion })
+    );
+  });
+
+  test('an unreadable cache file is no cache', async () => {
+    fs.existsSync.mockReturnValue(true);
+    fs.readFileSync.mockReturnValue('{');
+    expect(await getVersions(false)).toContain('Newer version(s) available');
+    expect(getAllVersions).toHaveBeenCalledTimes(1);
+  });
+
+  test('a cache file that cannot be written does not discard what was found', async () => {
+    fs.writeFileSync.mockImplementation(() => {
+      throw new Error('EROFS');
+    });
+    expect(await getVersions(false)).toContain('Newer version(s) available');
+  });
+
+  describe('a host that does not answer', () => {
+    beforeEach(() => {
+      jest.useFakeTimers({
+        doNotFake: ['Date', 'nextTick', 'queueMicrotask', 'setImmediate'],
+      });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    test('is waited for 5 seconds at most, once', async () => {
+      getAllVersions.mockReturnValue(new Promise(() => {}));
+      let done = false;
+      const start = getVersions(false).then((text) => {
+        done = true;
+        return text;
+      });
+      await jest.advanceTimersByTimeAsync(4999);
+      expect(done).toBe(false);
+      await jest.advanceTimersByTimeAsync(1);
+      expectInstalledVersions(await start);
+      expect(getAllVersions).toHaveBeenCalledTimes(1);
+      expect(fs.writeFileSync).toHaveBeenCalledWith(cacheFile, cacheOf({}));
+      // the second ask at the same start does not wait again
+      expect(await getVersions(true)).toBe('');
+      expect(getAllVersions).toHaveBeenCalledTimes(1);
+    });
+
+    test('an answer that comes in time is used and ends the wait', async () => {
+      getAllVersions.mockResolvedValue([githubAnswer(), npmAnswer()]);
+      expect(await getVersions(false)).toContain('Newer version(s) available');
+      expect(jest.getTimerCount()).toBe(0);
+    });
+  });
 });
 
 test.each([undefined, 'false', 'true'])(
