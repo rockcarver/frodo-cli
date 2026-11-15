@@ -821,6 +821,28 @@ not found" error and exit code 1 (export the tree again). Use `frodo oauth
 issuer` and `frodo oauth cimd`, or the config-manager commands, for these
 objects.
 
+**`frodo idm import` refuses a file without the `idm` wrapper, and `idm export`
+and `idm import` take `--raw`**: since 3.0 `idm export` writes every
+configuration object inside an `idm` wrapper (`{ "idm": { "sync": { ... } } }`)
+and `idm import` reads that format. A file that holds the object as IDM serves
+it (what 2.x exported as `sync.json`, or a file of the `conf` directory of IDM)
+made `idm import -i <id>`, `-f`, `-a -f` and `-A` fail with "Cannot convert
+undefined or null to object", and `idm import -i sync` and `-i managed` read it
+as a configuration object without mappings or without managed objects and wrote
+that to the tenant, with exit code 0 (frodo-cli#476). They now name the file,
+say that it has no `idm` wrapper and that `--raw` imports it, write nothing and
+exit 1; with `-A` the other files are still imported and the command exits 1.
+`idm import -i sync` or `-i managed` with a wrapped file that holds no such
+object fails the same way instead of importing an empty one. New: `idm export
+-i <id> --raw` writes the object as IDM serves it, without the wrapper, without
+metadata and with the scripts inline, to `<id>.json` (`provisioner.openicf/xyz`
+becomes `provisioner.openicf-xyz.json`, as in the `conf` directory of IDM), and
+`idm import --raw` imports such a file: `-i <id>` names the object (with no `-f`
+the file is `<id>.json`), or `-f` alone names it by the `_id` in the file. A file
+whose `_id` is another object than the one `-i` names, and a file that has the
+wrapper, are refused. `--raw` works for one object at a time and cannot be used
+with `-a`, `-A` or `-e`.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

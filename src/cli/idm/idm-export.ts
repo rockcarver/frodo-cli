@@ -1,12 +1,15 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
   exportAllConfigEntitiesToFile,
   exportAllConfigEntitiesToFiles,
   exportConfigEntityToFile,
+  exportRawConfigEntityToFile,
   warnAboutOfflineConnectorServers,
 } from '../../ops/IdmOps';
+import c from '../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -65,6 +68,24 @@ export default function setup() {
         'Do not extract and save idm scripts and save to separate files. Cannot be used with -a.'
       ).default(true, 'true')
     )
+    .addOption(
+      new Option(
+        '-r, --raw',
+        'Export the configuration object as IDM serves it, without the "idm" wrapper and without metadata, and with the scripts left inline, as with -x. The file is named <id>.json unless -f is given. Import it with "idm import --raw". Requires -i. Cannot be used with -a, -A or -e.'
+      ).conflicts(['all', 'allSeparate', 'entitiesFile'])
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Export the sync mappings, with the scripts extracted to separate files:\n` +
+        c.command(`  $ frodo idm export -i sync ${s.connId}\n`) +
+        `  Export every IDM configuration object into a single file:\n` +
+        c.command(`  $ frodo idm export -a -f idm-config.json ${s.connId}\n`) +
+        `  Export every IDM configuration object into separate files in a directory:\n` +
+        c.command(`  $ frodo idm export -A -D ./idm ${s.connId}\n`) +
+        `  Export one configuration object as IDM serves it, without the "idm" wrapper, to sync.json (import it with "idm import --raw"):\n` +
+        c.command(`  $ frodo idm export -i sync --raw ${s.connId}\n`)
+    )
     .requireOneOf({
       options: ['all', 'allSeparate', 'entityId'],
       purpose: 'what to export',
@@ -99,12 +120,14 @@ export default function setup() {
           verboseMessage(
             `Exporting object "${options.entityId}"${envMessage}${fileMessage}...`
           );
-          const outcome = await exportConfigEntityToFile(
-            options.entityId,
-            options.file,
-            options.metadata,
-            options.extract
-          );
+          const outcome = options.raw
+            ? await exportRawConfigEntityToFile(options.entityId, options.file)
+            : await exportConfigEntityToFile(
+                options.entityId,
+                options.file,
+                options.metadata,
+                options.extract
+              );
           if (!outcome) process.exitCode = 1;
           // --all -a
         } else if (
