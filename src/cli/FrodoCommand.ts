@@ -13,6 +13,7 @@ import {
   setOpenBrowser,
   setUseDeviceFlow,
 } from '../ops/AuthenticateOps.js';
+import { accessFootnote } from '../utils/AccessCommandAreas.js';
 import {
   cleanupProgressIndicators,
   createProgressIndicator,
@@ -48,6 +49,7 @@ import {
   markSecret,
   SECRET_OPTION_HELP,
 } from '../utils/interactive/SecretOptions.js';
+import { setMachineOutput } from '../utils/MachineOutput.js';
 import {
   ALLOW_FAILURES_HELP,
   ALLOW_FAILURES_OPTION,
@@ -65,6 +67,20 @@ import {
 
 // The command families that have a registered entity picker (record 0038)
 registerEntityPickFamilies();
+
+/**
+ * The path of a command without the program name, for example `iga workflow list`.
+ * @param command A command of the tree.
+ * @returns The names from the command up to the program, in order.
+ */
+function commandPathOf(command: Command): string {
+  const names: string[] = [];
+  for (let c: Command | null = command; c; c = c.parent) {
+    names.unshift(c.name());
+  }
+  if (names[0] === 'frodo') names.shift();
+  return names.join(' ');
+}
 
 // Frodo constants
 const constants = frodo.utils.constants;
@@ -2814,6 +2830,14 @@ export class FrodoStubCommand extends Command {
     this.hook('preAction', (_thisCommand, actionCommand) => {
       enforceStabilityAndWarn(actionCommand);
       adoptPromptingFromActionStub(actionCommand);
+      // `--json` and `--scriptFriendly` mean a program reads the output: the
+      // notes that are meant for a person (what a new login can do) stay silent.
+      if (
+        actionCommand.getOptionValue('json') === true ||
+        actionCommand.getOptionValue('scriptFriendly') === true
+      ) {
+        setMachineOutput(true);
+      }
       // The prompting switch is a dual option pair sharing the `prompt`
       // attribute (undefined = prompting allowed when input is missing);
       // --no-prompt sets it false. Set once per process, before the
@@ -3997,6 +4021,13 @@ export class FrodoCommand extends FrodoStubCommand {
     this.addHelpText('after', () =>
       isFullHelpRequested() ? formatEnvironmentVariables(this) : ''
     );
+
+    // A command that always needs an area that no browser or device login
+    // reaches says so, at every help level (the table is in AccessCommandAreas).
+    this.addHelpText('after', (context) => {
+      const note = accessFootnote(commandPathOf(context.command));
+      return note ? `\n${note}` : '';
+    });
   }
 
   /**
