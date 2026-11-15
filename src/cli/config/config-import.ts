@@ -97,7 +97,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--dynamic',
-        'Import only dynamic configuration: everything that is not static, which is what an environment promotion does not carry (OAuth2 clients, agents, policies, SAML providers, ESVs and the like). With --static it imports both, which is also what happens without either.'
+        'Import only dynamic configuration: everything that is not static, which is what an environment promotion does not carry (OAuth2 clients, agents, CIMD profiles, policies, SAML providers, ESVs and the like). With --static it imports both, which is also what happens without either.'
       )
     )
     .addHelpText(
