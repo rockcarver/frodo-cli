@@ -689,11 +689,88 @@ describe('repairFeature, the outcome', () => {
       expect(text).toContain('was: "Zion Agent"');
       expect(text).toContain('now: "AI Agent"');
       expect(text).toContain(
-        `The values it had is in the backup (${backupDir}).`
+        `The value it had is in the backup (${backupDir}).`
       );
       expect(text).toContain(
         'Normalised 2 white-space differences (never put back): alpha_aiagent  onDelete.source; bravo_aiagent  onDelete.source.'
       );
+    });
+
+    test('the summary prints the commands that put a customization back: a fresh export, the value to set, an import of the whole object', async () => {
+      await repairFeature('aiagent', { backupDir, yes: true });
+
+      const text = everything();
+      const host = 'https://openam-zion.example.com/am';
+      expect(text).toContain(
+        'To put one back later, export the object as it is then, change the value and import it again:'
+      );
+      expect(
+        text.indexOf(
+          `frodo idm export -i managed --raw -f managed.json ${host}`
+        )
+      ).toBeGreaterThan(-1);
+      expect(text).toContain(
+        'in the object "alpha_aiagent" set schema.title to "Zion Agent"'
+      );
+      expect(
+        text.indexOf(
+          `frodo idm import -i managed --raw -f managed.json ${host}`
+        )
+      ).toBeGreaterThan(text.indexOf('set schema.title'));
+      // nothing but the backup is written: a ready-made file would be stale when it is used
+      expect(
+        fs
+          .readdirSync(backupDir)
+          .filter(
+            (name) =>
+              !/-config-|-plan|-feature|-oauth2|-idm-|-secret/.test(name)
+          )
+      ).toEqual([]);
+    });
+
+    test('a customization of repo.ds gets the commands for repo.ds', async () => {
+      idmFeature.repairIdmFeature.mockResolvedValue({
+        ...repairResult,
+        customizations: [
+          {
+            config: 'repo.ds',
+            object: 'managed/alpha_aiagent',
+            location: 'properties.custom_x',
+            kind: 'extra',
+            class: 'extra-mapping-property',
+            tenantValue: { type: 'VARCHAR' },
+            outcome: 'replaced',
+          },
+        ],
+      });
+
+      await repairFeature('aiagent', { backupDir, yes: true });
+
+      const text = everything();
+      expect(text).toContain(
+        'frodo idm export -i repo.ds --raw -f repo.ds.json'
+      );
+      expect(text).toContain(
+        'in the mapping "managed/alpha_aiagent" set properties.custom_x to {"type":"VARCHAR"}'
+      );
+      expect(text).toContain(
+        'frodo idm import -i repo.ds --raw -f repo.ds.json'
+      );
+      expect(text).not.toContain('-i managed --raw');
+    });
+
+    test('a customization that was put back, and white space, get no commands', async () => {
+      idmFeature.planIdmFeatureRepair.mockResolvedValue(repairPlanRestoring);
+      idmFeature.repairIdmFeature.mockResolvedValue(repairResultRestoring);
+
+      await repairFeature('aiagent', {
+        backupDir,
+        yes: true,
+        restoreCustomizations: true,
+      });
+
+      expect(everything()).not.toContain('frodo idm export');
+      expect(everything()).not.toContain('frodo idm import');
     });
 
     test('with --restore-customizations the plan and the summary say the customization is put back, and that the registry reads "not installed" meanwhile', async () => {

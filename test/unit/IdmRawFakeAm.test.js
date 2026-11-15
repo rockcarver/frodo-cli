@@ -844,4 +844,123 @@ suite('idm export and import of raw configuration objects', () => {
       TIMEOUT
     );
   });
+
+  /**
+   * `frodo feature validate --repair` prints these commands for a customization it
+   * replaced (frodo-cli#1300, record 0052): a fresh export of the object, one value
+   * changed, the whole object imported again. They are the same commands as here.
+   */
+  describe('the commands that frodo feature validate --repair prints to put a customization back', () => {
+    const TITLED = {
+      ...MANAGED,
+      objects: [
+        {
+          name: 'alpha_aiagent',
+          schema: { type: 'object', title: 'AI Agent', properties: {} },
+        },
+        { name: 'alpha_user', schema: { type: 'object', properties: {} } },
+      ],
+    };
+    const REPO_DS = {
+      _id: 'repo.ds',
+      resourceMapping: {
+        explicitMapping: {
+          'managed/alpha_aiagent': {
+            table: 'managed_alpha_aiagent',
+            objectToColumn: { _id: 'objectid' },
+            properties: { name: { column: 'name', type: 'VARCHAR' } },
+          },
+        },
+      },
+    };
+
+    it(
+      'managed: one value changed in a fresh export comes back as the whole object with only that value changed',
+      async () => {
+        const server = await tenant({
+          ...SERVED,
+          managed: { ...TITLED, _rev: '9' },
+        });
+        expect(
+          (
+            await idm('export', server, [
+              '-i',
+              'managed',
+              '--raw',
+              '-f',
+              'managed.json',
+            ])
+          ).code
+        ).toBe(0);
+        const exported = read('managed.json');
+        exported.objects[0].schema.title = 'Zion Agent';
+        write('managed.json', exported);
+
+        const { code, stderr } = await idm('import', server, [
+          '-i',
+          'managed',
+          '--raw',
+          '-f',
+          'managed.json',
+        ]);
+
+        expect(stderr).toContain('Imported managed from managed.json.');
+        expect(code).toBe(0);
+        const puts = written();
+        expect(puts).toHaveLength(1);
+        expect(puts[0].method).toBe('PUT');
+        expect(puts[0].url).toContain('/openidm/config/managed');
+        const expected = structuredClone(TITLED);
+        expected.objects[0].schema.title = 'Zion Agent';
+        expect(JSON.parse(puts[0].body)).toEqual(expected);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'repo.ds: a mapping property put back in a fresh export comes back as the whole object with only that property added',
+      async () => {
+        const server = await tenant({
+          ...SERVED,
+          'repo.ds': { ...REPO_DS, _rev: '4' },
+        });
+        expect(
+          (
+            await idm('export', server, [
+              '-i',
+              'repo.ds',
+              '--raw',
+              '-f',
+              'repo.ds.json',
+            ])
+          ).code
+        ).toBe(0);
+        const exported = read('repo.ds.json');
+        exported.resourceMapping.explicitMapping[
+          'managed/alpha_aiagent'
+        ].properties.custom_x = { column: 'custom_x', type: 'VARCHAR' };
+        write('repo.ds.json', exported);
+
+        const { code, stderr } = await idm('import', server, [
+          '-i',
+          'repo.ds',
+          '--raw',
+          '-f',
+          'repo.ds.json',
+        ]);
+
+        expect(stderr).toContain('Imported repo.ds from repo.ds.json.');
+        expect(code).toBe(0);
+        const puts = written();
+        expect(puts).toHaveLength(1);
+        expect(puts[0].url).toContain('/openidm/config/repo.ds');
+        const expected = structuredClone(REPO_DS);
+        expected.resourceMapping.explicitMapping[
+          'managed/alpha_aiagent'
+        ].properties.custom_x = { column: 'custom_x', type: 'VARCHAR' };
+        expect(JSON.parse(puts[0].body)).toEqual(expected);
+      },
+      TIMEOUT
+    );
+  });
 });

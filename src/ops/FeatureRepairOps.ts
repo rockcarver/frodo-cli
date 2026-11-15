@@ -301,17 +301,58 @@ function stepResultLine(result: FeatureRepairStepResult): string {
 }
 
 /**
+ * How to put replaced customizations back later, as commands that can be run
+ * as they are printed. It is a fresh export, one value changed, and an import
+ * of the whole object again (`idm export|import --raw`), never a file written
+ * now: a file made now would be stale when it is used and would overwrite what
+ * was changed in the meantime.
+ * @param {Customization[]} customizations the customizations the repair replaced
+ * @param {string} host the AM base URL of the tenant
+ * @returns {string[]} the lines, empty when there is nothing to put back
+ */
+function restoreRecipeLines(
+  customizations: Customization[],
+  host: string
+): string[] {
+  const lines: string[] = [];
+  for (const config of ['managed', 'repo.ds'] as const) {
+    const ofConfig = customizations.filter(
+      (customization) => customization.config === config
+    );
+    if (ofConfig.length === 0) continue;
+    const file = `${config}.json`;
+    lines.push(
+      `  frodo idm export -i ${config} --raw -f ${file} ${host}`,
+      ...ofConfig.map(
+        (customization) =>
+          `    ${config === 'managed' ? 'in the object' : 'in the mapping'} "${customization.object}" set ${customization.location} to ${valueText(customization, 'tenantValue')}`
+      ),
+      `  frodo idm import -i ${config} --raw -f ${file} ${host}`
+    );
+  }
+  return lines.length > 0
+    ? [
+        '  To put one back later, export the object as it is then, change the value and import it again:',
+        ...lines.map((line) => c.command(line)),
+        '  A value that is cut above is whole in the backup.',
+      ]
+    : [];
+}
+
+/**
  * What the repair did to the definitions it aligned, said after the final
  * diagnosis: the customizations it replaced by the original (and where their
- * previous values are), the customizations it put back, and the white space
- * it normalised.
+ * previous values are, and how to put them back), the customizations it put
+ * back, and the white space it normalised.
  * @param {Awaited<ReturnType<typeof repairIdmFeature>>} result what the repair did
  * @param {string} backupDir where the backup is
+ * @param {string} host the AM base URL of the tenant, for the commands that put a customization back
  * @returns {string | undefined} the text, undefined when no definition was aligned
  */
 export function definitionSummary(
   result: Awaited<ReturnType<typeof repairIdmFeature>>,
-  backupDir: string
+  backupDir: string,
+  host: string
 ): string | undefined {
   const customizations = result.customizations ?? [];
   const replaced = customizations.filter(
@@ -328,7 +369,8 @@ export function definitionSummary(
         `Replaced ${plural(replaced.length, 'customization')} with the original, so that the registry reads the feature installed:`
       ),
       ...customizationLines(replaced, ['was:', 'now:']),
-      `  The values ${replaced.length === 1 ? 'it' : 'they'} had ${replaced.length === 1 ? 'is' : 'are'} in the backup (${backupDir}).`
+      `  The value${replaced.length === 1 ? '' : 's'} ${replaced.length === 1 ? 'it' : 'they'} had ${replaced.length === 1 ? 'is' : 'are'} in the backup (${backupDir}).`,
+      ...restoreRecipeLines(replaced, host)
     );
   }
   if (putBack.length > 0) {
@@ -485,7 +527,7 @@ export async function repairFeature(
         ),
     });
     printMessage(diagnosisText(result.diagnosis, { hint: false }), 'data');
-    const summary = definitionSummary(result, backupDir);
+    const summary = definitionSummary(result, backupDir, state.getHost());
     if (summary) printMessage(summary, 'data');
     return reportOutcome(featureId, options, result, backupDir);
   } catch (error) {
