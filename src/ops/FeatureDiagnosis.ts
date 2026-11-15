@@ -212,3 +212,65 @@ export function diagnosisText(
   }
   return lines.join('\n');
 }
+
+/**
+ * The ids of the findings that say that definitions of the feature are already
+ * in the tenant but differ from the original: cosmetically (white space, a
+ * title, an extra mapping property) or in more than that. In this state the
+ * registry reads the feature "not installed", and installing it would add the
+ * definitions a second time.
+ */
+export const DEFINITION_DRIFT_FINDING_IDS: readonly string[] = [
+  'definitions-cosmetic-drift',
+  'definitions-structural-drift',
+];
+
+/**
+ * The findings of the diagnosis that say that definitions of the feature are
+ * in the tenant but differ from the original, whatever their severity.
+ * @param {FeatureDiagnosis} diagnosis the diagnosis
+ * @returns {FeatureFinding[]} those findings, none when the definitions are as expected or absent
+ */
+export function definitionDriftFindings(
+  diagnosis: FeatureDiagnosis
+): FeatureFinding[] {
+  return diagnosis.findings.filter((finding) =>
+    DEFINITION_DRIFT_FINDING_IDS.includes(finding.id)
+  );
+}
+
+/**
+ * The text of a refused install: why the install does not go ahead, the
+ * findings that say so (with the differences listed under them, like the
+ * diagnosis does), and the commands that look at the feature and repair it.
+ * @param {string} featureId the feature id
+ * @param {FeatureFinding[]} findings the drift findings of the diagnosis ({@link definitionDriftFindings})
+ * @param {object} [options] options
+ * @param {number} [options.width] the width of the terminal. Default: the width of stdout, else 100
+ * @returns {string} the text, without a trailing newline
+ */
+export function installRefusedText(
+  featureId: string,
+  findings: FeatureFinding[],
+  { width = process.stdout.columns || DEFAULT_WIDTH }: { width?: number } = {}
+): string {
+  const indent = 2 + 2 + LABEL_WIDTH + 1;
+  const textWidth = Math.max(40, Math.min(width, 120) - indent);
+  const pad = ' '.repeat(indent);
+  const lines = [
+    `Refusing to install the feature "${featureId}": definitions of it are already in the tenant but differ from the original, so the registry reads it as not installed. Installing it now would add them a second time.`,
+  ];
+  for (const finding of findings) {
+    const label = findingLabel(finding.id).padEnd(LABEL_WIDTH);
+    const [first, ...rest] = wrap(finding.message, textWidth);
+    lines.push(`  ${mark(finding)} ${label} ${first ?? ''}`);
+    for (const line of rest) lines.push(`${pad}${line}`);
+    for (const line of differenceLines(finding)) {
+      lines.push(`${pad}  ${c.muted(line)}`);
+    }
+  }
+  lines.push(
+    `Look at it with "${c.command(`frodo feature validate -i ${featureId}`)}" and repair it with "${c.command(`frodo feature validate -i ${featureId} --repair`)}" (a backup is written first).`
+  );
+  return lines.join('\n');
+}
