@@ -13,18 +13,6 @@ import {
 } from './FeatureDiagnosis';
 import { featureOutcome } from './FeatureOutcome';
 
-/**
- * The features that the library can diagnose (`diagnoseIdmFeature` answers
- * `supported: true` for them). A plain `frodo feature validate` asks the
- * library for a diagnosis only for these: for any other feature the library
- * would only read the registry entry again, and the command must keep sending
- * the one request it always sent (the recorded end-to-end test of
- * `feature validate -i groups` replays exactly that). `--json` and `--repair`
- * always ask the library, which stays the authority on what it can diagnose.
- * When the library learns another feature, add its id here.
- */
-export const FEATURES_WITH_DIAGNOSIS: readonly string[] = ['aiagent'];
-
 const {
   readIdmFeatures,
   readIdmFeature,
@@ -32,6 +20,7 @@ const {
   validateIdmFeature,
   installIdmFeature,
   diagnoseIdmFeature,
+  canDiagnoseIdmFeature,
 } = frodo.cloud.idmFeature;
 
 /**
@@ -159,8 +148,9 @@ async function unknownFeatureMessage(featureId: string): Promise<string> {
  * check ran, so this returns true; a diagnosis that finds a functional problem
  * (a finding of severity `error`) makes it return false, so that the command
  * can serve as a health check in a pipeline. A feature the library cannot
- * diagnose prints what it always printed and sends the requests it always
- * sent (see `FEATURES_WITH_DIAGNOSIS`). A feature id that the tenant does
+ * diagnose (`canDiagnoseIdmFeature` of the library says which, without a
+ * request) prints what it always printed and sends the requests it always
+ * sent. A feature id that the tenant does
  * not know is said so, with the ids it does know, and the check fails.
  * @param {string} featureId feature id, e.g. 'aiagent'
  * @param {object} [options] options
@@ -191,9 +181,14 @@ export async function validateFeature(
     // order are what they always were) but printed first: it says whether the
     // feature works, which is what the failures of the validation of an
     // installed feature cannot say.
+    // A feature the library cannot diagnose gets no diagnosis: the library would
+    // only read the registry entry again, and the command must keep sending the
+    // one request it always sent (the recorded end-to-end test of
+    // `feature validate -i groups` replays exactly that). `--json` and `--repair`
+    // always ask the library, which stays the authority on what it can diagnose.
     let diagnosis: FeatureDiagnosis | undefined;
     let diagnosisError: unknown;
-    if (FEATURES_WITH_DIAGNOSIS.includes(featureId)) {
+    if (canDiagnoseIdmFeature(featureId)) {
       try {
         diagnosis = await diagnoseIdmFeature(featureId);
       } catch (error) {
@@ -227,7 +222,7 @@ export async function validateFeature(
  * requires contacting Ping support and rolling back the tenant. Refuses
  * unless explicitly confirmed, or already installed. An install that the
  * tenant reports as failed prints its reasons, one per line, and fails.
- * For a feature the library can diagnose (see `FEATURES_WITH_DIAGNOSIS`) the
+ * For a feature the library can diagnose (`canDiagnoseIdmFeature`) the
  * diagnosis comes first: when definitions of the feature are in the tenant but
  * differ from the original, the registry reads "not installed" and an install
  * would add them a second time, so it refuses (with `-y` too), says what is
@@ -253,7 +248,7 @@ export async function installFeatureCli(
     // diagnose, ask it before anything is asked of the user or the tenant.
     // A diagnosis that cannot be made is an error (caught below): the install
     // does not go ahead on a guess.
-    if (FEATURES_WITH_DIAGNOSIS.includes(featureId)) {
+    if (canDiagnoseIdmFeature(featureId)) {
       const diagnosis = await diagnoseIdmFeature(featureId);
       const drift = diagnosis.supported
         ? definitionDriftFindings(diagnosis)

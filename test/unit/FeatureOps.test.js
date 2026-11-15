@@ -35,6 +35,7 @@ const idmFeature = {
   validateIdmFeature: jest.fn(),
   installIdmFeature: jest.fn(),
   diagnoseIdmFeature: jest.fn(),
+  canDiagnoseIdmFeature: jest.fn(),
 };
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: { cloud: { idmFeature } },
@@ -62,7 +63,7 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
 const confirm = jest.fn();
 jest.unstable_mockModule('@inquirer/confirm', () => ({ default: confirm }));
 
-const { FEATURES_WITH_DIAGNOSIS, installFeatureCli, validateFeature } =
+const { installFeatureCli, validateFeature } =
   await import('../../src/ops/FeatureOps');
 const { brokenDiagnosis, healthyDiagnosis, finding, unsupportedDiagnosis } =
   await import('../utils/FeatureDiagnosisFixtures.js');
@@ -118,6 +119,8 @@ beforeEach(() => {
   jest.clearAllMocks();
   originalTty = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY');
   idmFeature.hasIdmFeature.mockResolvedValue(false);
+  // what the library answers today: it can diagnose aiagent and nothing else
+  idmFeature.canDiagnoseIdmFeature.mockImplementation((id) => id === ID);
   // the library cannot diagnose this feature: the tests of the validation alone see no diagnosis
   idmFeature.diagnoseIdmFeature.mockResolvedValue({
     ...unsupportedDiagnosis,
@@ -518,17 +521,32 @@ describe('installFeatureCli, definitions that are in the tenant but differ (frod
     expect(idmFeature.installIdmFeature).toHaveBeenCalledTimes(1);
   });
 
-  test('a feature outside the list: the diagnosis is not asked, the requests are the ones it always sent', async () => {
-    expect(FEATURES_WITH_DIAGNOSIS).not.toContain('groups');
+  test('a feature the library cannot diagnose: the diagnosis is not asked, the requests are the ones it always sent', async () => {
     idmFeature.diagnoseIdmFeature.mockResolvedValue(
       diagnosisOf(driftOf('definitions-cosmetic-drift', 'error'))
     );
 
     await expect(installFeatureCli('groups', true)).resolves.toBe(true);
 
+    expect(idmFeature.canDiagnoseIdmFeature).toHaveBeenCalledWith('groups');
     expect(idmFeature.diagnoseIdmFeature).not.toHaveBeenCalled();
     expect(idmFeature.hasIdmFeature).toHaveBeenCalledTimes(1);
     expect(idmFeature.installIdmFeature).toHaveBeenCalledWith('groups');
+  });
+
+  test('a feature that the library learns to diagnose is guarded without an edit of the CLI', async () => {
+    idmFeature.canDiagnoseIdmFeature.mockImplementation(
+      (id) => id === 'future'
+    );
+    idmFeature.diagnoseIdmFeature.mockResolvedValue({
+      ...diagnosisOf(driftOf('definitions-cosmetic-drift', 'warning')),
+      featureId: 'future',
+    });
+
+    await expect(installFeatureCli('future', true)).resolves.toBe(false);
+
+    expect(idmFeature.diagnoseIdmFeature).toHaveBeenCalledWith('future');
+    expect(idmFeature.installIdmFeature).not.toHaveBeenCalled();
   });
 
   test('an installed feature says so and the diagnosis is not asked', async () => {
@@ -901,8 +919,43 @@ describe('validateFeature, the diagnosis', () => {
     idmFeature.validateIdmFeature.mockResolvedValue(rawValidateFailed);
   });
 
-  test('the library can diagnose aiagent, and a plain validate of any other feature does not ask it', () => {
-    expect(FEATURES_WITH_DIAGNOSIS).toEqual(['aiagent']);
+  test("the answer is the library's, the CLI keeps no list: a feature the library learns is diagnosed, one it does not know is not", async () => {
+    // a feature the CLI has never heard of, which the library says it can diagnose
+    idmFeature.canDiagnoseIdmFeature.mockImplementation(
+      (id) => id === 'future'
+    );
+    idmFeature.diagnoseIdmFeature.mockResolvedValue({
+      ...healthyDiagnosis,
+      featureId: 'future',
+    });
+
+    await expect(validateFeature('future')).resolves.toBe(true);
+
+    expect(idmFeature.canDiagnoseIdmFeature).toHaveBeenCalledWith('future');
+    expect(idmFeature.diagnoseIdmFeature).toHaveBeenCalledWith('future');
+
+    // and aiagent, which the CLI used to list, is not diagnosed when the library says it cannot
+    idmFeature.diagnoseIdmFeature.mockClear();
+    await expect(validateFeature('aiagent')).resolves.toBe(true);
+
+    expect(idmFeature.canDiagnoseIdmFeature).toHaveBeenCalledWith('aiagent');
+    expect(idmFeature.diagnoseIdmFeature).not.toHaveBeenCalled();
+  });
+
+  test('a plain validate of a feature the library cannot diagnose sends only the validation, as it always did', async () => {
+    await expect(validateFeature('groups')).resolves.toBe(true);
+
+    expect(idmFeature.validateIdmFeature).toHaveBeenCalledWith('groups');
+    expect(idmFeature.diagnoseIdmFeature).not.toHaveBeenCalled();
+  });
+
+  test('--json always asks the library, whatever canDiagnoseIdmFeature says', async () => {
+    idmFeature.canDiagnoseIdmFeature.mockReturnValue(false);
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(unsupportedDiagnosis);
+
+    await validateFeature('groups', { json: true });
+
+    expect(idmFeature.diagnoseIdmFeature).toHaveBeenCalledWith('groups');
   });
 
   test('prints the diagnosis first, then the validation and its advice, all on stdout', async () => {
