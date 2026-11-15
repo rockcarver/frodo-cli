@@ -67,6 +67,8 @@ export const PATH_OPTIONS: Readonly<Record<string, PathOptionSpec>> = {
   // config-manager
   '--config-folder': { kind: 'directory', access: 'read' },
   '--config-file': { kind: 'file', access: 'read', extensions: JSON_FILES },
+  // the raw backup of what a repair overwrites or deletes (feature validate --repair)
+  '--backup-dir': { kind: 'directory', access: 'write' },
   // promote
   '--frodo-export-dir': { kind: 'directory', access: 'read' },
   '--master-dir': { kind: 'directory', access: 'read' },

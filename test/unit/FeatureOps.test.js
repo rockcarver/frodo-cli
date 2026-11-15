@@ -21,6 +21,9 @@ import {
  *   for nothing but the validation (no read of the feature first);
  * - both work with the library that is pinned (the response as the tenant sent
  *   it) and with a library that states the outcome itself (all four fields).
+ * - for a feature the library can diagnose (`aiagent`) the diagnosis follows the
+ *   validation and a functional problem makes the check fail (#1300); any other
+ *   feature prints what it printed before and sends the same requests;
  * The library and the terminal are spies: install is irreversible, so no test
  * reaches a tenant.
  */
@@ -31,6 +34,7 @@ const idmFeature = {
   hasIdmFeature: jest.fn(),
   validateIdmFeature: jest.fn(),
   installIdmFeature: jest.fn(),
+  diagnoseIdmFeature: jest.fn(),
 };
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: { cloud: { idmFeature } },
@@ -50,13 +54,18 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
     positive: (text) => `+${text}+`,
     negative: (text) => `-${text}-`,
     muted: (text) => text,
+    heading: (text) => text,
+    warning: (text) => text,
+    command: (text) => text,
   },
 }));
 const confirm = jest.fn();
 jest.unstable_mockModule('@inquirer/confirm', () => ({ default: confirm }));
 
-const { installFeatureCli, validateFeature } =
+const { FEATURES_WITH_DIAGNOSIS, installFeatureCli, validateFeature } =
   await import('../../src/ops/FeatureOps');
+const { brokenDiagnosis, healthyDiagnosis, finding, unsupportedDiagnosis } =
+  await import('../utils/FeatureDiagnosisFixtures.js');
 
 const ID = 'aiagent';
 const FAILURES = [
@@ -107,6 +116,11 @@ beforeEach(() => {
   jest.clearAllMocks();
   originalTty = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY');
   idmFeature.hasIdmFeature.mockResolvedValue(false);
+  // the library cannot diagnose this feature: the tests of the validation alone see no diagnosis
+  idmFeature.diagnoseIdmFeature.mockResolvedValue({
+    ...unsupportedDiagnosis,
+    featureId: ID,
+  });
 });
 afterEach(() => {
   jest.clearAllMocks();
@@ -345,11 +359,14 @@ describe('validateFeature', () => {
   test('asks the tenant for the validation only: the feature is not read first', async () => {
     idmFeature.validateIdmFeature.mockResolvedValue(rawValidateFailed);
 
-    await validateFeature(ID);
+    await validateFeature('groups');
 
+    expect(idmFeature.validateIdmFeature).toHaveBeenCalledTimes(1);
     expect(idmFeature.hasIdmFeature).not.toHaveBeenCalled();
     expect(idmFeature.readIdmFeature).not.toHaveBeenCalled();
     expect(idmFeature.readIdmFeatures).not.toHaveBeenCalled();
+    // a feature the library cannot diagnose costs no request beyond the validation (the recorded e2e test replays that)
+    expect(idmFeature.diagnoseIdmFeature).not.toHaveBeenCalled();
   });
 
   test.each([
@@ -564,5 +581,132 @@ describe('validateFeature', () => {
       `Error validating feature "${ID}"`
     );
     expect(printMessage).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * `frodo feature validate` for a feature the library can diagnose (#1300): the
+ * diagnosis follows the validation; a functional problem (a finding of
+ * severity error) makes the check fail, so that it can serve in a pipeline;
+ * warnings never do; `--json` prints the diagnosis and nothing else.
+ */
+describe('validateFeature, the diagnosis', () => {
+  beforeEach(() => {
+    idmFeature.validateIdmFeature.mockResolvedValue(rawValidateFailed);
+  });
+
+  test('the library can diagnose aiagent, and a plain validate of any other feature does not ask it', () => {
+    expect(FEATURES_WITH_DIAGNOSIS).toEqual(['aiagent']);
+  });
+
+  test('prints the diagnosis after the validation and its advice', async () => {
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(healthyDiagnosis);
+
+    await expect(validateFeature('aiagent')).resolves.toBe(true);
+
+    expect(idmFeature.diagnoseIdmFeature).toHaveBeenCalledWith('aiagent');
+    const types = printMessage.mock.calls.map(([, type]) => type);
+    expect(types).toEqual(['data', 'info', 'data']);
+    expect(printMessage.mock.calls[2][0]).toContain(
+      'Diagnosis of feature "aiagent":'
+    );
+    expect(printMessage.mock.calls[2][0]).toContain('No problem found.');
+  });
+
+  test('a functional problem fails the check, and the diagnosis is still printed', async () => {
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(brokenDiagnosis);
+
+    await expect(validateFeature('aiagent')).resolves.toBe(false);
+
+    expect(printMessage.mock.calls.at(-1)[0]).toContain(
+      '4 functional problems, 2 warnings; 3 repairable.'
+    );
+    expect(printError).not.toHaveBeenCalled();
+  });
+
+  test('warnings alone do not fail the check', async () => {
+    idmFeature.diagnoseIdmFeature.mockResolvedValue({
+      ...healthyDiagnosis,
+      findings: [
+        finding('registry-not-installed', 'warning', 'No installed version.'),
+        finding('definitions-cosmetic-drift', 'warning', 'Cosmetic.', false),
+      ],
+    });
+
+    await expect(validateFeature('aiagent')).resolves.toBe(true);
+  });
+
+  test('a diagnosis that says the library does not judge the feature prints nothing more', async () => {
+    idmFeature.diagnoseIdmFeature.mockResolvedValue({
+      ...unsupportedDiagnosis,
+      featureId: 'aiagent',
+    });
+
+    await expect(validateFeature('aiagent')).resolves.toBe(true);
+
+    expect(printMessage).toHaveBeenCalledTimes(2);
+  });
+
+  test('a diagnosis that cannot be made is an error: printed, and the check fails', async () => {
+    const error = new Error('Error diagnosing IDM feature aiagent');
+    idmFeature.diagnoseIdmFeature.mockRejectedValue(error);
+
+    await expect(validateFeature('aiagent')).resolves.toBe(false);
+
+    expect(printError).toHaveBeenCalledWith(
+      error,
+      'Error validating feature "aiagent"'
+    );
+  });
+
+  describe('--json', () => {
+    test('prints the diagnosis as JSON and nothing else: no validation, no advice', async () => {
+      idmFeature.diagnoseIdmFeature.mockResolvedValue(brokenDiagnosis);
+
+      await expect(validateFeature('aiagent', { json: true })).resolves.toBe(
+        false
+      );
+
+      expect(idmFeature.validateIdmFeature).not.toHaveBeenCalled();
+      expect(printMessage).toHaveBeenCalledTimes(1);
+      const [text, type] = printMessage.mock.calls[0];
+      expect(type).toBe('data');
+      expect(JSON.parse(text)).toEqual(brokenDiagnosis);
+    });
+
+    test('exits like the text form: a healthy tenant passes', async () => {
+      idmFeature.diagnoseIdmFeature.mockResolvedValue(healthyDiagnosis);
+
+      await expect(validateFeature('aiagent', { json: true })).resolves.toBe(
+        true
+      );
+    });
+
+    test('a feature the library cannot diagnose: the library says so, in JSON, and the check passes', async () => {
+      idmFeature.diagnoseIdmFeature.mockResolvedValue(unsupportedDiagnosis);
+
+      await expect(validateFeature('groups', { json: true })).resolves.toBe(
+        true
+      );
+
+      expect(JSON.parse(printMessage.mock.calls[0][0])).toEqual(
+        unsupportedDiagnosis
+      );
+    });
+
+    test('a diagnosis that cannot be made is printed as an error, not as JSON', async () => {
+      const error = new Error('boom');
+      idmFeature.diagnoseIdmFeature.mockRejectedValue(error);
+
+      await expect(validateFeature('aiagent', { json: true })).resolves.toBe(
+        false
+      );
+
+      expect(printError).toHaveBeenCalledWith(
+        error,
+        'Error validating feature "aiagent"'
+      );
+      expect(printMessage).not.toHaveBeenCalled();
+    });
   });
 });

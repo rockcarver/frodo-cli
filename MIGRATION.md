@@ -266,6 +266,22 @@ read that failed. A script that relied on exit code 0 for a missing realm has to
 treat exit code 1 as "not found", or add `|| true`. `frodo conn describe` for a
 host without a saved profile already ended with exit code 1 and is unchanged.
 
+**`feature validate -i aiagent` exits 1 when the AI agents feature does not work,
+and prints a diagnosis**: in 4.x and in earlier 5.x versions `frodo feature
+validate` printed `Valid` or `Invalid` and exited with code 0 whenever the check
+ran. For the feature `aiagent` it now follows the validation with a diagnosis of
+the tenant (the registry, the definitions, the OAuth 2.0 provider of each realm,
+the AM gate, the secret store mappings and the AI agents), and exits with code 1
+when the diagnosis finds a functional problem, so that a pipeline can use it as a
+health check. Cosmetic findings are warnings and exit with code 0. Other features
+print what they printed before and exit with code 0, and `--json` prints the
+diagnosis as JSON. A script that ran `validate -i aiagent` only to ask whether
+the feature can be installed adds `|| true`, or reads the exit code as "the
+feature is not healthy". The new option `--repair` fixes what the diagnosis
+found repairable, after a backup (`--backup-dir`, required) and one
+confirmation (`-y, --yes` skips it); see
+[a repair writes a backup first, changes only what it needs and never restores data by itself](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0050-a-repair-writes-a-backup-first-changes-only-what-it-needs-and-never-restores-data-by-itself.md).
+
 **`aiagent import -f` imports only the first agent of the file**: in 4.x
 `frodo agent ai import -f <file>` (and `frodo aiagent import -f <file>` in 5.x
 before this change) printed that it imported the first AI agent of the file but

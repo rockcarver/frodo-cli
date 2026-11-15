@@ -3,7 +3,20 @@ import { frodo } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import { createTable, printError, printMessage } from '../utils/Console';
 import { featureAdvice } from './FeatureAdvice';
+import { diagnosisText, hasFunctionalProblem } from './FeatureDiagnosis';
 import { featureOutcome } from './FeatureOutcome';
+
+/**
+ * The features that the library can diagnose (`diagnoseIdmFeature` answers
+ * `supported: true` for them). A plain `frodo feature validate` asks the
+ * library for a diagnosis only for these: for any other feature the library
+ * would only read the registry entry again, and the command must keep sending
+ * the one request it always sent (the recorded end-to-end test of
+ * `feature validate -i groups` replays exactly that). `--json` and `--repair`
+ * always ask the library, which stays the authority on what it can diagnose.
+ * When the library learns another feature, add its id here.
+ */
+export const FEATURES_WITH_DIAGNOSIS: readonly string[] = ['aiagent'];
 
 const {
   readIdmFeatures,
@@ -11,6 +24,7 @@ const {
   hasIdmFeature,
   validateIdmFeature,
   installIdmFeature,
+  diagnoseIdmFeature,
 } = frodo.cloud.idmFeature;
 
 /**
@@ -101,16 +115,33 @@ export async function describeFeature(featureId: string): Promise<boolean> {
 
 /**
  * Validate whether an IDM tenant-configuration feature is installable,
- * without installing it. Prints the summary and, when the feature cannot be
- * installed, the reasons, one per line; when every reason says that the
- * configuration is already in the tenant, one more line says what that means.
+ * without installing it, and diagnose it when the library can. Prints the
+ * summary and, when the feature cannot be installed, the reasons, one per
+ * line; when every reason says that the configuration is already in the
+ * tenant, one more line says what that means. For a feature the library can
+ * diagnose (today `aiagent`) the diagnosis follows: one line per finding,
+ * with a summary and, when a repair can fix something, the command for it.
  * Finding that a feature cannot be installed is a result, not an error: the
- * check ran, so this returns true.
+ * check ran, so this returns true; a diagnosis that finds a functional problem
+ * (a finding of severity `error`) makes it return false, so that the command
+ * can serve as a health check in a pipeline. A feature the library cannot
+ * diagnose prints what it always printed and sends the requests it always
+ * sent (see `FEATURES_WITH_DIAGNOSIS`).
  * @param {string} featureId feature id, e.g. 'aiagent'
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @param {object} [options] options
+ * @param {boolean} [options.json=false] print the diagnosis as JSON and nothing else
+ * @returns {Promise<boolean>} true if the check ran and found no functional problem, false otherwise
  */
-export async function validateFeature(featureId: string): Promise<boolean> {
+export async function validateFeature(
+  featureId: string,
+  { json = false }: { json?: boolean } = {}
+): Promise<boolean> {
   try {
+    if (json) {
+      const diagnosis = await diagnoseIdmFeature(featureId);
+      printMessage(JSON.stringify(diagnosis, null, 2), 'data');
+      return !hasFunctionalProblem(diagnosis);
+    }
     const result = await validateIdmFeature(featureId);
     const { succeeded, message, failures } = featureOutcome(result);
     printMessage(
@@ -122,6 +153,12 @@ export async function validateFeature(featureId: string): Promise<boolean> {
     );
     const advice = featureAdvice(result);
     if (advice) printMessage(advice, 'info');
+    if (!FEATURES_WITH_DIAGNOSIS.includes(featureId)) return true;
+    const diagnosis = await diagnoseIdmFeature(featureId);
+    if (diagnosis.supported) {
+      printMessage(diagnosisText(diagnosis), 'data');
+      return !hasFunctionalProblem(diagnosis);
+    }
     return true;
   } catch (error) {
     printError(error, `Error validating feature "${featureId}"`);

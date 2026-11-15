@@ -129,6 +129,17 @@
  * every other route, after the request was recorded, so a test sees the failing
  * request in the request log and the CLI sees a failed operation behind a login
  * that worked.
+ * FAKE_AM_FEATURES_FILE=<path> names a JSON array of IDM tenant-configuration features
+ * (`_id`, `installedVersion`, `availableVersions`, and `validate`, the body the validate
+ * action answers with: default `{ status: 200, success: true, message: 'Validate
+ * complete.', failures: [] }`) the fake serves as the feature registry of a Cloud tenant
+ * (`GET /openidm/feature`, `GET /openidm/feature/<id>` and `POST ...?_action=validate`;
+ * an id that is not listed answers `404`; the install action is not served). Without it
+ * the registry answers 404.
+ * FAKE_AM_IDM_CONFIG_FILE=<path> names a JSON object `{ managed, "repo.ds" }` the fake
+ * serves as `GET /openidm/config/managed` and `GET /openidm/config/repo.ds`. Only reads
+ * are answered: a write to them is answered `500`, so a test that must not change the
+ * tenant sees it in the request log.
  * FAKE_AM_EMPTY_COLLECTIONS=1 makes the fake answer every collection query it has no
  * route for as an empty collection, the way a realm that holds nothing answers it: a
  * `GET` with a `_queryFilter` and a `POST` with `_action=nextdescendents` get `200`
@@ -169,6 +180,8 @@ const trustedIssuers = readJson(process.env.FAKE_AM_TRUSTED_ISSUERS_FILE)?.map(
 const aiAgents = readJson(process.env.FAKE_AM_AI_AGENTS_FILE)?.map((agent) => ({
   ...agent,
 }));
+const features = readJson(process.env.FAKE_AM_FEATURES_FILE);
+const idmConfig = readJson(process.env.FAKE_AM_IDM_CONFIG_FILE);
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
 const emptyCollections = process.env.FAKE_AM_EMPTY_COLLECTIONS === '1';
 const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
@@ -856,6 +869,54 @@ const server = http.createServer((req, res) => {
         totalPagedResultsPolicy: 'EXACT',
         totalPagedResults: scripts.length,
         remainingPagedResults: -1,
+      });
+    }
+    if (features && /\/openidm\/feature(\/|$)/.test(pathname)) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      const rest = pathname.split('/openidm/feature')[1].replace(/^\//, '');
+      const listed = ({ validate, ...feature }) => feature;
+      if (req.method === 'GET' && rest === '') {
+        return send(200, {
+          result: features.map(listed),
+          resultCount: features.length,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'NONE',
+          totalPagedResults: -1,
+          remainingPagedResults: -1,
+        });
+      }
+      const feature = features.find(
+        (candidate) => candidate._id === decodeURIComponent(rest)
+      );
+      if (!feature) {
+        return send(404, {
+          code: 404,
+          reason: 'Not Found',
+          message: 'Not Found',
+        });
+      }
+      if (req.method === 'GET') return send(200, listed(feature));
+      if (req.method === 'POST' && query.get('_action') === 'validate') {
+        return send(
+          200,
+          feature.validate ?? {
+            status: 200,
+            success: true,
+            message: 'Validate complete.',
+            failures: [],
+          }
+        );
+      }
+    }
+    if (idmConfig && /\/openidm\/config\/(managed|repo\.ds)$/.test(pathname)) {
+      const name = pathname.split('/').pop();
+      if (req.method === 'GET' && idmConfig[name] !== undefined) {
+        return send(200, idmConfig[name]);
+      }
+      return send(500, {
+        code: 500,
+        reason: 'Internal Server Error',
+        message: 'the fake tenant does not take writes to this configuration',
       });
     }
     if (users && pathname.includes('/json/') && pathname.endsWith('/users')) {
