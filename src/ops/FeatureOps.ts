@@ -3,7 +3,11 @@ import { frodo } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import { createTable, printError, printMessage } from '../utils/Console';
 import { featureAdvice } from './FeatureAdvice';
-import { diagnosisText, hasFunctionalProblem } from './FeatureDiagnosis';
+import {
+  diagnosisText,
+  hasFunctionalProblem,
+  type FeatureDiagnosis,
+} from './FeatureDiagnosis';
 import { featureOutcome } from './FeatureOutcome';
 
 /**
@@ -115,12 +119,15 @@ export async function describeFeature(featureId: string): Promise<boolean> {
 
 /**
  * Validate whether an IDM tenant-configuration feature is installable,
- * without installing it, and diagnose it when the library can. Prints the
- * summary and, when the feature cannot be installed, the reasons, one per
- * line; when every reason says that the configuration is already in the
- * tenant, one more line says what that means. For a feature the library can
- * diagnose (today `aiagent`) the diagnosis follows: one line per finding,
- * with a summary and, when a repair can fix something, the command for it.
+ * without installing it, and diagnose it when the library can. For a feature
+ * the library can diagnose (today `aiagent`) the diagnosis comes first: one
+ * line per finding, with a summary and, when a repair can fix something, the
+ * command for it. Then comes the summary of the validation and, when it cannot
+ * be installed, the reasons, one per line; when every reason says that the
+ * configuration is already in the tenant, one more line says what that means.
+ * All of it goes to stdout, so that the explanation stays with the lines it
+ * explains: on a healthy tenant the validation lists every definition of the
+ * feature as a failure, and that is expected.
  * Finding that a feature cannot be installed is a result, not an error: the
  * check ran, so this returns true; a diagnosis that finds a functional problem
  * (a finding of severity `error`) makes it return false, so that the command
@@ -144,6 +151,22 @@ export async function validateFeature(
     }
     const result = await validateIdmFeature(featureId);
     const { succeeded, message, failures } = featureOutcome(result);
+    // The diagnosis is asked for after the validation (the requests and their
+    // order are what they always were) but printed first: it says whether the
+    // feature works, which is what the failures of the validation of an
+    // installed feature cannot say.
+    let diagnosis: FeatureDiagnosis | undefined;
+    let diagnosisError: unknown;
+    if (FEATURES_WITH_DIAGNOSIS.includes(featureId)) {
+      try {
+        diagnosis = await diagnoseIdmFeature(featureId);
+      } catch (error) {
+        diagnosisError = error;
+      }
+    }
+    if (diagnosis?.supported) {
+      printMessage(`${diagnosisText(diagnosis)}\n`, 'data');
+    }
     printMessage(
       [
         `${succeeded ? c.positive('Valid') : c.negative('Invalid')}${message ? `: ${message}` : ''}`,
@@ -152,13 +175,10 @@ export async function validateFeature(
       'data'
     );
     const advice = featureAdvice(result);
-    if (advice) printMessage(advice, 'info');
-    if (!FEATURES_WITH_DIAGNOSIS.includes(featureId)) return true;
-    const diagnosis = await diagnoseIdmFeature(featureId);
-    if (diagnosis.supported) {
-      printMessage(diagnosisText(diagnosis), 'data');
-      return !hasFunctionalProblem(diagnosis);
-    }
+    if (advice) printMessage(advice, 'data');
+    // a diagnosis that cannot be made is an error, after what was printed above
+    if (diagnosisError) throw diagnosisError;
+    if (diagnosis?.supported) return !hasFunctionalProblem(diagnosis);
     return true;
   } catch (error) {
     printError(error, `Error validating feature "${featureId}"`);

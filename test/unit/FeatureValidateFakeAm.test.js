@@ -255,7 +255,14 @@ suite('feature validate through the CLI', () => {
         expect(stdout).toContain('Invalid: Validate complete. 1 failure(s).');
         expect(stdout).toContain('  - config/managed: /objects/-');
         expect(stdout).not.toContain('Diagnosis');
-        expect(stderr).toContain('the configuration is already in the tenant');
+        // the explanation is on the stream of the failures it explains, after them
+        expect(stdout).toContain('the configuration is already in the tenant');
+        expect(stdout.indexOf('  - config/managed: /objects/-')).toBeLessThan(
+          stdout.indexOf('the configuration is already in the tenant')
+        );
+        expect(stderr).not.toContain(
+          'the configuration is already in the tenant'
+        );
         expect(code).toBe(0);
         const featureRequests = readRequests(recordPath).filter(({ url }) =>
           url.includes('/openidm/feature')
@@ -330,12 +337,15 @@ suite('feature validate through the CLI', () => {
     });
 
     it(
-      'prints the diagnosis after the validation, and a warning is not a functional problem: exit 0',
+      'prints the diagnosis before the validation, and a warning is not a functional problem: exit 0',
       async () => {
         const { code, stdout } = await validate(server, ['-i', 'aiagent']);
 
         expect(stdout).toContain('Valid: Validate complete.');
         expect(stdout).toContain('Diagnosis of feature "aiagent":');
+        expect(stdout.indexOf('Diagnosis of feature "aiagent":')).toBeLessThan(
+          stdout.indexOf('Valid: Validate complete.')
+        );
         expect(stdout).toContain(
           '⚠ Registry     The registry reports no installed version.'
         );

@@ -105,6 +105,8 @@ const printedOfType = (type) =>
   printed()
     .filter(([t]) => t === type)
     .map(([, text]) => text);
+/** The advice messages, with the type each was printed as. */
+const adviceMessages = () => printed().filter(([, text]) => text === ADVICE);
 const setTerminal = (isTTY) =>
   Object.defineProperty(process.stdin, 'isTTY', {
     value: isTTY,
@@ -350,7 +352,7 @@ describe('validateFeature', () => {
           'data',
           `-Invalid-: Validate complete. 2 failure(s).\n  - ${FAILURES[0]}\n  - ${FAILURES[1]}`,
         ],
-        ['info', ADVICE],
+        ['data', ADVICE],
       ]);
       expect(printError).not.toHaveBeenCalled();
     }
@@ -482,7 +484,7 @@ describe('validateFeature', () => {
             'data',
             `-Invalid-: Validate complete. 1 failure(s).\n  - ${failure}`,
           ],
-          ['info', ADVICE],
+          ['data', ADVICE],
         ]);
       }
     );
@@ -497,7 +499,7 @@ describe('validateFeature', () => {
 
       await validateFeature(ID);
 
-      expect(printedOfType('info')).toEqual([ADVICE]);
+      expect(adviceMessages()).toEqual([['data', ADVICE]]);
     });
 
     test('one failure that says something else: no advice, every failure still listed', async () => {
@@ -525,7 +527,7 @@ describe('validateFeature', () => {
 
         await validateFeature(ID);
 
-        expect(printedOfType('info')).toEqual([]);
+        expect(adviceMessages()).toEqual([]);
       }
     });
 
@@ -536,7 +538,7 @@ describe('validateFeature', () => {
 
       await validateFeature(ID);
 
-      expect(printedOfType('info')).toEqual([]);
+      expect(adviceMessages()).toEqual([]);
       expect(printedOfType('data')).toEqual([
         `-Invalid-: Validate complete. 2 failure(s).\n  - ${FAILURES[0]}\n  - {"reason":"is already present"}`,
       ]);
@@ -554,18 +556,18 @@ describe('validateFeature', () => {
 
         await validateFeature(ID);
 
-        expect(printedOfType('info')).toEqual([]);
+        expect(adviceMessages()).toEqual([]);
       }
     });
 
-    test('the advice is a message of its own, type info, not part of the failures', async () => {
+    test('the advice is a message of its own, on the stream of the failures (data), not part of them', async () => {
       idmFeature.validateIdmFeature.mockResolvedValue(rawValidateFailed);
 
       await validateFeature(ID);
 
       expect(printMessage).toHaveBeenCalledTimes(2);
       expect(printMessage.mock.calls[0][0]).not.toContain(ADVICE);
-      expect(printMessage.mock.calls[1]).toEqual([ADVICE, 'info']);
+      expect(printMessage.mock.calls[1]).toEqual([ADVICE, 'data']);
     });
   });
 
@@ -599,18 +601,30 @@ describe('validateFeature, the diagnosis', () => {
     expect(FEATURES_WITH_DIAGNOSIS).toEqual(['aiagent']);
   });
 
-  test('prints the diagnosis after the validation and its advice', async () => {
+  test('prints the diagnosis first, then the validation and its advice, all on stdout', async () => {
     idmFeature.diagnoseIdmFeature.mockResolvedValue(healthyDiagnosis);
 
     await expect(validateFeature('aiagent')).resolves.toBe(true);
 
     expect(idmFeature.diagnoseIdmFeature).toHaveBeenCalledWith('aiagent');
     const types = printMessage.mock.calls.map(([, type]) => type);
-    expect(types).toEqual(['data', 'info', 'data']);
-    expect(printMessage.mock.calls[2][0]).toContain(
+    expect(types).toEqual(['data', 'data', 'data']);
+    expect(printMessage.mock.calls[0][0]).toContain(
       'Diagnosis of feature "aiagent":'
     );
-    expect(printMessage.mock.calls[2][0]).toContain('No problem found.');
+    expect(printMessage.mock.calls[0][0]).toContain('No problem found.');
+    expect(printMessage.mock.calls[1][0]).toContain('-Invalid-: Validate');
+    expect(printMessage.mock.calls[2]).toEqual([ADVICE, 'data']);
+  });
+
+  test('the diagnosis is still asked for after the validation: the requests and their order did not change', async () => {
+    idmFeature.diagnoseIdmFeature.mockResolvedValue(healthyDiagnosis);
+
+    await validateFeature('aiagent');
+
+    expect(
+      idmFeature.validateIdmFeature.mock.invocationCallOrder[0]
+    ).toBeLessThan(idmFeature.diagnoseIdmFeature.mock.invocationCallOrder[0]);
   });
 
   test('a functional problem fails the check, and the diagnosis is still printed', async () => {
@@ -618,9 +632,11 @@ describe('validateFeature, the diagnosis', () => {
 
     await expect(validateFeature('aiagent')).resolves.toBe(false);
 
-    expect(printMessage.mock.calls.at(-1)[0]).toContain(
+    expect(printMessage.mock.calls[0][0]).toContain(
       '4 functional problems, 2 warnings; 3 repairable.'
     );
+    expect(printMessage.mock.calls[0][0]).toContain('--repair');
+    expect(printMessage.mock.calls[1][0]).toContain('-Invalid-: Validate');
     expect(printError).not.toHaveBeenCalled();
   });
 
@@ -657,6 +673,23 @@ describe('validateFeature, the diagnosis', () => {
       error,
       'Error validating feature "aiagent"'
     );
+  });
+
+  test('a diagnosis that cannot be made does not take the validation with it: it and its advice are printed, then the error', async () => {
+    idmFeature.diagnoseIdmFeature.mockRejectedValue(
+      new Error('Error diagnosing IDM feature aiagent')
+    );
+
+    await expect(validateFeature('aiagent')).resolves.toBe(false);
+
+    expect(printed()).toEqual([
+      [
+        'data',
+        `-Invalid-: Validate complete. 2 failure(s).\n  - ${FAILURES[0]}\n  - ${FAILURES[1]}`,
+      ],
+      ['data', ADVICE],
+    ]);
+    expect(printError).toHaveBeenCalledTimes(1);
   });
 
   describe('--json', () => {

@@ -269,11 +269,13 @@ host without a saved profile already ended with exit code 1 and is unchanged.
 **`feature validate -i aiagent` exits 1 when the AI agents feature does not work,
 and prints a diagnosis**: in 4.x and in earlier 5.x versions `frodo feature
 validate` printed `Valid` or `Invalid` and exited with code 0 whenever the check
-ran. For the feature `aiagent` it now follows the validation with a diagnosis of
-the tenant (the registry, the definitions, the OAuth 2.0 provider of each realm,
-the AM gate, the secret store mappings and the AI agents), and exits with code 1
-when the diagnosis finds a functional problem, so that a pipeline can use it as a
-health check. Cosmetic findings are warnings and exit with code 0. Other features
+ran. For the feature `aiagent` it now prints a diagnosis of the tenant first (the
+registry, the definitions, the OAuth 2.0 provider of each realm, the AM gate, the
+secret store mappings and the AI agents) and the validation after it, and exits
+with code 1 when the diagnosis finds a functional problem, so that a pipeline can
+use it as a health check. The sentence that says that failures of the form
+"already present" mean that the configuration is in the tenant is printed on
+stdout, after the failures, instead of on stderr. Cosmetic findings are warnings and exit with code 0. Other features
 print what they printed before and exit with code 0, and `--json` prints the
 diagnosis as JSON. A script that ran `validate -i aiagent` only to ask whether
 the feature can be installed adds `|| true`, or reads the exit code as "the
