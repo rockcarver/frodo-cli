@@ -10,6 +10,7 @@ import {
 import Table, { Table as TableType } from 'cli-table3';
 import { stderr as logUpdateStderr } from 'log-update';
 import { v4 as uuidv4 } from 'uuid';
+import { accessAdviceFor } from './AccessErrorAdvice';
 import { airGappedHintFor } from './AirGapHint';
 import c from './ColorTheme';
 import { clearTransientFrame } from './interactive/TransientFrame';
@@ -310,6 +311,12 @@ export function printError(error: Error, message?: string) {
       {
         const hint = airGappedHintFor(error);
         if (hint) printMessage(hint, 'info');
+      }
+      // An interactive login that lacks the reach for the command: name the
+      // login and what to use instead (the library states the facts).
+      {
+        const advice = accessAdviceFor(error);
+        if (advice) printMessage(advice, 'info');
       }
       break;
 

@@ -1,7 +1,11 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
-import { getTokens, getTokensInteractive } from '../../ops/AuthenticateOps';
+import {
+  getTokens,
+  getTokensInteractive,
+  printAccessNotice,
+} from '../../ops/AuthenticateOps';
 import c from '../../utils/ColorTheme';
 import { printMessage } from '../../utils/Console';
 import {
@@ -43,7 +47,7 @@ export default function setup() {
       new Option(
         '--login-scope <scope>',
         'Override the default OAuth2 scope requested for browser login. Ignored without --browser/--device. Defaults per deployment type: \n\
-cloud:    "fr:am:* fr:idm:*" \n\
+cloud:    "fr:am:* fr:idm:* fr:idc:esv:read fr:idc:esv:update fr:idc:monitoring:*" (a device login without "fr:am:*") \n\
 forgeops: "fr:idm:* openid" \n\
 classic:  "openid"'
       )
@@ -104,6 +108,7 @@ classic:  "openid"'
           `Logged in to ${tokens.host} [${tokens.realm}] as ${tokens.subject}`,
           'info'
         );
+        printAccessNotice(tokens.accessProfile);
       } else {
         if (!(await getTokens())) {
           process.exitCode = 1;

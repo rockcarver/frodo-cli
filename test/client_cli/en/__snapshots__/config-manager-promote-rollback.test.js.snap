@@ -43,5 +43,7 @@ Options:
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment
                                       variables, and usage examples.
+
+Not available with --browser or --device: needs a service account (Configuration promotion). See https://github.com/rockcarver/frodo-cli/blob/main/docs/BROWSER_LOGIN.md#what-a-browser-or-device-login-can-do
 "
 `;
