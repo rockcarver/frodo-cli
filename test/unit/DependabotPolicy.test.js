@@ -2,13 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, expect, it } from '@jest/globals';
-import {
-  isManualName,
-  isToolingName,
-  MIN_AGE_DAYS,
-  REQUIRED_GROUP,
-  TOOLING_PATTERNS,
-} from '../../scripts/dependabot-auto-merge.mjs';
 
 /**
  * The Dependabot policy of core 0023 (docs/decisions/core/0023-...md) says which
@@ -19,7 +12,19 @@ import {
  * this test keeps it honest: a bundled package cannot slip into it by a
  * pattern, a dead pattern fails, the cooldown and the workflow agree with the
  * file. It does not judge whether a package should be tooling.
+ *
+ * The decision itself is made by the shared action
+ * gearsnlevers/dependabot-auto-merge-action, which reads the tooling list from
+ * this repository's dependabot.yml, so the list cannot drift from a copy of it.
+ * What stays here is what only this repository can check: what it ships.
  */
+
+/** The group of dependabot.yml that may be armed (core 0023). */
+const REQUIRED_GROUP = 'tooling';
+/** The age in days that the cooldown of dependabot.yml and the action both ask for (core 0023). */
+const MIN_AGE_DAYS = 7;
+/** The words that keep a package manual: Prettier, TypeScript and ESLint with their plugins and configs (core 0023). */
+const MANUAL_WORDS = ['eslint', 'prettier', 'typescript'];
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -29,6 +34,14 @@ const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const PIN = '@rockcarver/frodo-lib';
 /** The bundler that writes the shipped file: it is treated like a bundled package (core 0023). */
 const BUNDLER = 'tsdown';
+
+/** Whether a name stays manual: a whole word of it (split at `/`, `@` and `-`) is eslint, prettier or typescript. */
+export function isManualName(name) {
+  return String(name)
+    .toLowerCase()
+    .split(/[/@-]+/)
+    .some((word) => MANUAL_WORDS.includes(word));
+}
 
 /** A Dependabot pattern: `*` matches any run of characters. */
 export function matchesPattern(name, pattern) {
@@ -151,6 +164,32 @@ describe('the reader of dependabot.yml and the pattern matcher', () => {
     expect(matchesPattern('axb', 'a.b')).toBe(false);
   });
 
+  it('keeps a package manual when a whole word of its name is eslint, prettier or typescript', () => {
+    for (const name of [
+      'eslint',
+      'prettier',
+      'typescript',
+      'eslint-plugin-import-x',
+      'prettier-plugin-sh',
+      '@typescript-eslint/parser',
+      '@eslint/js',
+      'ESLint-config-x',
+    ]) {
+      expect([name, isManualName(name)]).toEqual([name, true]);
+    }
+    for (const name of [
+      'ts-jest',
+      'tsdown',
+      'prettierx',
+      'typescripts',
+      'jest',
+      '@types/node',
+      '',
+    ]) {
+      expect([name, isManualName(name)]).toEqual([name, false]);
+    }
+  });
+
   it('reads the ecosystems, the cooldown and the groups of the file', () => {
     expect(updates.map((u) => u.ecosystem)).toEqual(['npm', 'github-actions']);
     expect(Object.keys(npm.groups)).toEqual([REQUIRED_GROUP]);
@@ -199,17 +238,6 @@ describe('core 0023: only tooling merges without a person', () => {
     expect(
       tooling.filter((pattern) => matchesPattern(BUNDLER, pattern))
     ).toEqual([]);
-    expect(isToolingName(BUNDLER)).toBe(false);
-  });
-
-  it('the script knows the same tooling list as dependabot.yml, because a security update has no group', () => {
-    expect([...TOOLING_PATTERNS].sort()).toEqual([...tooling].sort());
-    for (const name of [...devDependencies, ...bundled]) {
-      expect([name, isToolingName(name)]).toEqual([
-        name,
-        tooling.some((pattern) => matchesPattern(name, pattern)),
-      ]);
-    }
   });
 
   it('the cooldown is the age that the auto-merge asks for, and excludes only what is ours', () => {
@@ -217,5 +245,79 @@ describe('core 0023: only tooling merges without a person', () => {
     expect(actions.cooldown.days).toBe(MIN_AGE_DAYS);
     expect(npm.cooldown.exclude).toEqual([PIN]);
     expect(actions.cooldown.exclude).toEqual(['gearsnlevers/*']);
+  });
+});
+
+describe('the workflow that calls the shared action', () => {
+  const workflow = read('.github/workflows/dependabot-auto-merge.yml');
+  const uses = [...workflow.matchAll(/^\s*(?:-\s*)?uses:\s*(\S+)(.*)$/gm)].map(
+    (m) => ({ ref: m[1], rest: m[2] })
+  );
+
+  it('calls the shared action, pinned by a full commit SHA with its version in a comment', () => {
+    expect(uses).toHaveLength(1);
+    expect(uses[0].ref).toMatch(
+      /^gearsnlevers\/dependabot-auto-merge-action@[0-9a-f]{40}$/
+    );
+    expect(uses[0].rest).toMatch(/#\s*v\d+\.\d+\.\d+/);
+  });
+
+  it('checks out nothing: the token has write access and no code of a pull request may run next to it', () => {
+    expect(workflow).not.toMatch(/actions\/checkout/);
+  });
+
+  it('only a Dependabot pull request is looked at, by the guard on the actor', () => {
+    expect(workflow).toContain(
+      "github.event_name != 'pull_request' || (github.actor == 'dependabot[bot]' &&"
+    );
+  });
+
+  it('does not run for the pull requests that move the pin of the action itself: the new, unread version must not run with the write token', () => {
+    expect(workflow).toContain(
+      "!startsWith(github.head_ref, 'dependabot/github_actions/')"
+    );
+    // the same prefix that dependabot.yml gives the branches of its github-actions updates
+    expect(actions).toBeDefined();
+    expect(read('.github/dependabot.yml')).not.toMatch(/branch-name/);
+  });
+
+  // the workflow without its comment lines: only what the runner reads
+  const code = workflow
+    .split('\n')
+    .filter((line) => !/^\s*#/.test(line))
+    .join('\n');
+
+  it('the token reaches only the step that calls the action, as its github-token input, and no env: of the job or the workflow carries it', () => {
+    expect(code.match(/GITHUB_TOKEN/g)).toHaveLength(1);
+    expect(code.match(/secrets\./g)).toHaveLength(1);
+    expect(code).toMatch(
+      /github-token:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/
+    );
+    expect(code).not.toMatch(/^\s*env:/m);
+  });
+
+  it('the pull request number is passed, and is empty for the daily sweep and a manual run', () => {
+    expect(code).toMatch(
+      /pull-request:\s*\$\{\{\s*github\.event\.pull_request\.number\s*\}\}/
+    );
+  });
+
+  it('asks for the two permissions that arming needs and nothing more', () => {
+    const block = /^permissions:\n((?:[ ]+\S.*\n)+)/m.exec(workflow)?.[1] ?? '';
+    expect(
+      block
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .sort()
+    ).toEqual(['contents: write', 'pull-requests: write']);
+  });
+
+  it('runs on a pull request, the daily sweep and by hand, and only a manual run can be a dry run', () => {
+    expect(workflow).toMatch(/^on:\n {2}pull_request:\n {2}schedule:\n/m);
+    expect(workflow).toMatch(/^ {2}workflow_dispatch:\n {4}inputs:\n {6}dry-run:\n/m);
+    expect(workflow).toContain(
+      "dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || 'false' }}"
+    );
   });
 });

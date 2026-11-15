@@ -35,10 +35,10 @@ ALWAYS_CODE='^\.github/(workflows/pipeline\.yml$|scripts/classify-changes)'
 # Files that a guidance test reads or checks (see
 # tools/run-guidance-tests.mjs for the tests): decision records, the agent
 # entry points, the contributor guide, skills and instruction files, and the
-# Dependabot policy (dependabot.yml, which its tests read, and the workflow
-# that runs it). The script of that policy, scripts/dependabot-auto-merge.mjs,
-# is not on the non-code list above, so a change to it is code and `Test` runs
-# its tests.
+# Dependabot policy (dependabot.yml and the workflow that calls the shared
+# action, both read by test/unit/DependabotPolicy.test.js). The policy itself is
+# decided by gearsnlevers/dependabot-auto-merge-action, pinned in that workflow;
+# its code and tests are not in this repository.
 GUIDANCE='^(docs/decisions/|AGENTS\.md$|CLAUDE\.md$|docs/CONTRIBUTE\.md$|\.claude/skills/|\.github/(instructions/|dependabot\.yml$|workflows/dependabot-auto-merge\.yml$))'
 
 files=$(sed '/^[[:space:]]*$/d')

@@ -99,9 +99,7 @@ describeIfBash('classify-changes.sh', () => {
       'test/e2e/mocks/journey_1/recording.har',
       'tools/run-guidance-tests.mjs',
       'scripts/build-sea.mjs',
-      // the script of the Dependabot policy is not on the non-code list: Test runs its tests
-      'scripts/dependabot-auto-merge.mjs',
-      'test/unit/DependabotAutoMerge.test.js',
+      // the test of the Dependabot policy is not on the non-code list: Test runs it
       'test/unit/DependabotPolicy.test.js',
       'package.json',
       'package-lock.json',
@@ -169,8 +167,7 @@ describeIfBash('classify-changes.sh', () => {
       expect(classify(['.github/workflows/dependabot-auto-merge.yml', 'README.md'])).toEqual(GUIDANCE_ONLY);
     });
 
-    it('is code when the script or a test of the Dependabot policy changes with its files', () => {
-      expect(classify(['.github/dependabot.yml', 'scripts/dependabot-auto-merge.mjs'])).toEqual(CODE);
+    it('is code when a test of the Dependabot policy changes with its files', () => {
       expect(classify(['.github/dependabot.yml', 'test/unit/DependabotPolicy.test.js'])).toEqual(CODE);
       expect(classify(['.github/workflows/dependabot-auto-merge.yml', 'package.json'])).toEqual(CODE);
     });

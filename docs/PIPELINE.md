@@ -106,8 +106,9 @@ which answers two questions:
   `docs/CONTRIBUTE.md`, `.claude/skills/`, `.github/instructions/` and the
   Dependabot policy of [core 0023](decisions/core/0023-dependency-updates-arrive-late-and-only-tooling-merges-without-a-person.md):
   `.github/dependabot.yml` and `.github/workflows/dependabot-auto-merge.yml`
-  (the script `scripts/dependabot-auto-merge.mjs` is not on the non-code list,
-  so a change to it is code and `Test` runs its tests).
+  (the policy is decided by the shared action
+  `gearsnlevers/dependabot-auto-merge-action`, pinned in that workflow;
+  `test/unit/DependabotPolicy.test.js` reads both files).
 
 The script is read from the pull request's **base** commit (the contents API
 at `base.sha`), never from its head: a pull request does not choose the rules
@@ -169,9 +170,8 @@ files, `.github/dependabot.yml` or the Dependabot auto-merge workflow and
 nothing else. It checks out the pull request head, runs `npm ci` and
 `npm run test:guidance`
 ([../tools/run-guidance-tests.mjs](../tools/run-guidance-tests.mjs)), which runs
-only `test/unit/DecisionRecords.test.js`, `test/unit/Skills.test.js`,
-`test/unit/DependabotAutoMerge.test.js` and `test/unit/DependabotPolicy.test.js`
-and fails if any of them is missing. No build, no tenant, no binary: about a
+only `test/unit/DecisionRecords.test.js`, `test/unit/Skills.test.js` and
+`test/unit/DependabotPolicy.test.js` and fails if any of them is missing. No build, no tenant, no binary: about a
 minute, most of it `npm ci`. The same command runs locally.
 
 ### Build

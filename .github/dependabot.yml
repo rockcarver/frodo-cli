@@ -8,8 +8,9 @@
 #   package (core 0023). Tooling (the named list in the `tooling` group below:
 #   test and type packages) is one grouped weekly PR for minor/patch updates,
 #   and the only thing that auto-merges (a security update of a tooling package
-#   too, once it passes the age test: scripts/dependabot-auto-merge.mjs keeps
-#   the same list, because a security update carries no group). A package
+#   too, once it passes the age test: the shared auto-merge action matches its
+#   package against this same list, because a security update carries no group
+#   and the list is read from here, never copied). A package
 #   that is in neither list arrives on its own as well, so a person merges it
 #   until it is added: test/unit/DependabotPolicy.test.js keeps the list honest.
 #   Prettier, TypeScript and ESLint with their plugins and configs stay
