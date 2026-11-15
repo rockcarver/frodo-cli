@@ -2,6 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { listAgents } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
+import { NOT_AGENTS_OF_THIS_COMMAND } from '../../utils/AgentHelpText';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLASSIC_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -15,7 +16,8 @@ export default function setup() {
   const program = new FrodoCommand('frodo agent list');
 
   program
-    .description('List agents.')
+    .summary('List agents.')
+    .description(`List agents. ${NOT_AGENTS_OF_THIS_COMMAND}`)
     .addOption(
       new Option('-l, --long', 'Long with all fields.').default(false, 'false')
     )

@@ -3,7 +3,9 @@
 exports[`CLI help interface for 'agent export' should be expected english 1`] = `
 "Usage: frodo agent export [options] [host] [realm] [username] [password]
 
-Export agents.
+Export agents. OAuth2 clients, trusted JWT issuers and CIMD profiles are not
+agents of this command: see frodo oauth client, frodo oauth issuer and frodo
+oauth cimd.
 
 Arguments:
   host                       AM base URL, e.g.: https://cdk.iam.example.com/am.
@@ -23,10 +25,17 @@ Arguments:
 
 Options:
   -a, --all                  Export all agents to a single file. Cannot be used
-                             with -i or -A.
+                             with -i or -A. OAuth2 clients, trusted JWT issuers
+                             and CIMD profiles are not included: use frodo oauth
+                             client export -a, frodo oauth issuer export -a and
+                             frodo oauth cimd export -a.
   -A, --all-separate         Export all agents to separate files
                              (*.<type>.agent.json) in the current directory.
-                             Cannot be used with -i, -f or -a.
+                             Cannot be used with -i, -f or -a. OAuth2 clients,
+                             trusted JWT issuers and CIMD profiles are not
+                             included: use frodo oauth client export -A, frodo
+                             oauth issuer export -A and frodo oauth cimd export
+                             -A.
   --allow-failures           Report operations that fail, but still exit with
                              code 0. Without this option the command runs every
                              operation, prints a summary of what failed and
