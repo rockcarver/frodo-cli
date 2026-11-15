@@ -16,7 +16,7 @@ exports[`frodo config-manager promote run-promotion "frodo config-manager promot
 
 exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion --wait": Should wait for promotion to complete 2`] = `
 "Experimental feature in use: 'frodo config-manager promote run-promotion'. This feature may change without notice.
-✔ Promotion completed in 20s with final message: Promotion completed
+✔ Promotion completed in 60s with final message: Promotion completed
 "
 `;
 

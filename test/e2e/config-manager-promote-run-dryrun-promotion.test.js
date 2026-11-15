@@ -1,11 +1,14 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 
 /*
- * The status polls of the "--wait" recordings were taken from the frodo-lib recordings
- * (src/test/mock-recordings/EnvPromotionOps_*, Wait-tests, recorded on 2026-10-27) and trimmed to a few polls;
- * only the login requests were recorded with the CLI. Re-record them on a promotion pair when possible, and trim
- * only repeated identical polls. The recording name uses the flag names, not their values, so "--timeout 6"
- * and any other value share one recording.
+ * The "--wait" and "--wait --timeout 6" recordings were recorded with the CLI on a promotion pair (the host of the
+ * commands is the upper environment), one command at a time. The two environments were locked before each command
+ * (frodo config-manager promote lock-tenants) and unlocked after its promotion had finished; a "--timeout 6" run
+ * times out in the CLI while the promotion goes on, and its recording ends there. Record with FRODO_NO_UPDATE_CHECK=1
+ * and, for a tenant that is not a frodo development host, FRODO_MOCK_HOSTS=<origin of the host>. Only repeated
+ * identical status polls of the "--wait" recordings were trimmed: the first poll of every state and the last poll
+ * stay, in their recorded order (https://github.com/rockcarver/frodo-lib/blob/main/decisions/0014-a-recording-of-a-wait-may-be-trimmed-of-its-repeated-polls.md).
+ * The recording name uses the flag names, not their values, so "--timeout 6" and any other value share one recording.
  */
 
 /*

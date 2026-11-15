@@ -2,7 +2,7 @@
 
 exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait --timeout 6": Should time out waiting for dry-run promotion 1`] = `
 "Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
-⚠ Dry-run promotion timed out after 6s with final message: Check ESVs
+⚠ Dry-run promotion timed out after 6s with final message: Clone repos
 Error promoting configuration
 "
 `;
@@ -16,7 +16,7 @@ exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager
 
 exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait": Should wait for dry-run promotion to complete 2`] = `
 "Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
-✔ Dry-run promotion completed in 20s with final message: Promotion completed
+✔ Dry-run promotion completed in 30s with final message: Promotion completed
 "
 `;
 
