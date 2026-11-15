@@ -571,6 +571,85 @@ describe('validateFeature', () => {
     });
   });
 
+  describe('a feature id that the tenant does not know', () => {
+    const notFound = () =>
+      Object.assign(new Error('Error validating IDM feature nosuch'), {
+        originalErrors: [
+          Object.assign(new Error('Request failed with status code 404'), {
+            httpStatus: 404,
+            httpMessage: 'Resource &#39;feature/nosuch&#39; not found',
+          }),
+        ],
+      });
+
+    test('says so, lists the features of the tenant, points at feature list, and fails without the raw error', async () => {
+      idmFeature.validateIdmFeature.mockRejectedValue(notFound());
+      idmFeature.readIdmFeatures.mockResolvedValue([
+        { _id: 'groups' },
+        { _id: 'aiagent' },
+      ]);
+
+      await expect(validateFeature('nosuch')).resolves.toBe(false);
+
+      expect(printed()).toEqual([
+        [
+          'error',
+          'Feature "nosuch" does not exist on this tenant. Features of this tenant: groups, aiagent. Run "frodo feature list" to see which are installed.',
+        ],
+      ]);
+      expect(printError).not.toHaveBeenCalled();
+      expect(idmFeature.diagnoseIdmFeature).not.toHaveBeenCalled();
+    });
+
+    test('a list that cannot be read is left out, the message still says the feature does not exist', async () => {
+      idmFeature.validateIdmFeature.mockRejectedValue(notFound());
+      idmFeature.readIdmFeatures.mockRejectedValue(
+        Object.assign(new Error('forbidden'), { httpStatus: 403 })
+      );
+
+      await expect(validateFeature('nosuch')).resolves.toBe(false);
+
+      expect(printed()).toEqual([
+        [
+          'error',
+          'Feature "nosuch" does not exist on this tenant. Run "frodo feature list" to see which are installed.',
+        ],
+      ]);
+      expect(printError).not.toHaveBeenCalled();
+    });
+
+    test('an error that is not a 404 is not described as an unknown feature, and the list is not read', async () => {
+      const error = Object.assign(new Error('Error validating IDM feature x'), {
+        httpStatus: 500,
+      });
+      idmFeature.validateIdmFeature.mockRejectedValue(error);
+
+      await expect(validateFeature('x')).resolves.toBe(false);
+
+      expect(printError).toHaveBeenCalledWith(
+        error,
+        'Error validating feature "x"'
+      );
+      expect(idmFeature.readIdmFeatures).not.toHaveBeenCalled();
+      expect(printedOfType('error')).toEqual([]);
+    });
+
+    test('a 404 from the diagnosis of a feature the tenant knows is an error of the diagnosis, not an unknown feature', async () => {
+      idmFeature.validateIdmFeature.mockResolvedValue(rawValidateFailed);
+      const error = notFound();
+      idmFeature.diagnoseIdmFeature.mockRejectedValue(error);
+
+      await expect(validateFeature('aiagent')).resolves.toBe(false);
+
+      expect(printError).toHaveBeenCalledWith(
+        error,
+        'Error validating feature "aiagent"'
+      );
+      expect(idmFeature.readIdmFeatures).not.toHaveBeenCalled();
+      expect(printedOfType('error')).toEqual([]);
+    });
+  });
+
   test('a request that fails (HTTP or network error) is reported by printError and fails', async () => {
     const error = new Error('Error validating IDM feature aiagent');
     idmFeature.validateIdmFeature.mockRejectedValue(error);

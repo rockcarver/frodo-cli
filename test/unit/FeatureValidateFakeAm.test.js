@@ -296,6 +296,37 @@ suite('feature validate through the CLI', () => {
     );
 
     it(
+      'an id the tenant does not know: says so with the ids it knows, exits 1, no raw error, a list read after the 404',
+      async () => {
+        fs.rmSync(recordPath, { force: true });
+
+        const { code, stdout, stderr } = await validate(server, [
+          '-i',
+          'nosuchfeature',
+        ]);
+
+        expect(stderr).toContain(
+          'Feature "nosuchfeature" does not exist on this tenant. Features of this tenant: groups.'
+        );
+        expect(stderr).toContain('frodo feature list');
+        expect(stderr).not.toContain('Error validating');
+        expect(stdout).toBe('');
+        expect(code).toBe(1);
+        const featureRequests = readRequests(recordPath).filter(({ url }) =>
+          url.includes('/openidm/feature')
+        );
+        expect(
+          featureRequests.map(({ method, url }) => `${method} ${url}`)
+        ).toEqual([
+          'POST /openidm/feature/nosuchfeature?_action=validate',
+          'GET /openidm/feature?_queryFilter=true',
+        ]);
+        expect(writesOf(readRequests(recordPath))).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it(
       '--json asks the library, which says it does not judge the feature, and exits 0',
       async () => {
         const { code, stdout } = await validate(server, [
