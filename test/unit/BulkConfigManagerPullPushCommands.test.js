@@ -14,6 +14,7 @@ const OPS = {
   'src/configManagerOps/FrConfigSecretOps': [
     'configManagerExportSecrets',
     'configManagerImportSecrets',
+    'findSecretVersionsToPrune',
   ],
   'src/configManagerOps/FrConfigServiceObjectsOps': [
     'configManagerExportServiceObjectsFromFile',
@@ -79,7 +80,21 @@ jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
 }));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
+  printMessage: jest.fn(),
   verboseMessage: jest.fn(),
+}));
+// push secrets: a prune is guarded (record 0037, covered by
+// ConfigManagerPushSecretsCommand.test.js); here the guard lets it through
+jest.unstable_mockModule('../../src/utils/BulkDeleteGuard', () => ({
+  checkBulkDelete: jest.fn(() => true),
+  confirmBulkDelete: jest.fn(async () => true),
+}));
+jest.unstable_mockModule('../../src/ops/cloud/SecretsOps', () => ({
+  printPrunePlan: jest.fn(),
+  summarizePrunePlan: jest.fn(() => ({ secrets: 0, affected: 0, versions: 0 })),
+}));
+jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
+  default: { command: (text) => text },
 }));
 
 /**
@@ -99,7 +114,7 @@ const COMMANDS = [
     name: 'config-manager push secrets',
     path: 'config-manager-push/config-manager-push-secrets',
     op: 'configManagerImportSecrets',
-    options: { name: 'esv-a', prune: true },
+    options: { name: 'esv-a', prune: true, yes: true },
     before: ['esv-a', true],
   },
   {

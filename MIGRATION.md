@@ -230,6 +230,30 @@ named object never asks. This affects `frodo agent delete -a` and
 `theme delete -a`. It is a safety guard added in a major release: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
+**`config-manager push secrets --prune` asks before it deletes, and `-p` is
+gone**: `--prune` deletes the old versions of every secret it pushes, and in 4.x
+it did so without asking. In 5.x, on a terminal, it reads the tenant, shows the
+versions it would delete and asks (the answer defaults to no) when more than one
+version would go, and also when a secret could not be checked; a prune that
+would delete a single version does not ask. Without a terminal (a script, a CI
+job, `--no-prompt`, `FRODO_NO_PROMPT`) it refuses before it connects to anything
+and exits with code 1, unless you pass `-y`/`--yes`; it refuses even when the
+prune would delete nothing, so that a script does not start to fail on the day
+it has something to delete. Add `--yes` to every script and CI job that pushes
+secrets with `--prune`:
+
+```text
+frodo config-manager push secrets --prune --yes <host>
+```
+
+The new option `--dry-run` (only with `--prune`) shows which versions would be
+deleted and neither deletes nor imports anything; it wins over `--yes`. The
+short form `-p` of `--prune` is removed, because a destructive option has a long
+form only: write `--prune`. A secret that is new in the tenant has no old
+versions, and the versions that are deleted are the same as before (the
+versions that are still enabled besides the active one). See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
+
 **`authn export` and `authn import` exit 1 after a failure**: in 4.x both
 commands printed the error and exited with code 0 when the export or the import
 failed, because they checked the result before the operation had finished. In
