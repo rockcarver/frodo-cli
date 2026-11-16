@@ -48,10 +48,14 @@ describe('frodo config-manager pull all', () => {
   // and the 4 snapshots of the SoftwarePublisher/test software publisher.json files were removed from the snapshot file (they
   // would be reported as obsolete, which fails CI). The requests of the generic route stay in the recording; they come back
   // when the test is recorded again (frodo-cli#1102).
-  // The oauth-cimd-profiles step (frodo-cli#1250) fails in this replay too: the recording predates it, so the request for
-  // the CIMD profiles of the realm is missing ("Network error"), the step writes no file and is named in the summary of
-  // failed steps. The kind has recordings of its own (config-manager-push, -pull and -delete-cimd-profiles, frodo-cli#1252);
-  // the step is exercised here when the test is recorded again (frodo-cli#1102).
+  // The three steps of the agent kinds that have a command of their own, oauth-cimd-profiles (frodo-cli#1250),
+  // oauth-issuers (frodo-cli#1257) and oauth-software-publishers (frodo-cli#1343), are newer than this recording: the
+  // requests they start with (the agent types and the list of the kind) are not in it, so the replay names each of the
+  // three among the failed steps ("9 of 39 steps failed": themes, those three, connector-definitions, oauth2-agents,
+  // connector-mappings, saml and applications), the exit code snapshot of 1 includes them, and the files they would
+  // write are not compared. A live check against a development tenant (frodo-cli#1260) showed what they do: the
+  // issuer, once, in the tree of a pull all; twice in a row, identical files. They come back when the test is
+  // recorded again (frodo-cli#1102).
   // Opted in to missing recordings until the recording is made again (frodo-cli#1102): the oauth2-agents step now
   // tries every agent of the config file after one failed (decision record 0040), and the recording holds the
   // request of the first agent of the bravo realm only (a recorded 404), so the replay asks for requests that are
@@ -72,8 +76,8 @@ describe('frodo config-manager pull all', () => {
   // applications, so 23 snapshots of their files (the OAuth2 client of the root, alpha and bravo realms, the SAML
   // providers of alpha, the connectors and the mappings) were removed from the snapshot file until it is recorded
   // again. The other agents of the realms are still written and compared.
-  // The oauth-cimd-profiles step (frodo-cli#1250) is among the failed steps here as well: the recording predates it, so
-  // its requests are missing, and it writes no file. The kind has recordings of its own (frodo-cli#1252).
+  // The same three steps (oauth-cimd-profiles, oauth-issuers and oauth-software-publishers) are among the failed steps of
+  // this replay too ("12 of 33 steps failed"), for the same reason: they are newer than the recording.
   // Opted in to missing recordings until the recording is made again (frodo-cli#1102): the org-privileges step now
   // tries every realm after the root realm failed (decision record 0040), and the recording holds the requests up to
   // that failure only, so the replay asks for requests that are not in it (alphaOrgPrivileges, bravoOrgPrivileges).
