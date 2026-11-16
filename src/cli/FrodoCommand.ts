@@ -3889,6 +3889,14 @@ export class FrodoCommand extends FrodoStubCommand {
   types: string[];
 
   /**
+   * Whether this command lets the `${NAME}` placeholders of the files it reads
+   * fall back to the environment variables of the process (see
+   * `fillsPlaceholdersFromProcessEnvironment`). Off for every command unless it
+   * is turned on.
+   */
+  private placeholdersFromProcessEnvironment = false;
+
+  /**
    * Deferred mandatory handling (see FrodoStubCommand's implementation
    * for the verbatim-commander default): record the violation instead of
    * throwing, so the preAction resolution pass can prompt for the value
@@ -4124,6 +4132,32 @@ export class FrodoCommand extends FrodoStubCommand {
   }
 
   /**
+   * Lets the `${NAME}` placeholders of the files this command pushes be filled
+   * from the environment variables of the process when `-E/--env` and
+   * `--env-file` hold no value for the name (frodo-lib#1109: the switch of the
+   * library's state is off unless a command turns it on). Used for the
+   * config-manager push commands, where a pipeline hands its values over as
+   * environment variables. No other command reads the process environment for a
+   * placeholder: a file that names a variable copies the value of that variable
+   * into whatever it is pushed to, so it is a decision per command family. The
+   * export direction of the library never reads the process environment.
+   * @returns This command for chaining.
+   */
+  fillsPlaceholdersFromProcessEnvironment(): this {
+    this.placeholdersFromProcessEnvironment = true;
+    return this;
+  }
+
+  /**
+   * Whether this command fills placeholders from the process environment (see
+   * `fillsPlaceholdersFromProcessEnvironment`).
+   * @returns true if the command turns the library's switch on
+   */
+  readsProcessEnvironmentForPlaceholders(): boolean {
+    return this.placeholdersFromProcessEnvironment;
+  }
+
+  /**
    * Declares that the command uses its realm positional and reads "no realm"
    * as "every realm" (the `config-manager` commands that loop over realms).
    * The post-auth realm picker then offers an `All realms` row first and makes
@@ -4229,6 +4263,15 @@ export class FrodoCommand extends FrodoStubCommand {
         );
       }
     }
+
+    // The library reads the environment variables of the process for a
+    // placeholder only when its state says so: the config-manager push commands
+    // say so, no other command does. The answer is set on every call, so that a
+    // command never inherits the switch of another one that ran before it in
+    // the same process (tests do that).
+    state.setUseProcessEnvironmentForPlaceholders(
+      command.readsProcessEnvironmentForPlaceholders?.() === true
+    );
 
     // FRODO_CURLIRIZE_SECRETS does what --curlirize-secrets does, for the
     // commands that have the option. Only the library setting changes: nothing

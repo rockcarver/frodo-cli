@@ -20,6 +20,7 @@ import {
   frodo,
   type FrodoError,
   type OAuth2TrustedJwtIssuerExportInterface,
+  type OAuth2TrustedJwtIssuerLeftOutAttributesCallback,
   type OAuth2TrustedJwtIssuerSkeleton,
 } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../utils/Console';
@@ -159,7 +160,7 @@ export async function configManagerExportTrustedJwtIssuers(
  * trust anchor (a JWT signed by it is accepted as a grant), so a pull request that changes a file
  * changes who may obtain tokens after the next push: read the files before pushing them. Nothing
  * is ever deleted. The id is the `_id` of the file, otherwise its name; `${NAME}` is filled from
- * `-E/--env` or `--env-file`, and not from the environment of the process (see
+ * `-E/--env`, else from `--env-file`, else from the environment variable of the process (see
  * `src/utils/PlaceholderValues.ts`); a file of another `_type` is refused before anything is sent
  * for it, and a file
  * without `_type` is accepted.
@@ -169,7 +170,9 @@ export async function configManagerExportTrustedJwtIssuers(
  * profiles itself, not yet for issuers); if that second write fails the issuer is a failure that
  * says it was created. The library retries a write that the server refuses for an unknown
  * attribute without that attribute, prints a warning of its own when it does, and no longer
- * changes the object it was given. The type exists on every deployment, so there is no check of
+ * changes the object it was given; it tells the caller which attributes it left out, and the push
+ * prints them and counts the issuer as a failure (the issuer stays stored, without them) unless
+ * failures are allowed (cli#1338). The type exists on every deployment, so there is no check of
  * availability. See {@link pushAgentKind} for how files, failures and the name work.
  * @param {string} name optional name: push only the file of that issuer (needs a single realm)
  * @param {string} realm optional realm: push only that realm. Default: every realm folder of the tree (the root realm of a Cloud tenant has no trusted JWT issuers)
@@ -206,6 +209,38 @@ export async function configManagerImportTrustedJwtIssuers(
             body as unknown as OAuth2TrustedJwtIssuerSkeleton;
           bodies.set(id, body);
         }
+        // An attribute that the server does not know is left out of the body by the library (it
+        // stores the issuer without it and tells the caller which attributes, once the second
+        // request has succeeded). An issuer that is stored with less than its file says is a
+        // failure of the run, unless the user allows failures: the push may not "succeed" and
+        // silently store less than the file holds (cli#1338, the first step of cli#1256).
+        const leftOut = new Map<string, string[]>();
+        const noteLeftOut: OAuth2TrustedJwtIssuerLeftOutAttributesCallback = (
+          id,
+          attributes
+        ) => {
+          const known = leftOut.get(id) ?? [];
+          leftOut.set(id, [
+            ...known,
+            ...attributes.filter((attribute) => !known.includes(attribute)),
+          ]);
+        };
+        const finish = (id: string): void => {
+          const attributes = leftOut.get(id);
+          if (!attributes?.length) {
+            run.recordSuccess();
+            return;
+          }
+          const list = attributes.join(', ');
+          printMessage(
+            `Trusted JWT issuer '${id}' of realm '${realmDir}': the server refused the attributes ${list}; they were not stored.`,
+            'warn'
+          );
+          run.recordFailure(
+            `${realmDir}/${id}`,
+            `the server refused the attributes ${list}; the issuer is stored without them`
+          );
+        };
         // the library reports the issuers in the order of the keys, which is not always the order of the files
         const ids = Object.keys(importData.trustedJwtIssuer);
         let position = 0;
@@ -219,11 +254,12 @@ export async function configManagerImportTrustedJwtIssuers(
               printError(error);
               run.recordFailure(`${realmDir}/${id}`, causeOf(error));
             } else if (existing.has(id.toLowerCase())) {
-              run.recordSuccess();
+              finish(id);
             } else {
               created.push(id);
             }
-          }
+          },
+          noteLeftOut
         );
         for (const id of created) {
           const label = `${realmDir}/${id}`;
@@ -236,9 +272,10 @@ export async function configManagerImportTrustedJwtIssuers(
             delete body._rev;
             await issuer.updateOAuth2TrustedJwtIssuer(
               id,
-              body as unknown as OAuth2TrustedJwtIssuerSkeleton
+              body as unknown as OAuth2TrustedJwtIssuerSkeleton,
+              noteLeftOut
             );
-            run.recordSuccess();
+            finish(id);
           } catch (error) {
             printError(error);
             run.recordFailure(

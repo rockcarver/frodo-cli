@@ -88,8 +88,10 @@
  * property wrapped as `{ inherited, value }`, a `PUT` stores the body (`201` for a
  * new id, which the server completes with a default property the body lacks,
  * `200` for an existing one, which stores exactly the body; a `_rev` in it is
- * refused with `400 Invalid attribute specified.`) and a `DELETE` removes one
- * (`404` when missing). Ids are matched exactly.
+ * refused with `400 Invalid attribute specified.`, and so is a top-level
+ * attribute that AM does not know, which AM answers with the attributes it
+ * accepts in `detail.validAttributes`, the way the library's retry reads it) and
+ * a `DELETE` removes one (`404` when missing). Ids are matched exactly.
  * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
  * (`.../scripts`) answer with scripts of those names, the way the script
  * picker of the script commands reads it.
@@ -252,6 +254,20 @@ const cimdProfileList = readJson(process.env.FAKE_AM_CIMD_PROFILES_FILE);
 const cimdRootDenied = process.env.FAKE_AM_CIMD_ROOT_DENIED === '1';
 const cimdCompleteOnCreate =
   process.env.FAKE_AM_CIMD_COMPLETE_ON_CREATE === '1';
+// the top-level attributes of an OAuth2 trusted JWT issuer that AM accepts (it lists them in the
+// detail of the 400 that it answers for any other); _id and _type are not among them
+const TRUSTED_JWT_ISSUER_ATTRIBUTES = [
+  'agentgroup',
+  'allowedSubjects',
+  'consentedScopesClaim',
+  'issuer',
+  'jwkSet',
+  'jwkStoreCacheMissCacheTime',
+  'jwksCacheTimeout',
+  'jwksUri',
+  'resourceOwnerIdentityClaim',
+];
+
 const CLOUD_NOT_AVAILABLE = {
   code: 403,
   reason: 'Forbidden',
@@ -731,6 +747,21 @@ const server = http.createServer((req, res) => {
               code: 400,
               reason: 'Bad Request',
               message: 'Invalid attribute specified.',
+            });
+          }
+          // AM refuses a top-level attribute it does not know and says which ones it accepts
+          const unknown = Object.keys(posted).filter(
+            (attribute) =>
+              attribute !== '_id' &&
+              attribute !== '_type' &&
+              !TRUSTED_JWT_ISSUER_ATTRIBUTES.includes(attribute)
+          );
+          if (unknown.length > 0) {
+            return send(400, {
+              code: 400,
+              reason: 'Bad Request',
+              message: 'Invalid attribute specified.',
+              detail: { validAttributes: TRUSTED_JWT_ISSUER_ATTRIBUTES },
             });
           }
           const created = !trustedJwtIssuers.has(id);

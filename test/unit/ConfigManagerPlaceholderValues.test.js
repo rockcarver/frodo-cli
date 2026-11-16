@@ -3,6 +3,8 @@ import fs from 'fs';
 import { createRequire } from 'module';
 import os from 'os';
 import path from 'path';
+import { state } from '@rockcarver/frodo-lib';
+import { FrodoCommand } from '../../src/cli/FrodoCommand.ts';
 import { PLACEHOLDER_VALUES_RULE } from '../../src/utils/PlaceholderValues.ts';
 import {
   fullName,
@@ -19,27 +21,24 @@ const {
 
 /**
  * Where the value of a `${NAME}` placeholder comes from when the config-manager
- * commands push a file (finding 5 of the live check of cli#1260). The help of
- * `pull oauth-issuers` and `pull oauth-cimd-profiles` said "Push fills each
- * ${NAME} from the environment variable NAME", which reads like the environment
- * of the process, but the library fills a placeholder only from the values that
- * `-E/--env` and `--env-file` put into its state: a push with the variable only
- * in the environment fails with `No value found for placeholder`.
+ * commands push a file. In order: `-E/--env NAME=value`, then `--env-file`, and
+ * last the environment variable NAME of the process. The first two put their
+ * values into the library's state. The process environment is read only when
+ * the library's switch (`state.setUseProcessEnvironmentForPlaceholders`,
+ * frodo-lib#1109) is on, and only the config-manager PUSH commands turn it on
+ * (`FrodoCommand.fillsPlaceholdersFromProcessEnvironment`, applied by the push
+ * group): a pull writes the placeholder and never a value, and no other command
+ * family reads the process environment for a placeholder, because a file that
+ * names a variable copies its value into whatever it is pushed to. The library
+ * never reads the process environment when it exports (it replaces the values of
+ * its state with `${KEY}`), which is why the CLI cannot copy the environment into
+ * the state itself (the attempt of cli#1260 finding 5 broke exports).
  *
- * Reading the environment of the process as a last source is NOT done here, on
- * purpose: the library uses the same state in the opposite direction when it
- * exports (`substituteEntityWithEnv` replaces every value of the state with
- * `${KEY}` in the exported text), so putting the whole process environment into
- * the state changes exports (`idm export`, `esv secret list -u`, ...). The fix
- * belongs in the library's placeholder reader. Until then the help says what the
- * commands do, and this test keeps the help and the behaviour in agreement: if a
- * later change reads the environment, the test of the process environment below
- * fails and the help rule has to be updated with it.
- *
- * Two levels: the four help texts, and the real CLI against a fake tenant
- * (test/utils/FakeAm.mjs) whose request log shows which source filled the
- * placeholder of a pushed issuer. No tenant, no secrets, no master key; a
- * temporary HOME and working directory keep it away from real files.
+ * Three levels: the four help texts, the scope of the switch (which commands
+ * turn it on), and the real CLI against a fake tenant (test/utils/FakeAm.mjs)
+ * whose request log shows which source filled the placeholder of a pushed
+ * issuer. No tenant, no secrets, no master key; a temporary HOME and working
+ * directory keep it away from real files.
  */
 
 const NAME = 'ZION_PLACEHOLDER_URL';
@@ -92,13 +91,70 @@ describe('the help says where the values come from', () => {
     );
   });
 
-  it('the rule names the two sources, -E first, and says the process environment is not read', () => {
+  it('the rule names the three sources in order: -E, --env-file, the environment variable of the process', () => {
     const rule = PLACEHOLDER_VALUES_RULE;
-    expect(rule.indexOf('-E/--env')).toBeGreaterThan(-1);
-    expect(rule.indexOf('--env-file')).toBeGreaterThan(
-      rule.indexOf('-E/--env')
-    );
-    expect(rule).toContain('environment variables of the process are not read');
+    const env = rule.indexOf('-E/--env');
+    const file = rule.indexOf('--env-file');
+    const proc = rule.indexOf('environment variable NAME of the process');
+    expect(env).toBeGreaterThan(-1);
+    expect(file).toBeGreaterThan(env);
+    expect(proc).toBeGreaterThan(file);
+    // and it warns that a file copies the value of a variable it names
+    expect(rule).toContain('copies its value into what is pushed');
+    expect(rule).not.toContain('are not read');
+  });
+});
+
+describe('only the config-manager push commands let a placeholder fall back to the process environment', () => {
+  const originalArgv = process.argv;
+  let leaves;
+
+  beforeAll(async () => {
+    process.argv = [...originalArgv, '--help-all'];
+    try {
+      ({ leaves } = await loadCommandTree());
+    } finally {
+      process.argv = originalArgv;
+    }
+  });
+
+  afterEach(() => {
+    state.setUseProcessEnvironmentForPlaceholders(false);
+  });
+
+  it('every push command turns the switch on and no other command does', () => {
+    const isPush = (leaf) =>
+      fullName(leaf).startsWith('frodo config-manager push ');
+    const push = leaves.filter(isPush);
+    const other = leaves.filter((leaf) => !isPush(leaf));
+    expect(push.length).toBeGreaterThan(30);
+    expect(
+      push
+        .filter(
+          (leaf) => leaf.readsProcessEnvironmentForPlaceholders?.() !== true
+        )
+        .map(fullName)
+    ).toEqual([]);
+    expect(
+      other
+        .filter(
+          (leaf) => leaf.readsProcessEnvironmentForPlaceholders?.() === true
+        )
+        .map(fullName)
+    ).toEqual([]);
+  });
+
+  it('a command sets the switch of the library on every call: on for a push command, off for the next command of the process', () => {
+    const push = new FrodoCommand(
+      'frodo zz-push'
+    ).fillsPlaceholdersFromProcessEnvironment();
+    const plain = new FrodoCommand('frodo zz-plain');
+
+    push.handleDefaultArgsAndOpts({}, push);
+    expect(state.getUseProcessEnvironmentForPlaceholders()).toBe(true);
+
+    plain.handleDefaultArgsAndOpts({}, plain);
+    expect(state.getUseProcessEnvironmentForPlaceholders()).toBe(false);
   });
 });
 
@@ -254,7 +310,7 @@ suite('push and pull oauth-issuers against a fake tenant', () => {
     );
 
     it(
-      'does not read the environment variables of the process, as the help says: the push fails, names the placeholder and writes nothing',
+      'fills a placeholder from the environment variable of the process, last',
       async () => {
         const run = await tenant({ oauthIssuers: [] });
         writeIssuer('zion-new', `\${${NAME}}`);
@@ -262,10 +318,50 @@ suite('push and pull oauth-issuers against a fake tenant', () => {
         // the variable is in the environment of the process, and nowhere else
         const { code, output } = await push(run, [], { [NAME]: FROM_ENV });
 
-        expect(code).toBe(1);
-        expect(output).toContain(`No value found for placeholder "${NAME}"`);
-        expect(puts()).toEqual([]);
-        expect(JSON.stringify(requests())).not.toContain(FROM_ENV);
+        expect(output).not.toMatch(/No value found|Error|failed/);
+        expect(code).toBe(0);
+        expect(pushedValues()).toEqual(new Set([FROM_ENV]));
+      },
+      TIMEOUT
+    );
+
+    it(
+      'takes -E before --env-file before the process environment',
+      async () => {
+        const run = await tenant({ oauthIssuers: [] });
+        writeIssuer('zion-new', `\${${NAME}}`);
+        fs.writeFileSync(
+          path.join(work, 'values.env'),
+          `${NAME}=${FROM_FILE}\n`
+        );
+
+        const fileOverEnv = await push(run, ['--env-file', 'values.env'], {
+          [NAME]: FROM_ENV,
+        });
+        expect(fileOverEnv.code).toBe(0);
+        expect(pushedValues()).toEqual(new Set([FROM_FILE]));
+
+        fs.rmSync(record, { force: true });
+        const flagOverBoth = await push(
+          run,
+          ['--env-file', 'values.env', '-E', `${NAME}=${FROM_FLAG}`],
+          { [NAME]: FROM_ENV }
+        );
+        expect(flagOverBoth.code).toBe(0);
+        expect(pushedValues()).toEqual(new Set([FROM_FLAG]));
+      },
+      TIMEOUT
+    );
+
+    it(
+      'never prints the value of a variable of the process',
+      async () => {
+        const run = await tenant({ oauthIssuers: [] });
+        writeIssuer('zion-new', `\${${NAME}}`);
+
+        const { output } = await push(run, ['--verbose'], { [NAME]: FROM_ENV });
+
+        expect(output).not.toContain(FROM_ENV);
       },
       TIMEOUT
     );

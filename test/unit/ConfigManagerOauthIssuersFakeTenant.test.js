@@ -407,6 +407,72 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
     );
 
     it(
+      'says which attribute the server refused, stores the issuer without it and fails the run unless failures are allowed (cli#1338)',
+      async () => {
+        const run = await tenant({ oauthIssuers: ['zion-old'] });
+        issuerFile('alpha', 'zion-old', {
+          ...sparse('zion-old'),
+          zzUnknown: { inherited: false, value: 1 },
+        });
+        issuerFile('alpha', 'zion-new', {
+          ...sparse('zion-new'),
+          zzUnknown: { inherited: false, value: 2 },
+        });
+        issuerFile('alpha', 'zion-whole', sparse('zion-whole'));
+        const push = (...extra) =>
+          run([
+            'config-manager',
+            'push',
+            'oauth-issuers',
+            ...extra,
+            ...target(),
+          ]);
+
+        const failed = await push();
+
+        // the library retried without the attribute, so both issuers are stored; the run says what it left out
+        expect(failed.code).toBe(1);
+        for (const id of ['zion-old', 'zion-new']) {
+          expect(failed.output).toContain(
+            `Trusted JWT issuer '${id}' of realm 'alpha': the server refused the attributes zzUnknown; they were not stored.`
+          );
+          expect(failed.output).toContain(
+            `alpha/${id}: the server refused the attributes zzUnknown; the issuer is stored without them`
+          );
+        }
+        expect(failed.output).toContain('2 of 3 trusted JWT issuers failed');
+        // an issuer that was stored whole is not named
+        expect(failed.output).not.toContain("'zion-whole' of realm");
+        expect(puts().map(idOf)).toContain('zion-whole');
+
+        // the user may allow it: the line is still printed, the exit code is 0
+        const allowed = await push('--allow-failures');
+        expect(allowed.code).toBe(0);
+        expect(allowed.output).toContain(
+          "Trusted JWT issuer 'zion-old' of realm 'alpha': the server refused the attributes zzUnknown"
+        );
+        expect(allowed.output).toContain('The exit code stays 0');
+
+        // what the tenant holds is the file without the attribute (the pull overwrites the file of the working directory, so it comes last)
+        const pulled = await run([
+          'config-manager',
+          'pull',
+          'oauth-issuers',
+          '-n',
+          'zion-old',
+          ...target(),
+        ]);
+        expect(pulled.code).toBe(0);
+        const back = JSON.parse(
+          fs.readFileSync(path.join(issuersOf('alpha'), 'zion-old.json'))
+        );
+        expect(back).not.toHaveProperty('zzUnknown');
+        expect(back.issuer).toEqual(sparse('zion-old').issuer);
+      },
+      TIMEOUT
+    );
+
+    it(
       'fails when a named file is missing, and when the tree has no realms folder',
       async () => {
         const run = await tenant({ oauthIssuers: [] });

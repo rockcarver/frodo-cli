@@ -199,6 +199,8 @@ beforeEach(() => {
     importFails: new Map(),
     importThrows: new Set(),
     updateFails: new Map(),
+    // the attributes that the library leaves out of an issuer, as it tells its caller (frodo-lib#1107)
+    leftOut: new Map(),
   };
   readIssuers.mockReset().mockImplementation(async () => {
     if (world.listFails) throw new FrodoError('cannot list the issuers');
@@ -211,47 +213,59 @@ beforeEach(() => {
   });
   importIssuers
     .mockReset()
-    .mockImplementation(async (importData, options, callback) => {
-      imports.push({ realm: currentRealm, data: structuredClone(importData) });
-      if (world.importThrows.has(currentRealm)) {
+    .mockImplementation(
+      async (importData, options, callback, leftOutCallback) => {
+        imports.push({
+          realm: currentRealm,
+          data: structuredClone(importData),
+        });
+        if (world.importThrows.has(currentRealm)) {
+          throw new FrodoError(
+            `Error importing ${currentRealm} realm trusted issuers`
+          );
+        }
+        const results = [];
+        for (const id of Object.keys(importData.trustedJwtIssuer)) {
+          const message = world.importFails.get(id);
+          if (message) {
+            const error = new FrodoError(
+              `Error importing ${currentRealm} realm trusted issuer ${id}`,
+              new Error(message)
+            );
+            if (callback) callback(error, undefined);
+            else throw error;
+          } else {
+            // the library completes nothing in the answer: it is not what the file said
+            const result = {
+              ...importData.trustedJwtIssuer[id],
+              _id: id,
+              completedByServer: true,
+            };
+            results.push(result);
+            // the library tells its caller about a left-out attribute while it stores the issuer, before it reports the result
+            const left = world.leftOut.get(id);
+            if (left) leftOutCallback?.(id, [...left]);
+            callback?.(undefined, result);
+          }
+        }
+        return results;
+      }
+    );
+  updateIssuer
+    .mockReset()
+    .mockImplementation(async (id, body, leftOutCallback) => {
+      updates.push({ realm: currentRealm, id, body: structuredClone(body) });
+      const failure = world.updateFails.get(id);
+      if (failure) {
         throw new FrodoError(
-          `Error importing ${currentRealm} realm trusted issuers`
+          `Error updating ${currentRealm} realm trusted issuer ${id}`,
+          new Error(failure)
         );
       }
-      const results = [];
-      for (const id of Object.keys(importData.trustedJwtIssuer)) {
-        const message = world.importFails.get(id);
-        if (message) {
-          const error = new FrodoError(
-            `Error importing ${currentRealm} realm trusted issuer ${id}`,
-            new Error(message)
-          );
-          if (callback) callback(error, undefined);
-          else throw error;
-        } else {
-          // the library completes nothing in the answer: it is not what the file said
-          const result = {
-            ...importData.trustedJwtIssuer[id],
-            _id: id,
-            completedByServer: true,
-          };
-          results.push(result);
-          callback?.(undefined, result);
-        }
-      }
-      return results;
+      const left = world.leftOut.get(id);
+      if (left) leftOutCallback?.(id, [...left]);
+      return body;
     });
-  updateIssuer.mockReset().mockImplementation(async (id, body) => {
-    updates.push({ realm: currentRealm, id, body: structuredClone(body) });
-    const failure = world.updateFails.get(id);
-    if (failure) {
-      throw new FrodoError(
-        `Error updating ${currentRealm} realm trusted issuer ${id}`,
-        new Error(failure)
-      );
-    }
-    return body;
-  });
 });
 afterEach(() => {
   fs.rmSync(tmp, { recursive: true, force: true });
@@ -667,5 +681,75 @@ describe('a push never deletes and asks nothing about availability', () => {
       'updateOAuth2TrustedJwtIssuer',
     ]);
     expect(readIssuer).not.toHaveBeenCalled();
+  });
+});
+
+describe('an attribute that the server refused (cli#1338)', () => {
+  const LINE = (id, list, realm = 'alpha') =>
+    `Trusted JWT issuer '${id}' of realm '${realm}': the server refused the attributes ${list}; they were not stored.`;
+
+  test('an issuer that exists and was stored without an attribute is printed with the attribute and is a named failure', async () => {
+    world.issuers.alpha = [{ _id: 'zion-a' }, { _id: 'zion-b' }];
+    writeIssuer('zion-a', 'alpha', { zzUnknown: { value: 1 } });
+    writeIssuer('zion-b');
+    world.leftOut.set('zion-a', ['zzUnknown']);
+
+    expect(await configManagerImportTrustedJwtIssuers()).toBe(false);
+
+    expect(output()).toContain(LINE('zion-a', 'zzUnknown'));
+    expect(output()).toContain('1 of 2 trusted JWT issuers failed');
+    expect(output()).toContain(
+      'alpha/zion-a: the server refused the attributes zzUnknown; the issuer is stored without them'
+    );
+    // the clean issuer is not named
+    expect(output()).not.toContain(LINE('zion-b', ''));
+  });
+
+  test('with failures allowed the line is still printed and the push succeeds', async () => {
+    world.issuers.alpha = [{ _id: 'zion-a' }];
+    writeIssuer('zion-a', 'alpha', { zzUnknown: { value: 1 } });
+    world.leftOut.set('zion-a', ['zzUnknown']);
+
+    expect(
+      await configManagerImportTrustedJwtIssuers(undefined, undefined, true)
+    ).toBe(true);
+
+    expect(output()).toContain(LINE('zion-a', 'zzUnknown'));
+    expect(output()).toContain('zion-a');
+  });
+
+  test('every attribute is named, once, in the order the library reported them', async () => {
+    world.issuers.alpha = [{ _id: 'zion-a' }];
+    writeIssuer('zion-a');
+    world.leftOut.set('zion-a', ['zzOne', 'zzTwo']);
+
+    expect(await configManagerImportTrustedJwtIssuers()).toBe(false);
+
+    expect(output()).toContain(LINE('zion-a', 'zzOne, zzTwo'));
+  });
+
+  test('an issuer that did not exist is reported once although both of its writes left the attribute out', async () => {
+    writeIssuer('zion-new');
+    world.leftOut.set('zion-new', ['zzUnknown']);
+
+    expect(await configManagerImportTrustedJwtIssuers()).toBe(false);
+
+    // the first write and the second write that makes it equal to the file both tell the caller
+    expect(updates.map((u) => u.id)).toEqual(['zion-new']);
+    const lines = printed.filter((line) =>
+      line.includes(LINE('zion-new', 'zzUnknown'))
+    );
+    expect(lines).toHaveLength(1);
+    expect(output()).toContain('1 of 1 trusted JWT issuer failed');
+  });
+
+  test('an issuer that the library stored whole is a success and prints no such line', async () => {
+    world.issuers.alpha = [{ _id: 'zion-a' }];
+    writeIssuer('zion-a');
+
+    expect(await configManagerImportTrustedJwtIssuers()).toBe(true);
+
+    expect(output()).not.toContain('the server refused the attributes');
+    expect(output()).not.toContain('failed');
   });
 });

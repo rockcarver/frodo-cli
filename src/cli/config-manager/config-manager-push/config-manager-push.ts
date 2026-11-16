@@ -1,5 +1,5 @@
 import Test from '../../conn/conn-test';
-import { FrodoStubCommand } from '../../FrodoCommand';
+import { FrodoCommand, FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-push-access-config';
 import Applications from './config-manager-push-applications';
 import Audit from './config-manager-push-audit';
@@ -100,6 +100,17 @@ export default function setup() {
   program.addCommand(AuthzPolicies().name('authz-policies'));
   program.addCommand(Saml().name('saml'));
   program.addCommand(Scripts().name('scripts'));
+
+  // A pipeline hands its values to a push as environment variables (the
+  // convention of fr-config-manager): every push command lets a ${NAME}
+  // placeholder of its files fall back to the process environment, after -E/--env
+  // and --env-file (frodo-lib#1109). The pull commands and every other command
+  // family keep it off.
+  for (const command of program.commands) {
+    if (command instanceof FrodoCommand) {
+      command.fillsPlaceholdersFromProcessEnvironment();
+    }
+  }
 
   return program;
 }
