@@ -920,9 +920,9 @@ describe('push oauth2-agents still handles the other types as before', () => {
  * type, with the real ids and overrides of that file (frodo-cli#1342). What
  * `pull` writes and what `push` sends for each type is pinned here without a
  * tenant and without a recording, so that a change to the generic kind that
- * touches one type shows up as that type's test. The type that has a kind of
- * its own (`TrustedJwtIssuer`) is only asserted to be left alone: the skip is
- * tested above.
+ * touches one type shows up as that type's test. The types that have a kind of
+ * their own (`TrustedJwtIssuer`, `SoftwarePublisher`) are only asserted to be
+ * left alone: the skip is tested above.
  */
 const E2E_INPUT = JSON.parse(
   fs.readFileSync(
@@ -940,9 +940,10 @@ const HANDLED_TYPES = [
   'OAuth2Client',
   'RemoteConsentAgent',
   'SharedAgent',
-  'SoftwarePublisher',
   'WebAgent',
 ];
+/** The types of the e2e input that the generic kind leaves to a kind of their own. */
+const DEDICATED_IN_INPUT = ['SoftwarePublisher', 'TrustedJwtIssuer'];
 const E2E_REALMS = Object.keys(E2E_INPUT); // '/', 'alpha', 'bravo'
 const realmFolder = (realm) => (realm === '/' ? 'root' : realm);
 
@@ -974,11 +975,11 @@ const agentAsRead = (type, id) => ({
   description: { inherited: false, value: `a ${type}` },
 });
 
-test('the e2e input still lists the eight handled types and the one that has a kind of its own, in the three realms', () => {
+test('the e2e input still lists the seven handled types and the two that have a kind of their own, in the three realms', () => {
   expect(E2E_REALMS).toEqual(['/', 'alpha', 'bravo']);
   for (const realm of E2E_REALMS) {
     expect(Object.keys(E2E_INPUT[realm]).sort()).toEqual(
-      [...HANDLED_TYPES, 'TrustedJwtIssuer'].sort()
+      [...HANDLED_TYPES, ...DEDICATED_IN_INPUT].sort()
     );
   }
 });
