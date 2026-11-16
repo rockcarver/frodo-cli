@@ -10,8 +10,12 @@
  * - the type exists on Cloud today and on self-hosted deployments with PingAM 9.0, so every
  *   deployment advertises it in its agent type list and a realm without it is a non-event, not a
  *   failure;
- * - a profile holds no secret: the file is the object as the library lists it (the plain shape, the
- *   one `agent export` and `config export` write too), without `_rev`.
+ * - a profile holds no secret: the file is what a read of the profile by its id answers, without
+ *   `_rev`: the wrapped shape (`{ "inherited": false, "value": ... }` for each property), the one
+ *   `pull oauth2-agents` wrote for this type and `pull oauth-issuers` writes for trusted JWT issuers,
+ *   so that every file under `realms/<realm>/realm-config/agents/**` has one shape. The library's
+ *   list answers the plain shape, so the list only tells which profiles a realm holds; each profile
+ *   is then read once more by its id.
  */
 import {
   frodo,
@@ -59,9 +63,10 @@ export const cimdProfileFilePath = (realm: string, fileName: string): string =>
 /**
  * Export the CIMD profiles of every realm (or one realm, or one profile) as one file per profile.
  * The profiles are listed once per realm, also for a named one, so that a pull with and without
- * `-n` writes the same bytes, the file has the shape of `agent export`, and an id the server holds
- * ignoring case (or with a character outside the basic multilingual plane) is found; the stored
- * id names the file.
+ * `-n` writes the same bytes and an id the server holds ignoring case (or with a character outside
+ * the basic multilingual plane) is found; the stored id names the file. The list answers the plain
+ * shape and the file holds the wrapped one, so each profile is then read by its stored id, with
+ * the generic read of an agent of a type (one request more per profile).
  *
  * A realm or a deployment that does not offer CIMD profiles has nothing to export: it is
  * success, no profile is requested, and (unless `quiet`) one line says so. With a name it fails.
@@ -94,7 +99,13 @@ export async function configManagerExportCIMDProfiles(
           : profiles;
         return selected.map((profile) => ({
           id: profile._id,
-          read: async () => profile as unknown as Record<string, unknown>,
+          // what the server answers for the profile by its id (the wrapped shape); the list item
+          // is the plain shape (frodo-cli#1349)
+          read: async () =>
+            (await frodo.agent.readAgentByTypeAndId(
+              CIMD_PROFILE_AGENT_TYPE,
+              profile._id
+            )) as unknown as Record<string, unknown>,
         }));
       },
     },

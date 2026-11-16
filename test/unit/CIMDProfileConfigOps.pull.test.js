@@ -12,9 +12,11 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager pull oauth-cimd-profiles` (frodo-cli#1247): one file per CIMD
+ * `frodo config-manager pull oauth-cimd-profiles` (frodo-cli#1247, #1349): one file per CIMD
  * profile at `realms/<realm>/realm-config/agents/CIMDProfile/<id>.json`, in the
- * plain shape of the library's list read, without `_rev`, with `${` escaped.
+ * wrapped shape that a read of the profile by its id answers (`{ inherited, value }`
+ * for each property; the library's list answers the plain shape and only tells which
+ * profiles a realm holds), without `_rev`, with `${` escaped.
  *
  * The rules (decision records 0040 and 0041): every profile is one operation of a
  * run that goes on after a failure; a realm or a deployment that does not offer
@@ -72,6 +74,7 @@ function mergeDeep(obj1, obj2) {
 
 const isAvailable = jest.fn();
 const readCIMDProfiles = jest.fn();
+const readAgentByTypeAndId = jest.fn();
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError,
@@ -117,6 +120,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     realm: {
       readRealms: jest.fn(async () => world.realms.map((name) => ({ name }))),
     },
+    agent: { readAgentByTypeAndId },
     oauth2oidc: {
       cimd: {
         isCIMDProfileAvailable: isAvailable,
@@ -165,6 +169,37 @@ const profile = (id, extra = {}) => ({
   ...extra,
 });
 
+/**
+ * A profile as a read by its id answers it: the members of the groups wrapped as `{ inherited, value }`
+ * (a null member as `{ inherited }`), except the members of `overrideOAuth2ClientConfig`, which the
+ * server leaves plain (as in the library's recordings of the server's answer).
+ */
+const wrapped = (item) =>
+  Object.fromEntries(
+    Object.entries(structuredClone(item)).map(([key, value]) => [
+      key,
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      key.endsWith('Config') &&
+      key !== 'overrideOAuth2ClientConfig'
+        ? Object.fromEntries(
+            Object.entries(value).map(([member, memberValue]) => [
+              member,
+              memberValue === null
+                ? { inherited: false }
+                : { inherited: false, value: memberValue },
+            ])
+          )
+        : value,
+    ])
+  );
+/** What the file of a listed profile holds: the by-id answer without `_rev`. */
+const expectedFile = (item) => {
+  const { _rev, ...rest } = wrapped(item);
+  return rest;
+};
+
 const P = (id, realm = 'alpha') => cimdProfileFilePath(realm, id);
 // the name of a file for an id that has a character outside the basic multilingual plane
 const safeName = (id) => id;
@@ -181,6 +216,9 @@ beforeEach(() => {
     offers: new Set(['/', 'alpha', 'bravo']),
     profiles: {},
     listFails: new Set(),
+    // the ids whose read by id fails, and the ids the by-id read does not find
+    readFails: new Set(),
+    readMissing: new Set(),
   };
   isAvailable.mockReset().mockImplementation(async () => {
     return world.offers.has(currentRealm);
@@ -195,6 +233,31 @@ beforeEach(() => {
     return structuredClone(world.profiles[currentRealm] ?? []).sort((a, b) =>
       a._id.localeCompare(b._id)
     );
+  });
+  // the server's read of one profile by its id: ignoring case, wrapped, one request each
+  readAgentByTypeAndId.mockReset().mockImplementation(async (type, id) => {
+    if (type !== 'CIMDProfile' || world.readMissing.has(id)) {
+      throw new FrodoError(
+        `Error reading ${currentRealm} realm agent ${id} of type ${type}`,
+        new Error('the server answered 404')
+      );
+    }
+    if (world.readFails.has(id)) {
+      throw new FrodoError(
+        `Error reading ${currentRealm} realm agent ${id} of type ${type}`,
+        new Error('the server answered 500')
+      );
+    }
+    const found = (world.profiles[currentRealm] ?? []).find(
+      (item) => item._id.toLowerCase() === id.toLowerCase()
+    );
+    if (!found) {
+      throw new FrodoError(
+        `Error reading ${currentRealm} realm agent ${id} of type ${type}`,
+        new Error('the server answered 404')
+      );
+    }
+    return wrapped(found);
   });
 });
 afterEach(() => {
@@ -213,7 +276,7 @@ describe('the file of a CIMD profile', () => {
 });
 
 describe('Cloud: realms alpha and bravo', () => {
-  test('writes one file per profile, the object as listed without _rev and with ${ escaped, and nothing for a realm without profiles', async () => {
+  test('writes one file per profile, the object as a read by id answers it (wrapped) without _rev and with ${ escaped, and nothing for a realm without profiles', async () => {
     world.profiles.alpha = [
       profile('zion-agents', {
         advancedOAuth2ClientConfig: { clientUri: 'https://${HOST}/' },
@@ -225,10 +288,18 @@ describe('Cloud: realms alpha and bravo', () => {
 
     expect(outcome).toBe(true);
     const written = read(P('zion-agents'));
-    const { _rev, ...listed } = profile('zion-agents', {
-      advancedOAuth2ClientConfig: { clientUri: 'https://\\${HOST}/' },
+    expect(written).toEqual(
+      expectedFile(
+        profile('zion-agents', {
+          advancedOAuth2ClientConfig: { clientUri: 'https://\\${HOST}/' },
+        })
+      )
+    );
+    // the wrapped shape: every property of a group is { inherited, value }
+    expect(written.cimdConfig.cimdClientIdUrlPatterns).toEqual({
+      inherited: false,
+      value: ['https://agents.example.com/*'],
     });
-    expect(written).toEqual(listed);
     expect(written).not.toHaveProperty('_rev');
     expect(readRaw(P('zion-agents'))).toContain('https://\\\\${HOST}/');
     expect(exists(P('zion-tools'))).toBe(true);
@@ -237,6 +308,49 @@ describe('Cloud: realms alpha and bravo', () => {
     expect(isAvailable).toHaveBeenCalledTimes(2);
     expect(readCIMDProfiles).toHaveBeenCalledTimes(2);
     expect(output()).not.toContain('No CIMD profiles found.');
+  });
+
+  test('lists once per realm and reads each profile once by its stored id: 1 + N requests for N profiles', async () => {
+    world.profiles.alpha = [profile('zion-b'), profile('Zion-A')];
+    world.profiles.bravo = [profile('zion-c')];
+
+    expect(await configManagerExportCIMDProfiles()).toBe(true);
+
+    expect(readCIMDProfiles).toHaveBeenCalledTimes(2);
+    expect(readAgentByTypeAndId.mock.calls).toEqual([
+      ['CIMDProfile', 'Zion-A'],
+      ['CIMDProfile', 'zion-b'],
+      ['CIMDProfile', 'zion-c'],
+    ]);
+  });
+
+  test('the file is what the read by id answers, not what the list holds', async () => {
+    world.profiles.alpha = [profile('zion-agents')];
+    // the list item is plain; a member only the by-id answer has must be in the file
+    readAgentByTypeAndId.mockImplementation(async () => ({
+      _id: 'zion-agents',
+      _rev: '-9',
+      cimdConfig: {
+        cimdClientIdUrlPatterns: {
+          inherited: false,
+          value: ['https://by-id/*'],
+        },
+      },
+      coreOAuth2ClientConfig: { status: { inherited: false, value: 'Active' } },
+    }));
+
+    expect(await configManagerExportCIMDProfiles()).toBe(true);
+
+    expect(read(P('zion-agents'))).toEqual({
+      _id: 'zion-agents',
+      cimdConfig: {
+        cimdClientIdUrlPatterns: {
+          inherited: false,
+          value: ['https://by-id/*'],
+        },
+      },
+      coreOAuth2ClientConfig: { status: { inherited: false, value: 'Active' } },
+    });
   });
 
   test('says "No CIMD profiles found." once per run, not once per realm', async () => {
@@ -248,7 +362,7 @@ describe('Cloud: realms alpha and bravo', () => {
     ).toHaveLength(1);
   });
 
-  test('a sparse stored profile is written exactly as listed: nothing is added and nothing is padded with null', async () => {
+  test('a sparse stored profile is written exactly as the by-id read answers it: nothing is added and nothing is padded with null', async () => {
     const sparse = {
       _id: 'zion-sparse',
       _rev: '-1',
@@ -259,8 +373,8 @@ describe('Cloud: realms alpha and bravo', () => {
 
     expect(await configManagerExportCIMDProfiles()).toBe(true);
 
-    const { _rev, ...expected } = sparse;
-    expect(read(P('zion-sparse'))).toEqual(expected);
+    expect(read(P('zion-sparse'))).toEqual(expectedFile(sparse));
+    expect(read(P('zion-sparse')).coreOAuth2ClientConfig).toEqual({});
   });
 
   test('adds nothing and masks nothing: a member that looks like a secret is written as listed (the library does not list one)', async () => {
@@ -424,6 +538,66 @@ describe('a failure', () => {
   });
 });
 
+describe('a failure to read a profile by its id', () => {
+  test.each([
+    ['answers 500', 'readFails', 'the server answered 500'],
+    [
+      'finds nothing (the profile was deleted after the list)',
+      'readMissing',
+      'the server answered 404',
+    ],
+  ])(
+    'that %s is one failed operation named realm/id, the other profiles are written, and --allow-failures keeps the exit code at 0',
+    async (_what, set, cause) => {
+      world.profiles.alpha = [profile('zion-a'), profile('zion-b')];
+      world[set].add('zion-a');
+
+      expect(await configManagerExportCIMDProfiles()).toBe(false);
+
+      expect(exists(P('zion-a'))).toBe(false);
+      expect(exists(P('zion-b'))).toBe(true);
+      expect(output()).toContain('1 of 2 CIMD profiles failed');
+      expect(output()).toContain('alpha/zion-a');
+      expect(output()).toContain(cause);
+
+      printed = [];
+      expect(
+        await configManagerExportCIMDProfiles(undefined, undefined, false, true)
+      ).toBe(true);
+      expect(output()).toContain('alpha/zion-a');
+      expect(output()).toContain('The exit code stays 0');
+    }
+  );
+
+  test('of a named profile fails the command whatever --allow-failures says (%s)', async () => {
+    world.profiles.alpha = [profile('zion-a')];
+    world.readFails.add('zion-a');
+
+    expect(
+      await configManagerExportCIMDProfiles('zion-a', 'alpha', false, true)
+    ).toBe(false);
+
+    expect(exists(P('zion-a'))).toBe(false);
+  });
+
+  test('is made with the id exactly as the server stores it, whatever characters it has', async () => {
+    const id = 'Zion Agents [x]|é';
+    world.profiles.alpha = [profile(id)];
+
+    expect(
+      await configManagerExportCIMDProfiles(id.toLowerCase(), 'alpha')
+    ).toBe(true);
+
+    expect(readAgentByTypeAndId.mock.calls).toEqual([['CIMDProfile', id]]);
+    // the name of the file is made safe for a file system; the real id stays inside the file
+    const folder = path.join(tmp, path.dirname(P('x')));
+    const [file] = fs.readdirSync(folder);
+    expect(
+      JSON.parse(fs.readFileSync(path.join(folder, file), 'utf8'))._id
+    ).toBe(id);
+  });
+});
+
 describe('a named profile', () => {
   test('is found ignoring case and the file is named after the STORED id', async () => {
     world.profiles.alpha = [profile('zion-agents'), profile('zion-tools')];
@@ -439,6 +613,11 @@ describe('a named profile', () => {
     ]);
     expect(exists(P('zion-tools'))).toBe(false);
     expect(read(P('zion-agents'))._id).toBe('zion-agents');
+    // one list for the realm, and only the named profile is read, by its stored id (not as it was typed)
+    expect(readCIMDProfiles).toHaveBeenCalledTimes(1);
+    expect(readAgentByTypeAndId.mock.calls).toEqual([
+      ['CIMDProfile', 'zion-agents'],
+    ]);
   });
 
   test('gives the same bytes as the pull without a name (the shape of the list read in both)', async () => {
@@ -567,7 +746,9 @@ describe('the overrides file', () => {
           id: 'zion-agents',
           overrides: {
             cimdConfig: {
-              cimdClientIdUrlPatterns: ['https://${ZION_AGENTS_URL_PATTERN}/*'],
+              cimdClientIdUrlPatterns: {
+                value: ['https://${ZION_AGENTS_URL_PATTERN}/*'],
+              },
             },
           },
         },
@@ -585,13 +766,17 @@ describe('the overrides file', () => {
     ).toBe(true);
 
     expect(read(P('zion-agents')).cimdConfig).toEqual({
-      cimdClientIdUrlPatterns: ['https://${ZION_AGENTS_URL_PATTERN}/*'],
-      cimdSsrfProtectionEnabled: true,
+      cimdClientIdUrlPatterns: {
+        inherited: false,
+        value: ['https://${ZION_AGENTS_URL_PATTERN}/*'],
+      },
+      cimdSsrfProtectionEnabled: { inherited: false, value: true },
     });
     // another profile is not touched
-    expect(read(P('zion-tools')).cimdConfig.cimdClientIdUrlPatterns).toEqual([
-      'https://agents.example.com/*',
-    ]);
+    expect(read(P('zion-tools')).cimdConfig.cimdClientIdUrlPatterns).toEqual({
+      inherited: false,
+      value: ['https://agents.example.com/*'],
+    });
   });
 
   test('replaces an array element by element, as the other kinds do: one element changes only the first pattern', async () => {
@@ -610,7 +795,9 @@ describe('the overrides file', () => {
         {
           id: 'zion-agents',
           overrides: {
-            cimdConfig: { cimdClientIdUrlPatterns: ['https://${HOST}/*'] },
+            cimdConfig: {
+              cimdClientIdUrlPatterns: { value: ['https://${HOST}/*'] },
+            },
           },
         },
       ],
@@ -624,10 +811,11 @@ describe('the overrides file', () => {
       file
     );
 
-    expect(read(P('zion-agents')).cimdConfig.cimdClientIdUrlPatterns).toEqual([
-      'https://${HOST}/*',
-      'https://second.example.com/*',
-    ]);
+    // the property keeps its wrapper: only the value is replaced
+    expect(read(P('zion-agents')).cimdConfig.cimdClientIdUrlPatterns).toEqual({
+      inherited: false,
+      value: ['https://${HOST}/*', 'https://second.example.com/*'],
+    });
   });
 
   test('matches an id ignoring case', async () => {
