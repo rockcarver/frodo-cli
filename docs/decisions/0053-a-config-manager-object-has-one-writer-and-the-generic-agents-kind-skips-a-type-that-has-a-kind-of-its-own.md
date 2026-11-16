@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by 0054
 date: 2026-11-16
 decision-makers: maintainers
 applies-to:
